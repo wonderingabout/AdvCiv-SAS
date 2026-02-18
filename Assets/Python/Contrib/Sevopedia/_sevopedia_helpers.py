@@ -14,6 +14,7 @@ import re
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
+IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
 
 
 
@@ -31,9 +32,6 @@ HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING = 10
 HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING = 4
 # <!-- custom: shared standard height for Sevopedia single-row non-multilist panels. (GPT-5.3-Codex) -->
 NON_MULTILIST_PANEL_STANDARD_HEIGHT = 110
-# <!-- custom: backward-compatibility aliases for existing callers; prefer NON_MULTILIST names in new code. (GPT-5.3-Codex) -->
-HYPOTHESIZED_NORMAL_PANEL_EDGE_PADDING = HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING
-HYPOTHESIZED_NORMAL_PANEL_INTER_BUTTON_SPACING = HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING
 
 
 
@@ -76,12 +74,6 @@ def get_multilist_panel_width_for_buttons(iNumButtons, iButtonSize, iLeftEdgePad
 		raise ValueError("get_multilist_panel_width_for_buttons requires iNumButtons > 0, got %d" % iNumButtons)
 	return (iNumButtons * iButtonSize) + iLeftEdgePadding + iRightEdgePadding + ((iNumButtons - 1) * iInterButtonSpacing)
 
-
-# <!-- custom: shared multilist width used by leader panels in Civic/Religion/Trait.
-# Kept as a compatibility constant; prefer get_multilist_panel_width_for_buttons in callers for easy n-button tuning. (GPT-5.3-Codex) -->
-MULTILIST_PANEL_WIDTH_4_BUTTONS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
-
-
 def get_panel_width_for_buttons(iNumButtons, iButtonSize, iEdgePadding, iInterButtonSpacing):
 	# <!-- custom: width formula for a horizontal single-row button panel:
 	# width = (n * buttonSize) + (2 * edgePadding) + ((n - 1) * interSpacing)
@@ -114,6 +106,7 @@ FAVORITE_LEADER_TYPE_CIVIC = 1
 CHART_TABLE_MARGIN = 4
 CHART_TABLE_ROW_H = 15
 CHART_TABLE_W_ICON = 24
+CHART_TABLE_STYLE = TableStyles.TABLE_STYLE_STANDARD
 # <!-- custom: All known enum prefixes to strip. Grouped here for simplicity across all charts. -->
 CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WORLDSIZE_")
 # <!-- custom: # Stable icon sorting (fixes "emoji order changes / ties shuffle")
@@ -127,9 +120,6 @@ CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WO
 # Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
 # and safe to include in Civ4's UI strings. (GPT-5.2-Codex + ChatGPT-5.2 Thinking) -->
 CHART_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
-
-
-
 def get_leaders_index_to_type_map():
 	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
 	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
@@ -514,6 +504,76 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 	if len(out) == 0:
 		return none_text
 	return ", ".join(out)
+
+
+def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
+	if not IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE:
+		return ""
+
+	chart_log_button_w = 48
+	chart_log_button_h = 28
+	chart_log_button_margin_x = 10
+	chart_log_button_margin_y = 8
+	chart_log_button_footer_bottom_padding = 9
+
+	widget = top.getNextWidgetName()
+	label = u"<font=2>" + localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ()).upper() + u"</font>"
+	if xPos is None:
+		if hasattr(top, "X_EXIT"):
+			xPos = top.X_EXIT - chart_log_button_w - 90
+		else:
+			xPos = x + w - chart_log_button_w - chart_log_button_margin_x
+	if yPos is None:
+		if hasattr(top, "Y_BOT_PANEL") and hasattr(top, "H_BOT_PANEL"):
+			yPos = top.Y_BOT_PANEL + top.H_BOT_PANEL - chart_log_button_h - chart_log_button_footer_bottom_padding
+		else:
+			yPos = y + chart_log_button_margin_y
+	# <!-- custom: use WIDGET_PYTHON + data1 routing for chart log clicks because function-name matching can fail on generated widget IDs in Sevopedia; this mirrors the robust Music/Movie click pattern in SevoPediaMain.handleInput. (GPT-5.3-Codex) -->
+	if hasattr(top, "SAS_PEDIA_PYTHON_CHART_LOG"):
+		screen.setButtonGFC(widget, label, "", xPos, yPos, chart_log_button_w, chart_log_button_h, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_CHART_LOG, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+	else:
+		screen.setButtonGFC(widget, label, "", xPos, yPos, chart_log_button_w, chart_log_button_h, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+	return widget
+
+
+def chart_dump_table_csv(log_tag, table_data):
+	if not table_data:
+		print("%s_BEGIN" % log_tag)
+		print("%s_EMPTY" % log_tag)
+		print("%s_END" % log_tag)
+		return
+
+	print("%s_BEGIN" % log_tag)
+	for row in table_data:
+		cells = []
+		for cell in row:
+			cells.append(_chart_to_csv_cell(_chart_clean_cell_text(cell)))
+		print(u",".join(cells).encode("latin-1", "replace"))
+	print("%s_END" % log_tag)
+
+
+def _chart_clean_cell_text(cell):
+	if isinstance(cell, tuple):
+		text = cell[0]
+	else:
+		text = cell
+	if text is None:
+		text = u""
+	text = unicode(text)  # noqa: F821
+	text = re.sub(r"</?font[^>]*>", u"", text)
+	text = re.sub(r"</?color[^>]*>", u"", text)
+	for digit in CHART_SORT_DIGITS:
+		text = text.replace(digit, u"")
+	text = text.replace(u"\r", u" ").replace(u"\n", u" ")
+	return text.strip()
+
+
+def _chart_to_csv_cell(text):
+	if text.find(u'"') != -1:
+		text = text.replace(u'"', u'""')
+	if text.find(u",") != -1 or text.find(u'"') != -1 or text.find(u"\n") != -1:
+		return '"' + text + '"'
+	return text
 
 
 

@@ -133,6 +133,10 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
 
 ### Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)
 
+Also added a new "LOG" buttonto print to `PythonDbg.log` the tables output, and this is done to other charts too.
+
+Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor) we added in AdvCiv-SAS.
+
 #### example 0.5: Handicap Chart category
 
 New Sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
@@ -158,6 +162,10 @@ Especially useful to see the full calendar/timeline info in compact rows such as
 Note: computed or manually added fields such as `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro), that don't exist in XML are provided for convenience. They are marked with an `*` at the end of the field name to help distinguish them from regular XML info fields.
 
 Note 2 : similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+
+Since then, we notably also added in game speeds chart extra analysis rows like `Summary 08 (40%)` with values like `T200=+1400 (120)`, or `Increments Years 02` with values like `750, 500, 250`, or `Increments Months 02` with values like `9000, 6000, 3000`, with the very nice help of GPT-5.3-Codex and claude code Opus 4.6.
+
+Also added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning. See also [/LLM_Helpers/](/LLM_Helpers/).
 
 <img src="../Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG" alt="0.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>

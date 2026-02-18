@@ -5,8 +5,8 @@
 <!-- -->
 <!-- Game Speed -->
 <!-- NOTE: If you remove any of these you need to update GameInfo/CultureLevelInfos.xml. Also you will need to update the GlobalDefines.xml if you remove GAMESPEED_STANDARD -->
-<!-- custom: Long_Comments_XML.txt #138 -->
-<!-- custom: note to agents: if you want to modify this file, please also read the Long Comments mentioned here, as they should provide useful design information. Removed for concision from this doc. -->
+<!-- custom: Long_Comments_XML.txt #138, #358 -->
+<!-- custom: note to agents: if you want to modify this file, read the Long Comments referenced above first; they contain key design rationale used by the timelines below. Removed here for concision. -->
 <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<GameSpeedInfos>
 
@@ -67,57 +67,39 @@
 			<iEventRollSidesPercent>60</iEventRollSidesPercent>
 			<iVoteIntervalPercent>33</iVoteIntervalPercent>
 
-			<!-- NITRO (165 turns). Clean integer years/turn throughout (>=1y). End year 2105 preserved. -->
+			<!-- custom: NITRO (165 turns). Exact 2:1 compression of QUICK: pair each 2 consecutive Quick turns into 1 Nitro turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Quick at all 5% checkpoints to within ±45y (idx 3-20), ±750y prehistoric. End year 2105. (Claude Opus 4.6) -->
 			<GameTurnInfos>
-				<!-- -50,000 to -30,000 (20,000y) -> 2 turns @ 10,000 y/turn (120,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -30,000 to -20,000 (10,000y) -> 2 turns @ 5,000 y/turn (60,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -20,000 to -15,000 (5,000y) -> 2 turns @ 2,500 y/turn (30,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -15,000 to -12,000 (3,000y) -> 2 turns @ 1,500 y/turn (18,000 mo/turn) -->
+				<!-- -50,000 to -7,250: prehistoric (9 turns) -->
+				<GameTurnInfo><iMonthIncrement>108000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>36000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>21000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -12,000 to -7,500 (4,500y) -> 3 turns @ 1,500 y/turn (18,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -7,500 to -4,500 (3,000y) -> 2 turns @ 1,500 y/turn (18,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -4,500 to -3,000 (1,500y) -> 2 turns @ 750 y/turn (9,000 mo/turn) -->
+				<!-- -7,250 to -2,810: ancient (8 turns) -->
+				<GameTurnInfo><iMonthIncrement>13500</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -3,000 to -2,200 (800y) -> 2 turns @ 400 y/turn (4,800 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>4800</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -2,200 to -1,480 (720y) -> 4 turns @ 180 y/turn (2,160 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,480 to -1,000 (480y) -> 6 turns @ 80 y/turn (960 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -1,000 to 500 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 500 to 1500 (1,000y) -> 40 turns @ 25 y/turn (300 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1500 to 1750 (250y) -> 10 turns @ 25 y/turn (300 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1750 to 1790 (40y) -> 4 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1790 to 1880 (90y) -> 9 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1880 to 1900 (20y) -> 2 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1900 to 1980 (80y) -> 8 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1980 to 1990 (10y) -> 1 turn @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1990 to 2040 (50y) -> 5 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2040 to 2070 (30y) -> 3 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2070 to 2080 (10y) -> 1 turn @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2080 to 2105 (25y) -> 5 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6420</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3840</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -2,810 to +625: classical-medieval (34 turns) -->
+				<GameTurnInfo><iMonthIncrement>1440</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>1260</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>1080</iMonthIncrement><iTurnsPerIncrement>21</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +625 to +1,315: late medieval to renaissance (12 turns) -->
+				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,315 to +1,755: early modern (19 turns) -->
+				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,755 to +1,963: industrial (26 turns @ 8y/turn) -->
+				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>26</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,963 to +2,043: modern (20 turns @ 4y/turn) -->
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +2,043 to +2,105: contemporary (31 turns @ 2y/turn) -->
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>31</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
 
@@ -179,57 +161,37 @@
 			<iEventRollSidesPercent>70</iEventRollSidesPercent>
 			<iVoteIntervalPercent>50</iVoteIntervalPercent>
 
-			<!-- TURBO (250 turns). Clean integer years/turn throughout (>=1y). End year 2105 preserved. -->
+			<!-- custom: TURBO (250 turns). Exact 2:1 compression of NORMAL: pair each 2 consecutive Normal turns into 1 Turbo turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Normal at all 5% checkpoints. End year 2105. (Claude Opus 4.6) -->
 			<GameTurnInfos>
-				<!-- -50,000 to -30,000 (20,000y) -> 2 turns @ 10,000 y/turn (120,000 mo/turn) -->
+				<!-- -50,000 to -7,500: prehistoric (13 turns) -->
 				<GameTurnInfo><iMonthIncrement>120000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -30,000 to -20,000 (10,000y) -> 1 turn @ 10,000 y/turn (120,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -20,000 to -15,000 (5,000y) -> 2 turns @ 2,500 y/turn (30,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -15,000 to -12,000 (3,000y) -> 2 turns @ 1,500 y/turn (18,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -12,000 to -7,500 (4,500y) -> 3 turns @ 1,500 y/turn (18,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -7,500 to -4,500 (3,000y) -> 4 turns @ 750 y/turn (9,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -4,500 to -3,000 (1,500y) -> 3 turns @ 500 y/turn (6,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -3,000 to -2,200 (800y) -> 4 turns @ 200 y/turn (2,400 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -2,200 to -1,480 (720y) -> 8 turns @ 90 y/turn (1,080 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>1080</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,480 to -1,000 (480y) -> 15 turns @ 32 y/turn (384 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>384</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -1,000 to 500 (1,500y) -> 60 turns @ 25 y/turn (300 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 500 to 1500 (1,000y) -> 50 turns @ 20 y/turn (240 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1500 to 1750 (250y) -> 25 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1750 to 1790 (40y) -> 8 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1790 to 1880 (90y) -> 18 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1880 to 1900 (20y) -> 4 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1900 to 1980 (80y) -> 16 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1980 to 1990 (10y) -> 2 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1990 to 2040 (50y) -> 10 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2040 to 2070 (30y) -> 6 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2070 to 2080 (10y) -> 2 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2080 to 2105 (25y) -> 5 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>24000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>21000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -7,500 to -3,000: ancient (12 turns) -->
+				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -3,000 to -1,480: classical (17 turns) -->
+				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>960</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -1,480 to +1,300: medieval (53 turns) -->
+				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>33</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,300 to +1,750: renaissance (30 turns) -->
+				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,750 to +1,880: early modern (20 turns) -->
+				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,880 to +1,980: industrial (25 turns @ 4y/turn) -->
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,980 to +2,070: modern (45 turns @ 2y/turn) -->
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +2,070 to +2,105: contemporary (35 turns @ 1y/turn) -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
 
@@ -285,56 +247,36 @@
 			<iVoteIntervalPercent>67</iVoteIntervalPercent>
 			<!-- advc.252: end -->
 			<!-- custom: Long_Comments_XML.txt #319 -->
-			<!-- QUICK (330 turns). All month increments are multiples of 12. Years/turn never increase over time. -->
+			<!-- custom: QUICK (330 turns). Keep cleaner Normal-like bands and avoid early sub-year tails by using whole-year-friendly 360/240 instead of 320 in the mid band; compensate late with a tiny 48->12 shift to keep endpoint pacing stable. (GPT-5.3-Codex) -->
 			<GameTurnInfos>
-				<!-- -50,000 to -30,000 (20,000y) → 5 turns @ 4,000 y/turn (48,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>48000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -30,000 to -20,000 (10,000y) → 4 turns @ 2,500 y/turn (30,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -20,000 to -15,000 (5,000y) → 4 turns @ 1,250 y/turn (15,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -15,000 to -12,000 (3,000y) → 3 turns @ 1,000 y/turn (12,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>3</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -12,000 to -7,500 (4,500y) → 6 turns @ 750 y/turn (9,000 mo/turn) -->
+				<GameTurnInfo><iMonthIncrement>54000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -7,500 to -4,500 (3,000y) → 8 turns @ 375 y/turn (4,500 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>4500</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -4,500 to -3,000 (1,500y) → 10 turns @ 150 y/turn (1,800 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -3,000 to -2,200 (800y) → 16 turns @ 50 y/turn (600 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -2,200 to -1,480 (720y) → 24 turns @ 30 y/turn (360 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,480 to -1,000 (480y) → 20 turns @ 24 y/turn (288 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>288</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -1,000 to 500 (1,500y) → 30 turns @ 50 y/turn (600 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 500 to 1500 (1,000y) → 25 turns @ 40 y/turn (480 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1500 to 1750 (250y) → 25 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1750 to 1790 (40y) → 10 turns @ 4 y/turn (48 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1790 to 1880 (90y) → 15 turns @ 6 y/turn (72 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1880 to 1900 (20y) → 10 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1900 to 1980 (80y) → 40 turns @ 2 y/turn (24 mo/turn) -->
+				<GameTurnInfo><iMonthIncrement>4500</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>1920</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
+				<!-- custom: reshape the 600-year plateau into 720/480 (same total months, same turns) to speed up summary 03/04 drift without moving the final endpoint. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>540</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>420</iMonthIncrement><iTurnsPerIncrement>2</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>22</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>14</iTurnsPerIncrement></GameTurnInfo>
+				<!-- custom: +1 year endpoint correction without adding turns: convert one late 48-month turn into 60 months. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<!-- custom: compensate the stronger 07 nerf in the late tail (48->24->12), keeping monotonic order and total months unchanged. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1980 to 1990 (10y) → 5 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1990 to 2040 (50y) → 25 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2040 to 2070 (30y) → 15 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2070 to 2080 (10y) → 5 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2080 to 2105 (25y) → 25 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>62</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
 
@@ -488,57 +430,49 @@
 			<!-- advc.252: start -->
 			<iEventRollSidesPercent>125</iEventRollSidesPercent>
 			<iVoteIntervalPercent>150</iVoteIntervalPercent>
-			<!-- custom: new timeline with the help of chatgpt 5 thanks replaces the old one entirely; Long_Comments_XML.txt #320 -->
-			<!-- EPIC (750 turns). Early steps mirror Normal (fast fade), all ≥1y steps are integers, months/turn are multiples of 12. Only the last two bands use 0.5y/turn (6 months). Total = 750 turns. -->
+			<!-- custom: timeline rebalanced by Claude Opus 4.6; Long_Comments_XML.txt #320 -->
+			<!-- custom: EPIC (750 turns). Finer early increments than Normal to track Normal's % milestones. All >=1y steps are whole years (div 12). Non-increasing. End year 2105. (Claude Opus 4.6 v4) -->
 			<GameTurnInfos>
-				<!-- -50,000 to -30,000 (20,000y) → 4 turns @ 5,000 y/turn (60,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -30,000 to -20,000 (10,000y) → 4 turns @ 2,500 y/turn (30,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>30000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -20,000 to -15,000 (5,000y) → 5 turns @ 1,000 y/turn (12,000 mo/turn) -->
+				<!-- -50,000 to -8,500: prehistoric (37 turns, finer ladder than Normal) -->
+				<GameTurnInfo><iMonthIncrement>36000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>18000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -15,000 to -12,000 (3,000y) → 4 turns @ 750 y/turn (9,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -12,000 to -7,500 (4,500y) → 9 turns @ 500 y/turn (6,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>9</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -7,500 to -4,500 (3,000y) → 12 turns @ 250 y/turn (3,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -4,500 to -3,000 (1,500y) → 12 turns @ 125 y/turn (1,500 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- -3,000 to -2,200 (800y) → 20 turns @ 40 y/turn (480 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -2,200 to -1,480 (720y) → 48 turns @ 15 y/turn (180 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,480 to -1,000 (480y) → 32 turns @ 15 y/turn (180 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>32</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -8,500 to -2,900: ancient (38 turns) -->
+				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- -1,000 to 500 (1,500y) → 100 turns @ 15 y/turn (180 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 500 to 1500 (1,000y) → 125 turns @ 8 y/turn (96 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>125</iTurnsPerIncrement></GameTurnInfo>
+				<!-- -2,900 to -1,900: classical transition (30 turns) -->
+				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- 1500 to 1750 (250y) → 50 turns @ 5 y/turn (60 mo/turn) -->
+				<!-- -1,900 to +780: medieval (134 turns @ 20y/turn) -->
+				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>134</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- +780 to +1,410: late medieval to renaissance (63 turns @ 10y/turn) -->
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>67</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- +1,410 to +1,800: early modern -->
 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1750 to 1790 (40y) → 20 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1790 to 1880 (90y) → 45 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1880 to 1900 (20y) → 20 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- 1900 to 1980 (80y) → 80 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1980 to 1990 (10y) → 10 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1990 to 2040 (50y) → 50 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2040 to 2070 (30y) → 30 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2070 to 2080 (10y) → 20 turns @ 0.5 y/turn (6 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2080 to 2105 (25y) → 50 turns @ 0.5 y/turn (6 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+				<!-- +1,800 to +1,850: modern transition -->
+				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>34</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>46</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- +1,850 to +2,010: industrial to modern -->
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>130</iTurnsPerIncrement></GameTurnInfo>
+
+				<!-- +2,010 to +2,105: contemporary -->
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>140</iTurnsPerIncrement></GameTurnInfo>
+				<!-- custom: shift a small late chunk to m3 to offset the extra m12 pace and keep Epic ending at 2105 while improving idx16+ alignment. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>44</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 			<!-- custom: old base advciv code comments kept for reference or info but this is a new timeline based as of now on the new gamespeed_normal one in our mod -->
 			<!-- advc.252: end -->
@@ -623,52 +557,42 @@
 			<!-- custom: not sure if we should change it too much but aim for exact double just in case, was 250 -->
 			<iVoteIntervalPercent>200</iVoteIntervalPercent>
 			<!-- custom: Long_Comments_XML.txt #321 -->
-			<!-- MARATHON (1000 turns) — clean integers for years/turn; sub-year = 6 months only -->
 			<GameTurnInfos>
-				<!-- -50,000 to -30,000 (20,000y) — 2,000y/turn (24,000m), 10 turns -->
 				<GameTurnInfo><iMonthIncrement>24000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -30,000 to -20,000 (10,000y) — 1,000y/turn (12,000m), 10 turns -->
 				<GameTurnInfo><iMonthIncrement>12000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -20,000 to -15,000 (5,000y) — 500y/turn (6,000m), 10 turns -->
-				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -15,000 to -12,000 (3,000y) — 300y/turn (3,600m), 10 turns -->
+				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -12,000 to -7,500 (4,500y) — 150y/turn (1,800m), 30 turns -->
 				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -7,500 to -4,500 (3,000y) — 100y/turn (1,200m), 30 turns -->
-				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -4,500 to -3,000 (1,500y) — 100y/turn (1,200m), 15 turns -->
-				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -3,000 to -2,200 (800y) — 20y/turn (240m), 40 turns -->
-				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -2,200 to -1,480 (720y) — 15y/turn (180m), 48 turns -->
-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,480 to -1,000 (480y) — 15y/turn (180m), 32 turns -->
-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>32</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,000 to 500 (1,500y) — 15y/turn (180m), 100 turns -->
-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 500 to 1500 (1,000y) — 5y/turn (60m), 200 turns -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1500 to 1750 (250y) — 5y/turn (60m), 50 turns -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1750 to 1790 (40y) — 2y/turn (24m), 20 turns -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1790 to 1880 (90y) — 2y/turn (24m), 45 turns -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>45</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1880 to 1900 (20y) — 1y/turn (12m), 20 turns -->
+				<GameTurnInfo><iMonthIncrement>840</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<!-- custom: keep the early-mid Marathon ladder readable (60 -> 30 -> 25 -> 20 -> 18) while preserving total months. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>23</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>216</iMonthIncrement><iTurnsPerIncrement>17</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>192</iMonthIncrement><iTurnsPerIncrement>28</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>66</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>63</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>14</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>13</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>55</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>15</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1900 to 1980 (80y) — 1y/turn (12m), 80 turns -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1980 to 1990 (10y) — 0.5y/turn (6m), 20 turns -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1990 to 2040 (50y) — 0.5y/turn (6m), 100 turns -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2040 to 2070 (30y) — 0.5y/turn (6m), 60 turns -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2070 to 2080 (10y) — 0.5y/turn (6m), 20 turns -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2080 to 2105 (25y) — 0.5y/turn (6m), 50 turns -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>5</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 			<!-- advc.252: end -->
 		</GameSpeedInfo>
@@ -699,7 +623,7 @@
 			<iUnitGreatWorkPercent>300</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>300</iGoldenAgePercent>
 
-			<!-- Keep hurry “inverse-scaled” like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
 			<iHurryPercent>33</iHurryPercent>
 
 			<iHurryConscriptAngerPercent>300</iHurryConscriptAngerPercent>
@@ -726,62 +650,53 @@
 			<iVoteIntervalPercent>300</iVoteIntervalPercent>
 
 			<GameTurnInfos>
-				<!-- -50,000 to -30,000 (20,000y) -> 16 turns @ 1,250 y/turn (15,000 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -30,000 to -20,000 (10,000y) -> 16 turns @ 625 y/turn (7,500 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -20,000 to -15,000 (5,000y) -> 20 turns @ 250 y/turn (3,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -15,000 to -12,000 (3,000y) -> 12 turns @ 250 y/turn (3,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<!-- custom: smooth the early-mid curve with intermediate bands to avoid a hard cliff, while keeping total turns stable (Normal remains the checkpoint reference).
+				     Prefer round, human-readable year bands where possible (e.g. 250/200/150/75/40/30/15 years) and use finer odd bands only when strictly needed. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- -12,000 to -7,500 (4,500y) -> 25 turns @ 180 y/turn (2,160 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -7,500 to -4,500 (3,000y) -> 40 turns @ 75 y/turn (900 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -4,500 to -3,000 (1,500y) -> 30 turns @ 50 y/turn (600 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>14</iTurnsPerIncrement></GameTurnInfo>
+				<!-- custom: hold 75 years/turn longer before dropping to 60 to avoid a tiny 75 -> 70 step. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- -3,000 to -2,200 (800y) -> 40 turns @ 20 y/turn (240 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -2,200 to -1,480 (720y) -> 48 turns @ 15 y/turn (180 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,480 to -1,000 (480y) -> 48 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>195</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>91</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>55</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- -1,000 to 500 (1,500y) -> 150 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 500 to 1,300 (800y) -> 160 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,300 to 1,400 (100y) -> 20 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,400 to 1,600 (200y) -> 40 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>69</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- 1,600 to 1,750 (150y) -> 75 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>75</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,750 to 1,790 (40y) -> 20 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>71</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- 1,790 to 1,880 (90y) -> 90 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,880 to 1,900 (20y) -> 20 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,900 to 1,980 (80y) -> 80 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- 1,980 to 1,990 (10y) -> 20 turns @ 0.5 y/turn (6 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>17</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>84</iTurnsPerIncrement></GameTurnInfo>
 
-				<!-- 1,990 to 2,040 (50y) -> 200 turns @ 0.25 y/turn (3 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2,040 to 2,070 (30y) -> 120 turns @ 0.25 y/turn (3 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 2,070 to 2,080 (10y) -> 60 turns @ 0.167 y/turn (2 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2,080 to 2,105 (25y) -> 150 turns @ 0.167 y/turn (2 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>82</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>43</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>48</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>33</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>51</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>96</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
 
@@ -812,7 +727,7 @@
 			<iUnitGreatWorkPercent>400</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>400</iGoldenAgePercent>
 
-			<!-- Keep hurry “inverse-scaled” like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
 			<iHurryPercent>25</iHurryPercent>
 
 			<iHurryConscriptAngerPercent>400</iHurryConscriptAngerPercent>
@@ -840,69 +755,48 @@
 			<iVoteIntervalPercent>400</iVoteIntervalPercent>
 
 			<GameTurnInfos>
-				<!-- custom: prefer round whole-year increments (multiple of 12 months) in early/mid game; months are used mainly late-game for fine granularity. -->
-
-				<!-- -50,000 to -30,000 (20,000y) -> 16 turns @ 1,250 y/turn (15,000 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -30,000 to -20,000 (10,000y) -> 16 turns @ 625 y/turn (7,500 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -20,000 to -15,000 (5,000y) -> 20 turns @ 250 y/turn (3,000 mo/turn) -->
+				<GameTurnInfo><iMonthIncrement>13500</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -15,000 to -12,000 (3,000y) -> 20 turns @ 150 y/turn (1,800 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -12,000 to -7,500 (4,500y) -> 36 turns @ 125 y/turn (1,500 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>36</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -7,500 to -4,500 (3,000y) -> 50 turns @ 60 y/turn (720 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -4,500 to -3,000 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -3,000 to -2,200 (800y) -> 80 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -2,200 to -1,480 (720y) -> 72 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
-				<!-- -1,480 to -1,000 (480y) -> 60 turns @ 8 y/turn (96 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- -1,000 to 500 (1,500y) -> 150 turns @ 10 y/turn (120 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 500 to 1,300 (800y) -> 160 turns @ 5 y/turn (60 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1,300 to 1,400 (100y) -> 50 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,400 to 1,600 (200y) -> 100 turns @ 2 y/turn (24 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1,600 to 1,750 (150y) -> 150 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>150</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,750 to 1,790 (40y) -> 40 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,790 to 1,880 (90y) -> 90 turns @ 1 y/turn (12 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>90</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1,880 to 1,900 (20y) -> 40 turns @ 0.5 y/turn (6 mo/turn) -->
+				<!-- custom: same smoothing philosophy as Marathon/Slow: prefer round-ish bands and gradual transitions before fine month-phase tuning.
+				     For slower speeds we allow more intermediate bands than Normal, but still keep them monotonic and readable for players. (GPT-5.3-Codex) -->
+				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>720</iMonthIncrement><iTurnsPerIncrement>22</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>22</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>168</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>144</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>132</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>108</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>56</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>96</iMonthIncrement><iTurnsPerIncrement>66</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>84</iMonthIncrement><iTurnsPerIncrement>52</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>84</iMonthIncrement><iTurnsPerIncrement>66</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>126</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>28</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>24</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>84</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>110</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>70</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,900 to 1,980 (80y) -> 160 turns @ 0.5 y/turn (6 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 1,980 to 1,990 (10y) -> 40 turns @ 0.25 y/turn (3 mo/turn) -->
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>60</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>160</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 1,990 to 2,040 (50y) -> 200 turns @ 0.25 y/turn (3 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>200</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2,040 to 2,070 (30y) -> 120 turns @ 0.25 y/turn (3 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>3</iMonthIncrement><iTurnsPerIncrement>120</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- custom: normal would imply 1.5 mo/turn here; we split into 2 mo + 1 mo rows to keep integer month increments. -->
-				<!-- 2,070 to 2,076 (+6y8m) -> 40 turns @ 0.167 y/turn (2 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2,076 (+8m) to 2,080 -> 40 turns @ 0.083 y/turn (1 mo/turn) -->
+				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-
-				<!-- 2,080 to 2,096 (+16y8m) -> 100 turns @ 0.167 y/turn (2 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
-				<!-- 2,096 (+8m) to 2,105 -> 100 turns @ 0.083 y/turn (1 mo/turn) -->
-				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>100</iTurnsPerIncrement></GameTurnInfo>
+				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
 

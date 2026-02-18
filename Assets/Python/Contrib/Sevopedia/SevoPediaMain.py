@@ -111,6 +111,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_PYTHON_MOVIE_PLAY = 6801
 		self.SAS_PEDIA_PYTHON_MUSIC_ENTRY = 6802
 		self.SAS_PEDIA_PYTHON_MUSIC_PLAY = 6803
+		self.SAS_PEDIA_PYTHON_CHART_LOG = 6804
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -2004,6 +2005,22 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Forward to leader page (existing behavior).
 		if (inputClass.getPythonFile() == SevoScreenEnums.PEDIA_LEADERS):
 			return self.pediaLeader.handleInput(inputClass)
+		if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
+			iHandled = self.pediaHandicapChart.handleInput(inputClass)
+			if iHandled:
+				return iHandled
+		if self.iCategory == SevoScreenEnums.PEDIA_GAME_SPEED_CHART:
+			iHandled = self.pediaGameSpeedChart.handleInput(inputClass)
+			if iHandled:
+				return iHandled
+		if self.iCategory == SevoScreenEnums.PEDIA_WORLD_SIZE_CHART:
+			iHandled = self.pediaWorldSizeChart.handleInput(inputClass)
+			if iHandled:
+				return iHandled
+		if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
+			iHandled = self.pediaEraChart.handleInput(inputClass)
+			if iHandled:
+				return iHandled
 
 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 		# Index has its own input (existing behavior).
@@ -2135,6 +2152,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iData1 == self.SAS_PEDIA_PYTHON_MUSIC_PLAY:
 				self.pediaMusic.playMusic(iData2)
 				return 1
+			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
+				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
+					self.pediaHandicapChart.dumpCsvLog()
+					return 1
+				if self.iCategory == SevoScreenEnums.PEDIA_GAME_SPEED_CHART:
+					self.pediaGameSpeedChart.dumpCsvLog()
+					return 1
+				if self.iCategory == SevoScreenEnums.PEDIA_WORLD_SIZE_CHART:
+					self.pediaWorldSizeChart.dumpCsvLog()
+					return 1
+				if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
+					self.pediaEraChart.dumpCsvLog()
+					return 1
 
 		return 0
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->

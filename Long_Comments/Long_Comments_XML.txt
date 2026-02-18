@@ -4823,3 +4823,22 @@ change from (translate to english with web browser or such) https://gforestshade
      IMPORTANT: the order of <Size> entries must match the WorldInfo order; if you reorder
      CIV4WorldInfo.xml (e.g. to keep Arena first in the world-size list), reorder <Sizes> too. (ChatGPT-5.2 Thinking) -->
 <!-- custom: WorldPickerInfo blocks are kept alphabetical for file clarity, but this does not control full in-game map ordering (e.g. non-PrivateMaps entries). Keep DefaultWorldPicker as the first block so unknown/unmapped scripts fall back to the dark globe instead of bright decals. (GPT-5.3-Codex) -->
+
+===== /Assets/XML/GameInfo/CIV4GameSpeedInfo.xml =====
+----- Comment #358 -----
+
+<!-- custom: timeline rebalance guidelines (shared by Marathon/Slow/Very Slow). (GPT-5.3-Codex) -->
+<!-- custom: 0) Normal is the style baseline: big round year-steps first (5k/2.5k/1k/750/500/250/125 ...), then smaller whole-year bands, and only a late month-phase (m6) near the end. (GPT-5.3-Codex) -->
+<!-- custom: 0b) This creates an immersive, natural-feeling calendar instead of noisy precision early on. (GPT-5.3-Codex) -->
+<!-- custom: 1) Before entering the sub-year phase (<= 12 months/turn), increments should stay divisible by 12 so checkpoint dates remain on whole years; e.g. 60 is valid (5 years/turn), because 60 % 12 == 0. (GPT-5.3-Codex) -->
+<!-- custom: 2) Prefer round, human-readable year bands first (e.g. 2000, 1000, 500, 300, 150, 75, 60, 40, 20, 10), then finer odd-year tuning only when necessary. (GPT-5.3-Codex) -->
+<!-- custom: 3) When using 5-based year steps (e.g. 75/25/15/5), prefer even turn counts or matching follow-up bands so boundary years still land on clean trailing digits (..0/..5), avoiding ugly drift patterns like ..5 -> ..3 -> ..1 -> ..9. (GPT-5.3-Codex) -->
+<!-- custom: 4) Avoid yo-yo sequences (e.g. 2->1->2->1) and abrupt cliffs by adding intermediate steps when needed so the curve feels gradual to players. (GPT-5.3-Codex) -->
+<!-- custom: 5) Target close-enough alignment to Normal, not exact matching, when exactness conflicts with cleaner/natural-looking progression. (GPT-5.3-Codex) -->
+<!-- custom: 6) For slower speeds, choose a readable increment ladder first (e.g. 3000/2400/1800/1200/900/600/480/360/240/180/144/120/96/84/72/60...), then tune counts; avoid hard drops like ~3000 -> 360 without intermediate bands. (GPT-5.3-Codex) -->
+<!-- custom: 7) If one increment band consumes too much of the timeline, split it into smaller adjacent bands (e.g. 360 -> 240 -> 120 instead of a long 360 block) to improve pacing control and avoid late overcorrection. (GPT-5.3-Codex) -->
+<!-- custom: 8) When a band overshoots/overcompensates, redistribute excess to nearby bands instead of forcing distant corrections (e.g. reduce 360 turns and increase 240 turns, or vice versa), so pacing stays local and smooth. (GPT-5.3-Codex) -->
+<!-- custom: 9) Outside Normal, exact "beautiful key dates" (e.g. precise 1400/1900 anchors) are a soft preference, not a hard rule; prioritize close pace and readable enough increments. (GPT-5.3-Codex) -->
+<!-- custom: 10) Prefer swap-friendly neighboring increments when practical (e.g. 120<->60, 12<->6, 3<->1) because integer redistribution is easier and cleaner (1x120 = 2x60, 1x3 = 3x1), which helps absorb local overshoot without yo-yo. (GPT-5.3-Codex) -->
+<!-- custom: 11) Keep timeline length anchored when tuning: compensate month adds with equivalent month removes (example: +1 turn at m12 must be offset by -2 turns at m6 somewhere else, and still keep total turn count 1500 via late-band redistribution such as m4<->m3). (GPT-5.3-Codex) -->
+<!-- custom: 12) Avoid "ugly" standalone year bands like 220y when nearby round bands can express the same region more naturally; prefer local mixes of pretty steps (e.g. 300/250/200/180 years) over a long single 220y block, as long as total turns/months and checkpoint pacing remain controlled. (GPT-5.3-Codex) -->

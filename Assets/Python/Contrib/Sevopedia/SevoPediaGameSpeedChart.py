@@ -21,6 +21,7 @@ class SevoPediaGameSpeedChart:
 	def __init__(self, main):
 		self.top = main
 		self._cachedTable = None
+		self.szCsvLogButton = ""
 
 		self.MARGIN = CHART_TABLE_MARGIN
 		self.ROW_H = CHART_TABLE_ROW_H
@@ -43,6 +44,7 @@ class SevoPediaGameSpeedChart:
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
+		self.szCsvLogButton = chart_add_csv_log_button(screen, self.top, x, y, w)
 
 		table = self.top.getNextWidgetName()
 		tableX = x + self.MARGIN
@@ -76,7 +78,7 @@ class SevoPediaGameSpeedChart:
 		else:
 			wNum = 0
 
-		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, CHART_TABLE_STYLE)
 		screen.enableSort(table)
 
 		# Minor Python-level micro-opt: bind methods used in hot loops.
@@ -120,6 +122,15 @@ class SevoPediaGameSpeedChart:
 				# Value columns (center)
 				else:
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+	def handleInput(self, inputClass):
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szCsvLogButton and inputClass.getFunctionName() == self.szCsvLogButton:
+			chart_dump_table_csv("SAS_SEVOPEDIA_GAME_SPEED_CHART", self._getTableData())
+			return 1
+		return 0
+
+	def dumpCsvLog(self):
+		chart_dump_table_csv("SAS_SEVOPEDIA_GAME_SPEED_CHART", self._getTableData())
 
 	def _getTableData(self):
 		if self._cachedTable is not None:
@@ -231,6 +242,7 @@ class SevoPediaGameSpeedChart:
 			("research",     (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()))),
 			("culture",      (u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()))),
 			("happy",        (u"%c" % (game.getSymbolID(FontSymbols.HAPPY_CHAR)))),
+			("defense",      (u"%c" % (game.getSymbolID(FontSymbols.DEFENSE_CHAR)))),
 			("citizen",      (u"%c" % (game.getSymbolID(FontSymbols.CITIZEN_CHAR)))),
 			("great_people", (u"%c" % (game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)))),
 			("golden_age",   (u"%c" % (game.getSymbolID(getattr(FontSymbols, "GOLDEN_AGE_CHAR", FontSymbols.GREAT_PEOPLE_CHAR))))),
@@ -249,6 +261,10 @@ class SevoPediaGameSpeedChart:
 
 			# Calendar rows are derived fields and not part of row_specs: treat them consistently.
 			if key.startswith("Calendar_"):
+				icon_spec = ("btn", "hourglass")
+			if key.startswith("Summary_"):
+				icon_spec = ("glyph", "defense")
+			if key.startswith("IncrementsYears_") or key.startswith("IncrementsMonths_"):
 				icon_spec = ("btn", "hourglass")
 
 			if not icon_spec:
@@ -299,6 +315,7 @@ class SevoPediaGameSpeedChart:
 		# Derived summary rows: NumTurnIncrements / TotalTurns; plus Calendar rows (Calendar_01 .. Calendar_NN).
 		start_year = gc.getDefineINT("START_YEAR")
 		max_increments = 0
+		total_turns_by_speed = {}
 
 		for i in xrange(gc.getNumGameSpeedInfos()):
 			info = gc.getGameSpeedInfo(i)
@@ -313,6 +330,48 @@ class SevoPediaGameSpeedChart:
 			for iInc in xrange(iNumInc):
 				iTotal += info.getGameTurnInfo(iInc).iNumGameTurnsPerIncrement
 			parsed_data[speed_type]["TotalTurns"] = str(iTotal)
+			total_turns_by_speed[speed_type] = iTotal
+
+		years_chunk_size = 3
+		months_chunk_size = 3
+		years_chunk_count = (max_increments + years_chunk_size - 1) / years_chunk_size
+		months_chunk_count = (max_increments + months_chunk_size - 1) / months_chunk_size
+
+		years_increment_fields = []
+		months_increment_fields = []
+		display_label_by_field = {}
+		for iChunk in xrange(years_chunk_count):
+			szField = "IncrementsYears_%02d" % (iChunk + 1)
+			years_increment_fields.append(szField)
+			display_label_by_field[szField] = "Increments Years %02d" % (iChunk + 1)
+		for iChunk in xrange(months_chunk_count):
+			szField = "IncrementsMonths_%02d" % (iChunk + 1)
+			months_increment_fields.append(szField)
+			display_label_by_field[szField] = "Increments Months %02d" % (iChunk + 1)
+
+		# Additional derived increment rows split across chunks for readability.
+		for i in xrange(gc.getNumGameSpeedInfos()):
+			info = gc.getGameSpeedInfo(i)
+			speed_type = info.getType()
+			iNumInc = info.getNumTurnIncrements()
+			compact_incs = []
+			raw_incs = []
+			for iInc in xrange(iNumInc):
+				turn_info = info.getGameTurnInfo(iInc)
+				iMonthInc = turn_info.iMonthIncrement
+				compact_incs.append(self._format_increment_compact(iMonthInc))
+				raw_incs.append(str(iMonthInc))
+
+			for iChunk in xrange(years_chunk_count):
+				iStart = iChunk * years_chunk_size
+				iEnd = iStart + years_chunk_size
+				szField = years_increment_fields[iChunk]
+				parsed_data[speed_type][szField] = ", ".join(compact_incs[iStart:iEnd])
+			for iChunk in xrange(months_chunk_count):
+				iStart = iChunk * months_chunk_size
+				iEnd = iStart + months_chunk_size
+				szField = months_increment_fields[iChunk]
+				parsed_data[speed_type][szField] = ", ".join(raw_incs[iStart:iEnd])
 
 		# Calendar rows: Calendar_01 .. Calendar_NN
 		calendar_fields = []
@@ -348,14 +407,44 @@ class SevoPediaGameSpeedChart:
 				if iEndYear >= 0:
 					bReachedAD = True
 
+		summary_step_percent = 5
+		summary_percents = []
+		iPct = summary_step_percent
+		while iPct <= 100:
+			summary_percents.append(iPct)
+			iPct += summary_step_percent
+		if not summary_percents or summary_percents[-1] != 100:
+			summary_percents.append(100)
+
+		summary_fields = []
+		for iSummary in xrange(len(summary_percents)):
+			iPercent = summary_percents[iSummary]
+			szField = "Summary_%02d" % (iSummary + 1)
+			summary_fields.append(szField)
+			display_label_by_field[szField] = "Summary %02d (%d%%)" % (iSummary + 1, iPercent)
+
+		for i in xrange(gc.getNumGameSpeedInfos()):
+			info = gc.getGameSpeedInfo(i)
+			speed_type = info.getType()
+			iTotalTurns = total_turns_by_speed.get(speed_type, 0)
+			for iSummary in xrange(len(summary_percents)):
+				iPercent = summary_percents[iSummary]
+				szField = summary_fields[iSummary]
+				iTargetTurn = self._percent_to_turn(iTotalTurns, iPercent)
+				(iYear, iMonth, iMonthInc) = self._turn_to_date_with_increment(info, start_year, iTargetTurn)
+				parsed_data[speed_type][szField] = self._format_summary_cell(iTargetTurn, iYear, iMonth, iMonthInc)
+
 		# Display order:
 		# - base rows (row_specs order)
 		# - calendar rows appended right after TotalTurns
 		field_order = []
 		for (k, _getter, _icon_spec) in row_specs:
-			field_order.append(k)
-			if k == "TotalTurns":
-				field_order.extend(calendar_fields)
+				field_order.append(k)
+				if k == "TotalTurns":
+					field_order.extend(years_increment_fields)
+					field_order.extend(months_increment_fields)
+					field_order.extend(calendar_fields)
+					field_order.extend(summary_fields)
 
 		# Build table
 		table = []
@@ -368,7 +457,7 @@ class SevoPediaGameSpeedChart:
 
 		row_index = 0
 		for field in field_order:
-			szFieldName = chart_beautify_field_name(field)
+			szFieldName = display_label_by_field.get(field, chart_beautify_field_name(field))
 			if derived_field_keys.get(field):
 				szFieldName += u"*"
 
@@ -419,9 +508,8 @@ class SevoPediaGameSpeedChart:
 
 	def _format_date_label(self, iYear, iMonth):
 		# Date label: <year>[m2..m12]
-		# Month is shown only when it adds information.
-		# We omit m1 (January) for concision, but we KEEP m12 (December)
-		# because <year>m12 is not the same as <year+1>.
+		# <!-- custom: hide m1 so January matches in-game year display, but keep m2..m12
+		# visible to diagnose calendar drift. (GPT-5.3-Codex) -->
 		sz = self._format_year_label(iYear)
 		if iMonth == 1:
 			return sz
@@ -457,6 +545,17 @@ class SevoPediaGameSpeedChart:
 		szYears = self._format_years_per_turn(years_per_turn)
 		return ("*", "%sm%d" % (szYears, rem_months))
 
+	def _format_increment_compact(self, month_inc):
+		if month_inc <= 0:
+			return "0"
+		if month_inc < 12:
+			return "m%d" % month_inc
+		if (month_inc % 12) == 0:
+			return self._format_years_per_turn(month_inc / 12)
+		iYears = month_inc / 12
+		iRemMonths = month_inc % 12
+		return "%sm%d" % (self._format_years_per_turn(iYears), iRemMonths)
+
 	def _format_calendar_segment(self, end_year, end_month, turns, month_inc, bEraFlip):
 		# Calendar cell format is intentionally compact:
 		#   "+<turns>*<rate><sep><endDate>"
@@ -471,8 +570,7 @@ class SevoPediaGameSpeedChart:
 		#   (This is also where years are shortest, so the marker doesn't bloat the row.)
 		#
 		# Month handling:
-		# - Month suffix is shown for m2..m12 (omit m1 only).
-		#   We keep m12 (December) because it is meaningfully different from <year+1>.
+		# - Month suffix is shown for m2..m12; m1 is hidden so January matches in-game year display.
 		#
 		# Examples:
 		# - "+2*10k=30k"              (still BC; era implied)
@@ -486,3 +584,90 @@ class SevoPediaGameSpeedChart:
 		else:
 			szSep = "="
 		return "+%d%s%s%s%s" % (turns, szOp, szRate, szSep, szEnd)
+
+	def _percent_to_turn(self, iTotalTurns, iPercent):
+		if iTotalTurns <= 0:
+			return 0
+		if iPercent <= 0:
+			return 0
+		if iPercent >= 100:
+			return iTotalTurns
+		iTarget = (iTotalTurns * iPercent + 99) / 100
+		if iTarget < 1:
+			return 1
+		if iTarget > iTotalTurns:
+			return iTotalTurns
+		return iTarget
+
+	def _turn_to_date(self, info, iStartYear, iTurn):
+		if iTurn <= 0:
+			return (iStartYear, 1)
+
+		iRemainingTurns = iTurn
+		iTotalMonths = 0
+		for iInc in xrange(info.getNumTurnIncrements()):
+			turn_info = info.getGameTurnInfo(iInc)
+			iTurnsInInc = turn_info.iNumGameTurnsPerIncrement
+			iMonthInc = turn_info.iMonthIncrement
+
+			if iRemainingTurns <= iTurnsInInc:
+				iTotalMonths += iRemainingTurns * iMonthInc
+				break
+
+			iTotalMonths += iTurnsInInc * iMonthInc
+			iRemainingTurns -= iTurnsInInc
+
+		iYear = iStartYear + (iTotalMonths / 12)
+		iMonth = (iTotalMonths % 12) + 1
+		return (iYear, iMonth)
+
+	def _turn_to_date_with_increment(self, info, iStartYear, iTurn):
+		if iTurn <= 0:
+			return (iStartYear, 1, 0)
+
+		iRemainingTurns = iTurn
+		iTotalMonths = 0
+		iCurrentMonthInc = 0
+		for iInc in xrange(info.getNumTurnIncrements()):
+			turn_info = info.getGameTurnInfo(iInc)
+			iTurnsInInc = turn_info.iNumGameTurnsPerIncrement
+			iMonthInc = turn_info.iMonthIncrement
+
+			if iRemainingTurns <= iTurnsInInc:
+				iTotalMonths += iRemainingTurns * iMonthInc
+				iCurrentMonthInc = iMonthInc
+				break
+
+			iTotalMonths += iTurnsInInc * iMonthInc
+			iRemainingTurns -= iTurnsInInc
+			iCurrentMonthInc = iMonthInc
+
+		iYear = iStartYear + (iTotalMonths / 12)
+		iMonth = (iTotalMonths % 12) + 1
+		return (iYear, iMonth, iCurrentMonthInc)
+
+	def _format_summary_cell(self, iTurn, iYear, iMonth, iMonthInc):
+		# <!-- custom: use signed year (+/-) plus active month increment to make checkpoint
+		# tuning easier across speeds while keeping cells compact. (GPT-5.3-Codex) -->
+		return "T%d=%s (%d)" % (iTurn, self._format_date_label_signed(iYear, iMonth), iMonthInc)
+
+	def _format_date_label_signed(self, iYear, iMonth):
+		if iYear < 0:
+			szYear = "-" + self._format_year_magnitude(-iYear)
+		else:
+			szYear = "+" + self._format_year_magnitude(iYear)
+		if iMonth != 1:
+			szYear = "%sm%d" % (szYear, iMonth)
+		return szYear
+
+	def _format_date_label_with_era(self, iYear, iMonth):
+		iAbsYear = iYear
+		szEra = "AD"
+		if iYear < 0:
+			iAbsYear = -iYear
+			szEra = "BC"
+
+		szYear = self._format_year_magnitude(iAbsYear)
+		if iMonth != 1:
+			szYear = "%sm%d" % (szYear, iMonth)
+		return "%s %s" % (szYear, szEra)
