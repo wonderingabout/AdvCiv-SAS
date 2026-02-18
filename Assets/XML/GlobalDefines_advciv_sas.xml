@@ -1753,11 +1753,18 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING</DefineName>
 		<iDefineIntVal>500</iDefineIntVal>
 	</Define>
-
 	<!-- custom: was 1 in base advciv -->
 	<!-- High iMaxCount means we don't care about existing instructors -->
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT</DefineName>
 		<iDefineIntVal>999</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: disable to restore old base advciv evacuate logic (recommended to be enabled instead though as disabling this to restore base advciv logic should be weaker than the advciv-sas' always evacuate doomed cities logic but left for player customization) -->
+	<Define>
+		<DefineName>SAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 </Civ4Defines>

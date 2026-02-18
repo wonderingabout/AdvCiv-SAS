@@ -16335,47 +16335,55 @@ bool CvUnitAI::AI_evacuateCity()
 	if(!getPlot().AI_getPlotCity()->AI_isEvacuating())
 		return false;
 
-	// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
-	// <!-- custom: important note!! You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
-	// scaled rEvacProb = 1;
-	// /*  Units that don't receive def. modifiers should always evacuate.
-	// 	AI_defensiveCollateral can still happen, but not when the threat ratio is
-	// 	this high. */
-	// if (getUnitInfo().getCombat() > 0 && !getUnitInfo().isNoDefensiveBonus())
-	// {
-	// 	rEvacProb = fixp(0.8);
-	// 	rEvacProb -= scaled(currHitPoints(), std::max(1, maxHitPoints()));
-	// 	int iDefenseMod = fortifyModifier() +
-	// 			getPlot().defenseModifier(getTeam(),
-	// 			GC.getGame().getCurrentEra() >= CvEraInfo::AI_getAgeOfGuns()) +
-	// 			cityDefenseModifier() +
-	// 			(getPlot().isHills() ? hillsDefenseModifier() : 0);
-	// 	if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
-	// 		iDefenseMod = std::max(iDefenseMod, 100);
-	// 	rEvacProb -= per100(iDefenseMod);
-	// 	/*	Don't leave too many units behind. 3 or 4 can be a headache for
-	// 		enemy siege units, 6 or 7 are too many to sacrifice. */
-	// 	if (rEvacProb < 1)
-	// 	{
-	// 		int iStayingBehind = 0;
-	// 		FOR_EACH_UNIT_IN(pLoopUnit, getPlot())
-	// 		{
-	// 			CvSelectionGroup const& kGroup = *pLoopUnit->getGroup();
-	// 			if (&kGroup == getGroup())
-	// 				continue;
-	// 			if (!kGroup.isForceUpdate()) // i.e. if AI_update already called
-	// 				iStayingBehind++;
-	// 		}
-	// 		if (iStayingBehind > 2)
-	// 			rEvacProb += scaled(iStayingBehind + getGroup()->getNumUnits() - 3, 6);
-	// 	}
-	// }
-	// /*  retreatToCity isn't perfect for this; selects the city based on plot danger.
-	// 	Hopefully sufficient most of the time. */
-	// if (SyncRandSuccess(rEvacProb))
-	// 	return AI_retreatToCity();
-	// return false;
-	return AI_retreatToCity();
+	static const bool bSAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES");
+	if (bSAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES)
+	{
+		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
+		// <!-- custom: important note!! You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
+		return AI_retreatToCity();
+	}
+	// <!-- custom: not recommended as should be weaker for the AI, kept for legacy or player customization choice -->
+	else
+	{
+		scaled rEvacProb = 1;
+		/*  Units that don't receive def. modifiers should always evacuate.
+			AI_defensiveCollateral can still happen, but not when the threat ratio is
+			this high. */
+		if (getUnitInfo().getCombat() > 0 && !getUnitInfo().isNoDefensiveBonus())
+		{
+			rEvacProb = fixp(0.8);
+			rEvacProb -= scaled(currHitPoints(), std::max(1, maxHitPoints()));
+			int iDefenseMod = fortifyModifier() +
+					getPlot().defenseModifier(getTeam(),
+					GC.getGame().getCurrentEra() >= CvEraInfo::AI_getAgeOfGuns()) +
+					cityDefenseModifier() +
+					(getPlot().isHills() ? hillsDefenseModifier() : 0);
+			if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
+				iDefenseMod = std::max(iDefenseMod, 100);
+			rEvacProb -= per100(iDefenseMod);
+			/*	Don't leave too many units behind. 3 or 4 can be a headache for
+				enemy siege units, 6 or 7 are too many to sacrifice. */
+			if (rEvacProb < 1)
+			{
+				int iStayingBehind = 0;
+				FOR_EACH_UNIT_IN(pLoopUnit, getPlot())
+				{
+					CvSelectionGroup const& kGroup = *pLoopUnit->getGroup();
+					if (&kGroup == getGroup())
+						continue;
+					if (!kGroup.isForceUpdate()) // i.e. if AI_update already called
+						iStayingBehind++;
+				}
+				if (iStayingBehind > 2)
+					rEvacProb += scaled(iStayingBehind + getGroup()->getNumUnits() - 3, 6);
+			}
+		}
+		/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
+			Hopefully sufficient most of the time. */
+		if (SyncRandSuccess(rEvacProb))
+			return AI_retreatToCity();
+	}
+	return false;
 }
 
 
