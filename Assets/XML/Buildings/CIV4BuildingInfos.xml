@@ -225,7 +225,7 @@
 			<bAreaCleanPower>0</bAreaCleanPower>
 			<DiploVoteType>NONE</DiploVoteType>
 			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
-			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays) for them, hopefully (more?) interesting for human players this way too (at least maybe me or not or yes or an other or and not) -->
+			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays) for them, hopefully more interesting for human players this way too -->
 			<bCapital>0</bCapital>
 			<bGovernmentCenter>1</bGovernmentCenter>
 			<bGoldenAge>0</bGoldenAge>
@@ -247,7 +247,7 @@
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
 			<iConquestProb>0</iConquestProb>
-			<!-- custom: no restriction for barbarians building their (few at least of now if not always or not) buidlings -->
+			<!-- custom: no restriction for barbarians building their buidlings -->
 			<iCitiesPrereq>0</iCitiesPrereq>
 			<iTeamsPrereq>0</iTeamsPrereq>
 			<iLevelPrereq>0</iLevelPrereq>
@@ -2311,7 +2311,7 @@
 			<PowerBonus>NONE</PowerBonus>
 			<FreeBonus>NONE</FreeBonus>
 			<iNumFreeBonuses>0</iNumFreeBonuses>
-			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe), not sure it is needed or has a real influence or not, but better be safe here maybe -->
+			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe), not sure it is needed or has a real influence but just in case -->
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
@@ -3159,7 +3159,7 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3200,7 +3200,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overly increase it in case alternate strategies are better, trying this value then), was 0 -->
 			<iAIWeight>25</iAIWeight>
-			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak see (adjust to your mod path) CIV4HurryInfo.xml for details, also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, was 60 -->
+			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak (see CIV4HurryInfo.xml), also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, was 60 -->
 			<iCost>45</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -3221,7 +3221,7 @@
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
-			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific building, was 50 -->
+			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also affecting some of the civ-specific variants, was 50 -->
 			<iFoodKept>40</iFoodKept>
 			<iAirlift>0</iAirlift>
 			<iAirModifier>0</iAirModifier>
@@ -3348,7 +3348,7 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3536,7 +3536,7 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3576,7 +3576,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>60</iCost>
+			<iCost>45</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3639,18 +3639,12 @@
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
-			<!-- custom: also add production modifiers to make it even more of a production/growth type of building -->
-			<YieldModifiers>
-				<iYield>0</iYield>
-				<iYield>10</iYield>
-				<iYield>0</iYield>
-			</YieldModifiers>
+			<YieldModifiers/>
+			<!-- custom: reworked as part of the slavery+granary rework or rebalancing, gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op, was 0, 0, 1 -->
 			<CommerceChanges/>
-			<!-- custom: reworked as part of the slavery+granary rework or rebalance(ing), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, i want to rework it as such now), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
-			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas) -->
 			<!-- advc.908b: was 2 -->
 			<ObsoleteSafeCommerceChanges/>
-			<!-- custom: also remove culture double times and culture related things in xml now that this is not a cultural building anymore but a production/growth one -->
+			<!-- custom: also remove culture double times and culture related things in xml now that this is not a cultural building anymore -->
 			<CommerceChangeDoubleTimes/>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
@@ -3688,12 +3682,12 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: remove culture flavor entirely, increase flavor growth, as this is indeed an op building now in a balanced way if i may say maybe, but in all cases, rework flavors more generally to match the new building's profile -->
+			<!-- custom: remove culture flavor entirely, increase flavor growth -->
 			<!-- advc.020: was 10 Growth; doesn't account for the +culture -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>9</iFlavor>
+					<iFlavor>8</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -3733,7 +3727,7 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
+			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -3774,8 +3768,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: see code comment at the generic granary, was 0 -->
 			<iAIWeight>25</iAIWeight>
-			<!-- custom: see code comment at the generic granary, was 60 -->
-			<iCost>55</iCost>
+			<iCost>45</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -3795,8 +3788,7 @@
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
-			<!-- custom: give more food storage than the average/generic granary -->
-			<iFoodKept>50</iFoodKept>
+			<iFoodKept>40</iFoodKept>
 			<iAirlift>0</iAirlift>
 			<iAirModifier>0</iAirModifier>
 			<iAirUnitCapacity>0</iAirUnitCapacity>
@@ -3883,7 +3875,6 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: a bit less production than the INCAN_QULLQA but still quite important for production even though less / a bit less indeed... -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -5023,7 +5014,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now  but or not but... so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
+			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -9239,8 +9230,7 @@
 			<FreeStartEra>ERA_MODERN</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>TECH_NATURALISM</ObsoleteTech>
-			<!-- custom: until we do and if we do ideallyour full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat -->
-			<!-- custom: with our tech tree rework, now based on construction, see docs including but not only or only or not the notes .txt type of files and ctrl+f "ziggurat" for example for details or wikipedia online or such or and other sources or and not -->
+			<!-- custom: until we do and if we do at all our full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat -->
 			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -10940,7 +10930,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make the building available sooner while it is more relevant while the game lasts especially considering its science effect would be pointless if there are no more not anymore any tech to research..., is maybe more historically accurate this was as per our reworked tech tree at least if not in civ4 +/- base advciv too maybe (didn't check) or not, was TECH_SUPERCONDUCTORS and tech types empty -->
+			<!-- custom: make the building available sooner while it is more relevant, was TECH_SUPERCONDUCTORS and tech types empty -->
 			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -15236,7 +15226,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree, not sure if accurate checked only a bit but should not be too far off and tech steam power is bloated, i don't see a direct correlation with tech steam power as well unless i'm mistaken bu didn't check lot again, also accounting the time to build them maybe fine as is with this change fine as it is now changed i mean but or not but or yes but, and this buffs tech physics that is a bit weak at least as of now, was TECH_STEAM_POWER -->
+			<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree, and this buffs tech physics that is a bit weak plus the building itself, was TECH_STEAM_POWER -->
 			<PrereqTech>TECH_PHYSICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -22938,7 +22928,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay -->
-			<PrereqTech>TECH_MONARCHY</PrereqTech>
+			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25486,7 +25476,7 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
-			<!-- custom: religion is still relevant in modern era for better or worse is what i'd want to say but i really don't know... i mean i don't have a positive view of religion in general but this is a code space so don't mind this i mean if i may say my bad or not as i wanted to say..., was TECH_COMPUTERS -->
+			<!-- custom: religion is still relevant in modern era historically so this better reflects that, was TECH_COMPUTERS -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
 			<TechTypes/>
@@ -25982,7 +25972,7 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: (AdvCiv had reduced this to 10 if i may say xd...... but thanks for all changes really i mean now also me i.e. i am tweaking as i see fit or best fit or as i want too or not or yes or etc was 0 / 0 / 10 -->
+			<!-- custom: (AdvCiv had reduced this to 10, was 0 / 0 / 10 -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -29645,7 +29635,7 @@
 			<!-- advc.131c: was 10 -->
 			<iPower>0</iPower>
 			<fVisibilityPriority>1.0</fVisibilityPriority>
-			<!-- custom: remove local/city-only effect ((of) SeaPlotYieldChanges  but or not but) -->
+			<!-- custom: remove local/city-only effect of SeaPlotYieldChanges -->
 			<SeaPlotYieldChanges/>
 			<RiverPlotYieldChanges/>
 			<!-- custom: make the effect stronger, now applies to all cities, on top of the building-only effect of the port, was empty -->
@@ -31192,7 +31182,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+			<!-- custom: not strictly religious; fits UN being around as of now TECH_MASS_MEDIA -->
+			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>

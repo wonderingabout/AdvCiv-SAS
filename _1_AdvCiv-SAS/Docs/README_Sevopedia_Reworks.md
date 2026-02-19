@@ -133,7 +133,7 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
 
 ### Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)
 
-Also added a new "LOG" buttonto print to `PythonDbg.log` the tables output, and this is done to other charts too.
+Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
 
 Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor) we added in AdvCiv-SAS.
 

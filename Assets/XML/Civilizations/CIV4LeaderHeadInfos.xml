@@ -6251,7 +6251,7 @@
 			<!-- Joao: was CIVIC_HEREDITARY_RULE -->
 			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
-			<!-- João II — was TRAIT_IMPERIALIST and TRAIT_EXPANSIVE -->
+			<!-- Joao II — was TRAIT_IMPERIALIST and TRAIT_EXPANSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_IMPERIALIST</TraitType>

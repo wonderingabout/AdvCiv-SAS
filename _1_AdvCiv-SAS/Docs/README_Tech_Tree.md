@@ -73,7 +73,7 @@ Then much later i did this swapping based version but that was based or closer (
 
 ## Starting techs rework
 
-After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#starting-techs-rework) for details/results.
+After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md (Civs' Starting techs rework)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework) for details/results.
 
 ## Customizable technology advisor width
 

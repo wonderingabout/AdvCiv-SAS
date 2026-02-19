@@ -623,7 +623,7 @@
 			<iUnitGreatWorkPercent>300</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>300</iGoldenAgePercent>
 
-			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
 			<iHurryPercent>33</iHurryPercent>
 
 			<iHurryConscriptAngerPercent>300</iHurryConscriptAngerPercent>
@@ -727,7 +727,7 @@
 			<iUnitGreatWorkPercent>400</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>400</iGoldenAgePercent>
 
-			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
 			<iHurryPercent>25</iHurryPercent>
 
 			<iHurryConscriptAngerPercent>400</iHurryConscriptAngerPercent>
