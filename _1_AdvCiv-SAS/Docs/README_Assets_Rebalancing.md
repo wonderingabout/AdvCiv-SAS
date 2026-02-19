@@ -27,18 +27,6 @@ Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file 
 
 See below in the main table after changes as it includes the before values as well.
 
-#### Global tech totals (should sum to 70 = 35 civs x 2) - before change
-
-Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe):
-
-Allowed starting techs
-
-- Mining:     13
-- Fishing:    12
-- Mysticism:  12
-- Hunting:    11
-- Pottery:     2
-
 ### after most recent as of now rework
 
 After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too, here are (below) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all. I think the result is really good at least much better than it was check if accurate.
@@ -60,15 +48,15 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Celt | Hunting, Mysticism | **Hunting, Mining** | **Gallic Warrior** metallurgy path justified; shifts from "druidic" to martial. **Intentional strong pair** (Mining+Hunting) for civ-specific unit identity; kept rare overall. |
 | China | Agriculture, Mining | **Mining, Pottery** | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
 | Egypt | The Wheel, Agriculture | **Hunting, Pottery** | Keep **Pottery** to flow into **Masonry -> Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
-| England | Fishing, Mining | **Fishing, Mining** | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
+| England | Fishing, Mining | **Keep** | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
 | Ethiopia | Hunting, Mining | **Hunting, Mysticism** | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
 | Kingdom of Benin | / | **Mysticism, Pottery** | Pottery anchors the "fortified/urban builder court-state" + supports your Impluvium/aqueduct line; Mysticism keeps the ritual/court legitimacy flavor (and avoids pushing them toward early bronze play). |
 | France | The Wheel, Agriculture | **Hunting, Pottery** | Aristocratic hunt + towns; replaces disallowed pair. |
-| Germany | Pottery, Mining | **Pottery, Mining** | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
+| Germany | Pottery, Mining | **Keep** | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
 | Greece | Fishing, Hunting | **Mining, Mysticism** | Keeps the "culture/religion" signal (temples/oracles/cults) while also pushing the Hoplite -> Bronze/Iron line sooner via Mining; better matches "bronze + sacred polis" as a starter identity. |
 | Holy Roman | Mysticism, Hunting | **Mysticism, Pottery** | Reads more like "Church + towns/guild/urban administration" than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line. |
 | Inca | Agriculture, Mysticism | **Pottery, Mining** | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
-| India | Mysticism, Mining | **Mysticism, Mining** | Spiritual tradition + engineering; not an "amazing" pair. |
+| India | Mysticism, Mining | **Keep** | Spiritual tradition + engineering; not an "amazing" pair. |
 | Ireland | / | **Fishing, Mysticism** | Maritime + monastic/cultural identity; balanced opener without Mining/Hunting spikes. |
 | Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jomon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
 | Khmer | Hunting, Mining | **Fishing, Hunting** | Tonle Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
@@ -81,14 +69,14 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | Ottoman | The Wheel, Agriculture | **Fishing, Pottery** | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
 | Persia | Agriculture, Hunting | **Hunting, Mining** | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
 | Portugal | Fishing, Mining | **Fishing, Pottery** | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs' thematic needs. |
-| Rome | Fishing, Mining | **Fishing, Mining** | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
+| Rome | Fishing, Mining | **Keep** | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
 | Russia | Hunting, Mining | **Pottery, Mining** | Land-empire emphasis (settlement/crafts) and less "fishy" opening. Keeps metal identity; also offsets Ottoman's change to keep 14/14/14/14/14 totals. |
-| Spain | Fishing, Mysticism | **Fishing, Mysticism** | Maritime reach + organized religion; avoids Mining spikes. |
+| Spain | Fishing, Mysticism | **Keep** | Maritime reach + organized religion; avoids Mining spikes. |
 | Sumeria | Mysticism, Pottery | **Mysticism, Mining** | **Vulture** (axe) loves metals; still not the "amazing" Mining+Pottery/Hunting. |
-| Scandinavia | Fishing, Hunting | **Fishing, Hunting** | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
+| Scandinavia | Fishing, Hunting | **Keep** | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
 | Zulu | Agriculture, Hunting | **Hunting, Mining** | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
 
-#### Global tech totals (should sum to 70 = 35 civs x 2)
+#### Global tech totals
 
 | Tech | Count |
 | --- | --- |
@@ -136,18 +124,18 @@ Note: water buildings are generally avoided as they are too situational (useless
 | China | Pavillion (Theatre) | **Changpingcang** (Market) | Not so cultural game profile plus it is weaker. This new building leans into a market-management/state-stability theme (price smoothing and social calm) rather than pure food storage. As China in this setup is often health-rich, extra happiness support is valuable and a nice synergy for larger empires and sustained city growth. Identity with happy from Rice capitalizes on such excess health, and food kept fits thematically and is not as op later in the game. |
 | Egypt | Obelisk (Monument) | **Keep** (Keep) | |
 | England | Stock Exchange (Bank) | **Keep** (Keep) | |
-| Ethiopia | Stele (Monument) | **Metsehaf Bet** (Library) | Distinctive theology-to-scholarship identity via Ge'ez manuscript/commentary tradition. Incense support fits the Ethiopian Orthodox liturgical context, where incense is central to worship and naturally links ritual life with learned religious institutions; it also aligns with Ethiopia's historical participation in Red Sea aromatics/incense trade networks. |
-| Ireland | / | **Scriptorium** (University) | New civ: strong monastic-learning thematic fit (scriptoria as centers of manuscript copying/scholarship) and good gameplay/profile match for Irish leaders with gold/diplomatic/science leanings. Paper timing keeps it meaningful without becoming an overpowered early spike (library replacement moved to university timing). |
+| Ethiopia | Stele (Monument) | **Metsehaf Bet** (Library) | Distinctive theology-to-scholarship identity via Ge'ez manuscript/commentary tradition. Also uses underused library slot, declutters overused monument slot. Incense support fits the Ethiopian Orthodox liturgical context, where incense is central to worship and naturally links ritual life with learned religious institutions; it also aligns with Ethiopia's historical participation in Red Sea aromatics/incense trade networks. |
+| Ireland | / | **Scriptorium** (University) | New civ: strong monastic-learning thematic fit (scriptoria as centers of manuscript copying/scholarship) and good gameplay/profile match for Irish leaders with gold/diplomatic/science leanings. Paper timing keeps it meaningful without becoming an overpowered early spike like a library would be with the as of now scriptorium's effects. |
 | Kingdom of Benin | / | **Impluvium** (Aqueduct) | New civ: Thematic fit; plus fits Ewuare's production/growth profile |
 | France | Salon (Observatory) | **Keep** (University) | Observatory removed (to unclutter); thematic fit with Lumieres theme |
 | Germany | Assembly Plant (Factory) | **Longhouse** (Granary) | Late/weak building; replaced with an early impactful one with thematic fit and gameplay fit for Germany's growth profile |
 | Greece | Odeon (Colosseum) | **Keep** (Keep) | |
-| Holy Roman | Rathaus (Courthouse) | **Rathaus** (Courthouse) | Keep |
+| Holy Roman | Rathaus (Courthouse) | **Keep** (Keep) | |
 | Inca | Terrace (Granary) | **Qullqa** (Granary) | Renaming for thematic fit; rework for historical accuracy and to make it stronger (financial/organized incan economy profile) rather than mixing culture and growth weirdly and in a bit op way. |
 | India | Mausoleum (Jail) | **Keep** (Keep) | Jail is moved to late Classical so fine as such |
 | Japan | Shale Plant (Factory) | **Doujou** (Jail) | Late/weak building; replaced with an early impactful one; thematic fit and boosts Tokugawa/Japan's isolationist profile by strengthening its espionage and military independence potential |
 | Khmer | Baray (Aqueduct) | **Keep** (Keep) | |
-| Korea | Seowon (University) | **Gyeongdang** (Library) | Use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This uses underused library slot, declutters overused university slot, keeps the civ's science identity while feeling less generic, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. Thematically fits the ancient history/civilization of Korea theme as well. |
+| Korea | Seowon (University) | **Gyeongdang** (Library) | Use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This uses underused library slot, declutters overused university slot, keeps the civ's science identity while feeling less generic, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. Thematically fits the ancient history/civilization of Korea theme as well. Great general chance similarly to how it was done for the japan_doujou (martial arts training). |
 | Mali | Mint (Forge) | **Keep** (Keep) | |
 | Maya | Ball Court (Colosseum) | **Keep** (Keep) | |
 | Mongol | Ger (Stable) | **Keep** (Keep) | |
@@ -155,7 +143,7 @@ Note: water buildings are generally avoided as they are too situational (useless
 | Netherlands | Dike (Levee) | **Keep** (Keep) | |
 | Ottoman | Hammam (Aqueduct) | **Keep** (Keep) | |
 | Persia | Apothecary (Grocer) | **Keep** (Keep) | |
-| Portugal | Feitoria (Custom House) | **Keep** (Keep) | Keep; focus on trades routes and new Joao's financial/imperialistic profile more |
+| Portugal | Feitoria (Custom House) | **Keep** (Keep) | Focus on trades routes and new Joao's financial/imperialistic profile more |
 | Rome | Forum (Market) | **Keep** (Keep) | |
 | Russia | Research Institute (Observatory) | **Gord** (Castle) | Observatory removed (to unclutter); fits Russia's aggressive/military profile |
 | Scandinavia | Trading Post (Lighthouse) | **Keep** (Port) | Following water buildings rework; port is a stronger production hub especially given military profile of Ragnar, closer to historical time too |

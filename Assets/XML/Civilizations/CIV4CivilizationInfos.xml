@@ -2439,8 +2439,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<BuildingType>BUILDING_KOREAN_SEOWON</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+					<BuildingType>BUILDING_KOREAN_GYEONGDANG</BuildingType>
 				</Building>
 			</Buildings>
 			<!-- custom: was UNITCLASS_CATAPULT -->

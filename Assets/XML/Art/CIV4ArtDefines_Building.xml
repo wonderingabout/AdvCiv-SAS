@@ -169,9 +169,9 @@
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/German_Longhouse/longhouse.dds</Button>
 		</BuildingArtInfo>
+		<!-- the actual art for this aqueduct is controlled by ArtDefines_Misc.xml : ART_AQUEDUCT_SEGMENT/ART_AQUEDUCT_WALL/ART_AQUEDUCT_ENDPOINT -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_AQUEDUCT</Type>
-			<!-- the actual art for this aqueduct is controlled by ArtDefines_Misc.xml : ART_AQUEDUCT_SEGMENT/ART_AQUEDUCT_WALL/ART_AQUEDUCT_ENDPOINT -->
 			<LSystem>LSYSTEM_AQUEDUCT</LSystem>
 			<bAnimated>0</bAnimated>
 			<fScale>1.0</fScale>
@@ -412,6 +412,17 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Academy.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,5</Button>
 		</BuildingArtInfo>
+		<!-- custom: art from the sengoku mod thanks -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_KOREAN_GYEONGDANG</Type>
+			<LSystem>LSYSTEM_3x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.05</fScale>
+			<fInterfaceScale>0.7</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Korean_Gyeongdang/nif/chipalace.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Korean_Gyeongdang/sengoku_atlas_4_0_cropped.dds</Button>
+		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_LIBRARY</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
@@ -441,16 +452,6 @@
 			<NIF>Art/Structures/Buildings/University/University.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/University.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,7</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_KOREAN_SEOWON</Type>
-			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.6</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Seowan/Seowan.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/University.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,4</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_FRENCH_SALON</Type>

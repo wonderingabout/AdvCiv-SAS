@@ -3544,8 +3544,18 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
 	</TEXT>
+
+
+
 	<TEXT>
 		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
 		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_KOREAN_GYEONGDANG</Tag>
+		<English>Gyeongdang</English>
 	</TEXT>
 </Civ4GameText>
