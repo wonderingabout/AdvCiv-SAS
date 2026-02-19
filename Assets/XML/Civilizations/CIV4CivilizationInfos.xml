@@ -1293,7 +1293,7 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
 					<BuildingType>BUILDING_IRELAND_SCRIPTORIUM</BuildingType>
 				</Building>
 			</Buildings>

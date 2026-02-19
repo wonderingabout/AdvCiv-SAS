@@ -12,9 +12,13 @@ This is the general guidelines to follow for this repo of our mod AdvCiv-SAS tha
 
 You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
 
-Note: our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS) if needed.
+## git, GitHub, and git diff info
+
+Our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS).
 
 Locally our project is a git repo too, generally with a fresh commit for each new main task, so feel free to git diff while doing your tasks to see your progress and analyze or such.
+
+Important git-diff caution: moving/reordering large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed. Example: moving `BUILDING_IRELAND_SCRIPTORIUM` in `CIV4BuildingInfos.xml` from around the Library area to under the last civ-specific University block makes it seem like generic university, university madrassa, university salon were modified, but they were not and are still the same as before. In this case, let the user handle a separate commit for the move/reorder first, then continue with gameplay/stat edits afterward (then user will ammend commit later after second-step modifications are reviewed).
 
 ## Information Fetching from other known helpful mods
 
@@ -177,6 +181,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 ## XML
 
 - Any new XML text should to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) and only in `<English>`. Move the ones we modify in other files to our files too and remove other languages while doing so.
+- Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
 
 ## C++
 

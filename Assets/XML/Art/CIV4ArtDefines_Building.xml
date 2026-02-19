@@ -422,17 +422,6 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
 		</BuildingArtInfo>
-		<!-- custom: art from the Civ Gold 5.2 mod thanks -->
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</Type>
-			<LSystem>LSYSTEM_4x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.1</fScale>
-			<fInterfaceScale>0.8</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif</NIF>
-			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds</Button>
-		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
@@ -472,6 +461,17 @@
 			<NIF>Art/Structures/Buildings/French Salon/french_salon.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Observatory.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,2</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from the Civ Gold 5.2 mod thanks -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</Type>
+			<LSystem>LSYSTEM_4x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.1</fScale>
+			<fInterfaceScale>0.8</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_LABORATORY</Type>
