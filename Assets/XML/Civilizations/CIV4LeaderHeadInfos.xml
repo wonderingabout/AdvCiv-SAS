@@ -191,15 +191,7 @@
 				</DiploMusicWarEra>
 			</DiplomacyMusicWar>
 		</LeaderHeadInfo>
-
-		<!-- advc.xmldefault (start)
-			 These defaults are used when any of the (proper) LeaderHeadInfo
-			 elements below (i.e. LEADER_BARBARIAN above is exluded from this)
-			 doesn't define an optional element (minOccurs 0 in
-			 Civ4CivilizationsSchema.xml).
-			 (For the non-optional elements, LEADER_DEFAULTS has to set some
-			 default as well - 0, NONE or an empty string - but it won't matter
-			 because every LeaderHeadInfo has to define those elements.) -->
+		<!-- custom: fake leader_defaults to initialize defaults; Long_Comments_XML.txt #361 -->
 		<LeaderHeadInfo> <!-- custom: Defaults -->
 			<Type>LEADER_DEFAULTS</Type>
 			<Description></Description>
@@ -6428,7 +6420,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<!-- custom: increase julius caesar war tendency/profile a bit, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less, it does seem they don't wage war enough in base advciv at least (+/- civ4?), so increasing it quite a bit if not cautiosuly but quite decisively more... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit anwyays etc, was 30 -->
+			<!-- custom: increase julius caesar war tendency/profile a bit; Long_Comments_XML.txt #360, was 30 -->
 			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>

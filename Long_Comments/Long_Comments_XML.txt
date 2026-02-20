@@ -1719,6 +1719,10 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple add-
 ===== \Assets/XML/Units/UnitAI notes (Units XML) =====
 ----- Comment #90 -----
 <!-- custom: 
+- like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example
+- also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
+see also 
+
 note: below rework as of now not fully implemented not too likely as bit tedious and then would need to change buildings and such, but might be, but even if we don't implement it as below, general idea of rebalancing iPower to avoid suicidal war declarations as i had noticed (perhaps even help AI war decisions of which units to attack for example?) by myself while playing civ4 i mean base advciv mod still valid, read below for details:
 
 multiply iPower by:
@@ -4842,3 +4846,31 @@ change from (translate to english with web browser or such) https://gforestshade
 <!-- custom: 10) Prefer swap-friendly neighboring increments when practical (e.g. 120<->60, 12<->6, 3<->1) because integer redistribution is easier and cleaner (1x120 = 2x60, 1x3 = 3x1), which helps absorb local overshoot without yo-yo. (GPT-5.3-Codex) -->
 <!-- custom: 11) Keep timeline length anchored when tuning: compensate month adds with equivalent month removes (example: +1 turn at m12 must be offset by -2 turns at m6 somewhere else, and still keep total turn count 1500 via late-band redistribution such as m4<->m3). (GPT-5.3-Codex) -->
 <!-- custom: 12) Avoid "ugly" standalone year bands like 220y when nearby round bands can express the same region more naturally; prefer local mixes of pretty steps (e.g. 300/250/200/180 years) over a long single 220y block, as long as total turns/months and checkpoint pacing remain controlled. (GPT-5.3-Codex) -->
+
+===== /Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #359 -----
+
+set a tech to block training once any team knows it (human + AI); existing units remain, but can be scrapped if ObsoleteTech is known.
+Reason: we disable broad scrapping for hammer efficiency; ObsoleteTech gives a per-unit gate instead of scattered rules.
+Use it to retire early units that are cheap but upkeep-inefficient later (e.g., warrior -> TECH_BRONZE_WORKING).
+If you change upgrade chains or era pacing, update ObsoleteTech to match the tech where the unit should stop being built.
+If the tag is missing or set to NONE, the unit remains buildable forever (workers/settlers or timeless special units).
+Why: this makes unit XML portable between mods — units without the tag keep old behavior, while mods that add it gain a clean stop-build gate.
+Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits consistent and easy to search. (GPT-5.2-Codex)
+
+===== /Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml =====
+----- Comment #360 -----
+
+, asking chatgpt it seems that he has such a profile from little or not or quite bit or not i know about him, chatgpt also says augustus caesar would be a bit less, it does seem they don't wage war enough in base advciv at least (+/- civ4?), so increasing it quite a bit if not cautiosuly but quite decisively more... to see and maybe accurate, also asked it to double check no web search on search and try to balance it with other leaders, this value of 40 seems a better fit
+
+===== /Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml =====
+----- Comment #361 -----
+
+<!-- advc.xmldefault (start)
+			 These defaults are used when any of the (proper) LeaderHeadInfo
+			 elements below (i.e. LEADER_BARBARIAN above is exluded from this)
+			 doesn't define an optional element (minOccurs 0 in
+			 Civ4CivilizationsSchema.xml).
+			 (For the non-optional elements, LEADER_DEFAULTS has to set some
+			 default as well - 0, NONE or an empty string - but it won't matter
+			 because every LeaderHeadInfo has to define those elements.) -->

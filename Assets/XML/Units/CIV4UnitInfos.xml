@@ -4,19 +4,10 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Unit Infos -->
-<!-- custom: to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units:
-- like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example
-- also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
-see also Long_Comments/Long_Comments_XML.txt comment #90 for details -->
+<!-- custom: to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units; Long_Comments/Long_Comments_XML.txt #90 -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #83 -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #84 -->
-<!-- custom: ObsoleteTech (unit field): set a tech to block training once any team knows it (human + AI); existing units remain, but can be scrapped if ObsoleteTech is known.
-Reason: we disable broad scrapping for hammer efficiency; ObsoleteTech gives a per-unit gate instead of scattered rules.
-Use it to retire early units that are cheap but upkeep-inefficient later (e.g., warrior -> TECH_BRONZE_WORKING).
-If you change upgrade chains or era pacing, update ObsoleteTech to match the tech where the unit should stop being built.
-If the tag is missing or set to NONE, the unit remains buildable forever (workers/settlers or timeless special units).
-Why: this makes unit XML portable between mods — units without the tag keep old behavior, while mods that add it gain a clean stop-build gate.
-Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits consistent and easy to search. (GPT-5.2-Codex) -->
+<!-- custom: ObsoleteTech (unit field): Long_Comments_XML.txt #359 -->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for VS Code upper tree view while scrolling) -->
