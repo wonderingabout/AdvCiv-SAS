@@ -729,8 +729,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
-					<BuildingType>BUILDING_CELTIC_DUN</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+					<BuildingType>BUILDING_CELTIC_LA_TENE_SMITHY</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>

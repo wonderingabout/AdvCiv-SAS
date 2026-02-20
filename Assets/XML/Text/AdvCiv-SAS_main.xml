@@ -3562,4 +3562,8 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG</Tag>
 		<English>Changpingcang</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY</Tag>
+		<English>La Tène Smithy</English>
+	</TEXT>
 </Civ4GameText>

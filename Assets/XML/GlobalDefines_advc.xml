@@ -3,11 +3,7 @@
 	 ..._GlobalDefines files upon loading Advanced Civ. Takes precedence over
 	 BtS GlobalDefines.xml. Defines that overwrite a BtS value are tagged with
 	 a "redefine" comment.
-
-	 Warning for network games: Changes in this file or other XML files can
-	 cause network games to go out of sync unless all participants have made
-	 the same changes. Settings that only affect the user interface or artwork
-	 are generally safe to change individually. -->
+-->
 <!-- 
 AI, UI, or other modifications
 Created as part of AdvCiv-SAS improvements

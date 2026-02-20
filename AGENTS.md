@@ -160,7 +160,6 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
 - Avoid fluff like `================`, keep it nice and simple and clean.
 - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
-- Prefer UTF-8; avoid UTF-8 with BOM and non-UTF-8 encodings (e.g., Windows-1252), as they can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
 
 ### Python (Civ4)
@@ -185,6 +184,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (becuase it will be filled later with lengthy content).
 - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
 - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
+- Prefer ISO-8859-1 in XML Text files, because it correctly detects and displays characters like `è` or `î` (unlike UTF-8), and because it seems to be the native supported for these files.
 
 ## C++
 

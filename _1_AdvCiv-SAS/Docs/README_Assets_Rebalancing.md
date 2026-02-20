@@ -135,7 +135,7 @@ Note: water buildings are generally avoided as they are too situational (useless
 | India | Mausoleum (Jail) | **Keep** (Keep) | Jail is moved to late Classical so fine as such |
 | Japan | Shale Plant (Factory) | **Doujou** (Jail) | Late/weak building; replaced with an early impactful one; thematic fit and boosts Tokugawa/Japan's isolationist profile by strengthening its espionage and military independence potential |
 | Khmer | Baray (Aqueduct) | **Keep** (Keep) | |
-| Korea | Seowon (University) | **Gyeongdang** (Library) | Use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This uses underused library slot, declutters overused university slot, keeps the civ's science identity while feeling less generic, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. Thematically fits the ancient history/civilization of Korea theme as well. Great general chance similarly to how it was done for the japan_doujou (martial arts training). |
+| Korea | Seowon (University) | **Gyeongdang** (Library) | Use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This uses underused library slot, declutters overused university slot, and keeps the civ's science identity, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. Great general chance similarly to how it was done for the japan_doujou (martial arts training). |
 | Mali | Mint (Forge) | **Keep** (Keep) | |
 | Maya | Ball Court (Colosseum) | **Keep** (Keep) | |
 | Mongol | Ger (Stable) | **Keep** (Keep) | |

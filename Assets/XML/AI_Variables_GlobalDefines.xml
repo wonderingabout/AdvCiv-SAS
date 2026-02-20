@@ -5,8 +5,6 @@ Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 -->
 <!-- [advc.104x] This file used to be called BBAI_AI_Variables_GlobalDefines.xml; now also contains UWAI parameters. -->
-<!-- UWAI breaks down the computation of AI war utility into a sum of 28 "aspects", most of which are either in favor of war (added to the total war utility) or against war (subtracted). There are a few mixed aspects that could either increase or decrease war utility. Each aspect corresponds to one particular motivation for or against war. Through this file, a weight is assigned to each aspect. This weight is interpreted as a percentage by which the aspect utility is multiplied. The default (recommended) weights are all 100. This doesn't imply though that all aspects contribute equally by default; the weights are only a final adjustment to the (hardcoded) formulas.-->
-<!-- A weight of e.g. 50 halves the default impact of an aspect, 200 doubles it. 0 means that the aspect is entirely disregarded. A negative weight (not recommended) turns a pro-war aspect into an anti-war aspect or vice versa. In the descriptions below, "we" refers to the AI civ that is considering war. [advc.104x] -->
 <!-- custom: comments moved to as of now to (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\ for concision and as they were too lengthy. Values not updated there, see this XML file here for updated values -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
 	<Define>
