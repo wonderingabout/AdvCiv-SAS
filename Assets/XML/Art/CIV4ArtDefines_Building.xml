@@ -506,16 +506,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Theatre.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,7</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_CHINESE_PAVILLION</Type>
-			<LSystem>LSYSTEM_3x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.89</fScale>
-			<fInterfaceScale>0.56</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Chinese Pavillion/Chinese_Pavillion.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Theatre.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,3,2</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</Type>
 			<LSystem>LSYSTEM_3x3</LSystem>
 			<bAnimated>0</bAnimated>
@@ -604,6 +594,17 @@
 			<NIF>Art/Structures/Buildings/Roman Forum/Forum.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Market.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,3</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from the sengoku mod thanks -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_CHINESE_CHANGPINGCANG</Type>
+			<LSystem>LSYSTEM_3x3</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.75</fScale>
+			<fInterfaceScale>0.5</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PORT</Type>

@@ -3558,4 +3558,8 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_KOREAN_GYEONGDANG</Tag>
 		<English>Gyeongdang</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG</Tag>
+		<English>Changpingcang</English>
+	</TEXT>
 </Civ4GameText>

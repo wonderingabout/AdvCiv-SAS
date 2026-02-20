@@ -843,8 +843,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
-					<BuildingType>BUILDING_CHINESE_PAVILLION</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+					<BuildingType>BUILDING_CHINESE_CHANGPINGCANG</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
