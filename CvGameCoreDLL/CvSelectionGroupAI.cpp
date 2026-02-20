@@ -262,7 +262,7 @@ bool CvSelectionGroupAI::AI_update()
 		// --- SAS no-progress tripwire (end) ---
 		// That’s it.
 		// Why this fixes your scout spins
-		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change” iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
+		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change" iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
 		// You can keep your current early-assert block; with the tripwire in place, you shouldn’t hit it anymore.
 
 		if (doDelayedDeath())

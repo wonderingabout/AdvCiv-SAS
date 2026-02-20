@@ -3105,7 +3105,7 @@ Increase effect of Emphasize buttons when no job changed
 
 I.e. when the K-Mod adjustments to plot evaluation aren't enough to cause a change in the citizen assignment, then try once more with bigger adjustments. [advc.131d]
 
-Related CFC post (under “Citizen automation”):
+Related CFC post (under “Citizen automation"):
 https://forums.civfanatics.com/threads/advanced-civ.614217/page-53#post-16292755
 
 commit 2aa3c7801dd91404a7aafb283fb238bf856bafe2
@@ -3478,7 +3478,7 @@ Adjust unit expenses to speed, map size
 
 Mostly just a decrease to unit cost and supply on Marathon. Slight adjustment of unit cost to map size. [advc.252]
 
-Related CFC post (the paragraph that has the word “explore” bolded):
+Related CFC post (the paragraph that has the word “explore" bolded):
 https://forums.civfanatics.com/threads/advanced-civ-play-along-game.678551/page-2#post-16325933
 
 commit d5194c95ebac90a82f0758f101ecc140f7c9a8db
@@ -19952,7 +19952,7 @@ Unit pane [advc.004w]:
 Don't show a row for movement points for ICBM; for air units, replace that row with a row for air range. Don't show a row for XP level when the selected unit has 0 XP.
 
 Sevopedia [advc.004y]:
-Don't show strength for nukes; don't show movement points for air units; show “immobile” for ICBM and “unlimited” range.
+Don't show strength for nukes; don't show movement points for air units; show “immobile" for ICBM and “unlimited" range.
 Move production cost to the end of the list of stats.
 
 (And move some Sevopedia text from Civ4GameText_advc.xml into the Sevopedia game text file.)
@@ -22042,7 +22042,7 @@ https://bitbucket.org/lfgr/more-naval-ai/commits/e0c1e65c8aca29ca386a7700f6c805f
 When looking for a Trade mission target, the AI doesn't cheat with city visibility. [advc.001]
 https://bitbucket.org/lfgr/more-naval-ai/commits/82b344bd2e66e8dc761301731be0e438637806f6
 
-City attackers in a friendly city may opportunistically attack enemy units approaching the city (“leave attack”). [advc.114e]
+City attackers in a friendly city may opportunistically attack enemy units approaching the city (“leave attack"). [advc.114e]
 https://bitbucket.org/lfgr/more-naval-ai/commits/074250d2aac755cc00db01577610f8acd42e2089
 
 commit 5529316ba1ce98d2a8f6b031e5a1c96a77b1ba11
@@ -22317,7 +22317,7 @@ Clearer help text for building defense; AI tweak.
 
 [change id advc.004c]
 
-Help text for Walls and Castle says that defense is “raised to” 50% and 100% respectively. Replaced the word "defense" with the tower icon. Refer to units that don't ignore building defense as "pre-Renaissance units".
+Help text for Walls and Castle says that defense is “raised to" 50% and 100% respectively. Replaced the word "defense" with the tower icon. Refer to units that don't ignore building defense as "pre-Renaissance units".
 
 Implemented through a new XML tag "DefenseRaise" that replaces "DefenseModifier". Mod-mods can keep using DefenseModifier.
 
@@ -24757,7 +24757,7 @@ Date:   2019-07-02 00:57:28 +0200
 A couple of DllExport and Py interface changes
 
 * Removed two more DllExports and added one back that is used by the Pitboss EXE.
-* Moved a chunk of Python functions from CyCityInterface1.cpp to CyCityInterface2.cpp so that there isn't immediately an error ("debug information module size exceeded”) when someone adds a function in CyCityInterface1.cpp.
+* Moved a chunk of Python functions from CyCityInterface1.cpp to CyCityInterface2.cpp so that there isn't immediately an error ("debug information module size exceeded") when someone adds a function in CyCityInterface1.cpp.
 * Fixed an inconsequential (Vanilla Civ 4) typo in CvEventManager.py.
 
 commit 2759fdb3156b5654a41c7b3e85218f423687ed78
@@ -27089,7 +27089,7 @@ Date:   2019-01-07 11:31:45 +0100
 
 A few additions to the previous commit:
 
-I noticed that the BUG help file said that the GG bar "will not automatically update after a battle, but you must enter a screen and exit out for it to display properly.” Fixed this by setting a dirty-bit in CvPlayer::setCombatExperience. [advc.004]
+I noticed that the BUG help file said that the GG bar "will not automatically update after a battle, but you must enter a screen and exit out for it to display properly." Fixed this by setting a dirty-bit in CvPlayer::setCombatExperience. [advc.004]
 
 Some (final) revisions of the BUG menu help texts [advc.004]
 

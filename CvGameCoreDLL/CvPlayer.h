@@ -251,7 +251,7 @@ public:
 	int getNumAvailableBonuses(BonusTypes eBonus) const;															// Exposed to Python
 	// <!-- custom: we need more siege units early if we don't have key strategic bonuses, so relax threshold in these cases. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather-->
 	// <!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate), so use it with that intent in mind or if you don't mind xd, else the hasBonus or possibly other functions might be used instead but check to be sure-->
-	// Your simple check will work, but it’s “capital-network only.” If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
+	// Your simple check will work, but it’s “capital-network only." If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
 	bool getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const;
 
 	int getNumTradeableBonuses(BonusTypes eBonus) const																// Exposed to Python

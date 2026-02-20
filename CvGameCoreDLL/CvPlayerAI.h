@@ -335,7 +335,7 @@ public:
 	// Counts units by combat class (e.g. UNITCOMBAT_SIEGE)
 	int AI_countUnitsByCombat(UnitCombatTypes eCombat) const;
 	int AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const;
-	// Siege with big city-attack (>=50%) – “trebuchet-like”
+	// Siege with big city-attack (>=50%) – “trebuchet-like"
 	int AI_countTrebuchetsLike() const;
 	// Convenience: sums of offensive / defensive UnitAIs
 	int AI_mainOffensiveLandTotalUnitAIs() const;

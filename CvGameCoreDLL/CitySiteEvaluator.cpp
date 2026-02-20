@@ -1200,8 +1200,8 @@ int AIFoundValue::evaluate()
 			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code Hopefully this improves things and thanks to chatgpt 5, without messing everything up; return a positive value just in case; below example given by chatgpt 5, check if accurate -->
 			//return 0;
 			// Example:
-			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 -->.
-			// “8 snow here” → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
+			// “8 grass far" → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 -->.
+			// “8 snow here" → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
 			// A truly good inland site just returns, e.g., iValue=1800 (>> <!-- custom:44 -->), so it wins.
 			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish. -->
 			// const int iValueCompressed = (1 + iGoodBFCTiles + std::max(0, iValue / 50));
@@ -1294,9 +1294,9 @@ int AIFoundValue::evaluate()
 		// --- SAS inline distance shaping (simple & bounded) ---
 		// C++03-safe, integer math only, overflow-safe via percent scaling.
 		// Notes
-		// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope” at extreme distances.
-		// I left the “too close” branch clamped at 50% so proximity never kills a locally amazing site.
-		// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire” philosophy.
+		// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope" at extreme distances.
+		// I left the “too close" branch clamped at 50% so proximity never kills a locally amazing site.
+		// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire" philosophy.
 		// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks -->
 		// const on the left (CvCity const*) means you won’t mutate the city via this pointer.
 		// const on the right (* const) means you won’t reassign pNearest.
@@ -1311,8 +1311,8 @@ int AIFoundValue::evaluate()
 			static const int CITYR   = (CITYR_ADD + CITY_PLOTS_DIAMETER) / CITYR_DIVIDE; // default 5 <!-- custom: or so claims chatgpt.. 5.. could be accurate though i really don't know, its code helped me lot in all cases thanks-->
 			static const int MIN_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MIN_OK_ADD");
 			static const int MAX_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MAX_OK_ADD");
-			static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close”
-			static const int MAX_OK  = CITYR + MAX_OK_ADD; // ≥ MAX_OK+1 = “too far”
+			static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close"
+			static const int MAX_OK  = CITYR + MAX_OK_ADD; // ≥ MAX_OK+1 = “too far"
 
 			static const int CLOSE_STEP = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_STEP"); // % per tile inside MIN_OK
 			static const int FAR_STEP   = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_STEP"); // % per tile beyond MAX_OK

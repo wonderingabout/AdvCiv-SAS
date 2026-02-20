@@ -2027,12 +2027,12 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
 
 		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
 		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
-		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades”, so it’s the natural spot to add a danger-biased military weighting.
+		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades", so it’s the natural spot to add a danger-biased military weighting.
 		// Given what you’ve already done in AI_techValue and how well #81 behaved, I’d mirror that idea here, but in a single, clean block inside AI_techTradeVal, with a separate toggle/knobs for trades.
 		// Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
-		// 	- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
+		// 	- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay" more total value on our side.
 		// 	- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
-		// If you want “when I’m in real danger, military tech is worth more no matter who offers it”, including:
+		// If you want “when I’m in real danger, military tech is worth more no matter who offers it", including:
 		// 	- from your vassal,
 		// 	- to your master,
 		// 	- in peace deals that might call with bIgnoreDiscount = true,
@@ -2060,13 +2060,13 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
 	} // </advc.550a>
 
 	// <!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate -->
-	// Right, nice next step – this is basically the “backup sanity check” in case an outsider does get to the trade table with a tech your locus already has.
+	// Right, nice next step – this is basically the “backup sanity check" in case an outsider does get to the trade table with a tech your locus already has.
 	// Conceptually:
 	// If any team in our master–vassal cluster already knows eTech, and the offering team is not part of that cluster, then we value the tech less from them, because we have (or could have) an internal source.
 	// Notes:
 	// 	- We reuse the same master/vassal cluster logic style you already used in the research code.
 	// 	- We explicitly do not penalize when eFromTeam is a member of our cluster: master, vassal, or sibling vassal of the same master.
-	// 	- This block is independent of bIgnoreDiscount and the power/tech discount logic: it represents a different idea (“local alternative source”), so it’s cleaner to keep separate.
+	// 	- This block is independent of bIgnoreDiscount and the power/tech discount logic: it represents a different idea (“local alternative source"), so it’s cleaner to keep separate.
 	static const bool bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE");
 	if (bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE && !isHasTech(eTech)) // we wouldn't normally trade for tech we already own
 	{

@@ -647,7 +647,7 @@ class CvMainInterface:
 		self.iBarExtraRowsExtraManualAdjust = None
 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
-		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
+		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
 		# 1) Add a pinned-row member (once)
 		self.iCityBuildBarPinnedRow = None
 		# <!-- custom: building list filter state (0=All, 1=Buildings, 2=National, 3=World). (GPT-5.2-Codex) -->

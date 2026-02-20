@@ -815,7 +815,7 @@ and undoing it as it told me later solved the error. So i think or at least it s
 			# Change in CvInfoScreen.py:
 			# Added iCityFoundedMessage and a bHideCityFounded gate using pPlot.getRevealedOwner(self.iActiveTeam, False).
 			# If revealed owner doesn’t match the message’s player (or coords missing), the city‑founded line is hidden.
-			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild” toggle for testing.
+			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild" toggle for testing.
 			# -->
 
 ===== PrivateMaps\Planet_Generator_0_68.py =====

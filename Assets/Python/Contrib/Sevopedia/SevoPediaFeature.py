@@ -544,7 +544,7 @@ class SevoPediaFeature:
 				# Your Relevant Units panel (from earlier) already shows:
 				# - land/air with All-Terrain (Gunship, Airship, Recon Drone), and
 				# - sea units with a bypass (Move-Impassable or passable tech).
-				# This Impassable panel now mirrors Peak-style behavior by listing every other unit that cannot enter Ice Cap, which should remove the “why can these 3 enter?” confusion.
+				# This Impassable panel now mirrors Peak-style behavior by listing every other unit that cannot enter Ice Cap, which should remove the "why can these 3 enter?" confusion.
 				# Land/Air: blocked unless they have All-Terrain (your recon/gunship/airship will be allowed)
 				land_or_air_blocked = (unitInfoDomain != DomainTypes.DOMAIN_SEA) and (not unitInfo.isCanMoveAllTerrain())
 

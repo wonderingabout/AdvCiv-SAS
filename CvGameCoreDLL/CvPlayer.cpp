@@ -4330,7 +4330,7 @@ int CvPlayer::getNumAvailableBonuses(BonusTypes eBonus) const
 
 // <!-- custom: we need more siege units early if we don't have key strategic bonuses, so relax threshold in these cases. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather-->
 // <!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate), so use it with that intent in mind or if you don't mind xd, else the hasBonus or possibly other functions might be used instead but check to be sure-->
-// Your simple check will work, but it’s “capital-network only.” If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
+// Your simple check will work, but it’s “capital-network only." If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
 bool CvPlayer::getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const
 {
 	static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
@@ -5575,7 +5575,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit,
 			trainingModifierFromHandicap(GC.getInfo(eUnitClass).isWorldUnit())).
 			// <!-- custom: very annoying, do not round to multiples of 5 please... Ancient macemen 18 hammers cost 20, and swordsman 42 costs 40 while swordsman 43 costs 45, it is a mess and hard to balance. Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate, see known issue as of now 67 for details; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL. Since i find it nonsensical and don't care about pretty numbers in this case at least, disabled it entirely -->
 			// Short answer: for your use-case, they’re the same. Use .round() for clarity.
-			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1,” i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
+			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1," i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
 			// roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
 			round();
 	// </advc.107>

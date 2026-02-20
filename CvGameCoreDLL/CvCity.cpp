@@ -544,11 +544,11 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass)
 		return false;
 
 	// When to use each
-	// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?” regardless of techs.
-	// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?”
+	// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?" regardless of techs.
+	// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?"
 	// For your emergencies:
 	// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
-	// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?” guard; canConstruct(...) will block obsolete castle builds.
+	// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?" guard; canConstruct(...) will block obsolete castle builds.
 	if (getNumBuilding(eBuilding) != 0)
 		return false;
 
@@ -628,9 +628,9 @@ void CvCity::doTurn()
 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 	// Practical use in your siege gate
-	// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+	// Don’t use iEnemyPowPct<=90 to mean “we’re stronger" when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
 	// This way:
-	// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
+	// - In peacetime, you won’t accidentally treat “0" as “we totally dominate" and overbuild siege.
 	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 	//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
 	// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
@@ -712,7 +712,7 @@ void CvCity::doTurn()
 	if (!bEmergencyBuilding && !bHuman)
 	{
 		// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see the main changes guide or code for details), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want 0 to disable. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken) -->
-		// Your guards use getNumBuilding(...) (not “active”), which is exactly what we want for “do we already have one?”—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
+		// Your guards use getNumBuilding(...) (not “active"), which is exactly what we want for “do we already have one?"—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
 		// --- SAS: force Walls/Castle if at war and enemy stronger ---
 		static const bool bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS = GC.getDefineBOOL("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS");
 
@@ -832,7 +832,7 @@ void CvCity::doTurn()
 
 					// <!-- custom: untested but recommended to add by chatgpt 5 which i think is good too (if i were to use them xd but check if accurate too) -->
 					// Defines priority sanity (optional but recommended)
-					// If someone sets both “offense only” and “defense only”, your if/else if currently makes offense win silently. Add a guard once near the defines:
+					// If someone sets both “offense only" and “defense only", your if/else if currently makes offense win silently. Add a guard once near the defines:
 					FAssertMsg(!(bSAS_OffenseDefaultUnitAIsOnly && bSAS_DefenseDefaultUnitAIsOnly),
 								"Both OFFENSE_ONLY and DEFENSE_ONLY are set; OFFENSE_ONLY will take precedence.");
 
@@ -1052,7 +1052,7 @@ void CvCity::doTurn()
 					// 	- Start era,
 					// 	- Handicap modifiers,
 					// via your existing getCultureThreshold logic.
-					// No “10 / 6 / 20” sprinkled in C++.
+					// No “10 / 6 / 20" sprinkled in C++.
 					const int iBFCThreshold = GC.getGame().getCultureThreshold((CultureLevelTypes)iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
 					static const int iEnoughSanity = GC.getDefineINT("SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY");
 

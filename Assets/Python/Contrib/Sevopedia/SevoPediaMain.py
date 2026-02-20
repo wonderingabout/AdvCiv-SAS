@@ -862,7 +862,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.IS_TECH_STATISTICS_PREBUILT = True
 
 	# Helper to group techs by era (single-pass bucketing).
-	# Yep — techs are the easiest one to refactor “like buildings/units”, because a tech already has its era (getEra()), so we just do a single pass, bucket into groups[iEra], then emit era headers in era order.
+	# Yep — techs are the easiest one to refactor "like buildings/units", because a tech already has its era (getEra()), so we just do a single pass, bucket into groups[iEra], then emit era headers in era order.
 	def SAS_getTechsGroupedByEra(self):
 		return SAS_MainGroupings.SAS_getTechsGroupedByEra(self.isSortLists())
 
@@ -2227,7 +2227,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	
 	# <!-- custom: according to chatgpt 5.2 and if i understood it correctly, TERRAIN_HILL and TERRAIN_PEAK already exist in our terrains list as per CIV4TerrainInfos.xml. However they have an <bGraphicalOnly>1</bGraphicalOnly> so they are excluded from the display. Reveal them from the display here. We'll later handle their incorrect <bWater>1</bWater> property when handling the list. At least we have all the terrains we need now -->
 	# <!-- custom: generalize this logic by using an alternative helper that we can use if we need to (e.g. for peak, hill, or anything else we'd want it to use it for) without affecting or slowing down the other parts of the code that already use the (filtered/default) getSortedList. -->
-	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries (“Unfiltered” here specifically means “don’t filter GraphicalOnly”.).
+	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries ("Unfiltered" here specifically means "don’t filter GraphicalOnly".).
 	# Useful for categories where GraphicalOnly infos are still meaningful in Sevopedia (e.g. terrains like TERRAIN_HILL / TERRAIN_PEAK in our CIV4TerrainInfos.xml).
 	def getUnfilteredSortedList(self, numInfos, getInfo, noSort=False, bCheckGraphicalOnly=False):
 		return self.getSortedList(numInfos, getInfo, noSort, bCheckGraphicalOnly)

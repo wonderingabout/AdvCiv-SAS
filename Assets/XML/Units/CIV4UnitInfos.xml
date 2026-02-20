@@ -20584,7 +20584,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			<iCollateralDamage>100</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<!-- custom: was 6, below info by chatgpt 5 that i formatted or such and thanks to my prompt(s) and or such, check if accurate -->
-			<!-- Is “more defenders” relevant? Very. Collateral hits the top defenders by strength; bumping from 6 → 7 is ~+16% more coverage each attack—perfect fit for a rocket-salvo weapon. -->
+			<!-- Is "more defenders" relevant? Very. Collateral hits the top defenders by strength; bumping from 6 → 7 is ~+16% more coverage each attack—perfect fit for a rocket-salvo weapon. -->
 			<!-- K-Mod: was 7 -->
 			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>

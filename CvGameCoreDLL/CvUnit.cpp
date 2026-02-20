@@ -3551,7 +3551,7 @@ bool CvUnit::canScrap() const
 
 		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 -->
 		// Never scrap anything carrying cargo
-		// Prevents “oops I deleted a galleon with settlers”.
+		// Prevents “oops I deleted a galleon with settlers".
 		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units (looks less predictable to me), and i hope the protection of the cargo itself is enough and most fit -->
 		if (getCargo() > 0)
 		{

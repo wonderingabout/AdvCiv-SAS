@@ -533,7 +533,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 	// Emergency rule: if we're at war with 3+ major civs, force the negotiation path.
 	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
 	//
-	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates”)
+	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates")
 	const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
 
 	// Combined enemy power vs us (100 = parity)

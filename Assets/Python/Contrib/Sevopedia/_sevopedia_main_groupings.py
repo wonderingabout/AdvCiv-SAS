@@ -673,7 +673,7 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, bSortLists):
 # # <!-- custom: Availability-era helpers (used by era groupings). These were previously methods on SevoPediaMain; moved here to keep groupings self-contained. (ChatGPT-5.2 Thinking) -->
 _SAS_cacheCorporationHQBuildingByCorp = None
 
-# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
+# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean "era" for a corporation should be the availability era of its founding building.
 # This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
 # Map each corporation to its founding (HQ) building once, then reuse; used for grouping corporations by era.
 def SAS_getCorporationHQBuilding(iCorporation):
@@ -717,7 +717,7 @@ def SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs):
 
 	# SpecialBuilding tech prereq (eg monasteries gated by SPECIALBUILDING tech)
 	# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks -->
-	# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
+	# Yep — that’s exactly why: for "special buildings" (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees "no building tech prereq" and dumps it into All Eras.
 	# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
 	iSpecialBuildingType = info.getSpecialBuildingType()
 	if iSpecialBuildingType >= 0:
@@ -776,7 +776,7 @@ def SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs):
 				iEra = iReligionEra
 
 	# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not); check if accurate -->
-	# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines (“captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech”).
+	# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines ("captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech").
 
 	return iEra  # -1 means "no tech prereq bucket"
 
@@ -1085,7 +1085,7 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, bSortLists, getCorpor
 
 # <!-- custom: in sevopedia specialists, group specialists by type: regular specialists vs great specialists (those whose <Type> contains "GREAT_"), based on RFC DOC mod's code thanks. Added with the help of chatgpt 5.2 thanks -->
 # Notes (kept conservative)
-# 	- “Great specialists” detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
+# 	- "Great specialists" detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
 # 	- I reused TXT_KEY_PEDIA_CATEGORY_SPECIALIST for the regular header (so it’s localized), and I used the literal string "Great Specialists" for the great header (since your mod likely doesn’t have RFC’s TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST). If you want, you can later add your own TXT_KEY and swap that line to localText.getText("TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST", ()).
 def SAS_getSpecialistsGroupedByType(bSortLists):
 	specialistsList = []
@@ -1129,7 +1129,7 @@ def SAS_getSpecialistsGroupedByType(bSortLists):
 	return outList
 
 # <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
-# Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
+# Step 2: Replace getCivicList() with "category + era tiers" (behind a SAS define)
 # Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
 # In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
 def SAS_getCivicsGroupedByCivicOption(bSortLists):

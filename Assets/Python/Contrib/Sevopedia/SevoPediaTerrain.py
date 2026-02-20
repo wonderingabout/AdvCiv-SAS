@@ -432,7 +432,7 @@ class SevoPediaTerrain:
 
 				# <!-- custom: also handle water units that can move through all terrains but only on water; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
 				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc-->
-				# Peak — Relevant Units (includes “boat with legs”; All-Terrain short-circuits)
+				# Peak — Relevant Units (includes "boat with legs"; All-Terrain short-circuits)
 				can_walk_on_peak = (
 					unitInfo.isCanMoveAllTerrain() or
 					(unitInfoDomain == DomainTypes.DOMAIN_LAND and

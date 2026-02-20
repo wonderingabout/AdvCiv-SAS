@@ -161,6 +161,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Avoid fluff like `================`, keep it nice and simple and clean.
 - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
 - Prefer UTF-8; avoid UTF-8 with BOM and non-UTF-8 encodings (e.g., Windows-1252), as they can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
+- Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
 
 ### Python (Civ4)
 

@@ -84,7 +84,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 	// 	1>          ..\CvDLLWidgetData.cpp(83) : see declaration of 'iMaxPlotListSize'
  	// 
 	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all -->
-	// You hit the classic MSVC “switch-init” rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip” the initialization → C2360.
+	// You hit the classic MSVC “switch-init" rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip" the initialization → C2360.
 	//
 	// Fix (wrap the case in braces)
 	{

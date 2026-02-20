@@ -614,12 +614,12 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_DIVIDE</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- ≤ MIN_OK-1 = “too close” -->
+	<!-- ≤ MIN_OK-1 = "too close" -->
 	<Define>
 		<DefineName>SAS_EVALUATE_DISTANCE_MIN_OK_ADD</DefineName>
 		<iDefineIntVal>-1</iDefineIntVal>
 	</Define>
-	<!-- MAX_OK+1 = “too far” -->
+	<!-- MAX_OK+1 = "too far" -->
 	<Define>
 		<DefineName>SAS_EVALUATE_DISTANCE_MAX_OK_ADD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

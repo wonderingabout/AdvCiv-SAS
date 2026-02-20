@@ -1258,7 +1258,7 @@
 			<!-- custom: less trade, not none, this is not isolationism, was 0 -->
 			<iTradeRoutes>-1</iTradeRoutes>
 			<!-- custom: less trade, not none, this is not isolationism,as chatgpt 5.1 confirms thanks, was 1 -->
-			<!-- Yeah, I agree with your instinct here: if you don’t want a full-on “autarky / isolationism” civic, then “less trade, not none” fits Protectionism better, and avoids the huge tech-pace hit from bNoForeignTrade. -->
+			<!-- Yeah, I agree with your instinct here: if you don’t want a full-on "autarky / isolationism" civic, then "less trade, not none" fits Protectionism better, and avoids the huge tech-pace hit from bNoForeignTrade. -->
 			<bNoForeignTrade>0</bNoForeignTrade>
 			<bNoCorporations>0</bNoCorporations>
 			<bNoForeignCorporations>1</bNoForeignCorporations>

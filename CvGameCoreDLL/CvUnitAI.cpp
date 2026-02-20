@@ -219,11 +219,11 @@ bool CvUnitAI::AI_update()
 	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
 	{
 		// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originallythat barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well. Production seems fine, but movement of units should be fixed ideally. Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xdor refine based on each other's output, check if accurate, i refined i helped format the code comment too; see known issue as of now 49 for details -->
-		// 2) Add a tiny “push” at the very top of AI_cityDefenseMove
+		// 2) Add a tiny “push" at the very top of AI_cityDefenseMove
 		// --- push defenders out of overstocked cities (minimal & effective) ---
 		// <!-- custom: but update, tested previous change ingame, the issue still seemingly mostly persists, and in many cities i have noticed enough units are stationed but they are not necessarily defender unitai types or such, so asked chatgpt 5 about it which (who?) adjusted it as such thanks, check if accurate -->
 		// - Counts all defend-capable units, so surplus in capital is recognized even if they’re COUNTER/RESERVE/ATTACK.
-		// - The iExtraDefenders trick (+1 during early barbs) nudges the search to treat secondary cities as “wanting one more” without changing AI_minDefenders() globally.
+		// - The iExtraDefenders trick (+1 during early barbs) nudges the search to treat secondary cities as “wanting one more" without changing AI_minDefenders() globally.
 		// - Local search (iMaxPath=4) keeps it from yanking units across the empire. If it still clusters, try 6.
 		// --- Early, light-weight city-to-city garrison rebalance ----------
 		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -232,7 +232,7 @@ bool CvUnitAI::AI_update()
 			const UnitAITypes eAI = AI_getUnitAIType();
 			// <!-- custom: note: UNITAI_ATTACK_LEMMING not added as advised by chatgpt 5, we also don't use them in our mod anyway so maybe fine as such, below is reasoning it gave if helps, check if accurate and thanks chatgpt 5 for all help -->
 			// Include UNITAI_ATTACK_CITY_LEMMING in the exporter?
-			// I’d exclude it. Lemming units are for stack assaults and are deliberately “commit-to-attack” flavored; turning them into garrisons can stall offensives and create weird back-and-forth. If you ever want to relax that, do it behind a strict gate (early barb focus, no current war plan, path ≤ 3), but default should be not to use them as donors.
+			// I’d exclude it. Lemming units are for stack assaults and are deliberately “commit-to-attack" flavored; turning them into garrisons can stall offensives and create weird back-and-forth. If you ever want to relax that, do it behind a strict gate (early barb focus, no current war plan, path ≤ 3), but default should be not to use them as donors.
 			// <!-- custom: update: UNITAI_ATTACK_CITY_LEMMING ignored as it seems unreliable and AIs don't produce trebuchets when trying to make trebuchets ATTACK_CITY_LEMMING, so ignored here for simplicity and reliability, see also known issue as of now 53.3 for related info or details) (note: even if they didn't have, still, trebuchets have a very specific role (attacking cities) and are bad at anything else, yet here we only want a general all-purpose unit here to defend or attack against barbarians or early attackers with quite versatile units, which the trebuchet or other such units would likely not fit, so do not include them here. -->
 			const bool bMilAI =
 				(eAI == UNITAI_ATTACK ||
@@ -832,7 +832,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 // - std::map lookup: O(log N) + pointer chasing (cache-unfriendly).
 // - std::vector lookup: O(1) direct index, very cache-friendly.
 // - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
-// Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry” can be represented by NO_BUILD. That makes a vector the ideal structure.
+// Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry" can be represented by NO_BUILD. That makes a vector the ideal structure.
 // <!-- custom: each land build cleanly pairs to only one bonus in our mod (exception: oil has offshore platform (water) and well (land), but here we're only handling land so effectively only 1). Prefetch and cache this data to avoid reuse. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 // I checked your uploaded CIV4ImprovementInfos.xml: there are exactly 29 land bonuses that have bBonusTrade=1 on a land improvement, and they match your manual list one-for-one (Oil is Well on land; Offshore Platform is water-only so it gets filtered out automatically).
 // So you can keep the static-vector caching, but populate it dynamically by scanning:
@@ -936,7 +936,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	PROFILE_FUNC();
 
 	// <!-- custom: fix crash at turn 77 more properly now that we have identified the cause to be here since changing the code here triggers it, and guarding null and no build in caller avoids it, see code comment at callers of this function for details. Code provided by chatgpt 5 in an attempt to fix it more cleanly and ideally not have workers parked, check if accurate -->
-	// And no—you won’t be “back to square one” or re-introduce the crash as long as you add two tiny safety fixes:
+	// And no—you won’t be “back to square one" or re-introduce the crash as long as you add two tiny safety fixes:
 	if (ppBestPlot)  *ppBestPlot  = NULL;
 	if (peBestBuild) *peBestBuild = NO_BUILD;
 	// ... PHASE 1 builds candidates ...
@@ -1042,7 +1042,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	const int iFoodSurplusCityHas = (kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(/*bFoodProduction=*/false));
 	// That looks solid! You’re doing exactly what we wanted:
 	// take the ordinary surplus food - consumption(false) (which includes angry + specialists),
-	// then “give it back” by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
+	// then “give it back" by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
 	const int iEstimatedCityFoodDifference = iFoodSurplusCityHas + iFoodConsumedBySpecialistOrAngryCitizens;
 
 	// <!-- custom: BFC food environment score - similar to CitySiteEvaluator iLowFoodLocationCount logic.
@@ -1203,7 +1203,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				}
 				else
 				{
-					// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite” with another build.
+					// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
 					continue;
 				}
 			}
@@ -1856,7 +1856,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					//
 					// Notes / edge cases:
 					// • The hard SKIP for (pop >= 7 && healthDiff <= 0) prevents emergency forest chops from competing.
-					//   If you want “rare emergencies” to be possible, replace SKIP with a small negative Δ instead.
+					//   If you want “rare emergencies" to be possible, replace SKIP with a small negative Δ instead.
 					// • Early forests are broadly devalued (need +2 health to be neutral). This protects against
 					//   overchopping in the opening unless the city is clearly healthy.
 					if (iCityPopulation >= 7)
@@ -1921,7 +1921,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					//   pop 10, health -2 → Δ = 75 * (4 - (-2))     = 450      (very strong push to clear)
 					//
 					// Notes:
-					// • The pop<7 path now never yields negative Δ, preventing “always chop” from losing to other plots purely due to positivity.
+					// • The pop<7 path now never yields negative Δ, preventing “always chop" from losing to other plots purely due to positivity.
 					// • Large healthy cities can still deprioritize jungle if they have better improvements to do first.
 					if (iCityPopulation >= 7)
 					{
@@ -1949,7 +1949,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					}
 					else
 					{
-						// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite” with another build.
+						// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
 						continue;
 					}
 				}
@@ -2058,8 +2058,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
 			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
 			// With iRange = 0, it only counts groups whose target is exactly the same tile.
-			// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
-			// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+			// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+			// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
 			int const iRange = 0;
 			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
 			int const iMaxWorkers = 1;
@@ -3009,7 +3009,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD. Fix to unstick these "retreaters" at start of turn. See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// two small patches that fix it
-	// 2) Unstick “retreaters” at the start of the turn
+	// 2) Unstick “retreaters" at the start of the turn
 	// Right at the top of AI_workerMove (after you build kOwner), add:
 	// Unstick previous retreats: if we’re in our land and not threatened, wake up.
 	// <!-- custom: update: we still have some workers that are on hold when cities could be improved, add an additional HOLD wake up as well if i understood it correctly as recommended by chatgpt 5, check if accurate, in autoplay they do appear to be on HOLD activity though it seems if i remember it correctly-->
@@ -3052,7 +3052,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	// <!-- custom: make workers less jumpy to retreat as chatgpt 5 says (thanks to my prompts and adjustments or not or yes or etcbut thanks for help too), i don't understand too much these, but it seems that we get false danger positives and due to that never improve tiles, some cities are entirely unimproved at turn 175 in jungle, trying to address that and perhaps also make workers more efficient. I think that early most units are slow so it's fine, and later in game, when most people have mobile units, the value of workers should be less so fine if they are stolen if i may say in this case; also using this as an opportunity to make workers more responsive and not stay in city when they could do something else, as questionned by the "XXX" comment-->
 	// Why not comment the retreat out entirely?
-	// If you remove it, workers will often stand on roads two tiles from barb axes and get sniped. Your target check won’t stop that. The small tweaks above keep almost all the safety, with far fewer “false retreats,” especially around jungle rings.
+	// If you remove it, workers will often stand on roads two tiles from barb axes and get sniped. Your target check won’t stop that. The small tweaks above keep almost all the safety, with far fewer “false retreats," especially around jungle rings.
 	// if (bCanRetreat && !getGroup()->canDefend())
 	// {
 	// 	if (kOwner.AI_isPlotThreatened(plot(), 2))
@@ -3084,11 +3084,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
          - Inside our cultural borders: skip threat check entirely.
            (If an enemy is already on our tile, the game captures us before this runs.)
          - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
-           → This greatly reduces “false positives” from slow or harmless enemy units
+           → This greatly reduces “false positives" from slow or harmless enemy units
              far away but still inside the old radius 2 bubble.
          - If threatened, FIRST try to redirect to a different, safer city
            that still needs improvements, instead of retreating straight home.
-         - Only fall back to “retreat to city” if no safe redirection is possible.
+         - Only fall back to “retreat to city" if no safe redirection is possible.
          - This keeps workers productive more often while still avoiding capture
            in genuinely dangerous situations outside borders.
     */
@@ -3253,11 +3253,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// Option 1: Add fallback after your city-switch check
 		// Always try to improve current city if we have one
 		// <!-- custom: chatgpt 5's comment about this change/addition as well -->
-		// C) Only use “self city” as selection, let actual work be decided by AI_improveCity
-		// Keep your current structure where AI_workerMove tries AI_improveCity(*pCity) after city switching. That path is already present and safe; just avoid having AI_nextCityToImprove return “true” with a self target that isn’t actionable (Fix A handles that). Your current call sites do return immediately on “success,” so ensuring “success” means “we actually queued missions” is the key.
+		// C) Only use “self city" as selection, let actual work be decided by AI_improveCity
+		// Keep your current structure where AI_workerMove tries AI_improveCity(*pCity) after city switching. That path is already present and safe; just avoid having AI_nextCityToImprove return “true" with a self target that isn’t actionable (Fix A handles that). Your current call sites do return immediately on “success," so ensuring “success" means “we actually queued missions" is the key.
 		// <!-- custom: when i asked it again if a change was needed regarding C it said this to explain it i mean, check if accurate -->
 		// Short answer: you’re good — with A and B in place, you don’t need to change anything for option C.
-		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed” on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
+		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed" on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
 		// - The local-work path still runs when no switch happens: after the first switch attempt, you fall through and try AI_improveCity(*pCity) and AI_improveLocalPlot(...), so the worker won’t park if it stayed in place.
 		if (AI_improveCity(*pCity))
 			return;
@@ -3516,14 +3516,14 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	// left debug list shows several Workers with MISSIONAI_RETREAT, HOLD.
 	// they’re inside your borders (Persepolis) and just… park.
-	// that’s your “parking” culprit: once a worker gets a RETREAT mission it often sits on HOLD for many turns unless something explicitly clears that state.
+	// that’s your “parking" culprit: once a worker gets a RETREAT mission it often sits on HOLD for many turns unless something explicitly clears that state.
 
 	// why it’s happening even after your earlier tweak
 	// You already softened the early retreat check (outside borders only, radius=1).
 	// But near the end of AI_workerMove there’s still this unconditional fallback:
 	// That call runs even inside borders, and AI_retreatToCity sets the group to
 	// MISSIONAI_RETREAT + ACTIVITY_HOLD. In mid-game with 1–2 wars, the internal threat
-	// heuristics will happily keep flagging tiles as “unsafe”, so workers pile into the
+	// heuristics will happily keep flagging tiles as “unsafe", so workers pile into the
 	// nearest city and stay on HOLD. That matches your screenshot exactly.
 	// two small patches that fix it
 	// 1) Don’t retreat inside borders (final fallback)
@@ -3549,7 +3549,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		return;
 
 	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate); note: refresh the value to another bWorkerSleeping2 variable in case it changed since then  -->
-	// Bottom-of-function failsafe (“do something, anything”)
+	// Bottom-of-function failsafe (“do something, anything")
 	// At the very end of AI_workerMove (just before returning with no action), add:
 	const bool bWorkerSleeping2 = (
 		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
@@ -3573,7 +3573,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// Put the failsafe before the final MISSION_SKIP
 	// <!-- custom: then after i asked it why only to understand/guess xdthat our fallback would not be reached or fail due to the skip or such, it added this info, check if accurate -->
 	// yep — your intuition is right.
-	// pushMission(MISSION_SKIP) queues a “do nothing this turn” for the group (effectively HOLD/skip-turn).
+	// pushMission(MISSION_SKIP) queues a “do nothing this turn" for the group (effectively HOLD/skip-turn).
 	// Once you’ve queued that, any logic after it is either not reached (if you return;) or will be overwritten by the queued skip (the group will still execute the skip you just pushed).
 	// So if you put your wake-up + reassignment after MISSION_SKIP, it neuters the sanity checks. They must run before any skip is pushed.
 
@@ -5094,9 +5094,9 @@ void CvUnitAI::AI_attackCityMove()
 					}
 				}
 				// <!-- custom: fixes "weird back and forth" issue after fixing known issue 62 (not evacuating all units from doomed city). Stack evacuates nicely then tries to attack much stronger enemy stack, only to retreat without attacking after seeing enemy is too strong - very inefficient and risky. Doesn't appear if playing 2+ autoplay turns in a row (but does with 1 autoplay turn). While maybe no longer necessary, kept as harmless sanity check since saw plenty such cases. See known issue 63 for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-				// Gate the “walk toward target city” step
-				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk.” block that always tries to move closer, even if we’ve already computed that the target is too strong
-				// That’s the whole change. When the city is “too strong,” the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
+				// Gate the “walk toward target city" step
+				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk." block that always tries to move closer, even if we’ve already computed that the target is too strong
+				// That’s the whole change. When the city is “too strong," the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
 				//
 				// We have to walk.
 				// if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
@@ -6478,14 +6478,14 @@ void CvUnitAI::AI_generalMove()
 
 	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy -->
-	// “Try to construct a Military Academy if our empire currently has fewer than X academies.”
+	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
 	if (AI_construct(1))
 	{
 		return;
 	}
 
 	// NEW: Try joining FIRST <!-- custom: before and instead of any great general leader, but after we have our academy (if we can) --> (allow multiple instructors per city)
-	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled.”
+	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
 	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
 	if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
 	{
@@ -10681,9 +10681,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 		const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 		// Practical use in your siege gate
-		// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+		// Don’t use iEnemyPowPct<=90 to mean “we’re stronger" when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
 		// This way:
-		// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
+		// - In peacetime, you won’t accidentally treat “0" as “we totally dominate" and overbuild siege.
 		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 		//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
 		// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
@@ -12165,7 +12165,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 			// <!-- custom: barbarians capture cities too early in base AdvCiv +/- Civ4. AI has plenty units but concentrates them poorly (4 in capital, 1 in city B), so city B gets captured while capital is overly defended. Production is fine but unit movement needs fixing. See known issue 49 for details. Credit: ChatGPT 5; Gemini 2.5 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 			// int iDefendersNeed = pLoopCity->AI_minDefenders();
 			// 1) Make the search ask for what the city really needs
-			// That one-liner lets the existing “pull” logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
+			// That one-liner lets the existing “pull" logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
 			const int iDefendersNeed = pLoopCity->AI_neededDefenders(true);
 
 			if (iDefendersHave < iDefendersNeed)
@@ -19347,8 +19347,8 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity,
 			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
 			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
 			// With iRange = 0, it only counts groups whose target is exactly the same tile.
-			// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
-			// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+			// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+			// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
 			int const iRange = 0;
 			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
 			int const iMaxWorkers = 1;
@@ -19480,7 +19480,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
     int bestScore = MIN_INT;
 
 	// <!-- custom: try to improve our current cityif no other city is good rather than bailing entirely, at least we'd be using our workers rather than them doing nothing at all -->
-	// yup, that plan is clean: don’t recurse; while scanning cities, also test your current city and stash a “self candidate.” If nothing else wins, fall back to that. Below is a tiny drop-in that reuses the exact same guards you already use (bestBuild gate → 1-per-tile reservation → pathable), plus a final sanity check before pushing missions.
+	// yup, that plan is clean: don’t recurse; while scanning cities, also test your current city and stash a “self candidate." If nothing else wins, fall back to that. Below is a tiny drop-in that reuses the exact same guards you already use (bestBuild gate → 1-per-tile reservation → pathable), plus a final sanity check before pushing missions.
 	// Minimal patch
 	// 1. Add these locals before the FOR_EACH_CITYAI loop:
 	CvPlot*   pSelfPlot   = NULL;
@@ -19540,7 +19540,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// 3. Keep your existing candidate checks (AI_getBestBuild / AI_bestCityBuild / null guards / reservation / path). After those checks pass, do this:
 		if (bIsSelf)
 		{
-			// Store a “self” candidate for later fallback; don’t compete in scoring here.
+			// Store a “self" candidate for later fallback; don’t compete in scoring here.
 			bSelfImprovable = true;
 			pSelfPlot  = pPlot;
 			eSelfBuild = eBuild;
@@ -19607,12 +19607,12 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// 	return false;
 	// <!-- custom: add in addition to this sanity check if i'm not mistakena new extra logic to try to improve our city if we have no other city to improve at all, better than doing nothing and bailing,, code by chatgpt 5, check if accurate-->
 	// Minimal patch
-	// 4. Fallback to the stored “self” candidate if no other-city target was found:
+	// 4. Fallback to the stored “self" candidate if no other-city target was found:
 	// <!-- custom: update: according to claude sonnet 4.5 and then according to chatgpt 5 as well after feeding it its explanation, there was an issue with our approach, so fixed as below with chatgpt 5's rationale in comments, check if accurate -->
 	// A) Gate the self fallback (stop returning a no-op)
 	// Replace your fallback block with this guard so it only fires when there’s real work to do:
 	// Fallback to stored self target *only if actionable*
-	// This keeps your self-candidate idea but prevents “successful” no-ops that lead to parking. (Your current fallback is here.)
+	// This keeps your self-candidate idea but prevents “successful" no-ops that lead to parking. (Your current fallback is here.)
 	if ((pBestPlot == NULL || eBestBuild == NO_BUILD) && bSelfImprovable)
 	{
 		// Use self only if we're not already standing there,
@@ -20100,8 +20100,8 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
 		// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
 		// With iRange = 0, it only counts groups whose target is exactly the same tile.
-		// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
-		// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+		// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+		// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
 		int const iRange = 0;
 		// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
 		int const iMaxWorkers = 1;

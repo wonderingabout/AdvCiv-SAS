@@ -1635,7 +1635,7 @@ void CvCityAI::AI_chooseProduction()
 			// Yep—that crash is because this line can pass a negative range into the RNG:
 			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
 			// Minimal, correct fix (skip the roll when disabled)
-			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
 			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
 			if (iWC > 0) // <-- guard: only roll with a valid positive range
 			{
@@ -2145,7 +2145,7 @@ void CvCityAI::AI_chooseProduction()
 			// Yep—that crash is because this line can pass a negative range into the RNG:
 			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
 			// Minimal, correct fix (skip the roll when disabled)
-			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
 			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
 			if (iWC > 0) // <-- guard: only roll with a valid positive range
 			{
@@ -2954,7 +2954,7 @@ void CvCityAI::AI_chooseProduction()
 		// Yep—that crash is because this line can pass a negative range into the RNG:
 		// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
 		// Minimal, correct fix (skip the roll when disabled)
-		// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+		// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
 		const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
 		if (iWC > 0) // <-- guard: only roll with a valid positive range
 		{
@@ -4433,7 +4433,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 				// Yep—that crash is because this line can pass a negative range into the RNG:
 				// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
 				// Minimal, correct fix (skip the roll when disabled)
-				// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
+				// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
 				const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
 				if (iWC > 0) // only roll if the range is positive
 				{
@@ -4643,7 +4643,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 	// food surplus we can use after health; clamp at 0
 	int iEffectiveFood = std::max(0, iFoodDifference) - std::max(0, -iHealthLevel);
-	// If you want to use that “happy gate” directly in code:
+	// If you want to use that “happy gate" directly in code:
 	// use iEffectiveFood as your growth signal in the later rules
 	if (iHappinessSurplus <= 0)
 	{
@@ -4695,9 +4695,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	{
 		// <!-- custom: per-player, per-turn cache to avoid recomputing top city scans at every call. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints). Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 		// <!-- custom: cache scope limited to bSAS_AI_BUILDING_VALUE_OPTIMIZE block; move to function scope if reused elsewhere. (Claude code Sonnet 4.5 (summarized)) -->
-		// Is this “safe enough”?
+		// Is this “safe enough"?
 		// 	- For Civ4’s normal single-threaded AI: yes.
-		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode” should not mutate caches anyway, so the pattern above is aligned with that.
+		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode" should not mutate caches anyway, so the pattern above is aligned with that.
 		// --- SAS: per-player, per-turn cache for empire-wide "top city" scans used in some gates.
 		// Updated only when !bConstCache (async/const-eval stays side-effect free).
 		static bool s_abTopHptValid[MAX_PLAYERS];
@@ -4716,13 +4716,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 		// <!-- custom: always pick these first if in this specific case especially relevant-->
 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, everything else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
-		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
+		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index" rather than a bad pointer to game data.
 		// Why I’m confident:
 		// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
-		// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow”.
+		// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow".
 		// - This also explains why you can reproduce the crash even after removing the cache: the oversized return path still fires.
 		//
-		// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win”, and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
+		// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win", and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
 		static const int AI_BUILDING_ALWAYS_PICK_FIRST = 100000;
 
 		// Quick threat read
@@ -4767,7 +4767,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
 
 		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful-->
-		// 1) Identify “ironworks-like”: sum BonusYieldModifiers for PRODUCTION
+		// 1) Identify “ironworks-like": sum BonusYieldModifiers for PRODUCTION
 		int iTotalBonusHammersModifier = 0;
 		FOR_EACH_ENUM(Bonus)
 		{
@@ -4890,18 +4890,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// <!-- custom: note: using city's `hasBonus(` instead of `getNumAvailableBonuses(` in other places in the code, as recommended by chatgpt 5, check if accurate -->
 				//
 				// pCity->hasBonus(eBonus)
-				// - City-level connectivity: “Is this specific city’s plot-group connected to ≥1 of eBonus?”
+				// - City-level connectivity: “Is this specific city’s plot-group connected to ≥1 of eBonus?"
 				// - Internally this is essentially city.plot().getOwnerPlotGroup()->getNumBonuses(eBonus) > 0 (null-safe).
 				// - Use this to gate a building in this city (e.g., Stable in this city).
 				//
 				// kOwner.hasBonus(eBonus)
 				// - Any connected city: loops all cities and returns true if any city’s plot-group has the bonus.
-				// - Good for empire-level boolean (“can we build mounted somewhere?”), but not for a specific city gate.
+				// - Good for empire-level boolean (“can we build mounted somewhere?"), but not for a specific city gate.
 				//
 				// kOwner.getNumAvailableBonuses(eBonus)
 				// - Capital plot-group only: counts copies on the capital’s network.
 				// - Fast O(1), but misses disconnected networks (overseas before Sailing, blockades, pillaged roads, etc.).
-				// - Don’t use this to decide if “the empire has it somewhere”; it will false-negative when a non-capital network has the resource.
+				// - Don’t use this to decide if “the empire has it somewhere"; it will false-negative when a non-capital network has the resource.
 				//
 				const bool bCityHasHorse = (B_HORSE != NO_BONUS && hasBonus(B_HORSE));
 				const bool bCityHasCamel = (B_CAMEL != NO_BONUS && hasBonus(B_CAMEL));
@@ -5141,7 +5141,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				const int iHappinessBuildingNeedFoodGain = 1;
 				if ((iHappinessSurplus < iHappinessBuildingNeedHappinessSurplus) && (iStrictHappinessGain > iHappinessBuildingNeedHappinessGain) && (iEffectiveFoodAfterBuiltHappy > iHappinessBuildingNeedFoodGain))
 				{
-					return AI_BUILDING_ALWAYS_PICK_FIRST; // optional: comment out if you want “no force”
+					return AI_BUILDING_ALWAYS_PICK_FIRST; // optional: comment out if you want “no force"
 				}
 			}
 
@@ -5304,7 +5304,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					return 0;
 				}
 
-				// 2) Flat “don’t bother if there’s basically no trade here”
+				// 2) Flat “don’t bother if there’s basically no trade here"
 				//    (lets genuine trade cities build them; starved cities skip)
 				bool const bHasAnyEffectiveTradeRouteModifier = (
 					bTradeRouteModifier ||
@@ -5450,7 +5450,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				(kBuilding.getCommerceModifier(COMMERCE_CULTURE) > 0)
 			);
 
-			// “Pure” culture (don’t touch if it was already classified elsewhere)
+			// “Pure" culture (don’t touch if it was already classified elsewhere)
 			const bool bCultureOnlyBuilding = (
 				bCultureBuilding &&
 				!bPreviousBuildings4
@@ -5592,7 +5592,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			// <!-- custom: e.g. building our build 25% faster with stone (not related to yields/hammers gained after building is completed!) -->
 			// Full production modifier (traits, resources, state religion, etc.)
 			const int iProductionModifier = getProductionModifier(eBuilding);
-			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?” (turn cap)
+			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?" (turn cap)
 			// Use a simple time-to-build gate rather than only a flat hpt cut. It auto-scales with cost and modifiers.
 			int const iWWMul100  = 100 + iProductionModifier; // 100 + (traits/stone/marble/religion/etc.)
 			// Estimated turns (ceil): cost / (hpt * (1+mods))
@@ -5720,7 +5720,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				// 	- Runaway leader: this change won’t stop one; it’s mostly neutral there because of your danger/enemy-strong skips.
 				// 	- Closer games: more AIs placing HE early in real pump cities raises their floor. Net effect: tougher midgame wars.
 				// What I’d soften in the comment
-				// 	- “tech lead higher” and “economy stronger to sustain it” aren’t direct effects of HE; they’re contingent on building fewer early units or getting safer growth windows. I’d state those as may and keep the mechanism explicit: fewer early units → lower upkeep → sometimes more budget for research.
+				// 	- “tech lead higher" and “economy stronger to sustain it" aren’t direct effects of HE; they’re contingent on building fewer early units or getting safer growth windows. I’d state those as may and keep the mechanism explicit: fewer early units → lower upkeep → sometimes more budget for research.
 				// <!-- custom: after testing it ingame, it seems effect is very good and impressive: despite being behind early, we still build an early heroic epic, and stay relevant despite enemy being stronger, until they win, but our empire didnt collapse and bounced back multiple times (they delayed a bit their heroic epics but there are enough among other rivals' empires). I don't know how much randomness influences this, but in this other autoplay map i autoplayed (redundant), it seems to greatly help so left as such, hopefully helps other AIs as well-->
 				if (!bLandUnitsBuilding)
 				{
@@ -5759,7 +5759,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 
 			// <!-- custom: common logic for unhealthiness removing wonders (world + national) -->
 			// --- National Park style (skip when already healthy / too small ) -------------
-			// Detect NP by either “no pop unhealthiness”
+			// Detect NP by either “no pop unhealthiness"
 			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
 
 			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that)-->
@@ -5885,7 +5885,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 				}
 
 				// <!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code; note: in autoplay i did notice wonder races, i don't know if far from completing them rivals would attempt them or if it's only for close calls, but adding an extra safety to prevent inefficient ones just in case -->
-				// “Race pressure” (how many rivals can build it?)
+				// “Race pressure" (how many rivals can build it?)
 				// Super-simple "are rivals eligible already?" gate.
 				// If >=3 MET rival teams have the core (AND) tech, assume a hot race and skip.
 				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
@@ -9072,9 +9072,9 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 	} // </advc.305>
 
 	// <!-- custom: info by chatgpt 5, check if accurate, replace old values in the code below from 5 to 0 and refactor a bit to make it a iLookAhead variable and such if any other change; udpate: i showed AI_isUnimprovedBonus 's code and this function's code to claude ai as well which agrees with it if my understanding of it is not mistaken, so changing it from 5 to 0 as they both advise and see, we now have 1 extra workboat in city to ideally avoid producing, check if accurate still though their / these AIs info i mean (or my observation maybe too)-->
-	// Key detail: AI_countUnimprovedBonuses(..., iLookAhead) uses AI_isUnimprovedBonus which, when iLookAhead > 0, sets bCheckPath = false and calls canBuild(..., /*bTestVisible=*/true, ...). That ignores tech/prereqs and pathing (used for UI “you’ll be able to later” style checks). That’s why you were getting boats for ocean whales you can’t reach yet.
+	// Key detail: AI_countUnimprovedBonuses(..., iLookAhead) uses AI_isUnimprovedBonus which, when iLookAhead > 0, sets bCheckPath = false and calls canBuild(..., /*bTestVisible=*/true, ...). That ignores tech/prereqs and pathing (used for UI “you’ll be able to later" style checks). That’s why you were getting boats for ocean whales you can’t reach yet.
 	// So the minimal, C++03-safe fix is just: stop looking ahead. Pass 0 instead of 5 in both calls. That makes it count only bonuses that are owned, reachable (path exists), and buildable now (tech/prereqs satisfied).
-	// If you still want a touch of lookahead (e.g., first ring pop only), use 1 instead of 0, but be aware that any positive value switches canBuild into “testVisible” mode and will again allow some future-tech tiles to sneak in. So for strict “buildable now”, 0 is the correct value.
+	// If you still want a touch of lookahead (e.g., first ring pop only), use 1 instead of 0, but be aware that any positive value switches canBuild into “testVisible" mode and will again allow some future-tech tiles to sneak in. So for strict “buildable now", 0 is the correct value.
 	// <!-- custom: and when i asked if this also counts bonuses not just in city radius but also cultural borders as we'd want the health from say fish coast (or to trade it btw i just the idea xd i'm quite rusty should play again later or not maybe but i enjoy modding too if i may say perhaps even a bit more but maybe i'd play or not as i want but in all cases) and it replied/clarified (check if accurate): -->
 	// Yep—switching iLookAhead to 0 still counts all owned tiles in the same water area, not just the city’s workable radius
 	// <!-- custom: etc skip explanation until this: -->
@@ -12148,7 +12148,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 				// <!-- custom: note: if i remember it correctly, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such -->
 				// <!-- custom: update: to be sure i asked chatgpt 5 again about this while implementing known issue as of now 53.3's related fixes or tweaks, if iEnemyPowerPercent is valid/relaible if at peace or if we have an unreliable 0 making us misleadedly think that you potentially strong rivals are very weak, or how it works, here is what it replied (i edited and formatted it a bit but is mostly the same otherwise) when fed the code sample, check if accurate -->
-				// Short answer: it’s solid during war or when a war is already “chosen”, but it’s not meaningful in generic peacetime.
+				// Short answer: it’s solid during war or when a war is already “chosen", but it’s not meaningful in generic peacetime.
 				//
 				// Why:
 				// - It loops only over known potential enemies.
@@ -12160,13 +12160,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				// - Finally it divides by an averaged notion of our power (our own + master’s, halved).
 				//
 				// So:
-				// - Not at war & no chosen-war plans ⇒ loop adds nothing ⇒ returns 0. That doesn’t mean “we’re stronger”; it means “no active/selected enemy to compare to”.
-				// - It’s a sum over applicable enemies, not “the strongest enemy”. Nearby-ness is only approximated via the “primary area” discount.
+				// - Not at war & no chosen-war plans ⇒ loop adds nothing ⇒ returns 0. That doesn’t mean “we’re stronger"; it means “no active/selected enemy to compare to".
+				// - It’s a sum over applicable enemies, not “the strongest enemy". Nearby-ness is only approximated via the “primary area" discount.
 				//
 				// Practical use in your siege gate
-				// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+				// Don’t use iEnemyPowPct<=90 to mean “we’re stronger" when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
 				// This way:
-				// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
+				// - In peacetime, you won’t accidentally treat “0" as “we totally dominate" and overbuild siege.
 				static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
 				//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
 				// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
@@ -12352,7 +12352,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							}
 
 							// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else, but i thought in all casesit's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation -->
-							// Guard against div-by-zero and define a very simple “defense overweight” signal:
+							// Guard against div-by-zero and define a very simple “defense overweight" signal:
 							const bool bDefenseOverweight = (3 * iMainDefenders > 4 * iMainAttackers);
 
 							const int iEnoughEarlyDefendersPerCityGuessedly = (iMaxDefendersPerCityEarlyAdjusted * iNumCities);
@@ -12367,7 +12367,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe) -->
 							// <!-- custom: use an or here to favour versatility and focus on offense when we are defended enough in the early game. For example if we have 5 cities (at as of now turn 100+) and 2 longbowmen and 1 spearman in our city, or 2 spearmen and 1 longbow or something simlar, we may consider ourselves safe enough when it comes to the early game for this part of the city's computation (if it has more units count the excess as well as virtually belonging to other cities instead, only look at total defenders in all empires in the end to simplify and they could maybe move if needed) also remaining attackers could be used as defense, and there shouldn't be too much differences early, so try to grab any offensive edge we can rather as soon / as long as we are safe enough in the early game and -->
 							// Short answer: yes—use OR between your two simple signals. It’s safe and matches your intent.
-							// You already gate on “safe to flip” with
+							// You already gate on “safe to flip" with
 							// !bDanger && !(bAtWar && bEnemyStrong), so you won’t starve defenders when things look bad.
 							// Using non-strict defenders makes the check tolerant to variety (mix of spears/LBs/etc).
 							// With 5 cities and target 3 per city → cap=15: hitting that cap early and flipping is fine—your new offense units still defend in practice.
@@ -12400,7 +12400,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 										// bEnemyStrong
 									);
 
-									// “Can we build any generic offensive land unit right now?”
+									// “Can we build any generic offensive land unit right now?"
 									// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be. Based on the code in CvCity::doTurn -->
 									UnitTypes eBestCandidateUnit = NO_UNIT;
 									UnitAITypes eBestCandidateUnitAI = NO_UNITAI;
@@ -12474,7 +12474,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or later wherever it is -->
 								// notes
 								// This doesn’t push orders or re-run best-unit logic; it just tweaks eChangedUnitAI if the already-picked eChangedUnit supports the offensive role.
-								// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
+								// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air" blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
 							}		
 						}
 					}
@@ -14650,13 +14650,13 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 				if (bNoAutoHumanCitizen)
 				{
 					// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate -->
-					// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
+					// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden" using the same strong negative value that worked so well for AI cities.
 					// Manual specialist changes are untouched (still allowed to create Citizens).
 					// <!-- custom: fires often (very often actually xd) so is noisy but at least works fine it seems. From t300 to t301 it fires like 10+ times just this turn more or less (didn't count exactly but seems as such). But it is useful, to make sure we effectively block citizen specialists as intended, even though most of it is just the AI considering it and not actually going for it or choosing it. Would need more testing to be sure though, but considering it worked fine for AI players, it might also work as well for human players, but check to be sure and see known issue as of now 44.6 for details -->
-					// 2. Why does it fire “a big lot”?
+					// 2. Why does it fire “a big lot"?
 					// That’s expected with where you put it.
 					// 	- AI_jobChangeValue is called a lot from AI_juggleCitizens and AI_addBestCitizen, for every candidate job (plot or specialist) during each juggling cycle.
-					// 	- Every time the governor considers “what about a citizen?” for a human city while your define is on, it hits your guard, returns the huge negative value, and (in debug) triggers the FAssertMsg(false, ...).
+					// 	- Every time the governor considers “what about a citizen?" for a human city while your define is on, it hits your guard, returns the huge negative value, and (in debug) triggers the FAssertMsg(false, ...).
 					// So at T300, with multiple cities, each time the city grows or auto-assignment is reconsidered, you can easily see dozens or hundreds of those asserts in a single turn. That doesn’t mean the logic is broken; it just means your debug hook is very low-level.
 					#ifdef _DEBUG
 					FAssertMsg(false, CvString::format(
@@ -16010,7 +16010,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 						}
 					}
 					// <!-- custom: although this pushes a unit order outside of our AI_chooseUnit rewritten code, it seems caller outside (i.e. of AI_buildGovernorChooseProduction) is only applied if player is human, so does not affect other AI players so fine to keep as such i'd say as this shouldn't interfere with our logic there if i understood it correctly, and chatgpt 5 confirms it xd, but check to be sure as this is just from a quite quick glance and i don't know too much about these although in this case i mean i mean it seems accurate/correct of me but check to be sure -->
-					// You’re right: AI_buildGovernorChooseProduction() is the human city-governor routine. It only runs when a human city has production automation on. For AI civs (Japan in your save), production flows through the regular AI_chooseProduction(), which then calls your AI_chooseUnit(...) paths. So the “governor pushOrder bypass” isn’t what’s creating AI longbows.
+					// You’re right: AI_buildGovernorChooseProduction() is the human city-governor routine. It only runs when a human city has production automation on. For AI civs (Japan in your save), production flows through the regular AI_chooseProduction(), which then calls your AI_chooseUnit(...) paths. So the “governor pushOrder bypass" isn’t what’s creating AI longbows.
 					//
 					// otherwise, we're ready to build the unit
 					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);

@@ -28,7 +28,7 @@ class SevoPediaMovie:
 		self.iMovie = -1
 		self.MOVIE_PLAYER_SCREEN = "SevoPediaMoviePlayer"
 		self.MOVIE_PLAYER_EXIT_ID = "SAS_MoviePlayerExit"
-		# <!-- custom: bik files don't handle well: For BIK, playMovie() doesn’t behave like the other media widgets, so using a “soft eject + re‑open overlay” is safer. (GPT-5.2-Codex) -->
+		# <!-- custom: bik files don't handle well: For BIK, playMovie() doesn’t behave like the other media widgets, so using a "soft eject + re‑open overlay" is safer. (GPT-5.2-Codex) -->
 		self.SAS_savedNoMovies = None
 		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
 		self.SAS_lastMoviePayload = None

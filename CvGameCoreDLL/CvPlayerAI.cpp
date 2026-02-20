@@ -1769,7 +1769,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 	{
 		// Reasons to not raze
 		// <!-- custom: As for this part of the code, refactor this as the intent logged vs condition we check seem unclear and harder to tweak; while doing so, also remove the old !bCultureVictory since we check it before anyway to always raze if true, and removing it here makes us avoid being unable to raze later due to it being here as well as recommended by chatgpt 5, check if accurate -->
-		// By removing the old if (!bCultureVictory) { keepCity(); return; }, you’ve opened the door for the later iRazeValue logic to run even when there’s no culture-victory emergency. That’s exactly what you want if your goal is “sometimes raze far/awkward cities,” but expect more razing than before (distance, maintenance, barb-origin, etc. can all push iRazeValue > 0).
+		// By removing the old if (!bCultureVictory) { keepCity(); return; }, you’ve opened the door for the later iRazeValue logic to run even when there’s no culture-victory emergency. That’s exactly what you want if your goal is “sometimes raze far/awkward cities," but expect more razing than before (distance, maintenance, barb-origin, etc. can all push iRazeValue > 0).
 		//
 		// if (!bCultureVictory) // advc.116
 		// {
@@ -6076,8 +6076,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	// 	- Vassal-from-master penalty, and
 	// 	- <!-- custom: not directly here --> Tech trade contact boost between vassal ↔ master,
 	// you get:
-	// 	- Less “master re-researches everything the vassal has”.
-	// 	- Less “vassal re-researches everything the master has”.
+	// 	- Less “master re-researches everything the vassal has".
+	// 	- Less “vassal re-researches everything the master has".
 	// 	- <!-- custom: not directly here --> More tech swapping along the master–vassal axis, especially when each has something the other doesn’t.
 	// A. Devalue researching techs that our vassals already know and vice versa.
 	static const bool bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE");
@@ -12355,7 +12355,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	// <!-- custom: note: since it seems bonuses losing value (like copper over time is already handled during the game, and according to chatgpt 5 elsewhere, simplifying our code and not wasting needless computation just for our pre-checks here by not checking it; check (no pun) if accurate). -->
 	// Notes & answers
 	// - Fairness (no bullying): The multiplier applies only to the buyer’s evaluation (this function belongs to the buyer), and only when the buyer’s team has the enabling tech. So if we don’t have Agriculture yet, Maize stays valued like +1 health.
-	// - Coastal coverage: Using 0.5 is your requested “good-enough” heuristic. If you later want map-type nuance, bump it slightly on water maps.
+	// - Coastal coverage: Using 0.5 is your requested “good-enough" heuristic. If you later want map-type nuance, bump it slightly on water maps.
 	// - Grocer effects: Covered automatically: if Grocer has BonusHealthChanges for Banana and BonusHappinessChanges for Sugar/Grapes, once we have the Grocer tech those add +1 each to iExtra, so value scales up.
 	// - Obsolete tech: Yes, when a building obsoletes, its bonus-driven effects are disabled; the guard above ensures we don’t count them.
 	// - Performance: One pass over the building list per valuation (no city loops, no pathing). That’s cheap and happens far less often than per-turn city code.
@@ -12388,7 +12388,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		// Track whether this bonus is enhanced by a temple/monastery anywhere
 		int iTempleExtraMax = 0;     // best (health+happy) from any temple
 		int iMonasteryExtraMax = 0;  // best (health+happy) from any monastery
-		// --- once-per-DLL-run cached lookups for the special-building “kinds” we care about
+		// --- once-per-DLL-run cached lookups for the special-building “kinds" we care about
 		static const SpecialBuildingTypes SB_TEMPLE = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_TEMPLE", true);
 		static const SpecialBuildingTypes SB_MONASTERY = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_MONASTERY", true);
 		static const SpecialBuildingTypes SB_CATHEDRAL = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_CATHEDRAL", true);
@@ -12414,7 +12414,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			const CvBuildingInfo& kB = GC.getInfo(eB);
 
 			// <!-- custom: also exclude cathedrals as said/explained above -->
-			// Your XML shows cathedrals/temples aren’t class-limited (player instance = −1), so they slip past isLimited(). If you want to exclude religious “chain” buildings from bumping resource prices, just skip by SpecialBuilding type:
+			// Your XML shows cathedrals/temples aren’t class-limited (player instance = −1), so they slip past isLimited(). If you want to exclude religious “chain" buildings from bumping resource prices, just skip by SpecialBuilding type:
 			SpecialBuildingTypes const eSB = kB.getSpecialBuildingType();
 			// Skip cathedrals so they don’t overprice incense (guard if not defined in XML)
 			if (SB_CATHEDRAL != NO_SPECIALBUILDING && eSB == SB_CATHEDRAL)
@@ -12454,11 +12454,11 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			// Non-religious buildings: normal coverage (coastal ~ half the cities)
 			// Coastal-only buildings only affect a subset of cities; treat as 50% coverage
 			scaled const rCoverage = (kB.isWater() ? fixp(0.5) : fixp(1));
-			// Each extra “pip” multiplies value (granary grain +1 ⇒ +1.0, harbor seafood +1 ⇒ +0.5)
+			// Each extra “pip" multiplies value (granary grain +1 ⇒ +1.0, harbor seafood +1 ⇒ +0.5)
 			rBoost += rCoverage * iExtra;
 		}
 
-		// Spend the tiny fixed “religion budgets”
+		// Spend the tiny fixed “religion budgets"
 		if (iTempleExtraMax > 0)
 		{
 			rBoost += fixp(0.5) * iTempleExtraMax;
@@ -12503,8 +12503,8 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	// With the current AI_bonusTradeVal logic:
 	// 	- Key strategics (iron/copper/horse/camel) get an extra relative markup vs outsiders.
 	// 	- Inside the master–vassal cluster, that extra markup is suppressed:
-	// 		- So master ↔ vassal and sibling vassals can still trade those resources at the “normal” AI value.
-	// 		- Outsiders have to “pay properly” for them (or, at least, we’re less eager to sell).
+	// 		- So master ↔ vassal and sibling vassals can still trade those resources at the “normal" AI value.
+	// 		- Outsiders have to “pay properly" for them (or, at least, we’re less eager to sell).
 	// Net effect in theory:
 	// 	- You’re less likely to feed key resources to future enemies.
 	// 	- You don’t punish your own master/vassals with the same markup.
@@ -12594,11 +12594,11 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) &&
 				!bHaveHorse && !bHaveCamel && !bHaveElephants)
 			{
-				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all” → mounts 1.5x
+				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all" → mounts 1.5x
 			}
 			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !bHaveAnyMetal)
 			{
-				pct = PREMED_NO_METAL_PCT; // “no metals” → metals 1.5x
+				pct = PREMED_NO_METAL_PCT; // “no metals" → metals 1.5x
 			}
 		}
 
@@ -12648,10 +12648,10 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		// ===== RENAISSANCE =====
 		else if (bRenaissance)
 		{
-			// Yep—good catch. Let’s make the checks Iron-specific instead of “any metal”, so Copper never fools the logic for Cannons.
+			// Yep—good catch. Let’s make the checks Iron-specific instead of “any metal", so Copper never fools the logic for Cannons.
 			// What this does:
-			// - “Lack mounts” bumps only when you already have Iron (since Copper doesn’t unlock your mounted line).
-			// - “Lack Iron” bumps Iron regardless of mounts (so Cannons matter even with zero Horse/Camel).
+			// - “Lack mounts" bumps only when you already have Iron (since Copper doesn’t unlock your mounted line).
+			// - “Lack Iron" bumps Iron regardless of mounts (so Cannons matter even with zero Horse/Camel).
 			// - Copper remains clamped from Medieval+, as before.
 			static const int REN_NO_MOUNT_WITH_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT");
 			static const int REN_NO_MOUNT_NO_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT");
@@ -15105,7 +15105,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 			continue;
 
 		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose i'm guessing; chatgpt 5 seems to agree as well, check if accurate as well i mean -->
-		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings” can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
+		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings" can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
 		iTotal += iHave; // count once per class
 	}
 	return iTotal;
@@ -17482,7 +17482,7 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 	static const int iHAMMER = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE");  // e.g. 200
 	static const int iGOLDY  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
 
-	// Culture push multiplier (applied only when we “need culture”)
+	// Culture push multiplier (applied only when we “need culture")
 	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER");               // e.g. 2
 
 	int w = 100;
@@ -17494,7 +17494,7 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 		default:               w = 100;     break;
 	}
 
-	// Hammer “need” detection
+	// Hammer “need" detection
 	if (eY == YIELD_PRODUCTION && iHAMMER_NEED_MULT > 1)
 	{
 		if (bNeedHammers)
@@ -17512,7 +17512,7 @@ static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, Commerce
 	static const int iCULT  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE");   // e.g. 100
 	static const int iESP   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE"); // e.g. 200
 
-	// Culture push multiplier (applied only when we “need culture”)
+	// Culture push multiplier (applied only when we “need culture")
 	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER");               // e.g. 3
 
 	int w = 100;
@@ -17525,7 +17525,7 @@ static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, Commerce
 		default:                 w = 100;   break;
 	}
 
-	// Culture “need” detection: strong push if going Culture VC, or if many cities
+	// Culture “need" detection: strong push if going Culture VC, or if many cities
 	// still need border pops to work full radius. Tweak the condition as you like.
 	if (eC == COMMERCE_CULTURE && iCULT_NEED_MULT > 1)
 	{
@@ -18281,7 +18281,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 
 	// <!-- custom: the former civic_emancipation was overvalued when it was really not a so great civic especially vs civic_caste_system and civic_serfdom, so reduce the overvaluation potential causes. Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate -->
-	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap” to it.
+	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap" to it.
 	// if (kCivic.getCivicPercentAnger() != 0)
 	// {
 	// 	/*	K-Mod version. (the original bts code was ridiculous - it is now deleted)
@@ -18329,7 +18329,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 				// Weight edge / unhappy cities a bit more
 				const int iPressureScale = (!bCityHappy ? iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY); // tune if desired
 
-				// Turn “less unhappy” into a positive score for the AI
+				// Turn “less unhappy" into a positive score for the AI
 				const int iCityVal = (12 * AI_getHappinessWeight(-iDeltaUnhappy, 1, true)) / 100;
 				iTotal += iCityVal * iPressureScale / 100;
 			}
@@ -18849,14 +18849,14 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 			const int iSpecialistNow = std::max<int>(0,
 				pCity->getPopulation() - pCity->getWorkingPopulation() - pCity->angryPopulation());
 
-			// Tiny “food slack” bump: if city grows each turn, assume we can sustain 1 more spec.
+			// Tiny “food slack" bump: if city grows each turn, assume we can sustain 1 more spec.
 			const int iFoodSlackSpecs = (pCity->foodDifference() >= 2 ? 1 : 0);
 
 			const int iSurplus = iSpecialistNow + iFoodSlackSpecs;
 
 			// slots already available for this specialist without the civic
 			// Open-slot math: don’t subtract free specialists; do subtract forced
-			// Free specialists don’t consume “slots”, but forced specialists do. Use:
+			// Free specialists don’t consume “slots", but forced specialists do. Use:
 			int iOpen = pCity->getMaxSpecialistCount(eLoopSpecialist)
 					  - pCity->getSpecialistCount(eLoopSpecialist); // assigned (incl. forced)
 			iOpen = std::max(0, iOpen);
@@ -18898,15 +18898,15 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		}
 
 		// Great People Points
-		// GPP (only if the spec actually grants GPP; avoids “3 GPP citizens” myth)
+		// GPP (only if the spec actually grants GPP; avoids “3 GPP citizens" myth)
 		const int iGPP = kSpec.getGreatPeopleRateChange();
 		if (iGPP > 0)
 		{
-			// modest conversion: 1 GPP ~ 0.04 “commerce” at average GP multiplier
+			// modest conversion: 1 GPP ~ 0.04 “commerce" at average GP multiplier
 			iPer += iGPP * std::max(0, AI_averageGreatPeopleMultiplier() - 100) / 25;
 		}
 
-		// accumulate (iPer is already on the same “commerce-ish” scale)
+		// accumulate (iPer is already on the same “commerce-ish" scale)
 		iTotal += iPotential * iPer / 100;
 	}
 
@@ -18916,7 +18916,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	//   - if player has zero max anarchy (Spiritual, Cristo, GA rules handled elsewhere), no penalty
 	//   - otherwise use the civic’s base anarchy length.
 	//
-	// In your unlimited-specialist block you devalue only when iS > 0 (adopting). That means the AI “pays” anarchy when switching to OR, but doesn’t count the anarchy cost when switching away from OR. That creates a bias toward dropping it next pass.
+	// In your unlimited-specialist block you devalue only when iS > 0 (adopting). That means the AI “pays" anarchy when switching to OR, but doesn’t count the anarchy cost when switching away from OR. That creates a bias toward dropping it next pass.
 	// Fix: apply the same scaling whenever we’d change the civic at all.
 	if (iS != 0) // adopting or dropping
 	{
@@ -22475,7 +22475,7 @@ void CvPlayerAI::AI_doDiplo()
 						}
 						// (3) Sibling vassals of the same master: vassal ↔ vassal
 						// Notes:
-						// 	- This only triggers when both teams are vassals of the same master and the “optimize” bool is on.
+						// 	- This only triggers when both teams are vassals of the same master and the “optimize" bool is on.
 						// 	- It also works for human–AI sibling vassals, since this is just a contact multiplier; the outer (!bPlayerHuman || kOurTeam.getLeaderID() == getID()) gate is unchanged, so humans only get approached by the AI team leader as before.
 						// 	- No stacking: each pair hits at most one of (master→vassal, vassal→master, vassal↔vassal).
 						else if (kOurTeam.isAVassal())
@@ -22578,11 +22578,11 @@ void CvPlayerAI::AI_doDiplo()
 						// 	- Rolls for contact (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult)),
 						// 	- Picks a best tech we’d like to receive from them (eBestReceiveTech),
 						// Then tries to find something to give in return.
-						// We add a “cluster redirect” step:
+						// We add a “cluster redirect" step:
 						// 	- If this partner is outside our master–vassal locus,
 						// 	- And if any of our locus partners (master or vassals / sibling vassals) has that same eBestReceiveTech and is willing to trade it,
 						// 	- Then we drop eBestReceiveTech for this outsider and let the normal logic later pick up a trade with the locus partner instead (helped by the contact multipliers we already added).
-						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones.
+						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source." So it’s conservative: it can only reduce external tech trades, never block internal ones.
 						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE");
 						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && eBestReceiveTech != NO_TECH)
 						{
@@ -29928,7 +29928,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info known issue as of now 52 -->
 	// // B) Patch AI_disbandValue to strongly de-prefer scrapping new combat units & live garrisons
 	// // (You already boost value for MISSIONAI_GUARD_CITY; the check above covers plain defenders without that mission tag.)
-	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer”).
+	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer").
 	// if (kUnit.canFight() &&
 	// 	kGame.getGameTurn() - kUnit.getGameTurnCreated() < 5)
 	// 	return MAX_INT;

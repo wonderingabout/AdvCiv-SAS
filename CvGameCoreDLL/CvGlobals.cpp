@@ -863,7 +863,7 @@ int CvGlobals::getDefineINT(char const* szName,
 		// Line:  858
 		// Func:  CvGlobals::getDefineINT
 		// Expression:  false
-		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' â€” using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
+		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
 		//
 		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but) -->
 	}
