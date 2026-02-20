@@ -3265,6 +3265,13 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<TEXT>
+		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
+		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
+	</TEXT>
+
+
+
+	<TEXT>
 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_EWUARE_1</Tag>
 		<English>I am [OUR_NAME], Oba of Benin. You enter my court, [CT_NAME]. Speak with respect, and we may prosper.</English>
 	</TEXT>
@@ -3548,13 +3555,6 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<TEXT>
-		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
-		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
-	</TEXT>
-
-
-
-	<TEXT>
 		<Tag>TXT_KEY_BUILDING_KOREAN_GYEONGDANG</Tag>
 		<English>Gyeongdang</English>
 	</TEXT>
@@ -3565,5 +3565,9 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY</Tag>
 		<English>La Tène Smithy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET</Tag>
+		<English>Metsehaf Bet</English>
 	</TEXT>
 </Civ4GameText>

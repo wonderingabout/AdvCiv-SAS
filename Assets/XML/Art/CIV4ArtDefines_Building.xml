@@ -322,11 +322,11 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Forge.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,3</Button>
 		</BuildingArtInfo>
-		<!-- custom: nif from ri mod, note: not animated in ri mod it seems but added as seems to work fine; button from Pie's Ancient Europe mod -->
+		<!-- custom: nif from ri mod; button from Pie's Ancient Europe mod -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_CELTIC_LA_TENE_SMITHY</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
-			<bAnimated>1</bAnimated>
+			<bAnimated>0</bAnimated>
 			<fScale>0.8</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/AdvCiv_SAS/Buildings/Celtic_La_Tene_Smithy/nif/Bronzeshop_barb.nif</NIF>
@@ -383,15 +383,36 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Factory.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,8</Button>
 		</BuildingArtInfo>
+		<!-- custom: note: deleted duplicate ART_DEF_BUILDING_MONUMENT that had an obelisk.nif for some reason (not sure if our rename in advciv-sas from obelisk to monument is linked to this, but works fine as such with the duplicate removed) -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_MONUMENT</Type>
 			<LSystem>LSYSTEM_1x1</LSystem>
 			<bAnimated>0</bAnimated>
-			<fScale>1.25</fScale>
+			<fScale>1.0</fScale>
 			<fInterfaceScale>0.4</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Obelisk/Obelisk.nif</NIF>
+			<NIF>Art/Structures/Buildings/Monument/Monument.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,4</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_ETHIOPIAN_STELE</Type>
+			<LSystem>LSYSTEM_2x3</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>5.0</fScale>
+			<fInterfaceScale>0.35</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/EthiopianStele/EthiopianStele.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,8</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</Type>
+			<LSystem>LSYSTEM_2x1</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.6</fScale>
+			<fInterfaceScale>0.4</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/NativeAmerican_TotemPole/NativeAmerican_TotemPole.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,7</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_EGYPTIAN_OBELISK</Type>
@@ -404,6 +425,26 @@
 			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,5</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
+			<LSystem>LSYSTEM_3x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.62</fScale>
+			<fInterfaceScale>0.42</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/Aztec Altar/Aztec_Altar.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,2</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_SUMERIAN_ZIGGURAT</Type>
+			<LSystem>LSYSTEM_2x3</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>0.6</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/Sumerian_Ziggurat/Sumerian_Ziggurat.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/ChichenItza.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,7</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_ACADEMY</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -412,6 +453,16 @@
 			<NIF>Art/Structures/Buildings/Platos_Academy/Platos_Academy.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Academy.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,5</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_LIBRARY</Type>
+			<LSystem>LSYSTEM_3x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.2</fScale>
+			<fInterfaceScale>0.58</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/Library/Library.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
 		</BuildingArtInfo>
 		<!-- custom: art from the sengoku mod thanks -->
 		<BuildingArtInfo>
@@ -424,25 +475,16 @@
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/Korean_Gyeongdang/sengoku_atlas_4_0_cropped.dds</Button>
 		</BuildingArtInfo>
+		<!-- custom: art from the FFH2 mod thanks -->
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_LIBRARY</Type>
-			<LSystem>LSYSTEM_3x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.2</fScale>
-			<fInterfaceScale>0.58</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Library/Library.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
+			<Type>ART_DEF_BUILDING_ETHIOPIAN_METSEHAF_BET</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>0</bAnimated>
-			<fScale>1.8</fScale>
-			<fInterfaceScale>0.47</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Madrassa/Madrassa.nif</NIF>
+			<fScale>0.5</fScale>
+			<fInterfaceScale>0.8</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/Eldercouncil.nif</NIF>
 			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,2</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/eldercouncil_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_UNIVERSITY</Type>
@@ -453,6 +495,16 @@
 			<NIF>Art/Structures/Buildings/University/University.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/University.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,7</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
+			<LSystem>LSYSTEM_2x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.8</fScale>
+			<fInterfaceScale>0.47</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/Madrassa/Madrassa.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,2</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_FRENCH_SALON</Type>
@@ -678,16 +730,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,2</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
-			<LSystem>LSYSTEM_3x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.62</fScale>
-			<fInterfaceScale>0.42</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Aztec Altar/Aztec_Altar.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,2</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HOLY_ROMAN_RATHAUS</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -696,16 +738,6 @@
 			<NIF>Art/Structures/Buildings/HRE_RathHouse/HRE_RathHouse.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,7</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_SUMERIAN_ZIGGURAT</Type>
-			<LSystem>LSYSTEM_2x3</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.6</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Sumerian_Ziggurat/Sumerian_Ziggurat.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/ChichenItza.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,7</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_JAIL</Type>
@@ -1437,36 +1469,6 @@
 			<NIF>Art/Structures/Buildings/Military_Academy/Military_Academy.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/WestPoint.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,1</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_MONUMENT</Type>
-			<LSystem>LSYSTEM_1x1</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.4</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Monument/Monument.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,4</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_ETHIOPIAN_STELE</Type>
-			<LSystem>LSYSTEM_2x3</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>5.0</fScale>
-			<fInterfaceScale>0.35</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/EthiopianStele/EthiopianStele.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,8</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</Type>
-			<LSystem>LSYSTEM_2x1</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.6</fScale>
-			<fInterfaceScale>0.4</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/NativeAmerican_TotemPole/NativeAmerican_TotemPole.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,7</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PUBLIC_TRANSPORTATION</Type>

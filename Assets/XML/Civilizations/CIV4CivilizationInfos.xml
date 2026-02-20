@@ -1189,8 +1189,8 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
-					<BuildingType>BUILDING_ETHIOPIAN_STELE</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+					<BuildingType>BUILDING_ETHIOPIAN_METSEHAF_BET</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
