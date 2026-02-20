@@ -447,13 +447,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# <!-- custom: convert InputTypes keyboard code to visible character, based on how other mod(s) use ScreenInput.getVisibleCharacter (chatgpt 5.2 + claude opus 4.5) -->
 
 	# <!-- custom: identify keys that need debounce in the type-to-filter search (chatgpt 5.2 + claude opus 4.5) -->
-	# We debounce only letters/digits. Space appears to be delivered only once in BtS/AdvCiv and should not be throttled.
+	# <!-- custom: debounce alnum and editing/navigation keys for type-to-filter because BtS can fire duplicate NOTIFY_CHARACTER
+	# events on list widgets; this includes Space so queries like "la t" don't become "la  t". (GPT-5.3-Codex) -->
 	def SAS_shouldDebounceKey(self, iKey):
 		# Letters A-Z
 		if iKey >= int(InputTypes.KB_A) and iKey <= int(InputTypes.KB_Z):
 			return True
 		# Digits 0-9
 		if iKey >= int(InputTypes.KB_0) and iKey <= int(InputTypes.KB_9):
+			return True
+		# Space
+		if iKey == int(InputTypes.KB_SPACE):
 			return True
 		# Backspace (and optionally Delete) can also double-fire
 		# No need for KB_DELETE or KB_RETURN since:
