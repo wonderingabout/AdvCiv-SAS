@@ -395,6 +395,11 @@ void CvGame::updateBlockadedPlots()
 
 void CvGame::updateSelectionList()
 {
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
 	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
 	// <advc.004k> (Needed for dealing with all units becoming unselected)
@@ -430,6 +435,11 @@ void CvGame::updateSelectionList()
 
 void CvGame::updateTestEndTurn()
 {
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
 		return;
 	// <advc.003g>
@@ -1073,6 +1083,11 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool bUseCache) const
 {
 	PROFILE_FUNC();
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return false;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 
 	bool const bShift = GC.shiftKey();
 
@@ -1154,6 +1169,11 @@ void CvGame::setupActionCache() const
 
 void CvGame::handleAction(int iAction)
 {
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 	bool const bAlt = GC.altKey();
 	bool const bShift = GC.shiftKey();
 
