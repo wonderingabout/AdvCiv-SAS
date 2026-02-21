@@ -932,4 +932,10 @@ I added some of its thoughts as of now after the issue was solved hehe to summar
 
 ### Kimi AI
 
+#### K2
+
 I tested Kimi K2 and it looks very fun! Although i barely tested it yet to have an extensive opinion or experience or such i mean.
+
+#### K2.5
+
+Look ssolid at least seems to be advertised as such; i tested it for example to make ai-generated more wiki like and the result is decent and quite good thanks.

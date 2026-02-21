@@ -1177,7 +1177,7 @@ See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#40---seemingly-fixed--addre
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15-WwGpkgFQ87O6t-tCQtJCAeiWQdQRXD?usp=sharing).
 
-It is from when i was still playing base advciv, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file but or not but or yes but or etc), so the save file(s) or screenhsots linked in this google drive issue come from base advciv nor our mod, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made.
+It is from when i was still playing base advciv, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file), so the save file(s) or screenhsots linked in this google drive issue come from base advciv nor our mod, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made.
 
 I did not test it since then, but i hope the patch/tweak/ tentative fix i added in as of now`CvCityAI::AI_bestUnit` helps and addresses that, making AI much more land-focused and overall stronger, even if it would now come i assume although i didn't check/test in this case at the cost of being military weaker on naval warfare, but i hope in most cases it would most benefit AI largely to do so.
 
@@ -1211,7 +1211,7 @@ As for the screenshots, after this change, in screenshots 1684 to 1689, the nati
 
 Also this change is also thanks to claude ai which (who?) helped me locate where to make units national in the xml although i could have found myself but it helped still thanks claude ai.
 
-Note: after retesting from turn save file at turn 0 to be sure, and also due to the below as of now known issue 38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701) for details/illustration of it if i may say but or not but or yes but or and etc.
+Note: after retesting from turn save file at turn 0 to be sure, and also due to the below as of now known issue 38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701) for details.
 
 ## 38 - (No idea why) Sometimes compile mysteriously/strangely/inconsistently fails, and recompiling succeeds under/withexact same source files
 
@@ -1881,7 +1881,7 @@ This was started from a save file that had the issue, i assume that with this ne
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1trFS19b14RsYA6kHc8RT6zFyc36KqILw?usp=sharing)
 
-This is an issue i had noticed in advciv, in example 69.3 of the list issues (i had named it example 69.3 when i was still playing base advciv here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made at that time, also available in this gogole drive's issue), but it happened only once at least i noticed it only once, but it did seem to affect several cities in the screenshot, but since it was the turn after victory i didn't think too much of it and said it's maybe not too urgent, although not ideal, but documented it still if helps.
+This is an issue i had noticed in advciv, in example 69.3 of the list issues (i had named it example 69.3 when i was still playing base advciv here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made at that time, also available in this google drive's issue), but it happened only once at least i noticed it only once, but it did seem to affect several cities in the screenshot, but since it was the turn after victory i didn't think too much of it and said it's maybe not too urgent, although not ideal, but documented it still if helps.
 
 But while solving/addressing known issue as of now 49, i have noticed this again, but now in early cities, and several cities, entering what seems like no production at all for 1 or several turns. For example, in screenshots 2633 (2) and 2634, kyoto has no production, when anything could be best since it is free to produce units if nothing else is good, else the hammer is wasted.
 
