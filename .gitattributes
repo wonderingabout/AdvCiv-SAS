@@ -34,11 +34,12 @@
 *.PDN  export-ignore
 
 # <!-- custom: config and LLM info -->
+/AGENTS.md            export-ignore
+/.claude/             export-ignore
 /.vscode/             export-ignore
 /.markdownlint.jsonc  export-ignore
 /ruff.toml            export-ignore
-/.claude/             export-ignore
-/AGENTS.md            export-ignore
+.editorconfig         export-ignore
 
 # <!-- custom: LLM helpers are not needed in released archives of the mod -->
 /LLM_Helpers/         export-ignore
