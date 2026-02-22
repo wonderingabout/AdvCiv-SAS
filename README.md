@@ -36,6 +36,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Main Advisors reworks (e.g. History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+&emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
 &emsp;[Main interface rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
@@ -222,6 +223,12 @@ This means the default is now ON, and ticking the option toggles it to OFF. Appl
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5151_inverted_bug_advisors.JPG" alt="0.5151_inverted_bug_advisors.JPG" width="250"></img>
 
 Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
+
+### Diplomacy Screen
+
+Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact, etc.).
+
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen.JPG" alt="0.970_diplomacy_screen.JPG" width="250"></img>
 
 ### Main Interface rework
 

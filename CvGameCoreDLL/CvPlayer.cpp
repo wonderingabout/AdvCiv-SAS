@@ -19036,6 +19036,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 	} // </advc.072>
 	switch (zTradeData.m_eItemType)
 	{
+	// <!-- custom: diplomacy trade rows: prefix numeric gold entries with the gold char so amounts are scannable in list form. (GPT-5.3-Codex) -->
 	case TRADE_GOLD:
 		if (bOffer)
 		{
@@ -19047,6 +19048,8 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_NUM",
 					AI().AI_maxGoldTrade(eRecipient));
 		}
+		szString = CvWString::format(L"%c %s",
+				GC.getInfo(COMMERCE_GOLD).getChar(), szString.GetCString());
 		break;
 	case TRADE_GOLD_PER_TURN:
 		if (bOffer)
@@ -19059,24 +19062,35 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_PER_TURN_NUM",
 					AI().AI_maxGoldPerTurnTrade(eRecipient));
 		}
+		szString = CvWString::format(L"%c %s",
+				GC.getInfo(COMMERCE_GOLD).getChar(), szString.GetCString());
 		break;
 	case TRADE_MAPS:
+		// <!-- custom: for diplomacy rows, prefer the map symbol over the map-trading button so this reads as a concrete map exchange, not the abstract trade-enablement concept. (GPT-5.3-Codex) -->
 		szString = gDLL->getText("TXT_KEY_TRADE_WORLD_MAP_STRING");
+		szString = CvWString::format(L"%c %s",
+				gDLL->getSymbolID(MAP_CHAR), szString.GetCString());
 		break;
+	// <!-- custom: diplomacy trade rows: assign concrete treaty-state icons (vassal, open borders, defensive pact, permanent alliance) through szIcon so these entries render like other iconized trade rows. (GPT-5.3-Codex) -->
 	case TRADE_VASSAL:
 		szString = gDLL->getText("TXT_KEY_TRADE_VASSAL_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_VASSAL");
 		break;
 	case TRADE_SURRENDER:
 		szString = gDLL->getText("TXT_KEY_TRADE_CAPITULATE_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_VASSAL");
 		break;
 	case TRADE_OPEN_BORDERS:
 		szString = gDLL->getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_OPENBORDERS");
 		break;
 	case TRADE_DEFENSIVE_PACT:
 		szString = gDLL->getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_DEFENSIVEPACT");
 		break;
 	case TRADE_PERMANENT_ALLIANCE:
 		szString = gDLL->getText("TXT_KEY_TRADE_PERMANENT_ALLIANCE_STRING");
+		szIcon = ARTFILEMGR.getInterfaceArtPath("INTERFACE_TECH_PERMALLIANCE");
 		break;
 	case TRADE_PEACE_TREATY:
 		if(GET_TEAM(eRecipient).isAtWar(getTeam())) // advc.072
