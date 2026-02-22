@@ -141,6 +141,7 @@ hopefully helpful, thanks thanks,
 [105 - (Fixed) Base AdvCiv bug of most bonuses (e.g., Deer) sometimes not appearing at first Civ4 launch in some maps (e.g. Boreal)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal)  
 [106 - (Worked Around) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#106---worked-around-base-advciv-bug-of-having-an-option-number-error-in-simple-game-eg-in-highlands-boreal-if-we-started-another-simple-game-map-before-that-had-a-lot-of-options-eg-btg_lagoon-and-planet_generator_068-have-around-15-options-but-custom-game-works-fine)  
 [107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#107---fixed-base-advciv-crash-after-loading-a-save-file-returning-to-main-menu-opening-sevopedia-index-since-first-time-opened-and-typing-a-sequence-like-xsv)  
+[108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#108---fixed-base-advciv-diplomacy-inconsistency-ai-can-refuse-tribute-for-pure-vassalsurrender-then-accept-the-same-deal-through-what-do-you-want-in-exchange-with-nothing-added)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4203,3 +4204,25 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 Opening the game, loading a save file, then going to main menu, opening sevopedia index and typing a sequence like "xsv" in search bar causes a crash that is reproducible. And does not happen if just opening the game (without loading a save file) and typing such a sequence.
 
 Fixed with the help of Claude code Opus 4.6 thanks in [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp).
+
+## 108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sVkCzmBWbkdVvPDLqog3Hr_2-J6sab0q?usp=sharing).
+
+Repro from diplomacy screen:
+
+- AI offers only `Vassal State` (or `Surrender`) and no extra terms.
+- Clicking `We demand that you give this to us in tribute.` can return refusal (`Not bloody likely`).
+- Clicking `What do you want for this?` right after can return a counter with **nothing extra** and then accept.
+
+So both paths lead to the same final terms, but one refuses first, which is inconsistent and confusing.
+
+Fix:
+
+- In `CvPlayerAI::AI_considerOffer` (file: [CvPlayerAI.cpp](/CvGameCoreDLL/CvPlayerAI.cpp)), add an early human-only acceptance shortcut for the exact one-item pure vassal/surrender shape (one side has only `TRADE_VASSAL` or `TRADE_SURRENDER`, other side empty), before stricter denial/value branches.
+- In `CvDiplomacy.py` (file: [Assets/Python/CvDiplomacy.py](/Assets/Python/CvDiplomacy.py)), when this narrow pure vassal/surrender case is accepted, skip firing generic `DIPLOEVENT_MADE_DEMAND` to avoid regular tribute-demand memory side effects for this specific acceptance path.
+
+Result:
+
+- Tribute/Demand and "What do you want in exchange?" now agree for this case.
+- Player no longer has to do an extra click sequence to get the same no-extra acceptance.

@@ -9890,6 +9890,28 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
 	bool const bOurGoldDeal = goldDeal(kWeGive);
 	if (goldDeal(kTheyGive) && bOurGoldDeal)
 		return false;
+	// <!-- custom: Begin - fix inconsistent handling between Tribute/Demand and counter-propose for pure vassal offers.
+	// Problem this fixes: in diplomacy, the human could see AI offering only Vassal/Surrender and no extra terms, but
+	// the "We demand that you give this to us in tribute" path still returned refusal ("Not bloody likely"),
+	// while clicking "What do you want in exchange?" immediately produced a counter with nothing added and then accepted.
+	// That means both paths describe the same final deal, yet one refused first, which is confusing and looks broken.
+	// Fix behavior: for human-initiated trade-table checks (iChange > -1), if the current deal is exactly one
+	// vassal/surrender item on one side and an empty counteroffer on the other side, accept immediately here.
+	// Why here: this runs before stricter denial/value branches that caused the refusal in the Tribute/Demand path.
+	// Scope/safety: limited to human interaction only (bPlayerHuman), so normal AI-vs-AI diplomacy remains unchanged.
+	// Result: if AI would accept the pure vassal agreement anyway, Tribute/Demand now accepts directly instead of
+	// forcing the player through "What do you want in exchange?" for the same zero-extra outcome. See KI#108. (GPT-5.3-Codex) -->
+	if (iChange > -1 && bPlayerHuman)
+	{
+		if ((kWeGive.getLength() == 1 && kTheyGive.getLength() == 0 &&
+			CvDeal::isVassal(kWeGive.head()->m_data.m_eItemType)) ||
+			(kTheyGive.getLength() == 1 && kWeGive.getLength() == 0 &&
+			CvDeal::isVassal(kTheyGive.head()->m_data.m_eItemType)))
+		{
+			return true;
+		}
+	}
+	// <!-- custom: End - direct Tribute/Demand acceptance for pure vassal/surrender offers to match counter-propose outcome. (GPT-5.3-Codex) -->
 
 	if (iChange > -1)
 	{

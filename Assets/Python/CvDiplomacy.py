@@ -615,8 +615,18 @@ class CvDiplomacy:
 
 		# if we are demanding something
 		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_DEMAND")):
+			# <!-- custom: Begin - keep diplomacy memory consistent for the pure vassal/surrender special case.
+			# The C++ fix allows Tribute/Demand to directly accept a one-item Vassal/Surrender offer with no extras.
+			# Without this Python guard, that same accepted deal still fires DIPLOEVENT_MADE_DEMAND here, which is
+			# the generic "you demanded tribute" event and can apply regular demand-memory side effects.
+			# That creates a mismatch: agreement type is effectively a clean vassal acceptance, but memory handling
+			# treats it like normal tribute pressure. For this narrow accepted case only, skip MADE_DEMAND.
+			# All other demand flows keep existing behavior and events unchanged. See KI#108. (GPT-5.3-Codex) -->
+			bSimpleVassalSelfOffer = self.isSimpleVassalSelfOffer()
 			bAccept = diploScreen.offerDeal() # advc.144: Put acceptance flag in iData1
-			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_MADE_DEMAND, bAccept, -1)
+			if (not (bAccept and bSimpleVassalSelfOffer)):
+				diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_MADE_DEMAND, bAccept, -1)
+			# <!-- custom: End - suppress generic demand-memory event only for accepted pure vassal/surrender offers. (GPT-5.3-Codex) -->
 			if bAccept:
 				self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_ACCEPT_DEMAND"))
 			else:
@@ -799,6 +809,31 @@ class CvDiplomacy:
 			return strType.startswith(strComment)
 		else: # </advc.062>
 			return strType == strComment
+
+	def isSimpleVassalSelfOffer(self):
+		# <!-- custom: Begin - helper that identifies the exact special-case trade shape handled above.
+		# Required shape: human side empty, AI side non-empty, first AI item is VASSAL or SURRENDER, and no second item.
+		# This strict check prevents accidental suppression of MADE_DEMAND in normal tribute/resource/gold requests.
+		# The helper exists so the event guard in USER_DIPLOCOMMENT_DEMAND remains readable and auditable. See KI#108. (GPT-5.3-Codex) -->
+		if (self.diploScreen.ourOfferEmpty() != 1):
+			return False
+		if (self.diploScreen.theirOfferEmpty() == 1):
+			return False
+		try:
+			eItem = self.diploScreen.getTheirTradeOffer(0).ItemType
+		except:
+			return False
+		if (eItem != TradeableItems.TRADE_VASSAL and
+			eItem != TradeableItems.TRADE_SURRENDER):
+			return False
+		try:
+			eSecondItem = self.diploScreen.getTheirTradeOffer(1).ItemType
+			if (eSecondItem != TradeableItems.NO_TRADE_ITEM):
+				return False
+		except:
+			pass
+		# <!-- custom: End - strict detector for accepted pure vassal/surrender offers with no added terms. (GPT-5.3-Codex) -->
+		return True
 		
 	
 	def getCommentID(self, strComment):
