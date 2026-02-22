@@ -217,7 +217,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			"BONUS": "TXT_KEY_FOREIGN_ADVISOR_RESOURCES",
 			"TECH": "TXT_KEY_FOREIGN_ADVISOR_TECHS",
 			"RELATIONS": "TXT_KEY_FOREIGN_ADVISOR_RELATIONS",
-			"ACTIVE_TRADE": "TXT_KEY_FOREIGN_ADVISOR_ACTIVE",
+			# <!-- custom: renamed Active tab label to Treaties to match the reduced scope (no bonus clutter). (GPT-5.3-Codex) -->
+			"ACTIVE_TRADE": "TXT_KEY_FOREIGN_ADVISOR_TREATIES",
 			"INFO": "TXT_KEY_FOREIGN_ADVISOR_INFO",
 			"GLANCE": "TXT_KEY_FOREIGN_ADVISOR_GLANCE",
 			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
@@ -231,6 +232,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# K-Mod end
 
 		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
+
+		# <!-- custom: shared size for treaty icons rendered inline in active-deals text. (GPT-5.3-Codex) -->
+		self.SAS_TREATY_ICON_SIZE = 24
 
 	# <!-- custom: initialize text and icon caches once for performance, based on Info Screen and Victory Screen pattern (claude code sonnet 4.5) -->
 	def initText(self):
@@ -258,7 +262,6 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.TEXT_CAN_RESEARCH = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CAN_RESEARCH", ())
 		self.TEXT_FOR_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ())
 		self.TEXT_NOT_FOR_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ())
-		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
 
 		# <!-- custom: city table headers (claude code sonnet 4.5) -->
 		self.TEXT_WILL_CEDE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_CEDE", ())
@@ -277,6 +280,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.iTradeIcon = CyGame().getSymbolID(FontSymbols.TRADE_CHAR)
 		self.iCitizenIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
 		self.iOccupationIcon = CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)
+		self.iMapIcon = CyGame().getSymbolID(FontSymbols.MAP_CHAR)
+		self.iGoldIcon = gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
 
 		# <!-- custom: precompute formatted icon strings (claude code sonnet 4.5) -->
 		self.szReligionIconStr = u"%c" % self.iReligionIcon
@@ -306,6 +311,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			"",
 			BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
 		)
+
+		# <!-- custom: cache treaty icon paths once. (GPT-5.3-Codex) -->
+		self.SAS_TRADE_ICON_OPEN_BORDERS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath()
+		self.SAS_TRADE_ICON_DEFENSIVE_PACT = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath()
+		self.SAS_TRADE_ICON_PERMANENT_ALLIANCE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath()
+		self.SAS_TRADE_ICON_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
+		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
 
 		# <!-- custom: calculate tab widths (claude code sonnet 4.5) -->
 		self.LABEL_WIDTH_LIST[:] = []
@@ -476,6 +488,31 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 	def drawActive (self, bInitial):
 		screen = self.getScreen()
 
+		# <!-- custom: this tab targets active treaty-style items; some one-shot trade types can still surface in mixed/custom deals, so icon fallbacks below intentionally handle both ongoing and occasional non-ongoing items. (GPT-5.3-Codex) -->
+		def formatTreatyTrade(tradeData, iPlayerFrom, iPlayerTo):
+			szTrade = CyGameTextMgr().getTradeString(tradeData, iPlayerFrom, iPlayerTo)
+			if tradeData.ItemType == TradeableItems.TRADE_OPEN_BORDERS:
+				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_OPEN_BORDERS, self.SAS_TREATY_ICON_SIZE, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_DEFENSIVE_PACT:
+				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_DEFENSIVE_PACT, self.SAS_TREATY_ICON_SIZE, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_PERMANENT_ALLIANCE:
+				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_PERMANENT_ALLIANCE, self.SAS_TREATY_ICON_SIZE, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_VASSAL or tradeData.ItemType == TradeableItems.TRADE_SURRENDER:
+				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_VASSAL, self.SAS_TREATY_ICON_SIZE, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_TECHNOLOGIES:
+				return u"<img=%s size=%d></img> %s" % (gc.getTechInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_CIVIC:
+				return u"<img=%s size=%d></img> %s" % (gc.getCivicInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_RELIGION:
+				return u"<img=%s size=%d></img> %s" % (gc.getReligionInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_GOLD or tradeData.ItemType == TradeableItems.TRADE_GOLD_PER_TURN:
+				return u"%c %s" % (self.iGoldIcon, szTrade)
+			elif tradeData.ItemType == TradeableItems.TRADE_MAPS:
+				# <!-- custom: map trading is typically one-time (not an ongoing treaty), but keep icon fallback in case mixed/custom deal text surfaces here. (GPT-5.3-Codex) -->
+				return u"%c %s" % (self.iMapIcon, szTrade)
+			else:
+				return u"%c %s" % (self.iTradeIcon, szTrade)
+
 		# Get the Players
 		playerActive = gc.getPlayer(self.iActiveLeader)
 					
@@ -543,12 +580,27 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			screen.attachListBoxGFC(innerPanelName, dealPanelName, "", TableStyles.TABLE_STYLE_EMPTY)	
 			screen.enableSelect(dealPanelName, False)
 
-			iRow = 0
+			# <!-- custom: keep one row per deal so each row remains clickable for cancel (WIDGET_DEAL_KILL); only merge items within that single deal row. (GPT-5.3-Codex) -->
 			for i in range(gc.getGame().getIndexAfterLastDeal()):
 				deal = gc.getGame().getDeal(i)
 
 				if (deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader and not deal.isNone()) or (deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader):
-					szDealText = CyGameTextMgr().getDealString(deal, iLoopPlayer)
+					listDealEntries = []
+					for iTrade in range(deal.getLengthFirstTrades()):
+						tradeData = deal.getFirstTrade(iTrade)
+						if (tradeData and tradeData.ItemType != TradeableItems.TRADE_RESOURCES):
+							szTrade = formatTreatyTrade(tradeData, deal.getFirstPlayer(), deal.getSecondPlayer())
+							if (szTrade and szTrade not in listDealEntries):
+								listDealEntries.append(szTrade)
+					for iTrade in range(deal.getLengthSecondTrades()):
+						tradeData = deal.getSecondTrade(iTrade)
+						if (tradeData and tradeData.ItemType != TradeableItems.TRADE_RESOURCES):
+							szTrade = formatTreatyTrade(tradeData, deal.getSecondPlayer(), deal.getFirstPlayer())
+							if (szTrade and szTrade not in listDealEntries):
+								listDealEntries.append(szTrade)
+					if len(listDealEntries) == 0:
+						continue
+					szDealText = u", ".join(listDealEntries)
 					# <advc.072>
 					iShowTurnsMode = AdvisorOpt.getShowDealTurns()
 					bShowTurns = False
@@ -570,7 +622,6 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 							if iTurns > 0:
 								szDealText += u" %s" % BugUtil.getText("INTERFACE_CITY_TURNS", (iTurns,))
 					screen.appendListBoxString(dealPanelName, szDealText, WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
-					iRow += 1
 
 	#	RJG Start
 	def drawRelations (self, bInitial):

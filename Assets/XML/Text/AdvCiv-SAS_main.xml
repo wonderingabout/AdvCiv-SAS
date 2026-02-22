@@ -11,6 +11,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
 		<English>Bonuses</English>
 	</TEXT>
+	<!-- custom: tab rename in Exotic Foreign Advisor (Active -> Treaties). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_TREATIES</Tag>
+		<English>Treaties</English>
+	</TEXT>
 	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
