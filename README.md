@@ -226,7 +226,7 @@ Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so 
 
 ### Diplomacy Screen
 
-Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact, etc.).
+Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact, etc; also leader icons ((make peace / declare war / embargo))).
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (1).JPG" alt="0.970_diplomacy_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG" alt="0.970_diplomacy_screen (2).JPG" width="250"></img>

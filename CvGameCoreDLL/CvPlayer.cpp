@@ -19148,30 +19148,51 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 		}
 		break;
 	}
+	// <!-- custom: diplomacy target-team rows (make peace / declare war / embargo) use the target leader portrait button via szIcon.
+	// This keeps each row visually identifiable at a glance and reduces name-scanning when several red target names are listed.
+	// The icon is only assigned for valid alive leaders to avoid bad/no-player lookups. (GPT-5.3-Codex) -->
 	case TRADE_PEACE:
+	{
+		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
 		if (bOffer)
 		{
 			szString = gDLL->getText("TXT_KEY_TRADE_PEACE_WITH");
-			szString += GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+			szString += GET_TEAM(eTargetTeam).getName();
 		}
-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+		else szString = GET_TEAM(eTargetTeam).getName();
+		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
+		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
+			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
 		break;
+	}
 	case TRADE_WAR:
+	{
+		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
 		if (bOffer)
 		{
 			szString = gDLL->getText("TXT_KEY_TRADE_WAR_WITH");
-			szString += GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+			szString += GET_TEAM(eTargetTeam).getName();
 		}
-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+		else szString = GET_TEAM(eTargetTeam).getName();
+		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
+		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
+			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
 		break;
+	}
 	case TRADE_EMBARGO:
+	{
+		TeamTypes eTargetTeam = (TeamTypes)zTradeData.m_iData;
 		if (bOffer)
 		{
 			szString = gDLL->getText("TXT_KEY_TRADE_STOP_TRADING_WITH");
-			szString += L" " + GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+			szString += L" " + GET_TEAM(eTargetTeam).getName();
 		}
-		else szString = GET_TEAM((TeamTypes)zTradeData.m_iData).getName();
+		else szString = GET_TEAM(eTargetTeam).getName();
+		PlayerTypes eLeader = GET_TEAM(eTargetTeam).getLeaderID();
+		if (eLeader != NO_PLAYER && GET_PLAYER(eLeader).isAlive())
+			szIcon = GC.getInfo(GET_PLAYER(eLeader).getLeaderType()).getButton();
 		break;
+	}
 	case TRADE_CIVIC:
 		if (bOffer)
 		{
