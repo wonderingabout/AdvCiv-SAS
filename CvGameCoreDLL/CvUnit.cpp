@@ -3276,16 +3276,105 @@ bool CvUnit::canScrap() const
 	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
 	{
 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
-		const UnitAITypes eUnitAI = AI_getUnitAIType();
 		const CvUnitInfo& kUnitInfo = getUnitInfo();
-
 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
 		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
 		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
 		{
+			// <!-- custom: keep direct getDomainType() checks here. We had compile errors when testing era enums/cases (`ERA_ANCIENT` etc. undeclared / case expression not constant), so for safety we also avoid domain-enum caching here for now; the extra cost is tiny anyway. (GPT-5.3-Codex) -->
+			// 1>..\CvUnit.cpp(3301): error C2065: 'ERA_ANCIENT' : undeclared identifier
+			// 1>..\CvUnit.cpp(3301): error C2051: case expression not constant
+			// 1>..\CvUnit.cpp(3304): error C2065: 'ERA_CLASSICAL' : undeclared identifier
+			// <!-- custom: obsolete-unit scrap gates are based on iXMLCost by era, split by domain. For DOMAIN_LAND combat units, cheap obsolete units (e.g. Archers) become low-value maintenance in/after Medieval and are allowed to scrap earlier, while higher-cost obsolete units (e.g. Knights, Trebuchets) can remain strategically useful even in later eras and are protected by stricter cost gates. For DOMAIN_SEA, transports with cargo are never scrapped even when obsolete because they can still enable invasions, while other obsolete ships use their own era-based iXMLCost gates. Important: compare raw iXMLCost vs raw gate (no game-speed scaling) since XML cost itself is game-speed independent. (GPT-5.3-Codex) -->
+			if (getDomainType() == DOMAIN_LAND && canFight())
+			{
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE");
+
+				int iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE;
+				int const iCurrentEra = GET_PLAYER(getOwner()).getCurrentEra();
+				switch (iCurrentEra)
+				{
+				case 0:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT;
+					break;
+				case 1:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL;
+					break;
+				case 2:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL;
+					break;
+				case 3:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE;
+					break;
+				case 4:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL;
+					break;
+				case 5:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN;
+					break;
+				default:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE;
+					break;
+				}
+				int const iXMLCost = kUnitInfo.getProductionCost();
+				return (iXMLCost <= iWeakObsoleteXMLCostCap);
+			}
+			else if (getDomainType() == DOMAIN_SEA)
+			{
+				// <!-- custom: even if galley is old, if it's our only unit to invade a rival we should definitely use it even in later eras so don't scrap naval units that can have a cargo -->
+				if (getCargo() > 0)
+				{
+					return false;
+				}
+
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN");
+				static const int iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE = GC.getDefineINT("SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE");
+
+				int iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE;
+				int const iCurrentEra = GET_PLAYER(getOwner()).getCurrentEra();
+				switch (iCurrentEra)
+				{
+				case 0:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT;
+					break;
+				case 1:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL;
+					break;
+				case 2:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL;
+					break;
+				case 3:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE;
+					break;
+				case 4:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL;
+					break;
+				case 5:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN;
+					break;
+				default:
+					iWeakObsoleteXMLCostCap = iSAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE;
+					break;
+				}
+				int const iXMLCost = kUnitInfo.getProductionCost();
+				return (iXMLCost <= iWeakObsoleteXMLCostCap);
+			}
 			return true;
 		}
+
+		const UnitAITypes eUnitAI = AI_getUnitAIType();
 		const bool bLandMilitaryUnitAIs = (
 			(eUnitAI == UNITAI_ATTACK) ||
 			(eUnitAI == UNITAI_ATTACK_CITY) ||
@@ -3300,7 +3389,6 @@ bool CvUnit::canScrap() const
 			//
 			(eUnitAI == UNITAI_PARADROP)
 		);
-
 		if (bLandMilitaryUnitAIs)
 		{
 			return false;

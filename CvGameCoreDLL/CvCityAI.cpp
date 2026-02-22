@@ -5521,8 +5521,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
 				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks -->
-				// Cheap World Wonder grab policy: per-era iCost caps (Normal).
-				// If iCost <= cap(for current era) scaled by game speed, treat the WW as "cheap".
+				// Cheap World Wonder grab policy: per-era iCost caps (XML-cost gates).
+				// Compare raw iCost vs raw cap (no game-speed scaling) since XML cost is game-speed independent.
 				// Era index assumed: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future.
 
 				static const int iCheapWWCapAncientNormal     = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL");
@@ -5545,11 +5545,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					default: iCheapWWCapNormal = iCheapWWCapFutureNormal; break; // includes era 6 and any later eras
 				}
 
-				// Scale cap to game speed (same style you use elsewhere)
-				const int iCheapWWCapAdjusted = (iCheapWWCapNormal * iGameSpeedMultiplier) / 100;
-
 				// Final flag: cheap enough to consider as "grab it"
-				const bool bCheapWorldWonder = (iCost <= iCheapWWCapAdjusted);
+				const bool bCheapWorldWonder = (iCost <= iCheapWWCapNormal);
 				// If cheap, push it hard (so it doesn't get ignored by other builds).
 				if (bCheapWorldWonder)
 				{

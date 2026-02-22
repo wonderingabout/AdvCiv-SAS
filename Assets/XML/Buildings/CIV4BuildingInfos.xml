@@ -13035,8 +13035,8 @@
 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
 			<iExperience>0</iExperience>
 			<iGlobalExperience>0</iGlobalExperience>
-			<!-- custom: Changpingcang keeps food after growth over base Market. (GPT-5.3-Codex) -->
-			<iFoodKept>10</iFoodKept>
+			<!-- custom: as of now more than civ-specific granaries because it is available much later and a non-ubiquitous building, and because the building is as of now otherwise weak -->
+			<iFoodKept>15</iFoodKept>
 			<iAirlift>0</iAirlift>
 			<iAirModifier>0</iAirModifier>
 			<iAirUnitCapacity>0</iAirUnitCapacity>

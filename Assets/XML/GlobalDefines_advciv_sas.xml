@@ -1046,6 +1046,87 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CAN_SCRAP_OBSOLETE_TECH</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+
+
+
+	<!-- custom: obsolete-unit scrap hard-gates by era and domain, based on iXMLCost. If obsolete and iXMLCost <= cap, scrapping is allowed; if above cap, unit is kept. iXMLCost is game-speed invariant, and these caps are compared as raw XML-cost gates (no game-speed scaling). DOMAIN_LAND is for land combat units; DOMAIN_SEA is for ships (cargo transports are hard-protected in DLL regardless of cap). (GPT-5.3-Codex) -->
+	<!-- custom: do not scrap units so early -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: do not scrap units so early -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_CLASSICAL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: archers are no longer valuable (as of now 2 str) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MEDIEVAL</DefineName>
+		<iDefineIntVal>27</iDefineIntVal>
+	</Define>
+	<!-- custom: axemen are no longer valuable (as of now 5 effective str), but for example knight units still are even if obsolete for production -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_RENAISSANCE</DefineName>
+		<iDefineIntVal>37</iDefineIntVal>
+	</Define>
+	<!-- custom: macemen are no longer valuable (as of now 5 effective str), but for example knight units still are, and trebuchets still are as well -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_INDUSTRIAL</DefineName>
+		<iDefineIntVal>78</iDefineIntVal>
+	</Define>
+	<!-- custom: musketmen are still valuable (keeps knights as a side effect but maybe fine or not too bad as such) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_MODERN</DefineName>
+		<iDefineIntVal>98</iDefineIntVal>
+	</Define>
+	<!-- custom: riflemen are still valuable (and so are cuirassier units) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_FUTURE</DefineName>
+		<iDefineIntVal>118</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: for domain sea units, as of now if not cargo: -->
+	<!-- custom: do not scrap so early -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_ANCIENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: do not scrap so early -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_CLASSICAL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: an as of now trireme is still effective against privateers so keep it -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MEDIEVAL</DefineName>
+		<iDefineIntVal>38</iDefineIntVal>
+	</Define>
+	<!-- custom: triremes are not so useful anymore, but privateers are, use some intermediate value -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_RENAISSANCE</DefineName>
+		<iDefineIntVal>58</iDefineIntVal>
+	</Define>
+	<!-- custom: a frigate is a bit old but still decent against an ironclad, and so is a privateer to a lesser extent, do not scrap so early for these -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_INDUSTRIAL</DefineName>
+		<iDefineIntVal>68</iDefineIntVal>
+	</Define>
+	<!-- custom: a frigate is a bit old but still decent against an ironclad, and so is a privateer to a lesser extent, do not scrap so early for these -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_MODERN</DefineName>
+		<iDefineIntVal>78</iDefineIntVal>
+	</Define>
+	<!-- custom: a ship of the line is better than nothing -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_SEA_FUTURE</DefineName>
+		<iDefineIntVal>108</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = ((4 * (0 + 1)) + 1 = 5 at ancient, (4 * 2) + 1 = 9 at classical, (4 * 3) + 1 = 13 at medieval. Note: overshooting may lead to bankruptcy though. -->
 	<Define>
 		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
