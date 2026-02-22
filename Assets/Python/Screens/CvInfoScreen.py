@@ -3701,18 +3701,19 @@ class CvInfoScreen:
 
 		# Add Units to table
 		iRow = 0 # K-Mod
-		# <advc.004> Sort by name. (Can't tell the table to sort itself.)
-		unitIDsByName = []
+		# <!-- custom: default stats-tab unit order to "most built first" so the first view is actionable; name remains the tie-breaker and users can still re-sort by clicking headers. (GPT-5.3-Codex) -->
+		unitIDsByBuiltDesc = []
 		for iUnitLoop in range(iNumUnits):
 			# K-Mod. Hide-rows option.
 			if ((True or AdvisorOpt.isNonZeroStatsOnly()) # advc: no longer optional
 					and aiUnitsCurrent[iUnitLoop] == 0 and aiUnitsBuilt[iUnitLoop] == 0
 					and aiUnitsKilled[iUnitLoop] == 0 and aiUnitsLost[iUnitLoop] == 0):
 				continue # K-Mod end
-			unitIDsByName.append((gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
-		unitIDsByName.sort()
-		for i in range(len(unitIDsByName)):
-			(szUnitName, iUnitLoop) = unitIDsByName[i] # </advc.004>
+			unitIDsByBuiltDesc.append((-aiUnitsBuilt[iUnitLoop],
+					gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
+		unitIDsByBuiltDesc.sort()
+		for i in range(len(unitIDsByBuiltDesc)):
+			(iNegBuilt, szUnitName, iUnitLoop) = unitIDsByBuiltDesc[i]
 			screen.appendTableRow(szUnitsTable)
 			#iRow = iUnitLoop
 			iCol = 0
@@ -3741,16 +3742,17 @@ class CvInfoScreen:
 
 		# Add Buildings to table
 		iRow = 0 # K-Mod
-		# <advc.004> Sort by name
-		buildingIDsByName = []
+		# <!-- custom: default stats-tab building order to "most built first" for faster scanning; name is only a stable tie-breaker. (GPT-5.3-Codex) -->
+		buildingIDsByBuiltDesc = []
 		for iBuildingLoop in range(iNumBuildings):
 			# K-Mod. Hide-rows option.
 			if aiBuildingsBuilt[iBuildingLoop] == 0: #and AdvisorOpt.isNonZeroStatsOnly(): # advc: No longer optional
 				continue # K-Mod end
-			buildingIDsByName.append((gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
-		buildingIDsByName.sort()
-		for i in range(len(buildingIDsByName)):
-			(szBuildingName, iBuildingLoop) = buildingIDsByName[i] # </advc.004>
+			buildingIDsByBuiltDesc.append((-aiBuildingsBuilt[iBuildingLoop],
+					gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
+		buildingIDsByBuiltDesc.sort()
+		for i in range(len(buildingIDsByBuiltDesc)):
+			(iNegBuilt, szBuildingName, iBuildingLoop) = buildingIDsByBuiltDesc[i]
 			screen.appendTableRow(szBuildingsTable)
 			#iRow = iBuildingLoop
 			iCol = 0
@@ -3771,14 +3773,15 @@ class CvInfoScreen:
 		if True: # advc.004
 			# Add Improvements to table	
 			iRow = 0
-			# <advc.004> Sort by name
-			improvIDsByName = []
+			# <!-- custom: default stats-tab improvement order to "most current first" so the highest-impact rows show immediately; name breaks ties. (GPT-5.3-Codex) -->
+			improvIDsByCurrentDesc = []
 			for iImprovementLoop in range(iNumImprovements):
 				if aiImprovementsCurrent[iImprovementLoop] > 0:
-					improvIDsByName.append((gc.getImprovementInfo(iImprovementLoop).getDescription(), iImprovementLoop))
-			improvIDsByName.sort()
-			for i in range(len(improvIDsByName)):
-				(szImprovementName, iImprovementLoop) = improvIDsByName[i] # </advc.004>
+					improvIDsByCurrentDesc.append((-aiImprovementsCurrent[iImprovementLoop],
+							gc.getImprovementInfo(iImprovementLoop).getDescription(), iImprovementLoop))
+			improvIDsByCurrentDesc.sort()
+			for i in range(len(improvIDsByCurrentDesc)):
+				(iNegCurrent, szImprovementName, iImprovementLoop) = improvIDsByCurrentDesc[i]
 				screen.appendTableRow(szImprovementsTable) # K-Mod
 				iCol = 0
 
