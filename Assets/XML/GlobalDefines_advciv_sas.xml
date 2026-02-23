@@ -1209,6 +1209,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: enable hard "do not buy dominated or equivalent strategic bonus" rules; Long_Comments_XML.txt #362. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: Long_Comments_XML.txt #206 -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>

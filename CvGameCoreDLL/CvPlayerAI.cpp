@@ -12868,6 +12868,67 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
 	} // </advc.036>
 	// advc.133:
 	int iAvailThem = kPlayer.getNumAvailableBonuses(eBonus);
+	// <!-- custom: exclude dominated strategic buys from trade tables entirely (DENIAL_JOKING is filtered there), so they don't appear as meaningless 0-value purchases. (GPT-5.3-Codex) -->
+	static const bool bZeroDominatedStrategicBuys = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS");
+	if (iChange >= 0 && bZeroDominatedStrategicBuys)
+	{
+		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
+		static const BonusTypes B_IRON = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2"));
+		static const BonusTypes B_HORSE = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_1"));
+		static const BonusTypes B_CAMEL = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"));
+		static const BonusTypes B_ELEPHANTS = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"));
+
+		const bool bHaveCopper = (B_COPPER != NO_BONUS && kPlayer.getNumAvailableBonuses(B_COPPER) > 0);
+		const bool bHaveIron = (B_IRON != NO_BONUS && kPlayer.getNumAvailableBonuses(B_IRON) > 0);
+		const bool bHaveHorse = (B_HORSE != NO_BONUS && kPlayer.getNumAvailableBonuses(B_HORSE) > 0);
+		const bool bHaveCamel = (B_CAMEL != NO_BONUS && kPlayer.getNumAvailableBonuses(B_CAMEL) > 0);
+		const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && kPlayer.getNumAvailableBonuses(B_ELEPHANTS) > 0);
+		const bool bHaveAnyMetal = (bHaveIron || bHaveCopper);
+		const bool bHaveAnyMount = (bHaveHorse || bHaveCamel);
+
+		const EraTypes eCurrentEra = kPlayer.getCurrentEra();
+		static const EraTypes eERA_CLASSICAL = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL");
+		static const EraTypes eERA_MEDIEVAL = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL");
+		static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
+		static const EraTypes eERA_INDUSTRIAL = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL");
+		static const EraTypes eERA_MODERN = (EraTypes)GC.getInfoTypeForString("ERA_MODERN");
+
+		const bool bClassical = (eCurrentEra == eERA_CLASSICAL);
+		const bool bMedieval = (eCurrentEra == eERA_MEDIEVAL);
+		const bool bRenaissance = (eCurrentEra == eERA_RENAISSANCE);
+		const bool bMedievalPlus = (eCurrentEra >= eERA_MEDIEVAL);
+		const bool bIndustrialPlus = (eCurrentEra >= eERA_INDUSTRIAL);
+		const bool bModernPlus = (eCurrentEra >= eERA_MODERN);
+		const bool bClassicalToRenaissance = (bClassical || bMedieval || bRenaissance);
+
+		bool bDominated = false;
+		// <!-- custom: Classical: mounted/elephants substitute for metals, so deny buying Iron/Copper if buyer already has mounted or Elephants. (GPT-5.3-Codex) -->
+		if ((eBonus == B_IRON || eBonus == B_COPPER) && bClassical && (bHaveAnyMount || bHaveElephants))
+			bDominated = true;
+		// <!-- custom: Classical: metals substitute for mounted/elephants, so deny buying Horse/Camel/Elephants if buyer already has Iron/Copper. (GPT-5.3-Codex) -->
+		else if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) && bClassical && bHaveAnyMetal)
+			bDominated = true;
+		// <!-- custom: Classical-Medieval-Renaissance: Camel and Horse are interchangeable, so deny duplicate Horse buy when Camel exists. (GPT-5.3-Codex) -->
+		else if (eBonus == B_HORSE && bClassicalToRenaissance && bHaveCamel)
+			bDominated = true;
+		// <!-- custom: Classical-Medieval-Renaissance: Horse and Camel are interchangeable, so deny duplicate Camel buy when Horse exists. (GPT-5.3-Codex) -->
+		else if (eBonus == B_CAMEL && bClassicalToRenaissance && bHaveHorse)
+			bDominated = true;
+		// <!-- custom: Industrial (pre-Modern): Horse line is stronger (Cavalry), so deny Camel buy when Horse exists. (GPT-5.3-Codex) -->
+		else if (eBonus == B_CAMEL && bIndustrialPlus && !bModernPlus && bHaveHorse)
+			bDominated = true;
+		// <!-- custom: Medieval+: Copper is not worth buying in this heuristic; before that, Iron already dominates Copper when both exist. (GPT-5.3-Codex) -->
+		else if (eBonus == B_COPPER && (bHaveIron || bMedievalPlus))
+			bDominated = true;
+		// <!-- custom: Medieval+: War Elephants are too weak for this buy heuristic, so deny Elephant buy. (GPT-5.3-Codex) -->
+		else if (eBonus == B_ELEPHANTS && bMedievalPlus)
+			bDominated = true;
+		// <!-- custom: Modern+: Horse/Camel are obsolete in this heuristic, so deny buying either. (GPT-5.3-Codex) -->
+		else if ((eBonus == B_HORSE || eBonus == B_CAMEL) && bModernPlus)
+			bDominated = true;
+		if (bDominated)
+			return DENIAL_JOKING;
+	}
 	// advc.036: Moved this clause up
 	if (iAvailThem + iChange > 1 && kPlayer.AI_corporationBonusVal(eBonus, true) <= 0)
 		return DENIAL_JOKING;

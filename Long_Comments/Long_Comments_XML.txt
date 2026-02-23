@@ -4874,3 +4874,8 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 			 (For the non-optional elements, LEADER_DEFAULTS has to set some
 			 default as well - 0, NONE or an empty string - but it won't matter
 			 because every LeaderHeadInfo has to define those elements.) -->
+
+===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+----- Comment #362 -----
+
+. Examples: Classical metals vs mounts are substitutes (if we have Iron/Copper, don't buy Horse/Camel/Elephants; if we have Horse/Camel/Elephants, don't buy Iron/Copper). Classical-Medieval-Renaissance: if we have Horse, don't buy Camel (and vice versa). Industrial (pre-Modern): if we have Horse, don't buy Camel. Medieval+: don't buy Elephants. Modern+: don't buy Horse/Camel. Set to 0 to disable only these hard blocks while keeping relative multipliers active
