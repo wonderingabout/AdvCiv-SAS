@@ -6,6 +6,56 @@ Created as part of AdvCiv-SAS improvements
 -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled). No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: only randomize when the selected main menu soundtrack script matches this trigger script ID. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU</DefineTextVal>
+	</Define>
+	<!-- custom: opening menu script shuffle pool entries (ScriptID values from Audio2DScripts.xml); set unused slots to NONE. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_1</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_01</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_2</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_02</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_3</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_03</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_4</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_04</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_05</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_6</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_06</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_7</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_07</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_8</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_9</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+
+
+
 	<!-- custom: launch guard int define checked at startup/load/Sevopedia entry to detect bad launch context quickly. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_LAUNCH_GUARD_TEST_INT</DefineName>

@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework (notably multiple random main menu music support (shuffle-bag)).
 
 New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
 
@@ -138,6 +138,14 @@ Edited the .thm files so the main menu's home page feels more modern and utlizes
 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG" alt="0.300_main_menu_home (2).JPG" width="250"></img>
+
+### Multiple random Main Menu Musics
+
+AdvCiv-SAS now supports randomized main menu music among a tunable list of many scripts, using the shuffle-bag approach: each time a save is loaded (a random music among those not played once yet) or game is exited (any music), a new music is played.
+
+These music scripts are playable via Sevopedia Music and the Sevopedia Media Player.
+
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (5).JPG" alt="0.830_sevopedia_music (5).JPG" width="250"></img>
 
 ### Simple Game rework
 

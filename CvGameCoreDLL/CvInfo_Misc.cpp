@@ -1838,7 +1838,60 @@ std::string CvMainMenuInfo::getSceneNoShader() const
 
 std::string CvMainMenuInfo::getSoundtrack() const
 {
-	return m_szSoundtrack;
+	// <!-- custom: opening-menu music shuffle toggle; if disabled, preserve vanilla behavior and return XML soundtrack as-is. (GPT-5.3-Codex) -->
+	static const bool bSASMainMenuOpeningMusicShuffleEnable = GC.getDefineBOOL("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE");
+	if (!bSASMainMenuOpeningMusicShuffleEnable)
+		return m_szSoundtrack;
+
+	// <!-- custom: only randomize for the configured trigger script (e.g. AS2D_OPENING_MENU), so other menu profiles keep their own soundtrack untouched. (GPT-5.3-Codex) -->
+	static const CvString szSASMainMenuOpeningMusicShuffleTriggerScript = GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT");
+	if (m_szSoundtrack != szSASMainMenuOpeningMusicShuffleTriggerScript.c_str())
+		return m_szSoundtrack;
+
+	// <!-- custom: shuffle-bag state: aszAllScripts = configured pool, aszRemainingScripts = not yet played in current cycle. (GPT-5.3-Codex) -->
+	static bool bInit = false;
+	static std::vector<CvString> aszAllScripts;
+	static std::vector<CvString> aszRemainingScripts;
+	if (!bInit)
+	{
+		const CvString aszCandidates[] =
+		{
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_1"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_2"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_3"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_4"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_6"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_7"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_8"),
+			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_9")
+		};
+		for (size_t i = 0; i < sizeof(aszCandidates) / sizeof(aszCandidates[0]); i++)
+		{
+			if (aszCandidates[i].empty() ||
+				aszCandidates[i].CompareNoCase("NONE") == 0)
+			{
+				continue;
+			}
+			aszAllScripts.push_back(aszCandidates[i]);
+		}
+		// <!-- custom: safety fallback: if all configured slots are NONE/empty, use trigger script so opening menu still has music. (GPT-5.3-Codex) -->
+		if (aszAllScripts.empty())
+			aszAllScripts.push_back(szSASMainMenuOpeningMusicShuffleTriggerScript);
+		aszRemainingScripts = aszAllScripts;
+		bInit = true;
+	}
+	// <!-- custom: refill bag only after all tracks were consumed once; this prevents repeats within a cycle. (GPT-5.3-Codex) -->
+	if (aszRemainingScripts.empty())
+		aszRemainingScripts = aszAllScripts;
+
+	// <!-- custom: pick uniformly from remaining bag, then erase picked script; this implements non-repeating random order per cycle. (GPT-5.3-Codex) -->
+	int const iPick = GC.getASyncRand().get(
+			static_cast<int>(aszRemainingScripts.size()),
+			"SAS main menu opening music shuffle ASYNC");
+	CvString const szPickedScript = aszRemainingScripts[iPick];
+	aszRemainingScripts.erase(aszRemainingScripts.begin() + iPick);
+	return szPickedScript;
 }
 
 std::string CvMainMenuInfo::getLoading() const

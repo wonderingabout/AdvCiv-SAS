@@ -253,6 +253,7 @@ The implementation still needs some minor polish, but it is as of now entirely f
 <img src="../Images/sevopedia/0.830_sevopedia_music (2).JPG" alt="0.830_sevopedia_music (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.830_sevopedia_music (3).JPG" alt="0.830_sevopedia_music (3).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.830_sevopedia_music (5).JPG" alt="0.830_sevopedia_music (5).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

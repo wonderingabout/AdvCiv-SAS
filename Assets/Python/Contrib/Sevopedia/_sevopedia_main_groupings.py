@@ -20,11 +20,77 @@
 
 from CvPythonExtensions import *
 from _sevopedia_helpers import *
+import os
 
 
 
 gc = CyGlobalContext()
 localText = CyTranslator()
+# <!-- custom: toggle verbose Sevopedia music path/count debug prints in PythonDbg.log; keep disabled by default to avoid log clutter, but retain for future diagnosis of mod-vs-base audio XML resolution issues. (GPT-5.3-Codex) -->
+SAS_SEVO_MUSIC_DEBUG_ENABLE = False
+
+
+def _SAS_findAssetXmlPath(szFileName, szSubDir):
+	# <!-- custom: build absolute candidate paths and prefer the mod copy; for Audio2DScripts specifically, pick the candidate that contains AS2D_OPENING_MENU_01 so Sevopedia grouping uses AdvCiv-SAS variants instead of base BTS opening entries. (GPT-5.3-Codex) -->
+	def _SAS_addCandidate(cands, szPath):
+		if not szPath:
+			return
+		try:
+			szNorm = os.path.normpath(os.path.abspath(szPath))
+		except:
+			szNorm = szPath
+		if os.path.isfile(szNorm) and (szNorm not in cands):
+			cands.append(szNorm)
+
+	def _SAS_fileContains(szPath, szNeedle):
+		try:
+			f = open(szPath, "r")
+			for line in f:
+				if szNeedle in line:
+					f.close()
+					return True
+			f.close()
+		except:
+			pass
+		return False
+
+	candidates = []
+	try:
+		szHere = os.path.dirname(__file__)
+		_SAS_addCandidate(candidates, os.path.join(szHere, "..", "..", "..", szSubDir, szFileName))
+	except:
+		pass
+
+	try:
+		import BugPath
+		try:
+			_SAS_addCandidate(candidates, os.path.join(BugPath.getModDir(), "Assets", szSubDir, szFileName))
+		except:
+			pass
+		try:
+			szAppDir = BugPath.getAppDir()
+			szModName = BugPath.getModName()
+			if szAppDir and szModName:
+				_SAS_addCandidate(candidates, os.path.join(szAppDir, "Mods", szModName, "Assets", szSubDir, szFileName))
+		except:
+			pass
+		try:
+			_SAS_addCandidate(candidates, BugPath.findAssetFile(szFileName, szSubDir))
+		except:
+			pass
+	except:
+		pass
+
+	_SAS_addCandidate(candidates, os.path.join("Assets", szSubDir, szFileName))
+
+	if szFileName == "Audio2DScripts.xml":
+		for szPath in candidates:
+			if _SAS_fileContains(szPath, "AS2D_OPENING_MENU_01"):
+				return szPath
+
+	if len(candidates) > 0:
+		return candidates[0]
+	return os.path.join("Assets", szSubDir, szFileName)
 
 
 
@@ -1603,8 +1669,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 	szScript = None
 	szSound = None
 	labelSeenCounts = {}
+	iOpeningCount = 0
+	iSongCount = 0
+	szAudio2DPath = _SAS_findAssetXmlPath("Audio2DScripts.xml", os.path.join("XML", "Audio"))
 	try:
-		f = open("Assets/XML/Audio/Audio2DScripts.xml", "r")
+		f = open(szAudio2DPath, "r")
 		for line in f:
 			if "<ScriptID>" in line:
 				szScript = _SAS_extractTagValue(line, "ScriptID")
@@ -1612,10 +1681,13 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				szSound = _SAS_extractTagValue(line, "SoundID")
 			elif "</Script2DSound>" in line:
 				if szScript and szSound:
-					if szSound.startswith("SONG_OPENING"):
+					# <!-- custom: classify opening tracks by either SoundID (SONG_OPENING*) or ScriptID (AS2D_OPENING_MENU*), so custom opening variants still appear in the Opening grouping even when SoundID naming differs. (GPT-5.3-Codex) -->
+					if szSound.startswith("SONG_OPENING") or szScript.startswith("AS2D_OPENING_MENU"):
 						szGroup = _SCRIPT_2D_OPENING
+						iOpeningCount += 1
 					elif szSound.startswith("SONG_"):
 						szGroup = _SCRIPT_2D_SONGS
+						iSongCount += 1
 					elif szSound.startswith("DIPLO_") or szScript.startswith("AS2D_DIPLO_"):
 						szGroup = _SCRIPT_2D_DIPLO
 					elif szSound.startswith("SND_TECH"):
@@ -1668,7 +1740,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				szScript = None
 				szSound = None
 		f.close()
+		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
+			print("SAS_SEVO_MUSIC_2D_PATH=%s OPENING=%d SONGS=%d") % (szAudio2DPath, iOpeningCount, iSongCount)
 	except:
+		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
+			print("SAS_SEVO_MUSIC_2D_PARSE_FAILED path=%s") % (szAudio2DPath,)
 		scriptGroups = {}
 
 	for szHeader in (
@@ -1701,8 +1777,9 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 	szScript3D = None
 	szSound3D = None
 	labelSeenCounts3D = {}
+	szAudio3DPath = _SAS_findAssetXmlPath("Audio3DScripts.xml", os.path.join("XML", "Audio"))
 	try:
-		f3 = open("Assets/XML/Audio/Audio3DScripts.xml", "r")
+		f3 = open(szAudio3DPath, "r")
 		for line in f3:
 			if "<ScriptID>" in line:
 				szScript3D = _SAS_extractTagValue(line, "ScriptID")
@@ -1740,7 +1817,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 				szScript3D = None
 				szSound3D = None
 		f3.close()
+		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
+			print("SAS_SEVO_MUSIC_3D_PATH=%s") % (szAudio3DPath,)
 	except:
+		if SAS_SEVO_MUSIC_DEBUG_ENABLE:
+			print("SAS_SEVO_MUSIC_3D_PARSE_FAILED path=%s") % (szAudio3DPath,)
 		script3DGroups = {}
 
 	firstCivScript3DKey = -1
