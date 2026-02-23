@@ -21,6 +21,15 @@ import copy # advc.091
 import re
 
 from PyHelpers import PyPlayer
+from SASUtils import *
+
+# <!-- custom: Begin - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
+import Scoreboard
+import DiplomacyUtil
+import AttitudeUtil
+import PlayerUtil
+import FontUtil
+# <!-- custom: End - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
 
 # BUG - 3.17 No Espionage - start
 import GameUtil
@@ -116,8 +125,10 @@ class CvInfoScreen:
 		#self.Y_EXIT = 730
 		self.Y_EXIT = self.H_SCREEN - 42
 
+		# <!-- custom: Score tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
 		self.PAGE_NAME_LIST = [
 			"TXT_KEY_INFO_GRAPH",
+			"TXT_KEY_GAME_SCORE",
 			"TXT_KEY_INFO_HISTORY",
 			"TXT_KEY_DEMO_SCREEN_TITLE",
 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
@@ -125,6 +136,7 @@ class CvInfoScreen:
 			]
 		self.PAGE_DRAW_LIST = [
 			self.drawGraphTab,
+			self.drawScoreTab,
 			self.drawHistoryTab,
 			self.drawDemographicsTab,
 			self.drawTopCitiesTab,
@@ -144,11 +156,13 @@ class CvInfoScreen:
 		# This is used to allow the wonders screen to refresh without redrawing everything
 		self.iNumWondersPermanentWidgets = 0
 
+		# <!-- custom: Score tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
 		self.iGraphID			= 0
-		self.iHistoryID			= 1
-		self.iDemographicsID	= 2
-		self.iTopCitiesID		= 3
-		self.iStatsID			= 4
+		self.iScoreID			= 1
+		self.iHistoryID			= 2
+		self.iDemographicsID	= 3
+		self.iTopCitiesID		= 4
+		self.iStatsID			= 5
 
 		self.iActiveTab = -1
 #		self.iActiveTab = self.iGraphID
@@ -633,6 +647,22 @@ class CvInfoScreen:
 		self.TEXT_CULTURE = localText.getObjectText("TXT_KEY_COMMERCE_CULTURE", 0)
 		self.TEXT_ESPIONAGE = localText.getObjectText("TXT_KEY_ESPIONAGE_CULTURE", 0)
 
+		# <!-- custom: Score tab shared UI constants cached once per language load. (GPT-5.3-Codex) -->
+		self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
+		self.SCORETAB_COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+		self.SCORETAB_WAR_CHAR = FontUtil.getChar(FontSymbols.WAR_CHAR)
+		self.SCORETAB_PEACE_CHAR = FontUtil.getChar(FontSymbols.PEACE_CHAR)
+		self.SCORETAB_TRADE_CHAR = FontUtil.getChar(FontSymbols.TRADE_CHAR)
+		self.SCORETAB_BORDERS_CHAR = FontUtil.getChar(FontSymbols.OPEN_BORDERS_CHAR)
+		self.SCORETAB_PACT_CHAR = FontUtil.getChar(FontSymbols.DEFENSIVE_PACT_CHAR)
+		self.SCORETAB_WORST_ENEMY_CHAR = FontUtil.getChar(FontSymbols.ANGRY_POP_CHAR)
+		self.SCORETAB_GOLDEN_AGE_CHAR = FontUtil.getChar(FontSymbols.GOLDEN_AGE_CHAR)
+		self.SCORETAB_ANARCHY_CHAR = FontUtil.getChar(FontSymbols.BAD_GOLD_CHAR)
+		self.SCORETAB_ESPIONAGE_CHAR = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar()
+		self.SCORETAB_COLOR_MARKER = u"|||||"
+		self.SCORETAB_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
+		self.SCORETAB_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SCORE_TAB_COLUMNS")
+
 		self.TEXT_VALUE = localText.getText("TXT_KEY_DEMO_SCREEN_VALUE_TEXT", ())
 		self.TEXT_RANK = localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ())
 		self.TEXT_AVERAGE = localText.getText("TXT_KEY_DEMOGRAPHICS_SCREEN_RIVAL_AVERAGE", ())
@@ -672,10 +702,10 @@ class CvInfoScreen:
 		self.szEconomyTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%c+%c)" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())) + ": " + self.TEXT_ECONOMY_MEASURE
 		self.szIndustryTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + ": " + self.TEXT_INDUSTRY_MEASURE
 		self.szAgricultureTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()) + ": " + self.TEXT_AGRICULTURE_MEASURE
-		self.szMilitaryTitle =  self.TEXT_MILITARY + (u" (%c)" % self.getIcon(FontSymbols.STRENGTH_CHAR))
-		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % self.getIcon(FontSymbols.HAPPY_CHAR))
-		self.szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % self.getIcon(FontSymbols.HEALTHY_CHAR)) + ": " + self.TEXT_HEALTH_MEASURE
-		self.szExpTitle = self.TEXT_EXP + (u" (%c)" % self.getIcon(FontSymbols.TRADE_CHAR)) + ": " + self.TEXT_EXP_MEASURE
+		self.szMilitaryTitle =  self.TEXT_MILITARY + (u" (%c)" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+		self.szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
+		self.szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)) + ": " + self.TEXT_HEALTH_MEASURE
+		self.szExpTitle = self.TEXT_EXP + (u" (%c)" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)) + ": " + self.TEXT_EXP_MEASURE
 		# <!-- custom add char icons there with claude opus 4.5's help thanks. -->
 		self.szLandAreaTitle = u"%s (%c): %s" % (self.TEXT_LAND_AREA, CyGame().getSymbolID(FontSymbols.MAP_CHAR), self.TEXT_LAND_AREA_MEASURE)
 		self.szPopulationTitle = u"%s (%c)" % (self.TEXT_POPULATION, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
@@ -1141,6 +1171,386 @@ class CvInfoScreen:
 		szWidget = self.szHistoryList
 		for szFormattedText in aEntries:
 			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+	# <!-- custom: Score tab renderer (scoreboard-style sortable matrix for all visible players). (GPT-5.3-Codex) -->
+	def drawScoreTab(self):
+		screen = self.getScreen()
+		game = gc.getGame()
+		# <!-- custom: in Debug mode, this tab must follow the selected perspective player (dropdown), not always the human active player. (GPT-5.3-Codex) -->
+		eActivePlayer = self.iActivePlayer
+		pActivePlayer = self.pActivePlayer
+		eActiveTeam = self.iActiveTeam
+		pActiveTeam = self.pActiveTeam
+
+		szTable = self.getNextWidgetName()
+		screen.addTableControlGFC(szTable, 25, self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+
+		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
+		iColLeader = 0
+		iColCiv = 1
+		iColColor = 2
+		iColPid = 3
+		iColName = 4
+		iColAttitude = 5
+		iColAttitudeNum = 6
+		iColScore = 7
+		iColDelta = 8
+		iColPower = 9
+		iColCities = 10
+		iColPowerPerCity = 11
+		iColLandPct = 12
+		iColVM = 13
+		iColTrade = 14
+		iColBorders = 15
+		iColPact = 16
+		iColReligion = 17
+		iColWarPeace = 18
+		iColWontTalk = 19
+		iColWorstEnemy = 20
+		iColGoldenAge = 21
+		iColEspionage = 22
+		iColResearch = 23
+		iColResearchPct = 24
+
+		iW = self.W_HISTORY_TABLE
+		iIconW = 28
+		iMinColW = 42
+		iFlagW = iMinColW
+		iDipW = iMinColW
+		iAttNumW = iMinColW
+		iColorW = iMinColW
+		iPidW = iMinColW - 6
+		iNameW = 132
+		iScoreW = 64
+		iDeltaW = 62
+		iPowerW = 62
+		iPowerPerCityW = 66
+		iResearchPctW = iMinColW
+		iCitiesW = iMinColW
+		iLandPctW = iMinColW + 16
+		iVMW = iMinColW + 12
+		iResearchW = iMinColW
+		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
+		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
+		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW +
+				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iAttNumW + iColorW + iResearchPctW + 9 * iFlagW + iPidW +
+				iNameW + iResearchW)
+		iExtraW = iW - iUsedW
+		iVMW += iExtraW
+		if iVMW < iMinColW:
+			iDeficit = iMinColW - iVMW
+			iVMW = iMinColW
+			iResearchShrink = min(iDeficit, iResearchW - iMinColW)
+			iResearchW -= iResearchShrink
+			iDeficit -= iResearchShrink
+			iNameShrink = min(iDeficit, iNameW - iMinColW)
+			iNameW -= iNameShrink
+			iDeficit -= iNameShrink
+			iVMW -= iDeficit
+
+		screen.setTableColumnHeader(szTable, iColLeader, u"", iIconW)
+		screen.setTableColumnHeader(szTable, iColCiv, u"", iIconW)
+		screen.setTableColumnHeader(szTable, iColColor, u"Col", iColorW)
+		screen.setTableColumnHeader(szTable, iColPid, u"PID", iPidW)
+		screen.setTableColumnHeader(szTable, iColName, u"Leader", iNameW)
+		screen.setTableColumnHeader(szTable, iColAttitude, u"Att", iFlagW)
+		screen.setTableColumnHeader(szTable, iColAttitudeNum, u"Att#", iAttNumW)
+		screen.setTableColumnHeader(szTable, iColScore, self.TEXT_SCORE, iScoreW)
+		screen.setTableColumnHeader(szTable, iColDelta, u"dScore", iDeltaW)
+		# <!-- custom: rank column removed because this table is already score-ordered by construction, so Rank duplicated the same ordering signal and added noise. (GPT-5.3-Codex) -->
+		screen.setTableColumnHeader(szTable, iColPower, u"Pow", iPowerW)
+		screen.setTableColumnHeader(szTable, iColCities, u"Cit", iCitiesW)
+		screen.setTableColumnHeader(szTable, iColPowerPerCity, u"Pow/C", iPowerPerCityW)
+		screen.setTableColumnHeader(szTable, iColLandPct, u"Land%", iLandPctW)
+		screen.setTableColumnHeader(szTable, iColVM, u"V/M", iVMW)
+		screen.setTableColumnHeader(szTable, iColTrade, u"Trd", iFlagW)
+		screen.setTableColumnHeader(szTable, iColBorders, u"OB", iFlagW)
+		screen.setTableColumnHeader(szTable, iColPact, u"DP", iFlagW)
+		screen.setTableColumnHeader(szTable, iColReligion, u"Rel", iFlagW)
+		screen.setTableColumnHeader(szTable, iColWarPeace, u"Dip", iDipW)
+		screen.setTableColumnHeader(szTable, iColWontTalk, u"WT", iFlagW)
+		screen.setTableColumnHeader(szTable, iColWorstEnemy, u"WE", iFlagW)
+		screen.setTableColumnHeader(szTable, iColGoldenAge, u"GA", iFlagW)
+		screen.setTableColumnHeader(szTable, iColEspionage, u"Esp", iFlagW)
+		screen.setTableColumnHeader(szTable, iColResearch, u"Res", iResearchW)
+		screen.setTableColumnHeader(szTable, iColResearchPct, u"%", iResearchPctW)
+
+		# <!-- custom: perf pass - hoist stable lookups/options used in the per-player loop. (GPT-5.3-Codex) -->
+		bDebugMode = game.isDebugMode()
+		bUseEspionage = GameUtil.isEspionage()
+		bIncludeCurrentTurnDelta = ScoreOpt.isScoreDeltaIncludeCurrentTurn()
+		bPowerThemVersusYou = ScoreOpt.isPowerThemVersusYou()
+		iPowerDecimals = max(3, ScoreOpt.getPowerDecimals())
+		iPowerColor = ScoreOpt.getPowerColor()
+		iHighPowerColor = ScoreOpt.getHighPowerColor()
+		iLowPowerColor = ScoreOpt.getLowPowerColor()
+		fHighPowerRatio = ScoreOpt.getHighPowerRatio()
+		fLowPowerRatio = ScoreOpt.getLowPowerRatio()
+		iActivePower = pActivePlayer.getPower()
+		iActiveGameTurn = game.getGameTurn()
+		bActiveTeamHasMultipleMembers = (pActiveTeam.getNumMembers() > 1)
+		iLandPlots = CyMap().getLandPlots()
+		iMaxTeams = gc.getMAX_TEAMS()
+		teamCache = []
+		for iTeam in range(iMaxTeams):
+			teamCache.append(gc.getTeam(iTeam))
+		teamHasVassals = [False] * iMaxTeams
+		teamMasterTeams = []
+		teamVassalTeams = []
+		for iTeam in range(iMaxTeams):
+			teamMasterTeams.append([])
+			teamVassalTeams.append([])
+		for iTeam in range(iMaxTeams):
+			kTeam = teamCache[iTeam]
+			if not kTeam.isAlive():
+				continue
+			if kTeam.isAVassal():
+				for iOwnerTeam in range(iMaxTeams):
+					if kTeam.isVassal(iOwnerTeam):
+						teamHasVassals[iOwnerTeam] = True
+						teamMasterTeams[iTeam].append(iOwnerTeam)
+						teamVassalTeams[iOwnerTeam].append(iTeam)
+						break
+
+		visiblePlayers = []
+		for j in range(gc.getMAX_CIV_PLAYERS()):
+			ePlayer = game.getRankPlayer(j)
+			if ePlayer < 0:
+				continue
+			pPlayer = gc.getPlayer(ePlayer)
+			if not pPlayer.isEverAlive():
+				continue
+			if not Scoreboard.Scoreboard.isShowTeamScore(pPlayer.getTeam()):
+				continue
+			if not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer):
+				continue
+			visiblePlayers.append(ePlayer)
+		visiblePlayersByTeam = {}
+		for eLoopPlayer in visiblePlayers:
+			eLoopTeam = gc.getPlayer(eLoopPlayer).getTeam()
+			if eLoopTeam not in visiblePlayersByTeam:
+				visiblePlayersByTeam[eLoopTeam] = []
+			visiblePlayersByTeam[eLoopTeam].append(eLoopPlayer)
+
+		for ePlayer in visiblePlayers:
+			pPlayer = gc.getPlayer(ePlayer)
+			eTeam = pPlayer.getTeam()
+			pTeam = teamCache[eTeam]
+			bMet = (pActiveTeam.isHasMet(eTeam) or bDebugMode or ePlayer == eActivePlayer)
+
+			screen.appendTableRow(szTable)
+			iRow = screen.getTableNumRows(szTable) - 1
+
+			# Leader/Civ icons: click opens diplomacy/contact context.
+			screen.setTableText(szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			szColor = self.SCORETAB_COLOR_MARKER
+			ePlayerColor = pPlayer.getPlayerColor()
+			if ePlayerColor > -1:
+				kPlayerColor = gc.getPlayerColorInfo(ePlayerColor)
+				if kPlayerColor is not None:
+					szColor = localText.changeTextColor(self.SCORETAB_COLOR_MARKER, kPlayerColor.getTextColorType())
+			screen.setTableText(szTable, iColColor, iRow, szColor, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.setTableInt(szTable, iColPid, iRow, str(ePlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			szName = pPlayer.getName()
+			if not bMet:
+				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+			screen.setTableText(szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+			iScore = game.getPlayerScore(ePlayer)
+			eScoreWidget = WidgetTypes.WIDGET_GENERAL
+			if ePlayer == eActivePlayer:
+				eScoreWidget = WidgetTypes.WIDGET_SCORE_BREAKDOWN
+			screen.setTableText(szTable, iColScore, iRow, self.separateThousands(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			iGameTurn = iActiveGameTurn
+			if ePlayer >= eActivePlayer:
+				iGameTurn -= 1
+			if bIncludeCurrentTurnDelta:
+				iScoreDelta = iScore
+			elif iGameTurn >= 0:
+				iScoreDelta = pPlayer.getScoreHistory(iGameTurn)
+			else:
+				iScoreDelta = 0
+			iPrevGameTurn = iGameTurn - 1
+			if iPrevGameTurn >= 0:
+				iScoreDelta -= pPlayer.getScoreHistory(iPrevGameTurn)
+			szDelta = self.separateThousands(iScoreDelta)
+			if iScoreDelta > 0:
+				szDelta = u"+" + szDelta
+			if iScoreDelta > 0:
+				szDelta = localText.changeTextColor(szDelta, self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT)
+			elif iScoreDelta < 0:
+				szDelta = localText.changeTextColor(szDelta, self.SCORETAB_COLOR_RED)
+			screen.setTableText(szTable, iColDelta, iRow, szDelta, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			szWarPeace = u""
+			if pTeam.isAtWar(eActiveTeam):
+				szWarPeace = self.SCORETAB_WAR_CHAR
+			elif pActiveTeam.isForcePeace(eTeam):
+				szWarPeace = self.SCORETAB_PEACE_CHAR
+			screen.setTableText(szTable, iColWarPeace, iRow, szWarPeace, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			szPower = u""
+			szPowerPerCity = u""
+			fShownPowerRatio = None
+			iPowerColorForWidget = 0
+			if ePlayer != eActivePlayer and (bDebugMode or pActivePlayer.canSeeDemographics(ePlayer)):
+				iTheirPower = pPlayer.getPower()
+				if iTheirPower > 0:
+					fRatio = float(iActivePower) / float(iTheirPower)
+					if bPowerThemVersusYou:
+						if fRatio > 0:
+							fRatio = 1.0 / fRatio
+						else:
+							fRatio = 999.0
+					fShownPowerRatio = fRatio
+					szPower = BugUtil.formatFloat(fRatio, iPowerDecimals)
+					# <!-- custom: apply the same threshold-based power coloring as scoreboard (high/low ratio bands + optional default color). (GPT-5.3-Codex) -->
+					bAlly = (eTeam == eActiveTeam)
+					if (iHighPowerColor >= 0 and not bAlly and fRatio >= fHighPowerRatio):
+						iPowerColorForWidget = iHighPowerColor
+					elif (iLowPowerColor >= 0 and not bAlly and fRatio <= fLowPowerRatio):
+						iPowerColorForWidget = iLowPowerColor
+					elif iPowerColor >= 0:
+						iPowerColorForWidget = iPowerColor
+					if iPowerColorForWidget > 0:
+						szPower = localText.changeTextColor(szPower, iPowerColorForWidget)
+			screen.setTableText(szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			if bDebugMode:
+				iCities = pPlayer.getNumCities()
+			else:
+				iCities = PlayerUtil.getNumRevealedCities(ePlayer)
+			screen.setTableInt(szTable, iColCities, iRow, str(iCities), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			if fShownPowerRatio is not None and iCities > 0:
+				# <!-- custom: keep Pow/C in the same unit family as Pow by dividing the shown power ratio by city count. (GPT-5.3-Codex) -->
+				szPowerPerCity = BugUtil.formatFloat(fShownPowerRatio / float(iCities), iPowerDecimals)
+				# <!-- custom: keep Pow/C uncolored for now; Pow thresholds do not transfer cleanly to per-city normalization. (GPT-5.3-Codex) -->
+			screen.setTableText(szTable, iColPowerPerCity, iRow, szPowerPerCity, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			szLandPct = u""
+			if bMet:
+				if iLandPlots > 0:
+					iLandPctTimes100 = (10000 * pPlayer.getTotalLand()) / iLandPlots
+					szLandPct = u"%d.%02d" % (iLandPctTimes100 / 100, iLandPctTimes100 % 100)
+			screen.setTableText(szTable, iColLandPct, iRow, szLandPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			szVM = u""
+			if bMet:
+				asVM = []
+				if pTeam.isAVassal():
+					for eMasterTeam in teamMasterTeams[eTeam]:
+						for eMasterPlayer in visiblePlayersByTeam.get(eMasterTeam, []):
+							asVM.append(str(eMasterPlayer))
+					if len(asVM) > 0:
+						szVM = u"M" + u",".join(asVM)
+					else:
+						szVM = u"M"
+				elif teamHasVassals[eTeam]:
+					for eVassalTeam in teamVassalTeams[eTeam]:
+						for eVassalPlayer in visiblePlayersByTeam.get(eVassalTeam, []):
+							asVM.append(str(eVassalPlayer))
+					if len(asVM) > 0:
+						szVM = u",".join(asVM)
+					else:
+						szVM = u"V"
+			screen.setTableText(szTable, iColVM, iRow, szVM, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			eCurrentResearch = pPlayer.getCurrentResearch()
+			szResearchButton = ""
+			szResearchPct = u""
+			if bMet and (bDebugMode or (pActivePlayer.canSeeResearch(ePlayer) and (eTeam != eActiveTeam or bActiveTeamHasMultipleMembers))):
+				if eCurrentResearch != -1:
+					kTech = gc.getTechInfo(eCurrentResearch)
+					szResearchButton = kTech.getButton()
+					iResearchCost = pTeam.getResearchCost(eCurrentResearch)
+					if iResearchCost > 0:
+						iProgressPct = pTeam.getResearchProgress(eCurrentResearch) * 100 / iResearchCost
+						iProgressPct = max(0, min(99, iProgressPct))
+						szResearchPct = str(iProgressPct)
+			screen.setTableText(szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.setTableText(szTable, iColResearchPct, iRow, szResearchPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			szEsp = u""
+			if bMet and bUseEspionage and pActivePlayer.getEspionageSpendingWeightAgainstTeam(eTeam) > 0:
+				szEsp = self.SCORETAB_ESPIONAGE_CHAR
+			screen.setTableText(szTable, iColEspionage, iRow, szEsp, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			szTrade = u""
+			if bMet and ePlayer != eActivePlayer and pPlayer.canTradeNetworkWith(eActivePlayer):
+				szTrade = self.SCORETAB_TRADE_CHAR
+			screen.setTableText(szTable, iColTrade, iRow, szTrade, "", WidgetTypes.WIDGET_TRADE_ROUTES_SCOREBOARD, eActivePlayer, ePlayer, CvUtil.FONT_CENTER_JUSTIFY)
+
+			szBorders = u""
+			if bMet and pTeam.isOpenBorders(eActiveTeam):
+				szBorders = self.SCORETAB_BORDERS_CHAR
+			screen.setTableText(szTable, iColBorders, iRow, szBorders, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			szPact = u""
+			if bMet and pTeam.isDefensivePact(eActiveTeam):
+				szPact = self.SCORETAB_PACT_CHAR
+			screen.setTableText(szTable, iColPact, iRow, szPact, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			szReligion = u""
+			eStateReligion = pPlayer.getStateReligion()
+			if bMet and eStateReligion != -1:
+				kReligion = gc.getReligionInfo(eStateReligion)
+				if pPlayer.hasHolyCity(eStateReligion):
+					szReligion = u"%c" % kReligion.getHolyCityChar()
+				else:
+					szReligion = u"%c" % kReligion.getChar()
+			screen.setTableText(szTable, iColReligion, iRow, szReligion, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			szAttitude = u""
+			szAttitudeNum = u""
+			if bMet and not pPlayer.isHuman() and ePlayer != eActivePlayer:
+				szAttitude = AttitudeUtil.getAttitudeIcon(ePlayer, eActivePlayer)
+				iAttCount = AttitudeUtil.getAttitudeCount(ePlayer, eActivePlayer)
+				szAttitudeNum = u"%+d" % iAttCount
+				iAttColor = AttitudeUtil.getAttitudeColor(ePlayer, eActivePlayer)
+				if iAttColor >= 0:
+					szAttitudeNum = localText.changeTextColor(szAttitudeNum, iAttColor)
+			screen.setTableText(szTable, iColAttitude, iRow, szAttitude, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.setTableText(szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+			szWontTalk = u""
+			if bMet and not DiplomacyUtil.isWillingToTalk(ePlayer, eActivePlayer):
+				szWontTalk = u"!"
+			screen.setTableText(szTable, iColWontTalk, iRow, szWontTalk, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			szWorstEnemy = u""
+			if bMet and AttitudeUtil.isWorstEnemy(ePlayer, eActivePlayer):
+				szWorstEnemy = self.SCORETAB_WORST_ENEMY_CHAR
+			screen.setTableText(szTable, iColWorstEnemy, iRow, szWorstEnemy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+			szGoldenAge = u""
+			bGoldenAge = pPlayer.isGoldenAge()
+			bAnarchy = pPlayer.isAnarchy()
+			if ePlayer != eActivePlayer and (bGoldenAge or bAnarchy):
+				if bAnarchy:
+					szGoldenAge = self.SCORETAB_ANARCHY_CHAR
+				else:
+					szGoldenAge = self.SCORETAB_GOLDEN_AGE_CHAR
+			screen.setTableText(szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+		if self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
+			szLegendLinkName = self.getNextWidgetName()
+			screen.setText(
+				szLegendLinkName,
+				"Background",
+				self.SCORETAB_LEGEND_LINK_TEXT,
+				CvUtil.FONT_RIGHT_JUSTIFY,
+				self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6,
+				self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6,
+				self.Z_CONTROLS,
+				FontTypes.TITLE_FONT,
+				WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+				CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
+				self.SCORETAB_LEGEND_NEW_CONCEPT_ID
+			)
+
 	def dbgLogPrettySummary(self):
 		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
 			aEntries = self.historyCacheEntries
@@ -2013,9 +2423,6 @@ class CvInfoScreen:
 			groups.append(s[-3:])
 			s = s[:-3]
 		return s + szSep.join(reversed(groups))
-	
-	def getIcon(self, uFontSymbol):
-		return CyGame().getSymbolID(uFontSymbol)
 	# </advc.077>
 
 	def drawTextChart(self):

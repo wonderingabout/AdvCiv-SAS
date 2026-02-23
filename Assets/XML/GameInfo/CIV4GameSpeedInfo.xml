@@ -9,15 +9,11 @@
 <!-- custom: note to agents: if you want to modify this file, read the Long Comments referenced above first; they contain key design rationale used by the timelines below. Removed here for concision. -->
 <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<GameSpeedInfos>
-
-
-
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
 		<GameSpeedInfo> <!-- custom: GAMESPEED_NITRO (useful for VS Code upper tree view while scrolling) -->
 			<Type>GAMESPEED_NITRO</Type>
 			<Description>TXT_KEY_GAMESPEED_NITRO</Description>
 			<Help>TXT_KEY_GAMESPEED_NITRO_HELP</Help>
-
 			<iGrowthPercent>33</iGrowthPercent>
 			<iTrainPercent>33</iTrainPercent>
 			<iConstructPercent>33</iConstructPercent>
@@ -28,45 +24,34 @@
 			<iGreatPeoplePercent>33</iGreatPeoplePercent>
 			<!-- advc (note): Unused; handled by CvCultureLevelInfo instead. -->
 			<iCulturePercent>33</iCulturePercent>
-
 			<!-- Keep anarchy a bit less compressed than core (like Quick does). -->
 			<iAnarchyPercent>45</iAnarchyPercent>
-
 			<iBarbPercent>33</iBarbPercent>
 			<iFeatureProductionPercent>33</iFeatureProductionPercent>
 			<iUnitDiscoverPercent>33</iUnitDiscoverPercent>
 			<iUnitHurryPercent>33</iUnitHurryPercent>
 			<iUnitTradePercent>33</iUnitTradePercent>
 			<iUnitGreatWorkPercent>33</iUnitGreatWorkPercent>
-
 			<!-- Keep golden ages a bit less compressed than core (like Quick does). -->
 			<iGoldenAgePercent>55</iGoldenAgePercent>
-
 			<!-- HurryPercent inverse scaling. (33% core -> 300). -->
 			<iHurryPercent>300</iHurryPercent>
 			<iHurryConscriptAngerPercent>33</iHurryConscriptAngerPercent>
-
 			<!-- Inflation: 30/0.33 ~= 90.9 -> 90. Offset: -90 * 0.33 ~= -30. -->
 			<iInflationPercent>90</iInflationPercent>
 			<iInflationOffset>-30</iInflationOffset>
-
-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<!-- custom: see code comment at game speed normal -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
-
 			<iVictoryDelayPercent>60</iVictoryDelayPercent>
-
 			<iAIMemoryRandPercent>60</iAIMemoryRandPercent>
 			<iAIContactRandPercent>80</iAIContactRandPercent>
 			<iAIContactDelayPercent>60</iAIContactDelayPercent>
-
 			<iFullTradeCreditPercent>60</iFullTradeCreditPercent>
 			<iRevoltDivPercent>60</iRevoltDivPercent>
 			<iReligionSpreadDivPercent>33</iReligionSpreadDivPercent>
-
 			<iEventRollSidesPercent>60</iEventRollSidesPercent>
 			<iVoteIntervalPercent>33</iVoteIntervalPercent>
-
 			<!-- custom: NITRO (165 turns). Exact 2:1 compression of QUICK: pair each 2 consecutive Quick turns into 1 Nitro turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Quick at all 5% checkpoints to within ±45y (idx 3-20), ±750y prehistoric. End year 2105. (Claude Opus 4.6) -->
 			<GameTurnInfos>
 				<!-- -50,000 to -7,250: prehistoric (9 turns) -->
@@ -102,9 +87,6 @@
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>31</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
-
-
-
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
 		<GameSpeedInfo> <!-- custom: GAMESPEED_TURBO -->
 			<Type>GAMESPEED_TURBO</Type>
@@ -121,46 +103,35 @@
 			<iGreatPeoplePercent>50</iGreatPeoplePercent>
 			<!-- advc (note): Unused; handled by CvCultureLevelInfo instead. -->
 			<iCulturePercent>50</iCulturePercent>
-
 			<!-- Keep anarchy a bit less compressed than core (like Quick does). -->
 			<iAnarchyPercent>60</iAnarchyPercent>
-
 			<iBarbPercent>50</iBarbPercent>
 			<iFeatureProductionPercent>50</iFeatureProductionPercent>
 			<iUnitDiscoverPercent>50</iUnitDiscoverPercent>
 			<iUnitHurryPercent>50</iUnitHurryPercent>
 			<iUnitTradePercent>50</iUnitTradePercent>
 			<iUnitGreatWorkPercent>50</iUnitGreatWorkPercent>
-
 			<!-- Keep golden ages a bit less compressed than core (like Quick does). -->
 			<iGoldenAgePercent>60</iGoldenAgePercent>
-
 			<!-- HurryPercent follows the standard inverse scaling (Quick=150, Epic=66, Marathon=50). -->
 			<iHurryPercent>200</iHurryPercent>
 			<iHurryConscriptAngerPercent>50</iHurryConscriptAngerPercent>
-
 			<!-- Inflation: follow the 30/ratio pattern used by Quick/Epic (Turbo=0.5 -> 60). Offset scales with ratio (-90 * 0.5 = -45). -->
 			<iInflationPercent>60</iInflationPercent>
 			<iInflationOffset>-45</iInflationOffset>
-
-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<!-- custom: see code comment at game speed normal -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
-
 			<!-- These are absent on Normal (defaults=100), but present on other speeds. Keep them in the "not as compressed as core" spirit. -->
 			<iVictoryDelayPercent>70</iVictoryDelayPercent>
-
 			<iAIMemoryRandPercent>70</iAIMemoryRandPercent>
 			<iAIContactRandPercent>85</iAIContactRandPercent>
 			<iAIContactDelayPercent>70</iAIContactDelayPercent>
-
 			<iFullTradeCreditPercent>70</iFullTradeCreditPercent>
 			<iRevoltDivPercent>70</iRevoltDivPercent>
 			<iReligionSpreadDivPercent>50</iReligionSpreadDivPercent>
-
 			<iEventRollSidesPercent>70</iEventRollSidesPercent>
 			<iVoteIntervalPercent>50</iVoteIntervalPercent>
-
 			<!-- custom: TURBO (250 turns). Exact 2:1 compression of NORMAL: pair each 2 consecutive Normal turns into 1 Turbo turn (sum of increments), RLE-compressed. All increments div by 12. Tracks Normal at all 5% checkpoints. End year 2105. (Claude Opus 4.6) -->
 			<GameTurnInfos>
 				<!-- -50,000 to -7,500: prehistoric (13 turns) -->
@@ -194,10 +165,6 @@
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>35</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
-
-
-
-
 		<GameSpeedInfo> <!-- custom: GAMESPEED_QUICK -->
 			<Type>GAMESPEED_QUICK</Type>
 			<Description>TXT_KEY_GAMESPEED_QUICK</Description>
@@ -224,11 +191,9 @@
 			<iHurryConscriptAngerPercent>67</iHurryConscriptAngerPercent>
 			<iInflationPercent>45</iInflationPercent>
 			<iInflationOffset>-60</iInflationOffset>
-
-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<!-- custom: see code comment at game speed normal -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
-
 			<!-- advc.252: was 67 -->
 			<iVictoryDelayPercent>80</iVictoryDelayPercent>
 			<!-- advc.130r: start -->
@@ -279,9 +244,6 @@
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>62</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
-
-
-
 		<GameSpeedInfo> <!-- custom: GAMESPEED_NORMAL -->
 			<Type>GAMESPEED_NORMAL</Type>
 			<Description>TXT_KEY_GAMESPEED_NORMAL</Description>
@@ -307,11 +269,9 @@
 			<iHurryConscriptAngerPercent>100</iHurryConscriptAngerPercent>
 			<iInflationPercent>30</iInflationPercent>
 			<iInflationOffset>-90</iInflationOffset>
-
-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fields that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
-
 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
 			<!-- advc.910: Changed all of the turn counts -->
 			<GameTurnInfos>
@@ -329,44 +289,36 @@
 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
 				<!-- -4,500 to -3,000 (1,500y) -> 12 turns @ 125 y/turn (1,500 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>1500</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- -3,000 to -2,200 (800y) -> 16 turns @ 50 y/turn (600 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
 				<!-- -2,200 to -1,480 (720y) -> 18 turns @ 40 y/turn (480 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>18</iTurnsPerIncrement></GameTurnInfo>
 				<!-- -1,480 to -1,000 (480y) -> 16 turns @ 30 y/turn (360 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- -1,000 to 500 (1,500y) -> 50 turns @ 30 y/turn (360 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 				<!-- 500 to 1,300 (800y) -> 40 turns @ 20 y/turn (240 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- 1,300 to 1,400 (100y) -> 10 turns @ 10 y/turn (120 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 				<!-- 1,400 to 1,600 (200y) -> 20 turns @ 10 y/turn (120 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- 1,600 to 1,750 (150y) -> 30 turns @ 5 y/turn (60 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- 1,750 to 1,790 (40y) -> 10 turns @ 4 y/turn (48 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>48</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 				<!-- 1,790 to 1,880 (90y) -> 30 turns @ 3 y/turn (36 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
 				<!-- 1,880 to 1,900 (20y) -> 10 turns @ 2 y/turn (24 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- 1,900 to 1,980 (80y) -> 40 turns @ 2 y/turn (24 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
 				<!-- 1,980 to 1,990 (10y) -> 10 turns @ 1 y/turn (12 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- 1,990 to 2,040 (50y) -> 50 turns @ 1 y/turn (12 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 				<!-- 2,040 to 2,070 (30y) -> 30 turns @ 1 y/turn (12 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>30</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- 2,070 to 2,080 (10y) -> 20 turns @ 0.5 y/turn (6 mo/turn) -->
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
 				<!-- 2,080 to 2,105 (25y) -> 50 turns @ 0.5 y/turn (6 mo/turn) -->
@@ -376,9 +328,6 @@
 				<!--<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>26</iTurnsPerIncrement></GameTurnInfo>-->
 			</GameTurnInfos>
 		</GameSpeedInfo>
-
-
-
 		<!-- custom: note: old bts-claimed old base advciv marathon commented out timeline removedas we don't use it and we in fact reduced further the number of turns in marathon as of now so no longer relevant to us, but comment kept if informative or for reference -->
 		<!-- advc.252: Can uncomment this (and delete the one above)
 			 to restore, by and large, the BtS Marathon modifiers.
@@ -409,11 +358,9 @@
 			<iHurryConscriptAngerPercent>150</iHurryConscriptAngerPercent>
 			<iInflationPercent>20</iInflationPercent>
 			<iInflationOffset>-135</iInflationOffset>
-
-			<!-- custom: added the iUnitCostPercent and iExtraFreeOutsideUnits fileds that were missing to match marathon and fix a bug, see code comment as of now at top of this file, plus known issue as of now 92 for details. -->
+			<!-- custom: see code comment at game speed normal -->
 			<iUnitCostPercent>100</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>0</iExtraFreeOutsideUnits>
-
 			<!-- advc.252: was 150 -->
 			<iVictoryDelayPercent>125</iVictoryDelayPercent>
 			<!-- advc.130r: start -->
@@ -440,35 +387,27 @@
 				<GameTurnInfo><iMonthIncrement>9000</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>7</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- -8,500 to -2,900: ancient (38 turns) -->
 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>1800</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>1200</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>900</iMonthIncrement><iTurnsPerIncrement>8</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- -2,900 to -1,900: classical transition (30 turns) -->
 				<GameTurnInfo><iMonthIncrement>600</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>480</iMonthIncrement><iTurnsPerIncrement>5</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>360</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>300</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- -1,900 to +780: medieval (134 turns @ 20y/turn) -->
 				<GameTurnInfo><iMonthIncrement>240</iMonthIncrement><iTurnsPerIncrement>134</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- +780 to +1,410: late medieval to renaissance (63 turns @ 10y/turn) -->
 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>67</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- +1,410 to +1,800: early modern -->
 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- +1,800 to +1,850: modern transition -->
 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>34</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>46</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- +1,850 to +2,010: industrial to modern -->
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>130</iTurnsPerIncrement></GameTurnInfo>
-
 				<!-- +2,010 to +2,105: contemporary -->
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>140</iTurnsPerIncrement></GameTurnInfo>
 				<!-- custom: shift a small late chunk to m3 to offset the extra m12 pace and keep Epic ending at 2105 while improving idx16+ alignment. (GPT-5.3-Codex) -->
@@ -479,9 +418,6 @@
 			<!-- advc.910: Changed all of the turn counts,
 				 some of the increments. -->
 		</GameSpeedInfo>
-
-
-
 		<!-- custom: note: unlike in base advciv, reduce number of turns from 1250 to 1000, i believe it's enough to have a nice and long game, and this way the percent things can stay to 200 and hopefully be accurate enough. -->
 		<GameSpeedInfo> <!-- custom: GAMESPEED_MARATHON -->
 			<Type>GAMESPEED_MARATHON</Type>
@@ -527,12 +463,10 @@
 			<!-- custom: not sure if we should change it too much but reduce it a bit to match close to gamespeed_epic progression just in case, was -225 -->
 			<!-- was -270 -->
 			<iInflationOffset>-180</iInflationOffset>
-
 			<!-- custom: not sure if we should change it but aim for exact double just in case. See also known issue as of now 92 for related info; was 85 -->
 			<!-- Reduce unit expenses ... -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
-
 			<!-- was 300 -->
 			<iVictoryDelayPercent>200</iVictoryDelayPercent>
 			<!-- advc.252: end -->
@@ -596,15 +530,11 @@
 			</GameTurnInfos>
 			<!-- advc.252: end -->
 		</GameSpeedInfo>
-
-
-
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
 		<GameSpeedInfo> <!-- custom: GAMESPEED_SLOW -->
 			<Type>GAMESPEED_SLOW</Type>
 			<Description>TXT_KEY_GAMESPEED_SLOW</Description>
 			<Help>TXT_KEY_GAMESPEED_SLOW_HELP</Help>
-
 			<iGrowthPercent>300</iGrowthPercent>
 			<iTrainPercent>300</iTrainPercent>
 			<iConstructPercent>300</iConstructPercent>
@@ -622,33 +552,25 @@
 			<iUnitTradePercent>300</iUnitTradePercent>
 			<iUnitGreatWorkPercent>300</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>300</iGoldenAgePercent>
-
 			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
 			<iHurryPercent>33</iHurryPercent>
-
 			<iHurryConscriptAngerPercent>300</iHurryConscriptAngerPercent>
-
 			<!-- Keep inflation progression consistent (Normal=30, Epic=20, Marathon=10). -->
 			<iInflationPercent>10</iInflationPercent>
 			<iInflationOffset>-270</iInflationOffset>
-
 			<!-- Copied from Marathon (helps long games a bit; easy to revisit later if you reintroduce old-unit scrapping). See also known issue as of now 92 for related info -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
-
 			<iVictoryDelayPercent>300</iVictoryDelayPercent>
-
 			<iAIMemoryRandPercent>300</iAIMemoryRandPercent>
 			<!-- Linear extrapolation from Epic(115) -> Marathon(140): +50 per +100 speed => 190 at 300%. If you want safer: set 180 or 200. -->
 			<iAIContactRandPercent>190</iAIContactRandPercent>
 			<iAIContactDelayPercent>300</iAIContactDelayPercent>
-
 			<iFullTradeCreditPercent>300</iFullTradeCreditPercent>
 			<iRevoltDivPercent>300</iRevoltDivPercent>
 			<iReligionSpreadDivPercent>300</iReligionSpreadDivPercent>
 			<iEventRollSidesPercent>300</iEventRollSidesPercent>
 			<iVoteIntervalPercent>300</iVoteIntervalPercent>
-
 			<GameTurnInfos>
 				<GameTurnInfo><iMonthIncrement>15000</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>7500</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
@@ -656,7 +578,6 @@
 				     Prefer round, human-readable year bands where possible (e.g. 250/200/150/75/40/30/15 years) and use finer odd bands only when strictly needed. (GPT-5.3-Codex) -->
 				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>3600</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
-
 				<GameTurnInfo><iMonthIncrement>3000</iMonthIncrement><iTurnsPerIncrement>6</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>2400</iMonthIncrement><iTurnsPerIncrement>1</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>2160</iMonthIncrement><iTurnsPerIncrement>4</iTurnsPerIncrement></GameTurnInfo>
@@ -668,25 +589,19 @@
 				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>40</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>50</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>180</iMonthIncrement><iTurnsPerIncrement>16</iTurnsPerIncrement></GameTurnInfo>
-
 				<GameTurnInfo><iMonthIncrement>120</iMonthIncrement><iTurnsPerIncrement>195</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>72</iMonthIncrement><iTurnsPerIncrement>91</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>60</iMonthIncrement><iTurnsPerIncrement>55</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
-
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>42</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>69</iTurnsPerIncrement></GameTurnInfo>
-
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>25</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>12</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>71</iTurnsPerIncrement></GameTurnInfo>
-
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>19</iTurnsPerIncrement></GameTurnInfo>
-
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>72</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>17</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>84</iTurnsPerIncrement></GameTurnInfo>
-
 				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>82</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>43</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>4</iMonthIncrement><iTurnsPerIncrement>10</iTurnsPerIncrement></GameTurnInfo>
@@ -699,15 +614,11 @@
 				<GameTurnInfo><iMonthIncrement>2</iMonthIncrement><iTurnsPerIncrement>96</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
-
-
-
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
 		<GameSpeedInfo> <!-- custom: GAMESPEED_VERY_SLOW -->
 			<Type>GAMESPEED_VERY_SLOW</Type>
 			<Description>TXT_KEY_GAMESPEED_VERY_SLOW</Description>
 			<Help>TXT_KEY_GAMESPEED_VERY_SLOW_HELP</Help>
-
 			<iGrowthPercent>400</iGrowthPercent>
 			<iTrainPercent>400</iTrainPercent>
 			<iConstructPercent>400</iConstructPercent>
@@ -726,34 +637,25 @@
 			<iUnitTradePercent>400</iUnitTradePercent>
 			<iUnitGreatWorkPercent>400</iUnitGreatWorkPercent>
 			<iGoldenAgePercent>400</iGoldenAgePercent>
-
 			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
 			<iHurryPercent>25</iHurryPercent>
-
 			<iHurryConscriptAngerPercent>400</iHurryConscriptAngerPercent>
-
 			<!-- Inflation progression: Normal (30 / -90), Marathon (10 / -180) -> Very Slow (5 / -360). -->
 			<iInflationPercent>5</iInflationPercent>
 			<iInflationOffset>-360</iInflationOffset>
-
 			<!-- Keep the Marathon cost relief for long games (easy to tweak later if needed). See also known issue as of now 92 for related info. -->
 			<iUnitCostPercent>90</iUnitCostPercent>
 			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
-
 			<iVictoryDelayPercent>400</iVictoryDelayPercent>
-
 			<iAIMemoryRandPercent>400</iAIMemoryRandPercent>
 			<!-- Extrapolation: Marathon=140 at 200%; Slow (300%) would be ~190; Very Slow (400%) ~240. -->
 			<iAIContactRandPercent>240</iAIContactRandPercent>
 			<iAIContactDelayPercent>400</iAIContactDelayPercent>
-
 			<iFullTradeCreditPercent>400</iFullTradeCreditPercent>
 			<iRevoltDivPercent>400</iRevoltDivPercent>
 			<iReligionSpreadDivPercent>400</iReligionSpreadDivPercent>
-
 			<iEventRollSidesPercent>400</iEventRollSidesPercent>
 			<iVoteIntervalPercent>400</iVoteIntervalPercent>
-
 			<GameTurnInfos>
 				<GameTurnInfo><iMonthIncrement>13500</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>6000</iMonthIncrement><iTurnsPerIncrement>20</iTurnsPerIncrement></GameTurnInfo>
@@ -799,8 +701,5 @@
 				<GameTurnInfo><iMonthIncrement>1</iMonthIncrement><iTurnsPerIncrement>80</iTurnsPerIncrement></GameTurnInfo>
 			</GameTurnInfos>
 		</GameSpeedInfo>
-
-
-
 	</GameSpeedInfos>
 </Civ4GameSpeedInfo>

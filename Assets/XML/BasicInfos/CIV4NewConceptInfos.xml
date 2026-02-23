@@ -18,7 +18,16 @@
 			<Description>TXT_KEY_BASE_ADVCIV_SOME_CHANGES</Description>
 			<Civilopedia>TXT_KEY_BASE_ADVCIV_SOME_CHANGES_PEDIA_SR</Civilopedia>
 		</NewConceptInfo>
-
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SCORE_TAB_COLUMNS</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_AI_PERSONALITY_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
 		<!-- advc.004y: Shortcut categories restored (originally by
 			 Ekmek) -->
 		<NewConceptInfo>

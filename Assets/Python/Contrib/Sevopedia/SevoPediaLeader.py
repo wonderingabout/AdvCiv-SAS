@@ -21,6 +21,7 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 from _sevopedia_helpers import *
+from SASUtils import getNewConceptID
 # <!-- custom: import to display chars before Traits -->
 import TraitUtil
 
@@ -82,6 +83,8 @@ class SevoPediaLeader:
 		
 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		self.N_AI_TABLE_NUM = 3
+		self.AI_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_AI_PERSONALITY_LEGEND")
+		self.AI_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
 
 		# <!-- custom: 2) (most) relative dimensions or positions then -->
 
@@ -101,16 +104,16 @@ class SevoPediaLeader:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-		# Music panel (helper-computed one-button width, right of Favorites)
+		# Music panel (helper-computed one-button width)
 		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
-		self.X_FAVORITES = self.X_LEADERHEAD_PANE
-		# Reduce Favorites width to make room for Music panel (one-button width + margin)
-		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.W_MUSIC - (2 * self.SMALL_MARGIN)
-
-		self.X_MUSIC = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
+		# <!-- custom: Favorites panel only needs two icons (favorite civic/religion), so size it with shared helper for a strict two-button layout. (GPT-5.3-Codex) -->
+		self.W_FAVORITES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+		# <!-- custom: readability tweak - Music on the left, Favorites on the right near the civ icon. (GPT-5.3-Codex) -->
+		self.X_MUSIC = self.X_LEADERHEAD_PANE
 		self.Y_MUSIC = self.Y_FAVORITES
 		self.H_MUSIC = self.H_FAVORITES
+		self.X_FAVORITES = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_FAVORITES
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
@@ -155,6 +158,7 @@ class SevoPediaLeader:
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
+		self.placeAILegendLink()
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
@@ -213,6 +217,26 @@ class SevoPediaLeader:
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
 		else:
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+
+
+
+	def placeAILegendLink(self):
+		if self.AI_LEGEND_NEW_CONCEPT_ID < 0:
+			return
+		screen = self.top.getScreen()
+		screen.setText(
+			self.top.getNextWidgetName(),
+			"Background",
+			self.AI_LEGEND_LINK_TEXT,
+			CvUtil.FONT_LEFT_JUSTIFY,
+			self.top.X_TOC,
+			self.top.Y_BOT_PANEL + 16,
+			0,
+			FontTypes.TITLE_FONT,
+			WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+			CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
+			self.AI_LEGEND_NEW_CONCEPT_ID
+		)
 
 
 

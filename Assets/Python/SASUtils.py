@@ -15,3 +15,12 @@ def getInfoTypeOrFail(tag):
 	if iType == -1:
 		raise ValueError("Missing XML tag: '%s'" % tag)
 	return iType
+
+
+
+# <!-- custom: shared helper to resolve NewConcept IDs by XML type (e.g. "CONCEPT_SAS_SCORE_TAB_COLUMNS" for the Score-tab Legend clickable Sevopedia/NewConcept entry). Returns -1 when missing so callers can skip optional links safely. (GPT-5.3-Codex) -->
+def getNewConceptID(szConceptType):
+	for i in range(gc.getNumNewConceptInfos()):
+		if gc.getNewConceptInfo(i).getType() == szConceptType:
+			return i
+	return -1
