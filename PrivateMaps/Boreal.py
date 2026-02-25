@@ -30,8 +30,8 @@ def getDescription():
 
 def isAdvancedMap():
 	"This map should not show up in simple mode"
-	# <!-- custom: keep this at 0 so Boreal appears in Simple Game mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
-	return 0
+	# <!-- custom: keep Boreal out of Simple Game by design; return 1 hides it there while keeping the script available in advanced/custom setup. (GPT-5.3-Codex) -->
+	return 1
 	
 def isClimateMap():
 	return 0

@@ -32,6 +32,7 @@
 from CvPythonExtensions import *
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
+from SAS_WorldSizes import *
 
 sas_spiky_layout = None
 sas_slot_assignments = {}
@@ -43,13 +44,123 @@ def getVersion():
 
 
 def getDescription():
-	return "Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map."
+	return "Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts. Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map."
 
 
 def isAdvancedMap():
 	"This map should show up in Simple Game."
-	# <!-- custom: No custom map options in this script, so the stale multi-option/Simple Game cache guard is not needed (empirically verified in-game). (GPT-5.3-Codex) -->
+	# <!-- custom: Keep visible in Simple Game; options are practical and stale-option safe. (GPT-5.3-Codex) -->
 	return 0
+
+
+def getNumCustomMapOptions():
+	return 2
+
+
+def getNumHiddenCustomMapOptions():
+	return 0
+
+
+def getCustomMapOptionName(argsList):
+	[iOption] = argsList
+	option_names = {
+		0: u"Ribbon Width",
+		1: u"House Size"
+	}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return u"Ribbon Width"
+	return option_names[iOption]
+
+
+def getNumCustomMapOptionValues(argsList):
+	[iOption] = argsList
+	option_values = {
+		0: 5,
+		1: 6
+	}
+	if not option_values.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return 2
+	return option_values[iOption]
+
+
+def getCustomMapOptionDescAt(argsList):
+	[iOption, iSelection] = argsList
+	selection_names = {
+		0: {
+			0: u"-2",
+			1: u"-1",
+			2: u"Recommended",
+			3: u"+1",
+			4: u"+2"
+		},
+		1: {
+			0: u"3",
+			1: u"4",
+			2: u"5 (Recommended)",
+			3: u"6",
+			4: u"7",
+			5: u"8"
+		}
+	}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return u"Recommended"
+	if not selection_names[iOption].has_key(iSelection):
+		return selection_names[iOption][0]
+	return selection_names[iOption][iSelection]
+
+
+def getCustomMapOptionDefault(argsList):
+	[iOption] = argsList
+	option_defaults = {
+		0: 2,
+		1: 2
+	}
+	if not option_defaults.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return 0
+	return option_defaults[iOption]
+
+
+def isRandomCustomMapOption(argsList):
+	[iOption] = argsList
+	option_random = {
+		0: false,
+		1: false
+	}
+	if not option_random.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return false
+	return option_random[iOption]
+
+
+def _get_option_value(iOption, iDefault, iNumValues):
+	map_obj = CyMap()
+	iValue = iDefault
+	try:
+		if iOption >= getNumCustomMapOptions():
+			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+			return iDefault
+		iValue = map_obj.getCustomMapOption(iOption)
+	except:
+		return iDefault
+	if iValue < 0 or iValue >= iNumValues:
+		return iDefault
+	return iValue
+
+
+def _ribbon_width():
+	iSelection = _get_option_value(0, 2, 5)
+	widths = [2, 3, 4, 5, 6]
+	return widths[iSelection]
+
+
+def _house_size():
+	iSelection = _get_option_value(1, 2, 6)
+	sizes = [3, 4, 5, 6, 7, 8]
+	return sizes[iSelection]
 
 
 def getWrapX():
@@ -82,9 +193,9 @@ def getGridSize(argsList):
 	if iStreets <= 0 or iSpikesPerStreet <= 0:
 		return []
 
-	iAvenueHeight = 4
-	iSpikeDepth = 5
-	iHouseWidth = 5
+	iAvenueHeight = _ribbon_width()
+	iSpikeDepth = _house_size()
+	iHouseWidth = _house_size()
 	# <!-- custom: widen inter-house spacing to one house-width and keep it as water lanes for culture separation. (GPT-5.3-Codex) -->
 	iHouseGap = iHouseWidth
 	iBridgeWidth = 1
@@ -137,9 +248,9 @@ def _build_layout():
 	iH = map_obj.getGridHeight()
 	(iStreets, iSpikesPerStreet) = _profile_for_world_size(map_obj.getWorldSize())
 
-	iAvenueHeight = 4
-	iSpikeDepth = 5
-	iHouseWidth = 5
+	iAvenueHeight = _ribbon_width()
+	iSpikeDepth = _house_size()
+	iHouseWidth = _house_size()
 	iHouseGap = iHouseWidth
 	iStreetGap = iHouseWidth
 	iBridgeWidth = 1

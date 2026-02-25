@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework (notably multiple random main menu music support (shuffle-bag)).
 
-New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
+New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
@@ -61,7 +61,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[How to use](/README.md#how-to-use)  
 &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
 [Mapscripts](/README.md#mapscripts)  
-&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_spiky_avenues)  
+&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues)  
 &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
 &emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
@@ -584,7 +584,7 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
 
 ## Mapscripts
 
-### AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Spiky_Avenues)
+### AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
 
 #### SAS_Longworld
 
@@ -597,6 +597,7 @@ Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and pla
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG" alt="0.3202_maps_sas_longworld (4).JPG" width="250"></img>
 
 #### SAS_Spiky_Avenues
 
@@ -607,16 +608,29 @@ Similarly we also added our new original SAS_Spiky_Avenues mapscript with the he
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG" alt="0.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
 
 #### SAS_Large_Facing_Islands
 
-Our latest addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking thanks.
+An addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking thanks.
 
 >Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map.
 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG" alt="0.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG" alt="0.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG" alt="0.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG" alt="0.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
+
+#### SAS_Parallel_Lines
+
+Our latest addition with the help of GPT-5.3-Codex thanks.
+
+>Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines.
+
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
 
 ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
 
@@ -653,7 +667,6 @@ Trick: by having the view box in a water or snow zone you can edit it later and 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG" alt="0.3201_maps_simple_game (11).JPG" width="250"></img>
 
 ## Change from short to int the Found value pipeline
 

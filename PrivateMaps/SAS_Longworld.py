@@ -12,6 +12,7 @@
 from CvPythonExtensions import *
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
+from SAS_WorldSizes import *
 
 
 def getVersion():
@@ -24,12 +25,132 @@ def getDescription():
 
 def isAdvancedMap():
 	"This map should show up in Simple Game."
-	# <!-- custom: No custom map options in this script, so the stale multi-option/Simple Game cache guard is not needed (empirically verified in-game). (GPT-5.3-Codex) -->
+	# <!-- custom: Keep visible in Simple Game; option set is compact and stale-option safe. (GPT-5.3-Codex) -->
 	return 0
 
 
+def getNumCustomMapOptions():
+	return 3
+
+
+def getNumHiddenCustomMapOptions():
+	return 0
+
+
+def getCustomMapOptionName(argsList):
+	[iOption] = argsList
+	option_names = {
+		0: u"LongWorld Height",
+		1: u"Width Per Player",
+		2: u"Revolving World"
+	}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return u"LongWorld Height"
+	return option_names[iOption]
+
+
+def getNumCustomMapOptionValues(argsList):
+	[iOption] = argsList
+	option_values = {
+		0: 6,
+		1: 6,
+		2: 2
+	}
+	if not option_values.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return 3
+	return option_values[iOption]
+
+
+def getCustomMapOptionDescAt(argsList):
+	[iOption, iSelection] = argsList
+	selection_names = {
+		0: {
+			0: u"2 Plots",
+			1: u"3 Plots",
+			2: u"4 Plots (Recommended)",
+			3: u"5 Plots",
+			4: u"6 Plots",
+			5: u"7 Plots"
+		},
+		1: {
+			0: u"10",
+			1: u"11",
+			2: u"12 (Recommended)",
+			3: u"13",
+			4: u"14",
+			5: u"15"
+		},
+		2: {
+			0: u"WrapX (Recommended)",
+			1: u"None"
+		}
+	}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return u"Recommended"
+	if not selection_names[iOption].has_key(iSelection):
+		return selection_names[iOption][0]
+	return selection_names[iOption][iSelection]
+
+
+def getCustomMapOptionDefault(argsList):
+	[iOption] = argsList
+	option_defaults = {
+		0: 2,
+		1: 2,
+		2: 0
+	}
+	if not option_defaults.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return 2
+	return option_defaults[iOption]
+
+
+def isRandomCustomMapOption(argsList):
+	[iOption] = argsList
+	option_random = {
+		0: false,
+		1: false,
+		2: false
+	}
+	if not option_random.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+		return false
+	return option_random[iOption]
+
+
+def _get_option_value(iOption, iDefault, iNumValues):
+	map_obj = CyMap()
+	iValue = iDefault
+	try:
+		if iOption >= getNumCustomMapOptions():
+			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+			return iDefault
+		iValue = map_obj.getCustomMapOption(iOption)
+	except:
+		return iDefault
+	if iValue < 0 or iValue >= iNumValues:
+		return iDefault
+	return iValue
+
+
+def _strip_height():
+	iSelection = _get_option_value(0, 2, 6)
+	heights = [2, 3, 4, 5, 6, 7]
+	return heights[iSelection]
+
+
+def _width_per_player():
+	iSelection = _get_option_value(1, 2, 6)
+	widths = [10, 11, 12, 13, 14, 15]
+	return widths[iSelection]
+
+
 def getWrapX():
-	return True
+	iWrapMode = _get_option_value(2, 0, 2)
+	return (iWrapMode == 0)
 
 
 def getWrapY():
@@ -50,14 +171,10 @@ def minStartingDistanceModifier():
 
 
 def getStripBounds(iH):
-	# <!-- custom: Keep one connected horizontal land strip, but thicken it on taller maps to avoid overly cramped land. (GPT-5.3-Codex) -->
-	iBandHeight = 2
-	if iH >= 8:
-		iBandHeight = 5
-	elif iH >= 6:
-		iBandHeight = 4
-	elif iH >= 5:
-		iBandHeight = 3
+	# <!-- custom: Use explicit strip heights for clarity in map options; clamp by map height for very small worlds. (GPT-5.3-Codex) -->
+	iBandHeight = _strip_height()
+	iBandHeight = max(2, iBandHeight)
+	iBandHeight = min(iH - 2, iBandHeight)
 
 	iTopRow = max(1, (iH / 2) - (iBandHeight / 2))
 	iBottomRow = iTopRow + iBandHeight - 1
@@ -130,19 +247,26 @@ def getGridSize(argsList):
 	}
 
 	[eWorldSize] = argsList
+	fWidthScale = float(_width_per_player()) / 12.0
+	def _scaled_width(iBaseWidth):
+		return max(3, int(float(iBaseWidth) * fWidthScale + 0.5))
+
 	if eWorldSize in grid_sizes:
-		return grid_sizes[eWorldSize]
+		(iBaseWidth, iHeight) = grid_sizes[eWorldSize]
+		return (_scaled_width(iBaseWidth), iHeight)
 
 	# <!-- custom: For post-Huge SAS sizes, keep long-map height and scale width by default player ratio from Huge anchor. (GPT-5.3-Codex) -->
 	gc = CyGlobalContext()
 	if eWorldSize > WorldSizeTypes.WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
 		(iAnchorWidth, iAnchorHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
+		iAnchorWidth = _scaled_width(iAnchorWidth)
 		iAnchorPlayers = max(1, gc.getWorldInfo(WorldSizeTypes.WORLDSIZE_HUGE).getDefaultPlayers())
 		iTargetPlayers = max(1, gc.getWorldInfo(eWorldSize).getDefaultPlayers())
 		iTargetWidth = max(iAnchorWidth + 1, int((float(iAnchorWidth) * float(iTargetPlayers)) / float(iAnchorPlayers) + 0.5))
 		return (iTargetWidth, iAnchorHeight)
 
-	return grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
+	(iFallbackWidth, iFallbackHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
+	return (_scaled_width(iFallbackWidth), iFallbackHeight)
 
 
 def generatePlotTypes():

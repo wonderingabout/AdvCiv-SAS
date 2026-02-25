@@ -23,7 +23,7 @@ def getVersion():
 
 
 def getDescription():
-	return "Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map."
+	return "Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map."
 
 
 def isAdvancedMap():
@@ -32,7 +32,7 @@ def isAdvancedMap():
 
 
 def getNumCustomMapOptions():
-	return 2
+	return 3
 
 
 def getNumHiddenCustomMapOptions():
@@ -43,7 +43,8 @@ def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
 		0: u"North-South Bands",
-		1: u"East-West Bands"
+		1: u"East-West Bands",
+		2: u"Revolving World"
 	}
 	if not option_names.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -55,7 +56,8 @@ def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
 		0: 2,
-		1: 2
+		1: 2,
+		2: 2
 	}
 	if not option_values.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -75,6 +77,10 @@ def getCustomMapOptionDescAt(argsList):
 		1: {
 			0: u"E-W Coast Bands (Recommended)",
 			1: u"E-W Ocean Bands"
+		},
+		2: {
+			0: u"WrapX (Recommended)",
+			1: u"None"
 		}
 	}
 	if not selection_names.has_key(iOption):
@@ -89,7 +95,8 @@ def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
 		0: 1,
-		1: 0
+		1: 0,
+		2: 0
 	}
 	if not option_defaults.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -101,7 +108,8 @@ def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
 		0: false,
-		1: false
+		1: false,
+		2: false
 	}
 	if not option_random.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
@@ -110,7 +118,7 @@ def isRandomCustomMapOption(argsList):
 
 
 def getWrapX():
-	return True
+	return _get_wrap_mode() == 0
 
 
 def getWrapY():
@@ -159,6 +167,11 @@ def _get_ew_connector_mode():
 def _get_ns_connector_mode():
 	# 0 = Coast bands, 1 = Ocean bands
 	return _get_option_value(0, 1, 2)
+
+
+def _get_wrap_mode():
+	# 0 = WrapX, 1 = None
+	return _get_option_value(2, 0, 2)
 
 
 def _get_option_value(iOption, iDefault, iNumValues):
