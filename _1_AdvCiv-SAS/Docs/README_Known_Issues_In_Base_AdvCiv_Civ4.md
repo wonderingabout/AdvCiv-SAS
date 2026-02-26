@@ -143,6 +143,7 @@ hopefully helpful, thanks thanks,
 [107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#107---fixed-base-advciv-crash-after-loading-a-save-file-returning-to-main-menu-opening-sevopedia-index-since-first-time-opened-and-typing-a-sequence-like-xsv)  
 [108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#108---fixed-base-advciv-diplomacy-inconsistency-ai-can-refuse-tribute-for-pure-vassalsurrender-then-accept-the-same-deal-through-what-do-you-want-in-exchange-with-nothing-added)  
 [109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions)  
+[110 - (Likely Fixed in AdvCiv-SAS / likely present in base AdvCiv) Intermittent Python startup errors from BUG init.xml path resolution + missing WIDGET_TECH_CHOOSER_ERA constant in some DLL/EXE Python bindings](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---likely-fixed-in-advciv-sas--likely-present-in-base-advciv-intermittent-python-startup-errors-from-bug-initxml-path-resolution--missing-widget_tech_chooser_era-constant-in-some-dllexe-python-bindings)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4242,3 +4243,62 @@ Fix:
 
 - Keep era/substitute evaluation rules, but enforce exclusion in `CvPlayerAI::AI_bonusTrade` (file: [CvPlayerAI.cpp](/CvGameCoreDLL/CvPlayerAI.cpp)) by returning `DENIAL_JOKING` for dominated/equivalent strategic buy cases; this is filtered from trade tables by explicit buy-denial rules in `AI_bonusTrade`.
 - Logic and bonus dependent (e.g., `BONUS_CAMEL` is not an equivalent of Horse anymore at Industrial+ Era (no Camel Dragoon))
+
+## 110 - (Likely Fixed in AdvCiv-SAS / likely present in base AdvCiv) Intermittent Python startup errors from BUG init.xml path resolution + missing WIDGET_TECH_CHOOSER_ERA constant in some DLL/EXE Python bindings
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u_zSqIoSpZ8k0COzIdL3tTLgZjEj1IUY?usp=sharing).
+
+Observed error signatures (from `PythonErr.log` / `PythonDbg.log`; exact copy also saved in `C:\Users\PC\Downloads\python dbg error sometimes.txt`):
+
+```log
+Traceback (most recent call last):
+  File "CvScreensInterface", line 1050, in updateCameraStartDistance
+  File "BugCore", line 85, in __getattr__
+AttributeError: MainInterface
+ERR: Python function updateCameraStartDistance failed, module CvScreensInterface
+```
+
+```log
+WARN : BugPath - cannot find asset file init.xml in Config
+ERROR: BugInit - cannot find XML file for module init
+WARN : BugCore - mod MainInterface not initialized; removing
+ERROR: BugCore - invalid mod MainInterface
+```
+
+```log
+Traceback (most recent call last):
+  File "BugUtil", line 677, in <lambda>
+  File "BugEventManager", line 670, in preGameStart
+  File "CvAppInterface", line 70, in preGameStart
+  File "CvScreensInterface", line 95, in showTechChooser
+  File "CvTechChooser", line 358, in interfaceScreen
+  File "CvTechChooser", line 370, in ConstructTabs
+  File "CvTechChooser", line 407, in DrawTechChooser
+  File "CvTechChooser", line 455, in placeTechs
+AttributeError: type object 'CvPythonExtensions.WidgetTypes' has no attribute 'WIDGET_TECH_CHOOSER_ERA'
+ERR: Python function preGameStart failed, module CvAppInterface
+```
+
+Why this happened:
+
+- **Startup path race / mod-dir discovery fragility**: BUG path init can fail to resolve the mod root early enough (`replay`/`CvModFolder` path not ready), so `Assets/Config/init.xml` lookup fails even though the file exists.
+- **Enum exposure mismatch across builds**: some DLL/EXE Python bindings do not expose `WidgetTypes.WIDGET_TECH_CHOOSER_ERA`; direct access then crashes in Tech Chooser during pre-game start.
+
+Fix applied in AdvCiv-SAS:
+
+- In [BugPath.py](/Assets/Python/BUG/BugPath.py), `initModFolder()` now has a fallback: if normal mod detection fails, derive mod root from `__file__` path (`Assets/Python/BUG/BugPath.py -> ../../..`) and pass it through `setModDir()` (which validates the directory).
+- In [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py), use:
+
+```python
+eEraWidget = getattr(WidgetTypes, "WIDGET_TECH_CHOOSER_ERA", WidgetTypes.WIDGET_GENERAL)
+```
+
+This avoids hard failure when the enum is missing while preserving panel rendering and era-shadow color behavior.
+
+Base AdvCiv check (code inspection):
+
+- Base AdvCiv still uses direct `WidgetTypes.WIDGET_TECH_CHOOSER_ERA` in `CvTechChooser.py`.
+- Base AdvCiv `BugPath.py` has no `__file__`-derived fallback when `_modFolder` is not found.
+- Base AdvCiv also has no `CvModFolder.py` helper in `Assets/Python` (only `Contrib/CvModName.py`), so it relies on replay-based detection.
+
+Therefore, the same potential issues likely exist in base AdvCiv too (at least by source-level inspection).

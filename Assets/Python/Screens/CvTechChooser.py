@@ -452,7 +452,13 @@ class CvTechChooser:
 # BUG - Tech Era Colors - start
 			szTechRecordShadow = sPanelWidget + "TechRecordShadow" + str(i)
 			iShadowOffset = 9
-			screen.attachPanelAt( sPanel, szTechRecordShadow, u"", u"", True, False, PanelStyles.PANEL_STYLE_TECH, iX - 6 + iShadowOffset, iY - 6 + iShadowOffset, self.getXStart() + 6, 12 + ( self.BOX_INCREMENT_HEIGHT * self.PIXEL_INCREMENT ), WidgetTypes.WIDGET_TECH_CHOOSER_ERA, gc.getTechInfo(i).getEra(), -1 )
+			# <!-- custom: observed preGameStart crash in traceback at placeTechs():
+			# "AttributeError: type object 'CvPythonExtensions.WidgetTypes' has no attribute 'WIDGET_TECH_CHOOSER_ERA'".
+			# Some DLL/EXE builds do not expose this enum to Python, so direct access hard-fails before the game starts.
+			# Use getattr() with WIDGET_GENERAL fallback: panel still renders, era-shadow color still comes from data1 (era id),
+			# and we avoid startup failure on builds missing that constant. See KI#110. (GPT-5.3-Codex) -->
+			eEraWidget = getattr(WidgetTypes, "WIDGET_TECH_CHOOSER_ERA", WidgetTypes.WIDGET_GENERAL)
+			screen.attachPanelAt( sPanel, szTechRecordShadow, u"", u"", True, False, PanelStyles.PANEL_STYLE_TECH, iX - 6 + iShadowOffset, iY - 6 + iShadowOffset, self.getXStart() + 6, 12 + ( self.BOX_INCREMENT_HEIGHT * self.PIXEL_INCREMENT ), eEraWidget, gc.getTechInfo(i).getEra(), -1 )
 			self.setTechPanelShadowColor(screen, szTechRecordShadow, gc.getTechInfo(i).getEra())
 			screen.hide( szTechRecordShadow )
 # BUG - Tech Era Colors - end
