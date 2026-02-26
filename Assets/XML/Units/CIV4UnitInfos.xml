@@ -22962,8 +22962,12 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: i want to have the privateers / representing the pirate ships have their own era / time of history in civ4 where they are relevant, make it at tech_astronomy so they are relevant sooner, was tech_astronomy + tech_chemistry -->
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<TechTypes/>
+			<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+			<TechTypes>
+				<PrereqTech>TECH_MACHINERY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses>
 				<BonusType>BONUS_COPPER</BonusType>
@@ -23160,7 +23164,7 @@
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>

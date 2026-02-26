@@ -400,7 +400,7 @@
 			<Civilopedia>TXT_KEY_PROJECT_SS_THRUSTERS_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too, was TECH_SUPERCONDUCTORS; update: now that we added a future_era, make space race not end too soon before players have reasonably advanced enough in it, so keep some space parts at later future_era techs as of now -->
+			<!-- custom: now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too, was (the now removed) TECH_SUPERCONDUCTORS; update: now that we added a future_era, make space race not end too soon before players have reasonably advanced enough in it, so keep some space parts at later future_era techs as of now -->
 			<TechPrereq>TECH_ROCKETRY</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>

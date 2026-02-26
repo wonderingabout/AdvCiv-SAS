@@ -10995,7 +10995,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make the building available sooner while it is more relevant, was TECH_SUPERCONDUCTORS and tech types empty -->
+			<!-- custom: make the building available sooner while it is more relevant, was (the now removed) TECH_SUPERCONDUCTORS and tech types empty -->
 			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -11184,7 +11184,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_DRAMA</PrereqTech>
+			<!-- custom: was TECH_DRAMA -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -11377,7 +11378,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_DRAMA</PrereqTech>
+			<!-- custom: was TECH_DRAMA -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -18831,7 +18833,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
-			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+			<PrereqTech>TECH_DRAMA</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -22992,7 +22994,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay -->
-			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -24731,7 +24733,7 @@
 			<!-- custom: similar reasoning than angkor_wat, see code comment there for details, was TECH_COMPUTERS -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_PHILOSOPHY -->
-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+			<PrereqTech>TECH_MEDITATION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25338,8 +25340,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: (fits performing arts as per chatgpt 5.2's review thanks) -->
-			<PrereqTech>TECH_DRAMA</PrereqTech>
+			<!-- custom: was TECH_DRAMA -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>

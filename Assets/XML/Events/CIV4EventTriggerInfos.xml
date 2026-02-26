@@ -8757,8 +8757,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: was TECH_DRAMA -->
 			<OrPreReqs>
-				<PrereqTech>TECH_DRAMA</PrereqTech>
+				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
