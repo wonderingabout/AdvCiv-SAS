@@ -813,6 +813,8 @@ class CvInfoScreen:
 		self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
 		# <!-- custom: cache toggle; when disabled, history entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
 		self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE") > 0)
+		self.IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+		self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD = gc.getDefineINT("SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD")
 
 	def reset(self):
 
@@ -1182,8 +1184,37 @@ class CvInfoScreen:
 		eActiveTeam = self.iActiveTeam
 		pActiveTeam = self.pActiveTeam
 
+		visiblePlayers = []
+		for j in range(gc.getMAX_CIV_PLAYERS()):
+			ePlayer = game.getRankPlayer(j)
+			if ePlayer < 0:
+				continue
+			pPlayer = gc.getPlayer(ePlayer)
+			if not pPlayer.isEverAlive():
+				continue
+			if not Scoreboard.Scoreboard.isShowTeamScore(pPlayer.getTeam()):
+				continue
+			if not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer):
+				continue
+			visiblePlayers.append(ePlayer)
+
+		# <!-- custom: only widen the score table when player count reaches the threshold; keep normal layout otherwise. (GPT-5.3-Codex) -->
+		bUseMaxScoreTabSpace = (len(visiblePlayers) >= self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD)
+		if bUseMaxScoreTabSpace:
+			# <!-- custom: expand max-render table equally upward and downward to fit ~2 extra rows while keeping vertical centering. (GPT-5.3-Codex) -->
+			iMaxRenderVerticalExpandPx = 24
+			iTableX = self.SMALL_MARGIN
+			iTableY = self.Y_HISTORY_TABLE - iMaxRenderVerticalExpandPx
+			iTableW = self.W_SCREEN - (2 * self.SMALL_MARGIN)
+			iTableH = self.H_HISTORY_TABLE + (2 * iMaxRenderVerticalExpandPx)
+		else:
+			iTableX = self.X_HISTORY_TABLE
+			iTableY = self.Y_HISTORY_TABLE
+			iTableW = self.W_HISTORY_TABLE
+			iTableH = self.H_HISTORY_TABLE
+
 		szTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szTable, 25, self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTable, 25, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
 
 		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
@@ -1213,7 +1244,12 @@ class CvInfoScreen:
 		iColResearch = 23
 		iColResearchPct = 24
 
-		iW = self.W_HISTORY_TABLE
+		# <!-- custom: in max-render mode, reserve width for the table's right-side scrollbar gutter
+		# so text does not clip/overflow under it; this budget is absorbed by the flexible V/M column via width balancing. (GPT-5.3-Codex) -->
+		iMaxRenderWidthReservePx = 0
+		if bUseMaxScoreTabSpace:
+			iMaxRenderWidthReservePx = 14
+		iW = iTableW - iMaxRenderWidthReservePx
 		iIconW = 28
 		iMinColW = 42
 		iFlagW = iMinColW
@@ -1313,19 +1349,6 @@ class CvInfoScreen:
 						teamVassalTeams[iOwnerTeam].append(iTeam)
 						break
 
-		visiblePlayers = []
-		for j in range(gc.getMAX_CIV_PLAYERS()):
-			ePlayer = game.getRankPlayer(j)
-			if ePlayer < 0:
-				continue
-			pPlayer = gc.getPlayer(ePlayer)
-			if not pPlayer.isEverAlive():
-				continue
-			if not Scoreboard.Scoreboard.isShowTeamScore(pPlayer.getTeam()):
-				continue
-			if not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer):
-				continue
-			visiblePlayers.append(ePlayer)
 		visiblePlayersByTeam = {}
 		for eLoopPlayer in visiblePlayers:
 			eLoopTeam = gc.getPlayer(eLoopPlayer).getTeam()
@@ -1535,15 +1558,20 @@ class CvInfoScreen:
 					szGoldenAge = self.SCORETAB_GOLDEN_AGE_CHAR
 			screen.setTableText(szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-		if self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
+		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
 			szLegendLinkName = self.getNextWidgetName()
+			iLegendX = self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6
+			iLegendY = self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6
+			if bUseMaxScoreTabSpace:
+				iLegendX = iTableX + iTableW - 6
+				iLegendY = self.Y_HISTORY_TABLE_LOG_BUTTON + 3
 			screen.setText(
 				szLegendLinkName,
 				"Background",
 				self.SCORETAB_LEGEND_LINK_TEXT,
 				CvUtil.FONT_RIGHT_JUSTIFY,
-				self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6,
-				self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6,
+				iLegendX,
+				iLegendY,
 				self.Z_CONTROLS,
 				FontTypes.TITLE_FONT,
 				WidgetTypes.WIDGET_PEDIA_DESCRIPTION,

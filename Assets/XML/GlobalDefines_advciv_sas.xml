@@ -68,6 +68,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: show/hide score-related legend links (Info Screen Score tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
@@ -283,6 +291,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: widen the Info Screen Score tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD</DefineName>
+		<iDefineIntVal>36</iDefineIntVal>
 	</Define>
 
 

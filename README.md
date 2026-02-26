@@ -187,7 +187,7 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
 Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (6).JPG" alt="0.516_info_screen (6).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG" alt="0.516_info_screen (8).JPG" width="250"></img>
 
 ##### Score Tab (in the Info Screen Advisor)
 
@@ -195,9 +195,12 @@ A new advisor we added in the info screen is the score Tab, showing a sortable (
 
 Added a clickable "Legend" text that redirects to Sevopedia Concepts' "Score Tab Columns" page that shows the legend.
 
+It optionally expands and Legend link moves to top right if table has more than max rows (else legend link stays bottom right so it is not distracting, and table is not expanded).
+
 Added with the very nice help of GPT-5.3-Codex thanks.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG" alt="0.516_info_screen (7).JPG" width="250"></img>
 
 #### Advisor reworks
 

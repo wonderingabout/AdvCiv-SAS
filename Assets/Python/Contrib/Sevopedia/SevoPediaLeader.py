@@ -38,6 +38,7 @@ localText = CyTranslator()
 
 # <!-- custom: Leader page display toggle (not part of AI cache module). -->
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
+IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 
 # <!-- custom: keep debug flag available in this module for existing debug print sites. -->
 IS_DEBUG_LEADER = _SAS_LeaderAIPValues.IS_DEBUG_LEADER
@@ -221,6 +222,8 @@ class SevoPediaLeader:
 
 
 	def placeAILegendLink(self):
+		if not IS_SAS_SHOW_LEGEND_LINK:
+			return
 		if self.AI_LEGEND_NEW_CONCEPT_ID < 0:
 			return
 		screen = self.top.getScreen()
