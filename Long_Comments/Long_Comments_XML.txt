@@ -1607,6 +1607,14 @@ Rename the tag									Original untouched; you're free to localize your version
 
 ===== \Assets\XML\Units\CIV4PromotionInfos.xml =====
 ----- Comment #81 -----
+
+since this seems unused in DLL due to #if 0 and understood correctly chatgpt 5's explanation of it, and since it is and was also commented out here already in the XML as well, also commented it out in the DLL as well, see there for details in corresponding as of now .cpp file(s) (can be found with a global search with vs code for example), and done as approved to be possible by chatgpt 5, check if accurate -->
+		<!-- K-Mod, special penalty promotion.
+			 advc.905a: iMovesChange set to -1
+			 advc.313: Replaced with handicap-based modifiers.
+			 broken_combat.dds has also been botted from AdvCiv, will need to
+			 copy it from K-Mod to restore this promotion. -->
+		<!-- custom: 
 <!--PromotionInfo>
 			<Type>PROMOTION_DISORGANIZED</Type>
 			<Description>TXT_KEY_PROMOTION_DISORGANIZED</Description>
@@ -4879,3 +4887,75 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
 ----- Comment #362 -----
 
 . Examples: Classical metals vs mounts are substitutes (if we have Iron/Copper, don't buy Horse/Camel/Elephants; if we have Horse/Camel/Elephants, don't buy Iron/Copper). Classical-Medieval-Renaissance: if we have Horse, don't buy Camel (and vice versa). Industrial (pre-Modern): if we have Horse, don't buy Camel. Medieval+: don't buy Elephants. Modern+: don't buy Horse/Camel. Set to 0 to disable only these hard blocks while keeping relative multipliers active
+
+===== \Assets\XML\Units\CIV4PromotionInfos.xml =====
+----- Comment #363 -----
+
+may seem useless to put tech flight everytime since
+		we don't get air units before air flight, but may help the AI not
+		pick this promotion too soon for gun units. Also maybe helps to
+		make it	more visible in the tech tree view. May clutter a bit but
+		worth it if more visible especially to new players, i think,
+		but even experienced ones.
+
+===== \Assets\XML\Units\CIV4PromotionInfos.xml =====
+----- Comment #364 -----
+
+; old button/promotion was very confusing both in name and button image hopefully clearer; it also meshes so much better now with all mobility related promotions (including as of now retreat) now having an arrow in their button which i think is much more clear and consistent
+
+===== Assets\XML\GameInfo\CIV4ProjectInfo.xml =====
+----- Comment #365 -----
+
+now that tech_rocketry is free, use it to build PROJECT_SS_THRUSTERS, so we can build the spaceship sooner in tech tree and out of the main military path too, was (the now removed) TECH_SUPERCONDUCTORS; update: now that we added a future_era, make space race not end too soon before players have reasonably advanced enough in it, so keep some space parts at later future_era techs as of now
+
+===== \Assets\XML\Units\CIV4PromotionInfos.xml =====
+----- Comment #366 -----
+
+,
+		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
+			at offense in such terrains
+			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
+			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
+			would still not affect too much the warfare in the end so it would not be OP.
+			Also tweak the values a bit for it to be more gradual
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #367 -----
+
+note: give them an offensive melee effect so alexander can use them as such (maybe pericles too who knows), but i added it as a combat modifier rather than free promotion else may stack with the pikeman effect at/afterupgrade and be bit too op, so better as such, and hoplite is as of now strong enough already -->
+			<!-- custom: see code comment at the generic spearman for details or related info
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #368 -----
+
+, according to chatgpt 5 it "represents shield wall in streets/gates", check if accurate. As for balance we could be countered by axes, however considering the cost difference vs a longbow as of now which is significantly more expensive, we can consider this unit for unitai_city_defense role now with this
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #369 -----
+
+. This is good/cool toobecause the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accomodate that, so defeats targeted era/tech/stats purpose
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #370 -----
+
+, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but still significant edge plus cost reduction to help too, hopefully balanced as such
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #371 -----
+
+. This works well i think if i may say as the low/now lowercost as well as earlier unit availability in this caseallows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguarswhich was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have), it may synergize especially well with their sacrifice/slaving profile or buildings or such
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #372 -----
+
+humans would have little to gain from stacking them past a certain point fairly early in the game, so make their ObsoleteTech sooner than when we unlock their upgrade (which is as of now the Axeman). By that new tech, we should have archers as a fallback, or should research its tech anyway. Thematically, this is around the time when we domesticate animals, so we no longer have to fight them, if that makes sense. Gameplay wise, we unlock slavery around that time, so we can produce more expensive units, and animals are fading anyway
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #373 -----
+
+, plus with our AI efficiency enhancements AI tend to overproduce them and keep them long which may take a lot of unit costs; also since archers are as of now now available sooner, no need to rely on ancient macemen too much to fill that void, but AIs may be vulnerable to early rushes in the first turns if warriors/ancient macemen don't defend cities at all maybe, so try to give them more unit combat roles instead +/- change default one or such
+
+===== \Assets\XML\Units\CIV4UnitInfos.xml =====
+----- Comment #374 -----
+
+. This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit

@@ -919,6 +919,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: replace TECH_SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY; pedia entry based on https://en.wikipedia.org/wiki/Regular_army and https://en.wikipedia.org/wiki/Standing_army -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PROFESSIONAL_ARMY_PEDIA</Tag>
+		<English>[TAB]A regular army is the official army of a state or country (the official armed forces), contrasting with irregular forces, such as volunteer irregular militias, private armies, mercenaries, etc. A regular army usually has the following:[NEWLINE][TAB]- a standing army, the permanent force of the regular army that is maintained under arms during peacetime.[NEWLINE][TAB]- a military reserve force that can be mobilized when needed to expand the effectiveness of the regular army by complementing the standing army.[PARAGRAPH:1]A regular army may be:[NEWLINE][TAB]- a conscript army, including professionals, volunteers and also conscripts (presence of enforced conscription, including recruits for the standing army and also a compulsory reserve).[NEWLINE][TAB]- a professional army, with no conscripts (absence of compulsory service, and presence of a voluntary reserve), is not exactly the same as a standing army, as there are standing armies both in the conscript and the professional models.[PARAGRAPH:1]In the United Kingdom and the United States, the term Regular Army means the professional standing active duty army, as different from the reserve component: the Army Reserve (formerly the Territorial Army) in the United Kingdom and the U.S. Army Reserve and the Army National Guard in the United States.[PARAGRAPH:2]A standing army is a permanent, often professional, army. It is composed of full-time soldiers who may be either career soldiers or conscripts. It differs from army reserves, who are enrolled for the long term, but activated only during wars or natural disasters, and temporary armies, which are raised from the civilian population only during a war or threat of war, and disbanded once the war or threat is over. Standing armies tend to be better equipped, better trained, and better prepared for emergencies, defensive deterrence, and particularly, wars. The term dates from approximately 1600, although the phenomenon it describes is much older.</English>
+	</TEXT>
+
+
+
     <TEXT>
 		<Tag>TXT_KEY_TERRAIN_COAST_PEDIA</Tag>
 		<English>[TAB]The coastline is where the land meets the sea or ocean. A precise line that can be called a coastline cannot be determined due to the dynamic nature of tides. The term "coastal zone" can be used instead, which is a spatial zone where interaction of the sea and land processes occurs. Both the terms coast and coastal are often used to describe a geographic location or region; for example, New Zealand's West Coast, or the East and West Coasts of the United States.</English>

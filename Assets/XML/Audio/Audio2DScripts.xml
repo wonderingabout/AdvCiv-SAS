@@ -14370,8 +14370,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_SUPERCONDUCTOR</ScriptID>
-		<SoundID>SND_TECH_SUPERCONDUCTOR</SoundID>
+		<ScriptID>AS2D_TECH_PROFESSIONAL_ARMY</ScriptID>
+		<SoundID>SND_TECH_PROFESSIONAL_ARMY</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -16486,8 +16486,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_SUPERCONDUCTOR</ScriptID>
-		<SoundID>SND_TECH_MP_SUPERCONDUCTOR</SoundID>
+		<ScriptID>AS2D_TECH_MP_PROFESSIONAL_ARMY</ScriptID>
+		<SoundID>SND_TECH_MP_PROFESSIONAL_ARMY</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

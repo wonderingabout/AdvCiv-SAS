@@ -1517,6 +1517,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_PAPER</Tag>
 		<English>Paper</English>
 	</TEXT>
+	<!-- custom: replace TECH_SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PROFESSIONAL_ARMY</Tag>
+		<English>Professional Army</English>
+	</TEXT>
 
 
 
@@ -2104,6 +2109,11 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
 		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
+	</TEXT>
+	<!-- custom: replace _SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY. -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PROFESSIONAL_ARMY_QUOTE</Tag>
+		<English>"What is happiness? The feeling that power is growing, that resistance is overcome." - Friedrich Nietzsche</English>
 	</TEXT>
 
 

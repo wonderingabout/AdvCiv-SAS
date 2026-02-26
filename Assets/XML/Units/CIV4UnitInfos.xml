@@ -2629,7 +2629,7 @@
 			<iCultureGarrison>0</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
-			<!-- custom: keep iPower low as this is a defensive recon unit so AI doesn't think someone having them is strong, effectively they can't do too much damage either, hopefully quite accurate or effective at this stage of the game so AI handles these/them quite well in combat -->
+			<!-- custom: see UNIT_AIRSHIP -->
 			<iPower>4</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>1</iGroupSize>
@@ -2820,7 +2820,7 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: do not make it weaker than unit_explorer it is an upgrade of, also simulate some sort of modest defense if someone has a gun or something on the unit, as for iaircombat and iaircombatlimit fields, disabling them as per chatgpt's recommendation after asking it, was 0 0 4 20; also give it just enough attack so it can manage against land units a bit, but do not make it an offensive unit in any way -->
+			<!-- custom: see UNIT_AIRSHIP; also give it just enough attack so it can manage against land units a bit, but do not make it an offensive unit in any way -->
 			<iCombat>10</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
@@ -3149,7 +3149,7 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>CORPORATION_1</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: Executives now require tech(s) to be built, matching their corresponding corporation's required tech(s). This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit; was PrereqTech NONE and TechTypes empty -->
+			<!-- custom: Executives now require tech(s) to be built, matching their corresponding corporation's required tech(s); Long_Comments_XML.txt #374, was PrereqTech NONE and TechTypes empty -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<TechTypes>
@@ -5531,7 +5531,7 @@
 			<UnitClassDefenders/>
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
-			<!-- custom: i would want ancient macemen / warriors to be flexible versatile units, but they are now bad at city combat, so make them roam more, plus with our AI efficiency enhancementsAI tend to overproduce them and keep them long which may take a lot of unit costs; also since archers are as of now now available sooner, no need to rely on ancient macemen too much to fill that void, but AIs may be vulnerable to early rushes in the first turns if warriors/ancient macemen don't defend cities at all maybe, so try to give them more unit combat roles instead +/- change default one or such, was UNITAI_ATTACK -->
+			<!-- custom: i would want ancient macemen / warriors to be flexible versatile units, but they are now bad at city combat, so make them roam more; Long_Comments_XML.txt #373, was UNITAI_ATTACK -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -5577,7 +5577,7 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: this unit is useless especially soon, yet AIs often produce it; humans would have little to gain from stacking them past a certain point fairly early in the game, so make their ObsoleteTech sooner than when we unlock their upgrade (which is as of now the Axeman). By that new tech, we should have archers as a fallback, or should research its tech anyway. Thematically, this is around the time when we domesticate animals, so we no longer have to fight them, if that makes sense. Gameplay wise, we unlock slavery around that time, so we can produce more expensive units, and animals are fading anyway. Most importantly, this tech is on the Hunting path, so it as of now guarantees archers are available. -->
+			<!-- custom: this unit is useless especially soon, yet AIs often produce it; Long_Comments_XML.txt #372 . Most importantly, this tech is on the Hunting path, so it as of now guarantees archers are available. -->
 			<ObsoleteTech>TECH_ANIMAL_HUSBANDRY</ObsoleteTech>
 			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
@@ -6459,7 +6459,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore. This works well i think if i may say as the low/now lowercost as well as earlier unit availability in this caseallows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguarswhich was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have), it may synergize especially well with their sacrifice/slaving profile or buildings or such -->
+			<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore; Long_Comments_XML.txt #371 -->
 			<iCost>35</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -7213,7 +7213,7 @@
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
-			<!-- custom: was UNITCOMBAT_MELEE for the generic swordsman we based in on, but it is shown or at least seems to be holding a spear, so make it melee polearm combat type rather. This is good/cool toobecause the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accomodate that, so defeats targeted era/tech/stats purpose -->
+			<!-- custom: was UNITCOMBAT_MELEE for the generic swordsman we based in on, but it is shown or at least seems to be holding a spear, so make it melee polearm combat type rather; Long_Comments_XML.txt #369 -->
 			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
@@ -7383,7 +7383,7 @@
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: considering its higher base stats than the spearman, make modifiers lower and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or such, check if accurate; see also code comment at the generic axeman for details and additional/related info, was empty in the generic swordsman; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but still significant edge plus cost reduction to help too, hopefully balanced as such -->
+			<!-- custom: considering its higher base stats than the spearman, make modifiers lower and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or such; Long_Comments_XML.txt #370 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -9190,7 +9190,7 @@
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: was 0 in the base advciv-sas spearman, according to chatgpt 5 it "represents shield wall in streets/gates", check if accurate. As for balance we could be countered by axes, however considering the cost difference vs a longbow as of now which is significantly more expensive, we can consider this unit for unitai_city_defense role now with this-->
+			<!-- custom: was 0 in the base advciv-sas spearman; Long_Comments_XML.txt #368 -->
 			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<!-- custom: same as generic spearman in our mod -->
@@ -9232,8 +9232,7 @@
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
-			<!-- custom: same as the generic spearman; since mounted units seldom/rarelydefend cities, this is not op in combination with as of now city attack modifiers i think; note: give them an offensive melee effect so alexander can use them as such (maybe pericles too who knows), but i added it as a combat modifier rather than free promotion else may stack with the pikeman effect at/afterupgrade and be bit too op, so better as such, and hoplite is as of now strong enough already -->
-			<!-- custom: see code comment at the generic spearman for details or related info-->
+			<!-- custom: same as the generic spearman; since mounted units seldom/rarelydefend cities, this is not op in combination with as of now city attack modifiers i think; Long_Comments_XML.txt #367 -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
@@ -22962,7 +22961,7 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: i want to have the privateers / representing the pirate ships have their own era / time of history in civ4 where they are relevant, make it at tech_astronomy so they are relevant sooner, was tech_astronomy + tech_chemistry -->
 			<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
-			<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+			<PrereqTech>TECH_PROFESSIONAL_ARMY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>

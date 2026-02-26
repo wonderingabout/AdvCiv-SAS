@@ -3287,7 +3287,7 @@
 				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+				<PrereqTech>TECH_PROFESSIONAL_ARMY</PrereqTech>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ASTRONOMY_QUOTE</Quote>
@@ -5855,7 +5855,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_SUPERCONDUCTORS</PrereqTech>
+				<PrereqTech>TECH_PROFESSIONAL_ARMY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -6459,10 +6459,10 @@
 			<SoundMP>AS2D_TECH_MP_ENVIRONMENTALISM</SoundMP>
 			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_SUPERCONDUCTORS -->
-			<Type>TECH_SUPERCONDUCTORS</Type>
-			<Description>TXT_KEY_TECH_SUPERCONDUCTORS</Description>
-			<Civilopedia>TXT_KEY_TECH_SUPERCONDUCTORS_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: type: TECH_PROFESSIONAL_ARMY -->
+			<Type>TECH_PROFESSIONAL_ARMY</Type>
+			<Description>TXT_KEY_TECH_PROFESSIONAL_ARMY</Description>
+			<Civilopedia>TXT_KEY_TECH_PROFESSIONAL_ARMY_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_GROWTH</Advisor>
@@ -6521,10 +6521,11 @@
 				<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<Quote>TXT_KEY_TECH_SUPERCONDUCTOR_QUOTE</Quote>
-			<Sound>AS2D_TECH_SUPERCONDUCTOR</Sound>
-			<SoundMP>AS2D_TECH_MP_SUPERCONDUCTOR</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Superconductor.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,12</Button>
+			<Quote>TXT_KEY_TECH_PROFESSIONAL_ARMY_QUOTE</Quote>
+			<Sound>AS2D_TECH_PROFESSIONAL_ARMY</Sound>
+			<SoundMP>AS2D_TECH_MP_PROFESSIONAL_ARMY</SoundMP>
+			<!-- custom: button from FFH2 mod thanks -->
+			<Button>Art/AdvCiv_SAS/Techs/Professional_Army/mercenary.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_COMPUTERS -->
 			<Type>TECH_COMPUTERS</Type>

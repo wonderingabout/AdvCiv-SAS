@@ -1076,7 +1076,7 @@
 			<!-- custom: button import from c2c mod's TECH_WARRANTS_AND_DECREES -->
 			<Button>Art/AdvCiv_SAS/Civics/Wage_Labor/decrees.dds</Button>
 			<!-- custom: hopefully having it sooner also increases strategic options as well; Long_Comments_XML.txt #120, was TECH_DEMOCRACY -->
-			<TechPrereq>TECH_SUPERCONDUCTORS</TechPrereq>
+			<TechPrereq>TECH_PROFESSIONAL_ARMY</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<!-- custom: was UPKEEP_LOW -->
 			<Upkeep>UPKEEP_MEDIUM</Upkeep>

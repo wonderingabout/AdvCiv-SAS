@@ -10995,7 +10995,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: make the building available sooner while it is more relevant, was (the now removed) TECH_SUPERCONDUCTORS and tech types empty -->
+			<!-- custom: make the building available sooner while it is more relevant, was (now removed) TECH_SUPERCONDUCTORS and tech types empty -->
 			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
