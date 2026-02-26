@@ -226,7 +226,7 @@ Note: water buildings are generally avoided as they are too situational (useless
 | Ireland | / | **Scriptorium** (University) | New civ: strong monastic-learning thematic fit (scriptoria as centers of manuscript copying/scholarship) and good gameplay/profile match for Irish leaders with gold/diplomatic/science leanings. University timing keeps it meaningful without becoming an overpowered early spike like a library would be with the as of now scriptorium's effects. |
 | Kingdom of Benin | / | **Impluvium** (Aqueduct) | New civ: Thematic fit; plus fits Ewuare's production/growth profile |
 | France | Salon (Observatory) | **Keep** (University) | Observatory removed (to unclutter); thematic fit with Lumieres theme |
-| Germany | Assembly Plant (Factory) | **Longhouse** (Granary) | Late/weak building; replaced with an early impactful one with thematic fit and gameplay fit for Germany's growth profile |
+| Germany | Assembly Plant (Factory) | **Longhouse** (Granary) | Late/weak building; replaced with an early impactful one with thematic fit (LBK (Linearbandkeramik / Linear Pottery culture)) and gameplay fit for Germany's growth profile |
 | Greece | Odeon (Colosseum) | **Keep** (Keep) | |
 | Holy Roman | Rathaus (Courthouse) | **Keep** (Keep) | |
 | Inca | Terrace (Granary) | **Qullqa** (Keep) | Renaming for thematic fit; rework for historical accuracy and to make it stronger (financial/organized incan economy profile) rather than mixing culture and growth weirdly and in a bit op way. |

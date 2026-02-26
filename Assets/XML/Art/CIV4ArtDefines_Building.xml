@@ -159,15 +159,16 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Granary.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,4</Button>
 		</BuildingArtInfo>
+		<!-- custom: art from ROM a new dawn mod (ART_DEF_BUILDING_MESOAMERICAN_MONASTERY) thanks, which i then modified with Paint.NET the nif of to remove religion logo -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_GERMAN_LONGHOUSE</Type>
-			<LSystem>LSYSTEM_2x1</LSystem>
+			<LSystem>LSYSTEM_2x3</LSystem>
 			<bAnimated>0</bAnimated>
-			<fScale>0.5</fScale>
-			<fInterfaceScale>4.0</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/German_Longhouse/nif/IroquoisLH.nif</NIF>
+			<fScale>4.00</fScale>
+			<fInterfaceScale>0.55</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/German_Longhouse/nif/AsenMonastery.NIF</NIF>
 			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/German_Longhouse/longhouse.dds</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/German_Longhouse/and_building_atlas_cropped_modified.dds</Button>
 		</BuildingArtInfo>
 		<!-- the actual art for this aqueduct is controlled by ArtDefines_Misc.xml : ART_AQUEDUCT_SEGMENT/ART_AQUEDUCT_WALL/ART_AQUEDUCT_ENDPOINT -->
 		<BuildingArtInfo>
