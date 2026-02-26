@@ -109,6 +109,16 @@
 			<Button>,Art/Interface/Buttons/Buildings/Barracks.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,3</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</Type>
+			<LSystem>LSYSTEM_3x3</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.77</fScale>
+			<fInterfaceScale>0.65</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/Byzantine_Hippodrome/Byzantine_Hippodrome.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/Colosseum.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,7</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_BUNKER</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -557,16 +567,6 @@
 			<NIF>Art/Structures/Buildings/Theatre/Theatre.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Theatre.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,7</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</Type>
-			<LSystem>LSYSTEM_3x3</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>0.77</fScale>
-			<fInterfaceScale>0.65</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Byzantine_Hippodrome/Byzantine_Hippodrome.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Colosseum.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,7</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_COLOSSEUM</Type>

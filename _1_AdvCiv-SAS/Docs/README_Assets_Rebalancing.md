@@ -216,7 +216,7 @@ Note: water buildings are generally avoided as they are too situational (useless
 | Arabia | Madrassa (Library) | **Keep** (University) | Thematic fit, more balanced than op library. |
 | Aztec | Sacrificial Altar (Courthouse) | **Keep** (Monument) | Much stronger than late courthouse. Fits aztec early slaving profile |
 | Babylon | Garden (Colosseum) | **Keep** (Keep) | |
-| Byzantium | Hippodrome (Theatre) | **Keep** (Keep) | |
+| Byzantium | Hippodrome (Theatre) | **Keep** (Stable) | Stronger and more efficient building than weak situational culture of the theater for this civ, since the stable is likely almost always desired for their civ-specific unit in particular. As of now takes most of old theater building effects with some cultural effects instead of all happiness effects. |
 | Carthage | Cothon (Harbor) | **Keep** (Port) | Port is the new AdvCiv-SAS stronger water classical production building |
 | Celt | Dun (Walls) | **La Tene Smithy** (Forge) | Dun is weak and too defensive/situational; also doesn't match the aggressive Celtic profile. Shift to a Forge-based UB for a stronger metalwork identity, with happiness support tied to Iron/Copper. Good synergy with their swordsman-based civ-specific unit and overall military profile that may use these bonuses as well. |
 | China | Pavillion (Theatre) | **Changpingcang** (Market) | Not so cultural game profile plus it is weaker. This new building leans into a market-management/state-stability theme (price smoothing and social calm) rather than pure food storage. As China in this setup is often health-rich, extra happiness support is valuable and a nice synergy for larger empires and sustained city growth. Identity with happy from Rice capitalizes on such excess health, and food kept fits thematically and is not as op later in the game. |
@@ -229,7 +229,7 @@ Note: water buildings are generally avoided as they are too situational (useless
 | Germany | Assembly Plant (Factory) | **Longhouse** (Granary) | Late/weak building; replaced with an early impactful one with thematic fit and gameplay fit for Germany's growth profile |
 | Greece | Odeon (Colosseum) | **Keep** (Keep) | |
 | Holy Roman | Rathaus (Courthouse) | **Keep** (Keep) | |
-| Inca | Terrace (Granary) | **Qullqa** (Granary) | Renaming for thematic fit; rework for historical accuracy and to make it stronger (financial/organized incan economy profile) rather than mixing culture and growth weirdly and in a bit op way. |
+| Inca | Terrace (Granary) | **Qullqa** (Keep) | Renaming for thematic fit; rework for historical accuracy and to make it stronger (financial/organized incan economy profile) rather than mixing culture and growth weirdly and in a bit op way. |
 | India | Mausoleum (Jail) | **Keep** (Keep) | Jail is moved to late Classical so fine as such |
 | Japan | Shale Plant (Factory) | **Doujou** (Jail) | Late/weak building; replaced with an early impactful one; thematic fit and boosts Tokugawa/Japan's isolationist profile by strengthening its espionage and military independence potential |
 | Khmer | Baray (Aqueduct) | **Keep** (Keep) | |

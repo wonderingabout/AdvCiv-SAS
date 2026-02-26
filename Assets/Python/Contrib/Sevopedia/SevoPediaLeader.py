@@ -110,11 +110,11 @@ class SevoPediaLeader:
 
 		# <!-- custom: Favorites panel only needs two icons (favorite civic/religion), so size it with shared helper for a strict two-button layout. (GPT-5.3-Codex) -->
 		self.W_FAVORITES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
-		# <!-- custom: readability tweak - Music on the left, Favorites on the right near the civ icon. (GPT-5.3-Codex) -->
-		self.X_MUSIC = self.X_LEADERHEAD_PANE
+		# <!-- custom: layout order tweak: Favorites at left, then Music, then civ icon at far right. (GPT-5.3-Codex) -->
+		self.X_FAVORITES = self.X_LEADERHEAD_PANE
+		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_MUSIC
 		self.Y_MUSIC = self.Y_FAVORITES
 		self.H_MUSIC = self.H_FAVORITES
-		self.X_FAVORITES = self.X_MUSIC + self.W_MUSIC + self.SMALL_MARGIN
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->

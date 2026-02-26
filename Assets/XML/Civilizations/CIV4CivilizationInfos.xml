@@ -511,7 +511,7 @@
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
 					<BuildingType>BUILDING_BYZANTINE_HIPPODROME</BuildingType>
 				</Building>
 			</Buildings>
@@ -4391,7 +4391,7 @@
 					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				<!-- custom: note: this seemingly does nothing as barbarians still build libraries about what this NONE does (i think it is meant to disable the building for barbarians but it doesn't seem to do so at least not for the library (and seemingly for some if not most if not all wonders as well if i remember it correctly in advciv-sas known issues)) as they do in autoplay at least -->
+				<!-- custom: note: this seemingly does nothing as barbarians still build libraries -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
@@ -4493,7 +4493,7 @@
 					<UnitClassType>UNITCLASS_SPY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
-				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born (in a barbarian city) and (is)(too)-->
+				<!-- custom: also allow barbarians great prophets in case they are first to found a religion, so not putting a NON here for GREAT_PROPHET in case it would disallow a great prophet being born in a barbarian city -->
 				<Unit>
 					<UnitClassType>UNITCLASS_GREAT_ARTIST</UnitClassType>
 					<UnitType>NONE</UnitType>

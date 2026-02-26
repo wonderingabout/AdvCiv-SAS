@@ -4959,3 +4959,8 @@ humans would have little to gain from stacking them past a certain point fairly 
 ----- Comment #374 -----
 
 . This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (not in the first eras). This also balances rival city acquisition so a player **cannot produce executives if we do not have the corresponding Corporation in the city (mirroring the shrine prerequirement change). If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit
+
+===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
+----- Comment #375 -----
+
+, so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this
