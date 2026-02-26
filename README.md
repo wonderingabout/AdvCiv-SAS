@@ -191,7 +191,7 @@ Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dl
 
 ##### Score Tab (in the Info Screen Advisor)
 
-A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M.
+A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), Power per City, Land%, V/M.
 
 Added a clickable "Legend" text that redirects to Sevopedia Concepts' "Score Tab Columns" page that shows the legend.
 
@@ -442,14 +442,14 @@ Added new concepts, as of now:
 
 The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, thanks to [@f1rpo](https://github.com/f1rpo)'s help too) category adds info about mods and such. See [README_Mods_History_And_Changes.md](/_1_AdvCiv-SAS/Docs/README_Mods_History_And_Changes.md). Exhaustive or not example screenshots below as well:
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.612_sevopedia_k-mod_to_advciv.JPG" alt="0.612_sevopedia_k-mod_to_advciv.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.805_sevopedia_k-mod_to_advciv.JPG" alt="0.805_sevopedia_k-mod_to_advciv.JPG" width="250"></img>
 
 ##### Legends
 
 We also use the Mods info category to show the legend of some tables, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (1).JPG" alt="0.613_sevopedia_mods_info_legend (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.613_sevopedia_mods_info_legend (2).JPG" alt="0.613_sevopedia_mods_info_legend (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG" alt="0.806_sevopedia_mods_info_legend (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG" alt="0.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
 
 ## UI (Common)
 

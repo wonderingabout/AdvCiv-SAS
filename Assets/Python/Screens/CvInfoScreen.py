@@ -1214,7 +1214,7 @@ class CvInfoScreen:
 			iTableH = self.H_HISTORY_TABLE
 
 		szTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szTable, 25, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTable, 26, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
 
 		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
@@ -1228,21 +1228,22 @@ class CvInfoScreen:
 		iColScore = 7
 		iColDelta = 8
 		iColPower = 9
-		iColCities = 10
-		iColPowerPerCity = 11
-		iColLandPct = 12
-		iColVM = 13
-		iColTrade = 14
-		iColBorders = 15
-		iColPact = 16
-		iColReligion = 17
-		iColWarPeace = 18
-		iColWontTalk = 19
-		iColWorstEnemy = 20
-		iColGoldenAge = 21
-		iColEspionage = 22
-		iColResearch = 23
-		iColResearchPct = 24
+		iColPowerAbs = 10
+		iColCities = 11
+		iColPowerPerCity = 12
+		iColLandPct = 13
+		iColVM = 14
+		iColTrade = 15
+		iColBorders = 16
+		iColPact = 17
+		iColReligion = 18
+		iColWarPeace = 19
+		iColWontTalk = 20
+		iColWorstEnemy = 21
+		iColGoldenAge = 22
+		iColEspionage = 23
+		iColResearch = 24
+		iColResearchPct = 25
 
 		# <!-- custom: in max-render mode, reserve width for the table's right-side scrollbar gutter
 		# so text does not clip/overflow under it; this budget is absorbed by the flexible V/M column via width balancing. (GPT-5.3-Codex) -->
@@ -1256,20 +1257,21 @@ class CvInfoScreen:
 		iDipW = iMinColW
 		iAttNumW = iMinColW
 		iColorW = iMinColW
-		iPidW = iMinColW - 6
-		iNameW = 132
+		iPidW = iMinColW - 10
+		iResearchPctW = iPidW + 1
+		iNameW = 122
 		iScoreW = 64
-		iDeltaW = 62
-		iPowerW = 62
+		iDeltaW = 54
+		iPowerW = 60
+		iPowerAbsW = 61
 		iPowerPerCityW = 66
-		iResearchPctW = iMinColW
 		iCitiesW = iMinColW
 		iLandPctW = iMinColW + 16
-		iVMW = iMinColW + 12
+		iVMW = iMinColW + 53
 		iResearchW = iMinColW
 		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
 		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
-		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW +
+		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW +
 				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iAttNumW + iColorW + iResearchPctW + 9 * iFlagW + iPidW +
 				iNameW + iResearchW)
 		iExtraW = iW - iUsedW
@@ -1288,14 +1290,15 @@ class CvInfoScreen:
 		screen.setTableColumnHeader(szTable, iColLeader, u"", iIconW)
 		screen.setTableColumnHeader(szTable, iColCiv, u"", iIconW)
 		screen.setTableColumnHeader(szTable, iColColor, u"Col", iColorW)
-		screen.setTableColumnHeader(szTable, iColPid, u"PID", iPidW)
+		screen.setTableColumnHeader(szTable, iColPid, u"ID", iPidW)
 		screen.setTableColumnHeader(szTable, iColName, u"Leader", iNameW)
 		screen.setTableColumnHeader(szTable, iColAttitude, u"Att", iFlagW)
 		screen.setTableColumnHeader(szTable, iColAttitudeNum, u"Att#", iAttNumW)
 		screen.setTableColumnHeader(szTable, iColScore, self.TEXT_SCORE, iScoreW)
-		screen.setTableColumnHeader(szTable, iColDelta, u"dScore", iDeltaW)
+		screen.setTableColumnHeader(szTable, iColDelta, u"dSc", iDeltaW)
 		# <!-- custom: rank column removed because this table is already score-ordered by construction, so Rank duplicated the same ordering signal and added noise. (GPT-5.3-Codex) -->
-		screen.setTableColumnHeader(szTable, iColPower, u"Pow", iPowerW)
+		screen.setTableColumnHeader(szTable, iColPower, u"PowR", iPowerW)
+		screen.setTableColumnHeader(szTable, iColPowerAbs, u"PowT", iPowerAbsW)
 		screen.setTableColumnHeader(szTable, iColCities, u"Cit", iCitiesW)
 		screen.setTableColumnHeader(szTable, iColPowerPerCity, u"Pow/C", iPowerPerCityW)
 		screen.setTableColumnHeader(szTable, iColLandPct, u"Land%", iLandPctW)
@@ -1417,9 +1420,11 @@ class CvInfoScreen:
 			screen.setTableText(szTable, iColWarPeace, iRow, szWarPeace, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 			szPower = u""
+			szPowerAbs = u""
 			szPowerPerCity = u""
 			fShownPowerRatio = None
 			iPowerColorForWidget = 0
+			iTheirPower = -1
 			if ePlayer != eActivePlayer and (bDebugMode or pActivePlayer.canSeeDemographics(ePlayer)):
 				iTheirPower = pPlayer.getPower()
 				if iTheirPower > 0:
@@ -1442,6 +1447,9 @@ class CvInfoScreen:
 					if iPowerColorForWidget > 0:
 						szPower = localText.changeTextColor(szPower, iPowerColorForWidget)
 			screen.setTableText(szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
+			if iTheirPower > -1:
+				szPowerAbs = self.separateThousands(iTheirPower)
+			screen.setTableText(szTable, iColPowerAbs, iRow, szPowerAbs, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			if bDebugMode:
 				iCities = pPlayer.getNumCities()
@@ -1467,19 +1475,15 @@ class CvInfoScreen:
 				if pTeam.isAVassal():
 					for eMasterTeam in teamMasterTeams[eTeam]:
 						for eMasterPlayer in visiblePlayersByTeam.get(eMasterTeam, []):
-							asVM.append(str(eMasterPlayer))
-					if len(asVM) > 0:
-						szVM = u"M" + u",".join(asVM)
-					else:
-						szVM = u"M"
-				elif teamHasVassals[eTeam]:
+							asVM.append(u"|" + str(eMasterPlayer))
+				if teamHasVassals[eTeam]:
+					# <!-- custom: V/M uses role prefixes, not separators: '|ID' marks a master and ',ID' marks a vassal.
+					# The comma is a per-ID vassal prefix (not a CSV/comma-separated list delimiter).
+					# We still prepend it to every vassal ID so multi-digit IDs remain readable and unambiguous. (GPT-5.3-Codex) -->
 					for eVassalTeam in teamVassalTeams[eTeam]:
 						for eVassalPlayer in visiblePlayersByTeam.get(eVassalTeam, []):
-							asVM.append(str(eVassalPlayer))
-					if len(asVM) > 0:
-						szVM = u",".join(asVM)
-					else:
-						szVM = u"V"
+							asVM.append(u"," + str(eVassalPlayer))
+				szVM = u"".join(asVM)
 			screen.setTableText(szTable, iColVM, iRow, szVM, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 			eCurrentResearch = pPlayer.getCurrentResearch()

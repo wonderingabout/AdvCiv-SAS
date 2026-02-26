@@ -114,7 +114,7 @@ class SevoPediaLeader:
 		self.X_MUSIC = self.X_LEADERHEAD_PANE
 		self.Y_MUSIC = self.Y_FAVORITES
 		self.H_MUSIC = self.H_FAVORITES
-		self.X_FAVORITES = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_FAVORITES
+		self.X_FAVORITES = self.X_MUSIC + self.W_MUSIC + self.SMALL_MARGIN
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
