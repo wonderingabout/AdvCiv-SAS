@@ -8467,7 +8467,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MYSTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Mysticism</Filename>
+			<Filename>Sounds/Tech/Tech_Music</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8488,7 +8488,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_BIOENGINEERING</SoundID>
-			<Filename>Sounds/Tech/Tech_Combustion</Filename>
+			<Filename>Sounds/Tech/Tech_Mysticism</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8523,7 +8523,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_PAPER</SoundID>
-			<Filename>Sounds/Tech/Tech_Drama</Filename>
+			<Filename>Sounds/Tech/Tech_Paper</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8544,7 +8544,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_ROMANTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Music</Filename>
+			<Filename>Sounds/Tech/Tech_Drama</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8607,7 +8607,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_FASCISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Fascism</Filename>
+			<Filename>Sounds/Tech/Tech_MassMedia</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8628,7 +8628,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MASS_MEDIA</SoundID>
-			<Filename>Sounds/Tech/Tech_MassMedia</Filename>
+			<Filename>Sounds/Tech/Tech_Fascism</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8747,14 +8747,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_DEPOPULATION</SoundID>
-			<Filename>Sounds/Tech/Tech_Economics</Filename>
+			<Filename>Sounds/Tech/Tech_Alphabet</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_WATER_WHEEL</SoundID>
-			<Filename>Sounds/Tech/Tech_Alphabet</Filename>
+			<Filename>Sounds/Tech/Tech_Archery</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8803,7 +8803,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_COMBUSTION</SoundID>
-			<Filename>Sounds/Tech/Tech_Plastics</Filename>
+			<Filename>Sounds/Tech/Tech_Combustion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8831,7 +8831,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_COMPOSITES</SoundID>
-			<Filename>Sounds/Tech/Tech_Composites</Filename>
+			<Filename>Sounds/Tech/Tech_Plastics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8845,14 +8845,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_AI</SoundID>
-			<Filename>Sounds/Tech/Tech_Paper</Filename>
+			<Filename>Sounds/Tech/Tech_Fusion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_FUSION</SoundID>
-			<Filename>Sounds/Tech/Tech_Fusion</Filename>
+			<Filename>Sounds/Tech/Tech_Composites</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8922,7 +8922,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_CONSTRUCTION</SoundID>
-			<Filename>Sounds/Tech/Tech_Military_Science</Filename>
+			<Filename>Sounds/Tech/Tech_Economics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8978,7 +8978,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_STEAMPOWER</SoundID>
-			<Filename>Sounds/Tech/Tech_MilitaryTradition</Filename>
+			<Filename>Sounds/Tech/Tech_Superconductor</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9090,7 +9090,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MILITARY_SCIENCE</SoundID>
-			<Filename>Sounds/Tech/Tech_Archery</Filename>
+			<Filename>Sounds/Tech/Tech_Military_Science</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9104,14 +9104,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_PROFESSIONAL_ARMY</SoundID>
-			<Filename>Sounds/Tech/Tech_Superconductor</Filename>
+			<Filename>Sounds/Tech/Tech_MilitaryTradition</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MYSTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Mysticism</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Music</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9132,7 +9132,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_BIOENGINEERING</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Mysticism</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9167,7 +9167,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_PAPER</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Paper</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9188,7 +9188,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_ROMANTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Music</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9251,7 +9251,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_FASCISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Fascism</Filename>
+			<Filename>Sounds/Tech/Tech_MP_MassMedia</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9272,7 +9272,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MASS_MEDIA</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_MassMedia</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Fascism</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9391,14 +9391,14 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_DEPOPULATION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Economics</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Alphabet</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_WATER_WHEEL</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Alphabet</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9433,7 +9433,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_COMBUSTION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Plastics</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9461,7 +9461,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_COMPOSITES</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Composites</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Plastics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9475,7 +9475,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_AI</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Paper</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Fusion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9496,7 +9496,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_FUSION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Fusion</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Composites</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9566,7 +9566,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_CONSTRUCTION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Military_Science</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Economics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9622,7 +9622,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_STEAMPOWER</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_MilitaryTradition</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Superconductor</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9734,7 +9734,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MILITARY_SCIENCE</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Military_Science</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9748,7 +9748,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_PROFESSIONAL_ARMY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Superconductor</Filename>
+			<Filename>Sounds/Tech/Tech_MP_MilitaryTradition</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

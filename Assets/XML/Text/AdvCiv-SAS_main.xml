@@ -2006,10 +2006,35 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
 		<English>"The whole is more than the sum of its parts." - Aristotle</English>
 	</TEXT>
-	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such, also use the base advciv +/- civ4's paper's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: quote remap v9: TECH_AI now uses the former TECH_FUSION quote (Arthur C. Clarke). (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
-		<English>"I cannot live without books" - Thomas Jefferson</English>
+		<English>"Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke</English>
+	</TEXT>
+	<!-- custom: quote remap v9.2: TECH_LITERATURE now uses the former TECH_PAPER quote (Bacon), swapped with PAPER. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_LITERATURE_QUOTE</Tag>
+		<English>"Some books are to be tasted, others to be swallowed, and some few to be chewed and digested." - Sir Francis Bacon</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_FUSION uses the former TECH_COMPOSITES quote (Aristotle). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FUSION_QUOTE</Tag>
+		<English>"The whole is greater than the sum of its parts." - Aristotle</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_COMPOSITES uses the former TECH_COMBUSTION quote (Plastics). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMPOSITES_QUOTE</Tag>
+		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_FASCISM uses the former TECH_MASS_MEDIA quote (Oscar Wilde). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FASCISM_QUOTE</Tag>
+		<English>"The only thing worse than being talked about is not being talked about." - Oscar Wilde</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_MASS_MEDIA uses the former TECH_FASCISM quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MASS_MEDIA_QUOTE</Tag>
+		<English>"The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler</English>
 	</TEXT>
 	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sasand audio -->
 	<TEXT>
@@ -2021,39 +2046,40 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
 		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
 	</TEXT>
-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least; also replace tech_plastics with tech_depopulation -->
+	<!-- custom: quote remap v9: TECH_DEPOPULATION now uses the former TECH_WATER_WHEEL quote. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
-		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
+		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
 	</TEXT>
 	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least; update: with the quote of tech_guilds (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
 		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
 	</TEXT>
+	<!-- custom: quote remap v9: TECH_WATER_WHEEL now uses the former TECH_MILITARY_SCIENCE quote. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
-		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
+		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
 	</TEXT>
 	<!-- custom: replace "_GUILDS" with "_CHIVALRY"; update: with the quote of tech_feudalism -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_CHIVALRY_QUOTE</Tag>
 		<English>"I will to my lord be true and faithful, and love all which he loves and shun all which he shuns." - Anglo Saxon Oath of Fealty</English>
 	</TEXT>
-	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING"; update: with the quote of tech_combustion -->
+	<!-- custom: quote remap v9.1: TECH_BIOENGINEERING now uses the former TECH_MYSTICISM quote (Cicero), swapped with PAPER. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Tag>
-		<English>"Everything in life is somewhere else, and you get there in a car." - E. B. White</English>
+		<English>"Nature herself has imprinted on the minds of all the idea of God." - Cicero</English>
 	</TEXT>
 	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION"; update: with the quote of tech_laser (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
 		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_plastics (now removed) -->
+	<!-- custom: quote remap v9: TECH_COMBUSTION now uses the former TECH_BIOENGINEERING quote. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMBUSTION_QUOTE</Tag>
-		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
+		<English>"Everything in life is somewhere else, and you get there in a car." - E. B. White</English>
 	</TEXT>
 	<!-- custom: now using the quote of tech_divine_right (now removed) -->
 	<TEXT>
@@ -2075,20 +2101,20 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_MILITARY_TRADITION_QUOTE</Tag>
 		<English>"And them that take the sword shall perish by the sword." - The Bible, Matthew</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_archery (now removed) -->
+	<!-- custom: quote remap v9: TECH_MILITARY_SCIENCE now uses the former TECH_CONSTRUCTION quote. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Tag>
-		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
-	</TEXT>
-	<!-- custom: now using the quote of tech_military_science -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Tag>
 		<English>"I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_military_tradition -->
+	<!-- custom: quote remap v9: TECH_CONSTRUCTION now uses the former TECH_DEPOPULATION quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Tag>
+		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_STEAM_POWER now uses the former TECH_PROFESSIONAL_ARMY quote. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
-		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
+		<English>"What is happiness? The feeling that power is growing, that resistance is overcome." - Friedrich Nietzsche</English>
 	</TEXT>
 	<!-- custom: rename "_RIFLING" to "_FIREARMS" -->
 	<TEXT>
@@ -2100,20 +2126,30 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Tag>
 		<English>"There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib</English>
 	</TEXT>
-	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean. -->
+	<!-- custom: quote remap v9: TECH_ROMANTICISM now uses the former TECH_PAPER/DRAMA quote (Shakespeare stage line). (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROMANTICISM_QUOTE</Tag>
+		<English>"All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts." - William Shakespeare</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_MYSTICISM uses the former TECH_ROMANTICISM quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MYSTICISM_QUOTE</Tag>
 		<English>"If music be the food of love, play on." - William Shakespeare</English>
+	</TEXT>
+	<!-- custom: quote remap v9.2: TECH_PAPER now uses the former TECH_AI quote (Jefferson), swapped with LITERATURE. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PAPER_QUOTE</Tag>
+		<English>"I cannot live without books" - Thomas Jefferson</English>
 	</TEXT>
 	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
 		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
 	</TEXT>
-	<!-- custom: replace _SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY. -->
+	<!-- custom: quote remap v9: TECH_PROFESSIONAL_ARMY now uses the former TECH_STEAM_POWER quote. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_PROFESSIONAL_ARMY_QUOTE</Tag>
-		<English>"What is happiness? The feeling that power is growing, that resistance is overcome." - Friedrich Nietzsche</English>
+		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
 	</TEXT>
 
 

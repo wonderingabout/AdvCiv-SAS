@@ -114,14 +114,14 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "Oh! I have slipped the surly bonds of Earth - Put out my hand and touched the Face of God." - John Gillespie Magee, Junior | Advanced Flight | Keep |
 | "Art for art's sake is an empty phrase. Art for the sake of truth, art for the sake of the good and the beautiful, that is the faith I am searching for." - George Sand | Aesthetics | Keep |
 | "Oh farmers, pray that your summers be wet and your winters clear." - Virgil | Agriculture | Keep |
-| "I cannot live without books" - Thomas Jefferson | Paper | AI |
+| "I cannot live without books" - Thomas Jefferson | Paper | Keep |
 | "Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine | Stealth | Alien Life |
 | "Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep." - The Bible, Deut. 28:4 | Animal Husbandry | Keep |
 | "Artillery adds dignity to what would otherwise be a vulgar brawl." - Frederick the Great | Artillery | Keep |
 | "People can have the Model T in any color - so long as it's black." - Henry Ford | Assembly Line | Keep |
 | "Astronomy compels the soul to look upwards and leads us from this world to another." - Plato | Astronomy | Keep |
 | "Banking establishments are more dangerous than standing armies." - Thomas Jefferson | Banking | Keep |
-| "Everything in life is somewhere else, and you get there in a car." - E. B. White | Combustion | Bioengineering |
+| "Everything in life is somewhere else, and you get there in a car." - E. B. White | Combustion | Keep |
 | "There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov | Fiber Optics | Biology |
 | "There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib | Education | Broader Education |
 | "It is entirely seemly for a young man killed in battle to lie mangled by the bronze spear. In his death all things appear fair." - Homer | Bronze Working | Keep |
@@ -130,29 +130,29 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "I will to my lord be true and faithful, and love all which he loves and shun all which he shuns." - Anglo Saxon Oath of Fealty | Feudalism | Chivalry |
 | "The bureaucracy is expanding to meet the needs of the expanding bureaucracy" - Unknown | Civil Service | Keep |
 | "To bring about the rule of righteousness in the land, so that the strong should not harm the weak." - Hammurabi's Code; Prologue | Code Of Laws | Keep |
-| "I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate | Plastics | Combustion |
+| "I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate | Plastics | Composites |
 | "When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara | Utopia | Communism |
-| "The whole is greater than the sum of its parts." - Aristotle | Composites | Keep |
+| "The whole is greater than the sum of its parts." - Aristotle | Composites | Fusion |
 | "Never trust a computer you can't throw out a window." - Steve Wozniak | Computers | Keep |
 | "No freeman shall be taken, imprisoned, or in any other way destroyed, except by the lawful judgment of his peers." - The Magna Carta | Constitution | Keep |
-| "I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams | Military Science | Construction |
+| "I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams | Military Science | Keep |
 | "Corporation, n. An ingenious device for obtaining individual profit without individual responsibility." - Ambrose Bierce | Corporation | Keep |
 | "Everything is worth what its purchaser will pay for it." - Publius Syrus | Currency | Keep |
 | "It has been said that democracy is the worst form of government except all the others that have been tried." - Winston Churchill | Democracy | Keep |
-| "Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein | Economics | Depopulation |
-| "All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. " - William Shakespeare | Drama | Keep |
+| "Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein | Economics | Construction |
+| "All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. " - William Shakespeare | Drama | Romanticism |
 | "We do not inherit the earth from our ancestors, we borrow it from our children" - unknown | Ecology | Keep |
 | "People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith | Guilds | Economics |
 | "We will make electricity so cheap that only the rich will burn candles." - Thomas Edison | Electricity | Keep |
 | "A designer knows he has achieved perfection not when there is nothing left to add, but when there is nothing left to take away." - Antoine de Saint-Exupry | Engineering | Keep |
 | "Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin | Refrigeration | Environmentalism |
-| "The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler | Fascism | Keep |
+| "The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler | Fascism | Mass Media |
 | "I am the state." - ascribed to Louis XIV | Divine Right | Feudalism |
 | "Political power grows out of the barrel of a gun." - Mao Zedong | Rifling | Firearms |
 | "Give a man a fish and you feed him for a day. Teach a man to fish and you feed him for a lifetime." - Lao Tzu | Fishing | Keep |
 | If the radiance of a thousand suns were to burst at once into the sky, that would be like the splendor of the Mighty One... I am become Death, the Shatterer of Worlds. - J. Robert Oppenheimer, quoting "The Bhagavad Gita" | Fission | Keep |
 | "For once you have tasted flight you will walk the earth with your eyes turned skywards, for there you have been and there you will long to return." - ascribed to Leonardo Da Vinci | Flight | Keep |
-| "Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke | Fusion | Keep |
+| "Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke | Fusion | AI |
 | "I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line" | Railroad | Game Theory |
 | "Soon it will be a sin for parents to have a child which carries the heavy burden of genetic disease." - Bob Edwards | Genetics | Keep |
 | "You can get more of what you want with a kind word and a gun than you can with just a kind word." - Al Capone | Gunpowder | Keep |
@@ -165,18 +165,18 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "A god from the machine" - Menander | Machinery | Keep |
 | "You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote) | Steam Power | Marine Technology |
 | "It is from their foes, not their friends, that cities learn the lesson of building high walls." - Aristophanes | Masonry | Keep |
-| "The only thing worse than being talked about is not being talked about." - Oscar Wilde | Mass Media | Keep |
+| "The only thing worse than being talked about is not being talked about." - Oscar Wilde | Mass Media | Fascism |
 | "If in other sciences we should arrive at certainty without doubt and truth without error, it behooves us to place the foundations of knowledge in mathematics." - Roger Bacon | Mathematics | Keep |
 | "As to diseases make a habit of two things - to help, or at least, to do no harm." - Hippocrates | Medicine | Keep |
 | "Meditation brings wisdom; lack of meditation leaves ignorance. Know well what leads you forward and what holds you back." - The Buddha | Meditation | Keep |
 | "Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man" | Steel | Metal Casting |
-| "Do not throw the arrow which will return against you." - Kurdish Proverb | Archery | Military Science |
+| "Do not throw the arrow which will return against you." - Kurdish Proverb | Archery | Water Wheel |
 | "And them that take the sword shall perish by the sword." - The Bible, Matthew | Metal Casting | Military Tradition |
 | "The man who moves a mountain begins by carrying away small stones." - Confucius | Mining | Keep |
 | "And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley | Construction | Monarchy |
 | "I am the Lord thy God. Thou shalt have no other gods before Me." - The Bible, Exodus | Monotheism | Keep |
 | "If you speak the truth, have a foot in the stirrup." - Turkish proverb | Horseback Riding | Mounted Combat |
-| "Nature herself has imprinted on the minds of all the idea of God." - Cicero | Mysticism | Keep |
+| "Nature herself has imprinted on the minds of all the idea of God." - Cicero | Mysticism | Bioengineering |
 | "A man does not have himself killed for a half-pence a day or for a petty distinction. You must speak to the soul in order to electrify him." - ascribed to Napoleon Bonaparte | Nationalism | Keep |
 | "I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei | Scientific Method | Naturalism |
 | "The wisest men follow their own direction." - ascribed to Euripides | Compass | Navigation |
@@ -190,18 +190,18 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "Then one fine mornin' she puts on a New York station. You know her life was saved by Rock 'n' Roll." - The Velvet Underground, "Rock And Roll" | Radio | Keep |
 | "The real problem is not whether machines think, but whether men do." - B.F. Skinner | Robotics | Robot Rights |
 | "The Earth is the cradle of the mind, but one cannot eternally live in a cradle." - Konstantin E. Tsiolkovsky | Rocketry | Keep |
-| "If music be the food of love, play on." - William Shakespeare | Music | Romanticism |
+| "If music be the food of love, play on." - William Shakespeare | Music | Mysticism |
 | "You can't direct the wind, but you can adjust your sails." - Unknown | Sailing | Keep |
 | "Beep...beep...beep...beep..." - Sputnik I | Satellites | Keep |
 | "One doesn't discover new lands without losing sight of the shore." - Andre Gide | Optics | Seafaring |
 | "Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams | Laser | Space Exploration |
-| "Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu | Military Tradition | Steam Power |
-| "What is happiness? The feeling that power is growing, that resistance is overcome." - Friedrich Nietzsche | Superconductors | Keep |
+| "Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu | Military Tradition | Professional Army |
+| "What is happiness? The feeling that power is growing, that resistance is overcome." - Friedrich Nietzsche | Superconductors | Steam Power |
 | "Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine | Theology | Terraforming |
 | "It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase) | Biology | Theory Of Evolution |
 | "Put your shoulder to the wheel." - ascribed to Aesop | The Wheel | Keep |
 | "The future will be better tomorrow." - Dan Quayle | Future Tech | Transhumanism |
-| "Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha | Alphabet | Water Wheel |
+| "Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha | Alphabet | Depopulation |
 | "True glory consists in doing what deserves to be written; in writing what deserves to be read." - Pliny the Elder | Writing | Keep |
 
 ## Civ-specific buildings rework
@@ -223,7 +223,7 @@ Note: water buildings are generally avoided as they are too situational (useless
 | Egypt | Obelisk (Monument) | **Keep** (Keep) | |
 | England | Stock Exchange (Bank) | **Keep** (Keep) | |
 | Ethiopia | Stele (Monument) | **Metsehaf Bet** (Library) | Distinctive theology-to-scholarship identity via Ge'ez manuscript/commentary tradition. Also uses underused library slot and declutters the overused monument slot. Strong religious identity (priest-scholar) => as of now GP Priest plus culture-scaling profile. Also aims to go better with Zara Yaqob's trading/diplomat/growth ingame profile |
-| Ireland | / | **Scriptorium** (University) | New civ: strong monastic-learning thematic fit (scriptoria as centers of manuscript copying/scholarship) and good gameplay/profile match for Irish leaders with gold/diplomatic/science leanings. Paper timing keeps it meaningful without becoming an overpowered early spike like a library would be with the as of now scriptorium's effects. |
+| Ireland | / | **Scriptorium** (University) | New civ: strong monastic-learning thematic fit (scriptoria as centers of manuscript copying/scholarship) and good gameplay/profile match for Irish leaders with gold/diplomatic/science leanings. University timing keeps it meaningful without becoming an overpowered early spike like a library would be with the as of now scriptorium's effects. |
 | Kingdom of Benin | / | **Impluvium** (Aqueduct) | New civ: Thematic fit; plus fits Ewuare's production/growth profile |
 | France | Salon (Observatory) | **Keep** (University) | Observatory removed (to unclutter); thematic fit with Lumieres theme |
 | Germany | Assembly Plant (Factory) | **Longhouse** (Granary) | Late/weak building; replaced with an early impactful one with thematic fit and gameplay fit for Germany's growth profile |
