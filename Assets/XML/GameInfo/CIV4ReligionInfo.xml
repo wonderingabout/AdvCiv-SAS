@@ -109,7 +109,7 @@
 			<Adjective>TXT_KEY_RELIGION_DAOISM_ADJECTIVE</Adjective>
 			<Civilopedia>TXT_KEY_RELIGION_DAOISM_PEDIA</Civilopedia>
 			<!-- custom: was TECH_PHILOSOPHY -->
-			<TechPrereq>TECH_DRAMA</TechPrereq>
+			<TechPrereq>TECH_PAPER</TechPrereq>
 			<FreeUnitClass>UNITCLASS_DAOIST_MISSIONARY</FreeUnitClass>
 			<iFreeUnits>1</iFreeUnits>
 			<iSpreadFactor>100</iSpreadFactor>

@@ -1502,15 +1502,20 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION</Tag>
 		<English>Broader Education</English>
 	</TEXT>
-	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean. -->
+	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with the help of chatgpt 5.2 thanks -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROMANTICISM</Tag>
 		<English>Romanticism</English>
 	</TEXT>
-	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
+	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM</Tag>
 		<English>Environmentalism</English>
+	</TEXT>
+	<!-- custom: replace TECH_DRAMA with TECH_PAPER -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PAPER</Tag>
+		<English>Paper</English>
 	</TEXT>
 
 
@@ -3569,7 +3574,7 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY</Tag>
-		<English>La Tène Smithy</English>
+		<English>La Tene Smithy</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET</Tag>

@@ -8529,7 +8529,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_DRAMA</SoundID>
+			<SoundID>SND_TECH_PAPER</SoundID>
 			<Filename>Sounds/Tech/Tech_Drama</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
@@ -9173,7 +9173,7 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_DRAMA</SoundID>
+			<SoundID>SND_TECH_MP_PAPER</SoundID>
 			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>

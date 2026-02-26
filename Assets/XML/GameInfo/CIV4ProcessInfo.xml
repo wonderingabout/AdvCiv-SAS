@@ -35,7 +35,7 @@
 			<Type>PROCESS_CULTURE</Type>
 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #22; plus changed again since TECH_DRAMA is now removed -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #22 -->
 			<TechPrereq>TECH_AESTHETICS</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>

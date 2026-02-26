@@ -299,9 +299,7 @@
 			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
 			<FontButtonIndex>18</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: import silk button from HR mod, old default/base advciv one was:
-			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
-		-->
+		<!-- custom: import silk button from HR mod -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_WHEAT</Type>
 			<fScale>1.0</fScale>
@@ -329,7 +327,7 @@
 			<Button>,Art/Interface/Buttons/WorldBuilder/Music.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,16</Button>
 			<FontButtonIndex>33</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, nif and button import from rfc doc mod's ART_DEF_BONUS_CAMEL and adjusted or not for advciv-sas -->
+		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, nif and button import from rfc doc mod's ART_DEF_BONUS_CAMEL -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_CAMEL</Type>
 			<fScale>1.2</fScale>

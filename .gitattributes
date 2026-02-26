@@ -39,7 +39,6 @@
 /.vscode/             export-ignore
 /.markdownlint.jsonc  export-ignore
 /ruff.toml            export-ignore
-.editorconfig         export-ignore
 
 # <!-- custom: LLM helpers are not needed in released archives of the mod -->
 /LLM_Helpers/         export-ignore
