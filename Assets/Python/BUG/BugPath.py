@@ -394,16 +394,6 @@ def initModFolder():
 					BugUtil.error("Cannot find mod folder using '%s' from CvModFolder.py", modFolder)
 	if not _modFolder:
 		BugUtil.debug("BugPath - no mod directory found")
-		# <!-- custom: observed intermittent startup failure "BugPath - cannot find asset file init.xml in Config" followed by
-		# "BugInit - cannot find XML file for module init" and then missing BUG modules (e.g. MainInterface). Root cause is that
-		# replay/CvModFolder discovery can be unavailable early in startup, leaving _modDir unset when BUG searches Assets/Config.
-		# Fallback: derive the mod root from this file path (Assets/Python/BUG/BugPath.py -> ../../..) and call setModDir().
-		# This is safe because it only runs when normal detection failed, and setModDir() validates the directory exists. See KI#110. (GPT-5.3-Codex) -->
-		szBugPathDir = dirname(abspath(__file__))
-		if szBugPathDir:
-			szModDirGuess = dirname(dirname(dirname(szBugPathDir)))
-			if not setModDir(szModDirGuess):
-				BugUtil.debug("BugPath - fallback mod directory guess failed")
 	_modFolderInitDone = True
 
 def setModDir(dir):

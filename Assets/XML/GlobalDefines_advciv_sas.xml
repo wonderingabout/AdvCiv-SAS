@@ -35,7 +35,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<Define>
 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5</DefineName>
-		<DefineTextVal>AS2D_OPENING_MENU_05</DefineTextVal>
+		<DefineTextVal>NONE</DefineTextVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_6</DefineName>

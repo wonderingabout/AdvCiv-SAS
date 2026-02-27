@@ -143,7 +143,7 @@ hopefully helpful, thanks thanks,
 [107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#107---fixed-base-advciv-crash-after-loading-a-save-file-returning-to-main-menu-opening-sevopedia-index-since-first-time-opened-and-typing-a-sequence-like-xsv)  
 [108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#108---fixed-base-advciv-diplomacy-inconsistency-ai-can-refuse-tribute-for-pure-vassalsurrender-then-accept-the-same-deal-through-what-do-you-want-in-exchange-with-nothing-added)  
 [109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions)  
-[110 - (Likely Fixed in AdvCiv-SAS / likely present in base AdvCiv) Intermittent Python startup errors from BUG init.xml path resolution + missing WIDGET_TECH_CHOOSER_ERA constant in some DLL/EXE Python bindings](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---likely-fixed-in-advciv-sas--likely-present-in-base-advciv-intermittent-python-startup-errors-from-bug-initxml-path-resolution--missing-widget_tech_chooser_era-constant-in-some-dllexe-python-bindings)  
+[110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---advciv-sas-music-shuffle-cleanup-intermittent-python-startupmaininterface-errors-from-early-bug-path-calls-in-sevopedia-music-path-helper)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4244,9 +4244,25 @@ Fix:
 - Keep era/substitute evaluation rules, but enforce exclusion in `CvPlayerAI::AI_bonusTrade` (file: [CvPlayerAI.cpp](/CvGameCoreDLL/CvPlayerAI.cpp)) by returning `DENIAL_JOKING` for dominated/equivalent strategic buy cases; this is filtered from trade tables by explicit buy-denial rules in `AI_bonusTrade`.
 - Logic and bonus dependent (e.g., `BONUS_CAMEL` is not an equivalent of Horse anymore at Industrial+ Era (no Camel Dragoon))
 
-## 110 - (Likely Fixed in AdvCiv-SAS / likely present in base AdvCiv) Intermittent Python startup errors from BUG init.xml path resolution + missing WIDGET_TECH_CHOOSER_ERA constant in some DLL/EXE Python bindings
+## 110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u_zSqIoSpZ8k0COzIdL3tTLgZjEj1IUY?usp=sharing).
+
+<details>
+<summary>Previous KI#110 notes (kept for reference)</summary>
+
+Our understanding:
+
+- The recurring `MainInterface` startup/load failure was triggered by an **early Sevopedia music XML path helper call** added around the music-shuffle work.
+- In [\_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py), `_SAS_findAssetXmlPath()` called BUG path helpers too early (`BugPath.findAssetFile(...)` and related calls).
+- Because this can run before BUG is fully ready, it could initialize/freeze BUG asset search paths too soon, so later BUG init failed to load `Assets/Config/init.xml` and `MainInterface` became invalid.
+- It appeared around music shuffle / removing one shuffle music because that changed execution timing and path-resolution flow, exposing this fragile startup ordering.
+
+Solution kept in AdvCiv-SAS:
+
+- Removed the needless early `BugPath` calls from `_SAS_findAssetXmlPath()` in [\_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
+- Kept filesystem-based candidate resolution only (mod-local path from `__file__`, then local `Assets/...` fallback), which avoids touching BUG path state at risky startup timing.
+- Result: no more `MainInterface`/`init.xml` startup failure in the reproduced cases.
 
 Observed error signatures (from `PythonErr.log` / `PythonDbg.log`; exact copy also saved in `C:\Users\PC\Downloads\python dbg error sometimes.txt`):
 
@@ -4279,26 +4295,19 @@ AttributeError: type object 'CvPythonExtensions.WidgetTypes' has no attribute 'W
 ERR: Python function preGameStart failed, module CvAppInterface
 ```
 
-Why this happened:
+- A separate, optional compatibility variant exists on some DLL/EXE builds: missing `WidgetTypes.WIDGET_TECH_CHOOSER_ERA` in Python.
+- Base AdvCiv code inspection suggests similar startup fragility can exist there too (`BugPath.py` mod-folder resolution path).
 
-- **Startup path race / mod-dir discovery fragility**: BUG path init can fail to resolve the mod root early enough (`replay`/`CvModFolder` path not ready), so `Assets/Config/init.xml` lookup fails even though the file exists.
-- **Enum exposure mismatch across builds**: some DLL/EXE Python bindings do not expose `WidgetTypes.WIDGET_TECH_CHOOSER_ERA`; direct access then crashes in Tech Chooser during pre-game start.
+Commit: [commit/6f94679507a14828421cdc06eeb033a436f1e890](https://github.com/wonderingabout/AdvCiv-SAS/commit/6f94679507a14828421cdc06eeb033a436f1e890)
+</details>
 
-Fix applied in AdvCiv-SAS:
+Update:
 
-- In [BugPath.py](/Assets/Python/BUG/BugPath.py), `initModFolder()` now has a fallback: if normal mod detection fails, derive mod root from `__file__` path (`Assets/Python/BUG/BugPath.py -> ../../..`) and pass it through `setModDir()` (which validates the directory).
-- In [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py), use:
+- KI#110 patch alone was not sufficient in all cases: after removing one more shuffle music entry, the `MainInterface` error could still reappear.
+- Actual root cause was in the newer music-shuffle Sevopedia path logic: inside `_SAS_findAssetXmlPath()` in [\_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py), broad `try/except` blocks were added that called BUG path helpers (`BugPath.findAssetFile`, `BugPath.getModDir`, `BugPath.getAppDir`) too early, which could disturb BUG path init order.
+- These `BugPath` calls were not actually needed for the music feature: after removing them, music list/path fetching still works correctly in practice.
+- Final fix was to remove those unnecessary early `BugPath` calls and keep filesystem-only path resolution there.
 
-```python
-eEraWidget = getattr(WidgetTypes, "WIDGET_TECH_CHOOSER_ERA", WidgetTypes.WIDGET_GENERAL)
-```
+To be more precise, the issue was not with music shuffle itself, but with how sevopedia music and media player find existing musics.
 
-This avoids hard failure when the enum is missing while preserving panel rendering and era-shadow color behavior.
-
-Base AdvCiv check (code inspection):
-
-- Base AdvCiv still uses direct `WidgetTypes.WIDGET_TECH_CHOOSER_ERA` in `CvTechChooser.py`.
-- Base AdvCiv `BugPath.py` has no `__file__`-derived fallback when `_modFolder` is not found.
-- Base AdvCiv also has no `CvModFolder.py` helper in `Assets/Python` (only `Contrib/CvModName.py`), so it relies on replay-based detection.
-
-Therefore, the same potential issues likely exist in base AdvCiv too (at least by source-level inspection).
+Music shuffle feature is kept for now since it seems to work fine.

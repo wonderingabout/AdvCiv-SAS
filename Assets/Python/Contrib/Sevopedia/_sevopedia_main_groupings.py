@@ -31,7 +31,8 @@ SAS_SEVO_MUSIC_DEBUG_ENABLE = False
 
 
 def _SAS_findAssetXmlPath(szFileName, szSubDir):
-	# <!-- custom: build absolute candidate paths and prefer the mod copy; for Audio2DScripts specifically, pick the candidate that contains AS2D_OPENING_MENU_01 so Sevopedia grouping uses AdvCiv-SAS variants instead of base BTS opening entries. (GPT-5.3-Codex) -->
+	# <!-- custom: build absolute candidate paths and prefer the mod copy; for Audio2DScripts specifically, pick the candidate that contains AS2D_OPENING_MENU_01 so Sevopedia grouping uses AdvCiv-SAS variants instead of base BTS opening entries.
+	# Important: avoid BugPath.findAssetFile() here because this helper can run very early (before BUG init), which can prematurely freeze BugPath asset search paths to base Assets only and later break BUG MainInterface init. See KI#110. (GPT-5.3-Codex) -->
 	def _SAS_addCandidate(cands, szPath):
 		if not szPath:
 			return
@@ -58,26 +59,6 @@ def _SAS_findAssetXmlPath(szFileName, szSubDir):
 	try:
 		szHere = os.path.dirname(__file__)
 		_SAS_addCandidate(candidates, os.path.join(szHere, "..", "..", "..", szSubDir, szFileName))
-	except:
-		pass
-
-	try:
-		import BugPath
-		try:
-			_SAS_addCandidate(candidates, os.path.join(BugPath.getModDir(), "Assets", szSubDir, szFileName))
-		except:
-			pass
-		try:
-			szAppDir = BugPath.getAppDir()
-			szModName = BugPath.getModName()
-			if szAppDir and szModName:
-				_SAS_addCandidate(candidates, os.path.join(szAppDir, "Mods", szModName, "Assets", szSubDir, szFileName))
-		except:
-			pass
-		try:
-			_SAS_addCandidate(candidates, BugPath.findAssetFile(szFileName, szSubDir))
-		except:
-			pass
 	except:
 		pass
 
