@@ -1219,6 +1219,87 @@ def SAS_getCivicsGroupedByCivicOption(bSortLists):
 
 	return civicsList
 
+# <!-- custom: in sevopedia leaders, group leaders by civilization so same-civ leaders are adjacent
+# under each civ header (e.g. Persia -> Cyrus, Darius). (GPT-5.3-Codex) -->
+def SAS_getLeadersGroupedByCivilization(bSortLists):
+	leadersList = []
+	iNumLeaders = gc.getNumLeaderHeadInfos()
+	iNumCivs = gc.getNumCivilizationInfos()
+	civGroups = []
+	excludedLeaderIndexes = set(get_leader_indexes_from_leader_types(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA))
+
+	for iCiv in range(iNumCivs):
+		civInfo = gc.getCivilizationInfo(iCiv)
+		if (not civInfo) or civInfo.isGraphicalOnly():
+			continue
+
+		civLeaders = []
+		for iLeader in range(iNumLeaders):
+			if iLeader in excludedLeaderIndexes:
+				continue
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			if (not leaderInfo) or leaderInfo.isGraphicalOnly():
+				continue
+			if civInfo.isLeaders(iLeader):
+				civLeaders.append((leaderInfo.getDescription(), iLeader))
+
+		if not civLeaders:
+			continue
+
+		if bSortLists:
+			civLeaders.sort()
+
+		civGroups.append((civInfo.getDescription(), civInfo.getButton(), civLeaders))
+
+	# Keep grouped civ headers alphabetical for easier browsing.
+	civGroups.sort(key=lambda x: x[0])
+
+	for civName, civButton, civLeaders in civGroups:
+		if leadersList:
+			leadersList.append(("", -1))
+		# Optional 3rd tuple value is a custom icon/button path used by placeItems for header rows.
+		leadersList.append((civName, -1, civButton))
+		for x in civLeaders:
+			leadersList.append(x)
+
+	return leadersList
+
+# <!-- custom: in sevopedia civilizations, group civs by ArtStyleType so visually related civs are
+# adjacent (e.g. European/Asian/Middle East groups). (GPT-5.3-Codex) -->
+def SAS_getCivilizationsGroupedByArtStyle(bSortLists):
+	grouped = {}  # iArtStyle -> [(civName, iCiv), ...]
+
+	for iCiv in range(gc.getNumCivilizationInfos()):
+		civInfo = gc.getCivilizationInfo(iCiv)
+		if (not civInfo) or civInfo.isGraphicalOnly():
+			continue
+		iArtStyle = civInfo.getArtStyleType()
+		if iArtStyle not in grouped:
+			grouped[iArtStyle] = []
+		grouped[iArtStyle].append((civInfo.getDescription(), iCiv))
+
+	# Build deterministic group order by readable header text.
+	groupOrder = []
+	for iArtStyle in grouped.keys():
+		# Prefer runtime artstyle tag from DLL (e.g. "ARTSTYLE_EUROPEAN"), then make it human-readable.
+		szTag = gc.getArtStyleTypes(iArtStyle)
+		szHeader = szTag.replace("ARTSTYLE_", "").replace("_", " ").title()
+		groupOrder.append((szHeader, iArtStyle))
+	groupOrder.sort()
+
+	out = []
+	for szHeader, iArtStyle in groupOrder:
+		items = grouped[iArtStyle]
+		if bSortLists:
+			items.sort()
+		if out:
+			out.append(("", -1))
+		out.append((szHeader, -1))
+		for x in items:
+			out.append(x)
+
+	return out
+
 # <!-- custom: Movies + Music list-building helpers
 # - Goal: keep SevoPediaMain.py clean by moving clunky grouping/list assembly here.
 # - Note: These build "base lists" (flat item lists) and then add sections, mirroring
@@ -1574,7 +1655,6 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 		if not civInfo or civInfo.isGraphicalOnly():
 			continue
 		szCivName = civInfo.getDescription()
-
 		selVal = civInfo.getSelectionSoundScriptId()
 		if selVal != -1 and selVal != "" and selVal != "NONE":
 			iSoundId = -1
@@ -1594,7 +1674,10 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 					szScript = selVal
 			iTrackId = len(musicCivTracks)
 			szLabel = _SAS_appendSoundLabel(szCivName + " (" + szSelectLabel + ")", szScript, iSoundId)
-			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, True))
+			bIs3D = True
+			if szScript:
+				bIs3D = szScript.startswith("AS3D_")
+			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, bIs3D))
 			civItems.append((szLabel, packMusicKey(iTypeCiv, iTrackId)))
 
 		actVal = civInfo.getActionSoundScriptId()
@@ -1616,7 +1699,10 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 					szScript = actVal
 			iTrackId = len(musicCivTracks)
 			szLabel = _SAS_appendSoundLabel(szCivName + " (" + szOrderLabel + ")", szScript, iSoundId)
-			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, True))
+			bIs3D = True
+			if szScript:
+				bIs3D = szScript.startswith("AS3D_")
+			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, bIs3D))
 			civItems.append((szLabel, packMusicKey(iTypeCiv, iTrackId)))
 
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS", ()), civItems)

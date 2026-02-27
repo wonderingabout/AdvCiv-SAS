@@ -1,3 +1,823 @@
+commit 73634fb04bd50688dbe921b83b5b1195e2aecdbf
+Author: wonderingabout <hidden>
+Date:   2026-03-02 07:46:30 +0100
+
+add optional grouping by Art style (e.g. European, Asian) in sevopedia civlization
+
+commit 9ef84dd997a1f5361a3b1a6eaadb6d65604d26af
+Author: wonderingabout <hidden>
+Date:   2026-03-02 07:23:11 +0100
+
+add optional grouping by civilization (with an icon) in sevopedia leader
+
+commit 59e2841170e9f43430c704a7cc525fa92170f2e2
+Author: wonderingabout <hidden>
+Date:   2026-03-01 12:16:06 +0100
+
+reorder xml text
+more logically
+
+commit a543be1913ea127f69aff71271b0535229c1f9a5
+Author: wonderingabout <hidden>
+Date:   2026-03-01 02:32:07 +0100
+
+optionally disable ai personality panel entirely
+compute and display
+
+commit 480e2ae87d16d6d0e83775e92db42b9e5c96c662
+Author: wonderingabout <hidden>
+Date:   2026-02-27 17:23:58 +0100
+
+shorter mehmed music name because too long to git clone; update docs
+
+commit 15c51b82291ecdea77a83089727ba859f0a20823
+Author: wonderingabout <hidden>
+Date:   2026-02-27 11:12:56 +0100
+
+change Pow/C to PoT/C; show PowT and PoT/C for the human player too; update docs
+- "Note that unlike military ratios, PowT and Pow/C are shown even for the human player, since these vary every turn"
+- So this data is comparable with that of other players, use total power instead of military ratios that the human player does not have (1.0 constant is less relevant anyway)
+
+commit 4bd8aa49b66d5d50697bb79f7eb2f955e28b60ba
+Author: wonderingabout <hidden>
+Date:   2026-02-27 10:27:36 +0100
+
+update main menu music
+
+commit a3cf39a3a4b3b0db102492004ceaefee0515c8d6
+Author: wonderingabout <hidden>
+Date:   2026-02-27 08:49:53 +0100
+
+properly fix sevopedia groupings (music and media player) not finding the opening menu musics (game would run them fine in main menu though)
+- To expand on this: the cleaner and sufficient fix for Sevopedia groupings (Music and Media Player) not showing the other opening menu tracks was to fix the XML fetcher path logic itself in `_SAS_findAssetXmlPath()`.
+- In practice, resolving directly from mod path context (current BTS cwd + `CvModName.modName`, then `Mods/<mod>/Assets/...`) restored correct track discovery.
+- So the robust approach was fetcher-path correction rather than adding BUG-path helper calls.
+
+commit b97bbac6e185f15be1eb7c55ba7291648c9f351c
+Author: wonderingabout <hidden>
+Date:   2026-02-27 08:30:12 +0100
+
+revert KI#110 and proper fix extra init issue on removal of one more music shuffle: cleanup needless bug calls
+- Actual root cause was in the newer music-shuffle Sevopedia path logic
+- Final fix was to remove those unnecessary early `BugPath` calls and keep filesystem-only path resolution there.
+
+To be more precise, the issue was not with music shuffle itself, but with how sevopedia music and media player find existing musics.
+
+Music shuffle feature is kept for now since it seems to work fine.
+
+See update KI#110 for details
+
+commit 6f94679507a14828421cdc06eeb033a436f1e890
+Author: wonderingabout <hidden>
+Date:   2026-02-26 21:51:59 +0100
+
+(Likely Fixed in AdvCiv-SAS / likely present in base AdvCiv) Intermittent Python startup errors from BUG init.xml path resolution + missing WIDGET_TECH_CHOOSER_ERA constant in some DLL/EXE Python bindings
+See KI#110
+
+commit c3483b2630ecd750dc83abff948e66bacce43085
+Author: wonderingabout <hidden>
+Date:   2026-02-26 21:17:20 +0100
+
+replace german_longhouse art with a much more fitting one
+- art from Rise of Manking A new dawn mod thanks (which i redrew with Paint.NET to remove the religion logo)
+
+in previous commit missing from changes:
+- BUILDING_MONGOL_GER: reduce iCost from 75 to 70
+
+commit 09fd8252f406364421e6e3d2079b418e28005ce2
+Author: wonderingabout <hidden>
+Date:   2026-02-26 19:29:31 +0100
+
+rework the byzantine_hippodrome so it is now based on the stable
+- "Stronger and more efficient building than weak situational culture of the theater for this civ, since the stable is likely almost always desired for their civ-specific unit in particular. As of now takes most of old theater building effects with some cultural effects instead of all happiness effects."
+
+commit 08396a2b15db6a7101bdf2be5ae526b6f9985855
+Author: wonderingabout <hidden>
+Date:   2026-02-26 17:50:50 +0100
+
+add PowT (total power a player has, distinct from ratio) in score tab
+- remove some music and ui sevopedia leader beautify
+
+commit fa306068bd6fc931a667ac6a06a5dcc84e42eebf
+Author: wonderingabout <hidden>
+Date:   2026-02-26 16:38:39 +0100
+
+optionally expand score tab if full and hide legend link
+- optionally hide legend link in sevopedia leader too
+
+commit 4432f06c23921efdd38bd81feed6015cbc4c84b8
+Author: wonderingabout <hidden>
+Date:   2026-02-26 15:47:01 +0100
+
+update tech quotes
+
+commit 3f65dd18502a2f63304abc970b1bac840fef093d
+Author: wonderingabout <hidden>
+Date:   2026-02-26 15:07:06 +0100
+
+remove some opening menu music
+
+commit e746207160cbcc4dbbe1854546befafeaf2ec3c8
+Author: wonderingabout <hidden>
+Date:   2026-02-26 14:55:57 +0100
+
+reskin TECH__SUPERCONDUCTORS as TECH_PROFESSIONAL_ARMY (quotes missing)
+art from FFH2 mod thanks
+
+commit 18f539500575701707e7958877d3402f296fa943
+Author: wonderingabout <hidden>
+Date:   2026-02-26 14:00:09 +0100
+
+reskin tech_drama as tech_paper (quotes missing)
+
+commit c76f21df5904a89a37f81c7e9a813abb01f8dc88
+Author: wonderingabout <hidden>
+Date:   2026-02-26 13:15:05 +0100
+
+replace functionally TECH_DRAMA with TECH_PAPER, TECH_SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY, and balance changes
+- TECH_COMMUNISM: change tech preqs from TECH_LIBERALISM and TECH_NATIONALISM to TECH_LIBERALISM and TECH_ECOLOGY
+- TECH_FASCISM: change tech preqs from TECH_NATIONALISM and TECH_COMMUNISM and TECH_COMBUSTION to (TECH_NATIONALISM or TECH_COMMUNISM) and TECH_COMBUSTION
+- TECH_GUNPOWDER: change tech preqs from TECH_LATER_ABRAHAMISM and TECH_MEDICINE to TECH_MACHINERY and TECH_MEDICINE
+
+- UNIT_FRIGATE: change tech preqs from TECH_GUNPOWDER and TECH_ASTRONOMY to TECH_ASTRONOMY and TECH_ASTRONOMY
+
+- BUILDING_ANGKOR_WAT: change tech preq from TECH_AESTHETICS to TECH_MEDITATION
+- BUILDINGCLASS_THEATRE: change tech preq from TECH_DRAMA to TECH_AESTHETICS
+- BUILDING_NATYA_SHASTRA: change tech preq from TECH_DRAMA to TECH_AESTHETICS
+- PROCESS_CULTURE: change tech preq from TECH_DRAMA to TECH_AESTHETICS
+
+replace TECH_DRAMA with TECH_PAPER:
+
+- RELIGION_DAOISM: change tech preq from TECH_PHILOSOPHY to TECH_PAPER
+- BUILDING_DAOIST_SHRINE: same
+- bMapCentering: change tech from TECH_NAVIGATION to TECH_PAPER
+- bMapTrading: change tech from TECH_CONSTITUTION to TECH_PAPER
+- TECH_PAPER: change tech preqs from TECH_LITERATURE and TECH_THE_WHEEL to TECH_LITERATURE and TECH_CONSTRUCTION
+- TECH_LATER_ABRAHAMISM: change tech preqs from TECH_DRAMA and TECH_CIVIL_SERVICE and TECH_MONOTHEISM to (TECH_POSTAXIAL_RELIGION or TECH_CONSTITUTION) and TECH_MONOTHEISM
+- TECH_FEUDALISM: change tech preqs from TECH_CIVIL_SERVICE and TECH_POSTAXIAL_RELIGION and TECH_CONSTITUTION to TECH_CIVIL_SERVICE
+- TECH_BROADER_EDUCATION: change tech preqs from TECH_MEDICINE and TECH_LATER_ABRAHAMISM to TECH_LATER_ABRAHAMISM and TECH_PAPER
+- TECH_NATURALISM: change tech preqs from TECH_BROADER_EDUCATION and TECH_PRINTING_PRESS to TECH_MEDICINE and TECH_BROADER_EDUCATION
+- TECH_BANKING: change tech preqs from TECH_CHIVALRY and TECH_CURRENCY to TECH_CURRENCY and TECH_CONSTITUTION
+- TECH_DEMOCRACY: change tech preqs from TECH_BANKING or TECH_BROADER_EDUCATION to TECH_BROADER_EDUCATION and TECH_PRINTING_PRESS
+- TECH_CHIVALRY: change tech preqs from TECH_LATER_ABRAHAMISM and TECH_FEUDALISM and TECH_MOUNTED_COMBAT to TECH_CIVIL_SERVICE and TECH_MOUNTED_COMBAT
+
+- BUILDING_SCOTLAND_YARD: tech preq from TECH_CONSTITUTION to TECH_PHILOSOPHY
+
+replace TECH_SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY:
+
+- PROMOTION_BLITZKRIEG: tech preq from TECH_WATER_WHEEL to TECH_PROFESSIONAL_ARMY
+- UNIT_PRIVATEER: change tech preqs from TECH_ASTRONOMY to TECH_PROFESSIONAL_ARMY and TECH_MACHINERY
+- CIVIC_WAGE_LABOR: tech preq from TECH_BROADER_EDUCATION to TECH_PROFESSIONAL_ARMY
+- TECH_DEPOPULATION: change tech preq TECH_SUPERCONDUCTORS to TECH_FISSION
+- TECH_FUSION: same
+- TECH_PROFESSIONAL_ARMY: change tech preq from TECH_FISSION to TECH_CHIVALRY
+- TECH_FIREARMS: change tech preq from TECH_GUNPOWDER and TECH_MACHINERY and TECH_CHIVALRY to
+- TECH_ASTRONOMY: change tech preqs from TECH_NAVIGATION and TECH_LATER_ABRAHAMISM and TECH_MACHINERY to TECH_NAVIGATION and TECH_PROFESSIONAL_ARMY and TECH_MACHINERY
+
+- adjust tech cost, era, iAsset, some flavors, to match tech changes
+- fix incorrect iAsset for TECH_CHIVALRY of 24 instead of 32 of its cost bracket, now reduced to 24 due to cost reduction
+- TECH_PROFESSIONAL_ARMY is untradeable
+- fix incorrect iPower for techs (e.g. TECH_MATHEMATICS was too high while catapults are now at tech_engineering)
+
+- increase or change tech costs:
+
+400->425
+550->600
+750->800
+1000->1050
+1700->1650
+1850->1900
+2000->2100
+2150->2250
+2375->2400
+
+commit 0870e0adc82ecca37f58144f7285a46c46cb7197
+Author: wonderingabout <hidden>
+Date:   2026-02-25 08:02:42 +0100
+
+Add SAS_Parallel_Lines.py, update 48 civs DLL
+- Add quotes in Assets rebalancing
+
+commit 34d4d7d39242f5824ea69f7524c6995b0901bc76
+Author: wonderingabout <hidden>
+Date:   2026-02-24 00:27:43 +0100
+
+Add multiple main menu music random selection (shuffle-bag)
+- **Randomized Opening menu music:** opening-menu soundtrack now supports **randomized playback** from a **tunable** pool of multiple main menu scripts, using the **shuffle-bag** approach (i.e. **no repeat until all have been played**); once all configured entries have been played once, the **pool refills and shuffles again**. Change in `CvMainMenuInfo::getSoundtrack` in [CvInfo_Misc.cpp](/CvGameCoreDLL/CvInfo_Misc.cpp).
+- fix some main menu music scripts not being listed in sevopedia music
+
+commit 923840f152dc0045b696f0993f8dbf0bc3301308
+Author: wonderingabout <hidden>
+Date:   2026-02-23 15:35:45 +0100
+
+(Tremendously Improved) Do not buy dominated or equivalent strategic bonuses (era and bonus-aware)
+- **Do not buy dominated or equivalent strategic bonuses (era and bonus-aware):** strategic resource buying now uses explicit exclusion rules, so AI skips dominated/equivalent offers instead of considering them as valid buys. Examples: in Classical, Copper is not needed if we have Iron; in Classical metals and mounted lines can substitute each other so redundant buys are skipped; Horse and Camel are treated as equivalent in Classical/Medieval/Renaissance; in Industrial (before Modern), Horse has the edge (no Camel Dragoon), so Camel is skipped if Horse is already available, etc. Change in `CvPlayerAI::AI_bonusTrade`. See [KI#109].
+
+commit e92a36c49dca11cdb4f28526d85887a2c63012f0
+Author: wonderingabout <hidden>
+Date:   2026-02-23 11:08:18 +0100
+
+Add new Score Tab (Info Screen), Add legend text and sevopedia concept pages/items
+- Added in the **Info Screen** (F9 key) a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+- Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the AI Personality Panel). See also: [README.md (Legends)](/README.md#legends).
+
+commit 8827c3e2d96e7a7fc6944cae2e746326a40ac350
+Author: wonderingabout <hidden>
+Date:   2026-02-22 18:45:20 +0100
+
+change default ordering from from alphabetical to from most to least Built/Current in the Info screen's Statistics tab
+avoids tedious manual user ordering each time
+
+commit 42823ae07df0f8e19602467de9df7faa1b5a2fbe
+Author: wonderingabout <hidden>
+Date:   2026-02-22 18:09:06 +0100
+
+add leader icons (make peace / declare war / embargo) in the diplomacy screen
+
+commit 51122e118be36acef43bf9785d005e9187ee382a
+Author: wonderingabout <hidden>
+Date:   2026-02-22 17:23:04 +0100
+
+Fix Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added
+- "**Tribute/counter-propose consistency fix for pure Vassal/Surrender offers:** base AdvCiv/BtS diplomacy would **reject** direct **Tribute/Demand** ("Not bloody likely"), yet clicking **"What do you want in exchange?"** would **accept** for the same demand (with nothing extra). So players had to do an unnecessary extra click to get the same vassal result. Fixed by making `CvPlayerAI::AI_considerOffer` accept this exact pure one-item vassal/surrender demand directly, and by making [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) not remember this narrow accepted case as a tribute demand memory (because this is rather a UI consistency fix). See [KI#108]"
+
+commit 0656c16e6dc5c308911268e5ab7a3a10003ea1af
+Author: wonderingabout <hidden>
+Date:   2026-02-22 14:56:38 +0100
+
+Beautify the Diplomacy Screen's trading rows with icons
+- Beautified the **Diplomacy Screen**'s trading rows with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+
+commit 2078e7e8e9acc04ebf59a13dbfec0fa775a0723d
+Author: wonderingabout <hidden>
+Date:   2026-02-22 13:04:40 +0100
+
+Rename Foreign Advisor's Active Tab to Treaties Tab, beautify and enhance with icons
+- "Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**."
+
+commit b33174f828f1f2397c62fd438049baa7b475acab
+Author: wonderingabout <hidden>
+Date:   2026-02-22 11:32:31 +0100
+
+Add strict obsolete tech scrapping gates by XML Cost and none for cargo
+- **Gated strictly** by **domain/era:** (e.g., an archer is not useful at medieval era, but a knight unit is still useful at industrial era). These are **raw XML-cost gates** (no game-speed scaling). Also added a naval exception: **sea units carrying cargo are never scrapped** (e.g., a galley is still useful to transport units).
+- fix non-normal game speeds mistakenly using scaling by game speed for XML Cost wonder cheap ASAP gates, as XML cost is game speed independent unlike actual hammer cost
+- increase chinese building's iFoodKept from 10 to 15
+
+commit 71b57498c0862d9ee0dbae20dbf8fab997b57cd0
+Author: wonderingabout <hidden>
+Date:   2026-02-21 15:03:02 +0100
+
+minor tech costs adjustments
+1800->1850
+2200->2150
+2350->2375
+2600->2650
+
+commit abaf980a63b6cd7ca128b732ce60366f6d44a4fb
+Author: wonderingabout <hidden>
+Date:   2026-02-21 14:25:35 +0100
+
+Fix Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"
+Fixed with the help of Claude code Opus 4.6 thanks. See KI#107.
+
+commit 31c1cbb1017da6eb784272962f4c53154f450ea9
+Author: wonderingabout <hidden>
+Date:   2026-02-21 12:24:28 +0100
+
+increase tech costs to fix too fast pacing
+- partially addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16921308
+- make AI-generated blurbs more wiki/human readable for recent new civ-specific buildings with the help of Kimi K2.5 thanks
+
+commit e8ad16f2471264e0f26a414045ea5dc18e34ce8c
+Author: wonderingabout <hidden>
+Date:   2026-02-20 20:11:52 +0100
+
+replace stele with BUILDING_ETHIOPIAN_METSEHAF_BET
+- "<!-- custom: note: deleted duplicate ART_DEF_BUILDING_MONUMENT that had an obelisk.nif for some reason (not sure if our rename in advciv-sas from obelisk to monument is linked to this, but works fine as such with the duplicate removed) -->"
+- "Distinctive theology-to-scholarship identity via Ge'ez manuscript/commentary tradition. Also uses underused library slot and declutters the overused monument slot. Strong religious identity (priest-scholar) => as of now GP Priest plus culture-scaling profile. Also aims to go better with Zara Yaqob's trading/diplomat/growth ingame profile" + "give culture but not too much because the library is an almost ubiquitous building"
+
+art from the FFH2 mod thanks
+
+commit 9fee472086cdd5b2525b906f15f3f8c9d192e8a6
+Author: wonderingabout <hidden>
+Date:   2026-02-20 19:35:26 +0100
+
+fix space being pressed twice in search bar
+e.g. "la  t" instead of "la t" for "la tène", fixed with the help of GPT-5.3-Codex thanks
+
+commit f7ba7f4c6c6c60844097c1cf9ad54772288e6ac5
+Author: wonderingabout <hidden>
+Date:   2026-02-20 14:53:50 +0100
+
+replace dun with BUILDING_CELTIC_LA_TENE_SMITHY
+- "Dun is weak and too defensive/situational; also doesn't match the aggressive Celtic profile. Shift to a Forge-based UB for a stronger metalwork identity, with happiness support tied to Iron/Copper. Good synergy with their swordsman-based civ-specific unit and overall military profile that may use these bonuses as well." + "Historically, Late Iron Age / La Tene iron production and working often involves charcoal-fueled processes and can be organized as smaller, distributed craft activity rather than a big “always-on city furnace” concept"
+- convert some xml text files from UTF-8 to ISO-8859-1, because it correctly detects and displays characters like `è` or `î` (unlike UTF-8), and because it seems to be the native supported in XML Text files.
+
+commit 086670f330e8b09cf8be9812b41dd49fd6c9e341
+Author: wonderingabout <hidden>
+Date:   2026-02-20 14:34:53 +0100
+
+remove more incorrect formatted characters
+
+commit 1767667d1569763e81b361fba233c042f59d896c
+Author: wonderingabout <hidden>
+Date:   2026-02-20 14:12:24 +0100
+
+remove error-prone formatting characters
+
+commit b09ee50b75bc4baf5a76b570703714fac8488d59
+Author: wonderingabout <hidden>
+Date:   2026-02-20 12:58:43 +0100
+
+replace pavillion with BUILDING_CHINESE_CHANGPINGCANG (Market)
+- "Not so cultural game profile plus it is weaker. This new building leans into a market-management/state-stability theme (price smoothing and social calm) rather than pure food storage. As China in this setup is often health-rich, extra happiness support is valuable and a nice synergy for larger empires and sustained city growth. Identity with happy from Rice capitalizes on such excess health, and food kept fits thematically and is not as op later in the game."
+
+art from the sengoku mod thanks
+
+commit f891e8f104f4b6fbfd931a753b66538a4489fa59
+Author: wonderingabout <hidden>
+Date:   2026-02-19 18:33:24 +0100
+
+replace seowon with BUILDING_KOREAN_GYEONGDANG (Library)
+- "Use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This uses underused library slot, declutters overused university slot, keeps the civ's science identity while feeling less generic, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. Thematically fits the ancient history/civilization of Korea theme as well. Great general chance similarly to how it was done for the japan_doujou (martial arts training)."
+
+art from the sengoku mod thanks
+
+commit 10fd09db5ceaf778b963a27da2baba4ed17d1835
+Author: wonderingabout <hidden>
+Date:   2026-02-19 18:06:26 +0100
+
+make BUILDING_IRELAND_SCRIPTORIUM unviersity based
+todo later move to tech_paper if we implement it
+
+commit 20989cf63ffdfc44db2ed249b5ce7c80d7f5ef43
+Author: wonderingabout <hidden>
+Date:   2026-02-19 16:53:08 +0100
+
+add Civ-specific buildings rework table in README_Assets_Rebalancing
+- BUILDING_GERMAN_LONGHOUSE: reduce iFoodKept from 50 to 40 and reduce iCost from 55 to 45 (same as generic granary) (Keeps +1 food).
+- BUILDING_INCAN_QULLQA: reduce iCost from 60 to 45 (same as generic granary). Remove +10% Hammer effect (Keeps iFoodKept 50).
+- BUILDING_SCOTLAND_YARD: change tech prereq from TECH_MONARCHY to TECH_CONSTITUTION
+- BUILDING_APOSTOLIC_PALACE: change tech prereq from TECH_POSTAXIAL_RELIGION to TECH_CONSTITUTION: "not strictly religious; fits UN being around as of now TECH_MASS_MEDIA"
+- PROMOTION_BLITZKRIEG: change tech prereq from TECH_CONSTITUTION to TECH_WATER_WHEEL
+- change map trading ability (bMapTrading) from TECH_WATER_WHEEL to TECH_CONSTITUTION
+- Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`
+
+commit fe25618f49f1841c7224a924f92a41aabe520a51
+Author: wonderingabout <hidden>
+Date:   2026-02-18 09:30:56 +0100
+
+make auto evacuate cities logic optional
+default ON, recommended to keep enabled though as should be stronger for the AI. Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16921308
+
+commit 96163add021444bd883ee28b51ea646db7505ec8
+Author: wonderingabout <hidden>
+Date:   2026-02-18 08:35:31 +0100
+
+Fix inaccurate game speed timelines so they are much closer to Normal game speed; add LOG button; add Summary, Increments rows; add LLM_Helpers
+LLM_Helpers/autotune_speed_from_xml.py + LLM_Helpers/compare_speed_summaries.py
+
+commit d191fe898b3ac9b2dd8830ff55a029294b404f3b
+Author: wonderingabout <hidden>
+Date:   2026-02-16 21:08:21 +0100
+
+add the Irish Empire with 2 leaders (Grace O'Malley, Micheal Collins)
+with the very nice help of GPT-5.3-Codex (and GPT-5.2 Thinking for planning) thanks a lot :)
+
+see docs for credits and details
+
+commit 94a336ef48c5167570291cc909e9eee8daa709f0
+Author: wonderingabout <hidden>
+Date:   2026-02-16 10:24:50 +0100
+
+balance changes and code enhancements
+- UNIT_MODERN_INFANTRY: PROMOTION_FIRST_STRIKE1 (previous base advciv was was PROMOTION_AMPHIBIOUS, but not needed at all since unit is strong enough already or doesn't fit thematically in advciv-sas)
+- fix leaders **inconsistently not having 150** as the **total of their BBAI victory weights**: (iCultureVictoryWeight, iSpaceVictoryWeight, iConquestVictoryWeight, iDominationVictoryWeight, iDiplomacyVictoryWeight, 150): (`LEADER_BISMARCK`, 20, 25, 25, 30, 40, 140) -> 20, 25, 25, 35, 45, 150; (`LEADER_BRENNUS`, 0, 30, 30, 50, 30, 140) -> 0, 30, 35, 55, 30, 140; (`LEADER_LINCOLN`, 10, 35, 35, 15, 45, 140) -> 10, 40, 35, 15, 50, 150; (`LEADER_RAMESSES`, 25, 25, 35, 35, 20, 140) -> 35, 25, 35, 35, 20, 150.
+- starting techs changes (for starting tech counts and combos counts see sevopedia tech or assets rebalancing doc):
+	- - Arabia: Mysticism + Pottery → Hunting + Mysticism; Desert pastoral/tribal-warrior flavor + smooth path toward Animal Husbandry/camels; Mysticism preserves religion/culture identity (and your UB is university-based so no Pottery dependency).
+	- - Greece: Fishing + Mysticism → Mining + Mysticism; Keeps the “culture/religion” signal (temples/oracles/cults) while also pushing the Hoplite → Bronze/Iron line sooner via Mining; better matches “bronze + sacred polis” as a starter identity.
+	- - Holy Roman: Hunting + Mysticism → Mysticism + Pottery; Reads more like “Church + towns/guild/urban administration” than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line.
+	- - Kingdom of Benin: Fishing + Mysticism → Mysticism + Pottery; Pottery anchors the “fortified/urban builder court-state” + supports your Impluvium/aqueduct line; Mysticism keeps the ritual/court legitimacy flavor (and avoids pushing them toward early bronze play).
+	- - Korea: Mining + Mysticism → Fishing + Mining; Keeps Mining (the more distinctive “Korea-coded” pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure—without implying an early religion-race start.
+- add index / leader name pairs in SevoPediaLeaderCachePredumped.py, remove excess blank lines, and line separate leaders and fields
+
+commit d185fc9208c9235fd1a7df285ef33b565bfcbdc4
+Author: wonderingabout <hidden>
+Date:   2026-02-15 13:36:58 +0100
+
+add SAS_Large_Facing_Islands.py (AdvCiv-SAS original map)
+
+commit 3aaba123416958356e921b1f43f0df3b590c56a7
+Author: wonderingabout <hidden>
+Date:   2026-02-14 19:56:52 +0100
+
+add worker speed modifiers bullet in sevopedia unit
+- add iFeatureproduction panel in sevopedia builds and features
+- refactor sevopedia: add buttons per panel width calculator and other refactors, then adjust dimensions of panels precisely to match a number of buttons per panel, and other changes
+
+commit 936bb5081816bc5eac56e82ffb86ae3d7ed348c4
+Author: wonderingabout <hidden>
+Date:   2026-02-14 14:48:45 +0100
+
+add Water.py (modified)
+see docs
+
+commit 3fffd5ea98c6ba9287173e65d7733feb32ee5098
+Author: wonderingabout <hidden>
+Date:   2026-02-14 08:09:06 +0100
+
+minor
+- also make Mixed_Continents.py land_heavy, and remove it from Simple Game
+
+commit 15aa086e93d382d53198ecec7a592856d0557b21
+Author: wonderingabout <hidden>
+Date:   2026-02-14 07:33:19 +0100
+
+add SAS_Spiky_Avenues.py (AdvCiv-SAS original new mapscript)
+
+commit fa79a78fde6e898e6401c2b77b6da2bb7fc5b1e8
+Author: wonderingabout <hidden>
+Date:   2026-02-13 16:34:48 +0100
+
+add SAS_Longworld.py, a new AdvCiv-SAS original mapscript; update 48 civs DLL
+see docs
+
+commit 093b59bae4fe33e96c12ec04a84b2b0acc8aab13
+Author: wonderingabout <hidden>
+Date:   2026-02-13 09:40:49 +0100
+
+add BTG_Grid.py; remove PerfectMongoose.py and Terra.py from Simple Game list; other fixes
+
+commit 866bab2de418f2a7713552b2fb68c8ba3341c33c
+Author: wonderingabout <hidden>
+Date:   2026-02-13 06:56:16 +0100
+
+add Peirce.py (modified), and some fixes
+
+commit 031a95cc7cb72a0996acd852db4cb05beccd1e73
+Author: wonderingabout <hidden>
+Date:   2026-02-12 13:36:28 +0100
+
+add Equal_Islands_V2_beta.py (modified), fix ' to " and incorrect bonus names in some maps
+- remove Earth2 and Lakes from simple game list
+
+commit 1e8acff71e6cf406f5ade59003fdfc22625838d7
+Author: wonderingabout <hidden>
+Date:   2026-02-12 11:04:50 +0100
+
+add workaround with ingame warning once to KI#106 (press Esc key many times or several seconds)
+
+commit 0dcc98613ca2415ba1f0a7602d979c4658e6cf02
+Author: wonderingabout <hidden>
+Date:   2026-02-12 09:54:11 +0100
+
+Revert to and document (KI#106) base advciv bug in Simple Game of too many options causing errors
+currently not fixed
+
+commit eaa9a887f9e437c3c1e95852c63be56481a88714
+Author: wonderingabout <hidden>
+Date:   2026-02-11 23:10:41 +0100
+
+Add a modified version of Planet_Generator_0_68.py
+- **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists.
+
+commit 3dbee874c3475210c112d5c5bf17aa7060eaac13
+Author: wonderingabout <hidden>
+Date:   2026-02-11 20:52:02 +0100
+
+add and remove maps in Simple Game +/- update .dds
+- further reduce the grid size for almost_all_land as was stll quite a bit too big
+- **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Oasis.py](/PrivateMaps/Oasis.py).
+- **Add other maps** to **Simple Game**: [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+
+commit 30d39de13ddfa8fe26ddaa747fc92cdd7cb2728e
+Author: wonderingabout <hidden>
+Date:   2026-02-10 17:52:14 +0100
+
+add a .dds to Earth2 in Simple Game, remove Hemispheres and Big_and_Small from Simple Game
+
+commit c5cc188373782d959d75d2775774feddfee826dd
+Author: wonderingabout <hidden>
+Date:   2026-02-10 17:20:16 +0100
+
+add maps in PrivateMaps so they are ordered alphabetically in Simple Game or Custom Game
+- **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+
+commit a1db61111f9531aba43b27982d7ee53f68922b7e
+Author: wonderingabout <hidden>
+Date:   2026-02-10 16:35:43 +0100
+
+add Boreal to maps in Simple Game
+
+commit c02570f3289a562e51fc6efaddcf155ab9003031
+Author: wonderingabout <hidden>
+Date:   2026-02-10 15:37:41 +0100
+
+add Deer percentage map option in arboria and boreal
+- **Deer percentage:** added a Deer percentage tuning **option** (e.g., `0/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py), with defaults tuned for their map styles (lower in food-rich maps like grass-rich Arboria).
+
+commit b90811a0d3b108ac8dfb2e1b38a4578c2ba3c047
+Author: wonderingabout <hidden>
+Date:   2026-02-10 15:25:29 +0100
+
+perf opt in arboria
+
+commit be75be8cf7d371efa338fa9d30d89f2649b41f03
+Author: wonderingabout <hidden>
+Date:   2026-02-10 15:17:26 +0100
+
+add getInfoTypeOrFail to more python files (GPT-5.3-Codex)
+- **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values.
+
+commit accf8702ebf916e999fd07a56211e9aec98af9d7
+Author: wonderingabout <hidden>
+Date:   2026-02-10 14:55:49 +0100
+
+Really fix KI#105, add SASUtils.py, fix incorrect bonus names in some maps
+
+commit 955b2298bd57f61a82e443f5c4a0ec2b26a158f9
+Author: wonderingabout <hidden>
+Date:   2026-02-10 08:53:45 +0100
+
+fix military advisor map overflow to the progress bar
+
+commit c7704e482554054f0c1689162c4454df4d11c673
+Author: wonderingabout <hidden>
+Date:   2026-02-10 05:40:32 +0100
+
+Rename Play Now to Simple Game, remove some maps from Simple Game, redo the .dds for BTG maps
+- "Play Now" → "Simple Game" Clearer, matches code name, better contrasts with "Custom Game", and same as in C2C mod.
+- **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps. See [Root Readme (Maps)](/README.md#maps).
+- **Remove from Simple Game** some maps that are deemed not essential; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+
+commit 551ef0b93a538febbf92d281141cf7f1fffc408a
+Author: wonderingabout <hidden>
+Date:   2026-02-09 23:53:56 +0100
+
+Add modified BTG_Lagoon.py
+- Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+
+commit 3f17c40b842f8a22392dde3d2f01918cfde11690
+Author: wonderingabout <hidden>
+Date:   2026-02-09 22:14:22 +0100
+
+Add new BTG_Cross.py from the Beyond the Game 2.43 mod thanks, both in world picekr (play now) and custom game. Done with the very nice help of GPT-5.3-Codex thanks a lot
+- **Add** and **adapt** **BTG_Cross** (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Play Now** and **Custom Game** lists. See [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+
+commit 393a82a296f24c2d8ea7e02836de6f58cba0a5cd
+Author: wonderingabout <hidden>
+Date:   2026-02-09 19:42:43 +0100
+
+Fix RandomScriptMap.py
+
+commit 2270a70c798384abdf72b68490edd5562ba56b7e
+Author: wonderingabout <hidden>
+Date:   2026-02-09 19:35:38 +0100
+
+Fix Rainforest.py; move it to almost_all_land
+
+commit 29d10c2a8f4567ee2002e1e9e39f6417db581133
+Author: wonderingabout <hidden>
+Date:   2026-02-09 19:25:24 +0100
+
+Fix Global_Highlands.py
+
+commit 202d3dbbaf0af12aa8d437ecf5b78e7a5465f91e
+Author: wonderingabout <hidden>
+Date:   2026-02-09 17:57:18 +0100
+
+fix Earth2.py: keep same size at Huge and beyond, but populate Africa or the whole world instead
+- **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+
+commit 2addf7daebeadd1dac700f2df55090fe54121aa2
+Author: wonderingabout <hidden>
+Date:   2026-02-09 08:57:50 +0100
+
+Fix base AdvCiv bug of most bonuses (e.g., Deer) sometimes not appearing at first Civ4 launch in some maps (e.g. Boreal)
+Seemingly now reliably fixed with the help of GPT-5.3-Codex and Claude code Opus 4.6 thanks.
+
+See KI#105.
+
+commit 30dd3faa8ce67b3edd08ebd3b6dcb441d7e7da34
+Author: wonderingabout <hidden>
+Date:   2026-02-08 22:58:23 +0100
+
+refactor multilists, with the help of GPT-5.3-Codex thanks
+
+commit 3bf18c08eca65df9071ca976b9a9575707c1da41
+Author: wonderingabout <hidden>
+Date:   2026-02-08 21:10:45 +0100
+
+add SAS sentinel/guard defines to make sure they are loaded, raise error if SAS defines are not loaded
+- **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+
+Idea from a code comment in the Final Frontier Plus mod: https://forums.civfanatics.com/threads/final-frontier-plus.351012/page-32#post-16919241
+
+And also based on the fact that many AdvCiv-SAS players had not set a windows shortcut, which may cause errors.
+
+commit c4fad2d42106823880471444998d8c698061c931
+Author: wonderingabout <hidden>
+Date:   2026-02-08 20:48:56 +0100
+
+switch to using the Middle-earth mod's nif for main menu static wallpapers
+
+commit 0b9ab6d22f49ddb99c62708b61baed07a4b73489
+Author: wonderingabout <hidden>
+Date:   2026-02-08 08:19:11 +0100
+
+Fix Donut.py
+
+commit 1f51abbd835e8b8dd807df0f6bf9fa81c8d94050
+Author: wonderingabout <hidden>
+Date:   2026-02-08 08:08:06 +0100
+
+Fix Boreal.py; move it to almost_all_land maps (sas defines only)
+
+commit c4c7d14c2b59f6afb5aad8b4bd75f66c1cc2d48a
+Author: wonderingabout <hidden>
+Date:   2026-02-08 07:56:54 +0100
+
+Fix Arboria.py
+
+commit 89935255733a75ef31f77cd92d0b02bda26ddcba
+Author: wonderingabout <hidden>
+Date:   2026-02-08 07:48:16 +0100
+
+Fix Wheel.py; add it to landheavy maps
+
+commit 620880a0f5efc124d3fb002a5152dd788aa16767
+Author: wonderingabout <hidden>
+Date:   2026-02-08 07:31:03 +0100
+
+Fix Tilted_Axis.py; move it to navalheavy maps
+
+commit 9d01f7598c38a2bfdaf6ee505854290dbd937193
+Author: wonderingabout <hidden>
+Date:   2026-02-08 07:05:46 +0100
+
+Fix Team_Battleground.py; add it to almost_all_land maps
+
+commit f80f6258fc17345d3ae704db94002224d1d777ff
+Author: wonderingabout <hidden>
+Date:   2026-02-08 06:55:09 +0100
+
+Fix Ring.py; add Ring to landheavy maps
+
+commit f1180bfc254c19757a12e58b2e675c52aa493ec6
+Author: wonderingabout <hidden>
+Date:   2026-02-08 06:35:06 +0100
+
+Fix Oasis.py
+
+commit 2424190053197bfd7be21ccbbc10446bcb53e3cd
+Author: wonderingabout <hidden>
+Date:   2026-02-08 06:24:01 +0100
+
+Fix Mirror.py; add Mirror to landheavy maps list (as an almost_all_land)
+
+commit 9e72a66f599a70de0040c0e14ea9e74eaaeb5c43
+Author: wonderingabout <hidden>
+Date:   2026-02-08 06:05:52 +0100
+
+Fix Hub.py
+
+commit 32fe9da7ca043d88077144eb25a7349ad7351a3c
+Author: wonderingabout <hidden>
+Date:   2026-02-08 05:42:10 +0100
+
+Fix Maze.py similarly
+
+commit 3f862dc357c0816be25d28d9f95eba8b551e8a41
+Author: wonderingabout <hidden>
+Date:   2026-02-07 08:33:05 +0100
+
+Fix Lakes.py similarly
+
+commit 61937cf0e283e5b034565d884b593983766b4f37
+Author: wonderingabout <hidden>
+Date:   2026-02-07 08:16:54 +0100
+
+Fix Inland_Sea.py similarly, compute grid sizes dynamically beyond huge
+
+commit a32ad525be7c390e7d8154786e2d4384b39ec1b6
+Author: wonderingabout <hidden>
+Date:   2026-02-07 06:41:21 +0100
+
+Add SAS_Worldsizes as a new map, move map heaviness to sas defines
+- Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles
+
+commit 7e70020bbba0dd70c3039d2d7622001c55752672
+Author: wonderingabout <hidden>
+Date:   2026-02-06 20:05:02 +0100
+
+Fix Ice_Age.py similarly
+
+commit 74aed0721c2d2c77582082476d450c2bf2509a2b
+Author: wonderingabout <hidden>
+Date:   2026-02-06 19:44:02 +0100
+
+reduce grid size of some maps that are almost entirely land only (using great plains as a base)
+- **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: [Highlands.py](/PrivateMaps/Highlands.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py). They now use the smaller grid size of [Great_Plains.py](/PrivateMaps/Great_Plains.py).
+- update 48 civs DLL
+
+Done with the help of GPT-5.3-Codex thanks a lot
+
+commit 54778f09480a89527ea5e53db48ecd78fcd1e336
+Author: wonderingabout <hidden>
+Date:   2026-02-06 09:31:00 +0100
+
+account for farms being built as future food difference for city
+- aims to fix multiple simultaenous farms followed by multiple simultaenous workshops edge case for a high pop but somehow unimproved city
+
+untested on such a save file but preserves previous commit's outcome so seems safe
+
+commit a595618dd9798b3ba0f4bdba2e135a3fc770f6de
+Author: wonderingabout <hidden>
+Date:   2026-02-06 09:00:55 +0100
+
+prefer farms in low food BFC cities
+- also remove incorrect food production checks in worker logic: regardless of if we produce a settler or not, what matters is long term food situation.
+
+Code added with the help of claude code opus 4.6 thanks
+
+commit d87fe00984a7503db4b90fb8f675eca09e81d123
+Author: wonderingabout <hidden>
+Date:   2026-02-04 09:23:30 +0100
+
+Fix Great_Plains.py similarly
+
+commit 196f83d69c3f772406d44eefed780c869d95098d
+Author: wonderingabout <hidden>
+Date:   2026-02-04 09:02:58 +0100
+
+add SAS_WorldSizes.py helper
+
+commit f6f434765542a77c22317b1736ed79854d154f12
+Author: wonderingabout <hidden>
+Date:   2026-02-04 08:09:22 +0100
+
+Fix Fantasy_Realm.py similarly
+
+commit 8d9e5a8e389f484c6749be7f93658bc9fb134adb
+Author: wonderingabout <hidden>
+Date:   2026-02-03 16:43:46 +0100
+
+Fix aDebugMap.py similarly, make aDebugMap.py land heavy, update 48 civs DLL
+- Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py).
+
+commit f9604bf6814591870746a113699728a0374238a4
+Author: wonderingabout <hidden>
+Date:   2026-02-03 16:11:26 +0100
+
+Modify Highlands map so it supports Huge and higher and 48 players; update 48 civs DLL
+- Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py).
+- update 48 civs DLL
+
+commit d9e8051723393d41e88479d9624dd13d524383e7
+Author: wonderingabout <hidden>
+Date:   2026-02-03 12:00:43 +0100
+
+(Tremendously Improved) Fix or heavily reduce weird back and forth of declaring war then quickly withdrawing without city attack
+- **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the issue of "back and forth" war declarations with immediate retreat without city attack: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104]
+
+commit feaaae6ce35340be2b9d0e68dc5e4137329e728c
+Author: wonderingabout <hidden>
+Date:   2026-02-02 14:06:30 +0100
+
+fix Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash (at KI#102)
+Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 for review thanks a lot :)
+
+See KI#103.
+
+commit 4f7a13df9cae48b82ed30261719552f37fcc5c35
+Author: wonderingabout <hidden>
+Date:   2026-02-02 12:27:51 +0100
+
+update docs about pre-AdvCiv-SAS scenarios not being supported in AdvCiv-SAS
+- Scenarios: "Play a Scenario" and "Custom Scenario" in the main menu shows some scenario files that are pre-AdvCiv-SAS; since we made structural changes like renaming `_CORN` to `_MAIZE`, adding `CAMEL_BONUS`and many other changes, pre-AdvCiv-SAS scenarios are not supported in AdvCiv-SAS. Also, we cannot just grey in the main menu (via `NoCustomScenario = 1` in [AdvCiv-SAS.ini](/AdvCiv-SAS.ini)) these play modes in case player add AdvCiv-SAS compatible scenarios that they would be unable to then play; plus this does not fix "Play a Scenario", only "Custom Scenarios", so preferred to just document it as an all around much better and simpler solution.
+
+addresses player feedback at https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16916237
+
+commit b665b8f7c0f8fd4f8ca92a2eca0f696efd5438f8
+Author: wonderingabout <hidden>
+Date:   2026-02-02 11:35:15 +0100
+
+better support Earth2 and other maps' heaviness computation
+Earth2 now treated as Land type, and other map types missing added with the help of GPT-5.2-Codex thanks
+
+Then updated with a new default logic if not water nor land to try to guess it by players per area. Now much more map types are correctly detected as either landheavy or navalheavy and thus don't need it or shouldn't have the issue anymore, including earth2
+
+Additionally, now heaviness information is stored in save file so no unneeded recomputation on save load (breaks save compatibility)
+
+Addresses issue of Earth2 having AI being too weak when it treated it incorrectly as a naval heavy map, as per player feedback at https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16916283
+
+commit 29542f4db907fb0664c4c7470b2d5308c23a1265
+Author: wonderingabout <hidden>
+Date:   2026-01-31 14:09:31 +0100
+
+update docs
+
 commit 24cfc0803db7251f521f0b9b6df1c620109ae3a8
 Author: wonderingabout <hidden>
 Date:   2026-01-31 08:11:22 +0100
@@ -108,9 +928,9 @@ Date:   2026-01-28 21:13:37 +0100
 Revamp Main interface; fix Base AdvCiv bug of obsolete GP rate not displayed but counted on hover in GP bar
 A bit more changes than what we did here, but easier to take from the main changes guide directly:
 
-- (Requires AdvCiv-SAS 5384+) **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [Main interface rework](/README.md#main-interface-rework).
-- **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and (Requires AdvCiv-SAS 5384+) **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and (Requires AdvCiv-SAS 5361+) **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
-- (Requires AdvCiv-SAS 5384+) **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit.
+- **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [Main interface rework](/README.md#main-interface-rework).
+- **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit.
 
 Also in this commit:
 - Fixed Base AdvCiv bug: See KI#101: [101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation)

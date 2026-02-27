@@ -81,6 +81,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: master toggle for Sevopedia Leader AI personality feature; 0 disables both cache computation and panel/legend display, 1 enables them. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Long_Comments_XML.txt #132 -->
 	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
 	Set to 0 to compute at runtime  -->
@@ -192,6 +197,17 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_CIVS_GROUP_BY_ARTSTYLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

@@ -3,7 +3,14 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- Leaderhead art path information -->
+<!-- custom: note: some paths use base civ4 one -->
+<!-- custom: note 2: respect case for Art/LeaderHeads/ else another capitalization like art or Leaderheads or incorrect path or such causes errors, see KI#111. -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
 	<LeaderheadArtInfos>
 		<LeaderheadArtInfo>

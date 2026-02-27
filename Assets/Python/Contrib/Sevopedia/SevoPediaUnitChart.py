@@ -79,7 +79,7 @@ class SevoPediaUnitChart:
 		tableY = self.Y_TABLE + self.MARGIN + 5
 		tableW = self.W_TABLE - (self.MARGIN * 2)
 		tableH = self.H_TABLE - (self.MARGIN * 2) - 5
-		screen.addTableControlGFC(table, self.N_COLUMNS, tableX, tableY, tableW, tableH, True, False, 32, 32, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(table, self.N_COLUMNS, tableX, tableY, tableW, tableH, True, False, 32, 32, CHART_TABLE_STYLE)
 		screen.enableSort(table)
 
 		szName = gc.getUnitCombatInfo(self.iGroup).getDescription()

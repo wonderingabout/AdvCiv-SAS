@@ -5498,9 +5498,9 @@ class CvMainInterface:
 						szBuffer = szProdBase
 						bProdDetailAdded = True
 # BUG - Whip Assist - end
-			if not bProdDetailAdded:
-				if iProdNeed > 0:
-					szBuffer = "%s - %d / %d" % (szBuffer, iProdCur, iProdNeed)
+				if not bProdDetailAdded:
+					if iProdNeed > 0:
+						szBuffer = "%s - %d / %d" % (szBuffer, iProdCur, iProdNeed)
 			# <!-- custom: show current production icon in the production text (SAS define gated). (GPT-5.2-Codex) -->
 			if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
 				szProdBtn = ""

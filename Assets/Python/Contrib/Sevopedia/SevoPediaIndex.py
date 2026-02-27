@@ -247,6 +247,7 @@ class SevoPediaIndex:
 		iX = self.X_LETTER
 		iLetterY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
 		self.letterTextIDs = {}
+		# <!-- custom: note: while adding leaderhead art_def in AdvCiv-SAS-NIF-Gallery mod we saw the error "UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0" and in Sevopedia Leader, fixed by respecting path case sensitivity (e.g. "Art/LeaderHeads"). So reverted a previous patch that would workaround that: prefer to fail loudly instead and fix path or asset cause directly rather. See KI#111. (GPT-5.3-Codex) -->
 		szFilter = self.SAS_szIndexSearchString.strip().lower()
 		bFilter = (len(szFilter) > 0)
 		for name, type, item in self.index:

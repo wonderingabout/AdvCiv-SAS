@@ -144,6 +144,7 @@ hopefully helpful, thanks thanks,
 [108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#108---fixed-base-advciv-diplomacy-inconsistency-ai-can-refuse-tribute-for-pure-vassalsurrender-then-accept-the-same-deal-through-what-do-you-want-in-exchange-with-nothing-added)  
 [109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions)  
 [110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---advciv-sas-music-shuffle-cleanup-intermittent-python-startupmaininterface-errors-from-early-bug-path-calls-in-sevopedia-music-path-helper)  
+[111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#111---reverted-this-patch-sevopedia-index-unicodedecodeerror-in-buildsortfilter-unicodedecodeerror-ascii-codec-cant-decode-byte-0xc8-in-position-0)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4317,3 +4318,41 @@ Update 2:
 - To expand on this: the cleaner and sufficient fix for Sevopedia groupings (Music and Media Player) not showing the other opening menu tracks was to fix the XML fetcher path logic itself in `_SAS_findAssetXmlPath()`.
 - In practice, resolving directly from mod path context (current BTS cwd + `CvModName.modName`, then `Mods/<mod>/Assets/...`) restored correct track discovery.
 - So the robust approach was fetcher-path correction rather than adding BUG-path helper calls.
+
+## 111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/14LOLFwnvte-IMeG0NoRLtfLXOYKjbDBe?usp=sharing).
+
+For some reason after we added some leaders in AdvCiv-SAS-NIF-Gallery mod, Sevopedia Index failed with `UnicodeDecodeError` in `SevoPediaIndex` (from `PythonErr.log`):
+
+```log
+Traceback (most recent call last):
+  File "CvScreensInterface", line 419, in pediaShow
+  File "SevoPediaMain", line 590, in pediaShow
+  File "SevoPediaMain", line 615, in pediaJump
+  File "SevoPediaMain", line 706, in showContents
+  File "SevoPediaMain", line 750, in placeIndexCategory
+  File "SevoPediaIndex", line 54, in interfaceScreen
+  File "SevoPediaIndex", line 208, in buildIndex
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0: ordinal not in range(128)
+ERR: Python function pediaShow failed, module CvScreensInterface
+```
+
+A fix was found in AdvCiv-SAS-NIF-Gallery in [SevoPediaIndex.py](/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py) that we applied here in AdvCiv-SAS.
+
+It converts index text to Unicode before sorting/filtering/display, so Sevopedia Index no longer crashes on this error. Gameplay data and rules are unchanged.
+
+Issue no longer appears after this fix so this looks solved.
+
+Update: reverted this fix because in AdvCiv-SAS-NIF-Gallery the error happened for soem other assets later on in Sevopedia Leader, and the fix was to respect case sensitivity at `Art/LeaderHeads/` and for example not `Art/Leaderheads/` that causes this error.
+
+It seems better to fail loudly than to silently hide it, so revert this patch.
+
+Update 2: findings so far:
+
+```XML
+<!-- custom: note 2: respect case for Art/LeaderHeads/ else another capitalization like art or Leaderheads or such causes an index error as in KI#111 as describe in AdvCiv-SAS' documentation,, or an unidentifiable C++ exception -->
+<!-- custom: note 3: this error also appears when asset folder name is incorrect; e.g. /Elizabeth/ instead of /Elizabeth_1/ in the AdvCiv-SAS NIF Gallery mod; also sometimes just restarting the game sometime later weirdly fixes it -->
+```
+
+In short, takeaway seems to pay special attention to capitalization and making sure path or names are correct or such.

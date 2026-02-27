@@ -273,6 +273,8 @@ Free promotion's unit combats are in the same line instead of taking too much ve
 
 More recently, we also added linking from the traits panel's textual description like "Aggressive", "Protective", to the corresponding Traits entry in Sevopedia Traits. Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
 
+More recently, added optional grouping by civilization with a civilization icon, with the help of GPT-5.3-Codex thanks.
+
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
@@ -393,6 +395,8 @@ looks quite very great hehe (at least i think so)
 ### example 6: civilization category
 
 new Cities (based on Middle-earth mod's (very amazing's Platypedia's code) panel; then reordered the existing panels too for a nice display:
+
+More recently, added optional grouping by Artstyle (e.g. European, Asian) with the help of GPT-5.3-Codex thanks.
 
 <img src="../Images/sevopedia/0.670_sevopedia_civilizations (1).JPG" alt="0.670_sevopedia_civilizations (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.670_sevopedia_civilizations (2).JPG" alt="0.670_sevopedia_civilizations (2).JPG" width="250"></img>

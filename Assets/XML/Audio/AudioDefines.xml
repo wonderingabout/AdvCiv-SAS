@@ -1390,7 +1390,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>DIPLO_MEHMED_EARLY</SoundID>
-			<Filename>Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Music_Sehnaz_Longa_Composer_Santuri_Ethem_Efendi_1855</Filename>
+			<Filename>Art/AdvCiv_SAS/LeaderHeads/Mehmed/music/00_03_000_Old_Ottoman_turkish_Santuri_Ethem_Efendi_1855</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

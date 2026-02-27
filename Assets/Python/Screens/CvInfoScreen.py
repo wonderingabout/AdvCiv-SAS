@@ -1300,7 +1300,7 @@ class CvInfoScreen:
 		screen.setTableColumnHeader(szTable, iColPower, u"PowR", iPowerW)
 		screen.setTableColumnHeader(szTable, iColPowerAbs, u"PowT", iPowerAbsW)
 		screen.setTableColumnHeader(szTable, iColCities, u"Cit", iCitiesW)
-		screen.setTableColumnHeader(szTable, iColPowerPerCity, u"Pow/C", iPowerPerCityW)
+		screen.setTableColumnHeader(szTable, iColPowerPerCity, u"PoT/C", iPowerPerCityW)
 		screen.setTableColumnHeader(szTable, iColLandPct, u"Land%", iLandPctW)
 		screen.setTableColumnHeader(szTable, iColVM, u"V/M", iVMW)
 		screen.setTableColumnHeader(szTable, iColTrade, u"Trd", iFlagW)
@@ -1389,7 +1389,10 @@ class CvInfoScreen:
 			eScoreWidget = WidgetTypes.WIDGET_GENERAL
 			if ePlayer == eActivePlayer:
 				eScoreWidget = WidgetTypes.WIDGET_SCORE_BREAKDOWN
-			screen.setTableText(szTable, iColScore, iRow, self.separateThousands(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
+			# <!-- custom: Score-tab sort fix: Civ4 table sorting is type-aware, and values inserted with setTableText sort lexicographically
+			# (e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric,
+			# while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
+			screen.setTableInt(szTable, iColScore, iRow, str(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			iGameTurn = iActiveGameTurn
 			if ePlayer >= eActivePlayer:
@@ -1403,14 +1406,16 @@ class CvInfoScreen:
 			iPrevGameTurn = iGameTurn - 1
 			if iPrevGameTurn >= 0:
 				iScoreDelta -= pPlayer.getScoreHistory(iPrevGameTurn)
-			szDelta = self.separateThousands(iScoreDelta)
+			# <!-- custom: keep dSc color cues (green/red) while preserving numeric sort.
+			# Civ4 sorting uses cell type, so this must stay setTableInt; we pass a colorized string value to keep visual feedback
+			# without falling back to lexicographic setTableText sorting. (GPT-5.3-Codex) -->
+			szScoreDelta = str(iScoreDelta)
 			if iScoreDelta > 0:
-				szDelta = u"+" + szDelta
-			if iScoreDelta > 0:
-				szDelta = localText.changeTextColor(szDelta, self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT)
+				szScoreDelta = u"+%d" % iScoreDelta
+				szScoreDelta = localText.changeTextColor(szScoreDelta, self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT)
 			elif iScoreDelta < 0:
-				szDelta = localText.changeTextColor(szDelta, self.SCORETAB_COLOR_RED)
-			screen.setTableText(szTable, iColDelta, iRow, szDelta, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				szScoreDelta = localText.changeTextColor(szScoreDelta, self.SCORETAB_COLOR_RED)
+			screen.setTableInt(szTable, iColDelta, iRow, szScoreDelta, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			szWarPeace = u""
 			if pTeam.isAtWar(eActiveTeam):
@@ -1425,9 +1430,13 @@ class CvInfoScreen:
 			fShownPowerRatio = None
 			iPowerColorForWidget = 0
 			iTheirPower = -1
-			if ePlayer != eActivePlayer and (bDebugMode or pActivePlayer.canSeeDemographics(ePlayer)):
+			if ePlayer == eActivePlayer:
+				# <!-- custom: always show self-known absolute power metrics (PowT/PowT/C) for the active row.
+				# We intentionally keep PowR blank for self because a self-vs-self ratio is not meaningful in this table. (GPT-5.3-Codex) -->
+				iTheirPower = iActivePower
+			elif bDebugMode or pActivePlayer.canSeeDemographics(ePlayer):
 				iTheirPower = pPlayer.getPower()
-				if iTheirPower > 0:
+			if ePlayer != eActivePlayer and iTheirPower > 0:
 					fRatio = float(iActivePower) / float(iTheirPower)
 					if bPowerThemVersusYou:
 						if fRatio > 0:
@@ -1448,19 +1457,23 @@ class CvInfoScreen:
 						szPower = localText.changeTextColor(szPower, iPowerColorForWidget)
 			screen.setTableText(szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
 			if iTheirPower > -1:
-				szPowerAbs = self.separateThousands(iTheirPower)
-			screen.setTableText(szTable, iColPowerAbs, iRow, szPowerAbs, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				screen.setTableInt(szTable, iColPowerAbs, iRow, str(iTheirPower), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			else:
+				screen.setTableText(szTable, iColPowerAbs, iRow, szPowerAbs, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			if bDebugMode:
 				iCities = pPlayer.getNumCities()
 			else:
 				iCities = PlayerUtil.getNumRevealedCities(ePlayer)
 			screen.setTableInt(szTable, iColCities, iRow, str(iCities), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-			if fShownPowerRatio is not None and iCities > 0:
-				# <!-- custom: keep Pow/C in the same unit family as Pow by dividing the shown power ratio by city count. (GPT-5.3-Codex) -->
-				szPowerPerCity = BugUtil.formatFloat(fShownPowerRatio / float(iCities), iPowerDecimals)
-				# <!-- custom: keep Pow/C uncolored for now; Pow thresholds do not transfer cleanly to per-city normalization. (GPT-5.3-Codex) -->
-			screen.setTableText(szTable, iColPowerPerCity, iRow, szPowerPerCity, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			iPowerPerCity = -1
+			if iTheirPower > -1 and iCities > 0:
+				# <!-- custom: PowT/C must be comparable across rows, so compute it from absolute power (PowT / Cit) for everyone. (GPT-5.3-Codex) -->
+				iPowerPerCity = iTheirPower / iCities
+			if iPowerPerCity > -1:
+				screen.setTableInt(szTable, iColPowerPerCity, iRow, str(iPowerPerCity), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			else:
+				screen.setTableText(szTable, iColPowerPerCity, iRow, szPowerPerCity, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			szLandPct = u""
 			if bMet:
@@ -1489,6 +1502,7 @@ class CvInfoScreen:
 			eCurrentResearch = pPlayer.getCurrentResearch()
 			szResearchButton = ""
 			szResearchPct = u""
+			iProgressPct = -1
 			if bMet and (bDebugMode or (pActivePlayer.canSeeResearch(ePlayer) and (eTeam != eActiveTeam or bActiveTeamHasMultipleMembers))):
 				if eCurrentResearch != -1:
 					kTech = gc.getTechInfo(eCurrentResearch)
@@ -1499,7 +1513,10 @@ class CvInfoScreen:
 						iProgressPct = max(0, min(99, iProgressPct))
 						szResearchPct = str(iProgressPct)
 			screen.setTableText(szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-			screen.setTableText(szTable, iColResearchPct, iRow, szResearchPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			if iProgressPct > -1:
+				screen.setTableInt(szTable, iColResearchPct, iRow, str(iProgressPct), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			else:
+				screen.setTableText(szTable, iColResearchPct, iRow, szResearchPct, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			szEsp = u""
 			if bMet and bUseEspionage and pActivePlayer.getEspionageSpendingWeightAgainstTeam(eTeam) > 0:
@@ -1532,15 +1549,22 @@ class CvInfoScreen:
 
 			szAttitude = u""
 			szAttitudeNum = u""
+			iAttCount = 0
+			bHasAttitudeNum = False
 			if bMet and not pPlayer.isHuman() and ePlayer != eActivePlayer:
 				szAttitude = AttitudeUtil.getAttitudeIcon(ePlayer, eActivePlayer)
 				iAttCount = AttitudeUtil.getAttitudeCount(ePlayer, eActivePlayer)
+				# <!-- custom: same pattern as dSc: keep Att# as setTableInt for numeric ordering, then apply color to the displayed value string. (GPT-5.3-Codex) -->
 				szAttitudeNum = u"%+d" % iAttCount
 				iAttColor = AttitudeUtil.getAttitudeColor(ePlayer, eActivePlayer)
 				if iAttColor >= 0:
 					szAttitudeNum = localText.changeTextColor(szAttitudeNum, iAttColor)
+				bHasAttitudeNum = True
 			screen.setTableText(szTable, iColAttitude, iRow, szAttitude, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-			screen.setTableText(szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			if bHasAttitudeNum:
+				screen.setTableInt(szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			else:
+				screen.setTableText(szTable, iColAttitudeNum, iRow, szAttitudeNum, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			szWontTalk = u""
 			if bMet and not DiplomacyUtil.isWillingToTalk(ePlayer, eActivePlayer):

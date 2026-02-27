@@ -39,6 +39,7 @@ localText = CyTranslator()
 # <!-- custom: Leader page display toggle (not part of AI cache module). -->
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
 IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
 
 # <!-- custom: keep debug flag available in this module for existing debug print sites. -->
 IS_DEBUG_LEADER = _SAS_LeaderAIPValues.IS_DEBUG_LEADER
@@ -159,14 +160,15 @@ class SevoPediaLeader:
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
-		self.placeAILegendLink()
+		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+			self.placeAILegendLink()
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
-		if (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
+		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE and (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
 			self.placeAIPersonalityPanel(iLeader)
 		else:
-			if IS_DEBUG_LEADER:
+			if IS_DEBUG_LEADER and IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
 
 
