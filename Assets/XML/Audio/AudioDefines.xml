@@ -39,21 +39,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SONG_OPENING_MENU_02</SoundID>
-			<Filename>Art/AdvCiv_SAS/Main_Menu/music/delosound-lofi-music-hiphop-chill-300736</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SONG_OPENING_MENU_03</SoundID>
-			<Filename>Art/AdvCiv_SAS/Main_Menu/music/nickpanek-midnight-drive-a-funky-synthwave-instrumental-403041</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SONG_OPENING_MENU_04</SoundID>
-			<Filename>Art/AdvCiv_SAS/Main_Menu/music/prettyjohn1-funk-funky-483396</Filename>
+			<Filename>Art/AdvCiv_SAS/Main_Menu/music/juliush-avalon-mystically-fantasy-chill-out-music-7487</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
