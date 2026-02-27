@@ -4311,3 +4311,9 @@ Update:
 To be more precise, the issue was not with music shuffle itself, but with how sevopedia music and media player find existing musics.
 
 Music shuffle feature is kept for now since it seems to work fine.
+
+Update 2:
+
+- To expand on this: the cleaner and sufficient fix for Sevopedia groupings (Music and Media Player) not showing the other opening menu tracks was to fix the XML fetcher path logic itself in `_SAS_findAssetXmlPath()`.
+- In practice, resolving directly from mod path context (current BTS cwd + `CvModName.modName`, then `Mods/<mod>/Assets/...`) restored correct track discovery.
+- So the robust approach was fetcher-path correction rather than adding BUG-path helper calls.
