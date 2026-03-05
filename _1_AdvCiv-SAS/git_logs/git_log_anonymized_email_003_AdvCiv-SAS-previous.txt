@@ -1,42 +1,56 @@
-commit 73634fb04bd50688dbe921b83b5b1195e2aecdbf
-Author: wonderingabout <hidden>
-Date:   2026-03-02 07:46:30 +0100
-
-add optional grouping by Art style (e.g. European, Asian) in sevopedia civlization
-
-commit 9ef84dd997a1f5361a3b1a6eaadb6d65604d26af
-Author: wonderingabout <hidden>
-Date:   2026-03-02 07:23:11 +0100
-
-add optional grouping by civilization (with an icon) in sevopedia leader
-
-commit 59e2841170e9f43430c704a7cc525fa92170f2e2
-Author: wonderingabout <hidden>
-Date:   2026-03-01 12:16:06 +0100
-
-reorder xml text
-more logically
-
-commit a543be1913ea127f69aff71271b0535229c1f9a5
-Author: wonderingabout <hidden>
-Date:   2026-03-01 02:32:07 +0100
-
-optionally disable ai personality panel entirely
-compute and display
-
-commit 480e2ae87d16d6d0e83775e92db42b9e5c96c662
-Author: wonderingabout <hidden>
-Date:   2026-02-27 17:23:58 +0100
-
-shorter mehmed music name because too long to git clone; update docs
-
-commit 15c51b82291ecdea77a83089727ba859f0a20823
+commit b421b9e33ff43349b4983398279c4f33dcfa94f3
 Author: wonderingabout <hidden>
 Date:   2026-02-27 11:12:56 +0100
+
+AdvCiv-SAS 5500 Update: fixes and tweaks
 
 change Pow/C to PoT/C; show PowT and PoT/C for the human player too; update docs
 - "Note that unlike military ratios, PowT and Pow/C are shown even for the human player, since these vary every turn"
 - So this data is comparable with that of other players, use total power instead of military ratios that the human player does not have (1.0 constant is less relevant anyway)
+
+shorter mehmed music name because too long to git clone; update docs
+
+optionally disable ai personality panel entirely
+compute and display
+
+reorder xml text
+more logically
+
+add optional grouping by civilization (with an icon) in sevopedia leader
+
+add optional grouping by Art style (e.g. European, Asian) in sevopedia civlization
+
+fix regression of order and select civ item not working but AS3D script entry working in sevopedia music
+
+fix Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0
+See KI#111.
+
+Fix imported from the AdvCiv-SAS-NIF-Gallery mod
+
+update docs
+
+revert KI#111 patch: prefer to fail loudly and fix asset directly instead works, see KI#111
+
+update docs
+
+fix bug when entering a city's city screen
+error was: UnboundLocalError: local variable 'bProdDetailAdded'
+
+Fixed with the help of GPT-5.3-Codex thanks :)
+
+addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.69971
+6/post-16926238
+
+fix incorrect ai flavors for TECH_PAPER and TECH_PROFESSIONAL_ARMY
+they were using the flavors of the old techs they were based on, changing these tells the AI this is a gold tech instead of a science tech so it will influence AI leaders' tech choices in theory
+
+fix some numerical score tab columns not being sorted numerically but lexicographically
+"# <!-- custom: Score-tab sort fix: Civ4 table sorting is type-aware, and values inserted with setTableText sort lexicographically" + "(e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric," + "while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->"
+
+sort as int, display as colored text in score tab's columns
+- "# <!-- custom: keep dSc color cues (green/red) while preserving numeric sort." + "Civ4 sorting uses cell type, so this must stay setTableInt; we pass a colorized string value to keep visual feedback" + "without falling back to lexicographic setTableText sorting. (GPT-5.3-Codex) -->"
+
+update docs
 
 commit 4bd8aa49b66d5d50697bb79f7eb2f955e28b60ba
 Author: wonderingabout <hidden>
