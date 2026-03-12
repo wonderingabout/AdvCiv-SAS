@@ -47,7 +47,7 @@
 #
 ## Legal Stuff
 #
-#  THIS MATERIAL IS NOT MADE, GUARANTEED OR SUPPORTED BY THE PUBLISHER OF THE SOFTWARE OR ITS AFFILIATES. THIS MATERIAL IS RELEASED AS-IS. IN NO EVENT WILL THE AUTHOR BE LIABLE FOR SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES RESULTING FROM POSSESSION, USE OR MALFUNCTION OF THE SOFTWARE, INCLUDING DAMAGES TO PROPERTY, LOSS OF GOODWILL, COMPUTER FAILURE OR MALFUNCTION AND, TO THE EXTENT PERMITTED BY LAW, DAMAGES FOR PERSONAL INJURIES, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE AUTHOR’S LIABILITY SHALL NOT EXCEED THE ACTUAL PRICE PAID FOR USE OF THE MATERIAL. SOME STATES/COUNTRIES DO NOT ALLOW LIMITATIONS ON HOW LONG AN IMPLIED WARRANTY LASTS AND/OR THE EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THE ABOVE LIMITATIONS AND/OR EXCLUSION OR LIMITATION OF LIABILITY MAY NOT APPLY TO YOU. THIS WARRANTY GIVES YOU SPECIFIC LEGAL RIGHTS, AND YOU MAY HAVE OTHER RIGHTS THAT VARY FROM JURISDICTION TO JURISDICTION.
+#  THIS MATERIAL IS NOT MADE, GUARANTEED OR SUPPORTED BY THE PUBLISHER OF THE SOFTWARE OR ITS AFFILIATES. THIS MATERIAL IS RELEASED AS-IS. IN NO EVENT WILL THE AUTHOR BE LIABLE FOR SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES RESULTING FROM POSSESSION, USE OR MALFUNCTION OF THE SOFTWARE, INCLUDING DAMAGES TO PROPERTY, LOSS OF GOODWILL, COMPUTER FAILURE OR MALFUNCTION AND, TO THE EXTENT PERMITTED BY LAW, DAMAGES FOR PERSONAL INJURIES, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE AUTHOR'S LIABILITY SHALL NOT EXCEED THE ACTUAL PRICE PAID FOR USE OF THE MATERIAL. SOME STATES/COUNTRIES DO NOT ALLOW LIMITATIONS ON HOW LONG AN IMPLIED WARRANTY LASTS AND/OR THE EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THE ABOVE LIMITATIONS AND/OR EXCLUSION OR LIMITATION OF LIABILITY MAY NOT APPLY TO YOU. THIS WARRANTY GIVES YOU SPECIFIC LEGAL RIGHTS, AND YOU MAY HAVE OTHER RIGHTS THAT VARY FROM JURISDICTION TO JURISDICTION.
 #
 ###############################################################################################################
 
@@ -56,6 +56,7 @@ from CvPythonExtensions import *
 import PyHelpers
 import CvUtil
 import CvScreenEnums
+from SASFontUtils import *
 import CvEventInterface
 import Popup as PyPopup
 
@@ -890,9 +891,9 @@ class CvCustomizableDomesticAdvisor:
 
 		# Text Buttons
 		screen.setText(self.EXIT_NAME, "Background",
-				u"<font=4>" + # advc.193
+				SAS_FONT_TAG_TITLE + # advc.193
 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
-				+ u"</font>", # advc.193
+				+ SAS_FONT_TAG_CLOSE, # advc.193
 				CvUtil.FONT_RIGHT_JUSTIFY,
 				self.X_EXIT, self.Y_EXIT, self.Z_TEXT,
 				FontTypes.TITLE_FONT,
@@ -938,9 +939,9 @@ class CvCustomizableDomesticAdvisor:
 			# Only show non-zero levels
 			if (nValue != 0):
 				# Set text
-				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", "<font=2>" + pCultureLevel.getText() + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", SAS_FONT_TAG_BODY + pCultureLevel.getText() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Set value
-				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", "<font=2>" + str(nValue) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", SAS_FONT_TAG_BODY + str(nValue) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Increment counter
 				iCount += 1
 
@@ -949,10 +950,10 @@ class CvCustomizableDomesticAdvisor:
 
 		# GP Level Text
 		screen.setText (self.GP_TEXT_NAME, "Background", self.figureheadIcon, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", "<font=2>" + str (iPlayer.player.greatPeopleThreshold(false)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", SAS_FONT_TAG_BODY + str (iPlayer.player.greatPeopleThreshold(false)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Header...
-		#szText = "<font=4>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + "</font>"
+		#szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		#screen.setLabel( "DomesticTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, 472, 40, STANDARD_Z, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Draw the specialist (but don't SHOW them)
@@ -1565,7 +1566,7 @@ class CvCustomizableDomesticAdvisor:
 
 	def calculateSpecialists (self, city, szKey, arg):
 
-		szReturn = u"<font=1>"
+		szReturn = SAS_FONT_TAG_TINY
 
 		# For each specialist type
 		for i in range( self.getNumSpecialistInfos() ):
@@ -1577,13 +1578,13 @@ class CvCustomizableDomesticAdvisor:
 			elif (nCount == 1):
 				szReturn += self.SPECIALIST_ICON_DICT[i] + " "
 
-		szReturn += u"</font>"
+		szReturn += SAS_FONT_TAG_CLOSE
 
 		return szReturn
 
 	def calculateAutomation (self, city, szKey, arg):
 
-		szReturn = u"<font=1>"
+		szReturn = SAS_FONT_TAG_TINY
 
 		nNumEmphasize = self.getNumEmphasizeInfos()
 		if city.isCitizensAutomated():
@@ -1595,7 +1596,7 @@ class CvCustomizableDomesticAdvisor:
 			if (city.AI_isEmphasize (nNum)):
 				szReturn += self.AUTOMATION_ICON_DICT[nNum]
 
-		szReturn += u"</font>"
+		szReturn += SAS_FONT_TAG_CLOSE
 
 		return szReturn
 
@@ -2266,7 +2267,7 @@ class CvCustomizableDomesticAdvisor:
 				iCellFontSize = 2
 			# (The three uses of these tags in the code below aren't tagged w/ comments)
 			szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
-			szFontTagClose = u"</font>"
+			szFontTagClose = SAS_FONT_TAG_CLOSE
 			# </advc.193>
 
 			# Loop through the columns first. This is unintuitive, but faster.

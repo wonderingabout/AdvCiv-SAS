@@ -9,6 +9,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+from SASFontUtils import *
 import CvScreensInterface
 
 TEXTURE_SIZE = 24
@@ -303,13 +304,13 @@ class CvTechChooser:
 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, xPanelWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
 		screen.addDDSGFC("TechBG", ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 51, xPanelWidth, yPanelHeight - 96, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, yPanelHeight - 55, xPanelWidth, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
-		screen.setText( "TechChooserExit", "Background", u"<font=4>" + CyTranslator().getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, xPanelWidth - 30, yPanelHeight - 42, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+		screen.setText( "TechChooserExit", "Background", SAS_FONT_TAG_TITLE + CyTranslator().getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, xPanelWidth - 30, yPanelHeight - 42, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
 		screen.setActivation( "TechChooserExit", ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
 
 		# Header...
-		szText = u"<font=4>"
+		szText = SAS_FONT_TAG_TITLE
 		szText = szText + localText.getText("TXT_KEY_TECH_CHOOSER_TITLE", ()).upper()
-		szText = szText + u"</font>"
+		szText = szText + SAS_FONT_TAG_CLOSE
 		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, 8, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# <!-- custom: simplify code since this was disabled anyway. (GPT-5.2-Codex (summarized)) -->
@@ -483,11 +484,11 @@ class CvTechChooser:
 
 			if bTechName:
 				szTechID = sPanelWidget + "TechID" + str(i)
-				szTechString = "<font=2>" # advc.002b: was 1
+				szTechString = SAS_FONT_TAG_BODY # advc.002b: was 1
 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
 					szTechString = szTechString + str(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
 				szTechString += gc.getTechInfo(i).getDescription()
-				szTechString = szTechString + "</font>"
+				szTechString = szTechString + SAS_FONT_TAG_CLOSE
 				screen.setTextAt( szTechID, szTechRecord, szTechString, CvUtil.FONT_LEFT_JUSTIFY, iX + 6 + X_INCREMENT, iY + 6, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_TECH_TREE, i, -1 )
 				screen.setActivation( szTechID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
 
@@ -1071,7 +1072,7 @@ class CvTechChooser:
 				# Create and place a tech in its proper location
 				szTechRecord = "TechRecord" + str(i)
 				szTechID = "TechID" + str(i)
-				szTechString = "<font=2>" # advc.002b: was 1
+				szTechString = SAS_FONT_TAG_BODY # advc.002b: was 1
 
 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
 					szTechString = szTechString + unicode(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
@@ -1087,7 +1088,7 @@ class CvTechChooser:
 							szTechString += " ("
 							szTechString += str(iTurnsLeft)
 							szTechString += ")"
-					szTechString = szTechString + "</font>"
+					szTechString = szTechString + SAS_FONT_TAG_CLOSE
 					screen.setTextAt( szTechID, sPanel, szTechString, CvUtil.FONT_LEFT_JUSTIFY, iX + 6 + X_INCREMENT, iY + 6, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_TECH_TREE, i, -1 )
 					screen.setActivation( szTechID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
 
@@ -1463,14 +1464,14 @@ class CvTechChooser:
 			iCost = gc.getPlayer(CyGame().getActivePlayer()).getAdvancedStartTechCost(self.m_iSelectedTech, true)
 
 		if iCost > 0:
-			szText = u"<font=4>" + localText.getText("TXT_KEY_WB_AS_SELECTED_TECH_COST", (iCost, pPlayer.getAdvancedStartPoints())) + u"</font>"
+			szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_WB_AS_SELECTED_TECH_COST", (iCost, pPlayer.getAdvancedStartPoints())) + SAS_FONT_TAG_CLOSE
 			screen.setLabel( "ASPointsLabel", "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_ADVANCED_START_TEXT, self.Y_ADD_TECH_BUTTON + 3, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		else:
 			screen.hide("ASPointsLabel")
 
-		szText = u"<font=4>"
+		szText = SAS_FONT_TAG_TITLE
 		szText += localText.getText("TXT_KEY_WB_AS_SELECTED_TECH", (szName,))
-		szText += u"</font>"
+		szText += SAS_FONT_TAG_CLOSE
 		screen.setLabel( "SelectedTechLabel", "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_ADVANCED_START_TEXT + 250, self.Y_ADD_TECH_BUTTON + 3, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Want to add

@@ -4,6 +4,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+from SASFontUtils import *
 import math
 
 # globals
@@ -109,8 +110,8 @@ class CvForeignAdvisor:
 			else:
 				iScreen = self.iScreen
 		
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
-		self.SCREEN_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + u"</font>"
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		if (self.iScreen != iScreen):	
 			self.killScreen()
@@ -186,30 +187,30 @@ class CvForeignAdvisor:
 		
 		szRelationsId = self.getNextWidgetName()
 		if (self.iScreen != FOREIGN_RELATIONS_SCREEN):
-			screen.setText(szRelationsId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_RELATIONS", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_RELATIONS_SCREEN, -1)
+			screen.setText(szRelationsId, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_RELATIONS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_RELATIONS_SCREEN, -1)
 		else:
-			screen.setText(szRelationsId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_RELATIONS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
+			screen.setText(szRelationsId, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_RELATIONS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
 		xLink += self.DX_LINK
 		
 		szBonusId = self.getNextWidgetName()
 		if (self.iScreen != FOREIGN_BONUS_SCREEN):
-			screen.setText(szBonusId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_RESOURCES", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_BONUS_SCREEN, -1)
+			screen.setText(szBonusId, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_RESOURCES", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_BONUS_SCREEN, -1)
 		else:
-			screen.setText(szBonusId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_RESOURCES", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
+			screen.setText(szBonusId, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_RESOURCES", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
 		xLink += self.DX_LINK
 			
 		szTechId = self.getNextWidgetName()
 		if (self.iScreen != FOREIGN_TECH_SCREEN):
-			screen.setText(szTechId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TECHS", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_TECH_SCREEN, -1)
+			screen.setText(szTechId, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TECHS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_TECH_SCREEN, -1)
 		else:
-			screen.setText(szTechId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_TECHS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
+			screen.setText(szTechId, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_TECHS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
 		xLink += self.DX_LINK
 	
 		szActiveId = self.getNextWidgetName()
 		if (self.iScreen != FOREIGN_ACTIVE_TRADE_SCREEN):
-			screen.setText(szActiveId, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", ()).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_ACTIVE_TRADE_SCREEN, -1)
+			screen.setText(szActiveId, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, FOREIGN_ACTIVE_TRADE_SCREEN, -1)
 		else:
-			screen.setText(szActiveId, "", u"<font=4>" + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
+			screen.setText(szActiveId, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_ACTIVE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
 		xLink += self.DX_LINK
 
 	def drawActive(self):
@@ -399,14 +400,14 @@ class CvForeignAdvisor:
 									listUntradeable.append(iLoopBonus)
 									
 						if len(listTradeable) > 0:
-							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE", ()) + u"</font>")
+							screen.attachLabel(currentPlayerPanelName, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE", ()) + SAS_FONT_TAG_CLOSE)
 										
 						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 						for iLoopBonus in listTradeable:
 							screen.appendMultiListButton("ChildTrade" + currentPlayerPanelName, gc.getBonusInfo(iLoopBonus).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iLoopBonus, -1, False)
 									
 						if len(listUntradeable) > 0:
-							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE", ()) + u"</font>")
+							screen.attachLabel(currentPlayerPanelName, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE", ()) + SAS_FONT_TAG_CLOSE)
 										
 						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildNoTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 						for iLoopBonus in listUntradeable:
@@ -433,21 +434,21 @@ class CvForeignAdvisor:
 								listTradeNotAllowed.append(iLoopTech)
 										
 						if len(listTradeable) > 0:
-							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE", ()) + u"</font>")
+							screen.attachLabel(currentPlayerPanelName, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE", ()) + SAS_FONT_TAG_CLOSE)
 										
 						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 						for iLoopTech in listTradeable:
 							screen.appendMultiListButton("ChildTrade" + currentPlayerPanelName, gc.getTechInfo(iLoopTech).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech, -1, False)
 
 						if len(listUntradeable) > 0:
-							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE", ()) + u"</font>")
+							screen.attachLabel(currentPlayerPanelName, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE", ()) + SAS_FONT_TAG_CLOSE)
 										
 						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildNoTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 						for iLoopTech in listUntradeable:
 							screen.appendMultiListButton("ChildNoTrade" + currentPlayerPanelName, gc.getTechInfo(iLoopTech).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech, -1, False)
 
 						if len(listTradeNotAllowed) > 0:
-							screen.attachLabel(currentPlayerPanelName, "", u"<font=4>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_ALLOWED_TRADE", ()) + u"</font>")
+							screen.attachLabel(currentPlayerPanelName, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_ALLOWED_TRADE", ()) + SAS_FONT_TAG_CLOSE)
 										
 						screen.attachMultiListControlGFC(currentPlayerPanelName, "ChildCantTrade" + currentPlayerPanelName, "", 1, self.BUTTON_SIZE, self.BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 						for iLoopTech in listTradeNotAllowed:
@@ -520,27 +521,27 @@ class CvForeignAdvisor:
 		screen.addPanel(self.getNextWidgetName(), u"", u"", True, False, self.X_LEGEND, self.Y_LEGEND, self.W_LEGEND, self.H_LEGEND, PanelStyles.PANEL_STYLE_IN)
 		x = self.X_LEGEND + self.MARGIN_LEGEND
 		y = self.Y_LEGEND + self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_CONTACT", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_FOREIGN_ADVISOR_CONTACT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_WHITE"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_CONCEPT_WAR", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_CONCEPT_WAR", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_RED"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_BLUE"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CITY_GREEN"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_PITBOSS_TEAM", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_PITBOSS_TEAM", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_YELLOW"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", u"<font=2>" + localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ()) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CYAN"))
 	
@@ -562,7 +563,7 @@ class CvForeignAdvisor:
 		else:
 			screen.setState(szLeaderHead, False)
 		szName = self.getNextWidgetName()
-		szLeaderName = u"<font=3>" + playerActive.getName() + u"</font>"
+		szLeaderName = SAS_FONT_TAG_LABEL + playerActive.getName() + SAS_FONT_TAG_CLOSE
 		screen.setLabel(szName, "", szLeaderName, CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# K-Mod. vassal / master label
@@ -606,7 +607,7 @@ class CvForeignAdvisor:
 				screen.setState(szLeaderHead, False)
 
 			szName = self.getNextWidgetName()
-			szText = u"<font=3>" + player.getName() + u"</font>"
+			szText = SAS_FONT_TAG_LABEL + player.getName() + SAS_FONT_TAG_CLOSE
 			screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			# Leader attitude towards active player. (rewritten by K-Mod)

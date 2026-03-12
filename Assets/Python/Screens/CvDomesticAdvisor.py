@@ -4,6 +4,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+from SASFontUtils import *
 
 #	IMPORTANT INFORMATION
 #	
@@ -73,9 +74,9 @@ class CvDomesticAdvisor:
 		# Here we set the background widget and exit button, and we show the screen
 		screen.addPanel( "DomesticAdvisorBG", u"", u"", True, False, 0, 0, self.nScreenWidth, self.nScreenHeight, PanelStyles.PANEL_STYLE_MAIN )
 		screen.setText("DomesticExit", "Background",
-				u"<font=4>" + # advc.193
+				SAS_FONT_TAG_TITLE + # advc.193
 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
-				+ u"</font>", # advc.193
+				+ SAS_FONT_TAG_CLOSE, # advc.193
 				CvUtil.FONT_RIGHT_JUSTIFY, self.nScreenWidth - 25, self.nScreenHeight - 45, -0.1,
 				FontTypes.TITLE_FONT,
 				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
@@ -111,58 +112,58 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( "CityListBackground", 0, "", (30 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Name Column (advc.193: Font size increased; was 2.)
-		screen.setTableColumnHeader( "CityListBackground", 1, "<font=3>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + "</font>", (221 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 1, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + SAS_FONT_TAG_CLOSE, (221 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Population Column
 		# advc.002f: Replace localText.getText("TXT_KEY_POPULATION", ()) with CITIZEN_CHAR from BULL
-		screen.setTableColumnHeader( "CityListBackground", 2, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 2, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)) + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Happiness Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( "CityListBackground", 3, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)) + "</font>", (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 3, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)) + SAS_FONT_TAG_CLOSE, (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Health Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( "CityListBackground", 4, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)) + "</font>", (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 4, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)) + SAS_FONT_TAG_CLOSE, (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Food Column
-		screen.setTableColumnHeader( "CityListBackground", 5, "<font=2>" + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 5, SAS_FONT_TAG_BODY + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()) + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Production Column
-		screen.setTableColumnHeader( "CityListBackground", 6, "<font=2>" + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 6, SAS_FONT_TAG_BODY + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Gold Column
-		screen.setTableColumnHeader( "CityListBackground", 7, "<font=2>" + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 7, SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Research Column
 		szText = u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
-		screen.setTableColumnHeader( "CityListBackground", 8, "<font=2>" + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 8, SAS_FONT_TAG_BODY + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Espionage Column
 		szText = u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())
-		screen.setTableColumnHeader( "CityListBackground", 9, "<font=2>" + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 9, SAS_FONT_TAG_BODY + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Culture Column
-		screen.setTableColumnHeader( "CityListBackground", 10, "<font=2>" + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()) + "</font>", (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 10, SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()) + SAS_FONT_TAG_CLOSE, (70 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Trade Column
-		screen.setTableColumnHeader( "CityListBackground", 11, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)) + "</font>", (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 11, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)) + SAS_FONT_TAG_CLOSE, (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Maintenance Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( "CityListBackground", 12, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.BAD_GOLD_CHAR)) + "</font>", (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 12, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.BAD_GOLD_CHAR)) + SAS_FONT_TAG_CLOSE, (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Great Person Column
-		screen.setTableColumnHeader( "CityListBackground", 13, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)) + "</font>", (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 13, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)) + SAS_FONT_TAG_CLOSE, (70 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Garrison Column
 		# advc.004: Use STRENGTH_CHAR instead of DEFENSE_CHAR
-		screen.setTableColumnHeader( "CityListBackground", 14, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + "</font>", (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 14, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + SAS_FONT_TAG_CLOSE, (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Production Column (advc.193: Font size increased; was 2.)
-		screen.setTableColumnHeader( "CityListBackground", 15, "<font=3>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + "</font>", (132 * self.nTableWidth) / self.nNormalizedTableWidth )	
+		screen.setTableColumnHeader( "CityListBackground", 15, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE, (132 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Liberate Column
 		#screen.setTableColumnHeader( "CityListBackground", 16, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
 		# <advc.ctr> Liberation now shown on "Cities" tab. Instead show revolt probability.
-		screen.setTableColumnHeader("CityListBackground", 16, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + "</font>", (80 * self.nTableWidth) / self.nNormalizedTableWidth)
+		screen.setTableColumnHeader("CityListBackground", 16, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE, (80 * self.nTableWidth) / self.nNormalizedTableWidth)
 
 	# Function to draw the contents of the cityList passed in
 	def drawContents (self):
@@ -213,7 +214,7 @@ class CvDomesticAdvisor:
 			iCellFontSize = 2
 		# (Uses of these tags in the code below aren't tagged w/ comments)
 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
-		szFontTagClose = u"</font>"
+		szFontTagClose = SAS_FONT_TAG_CLOSE
 		# </advc.193>
 
 		szName = pLoopCity.getName()
@@ -364,7 +365,7 @@ class CvDomesticAdvisor:
 		#if bCanSplit or pLoopCity.getLiberationPlayer(false) != -1:
 			# UNOFFICIAL_PATCH begin
 		#	if bCanSplit or not gc.getTeam(gc.getPlayer(pLoopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
-		#		screen.setTableText( "CityListBackground", 16, i, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + "</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		#		screen.setTableText( "CityListBackground", 16, i, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 			# UNOFFICIAL_PATCH end
 		# <advc.ctr> Replace this column with revolt probability
 		revoltPr = pLoopCity.revoltProbability()

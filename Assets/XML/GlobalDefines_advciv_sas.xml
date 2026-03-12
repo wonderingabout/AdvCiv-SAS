@@ -321,6 +321,29 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4]. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TINY</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4]. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_UI_FONT_BODY</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4]. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4]. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
