@@ -4727,7 +4727,7 @@ class CvMainInterface:
 					screen.show(szString)
 				iCount += 1
 		self.updateTimeText()
-		self.setLabel("TimeText", "Background", g_szTimeText,
+		self.setLabel("TimeText", "Background", SAS_FONT_TAG_LABEL + g_szTimeText + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("TimeText")
 		# advc.103: Don't show gold rate and current research when investigating
@@ -4780,7 +4780,7 @@ class CvMainInterface:
 		#if not MainOpt.isGoldRateWarning():
 		#	szText = CyGameTextMgr().getGoldStr(ePlayer)
 # BUG - Gold Rate Warning - end
-		self.setLabel("GoldText", "Background", szText,
+		self.setLabel("GoldText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("GoldText")
 
@@ -4841,6 +4841,7 @@ class CvMainInterface:
 			else:
 				szText = CyGameTextMgr().getResearchStr(ePlayer)
 		if szText:
+			szText = SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
 			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
 					and not bAnarchy and iTech != -1 and szTechBtn):
 				self.setSASCenteredImageButtonAtLeftOfTextRow("ResearchText", "ResearchIconText",
@@ -5366,7 +5367,7 @@ class CvMainInterface:
 			else:
 				szBuffer = "Stagnant - %d / %d" % (iFoodNow, iFoodThresh)
 
-			self.setLabel("PopulationText", "Background", szBuffer,
+			self.setLabel("PopulationText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
 			screen.setHitTest("PopulationText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("PopulationText")
@@ -5400,7 +5401,7 @@ class CvMainInterface:
 					self.szFoodIcon)
 			# draw label below
 		# advc.004: BULL widget help enabled
-		self.setLabel("PopulationInputText", "Background", szBuffer,
+		self.setLabel("PopulationInputText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 				WidgetTypes.WIDGET_FOOD_MOD_HELP)
 		screen.show("PopulationInputText")
@@ -5422,7 +5423,7 @@ class CvMainInterface:
 				szBuffer = localText.getText(
 						"INTERFACE_CITY_HEALTH_GOOD_NO_BAD",
 						(pHeadSelectedCity.goodHealth(),))
-			self.setLabel("HealthText", "Background", szBuffer,
+			self.setLabel("HealthText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 					WidgetTypes.WIDGET_HELP_HEALTH)
 			screen.show("HealthText")
@@ -5526,7 +5527,7 @@ class CvMainInterface:
 						FontTypes.GAME_FONT, -1.3, WidgetTypes.WIDGET_GENERAL)
 				screen.show("ProductionIconText")
 			else:
-				self.setLabel("ProductionText", "Background", szBuffer,
+				self.setLabel("ProductionText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 						CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3,
 						WidgetTypes.WIDGET_GENERAL)
 				screen.hide("ProductionIconText")
@@ -5545,7 +5546,7 @@ class CvMainInterface:
 		else:
 			szBuffer = u"%d%s" %(iProductionDiffNoFood,
 					self.szProductionIcon)
-		self.setLabel("ProductionInputText", "Background", szBuffer,
+		self.setLabel("ProductionInputText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 				WidgetTypes.WIDGET_PRODUCTION_MOD_HELP)
 		screen.show("ProductionInputText")
@@ -5581,7 +5582,7 @@ class CvMainInterface:
 				if iAngerTimer > 0:
 					szBuffer += u" (%i)" % iAngerTimer
 # BUG - Anger Display - end
-			self.setLabel("HappinessText", "Background", szBuffer,
+			self.setLabel("HappinessText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 					WidgetTypes.WIDGET_HELP_HAPPINESS)
 			screen.show("HappinessText")
@@ -6112,13 +6113,13 @@ class CvMainInterface:
 				pHeadSelectedCity.getOwner()).calculateInflationRate()
 		iMaintenance /= 100 # </K-Mod>
 		szBuffer = self.szTextMaintenance
-		self.setLabel("MaintenanceText", "Background", szBuffer,
+		self.setLabel("MaintenanceText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.3, 
 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
 		screen.show("MaintenanceText")
 		szBuffer = u"-%d.%02d %c" %(iMaintenance/100, iMaintenance%100,
 				gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar())
-		self.setLabel("MaintenanceAmountText", "Background", szBuffer,
+		self.setLabel("MaintenanceAmountText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3,
 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
 		screen.show("MaintenanceAmountText")
@@ -6348,7 +6349,7 @@ class CvMainInterface:
 		szBuffer = u"%d%% %s" %(
 				pHeadSelectedCity.plot().calculateCulturePercent(pHeadSelectedCity.getOwner()),
 				gc.getPlayer(pHeadSelectedCity.getOwner()).getCivilizationAdjective(0))
-		self.setLabel("NationalityText", "Background", szBuffer,
+		self.setLabel("NationalityText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.3)
 		screen.setHitTest("NationalityText", HitTestTypes.HITTEST_NOHIT)
 		screen.show("NationalityText")
@@ -6410,7 +6411,7 @@ class CvMainInterface:
 							"INTERFACE_CITY_TURNS",
 							(((iCultureLeftTimes100 + iRate - 1) / iRate),))
 # BUG - Culture Turns - end
-			self.setLabel("CultureText", "Background", szBuffer,
+			self.setLabel("CultureText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
 			screen.setHitTest("CultureText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("CultureText")
@@ -6431,7 +6432,7 @@ class CvMainInterface:
 					szBuffer += u" " + localText.getText(
 							"INTERFACE_CITY_TURNS", (iGPTurns,))
 # BUG - Great Person Turns - end
-			self.setLabel("GreatPeopleText", "Background", szBuffer,
+			self.setLabel("GreatPeopleText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
 			screen.setHitTest("GreatPeopleText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("GreatPeopleText")
@@ -6853,6 +6854,8 @@ class CvMainInterface:
 					fMaxMoves = float(iMaxMoves) / self.iMoveDenominator
 					szBuffer += u" %.1f - %.1f%s" % (fMinMoves, fMaxMoves,
 							self.szMovesIcon)
+			if (szBuffer.find("<font=") == -1):
+				szBuffer = SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE
 			self.setText("SelectedUnitLabel", "Background", szBuffer,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1,
 					WidgetTypes.WIDGET_UNIT_NAME)
@@ -6934,6 +6937,8 @@ class CvMainInterface:
 				szBuffer = localText.getText("INTERFACE_PANE_UNIT_NAME_HOT_KEY",
 						(pHeadSelectedUnit.getHotKeyNumber(), pHeadSelectedUnit.getName()))
 			if (len(szBuffer) > 60):
+				szBuffer = SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE
+			if (szBuffer.find("<font=") == -1):
 				szBuffer = SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE
 			self.setText("SelectedUnitLabel", "Background", szBuffer,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1, 

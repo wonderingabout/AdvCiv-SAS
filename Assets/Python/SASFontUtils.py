@@ -1,13 +1,18 @@
 from CvPythonExtensions import *
 
 gc = CyGlobalContext()
+_FONT_SIZE_CACHE = {}
 
 
 def _getFontSizeOrDefault(szDefineName, iDefault):
+	if szDefineName in _FONT_SIZE_CACHE:
+		return _FONT_SIZE_CACHE[szDefineName]
 	iSize = gc.getDefineINT(szDefineName)
 	if iSize < 1 or iSize > 4:
 		print("SASFontUtils: invalid or unavailable %s=%d; using default %d" % (szDefineName, iSize, iDefault))
 		return iDefault
+	# Cache once valid to avoid repeated define lookups.
+	_FONT_SIZE_CACHE[szDefineName] = iSize
 	return iSize
 
 
