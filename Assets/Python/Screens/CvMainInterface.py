@@ -6800,9 +6800,11 @@ class CvMainInterface:
 				screen.appendTableRow("SelectedCityText")
 
 				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
-				screen.setTableText("SelectedCityText", 0, iRow, szLeftBuffer, szButton, WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)  
+				szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+				szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+				screen.setTableText("SelectedCityText", 0, iRow, szLeftText, szButton, WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-				screen.setTableText("SelectedCityText", 1, iRow, szRightBuffer, "", WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				screen.setTableText("SelectedCityText", 1, iRow, szRightText, "", WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				screen.show("SelectedCityText")
 				screen.show("SelectedUnitPanel")
 				iRow += 1
