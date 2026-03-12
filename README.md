@@ -392,6 +392,8 @@ Another significant contribution from our AI helpers is the new Traits Charts, t
 
 Based on it, we notably also made, in Sevopedia Improvement, a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement.
 
+Another notable addition is the new sevopedia leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
+
 Here is below a sample of the example screenshots showing the AI Personality panel, Traits Charts, and the many other reworks we did in Sevopedia in AdvCiv-SAS:
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>

@@ -1884,5 +1884,26 @@ Created as part of AdvCiv-SAS improvements
 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
 		</InterfaceArtInfo>
+		<!-- custom: extracted from GameFont_75.tga that had them with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf (since we couldn't insert them in sevopedia leader attitude buttons easily) to .PNG and then converted to .dds with Paint.NET -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_FURIOUS</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_ANNOYED</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_CAUTIOUS</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_PLEASED</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_FRIENDLY</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds</Path>
+		</InterfaceArtInfo>
 	</InterfaceArtInfos>
 </Civ4ArtDefines>

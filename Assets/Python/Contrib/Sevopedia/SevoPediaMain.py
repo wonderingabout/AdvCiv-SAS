@@ -2190,6 +2190,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
 					self.pediaEraChart.dumpCsvLog()
 					return 1
+			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
+			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
+			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
+				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
+					return self.pediaLeader.applyLeaderAttitude(iData2)
+			# <!-- custom: route Sevopedia leader action preview buttons (no/greeting/agree/disagree) here as the same fallback path used for attitude buttons. (GPT-5.3-Codex) -->
+			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ACTION:
+				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
+					return self.pediaLeader.applyLeaderAction(iData2)
 
 		return 0
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
@@ -2206,6 +2215,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def deleteAllWidgets(self):
 		screen = self.getScreen()
+		# <!-- custom: SevoPediaLeader attitude preview widgets use fixed IDs, so they are not covered by the sequential getNextWidgetName deletion loop; remove them explicitly to prevent persistence across category changes. (GPT-5.3-Codex) -->
+		self.pediaLeader.deleteAttitudeWidgets(screen)
 		iNumWidgets = self.nWidgetCount
 		self.nWidgetCount = 0
 		for i in range(iNumWidgets):

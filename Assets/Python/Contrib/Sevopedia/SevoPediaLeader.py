@@ -40,6 +40,22 @@ localText = CyTranslator()
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
 IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
+IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
+SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
+SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
+SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
+	AttitudeTypes.ATTITUDE_FURIOUS,
+	AttitudeTypes.ATTITUDE_ANNOYED,
+	AttitudeTypes.ATTITUDE_CAUTIOUS,
+	AttitudeTypes.ATTITUDE_PLEASED,
+	AttitudeTypes.ATTITUDE_FRIENDLY,
+)
+SAS_LEADER_ACTION_PREVIEW_ORDER = (
+	(LeaderheadAction.NO_LEADERANIM, u"no"),
+	(LeaderheadAction.LEADERANIM_GREETING, u"gr"),
+	(LeaderheadAction.LEADERANIM_AGREE, u"ag"),
+	(LeaderheadAction.LEADERANIM_DISAGREE, u"dg"),
+)
 
 # <!-- custom: keep debug flag available in this module for existing debug print sites. -->
 IS_DEBUG_LEADER = _SAS_LeaderAIPValues.IS_DEBUG_LEADER
@@ -63,6 +79,28 @@ class SevoPediaLeader:
 	def __init__(self, main):
 		self.iLeader = -1
 		self.top = main
+		self.iSelectedAttitude = AttitudeTypes.ATTITUDE_PLEASED
+		self.ATTITUDE_SELECTED_EMOJI_SIZE = 24
+		self.ATTITUDE_UNSELECTED_EMOJI_SIZE = 12
+		self.attitudeButtonLabelCache = {}
+		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_FURIOUS] = (u"fu", u"FU")
+		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_ANNOYED] = (u"an", u"AN")
+		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_CAUTIOUS] = (u"ca", u"CA")
+		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_PLEASED] = (u"pl", u"PL")
+		self.attitudeButtonLabelCache[AttitudeTypes.ATTITUDE_FRIENDLY] = (u"fr", u"FR")
+		self.attitudeSelectedEmojiPathByAttitude = {}
+		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_FURIOUS] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_FURIOUS").getPath()
+		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_ANNOYED] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_ANNOYED").getPath()
+		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_CAUTIOUS] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_CAUTIOUS").getPath()
+		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_PLEASED] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_PLEASED").getPath()
+		self.attitudeSelectedEmojiPathByAttitude[AttitudeTypes.ATTITUDE_FRIENDLY] = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_ATTITUDE_FRIENDLY").getPath()
+		self.ATTITUDES_PANEL_ID = "SevoPediaLeaderAttitudesPanel"
+		self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE = {}
+		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
+			self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude] = "SevoPediaLeaderAttitudeBtn%d" % iAttitude
+		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
+		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
+			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
 
 		self.X_LEADERHEAD_PANE = self.top.X_PEDIA_PAGE
 		self.Y_LEADERHEAD_PANE = self.top.Y_PEDIA_PAGE
@@ -85,8 +123,8 @@ class SevoPediaLeader:
 		
 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		self.N_AI_TABLE_NUM = 3
-		self.AI_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_AI_PERSONALITY_LEGEND")
-		self.AI_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
+		self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
+		self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
 
 		# <!-- custom: 2) (most) relative dimensions or positions then -->
 
@@ -116,6 +154,10 @@ class SevoPediaLeader:
 		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_MUSIC
 		self.Y_MUSIC = self.Y_FAVORITES
 		self.H_MUSIC = self.H_FAVORITES
+		self.X_ATTITUDES = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
+		self.Y_ATTITUDES = self.Y_FAVORITES
+		self.W_ATTITUDES = self.X_MUSIC - self.X_ATTITUDES - self.SMALL_MARGIN
+		self.H_ATTITUDES = self.H_FAVORITES
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
@@ -157,11 +199,11 @@ class SevoPediaLeader:
 		self.placeLeaderHeadPane()
 		self.placeFavorites()
 		self.placeMusic()
+		self.placeAttitudes()
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
-		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
-			self.placeAILegendLink()
+		self.placeLegendLink()
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
@@ -179,7 +221,7 @@ class SevoPediaLeader:
 		leaderPanelWidget = self.top.getNextWidgetName()
 		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		self.leaderWidget = self.top.getNextWidgetName()
-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -222,17 +264,113 @@ class SevoPediaLeader:
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
 
+	def placeAttitudes(self):
+		if self.W_ATTITUDES <= 0:
+			return
 
-	def placeAILegendLink(self):
+		screen = self.top.getScreen()
+		self.deleteAttitudeWidgets(screen)
+		# <!-- custom: add direct mood buttons in the center gap (between Favorites and Music) so clicking previews leader attitude animations without keyboard-only hotkeys. (GPT-5.3-Codex) -->
+		screen.addPanel(self.ATTITUDES_PANEL_ID, "", "", False, True, self.X_ATTITUDES, self.Y_ATTITUDES, self.W_ATTITUDES, self.H_ATTITUDES, PanelStyles.PANEL_STYLE_BLUE50)
+
+		iRowGap = 4
+		iTopPadding = 8
+		iBottomPadding = 8
+		# <!-- custom: simple manual Y nudge for the two attitude/action rows as one block; increase to move both rows lower. (GPT-5.3-Codex) -->
+		iVerticalNudgeY = 3
+		iButtonH = (self.H_ATTITUDES - iTopPadding - iBottomPadding - iRowGap) / 2
+		if iButtonH < 16:
+			iButtonH = 16
+
+		attitudeOrder = SAS_LEADER_ATTITUDE_PREVIEW_ORDER
+		iAttitudeCount = len(attitudeOrder)
+		iAttitudeSpacing = 3
+		iAttitudePadding = 6
+		iAttitudeButtonW = (self.W_ATTITUDES - 2 * iAttitudePadding - iAttitudeSpacing * (iAttitudeCount - 1)) / iAttitudeCount
+		if iAttitudeButtonW < 16:
+			iAttitudeSpacing = 2
+			iAttitudePadding = 4
+			iAttitudeButtonW = (self.W_ATTITUDES - 2 * iAttitudePadding - iAttitudeSpacing * (iAttitudeCount - 1)) / iAttitudeCount
+		if iAttitudeButtonW < 14:
+			iAttitudeButtonW = 14
+		iAttitudeTotalW = iAttitudeCount * iAttitudeButtonW + (iAttitudeCount - 1) * iAttitudeSpacing
+		iAttitudeX = self.X_ATTITUDES + (self.W_ATTITUDES - iAttitudeTotalW) / 2
+		iAttitudeY = self.Y_ATTITUDES + iTopPadding + iVerticalNudgeY
+		iSelectedEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
+		iUnselectedEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
+
+		# <!-- custom: We tested the city-screen filter-style GFC checkbox DDS route here (similar to CvMainInterface building filter buttons),
+		# but icon sizing could not be controlled independently enough in this attitude row. Keeping inline <img> gives reliable per-button size
+		# control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
+		for iAttitude in attitudeOrder:
+			szWidget = self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude]
+			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
+				szEmojiPath = self.attitudeSelectedEmojiPathByAttitude[iAttitude]
+				iEmojiSize = iUnselectedEmojiSize
+				if iAttitude == self.iSelectedAttitude:
+					iEmojiSize = iSelectedEmojiSize
+				szLabel = u"<img=%s size=%d></img>" % (szEmojiPath, iEmojiSize)
+				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
+			else:
+				szLabel = self.getAttitudeButtonLabel(iAttitude)
+				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
+			iAttitudeX += iAttitudeButtonW + iAttitudeSpacing
+
+		iActionCount = len(SAS_LEADER_ACTION_PREVIEW_ORDER)
+		iActionSpacing = 3
+		iActionPadding = 6
+		iActionButtonW = (self.W_ATTITUDES - 2 * iActionPadding - iActionSpacing * (iActionCount - 1)) / iActionCount
+		if iActionButtonW < 16:
+			iActionSpacing = 2
+			iActionPadding = 4
+			iActionButtonW = (self.W_ATTITUDES - 2 * iActionPadding - iActionSpacing * (iActionCount - 1)) / iActionCount
+		if iActionButtonW < 14:
+			iActionButtonW = 14
+		iActionTotalW = iActionCount * iActionButtonW + (iActionCount - 1) * iActionSpacing
+		iActionX = self.X_ATTITUDES + (self.W_ATTITUDES - iActionTotalW) / 2
+		iActionY = iAttitudeY + iButtonH + iRowGap
+
+		for iAction, szLabel in SAS_LEADER_ACTION_PREVIEW_ORDER:
+			szWidget = self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction]
+			screen.setButtonGFC(szWidget, szLabel, "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
+			iActionX += iActionButtonW + iActionSpacing
+
+
+	def deleteAttitudeWidgets(self, screen):
+		screen.deleteWidget(self.ATTITUDES_PANEL_ID)
+		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
+			screen.deleteWidget(self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude])
+		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
+			screen.deleteWidget(self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction])
+
+
+	def getAttitudeButtonLabel(self, iAttitude):
+		szLabelLower, szLabelUpper = self.attitudeButtonLabelCache[iAttitude]
+		if iAttitude == self.iSelectedAttitude:
+			return szLabelUpper
+		return szLabelLower
+
+
+	def refreshLeaderheadWidget(self):
+		if self.iLeader < 0:
+			return 0
+		screen = self.top.getScreen()
+		screen.deleteWidget(self.leaderWidget)
+		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		return 1
+
+
+
+	def placeLegendLink(self):
 		if not IS_SAS_SHOW_LEGEND_LINK:
 			return
-		if self.AI_LEGEND_NEW_CONCEPT_ID < 0:
+		if self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID < 0:
 			return
 		screen = self.top.getScreen()
 		screen.setText(
 			self.top.getNextWidgetName(),
 			"Background",
-			self.AI_LEGEND_LINK_TEXT,
+			self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT,
 			CvUtil.FONT_LEFT_JUSTIFY,
 			self.top.X_TOC,
 			self.top.Y_BOT_PANEL + 16,
@@ -240,7 +378,7 @@ class SevoPediaLeader:
 			FontTypes.TITLE_FONT,
 			WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
 			CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
-			self.AI_LEGEND_NEW_CONCEPT_ID
+			self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID
 		)
 
 
@@ -383,6 +521,12 @@ class SevoPediaLeader:
 
 
 	def handleInput (self, inputClass):
+		if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
+			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
+				return self.applyLeaderAttitude(inputClass.getData2())
+			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ACTION:
+				return self.applyLeaderAction(inputClass.getData2())
+
 		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search,
 		# consider removing or remapping here. (GPT-5.2-Codex) -->
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
@@ -393,20 +537,30 @@ class SevoPediaLeader:
 			elif (inputClass.getData() == int(InputTypes.KB_7)):
 				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.LEADERANIM_AGREE)
 			elif (inputClass.getData() == int(InputTypes.KB_1)):
-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_FRIENDLY)
-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
+				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_FRIENDLY)
 			elif (inputClass.getData() == int(InputTypes.KB_2)):
-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_PLEASED)
-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
+				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_PLEASED)
 			elif (inputClass.getData() == int(InputTypes.KB_3)):
-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_CAUTIOUS)
-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
+				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_CAUTIOUS)
 			elif (inputClass.getData() == int(InputTypes.KB_4)):
-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_ANNOYED)
-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
+				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_ANNOYED)
 			elif (inputClass.getData() == int(InputTypes.KB_5)):
-				self.top.getScreen().setLeaderheadMood(self.leaderWidget, AttitudeTypes.ATTITUDE_FURIOUS)
-				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.NO_LEADERANIM)
+				return self.applyLeaderAttitude(AttitudeTypes.ATTITUDE_FURIOUS)
 			else:
 				self.top.getScreen().leaderheadKeyInput(self.leaderWidget, inputClass.getData())
 		return 0
+
+
+	def applyLeaderAttitude(self, iAttitude):
+		if iAttitude not in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
+			return 0
+		self.iSelectedAttitude = iAttitude
+		# <!-- custom: force-refresh the leaderhead widget so attitude changes show immediately on click; mood-only updates can be visually ignored while another anim is still running. (GPT-5.3-Codex) -->
+		self.refreshLeaderheadWidget()
+		self.placeAttitudes()
+		return 1
+
+
+	def applyLeaderAction(self, iAction):
+		self.top.getScreen().performLeaderheadAction(self.leaderWidget, iAction)
+		return 1

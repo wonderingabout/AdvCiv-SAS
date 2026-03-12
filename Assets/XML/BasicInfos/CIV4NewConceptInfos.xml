@@ -24,9 +24,9 @@
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
-			<Type>CONCEPT_SAS_AI_PERSONALITY_LEGEND</Type>
-			<Description>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_SAS_AI_PERSONALITY_LEGEND_PEDIA</Civilopedia>
+			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<!-- advc.004y: Shortcut categories restored (originally by
 			 Ekmek) -->

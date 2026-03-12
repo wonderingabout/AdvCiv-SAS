@@ -275,6 +275,8 @@ More recently, we also added linking from the traits panel's textual description
 
 More recently, added optional grouping by civilization with a civilization icon, with the help of GPT-5.3-Codex thanks.
 
+More recently, added leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
+
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>

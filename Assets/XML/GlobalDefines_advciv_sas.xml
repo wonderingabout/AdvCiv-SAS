@@ -81,6 +81,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Sevopedia Leader attitude button style; 1 = show emojis on all attitude buttons (selected/unselected sizes differ in Python), 0 = text labels with uppercase selected fallback (FU/AN/CA/PL/FR). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: master toggle for Sevopedia Leader AI personality feature; 0 disables both cache computation and panel/legend display, 1 enables them. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE</DefineName>
