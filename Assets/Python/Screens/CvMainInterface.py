@@ -2807,7 +2807,7 @@ class CvMainInterface:
 			#else:
 			#	screen.hide("EraText") # advc.067
 			self.updateTimeText()
-			self.setLabel("TimeText", "Background", g_szTimeText,
+			self.setLabel("TimeText", "Background", SAS_FONT_TAG_LABEL + g_szTimeText + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 			screen.show("TimeText")
 
@@ -5519,8 +5519,9 @@ class CvMainInterface:
 			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
 					and szProdBtn):
 				iImgSize = BTNSZ(20)
+				szProdText = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
 				self.setSASCenteredImageButtonAtLeftOfTextRow("ProductionText", "ProductionIconText",
-						"Background", szBuffer,
+						"Background", szProdText,
 						"<img=%s size=%d/>" % (szProdBtn, iImgSize),
 						iImgSize, None, gPoint("ProductionText").y(),
 						HSPACE(2), "ProductionBar", 0, 0,
@@ -5655,7 +5656,7 @@ class CvMainInterface:
 								self.szUnhappyIcon)
 					szBuffer = szBuffer + szTempBuffer
 				szName = "CityPercentText" + str(iCount)
-				self.setLabel(szName, "Background", szBuffer,
+				self.setLabel(szName, "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
 						CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3,
 						WidgetTypes.WIDGET_COMMERCE_MOD_HELP, eCommerce)
 				screen.show(szName)
@@ -6921,10 +6922,12 @@ class CvMainInterface:
 								szRightBuffer = u"(" + str(iCount) + u")"
 							szBuffer = szLeftBuffer + u"  " + szRightBuffer
 							screen.appendTableRow("SelectedUnitText")
-							screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, szButton,
+							szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+							szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
+							screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, szButton,
 							# <!-- custom: End - add buttons to unit selection panel in the main map view (Claude code Sonnet 4.5) -->
 									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+							screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 							screen.show("SelectedUnitText")
 							screen.show("SelectedUnitPanel")
@@ -6980,9 +6983,11 @@ class CvMainInterface:
 				szBuffer = szLeftBuffer + szRightBuffer
 				if (szBuffer):
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")
@@ -7028,9 +7033,11 @@ class CvMainInterface:
 # BUG - Unit Movement Fraction - end
 				szBuffer = szLeftBuffer + "  " + szRightBuffer
 				screen.appendTableRow("SelectedUnitText")
-				screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+				szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+				szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
+				screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 						WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+				screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 						WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				screen.show("SelectedUnitText")
 				screen.show("SelectedUnitPanel")
@@ -7041,9 +7048,11 @@ class CvMainInterface:
 					szRightBuffer = u"%d" %(pHeadSelectedUnit.getLevel())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")
@@ -7055,9 +7064,11 @@ class CvMainInterface:
 							pHeadSelectedUnit.experienceNeeded())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")
@@ -7093,9 +7104,11 @@ class CvMainInterface:
 								gc.getMissionInfo(pSelectedGroup.getMissionType(i)).getDescription())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")

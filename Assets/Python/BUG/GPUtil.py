@@ -288,11 +288,11 @@ def getGreatPeopleText(city, iGPTurns, iGPBarWidth, bGPBarTypesNone, bGPBarTypes
 				szTypes = ""
 				for iPercent, iUnit in lPercents:
 					szNewTypes = szTypes + u" %c%d%%" % (getUnitIcon(iUnit), iPercent)
-					szNewText = szText + u"<font=2> -%s</font>" % szTypes
+					szNewText = szText + u" -%s" % szTypes
 					if (CyInterface().determineWidth(szNewText) > iGPBarWidth - 10):
 						# Keep under width
 						break
 					szTypes = szNewTypes
 				if (len(szTypes) > 0):
-					szText += u"<font=2> -%s</font>" % szTypes
+					szText += u" -%s" % szTypes
 	return szText
