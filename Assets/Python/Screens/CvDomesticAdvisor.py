@@ -135,11 +135,11 @@ class CvDomesticAdvisor:
 		
 		# Research Column
 		szText = u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
-		screen.setTableColumnHeader( "CityListBackground", 8, SAS_FONT_TAG_BODY + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 8, SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Espionage Column
 		szText = u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())
-		screen.setTableColumnHeader( "CityListBackground", 9, SAS_FONT_TAG_BODY + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 9, SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Culture Column
 		screen.setTableColumnHeader( "CityListBackground", 10, SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()) + SAS_FONT_TAG_CLOSE, (70 * self.nTableWidth) / self.nNormalizedTableWidth )
@@ -208,10 +208,10 @@ class CvDomesticAdvisor:
 		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <advc.193>
+		iCellFontSize = getSASUIFontLabel()
 		if self.nTableWidth / float(self.nNormalizedTableWidth) > 1.36:
-			iCellFontSize = 3
-		else:
-			iCellFontSize = 2
+			iCellFontSize += 1
+		iCellFontSize = min(4, iCellFontSize)
 		# (Uses of these tags in the code below aren't tagged w/ comments)
 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
 		szFontTagClose = SAS_FONT_TAG_CLOSE
