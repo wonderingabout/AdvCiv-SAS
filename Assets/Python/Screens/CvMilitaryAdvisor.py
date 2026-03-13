@@ -11,6 +11,7 @@ import ScreenInput
 import time
 import PyHelpers
 import re
+from SASFontUtils import *
 
 PyPlayer = PyHelpers.PyPlayer
 PyInfo = PyHelpers.PyInfo
@@ -168,8 +169,8 @@ class CvMilitaryAdvisor:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + "</font>"
-		self.TITLE = u"<font=4b>" + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + "</font>"
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		self.nWidgetCount = 0
 	
@@ -243,7 +244,7 @@ class CvMilitaryAdvisor:
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, gc.getInfoTypeForString("COLOR_EMPTY"))
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, gc.getInfoTypeForString("COLOR_EMPTY"))
 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(true)))
-			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ()), CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
 					
 																									
 	# returns a unique ID for a widget in this screen
@@ -352,7 +353,7 @@ class CvMilitaryAdvisor:
 				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_PLUS
 				szButtonTextKey = "TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON"
 			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
-			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", localText.getText(szButtonTextKey, ()), CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", SAS_FONT_TAG_LABEL + localText.getText(szButtonTextKey, ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# self.unitsList[iUnit][0] is the UnitCombatGroup (e.g. Melee)
 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
@@ -381,13 +382,16 @@ class CvMilitaryAdvisor:
 		szUnitIndentSpace = u"  "
 		szDetailIndentSpace = u"      "
 
+		def formatListRowText(szText):
+			return SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
+
 		if (bReload):
 			def addUnitListRow(iIndex, szText, iData1, iData2):
-				screen.appendListBoxString(self.UNIT_LIST_ID, szText, iWidget, iData1, iData2, iFont)
+				screen.appendListBoxString(self.UNIT_LIST_ID, formatListRowText(szText), iWidget, iData1, iData2, iFont)
 				return iIndex + 1
 		else:
 			def addUnitListRow(iIndex, szText, iData1, iData2):
-				screen.setListBoxStringGFC(self.UNIT_LIST_ID, iIndex, szText, iWidget, iData1, iData2, iFont)
+				screen.setListBoxStringGFC(self.UNIT_LIST_ID, iIndex, formatListRowText(szText), iWidget, iData1, iData2, iFont)
 				return iIndex + 1
 
 		def formatSelection(szIndent, szText, bUnderline, bYellow):
