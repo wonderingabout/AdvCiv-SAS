@@ -15,6 +15,7 @@ import BugUtil
 import BugCore
 import PlayerUtil
 import ReligionUtil
+from SASFontUtils import *
 AdvisorOpt = BugCore.game.Advisors
 # BUG - end
 
@@ -130,9 +131,9 @@ class CvReligionScreen:
 
 		self.SCREEN_ART = ArtFileMgr.getInterfaceArtInfo("TECH_BG").getPath()
 		self.NO_STATE_BUTTON_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + "</font>"
-		self.CONVERT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_RELIGION_CONVERT", ()).upper() + "</font>"
-		self.CANCEL_TEXT = u"<font=4>" + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + "</font>"
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.CONVERT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_RELIGION_CONVERT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.CANCEL_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		self.iActivePlayer = gc.getGame().getActivePlayer()
 		
@@ -164,7 +165,7 @@ class CvReligionScreen:
 		screen.showWindowBackground(False)
 
 		# Header...
-		screen.setLabel(self.HEADER_NAME, "Background", u"<font=4b>" + localText.getText("TXT_KEY_RELIGION_SCREEN_TITLE", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.HEADER_NAME, "Background", SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_RELIGION_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Make the scrollable areas for the city list...
 
@@ -228,7 +229,7 @@ class CvReligionScreen:
 			szLabel = gc.getReligionInfo(iRel).getDescription()
 #			if (self.iReligionSelected == iRel):
 #				szLabel = localText.changeTextColor(szLabel, gc.getInfoTypeForString("COLOR_YELLOW"))
-			screen.setLabelAt(szName, szArea, szLabel, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCROLLABLE_RELIGION_AREA + xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(szName, szArea, SAS_FONT_TAG_LABEL + szLabel + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCROLLABLE_RELIGION_AREA + xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
 		szButtonName = self.getReligionButtonName(gc.getNumReligionInfos())
@@ -238,7 +239,7 @@ class CvReligionScreen:
 		szLabel = localText.getText("TXT_KEY_RELIGION_SCREEN_NO_STATE", ())
 #		if (self.iReligionSelected == gc.getNumReligionInfos()):
 #			szLabel = localText.changeTextColor(szLabel, gc.getInfoTypeForString("COLOR_YELLOW"))
-		screen.setLabelAt(szName, szArea, szLabel, CvUtil.FONT_CENTER_JUSTIFY,  self.X_SCROLLABLE_RELIGION_AREA + xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)		
+		screen.setLabelAt(szName, szArea, SAS_FONT_TAG_LABEL + szLabel + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY,  self.X_SCROLLABLE_RELIGION_AREA + xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	
 	def drawHelpInfo(self):
@@ -250,20 +251,20 @@ class CvReligionScreen:
 		## This attaches the text to the panel
 		## This is for every line of font
 		# Founded...
-		screen.setLabelAt("", szArea, localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()), CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Date Founded:
 		xLoop = self.X_RELIGION_START
 		for iRel in self.RELIGIONS:
 			if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
 				szFounded = CyGameTextMgr().getTimeStr(gc.getGame().getReligionGameTurnFounded(iRel), false)
-				screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
 #		screen.setLabelAt("", szArea, "", CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Holy City...
-		screen.setLabelAt("", szArea, localText.getText("TXT_KEY_RELIGION_SCREEN_HOLY_CITY", ()), CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_HOLY_CITY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		xLoop = self.X_RELIGION_START
 		for iRel in self.RELIGIONS:
@@ -271,27 +272,27 @@ class CvReligionScreen:
 				pHolyCity = gc.getGame().getHolyCity(iRel)
 				if pHolyCity.isNone():
 					szFounded = localText.getText("TXT_KEY_NONE", ())
-					screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				elif not pHolyCity.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), True): # advc.001d: Call isRevealed with bDebug=True to compensate for the problems with switching iActivePlayer (see comment in handleInput)
 					szFounded = localText.getText("TXT_KEY_UNKNOWN", ())
-					screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				else:
 					szFounded = pHolyCity.getName()
-					screen.setLabelAt("", szArea, u"(%s)" % gc.getPlayer(pHolyCity.getOwner()).getCivilizationAdjective(0), CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY+8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-					screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY-8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + (u"(%s)" % gc.getPlayer(pHolyCity.getOwner()).getCivilizationAdjective(0)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY+8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY-8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 #			else:
 #				szFounded = "-"
 #				screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
 		# Influence...
-		screen.setLabelAt("", szArea, localText.getText("TXT_KEY_RELIGION_SCREEN_INFLUENCE", ()), CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_INFLUENCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		xLoop = self.X_RELIGION_START
 		for iRel in self.RELIGIONS:
 			if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
 				szFounded = str(gc.getGame().calculateReligionPercent(iRel)) + "%"
-				screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 #			else:
 #				szFounded = "-"
 #				screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -342,46 +343,46 @@ class CvReligionScreen:
 			# number of cities...
 			iY = self.Y_INFLUENCE + 20
 			sCities = "%s [%i]:" % (self.szCities, len(cityList))
-			screen.setLabelAt("", szArea, sCities, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + sCities + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 			xLoop = self.X_RELIGION_START
 			for iRel in self.RELIGIONS:
 				if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
 					szFounded = "%i" % (iCities[iRel])
-					screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				xLoop += self.DX_RELIGION
 
 			# number of temples...
 			iY = self.Y_INFLUENCE + 40
-			screen.setLabelAt("", szArea, self.szTemples, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + self.szTemples + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 			xLoop = self.X_RELIGION_START
 			for iRel in self.RELIGIONS:
 				if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
 					szFounded = "%i" % (iTemple[iRel])
-					screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				xLoop += self.DX_RELIGION
 
 			# number of monasteries...
 			iY = self.Y_INFLUENCE + 60
-			screen.setLabelAt("", szArea, self.szMonastaries, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + self.szMonastaries + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 			xLoop = self.X_RELIGION_START
 			for iRel in self.RELIGIONS:
 				if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
 					szFounded = "%i" % (iMonastery[iRel])
-					screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				xLoop += self.DX_RELIGION
 
 			# number of missionaries...
 			iY = self.Y_INFLUENCE + 80
-			screen.setLabelAt("", szArea, self.szMissionaries, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + self.szMissionaries + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 			xLoop = self.X_RELIGION_START
 			for iRel in self.RELIGIONS:
 				if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
 					szFounded = "%i [%i]" % (iMissionaries_Active[iRel], iMissionaries_Construct[iRel])
-					screen.setLabelAt("", szArea, szFounded, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("", szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				xLoop += self.DX_RELIGION
 
 		self.iReligionSelected = gc.getPlayer(self.iActivePlayer).getStateReligion()
@@ -474,20 +475,20 @@ class CvReligionScreen:
 			screen.enableSort(self.TABLE_ID)
 			
 			screen.setTableColumnHeader(self.TABLE_ID, self.COL_ZOOM_CITY, "", 30)
-			screen.setTableColumnHeader(self.TABLE_ID, self.COL_CITY_NAME, self.sCity, 115)
+			screen.setTableColumnHeader(self.TABLE_ID, self.COL_CITY_NAME, SAS_FONT_TAG_LABEL + self.sCity + SAS_FONT_TAG_CLOSE, 115)
 
 			for iRel in range(self.NUM_RELIGIONS):   # columns for religious icons
 				if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
-					szReligionIcon = u"<font=2>%c</font>" %(gc.getReligionInfo(iRel).getChar())
+					szReligionIcon = SAS_FONT_TAG_LABEL + (u"%c" %(gc.getReligionInfo(iRel).getChar())) + SAS_FONT_TAG_CLOSE
 					screen.setTableColumnHeader(self.TABLE_ID, self.COL_FIRST_RELIGION + iRel, szReligionIcon, 25)
 
 			# columns for units (missionaries)
 			for type in ReligionUtil.getUnitTypes():
-				screen.setTableColumnHeader(self.TABLE_ID, self.COL_FIRST_UNIT + type.index, u"<font=2>%s</font>" % type.icon, 30)
+				screen.setTableColumnHeader(self.TABLE_ID, self.COL_FIRST_UNIT + type.index, SAS_FONT_TAG_LABEL + (u"%s" % type.icon) + SAS_FONT_TAG_CLOSE, 30)
 
 			# columns for buildings (temples, monasteries, cathedral, shrine)
 			for type in ReligionUtil.getBuildingTypes():
-				screen.setTableColumnHeader(self.TABLE_ID, self.COL_FIRST_BUILDING + type.index, u"<font=2>%s</font>" % type.icon, 30)
+				screen.setTableColumnHeader(self.TABLE_ID, self.COL_FIRST_BUILDING + type.index, SAS_FONT_TAG_LABEL + (u"%s" % type.icon) + SAS_FONT_TAG_CLOSE, 30)
 
 			# column for religious impact
 			screen.setTableColumnHeader(self.TABLE_ID, self.COL_EFFECTS, "", 400)
@@ -498,7 +499,7 @@ class CvReligionScreen:
 
 				screen.appendTableRow(self.TABLE_ID)
 				screen.setTableText(self.TABLE_ID, self.COL_ZOOM_CITY, iCity, "", self.zoomArt, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText(self.TABLE_ID, self.COL_CITY_NAME, iCity, pLoopCity.getName(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(self.TABLE_ID, self.COL_CITY_NAME, iCity, SAS_FONT_TAG_LABEL + pLoopCity.getName() + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				lHolyCity = pLoopCity.getHolyCity()
 				lReligions = pLoopCity.getReligions()
@@ -507,9 +508,9 @@ class CvReligionScreen:
 					if (gc.getGame().getReligionGameTurnFounded(iRel) >= 0):
 						szReligionIcon = ""
 						if iRel in lHolyCity:
-							szReligionIcon = u"<font=2>%c</font>" %(gc.getReligionInfo(iRel).getHolyCityChar())
+							szReligionIcon = SAS_FONT_TAG_LABEL + (u"%c" %(gc.getReligionInfo(iRel).getHolyCityChar())) + SAS_FONT_TAG_CLOSE
 						elif iRel in lReligions:
-							szReligionIcon = u"<font=2>%c</font>" %(gc.getReligionInfo(iRel).getChar())
+							szReligionIcon = SAS_FONT_TAG_LABEL + (u"%c" %(gc.getReligionInfo(iRel).getChar())) + SAS_FONT_TAG_CLOSE
 
 						screen.setTableText(self.TABLE_ID, self.COL_FIRST_RELIGION + iRel, iCity, szReligionIcon, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
@@ -523,18 +524,18 @@ class CvReligionScreen:
 							sUnit = self.objectPossible
 						else:
 							sUnit = self.objectNotPossible
-						screen.setTableText(self.TABLE_ID, self.COL_FIRST_UNIT + i, iCity, sUnit, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+						screen.setTableText(self.TABLE_ID, self.COL_FIRST_UNIT + i, iCity, SAS_FONT_TAG_LABEL + sUnit + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 					
 					# check for temples, cathedral, monasteries, shrine
 					for i in range(ReligionUtil.getNumBuildingTypes()):
 						iBldg = ReligionUtil.getBuilding(iReligion, i)
 						sBldg = self.calculateBuilding(pLoopCity, iBldg)
-						screen.setTableText(self.TABLE_ID, self.COL_FIRST_BUILDING + i, iCity, sBldg, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+						screen.setTableText(self.TABLE_ID, self.COL_FIRST_BUILDING + i, iCity, SAS_FONT_TAG_LABEL + sBldg + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# advc: Moved into subroutine
 				sHelp = self.cityHelp(lReligions, pLoopCity.GetCy(), iLinkReligion)
 
-				screen.setTableText(self.TABLE_ID, self.COL_EFFECTS, iCity, sHelp, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(self.TABLE_ID, self.COL_EFFECTS, iCity, SAS_FONT_TAG_LABEL + sHelp + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 # start of BUG indent of original code
 		else:
@@ -591,7 +592,7 @@ class CvReligionScreen:
 			szAnarchyTime = localText.getText("TXT_KEY_ANARCHY_TURNS", (gc.getPlayer(self.iActivePlayer).getReligionAnarchyLength(), ))
 
 		# Turns of Anarchy Text...
-		screen.setLabel(self.RELIGION_ANARCHY_WIDGET, "Background", u"<font=3>" + szAnarchyTime + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_ANARCHY, self.Y_ANARCHY, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.RELIGION_ANARCHY_WIDGET, "Background", SAS_FONT_TAG_LABEL + szAnarchyTime + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_ANARCHY, self.Y_ANARCHY, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	# advc: Cut from drawCityInfo because it's the same for the BtS and BUG screen
 	def cityHelp(self, lReligions, kCity, eHoverReligion):
