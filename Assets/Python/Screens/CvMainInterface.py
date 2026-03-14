@@ -7612,7 +7612,10 @@ class CvMainInterface:
 		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL):
 			screen.setHelpTextString("")
 		else:
-			screen.setHelpTextString(CyInterface().getHelpString())
+			szHelpText = CyInterface().getHelpString()
+			if (szHelpText.find("<font=") == -1):
+				szHelpText = SAS_FONT_TAG_BODY + szHelpText + SAS_FONT_TAG_CLOSE
+			screen.setHelpTextString(szHelpText)
 		return 0
 
 	# Will set the promotion button position
