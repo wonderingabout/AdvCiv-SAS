@@ -23,6 +23,7 @@ import re
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
+from SASFontUtils import *
 
 # Globals
 ScoreOpt = BugCore.game.Scores
@@ -150,10 +151,18 @@ def init():
 	ANARCHY_ICON = smallSymbol(FontSymbols.BAD_GOLD_CHAR) # </advc.085>
 
 def smallText(text):
-	return u"<font=2>%s</font>" % text
+	return scaleScoreboardText(u"%s" % text)
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
+
+
+def scaleScoreboardText(text):
+	if text is None:
+		return text
+	if text.find("<font=") != -1:
+		return text
+	return SAS_FONT_TAG_BODY + text + SAS_FONT_TAG_CLOSE
 
 def onDealCanceled(argsList):
 	# Sets the scoreboard dirty bit so it will redraw.
@@ -540,6 +549,7 @@ class Scoreboard:
 			elif (type == FIXED):
 				width = column.width
 				value = column.text
+				displayValue = scaleScoreboardText(value)
 				x -= spacing
 				for p, playerScore in enumerate(self._playerScores):
 					# advc.085: Moved up, insert player ID (not _playerScores index)
@@ -556,7 +566,7 @@ class Scoreboard:
 								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 							else: # </advc.085>
 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
-						screen.setText(name, "Background", value,
+						screen.setText(name, "Background", displayValue,
 								CvUtil.FONT_RIGHT_JUSTIFY,
 								# advc.002b: text offset
 								x, y - p * height + iYTextOffset, Z_DEPTH,
@@ -585,7 +595,7 @@ class Scoreboard:
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
-						newWidth = CyInterface().determineWidth( value )
+						newWidth = CyInterface().determineWidth(scaleScoreboardText(value))
 						if (newWidth > width):
 							width = newWidth
 				if (width == 0):
@@ -602,6 +612,7 @@ class Scoreboard:
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
+						displayValue = scaleScoreboardText(value)
 						align = CvUtil.FONT_RIGHT_JUSTIFY
 						adjustX = 0
 						if (c == NAME):
@@ -623,7 +634,7 @@ class Scoreboard:
 								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 							else: # </advc.085>
 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
-						screen.setText(name, "Background", value,
+						screen.setText(name, "Background", displayValue,
 								align,
 								# advc.002b: text offset
 								x - adjustX, y - p * height + iYTextOffset, Z_DEPTH, 
