@@ -103,6 +103,21 @@ class CvForeignAdvisor:
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_ADVISOR)
 
+	def scaleBodyText(self, szText):
+		if szText is None:
+			return szText
+		if szText == "":
+			return szText
+		try:
+			if szText.find("<font=") != -1:
+				return szText
+		except:
+			return szText
+		return SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
+
+	def appendListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+		screen.appendListBoxString(szWidgetName, self.scaleBodyText(szText), eWidgetType, iData1, iData2, eJustify)
+
 	def interfaceScreen (self, iScreen):
 		if (iScreen < 0):
 			if (self.iScreen < 0):
@@ -270,7 +285,7 @@ class CvForeignAdvisor:
 				deal = gc.getGame().getDeal(i)
 
 				if (deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader and not deal.isNone()) or (deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader):
-					screen.appendListBoxString(dealPanelName, CyGameTextMgr().getDealString(deal, iLoopPlayer), WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+					self.appendListBoxStringScaled(screen, dealPanelName, CyGameTextMgr().getDealString(deal, iLoopPlayer), WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 					iRow += 1
 																
 
@@ -581,7 +596,7 @@ class CvForeignAdvisor:
 				szText += gc.getAttitudeInfo(playerActive.AI_getAttitude(iBaseLeader)).getDescription()
 			if szText != "":
 				szText = " (" + szText + ")"
-		screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(szName, "", self.scaleBodyText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		# K-Mod end
 				
 		# angle increment in radians (180 degree range)
@@ -624,7 +639,7 @@ class CvForeignAdvisor:
 					szText += gc.getAttitudeInfo(gc.getPlayer(iPlayer).AI_getAttitude(iBaseLeader)).getDescription()
 				if szText != "":
 					szText = " (" + szText + ")"
-			screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(szName, "", self.scaleBodyText(szText), CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 25, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			
 		# draw lines
 		for iSelectedLeader in range(gc.getMAX_PLAYERS()):

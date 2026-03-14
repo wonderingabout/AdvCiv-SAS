@@ -10,6 +10,7 @@ import CvUtil
 import ScreenInput
 import CvScreenEnums
 import math
+from SASFontUtils import *
 
 ############################################
 ### BEGIN CHANGES ENHANCED INTERFACE MOD ###
@@ -244,8 +245,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
 
 		# <!-- custom: precompute commonly used text strings to avoid repeated lookups (claude code sonnet 4.5) -->
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
-		self.SCREEN_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + u"</font>"
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: precompute tab/column header texts (claude code sonnet 4.5) -->
 		self.TEXT_LEADER = localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ())
@@ -480,9 +481,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				continue #</advc.ctr>
 			szTextId = self.getNextWidgetName()
 			if (self.iScreen != self.SCREEN_DICT[szScreen]):
-				screen.setText (szTextId, "", u"<font=4>" + localText.getText (self.TXT_KEY_DICT[szScreen], ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, self.SCREEN_DICT[szScreen], -1)
+				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getText (self.TXT_KEY_DICT[szScreen], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, self.SCREEN_DICT[szScreen], -1)
 			else:
-				screen.setText (szTextId, "", u"<font=4>" + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
+				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
 			xLink += self.LABEL_WIDTH_LIST[i]
 	
 	def drawActive (self, bInitial):
@@ -621,7 +622,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 							iTurns = DealUtil.Deal(deal).turnsToCancel(self.iActiveLeader)
 							if iTurns > 0:
 								szDealText += u" %s" % BugUtil.getText("INTERFACE_CITY_TURNS", (iTurns,))
-					screen.appendListBoxString(dealPanelName, szDealText, WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+					self.appendListBoxStringScaled(screen, dealPanelName, szDealText, WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	#	RJG Start
 	def drawRelations (self, bInitial):
@@ -724,11 +725,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 					elif objReligion:
 						szPlayerReligion = u"%c" %(objReligion.getChar())
 
-				screen.attachTextGFC(infoPanelName, "", szPlayerReligion, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(szPlayerReligion), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# advc.004: BULL widget help enabled
-				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], )), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+				screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], ))), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
 
-				screen.attachTextGFC(infoPanelName, "", szCivicsPreText, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(szCivicsPreText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 				for nCivicOption in ltCivicOptions:
 					nCivic = objLoopPlayer.getCivics (nCivicOption)
@@ -742,7 +743,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				hasFavoriteReligion = (nFavoriteReligion != -1)
 
 				if (hasFavoriteCivic or hasFavoriteReligion):
-					screen.attachTextGFC(infoPanelName, "", szFavoritesPreText, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.attachTextGFC(infoPanelName, "", self.scaleBodyText(szFavoritesPreText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 					if hasFavoriteCivic:
 						objCivicInfo = gc.getCivicInfo(nFavoriteCivic)
@@ -785,7 +786,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		
 		for headerText in self.headerTexts:
 			itemName = self.getNextWidgetName()
-			screen.attachTextGFC(headerPanelName, itemName, headerText, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.attachTextGFC(headerPanelName, itemName, self.scaleBodyText(headerText), FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
 			iOffset = iOffset + 65
 
@@ -859,7 +860,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			# Attitude
 			itemName = self.getNextWidgetName()
 			if (not bIsActivePlayer):
-				szAttStr = "<font=2>" + objAttitude.getText(True, True, False, False) + "</font>"
+				szAttStr = SAS_FONT_TAG_BODY + objAttitude.getText(True, True, False, False) + SAS_FONT_TAG_CLOSE
 			else:
 				szAttStr = ""
 			# advc.004: BULL widget help enabled
@@ -891,7 +892,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 						else:
 							szColor = "COLOR_RED"
 						szPlayerReligion = localText.changeTextColor(szPlayerReligion + " [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor))
-				szPlayerReligion = "<font=2>" + szPlayerReligion + "</font>"
+				szPlayerReligion = SAS_FONT_TAG_BODY + szPlayerReligion + SAS_FONT_TAG_CLOSE
 			else:
 				szPlayerReligion = ""
 			# advc.004: BULL widget help enabled
@@ -913,9 +914,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				szTradeRoutes = u"-"
 			itemName = self.getNextWidgetName()
 			# advc.004: BULL widget help enabled (2x)
-			screen.attachTextGFC(infoPanelName, itemName, szTradeRoutes, FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+			screen.attachTextGFC(infoPanelName, itemName, self.scaleBodyText(szTradeRoutes), FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
 			itemName = self.getNextWidgetName()
-			screen.attachTextGFC(infoPanelName, itemName, szTradeYield, FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+			screen.attachTextGFC(infoPanelName, itemName, self.scaleBodyText(szTradeYield), FontTypes.GAME_FONT, WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
 
 			# Civics
 			for nCivicOption in range (gc.getNumCivicOptionInfos()):
@@ -958,7 +959,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 								szColor = "COLOR_GREEN"
 							else:
 								szColor = "COLOR_RED"
-							szDiplo = "<font=2>" + localText.changeTextColor(" [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor)) + "</font>"
+							szDiplo = SAS_FONT_TAG_BODY + localText.changeTextColor(" [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor)) + SAS_FONT_TAG_CLOSE
 						else:
 							szDiplo = ""
 						itemName = self.getNextWidgetName()
@@ -1160,7 +1161,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 						if AdvisorOpt.isShowGlanceWarTrades():
 							widgType = WidgetTypes.WIDGET_LH_GLANCE
 						# </advc.152>
-						screen.setTextAt (szName, playerPanelName, szText, CvUtil.FONT_CENTER_JUSTIFY, self.X_GLANCE_OFFSET - 2 + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET + self.Y_Text_Offset, -0.1, FontTypes.GAME_FONT, widgType, j, iLoopPlayer)
+						screen.setTextAt (szName, playerPanelName, self.scaleBodyText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_GLANCE_OFFSET - 2 + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET + self.Y_Text_Offset, -0.1, FontTypes.GAME_FONT, widgType, j, iLoopPlayer)
 						nCount += 1
 
 			if nCount > 8:
@@ -1237,30 +1238,30 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		self.payingCol = 8
 		
 		# <!-- custom: use cached text values for performance (claude code sonnet 4.5) -->
-		self.resIconGrid.setHeader( self.leaderCol, self.TEXT_LEADER )
+		self.resIconGrid.setHeader( self.leaderCol, self.scaleBodyText(self.TEXT_LEADER) )
 		# <advc.073>
 		# txt keys were TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2, TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2
 		# was surplusCol
-		self.resIconGrid.setHeader( self.willImportCol, self.TEXT_WILL_IMPORT )
+		self.resIconGrid.setHeader( self.willImportCol, self.scaleBodyText(self.TEXT_WILL_IMPORT) )
 		# Moved up
-		self.resIconGrid.setHeader( self.canPayCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+		self.resIconGrid.setHeader( self.canPayCol, self.scaleBodyText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 		self.resIconGrid.setTextColWidth(self.canPayCol, self.RES_GOLD_COL_WIDTH)
 		# Replaced with noNeedCol below
 		#self.resIconGrid.setHeader( self.usedCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_NOT_IMPORT", ()) )
 		# was willTradeCol
-		self.resIconGrid.setHeader( self.willExportCol, self.TEXT_WILL_EXPORT )
+		self.resIconGrid.setHeader( self.willExportCol, self.scaleBodyText(self.TEXT_WILL_EXPORT) )
 		# was wontTradeCol
-		self.resIconGrid.setHeader( self.wontExportCol, self.TEXT_WILL_NOT_EXPORT )
+		self.resIconGrid.setHeader( self.wontExportCol, self.scaleBodyText(self.TEXT_WILL_NOT_EXPORT) )
 		# New column that takes over most of the wontTradeCol resources
-		self.resIconGrid.setHeader( self.noNeedCol, self.TEXT_NO_NEED )
+		self.resIconGrid.setHeader( self.noNeedCol, self.scaleBodyText(self.TEXT_NO_NEED) )
 		# </advc.073>
 		
 		if (self.RES_SHOW_ACTIVE_TRADE):
 			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_EXPORT. Now all the headings take the perspective of the foreign leader (except noNeed)
-			self.resIconGrid.setHeader( self.activeExportCol, self.TEXT_IMPORTING )
+			self.resIconGrid.setHeader( self.activeExportCol, self.scaleBodyText(self.TEXT_IMPORTING) )
 			# advc.073: was TXT_KEY_FOREIGN_ADVISOR_IMPORT
-			self.resIconGrid.setHeader( self.activeImportCol, self.TEXT_EXPORTING )
-			self.resIconGrid.setHeader( self.payingCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+			self.resIconGrid.setHeader( self.activeImportCol, self.scaleBodyText(self.TEXT_EXPORTING) )
+			self.resIconGrid.setHeader( self.payingCol, self.scaleBodyText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 			self.resIconGrid.setTextColWidth(self.payingCol, self.RES_GOLD_COL_WIDTH)
 
 		if (self.RES_SHOW_IMPORT_EXPORT_HEADER):
@@ -1381,9 +1382,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				amount = amount - 1
 			
 			if (self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP):
-				amountStr = u"<font=2>" + localText.changeTextColor(str(amount), gc.getInfoTypeForString("COLOR_YELLOW")) + "</font>"
+				amountStr = SAS_FONT_TAG_BODY + localText.changeTextColor(str(amount), gc.getInfoTypeForString("COLOR_YELLOW")) + SAS_FONT_TAG_CLOSE
 			else:
-				amountStr = u"<font=3>" + str(amount) + "</font>"
+				amountStr = SAS_FONT_TAG_LABEL + str(amount) + SAS_FONT_TAG_CLOSE
 			screen.setTableText( self.availableTable, iIndex, 0, amountStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
 		# <advc.073>
 		for iIndex in range(len(listNonSurplus)):
@@ -1422,7 +1423,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				if ( not activePlayer.canTradeNetworkWith(iLoopPlayer) ):
 					message = self.TEXT_NOT_CONNECTED
 				
-				self.resIconGrid.appendRow(currentPlayer.getName(), message)
+				self.resIconGrid.appendRow(self.scaleBodyText(currentPlayer.getName()), self.scaleBodyText(message))
 				self.resIconGrid.addIcon( currentRow, self.leaderCol
 										, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton()
 										, 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
@@ -1433,7 +1434,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
 					# <!-- custom: looks like gc.getPlayer(iLoopPlayer) could be optimized with the cached currentPlayer variable so did as such -->
 					sAmount = str(currentPlayer.AI_maxGoldPerTurnTrade(self.iActiveLeader))
-					self.resIconGrid.setText(currentRow, self.canPayCol, sAmount)
+					self.resIconGrid.setText(currentRow, self.canPayCol, self.scaleBodyText(sAmount))
 				
 				# bonuses
 				importFromPlayer = [] # advc.036
@@ -1519,7 +1520,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 										self.resIconGrid.addIcon( currentRow, self.activeImportCol, gc.getBonusInfo(tradeData2.iData).getButton(), 64, WidgetTypes.WIDGET_DEAL_KILL, iLoopDeal, -1)
 						# BUG - Kill Deal - end
 					if (amount != 0):
-						self.resIconGrid.setText(currentRow, self.payingCol, str(amount))
+						self.resIconGrid.setText(currentRow, self.payingCol, self.scaleBodyText(str(amount)))
 				currentRow += 1
 		self.resIconGrid.refresh()
 	
@@ -1584,7 +1585,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				# advc.120d: Make sure that Tech tab is consistent with Espionage screen
 				if not activePlayer.canSeeTech(iLoopPlayer):
 					message = self.TEXT_NO_TECH_TRADING
-				self.techIconGrid.appendRow(currentPlayer.getName(), message)
+				self.techIconGrid.appendRow(self.scaleBodyText(currentPlayer.getName()), self.scaleBodyText(message))
 				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
 
 				# BUG - AI status - start
@@ -1597,14 +1598,14 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				elif (currentTeam.isForcePeace(iActiveTeam)):
 					zsStatus += self.PEACE_ICON
 
-				self.techIconGrid.setText(currentRow, iTechColStatus, zsStatus)
+				self.techIconGrid.setText(currentRow, iTechColStatus, self.scaleBodyText(zsStatus))
 				# BUG - AI status - end
 				# advc.036:
 				bWillTalk = currentPlayer.AI_isWillingToTalk(self.iActiveLeader)
 				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
 					# <!-- custom: looks like gc.getPlayer(iLoopPlayer) could be optimized with the cached currentPlayer variable so did as such -->
 					sAmount = str(currentPlayer.AI_maxGoldTrade(self.iActiveLeader))
-					self.techIconGrid.setText(currentRow, iTechColGold, sAmount)
+					self.techIconGrid.setText(currentRow, iTechColGold, self.scaleBodyText(sAmount))
 
 				#if (gc.getTeam(activePlayer.getTeam()).isTechTrading() or gc.getTeam(currentPlayer.getTeam()).isTechTrading() ):
 				if activePlayer.canSeeTech(iLoopPlayer): # advc.120d
@@ -1626,7 +1627,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 							# <advc.550i> If tech trading disabled, show a hint about that only once (in row 0).
 							if currentRow == 0 and gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
 								message = gc.getGameOptionInfo(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING).getDescription()
-								self.techIconGrid.setText(currentRow, iTechColWill, message)
+								self.techIconGrid.setText(currentRow, iTechColWill, self.scaleBodyText(message))
 							# </advc.550i>
 							if (gc.getTeam(currentPlayer.getTeam()).isHasTech(iLoopTech) and activePlayer.canResearch(iLoopTech, False)):
 								self.techIconGrid.addIcon( currentRow, iTechColCantThem, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
@@ -1684,20 +1685,20 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		# self.techIconGrid.setHeader( iTechColStatus, "" )
 		self.techIconGrid.setTextColWidth( iTechColStatus, self.TECH_STATUS_COL_WIDTH )
 		# <!-- custom: use cached text values for performance (claude code sonnet 4.5) -->
-		self.techIconGrid.setHeader( iTechColWants, self.TEXT_WANTS )
+		self.techIconGrid.setHeader( iTechColWants, self.scaleBodyText(self.TEXT_WANTS) )
 		# advc.004g: was TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE
-		self.techIconGrid.setHeader( iTechColCantYou, self.TEXT_CANT_RECEIVE )
-		self.techIconGrid.setHeader( iTechColResearch, self.TEXT_CAN_RESEARCH )
-		self.techIconGrid.setHeader( iTechColGold, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+		self.techIconGrid.setHeader( iTechColCantYou, self.scaleBodyText(self.TEXT_CANT_RECEIVE) )
+		self.techIconGrid.setHeader( iTechColResearch, self.scaleBodyText(self.TEXT_CAN_RESEARCH) )
+		self.techIconGrid.setHeader( iTechColGold, self.scaleBodyText(u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
 		self.techIconGrid.setTextColWidth( iTechColGold, self.TECH_GOLD_COL_WIDTH )
 
-		self.techIconGrid.setHeader( iTechColWill, self.TEXT_FOR_TRADE )
+		self.techIconGrid.setHeader( iTechColWill, self.scaleBodyText(self.TEXT_FOR_TRADE) )
 		# <advc.550i>
 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_TECH_TRADING):
 			self.techIconGrid.setTextColWidth(iTechColWill, 2 * self.TECH_GOLD_COL_WIDTH) # </advc.550i>
 
-		self.techIconGrid.setHeader( iTechColWont, self.TEXT_NOT_FOR_TRADE )
-		self.techIconGrid.setHeader( iTechColCantThem, self.TEXT_CANT_TRADE )
+		self.techIconGrid.setHeader( iTechColWont, self.scaleBodyText(self.TEXT_NOT_FOR_TRADE) )
+		self.techIconGrid.setHeader( iTechColCantThem, self.scaleBodyText(self.TEXT_CANT_TRADE) )
 
 		# <!-- custom: fit more information in each row so we don't have to scroll to see extra techs. Change with the help of gemini 3 pro -->
 		# Based on your screenshots (specifically Civ4ScreenShot0084.jpg) and the code provided, the issue is not the column width variables (TECH_STATUS_COL_WIDTH).
@@ -1745,11 +1746,11 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		iconGrid.setTextColWidth(iCityColWillCede, iCityColWidth)
 		iconGrid.setTextColWidth(iCityColWontCede, iCityColWidth)
 
-		iconGrid.setHeader(iCityColWants, self.TEXT_WANTS)
+		iconGrid.setHeader(iCityColWants, self.scaleBodyText(self.TEXT_WANTS))
 		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
-		iconGrid.setHeader(iCityColRejects, localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor))
-		iconGrid.setHeader(iCityColWillCede, self.TEXT_WILL_CEDE)
-		iconGrid.setHeader(iCityColWontCede, localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor))
+		iconGrid.setHeader(iCityColRejects, self.scaleBodyText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)))
+		iconGrid.setHeader(iCityColWillCede, self.scaleBodyText(self.TEXT_WILL_CEDE))
+		iconGrid.setHeader(iCityColWontCede, self.scaleBodyText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)))
 
 		gridWidth = iconGrid.getPrefferedWidth()
 		gridHeight = iconGrid.getPrefferedHeight()
@@ -1804,7 +1805,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 			if not currentPlayer.isAlive() or currentPlayer.isMinorCiv() or not currentTeam.isHasMet(iActiveTeam) or iCurrentPlayer == iActivePlayer:
 				continue
 
-			iconGrid.appendRow(currentPlayer.getName(), "")
+			iconGrid.appendRow(self.scaleBodyText(currentPlayer.getName()), "")
 
 			iconGrid.addIcon(currentRow, iCityColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iCurrentPlayer, iActivePlayer)
 			# BUG - AI status - start
@@ -1815,7 +1816,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 				szStatus += self.WAR_ICON
 			elif currentTeam.isForcePeace(iActiveTeam):
 				szStatus += self.PEACE_ICON
-			iconGrid.setText(currentRow, iCityColStatus, szStatus)
+			iconGrid.setText(currentRow, iCityColStatus, self.scaleBodyText(szStatus))
 			# BUG - AI status - end
 			# Precompute the contents of each cell in order to shorten the city strings as necessary
 			iLiberate = iCityColWontCede + 1 # Pseudo-column for sorting
@@ -1866,7 +1867,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 						widgetData1 = (widgetData1 + 1) * 100
 					else:
 						szCity = self.getCityText(city, iCol == iLiberate, bGrayOut, iCities > 3)
-					iconGrid.addText(currentRow, iDisplayCol, szCity, widgetType, widgetData1, widgetData2)
+					iconGrid.addText(currentRow, iDisplayCol, self.scaleBodyText(szCity), widgetType, widgetData1, widgetData2)
 					iAdded += 1
 					if iAdded >= 6:
 						break
@@ -1954,7 +1955,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
 		return 0
 
 def smallText(text):
-	return u"<font=2>%s</font>" % text
+	return SAS_FONT_TAG_BODY + text + SAS_FONT_TAG_CLOSE
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
