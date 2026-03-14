@@ -9,6 +9,7 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 import BugUtil
+from SASFontUtils import *
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -81,13 +82,13 @@ class SevoPediaIndex:
 			szText = self.SAS_INDEX_SEARCH_DEFAULT_TEXT
 		
 		screen.setLabel(self.SAS_INDEX_SEARCH_LABEL_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
-				u"<font=3>%s</font>" % szText,
+				SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
 				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 		if self.SAS_indexIsSearchActive():
 			screen.setLabel(self.SAS_INDEX_SEARCH_CLEAR_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
-					u"<font=3>x</font>",
+					SAS_FONT_TAG_LABEL + u"x" + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
 					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -259,11 +260,11 @@ class SevoPediaIndex:
 				sLetter = name[:1]
 				screen.appendTableRow(self.tableName)
 				iRow += 1
-				screen.setTableText(self.tableName, 1, iRow, u"<font=4>- " + sLetter + u" -</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(self.tableName, 1, iRow, SAS_FONT_TAG_TITLE + u"- " + sLetter + u" -" + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				screen.appendTableRow(self.tableName)
 				# create letter button
 				textName = self.top.getNextWidgetName()
-				letterText = u"<font=4>%s</font>" % sLetter
+				letterText = SAS_FONT_TAG_TITLE + sLetter + SAS_FONT_TAG_CLOSE
 				screen.setText(textName, "Background", letterText, CvUtil.FONT_CENTER_JUSTIFY, 
 						iX, iLetterY, 0, FontTypes.TITLE_FONT, 
 						WidgetTypes.WIDGET_GENERAL, iRow, -1)
@@ -280,7 +281,7 @@ class SevoPediaIndex:
 					iColumn = 0
 			
 			# <!-- custom: refactor, since sText was defined in existing code, reuse it instead of hardcoding it again at each call if i may say and am not mistaken, this also fixes ruff warning and according to chatgpt this is unused as well and safe to remove as well so adding it again; similarly removed unused lines `sButton = ""` and `eWidget = None` and as for lines `iData1 = item[1]` and `iData2 = 1` also using them as variables similarly instead of hardcoding them each time -->
-			sText = u"<font=3>" + item[0] + u"</font>"
+			sText = SAS_FONT_TAG_LABEL + item[0] + SAS_FONT_TAG_CLOSE
 			iData1 = item[1]
 			iData2 = 1
 			if (type == "Tech"):
@@ -333,9 +334,9 @@ class SevoPediaIndex:
 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCorporationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
 			
 			elif (type == "Concept"):
-				screen.setTableText(self.tableName, iColumn, iRow, u"<font=3>%c %s</font>" % (CONCEPT_CHAR, item[0]), gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(self.tableName, iColumn, iRow, SAS_FONT_TAG_LABEL + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1, CvUtil.FONT_LEFT_JUSTIFY)
 			elif (type == "NewConcept"):
-				screen.setTableText(self.tableName, iColumn, iRow, u"<font=3>%c %s</font>" % (CONCEPT_CHAR, item[0]), gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(self.tableName, iColumn, iRow, SAS_FONT_TAG_LABEL + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1, CvUtil.FONT_LEFT_JUSTIFY)
 		
 		self.iLastRow = iRow
 

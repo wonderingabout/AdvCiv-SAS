@@ -53,6 +53,7 @@ import UnitUpgradesGraph
 import TraitUtil
 import BugCore
 import BugUtil
+from SASFontUtils import *
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -164,17 +165,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_CATEGORIES = 0
 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
-		# <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have much more room hopefully to accomodate a full row width, increase only as minimally as necessary (acording to what i measured) (did not test but should hopefully work perhaps even better, anyways), was 182 -->
+		# <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have much more room hopefully to accomodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: since the upscaling text changes, increased (from 124) to accomodate a max font size of 4. -->
 		# advc.002b: was 175
 		# <!-- custom: was 200 -->
-		self.W_CATEGORIES = 124
+		self.W_CATEGORIES = 166
 		# <advc.004y>
 		if self.bWideScreen:
 			# <!-- custom: could reduce it to 200 still displaying all text in the dedicated panel (but very close, 199 does not fit, 200 is the strict minimum on 1920 x 1080, and i assume resolutions don't affect this but i don't know, still even if they did is quite minor (at worse the text would need 2 rows (in total to be displayed in just the category, but the place/room i gain is very (and much more useful than this header width, so leaving as is, even if does not work/function as intended is fine, as long as not critically broken this is (just but anyways...) the category header text, we need info on the main big panel rather, anyways), was 230
 			# May actually even be visually clearer as the distance between the words in categories and the items's words in the items category is smaller, perhaps allowing for an even smaller,allowing for a faster and more direct, perhaps clearer intutive connection between these maybe but anyways -->
 			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
 			# <!-- custom: was 200 -->
-			self.W_CATEGORIES = 124
+			self.W_CATEGORIES = 166
 		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 
@@ -436,14 +437,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			szText = self.SAS_SEARCH_DEFAULT_TEXT
 
 		screen.setLabel(self.SAS_SEARCH_LABEL_ID, self.SAS_SEARCH_PANEL_ID,
-				u"<font=3>%s</font>" % szText,
+				SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
 				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Show a clear button only when active.
 		if self.SAS_isSearchActive():
 			screen.setLabel(self.SAS_SEARCH_CLEAR_ID, self.SAS_SEARCH_PANEL_ID,
-					u"<font=3>x</font>",
+					SAS_FONT_TAG_LABEL + u"x" + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
 					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -751,16 +752,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
-		self.HEAD_TEXT = u"<font=4b>" + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + u"</font>"
-		self.BACK_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper() + u"</font>"
-		self.NEXT_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper() + u"</font>"
-		self.EXIT_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper() + u"</font>"
+		self.HEAD_TEXT = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
+		self.BACK_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper() + SAS_FONT_TAG_CLOSE
+		self.NEXT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper() + SAS_FONT_TAG_CLOSE
 		
-		self.TOC_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper() + u"</font>"
-		self.INDEX_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper() + u"</font>"
+		self.TOC_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.INDEX_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper() + SAS_FONT_TAG_CLOSE
 		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
-		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
+		self.TOC_ACTIVE_TEXT = SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + SAS_FONT_TAG_CLOSE
+		self.INDEX_ACTIVE_TEXT = SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + SAS_FONT_TAG_CLOSE
 
 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
@@ -855,6 +856,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				iThresh = 19
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
+			szHeading = SAS_FONT_TAG_LABEL + szHeading + SAS_FONT_TAG_CLOSE
 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, category[2], 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(self.CATEGORY_LIST_ID)
 
@@ -1980,7 +1982,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_selectableListIdx.append(idx)
 
 			screen.appendTableRow(self.ITEM_LIST_ID)
-			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.ITEM_LIST_ID, 0, i, SAS_FONT_TAG_LABEL + sTitlePlaceItems + SAS_FONT_TAG_CLOSE, szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
 			self.SAS_rowToListIdx[i] = idx
 			i += 1
 		#screen.updateListBox(self.ITEM_LIST_ID)
