@@ -208,10 +208,7 @@ class CvDomesticAdvisor:
 		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <advc.193>
-		iCellFontSize = getSASUIFontLabel()
-		if self.nTableWidth / float(self.nNormalizedTableWidth) > 1.36:
-			iCellFontSize += 1
-		iCellFontSize = min(4, iCellFontSize)
+		iCellFontSize = getSASUIFontBody()
 		# (Uses of these tags in the code below aren't tagged w/ comments)
 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
 		szFontTagClose = SAS_FONT_TAG_CLOSE
