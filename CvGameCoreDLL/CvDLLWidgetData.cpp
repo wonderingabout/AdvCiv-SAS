@@ -787,6 +787,19 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
 	}
+	// <!-- custom: Optionally upscale hover help text via SAS_UI_FONT_HOVER define (Claude code Opus 4.6) -->
+	if (!szBuffer.isEmpty())
+	{
+		static int const iFontSize = GC.getDefineINT("SAS_UI_FONT_HOVER");
+		if (iFontSize >= 1 && iFontSize <= 4)
+		{
+			CvWString szWrapped;
+			szWrapped.Format(L"<font=%d>", iFontSize);
+			szWrapped.append(szBuffer.getCString());
+			szWrapped.append(L"</font>");
+			szBuffer.assign(szWrapped);
+		}
+	} // <!-- custom: (Claude code Opus 4.6) -->
 	if (getActivePlayer() == NO_PLAYER)
 		return;
 	static WidgetTypes aeExpandTypes[] =

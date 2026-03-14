@@ -7614,7 +7614,9 @@ class CvMainInterface:
 		else:
 			szHelpText = CyInterface().getHelpString()
 			if (szHelpText.find("<font=") == -1):
-				szHelpText = SAS_FONT_TAG_BODY + szHelpText + SAS_FONT_TAG_CLOSE
+				szTag = SAS_FONT_TAG_HOVER._build()
+				if szTag:
+					szHelpText = szTag + szHelpText + SAS_FONT_TAG_CLOSE
 			screen.setHelpTextString(szHelpText)
 		return 0
 
