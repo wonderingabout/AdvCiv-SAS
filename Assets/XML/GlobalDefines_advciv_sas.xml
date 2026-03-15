@@ -346,6 +346,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: enable compact top-left civ flag (hover/click) and matching left-text spacing shift (e.g. treasury); set to 0 to hide the flag and keep left text at base position. (GPT-5.3-Codex (summarized)) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 
 
 
