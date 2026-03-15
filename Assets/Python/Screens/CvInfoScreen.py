@@ -23,6 +23,7 @@ import re
 from PyHelpers import PyPlayer
 from SASUtils import *
 from SASFontUtils import *
+import SASTextScale
 
 # <!-- custom: Begin - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
 import Scoreboard
@@ -856,31 +857,22 @@ class CvInfoScreen:
 		screen.hideScreen()
 
 	def scaleBodyText(self, szText):
-		if szText is None:
-			return szText
-		if szText == "":
-			return szText
-		try:
-			if szText.find("<font=") != -1:
-				return szText
-		except:
-			return szText
-		return SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
+		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_BODY)
 
 	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
-		screen.setTableText(szTable, iCol, iRow, self.scaleBodyText(szText), szIcon, eWidgetType, iData1, iData2, eJustify)
+		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
 
 	def setTableIntScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
-		screen.setTableInt(szTable, iCol, iRow, self.scaleBodyText(szText), szIcon, eWidgetType, iData1, iData2, eJustify)
+		SASTextScale.setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
 
 	def setTableColumnHeaderScaled(self, screen, szTable, iCol, szText, iWidth):
-		screen.setTableColumnHeader(szTable, iCol, self.scaleBodyText(szText), iWidth)
+		SASTextScale.setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_BODY)
 
 	def appendListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
-		screen.appendListBoxString(szWidgetName, self.scaleBodyText(szText), eWidgetType, iData1, iData2, eJustify)
+		SASTextScale.appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
 
 	def appendListBoxStringNoUpdateScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
-		screen.appendListBoxStringNoUpdate(szWidgetName, self.scaleBodyText(szText), eWidgetType, iData1, iData2, eJustify)
+		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
 
 	def getLastTurn(self):
 		return (gc.getGame().getReplayMessageTurn(gc.getGame().getNumReplayMessages()-1))

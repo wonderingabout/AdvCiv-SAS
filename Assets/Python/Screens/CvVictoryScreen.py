@@ -21,6 +21,7 @@ import GameUtil
 import PlayerUtil
 import TechUtil
 from SASFontUtils import *
+import SASTextScale
 # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
 import TraitUtil
 
@@ -254,21 +255,13 @@ class CvVictoryScreen:
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 
 	def scaleLabelText(self, szText):
-		if szText is None:
-			return szText
-		try:
-			szUnicode = unicode(szText)
-		except:
-			return szText
-		if szUnicode.find(u"<font=") != -1:
-			return szUnicode
-		return SAS_FONT_TAG_LABEL + szUnicode + SAS_FONT_TAG_CLOSE
+		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_LABEL)
 
 	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify):
-		screen.setTableText(szTable, iCol, iRow, self.scaleLabelText(szText), szButton, eWidget, iData1, iData2, eJustify)
+		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
 
 	def appendListBoxStringNoUpdateScaled(self, screen, szTable, szText, eWidget, iData1, iData2, eJustify):
-		screen.appendListBoxStringNoUpdate(szTable, self.scaleLabelText(szText), eWidget, iData1, iData2, eJustify)
+		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szTable, szText, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
 
 	def hideScreen(self):
 		screen = self.getScreen()
