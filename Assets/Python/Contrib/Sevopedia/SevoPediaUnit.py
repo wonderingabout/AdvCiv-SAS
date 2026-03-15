@@ -21,6 +21,7 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 from SASFontUtils import *
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -188,10 +189,10 @@ class SevoPediaUnit:
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 	def _bodyText(self, szText):
-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SASTextScale.bodyText(szText)
 
 	def _labelText(self, szText):
-		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SASTextScale.labelText(szText)
 
 
 

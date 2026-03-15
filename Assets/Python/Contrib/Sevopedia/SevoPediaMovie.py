@@ -11,6 +11,7 @@ from CvPythonExtensions import *
 import CvUtil
 import SevoScreenEnums
 from SASFontUtils import *
+import SASTextScale
 
 from _sevopedia_helpers import *
 from SevoPediaMediaPlayer import SevoPediaMediaPlayer
@@ -120,7 +121,7 @@ class SevoPediaMovie:
 				szText = ""
 		if szText and szText.startswith("TXT_KEY_"):
 			szText = ""
-		szText = SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
+		szText = SASTextScale.bodyText(szText)
 		textName = self.top.getNextWidgetName()
 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

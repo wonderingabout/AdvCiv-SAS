@@ -20,6 +20,7 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 from SASFontUtils import *
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -186,10 +187,10 @@ class SevoPediaImprovement:
 		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
 
 	def _bodyText(self, szText):
-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SASTextScale.bodyText(szText)
 
 	def _labelText(self, szText):
-		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SASTextScale.labelText(szText)
 
 
 

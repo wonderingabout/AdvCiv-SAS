@@ -17,6 +17,7 @@ import ScreenInput
 import SevoScreenEnums
 import re
 from SASFontUtils import *
+import SASTextScale
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -50,7 +51,7 @@ class SevoPediaHistory:
 		szText = self.getCivilopedia(iEntry)
 		szText = SAS_FONT_OPEN_RE.sub(u"", szText)
 		szText = SAS_FONT_CLOSE_RE.sub(u"", szText)
-		szText = SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
+		szText = SASTextScale.bodyText(szText)
 		textName = self.top.getNextWidgetName()
 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

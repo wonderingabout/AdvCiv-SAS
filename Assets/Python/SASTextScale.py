@@ -1,4 +1,10 @@
-from SASFontUtils import SAS_FONT_TAG_CLOSE
+from SASFontUtils import (
+	SAS_FONT_TAG_BODY,
+	SAS_FONT_TAG_CLOSE,
+	SAS_FONT_TAG_LABEL,
+	SAS_FONT_TAG_TITLE,
+	SAS_FONT_TAG_TINY,
+)
 
 
 def applyFontTag(szText, szTag):
@@ -13,6 +19,22 @@ def applyFontTag(szText, szTag):
 	if szUnicode.find(u"<font=") != -1:
 		return szUnicode
 	return szTag + szUnicode + SAS_FONT_TAG_CLOSE
+
+
+def tinyText(szText):
+	return applyFontTag(szText, SAS_FONT_TAG_TINY)
+
+
+def bodyText(szText):
+	return applyFontTag(szText, SAS_FONT_TAG_BODY)
+
+
+def labelText(szText):
+	return applyFontTag(szText, SAS_FONT_TAG_LABEL)
+
+
+def titleText(szText):
+	return applyFontTag(szText, SAS_FONT_TAG_TITLE)
 
 
 def setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
