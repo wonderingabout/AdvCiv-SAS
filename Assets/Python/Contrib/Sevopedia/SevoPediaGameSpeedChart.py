@@ -54,12 +54,7 @@ class SevoPediaGameSpeedChart:
 
 		data = self._getTableData()
 		if not data:
-			screen.setLabel(self.top.getNextWidgetName(), "Background",
-					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
-					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
-					WidgetTypes.WIDGET_GENERAL, -1, -1)
-			return
-
+			raise RuntimeError("[FATAL] SevoPediaGameSpeedChart received no table data; this should never happen.")
 		header = data[0]
 		rows = data[1:]
 		nCols = len(header)
@@ -452,7 +447,7 @@ class SevoPediaGameSpeedChart:
 		if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
 			header.append("")
 		for sz in speed_labels:
-			header.append(sz)
+			header.append(chart_font2(sz))
 		table.append(header)
 
 		row_index = 0

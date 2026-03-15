@@ -8,6 +8,7 @@ from CvPythonExtensions import *
 
 import CvUtil
 import re
+from SASFontUtils import *
 
 
 
@@ -406,8 +407,8 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 
 
 def chart_font2(szText):
-	# Wrap text in <font=2> tags for chart table cells.
-	return u"<font=2>%s</font>" % unicode(szText)  # noqa: F821
+	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
+	return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE  # noqa: F821
 
 
 
