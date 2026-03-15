@@ -15,10 +15,14 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import re
+from SASFontUtils import *
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
+SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
+SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
 
 
 
@@ -44,7 +48,11 @@ class SevoPediaHistory:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = self.getCivilopedia(iEntry)
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = SAS_FONT_OPEN_RE.sub(u"", szText)
+		szText = SAS_FONT_CLOSE_RE.sub(u"", szText)
+		szText = SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
+		textName = self.top.getNextWidgetName()
+		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
