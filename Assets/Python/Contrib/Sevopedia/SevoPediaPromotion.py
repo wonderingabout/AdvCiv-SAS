@@ -19,7 +19,6 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
-import re
 import SASTextScale
 
 from _sevopedia_helpers import *
@@ -27,8 +26,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
-SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
 
 
 
@@ -260,9 +257,7 @@ class SevoPediaPromotion:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getPromotionHelp(self.iPromotion, True)[1:]
-		szSpecialText = SAS_FONT_OPEN_RE.sub(u"", szSpecialText)
-		szSpecialText = SAS_FONT_CLOSE_RE.sub(u"", szSpecialText)
-		szSpecialText = SASTextScale.bodyText(szSpecialText)
+		szSpecialText = SASTextScale.normalizeBodyText(szSpecialText)
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
