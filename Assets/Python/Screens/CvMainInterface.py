@@ -663,6 +663,8 @@ class CvMainInterface:
 		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = None
 		# <!-- custom: optional unit info button in the map view unit panel. (GPT-5.2-Codex) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
+		# <!-- custom: optional top-left flag and left-text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
+		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = None
 
 
 
@@ -964,8 +966,14 @@ class CvMainInterface:
 		lBUGOptBtn = gRect("TurnLogButton").copy()
 		lBUGOptBtn.move(gRect("TurnLogButton").size() + HSPACE(4), 0)
 		gSetRectangle("BUGOptionsScreenWidget", lBUGOptBtn)
-		gSetPoint("GoldText", PointLayout(
-				(gRect("TurnLogButton").x() * 2) / 3, gPoint("TimeText").y()))
+		iGoldTextX = (gRect("TurnLogButton").x() * 2) / 3
+		bTopLeftFlagAndTreasuryShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT
+		if bTopLeftFlagAndTreasuryShift is None:
+			bTopLeftFlagAndTreasuryShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
+		if bTopLeftFlagAndTreasuryShift:
+			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
+			iGoldTextX += HSPACE(18)
+		gSetPoint("GoldText", PointLayout(iGoldTextX, gPoint("TimeText").y()))
 		gSetPoint("EraText", PointLayout(
 				gRect("CityLeftPanel").xRight() - HSPACE(8), gPoint("GoldText").y()))
 		self.setCommerceAdjustRects()
@@ -985,16 +993,16 @@ class CvMainInterface:
 				iEndTurnBtnX,
 				iEndTurnBtnY,
 				iEndTurnBtnSz)
-		# <!-- custom: position flag directly to the left of the minimap, like in the C2C mod  (Claude code Opus 4.5) -->
-		# Use absolute positioning based on minimap's actual screen position
-		iFlagWidth = 68
+		# <!-- custom: compact BtS-ratio top-left flag slot; runtime drawing is toggled in updateFlag. (GPT-5.3-Codex) -->
+		iFlagWidth = 24
 		iFlagHeight = iFlagWidth * 250 / 68
-		iFlagX = gRect("MiniMapPanel").x() - iFlagWidth - 4  # 4px gap to the left of minimap
-		iFlagY = gRect("MiniMapPanel").y() + 4  # 4px from top of minimap panel
+		# <!-- custom: clamp to visible screen bounds; negative top-left offsets can hide the flag widget entirely on some HUD layouts. (GPT-5.3-Codex) -->
+		iFlagX = max(0, gRect("InterfaceTopLeft").x() + HSPACE(2))
+		iFlagY = max(0, gRect("InterfaceTopLeft").y() + VSPACE(0))
 		gSetRect("CivilizationFlag", "Top",
 				iFlagX, iFlagY,
 				iFlagWidth, iFlagHeight)
-		# CivFlagArea kept for compatibility, sized to fit the flag
+		# CivFlagArea kept for compatibility, sized to fit the flag.
 		gSetRect("CivFlagArea", "CivilizationFlag",
 				0, 0,
 				RectLayout.MAX, RectLayout.MAX)
@@ -1919,7 +1927,8 @@ class CvMainInterface:
 			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN") > 0)
 		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
 			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
-
+		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT is None:
+			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
 		lTop = gRect("Top")
 
 		self.setDefaultHelpTextArea()
@@ -2847,7 +2856,9 @@ class CvMainInterface:
 			self.updatePercentButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT)):
-			# self.updateFlag()
+			# <!-- custom: changed from unconditional refresh to define-gated refresh so this optional UI feature stays no-op when disabled. (GPT-5.3-Codex) -->
+			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
+				self.updateFlag()
 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
 			# Miscellaneous buttons (civics screen, etc)
@@ -3099,13 +3110,19 @@ class CvMainInterface:
 # BUG - Great Person Bar - end
 		#CyInterface().shouldDisplayFlag() and
 		# <advc.004y> Don't check shouldDisplayFlag for the Civilopedia button, but do check if the city screen is up.
-		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW and
-				not CyInterface().isCityScreenUp()):
-			screen.show("InterfaceHelpButton")
-			if CyInterface().shouldDisplayFlag():
-				screen.show("MainMenuButton")
-			else:
+		# <!-- custom: we also show the flag in city screen, unlike base AdvCiv. Because this mod moves it to a small top-left slot, it no longer interferes with city-action buttons; therefore keeping it visible in city screen is useful (traits hover + capital jump) rather than intrusive. This remains an optional behavior. (GPT-5.3-Codex) -->
+		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW):
+			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
+				self.updateFlag()
+			if CyInterface().isCityScreenUp():
+				screen.hide("InterfaceHelpButton")
 				screen.hide("MainMenuButton")
+			else:
+				screen.show("InterfaceHelpButton")
+				if CyInterface().shouldDisplayFlag():
+					screen.show("MainMenuButton")
+				else:
+					screen.hide("MainMenuButton")
 			# </advc.004y>
 		else:
 			screen.hide("CivilizationFlag")
@@ -3710,21 +3727,20 @@ class CvMainInterface:
 		return 0
 # BUG - BUG unit plot draw method - end
 
-
-	# <!-- custom: do not show the useless flag, we need the space for buttons anyway, done with the help of GPT-5.2-Codex thanks a lot -->
-	# # This will update the flag widget for SP hotseat and dbeugging
-	# def updateFlag(self):
-	# 	self.screen.hide("CivilizationFlag")
-	# 	return
-	# 	eIFaceVis = CyInterface().getShowInterface()
-	# 	if (eIFaceVis != InterfaceVisibility.INTERFACE_HIDE_ALL and
-	# 			eIFaceVis != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
-	# 			eIFaceVis != InterfaceVisibility.INTERFACE_ADVANCED_START):
-	# 		lRect = gRect("CivilizationFlag")
-	# 		self.screen.addFlagWidgetGFC("CivilizationFlag",
-	# 				lRect.x(), lRect.y(), lRect.width(), lRect.height(),
-	# 				gc.getGame().getActivePlayer(),
-	# 				WidgetTypes.WIDGET_FLAG, gc.getGame().getActivePlayer(), -1)
+	# <!-- custom: restored flag-widget update path (was disabled before our UI option) so hover/click flag behavior can be toggled by define-gated callers. (GPT-5.3-Codex) -->
+	def updateFlag(self):
+		eIFaceVis = CyInterface().getShowInterface()
+		if (eIFaceVis != InterfaceVisibility.INTERFACE_HIDE_ALL and
+				eIFaceVis != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
+				eIFaceVis != InterfaceVisibility.INTERFACE_ADVANCED_START):
+			lRect = gRect("CivilizationFlag")
+			self.screen.addFlagWidgetGFC("CivilizationFlag",
+					lRect.x(), lRect.y(), lRect.width(), lRect.height(),
+					gc.getGame().getActivePlayer(),
+					WidgetTypes.WIDGET_FLAG, gc.getGame().getActivePlayer(), -1)
+			self.screen.show("CivilizationFlag")
+		else:
+			self.screen.hide("CivilizationFlag")
 
 	# Will hide and show the selection buttons and their associated buttons
 	def updateSelectionButtons(self):

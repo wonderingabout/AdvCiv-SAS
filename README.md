@@ -277,7 +277,7 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
 
 #### Map view rework
 
-Outside the city screen, UI has been reworked too: removed the flag (was needless and cumbersome: better show more buttons instead), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
+Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
 
 ## UI (Main Sevopedia reworks)
 
