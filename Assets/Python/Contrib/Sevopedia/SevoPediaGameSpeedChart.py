@@ -202,7 +202,6 @@ class SevoPediaGameSpeedChart:
 		# Icon libraries
 		# Each icon definition includes a "sort group" so sorting by the icon column is meaningful.
 		# (The group is also embedded into an invisible tie-breaker so ordering is fully deterministic.)
-		localText = CyTranslator()
 		game = CyGame()
 
 		# Keep icon libraries lean: define only icons we actually use in this chart.
@@ -470,7 +469,7 @@ class SevoPediaGameSpeedChart:
 		# Culture level thresholds (scaled by iCulturePercent) appended at bottom.
 		for iLevel in xrange(gc.getNumCultureLevelInfos()):
 			info = gc.getCultureLevelInfo(iLevel)
-			szName = CyTranslator().getText(str(info.getTextKey()), ())
+			szName = localText.getText(str(info.getTextKey()), ())
 
 			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key("iCulturePercent", row_index), chart_font2(szName)]
