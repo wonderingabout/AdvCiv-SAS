@@ -10,6 +10,7 @@
 from CvPythonExtensions import *
 import CvUtil
 import SevoScreenEnums
+from SASFontUtils import *
 
 from _sevopedia_helpers import *
 from SevoPediaMediaPlayer import SevoPediaMediaPlayer
@@ -97,7 +98,7 @@ class SevoPediaMovie:
 		szTitleText = ""
 		if info:
 			szTitleText = info.getDescription()
-		szTitle = u"<font=4b>" + szTitleText.upper() + u"</font>"
+		szTitle = SAS_FONT_TAG_TITLE_BOLD + szTitleText.upper() + SAS_FONT_TAG_CLOSE
 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if self.hasMovie(iMovieType, iMovieId):
@@ -119,7 +120,9 @@ class SevoPediaMovie:
 				szText = ""
 		if szText and szText.startswith("TXT_KEY_"):
 			szText = ""
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
+		textName = self.top.getNextWidgetName()
+		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
