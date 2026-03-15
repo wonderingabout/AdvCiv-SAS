@@ -394,6 +394,9 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 
 	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
 	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING) + MULTILIST_NUMTXT_GLOBAL_X_ADJUST
+	iLabelFont = getSASUIFontLabel()
+	if iLabelFont > 2:
+		textX += (-3 * (iLabelFont - 2))
 
 	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful or not or yes or etc to do so -->
 	extraCorrectionY = -9
@@ -402,7 +405,8 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	textW = 2 * button_size
 	textH = 30
 
-	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
+	szNumTxt = SAS_FONT_TAG_LABEL + numTxt + SAS_FONT_TAG_CLOSE
+	screen.addMultilineText(textName, szNumTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
 
 
 
