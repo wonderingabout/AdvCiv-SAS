@@ -4920,9 +4920,10 @@ class CvMainInterface:
 		else:
 			iCityID = -1
 # BUG - Bars on single line for higher resolution screens - start
+		# <!-- custom: attach displayed GP city id so clicking the GP text can open that exact city screen. (GPT-5.3-Codex) -->
 		self.setText("GreatPersonBarText", "Background", szText,
 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
-				WidgetTypes.WIDGET_GP_PROGRESS_BAR)
+				WidgetTypes.WIDGET_GP_PROGRESS_BAR, iCityID, -1)
 		if not pGPCity:
 			screen.setHitTest("GreatPersonBarText", HitTestTypes.HITTEST_NOHIT)
 		screen.show("GreatPersonBarText")
@@ -8010,16 +8011,21 @@ class CvMainInterface:
 		# <!-- custom: end - building filter button hover tooltips -->
 
 # BUG - Great Person Bar - start
+		# <!-- custom: support GP bar clicks in both one-line/two-line layouts and on GP text itself. (GPT-5.3-Codex) -->
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and
-				inputClass.getFunctionName().startswith("TwoLineGPBar")):
-			# Zoom to next GP city
+				(inputClass.getFunctionName().startswith("TwoLineGPBar") or
+				inputClass.getFunctionName().startswith("OneLineGPBar") or
+				inputClass.getFunctionName().startswith("GreatPersonBarText"))):
 			iCity = inputClass.getData1()
-			if (iCity == -1):
-				pCity, _ = GPUtil.findNextCity()
-			else:
+			# <!-- custom: prefer widget city id when available for direct city resolution. (GPT-5.3-Codex) -->
+			if (iCity != -1):
 				pCity = gc.getActivePlayer().getCity(iCity)
+			else:
+				# <!-- custom: fallback to the currently displayed GP city if widget data is missing. (GPT-5.3-Codex) -->
+				pCity, _ = GPUtil.getDisplayCity()
 			if pCity and not pCity.isNone():
-				CyInterface().selectCity(pCity, False)
+				# <!-- custom: true opens the selected city's city screen from map view. (GPT-5.3-Codex) -->
+				CyInterface().selectCity(pCity, true)
 			return 1
 # BUG - Great Person Bar - end
 
