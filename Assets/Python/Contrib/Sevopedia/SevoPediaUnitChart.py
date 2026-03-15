@@ -13,6 +13,7 @@
 
 from CvPythonExtensions import *
 import CvUtil
+from SASFontUtils import getSASUIFontLabel
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -64,8 +65,17 @@ class SevoPediaUnitChart:
 			self.N_COLUMNS = 8
 		else:
 			self.N_COLUMNS = 10
-		
-		self.W_TABLE = (self.W_NAME + ((self.N_COLUMNS - 1) * self.W_NUM)) + (2 * self.MARGIN)
+
+		# <!-- custom: simple per-column width tuning (no extra structures):
+		# tighter numeric columns free room for collateral text; air evasion/intercept stay equal. (GPT-5.3-Codex) -->
+		wTight = self.W_NUM - 7
+		wDefault = self.W_NUM
+		wWide = self.W_NUM + 28
+
+		if not isAirCombatType:
+			self.W_TABLE = (self.W_NAME + wTight + wTight + wDefault + wTight + wWide + wTight + wDefault) + (2 * self.MARGIN)
+		else:
+			self.W_TABLE = (self.W_NAME + wTight + wTight + wDefault + wTight + wWide + wDefault + wDefault + wDefault + wDefault) + (2 * self.MARGIN)
 
 		# <!-- custom: blue is more readable than standard i find, imported from base AdvCiv and modified with a similar kind of purpose -->
 		#screen.addTableControlGFC(table, self.N_COLUMNS, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
@@ -102,33 +112,49 @@ class SevoPediaUnitChart:
 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 
 		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it: "screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround." + "Workaround: Pad the header label string manually" thanks, that i adjusted too or not for advciv-sas. -->
-		szNameText = u"<font=2>    " + szName + u"</font>"
-		szStrengthtext = u"<font=2>             " + szStrength + u"</font>"
-		szMoveText = u"<font=2>             " + szMove + u"</font>"
-		szFirstStrikeText = u"<font=2>       " + szFirstStrike + u"</font>"
-		szBombardText = u"<font=2>            " + szBombard + u"</font>"
-		szCollateralText = u"<font=2>      " + szCollateral + u"</font>"
-		szCostText = u"<font=2>             " + szCost + u"</font>"
+		# <!-- custom: table headers do not honor text-justify in this widget.
+		# Keep per-header legacy spacing (worked well at font 2), then reduce spaces gradually
+		# when label font > 2 to avoid right-shift at larger scales. (GPT-5.3-Codex) -->
+		iLabelFont = getSASUIFontLabel()
+		iShrink = 0
+		if iLabelFont > 2:
+			iShrink = (iLabelFont - 2) * 3
+
+		def _headerPad(iBaseSpaces):
+			iSpaces = iBaseSpaces - iShrink
+			if iSpaces < 0:
+				iSpaces = 0
+			return u" " * iSpaces
+
+		szNameText = chart_font2(_headerPad(4) + szName)
+		# <!-- custom: keep these base pads tuned for the small-font look; high-font uses iShrink above.
+		# Avoid extra micro-retuning here to reduce tedium. (GPT-5.3-Codex) -->
+		szStrengthtext = chart_font2(_headerPad(15) + szStrength)
+		szMoveText = chart_font2(_headerPad(15) + szMove)
+		szFirstStrikeText = chart_font2(_headerPad(7) + szFirstStrike)
+		szBombardText = chart_font2(_headerPad(14) + szBombard)
+		szCollateralText = chart_font2(_headerPad(12) + szCollateral)
+		szCostText = chart_font2(_headerPad(15) + szCost)
 
 		if isAirCombatType:
 			szAirEvasion = u"Air Evasion"
 			szAirIntercept = u"Air Intercept"
 			szAirRange = u"Air Range"
 			
-			szAirEvasionText = u"<font=2>     " + szAirEvasion + u"</font>"
-			szAirInterceptText = u"<font=2>    " + szAirIntercept + u"</font>"
-			szAirRangeText = u"<font=2>      " + szAirRange + u"</font>"
+			szAirEvasionText = chart_font2(_headerPad(5) + szAirEvasion)
+			szAirInterceptText = chart_font2(_headerPad(4) + szAirIntercept)
+			szAirRangeText = chart_font2(_headerPad(6) + szAirRange)
 
 			screen.setTableColumnHeader(table, 0, szNameText, self.W_NAME)
-			screen.setTableColumnHeader(table, 1, szStrengthtext, self.W_NUM)
-			screen.setTableColumnHeader(table, 2, szMoveText, self.W_NUM)
-			screen.setTableColumnHeader(table, 3, szFirstStrikeText, self.W_NUM)
-			screen.setTableColumnHeader(table, 4, szBombardText, self.W_NUM)
-			screen.setTableColumnHeader(table, 5, szCollateralText, self.W_NUM)
-			screen.setTableColumnHeader(table, 6, szAirEvasionText, self.W_NUM)
-			screen.setTableColumnHeader(table, 7, szAirInterceptText, self.W_NUM)
-			screen.setTableColumnHeader(table, 8, szAirRangeText, self.W_NUM)
-			screen.setTableColumnHeader(table, 9, szCostText, self.W_NUM)
+			screen.setTableColumnHeader(table, 1, szStrengthtext, wTight)
+			screen.setTableColumnHeader(table, 2, szMoveText, wTight)
+			screen.setTableColumnHeader(table, 3, szFirstStrikeText, wDefault)
+			screen.setTableColumnHeader(table, 4, szBombardText, wTight)
+			screen.setTableColumnHeader(table, 5, szCollateralText, wWide)
+			screen.setTableColumnHeader(table, 6, szAirEvasionText, wDefault)
+			screen.setTableColumnHeader(table, 7, szAirInterceptText, wDefault)
+			screen.setTableColumnHeader(table, 8, szAirRangeText, wDefault)
+			screen.setTableColumnHeader(table, 9, szCostText, wDefault)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				UnitInfo = gc.getUnitInfo(iUnit)
@@ -149,16 +175,16 @@ class SevoPediaUnitChart:
 		else:
 			szWithdraw = u"Withdraw"
 
-			szWithdrawText = u"<font=2>      " + szWithdraw + u"</font>"
+			szWithdrawText = chart_font2(_headerPad(6) + szWithdraw)
 
 			screen.setTableColumnHeader(table, 0, szNameText, self.W_NAME)
-			screen.setTableColumnHeader(table, 1, szStrengthtext, self.W_NUM)
-			screen.setTableColumnHeader(table, 2, szMoveText, self.W_NUM)
-			screen.setTableColumnHeader(table, 3, szFirstStrikeText, self.W_NUM)
-			screen.setTableColumnHeader(table, 4, szBombardText, self.W_NUM)
-			screen.setTableColumnHeader(table, 5, szCollateralText, self.W_NUM)
-			screen.setTableColumnHeader(table, 6, szWithdrawText, self.W_NUM)
-			screen.setTableColumnHeader(table, 7, szCostText, self.W_NUM)
+			screen.setTableColumnHeader(table, 1, szStrengthtext, wTight)
+			screen.setTableColumnHeader(table, 2, szMoveText, wTight)
+			screen.setTableColumnHeader(table, 3, szFirstStrikeText, wDefault)
+			screen.setTableColumnHeader(table, 4, szBombardText, wTight)
+			screen.setTableColumnHeader(table, 5, szCollateralText, wWide)
+			screen.setTableColumnHeader(table, 6, szWithdrawText, wTight)
+			screen.setTableColumnHeader(table, 7, szCostText, wDefault)
 
 			for iUnit in xrange(gc.getNumUnitInfos()):
 				UnitInfo = gc.getUnitInfo(iUnit)
@@ -178,7 +204,7 @@ class SevoPediaUnitChart:
 
 	def placeTableName(self, screen, table, iCol, iRow, UnitInfo, iUnit):
 		# Name
-		screen.setTableText(table, iCol, iRow, u"<font=3>" + UnitInfo.getDescription() + u"</font>", UnitInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(table, iCol, iRow, chart_font2(UnitInfo.getDescription()), UnitInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -189,7 +215,7 @@ class SevoPediaUnitChart:
 		else:
 			szCombatNum = u"%d" % UnitInfo.getCombat()
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCombatNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szCombatNum), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -197,7 +223,7 @@ class SevoPediaUnitChart:
 		# Movement
 		szMovesNum = u"%d" % UnitInfo.getMoves()
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szMovesNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szMovesNum), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -209,7 +235,7 @@ class SevoPediaUnitChart:
 		else:
 			szFirstStrikesNum = u""
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szFirstStrikesNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szFirstStrikesNum), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -222,7 +248,7 @@ class SevoPediaUnitChart:
 		else:
 			szBombardRate = u""
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szBombardRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szBombardRate), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -233,7 +259,7 @@ class SevoPediaUnitChart:
 		else:
 			szCollateralRate = u""
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCollateralRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szCollateralRate), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -244,7 +270,7 @@ class SevoPediaUnitChart:
 		else:
 			szWithdrawalRate = u""
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szWithdrawalRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szWithdrawalRate), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -255,7 +281,7 @@ class SevoPediaUnitChart:
 		else:
 			szAirEvasionRate = u""
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirEvasionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szAirEvasionRate), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -266,7 +292,7 @@ class SevoPediaUnitChart:
 		else:
 			szAirInterceptionRate = u""
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirInterceptionRate + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szAirInterceptionRate), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -277,7 +303,7 @@ class SevoPediaUnitChart:
 		else:
 			szAirRangeNum = u""
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szAirRangeNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szAirRangeNum), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
@@ -288,7 +314,7 @@ class SevoPediaUnitChart:
 		else:
 			szCostNum = u"%d" % UnitInfo.getProductionCost()
 
-		screen.setTableInt(table, iCol, iRow, u"<font=3>" + szCostNum + u"</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.setTableInt(table, iCol, iRow, chart_font2(szCostNum), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 
 
