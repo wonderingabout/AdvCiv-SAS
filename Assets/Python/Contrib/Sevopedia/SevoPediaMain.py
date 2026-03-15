@@ -164,17 +164,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_CATEGORIES = 0
 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
-		# <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have much more room hopefully to accomodate a full row width, increase only as minimally as necessary (acording to what i measured) (did not test but should hopefully work perhaps even better, anyways), was 182 -->
+		# <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have much more room hopefully to accomodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: for some users, 124px is barely not enough although seems to run fine for most, increase width a bit to accomodate that; was 124 -->
 		# advc.002b: was 175
 		# <!-- custom: was 200 -->
-		self.W_CATEGORIES = 124
+		self.W_CATEGORIES = 126
 		# <advc.004y>
 		if self.bWideScreen:
 			# <!-- custom: could reduce it to 200 still displaying all text in the dedicated panel (but very close, 199 does not fit, 200 is the strict minimum on 1920 x 1080, and i assume resolutions don't affect this but i don't know, still even if they did is quite minor (at worse the text would need 2 rows (in total to be displayed in just the category, but the place/room i gain is very (and much more useful than this header width, so leaving as is, even if does not work/function as intended is fine, as long as not critically broken this is (just but anyways...) the category header text, we need info on the main big panel rather, anyways), was 230
 			# May actually even be visually clearer as the distance between the words in categories and the items's words in the items category is smaller, perhaps allowing for an even smaller,allowing for a faster and more direct, perhaps clearer intutive connection between these maybe but anyways -->
 			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
 			# <!-- custom: was 200 -->
-			self.W_CATEGORIES = 124
+			self.W_CATEGORIES = 126
 		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 
