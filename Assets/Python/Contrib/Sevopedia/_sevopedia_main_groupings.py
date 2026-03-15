@@ -1206,7 +1206,7 @@ def SAS_getCivicsGroupedByCivicOption(bSortLists):
 		if not tmp:
 			continue
 
-		# <!-- custom: do not alphabetize civics inside each civic-option group; keep their CIV4CivicInfos.xml order so progression is consistent with XML/game design and easier to scan while still keeping option-type headers. (GPT-5.3-Codex (summarized)) -->
+		# <!-- custom: do not alphabetize civics inside each civic-option group; keep their CIV4CivicInfos.xml order so it is more intuitive and logical to read (for civics). (GPT-5.3-Codex) -->
 		# # If BUG "Sort Lists" is ON, alphabetize within each option group
 		# if bSortLists:
 		# 	tmp.sort()

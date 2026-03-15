@@ -12,6 +12,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
 
 import re
 import TraitUtil
@@ -285,19 +286,19 @@ class SevoPediaTrait:
 			screen.addTableControlGFC(leftTableName, 3 + maxLeadersLeft, self.STATS_LEFT_TABLE_X, self.STATS_LEFT_TABLE_Y, self.STATS_LEFT_TABLE_W, self.STATS_LEFT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
 			screen.enableSort(leftTableName)
 
-			screen.setTableColumnHeader(leftTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TRAIT_HEADER", ()), self.STATS_LEFT_COL_TRAIT)
-			screen.setTableColumnHeader(leftTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_LEFT_COL_PAIR)
-			screen.setTableColumnHeader(leftTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), self.STATS_LEFT_COL_TOTAL)
+			screen.setTableColumnHeader(leftTableName, 0, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_TRAIT_HEADER", ())), self.STATS_LEFT_COL_TRAIT)
+			screen.setTableColumnHeader(leftTableName, 1, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ())), self.STATS_LEFT_COL_PAIR)
+			screen.setTableColumnHeader(leftTableName, 2, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ())), self.STATS_LEFT_COL_TOTAL)
 			inchart_set_icon_column_headers(screen, leftTableName, 3, maxLeadersLeft, leaderColWLeft)
 
 			for otherTrait, pairCount, totalCount, leaderIds in pairingData:
 				iRow = screen.appendTableRow(leftTableName)
 				otherTraitInfo = gc.getTraitInfo(otherTrait)
 
-				traitText = u"<font=2>%c %s</font>" % (TraitUtil.getIcon(otherTrait), otherTraitInfo.getDescription())
+				traitText = SASTextScale.bodyText(u"%c %s" % (TraitUtil.getIcon(otherTrait), otherTraitInfo.getDescription()))
 				screen.setTableText(leftTableName, 0, iRow, traitText, "", WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_TRAIT, otherTrait, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText(leftTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-				screen.setTableText(leftTableName, 2, iRow, u"<font=2>%d</font>" % totalCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(leftTableName, 1, iRow, SASTextScale.bodyText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(leftTableName, 2, iRow, SASTextScale.bodyText(u"%d" % totalCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				inchart_set_icon_cells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
@@ -316,9 +317,9 @@ class SevoPediaTrait:
 			screen.addTableControlGFC(rightTableName, 3 + maxLeadersRight, self.STATS_RIGHT_TABLE_X, self.STATS_RIGHT_TABLE_Y, tableWRight, self.STATS_RIGHT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
 			screen.enableSort(rightTableName)
 
-			screen.setTableColumnHeader(rightTableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COMBO", ()), self.STATS_RIGHT_COL_COMBO)
-			screen.setTableColumnHeader(rightTableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ()), self.STATS_RIGHT_COL_COUNT)
-			screen.setTableColumnHeader(rightTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), self.STATS_RIGHT_COL_RANK)
+			screen.setTableColumnHeader(rightTableName, 0, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COMBO", ())), self.STATS_RIGHT_COL_COMBO)
+			screen.setTableColumnHeader(rightTableName, 1, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COUNT", ())), self.STATS_RIGHT_COL_COUNT)
+			screen.setTableColumnHeader(rightTableName, 2, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ())), self.STATS_RIGHT_COL_RANK)
 			inchart_set_icon_column_headers(screen, rightTableName, 3, maxLeadersRight, leaderColWRight)
 
 			for trait1, trait2, pairCount, leaderIds in allPairsData:
@@ -326,15 +327,15 @@ class SevoPediaTrait:
 
 				trait1Info = gc.getTraitInfo(trait1)
 				trait2Info = gc.getTraitInfo(trait2)
-				pairText = u"<font=2>%c %s + %c %s</font>" % (
+				pairText = SASTextScale.bodyText(u"%c %s + %c %s" % (
 					TraitUtil.getIcon(trait1), trait1Info.getDescription(),
-					TraitUtil.getIcon(trait2), trait2Info.getDescription())
+					TraitUtil.getIcon(trait2), trait2Info.getDescription()))
 				screen.setTableText(rightTableName, 0, iRow, pairText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText(rightTableName, 1, iRow, u"<font=2>%d</font>" % pairCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(rightTableName, 1, iRow, SASTextScale.bodyText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# Ranking bar using centralized helper
 				rankingBar = inchart_calc_ranking_bar(pairCount, minCount, maxCount)
-				screen.setTableText(rightTableName, 2, iRow, u"<font=2>%s</font>" % rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(rightTableName, 2, iRow, SASTextScale.bodyText(rankingBar), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				inchart_set_icon_cells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
@@ -422,6 +423,7 @@ class SevoPediaTrait:
 							szSpecial += "\n"
 						szSpecial += line[2:]  # strip first two spaces
 			if bFound:
+				szSpecial = SASTextScale.bodyText(szSpecial)
 				screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+32, self.W_SPECIAL-10, self.H_SPECIAL-40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -434,6 +436,7 @@ class SevoPediaTrait:
 
 		textName = self.top.getNextWidgetName()
 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
+		szText = SASTextScale.bodyText(szText)
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 5, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

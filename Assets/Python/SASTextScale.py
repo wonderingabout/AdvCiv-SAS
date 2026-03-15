@@ -20,9 +20,9 @@ def applyFontTag(szText, szTag):
 		szUnicode = unicode(szText)
 	except:
 		return szText
-	# <!-- custom: usage rule: start with bodyText/labelText (simple path). If text already contains <font=...>, keep it unchanged here to avoid double-wrapping.
-	# Only switch callers to normalize* when testing shows base upscaling fails due to embedded hardcoded font tags.
-	# Current known examples: ConceptInfo/NewConceptInfo empirically seem to need normalize; regular hints empirically seem not to. (GPT-5.3-Codex) -->
+	# <!-- custom: usage rule: always try bodyText/labelText first (simple path). If text already contains <font=...>, leave it unchanged here to avoid double-wrapping.
+	# Escalate to normalize* only after reproducing a real failure with simple wrapping in that exact caller/data path.
+	# Current empirical examples: ConceptInfo/NewConceptInfo seem to need normalize; hints, Unit/History civilopedia text, and Traits (Effects/Background) seem to work with simple bodyText. (GPT-5.3-Codex) -->
 	if szUnicode.find(u"<font=") != -1:
 		return szUnicode
 	return szTag + szUnicode + SAS_FONT_TAG_CLOSE
@@ -59,7 +59,7 @@ def titleText(szText):
 
 
 def normalizeBodyText(szText):
-	# <!-- custom: fallback rule: normalize* is not default. Use it only after bodyText/labelText fails, i.e. when source text carries embedded <font=...> that prevents SAS upscaling. (GPT-5.3-Codex) -->
+	# <!-- custom: fallback rule: normalize* is not default. Use only for proven problematic sources where simple bodyText/labelText fails because embedded <font=...> blocks SAS upscaling. (GPT-5.3-Codex) -->
 	return applyFontTag(stripFontTags(szText), SAS_FONT_TAG_BODY)
 
 
