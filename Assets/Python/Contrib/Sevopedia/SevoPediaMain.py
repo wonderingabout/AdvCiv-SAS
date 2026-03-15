@@ -165,7 +165,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_CATEGORIES = 0
 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
-		# <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have much more room hopefully to accomodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: since the upscaling text changes, increased (from 124) to accomodate a max font size of 4. -->
+		# <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have much more room hopefully to accomodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: for some users, 124px is barely not enough although seems to run fine for most, increase width a bit to accomodate that; was 124. Update 2: since the upscaling text changes, increased (from 126) to accomodate a max font size of 4. -->
 		# advc.002b: was 175
 		# <!-- custom: was 200 -->
 		self.W_CATEGORIES = 166
