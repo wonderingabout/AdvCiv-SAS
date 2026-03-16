@@ -324,17 +324,17 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_TINY</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_BODY</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
 	<Define>

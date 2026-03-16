@@ -19,6 +19,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
 
 from _sevopedia_helpers import *
 
@@ -107,14 +108,14 @@ class SevoPediaProject:
 			szProjectType = localText.getText("TXT_KEY_PEDIA_WORLD_PROJECT", ())
 			if (iMaxInstances > 1):
 				szProjectType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-			screen.appendListBoxString(panelName, u"<font=4>" + szProjectType.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(szProjectType.upper()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if (isTeamProject(self.iProject)):
 			iMaxInstances = gc.getProjectInfo(self.iProject).getMaxTeamInstances()
 			szProjectType = localText.getText("TXT_KEY_PEDIA_TEAM_PROJECT", ())
 			if (iMaxInstances > 1):
 				szProjectType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-			screen.appendListBoxString(panelName, u"<font=4>" + szProjectType.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(szProjectType.upper()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if (projectInfo.getProductionCost() > 0):
 			# <!-- custom: simplify textual info for hammer yield to minimum, remove the "COST:" ugly part -->
@@ -122,9 +123,8 @@ class SevoPediaProject:
 				szCost = (projectInfo.getProductionCost() * gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")) / 100
 			else:
 				szCost = gc.getActivePlayer().getProjectProductionNeeded(self.iProject)
-			# szTextHammerYield = u"<font=4>" + szCost.upper() + u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + u"</font>"
-			szTextHammerYield = u"<font=4>%c %d</font>" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
-			screen.appendListBoxString(panelName, szTextHammerYield, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			szTextHammerYield = u"%c %d" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(szTextHammerYield), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -161,7 +161,7 @@ class SevoPediaProject:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
-			screen.addMultilineText(textName, szText, self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -171,7 +171,7 @@ class SevoPediaProject:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getProjectHelp(self.iProject, True, None)[1:]
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -180,7 +180,7 @@ class SevoPediaProject:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = gc.getProjectInfo(self.iProject).getCivilopedia()
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.attachMultilineText(panelName, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
