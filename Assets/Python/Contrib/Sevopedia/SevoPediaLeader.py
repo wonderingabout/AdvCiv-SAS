@@ -21,7 +21,6 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 from _sevopedia_helpers import *
-from SASUtils import getNewConceptID
 # <!-- custom: import to display chars before Traits -->
 import TraitUtil
 
@@ -38,7 +37,6 @@ localText = CyTranslator()
 
 # <!-- custom: Leader page display toggle (not part of AI cache module). -->
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
-IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
 IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
 SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
@@ -123,8 +121,6 @@ class SevoPediaLeader:
 		
 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		self.N_AI_TABLE_NUM = 3
-		self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
-		self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
 
 		# <!-- custom: 2) (most) relative dimensions or positions then -->
 
@@ -203,7 +199,7 @@ class SevoPediaLeader:
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
-		self.placeLegendLink()
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
@@ -358,28 +354,6 @@ class SevoPediaLeader:
 		screen.deleteWidget(self.leaderWidget)
 		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		return 1
-
-
-
-	def placeLegendLink(self):
-		if not IS_SAS_SHOW_LEGEND_LINK:
-			return
-		if self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID < 0:
-			return
-		screen = self.top.getScreen()
-		screen.setText(
-			self.top.getNextWidgetName(),
-			"Background",
-			self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT,
-			CvUtil.FONT_LEFT_JUSTIFY,
-			self.top.X_TOC,
-			self.top.Y_BOT_PANEL + 16,
-			0,
-			FontTypes.TITLE_FONT,
-			WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
-			CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
-			self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID
-		)
 
 
 

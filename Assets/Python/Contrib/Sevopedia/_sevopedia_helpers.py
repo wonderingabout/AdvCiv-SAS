@@ -10,6 +10,7 @@ import CvUtil
 import re
 from SASFontUtils import *
 import SASTextScale
+from SASUtils import getNewConceptID
 
 
 
@@ -17,6 +18,7 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 
 
 
@@ -299,6 +301,29 @@ def get_concept_id(concept_type):
 
 	return -1
 
+
+
+def place_new_concept_legend_link(top, new_concept_type):
+	if not IS_SAS_SHOW_LEGEND_LINK:
+		return
+	iConcept = getNewConceptID(new_concept_type)
+	if iConcept < 0:
+		return
+	screen = top.getScreen()
+	szLabel = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
+	screen.setText(
+		top.getNextWidgetName(),
+		"Background",
+		szLabel,
+		CvUtil.FONT_LEFT_JUSTIFY,
+		top.X_TOC,
+		top.Y_BOT_PANEL + 16,
+		0,
+		FontTypes.TITLE_FONT,
+		WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+		CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
+		iConcept
+	)
 
 
 def get_concept_widgetType_widgetID1_widgetID2(conceptID, widgetTypes, civilopediaPageTypes):

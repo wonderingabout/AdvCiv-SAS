@@ -170,6 +170,7 @@ class SevoPediaBuilding:
 		self.placeReplace()
 		self.placeCivilizations()
 		self.placeHistory()
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
 
 
 

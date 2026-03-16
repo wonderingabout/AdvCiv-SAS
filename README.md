@@ -450,10 +450,11 @@ The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, th
 
 ##### Legends
 
-We also use the Mods info category to show the legend of some tables, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
+We also use the Mods info category to show the legend of some tables or abbreviations, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG" alt="0.806_sevopedia_mods_info_legend (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG" alt="0.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG" alt="0.806_sevopedia_mods_info_legend (3).JPG" width="250"></img>
 
 ## UI (Common)
 

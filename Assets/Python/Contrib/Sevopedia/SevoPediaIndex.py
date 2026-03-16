@@ -10,6 +10,7 @@ import ScreenInput
 import SevoScreenEnums
 import BugUtil
 from SASFontUtils import *
+from _sevopedia_helpers import place_new_concept_legend_link
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -212,6 +213,7 @@ class SevoPediaIndex:
 	def placeIndex(self):
 		screen = self.top.getScreen()
 		CONCEPT_CHAR = gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND")
 		
 		if self.SAS_indexWidgetNames:
 			for szWidget in self.SAS_indexWidgetNames:
