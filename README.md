@@ -412,6 +412,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.740_sevopedia_civics (1).JPG" alt="0.740_sevopedia_civics (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.770_sevopedia_specialists (2).JPG" alt="0.770_sevopedia_specialists (2).JPG" width="250"></img>
 
 #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
 

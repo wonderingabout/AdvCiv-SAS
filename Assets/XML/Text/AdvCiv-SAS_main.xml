@@ -862,6 +862,18 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_RESULTS_SHORT</Tag>
 		<English>Result</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_COMPETES_WITH</Tag>
+		<English>Competes With</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSES_CONSUMED</Tag>
+		<English>Bonuses Consumed</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSES_GENERATED</Tag>
+		<English>Bonuses Generated</English>
+	</TEXT>
 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>

@@ -1,3 +1,8 @@
+# <!-- custom: AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (GPT-5.3-Codex) -->
+
+
 from SASFontUtils import (
 	SAS_FONT_TAG_BODY,
 	SAS_FONT_TAG_CLOSE,

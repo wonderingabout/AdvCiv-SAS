@@ -44,6 +44,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 12: promotions category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-12-promotions-category)  
 &emsp;[example 13: civics category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-13-civics-category)  
 &emsp;[example 14: projects category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-14-projects-category)  
+&emsp;[example 15: corporations category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-corporations-category)  
 
 ## Some Lower Level Changes or new features
 
@@ -529,3 +530,12 @@ As for the grouping, since this is a nice functionnal change, i wanted to show i
 
 <img src="../Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.750_sevopedia_projects (2).JPG" alt="0.750_sevopedia_projects (2).JPG" width="250"></img>
+
+### example 15: corporations category
+
+As part of the Sevopedia upscaling pass, we also reworked and beautified the Sevopedia Corporations page, and notably added new Bonuses Consumed, Bonuses Generated, Competes With, and Movie panels (that we had previously overlooked and were missing) with the very nice help of GPT-5.3-Codex thanks a lot.
+
+For the Bonuses Generated panel in particular, we exposed to Python in the DLL `getBonusProduced` (files changed: [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp)).
+
+<img src="../Images/sevopedia/0.770_sevopedia_corporations (1).JPG" alt="0.770_sevopedia_corporations (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>
