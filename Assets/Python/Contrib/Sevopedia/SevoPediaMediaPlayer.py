@@ -225,18 +225,30 @@ class SevoPediaMediaPlayer:
 				iGroup = groupByIndex[i]
 
 			if iGroup != iLastGroup and (groupLabels is not None) and (iGroup >= 0) and (iGroup < len(groupLabels)) and iRows < iMaxRows:
-				if iLastGroup != -1 and iRows < iMaxRows:
-					iRow = screen.appendTableRow(self.queueListId)
-					screen.setTableText(self.queueListId, 1, iRow, SASTextScale.labelText(u" "), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					iRows += 1
-				szHeader = groupLabels[iGroup]
-				if szHeader:
-					if iGroup == iCurrentGroup:
-						szHeader = u">> " + szHeader
-					szHeader = SASTextScale.labelText(szHeader)
-					iRow = screen.appendTableRow(self.queueListId)
-					screen.setTableText(self.queueListId, 1, iRow, szHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					iRows += 1
+				# <!-- custom: Avoid orphan group headers at the bottom of the visible list.
+				# This media table inserts spacer + header rows when changing era/group; without a row-budget check,
+				# scrolling can end with a header as the last visible row (e.g. "Tech Quotes (Medieval)"), which looks rough.
+				# Only add the group transition rows when there is still room for at least one tech item row after them. (GPT-5.3-Codex) -->
+				iRowsNeededBeforeItem = 0
+				if iLastGroup != -1:
+					iRowsNeededBeforeItem += 1
+				if groupLabels[iGroup]:
+					iRowsNeededBeforeItem += 1
+				if iRows + iRowsNeededBeforeItem + 1 > iMaxRows:
+					iLastGroup = iGroup
+				else:
+					if iLastGroup != -1 and iRows < iMaxRows:
+						iRow = screen.appendTableRow(self.queueListId)
+						screen.setTableText(self.queueListId, 1, iRow, SASTextScale.labelText(u" "), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						iRows += 1
+					szHeader = groupLabels[iGroup]
+					if szHeader:
+						if iGroup == iCurrentGroup:
+							szHeader = u">> " + szHeader
+						szHeader = SASTextScale.labelText(szHeader)
+						iRow = screen.appendTableRow(self.queueListId)
+						screen.setTableText(self.queueListId, 1, iRow, szHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						iRows += 1
 				iLastGroup = iGroup
 				if iRows >= iMaxRows:
 					break
