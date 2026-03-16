@@ -89,12 +89,6 @@ class SevoPediaSpecialist:
 		self.placeHistory()
 
 
-	def _bodyText(self, szText):
-		return SASTextScale.labelText(szText)
-
-
-	def _labelText(self, szText):
-		return SASTextScale.titleText(szText)
 
 
 
@@ -184,7 +178,7 @@ class SevoPediaSpecialist:
 					else:
 						textName = self.top.getNextWidgetName()
 						screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
-						screen.setLabelAt(textName, scrollName, self._labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 						iY += (iButtonSize + 8)
 
 		for key in sorted(specialSlots.keys()):
@@ -196,7 +190,7 @@ class SevoPediaSpecialist:
 				widgetID1 = specialSlots[key][4]
 				widgetID2 = specialSlots[key][5]
 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
-				screen.setLabelAt(textName, scrollName, self._labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		for iCivic in xrange(gc.getNumCivicInfos()):
@@ -204,12 +198,12 @@ class SevoPediaSpecialist:
 			if civicInfo.isSpecialistValid(self.iSpecialist):
 				textName = self.top.getNextWidgetName()
 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, civicInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1)
-				screen.setLabelAt(textName, scrollName, self._labelText("Unlimited"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(textName, scrollName, SASTextScale.titleText("Unlimited"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		if iY == 6:
 			textName = self.top.getNextWidgetName()
-			screen.setLabelAt(textName, scrollName, self._labelText("No extra slots gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra slots gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -252,12 +246,12 @@ class SevoPediaSpecialist:
 		for buttonPath, widgetType, widgetID, szText in entries:
 			textName = self.top.getNextWidgetName()
 			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID, 1)
-			screen.setLabelAt(textName, scrollName, self._labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		if iY == 6:
 			textName = self.top.getNextWidgetName()
-			screen.setLabelAt(textName, scrollName, self._labelText("No extra yields gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra yields gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -276,3 +270,4 @@ class SevoPediaSpecialist:
 
 	def handleInput (self, inputClass):
 		return 0
+

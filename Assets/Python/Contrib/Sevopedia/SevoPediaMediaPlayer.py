@@ -6,6 +6,7 @@
 
 from CvPythonExtensions import *
 import CvUtil
+import SASTextScale
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -56,8 +57,6 @@ class SevoPediaMediaPlayer:
 		self.currentLabelX = 0
 		self.currentLabelY = 0
 
-
-
 	def openScreen(self):
 		screen = CyGInterfaceScreen(self.screenId, self.screenEnum)
 
@@ -94,7 +93,7 @@ class SevoPediaMediaPlayer:
 		iMediaY = (iScreenH - iMediaH) / 2
 
 		if bShowTitle and szTitleText:
-			screen.setLabel(self.clickPrefix + "Title", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.clickPrefix + "Title", "Background", SASTextScale.titleText(szTitleText.upper()), CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		return (iScreenW, iScreenH, iMediaX, iMediaY, iMediaW, iMediaH)
 
 
@@ -228,13 +227,13 @@ class SevoPediaMediaPlayer:
 			if iGroup != iLastGroup and (groupLabels is not None) and (iGroup >= 0) and (iGroup < len(groupLabels)) and iRows < iMaxRows:
 				if iLastGroup != -1 and iRows < iMaxRows:
 					iRow = screen.appendTableRow(self.queueListId)
-					screen.setTableText(self.queueListId, 1, iRow, u"<font=3> </font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					screen.setTableText(self.queueListId, 1, iRow, SASTextScale.labelText(u" "), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					iRows += 1
 				szHeader = groupLabels[iGroup]
 				if szHeader:
 					if iGroup == iCurrentGroup:
 						szHeader = u">> " + szHeader
-					szHeader = u"<font=3b>" + szHeader + u"</font>"
+					szHeader = SASTextScale.labelText(szHeader)
 					iRow = screen.appendTableRow(self.queueListId)
 					screen.setTableText(self.queueListId, 1, iRow, szHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					iRows += 1
@@ -245,9 +244,9 @@ class SevoPediaMediaPlayer:
 			szLabel = items[i]
 			if i == currentIndex:
 				szLabel = u"> " + szLabel
-				szLabel = u"<font=3b>" + szLabel + u"</font>"
+				szLabel = SASTextScale.labelText(szLabel)
 			else:
-				szLabel = u"<font=3>" + szLabel + u"</font>"
+				szLabel = SASTextScale.labelText(szLabel)
 			szButton = ""
 			if (itemIcons is not None) and (i < len(itemIcons)):
 				szButton = itemIcons[i]
@@ -339,7 +338,7 @@ class SevoPediaMediaPlayer:
 			pass
 
 		screen.addPanel(szTextPanelId, "", "", True, True, iTextX, iTextY, iTextW, iTextH, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.attachMultilineText(szTextPanelId, "Text", u"<font=2>" + szText + u"</font>", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.attachMultilineText(szTextPanelId, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -349,9 +348,9 @@ class SevoPediaMediaPlayer:
 		iNextX = self._getTransportButtonX(iScreenW, 5)
 		iLabelY = iBaseY - 26
 		if szPrev:
-			screen.setLabel(self.prevId + "Label", "Background", u"<font=3>" + unicode(szPrev) + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iPrevX + iSize / 2, iLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.prevId + "Label", "Background", SASTextScale.labelText(szPrev), CvUtil.FONT_CENTER_JUSTIFY, iPrevX + iSize / 2, iLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		if szNext:
-			screen.setLabel(self.nextId + "Label", "Background", u"<font=3>" + unicode(szNext) + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iNextX + iSize / 2, iLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.nextId + "Label", "Background", SASTextScale.labelText(szNext), CvUtil.FONT_CENTER_JUSTIFY, iNextX + iSize / 2, iLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -474,7 +473,7 @@ class SevoPediaMediaPlayer:
 			return
 		if self.currentLabelX <= 0:
 			return
-		screen.setLabel(self.currentLabelId, "Background", u"<font=3>" + unicode(szLabel) + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.currentLabelX, self.currentLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.currentLabelId, "Background", SASTextScale.labelText(szLabel), CvUtil.FONT_LEFT_JUSTIFY, self.currentLabelX, self.currentLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -511,7 +510,7 @@ class SevoPediaMediaPlayer:
 		if self.screen is None:
 			return
 		szText = self._formatElapsed(self.timerSeconds)
-		self.screen.setLabel(self.timerLabelId, "Background", u"<font=3>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.timerLabelX, self.timerLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		self.screen.setLabel(self.timerLabelId, "Background", SASTextScale.labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, self.timerLabelX, self.timerLabelY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

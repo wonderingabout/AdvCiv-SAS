@@ -54,6 +54,7 @@ import TraitUtil
 import BugCore
 import BugUtil
 from SASFontUtils import *
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -437,14 +438,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			szText = self.SAS_SEARCH_DEFAULT_TEXT
 
 		screen.setLabel(self.SAS_SEARCH_LABEL_ID, self.SAS_SEARCH_PANEL_ID,
-				SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
+				SASTextScale.labelText(szText),
 				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
 				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Show a clear button only when active.
 		if self.SAS_isSearchActive():
 			screen.setLabel(self.SAS_SEARCH_CLEAR_ID, self.SAS_SEARCH_PANEL_ID,
-					SAS_FONT_TAG_LABEL + u"x" + SAS_FONT_TAG_CLOSE,
+					SASTextScale.labelText(u"x"),
 					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
 					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -753,15 +754,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
 		self.HEAD_TEXT = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
-		self.BACK_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper() + SAS_FONT_TAG_CLOSE
-		self.NEXT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper() + SAS_FONT_TAG_CLOSE
+		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper())
+		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
+		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
 		
-		self.TOC_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.INDEX_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
+		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
 		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.TOC_ACTIVE_TEXT = SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + SAS_FONT_TAG_CLOSE
-		self.INDEX_ACTIVE_TEXT = SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + SAS_FONT_TAG_CLOSE
+		self.TOC_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper())
+		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper())
 
 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
@@ -856,7 +857,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				iThresh = 19
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
-			szHeading = SAS_FONT_TAG_LABEL + szHeading + SAS_FONT_TAG_CLOSE
+			szHeading = SASTextScale.labelText(szHeading)
 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, category[2], 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(self.CATEGORY_LIST_ID)
 
@@ -1446,7 +1447,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		hintText = szHintsText.split("\n")
 		for hint in hintText:
 			if len(hint) != 0:
-				screen.appendListBoxStringNoUpdate(szHintBox, SAS_FONT_TAG_LABEL + hint + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.appendListBoxStringNoUpdate(szHintBox, SASTextScale.labelText(hint), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(szHintBox)
 
 
@@ -1986,7 +1987,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_selectableListIdx.append(idx)
 
 			screen.appendTableRow(self.ITEM_LIST_ID)
-			screen.setTableText(self.ITEM_LIST_ID, 0, i, SAS_FONT_TAG_LABEL + sTitlePlaceItems + SAS_FONT_TAG_CLOSE, szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.ITEM_LIST_ID, 0, i, SASTextScale.labelText(sTitlePlaceItems), szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
 			self.SAS_rowToListIdx[i] = idx
 			i += 1
 		#screen.updateListBox(self.ITEM_LIST_ID)
