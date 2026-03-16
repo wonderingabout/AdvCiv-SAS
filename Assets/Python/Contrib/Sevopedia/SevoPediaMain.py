@@ -1952,7 +1952,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 			# <advc.001> Widget help for leaders needs the civ ID in data2 (from Taurus)
 			elif (info == gc.getLeaderHeadInfo):
-				if data1 == -1:
+				# <!-- custom: detect headers/spacers from the original list marker (item[1] == -1), not from data1.
+				# In Builds, data1 is repurposed to tech prereq for WIDGET_HELP_IMPROVEMENT; removable builds use <PrereqTech>NONE</PrereqTech>,
+				# so data1 becomes -1 even though they are real entries. If we check data1 here, those entries are misclassified as headers,
+				# their button/icon is cleared, and they appear without icons in Sevopedia Builds; the index remains fine because it uses a different list path. See also KI#113. (GPT-5.3-Codex) -->
+				if item[1] == -1:
 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
 					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
 					szButtonPlaceItems = szCustomHeaderButtonPlaceItems
@@ -1971,7 +1975,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
 				# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages. Code added with the help of chatgpt 5.2 thanks -->
 				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
-				if data1 == -1:
+				if item[1] == -1:
 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
 					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
 					szButtonPlaceItems = szCustomHeaderButtonPlaceItems

@@ -4402,3 +4402,9 @@ Result:
 
 - Hover text and click usefulness are both kept across all Build-entry paths that now use this hybrid approach.
 - User flow is now consistent across Tech Advisor and Sevopedia build entries.
+
+Update:
+
+- After the KI#113 refactor, a regression appeared in Sevopedia Builds list: removable builds (e.g. Remove Jungle, Chop Down a Forest, Scrub Fallout) could lose their icon/button in the left list, while route builds still looked fine (Sevopedia Index stayed unaffected).
+- Root cause: in `SevoPediaMain.placeItems`, header detection used `data1 == -1`, but for Builds `data1` is repurposed to build tech prereq for `WIDGET_HELP_IMPROVEMENT`; removable builds often have `<PrereqTech>NONE</PrereqTech>`, so they were falsely treated as headers.
+- Fix: detect real headers/spacers using the original list marker `item[1] == -1` (not mutated `data1`), which restores those Build icons/buttons in Sevopedia Builds.
