@@ -126,7 +126,7 @@ hopefully helpful, thanks thanks,
 [90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#90---fixed-base-advciv-bug-of-sevopedia-index-using-the-religions-button-instead-of-the-corporations)  
 [91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#91---adjusted-ibasegrowththresholdpercent-scales-with-handicap-but-its-not-clear-what-it-does-and-how-it-should-be-said)  
 [92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart)  
-[93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping)  
+[93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix aberrant unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-aberrant-unit-choice-or-scrapping)  
 [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
 [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
 [96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
@@ -3982,11 +3982,11 @@ Gameplay change doesn't seem too significant at a glance, check screenshots and 
 
 See [commit/6901fd17969c00abada610fbfd2bdf6bf1fc01ea](https://github.com/wonderingabout/AdvCiv-SAS/commit/6901fd17969c00abada610fbfd2bdf6bf1fc01ea).
 
-## 93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping
+## 93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix aberrant unit choice or scrapping
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1AR-bOobIPbMNHdi65NdVjvcAQADYVFvw?usp=sharing).
 
-Not updating every issue here, but since then a much cleaner fix to abherrent obsolete unit production choices, and AI scrapping optimization that was hacky and overloaded, plus player UI enhancement (less crowded UI Production Chooser Bar with nonsensical obsolete units), is the additional of the `ObsoleteTech` field.
+Not updating every issue here, but since then a much cleaner fix to aberrant obsolete unit production choices, and AI scrapping optimization that was hacky and overloaded, plus player UI enhancement (less crowded UI Production Chooser Bar with nonsensical obsolete units), is the additional of the `ObsoleteTech` field.
 
 Initial version at [commit/a134450486e0104df9473d46017ebc6e4d7bc553](https://github.com/wonderingabout/AdvCiv-SAS/commit/a134450486e0104df9473d46017ebc6e4d7bc553).
 
