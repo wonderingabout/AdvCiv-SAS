@@ -154,7 +154,7 @@ Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs anymore.
 
 <img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (2).JPG" alt="0.625_sevopedia_handicaps_chart (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.6252_sevopedia_handicaps_chart_DLL_getters.JPG" alt="0.6252_sevopedia_handicaps_chart_DLL_getters.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.6252_sevopedia_handicaps_chart_getters.JPG" alt="0.6252_sevopedia_handicaps_chart_getters.JPG" width="250"></img>
 
 ### example 0.6: Game Speed Chart category
 
@@ -448,7 +448,7 @@ In particular, added hoverable great person image links in as of now `placeStats
 <img src="../Images/sevopedia/0.690_sevopedia_buildings (1).JPG" alt="0.690_sevopedia_buildings (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.690_sevopedia_buildings (2).JPG" alt="0.690_sevopedia_buildings (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.690_sevopedia_buildings (3).JPG" alt="0.690_sevopedia_buildings (3).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" alt="0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.691_sevopedia_buildings_hover_click_GP.JPG" alt="0.691_sevopedia_buildings_hover_click_GP.JPG" width="250"></img>
 
 ### example 9: terrains category
 

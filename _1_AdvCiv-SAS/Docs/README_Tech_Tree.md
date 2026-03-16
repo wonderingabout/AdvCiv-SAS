@@ -81,9 +81,9 @@ Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or 
 
 Visual comparison of how each looks below.
 
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (1).JPG" alt="0.5150_technology_advisor_customizable_width (1).JPG" width="250"></img>
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (2).JPG" alt="0.5150_technology_advisor_customizable_width (2).JPG" width="250"></img>
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (3).JPG" alt="0.5150_technology_advisor_customizable_width (3).JPG" width="250"></img>
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (4).JPG" alt="0.5150_technology_advisor_customizable_width (4).JPG" width="250"></img>
+<img src="../Images/advisors/0.5150_technology_advisor_custom_w (1).JPG" alt="0.5150_technology_advisor_custom_w (1).JPG" width="250"></img>
+<img src="../Images/advisors/0.5150_technology_advisor_custom_w (2).JPG" alt="0.5150_technology_advisor_custom_w (2).JPG" width="250"></img>
+<img src="../Images/advisors/0.5150_technology_advisor_custom_w (3).JPG" alt="0.5150_technology_advisor_custom_w (3).JPG" width="250"></img>
+<img src="../Images/advisors/0.5150_technology_advisor_custom_w (4).JPG" alt="0.5150_technology_advisor_custom_w (4).JPG" width="250"></img>
 
 See also [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).

@@ -1,6 +1,6 @@
 # Sid Meier's Civilization 4
 # Copyright Firaxis Games 2005
-
+#
 #
 # Sevopedia 2.3
 #   sevotastic.blogspot.com
