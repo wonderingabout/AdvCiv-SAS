@@ -1914,10 +1914,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					szButtonPlaceItems = info(data1).getButton()
 
 			if info == gc.getBuildInfo:
-				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
+				widgetPlaceItems = WidgetTypes.WIDGET_HELP_IMPROVEMENT
 				if data1 != -1:
 					data2 = data1
-					data1 = self.SAS_PEDIA_PYTHON_BUILD
+					data1 = gc.getBuildInfo(data2).getTechPrereq()
 					bSAS_hasCustomData2 = True
 
 			# <!-- custom: Handle traits with WIDGET_PYTHON like Builds. (Claude Opus 4.5) -->
@@ -2201,6 +2201,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ACTION:
 				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
 					return self.pediaLeader.applyLeaderAction(iData2)
+		elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
+			iBuild = inputClass.getData2()
+			# <!-- custom: use same hybrid trick as Tech Chooser for Sevopedia build entries: this widget restores
+			# build hover text, and we route clicks to Builds pedia so behavior stays useful for all build types. See KI#113. (GPT-5.3-Codex) -->
+			if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
+				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
 
 		return 0
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->

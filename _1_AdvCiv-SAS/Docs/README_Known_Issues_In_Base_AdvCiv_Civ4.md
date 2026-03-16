@@ -126,7 +126,7 @@ hopefully helpful, thanks thanks,
 [90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#90---fixed-base-advciv-bug-of-sevopedia-index-using-the-religions-button-instead-of-the-corporations)  
 [91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#91---adjusted-ibasegrowththresholdpercent-scales-with-handicap-but-its-not-clear-what-it-does-and-how-it-should-be-said)  
 [92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#92---fixed-base-advciv-bug-of-iextrafreeoutsideunits-being-set-to-100-at-lower-than-marathon-game-speeds-spotted-thanks-to-the-new-sevopedia-game-speed-chart)  
-[93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping)  
+[93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix aberrant unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-aberrant-unit-choice-or-scrapping)  
 [94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#94---fixed-base-advciv-bug-of-opening-last-visited-category-instead-of-the-index-or-in-advciv-sas-hints-category-instead-of-last-visited)  
 [95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#95---fixed-base-advciv-issue-of-back-button-not-leading-back-to-hints-or-index-that-we-last-visited)  
 [96 - (Fixed/Enhanced) Base AdvCiv issue of Obsoletes spanning vertically instead of being horizontally comma-separated](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated)  
@@ -146,6 +146,7 @@ hopefully helpful, thanks thanks,
 [110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---advciv-sas-music-shuffle-cleanup-intermittent-python-startupmaininterface-errors-from-early-bug-path-calls-in-sevopedia-music-path-helper)  
 [111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#111---reverted-this-patch-sevopedia-index-unicodedecodeerror-in-buildsortfilter-unicodedecodeerror-ascii-codec-cant-decode-byte-0xc8-in-position-0)  
 [112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#112---seemingly-fixed-base-advciv-issue-of-missing-getprereqorpromotion3-in-sevopedia-promotion)  
+[113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3982,11 +3983,11 @@ Gameplay change doesn't seem too significant at a glance, check screenshots and 
 
 See [commit/6901fd17969c00abada610fbfd2bdf6bf1fc01ea](https://github.com/wonderingabout/AdvCiv-SAS/commit/6901fd17969c00abada610fbfd2bdf6bf1fc01ea).
 
-## 93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix abherrent unit choice or scrapping
+## 93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix aberrant unit choice or scrapping
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1AR-bOobIPbMNHdi65NdVjvcAQADYVFvw?usp=sharing).
 
-Not updating every issue here, but since then a much cleaner fix to abherrent obsolete unit production choices, and AI scrapping optimization that was hacky and overloaded, plus player UI enhancement (less crowded UI Production Chooser Bar with nonsensical obsolete units), is the additional of the `ObsoleteTech` field.
+Not updating every issue here, but since then a much cleaner fix to aberrant obsolete unit production choices, and AI scrapping optimization that was hacky and overloaded, plus player UI enhancement (less crowded UI Production Chooser Bar with nonsensical obsolete units), is the additional of the `ObsoleteTech` field.
 
 Initial version at [commit/a134450486e0104df9473d46017ebc6e4d7bc553](https://github.com/wonderingabout/AdvCiv-SAS/commit/a134450486e0104df9473d46017ebc6e4d7bc553).
 
@@ -4367,3 +4368,37 @@ While doing the ui font upscaling, GPT-5.3-Codex noticed and fixed the base advc
 ```
 
 Not tested to see if it fixes a specific missing prereq, but as it seems to cause no issue, kept as such.
+
+## 113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1C8Fh29p8kXsDhiipZJ34zQtJMQKqxXmY?usp=sharing).
+
+Observed issue:
+
+- `WIDGET_PYTHON` does not provide built-in hover/help text by itself, so anywhere it is used directly for Build entries, hover text is missing.
+- After linking build-related entries to Sevopedia Builds through `WIDGET_PYTHON`, build hover text was missing across these Build-entry paths (routes/removals such as Remove Jungle, Chop Forest, Scrub Fallout, Road/Railroad contexts).
+- In Tech Advisor, this also reduced usefulness because players could click to Builds, but no longer got the familiar build hover detail from base widget behavior.
+- In Sevopedia, the same symptom appeared in build-entry contexts (including Index build rows): clickable behavior existed, hover did not.
+
+Likely root cause:
+
+- `WIDGET_PYTHON` path is good for custom redirects, but unlike `WIDGET_HELP_IMPROVEMENT`, it does not expose the built-in build hover/help behavior.
+- Speculation: the built-in build-hover generator appears tied to DLL/EXE widget paths such as `WIDGET_HELP_IMPROVEMENT`, and not accessible through plain `WIDGET_PYTHON`; therefore we patched this in Python with a hybrid widget+click-routing approach.
+
+Workaround approach (hybrid):
+
+- Use `WIDGET_HELP_IMPROVEMENT` for build-entry widgets so base build hover/help is restored.
+- Intercept click handling in Python and route non-improvement build clicks (or build-entry clicks generally where needed) to Sevopedia Builds.
+- Keep base improvement behavior where appropriate (e.g. improvement entries still benefit from base hover/jump semantics).
+- Rationale: this split is intentionally more useful for players (improvement behavior where players expect it in Tech Chooser, and direct Builds-page routing where build details are the main goal in Sevopedia paths).
+
+Applied places:
+
+- Tech Advisor (`CvTechChooser.py`): improvement-first behavior restored; non-improvement builds keep useful Builds redirect while hover text is preserved.
+- Sevopedia pages (`SevoPediaMain.py`, `SevoPediaImprovement.py`, `SevoPediaFeature.py`, `SevoPediaBuild.py`): build-entry buttons switched to hover-capable widget path with click reroute.
+- Sevopedia Index (`SevoPediaIndex.py`): Build rows now show hover text and still jump to Builds.
+
+Result:
+
+- Hover text and click usefulness are both kept across all Build-entry paths that now use this hybrid approach.
+- User flow is now consistent across Tech Advisor and Sevopedia build entries.

@@ -113,6 +113,8 @@ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in
 
 As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the Builds page corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)! Added with the big and nice help of GPT-5.2-Codex thanks a lot!
 
+Note: while `WIDGET_PYTHON` is excellent for custom redirects, it does not provide built-in build hover text by itself. In Tech Chooser/Sevopedia build-entry paths we therefore use a hybrid approach (`WIDGET_HELP_IMPROVEMENT` for hover + Python click routing to Builds). See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia).
+
 We then also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter. See also [example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
 
 #### example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")

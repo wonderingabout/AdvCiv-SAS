@@ -856,8 +856,15 @@ class CvTechChooser:
 
 			if (bTechFound == 1):
 				szImprovementButton = self.getNextWidgetName("Improvement")
-				# <!-- custom: use WIDGET_PYTHON to jump to the Builds pedia entry (EXE doesn't fire a custom build widget here). (GPT-5.2-Codex (summarized)) -->
-				screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getBuildInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_BUILD, j, False )
+				iImprovement = gc.getBuildInfo(j).getImprovement()
+				# <!-- custom: use base AdvCiv behavior here (improvement icon + WIDGET_HELP_IMPROVEMENT),
+				# and only fallback to the Builds pedia redirect for builds without an improvement (routes/feature removal).
+				# This split is intentionally more useful for players: improvement-style behavior where expected, and direct
+				# Builds-page routing when the build itself is the key info. See KI#113. (GPT-5.3-Codex) -->
+				if (iImprovement != -1):
+					screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getImprovementInfo(iImprovement).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IMPROVEMENT, i, j, False )
+				else:
+					screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getBuildInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IMPROVEMENT, i, j, False )
 				fX += X_INCREMENT
 
 		j = 0
@@ -1387,6 +1394,17 @@ class CvTechChooser:
 					import CvScreensInterface
 					CvScreensInterface.pediaJumpToBuild((inputClass.getData2(),))
 					return 1
+			# <!-- custom: reason for this hybrid path: in this Tech Advisor context, WIDGET_PYTHON gives our
+			# custom redirect to Sevopedia Builds but does not provide the base build hover/help text; by using
+			# WIDGET_HELP_IMPROVEMENT we restore "can build ..." hover text, then reroute clicks for non-improvement
+			# builds (routes/feature removal) to the Builds page here. (GPT-5.3-Codex) -->
+			elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
+				iBuild = inputClass.getData2()
+				if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
+					if gc.getBuildInfo(iBuild).getImprovement() == -1:
+						import CvScreensInterface
+						CvScreensInterface.pediaJumpToBuild((iBuild,))
+						return 1
 
 
 
