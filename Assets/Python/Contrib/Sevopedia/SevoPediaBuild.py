@@ -99,7 +99,7 @@ class SevoPediaBuild:
 		return get_feature_production_modifier_techs()
 
 	def _bodyText(self, szText):
-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
 
 
 	def interfaceScreen(self, iBuild):

@@ -708,7 +708,7 @@ def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH
 	szText = localText.getText(txtKey, ())
 	yPanelCenter = panelY + (panelH / 2)
 	screen.addMultilineText(
-		textName, SASTextScale.bodyText(szText),
+		textName, SASTextScale.labelText(szText),
 		panelX + 7, yPanelCenter,
 		panelW - 14, panelH - 20,
 		WidgetTypes.WIDGET_GENERAL, -1, -1,

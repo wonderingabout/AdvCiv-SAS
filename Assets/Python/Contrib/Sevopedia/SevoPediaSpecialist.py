@@ -90,11 +90,11 @@ class SevoPediaSpecialist:
 
 
 	def _bodyText(self, szText):
-		return SASTextScale.bodyText(szText)
+		return SASTextScale.labelText(szText)
 
 
 	def _labelText(self, szText):
-		return SASTextScale.labelText(szText)
+		return SASTextScale.titleText(szText)
 
 
 
@@ -116,7 +116,7 @@ class SevoPediaSpecialist:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS_SPECIALISTS", ()), "", True, False, self.X_EFFECTS_PANEL, self.Y_EFFECTS_PANEL, self.W_EFFECTS_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getSpecialistHelp(self.iSpecialist, True)
-		szSpecialText = SASTextScale.normalizeBodyText(szSpecialText)
+		szSpecialText = SASTextScale.normalizeLabelText(szSpecialText)
 		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was Y + headerExtraHeight (i.e. + 10) -->
 		headerExtraHeight = 10
 		screen.addMultilineText(textName, szSpecialText, self.X_EFFECTS_PANEL + 5, self.Y_EFFECTS_PANEL - headerExtraHeight, self.W_EFFECTS_PANEL - 10, self.H_TOP_PANEL - headerExtraHeight, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -267,7 +267,7 @@ class SevoPediaSpecialist:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
-		szText = SASTextScale.normalizeBodyText(szText)
+		szText = SASTextScale.normalizeLabelText(szText)
 		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
 		panelTopPadding = 40
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

@@ -141,10 +141,10 @@ class SevoPediaBonus:
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 	def _bodyText(self, szText):
-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
 
 	def _labelText(self, szText):
-		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SAS_FONT_TAG_TITLE + unicode(szText) + SAS_FONT_TAG_CLOSE
 
 
 
@@ -187,7 +187,7 @@ class SevoPediaBonus:
 		screen.enableSelect(panelName, False)
 		
 		# <!-- custom: handle multiple potential yield changes by separating the header from yield stats display --> 
-		szTextHeader = SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + u"\n" + SAS_FONT_TAG_CLOSE
+		szTextHeader = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + u"\n" + SAS_FONT_TAG_CLOSE
 		screen.appendListBoxString(panelName, szTextHeader, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		for k in range(YieldTypes.NUM_YIELD_TYPES):
@@ -202,7 +202,7 @@ class SevoPediaBonus:
 				szYield = (u"%s%i" % (sign, iYieldChange))
 				# <!-- custom: add information about the precise type of yield it is, which can be otherwise very confusing -->
 				szText1 = (u"%c  " % gc.getYieldInfo(k).getChar()) + szYield
-				szText2 = SAS_FONT_TAG_LABEL_BOLD + szText1 + u"\n" + SAS_FONT_TAG_CLOSE
+				szText2 = SAS_FONT_TAG_TITLE + szText1 + u"\n" + SAS_FONT_TAG_CLOSE
 				screen.appendListBoxString(panelName, szText2, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 

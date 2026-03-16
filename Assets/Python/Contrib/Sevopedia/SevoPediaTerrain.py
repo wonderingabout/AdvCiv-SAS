@@ -104,7 +104,10 @@ class SevoPediaTerrain:
 		self.I_PROMOTION_NAVIGATOR = getInfoTypeOrFail("PROMOTION_NAVIGATOR")
 
 	def _bodyText(self, szText):
-		return SASTextScale.bodyText(szText)
+		return SASTextScale.labelText(szText)
+
+	def _paneText(self, szText):
+		return SASTextScale.titleText(szText)
 
 
 
@@ -147,7 +150,7 @@ class SevoPediaTerrain:
 		else:
 			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_TERRAIN_CUSTOM"
 
-		screen.appendListBoxString(panel, self._bodyText(localText.getText(txtKeyTerrainPlotTypeLabel, ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, self._paneText(localText.getText(txtKeyTerrainPlotTypeLabel, ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if self.iTerrain == self.I_TERRAIN_HILL:
 			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
@@ -159,7 +162,7 @@ class SevoPediaTerrain:
 				if iYieldChange != 0:
 					szStats += (u"%d%c  " % (iYieldChange, gc.getYieldInfo(iYield).getChar()))
 
-		screen.appendListBoxString(panel, self._bodyText(szStats), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, self._paneText(szStats), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

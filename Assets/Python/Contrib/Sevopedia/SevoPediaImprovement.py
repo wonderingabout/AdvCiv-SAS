@@ -187,10 +187,10 @@ class SevoPediaImprovement:
 		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
 
 	def _bodyText(self, szText):
-		return SASTextScale.bodyText(szText)
+		return SASTextScale.labelText(szText)
 
 	def _labelText(self, szText):
-		return SASTextScale.labelText(szText)
+		return SASTextScale.titleText(szText)
 
 
 

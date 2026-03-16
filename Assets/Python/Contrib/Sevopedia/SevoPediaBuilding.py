@@ -147,10 +147,10 @@ class SevoPediaBuilding:
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 	def _bodyText(self, szText):
-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
 
 	def _labelText(self, szText):
-		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
+		return SAS_FONT_TAG_TITLE + unicode(szText) + SAS_FONT_TAG_CLOSE
 
 
 

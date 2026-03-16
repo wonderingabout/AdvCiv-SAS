@@ -153,7 +153,10 @@ class SevoPediaFeature:
 		self.I_PROMOTION_WOODSMAN3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3")
 
 	def _bodyText(self, szText):
-		return SASTextScale.bodyText(szText)
+		return SASTextScale.labelText(szText)
+
+	def _paneText(self, szText):
+		return SASTextScale.titleText(szText)
 
 
 
@@ -202,7 +205,7 @@ class SevoPediaFeature:
 		screen.appendListBoxString(panel, SAS_FONT_TAG_TITLE_BOLD + info.getDescription() + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		szText = ""
-		screen.appendListBoxString(panel, self._bodyText(localText.getText("TXT_KEY_PEDIA_FEATURE", ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, self._paneText(localText.getText("TXT_KEY_PEDIA_FEATURE", ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		szText = u""
 		for iYield in xrange(YieldTypes.NUM_YIELD_TYPES):
@@ -213,7 +216,7 @@ class SevoPediaFeature:
 					szSign = "+"
 				szText += (u"%s%d%c  " % (szSign, iYieldChange, gc.getYieldInfo(iYield).getChar()))
 
-		screen.appendListBoxString(panel, self._bodyText(szText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, self._paneText(szText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

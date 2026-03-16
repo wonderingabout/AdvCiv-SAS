@@ -121,7 +121,7 @@ class SevoPediaMovie:
 				szText = ""
 		if szText and szText.startswith("TXT_KEY_"):
 			szText = ""
-		szText = SASTextScale.bodyText(szText)
+		szText = SASTextScale.labelText(szText)
 		textName = self.top.getNextWidgetName()
 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 

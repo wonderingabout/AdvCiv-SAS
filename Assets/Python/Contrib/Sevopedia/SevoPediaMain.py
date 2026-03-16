@@ -1446,7 +1446,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		hintText = szHintsText.split("\n")
 		for hint in hintText:
 			if len(hint) != 0:
-				screen.appendListBoxStringNoUpdate(szHintBox, SAS_FONT_TAG_BODY + hint + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.appendListBoxStringNoUpdate(szHintBox, SAS_FONT_TAG_LABEL + hint + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(szHintBox)
 
 

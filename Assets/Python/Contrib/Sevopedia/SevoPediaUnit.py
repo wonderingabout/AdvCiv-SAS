@@ -189,10 +189,13 @@ class SevoPediaUnit:
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 	def _bodyText(self, szText):
-		return SASTextScale.bodyText(szText)
+		return SASTextScale.labelText(szText)
 
 	def _labelText(self, szText):
 		return SASTextScale.labelText(szText)
+
+	def _paneText(self, szText):
+		return SASTextScale.titleText(szText)
 
 
 
@@ -265,7 +268,7 @@ class SevoPediaUnit:
 		if iStrength > 0: # advc.004y: Don't show 0 strength for nukes
 			szStrength = localText.getText("TXT_KEY_PEDIA_STRENGTH_CUSTOM", (iStrength,))
 			szStrengthText = u"%c  " % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + szStrength
-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szStrengthText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szStrengthText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		eDomain = gc.getUnitInfo(self.iUnit).getDomainType()
 		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such) --> 
@@ -276,7 +279,7 @@ class SevoPediaUnit:
 			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
 			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT_CUSTOM", (gc.getUnitInfo(self.iUnit).getMoves(),))
 			szMovementText = u"%c  " % CyGame().getSymbolID(FontSymbols.MOVES_CHAR) + szMovement
-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szMovementText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szMovementText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# advc.004y: Moved range above production cost. Condition for ICBM added.
 		if gc.getUnitInfo(self.iUnit).getAirRange() > 0 or gc.getUnitInfo(self.iUnit).getNukeRange() >= 0:
@@ -288,7 +291,7 @@ class SevoPediaUnit:
 				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM", ())
 			# </advc.004y>
 			szRangeText = u"R    " + szRange
-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szRangeText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szRangeText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
 			unitCost = (gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100
 			if self.top.iActivePlayer != -1:
@@ -296,7 +299,7 @@ class SevoPediaUnit:
 
 			szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (unitCost,))
 			szCostText = u"%c  " % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + szCost
-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(panelName)
 
 

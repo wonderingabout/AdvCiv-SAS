@@ -295,10 +295,10 @@ class SevoPediaTrait:
 				iRow = screen.appendTableRow(leftTableName)
 				otherTraitInfo = gc.getTraitInfo(otherTrait)
 
-				traitText = SASTextScale.bodyText(u"%c %s" % (TraitUtil.getIcon(otherTrait), otherTraitInfo.getDescription()))
+				traitText = SASTextScale.labelText(u"%c %s" % (TraitUtil.getIcon(otherTrait), otherTraitInfo.getDescription()))
 				screen.setTableText(leftTableName, 0, iRow, traitText, "", WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_TRAIT, otherTrait, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText(leftTableName, 1, iRow, SASTextScale.bodyText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-				screen.setTableText(leftTableName, 2, iRow, SASTextScale.bodyText(u"%d" % totalCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(leftTableName, 1, iRow, SASTextScale.labelText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(leftTableName, 2, iRow, SASTextScale.labelText(u"%d" % totalCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				inchart_set_icon_cells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
@@ -327,15 +327,15 @@ class SevoPediaTrait:
 
 				trait1Info = gc.getTraitInfo(trait1)
 				trait2Info = gc.getTraitInfo(trait2)
-				pairText = SASTextScale.bodyText(u"%c %s + %c %s" % (
+				pairText = SASTextScale.labelText(u"%c %s + %c %s" % (
 					TraitUtil.getIcon(trait1), trait1Info.getDescription(),
 					TraitUtil.getIcon(trait2), trait2Info.getDescription()))
 				screen.setTableText(rightTableName, 0, iRow, pairText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText(rightTableName, 1, iRow, SASTextScale.bodyText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(rightTableName, 1, iRow, SASTextScale.labelText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# Ranking bar using centralized helper
 				rankingBar = inchart_calc_ranking_bar(pairCount, minCount, maxCount)
-				screen.setTableText(rightTableName, 2, iRow, SASTextScale.bodyText(rankingBar), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.setTableText(rightTableName, 2, iRow, SASTextScale.labelText(rankingBar), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				inchart_set_icon_cells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
@@ -423,7 +423,7 @@ class SevoPediaTrait:
 							szSpecial += "\n"
 						szSpecial += line[2:]  # strip first two spaces
 			if bFound:
-				szSpecial = SASTextScale.bodyText(szSpecial)
+				szSpecial = SASTextScale.labelText(szSpecial)
 				screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+32, self.W_SPECIAL-10, self.H_SPECIAL-40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -436,7 +436,7 @@ class SevoPediaTrait:
 
 		textName = self.top.getNextWidgetName()
 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
-		szText = SASTextScale.bodyText(szText)
+		szText = SASTextScale.labelText(szText)
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 5, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 

@@ -257,7 +257,7 @@ class SevoPediaPromotion:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getPromotionHelp(self.iPromotion, True)[1:]
-		szSpecialText = SASTextScale.normalizeBodyText(szSpecialText)
+		szSpecialText = SASTextScale.normalizeLabelText(szSpecialText)
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
@@ -274,7 +274,7 @@ class SevoPediaPromotion:
 				# <!-- custom: note: i had removed the `iRow = screen.appendTableRow(szTable)` line to fix ruff warning of variable being unused so cleaning this up, after having asked chatgpt this seemed fine and safe to do and we had no errors so maybe was solved as well (as in sevopedia unit ruff warning fix/cleanup as well), other sevopedia classes didn't seem to have a similar issue from quick glance at each file, although i had not investigated it in depth, was hopefully fine i thought, and if in doubt i could have checked ingame display to see if it matches xml info, in sevopedia. However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
 				# iRow = screen.appendTableRow(szTable)
 				screen.appendTableRow(szTable)
-				screen.setTableText(szTable, 0, i, SASTextScale.bodyText(gc.getUnitCombatInfo(iI).getDescription()), gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(szTable, 0, i, SASTextScale.labelText(gc.getUnitCombatInfo(iI).getDescription()), gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				i += 1
 
 

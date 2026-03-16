@@ -208,7 +208,7 @@ class SevoPediaMusic:
 					szText = szTitleText + u"\n" + szSoundId + u"\n" + szScript
 			else:
 				szText = szTitleText + u"\n" + szScript
-		szText = SASTextScale.bodyText(szText)
+		szText = SASTextScale.labelText(szText)
 		textName = self.top.getNextWidgetName()
 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
