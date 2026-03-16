@@ -145,6 +145,7 @@ hopefully helpful, thanks thanks,
 [109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions)  
 [110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---advciv-sas-music-shuffle-cleanup-intermittent-python-startupmaininterface-errors-from-early-bug-path-calls-in-sevopedia-music-path-helper)  
 [111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#111---reverted-this-patch-sevopedia-index-unicodedecodeerror-in-buildsortfilter-unicodedecodeerror-ascii-codec-cant-decode-byte-0xc8-in-position-0)  
+[113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4356,3 +4357,37 @@ Update 2: findings so far:
 ```
 
 In short, takeaway seems to pay special attention to capitalization and making sure path or names are correct or such.
+
+## 113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1C8Fh29p8kXsDhiipZJ34zQtJMQKqxXmY?usp=sharing).
+
+Observed issue:
+
+- `WIDGET_PYTHON` does not provide built-in hover/help text by itself, so anywhere it is used directly for Build entries, hover text is missing.
+- After linking build-related entries to Sevopedia Builds through `WIDGET_PYTHON`, build hover text was missing across these Build-entry paths (routes/removals such as Remove Jungle, Chop Forest, Scrub Fallout, Road/Railroad contexts).
+- In Tech Advisor, this also reduced usefulness because players could click to Builds, but no longer got the familiar build hover detail from base widget behavior.
+- In Sevopedia, the same symptom appeared in build-entry contexts (including Index build rows): clickable behavior existed, hover did not.
+
+Likely root cause:
+
+- `WIDGET_PYTHON` path is good for custom redirects, but unlike `WIDGET_HELP_IMPROVEMENT`, it does not expose the built-in build hover/help behavior.
+- Speculation: the built-in build-hover generator appears tied to DLL/EXE widget paths such as `WIDGET_HELP_IMPROVEMENT`, and not accessible through plain `WIDGET_PYTHON`; therefore we patched this in Python with a hybrid widget+click-routing approach.
+
+Workaround approach (hybrid):
+
+- Use `WIDGET_HELP_IMPROVEMENT` for build-entry widgets so base build hover/help is restored.
+- Intercept click handling in Python and route non-improvement build clicks (or build-entry clicks generally where needed) to Sevopedia Builds.
+- Keep base improvement behavior where appropriate (e.g. improvement entries still benefit from base hover/jump semantics).
+- Rationale: this split is intentionally more useful for players (improvement behavior where players expect it in Tech Chooser, and direct Builds-page routing where build details are the main goal in Sevopedia paths).
+
+Applied places:
+
+- Tech Advisor (`CvTechChooser.py`): improvement-first behavior restored; non-improvement builds keep useful Builds redirect while hover text is preserved.
+- Sevopedia pages (`SevoPediaMain.py`, `SevoPediaImprovement.py`, `SevoPediaFeature.py`, `SevoPediaBuild.py`): build-entry buttons switched to hover-capable widget path with click reroute.
+- Sevopedia Index (`SevoPediaIndex.py`): Build rows now show hover text and still jump to Builds.
+
+Result:
+
+- Hover text and click usefulness are both kept across all Build-entry paths that now use this hybrid approach.
+- User flow is now consistent across Tech Advisor and Sevopedia build entries.

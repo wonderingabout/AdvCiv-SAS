@@ -314,7 +314,8 @@ class SevoPediaImprovement:
 		for iBuild in range(gc.getNumBuildInfos()):
 			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
 				buildInfo = gc.getBuildInfo(iBuild)
-				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild, False)
+				# <!-- custom: use WIDGET_HELP_IMPROVEMENT for build buttons so hover text is available; click redirect is handled in SevoPediaMain. See KI#113. (GPT-5.3-Codex) -->
+				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, buildInfo.getTechPrereq(), iBuild, False)
 				bButtonFound = True
 
 		if not bButtonFound:
@@ -449,7 +450,7 @@ class SevoPediaImprovement:
 				if iBuild < 0:
 					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
 
-				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild)
+				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild)
 				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 

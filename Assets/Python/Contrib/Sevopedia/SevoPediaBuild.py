@@ -171,7 +171,8 @@ class SevoPediaBuild:
 				iBuild = self.SAS_iBuildRailroad
 			if iBuild < 0:
 				raise Exception("SevoPediaBuild: missing Build for route %s" % routeInfo.getType())
-			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild, False)
+			# <!-- custom: use WIDGET_HELP_IMPROVEMENT for route-result build hover text; click redirect to Builds is handled in SevoPediaMain. See KI#113. (GPT-5.3-Codex) -->
+			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild, False)
 			bFound = True
 
 		if not bFound:

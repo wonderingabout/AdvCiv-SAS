@@ -312,7 +312,7 @@ class SevoPediaIndex:
 			# <!-- custom: Build rows use the normal table cell (icon + text) and rely on table selection to trigger pediaJump.
 			# This avoids overlay widgets that don't scroll with the table. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
 			elif (type == "Build"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iData1).getTechPrereq(), iData1, CvUtil.FONT_LEFT_JUSTIFY)
 				self.SAS_rowToBuild[iRow] = iData1
 			
 			elif (type == "Civ"):
@@ -385,6 +385,13 @@ class SevoPediaIndex:
 			screen.selectRow(self.tableName, self.iLastRow, True)
 			screen.selectRow(self.tableName, inputClass.getData1(), True)
 			return 1
+		
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
+			iBuild = inputClass.getData2()
+			# <!-- custom: Build rows now use WIDGET_HELP_IMPROVEMENT to restore hover text in Index; route click
+			# explicitly to Sevopedia Builds so behavior matches other Build entries. See KI#113. (GPT-5.3-Codex) -->
+			if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
+				return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
 		
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
 				or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
