@@ -604,7 +604,7 @@ class SevoPediaBuilding:
 				if iDefaultBuilding != -1:
 					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
 
-					numTxt = "AllC %s+RM" % iNumRequired
+					numTxt = "AC %s+R" % iNumRequired
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
@@ -723,7 +723,7 @@ class SevoPediaBuilding:
 			if iNumRequired > 0:
 				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
 
-				numTxt = "AllC %s+RM" % iNumRequired
+				numTxt = "AC %s+R" % iNumRequired
 				extraCorrectionX = get_extra_correction_x(numTxt)
 				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
@@ -741,7 +741,7 @@ class SevoPediaBuilding:
 
 				# <!-- custom: add numTxt info that this building prereq is or may beoverriden by some civics such as organized religion civic for missionaries in this case at least is the only one i can think of -->
 				if self.is_building_prereq_overridden_by_civic(self.iBuilding):
-					numTxt = "(!)Civic(s)"
+					numTxt = "(!)Cvc"
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
@@ -833,7 +833,7 @@ class SevoPediaBuilding:
 		if iFreePromotion != -1:
 			screen.appendMultiListButton(rowListName, gc.getPromotionInfo(iFreePromotion).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, 1, False)
 
-			numTxt = "All Un.C"
+			numTxt = "AUC"
 			extraCorrectionX = get_extra_correction_x(numTxt)
 			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
@@ -849,7 +849,7 @@ class SevoPediaBuilding:
 			if iDefaultBuilding != -1:
 				screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
 
-				numTxt = "All Cs"
+				numTxt = "ACs"
 				extraCorrectionX = get_extra_correction_x(numTxt)
 				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 

@@ -364,10 +364,36 @@ def get_numTxt_combat_type_modifiers(iModCombat):
 
 
 
+def get_numTxt_promotion_tier_compact(prefix, bHasTier1, bHasTier2, bHasTier3):
+	tierIds = []
+	if bHasTier1:
+		tierIds.append(1)
+	if bHasTier2:
+		tierIds.append(2)
+	if bHasTier3:
+		tierIds.append(3)
+	if len(tierIds) == 0:
+		return ""
+	if len(tierIds) == 1:
+		return "%s%d" % (prefix, tierIds[0])
+
+	iMin = min(tierIds)
+	iMax = max(tierIds)
+	bContiguous = (len(tierIds) == (iMax - iMin + 1))
+	if bContiguous:
+		return "%s%d-%d" % (prefix, iMin, iMax)
+
+	szText = "%s%d" % (prefix, tierIds[0])
+	for iTier in tierIds[1:]:
+		szText += "+%d" % iTier
+	return szText
+
+
+
 def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
 	# <!-- custom: note: for freebonus, done according to kujira's website, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of sevopedia building py file if needed: based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this -->
 	if iNumFreeBonuses == -1:
-		return "RM"
+		return "FBBR"
 	elif iNumFreeBonuses >= 1:
 		return "%d" % (iNumFreeBonuses)
 	else:
@@ -376,6 +402,14 @@ def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
 
 
 def get_extra_correction_x(numTxt):
+	# <!-- custom: shorter custom abbreviations (InC, ACs, AUC, AC N+R, etc.) looked slightly left after shortening, so nudge them right without changing generic modifier labels. (GPT-5.3-Codex) -->
+	if numTxt in ("InC", "ACs", "AUC"):
+		return -3
+	if numTxt in ("(!)Cvc", "FBBR"):
+		return -2
+	if numTxt.startswith("AC ") and numTxt.endswith("+R"):
+		return -4
+
 	if len(numTxt) <= 3:
 		# <!-- custom: example "_/_", "1", etc -->
 		return -6

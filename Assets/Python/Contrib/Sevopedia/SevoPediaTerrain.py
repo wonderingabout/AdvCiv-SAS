@@ -479,22 +479,7 @@ class SevoPediaTerrain:
 					if (iHillsAttack != 0 or iHillsDefense != 0):
 						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
 					else:
-						# <!-- custom: display first the modifier, and only if there are no modifiers, try to display the promotion(s) instead if there are any promotion(s); also efficient code computationally provided added with the help of chatgpt thanks. -->
-						s = ""
-						if isHasHM1:
-							s = "HM1"
-						if isHasHM2:
-							if s:
-								s += "+2"
-							else:
-								s = "HM2"
-						if isHasHM3:
-							if s:
-								s += "+3"
-							else:
-								s = "HM3"
-						if s:
-							numTxt = s
+						numTxt = get_numTxt_promotion_tier_compact("HM", isHasHM1, isHasHM2, isHasHM3)
 
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
