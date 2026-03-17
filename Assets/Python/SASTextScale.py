@@ -27,7 +27,7 @@ def applyFontTag(szText, szTag):
 		return szText
 	# <!-- custom: usage rule: always try bodyText/labelText first (simple path). If text already contains <font=...>, leave it unchanged here to avoid double-wrapping.
 	# Escalate to normalize* only after reproducing a real failure with simple wrapping in that exact caller/data path.
-	# Current empirical examples: ConceptInfo/NewConceptInfo seem to need normalize; hints, Unit/History civilopedia text, and Traits (Effects/Background) seem to work with simple bodyText. (GPT-5.3-Codex) -->
+	# Current empirical examples: ConceptInfo/NewConceptInfo and Sevopedia Leader Civilopedia text need normalize; hints, Unit/History civilopedia text, and Traits (Effects/Background) often work with simple bodyText/labelText. (GPT-5.3-Codex) -->
 	if szUnicode.find(u"<font=") != -1:
 		return szUnicode
 	return szTag + szUnicode + SAS_FONT_TAG_CLOSE

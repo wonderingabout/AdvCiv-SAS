@@ -20,6 +20,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
 from _sevopedia_helpers import *
 # <!-- custom: import to display chars before Traits -->
 import TraitUtil
@@ -308,7 +309,7 @@ class SevoPediaLeader:
 				szLabel = u"<img=%s size=%d></img>" % (szEmojiPath, iEmojiSize)
 				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
 			else:
-				szLabel = self.getAttitudeButtonLabel(iAttitude)
+				szLabel = SASTextScale.labelText(self.getAttitudeButtonLabel(iAttitude))
 				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iAttitudeX += iAttitudeButtonW + iAttitudeSpacing
 
@@ -328,7 +329,7 @@ class SevoPediaLeader:
 
 		for iAction, szLabel in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			szWidget = self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction]
-			screen.setButtonGFC(szWidget, szLabel, "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
+			screen.setButtonGFC(szWidget, SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iActionX += iActionButtonW + iActionSpacing
 
 
@@ -363,8 +364,8 @@ class SevoPediaLeader:
 		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		historyTextName = self.top.getNextWidgetName()
 		CivilopediaText = gc.getLeaderHeadInfo(self.iLeader).getCivilopedia()
-		CivilopediaText = u"<font=2>" + CivilopediaText + u"</font>"
-		screen.attachMultilineText(panelName, historyTextName, CivilopediaText, WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (GPT-5.3-Codex); also trim the bottom a bit to remove last incompletely rendered line for beautification -->
+		screen.addMultilineText(historyTextName, SASTextScale.normalizeLabelText(CivilopediaText), self.X_HISTORY + 7, self.Y_HISTORY + 6, self.W_HISTORY - 5, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -420,7 +421,7 @@ class SevoPediaLeader:
 
 		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was headerExtraHeight 30 -->
 		headerExtraHeight = 10
-		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS + 5, self.Y_TRAITS + headerExtraHeight, self.W_TRAITS - 10, self.H_TRAITS - headerExtraHeight - 5, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_TRAITS + 5, self.Y_TRAITS + headerExtraHeight, self.W_TRAITS - 10, self.H_TRAITS - headerExtraHeight - 5, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
