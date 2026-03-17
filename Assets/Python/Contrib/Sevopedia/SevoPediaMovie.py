@@ -414,6 +414,8 @@ class SevoPediaMovie:
 			return gc.getReligionInfo(iMovieId)
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return gc.getEraInfo(iMovieId)
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			return gc.getCorporationInfo(iMovieId)
 		return None
 
 
@@ -476,6 +478,22 @@ class SevoPediaMovie:
 				return None
 			return (szMovieFile, "dds", "AS2D_NEW_ERA")
 
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			szMovieFile = gc.getCorporationInfo(iMovieId).getMovieFile()
+			if (not szMovieFile) or (szMovieFile == "NONE"):
+				return None
+			szMovieKind = "movie"
+			if szMovieFile.find(".nif") > -1:
+				szMovieKind = "nif"
+			szSoundScript = ""
+			try:
+				szSoundScript = gc.getCorporationInfo(iMovieId).getMovieSound()
+			except:
+				szSoundScript = ""
+			if szSoundScript == "NONE":
+				szSoundScript = ""
+			return (szMovieFile, szMovieKind, szSoundScript)
+
 		return None
 
 
@@ -509,6 +527,16 @@ class SevoPediaMovie:
 			return (info is not None) and bool(info.getMovieFile())
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return bool(gc.getEraInfo(iMovieId).getButton())
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			info = gc.getCorporationInfo(iMovieId)
+			if info is None:
+				return False
+			szMovieFile = ""
+			try:
+				szMovieFile = info.getMovieFile()
+			except:
+				szMovieFile = ""
+			return bool(szMovieFile) and szMovieFile != "NONE"
 		return False
 
 
@@ -523,6 +551,8 @@ class SevoPediaMovie:
 		# <!-- custom: this successfully works: redirects to Sevopedia Eras Chart category, that has no item and only a chart (like Promotions Tree for example). Done with the very nice help of Claude code Sonnet 4.5 thanks a lot! -->
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return (WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iMovieId, 1)
 		return (WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 

@@ -119,6 +119,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
 		self.SAS_PEDIA_MOVIE_TYPE_RELIGION = 4
 		self.SAS_PEDIA_MOVIE_TYPE_ERA = 5
+		self.SAS_PEDIA_MOVIE_TYPE_CORPORATION = 6
 		self.SAS_PEDIA_MUSIC_TYPE_TECH = 1
 		self.SAS_PEDIA_MUSIC_TYPE_ERA = 2
 		self.SAS_PEDIA_MUSIC_TYPE_LEADER = 3
@@ -1480,7 +1481,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_PEDIA_MOVIE_TYPE_WONDER,
 				self.SAS_PEDIA_MOVIE_TYPE_PROJECT,
 				self.SAS_PEDIA_MOVIE_TYPE_RELIGION,
-				self.SAS_PEDIA_MOVIE_TYPE_ERA
+				self.SAS_PEDIA_MOVIE_TYPE_ERA,
+				self.SAS_PEDIA_MOVIE_TYPE_CORPORATION
 			)
 			self.SAS_cacheMoviesTuple = tuple(listEntries)
 		return self.SAS_cacheMoviesTuple
@@ -1542,6 +1544,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return gc.getReligionInfo(iMovieId)
 		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return gc.getEraInfo(iMovieId)
+		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			return gc.getCorporationInfo(iMovieId)
 		return None
 	
 	def getMusicInfo(self, iPacked):

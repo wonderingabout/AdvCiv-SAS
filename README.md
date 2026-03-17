@@ -336,7 +336,7 @@ Supports Previous Track and Next track, Toggle Movies/Music button, Fast Up and 
 
 ##### Movies
 
-Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided. See [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-ingame).
+Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, Corporations, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided. See [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-ingame).
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_movies (1).JPG" alt="0.820_sevopedia_movies (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_movies (2).JPG" alt="0.820_sevopedia_movies (2).JPG" width="250"></img>

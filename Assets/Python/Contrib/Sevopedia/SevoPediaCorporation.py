@@ -72,6 +72,7 @@ class SevoPediaCorporation:
 		self.X_MOVIE = self.top.R_PEDIA_PAGE - self.W_MOVIE
 		self.Y_MOVIE = self.Y_COMPETES
 		self.H_MOVIE = self.H_TOP_ROW
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		self.X_BONUSES_GENERATED = self.X_BONUSES_CONSUMED
 		self.Y_BONUSES_GENERATED = self.Y_BONUSES_CONSUMED + self.H_TOP_ROW + self.SMALL_MARGIN
@@ -220,12 +221,19 @@ class SevoPediaCorporation:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
-		# <!-- custom: movie panel is intentionally a stub for now; functional movie wiring is handled later. (GPT-5.3-Codex) -->
-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-		textName = self.top.getNextWidgetName()
-		szText = localText.getText(txtKeyNoButtonFound, ())
-		yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
-		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION
+		if self.top.pediaMovies.hasMovie(iMovieType, self.iCorporation):
+			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iCorporation)
+			buttonSize = 64
+			buttonX = (self.W_MOVIE - buttonSize) / 2
+			buttonY = 10
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+		else:
+			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNoButtonFound, ())
+			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

@@ -309,6 +309,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Eras</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_CORPORATION</Tag>
+		<English>Corporations</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES</Tag>
 		<English>Tech Quotes</English>
 	</TEXT>

@@ -217,9 +217,11 @@ So the common media playing logic to Sevopedia Movies and Music is in [SevoPedia
 
 ### example 0.91: Movies category (with audio support)
 
-Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
+Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras, Corporations) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
 
-Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
+Emoji-based Play button is added to corresponding Sevopedia page like Sevopedia Building or such.
+
+Note: Corporations show "None" because as of now no `MovieFile` nor `MovieSound` are set for them.
 
 <img src="../Images/sevopedia/0.820_sevopedia_movies (1).JPG" alt="0.820_sevopedia_movies (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.820_sevopedia_movies (2).JPG" alt="0.820_sevopedia_movies (2).JPG" width="250"></img>
