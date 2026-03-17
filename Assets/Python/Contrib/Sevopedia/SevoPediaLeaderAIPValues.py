@@ -1332,43 +1332,26 @@ def _compute_leader_cache_internal():
 				return localText.getText(header_key_or_text, ())
 			return header_key_or_text
 
-		# === AI Panel's Categories (display order) ===
-		# <!-- custom: We keep icon_button_art_key values local here for clarity and to avoid any global "emoji mapping" state. (GPT-5.2-Codex (summarized)) -->
-
 		right_defs = (
-			# <!-- custom: Economic Preferences. (GPT-5.2-Codex) -->
 			("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
-			# <!-- custom: Contact Offer Probabilities. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
-			# <!-- custom: Contact Demand Probabilities. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
-			# <!-- custom: Offer Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
-			# <!-- custom: Demand Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
-			# <!-- custom: Misc Modifiers. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
+			("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
+			("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
 		)
 
 		middle_defs = (
-			# <!-- custom: Positive Memory Affections. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
-			# <!-- custom: Negative Memory Resentments. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
-			# <!-- custom: No War At. (GPT-5.2-Codex) -->
+			("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
+			("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
+			("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
+			("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
 			("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
-			# <!-- custom: Attitude Changes +/- Lims +/- Divs. (GPT-5.2-Codex) -->
 			("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
+			("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
 		)
 
 		left_defs = (
-			# <!-- custom: Core Personality. (GPT-5.2-Codex) -->
 			("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
-			# <!-- custom: Victory Weights (BBAI-style). (GPT-5.2-Codex) -->
 			("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
-			# <!-- custom: Flavors. (GPT-5.2-Codex) -->
 			("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
-			# <!-- custom: War Strategy. (GPT-5.2-Codex) -->
 			("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
 		)
 
@@ -1393,7 +1376,6 @@ def _compute_leader_cache_internal():
 
 		return (tuple(right_categories), tuple(middle_categories), tuple(left_categories))
 
-	# === AI Panel's Categories ===
 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories()
 
 	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players. -->
