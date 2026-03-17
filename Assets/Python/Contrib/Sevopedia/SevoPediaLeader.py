@@ -21,6 +21,7 @@ import CvUtil
 import ScreenInput
 import SevoScreenEnums
 import SASTextScale
+from SASFontUtils import SAS_FONT_TAG_LABEL_BOLD
 from _sevopedia_helpers import *
 # <!-- custom: import to display chars before Traits -->
 import TraitUtil
@@ -437,9 +438,9 @@ class SevoPediaLeader:
 
 
 	def fillAITableRow(self, screen, label, value, scale, xLabel, xValue, xScale, y):
-		labelText = u"<font=2>%s</font>" % label
-		valueText = u"<font=2b>%d</font>" % value
-		scaleText = u"<font=2>%s</font>" % scale
+		labelText = SASTextScale.labelText(label)
+		valueText = SASTextScale.applyFontTag(u"%d" % value, SAS_FONT_TAG_LABEL_BOLD)
+		scaleText = SASTextScale.labelText(scale)
 
 		screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setText(self.top.getNextWidgetName(), "", valueText, CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -459,7 +460,7 @@ class SevoPediaLeader:
 			# AI Category Header Line
 			if ai_category_header_line is not None:
 				xOffsetButton = xLabel + ai_category_x_offset
-				screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.top.getNextWidgetName(), "", SASTextScale.applyFontTag(ai_category_header_line, SAS_FONT_TAG_LABEL_BOLD), CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += self.H_AI_LINE_HEIGHT
 
 			# <!-- custom: AI Category items in their predefined order -->

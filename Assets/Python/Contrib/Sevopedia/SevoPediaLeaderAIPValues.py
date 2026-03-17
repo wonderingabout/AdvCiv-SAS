@@ -1096,14 +1096,16 @@ def _compute_leader_cache_internal():
 			button_size = 16
 			# <!-- custom: No caching needed here since this precomputes to a file (not called repeatedly during gameplay). (GPT-5.2-Codex (summarized)) -->
 			line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
-			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
+			# <!-- custom: keep cache/data layer font-agnostic; apply font tags at UI render layer in SevoPediaLeader.py. (GPT-5.3-Codex) -->
+			ai_category_header_line_with_button = u"%s %s" % (line_button_txt, ai_category_header)
 
 			# <!-- custom: add x offset (negative) so we can push button a bit left and reduce whitespace -->
 			ai_category_x_offset_with_button = -7
 
 			return (ai_category_header_line_with_button, ai_category_x_offset_with_button)
 		else:
-			ai_category_header_line_without_button = u"<font=3b>%s</font>" % ai_category_header
+			# <!-- custom: keep cache/data layer font-agnostic; apply font tags at UI render layer in SevoPediaLeader.py. (GPT-5.3-Codex) -->
+			ai_category_header_line_without_button = ai_category_header
 			ai_category_x_offset_without_button = 0
 
 			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
