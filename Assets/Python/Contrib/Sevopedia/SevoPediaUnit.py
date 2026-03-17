@@ -331,20 +331,20 @@ class SevoPediaUnit:
 			elif nOr > 0:
 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ())
 		if len(szLeftDelimeter) > 0:
-			screen.attachLabel(panelName, "", szLeftDelimeter)
+			screen.attachLabel(panelName, "", SASTextScale.labelText(szLeftDelimeter))
 		bFirst = True
 
 		for j in range(gc.getNUM_UNIT_PREREQ_OR_BONUSES()):
 			eBonus = gc.getUnitInfo(self.iUnit).getPrereqOrBonuses(j)
 			if eBonus > -1:
 				if not bFirst:
-					screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
 				else:
 					bFirst = False
 				screen.attachImageButton(panelName, "", gc.getBonusInfo(eBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, eBonus, -1, False)
 				isButtonFound = True
 		if len(szRightDelimeter) > 0:
-			screen.attachLabel(panelName, "", szRightDelimeter)
+			screen.attachLabel(panelName, "", SASTextScale.labelText(szRightDelimeter))
 
 		iPrereq = gc.getUnitInfo(self.iUnit).getPrereqReligion()
 		if iPrereq >= 0:
@@ -381,7 +381,7 @@ class SevoPediaUnit:
 		for iProject in projectsRequired:
 			if not bFirst:
 				# Add "OR" text between projects
-				screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
+				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
 			
 			screen.attachImageButton(panelName, "", gc.getProjectInfo(iProject).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, -1, False)
 			bFirst = False

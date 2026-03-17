@@ -23,6 +23,8 @@ import CvUtil
 import CvPediaScreen
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
+from SASFontUtils import SAS_FONT_TAG_LABEL
 
 from _sevopedia_helpers import *
 
@@ -333,9 +335,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.addListBoxGFC(listBoxName, "", self.X_TECH_PANE + 92, self.Y_TECH_PANE + 14, self.W_TECH_PANE, self.H_TECH_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listBoxName, False)
 		# <!-- custom: extra space (" ") in some of these listboxstringsto better align with the research icon char starting more on the right, depending on where the space is put, the text is so much better left-aligned between rows i think/feel/see or so it seems to me if i mmay say... -->
-		screen.appendListBoxString(listBoxName, u" <font=4b>" + techInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.appendListBoxString(listBoxName, u"<font=3> " + szEra + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.appendListBoxString(listBoxName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(listBoxName, SASTextScale.titleText(u" " + techInfo.getDescription()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(listBoxName, SASTextScale.labelText(u" " + szEra), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(listBoxName, SASTextScale.titleText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -364,7 +366,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_MUSIC + (self.H_MUSIC / 2)
-			screen.addMultilineText(textName, szText, self.X_MUSIC + 7, yPanelCenter, self.W_MUSIC - 14, self.H_MUSIC - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MUSIC + 7, yPanelCenter, self.W_MUSIC - 14, self.H_MUSIC - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -438,7 +440,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_FIRST_TO_DISCOVER + (self.H_FIRST_TO_DISCOVER / 2)
-			screen.addMultilineText(textName, szText, self.X_FIRST_TO_DISCOVER + 7, yPanelCenter, self.W_FIRST_TO_DISCOVER - 14, self.H_FIRST_TO_DISCOVER - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_FIRST_TO_DISCOVER + 7, yPanelCenter, self.W_FIRST_TO_DISCOVER - 14, self.H_FIRST_TO_DISCOVER - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -457,7 +459,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			txtName = self.top.getNextWidgetName()
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_YES", ())
 			yPanelCenter = self.Y_TRADEABLE + (self.H_TRADEABLE / 2)
-			screen.addMultilineText(txtName, szText, self.X_TRADEABLE + 7, yPanelCenter, self.W_TRADEABLE - 14, self.H_TRADEABLE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(txtName, SASTextScale.labelText(szText), self.X_TRADEABLE + 7, yPanelCenter, self.W_TRADEABLE - 14, self.H_TRADEABLE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		else:
 			# Tech is not tradeable - show emoji icon
 			buttonSize = 64
@@ -617,7 +619,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_OBSOLETES + (self.H_OBSOLETES / 2)
-			screen.addMultilineText(textName, szText, self.X_OBSOLETES + 7, yPanelCenter, self.W_OBSOLETES - 14, self.H_OBSOLETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_OBSOLETES + 7, yPanelCenter, self.W_OBSOLETES - 14, self.H_OBSOLETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -646,7 +648,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_LEADS_TO + (self.H_LEADS_TO / 2)
-			screen.addMultilineText(textName, szText, self.X_LEADS_TO + 7, yPanelCenter, self.W_LEADS_TO - 14, self.H_LEADS_TO - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_LEADS_TO + 7, yPanelCenter, self.W_LEADS_TO - 14, self.H_LEADS_TO - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -662,7 +664,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			eTech = gc.getTechInfo(self.iTech).getPrereqAndTechs(j)
 			if (eTech > -1):
 				if bHasAnd:
-					screen.attachLabel(panelName, "", localText.getText("TXT_KEY_AND", ()))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
 				else:
 					bHasAnd = True
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
@@ -680,26 +682,26 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			elif (nOrTechs > 0):
 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ())
 		if len(szLeftDelimeter) > 0:
-			screen.attachLabel(panelName, "", szLeftDelimeter)
+			screen.attachLabel(panelName, "", SASTextScale.labelText(szLeftDelimeter))
 		bFirst = True
 		for j in range(gc.getNUM_OR_TECH_PREREQS()):
 			eTech = gc.getTechInfo(self.iTech).getPrereqOrTechs(j)
 			if (eTech > -1):
 				if (not bFirst):
-					screen.attachLabel(panelName, "", localText.getText("TXT_KEY_OR", ()))
+					screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
 				else:
 					bFirst = False
 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
 				bButtonFound = True
 		if len(szRightDelimeter) > 0:
-			screen.attachLabel(panelName, "", szRightDelimeter)
+			screen.attachLabel(panelName, "", SASTextScale.labelText(szRightDelimeter))
 
 		if not bButtonFound:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
-			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -901,7 +903,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_ENABLES + (self.H_ENABLES / 2)
-			screen.addMultilineText(textName, szText, self.X_ENABLES + 7, yPanelCenter, self.W_ENABLES - 14, self.H_ENABLES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_ENABLES + 7, yPanelCenter, self.W_ENABLES - 14, self.H_ENABLES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -972,17 +974,16 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.enableSort(tableName)
 
 		# Column headers: "Starting Tech" in first column (implicit panel title)
-		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER", ()), colTechW)
-		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER", ()), colTechW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
 		inchart_set_icon_column_headers(screen, tableName, 2, maxCivs, civColW)
 
 		for iTech, civCount, civIds in startingTechData:
 			iRow = screen.appendTableRow(tableName)
 			techInfo = gc.getTechInfo(iTech)
 
-			techText = u"<font=2>%s</font>" % techInfo.getDescription()
-			screen.setTableText(tableName, 0, iRow, techText, techInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, techInfo.getDescription(), techInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			inchart_set_icon_cells(screen, tableName, iRow, civIds, 2, maxCivs, INCHART_ICON_TYPE_CIV)
 
@@ -1032,9 +1033,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.enableSort(tableName)
 
 		# Column headers: "Untradeable" | "Count" | "All" | tech buttons...
-		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER", ()), colEraW)
-		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), colCountW)
-		screen.setTableColumnHeader(tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_ALL", ()), colAllW)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER", ()), colEraW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_ALL", ()), colAllW, SAS_FONT_TAG_LABEL)
 		inchart_set_icon_column_headers(screen, tableName, 3, maxTechs, techColW)
 
 		numEras = gc.getNumEraInfos()
@@ -1052,15 +1053,14 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# Navigation widgets only work with setImageButtonAt, not table cells.
 			# To make this clickable, would need to restructure from table to individual buttons. (Claude code Sonnet 4.5) -->
 			eraButtonPath = eraInfo.getButton()
-			eraText = u"<font=2>%s</font>" % eraInfo.getDescription()
-			screen.setTableText(tableName, 0, iRow, eraText, eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, eraInfo.getDescription(), eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Untradeable tech count column
-			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % techCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % techCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# All techs in era column
 			totalInEra = totalTechsByEra.get(iEra, 0)
-			screen.setTableText(tableName, 2, iRow, u"<font=2>%d</font>" % totalInEra, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, u"%d" % totalInEra, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Tech button columns (starting at column 3)
 			inchart_set_icon_cells(screen, tableName, iRow, techIds, 3, maxTechs, INCHART_ICON_TYPE_TECH)
@@ -1107,9 +1107,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.enableSort(tableName)
 
 		# Column headers: "Tech Combos" in first column (implicit panel title)
-		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER", ()), colComboW)
-		screen.setTableColumnHeader(tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW)
-		screen.setTableColumnHeader(tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER", ()), colComboW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW, SAS_FONT_TAG_LABEL)
 		inchart_set_icon_column_headers(screen, tableName, 3, maxCivsRight, civColW)
 
 		minCount, maxCount = combosMinMax
@@ -1120,17 +1120,17 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			tech2Info = gc.getTechInfo(tech2)
 
 			# Combination text with tech icons using <img> tags (size=24 to match button columns using INCHART_ICON_SIZE)
-			comboText = u"<font=2><img=%s size=%d> %s + <img=%s size=%d> %s</font>" % (
+			comboText = u"<img=%s size=%d> %s + <img=%s size=%d> %s" % (
 				tech1Info.getButton(), INCHART_ICON_SIZE, tech1Info.getDescription(),
 				tech2Info.getButton(), INCHART_ICON_SIZE, tech2Info.getDescription())
-			screen.setTableText(tableName, 0, iRow, comboText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, comboText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Count
-			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Ranking bar using centralized helper
 			rankingBar = inchart_calc_ranking_bar(civCount, minCount, maxCount)
-			screen.setTableText(tableName, 2, iRow, u"<font=2>%s</font>" % rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Civ icons using centralized helper
 			inchart_set_icon_cells(screen, tableName, iRow, civIds, 3, maxCivsRight, INCHART_ICON_TYPE_CIV)
@@ -1145,7 +1145,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		listName = self.top.getNextWidgetName()
 
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -1160,7 +1160,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szQuoteTextWidget = self.top.getNextWidgetName()
 		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(szQuoteTextWidget, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
