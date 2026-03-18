@@ -917,3 +917,18 @@ v. 0.41
 - Some adjustments for humidity
 - Fixed some mistakes in options
 """
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaMain.py =====
+----- Comment #15 -----
+
+			# <!-- custom: could reduce it to 200 still displaying all text in the dedicated panel (but very close, 199 does not fit, 200 is the strict minimum on 1920 x 1080, and i assume resolutions don't affect this but i don't know, still even if they did is quite minor (at worse the text would need 2 rows (in total to be displayed in just the category, but the place/room i gain is very (and much more useful than this header width, so leaving as is, even if does not work/function as intended is fine, as long as not critically broken this is the category header text, we need info on the main big panel rather), was 230
+			# May actually even be visually clearer as the distance between the words in categories and the items's words in the items category is smaller -->
+			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
+			# <!-- custom: was 200 -->
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaMain.py =====
+----- Comment #16 -----
+
+<!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have more room to accomodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: since the upscaling text changes, increased (from 124) to accomodate a max font size of 4. -->
+		# advc.002b: was 175
+		# <!-- custom: was 200 -->
