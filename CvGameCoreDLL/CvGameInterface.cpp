@@ -2749,6 +2749,15 @@ void CvGame::onGraphicsInitialized()
 {
 	// advc.095:
 	setCityBarWidth(BUGOption::isEnabled("MainInterface__WideCityBars", false));
+	// <!-- custom: apply define-driven city billboard text scale (map view city name/production/pop labels). (GPT-5.3-Codex) -->
+	if (ARTFILEMGR.applyCityBillboardScaleFromDefines())
+	{
+		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+		{
+			FOR_EACH_CITY_VAR(pCity, *itPlayer)
+				pCity->reloadEntity();
+		}
+	}
 	/*	<advc.001> After loading, the camera tries to center on some unit
 		(apparently; I don't know where that's implemented). If there is
 		none, it seems to center on some random(?) unrevealed tile. */
