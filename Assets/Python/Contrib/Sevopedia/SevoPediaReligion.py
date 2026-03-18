@@ -40,11 +40,11 @@ class SevoPediaReligion:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: multilist leaders panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
-		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
-		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
-		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
-		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+		# <!-- custom: multilist favorites panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
+		self.W_FAVORITES = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+		self.X_FAVORITES = self.top.R_PEDIA_PAGE - self.W_FAVORITES
+		self.Y_FAVORITES = self.top.Y_PEDIA_PAGE
+		self.H_FAVORITES = self.top.B_PEDIA_PAGE - self.Y_FAVORITES
 
 		self.X_RELIGION_PANE = self.top.X_PEDIA_PAGE
 		self.Y_RELIGION_PANE = self.top.Y_PEDIA_PAGE
@@ -63,7 +63,7 @@ class SevoPediaReligion:
 		self.X_ICON = self.X_RELIGION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
 
-		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_LEADERS + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN)
+		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN)
 		self.W_LEFT_COLUMN = self.W_REMAINING_CENTER_SPACE / 2
 
 		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
@@ -91,12 +91,12 @@ class SevoPediaReligion:
 
 		self.X_SPECIAL = self.X_BUILDINGS + self.W_LEFT_COLUMN + self.MEDIUM_MARGIN
 		self.Y_SPECIAL = self.Y_BUILDINGS
-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_LEADERS - self.MEDIUM_MARGIN
+		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_FAVORITES - self.MEDIUM_MARGIN
 		self.H_SPECIAL = self.H_BUILDINGS + self.SMALL_MARGIN + self.H_UNITS
 
 		self.X_HISTORY = self.X_RELIGION_PANE
 		self.Y_HISTORY = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_LEADERS - self.MEDIUM_MARGIN
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_FAVORITES - self.MEDIUM_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
@@ -104,7 +104,7 @@ class SevoPediaReligion:
 	def interfaceScreen(self, iReligion):
 		self.iReligion = iReligion
 
-		self.placeLeaders()
+		self.placeFavorites()
 		self.placeReligionPane()
 		self.placeBuilding()
 		self.placeMovie()
@@ -123,14 +123,15 @@ class SevoPediaReligion:
 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
 	#			TableStyles.TABLE_STYLE_STANDARD)
 	# if it helps us adapt/use the addMultiListControlGFC method -->
-	# <!-- custom: part of the code here (placeLeaders in particular but possibly not only, is imported from History Rewritten mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py which may be modified or not for AdvCiv-SAS, with the help of claude AI thanks -->
-	def placeLeaders(self):
-		xPanel = self.X_LEADERS
-		yPanel = self.Y_LEADERS
-		wPanel = self.W_LEADERS
-		hPanel = self.H_LEADERS
+	# <!-- custom: part of the code here (placeFavorites in particular but possibly not only, is imported from History Rewritten mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py which may be modified or not for AdvCiv-SAS, with the help of claude AI thanks -->
+	def placeFavorites(self):
+		xPanel = self.X_FAVORITES
+		yPanel = self.Y_FAVORITES
+		wPanel = self.W_FAVORITES
+		hPanel = self.H_FAVORITES
 
-		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
+		# <!-- custom: this panel lists AI favorites for the selected religion, so "Favorites" is clearer than "Leaders". (GPT-5.3-Codex) -->
+		txtKeyPanel = "TXT_KEY_PEDIA_FAVORITES"
 		headerLabel = localText.getText(txtKeyPanel, ())
 		numWithReligion, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_RELIGION, self.iReligion, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
 		headerText = format_leaders_header_text(numWithReligion, totalRealLeaders, headerLabel)

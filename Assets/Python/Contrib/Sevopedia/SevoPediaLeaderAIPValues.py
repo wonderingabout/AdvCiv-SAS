@@ -520,8 +520,8 @@ def _compute_leader_cache_internal():
 			"getBasePeaceWeight": ("Base Peace Weig", False),
 			"getPeaceWeightRand": ("Peace Weig Rand", False),
 			"getWarmongerRespect": ("Warmonger Resp", False),
-			"getEspionageWeight": ("Espionage Weig", False),
-			"getRefuseToTalkWarThreshold": ("RefToTalkW Span", False),
+			"getEspionageWeight": ("EspionageWeig", False),
+			"getRefuseToTalkWarThreshold": ("Ref2TalkWSpan", False),
 			"getNoTechTradeThreshold": ("NoTech2AdvTrT", True),
 			"getTechTradeKnownPercent": ("NoTechYetRdy%", False),
 			"getMaxGoldTradePercent": ("Max Gold Tr%", False),
@@ -538,49 +538,49 @@ def _compute_leader_cache_internal():
 			"getMaxWarRand": ("T.W Likely", True),
 			"getMaxWarNearbyPowerRatio": ("T.W NearPR", False),
 			"getMaxWarDistantPowerRatio": ("T.W DistPR", False),
-			"getMaxWarMinAdjacentLandPercent": ("T.W Min NearPR", True),
+			"getMaxWarMinAdjacentLandPercent": ("T.W MinNearPR", True),
 			"getLimitedWarRand": ("Lim.W Likely", True),
-			"getLimitedWarPowerRatio": ("Lim.W PR.", False),
+			"getLimitedWarPowerRatio": ("Lim.W PR", False),
 			"getDogpileWarRand": ("Dogpile Likely", True),
 			"getMakePeaceRand": ("MakePeaceLikely", True),
-			"getDeclareWarTradeRand": ("W AllianceMaker", False),
-			"getDemandRebukedSneakProb": ("TribRef SneakW%", False),
+			"getDeclareWarTradeRand": ("WAllianceMaker", False),
+			"getDemandRebukedSneakProb": ("TribRSneakW%", False),
 			"getDemandRebukedWarProb": ("TribRef W%", False),
 			"getRazeCityProb": ("Raz C %", False),
 			"getBuildUnitProb": ("Build Unit %", False),
 			# ==== ATTITUDE MODIFIER FIELDS (from XML order) ====
 			"getBaseAttackOddsChange": ("Risky Aggr", False),
-			"getAttackOddsChangeRand": ("Risky Aggr Rand+", False),
+			"getAttackOddsChangeRand": ("Risky AggrRand+", False),
 			"getWorseRankDifferenceAttitudeChange": ("Worse Rank AC", False),
 			"getBetterRankDifferenceAttitudeChange": ("Better Rank AC", False),
 			# <!-- custom: inverted according to: https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos at "iCloseBordersAttitudeChange" and then according to also https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange (description translated(ion) seems a bit less accurate but is informative and helpful maybe etc -->
-			"getCloseBordersAttitudeChange": ("CloseBordersSpark", True),
+			"getCloseBordersAttitudeChange": ("CloseBordSpark", True),
 			"getLostWarAttitudeChange": ("Lost W AC", False),
 			"getAtWarAttitudeDivisor": ("At W AD", False),
 			"getAtWarAttitudeChangeLimit": ("At W ACL", False),
 			"getAtPeaceAttitudeDivisor": ("At Peace AD", False),
 			"getAtPeaceAttitudeChangeLimit": ("At Peace ACL", False),
-			"getSameReligionAttitudeChange": ("Same Religion AC", False),
-			"getSameReligionAttitudeDivisor": ("Same Religion AD", False),
-			"getSameReligionAttitudeChangeLimit": ("Same Religion ACL", False),
-			"getDifferentReligionAttitudeChange": ("Diff.Religion AC", False),
-			"getDifferentReligionAttitudeDivisor": ("Diff.Religion AD", False),
-			"getDifferentReligionAttitudeChangeLimit": ("Diff.Religion ACL", True),
+			"getSameReligionAttitudeChange": ("Same Relig AC", False),
+			"getSameReligionAttitudeDivisor": ("Same Relig AD", False),
+			"getSameReligionAttitudeChangeLimit": ("Same Relig ACL", False),
+			"getDifferentReligionAttitudeChange": ("Diff Relig AC", False),
+			"getDifferentReligionAttitudeDivisor": ("Diff Relig AD", False),
+			"getDifferentReligionAttitudeChangeLimit": ("Diff Relig ACL", True),
 			"getBonusTradeAttitudeDivisor": ("Bonus Tr AD", False),
 			"getBonusTradeAttitudeChangeLimit": ("Bonus Tr ACL", False),
-			"getOpenBordersAttitudeDivisor": ("Open Borders AD", False),
-			"getOpenBordersAttitudeChangeLimit": ("Open Borders ACL", False),
-			"getDefensivePactAttitudeDivisor": ("Defensive Pact AD", False),
-			"getDefensivePactAttitudeChangeLimit": ("Defensive Pact ACL", False),
+			"getOpenBordersAttitudeDivisor": ("Open Bord AD", False),
+			"getOpenBordersAttitudeChangeLimit": ("Open Bord ACL", False),
+			"getDefensivePactAttitudeDivisor": ("Defens Pact AD", False),
+			"getDefensivePactAttitudeChangeLimit": ("Defens Pact ACL", False),
 			"getShareWarAttitudeChange": ("Share W AC", False),
 			"getShareWarAttitudeDivisor": ("Share W AD", False),
 			"getShareWarAttitudeChangeLimit": ("Share W ACL", False),
-			"getFavoriteCivicAttitudeChange": ("Favorite Civic AC", False),
-			"getFavoriteCivicAttitudeDivisor": ("Favorite Civic AD", False),
-			"getFavoriteCivicAttitudeChangeLimit": ("Favorite Civic ACL", False),
+			"getFavoriteCivicAttitudeChange": ("Fav Civic AC", False),
+			"getFavoriteCivicAttitudeDivisor": ("Fav Civic AD", False),
+			"getFavoriteCivicAttitudeChangeLimit": ("Fav Civic ACL", False),
 			# <!-- custom: attitude thresholds later in code in case we want to aggregate them or do aggregate them but not sure may or may not do -->
 			# ==== VASSAL AND FREEDOM FIELDS (from XML order) ====
-			"getVassalPowerModifier": ("ResistCapitulP.M", False),
+			"getVassalPowerModifier": ("ResistCapitulPM", False),
 			"getFreedomAppreciation": ("FreedomApprec", False),
 			# <!-- custom: then fields with nested or incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more) are handled separately later -->
 		}
@@ -608,9 +608,9 @@ def _compute_leader_cache_internal():
 			"getStopTradingThemRefuseAttitudeThreshold": ("LoyaltyNoStopTr", True),
 			"getAdoptCivicRefuseAttitudeThreshold": ("Adopt Civic", False),
 			"getConvertReligionRefuseAttitudeThreshold": ("Convert Religion", False),
-			"getOpenBordersRefuseAttitudeThreshold": ("Open Borders", False),
-			"getDefensivePactRefuseAttitudeThreshold": ("Defensive Pact", False),
-			"getPermanentAllianceRefuseAttitudeThreshold": ("Perm. Alliance", False),
+			"getOpenBordersRefuseAttitudeThreshold": ("Open Bord", False),
+			"getDefensivePactRefuseAttitudeThreshold": ("DefensPact", False),
+			"getPermanentAllianceRefuseAttitudeThreshold": ("PermAlliance", False),
 			"getVassalRefuseAttitudeThreshold": ("Vassal", False),
 		}
 
@@ -847,17 +847,17 @@ def _compute_leader_cache_internal():
 
 		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now see latest value or code comments or docs for updated value or and info)) order -->
 		contact_index_labels = {
-			0: "Relig. Press.",		# CONTACT_RELIGION_PRESSURE
-			1: "Civic Press.",		# CONTACT_CIVIC_PRESSURE
+			0: "Relig Press",		# CONTACT_RELIGION_PRESSURE
+			1: "Civic Press",		# CONTACT_CIVIC_PRESSURE
 			2: "Join W", 			# CONTACT_JOIN_WAR
 			3: "Stop Tr",			# CONTACT_STOP_TRADING
 			4: "Gave Help",			# CONTACT_GIVE_HELP
 			5: "Help",				# CONTACT_ASK_FOR_HELP
 			6: "Trib",				# CONTACT_DEMAND_TRIBUTE
 			7: "Open Borders",		# CONTACT_OPEN_BORDERS
-			8: "Defensive Pact",	# CONTACT_DEFENSIVE_PACT
-			9: "Perm. Alliance",	# CONTACT_PERMANENT_ALLIANCE
-			10: "Peace Treaty",		# CONTACT_PEACE_TREATY
+			8: "DefensPact",		# CONTACT_DEFENSIVE_PACT
+			9: "PermAlliance",		# CONTACT_PERMANENT_ALLIANCE
+			10: "PeaceTreaty",		# CONTACT_PEACE_TREATY
 			11: "Tr Tech",			# CONTACT_TRADE_TECH
 			12: "Tr Bonus",			# CONTACT_TRADE_BONUS
 			13: "Tr Map",			# CONTACT_TRADE_MAP
@@ -866,42 +866,42 @@ def _compute_leader_cache_internal():
 		positive_memory_index_labels = {
 			8:  "Gave Help",		# MEMORY_GIVE_HELP
 			10: "AcD",				# MEMORY_ACCEPT_DEMAND
-			12: "AcReligion",		# MEMORY_ACCEPTED_RELIGION
+			12: "AcRelig",			# MEMORY_ACCEPTED_RELIGION
 			14: "AcCivic",			# MEMORY_ACCEPTED_CIVIC
 			16: "AcJoin W",			# MEMORY_ACCEPTED_JOIN_WAR
 			18: "AcStop Tr",		# MEMORY_ACCEPTED_STOP_TRADING
 			28: "Tr Tech",			# MEMORY_TRADED_TECH_TO_US
 			31: "VotedForUs",		# MEMORY_VOTED_FOR_US
 			32: "Event Good",		# MEMORY_EVENT_GOOD_TO_US
-			34: "Liberated C",		# MEMORY_LIBERATED_CITIES
+			34: "LiberatedC",		# MEMORY_LIBERATED_CITIES
 			35: "Indep",			# MEMORY_INDEPENDENCE
 		}
 
 		negative_memory_index_labels = {
 			0:  "D.W",				# MEMORY_DECLARED_WAR
-			1:  "D.W on Fr",		# MEMORY_DECLARED_WAR_ON_FRIEND
-			2:  "HiredW Ally",		# MEMORY_HIRED_WAR_ALLY
+			1:  "D.W onFr",			# MEMORY_DECLARED_WAR_ON_FRIEND
+			2:  "HirWAlly",			# MEMORY_HIRED_WAR_ALLY
 			3:  "Nuked Us",			# MEMORY_NUKED_US
 			4:  "Nuked Fr",			# MEMORY_NUKED_FRIEND
-			5:  "Raz C",			# MEMORY_RAZED_CITY
-			6:  "Raz Holy C",		# MEMORY_RAZED_HOLY_CITY
+			5:  "RazC",				# MEMORY_RAZED_CITY
+			6:  "RazHolyC",			# MEMORY_RAZED_HOLY_CITY
 			7:  "Spy Caught",		# MEMORY_SPY_CAUGHT
-			9:  "Ref Help Us",		# MEMORY_REFUSED_HELP
+			9:  "RefHelpUs",		# MEMORY_REFUSED_HELP
 			11: "Rej D",			# MEMORY_REJECTED_DEMAND
-			13: "Dn Religion",		# MEMORY_DENIED_RELIGION
+			13: "Dn Relig",			# MEMORY_DENIED_RELIGION
 			15: "Dn Civic",			# MEMORY_DENIED_CIVIC
-			17: "Dn Join W",		# MEMORY_DENIED_JOIN_WAR
-			19: "Dn Stop Tr",		# MEMORY_DENIED_STOP_TRADING
-			20: "Stopped Tr",		# MEMORY_STOPPED_TRADING
-			21: "Rec Stopped Tr",	# MEMORY_STOPPED_TRADING_RECENT
-			22: "Tr Embargo",		# MEMORY_HIRED_TRADE_EMBARGO
+			17: "Dn JoinW",			# MEMORY_DENIED_JOIN_WAR
+			19: "Dn StopTr",		# MEMORY_DENIED_STOP_TRADING
+			20: "StoppedTr",		# MEMORY_STOPPED_TRADING
+			21: "RecStoppedTr",		# MEMORY_STOPPED_TRADING_RECENT
+			22: "TrEmbargo",		# MEMORY_HIRED_TRADE_EMBARGO
 			23: "Made D",			# MEMORY_MADE_DEMAND
-			24: "CancelledVassal",	# MEMORY_CANCELLED_VASSAL_AGREEMENT
-			25: "Recent MadeD",		# MEMORY_MADE_DEMAND_RECENT
-			26: "Cancelled OB",		# MEMORY_CANCELLED_OPEN_BORDERS
-			27: "Cancelled DP",		# MEMORY_CANCELLED_DEFENSIVE_PACT
-			29: "Recent Tech Any",	# MEMORY_RECEIVED_TECH_FROM_ANY
-			30: "Voted Ag Us",		# MEMORY_VOTED_AGAINST_US
+			24: "CancVassal",		# MEMORY_CANCELLED_VASSAL_AGREEMENT
+			25: "RecentMadeD",		# MEMORY_MADE_DEMAND_RECENT
+			26: "CancelledOB",		# MEMORY_CANCELLED_OPEN_BORDERS
+			27: "CancelledDP",		# MEMORY_CANCELLED_DEFENSIVE_PACT
+			29: "RecentTechAny",	# MEMORY_RECEIVED_TECH_FROM_ANY
+			30: "VotedAgUs",		# MEMORY_VOTED_AGAINST_US
 			33: "Event Bad",		# MEMORY_EVENT_BAD_TO_US
 			36: "Recent W",			# MEMORY_DECLARED_WAR_RECENT
 		}

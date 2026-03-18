@@ -282,6 +282,8 @@ More recently, added optional grouping by civilization with a civilization icon,
 
 More recently, added leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
 
+Since then, increased ai personality panel default font size from body (default 2) to label (default 3), and made item bar shorter with a per font size tunable value to accomodate the AI Personality panel larger rows.
+
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
@@ -389,11 +391,11 @@ Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Maize, Pasture -
 
 ### example 5: religion category
 
-new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or adjustments or not, as well as civ4 BUG_Doc, see code comments in Sevopediareligion.py for details.
+new Favorites (Leaders) (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or adjustments or not, as well as civ4 BUG_Doc, see code comments in Sevopediareligion.py for details.
 
-Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it.
+Also note that all Favorites (Leaders) now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it.
 
-Since then, we also added the Leader count pattern in Sevopedia Traits in the Leaders' panel's header (example "Leader 12/53 (22%)").
+Since then, we also added the Leader count pattern in Sevopedia Traits in the Favorites (Leaders)' panel's header (example "Leader 12/53 (22%)").
 
 <img src="../Images/sevopedia/0.660_sevopedia_religions.JPG" alt="0.660_sevopedia_religions.JPG" width="250"></img>
 
@@ -508,7 +510,7 @@ Output is really nice and nicely informative too, examples below:
 
 ### example 13: civics category
 
-This is another very nice rework :) I should have thought of it sooner xd, but it is the quite natural expansion of the placeLeaders panel in Sevopedia religion (not that i believe (anymore) in them).
+This is another very nice rework :) I should have thought of it sooner xd, but it is the quite natural expansion of the placeFavorites (Leaders) panel in Sevopedia religion (not that i believe (anymore) in them).
 
 It allowed to polish a bit the Sevopedia religion that also had a placeSpecial panel that i could beautify a bit as well (upper spacing).
 
@@ -516,7 +518,7 @@ Code provided by/with the help of claude ai too thanks if i may say (and thanks 
 
 More recently, added the `iCivicPercentAnger` info in Sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really.
 
-Since then, we also added the Leader count pattern in Sevopedia Traits in the Leaders' panel's header (example "Leader 12/53 (22%)").
+Since then, we also added the Leader count pattern in Sevopedia Traits in the Favorites (Leaders)' panel's header (example "Leader 12/53 (22%)").
 
 Examples of output below.:
 

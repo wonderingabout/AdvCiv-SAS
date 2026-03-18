@@ -68,6 +68,34 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TINY</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_BODY</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #376. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: show/hide score-related legend links (Info Screen Score tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
@@ -112,6 +140,23 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 
 
@@ -317,34 +362,6 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD</DefineName>
 		<iDefineIntVal>36</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
-	<Define>
-		<DefineName>SAS_UI_FONT_TINY</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
-	<Define>
-		<DefineName>SAS_UI_FONT_BODY</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
-	<Define>
-		<DefineName>SAS_UI_FONT_LABEL</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
-	<Define>
-		<DefineName>SAS_UI_FONT_TITLE</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #376. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
-	<Define>
-		<DefineName>SAS_UI_FONT_HOVER</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 
 

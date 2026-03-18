@@ -374,6 +374,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
 		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
@@ -680,6 +684,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iMusicItemsWidth <= 0:
 				iMusicItemsWidth = self.SAS_W_ITEMS_BASE
 			self.SAS_setItemsWidth(iMusicItemsWidth)
+		elif iCategory == SevoScreenEnums.PEDIA_LEADERS:
+			self.SAS_setItemsWidth(self.SAS_getLeaderItemsWidthByCurrentUIFont())
 		else:
 			self.SAS_setItemsWidth(self.SAS_W_ITEMS_BASE)
 		if not self.isContentsShowing():
@@ -2255,6 +2261,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.X_PEDIA_PAGE = self.X_ITEMS + self.W_ITEMS + 18
 		self.R_PEDIA_PAGE = self.W_SCREEN - 20
 		self.W_PEDIA_PAGE = self.R_PEDIA_PAGE - self.X_PEDIA_PAGE
+
+	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
+		iLabelFont = getSASUIFontLabel()
+		if iLabelFont <= 1:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1
+		elif iLabelFont == 2:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2
+		elif iLabelFont == 3:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3
+		else:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4
+		if iWidth <= 0:
+			return self.SAS_W_ITEMS_BASE
+		return iWidth
 
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount)

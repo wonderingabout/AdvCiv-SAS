@@ -102,17 +102,39 @@ class SevoPediaLeader:
 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
 
-		self.X_LEADERHEAD_PANE = self.top.X_PEDIA_PAGE
+		self.N_AI_TABLE_NUM = 3
+		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+		if iLeaderItemsWidthFont2 <= 0:
+			iLeaderItemsWidthFont2 = self.top.SAS_W_ITEMS_BASE
+		iLabelFont = getSASUIFontLabel()
+		if iLabelFont <= 1:
+			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+		elif iLabelFont == 2:
+			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+		elif iLabelFont == 3:
+			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+		else:
+			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
+		if iLeaderItemsWidthCurrent <= 0:
+			iLeaderItemsWidthCurrent = self.top.SAS_W_ITEMS_BASE
+		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrent
+		if iLeaderItemsWidthGain < 0:
+			iLeaderItemsWidthGain = 0
+		iAIPPanelGain = iLeaderItemsWidthGain / self.N_AI_TABLE_NUM
+		iAIPLabelGain = (iAIPPanelGain * 70) / 100
+		iAIPRemainingGain = iAIPPanelGain - iAIPLabelGain
+		iAIPValueGain = iAIPRemainingGain / 2
+		iAIPScaleGain = iAIPRemainingGain - iAIPValueGain
+
+		# <!-- custom: for leader page, compute page-left from leader item width directly so layout is deterministic at init. (GPT-5.3-Codex) -->
+		self.X_LEADERHEAD_PANE = self.top.X_ITEMS + iLeaderItemsWidthCurrent + 18
 		self.Y_LEADERHEAD_PANE = self.top.Y_PEDIA_PAGE
 		# <!-- custom: for the ratio of the portrait, aim to match closely the ingame diplomacy portrait ratio; Long_Comments_py.txt #2 -->
 		self.W_LEADERHEAD_PANE = 327
 		self.H_LEADERHEAD_PANE = 400
 
 		# <!-- custom: 1) (most) absolute dimensions first -->
-
-		# <!-- custom: make room to add AI personality panel -->
-		self.W_AI_PERSONALITY = 290
-
+		self.W_AI_PERSONALITY = 290 + iAIPPanelGain
 		self.SMALL_MARGIN = 10
 		self.MEDIUM_MARGIN = 20
 		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements
@@ -120,9 +142,7 @@ class SevoPediaLeader:
 		self.H_CIV = 64
 		self.CIV_MARGIN = 0
 		self.CIV_DISELEVATION = 38
-		
 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
-		self.N_AI_TABLE_NUM = 3
 
 		# <!-- custom: 2) (most) relative dimensions or positions then -->
 
@@ -164,8 +184,8 @@ class SevoPediaLeader:
 		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
 
 		# <!-- custom: AI Personality Panel(s) column widths -->
-		self.W_AI_VALUE = 35
-		self.W_AI_SCALE = 100
+		self.W_AI_VALUE = 35 + iAIPValueGain
+		self.W_AI_SCALE = 100 + iAIPScaleGain
 		self.W_AI_LABEL = self.W_AI_PERSONALITY - self.W_AI_VALUE - self.W_AI_SCALE
 		self.H_AI_LINE_HEIGHT = 22
 		self.H_AI_CATEGORY_SPACING = 10
