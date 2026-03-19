@@ -966,16 +966,18 @@ class CvMainInterface:
 		lBUGOptBtn = gRect("TurnLogButton").copy()
 		lBUGOptBtn.move(gRect("TurnLogButton").size() + HSPACE(4), 0)
 		gSetRectangle("BUGOptionsScreenWidget", lBUGOptBtn)
-		iGoldTextX = (gRect("TurnLogButton").x() * 2) / 3
+		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
 		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT
 		if bTopLeftFlagAndLeftSideTextShift is None:
 			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
 		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
-			iGoldTextX += HSPACE(18)
-		gSetPoint("GoldText", PointLayout(iGoldTextX, gPoint("TimeText").y()))
+			iLeftTopTextX += HSPACE(18)
+		gSetPoint("TimeText", PointLayout(iLeftTopTextX, gPoint("TimeText").y()))
 		gSetPoint("EraText", PointLayout(
-				gRect("CityLeftPanel").xRight() - HSPACE(8), gPoint("GoldText").y()))
+				gRect("CityLeftPanel").xRight() - HSPACE(8), gPoint("TimeText").y()))
+		gOffSetPoint("GoldText", "TopRightButtons",
+				-HSPACE(1), (4 * 24) / gRect("TopRightButtons").height())
 		self.setCommerceAdjustRects()
 
 		gSetPoint("EndTurnText", PointLayout(0, # (gets centered through text alignment)
@@ -1427,15 +1429,18 @@ class CvMainInterface:
 		iHSpacing = HSPACE(0)
 		iRowH = iBtnSize + iVSpacing
 		iColumnW = iBtnSize + iHSpacing
+		iPercentTextX = gRect("InterfaceTopRight").x() + HSPACE(120)
+		iCommerceRowsTopOffset = VSPACE(12)
 		for i in range(iMaxRows):
-			gOffSetPoint("PercentText" + str(i), "Top",
-					HSPACE(14),
+			gSetPoint("PercentText" + str(i), PointLayout(
+					iPercentTextX,
 					gRect("InterfaceTopLeft").yBottom() + VSPACE(-8)
-					+ i * iRowH)
+					+ i * iRowH + iCommerceRowsTopOffset))
 			if self.bScaleHUD:
 				# Make room for the Turn Log, whose (default) position I can't change.
 				gPoint("PercentText" + str(i)).move(0, -3)
-		iX = 36 + HSPACE(36) # Space for the PercentText label
+		iPercentTextToButtonsX = 36 + HSPACE(56) - HSPACE(14)
+		iX = iPercentTextX + iPercentTextToButtonsX # Space for the PercentText label
 		for i in range(4): # Up to 4 buttons per row (2 for BUG - Min/Max Sliders)
 			lSliderBtns = ColumnLayout(gRect("Top"),
 					iX, gPoint("PercentText0").y(),
@@ -1463,8 +1468,9 @@ class CvMainInterface:
 
 		# <advc.002b> Placing the buttons at just the same y coord as the labels
 		# doesn't quite work out
+		iSliderButtonsVerticalOffset = 25 - iBtnSize
 		for i in range(4):
-			gRect("CommerceSliderBtns" + str(i)).move(0, 21 - iBtnSize)
+			gRect("CommerceSliderBtns" + str(i)).move(0, iSliderButtonsVerticalOffset)
 		# </advc.002b>
 		gSetPoint("MaintenanceText", PointLayout(
 				gPoint("PercentText0").x() + 1,
@@ -1478,7 +1484,7 @@ class CvMainInterface:
 		gSetRect("CityAdjustPanel", "CityLeftPanel",
 				RectLayout.CENTER,
 				gPoint("PercentText0").y() - gRect("CityLeftPanel").y() - iVSpace,
-				min(-1, gRect("CityLeftPanel").x() - gPoint("PercentText0").x() + HSPACE(6)),
+				-1,
 				gPoint("MaintenanceText").y() + iBtnSize + 1
 				- gPoint("PercentText0").y() + 2 * iVSpace)
 
@@ -2817,7 +2823,7 @@ class CvMainInterface:
 			#	screen.hide("EraText") # advc.067
 			self.updateTimeText()
 			self.setLabel("TimeText", "Background", SAS_FONT_TAG_LABEL + g_szTimeText + SAS_FONT_TAG_CLOSE,
-					CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
+					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 			screen.show("TimeText")
 
 		else:
@@ -4744,7 +4750,7 @@ class CvMainInterface:
 				iCount += 1
 		self.updateTimeText()
 		self.setLabel("TimeText", "Background", SAS_FONT_TAG_LABEL + g_szTimeText + SAS_FONT_TAG_CLOSE,
-				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
+				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("TimeText")
 		# advc.103: Don't show gold rate and current research when investigating
 		if (not gc.getPlayer(ePlayer).isAlive() or
@@ -4797,7 +4803,7 @@ class CvMainInterface:
 		#	szText = CyGameTextMgr().getGoldStr(ePlayer)
 # BUG - Gold Rate Warning - end
 		self.setLabel("GoldText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
-				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
+				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("GoldText")
 
 		if ((gc.getPlayer(ePlayer).calculateGoldRate() != 0 and
