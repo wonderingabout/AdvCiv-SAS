@@ -243,7 +243,7 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
 
 We find some of the BUG advisor features valuable and not obvious to many players. So we have inverted the options, rather than simply force enabling or disabling them.
 
-This means the default is now ON, and ticking the option toggles it to OFF. Applied as of now only to the Tech Advisor (F6 key) and Religious Advisor (F7 key) which we find most valuable. Updated the texts to match this new behaviour and sometimes clarify it (e.g. vague "GP Research" -> clearer "Hide bulbing indicators").
+This means the default is now ON, and ticking the option toggles it to OFF. Applied as of now only to the Tech Advisor (F6 key) and Religion Advisor (F7 key) which we find most valuable. Updated the texts to match this new behaviour and sometimes clarify it (e.g. vague "GP Research" -> clearer "Hide bulbing indicators").
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5151_inverted_bug_advisors.JPG" alt="0.5151_inverted_bug_advisors.JPG" width="250"></img>
 

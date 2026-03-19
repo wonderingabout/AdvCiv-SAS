@@ -96,23 +96,6 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
-		<iDefineIntVal>230</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
-		<iDefineIntVal>230</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
-		<iDefineIntVal>200</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
-		<iDefineIntVal>40</iDefineIntVal>
-	</Define>
 	<!-- custom: CITY_BILLBOARDS fScale by SAS_UI_FONT_BODY in tenths (e.g. -20 => -2.0). We key off BODY (not LABEL/TITLE) because map-view city name/production/pop are regular informational text and visually align with body-level density. Use 10 for vanilla-like default (1.0). Note: city billboards follow two render paths; positive values stay on GameFont path (e.g. 2.0 did not upscale as needed), while negative values switch to GFC/interface-font path where scaling worked for map-view city text. Empirically, as of now -20 seems to be the effective in-game ceiling: values more negative (e.g. -30 i.e. -3.0) did not produce visibly larger text. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_CITY_BILLBOARD_FSCALE_FONT_1</DefineName>
@@ -150,6 +133,23 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_4</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 
 

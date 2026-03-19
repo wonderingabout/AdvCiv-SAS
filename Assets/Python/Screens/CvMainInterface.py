@@ -663,8 +663,8 @@ class CvMainInterface:
 		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = None
 		# <!-- custom: optional unit info button in the map view unit panel. (GPT-5.2-Codex) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
-		# <!-- custom: optional top-left flag and left-text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
-		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = None
+		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
+		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
 
 
 
@@ -967,10 +967,10 @@ class CvMainInterface:
 		lBUGOptBtn.move(gRect("TurnLogButton").size() + HSPACE(4), 0)
 		gSetRectangle("BUGOptionsScreenWidget", lBUGOptBtn)
 		iGoldTextX = (gRect("TurnLogButton").x() * 2) / 3
-		bTopLeftFlagAndTreasuryShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT
-		if bTopLeftFlagAndTreasuryShift is None:
-			bTopLeftFlagAndTreasuryShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
-		if bTopLeftFlagAndTreasuryShift:
+		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT
+		if bTopLeftFlagAndLeftSideTextShift is None:
+			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
+		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
 			iGoldTextX += HSPACE(18)
 		gSetPoint("GoldText", PointLayout(iGoldTextX, gPoint("TimeText").y()))
@@ -1927,8 +1927,8 @@ class CvMainInterface:
 			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN") > 0)
 		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
 			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
-		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
+		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT is None:
+			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
 		lTop = gRect("Top")
 
 		self.setDefaultHelpTextArea()
@@ -2857,7 +2857,7 @@ class CvMainInterface:
 			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT)):
 			# <!-- custom: changed from unconditional refresh to define-gated refresh so this optional UI feature stays no-op when disabled. (GPT-5.3-Codex) -->
-			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
+			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT:
 				self.updateFlag()
 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
@@ -3112,7 +3112,7 @@ class CvMainInterface:
 		# <advc.004y> Don't check shouldDisplayFlag for the Civilopedia button, but do check if the city screen is up.
 		# <!-- custom: we also show the flag in city screen, unlike base AdvCiv. Because this mod moves it to a small top-left slot, it no longer interferes with city-action buttons; therefore keeping it visible in city screen is useful (traits hover + capital jump) rather than intrusive. This remains an optional behavior. (GPT-5.3-Codex) -->
 		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW):
-			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
+			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT:
 				self.updateFlag()
 			if CyInterface().isCityScreenUp():
 				screen.hide("InterfaceHelpButton")

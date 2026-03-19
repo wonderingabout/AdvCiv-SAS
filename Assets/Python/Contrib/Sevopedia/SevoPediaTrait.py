@@ -283,7 +283,7 @@ class SevoPediaTrait:
 			screen.addPanel(leftPanelName, "", "", True, True, self.STATS_PANEL_X, self.STATS_PANEL_Y, self.STATS_LEFT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
 
 			leftTableName = self.top.getNextWidgetName()
-			screen.addTableControlGFC(leftTableName, 3 + maxLeadersLeft, self.STATS_LEFT_TABLE_X, self.STATS_LEFT_TABLE_Y, self.STATS_LEFT_TABLE_W, self.STATS_LEFT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+			screen.addTableControlGFC(leftTableName, 3 + maxLeadersLeft, self.STATS_LEFT_TABLE_X, self.STATS_LEFT_TABLE_Y, self.STATS_LEFT_TABLE_W, self.STATS_LEFT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, CHART_TABLE_STYLE)
 			screen.enableSort(leftTableName)
 
 			screen.setTableColumnHeader(leftTableName, 0, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_TRAIT_HEADER", ())), self.STATS_LEFT_COL_TRAIT)
@@ -314,7 +314,7 @@ class SevoPediaTrait:
 			screen.addPanel(rightPanelName, "", "", True, True, self.STATS_RIGHT_X, self.STATS_PANEL_Y, self.STATS_RIGHT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
 
 			rightTableName = self.top.getNextWidgetName()
-			screen.addTableControlGFC(rightTableName, 3 + maxLeadersRight, self.STATS_RIGHT_TABLE_X, self.STATS_RIGHT_TABLE_Y, tableWRight, self.STATS_RIGHT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+			screen.addTableControlGFC(rightTableName, 3 + maxLeadersRight, self.STATS_RIGHT_TABLE_X, self.STATS_RIGHT_TABLE_Y, tableWRight, self.STATS_RIGHT_TABLE_H, True, False, self.STATS_ROW_H, self.STATS_ROW_H, CHART_TABLE_STYLE)
 			screen.enableSort(rightTableName)
 
 			screen.setTableColumnHeader(rightTableName, 0, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_SAS_PAIR_COMBO", ())), self.STATS_RIGHT_COL_COMBO)

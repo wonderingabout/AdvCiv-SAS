@@ -1437,8 +1437,8 @@ commit 2f0b12f754908f7956136776ceb97dda93625b36
 Author: wonderingabout <hidden>
 Date:   2026-01-10 18:16:23 +0100
 
-Invert BUG Options for the Technology Advisor and the Religious Advisor so they are more accessible
-- **Inverted BUG Options** for the **Technology Advisor** and the **Religious Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+Invert BUG Options for the Technology Advisor and the Religion Advisor so they are more accessible
+- **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
 
 commit 21f67530d536c6d93b42cf1223237b34e1ca7d0a
 Author: wonderingabout <hidden>
