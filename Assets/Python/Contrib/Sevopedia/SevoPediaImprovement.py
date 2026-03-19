@@ -162,8 +162,8 @@ class SevoPediaImprovement:
 		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + self.SMALL_MARGIN
 		self.W_IMPROVEMENT_LEADERS = leftAreaRight - self.X_IMPROVEMENT_PANE
 
-		self.H_SPECIAL = 295
-		self.H_HISTORY = 295
+		self.H_SPECIAL = 289
+		self.H_HISTORY = 289
 		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
 		self.X_SPECIAL = self.X_IMPROVEMENT_PANE
 		self.W_SPECIAL = min(360, (self.W_IMPROVEMENT_LEADERS / 3) + 100)

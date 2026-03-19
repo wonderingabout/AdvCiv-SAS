@@ -140,7 +140,7 @@ class SevoPediaTrait:
 		# Precompute all layout values once in __init__ for performance. (Claude code Opus 4.5) (GPT-5.2-Codex (summarized)) -->
 
 		MARGIN = 10
-		self.BOTTOM_PANELS_H = 296
+		self.BOTTOM_PANELS_H = 291
 
 		# Leaders panel - right side, full height
 		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)

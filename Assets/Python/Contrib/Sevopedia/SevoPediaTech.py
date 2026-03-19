@@ -38,6 +38,7 @@ TECH_STATS_FIXED_RIGHT_ICON_COLS = 7
 TECH_STATS_RIGHT_ICON_COL_W = INCHART_ICON_SIZE + INCHART_ICON_SPACING
 TECH_STATS_RIGHT_SCROLLBAR_TAIL_W = 18
 TECH_STATS_MOVE_LEFT_TO_RIGHT_W = 60
+TECH_STATS_MOVE_TOPLEFT_TO_BOTTOMLEFT_H = 2
 
 
 
@@ -265,8 +266,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.X_STATS = self.X_TECH_PANE
 		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + self.SMALL_MARGIN
 		self.W_STATS = self.top.R_PEDIA_PAGE - self.X_STATS
-		# Stats height - reduced by 20px to give more room to Special/History
-		self.H_STATS = 380
+		# Stats height - slightly increased to avoid bottom clipping in stats tables.
+		self.H_STATS = 384
 
 		# Stats sub-panels layout - blue panels without headers, margin separation
 		STATS_MARGIN = 8
@@ -280,7 +281,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.STATS_LEFT_X = self.X_STATS + STATS_MARGIN
 		self.STATS_LEFT_TOP_Y = self.Y_STATS + STATS_MARGIN
 		# Top-left reduced, bottom-left gets more room (0.44 ratio gives ~1-2px to bottom)
-		self.STATS_LEFT_TOP_H = int((self.H_STATS - 3 * STATS_MARGIN) * 0.44)
+		self.STATS_LEFT_TOP_H = int((self.H_STATS - 3 * STATS_MARGIN) * 0.44) - TECH_STATS_MOVE_TOPLEFT_TO_BOTTOMLEFT_H
 		self.STATS_LEFT_BOTTOM_Y = self.STATS_LEFT_TOP_Y + self.STATS_LEFT_TOP_H + STATS_MARGIN
 		self.STATS_LEFT_BOTTOM_H = self.H_STATS - 2 * STATS_MARGIN - self.STATS_LEFT_TOP_H - STATS_MARGIN
 
