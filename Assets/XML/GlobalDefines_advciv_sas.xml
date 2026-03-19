@@ -93,6 +93,26 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
+
+
+
+	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
 	<!-- custom: CITY_BILLBOARDS fScale by SAS_UI_FONT_BODY in tenths (e.g. -20 => -2.0). We key off BODY (not LABEL/TITLE) because map-view city name/production/pop are regular informational text and visually align with body-level density. Use 10 for vanilla-like default (1.0). Note: city billboards follow two render paths; positive values stay on GameFont path (e.g. 2.0 did not upscale as needed), while negative values switch to GFC/interface-font path where scaling worked for map-view city text. Empirically, as of now -20 seems to be the effective in-game ceiling: values more negative (e.g. -30 i.e. -3.0) did not produce visibly larger text. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_CITY_BILLBOARD_FSCALE_FONT_1</DefineName>
@@ -109,6 +129,27 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_CITY_BILLBOARD_FSCALE_FONT_4</DefineName>
 		<iDefineIntVal>-40</iDefineIntVal>
+	</Define>
+	<!-- custom: city billboard text char caps keyed by SAS_UI_FONT_BODY only. Empirical testing showed wide city bars do not change the actual trim point for billboard text, so one define family is enough. Set <= 0 to disable trimming for that font size. (GPT-5.4). Note: empirically 10 fits well enough but to account for double digit timers use one less char instead -->
+	<!-- custom: example: "ABCDE FGHIJKL (8)" if max total chars are 10 -> "ABCDE FGHIJKL is 13 chars" which is more than max so trim it: " (8)" is 4 chars so only 10-4=6 chars remain for left part of the name so "ABCDE " + right part " (8)" => "ABCDE  (8)" total 10 chars is within limit now -->
+	<!-- custom: example 2: "ABC DEF (20)" if max chars are 10 similarly is reduced to "ABC D (20)" -->
+	<!-- custom: example 3: "Courthouse (8)" if max chars are 10 similarly is reduced to "Courth (8)" -->
+	<!-- custom: example 4: "Research" is total 8 chars (no timer so relatively short) so not trimmed -->
+	<Define>
+		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_1</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_2</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_3</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CITY_BILLBOARD_MAX_CHARS_FONT_4</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 
 
@@ -157,23 +198,6 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
-		<iDefineIntVal>230</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
-		<iDefineIntVal>230</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
-		<iDefineIntVal>200</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
-		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 
 
