@@ -412,10 +412,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: extra adjustment (note: inactive if the above is set to 0 or a lower value, and allows pixel per pixel precise positioning of the things to build bar). Adjust as you see fit or leave as is if fine for you -->
+	<!-- custom: extra vertical adjustment for the city-screen things-to-build bar (inactive if SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS <= 0). Value is resolution-scaled and sign-preserving: < 0 moves the bar up, > 0 moves it down, 0 keeps base placement. Adjust as you see fit. (GPT-5.3-Codex (summarized)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
-		<iDefineIntVal>-17</iDefineIntVal>
+		<iDefineIntVal>-15</iDefineIntVal>
 	</Define>
 	<!-- custom: hide the unit bar ("PlotListPanel") (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
 	<Define>
@@ -434,8 +434,18 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: enable compact top-left civ flag (hover/click) and matching left-text spacing shift (e.g. treasury); set to 0 to hide the flag and keep left text at base position. (GPT-5.3-Codex (summarized)) -->
 	<Define>
-		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT</DefineName>
+		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: horizontal offset for the right-side commerce block anchor on the main interface (percent labels, slider buttons, and per-turn text) (GPT-5.3-Codex). Change this value to move more to the left or to the right the whole commerce slider group (e.g. science char 100% + - buttons (+225/Turn) for the first row). For example a value of -1500 moves the commerce sliders group back to left-side position -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<!-- custom: horizontal offset for the same commerce block while city screen is open; lets map view and city screen use separate positions. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET</DefineName>
+		<iDefineIntVal>-1510</iDefineIntVal>
 	</Define>
 
 

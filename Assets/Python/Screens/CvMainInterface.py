@@ -665,6 +665,7 @@ class CvMainInterface:
 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
 		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
+		self.bSASLastCommerceRectsCityScreen = None
 
 
 
@@ -740,11 +741,11 @@ class CvMainInterface:
 		self.buildFilterAllBuildingsOff = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.buildFilterRegularBuildingsOn = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
 		self.buildFilterRegularBuildingsOff = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
-		self.buildFilterNatWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_ON").getPath()
+		self.buildFilterNatWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
-		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_ON").getPath()
+		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
-		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_ON").getPath()
+		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
@@ -969,7 +970,7 @@ class CvMainInterface:
 		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
 		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT
 		if bTopLeftFlagAndLeftSideTextShift is None:
-			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
+			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
 		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
 			iLeftTopTextX += HSPACE(18)
@@ -979,6 +980,7 @@ class CvMainInterface:
 		gOffSetPoint("GoldText", "TopRightButtons",
 				-HSPACE(1), (4 * 24) / gRect("TopRightButtons").height())
 		self.setCommerceAdjustRects()
+		self.bSASLastCommerceRectsCityScreen = CyInterface().isCityScreenUp()
 
 		gSetPoint("EndTurnText", PointLayout(0, # (gets centered through text alignment)
 				max(
@@ -1429,7 +1431,12 @@ class CvMainInterface:
 		iHSpacing = HSPACE(0)
 		iRowH = iBtnSize + iVSpacing
 		iColumnW = iBtnSize + iHSpacing
-		iPercentTextX = gRect("InterfaceTopRight").x() + HSPACE(120)
+		if CyInterface().isCityScreenUp():
+			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
+		else:
+			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
+		iPercentTextX = (gRect("InterfaceTopRight").x() +
+				HSPACE(iRightCommerceBlockXOffset))
 		iCommerceRowsTopOffset = VSPACE(12)
 		for i in range(iMaxRows):
 			gSetPoint("PercentText" + str(i), PointLayout(
@@ -1609,7 +1616,7 @@ class CvMainInterface:
 		iCityArrowBtnSz = BTNSZ(32)
 		iCityArrowSpacing = HSPACE(-12)
 		iCityArrowRowW = 2 * iCityArrowBtnSz + iCityArrowSpacing
-		iCityArrowRowX = gRect("CityTaskBtns").x() - iCityArrowRowW - HSPACE(2) + HSPACE(3)
+		iCityArrowRowX = gRect("CityTaskBtns").x() - iCityArrowRowW - HSPACE(6)
 		iCityArrowRowY = gRect("CityTaskBtns").y() - VSPACE(4)
 		gSetRect("CityScrollButtons", "Top",
 				iCityArrowRowX, iCityArrowRowY,
@@ -1934,7 +1941,7 @@ class CvMainInterface:
 		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
 			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
 		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
+			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
 		lTop = gRect("Top")
 
 		self.setDefaultHelpTextArea()
@@ -2557,7 +2564,13 @@ class CvMainInterface:
 		# City screen: show more build rows in production chooser
 		if self.iBarExtraRows > 0:
 			if CyInterface().isCityScreenUp():
-				iTMargin += - (self.iBarExtraRows * iButtonSize) + self.iBarExtraRowsExtraManualAdjust # extend upward; keep bottom aligned
+				iManualAdjust = self.iBarExtraRowsExtraManualAdjust
+				# <!-- custom: scale manual pixel tweak across resolutions; keep sign, but scale magnitude like regular vertical spacing. (GPT-5.3-Codex) -->
+				if iManualAdjust < 0:
+					iManualAdjust = -VSPACE(-iManualAdjust)
+				else:
+					iManualAdjust = VSPACE(iManualAdjust)
+				iTMargin += - (self.iBarExtraRows * iButtonSize) + iManualAdjust # extend upward; keep bottom aligned
 		# End - City screen: show more build rows in production chooser
 
 # BUG - Build/Action Icon Size - end
@@ -3106,8 +3119,13 @@ class CvMainInterface:
 
 	def updateMiscButtons(self):
 		screen = self.screen
-		self._applyCityScreenSideLift(CyInterface().isCityScreenUp())
-		self._applyMapViewRightPanelNarrow(not CyInterface().isCityScreenUp())
+		bCityScreen = CyInterface().isCityScreenUp()
+		self._applyCityScreenSideLift(bCityScreen)
+		self._applyMapViewRightPanelNarrow(not bCityScreen)
+		if self.bSASLastCommerceRectsCityScreen is None or self.bSASLastCommerceRectsCityScreen != bCityScreen:
+			self.setCommerceAdjustRects()
+			self.bSASLastCommerceRectsCityScreen = bCityScreen
+			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, True)
 # BUG - Great Person Bar - start
 		if (CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and
 				CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
@@ -4825,7 +4843,7 @@ class CvMainInterface:
 				iEraColor = ClockOpt.getEraColor(gc.getEraInfo(iEra).getType())
 				if iEraColor >= 0:
 					szText = localText.changeTextColor(szText, iEraColor)
-			self.setLabel("EraText", "Background", szText,
+			self.setLabel("EraText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 			screen.show("EraText")
 # BUG - NJAGC - end
