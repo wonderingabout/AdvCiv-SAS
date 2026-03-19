@@ -33,6 +33,11 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 IS_SHOW_OBSOLETES_RED_X = (gc.getDefineINT("SAS_SEVOPEDIA_TECH_SHOW_OBSOLETES_RED_X") > 0)
+TECH_STATS_FIXED_LEFT_ICON_COLS = 20
+TECH_STATS_FIXED_RIGHT_ICON_COLS = 7
+TECH_STATS_RIGHT_ICON_COL_W = INCHART_ICON_SIZE + INCHART_ICON_SPACING
+TECH_STATS_RIGHT_SCROLLBAR_TAIL_W = 18
+TECH_STATS_MOVE_LEFT_TO_RIGHT_W = 60
 
 
 
@@ -106,8 +111,15 @@ def precomputeTechStatisticsCache():
 
 	# Build sorted all-pairs data (startingTechCombos)
 	startingTechCombos = []
+	def ordered_pair_for_display(t1, t2):
+		name1 = gc.getTechInfo(t1).getDescription() or ""
+		name2 = gc.getTechInfo(t2).getDescription() or ""
+		if name2 < name1:
+			return t2, t1
+		return t1, t2
 	for (t1, t2), civIds in pairToCivs.items():
-		startingTechCombos.append((t1, t2, len(civIds), sorted(civIds)))
+		o1, o2 = ordered_pair_for_display(t1, t2)
+		startingTechCombos.append((o1, o2, len(civIds), sorted(civIds)))
 
 	# Sort by count descending, then by tech names
 	def combo_sort_key(entry):
@@ -263,8 +275,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.STATS_MARGIN = STATS_MARGIN
 		self.STATS_INNER = STATS_INNER
 
-		# Left side wider (about 200px more than right): ~60% of total width
-		self.STATS_LEFT_W = int(self.W_STATS * 0.60)
+		# Left side deterministic split with explicit transfer to the right chart.
+		self.STATS_LEFT_W = int(self.W_STATS * 0.60) - TECH_STATS_MOVE_LEFT_TO_RIGHT_W
 		self.STATS_LEFT_X = self.X_STATS + STATS_MARGIN
 		self.STATS_LEFT_TOP_Y = self.Y_STATS + STATS_MARGIN
 		# Top-left reduced, bottom-left gets more room (0.44 ratio gives ~1-2px to bottom)
@@ -937,7 +949,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# Top-left table: shows ALL starting techs with civ count and civ buttons
 		# Blue panel without header, table inside
 		startingTechData = cache["startingTechData"]
-		startingTechMaxCivs = cache["startingTechMaxCivs"]
+		_ = cache["startingTechMaxCivs"]
 
 		# Panel dimensions
 		panelX = self.STATS_LEFT_X
@@ -949,11 +961,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
 
-		if not startingTechData:
-			# No starting techs found - show message using centralized helper
-			inchart_show_no_content_text(screen, self.top, panelX, panelY, panelW, panelH, "TXT_KEY_PEDIA_SAS_NO_STARTING_TECHS")
-			return
-
 		# Table dimensions inside panel
 		tableX = panelX + self.STATS_INNER
 		tableY = panelY + self.STATS_INNER
@@ -964,13 +971,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# Tech column should be compact - just enough for button + long tech name
 		colTechW = 160
 		colCountW = 40
-		maxCivs = startingTechMaxCivs
+		maxCivs = TECH_STATS_FIXED_LEFT_ICON_COLS
 		fixedColsW = colTechW + colCountW
-		civColW, maxCivs = inchart_calc_icon_col_width(tableW, fixedColsW, maxCivs)
+		civColW, maxCivs = inchart_calc_icon_col_width(tableW, fixedColsW, maxCivs, INCHART_ICON_SIZE, INCHART_ICON_SPACING)
 
 		# Create table
 		tableName = self.top.getNextWidgetName()
-		screen.addTableControlGFC(tableName, 2 + maxCivs, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(tableName, 2 + maxCivs, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, CHART_TABLE_STYLE)
 		screen.enableSort(tableName)
 
 		# Column headers: "Starting Tech" in first column (implicit panel title)
@@ -993,7 +1000,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# Blue panel without header, table inside
 		# Columns: Era name | Count (untradeable) | All (total techs in era) | Tech buttons...
 		untradeableTechsByEra = cache["untradeableTechsByEra"]
-		maxUntradeableTechs = cache["maxUntradeableTechs"]
+		_ = cache["startingTechMaxCivs"]
 		totalTechsByEra = cache["totalTechsByEra"]
 
 		# Panel dimensions
@@ -1006,12 +1013,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
 
-		# Check if any untradeable techs exist
-		totalUntradeable = sum([data[0] for data in untradeableTechsByEra.values()])
-		if totalUntradeable == 0:
-			inchart_show_no_content_text(screen, self.top, panelX, panelY, panelW, panelH, "TXT_KEY_PEDIA_SAS_NO_UNTRADEABLE_TECHS")
-			return
-
 		# Table dimensions inside panel
 		tableX = panelX + self.STATS_INNER
 		tableY = panelY + self.STATS_INNER
@@ -1023,13 +1024,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		colEraW = 160
 		colCountW = 40
 		colAllW = 40
-		maxTechs = maxUntradeableTechs
+		maxTechs = TECH_STATS_FIXED_LEFT_ICON_COLS
 		fixedColsW = colEraW + colCountW + colAllW
-		techColW, maxTechs = inchart_calc_icon_col_width(tableW, fixedColsW, maxTechs)
+		techColW, maxTechs = inchart_calc_icon_col_width(tableW, fixedColsW, maxTechs, INCHART_ICON_SIZE, INCHART_ICON_SPACING)
 
 		# Create table (3 fixed columns + tech button columns)
 		tableName = self.top.getNextWidgetName()
-		screen.addTableControlGFC(tableName, 3 + maxTechs, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(tableName, 3 + maxTechs, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, CHART_TABLE_STYLE)
 		screen.enableSort(tableName)
 
 		# Column headers: "Untradeable" | "Count" | "All" | tech buttons...
@@ -1071,7 +1072,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# Blue panel without header, table inside
 		startingTechCombos = cache["startingTechCombos"]
 		combosMinMax = cache["combosMinMax"]
-		combosMaxCivs = cache["combosMaxCivs"]
+		_ = cache["combosMaxCivs"]
 
 		# Panel dimensions
 		panelX = self.STATS_RIGHT_X
@@ -1083,10 +1084,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
 
-		if not startingTechCombos:
-			inchart_show_no_content_text(screen, self.top, panelX, panelY, panelW, panelH, "TXT_KEY_PEDIA_SAS_NO_COMBOS_FOUND")
-			return
-
 		# Table dimensions inside panel
 		tableX = panelX + self.STATS_INNER
 		tableY = panelY + self.STATS_INNER
@@ -1094,23 +1091,24 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		tableH = panelH - 2 * self.STATS_INNER
 
 		# Column widths
-		maxCivsRight = combosMaxCivs
-		colComboW = int(tableW * 0.50)
+		maxCivsRight = TECH_STATS_FIXED_RIGHT_ICON_COLS
 		colCountW = 40
 		colRankW = 70
-		fixedColsW = colComboW + colCountW + colRankW
-		civColW, maxCivsRight = inchart_calc_icon_col_width(tableW, fixedColsW, maxCivsRight)
+		colCivsTotalW = maxCivsRight * TECH_STATS_RIGHT_ICON_COL_W
+		colTechsTotalW = tableW - colCountW - colRankW - colCivsTotalW - TECH_STATS_RIGHT_SCROLLBAR_TAIL_W
+		colTech1W = int(colTechsTotalW / 2)
+		colTech2W = colTechsTotalW - colTech1W
 
 		# Create table
 		tableName = self.top.getNextWidgetName()
-		screen.addTableControlGFC(tableName, 3 + maxCivsRight, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(tableName, 4 + maxCivsRight, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, CHART_TABLE_STYLE)
 		screen.enableSort(tableName)
 
-		# Column headers: "Tech Combos" in first column (implicit panel title)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER", ()), colComboW, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW, SAS_FONT_TAG_LABEL)
-		inchart_set_icon_column_headers(screen, tableName, 3, maxCivsRight, civColW)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, u"Tech 1", colTech1W, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, u"Tech 2", colTech2W, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 3, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW, SAS_FONT_TAG_LABEL)
+		inchart_set_icon_column_headers(screen, tableName, 4, maxCivsRight, TECH_STATS_RIGHT_ICON_COL_W)
 
 		minCount, maxCount = combosMinMax
 		for tech1, tech2, civCount, civIds in startingTechCombos:
@@ -1119,21 +1117,18 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			tech1Info = gc.getTechInfo(tech1)
 			tech2Info = gc.getTechInfo(tech2)
 
-			# Combination text with tech icons using <img> tags (size=24 to match button columns using INCHART_ICON_SIZE)
-			comboText = u"<img=%s size=%d> %s + <img=%s size=%d> %s" % (
-				tech1Info.getButton(), INCHART_ICON_SIZE, tech1Info.getDescription(),
-				tech2Info.getButton(), INCHART_ICON_SIZE, tech2Info.getDescription())
-			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, comboText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, tech1Info.getDescription(), tech1Info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech1, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, tech2Info.getDescription(), tech2Info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech2, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Count
-			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Ranking bar using centralized helper
 			rankingBar = inchart_calc_ranking_bar(civCount, minCount, maxCount)
-			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 3, iRow, rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
 
 			# Civ icons using centralized helper
-			inchart_set_icon_cells(screen, tableName, iRow, civIds, 3, maxCivsRight, INCHART_ICON_TYPE_CIV)
+			inchart_set_icon_cells(screen, tableName, iRow, civIds, 4, maxCivsRight, INCHART_ICON_TYPE_CIV)
 
 
 	# <!-- custom: _setCivIconCells and _setTechIconCells removed - now use centralized inchart_set_icon_cells from _sevopedia_helpers -->

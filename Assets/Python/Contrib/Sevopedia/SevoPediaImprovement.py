@@ -465,6 +465,11 @@ class SevoPediaImprovement:
 		hPanel = self.H_IMPROVEMENT_LEADERS
 
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS", ()), "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		innerPanelX = xPanel + INCHART_TABLE_MARGIN
+		innerPanelY = yPanel + 28
+		innerPanelW = wPanel - (2 * INCHART_TABLE_MARGIN)
+		innerPanelH = hPanel - 34
+		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, innerPanelX, innerPanelY, innerPanelW, innerPanelH, PanelStyles.PANEL_STYLE_BLUE50)
 
 		cache = IMPROVEMENT_LEADER_CACHE
 		if cache is None:
@@ -474,14 +479,14 @@ class SevoPediaImprovement:
 		weightToLeaders, weightsSorted, maxLeaders = cache["improvements"].get(self.iImprovement, (None, (), 0))
 
 		if not weightToLeaders:
-			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			inchart_show_no_content_text(screen, self.top, innerPanelX, innerPanelY, innerPanelW, innerPanelH)
 			return
 
 		tableMargin = INCHART_TABLE_MARGIN
-		tableX = xPanel + tableMargin
-		tableY = yPanel + 30
-		tableW = wPanel - (2 * tableMargin)
-		tableH = hPanel - 40
+		tableX = innerPanelX + tableMargin
+		tableY = innerPanelY + tableMargin
+		tableW = innerPanelW - (2 * tableMargin)
+		tableH = innerPanelH - (2 * tableMargin)
 
 		weightColW = 60
 		countColW = 60
@@ -489,7 +494,7 @@ class SevoPediaImprovement:
 		leaderColW, maxLeaders = inchart_calc_icon_col_width(tableW, fixedColsW, maxLeaders)
 
 		tableName = self.top.getNextWidgetName()
-		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, INCHART_ROW_HEIGHT, INCHART_ROW_HEIGHT, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, INCHART_ROW_HEIGHT, INCHART_ROW_HEIGHT, CHART_TABLE_STYLE)
 		screen.enableSort(tableName)
 
 		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_WEIGHT", ()), weightColW)

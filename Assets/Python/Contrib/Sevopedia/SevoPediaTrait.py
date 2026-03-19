@@ -27,6 +27,7 @@ IS_SHOW_ZERO_TRAIT_PAIRS_LEFT = (gc.getDefineINT("SAS_SEVOPEDIA_TRAIT_SHOW_ZERO_
 TRAIT_STATS_FIXED_LEADER_COLS = 6
 TRAIT_STATS_ICON_COL_W = INCHART_ICON_SIZE + INCHART_ICON_SPACING
 TRAIT_STATS_RIGHT_TABLE_SCROLLBAR_TAIL_W = 18
+TRAIT_STATS_MOVE_LEFT_TO_RIGHT_W = 30
 
 # <!-- custom: Module-level cache for trait statistics. Computed once on first Traits category click,
 # then reused for the entire session. Similar pattern to SevoPediaLeader's LEADERS_INFO_CACHED. (Claude Opus 4.5) -->
@@ -166,7 +167,7 @@ class SevoPediaTrait:
 		self.STATS_MARGIN = STATS_MARGIN
 
 		# Left panel dimensions
-		self.STATS_LEFT_W = int(self.STATS_PANEL_W * 0.44)
+		self.STATS_LEFT_W = int(self.STATS_PANEL_W * 0.44) - TRAIT_STATS_MOVE_LEFT_TO_RIGHT_W
 		self.STATS_LEFT_TABLE_X = self.STATS_PANEL_X + STATS_INNER
 		self.STATS_LEFT_TABLE_W = self.STATS_LEFT_W - (2 * STATS_INNER)
 		self.STATS_LEFT_TABLE_Y = self.STATS_PANEL_Y + STATS_INNER

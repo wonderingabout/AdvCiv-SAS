@@ -1230,10 +1230,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>Total</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_PAIR_COMBO</Tag>
-		<English>Combination</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_RANKING</Tag>
 		<English>Rank</English>
 	</TEXT>
@@ -1244,24 +1240,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Starting Tech</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_NO_STARTING_TECHS</Tag>
-		<English>No starting techs found.</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER</Tag>
 		<English>Untradeable</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_NO_UNTRADEABLE_TECHS</Tag>
-		<English>No untradeable techs.</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER</Tag>
-		<English>Tech Combos</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_NO_COMBOS_FOUND</Tag>
-		<English>No combinations found.</English>
 	</TEXT>
 
 	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot, check if accurate -->
