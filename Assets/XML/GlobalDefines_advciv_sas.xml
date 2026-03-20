@@ -437,15 +437,34 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: horizontal offset for the right-side commerce block anchor on the main interface (percent labels, slider buttons, and per-turn text) (GPT-5.3-Codex). Change this value to move more to the left or to the right the whole commerce slider group (e.g. science char 100% + - buttons (+225/Turn) for the first row). For example a value of -1500 moves the commerce sliders group back to left-side position -->
+	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET</DefineName>
 		<iDefineIntVal>120</iDefineIntVal>
 	</Define>
+	<!-- custom: vertical offset for the same map-view commerce block anchor; negative moves up, positive moves down. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: horizontal offset for the same commerce block while city screen is open; lets map view and city screen use separate positions. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET</DefineName>
-		<iDefineIntVal>-1510</iDefineIntVal>
+		<iDefineIntVal>14</iDefineIntVal>
+	</Define>
+	<!-- custom: vertical offset for the same commerce block while city screen is open; negative moves up, positive moves down. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
 
 

@@ -1433,11 +1433,18 @@ class CvMainInterface:
 		iColumnW = iBtnSize + iHSpacing
 		if CyInterface().isCityScreenUp():
 			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
+			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET")
+			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT") > 0)
 		else:
 			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
-		iPercentTextX = (gRect("InterfaceTopRight").x() +
-				HSPACE(iRightCommerceBlockXOffset))
-		iCommerceRowsTopOffset = VSPACE(12)
+			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET")
+			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT") > 0)
+		if bCommerceBlockAnchorRight:
+			iPercentTextBaseX = gRect("InterfaceTopRight").x()
+		else:
+			iPercentTextBaseX = gRect("InterfaceTopLeft").x()
+		iPercentTextX = iPercentTextBaseX + HSPACE(iRightCommerceBlockXOffset)
+		iCommerceRowsTopOffset = VSPACE(iRightCommerceBlockYOffset)
 		for i in range(iMaxRows):
 			gSetPoint("PercentText" + str(i), PointLayout(
 					iPercentTextX,
