@@ -5090,8 +5090,8 @@ void CvTeam::changeEspionagePointsAgainstTeam(TeamTypes eIndex, int iChange)
 // advc.120d:
 bool CvTeam::canSeeTech(TeamTypes eOther) const
 {
-	/*	In part based on drawTechDeals in ExoticForeignAdvisor.py.
-		Exposed to Python via CvPlayer. Therefore has to pretty foolproof. */
+	/*	In part based on drawTechDeals in ForeignAdvisor.py.
+		Exposed to Python via CvPlayer. Therefore has to pretty foolproof.; <!-- custom: removed "Exotic" since it is now unified in a single file --> */
 	CvTeam const& kOther = GET_TEAM(eOther);
 	// Can see vassal tech through "we'd like you to research ..."
 	if (getID() == kOther.getID() || kOther.isVassal(getID()))

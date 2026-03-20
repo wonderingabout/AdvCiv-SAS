@@ -11,7 +11,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
 		<English>Bonuses</English>
 	</TEXT>
-	<!-- custom: tab rename in Exotic Foreign Advisor (Active -> Treaties). (GPT-5.3-Codex) -->
+	<!-- custom: tab rename in Foreign Advisor (Active -> Treaties). (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_TREATIES</Tag>
 		<English>Treaties</English>
@@ -36,6 +36,13 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 
+	<!-- Foreign Advisor -->
+	<!-- custom: "advc.004: Note about patch history added" + removed "Exotic" since Foreign Advisor is now a single unified file -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER</Tag>
+		<English>Shows the "Glance" tab (relations matrix) on the Foreign Advisor screen. (This tab had been briefly disabled for aesthetic reasons
+		by a BtS patch.)</English>
+	</TEXT>
 	<!-- Technology Advisor -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_TEXT</Tag>

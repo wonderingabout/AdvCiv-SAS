@@ -17,8 +17,9 @@
 	<options id="Advisors" file="BUG Advisors.ini">
 		<section id="Advisors">
 			<!-- (K-Mod has removed the BugFinanceAdvisor option) -->
-			<!-- Exotic Foreign Advisor (F4) by Requies, Dresden, EmperorFool -->
+			<!-- Foreign Advisor (F4) by Requies, Dresden, EmperorFool -->
 			<!-- advc.004: Set the default to Numbers (was Smilies in K-Mod) -->
+			<!-- custom: updated Foreign Advisor name above: removed "Exotic" since it is now unified in a single file -->
 			<option id="EFAGlanceTab" key="EFA Glance" 
 					type="boolean" default="True" 
 					get="isShowGlance"/>

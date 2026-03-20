@@ -5745,10 +5745,10 @@ void CvDLLWidgetData::parseBonusTradeHelp(CvWidgetDataStruct &widgetDataStruct, 
 	else /* <advc.073> Hack. Need to distinguish between the import and export columns.
 			Too few iData parameters for that and widgetDataStruct.m_bOption
 			can't be set from Python (via setImageButton in the EXE).
-			I'm adding +1000 to the bonus id in Python (CvExoticForeignAdvisor.
+			I'm adding +1000 to the bonus id in Python (CvForeignAdvisor.
 			drawResourceDeals) to signal that the widget is in the import column,
 			Proper solution: Two separate widget types - probably wouldn't be that
-			much work to implement either. */
+			much work to implement either.; <!-- custom: removed "Exotic" since it is now unified in a single file --> */
 	{
 		bool bImport = false;
 		if(widgetDataStruct.m_iData1 >= 1000)
@@ -6336,7 +6336,7 @@ bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget,
 	// bListMore, eOwner and eWhoTo are all folded into data1
 	int iPlayerCode = kWidget.m_iData1;
 	FAssert(iPlayerCode >= 100);
-	// Undo the computation in drawCityDeals (CvExoticForeignAdvisor.py)
+	// Undo the computation in drawCityDeals (CvForeignAdvisor.py); <!-- custom: removed "Exotic" since it is now unified in a single file -->
 	if (iPlayerCode >= 10000)
 	{
 		bListMore = true;

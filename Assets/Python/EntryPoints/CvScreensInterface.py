@@ -1,9 +1,13 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 import CvMainInterface
 import CvTechChooser
 import CvForeignAdvisor
-import CvExoticForeignAdvisor
 import CvReligionScreen
 import CvCorporationScreen
 import CvCivicsScreen
@@ -117,8 +121,8 @@ optionsScreen = CvOptionsScreen.CvOptionsScreen()
 def showOptionsScreen():
 	optionsScreen.interfaceScreen()
 
-#foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
-foreignAdvisor = CvExoticForeignAdvisor.CvExoticForeignAdvisor()
+# <!-- custom: single canonical Foreign Advisor wiring: use "CvForeignAdvisor.py" only. This replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. Contrast: true alternatives use independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), not interdependent split files. (GPT-5.3-Codex) -->
+foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
 def showForeignAdvisorScreen(argsList):
 	if (-1 != CyGame().getActivePlayer()):
 		foreignAdvisor.interfaceScreen(argsList[0])

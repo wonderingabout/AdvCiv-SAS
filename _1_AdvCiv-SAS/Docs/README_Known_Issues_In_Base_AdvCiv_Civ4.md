@@ -3093,7 +3093,7 @@ This is another very nice feature that was missing in base advciv 1.12 and very 
 
 I had noted the issue as example 145 in base advciv 1.12 issues i had listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814).
 
-Now added with the very nice help of gemini 3 pro and claude sonnet 4.5 and my own help too i mean if i may say as well, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), with as of now a star icon for players who want to become vassal to us, and as of now a strength icon if they are our vassal.
+Now added with the very nice help of gemini 3 pro and claude sonnet 4.5, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), with as of now a star icon for players who want to become vassal to us, and as of now a strength icon if they are our vassal.
 
 Update: now also added a tooltip (on hover), in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) with gemini 3 pro's help as well thanks.
 
