@@ -25,3 +25,13 @@ def getNewConceptID(szConceptType):
 		if gc.getNewConceptInfo(i).getType() == szConceptType:
 			return i
 	return -1
+
+
+# <!-- custom: shared advisor layout constants used by runtime bounds math. Use named dict keys (instead of positional tuples) so future fields (e.g. exit margins) can be added safely without unpack-order bugs. (GPT-5.3-Codex) -->
+def getSASAdvisorLayoutEdges():
+	return {
+		"left_space_for_commerce_sliders": 172,
+		"right_space_for_scoreboard": 390,
+		"top_space_for_tech_bar": 28,
+		"bottom_space": 0,
+	}

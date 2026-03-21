@@ -17,6 +17,7 @@ import CvUtil
 import ScreenInput
 import CvScreenEnums
 import math
+from SASUtils import *
 from SASFontUtils import *
 
 ############################################
@@ -91,32 +92,23 @@ class CvForeignAdvisor:
 		self.EXIT_ID = "ForeignAdvisorExitWidget"
 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
 
-		xHardcodedResolution = 1920
-		yHardcodedResolution = 1080
-		wLeftSpaceForCommerceSliders = 172
-		self.X_SCREEN = wLeftSpaceForCommerceSliders
-		wRightSpaceForScoreBoard = 390
-		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
-		hTopSpaceForTechBar = 28
-		self.Y_SCREEN = hTopSpaceForTechBar
-		hBottomSpace = 0
-		self.H_SCREEN = yHardcodedResolution - hTopSpaceForTechBar - hBottomSpace
+		# <!-- custom: these are screen-independent edge constants (safe in __init__); runtime geometry that depends on actual resolution is computed in interfaceScreen. Shared helper keeps literals centralized for other advisors. (GPT-5.3-Codex) -->
+		layoutEdges = getSASAdvisorLayoutEdges()
+		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = layoutEdges["left_space_for_commerce_sliders"]
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = layoutEdges["right_space_for_scoreboard"]
+		self.H_TOP_SPACE_FOR_TECH_BAR = layoutEdges["top_space_for_tech_bar"]
+		self.H_BOTTOM_SPACE = layoutEdges["bottom_space"]
 		self.Y_TITLE = 8
-		self.X_EXIT = 994
-		self.Y_EXIT = 726
 		self.X_LEADER = 80
 		self.Y_LEADER = 115
 		self.H_LEADER = 64
 		self.W_LEADER = 64
 		self.X_LINK = 50
 		self.DX_LINK = 220
-		self.Y_LINK = 726
 		self.H_LEGEND = 180
 		self.W_LEGEND = 160
 		self.MARGIN_LEGEND = 10
 		self.X_LEGEND = 20
-		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
-		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
 		self.Y_LEADER_CIRCLE_TOP = 87
 		self.RADIUS_LEADER_ARC = 480
 		self.LINE_WIDTH = 6
@@ -129,7 +121,6 @@ class CvForeignAdvisor:
 		self.GLANCE_HEADER = "ForeignAdvisorGlanceHeader"
 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
 		self.X_LINK = 0
-		self.Y_LINK = 726
 		
 		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks.  -->
 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
@@ -368,41 +359,33 @@ class CvForeignAdvisor:
 		self.SAS_TRADE_ICON_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
 		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
 
-		# <!-- custom: calculate tab widths (claude code sonnet 4.5) -->
-		self.LABEL_WIDTH_LIST[:] = []
-		width_list = []
-		for i in self.ORDER_LIST:
-			width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
-		total_width = sum(width_list) + CyInterface().determineWidth(self.EXIT_TEXT) + 20
-
-		for i in width_list:
-			self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
-
 	def interfaceScreen (self, iScreen):
 		screen = self.getScreen()
+		# <!-- custom: all screen-dependent geometry is computed at runtime (not in __init__) because this advisor object is created before a reliable screen context exists; doing layout here ensures correct values for the current resolution and keeps tab link widths in sync with runtime X_EXIT. This is the first extraction pattern for shared advisor helpers later (bounds/tab-width math), while foreign-specific behavior remains local. (GPT-5.3-Codex) -->
 		# <!-- custom: use runtime resolution for advisor bounds (instead of hardcoded 1920x1080) so the screen doesn't overflow on smaller displays; keep the same left/top anchoring pattern as non-BUG military advisor. (GPT-5.3-Codex) -->
 		xRuntimeResolution = screen.getXResolution()
 		yRuntimeResolution = screen.getYResolution()
-		wLeftSpaceForCommerceSliders = 172
-		wRightSpaceForScoreBoard = 390
-		hTopSpaceForTechBar = 28
-		hBottomSpace = 0
-		iPrevW = self.W_SCREEN
-		iPrevH = self.H_SCREEN
-		self.X_SCREEN = wLeftSpaceForCommerceSliders
-		self.W_SCREEN = xRuntimeResolution - wLeftSpaceForCommerceSliders - wRightSpaceForScoreBoard
-		self.Y_SCREEN = hTopSpaceForTechBar
-		self.H_SCREEN = yRuntimeResolution - hTopSpaceForTechBar - hBottomSpace
+		self.X_SCREEN = self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+		self.W_SCREEN = xRuntimeResolution - self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS - self.W_RIGHT_SPACE_FOR_SCOREBOARD
+		self.Y_SCREEN = self.H_TOP_SPACE_FOR_TECH_BAR
+		self.H_SCREEN = yRuntimeResolution - self.H_TOP_SPACE_FOR_TECH_BAR - self.H_BOTTOM_SPACE
 		# <!-- custom: keep footer controls at footer level after runtime-size recompute. (GPT-5.3-Codex) -->
 		self.X_EXIT = self.W_SCREEN - 30
 		self.Y_EXIT = self.H_SCREEN - 42
 		self.Y_LINK = self.H_SCREEN - 42
 		self.Y_BOTTOM_PANEL = self.H_SCREEN - 55
-		if iPrevW != self.W_SCREEN or iPrevH != self.H_SCREEN:
-			self.iLanguageLoaded = -1
+		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
+		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
 
-		# <!-- custom: initialize text once per language/geometry after runtime-size recompute so footer tab widths use current dimensions. (GPT-5.3-Codex) -->
+		# <!-- custom: initialize language-dependent text once, then recompute tab widths from runtime geometry. (GPT-5.3-Codex) -->
 		self.initText()
+		self.LABEL_WIDTH_LIST[:] = []
+		width_list = []
+		for i in self.ORDER_LIST:
+			width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
+		total_width = sum(width_list) + CyInterface().determineWidth(self.EXIT_TEXT) + 20
+		for i in width_list:
+			self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
 
 		# self.ATTITUDE_DICT = {
 		# 	"COLOR_YELLOW": re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FRIENDLY", ())),
