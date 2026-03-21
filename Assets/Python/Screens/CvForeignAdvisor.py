@@ -1020,10 +1020,8 @@ class CvForeignAdvisor:
 		return
 
 	def drawInfo (self, bInitial):
-		if AdvisorOpt.isUseImprovedEFAInfo():
-			self.drawInfoImproved(bInitial)
-		else:
-			self.drawInfoOriginal(bInitial)
+		# <!-- custom: always use the unified table-style info layout (drawInfoImproved) for stable column behavior with UI scaling and scrolling. (GPT-5.3-Codex) -->
+		self.drawInfoImproved(bInitial)
 
 	def drawInfoOriginal (self, bInitial):
 		# ForeignAdvisorPrint ("Entered drawInfo")
@@ -1309,6 +1307,8 @@ class CvForeignAdvisor:
 			
 			# Favorite Civic
 			if (not bIsActivePlayer):
+				nFavoriteReligion = objLeaderHead.getFavoriteReligion()
+				bHasFavoriteReligion = (nFavoriteReligion != -1)
 				nFavoriteCivic = objLeaderHead.getFavoriteCivic()
 				if FavoriteCivicDetector.isDetectionNecessary():
 					objFavorite = FavoriteCivicDetector.getFavoriteCivicInfo(iLoopPlayer)
@@ -1321,12 +1321,16 @@ class CvForeignAdvisor:
 						if iNumPossibles > 5:
 							# Too many possibilities; display question mark
 							screen.attachImageButton (infoPanelName, "", "Art/BUG/QuestionMark.dds", GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
+							if bHasFavoriteReligion:
+								screen.attachImageButton(infoPanelName, "", gc.getReligionInfo(nFavoriteReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, nFavoriteReligion, 1, False)
 							return
 						else:
 							# Loop over possibles and display all
 							for nFavoriteCivic in objFavorite.getPossibles():
 								objCivicInfo = gc.getCivicInfo (nFavoriteCivic)
 								screen.attachImageButton (infoPanelName, "", objCivicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nFavoriteCivic, 1, False)
+							if bHasFavoriteReligion:
+								screen.attachImageButton(infoPanelName, "", gc.getReligionInfo(nFavoriteReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, nFavoriteReligion, 1, False)
 							return
 					
 				if nFavoriteCivic != -1:
@@ -1346,6 +1350,8 @@ class CvForeignAdvisor:
 						# advc.004: BULL widget help enabled
 						screen.attachTextGFC(infoPanelName, itemName, szDiplo, FontTypes.GAME_FONT, WidgetTypes.WIDGET_LEADERHEAD_RELATIONS, iLoopPlayer, self.iActiveLeader)
 						#screen.setHitTest(itemName, HitTestTypes.HITTEST_NOHIT)
+				if bHasFavoriteReligion:
+					screen.attachImageButton(infoPanelName, "", gc.getReligionInfo(nFavoriteReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, nFavoriteReligion, 1, False)
 
 	def calculateTrade (self, nPlayer, nTradePartner):
 		# Trade status...
