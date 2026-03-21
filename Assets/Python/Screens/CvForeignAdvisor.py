@@ -92,12 +92,11 @@ class CvForeignAdvisor:
 		self.EXIT_ID = "ForeignAdvisorExitWidget"
 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
 
-		# <!-- custom: these are screen-independent edge constants (safe in __init__); runtime geometry that depends on actual resolution is computed in interfaceScreen. Shared helper keeps literals centralized for other advisors. (GPT-5.3-Codex) -->
-		layoutEdges = getSASAdvisorLayoutEdges()
-		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = layoutEdges["left_space_for_commerce_sliders"]
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = layoutEdges["right_space_for_scoreboard"]
-		self.H_TOP_SPACE_FOR_TECH_BAR = layoutEdges["top_space_for_tech_bar"]
-		self.H_BOTTOM_SPACE = layoutEdges["bottom_space"]
+		# <!-- custom: these are screen-independent edge constants (safe in __init__); runtime geometry that depends on actual resolution is computed in interfaceScreen. Constants are shared through SASUtils so advisor screens use one source of truth. (GPT-5.3-Codex) -->
+		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
+		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 		self.Y_TITLE = 8
 		self.X_LEADER = 80
 		self.Y_LEADER = 115
@@ -363,17 +362,16 @@ class CvForeignAdvisor:
 		screen = self.getScreen()
 		# <!-- custom: all screen-dependent geometry is computed at runtime (not in __init__) because this advisor object is created before a reliable screen context exists; doing layout here ensures correct values for the current resolution and keeps tab link widths in sync with runtime X_EXIT. This is the first extraction pattern for shared advisor helpers later (bounds/tab-width math), while foreign-specific behavior remains local. (GPT-5.3-Codex) -->
 		# <!-- custom: use runtime resolution for advisor bounds (instead of hardcoded 1920x1080) so the screen doesn't overflow on smaller displays; keep the same left/top anchoring pattern as non-BUG military advisor. (GPT-5.3-Codex) -->
-		xRuntimeResolution = screen.getXResolution()
-		yRuntimeResolution = screen.getYResolution()
 		self.X_SCREEN = self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_SCREEN = xRuntimeResolution - self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS - self.W_RIGHT_SPACE_FOR_SCOREBOARD
+		self.W_SCREEN = screen.getXResolution() - self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS - self.W_RIGHT_SPACE_FOR_SCOREBOARD
 		self.Y_SCREEN = self.H_TOP_SPACE_FOR_TECH_BAR
-		self.H_SCREEN = yRuntimeResolution - self.H_TOP_SPACE_FOR_TECH_BAR - self.H_BOTTOM_SPACE
-		# <!-- custom: keep footer controls at footer level after runtime-size recompute. (GPT-5.3-Codex) -->
-		self.X_EXIT = self.W_SCREEN - 30
-		self.Y_EXIT = self.H_SCREEN - 42
-		self.Y_LINK = self.H_SCREEN - 42
-		self.Y_BOTTOM_PANEL = self.H_SCREEN - 55
+		self.H_SCREEN = screen.getYResolution() - self.H_TOP_SPACE_FOR_TECH_BAR - self.H_BOTTOM_SPACE
+		# <!-- custom: derive shared title/footer anchors from centralized SASUtils constants so all advisors can align with the same formula set. (GPT-5.3-Codex) -->
+		self.X_TITLE = self.W_SCREEN / SAS_ADVISOR_TITLE_X_DIVISOR
+		self.X_EXIT = self.W_SCREEN - SAS_ADVISOR_EXIT_X_OFFSET
+		self.Y_EXIT = self.H_SCREEN - SAS_ADVISOR_EXIT_Y_OFFSET
+		self.Y_LINK = self.H_SCREEN - SAS_ADVISOR_EXIT_Y_OFFSET
+		self.Y_BOTTOM_PANEL = self.H_SCREEN - SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET
 		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
 		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
 
@@ -502,7 +500,7 @@ class CvForeignAdvisor:
 		screen = self.getScreen()
 
 		# Header...
-		screen.setLabel(self.getNextWidgetName(), "", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCREEN / 2, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 	
 		if (self.REV_SCREEN_DICT.has_key(self.iScreen)):
 			self.DRAW_DICT[self.REV_SCREEN_DICT[self.iScreen]] (bInitial)
