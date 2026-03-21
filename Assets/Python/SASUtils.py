@@ -14,7 +14,7 @@ gc = CyGlobalContext()
 # <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
 SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS = 0
 SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD = 420
-SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 30
+SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
 SAS_ADVISOR_BOTTOM_SPACE = 0
 
 # <!-- custom: shared offsets/divisors for runtime screen-dependent anchor formulas (title/exit/link/footer) derived from each advisor's current panel width/height in interfaceScreen. (GPT-5.3-Codex) -->

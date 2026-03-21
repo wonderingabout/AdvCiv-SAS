@@ -745,7 +745,7 @@ class CvForeignAdvisor:
 		# We want the web to be as tall as possible without going off the bottom.
 		# This sets radius to roughly 75% of screen height. Adjust 0.75 as needed.
 		# fRadius = (self.H_SCREEN * 0.75) - self.H_LEADER
-		fRadius = (self.H_SCREEN * 54) / 100
+		fRadius = (self.H_SCREEN * 64) / 100
 
 		fLeaderArcTop = fLeaderTop + self.H_LEADER + 10
 		if iCount < 8:
@@ -1644,17 +1644,16 @@ class CvForeignAdvisor:
 				# advc.073: Replacing the above
 				self.resIconGrid.createColumnGroup(" ", 3)
 		
-		gridWidth = self.resIconGrid.getPrefferedWidth()
-		gridHeight = self.resIconGrid.getPrefferedHeight()
-		self.RES_LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
-		self.RES_TOP_BOTTOM_SPACE = (self.H_SCREEN - gridHeight - self.RES_SURPLUS_HEIGHT - self.RES_PANEL_SPACE - self.TITLE_HEIGHT - 20) / 2
-		gridX = self.RES_LEFT_RIGHT_SPACE + 10
-		gridY = self.RES_TOP_BOTTOM_SPACE + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT + 10
-		
+		# <!-- custom: keep the bonus tab aligned to runtime advisor bounds (not centered on preferred grid size) so high resolutions don't create narrow/offset panels. Use slightly tighter inner padding/margins so more width/height is used. (GPT-5.3-Codex) -->
+		# <!-- custom: let the bonus-tab blue panels extend a few pixels further to remove leftover side gutters at higher resolutions. (GPT-5.3-Codex) -->
+		self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE - 5
+		self.RES_TOP_BOTTOM_SPACE = max(22, self.MIN_TOP_BOTTOM_SPACE - 18)
+		gridX = self.RES_LEFT_RIGHT_SPACE + 6
+		gridY = self.RES_TOP_BOTTOM_SPACE + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT + 6
+		gridWidth = self.W_SCREEN - 2 * gridX
+		gridHeight = self.H_SCREEN - gridY - self.RES_TOP_BOTTOM_SPACE - 6
 		self.resIconGrid.setPosition(gridX, gridY)
 		self.resIconGrid.setSize(gridWidth, gridHeight)
-		# self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
-		# self.RES_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
 
 
 
