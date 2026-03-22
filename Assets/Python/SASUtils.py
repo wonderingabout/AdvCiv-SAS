@@ -24,6 +24,36 @@ SAS_ADVISOR_EXIT_Y_OFFSET = 42
 SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET = 55
 
 
+# <!-- custom: shared runtime advisor bounds (screen-dependent) and shared title/exit/link anchors; callers pass screen and configured margins from __init__. (GPT-5.3-Codex) -->
+def getAdvisorRuntimeBounds(screen, iLeftSpace, iRightSpace, iTopSpace, iBottomSpace):
+	iXScreen = iLeftSpace
+	iWScreen = screen.getXResolution() - iLeftSpace - iRightSpace
+	iYScreen = iTopSpace
+	iHScreen = screen.getYResolution() - iTopSpace - iBottomSpace
+	return (iXScreen, iYScreen, iWScreen, iHScreen)
+
+
+def getAdvisorRuntimeAnchors(iWScreen, iHScreen):
+	iXTitle = iWScreen / SAS_ADVISOR_TITLE_X_DIVISOR
+	iXExit = iWScreen - SAS_ADVISOR_EXIT_X_OFFSET
+	iYExit = iHScreen - SAS_ADVISOR_EXIT_Y_OFFSET
+	iYLink = iYExit
+	iYBottomPanel = iHScreen - SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET
+	return (iXTitle, iXExit, iYExit, iYLink, iYBottomPanel)
+
+
+# <!-- custom: shared weighted tab-link width helper used by advisor tab bars; weights by text width and scales to runtime X_EXIT. (GPT-5.3-Codex) -->
+def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
+	aiLabelWidths = []
+	for szLabel in aszLabels:
+		aiLabelWidths.append(cyInterface.determineWidth(szLabel) + 20)
+	iTotalWidth = sum(aiLabelWidths) + cyInterface.determineWidth(szExitLabel) + 20
+	aiLinkWidths = []
+	for iWidth in aiLabelWidths:
+		aiLinkWidths.append((iXExit * iWidth + iTotalWidth/2) / iTotalWidth)
+	return aiLinkWidths
+
+
 
 # <!-- custom: shared strict XML lookup helper for maps/screens; raise loudly instead of silently accepting missing tags. (GPT-5.3-Codex) -->
 # <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass; done with the help of chatgpt thanks -->

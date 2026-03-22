@@ -86,46 +86,16 @@ class CvInfoScreen:
 		self.DZ = -0.2
 		self.Z_HELP_AREA = self.Z_CONTROLS - 1
 
-		# <!-- custom: in the foreign advisor and similar screens, too many players do not fit in one view, and the window does not use the full game window space. Make it larger like Sevopedia to reduce scrolling. Credit: Gemini 3 Pro; fixes reviewed by Claude Sonnet 4.5. (GPT-5.2-Codex (summarized)) -->
-		# self.X_SCREEN = 0
-		# self.Y_SCREEN = 0
-		# self.W_SCREEN = 1024
-		# self.H_SCREEN = 768
-		# <!-- custom: screen is not available at init, unlike CvTechChooser where self.X_SCREEN/etc. are set in interfaceScreen with a screen variable. Adding screen in the foreign advisor init caused crashes, so hardcode 1920x1080; per Gemini 3 Pro recommendation and empirical checks. (GPT-5.2-Codex (summarized)) -->
-		xHardcodedResolution = 1920
-		yHardcodedResolution = 1080
-
-		# <!-- custom: deduce x position so it is dynamically centered; ensure right panel info (including power ratios) stays visible. (GPT-5.2-Codex (summarized)) -->
-		# <!-- custom: update: do not center here. For foreign relations, the right side (scoreboard, map) matters more; the left panel is largely unused, so keep it uncentered to maximize screen usage while preserving the scoreboard. (GPT-5.2-Codex (summarized)) -->
-
-		wLeftSpaceForCommerceSliders = 172
-		self.X_SCREEN = wLeftSpaceForCommerceSliders
-		# <!-- custom: wide enough to preserve the right panel (scoreboard, map, etc.); less conservative on the left so it is not centered and sits closer to the left. (GPT-5.2-Codex (summarized)) -->
-		wRightSpaceForScoreBoard = 390
-		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
-
-		hTopSpaceForTechBar = 28
-		self.Y_SCREEN = hTopSpaceForTechBar
-		hBottomSpace = 0
-		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
-		self.H_SCREEN = yHardcodedResolution - hTopSpaceForTechBar - hBottomSpace
-
-		# <!-- custom: properly center put the title where we want in the X axis, after our changes the title is too much on the left side and not centered -->
-		# self.X_TITLE = 512
-		# self.Y_TITLE = 8
-		self.X_TITLE = self.W_SCREEN / 2
-		self.Y_TITLE = 8
+		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
+		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 
 		self.BORDER_WIDTH = 4
 		self.W_HELP_AREA = 200
 
 		# K-Mod
 		self.iLanguageLoaded = -1
-
-		#self.X_EXIT = 994
-		self.X_EXIT = self.W_SCREEN - 30
-		#self.Y_EXIT = 730
-		self.Y_EXIT = self.H_SCREEN - 42
 
 		# <!-- custom: Score tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
 		self.PAGE_NAME_LIST = [
@@ -146,8 +116,6 @@ class CvInfoScreen:
 			]
 
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
-
-		self.Y_LINK = self.H_SCREEN - 42
 		# K-Mod end
 
 		self.graphEnd		= CyGame().getGameTurn() - 1
@@ -208,424 +176,26 @@ class CvInfoScreen:
 		self.graphRightButtonID = ""
 		self.szHistoryDbgLogPrettySummaryButton = ""
 
-		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
-		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->
-		self.X_MARGIN = 45
-		self.Y_MARGIN = 80
-		self.SMALL_MARGIN = 20
-
-# GRAPH
-
-		# <!-- custom: add "_GRAPH_" to the name to not confuse it with the "_WONDERS_" dropdown and avoid future mistakes if i'm not mistaken. -->
-		self.H_GRAPH_DROPDOWN = 35
-
-		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
-		self.X_DEMO_DROPDOWN = self.X_MARGIN
-		self.Y_DEMO_DROPDOWN = self.Y_MARGIN
-		# <!-- custom: make the legend larger as text is too tight currently, and we have more room now. -->
-		self.W_DEMO_DROPDOWN = 200
-
-		self.X_ZOOM_DROPDOWN = self.X_DEMO_DROPDOWN
-		self.Y_ZOOM_DROPDOWN = self.Y_DEMO_DROPDOWN + self.H_GRAPH_DROPDOWN
-
-		self.W_ZOOM_DROPDOWN = self.W_DEMO_DROPDOWN
-
-		self.X_LEGEND = self.X_DEMO_DROPDOWN
-		self.Y_LEGEND = self.Y_ZOOM_DROPDOWN + self.H_GRAPH_DROPDOWN + 3
-		self.W_LEGEND = self.W_DEMO_DROPDOWN
-		#self.H_LEGEND = 200	this is computed from the number of players
-
-		self.X_GRAPH = self.X_DEMO_DROPDOWN + self.W_DEMO_DROPDOWN + 10
-		self.Y_GRAPH = self.Y_MARGIN
-		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
-		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
-
-		# History tab layout - vertically centered between header and footer panels
-		# Shared panel height (used by TechTopPanel and TechBottomPanel, both are 55px)
-		self.PANEL_HEIGHT = 55
-
-		# Content area boundaries (between the two panels)
-		self.CONTENT_Y_TOP = self.PANEL_HEIGHT  # Header panel bottom
-		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT  # Footer panel top
-
-		# Gap from panel edges to table (same for top and bottom = symmetric)
-		self.HISTORY_TABLE_VERTICAL_GAP = 28
-
-		# Table positioning - truly centered
-		self.X_HISTORY_TABLE = self.X_MARGIN
-		self.Y_HISTORY_TABLE = self.CONTENT_Y_TOP + self.HISTORY_TABLE_VERTICAL_GAP
-		self.W_HISTORY_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
-		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
-
-		# LOG button - positioned in top header bar (0-55px height)
-		self.W_HISTORY_TABLE_LOG_BUTTON = 48
-		self.H_HISTORY_TABLE_LOG_BUTTON = 28
-		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
-		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
-
-		self.W_LEFT_BUTTON = 20
-		self.H_LEFT_BUTTON = 20
-		self.X_LEFT_BUTTON = self.X_GRAPH
-		self.Y_LEFT_BUTTON = self.Y_GRAPH + self.H_GRAPH
-
-		self.W_RIGHT_BUTTON = self.W_LEFT_BUTTON
-		self.H_RIGHT_BUTTON = self.H_LEFT_BUTTON
-		self.X_RIGHT_BUTTON = self.X_GRAPH + self.W_GRAPH - self.W_RIGHT_BUTTON
-		self.Y_RIGHT_BUTTON = self.Y_LEFT_BUTTON
-
-		self.X_LEFT_LABEL = self.X_LEFT_BUTTON + self.W_LEFT_BUTTON + 10
-		self.X_RIGHT_LABEL = self.X_RIGHT_BUTTON - 10
-		self.Y_LABEL		= self.Y_GRAPH + self.H_GRAPH + 3
-
-		self.X_LEGEND_MARGIN = 10
-		self.Y_LEGEND_MARGIN = 5
-		self.X_LEGEND_LINE	= self.X_LEGEND_MARGIN
-		self.Y_LEGEND_LINE	= self.Y_LEGEND_MARGIN + 9  # to center it relative to the text
-		self.W_LEGEND_LINE	= 30
-		self.X_LEGEND_TEXT	= self.X_LEGEND_LINE + self.W_LEGEND_LINE + 10
-		self.Y_LEGEND_TEXT	= self.Y_LEGEND_MARGIN
-		self.H_LEGEND_TEXT	= 16
-
-		# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
-		self.iGraphLeaderIconSize = 16
-
-		# <!-- custom: Y offset for turn number label below year in graph tab, added with claude opus 4.5's help thanks. -->
-		self.iGraphTurnLabelYOffset = 16
-
-#BUG: Change Graphs - start
-		self.Graph_Status_1in1 = 0
-		self.Graph_Status_7in1 = 1
-		self.Graph_Status_3in1 = 2
-		self.Graph_Status_Current = self.Graph_Status_1in1
-		self.Graph_Status_Prior = self.Graph_Status_7in1
-#		self.BIG_GRAPH = False
-
-# the 7-in-1 graphs are layout out as follows:
-#    0 1 2
-#    L 3 4
-#    L 5 6
-#
-# where L is the legend and a number represents a graph
-		self.X_7_IN_1_CHART_ADJ = [0, 1, 2, 1, 2, 1, 2]
-		self.Y_7_IN_1_CHART_ADJ = [0, 0, 0, 1, 1, 2, 2]
-
-# the 3-in-1 graphs are layout out as follows:
-#    0 1
-#    L 2
-#
-# where L is the legend and a number represents a graph
-		self.X_3_IN_1_CHART_ADJ = [0, 1, 1]
-		self.Y_3_IN_1_CHART_ADJ = [0, 0, 1]
-#BUG: Change Graphs - end
-
-		# DEMOGRAPHICS
-
-		# <!-- custom: rename self.X_CHART and such to self.X_DEMOGRAPHICS_CHART and such for clarity and most importantly to avoid future errors. -->
-		# <!-- custom: note: deleted seemingly unused self.BUTTON_SIZE if i'm not mistaken. -->
-
-		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
-		self.X_DEMOGRAPHICS_CHART = self.X_MARGIN
-		self.Y_DEMOGRAPHICS_CHART = self.Y_MARGIN
-		self.W_DEMOGRAPHICS_CHART = self.W_SCREEN - 2 * self.X_DEMOGRAPHICS_CHART
-		self.H_DEMOGRAPHICS_CHART = self.H_SCREEN - 2 * self.Y_DEMOGRAPHICS_CHART
-
-		# <!-- custom: make self.W_TEXT and such local since we don't use them outside init it seems and add "demographics" so it is clearr if i'm not mistaken. -->
-		demographics_W_TEXT = 140
-		demographics_H_TEXT = 15
-		demographics_X_TEXT_BUFFER = 0
-		demographics_Y_TEXT_BUFFER = 43
-
-		# <!-- custom: make these dimensions as parameters so we can control them at init rather where more of the info is centralized. -->
-		self.W_DEMOGRAPHICS_COL_DEM = 260
-		demographicsNumericalColsW = 150
-		demographicsRivalColsW = 220
-		self.W_DEMOGRAPHICS_COL_VALUE = demographicsNumericalColsW
-		self.W_DEMOGRAPHICS_COL_RANK = demographicsNumericalColsW
-		self.W_DEMOGRAPHICS_COL_RIVAL_BEST = demographicsRivalColsW
-		self.W_DEMOGRAPHICS_COL_RIVAL_WORST = demographicsRivalColsW
-		self.W_DEMOGRAPHICS_COL_RIVAL_AVG = demographicsNumericalColsW
-
-		self.X_COL_1 = 535
-		self.X_COL_2 = self.X_COL_1 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
-		self.X_COL_3 = self.X_COL_2 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
-		self.X_COL_4 = self.X_COL_3 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
-
-		self.Y_ROW_1 = 100
-		self.Y_ROW_2 = self.Y_ROW_1 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_3 = self.Y_ROW_2 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_4 = self.Y_ROW_3 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_5 = self.Y_ROW_4 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_6 = self.Y_ROW_5 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_7 = self.Y_ROW_6 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_8 = self.Y_ROW_7 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_9 = self.Y_ROW_8 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_10 = self.Y_ROW_9 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-
-		# <!-- custom: rank icon size for demographics tab, added with claude opus 4.5's help thanks. -->
-		self.iRankIconSize = 16
-
-		self.bAbleToShowAllPlayers = false
-		self.iShowingPlayer = -1
-		self.aiDropdownPlayerIDs = []
-
-		# TOP CITIES
-
-		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
-		self.W_WONDERS_RIGHT_PANE = 640
-		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
-		self.W_WONDERS_INTER_PANE_GAP = self.X_MARGIN
-
-		# <!-- custom: commented-out as they seem unused if i'm not mistaken. -->
-		# <!-- custom: note: deleted self.W_TC_TEXT variables and such and self.X_ROTATION_CITY_ANIMATION variables and such, and self.W_CITIES_WONDER and self.H_CITIES_WONDER as they seem unused if i'm not mistaken. -->
-		# <!-- custom: note 2: use multilist for wonder icons to allow multiple rows (same as in _sevopedia_helpers.py, and following AdvCiv-SAS's approach in SevoPediaReligion.py); added with claude opus 4.5's help thanks. -->
-
-		# <!-- custom: in many of these variable names, add or rename to "_TOP_CITIES_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
-		self.X_TOP_CITIES_LEFT_PANE = self.W_WONDERS_INTER_PANE_GAP
-		self.Y_TOP_CITIES_LEFT_PANE = self.Y_MARGIN
-		self.W_TOP_CITIES_LEFT_PANE = self.W_SCREEN - (2 * self.X_TOP_CITIES_LEFT_PANE) - self.W_WONDERS_INTER_PANE_GAP - self.W_WONDERS_RIGHT_PANE
-		# <!-- custom: mirror wonders panel height (H_SCREEN - 2 * Y_MARGIN), added with claude opus 4.5's help thanks. -->
-		self.H_TOP_CITIES_LEFT_PANE = self.H_SCREEN - 2 * self.Y_MARGIN
-
-		# <!-- custom: header height for "Top 5 Cities in the World" title, added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesHeaderHeight = 35
-
-		# <!-- custom: city name/founded panel dimensions, added with claude opus 4.5's help thanks. -->
-		self.H_CITIES_DESC = 58
-		# <!-- custom: Y offset adjustment to align city desc panel with city animation, added with claude opus 4.5's help thanks. -->
-		self.Y_CITIES_DESC_BUFFER = -9
-
-		# <!-- custom: multilist panel constants for top cities wonders, added with claude opus 4.5's help thanks. -->
-		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
-		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
-		self.iTopCitiesWonderButtonSize = 46
-		# <!-- custom: mirror Sevopedia multilist constants pattern (without shared module dependency). (GPT-5.3-Codex) -->
-		self.iTopCitiesWonderNumListsAutoCalculate = 1
-		self.iTopCitiesWonderColumnIndexAuto = 0
-		self.iTopCitiesWonderNumRows = 2
-		self.iTopCitiesWonderPanelMargin = 8
-		# <!-- custom: height adjustment for wonder panel (negative to reduce), added with claude opus 4.5's help thanks. -->
-		iTopCitiesWonderPanelHeightAdjust = -3
-		# <!-- custom: calculate wonder panel height based on rows, added with claude opus 4.5's help thanks. -->
-		self.H_CITIES_WONDER_PANEL = (self.iTopCitiesWonderNumRows * self.iTopCitiesWonderButtonSize) + (2 * self.iTopCitiesWonderPanelMargin) + iTopCitiesWonderPanelHeightAdjust
-
-		# <!-- custom: gap between city desc panel and wonder panel, added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesDescWonderGap = -2
-		# <!-- custom: margin between city components (bottom of one city to top of next), added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesInterCityMargin = 6
-
-		# <!-- custom: total height of right side (city desc + gap + wonder panel), added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesRightSideHeight = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap + self.H_CITIES_WONDER_PANEL
-
-		# Animated City thingies
-		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
-		self.Z_CITY_ANIMATION = self.Z_BACKGROUND - 0.5
-		self.W_CITY_ANIMATION = 150
-		# <!-- custom: match city animation height with right side panels, adjusted by trial, added with claude opus 4.5's help thanks. -->
-		self.H_CITY_ANIMATION = self.iTopCitiesRightSideHeight - 10  # tweak this value: -4 to reduce height
-		# <!-- custom: Y buffer adjusted to align top of animation with top of city desc panel, added with claude opus 4.5's help thanks. -->
-		self.Y_CITY_ANIMATION_BUFFER = self.H_CITY_ANIMATION / 2 - 3  # tweak this value: -2 to move up
-
-		# <!-- custom: dynamically compute Y_CITIES_BUFFER based on component heights, added with claude opus 4.5's help thanks. -->
-		# Total height per city = right side height + inter-city margin
-		self.Y_CITIES_BUFFER = self.iTopCitiesRightSideHeight + self.iTopCitiesInterCityMargin
-
-		# Placement of Cities
-		self.X_COL_1_CITIES = self.X_TOP_CITIES_LEFT_PANE + 20
-
-		self.Y_ROWS_CITIES = []
-		# <!-- custom: add header height offset so cities start below the header, added with claude opus 4.5's help thanks. -->
-		self.Y_ROWS_CITIES.append(self.Y_TOP_CITIES_LEFT_PANE + 20 + self.iTopCitiesHeaderHeight)
-		for i in range(1, 5):
-			self.Y_ROWS_CITIES.append(self.Y_ROWS_CITIES[i-1] + self.Y_CITIES_BUFFER)
-
-		# <!-- custom: right part of the top cities panel if i'm not mistaken. -->
-		topCitiesInterLeftRightPartsGapAdjust = 2
-		self.X_COL_1_CITIES_DESC = self.X_TOP_CITIES_LEFT_PANE + self.W_CITY_ANIMATION + 30 + topCitiesInterLeftRightPartsGapAdjust
-		topcitiesRightPartWAdjust = -16
-		self.W_CITIES_DESC = self.W_TOP_CITIES_LEFT_PANE - self.W_CITY_ANIMATION - 30 + topcitiesRightPartWAdjust - topCitiesInterLeftRightPartsGapAdjust
-
-		# <!-- custom: wonder panel Y offset from city desc panel, added with claude opus 4.5's help thanks. -->
-		self.Y_CITIES_WONDER_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap
-
-		# WONDERS
-
-		# <!-- custom: in many of these variable names, add "_WONDERS_" or "_WONDER_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
-		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
-		self.X_WONDERS_RIGHT_PANE = self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE + self.W_WONDERS_INTER_PANE_GAP
-		self.Y_WONDERS_RIGHT_PANE = self.Y_MARGIN
-		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
-		self.H_WONDERS_RIGHT_PANE = self.H_SCREEN - 2 * self.Y_WONDERS_RIGHT_PANE
-
-		# <!-- custom: moved up a bit for clarity and ease of access to where the other wonder dimensions are if i'm not mistaken. -->
-		self.X_WONDERS_CHART = self.X_WONDERS_RIGHT_PANE + self.SMALL_MARGIN
-		self.Y_WONDERS_CHART = self.Y_WONDERS_RIGHT_PANE + 60
-		self.W_WONDERS_CHART = self.W_WONDERS_RIGHT_PANE - (2 * self.SMALL_MARGIN)
-		self.H_WONDERS_CHART = self.H_WONDERS_RIGHT_PANE - self.Y_WONDERS_RIGHT_PANE
-
-		# <!-- custom: externalize the wonder chart column width dimensions to init so we can manage them in a more centralized and easier way if i'm not mistaken. -->
-		self.W_WONDERS_CHART_COL_BUTTON = 30
-		# <!-- custom: make the first (0) column show the wonder's button as prettier and more informative, and move the move to city's map position mechanic to the "City" column (4) instead: old code commented-out or removed for redability and concision. Note: the id needs to be the same in handleInput and the table construction or the redirect to city BUG mechanic won't work as per claude opus 4.5's solution and my testing's results if i'm not mistaken. -->
-		self.WONDERS_COL_MOVE_TO_CITY_ID = 4
-		# advc.002b: Confer 5 width from the owner column to the date column
-		self.W_WONDERS_CHART_COL_DATE = 85
-		self.W_WONDERS_CHART_COL_OWNER = 145
-		self.W_WONDERS_CHART_COL_CITY = 145
-		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
-		self.W_WONDERS_CHART_COL_NAME = self.W_WONDERS_CHART - totalWondersCharMostColsW
-
-		# Info about this wonder, e.g. name, cost so on
-		self.X_WONDERS_STATS_PANE = self.X_WONDERS_RIGHT_PANE + 20
-		self.Y_WONDERS_STATS_PANE = self.Y_WONDERS_RIGHT_PANE + 20
-		self.W_WONDERS_STATS_PANE = 210
-		self.H_WONDERS_STATS_PANE = 220
-
-		# Wonder mode dropdown Box
-		# the 3 is the 'fudge factor' due to the widgets not lining up perfectly
-		self.WONDERS_FUDGE_FACTOR = 3
-
-		self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 240 + self.WONDERS_FUDGE_FACTOR
-		self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
-		self.W_WONDERS_DROPDOWN = 200
-
-		# List Box that displays all wonders built
-		self.X_WONDER_LIST = self.X_WONDERS_RIGHT_PANE + 240 + (2 * self.WONDERS_FUDGE_FACTOR)
-		self.Y_WONDER_LIST = self.Y_WONDERS_RIGHT_PANE + 60
-		self.W_WONDER_LIST = 200 - (2 * self.WONDERS_FUDGE_FACTOR)
-		self.H_WONDER_LIST = 180
-
-		# Animated Wonder thingies
-		self.X_WONDER_GRAPHIC = 540
-		self.Y_WONDER_GRAPHIC = self.Y_WONDERS_RIGHT_PANE + 20 + 200 + 35
-		self.W_WONDER_GRAPHIC = 420
-		self.H_WONDER_GRAPHIC = 190
-
-		self.X_ROTATION_WONDER_ANIMATION = -20
-		self.Z_ROTATION_WONDER_ANIMATION = 30
-		# <!-- custom: moved from the top cities part of the init since it seems this is used only for wonders if i'm not mistaken, renamed from self.SCALE_ANIMATION to reflect that as well. -->
-		self.WONDERS_SCALE_ANIMATION = 0.5
-
-		# Icons used for Projects instead because no on-map art exists
-		self.X_PROJECT_ICON = self.X_WONDER_GRAPHIC + self.W_WONDER_GRAPHIC / 2
-		self.Y_PROJECT_ICON = self.Y_WONDER_GRAPHIC + self.H_WONDER_GRAPHIC / 2
-		self.W_PROJECT_ICON = 128
-
-		# Special Stats about this wonder
-		self.X_WONDER_SPECIAL_TITLE = 540
-		self.Y_WONDER_SPECIAL_TITLE = 310 + 200 + 7
-
-		self.X_WONDER_SPECIAL_PANE = 540
-		self.Y_WONDER_SPECIAL_PANE = 310 + 200 + 20 + 15
-		self.W_WONDER_SPECIAL_PANE = 420
-		self.H_WONDER_SPECIAL_PANE = 140 - 15
-
-		# <!-- custom: moved from drawWondersTab to init for consistency/clarity. -->
-		# (Pane geometry for Top Cities + Wonders is computed above in the TOP CITIES section.)
-		# self.X_WONDERS_RIGHT_PANE / self.Y_WONDERS_RIGHT_PANE / self.W_WONDERS_RIGHT_PANE / self.H_WONDERS_RIGHT_PANE
-		# Info about this wonder, e.g. name, cost, etc. (scale the legacy 460x620 right pane layout)
-
-		# <!-- custom: comment-out the alternative else block and unindent similarly to how was done for the stats tab coordinates as of now in init as well. So i applied this here as well in the wonders tab to simplify -->
-		# if AdvisorOpt.isShowInfoWonders():
-		self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 20
-		self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
-		self.W_WONDERS_DROPDOWN = 420 #DanF 200
-		# else:
-		# 	self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 240 + self.WONDERS_FUDGE_FACTOR
-		# 	self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
-		# 	self.W_WONDERS_DROPDOWN = 200
-
-		self.szWDM_WorldWonder = "World Wonders"
-		self.szWDM_NatnlWonder = "National Wonders"
-		self.szWDM_Project = "Projects"
-
-		self.BUGWorldWonderWidget = self.szWDM_WorldWonder + "Widget"
-		self.BUGNatWonderWidget = self.szWDM_NatnlWonder + "Widget"
-		self.BUGProjectWidget = self.szWDM_Project + "Widget"
-
-		self.szWonderDisplayMode = self.szWDM_WorldWonder
-
-		self.iWonderID = -1 			# BuildingType ID of the active wonder, e.g. Palace is 0, Globe Theater is 66
-		self.iActiveWonderCounter = 0	# Screen ID for this wonder (0, 1, 2, etc.) - different from the above variable
-
-		# STATISTICS
-		# <!-- custom: moved from drawStatsTab to init for consistency/clarity. -->
-		# Bottom Chart
-		#BUG: improvements - start
-		#if AdvisorOpt.isShowImprovements():
-		# <!-- custom: comment-out since never reached, and unindent, and removed the else block to comment-out to the side the old values to simplify instead. -->
-		# if True: # advc.004
-		self.X_STATS_BOTTOM_CHART = self.X_MARGIN
-		self.Y_STATS_BOTTOM_CHART = 280
-		# <!-- custom: upscale, make more dynamic, and beautify this tab similarly with chatgpt 5.2's help thanks. -->
-		iTotalStatsTabBottomW = self.W_SCREEN - 2 * self.X_STATS_BOTTOM_CHART
-		# Keep the old column proportions (935 total at 1024x768).
-		self.W_STATS_BOTTOM_CHART_UNITS = int(iTotalStatsTabBottomW * 455 / 935)
-		self.W_STATS_BOTTOM_CHART_BUILDINGS = int(iTotalStatsTabBottomW * 260 / 935)
-		self.W_STATS_BOTTOM_CHART_IMPROVEMENTS = iTotalStatsTabBottomW - self.W_STATS_BOTTOM_CHART_UNITS - self.W_STATS_BOTTOM_CHART_BUILDINGS
-		self.H_STATS_BOTTOM_CHART = self.H_SCREEN - self.Y_STATS_BOTTOM_CHART - 78
-		#BUG: improvements - end
-
-		# <!-- custom: moved down so we can use the bottom panel's dimensions. -->
-		# Top Panel
-		self.X_STATS_TOP_PANEL = self.X_MARGIN
-		self.Y_STATS_TOP_PANEL = self.Y_MARGIN
-		self.W_STATS_TOP_PANEL = self.W_SCREEN - 2 * self.X_STATS_TOP_PANEL
-		# <!-- custom: effectively hide it if i'm not mistaken, we don't need to see it as it is not too pretty i think. -->
-		self.H_STATS_TOP_PANEL = 0
-
-		# Leader
-		self.X_LEADER_ICON = self.X_STATS_TOP_PANEL
-		self.Y_LEADER_ICON = 95
-		# <!-- custom: as per my sevopedia leader measurments, the ratio should be somewhere close to this:
-		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)    ;    (reverse-ratio: 1,1214)
-		# - current (stats tab): 110 x 140              (ratio: 0,7857)
-		# We want to increase the button's size a bit since we have some room it seems, as well as fix ratio to be as close as possible to ingame one if i'm not mistaken: -->
-		# - current (stats tab): 115 x 140              (ratio: 0,8214) seems closest at same height
-		# It seems that H 156 is closest or close enough to maintain symetry with the top, and so the closest to have a ratio as close as possible to ingame diplomacy seems to be as such:
-		# - current (stats tab): 128 x 156              (ratio: 0,8205) seems closest at H 156. -->
-		self.W_LEADER_ICON = 128
-		self.H_LEADER_ICON = 156
-
-		# Top Chart
-		self.X_STATS_TOP_CHART = self.X_LEADER_ICON + self.X_MARGIN + self.W_LEADER_ICON
-		self.Y_STATS_TOP_CHART = self.Y_LEADER_ICON
-		# <!-- custom: for some reason we need to add this value to be well aligned with the right edge of the units bottom chart so add as a quick fix, maybe not ideal not sure but fixes it (check if accurate). -->
-		iExtraWTopChartValue = 12
-		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + iExtraWTopChartValue
-		self.H_STATS_TOP_CHART = self.H_LEADER_ICON
-
-		self.STATS_TOP_CHART_W_COL_1 = 100
-		self.STATS_TOP_CHART_W_COL_0 = self.W_STATS_TOP_CHART - self.STATS_TOP_CHART_W_COL_1
-		
-
-		self.iNumTopChartCols = 2
-
-		self.X_LEADER_NAME = self.X_LEADER_ICON
-		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
-
-		# <!-- custom: 32 is a bit too high and overfills the rows where the buttons are at, this seems to fit well ingame as well as recommended by claude opus 4.5 thanks.. -->
-		self.W_DEMOGRAPHICS_BUTTON_SIZE = 24
-		self.H_DEMOGRAPHICS_BUTTON_SIZE = 24
-		self.W_STATS_BUTTON_SIZE = 24
-		self.H_STATS_BUTTON_SIZE = 24
+		# <!-- custom: all screen-dependent geometry (bounds + tab layouts) is computed in updateRuntimeLayout() from the active resolution, following the same runtime pattern as CvForeignAdvisor. (GPT-5.3-Codex) -->
 
 		self.reset()
 
 	def initText(self):
 		# K-Mod
-		# only execute this function once...
-		if self.iLanguageLoaded == CyGame().getCurrentLanguage() or not CyGame().isFinalInitialized():
+		if not CyGame().isFinalInitialized():
+			return
+
+		# Calculate width for the links every time because it depends on runtime X_EXIT/screen width.
+		aszPageLabels = []
+		for i in self.PAGE_NAME_LIST:
+			aszPageLabels.append(localText.getText(i, ()).upper())
+		szExitLabel = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
+		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), aszPageLabels, szExitLabel, self.X_EXIT)
+
+		# only execute language-dependent text initialization once per active language.
+		if self.iLanguageLoaded == CyGame().getCurrentLanguage():
 			return
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
-
-		# Calculate width for the links.
-		self.PAGE_LINK_WIDTH[:] = []
-		width_list = []
-		for i in self.PAGE_NAME_LIST:
-			width_list.append(CyInterface().determineWidth(localText.getText(i, ()).upper()) + 20)
-		total_width = sum(width_list) + CyInterface().determineWidth(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()) + 20
-
-		for i in width_list:
-			self.PAGE_LINK_WIDTH.append((self.X_EXIT * i + total_width/2) / total_width)
 		# K-Mod end
 
 		###### TEXT ######
@@ -874,6 +444,352 @@ class CvInfoScreen:
 	def appendListBoxStringNoUpdateScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
 		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
 
+	def updateRuntimeLayout(self, screen):
+		# <!-- custom: compute Info Screen geometry at runtime from the current resolution; this matches Foreign Advisor's pattern and avoids stale init-time layout. (GPT-5.3-Codex) -->
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, _ = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+		self.Y_TITLE = 8
+
+		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
+		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->
+		self.X_MARGIN = 45
+		self.Y_MARGIN = 80
+		self.SMALL_MARGIN = 20
+
+# GRAPH
+
+		# <!-- custom: add "_GRAPH_" to the name to not confuse it with the "_WONDERS_" dropdown and avoid future mistakes if i'm not mistaken. -->
+		self.H_GRAPH_DROPDOWN = 35
+
+		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
+		self.X_DEMO_DROPDOWN = self.X_MARGIN
+		self.Y_DEMO_DROPDOWN = self.Y_MARGIN
+		# <!-- custom: make the legend larger as text is too tight currently, and we have more room now. -->
+		self.W_DEMO_DROPDOWN = 200
+
+		self.X_ZOOM_DROPDOWN = self.X_DEMO_DROPDOWN
+		self.Y_ZOOM_DROPDOWN = self.Y_DEMO_DROPDOWN + self.H_GRAPH_DROPDOWN
+
+		self.W_ZOOM_DROPDOWN = self.W_DEMO_DROPDOWN
+
+		self.X_LEGEND = self.X_DEMO_DROPDOWN
+		self.Y_LEGEND = self.Y_ZOOM_DROPDOWN + self.H_GRAPH_DROPDOWN + 3
+		self.W_LEGEND = self.W_DEMO_DROPDOWN
+		#self.H_LEGEND = 200	this is computed from the number of players
+
+		self.X_GRAPH = self.X_DEMO_DROPDOWN + self.W_DEMO_DROPDOWN + 10
+		self.Y_GRAPH = self.Y_MARGIN
+		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
+		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
+
+		# History tab layout - vertically centered between header and footer panels
+		# Shared panel height (used by TechTopPanel and TechBottomPanel, both are 55px)
+		self.PANEL_HEIGHT = 55
+
+		# Content area boundaries (between the two panels)
+		self.CONTENT_Y_TOP = self.PANEL_HEIGHT  # Header panel bottom
+		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT  # Footer panel top
+
+		# Gap from panel edges to table (same for top and bottom = symmetric)
+		self.HISTORY_TABLE_VERTICAL_GAP = 28
+
+		# Table positioning - truly centered
+		self.X_HISTORY_TABLE = self.X_MARGIN
+		self.Y_HISTORY_TABLE = self.CONTENT_Y_TOP + self.HISTORY_TABLE_VERTICAL_GAP
+		self.W_HISTORY_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
+		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
+
+		# LOG button - positioned in top header bar (0-55px height)
+		self.W_HISTORY_TABLE_LOG_BUTTON = 48
+		self.H_HISTORY_TABLE_LOG_BUTTON = 28
+		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
+		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
+
+		self.W_LEFT_BUTTON = 20
+		self.H_LEFT_BUTTON = 20
+		self.X_LEFT_BUTTON = self.X_GRAPH
+		self.Y_LEFT_BUTTON = self.Y_GRAPH + self.H_GRAPH
+
+		self.W_RIGHT_BUTTON = self.W_LEFT_BUTTON
+		self.H_RIGHT_BUTTON = self.H_LEFT_BUTTON
+		self.X_RIGHT_BUTTON = self.X_GRAPH + self.W_GRAPH - self.W_RIGHT_BUTTON
+		self.Y_RIGHT_BUTTON = self.Y_LEFT_BUTTON
+
+		self.X_LEFT_LABEL = self.X_LEFT_BUTTON + self.W_LEFT_BUTTON + 10
+		self.X_RIGHT_LABEL = self.X_RIGHT_BUTTON - 10
+		self.Y_LABEL = self.Y_GRAPH + self.H_GRAPH + 3
+
+		self.X_LEGEND_MARGIN = 10
+		self.Y_LEGEND_MARGIN = 5
+		self.X_LEGEND_LINE = self.X_LEGEND_MARGIN
+		self.Y_LEGEND_LINE = self.Y_LEGEND_MARGIN + 9  # to center it relative to the text
+		self.W_LEGEND_LINE = 30
+		self.X_LEGEND_TEXT = self.X_LEGEND_LINE + self.W_LEGEND_LINE + 10
+		self.Y_LEGEND_TEXT = self.Y_LEGEND_MARGIN
+		self.H_LEGEND_TEXT = 16
+
+		# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+		self.iGraphLeaderIconSize = 16
+
+		# <!-- custom: Y offset for turn number label below year in graph tab, added with claude opus 4.5's help thanks. -->
+		self.iGraphTurnLabelYOffset = 16
+
+#BUG: Change Graphs - start
+		self.Graph_Status_1in1 = 0
+		self.Graph_Status_7in1 = 1
+		self.Graph_Status_3in1 = 2
+		self.Graph_Status_Current = self.Graph_Status_1in1
+		self.Graph_Status_Prior = self.Graph_Status_7in1
+#		self.BIG_GRAPH = False
+
+# the 7-in-1 graphs are layout out as follows:
+#    0 1 2
+#    L 3 4
+#    L 5 6
+#
+# where L is the legend and a number represents a graph
+		self.X_7_IN_1_CHART_ADJ = [0, 1, 2, 1, 2, 1, 2]
+		self.Y_7_IN_1_CHART_ADJ = [0, 0, 0, 1, 1, 2, 2]
+
+# the 3-in-1 graphs are layout out as follows:
+#    0 1
+#    L 2
+#
+# where L is the legend and a number represents a graph
+		self.X_3_IN_1_CHART_ADJ = [0, 1, 1]
+		self.Y_3_IN_1_CHART_ADJ = [0, 0, 1]
+#BUG: Change Graphs - end
+
+		# DEMOGRAPHICS
+
+		# <!-- custom: rename self.X_CHART and such to self.X_DEMOGRAPHICS_CHART and such for clarity and most importantly to avoid future errors. -->
+		# <!-- custom: note: deleted seemingly unused self.BUTTON_SIZE if i'm not mistaken. -->
+
+		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
+		self.X_DEMOGRAPHICS_CHART = self.X_MARGIN
+		self.Y_DEMOGRAPHICS_CHART = self.Y_MARGIN
+		self.W_DEMOGRAPHICS_CHART = self.W_SCREEN - 2 * self.X_DEMOGRAPHICS_CHART
+		self.H_DEMOGRAPHICS_CHART = self.H_SCREEN - 2 * self.Y_DEMOGRAPHICS_CHART
+
+		# <!-- custom: make self.W_TEXT and such local since we don't use them outside init it seems and add "demographics" so it is clearr if i'm not mistaken. -->
+		demographics_W_TEXT = 140
+		demographics_H_TEXT = 15
+		demographics_X_TEXT_BUFFER = 0
+		demographics_Y_TEXT_BUFFER = 43
+
+		# <!-- custom: make these dimensions as parameters so we can control them at init rather where more of the info is centralized. -->
+		self.W_DEMOGRAPHICS_COL_DEM = 260
+		demographicsNumericalColsW = 150
+		demographicsRivalColsW = 220
+		self.W_DEMOGRAPHICS_COL_VALUE = demographicsNumericalColsW
+		self.W_DEMOGRAPHICS_COL_RANK = demographicsNumericalColsW
+		self.W_DEMOGRAPHICS_COL_RIVAL_BEST = demographicsRivalColsW
+		self.W_DEMOGRAPHICS_COL_RIVAL_WORST = demographicsRivalColsW
+		self.W_DEMOGRAPHICS_COL_RIVAL_AVG = demographicsNumericalColsW
+
+		self.X_COL_1 = 535
+		self.X_COL_2 = self.X_COL_1 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
+		self.X_COL_3 = self.X_COL_2 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
+		self.X_COL_4 = self.X_COL_3 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
+
+		self.Y_ROW_1 = 100
+		self.Y_ROW_2 = self.Y_ROW_1 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_3 = self.Y_ROW_2 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_4 = self.Y_ROW_3 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_5 = self.Y_ROW_4 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_6 = self.Y_ROW_5 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_7 = self.Y_ROW_6 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_8 = self.Y_ROW_7 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_9 = self.Y_ROW_8 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+		self.Y_ROW_10 = self.Y_ROW_9 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
+
+		# <!-- custom: rank icon size for demographics tab, added with claude opus 4.5's help thanks. -->
+		self.iRankIconSize = 16
+
+		self.bAbleToShowAllPlayers = false
+		self.iShowingPlayer = -1
+		self.aiDropdownPlayerIDs = []
+
+		# TOP CITIES
+
+		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
+		self.W_WONDERS_RIGHT_PANE = 640
+		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
+		self.W_WONDERS_INTER_PANE_GAP = self.X_MARGIN
+
+		# <!-- custom: header height for "Top 5 Cities in the World" title, added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesHeaderHeight = 35
+
+		# <!-- custom: city name/founded panel dimensions, added with claude opus 4.5's help thanks. -->
+		self.H_CITIES_DESC = 58
+		# <!-- custom: Y offset adjustment to align city desc panel with city animation, added with claude opus 4.5's help thanks. -->
+		self.Y_CITIES_DESC_BUFFER = -9
+
+		# <!-- custom: multilist panel constants for top cities wonders, added with claude opus 4.5's help thanks. -->
+		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
+		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
+		self.iTopCitiesWonderButtonSize = 46
+		# <!-- custom: mirror Sevopedia multilist constants pattern (without shared module dependency). (GPT-5.3-Codex) -->
+		self.iTopCitiesWonderNumListsAutoCalculate = 1
+		self.iTopCitiesWonderColumnIndexAuto = 0
+		self.iTopCitiesWonderNumRows = 2
+		self.iTopCitiesWonderPanelMargin = 8
+		# <!-- custom: height adjustment for wonder panel (negative to reduce), added with claude opus 4.5's help thanks. -->
+		iTopCitiesWonderPanelHeightAdjust = -3
+		# <!-- custom: calculate wonder panel height based on rows, added with claude opus 4.5's help thanks. -->
+		self.H_CITIES_WONDER_PANEL = (self.iTopCitiesWonderNumRows * self.iTopCitiesWonderButtonSize) + (2 * self.iTopCitiesWonderPanelMargin) + iTopCitiesWonderPanelHeightAdjust
+
+		# <!-- custom: gap between city desc panel and wonder panel, added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesDescWonderGap = -2
+		# <!-- custom: margin between city components (bottom of one city to top of next), added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesInterCityMargin = 6
+
+		# <!-- custom: total height of right side (city desc + gap + wonder panel), added with claude opus 4.5's help thanks. -->
+		self.iTopCitiesRightSideHeight = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap + self.H_CITIES_WONDER_PANEL
+
+		# <!-- custom: in many of these variable names, add or rename to "_TOP_CITIES_" in the name for clarity and to avoid future mistakes if i'm not mistaken. -->
+		self.X_TOP_CITIES_LEFT_PANE = self.W_WONDERS_INTER_PANE_GAP
+		self.Y_TOP_CITIES_LEFT_PANE = self.Y_MARGIN
+		self.W_TOP_CITIES_LEFT_PANE = self.W_SCREEN - (2 * self.X_TOP_CITIES_LEFT_PANE) - self.W_WONDERS_INTER_PANE_GAP - self.W_WONDERS_RIGHT_PANE
+		# <!-- custom: mirror wonders panel height (H_SCREEN - 2 * Y_MARGIN), added with claude opus 4.5's help thanks. -->
+		self.H_TOP_CITIES_LEFT_PANE = self.H_SCREEN - 2 * self.Y_MARGIN
+
+		# Animated City thingies
+		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
+		self.Z_CITY_ANIMATION = self.Z_BACKGROUND - 0.5
+		self.W_CITY_ANIMATION = 150
+		# <!-- custom: match city animation height with right side panels, adjusted by trial, added with claude opus 4.5's help thanks. -->
+		self.H_CITY_ANIMATION = self.iTopCitiesRightSideHeight - 10
+		# <!-- custom: Y buffer adjusted to align top of animation with top of city desc panel, added with claude opus 4.5's help thanks. -->
+		self.Y_CITY_ANIMATION_BUFFER = self.H_CITY_ANIMATION / 2 - 3
+
+		# <!-- custom: dynamically compute Y_CITIES_BUFFER based on component heights, added with claude opus 4.5's help thanks. -->
+		# Total height per city = right side height + inter-city margin
+		self.Y_CITIES_BUFFER = self.iTopCitiesRightSideHeight + self.iTopCitiesInterCityMargin
+
+		# Placement of Cities
+		self.X_COL_1_CITIES = self.X_TOP_CITIES_LEFT_PANE + 20
+
+		self.Y_ROWS_CITIES = []
+		# <!-- custom: add header height offset so cities start below the header, added with claude opus 4.5's help thanks. -->
+		self.Y_ROWS_CITIES.append(self.Y_TOP_CITIES_LEFT_PANE + 20 + self.iTopCitiesHeaderHeight)
+		for i in range(1, 5):
+			self.Y_ROWS_CITIES.append(self.Y_ROWS_CITIES[i-1] + self.Y_CITIES_BUFFER)
+
+		# <!-- custom: right part of the top cities panel if i'm not mistaken. -->
+		topCitiesInterLeftRightPartsGapAdjust = 2
+		self.X_COL_1_CITIES_DESC = self.X_TOP_CITIES_LEFT_PANE + self.W_CITY_ANIMATION + 30 + topCitiesInterLeftRightPartsGapAdjust
+		topcitiesRightPartWAdjust = -16
+		self.W_CITIES_DESC = self.W_TOP_CITIES_LEFT_PANE - self.W_CITY_ANIMATION - 30 + topcitiesRightPartWAdjust - topCitiesInterLeftRightPartsGapAdjust
+
+		# <!-- custom: wonder panel Y offset from city desc panel, added with claude opus 4.5's help thanks. -->
+		self.Y_CITIES_WONDER_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap
+
+		# WONDERS
+		self.X_WONDERS_RIGHT_PANE = self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE + self.W_WONDERS_INTER_PANE_GAP
+		self.Y_WONDERS_RIGHT_PANE = self.Y_MARGIN
+		self.H_WONDERS_RIGHT_PANE = self.H_SCREEN - 2 * self.Y_WONDERS_RIGHT_PANE
+
+		self.X_WONDERS_CHART = self.X_WONDERS_RIGHT_PANE + self.SMALL_MARGIN
+		self.Y_WONDERS_CHART = self.Y_WONDERS_RIGHT_PANE + 60
+		self.W_WONDERS_CHART = self.W_WONDERS_RIGHT_PANE - (2 * self.SMALL_MARGIN)
+		self.H_WONDERS_CHART = self.H_WONDERS_RIGHT_PANE - self.Y_WONDERS_RIGHT_PANE
+
+		self.W_WONDERS_CHART_COL_BUTTON = 30
+		self.WONDERS_COL_MOVE_TO_CITY_ID = 4
+		self.W_WONDERS_CHART_COL_DATE = 85
+		self.W_WONDERS_CHART_COL_OWNER = 145
+		self.W_WONDERS_CHART_COL_CITY = 145
+		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
+		self.W_WONDERS_CHART_COL_NAME = self.W_WONDERS_CHART - totalWondersCharMostColsW
+
+		self.X_WONDERS_STATS_PANE = self.X_WONDERS_RIGHT_PANE + 20
+		self.Y_WONDERS_STATS_PANE = self.Y_WONDERS_RIGHT_PANE + 20
+		self.W_WONDERS_STATS_PANE = 210
+		self.H_WONDERS_STATS_PANE = 220
+
+		self.WONDERS_FUDGE_FACTOR = 3
+
+		self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 20
+		self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
+		self.W_WONDERS_DROPDOWN = 420
+
+		self.X_WONDER_LIST = self.X_WONDERS_RIGHT_PANE + 240 + (2 * self.WONDERS_FUDGE_FACTOR)
+		self.Y_WONDER_LIST = self.Y_WONDERS_RIGHT_PANE + 60
+		self.W_WONDER_LIST = 200 - (2 * self.WONDERS_FUDGE_FACTOR)
+		self.H_WONDER_LIST = 180
+
+		self.X_WONDER_GRAPHIC = 540
+		self.Y_WONDER_GRAPHIC = self.Y_WONDERS_RIGHT_PANE + 20 + 200 + 35
+		self.W_WONDER_GRAPHIC = 420
+		self.H_WONDER_GRAPHIC = 190
+
+		self.X_ROTATION_WONDER_ANIMATION = -20
+		self.Z_ROTATION_WONDER_ANIMATION = 30
+		self.WONDERS_SCALE_ANIMATION = 0.5
+
+		self.X_PROJECT_ICON = self.X_WONDER_GRAPHIC + self.W_WONDER_GRAPHIC / 2
+		self.Y_PROJECT_ICON = self.Y_WONDER_GRAPHIC + self.H_WONDER_GRAPHIC / 2
+		self.W_PROJECT_ICON = 128
+
+		self.X_WONDER_SPECIAL_TITLE = 540
+		self.Y_WONDER_SPECIAL_TITLE = 310 + 200 + 7
+
+		self.X_WONDER_SPECIAL_PANE = 540
+		self.Y_WONDER_SPECIAL_PANE = 310 + 200 + 20 + 15
+		self.W_WONDER_SPECIAL_PANE = 420
+		self.H_WONDER_SPECIAL_PANE = 140 - 15
+
+		self.szWDM_WorldWonder = "World Wonders"
+		self.szWDM_NatnlWonder = "National Wonders"
+		self.szWDM_Project = "Projects"
+
+		self.BUGWorldWonderWidget = self.szWDM_WorldWonder + "Widget"
+		self.BUGNatWonderWidget = self.szWDM_NatnlWonder + "Widget"
+		self.BUGProjectWidget = self.szWDM_Project + "Widget"
+
+		self.szWonderDisplayMode = self.szWDM_WorldWonder
+
+		self.iWonderID = -1 			# BuildingType ID of the active wonder, e.g. Palace is 0, Globe Theater is 66
+		self.iActiveWonderCounter = 0	# Screen ID for this wonder (0, 1, 2, etc.) - different from the above variable
+
+		# STATISTICS
+		self.X_STATS_BOTTOM_CHART = self.X_MARGIN
+		self.Y_STATS_BOTTOM_CHART = 280
+		iTotalStatsTabBottomW = self.W_SCREEN - 2 * self.X_STATS_BOTTOM_CHART
+		self.W_STATS_BOTTOM_CHART_UNITS = int(iTotalStatsTabBottomW * 455 / 935)
+		self.W_STATS_BOTTOM_CHART_BUILDINGS = int(iTotalStatsTabBottomW * 260 / 935)
+		self.W_STATS_BOTTOM_CHART_IMPROVEMENTS = iTotalStatsTabBottomW - self.W_STATS_BOTTOM_CHART_UNITS - self.W_STATS_BOTTOM_CHART_BUILDINGS
+		self.H_STATS_BOTTOM_CHART = self.H_SCREEN - self.Y_STATS_BOTTOM_CHART - 78
+
+		self.X_STATS_TOP_PANEL = self.X_MARGIN
+		self.Y_STATS_TOP_PANEL = self.Y_MARGIN
+		self.W_STATS_TOP_PANEL = self.W_SCREEN - 2 * self.X_STATS_TOP_PANEL
+		self.H_STATS_TOP_PANEL = 0
+
+		self.X_LEADER_ICON = self.X_STATS_TOP_PANEL
+		self.Y_LEADER_ICON = 95
+		self.W_LEADER_ICON = 128
+		self.H_LEADER_ICON = 156
+
+		self.X_STATS_TOP_CHART = self.X_LEADER_ICON + self.X_MARGIN + self.W_LEADER_ICON
+		self.Y_STATS_TOP_CHART = self.Y_LEADER_ICON
+		iExtraWTopChartValue = 12
+		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + iExtraWTopChartValue
+		self.H_STATS_TOP_CHART = self.H_LEADER_ICON
+
+		self.STATS_TOP_CHART_W_COL_1 = 100
+		self.STATS_TOP_CHART_W_COL_0 = self.W_STATS_TOP_CHART - self.STATS_TOP_CHART_W_COL_1
+		self.iNumTopChartCols = 2
+
+		self.X_LEADER_NAME = self.X_LEADER_ICON
+		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
+
+		self.W_DEMOGRAPHICS_BUTTON_SIZE = 24
+		self.H_DEMOGRAPHICS_BUTTON_SIZE = 24
+		self.W_STATS_BUTTON_SIZE = 24
+		self.H_STATS_BUTTON_SIZE = 24
+
 	def getLastTurn(self):
 		return (gc.getGame().getReplayMessageTurn(gc.getGame().getNumReplayMessages()-1))
 
@@ -882,8 +798,6 @@ class CvInfoScreen:
 
 #BUG Timer
 		self.timer = BugUtil.Timer("InfoScreen")
-
-		self.initText()
 
 		self.iStartTurn = 0
 		for iI in range(gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getNumTurnIncrements()):
@@ -896,10 +810,13 @@ class CvInfoScreen:
 		if (iTurn > self.getLastTurn()):
 			return
 
-		# Create a new screen
 		screen = self.getScreen()
 		if screen.isActive():
 			return
+		self.updateRuntimeLayout(screen)
+		self.initText()
+
+		# Create a new screen
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 

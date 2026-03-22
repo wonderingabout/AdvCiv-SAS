@@ -393,27 +393,27 @@ class CvForeignAdvisor:
 		self.SAS_TRADE_ICON_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
 		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
 
-	def interfaceScreen (self, iScreen):
-		screen = self.getScreen()
-		# <!-- custom: all screen-dependent geometry is computed at runtime (not in __init__) because this advisor object is created before a reliable screen context exists; doing layout here ensures correct values for the current resolution and keeps tab link widths in sync with runtime X_EXIT. This is the first extraction pattern for shared advisor helpers later (bounds/tab-width math), while foreign-specific behavior remains local. (GPT-5.3-Codex) -->
-		# <!-- custom: use runtime resolution for advisor bounds (instead of hardcoded 1920x1080) so the screen doesn't overflow on smaller displays; keep the same left/top anchoring pattern as non-BUG military advisor. (GPT-5.3-Codex) -->
-		self.X_SCREEN = self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_SCREEN = screen.getXResolution() - self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS - self.W_RIGHT_SPACE_FOR_SCOREBOARD
-		self.Y_SCREEN = self.H_TOP_SPACE_FOR_TECH_BAR
-		self.H_SCREEN = screen.getYResolution() - self.H_TOP_SPACE_FOR_TECH_BAR - self.H_BOTTOM_SPACE
-		# <!-- custom: derive shared title/footer anchors from centralized SASUtils constants so all advisors can align with the same formula set. (GPT-5.3-Codex) -->
-		self.X_TITLE = self.W_SCREEN / SAS_ADVISOR_TITLE_X_DIVISOR
-		self.X_EXIT = self.W_SCREEN - SAS_ADVISOR_EXIT_X_OFFSET
-		self.Y_EXIT = self.H_SCREEN - SAS_ADVISOR_EXIT_Y_OFFSET
-		self.Y_LINK = self.H_SCREEN - SAS_ADVISOR_EXIT_Y_OFFSET
-		self.Y_BOTTOM_PANEL = self.H_SCREEN - SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET
+	def updateRuntimeLayout(self, screen):
+		# <!-- custom: runtime layout wrapper (same structure as CvInfoScreen) so resolution-dependent bounds/anchors are centralized. (GPT-5.3-Codex) -->
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
 		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
-		# <!-- custom: Espionage is fully integrated as a native Foreign tab (no separate advisor class); keep its layout runtime-dependent in interfaceScreen, like other Foreign tabs, so resolution changes are handled without hardcoded 1024x768 geometry. (GPT-5.3-Codex) -->
 		self.ESP_X_SCREEN = self.X_SCREEN
 		self.ESP_Y_SCREEN = self.Y_SCREEN
 		self.ESP_W_SCREEN = self.W_SCREEN
 		self.ESP_H_SCREEN = self.H_SCREEN
+
+	def updateRuntimeTabLinkWidths(self):
+		# <!-- custom: tab-link widths depend on runtime X_EXIT; recompute every open using shared helper. (GPT-5.3-Codex) -->
+		aszTabLabels = []
+		for i in self.ORDER_LIST:
+			aszTabLabels.append(localText.getText(self.TXT_KEY_DICT[i], ()).upper())
+		self.LABEL_WIDTH_LIST[:] = getAdvisorRuntimeLinkWidths(CyInterface(), aszTabLabels, self.EXIT_TEXT, self.X_EXIT)
+
+	def interfaceScreen (self, iScreen):
+		screen = self.getScreen()
+		self.updateRuntimeLayout(screen)
 
 		# <!-- custom: use contiguous blue panels (no yellow gutters): zero outer margins and zero inter-panel gap; keep a small inner inset only for readability. (GPT-5.3-Codex) -->
 		self.ESP_OUTER_MARGIN = 0
@@ -494,13 +494,7 @@ class CvForeignAdvisor:
 
 		# <!-- custom: initialize language-dependent text once, then recompute tab widths from runtime geometry. (GPT-5.3-Codex) -->
 		self.initText()
-		self.LABEL_WIDTH_LIST[:] = []
-		width_list = []
-		for i in self.ORDER_LIST:
-			width_list.append(CyInterface().determineWidth(localText.getText(self.TXT_KEY_DICT[i], ()).upper()) + 20)
-		total_width = sum(width_list) + CyInterface().determineWidth(self.EXIT_TEXT) + 20
-		for i in width_list:
-			self.LABEL_WIDTH_LIST.append((self.X_EXIT * i + total_width/2) / total_width)
+		self.updateRuntimeTabLinkWidths()
 
 		# self.ATTITUDE_DICT = {
 		# 	"COLOR_YELLOW": re.sub (":", "|", localText.getText ("TXT_KEY_ATTITUDE_FRIENDLY", ())),
