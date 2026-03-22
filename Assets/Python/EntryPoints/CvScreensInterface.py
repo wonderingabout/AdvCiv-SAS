@@ -12,7 +12,6 @@ import CvReligionScreen
 import CvCorporationScreen
 import CvCivicsScreen
 import CvVictoryScreen
-import CvEspionageAdvisor
 
 import CvOptionsScreen
 import CvReplayScreen
@@ -197,10 +196,10 @@ def showMilitaryAdvisor():
 		militaryAdvisor.interfaceScreen()
 # BUG - Military Advisor - end
 
-espionageAdvisor = CvEspionageAdvisor.CvEspionageAdvisor()
 def showEspionageAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		espionageAdvisor.interfaceScreen()
+		# <!-- custom: Espionage screen is integrated into CvForeignAdvisor; open its Espionage tab instead of a separate advisor instance. (GPT-5.3-Codex) -->
+		foreignAdvisor.interfaceScreen(foreignAdvisor.SCREEN_DICT["ESPIONAGE"])
 
 dawnOfMan = CvDawnOfMan.CvDawnOfMan(DAWN_OF_MAN)
 def showDawnOfMan(argsList):
@@ -1209,7 +1208,8 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					TOP_CIVS : topCivs,
 					HALL_OF_FAME : hallOfFameScreen,
 					VICTORY_MOVIE_SCREEN : victoryMovie,
-					ESPIONAGE_ADVISOR : espionageAdvisor,
+					# <!-- custom: route Espionage advisor input to CvForeignAdvisor because Espionage is now a native Foreign tab. (GPT-5.3-Codex) -->
+					ESPIONAGE_ADVISOR : foreignAdvisor,
 					DAN_QUAYLE_SCREEN : danQuayleScreen,
 					WORLDBUILDER_SCREEN : worldBuilderScreen,
 					WORLDBUILDER_DIPLOMACY_SCREEN : worldBuilderDiplomacyScreen,

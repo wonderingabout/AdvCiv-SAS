@@ -10,7 +10,7 @@
 
 # This file has been edited for K-Mod in various places. Some changes marked, others not.
 
-# <!-- custom: canonical unified Foreign Advisor implementation with full tab set (Relations/Glance/Active/Bonus/Info/Tech/Cities). This file "CvForeignAdvisor.py" replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
+# <!-- custom: canonical unified Foreign Advisor implementation with full tab set (Relations/Glance/Active/Bonus/Info/Espionage/Tech/Cities). This file "CvForeignAdvisor.py" replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -30,6 +30,7 @@ import IconGrid_BUG
 ##########################################
 
 import DomPyHelpers
+from PyHelpers import PyPlayer as EspionagePyPlayer
 import TechTree
 import AttitudeUtil
 import BugCore
@@ -51,7 +52,7 @@ PyCity = DomPyHelpers.DomPyCity
 
 AdvisorOpt = BugCore.game.Advisors
 
-NUM_FOREIGN_SCREENS = 7
+NUM_FOREIGN_SCREENS = 8
 
 # tech trade columns
 (iTechColLeader,
@@ -235,6 +236,7 @@ class CvForeignAdvisor:
 			"INFO": 4,
 			"GLANCE": 5,
 			"CITIES": 6, # advc.ctr
+			"ESPIONAGE": 7,
 			}
 
 		self.REV_SCREEN_DICT = {}
@@ -250,6 +252,7 @@ class CvForeignAdvisor:
 			"INFO": self.drawInfo,
 			"GLANCE": self.drawGlance,
 			"CITIES": self.drawCityDeals, # advc.ctr
+			"ESPIONAGE": self.drawEspionage,
 			}
 
 		self.TXT_KEY_DICT = {
@@ -259,11 +262,12 @@ class CvForeignAdvisor:
 			# <!-- custom: renamed Active tab label to Treaties to match the reduced scope (no bonus clutter). (GPT-5.3-Codex) -->
 			"ACTIVE_TRADE": "TXT_KEY_FOREIGN_ADVISOR_TREATIES",
 			"INFO": "TXT_KEY_FOREIGN_ADVISOR_INFO",
+			"ESPIONAGE": "TXT_KEY_SAS_ESPIONAGE_SHORT",
 			"GLANCE": "TXT_KEY_FOREIGN_ADVISOR_GLANCE",
 			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
 			}
 
-		self.ORDER_LIST = ["RELATIONS", "GLANCE", "ACTIVE_TRADE", "BONUS", "INFO", "TECH", "CITIES"] # advc.ctr (add CITIES)
+		self.ORDER_LIST = ["RELATIONS", "GLANCE", "ACTIVE_TRADE", "BONUS", "INFO", "ESPIONAGE", "TECH", "CITIES"] # advc.ctr (add CITIES)
 
 		# K-Mod
 		self.LABEL_WIDTH_LIST = []
@@ -274,6 +278,27 @@ class CvForeignAdvisor:
 
 		# <!-- custom: shared size for treaty icons rendered inline in active-deals text. (GPT-5.3-Codex) -->
 		self.SAS_TREATY_ICON_SIZE = 24
+		# <!-- custom: Espionage tab persistent state/constants; runtime geometry is computed in interfaceScreen from actual resolution. (GPT-5.3-Codex) -->
+		self.ESP_DEBUG_DROPDOWN_ID =  "EspionageAdvisorDropdownWidget"
+		self.ESP_WIDGET_ID = "EspionageAdvisorWidget"
+		self.ESP_BORDER_WIDTH = 4
+		self.ESP_PANE_HEIGHT = 450
+		self.ESP_PANE_WIDTH = 283
+		self.ESP_X_SLIDERS = 50
+		self.ESP_X_INCOME = 373
+		self.ESP_X_EXPENSES = 696
+		self.ESP_Y_TREASURY = 90
+		self.ESP_H_TREASURY = 100
+		self.ESP_Y_LOCATION = 230
+		self.ESP_Y_SPACING = 30
+		self.ESP_TEXT_MARGIN = 15
+		self.ESP_Z_BACKGROUND = -2.1
+		self.ESP_Z_CONTROLS = self.ESP_Z_BACKGROUND - 0.2
+		self.ESP_DZ = -0.2
+		self.nEspionageWidgetCount = 0
+		self.ESP_iTargetPlayer = -1
+		self.ESP_iActiveCityID = -1
+		self.ESP_iSelectedMission = -1
 
 	# <!-- custom: initialize text and icon caches once for performance, based on Info Screen and Victory Screen pattern (claude code sonnet 4.5) -->
 	def initText(self):
@@ -304,6 +329,16 @@ class CvForeignAdvisor:
 
 		# <!-- custom: city table headers (claude code sonnet 4.5) -->
 		self.TEXT_WILL_CEDE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_CEDE", ())
+		# <!-- custom: cache Espionage tab static texts in initText like other tabs. (GPT-5.3-Codex) -->
+		self.TEXT_ESPIONAGE_PASSIVE_EFFECTS = localText.getText("TXT_KEY_ESPIONAGE_SCREEN_PASSIVE_EFFECTS", ())
+		self.TEXT_ESPIONAGE_MISSIONS = localText.getText("TXT_KEY_ESPIONAGE_SCREEN_MISSIONS", ())
+		self.TEXT_ESPIONAGE_COST = localText.getText("TXT_KEY_ESPIONAGE_SCREEN_COST", ())
+		self.TEXT_ESPIONAGE_WEIGHT = localText.getText("TXT_KEY_ESPIONAGE_SCREEN_SPENDING_WEIGHT", ())
+		self.TEXT_ESPIONAGE_PASSIVE_AUTOMATIC = localText.getText("TXT_KEY_ESPIONAGE_PASSIVE_AUTOMATIC", ())
+		self.TEXT_ESPIONAGE_MISSIONS_SPY = localText.getText("TXT_KEY_ESPIONAGE_MISSIONS_SPY", ())
+		self.TEXT_ESPIONAGE_NO_SPY = localText.getText("TXT_KEY_ESPIONAGE_NO_SPY", ())
+		self.TEXT_MISC_THRESHOLD = localText.getText("TXT_KEY_MISC_THRESHOLD", ())
+		self.TEXT_CONCEPT_CITIES = localText.getText("TXT_KEY_CONCEPT_CITIES", ())
 
 		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
 		self.TEXT_REJECTS = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)
@@ -374,6 +409,61 @@ class CvForeignAdvisor:
 		self.Y_BOTTOM_PANEL = self.H_SCREEN - SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET
 		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
 		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10
+		# <!-- custom: Espionage is fully integrated as a native Foreign tab (no separate advisor class); keep its layout runtime-dependent in interfaceScreen, like other Foreign tabs, so resolution changes are handled without hardcoded 1024x768 geometry. (GPT-5.3-Codex) -->
+		self.ESP_X_SCREEN = self.X_SCREEN
+		self.ESP_Y_SCREEN = self.Y_SCREEN
+		self.ESP_W_SCREEN = self.W_SCREEN
+		self.ESP_H_SCREEN = self.H_SCREEN
+
+		self.ESP_X_LEFT_PANE = max(12, self.ESP_W_SCREEN * 2 / 100)
+		self.ESP_Y_LEFT_PANE = 70
+		self.ESP_W_LEFT_PANE = max(340, self.ESP_W_SCREEN * 34 / 100)
+		self.ESP_H_LEFT_PANE = max(420, self.ESP_H_SCREEN - 148)
+
+		self.ESP_X_SCROLL = self.ESP_X_LEFT_PANE + 20
+		self.ESP_Y_SCROLL = self.ESP_Y_LEFT_PANE + 20
+		self.ESP_W_SCROLL = max(220, self.ESP_W_LEFT_PANE - 40)
+		self.ESP_H_SCROLL = max(220, self.ESP_H_LEFT_PANE - 40)
+
+		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + 20
+		self.ESP_Y_TOTAL_PANE = self.ESP_Y_LEFT_PANE
+		self.ESP_W_TOTAL_PANE = max(380, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - 20)
+		self.ESP_H_TOTAL_PANE = 60
+
+		self.ESP_X_RIGHT_PANE = self.ESP_X_TOTAL_PANE
+		self.ESP_Y_RIGHT_PANE = self.ESP_Y_TOTAL_PANE + self.ESP_H_TOTAL_PANE + 20
+		self.ESP_W_RIGHT_PANE = self.ESP_W_TOTAL_PANE
+		self.ESP_H_RIGHT_PANE = max(260, self.ESP_H_LEFT_PANE - self.ESP_H_TOTAL_PANE - 20)
+
+		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + 40
+		self.ESP_Y_CITY_LIST = self.ESP_Y_RIGHT_PANE + 60
+		self.ESP_W_CITY_LIST = max(130, self.ESP_W_RIGHT_PANE * 28 / 100)
+		self.ESP_H_CITY_LIST = max(150, self.ESP_H_RIGHT_PANE - 90)
+
+		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + 20
+		self.ESP_Y_EFFECTS_LIST = self.ESP_Y_CITY_LIST
+		self.ESP_W_EFFECTS_LIST = max(140, self.ESP_W_RIGHT_PANE * 38 / 100)
+		self.ESP_H_EFFECTS_LIST = max(70, (self.ESP_H_CITY_LIST / 3) - 50)
+
+		self.ESP_X_EFFECTS_COSTS_LIST = self.ESP_X_EFFECTS_LIST + self.ESP_W_EFFECTS_LIST + 10
+		self.ESP_Y_EFFECTS_COSTS_LIST = self.ESP_Y_EFFECTS_LIST
+		self.ESP_W_EFFECTS_COSTS_LIST = max(50, self.ESP_W_RIGHT_PANE * 10 / 100)
+		self.ESP_H_EFFECTS_COSTS_LIST = self.ESP_H_EFFECTS_LIST
+
+		self.ESP_X_MISSIONS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + 20
+		self.ESP_Y_MISSIONS_LIST = self.ESP_Y_EFFECTS_LIST + self.ESP_H_EFFECTS_LIST + 50
+		self.ESP_W_MISSIONS_LIST = self.ESP_W_EFFECTS_LIST
+		self.ESP_H_MISSIONS_LIST = max(90, self.ESP_H_CITY_LIST * 2 / 3)
+
+		self.ESP_X_MISSIONS_COSTS_LIST = self.ESP_X_MISSIONS_LIST + self.ESP_W_MISSIONS_LIST + 10
+		self.ESP_Y_MISSIONS_COSTS_LIST = self.ESP_Y_MISSIONS_LIST
+		self.ESP_W_MISSIONS_COSTS_LIST = self.ESP_W_EFFECTS_COSTS_LIST
+		self.ESP_H_MISSIONS_COSTS_LIST = self.ESP_H_MISSIONS_LIST
+
+		self.ESP_X_MISSION_BUTTON = self.ESP_X_MISSIONS_LIST
+		self.ESP_Y_MISSION_BUTTON = self.ESP_Y_MISSIONS_LIST + self.ESP_H_MISSIONS_LIST + 10
+		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + 10
+		self.ESP_H_MISSION_BUTTON = 30
 
 		# <!-- custom: initialize language-dependent text once, then recompute tab widths from runtime geometry. (GPT-5.3-Codex) -->
 		self.initText()
@@ -666,6 +756,16 @@ class CvForeignAdvisor:
 							if iTurns > 0:
 								szDealText += u" %s" % BugUtil.getText("INTERFACE_CITY_TURNS", (iTurns,))
 					self.appendListBoxStringScaled(screen, dealPanelName, szDealText, WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+	def drawEspionage(self, bInitial):
+		# <!-- custom: render Espionage directly as a native Foreign Advisor tab (no helper wrapper object). (GPT-5.3-Codex) -->
+		self.ESP_iActivePlayer = self.iActiveLeader
+		if self.ESP_iTargetPlayer == -1:
+			self.ESP_iActiveCityID = -1
+			self.ESP_iSelectedMission = -1
+		self.drawEspionageContents()
+		self.refreshEspionageScreen()
+
 
 	#	RJG Start
 	def drawRelations (self, bInitial):
@@ -998,6 +1098,9 @@ class CvForeignAdvisor:
 		if (CyInterface().isDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT) == True):
 			CyInterface().setDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT, False)
 			self.drawContents(False)
+		elif (self.iScreen == self.SCREEN_DICT["ESPIONAGE"] and CyInterface().isDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT)):
+			CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, False)
+			self.refreshEspionageScreen()
 		return
 
 	def drawInfo (self, bInitial):
@@ -2314,11 +2417,611 @@ class CvForeignAdvisor:
 			return self.resIconGrid.handleInput(inputClass)
 		elif (self.iScreen == self.SCREEN_DICT["TECH"]):
 			return self.techIconGrid.handleInput(inputClass)
+		elif (self.iScreen == self.SCREEN_DICT["ESPIONAGE"]):
+			self.ESP_iActivePlayer = self.iActiveLeader
+			return self.handleEspionageInput(inputClass)
 		# <advc.ctr>
 		elif (self.iScreen == self.SCREEN_DICT["CITIES"]):
 			return self.cityIconGrid.handleInput(inputClass)
 		# </advc.ctr>
 		return 0
+
+	# <!-- custom: Espionage tab logic integrated directly into CvForeignAdvisor (no helper class/wrapper object). Kept existing Espionage comments unless obsolete. (GPT-5.3-Codex) -->
+
+
+	def scaleEspionageBodyText(self, szText):
+		if szText is None:
+			return szText
+		if szText == "":
+			return szText
+		try:
+			if szText.find("<font=") != -1:
+				return szText
+		except:
+			return szText
+		return SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
+
+	def appendEspionageListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+		screen.appendListBoxString(szWidgetName, self.scaleEspionageBodyText(szText), eWidgetType, iData1, iData2, eJustify)
+
+	def setEspionageTableTextScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+		screen.setTableText(szTable, iCol, iRow, self.scaleEspionageBodyText(szText), szIcon, eWidgetType, iData1, iData2, eJustify)
+
+	def drawEspionageContents(self):
+
+		self.deleteAllEspionageWidgets()
+
+		# Create a new screen, called EspionageAdvisor, using the file EspionageAdvisor.py for input
+		screen = self.getScreen()
+
+		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+
+		self.ESP_szLeftPaneWidget = "LeftPane"
+		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true,
+			self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )
+
+		self.ESP_szScrollPanel = "ScrollPanel"
+		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true,
+			self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
+
+		self.ESP_aiKnownPlayers = []
+		self.ESP_aiUnknownPlayers = []
+		self.ESP_iNumEntries= 0
+
+		for iLoop in range(gc.getMAX_PLAYERS()):
+			pPlayer = gc.getPlayer(iLoop)
+			if (pPlayer.getTeam() != pActivePlayer.getTeam() and not pPlayer.isBarbarian()):
+				if (pPlayer.isAlive()):
+					if (pActiveTeam.isHasMet(pPlayer.getTeam())):
+
+						self.ESP_aiKnownPlayers.append(iLoop)
+						self.ESP_iNumEntries = self.ESP_iNumEntries + 1
+
+						if (self.ESP_iTargetPlayer == -1):
+							self.ESP_iTargetPlayer = iLoop
+
+		while(self.ESP_iNumEntries < 17):
+			self.ESP_iNumEntries = self.ESP_iNumEntries + 1
+			self.ESP_aiUnknownPlayers.append(self.ESP_iNumEntries)
+
+		############################
+		#### Total EPs Per Turn Text
+		############################
+
+		self.ESP_szTotalPaneWidget = "TotalPane"
+		screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true,
+			self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
+
+		# <advc.120c> Replace TOTAL_NUM_EPS text with espionage slider
+		# (The slider is in the refresh function though)
+		#self.szMakingText = "MakingText"
+		#self.X_MAKING_TEXT = 490
+		#self.Y_MAKING_TEXT = 85
+		#szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_ESPIONAGE_SCREEN_TOTAL_NUM_EPS", (pActivePlayer.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE), )) + SAS_FONT_TAG_CLOSE
+		#screen.setLabel(self.szMakingText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_MAKING_TEXT, self.Y_MAKING_TEXT, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		# </advc.120c>
+
+		############################
+		#### Right Panel
+		############################
+
+		self.ESP_szRightPaneWidget = "RightPane"
+		screen.addPanel( self.ESP_szRightPaneWidget, "", "", true, true,
+			self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )
+
+		if (self.ESP_iTargetPlayer != -1):
+
+			self.ESP_szCitiesTitleText = "CitiesTitle"
+			szText = SAS_FONT_TAG_TITLE + self.TEXT_CONCEPT_CITIES + SAS_FONT_TAG_CLOSE
+			screen.setLabel(self.ESP_szCitiesTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_CITY_LIST, self.ESP_Y_CITY_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+			self.ESP_szEffectsTitleText = "EffectsTitle"
+			szText = SAS_FONT_TAG_TITLE + self.TEXT_ESPIONAGE_PASSIVE_EFFECTS + SAS_FONT_TAG_CLOSE
+			screen.setLabel(self.ESP_szEffectsTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_EFFECTS_LIST, self.ESP_Y_EFFECTS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+			self.ESP_szMissionsTitleText = "MissionsTitle"
+			szText = SAS_FONT_TAG_TITLE + self.TEXT_ESPIONAGE_MISSIONS + SAS_FONT_TAG_CLOSE
+			screen.setLabel(self.ESP_szMissionsTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_MISSIONS_LIST, self.ESP_Y_MISSIONS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			# advc.120d: was TXT_KEY_ESPIONAGE_SCREEN_COST
+			self.ESP_szEffectsCostTitleText = "EffectsCostTitle"
+			szText = SAS_FONT_TAG_TITLE + self.TEXT_MISC_THRESHOLD + SAS_FONT_TAG_CLOSE
+			# advc.120d: Subtract 40 from horizontal position
+			screen.setLabel(self.ESP_szEffectsCostTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_EFFECTS_COSTS_LIST-40, self.ESP_Y_EFFECTS_COSTS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+			self.ESP_szMissionsCostTitleText = "MissionsCostTitle"
+			szText = SAS_FONT_TAG_TITLE + self.TEXT_ESPIONAGE_COST + SAS_FONT_TAG_CLOSE
+			screen.setLabel(self.ESP_szMissionsCostTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_MISSIONS_COSTS_LIST, self.ESP_Y_MISSIONS_COSTS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+			############################
+			#### Left Leaders Panel
+			############################
+
+			wNamePanel = 220
+			hNamePanel = 30
+
+			iPlayerLoop = 0
+
+			for iPlayerID in self.ESP_aiKnownPlayers:
+
+				pTargetPlayer = gc.getPlayer(iPlayerID)
+
+				iTargetTeam = pTargetPlayer.getTeam()
+
+				iX = 0
+				iY = 14 #+ (148 * iPlayerLoop)#(110 * iPlayerLoop)
+
+				attach = "LeaderContainer%d" % (iPlayerID)
+
+				screen.attachPanel(self.ESP_szScrollPanel, attach, "", "", True, False, PanelStyles.PANEL_STYLE_STANDARD)
+
+				szName = "LeaderImageA%d" %(iPlayerID)
+				screen.attachSeparator(attach, szName, true, 30)
+
+				self.ESP_iLeaderImagesID = 456
+				szName = "LeaderImage%d" %(iPlayerID)
+
+				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
+					iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+				if (self.ESP_iTargetPlayer == iPlayerID):
+					screen.setState(szName, true)
+
+				szName = "LeaderNamePanel%d" %(iPlayerID)
+				screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN,
+					iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				szName = "NameText%d" %(iPlayerID)
+				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))
+				szText = SAS_FONT_TAG_BODY + szTempBuffer + SAS_FONT_TAG_CLOSE
+				screen.setLabelAt( szName, attach, szText, 0, iX + 55, iY -15, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				szName = "PointsText%d" %(iPlayerID)
+				szText = SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS", (pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam), )) + SAS_FONT_TAG_CLOSE
+				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 14, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				szName = "SpendingText%d" %(iPlayerID)
+				szText = SAS_FONT_TAG_BODY + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
+				screen.setLabelAt( szName, attach, szText, 0, 85, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				szName = "AmountText%d" %(iPlayerID)
+				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+					szText = SAS_FONT_TAG_BODY + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+				else:
+					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+
+
+				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				szName = "SpendingIcon%d" %(iPlayerID)
+				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+					szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+				else:
+					szText = u""
+
+				screen.setLabelAt( szName, attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				iSize = 16
+				self.ESP_iIncreaseButtonID = 555
+				szName = "IncreaseButton%d" %(iPlayerID)
+				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), 53, iY + 1, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+				self.ESP_iDecreaseButtonID = 556
+				szName = "DecreaseButton%d" %(iPlayerID)
+				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath(), 68, iY + 1, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+
+
+				iPlayerLoop += 1
+
+			for iPlayerID in self.ESP_aiUnknownPlayers:
+				attach = "EmptyLeaderContainer%d" % (iPlayerID)
+				screen.attachPanel(self.ESP_szScrollPanel, attach, "", "", True, False, PanelStyles.PANEL_STYLE_STANDARD)
+				screen.attachSeparator(attach, "EmptyLeaderImageA%d" %(iPlayerID), true, 30)
+
+	def getEspionageMultiplierAgainstTarget(self, iTargetPlayer=-1):
+
+		szMultiplier = ""
+
+		if (iTargetPlayer == -1):
+			iTargetPlayer = self.ESP_iTargetPlayer
+
+		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+		pTargetPlayer = gc.getPlayer(iTargetPlayer)
+		pTargetTeam = gc.getTeam(pTargetPlayer.getTeam())
+
+		szMultiplier = localText.getText("TXT_KEY_ESPIONAGE_COST", (getEspionageModifier(pActivePlayer.getTeam(), pTargetPlayer.getTeam()), ))
+
+		if (pActiveTeam.getCounterespionageTurnsLeftAgainstTeam(pTargetPlayer.getTeam()) > 0):
+			szMultiplier += u"*"
+
+		if (pTargetTeam.getCounterespionageTurnsLeftAgainstTeam(pActivePlayer.getTeam()) > 0):
+			szMultiplier += u"+"
+
+		return szMultiplier
+
+	def refreshEspionageScreen(self):
+
+		self.deleteAllEspionageWidgets()
+
+		if (self.ESP_iTargetPlayer != -1):
+
+			# Create a new screen, called EspionageAdvisor, using the file EspionageAdvisor.py for input
+			screen = self.getScreen()
+
+			pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+			pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+
+			self.drawEspionageSlider() # advc.120c
+
+			iPlayerLoop = 0
+
+			for iPlayerID in self.ESP_aiKnownPlayers:
+
+				iX = 0
+				iY = 15 #+ (148 * iPlayerLoop)#(110 * iPlayerLoop)
+
+				pTargetPlayer = gc.getPlayer(iPlayerID)
+				iTargetTeam = pTargetPlayer.getTeam()
+
+				attach = "LeaderContainer%d" % (iPlayerID)
+
+				szName = "SpendingText%d" %(iPlayerID)
+				szText = SAS_FONT_TAG_BODY + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
+				screen.deleteWidget(szName)
+				screen.setLabelAt( szName, attach, szText, 0, 85, iY, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				szName = "AmountText%d" %(iPlayerID)
+
+				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+					szText = SAS_FONT_TAG_BODY + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+				else:
+					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+
+				screen.deleteWidget(szName)
+				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+				szName = "SpendingIcon%d" %(iPlayerID)
+				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+					szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+				else:
+					szText = u""
+
+				screen.deleteWidget(szName)
+				screen.setLabelAt( szName, attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+
+				iPlayerLoop += 1
+
+			# Is there any other players which have been met?
+			if (self.ESP_iTargetPlayer != -1):
+
+				pTargetPlayer = gc.getPlayer(self.ESP_iTargetPlayer)
+				pyTargetPlayer = EspionagePyPlayer(self.ESP_iTargetPlayer)
+				iTargetTeam = pTargetPlayer.getTeam() # advc.120d
+				# List of Cities
+				self.ESP_szCityListBox = self.getNextEspionageWidgetName()
+				screen.addListBoxGFC(self.ESP_szCityListBox, "", self.ESP_X_CITY_LIST, self.ESP_Y_CITY_LIST, self.ESP_W_CITY_LIST, self.ESP_H_CITY_LIST, TableStyles.TABLE_STYLE_STANDARD)
+				screen.enableSelect(self.ESP_szCityListBox, True)
+				screen.setStyle(self.ESP_szCityListBox, "Table_StandardCiv_Style")
+
+				# Loop through target's cities, see which are visible and add them to the list
+				apCityList = pyTargetPlayer.getCityList()
+
+				iLoop = 0
+
+				for pyCity in apCityList:
+
+					pCity = pyCity.GetCy()
+
+					if (pCity.isRevealed(pActivePlayer.getTeam(), false)):
+						self.appendEspionageListBoxStringScaled(screen, self.ESP_szCityListBox, pCity.getName(), WidgetTypes.WIDGET_GENERAL, pCity.getID(), 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+						if (self.ESP_iActiveCityID == -1 or pTargetPlayer.getCity(self.ESP_iActiveCityID).isNone()):
+							self.ESP_iActiveCityID = pCity.getID()
+
+						if (self.ESP_iActiveCityID == pCity.getID()):
+							screen.setSelectedListBoxStringGFC(self.ESP_szCityListBox, iLoop)
+
+						iLoop += 1
+
+				#screen.updateListBox(self.ESP_szCityListBox)
+
+				wTable0 = self.ESP_W_EFFECTS_LIST
+				wTable1 = 0
+				wTable2 = self.ESP_W_EFFECTS_COSTS_LIST
+				wTable3 = 20
+
+				szEffectsTable = self.getNextEspionageWidgetName()
+				szHelpText = self.TEXT_ESPIONAGE_PASSIVE_AUTOMATIC
+				screen.addTableControlGFCWithHelp(szEffectsTable, 4, self.ESP_X_EFFECTS_LIST, self.ESP_Y_EFFECTS_LIST, self.ESP_W_EFFECTS_LIST + self.ESP_W_EFFECTS_COSTS_LIST + wTable1 + wTable3, self.ESP_H_EFFECTS_LIST, False, False, 32,32, TableStyles.TABLE_STYLE_STANDARD, szHelpText)
+				screen.setTableColumnHeader(szEffectsTable, 0, "", wTable0)
+				screen.setTableColumnHeader(szEffectsTable, 1, "", wTable1)
+				screen.setTableColumnHeader(szEffectsTable, 2, "", wTable2)
+				screen.setTableColumnHeader(szEffectsTable, 3, "", wTable3)
+
+				szMissionsTable = self.getNextEspionageWidgetName()
+				szHelpText = self.TEXT_ESPIONAGE_MISSIONS_SPY
+				# <advc.120d>
+				if not pActivePlayer.canSpy():
+					szHelpText = self.TEXT_ESPIONAGE_NO_SPY # </advc.120d>
+				screen.addTableControlGFCWithHelp(szMissionsTable, 4, self.ESP_X_MISSIONS_LIST, self.ESP_Y_MISSIONS_LIST, self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + wTable1 + wTable3, self.ESP_H_MISSIONS_LIST, False, False, 32,32, TableStyles.TABLE_STYLE_STANDARD, szHelpText)
+				screen.setTableColumnHeader(szMissionsTable, 0, "", wTable0)
+				screen.setTableColumnHeader(szMissionsTable, 1, "", wTable1)
+				screen.setTableColumnHeader(szMissionsTable, 2, "", wTable2)
+				screen.setTableColumnHeader(szMissionsTable, 3, "", wTable3)
+
+
+				# Loop through all Missions
+				for iPass in range(3): # advc.120d
+					for iMissionLoop in range(gc.getNumEspionageMissionInfos()):
+
+						pMission = gc.getEspionageMissionInfo(iMissionLoop)
+						if (pMission.getCost() == -1):
+							continue # advc
+						# <advc.120d>
+						isSabotage = False
+						if pMission.getDestroyProjectCostFactor() + pMission.getDestroyBuildingCostFactor() + pMission.getDestroyProductionCostFactor() > 0 or pMission.isDestroyImprovement():
+							isSabotage = True
+						isSteal = False
+						if pMission.getBuyTechCostFactor() + pMission.getStealTreasuryTypes() > 0:
+							isSteal = True
+						if (iPass < 2) == isSabotage or (iPass > 0) == isSteal:
+							continue
+						# Moved up:
+						pActiveCity = gc.getPlayer(self.ESP_iTargetPlayer).getCity(self.ESP_iActiveCityID)
+						# </advc.120d>
+						# Only passive effects
+						if (pMission.isPassive()):
+
+							pPlot = None
+
+							if (self.ESP_iActiveCityID != -1 and pMission.isTargetsCity()):
+								pPlot = pActiveCity.plot()
+
+
+							if (self.ESP_iActiveCityID != -1 or not pMission.isTargetsCity()):
+
+								iCost = pActivePlayer.getEspionageMissionCost(iMissionLoop, self.ESP_iTargetPlayer, pPlot, -1)
+
+								szTechText = ""
+								if (pMission.getTechPrereq() != -1):
+									szTechText = " (%s)" %(gc.getTechInfo(pMission.getTechPrereq()).getDescription())
+
+								szText = pMission.getDescription() + szTechText
+
+								if (pMission.getTechPrereq() != -1):
+									pTeam = gc.getTeam(pActivePlayer.getTeam())
+									if (not pTeam.isHasTech(pMission.getTechPrereq())):
+										szText = u"<color=255,0,0,0>%s</color>" %(szText)
+								# <advc.120d>
+								costStr = str(iCost)
+								if pActivePlayer.canDoEspionageMission(iMissionLoop, self.ESP_iTargetPlayer, pPlot, 0):
+									costStr = localText.changeTextColor(costStr, gc.getInfoTypeForString("COLOR_GREEN"))
+								# </advc.120d>
+								iRow = screen.appendTableRow(szEffectsTable)
+								self.setEspionageTableTextScaled(screen, szEffectsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								self.setEspionageTableTextScaled(screen, szEffectsTable, 2, iRow, costStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+						# Active Mission
+						else:
+							# <advc.120d>
+							if not pActivePlayer.canSpy():
+								continue # </advc.120d>
+							if (self.ESP_iSelectedMission == -1):
+								self.ESP_iSelectedMission = iMissionLoop
+
+							pPlot = -1
+							if (self.ESP_iActiveCityID != -1):
+								pPlot = pActiveCity.plot()
+							else:
+								pPlot = None
+
+							iCost = pActivePlayer.getEspionageMissionCost(iMissionLoop, self.ESP_iTargetPlayer, pPlot, -1)
+
+							szTechText = ""
+							if (pMission.getTechPrereq() != -1):
+								szTechText = " (%s)" %(gc.getTechInfo(pMission.getTechPrereq()).getDescription())
+							# <advc.120d>
+							elif pMission.getBuyTechCostFactor() > 0 and iCost > 0 and pActivePlayer.canSeeTech(self.ESP_iTargetPlayer):
+								stealTech = pActivePlayer.getStealCostTech(self.ESP_iTargetPlayer)
+								if stealTech >= 0:
+									szTechText = " (%s)" %(gc.getTechInfo(stealTech).getDescription())
+							missingPrereq = False
+							# </advc.120d>
+							szText = pMission.getDescription() + szTechText
+
+							if (pMission.getTechPrereq() != -1):
+								pTeam = gc.getTeam(pActivePlayer.getTeam())
+								if (not pTeam.isHasTech(pMission.getTechPrereq())):
+									szText = u"<color=255,0,0,0>%s</color>" %(szText)
+									missingPrereq = True
+							# <advc.120d>
+							costStr = "(n/a)"
+							if iCost > 0:
+								costStr = str(iCost)
+								if pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam) >= iCost:
+									costStr = localText.changeTextColor(costStr, gc.getInfoTypeForString("COLOR_GREEN"))
+							# Secret costs
+							if pMission.getBuyTechCostFactor() > 0 and not pActivePlayer.canSeeTech(self.ESP_iTargetPlayer):
+								# This can't happen so long as Alphabet enables both Spies and tech trading
+								costStr = "?"
+							# Display the Destroy missions as a single item
+							elif isSabotage:
+								if pMission.getDestroyProductionCostFactor() > 0:
+									costStr = "?"
+									szText = localText.getText("TXT_KEY_ESPIONAGE_SABOTAGE", ())
+								elif pMission.getDestroyProjectCostFactor() <= 0 or iCost <= 0:
+									continue
+							if pMission.getStealTreasuryTypes() > 0 and iCost > 0:
+								if not missingPrereq:
+									iAmount = pActivePlayer.getEspionageGoldQuantity(iMissionLoop, self.ESP_iTargetPlayer, pActiveCity)
+									if iAmount > 0:
+										szText += " (%s)" %(localText.getText("TXT_KEY_ESPIONAGE_STEAL_AMOUNT", (iAmount,)))
+								else: # Don't give away AI gold if the player can't actually steal gold
+									costStr = "?"
+							iRow = screen.appendTableRow(szMissionsTable)
+							self.setEspionageTableTextScaled(screen, szMissionsTable, 2, iRow, costStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+							# The line below: Moved down </advc.120d>
+							self.setEspionageTableTextScaled(screen, szMissionsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		return 0
+
+	# returns a unique ID for a widget in this screen
+	def getNextEspionageWidgetName(self):
+		szName = self.ESP_WIDGET_ID + str(self.nEspionageWidgetCount)
+		self.nEspionageWidgetCount += 1
+		return szName
+
+	def deleteAllEspionageWidgets(self):
+		screen = self.getScreen()
+		i = self.nEspionageWidgetCount - 1
+		while (i >= 0):
+			self.nEspionageWidgetCount = i
+			screen.deleteWidget(self.getNextEspionageWidgetName())
+			i -= 1
+
+		self.nEspionageWidgetCount = 0
+
+	# Will handle the input for this screen...
+	def handleEspionageInput(self, inputClass):
+		'Calls function mapped in EspionageAdvisorInputMap'
+
+		screen = self.getScreen()
+
+		##### Debug Dropdown #####
+		if (CyGame().isDebugMode()):
+			if (inputClass.getFunctionName() == self.ESP_DEBUG_DROPDOWN_ID):
+				iIndex = screen.getSelectedPullDownID(self.ESP_DEBUG_DROPDOWN_ID)
+				self.ESP_iActivePlayer = screen.getPullDownData(self.ESP_DEBUG_DROPDOWN_ID, iIndex)
+				self.ESP_iTargetPlayer = -1 # advc.001d
+				self.drawEspionageContents()
+				CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+		# advc.001d: Moved from above the Debug menu
+		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+
+		if (self.ESP_iTargetPlayer != -1):
+
+			##### Player Images #####
+			if (inputClass.getData1() == self.ESP_iLeaderImagesID):
+
+				self.ESP_iTargetPlayer = inputClass.getData2()
+
+				# Loop through all images
+				for iPlayerID in self.ESP_aiKnownPlayers:
+					szName = "LeaderImage%d" %(iPlayerID)
+					if (self.ESP_iTargetPlayer == iPlayerID):
+						screen.setState(szName, true)
+					else:
+						screen.setState(szName, false)
+
+					self.ESP_iActiveCityID = -1
+
+				CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+
+
+			##### City Listbox #####
+			if ("%s%d" %(inputClass.getFunctionName(), inputClass.getID()) == self.ESP_szCityListBox):
+				iCityID = inputClass.getData1()
+				self.ESP_iActiveCityID = iCityID#gc.getPlayer(self.ESP_iTargetPlayer).getCity(iCityID)
+				CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+
+			# Is there any other players which have been met?
+			if (self.ESP_iTargetPlayer != -1):
+
+				##### Increase Button #####
+				if (inputClass.getData1() == self.ESP_iIncreaseButtonID):
+
+					iPlayerID = inputClass.getData2()
+					iTargetTeam = gc.getPlayer(iPlayerID).getTeam()
+
+					#CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, 1)
+					# K-Mod. Right click -> min/max
+					if (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
+						CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, 99)
+					else:
+						CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, 1)
+					# K-Mod end
+
+					if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+						szText = SAS_FONT_TAG_BODY + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+					else:
+						szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+
+					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, 247, 15 - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+						szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+					else:
+						szText = u""
+					attach = "LeaderContainer%d" % (iPlayerID)
+					iY = 15
+					screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+					CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+
+				##### Decrease Button #####
+				elif (inputClass.getData1() == self.ESP_iDecreaseButtonID):
+
+					iPlayerID = inputClass.getData2()
+					iTargetTeam = gc.getPlayer(iPlayerID).getTeam()
+
+					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):	# Can't reduce weight below 0
+
+						#CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, -1)
+						# K-Mod. Right click -> min/max
+						if (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
+							CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, -99)
+						else:
+							CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, -1)
+						# K-Mod end
+
+						if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+							szText = SAS_FONT_TAG_BODY + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+						else:
+							szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+
+						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, 247, 15 - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+							szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+						else:
+							szText = u""
+						attach = "LeaderContainer%d" % (iPlayerID)
+						iY = 15
+						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+						CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+
+		return 0
+
+	# <advc.120c>
+	def drawEspionageSlider(self):
+		screen = self.getScreen()
+		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+
+		eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
+		if not pActivePlayer.isCommerceFlexible(eCommerce):
+			return
+
+		# Copied from EconomicsAdvisor.py
+		x = self.ESP_X_TOTAL_PANE
+		y = self.ESP_Y_TOTAL_PANE
+		screen.setButtonGFC("plusButton", u"", "", x + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
+		screen.setButtonGFC("minusButton", u"", "", x + self.ESP_TEXT_MARGIN + 24, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
+		szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		szRate = SAS_FONT_TAG_LABEL + unicode(pActivePlayer.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
+		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.ESP_PANE_WIDTH - self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# Update labels
+		screen.deleteWidget("espRateLabel")
+		screen.deleteWidget("espRate")
+		# Same code as above, except for the buttons
+		eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
+		szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		szRate = SAS_FONT_TAG_LABEL + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getCommerceRate(CommerceTypes(eCommerce)), )))) + SAS_FONT_TAG_CLOSE
+		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.ESP_PANE_WIDTH + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+	# </advc.120c>
+
+
 
 def smallText(text):
 	return SAS_FONT_TAG_BODY + text + SAS_FONT_TAG_CLOSE
