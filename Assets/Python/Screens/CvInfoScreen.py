@@ -1192,24 +1192,26 @@ class CvInfoScreen:
 		iMinColW = 42
 		iFlagW = iMinColW
 		iDipW = iMinColW
-		iAttNumW = iMinColW
+		iAttW = iMinColW + 8
+		iAttNumW = iMinColW + 8
 		iColorW = iMinColW
 		iPidW = iMinColW - 10
-		iResearchPctW = iPidW + 1
+		iResearchPctW = iPidW + 8
 		iNameW = 122
-		iScoreW = 64
-		iDeltaW = 54
-		iPowerW = 60
-		iPowerAbsW = 61
+		# <!-- custom: second pass tuning after 1665 screenshot: reduce Score/dSc slightly, widen Att/Att#, significantly widen Land% and final research %, and fund it mostly from V/M baseline. (GPT-5.3-Codex) -->
+		iScoreW = 78
+		iDeltaW = 66
+		iPowerW = 78
+		iPowerAbsW = 75
 		iPowerPerCityW = 66
 		iCitiesW = iMinColW
-		iLandPctW = iMinColW + 16
-		iVMW = iMinColW + 53
+		iLandPctW = iMinColW + 28
+		iVMW = iMinColW
 		iResearchW = iMinColW
 		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
 		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
 		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW +
-				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iAttNumW + iColorW + iResearchPctW + 9 * iFlagW + iPidW +
+				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iAttNumW + iColorW + iResearchPctW + iAttW + 8 * iFlagW + iPidW +
 				iNameW + iResearchW)
 		iExtraW = iW - iUsedW
 		iVMW += iExtraW
@@ -1229,7 +1231,7 @@ class CvInfoScreen:
 		self.setTableColumnHeaderScaled(screen, szTable, iColColor, u"Col", iColorW)
 		self.setTableColumnHeaderScaled(screen, szTable, iColPid, u"ID", iPidW)
 		self.setTableColumnHeaderScaled(screen, szTable, iColName, u"Leader", iNameW)
-		self.setTableColumnHeaderScaled(screen, szTable, iColAttitude, u"Att", iFlagW)
+		self.setTableColumnHeaderScaled(screen, szTable, iColAttitude, u"Att", iAttW)
 		self.setTableColumnHeaderScaled(screen, szTable, iColAttitudeNum, u"Att#", iAttNumW)
 		self.setTableColumnHeaderScaled(screen, szTable, iColScore, self.TEXT_SCORE, iScoreW)
 		self.setTableColumnHeaderScaled(screen, szTable, iColDelta, u"dSc", iDeltaW)
