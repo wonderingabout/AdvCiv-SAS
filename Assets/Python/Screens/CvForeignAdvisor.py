@@ -415,42 +415,56 @@ class CvForeignAdvisor:
 		self.ESP_W_SCREEN = self.W_SCREEN
 		self.ESP_H_SCREEN = self.H_SCREEN
 
-		self.ESP_X_LEFT_PANE = max(12, self.ESP_W_SCREEN * 2 / 100)
-		self.ESP_Y_LEFT_PANE = 70
-		self.ESP_W_LEFT_PANE = max(340, self.ESP_W_SCREEN * 34 / 100)
-		self.ESP_H_LEFT_PANE = max(420, self.ESP_H_SCREEN - 148)
+		# <!-- custom: use contiguous blue panels (no yellow gutters): zero outer margins and zero inter-panel gap; keep a small inner inset only for readability. (GPT-5.3-Codex) -->
+		self.ESP_OUTER_MARGIN = 0
+		self.ESP_PANEL_GAP = 0
+		self.ESP_INNER_MARGIN = 12
 
-		self.ESP_X_SCROLL = self.ESP_X_LEFT_PANE + 20
-		self.ESP_Y_SCROLL = self.ESP_Y_LEFT_PANE + 20
-		self.ESP_W_SCROLL = max(220, self.ESP_W_LEFT_PANE - 40)
-		self.ESP_H_SCROLL = max(220, self.ESP_H_LEFT_PANE - 40)
+		# <!-- custom: slightly overdraw the shared Espionage backdrop so no yellow rim leaks through; use tiny horizontal bleed and larger vertical bleed. (GPT-5.3-Codex) -->
+		self.ESP_MAIN_BLEED_X = 4
+		self.ESP_MAIN_BLEED_Y = 12
+		self.ESP_X_MAIN_PANE = -self.ESP_MAIN_BLEED_X
+		self.ESP_Y_MAIN_PANE = 54 - self.ESP_MAIN_BLEED_Y
+		self.ESP_W_MAIN_PANE = self.ESP_W_SCREEN + (2 * self.ESP_MAIN_BLEED_X)
+		self.ESP_H_MAIN_PANE = (self.Y_BOTTOM_PANEL - self.ESP_Y_MAIN_PANE) + self.ESP_MAIN_BLEED_Y
 
-		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + 20
+		self.ESP_X_LEFT_PANE = self.ESP_OUTER_MARGIN
+		self.ESP_Y_LEFT_PANE = self.ESP_Y_MAIN_PANE + self.ESP_OUTER_MARGIN
+		self.ESP_W_LEFT_PANE = max(380, self.ESP_W_SCREEN * 38 / 100)
+		self.ESP_H_LEFT_PANE = max(420, self.ESP_H_MAIN_PANE - self.ESP_OUTER_MARGIN)
+
+		self.ESP_X_SCROLL = self.ESP_X_LEFT_PANE + self.ESP_INNER_MARGIN
+		self.ESP_Y_SCROLL = self.ESP_Y_LEFT_PANE + self.ESP_INNER_MARGIN
+		self.ESP_W_SCROLL = max(220, self.ESP_W_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
+		self.ESP_H_SCROLL = max(220, self.ESP_H_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
+
+		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + self.ESP_PANEL_GAP
 		self.ESP_Y_TOTAL_PANE = self.ESP_Y_LEFT_PANE
-		self.ESP_W_TOTAL_PANE = max(380, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - 20)
+		self.ESP_W_TOTAL_PANE = max(320, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - self.ESP_OUTER_MARGIN)
 		self.ESP_H_TOTAL_PANE = 60
 
 		self.ESP_X_RIGHT_PANE = self.ESP_X_TOTAL_PANE
-		self.ESP_Y_RIGHT_PANE = self.ESP_Y_TOTAL_PANE + self.ESP_H_TOTAL_PANE + 20
+		# <!-- custom: remove Espionage top-summary area from active layout; commerce sliders on the right already provide this info, so the extra panel is redundant/noisy. Reuse that space for city/effects/missions content. Keep total-pane coordinates defined for easy future restoration. (GPT-5.3-Codex) -->
+		self.ESP_Y_RIGHT_PANE = self.ESP_Y_LEFT_PANE
 		self.ESP_W_RIGHT_PANE = self.ESP_W_TOTAL_PANE
-		self.ESP_H_RIGHT_PANE = max(260, self.ESP_H_LEFT_PANE - self.ESP_H_TOTAL_PANE - 20)
+		self.ESP_H_RIGHT_PANE = self.ESP_H_LEFT_PANE
 
-		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + 40
-		self.ESP_Y_CITY_LIST = self.ESP_Y_RIGHT_PANE + 60
-		self.ESP_W_CITY_LIST = max(130, self.ESP_W_RIGHT_PANE * 28 / 100)
-		self.ESP_H_CITY_LIST = max(150, self.ESP_H_RIGHT_PANE - 90)
+		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + self.ESP_INNER_MARGIN
+		self.ESP_Y_CITY_LIST = self.ESP_Y_RIGHT_PANE + 45
+		self.ESP_W_CITY_LIST = max(110, self.ESP_W_RIGHT_PANE * 21 / 100)
+		self.ESP_H_CITY_LIST = max(150, self.ESP_H_RIGHT_PANE - (45 + self.ESP_INNER_MARGIN))
 
-		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + 20
+		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + self.ESP_INNER_MARGIN
 		self.ESP_Y_EFFECTS_LIST = self.ESP_Y_CITY_LIST
-		self.ESP_W_EFFECTS_LIST = max(140, self.ESP_W_RIGHT_PANE * 38 / 100)
+		self.ESP_W_EFFECTS_COSTS_LIST = max(52, self.ESP_W_RIGHT_PANE * 9 / 100)
+		self.ESP_W_EFFECTS_LIST = max(140, self.ESP_W_RIGHT_PANE - (self.ESP_X_EFFECTS_LIST - self.ESP_X_RIGHT_PANE) - 10 - self.ESP_W_EFFECTS_COSTS_LIST - self.ESP_INNER_MARGIN)
 		self.ESP_H_EFFECTS_LIST = max(70, (self.ESP_H_CITY_LIST / 3) - 50)
 
 		self.ESP_X_EFFECTS_COSTS_LIST = self.ESP_X_EFFECTS_LIST + self.ESP_W_EFFECTS_LIST + 10
 		self.ESP_Y_EFFECTS_COSTS_LIST = self.ESP_Y_EFFECTS_LIST
-		self.ESP_W_EFFECTS_COSTS_LIST = max(50, self.ESP_W_RIGHT_PANE * 10 / 100)
 		self.ESP_H_EFFECTS_COSTS_LIST = self.ESP_H_EFFECTS_LIST
 
-		self.ESP_X_MISSIONS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + 20
+		self.ESP_X_MISSIONS_LIST = self.ESP_X_EFFECTS_LIST
 		self.ESP_Y_MISSIONS_LIST = self.ESP_Y_EFFECTS_LIST + self.ESP_H_EFFECTS_LIST + 50
 		self.ESP_W_MISSIONS_LIST = self.ESP_W_EFFECTS_LIST
 		self.ESP_H_MISSIONS_LIST = max(90, self.ESP_H_CITY_LIST * 2 / 3)
@@ -464,6 +478,19 @@ class CvForeignAdvisor:
 		self.ESP_Y_MISSION_BUTTON = self.ESP_Y_MISSIONS_LIST + self.ESP_H_MISSIONS_LIST + 10
 		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + 10
 		self.ESP_H_MISSION_BUTTON = 30
+		# <!-- custom: leader-row anchors are runtime-dependent so larger SAS fonts don't overlap fixed vanilla coordinates at 1080p/1440p+. (GPT-5.3-Codex) -->
+		self.ESP_ROW_X_NAME = 55
+		self.ESP_ROW_X_WEIGHT = 58
+		self.ESP_ROW_X_RIGHT = max(205, self.ESP_W_SCROLL - 120)
+		self.ESP_ROW_Y_TOP = -15
+		self.ESP_ROW_Y_BOTTOM = 2
+		self.ESP_ROW_Y_WEIGHT = 9
+		self.ESP_ROW_Y_AMOUNT = self.ESP_ROW_Y_WEIGHT
+		# <!-- custom: place +/- under the leader icon (instead of mid-line text area) to avoid click interference with scaled text and to use free left-side space more cleanly. (GPT-5.3-Codex) -->
+		self.ESP_ROW_X_BUTTON_PLUS = 21
+		self.ESP_ROW_X_BUTTON_MINUS = 37
+		self.ESP_ROW_Y_BUTTON = 16
+		self.ESP_ROW_Y_ICON = -3
 
 		# <!-- custom: initialize language-dependent text once, then recompute tab widths from runtime geometry. (GPT-5.3-Codex) -->
 		self.initText()
@@ -2457,9 +2484,13 @@ class CvForeignAdvisor:
 		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
 		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
 
+		self.ESP_szMainPaneWidget = "EspionageMainPane"
+		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true,
+			self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
+
 		self.ESP_szLeftPaneWidget = "LeftPane"
 		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true,
-			self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )
+			self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
 
 		self.ESP_szScrollPanel = "ScrollPanel"
 		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true,
@@ -2488,19 +2519,21 @@ class CvForeignAdvisor:
 		############################
 		#### Total EPs Per Turn Text
 		############################
-
-		self.ESP_szTotalPaneWidget = "TotalPane"
-		screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true,
-			self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
-
-		# <advc.120c> Replace TOTAL_NUM_EPS text with espionage slider
-		# (The slider is in the refresh function though)
-		#self.szMakingText = "MakingText"
-		#self.X_MAKING_TEXT = 490
-		#self.Y_MAKING_TEXT = 85
-		#szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_ESPIONAGE_SCREEN_TOTAL_NUM_EPS", (pActivePlayer.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE), )) + SAS_FONT_TAG_CLOSE
-		#screen.setLabel(self.szMakingText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_MAKING_TEXT, self.Y_MAKING_TEXT, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		# </advc.120c>
+		# <!-- custom: top summary panel intentionally disabled in integrated Foreign->Espionage tab.
+		# Redundant now that global commerce sliders are visible on the right; preserving this block commented
+		# keeps rollback trivial if we want a dedicated Espionage header again later. (GPT-5.3-Codex) -->
+		#self.ESP_szTotalPaneWidget = "TotalPane"
+		#screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true,
+		#	self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
+		#
+		## <advc.120c> Replace TOTAL_NUM_EPS text with espionage slider
+		## (The slider is in the refresh function though)
+		##self.szMakingText = "MakingText"
+		##self.X_MAKING_TEXT = 490
+		##self.Y_MAKING_TEXT = 85
+		##szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_ESPIONAGE_SCREEN_TOTAL_NUM_EPS", (pActivePlayer.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE), )) + SAS_FONT_TAG_CLOSE
+		##screen.setLabel(self.szMakingText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_MAKING_TEXT, self.Y_MAKING_TEXT, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		## </advc.120c>
 
 		############################
 		#### Right Panel
@@ -2508,7 +2541,7 @@ class CvForeignAdvisor:
 
 		self.ESP_szRightPaneWidget = "RightPane"
 		screen.addPanel( self.ESP_szRightPaneWidget, "", "", true, true,
-			self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )
+			self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
 
 		if (self.ESP_iTargetPlayer != -1):
 
@@ -2573,15 +2606,15 @@ class CvForeignAdvisor:
 				szName = "NameText%d" %(iPlayerID)
 				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))
 				szText = SAS_FONT_TAG_BODY + szTempBuffer + SAS_FONT_TAG_CLOSE
-				screen.setLabelAt( szName, attach, szText, 0, iX + 55, iY -15, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, iX + self.ESP_ROW_X_NAME, iY + self.ESP_ROW_Y_TOP, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "PointsText%d" %(iPlayerID)
 				szText = SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS", (pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam), )) + SAS_FONT_TAG_CLOSE
-				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 14, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_TOP + 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingText%d" %(iPlayerID)
 				szText = SAS_FONT_TAG_BODY + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
-				screen.setLabelAt( szName, attach, szText, 0, 85, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "AmountText%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
@@ -2590,7 +2623,7 @@ class CvForeignAdvisor:
 					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 
-				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
@@ -2598,15 +2631,15 @@ class CvForeignAdvisor:
 				else:
 					szText = u""
 
-				screen.setLabelAt( szName, attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				iSize = 16
 				self.ESP_iIncreaseButtonID = 555
 				szName = "IncreaseButton%d" %(iPlayerID)
-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), 53, iY + 1, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
 				self.ESP_iDecreaseButtonID = 556
 				szName = "DecreaseButton%d" %(iPlayerID)
-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath(), 68, iY + 1, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath(), self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
 
 
 				iPlayerLoop += 1
@@ -2650,7 +2683,8 @@ class CvForeignAdvisor:
 			pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
 			pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
 
-			self.drawEspionageSlider() # advc.120c
+			# <!-- custom: disabled the Espionage slider draw here: global commerce sliders already exist on the right, so this duplicate control is redundant/noisy in the integrated Foreign tab. Keep drawEspionageSlider() code for possible future reuse. (GPT-5.3-Codex) -->
+			# self.drawEspionageSlider() # advc.120c
 
 			iPlayerLoop = 0
 
@@ -2667,7 +2701,7 @@ class CvForeignAdvisor:
 				szName = "SpendingText%d" %(iPlayerID)
 				szText = SAS_FONT_TAG_BODY + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
 				screen.deleteWidget(szName)
-				screen.setLabelAt( szName, attach, szText, 0, 85, iY, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "AmountText%d" %(iPlayerID)
 
@@ -2677,7 +2711,7 @@ class CvForeignAdvisor:
 					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 				screen.deleteWidget(szName)
-				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
@@ -2686,7 +2720,7 @@ class CvForeignAdvisor:
 					szText = u""
 
 				screen.deleteWidget(szName)
-				screen.setLabelAt( szName, attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 
 				iPlayerLoop += 1
@@ -2945,7 +2979,7 @@ class CvForeignAdvisor:
 					else:
 						szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
-					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, 247, 15 - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
 						szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
@@ -2953,7 +2987,7 @@ class CvForeignAdvisor:
 						szText = u""
 					attach = "LeaderContainer%d" % (iPlayerID)
 					iY = 15
-					screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+					screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 					CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
 
@@ -2978,7 +3012,7 @@ class CvForeignAdvisor:
 						else:
 							szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
-						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, 247, 15 - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
 							szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
@@ -2986,7 +3020,7 @@ class CvForeignAdvisor:
 							szText = u""
 						attach = "LeaderContainer%d" % (iPlayerID)
 						iY = 15
-						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 						CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
 
