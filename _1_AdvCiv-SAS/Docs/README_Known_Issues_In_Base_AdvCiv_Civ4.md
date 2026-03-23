@@ -147,6 +147,7 @@ hopefully helpful, thanks thanks,
 [111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#111---reverted-this-patch-sevopedia-index-unicodedecodeerror-in-buildsortfilter-unicodedecodeerror-ascii-codec-cant-decode-byte-0xc8-in-position-0)  
 [112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#112---seemingly-fixed-base-advciv-issue-of-missing-getprereqorpromotion3-in-sevopedia-promotion)  
 [113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia)  
+[114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4408,3 +4409,22 @@ Update:
 - After the KI#113 refactor, a regression appeared in Sevopedia Builds list: removable builds (e.g. Remove Jungle, Chop Down a Forest, Scrub Fallout) could lose their icon/button in the left list, while route builds still looked fine (Sevopedia Index stayed unaffected).
 - Root cause: in `SevoPediaMain.placeItems`, header detection used `data1 == -1`, but for Builds `data1` is repurposed to build tech prereq for `WIDGET_HELP_IMPROVEMENT`; removable builds often have `<PrereqTech>NONE</PrereqTech>`, so they were falsely treated as headers.
 - Fix: detect real headers/spacers using the original list marker `item[1] == -1` (not mutated `data1`), which restores those Build icons/buttons in Sevopedia Builds.
+
+## 114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Z4BmwuUuJgh2YsABubqZFmbNLhyBn6uV?usp=sharing).
+
+Observed issue:
+
+- After loading a save, Technology Advisor could show `Constitution` without `(1)` (only queue-style text).
+- Clicking `Later Abrahamism (4)`, then clicking back `Constitution (1)`, made the timer appear.
+- Reloading the save reproduced the issue again.
+
+Fix:
+
+- Update first draw path (`placeTechs`) to append turns-left like refresh path (`updateTechRecords`) so timer is present immediately after load.
+- Keep first-draw and refresh text rendering consistent (same anchoring behavior).
+
+Changed file:
+
+- [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py)

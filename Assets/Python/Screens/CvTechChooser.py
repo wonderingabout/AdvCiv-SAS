@@ -443,6 +443,9 @@ class CvTechChooser:
 			screen.setActivation( szTechRecord, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS)
 			screen.hide( szTechRecord )
 
+			iTechX = iX
+			iTechY = iY
+
 			#reset so that it offsets from the tech record's panel
 			iX = 6
 			iY = 6
@@ -469,8 +472,15 @@ class CvTechChooser:
 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
 					szTechString = szTechString + str(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
 				szTechString += gc.getTechInfo(i).getDescription()
+				# <!-- custom: include turns-left on first Tech Advisor draw too; before this, placeTechs only showed queue position and missed "(N)" until a later refresh path (e.g. clicking another tech) rebuilt labels via updateTechRecords, so load-from-save could hide the timer on the initially selected tech. See KI#114. (GPT-5 Codex) -->
+				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
+					iTurnsLeft = gc.getPlayer(self.iCivSelected).getResearchTurnsLeft(i, ( gc.getPlayer(self.iCivSelected).getCurrentResearch() == i ))
+					if iTurnsLeft > 0:
+						# <!-- custom: minor tweak only: keep "(N)" append as one formatted string for readability; no behavior change relative to the timer/clipping fix. (GPT-5 Codex) -->
+						szTechString += " (%d)" % iTurnsLeft
 				szTechString = szTechString + SAS_FONT_TAG_CLOSE
-				screen.setTextAt( szTechID, szTechRecord, szTechString, CvUtil.FONT_LEFT_JUSTIFY, iX + 6 + X_INCREMENT, iY + 6, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_TECH_TREE, i, -1 )
+				# <!-- custom: anchor tech labels to the scroll panel (same as updateTechRecords) instead of the tech panel child so first-draw and refresh rendering paths stay consistent. See KI#114. (GPT-5 Codex) -->
+				screen.setTextAt( szTechID, sPanel, szTechString, CvUtil.FONT_LEFT_JUSTIFY, iTechX + 6 + X_INCREMENT, iTechY + 6, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_TECH_TREE, i, -1 )
 				screen.setActivation( szTechID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
 
 			if bTechIcon:
@@ -1073,9 +1083,7 @@ class CvTechChooser:
 					if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
 						iTurnsLeft = gc.getPlayer(self.iCivSelected).getResearchTurnsLeft(i, ( gc.getPlayer(self.iCivSelected).getCurrentResearch() == i ))
 						if iTurnsLeft > 0: # advc.004x: Don't show turns left during anarchy
-							szTechString += " ("
-							szTechString += str(iTurnsLeft)
-							szTechString += ")"
+							szTechString += " (%d)" % iTurnsLeft
 					szTechString = szTechString + SAS_FONT_TAG_CLOSE
 					screen.setTextAt( szTechID, sPanel, szTechString, CvUtil.FONT_LEFT_JUSTIFY, iX + 6 + X_INCREMENT, iY + 6, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_TECH_TREE, i, -1 )
 					screen.setActivation( szTechID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
