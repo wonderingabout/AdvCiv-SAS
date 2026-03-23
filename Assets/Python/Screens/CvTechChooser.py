@@ -10,6 +10,7 @@ import CvUtil
 import ScreenInput
 import CvScreenEnums
 from SASFontUtils import *
+from SASUtils import *
 import CvScreensInterface
 
 TEXTURE_SIZE = 24
@@ -38,10 +39,9 @@ import BugUtil
 PREF_ICON_SIZE = 24
 #PREF_ICON_TOP = 168
 # <advc.004a>
-# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-# PREF_ICON_BOTTOM = 738
-PREF_ICON_BOTTOM = 926
-PREF_ICON_LEFT = 40 # was a bit farther left (10)
+# <!-- custom: GP pref icon anchor is runtime-derived from the Exit baseline; keep only a screen-independent offset here for fast tuning. (GPT-5.3-Codex) -->
+PREF_ICON_BOTTOM_FROM_EXIT_OFFSET = 10
+PREF_ICON_LEFT_OFFSET = 10
 # </advc.004a>
 FLAVORS = [
 	TechPrefs.FLAVOR_PRODUCTION,
@@ -162,16 +162,17 @@ class CvTechChooser:
 		self.BOX_INCREMENT_Y_SPACING = 6 #Should be a multiple of 3...
 		self.BOX_INCREMENT_X_SPACING = 9 #Should be a multiple of 3...
 
-		self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = None
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = None
 		# <!-- custom: parametrize properly the X starting position of the first column; value was hardcoded repeatedly. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
 		self.iX_LEFT_START = 30
 		self.SAS_PEDIA_PYTHON_BUILD = 6798
 		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
 		self.iX_LEFT_START_OR_PREREQS = 24
-		# <!-- custom: adjust tech bulbing left starting position so we align vertically with the first tech button. (GPT-5.2-Codex (summarized)) -->
-		self.PREF_ICON_LEFT = PREF_ICON_LEFT
+
+		self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = None
+		self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = None
+		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
+		self.PREF_ICON_BOTTOM = 0
 
 	def getScreen(self):
 		return CyGInterfaceScreen( "TechChooser", CvScreenEnums.TECH_CHOOSER )
@@ -182,6 +183,31 @@ class CvTechChooser:
 
 		# Hide the screen
 		screen.hideScreen()
+
+	def updateRuntimeLayout(self, screen):
+		# <!-- custom: runtime geometry wrapper to mirror Info/Foreign advisor structure: keep resolution-dependent bounds in one place and out of init-time setup. (GPT-5.3-Codex) -->
+		if self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH is None:
+			self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH")
+		if self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES is None:
+			self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = gc.getDefineINT("SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES")
+		iRightSpaceForScoreboard = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		# <!-- custom: optional right-space replacement for scoreboard; on lower resolutions this lets users render a larger advisor so one more tech-tree column can be visible. (GPT-5.3-Codex) -->
+		if self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH > 0 and screen.getXResolution() < self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH:
+			iRightSpaceForScoreboard = self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES
+		if iRightSpaceForScoreboard < 0:
+			iRightSpaceForScoreboard = 0
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+			screen,
+			SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+			iRightSpaceForScoreboard,
+			SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR,
+			SAS_ADVISOR_BOTTOM_SPACE
+		)
+		self.iX_LEFT_START = 30
+		self.iX_LEFT_START_OR_PREREQS = 24
+		# <!-- custom: keep GP prefs aligned with the tech grid and Exit/footer anchors at any resolution. (GPT-5.3-Codex) -->
+		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
+		self.PREF_ICON_BOTTOM = self.H_SCREEN - SAS_ADVISOR_EXIT_Y_OFFSET + PREF_ICON_BOTTOM_FROM_EXIT_OFFSET
 
 	# Screen construction function
 	def interfaceScreen(self):
@@ -194,29 +220,6 @@ class CvTechChooser:
 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
 		screen = self.getScreen()
 
-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
-		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE is None:
-			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE")
-		
-		# <!-- custom: since various players may like a different visual design, give several tech tree dimensions -->
-		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE <= 0:
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 206
-			# <!-- custom: move bulbing indicators more to the left. (GPT-5.2-Codex (summarized)) -->
-			self.PREF_ICON_LEFT = 10
-			# <!-- custom: unlike bulbing indicators, the main tech grid's X starting position is still too far right vs bulbing in-game; reduce to fit the last column. (GPT-5.2-Codex (summarized)) -->
-			extraXAdjust = -5
-			self.iX_LEFT_START = 10 + extraXAdjust
-			self.iX_LEFT_START_OR_PREREQS = 4 + extraXAdjust
-		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 1:
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
-			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
-		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 2:
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 105
-			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
-		else:
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0
-			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
-		
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
@@ -267,30 +270,8 @@ class CvTechChooser:
 			screen.hide("AddTechButton")
 
 # BUG - Tech Screen Resolution - start
-		#BugOpt.isWideTechScreen() and # advc.004: No longer optional
-		# <!-- custom: simplify and rework the old wide-screen sizing logic. (GPT-5.2-Codex (summarized)) -->
-		# if screen.getXResolution() > 1024:
-		# 	xPanelWidth = screen.getXResolution() - 60 - 500
-		# else:
-		# 	xPanelWidth = 1024
-		# yPanelHeight = 768
-		# <!-- custom: preserve key display (commerce sliders, scoreboard, etc.) while maximizing game window usage. (GPT-5.2-Codex (summarized)) -->
-		
-		# <!-- custom: unlike in the foreign advisor and similar files, self.X_SCREEN/self.Y_SCREEN/etc. are initialized in interfaceScreen, so we can use the real screen resolution here. In those files, screen wasn't available in init and trying it caused crashes, so they keep hardcoded 1920x1080 minus gaps. This uses the available screen var to stay fully dynamic; per Gemini 3 Pro advice and empirical checks. (GPT-5.2-Codex (summarized)) -->
-
-		wLeftSpace = 0
-		self.X_SCREEN = wLeftSpace
-		# <!-- custom: wide enough to preserve the right panel (scoreboard, map, etc.); less conservative on the left so it is not centered and sits closer to the left. (GPT-5.2-Codex (summarized)) -->
-		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
-		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
-
-		# <!-- custom: 115 or higher adds an annoying vertical scrolling arrow on the right; 114 still shows the commerce sliders, so use 114. (GPT-5.2-Codex (summarized)) -->
-		hTopSpaceForCommerceSliders = 114
-		self.Y_SCREEN = hTopSpaceForCommerceSliders
-		hBottomSpace = 0
-		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
-		self.H_SCREEN = screen.getYResolution() - hTopSpaceForCommerceSliders - hBottomSpace
-
+		# <!-- custom: Tech Chooser now follows the same runtime-layout template as Foreign/Info screens: compute all screen-dependent bounds in interfaceScreen via shared SAS helper formulas. (GPT-5.3-Codex) -->
+		self.updateRuntimeLayout(screen)
 		xPanelWidth = self.W_SCREEN
 		yPanelHeight = self.H_SCREEN
 
@@ -1257,7 +1238,7 @@ class CvTechChooser:
 			return
 		# <advc.004a>
 		iX = self.PREF_ICON_LEFT 
-		iY = PREF_ICON_BOTTOM
+		iY = self.PREF_ICON_BOTTOM
 		# </advc.004a>
 
 		# Always redraw the GP icons because otherwise they are prone to disappearing

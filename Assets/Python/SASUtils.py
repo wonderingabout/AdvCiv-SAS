@@ -23,7 +23,6 @@ SAS_ADVISOR_EXIT_X_OFFSET = 30
 SAS_ADVISOR_EXIT_Y_OFFSET = 42
 SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET = 55
 
-
 # <!-- custom: shared runtime advisor bounds (screen-dependent) and shared title/exit/link anchors; callers pass screen and configured margins from __init__. (GPT-5.3-Codex) -->
 def getAdvisorRuntimeBounds(screen, iLeftSpace, iRightSpace, iTopSpace, iBottomSpace):
 	iXScreen = iLeftSpace
