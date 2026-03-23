@@ -500,8 +500,13 @@ class CvInfoScreen:
 		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
 
 		# LOG button - positioned in top header bar (0-55px height)
-		self.W_HISTORY_TABLE_LOG_BUTTON = 48
-		self.H_HISTORY_TABLE_LOG_BUTTON = 28
+		# <!-- custom: scale History log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
+		if getSASUIFontBody() > 2:
+			self.W_HISTORY_TABLE_LOG_BUTTON = 60
+			self.H_HISTORY_TABLE_LOG_BUTTON = 30
+		else:
+			self.W_HISTORY_TABLE_LOG_BUTTON = 48
+			self.H_HISTORY_TABLE_LOG_BUTTON = 28
 		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
 		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
 
@@ -578,7 +583,7 @@ class CvInfoScreen:
 		demographics_Y_TEXT_BUFFER = 43
 
 		# <!-- custom: make these dimensions as parameters so we can control them at init rather where more of the info is centralized. -->
-		self.W_DEMOGRAPHICS_COL_DEM = 260
+		self.W_DEMOGRAPHICS_COL_DEM = 320
 		demographicsNumericalColsW = 150
 		demographicsRivalColsW = 220
 		self.W_DEMOGRAPHICS_COL_VALUE = demographicsNumericalColsW
@@ -613,7 +618,7 @@ class CvInfoScreen:
 		# TOP CITIES
 
 		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
-		self.W_WONDERS_RIGHT_PANE = 640
+		self.W_WONDERS_RIGHT_PANE = 765
 		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
 		self.W_WONDERS_INTER_PANE_GAP = self.X_MARGIN
 
@@ -697,9 +702,11 @@ class CvInfoScreen:
 
 		self.W_WONDERS_CHART_COL_BUTTON = 30
 		self.WONDERS_COL_MOVE_TO_CITY_ID = 4
-		self.W_WONDERS_CHART_COL_DATE = 85
-		self.W_WONDERS_CHART_COL_OWNER = 145
-		self.W_WONDERS_CHART_COL_CITY = 145
+		# <!-- custom: rebalanced Wonders table after widening the Wonders pane and shrinking Top 5 Cities:
+		# allocate roughly half of the gained width to Name (residual column) and the other half to Date/Owner/City. (GPT-5.3-Codex) -->
+		self.W_WONDERS_CHART_COL_DATE = 110
+		self.W_WONDERS_CHART_COL_OWNER = 155
+		self.W_WONDERS_CHART_COL_CITY = 155
 		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
 		self.W_WONDERS_CHART_COL_NAME = self.W_WONDERS_CHART - totalWondersCharMostColsW
 
