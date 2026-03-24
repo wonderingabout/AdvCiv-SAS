@@ -22,6 +22,7 @@ import PlayerUtil
 import TechUtil
 from SASFontUtils import *
 import SASTextScale
+from SASUtils import *
 # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
 import TraitUtil
 
@@ -84,19 +85,10 @@ class CvVictoryScreen:
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
 		self.DZ = -0.2
 
-		self.X_SCREEN = 500
-		self.Y_SCREEN = 396
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
 		self.Y_TITLE = 12
-
-		self.X_EXIT = 994
-		self.Y_EXIT = 726
 
 		self.X_AREA = 10
 		self.Y_AREA = 60
-		self.W_AREA = 1010
-		self.H_AREA = 650
 
 		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
 		someWRoomForCulturePercentages = 27
@@ -137,7 +129,6 @@ class CvVictoryScreen:
 
 		self.X_LINK = 100
 		self.DX_LINK = 220
-		self.Y_LINK = 726
 		self.MARGIN = 20
 		# <advc.004> Panel width increased; especially for change advc.708 (display of player handicap on one line).
 		self.SETTINGS_PANEL_X1 = 30 # was 50
@@ -165,6 +156,25 @@ class CvVictoryScreen:
 
 		# <!-- custom: language tracking for initText, based on Info Screen pattern (claude opus 4.5) -->
 		self.iLanguageLoaded = -1
+
+		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
+		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
+		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
+
+	def updateRuntimeLayout(self, screen):
+		# <!-- custom: runtime-only geometry (X/Y/W/H anchors and content areas) is computed here from actual resolution; we intentionally avoid init-time placeholders for these screen-dependent values. (GPT-5.3-Codex) -->
+		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+			screen,
+			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+			self.H_TOP_SPACE_FOR_TECH_BAR,
+			self.H_BOTTOM_SPACE
+		)
+		self.X_SCREEN, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+		self.W_AREA = self.W_SCREEN - 14
+		self.H_AREA = self.H_SCREEN - 118
 
 	# <!-- custom: initialize text and image tags once for performance, based on Info Screen pattern (claude opus 4.5) -->
 	def initText(self):
@@ -281,6 +291,7 @@ class CvVictoryScreen:
 			return
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+		self.updateRuntimeLayout(screen)
 
 		self.iActivePlayer = CyGame().getActivePlayer()
 		if self.iScreen == -1:
@@ -289,9 +300,9 @@ class CvVictoryScreen:
 		# Set the background widget and exit button
 		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground( False )
-		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+		screen.setDimensions(self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN)
 		screen.setText(self.EXIT_ID, "Background", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
 
 		# Header...
