@@ -197,6 +197,9 @@ class CvVictoryScreen:
 		self.TEXT_LEGENDARY_CITIES = localText.getText("TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES", ())
 		self.TEXT_POPUP_PASSED = localText.getText("TXT_KEY_POPUP_PASSED", ())
 		self.TEXT_NOT_YET_BUILT = localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ())
+		self.TEXT_VOTE_SOURCE_NOT_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE", ())
+		self.TEXT_MEMBERS_NO_VOTING_YET = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET", ())
+		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
 
 		# <!-- custom: precompute fully formatted strings that never change (claude opus 4.5) -->
 		self.szConquestText = u"%c %s" % (self.iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
@@ -323,19 +326,17 @@ class CvVictoryScreen:
 			screen.setText(self.SETTINGS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		xLink += self.DX_LINK
 
-		if self.bVoteTab:
-			if (self.iScreen != UN_RESOLUTION_SCREEN):
-				screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_VOTING_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			else:
-				screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_VOTING_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			xLink += self.DX_LINK
-			# advc.703: Merge Members into Resolutions when R&F enabled
-			if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
-				if (self.iScreen != UN_MEMBERS_SCREEN):
-					screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				else:
-					screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MEMBERS_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				xLink += self.DX_LINK
+		# <!-- custom: always show Voting/Members tabs for exhaustive navigation, even when no vote source is currently active; empty screens are preferable to hidden tabs so users can discover all sections. (GPT-5.3-Codex) -->
+		if (self.iScreen != UN_RESOLUTION_SCREEN):
+			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_VOTING_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		else:
+			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_VOTING_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		xLink += self.DX_LINK
+		if (self.iScreen != UN_MEMBERS_SCREEN):
+			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		else:
+			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MEMBERS_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		xLink += self.DX_LINK
 		# <advc.703>
 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
 			if self.iScreen != RF_SCORE_SCREEN:
@@ -344,6 +345,64 @@ class CvVictoryScreen:
 				screen.setText(self.RF_SCORE_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_GAME_SCORE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLink += self.DX_LINK
 		# </advc.703>
+
+	def drawVoteSourceInactiveFallback(self, szIntroText, aiVoteBuildingClass):
+		screen = self.getScreen()
+		screen.addPanel(self.getNextWidgetName(), "", "", False, False, self.X_AREA-10, self.Y_AREA-15, self.W_AREA+20, self.H_AREA+30, PanelStyles.PANEL_STYLE_BLUE50)
+		szTable = self.getNextWidgetName()
+		screen.addTableControlGFC(szTable, 2, self.X_AREA, self.Y_AREA, self.W_AREA, self.H_AREA, False, False, self.iLeaderButtonSize, self.iLeaderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSelect(szTable, False)
+		screen.setTableColumnHeader(szTable, 0, "", self.TABLE2_WIDTH_0)
+		screen.setTableColumnHeader(szTable, 1, "", self.TABLE2_WIDTH_1)
+
+		# <!-- custom: shared fallback table for empty vote-source tabs (Voting/Members). Keep exhaustive tab navigation, show caller-specific intro text, and list required vote wonders with built/active state. (GPT-5.3-Codex) -->
+		iRow = screen.appendTableRow(szTable)
+		self.setTableTextScaled(screen, szTable, 0, iRow, szIntroText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+		dRequirements = {}
+		for (iVoteSource, iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
+			if not dRequirements.has_key(iVoteSource):
+				dRequirements[iVoteSource] = (iVoteBuildingClass, iUNTeam, bUnknown)
+
+		if len(dRequirements) == 0:
+			for iBuilding in range(gc.getNumBuildingInfos()):
+				iVoteSource = gc.getBuildingInfo(iBuilding).getVoteSourceType()
+				if iVoteSource >= 0 and not dRequirements.has_key(iVoteSource):
+					iBuildingClass = gc.getBuildingInfo(iBuilding).getBuildingClassType()
+					iUNTeam = -1
+					bUnknown = true
+					for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
+						if (gc.getTeam(iLoopTeam).isAlive() and not gc.getTeam(iLoopTeam).isMinorCiv() and not gc.getTeam(iLoopTeam).isBarbarian()):
+							if (gc.getTeam(iLoopTeam).getBuildingClassCount(iBuildingClass) > 0):
+								iUNTeam = iLoopTeam
+								if (iLoopTeam == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getGame().isDebugMode() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iLoopTeam)):
+									bUnknown = false
+								break
+					dRequirements[iVoteSource] = (iBuildingClass, iUNTeam, bUnknown)
+
+		aiVoteSources = dRequirements.keys()
+		aiVoteSources.sort()
+		for iVoteSource in aiVoteSources:
+			iVoteBuildingClass, iUNTeam, bUnknown = dRequirements[iVoteSource]
+			iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
+			szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
+			szSource = gc.getVoteSourceInfo(iVoteSource).getDescription()
+			iRow = screen.appendTableRow(szTable)
+			self.setTableTextScaled(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			if gc.getGame().isDiploVote(iVoteSource):
+				if iUNTeam != -1:
+					if bUnknown:
+						szTeamName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+					else:
+						szTeamName = gc.getTeam(iUNTeam).getName()
+					szStatus = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szTeamName, ))
+				else:
+					szStatus = self.TEXT_NOT_YET_BUILT
+			else:
+				szStatus = self.TEXT_NOT_ACTIVE_SHORT
+			self.setTableTextScaled(screen, szTable, 1, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+		self.drawTabs()
 
 	def showVotingScreen(self):
 		self.deleteAllWidgets()
@@ -369,6 +428,7 @@ class CvVictoryScreen:
 					aiVoteBuildingClass.append((j, gc.getBuildingInfo(i).getBuildingClassType(), iUNTeam, bUnknown)) # K-Mod
 
 		if (len(aiVoteBuildingClass) == 0):
+			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
 			return
 
 		screen = self.getScreen()
@@ -393,8 +453,10 @@ class CvVictoryScreen:
 				# self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		#for i in range(gc.getNumVoteSourceInfos()):
+		bHasVotingRows = false
 		for (i, iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass: # K-Mod
 			if gc.getGame().isDiploVote(i): # K-Mod (previously no condition)
+				bHasVotingRows = true
 				# K-Mod
 				kVoteSource = gc.getVoteSourceInfo(i)
 				iRow = screen.appendTableRow(szTable)
@@ -464,6 +526,10 @@ class CvVictoryScreen:
 		# Remove the final empty row (K-Mod)
 		if screen.getTableNumRows(szTable) > 0:
 			screen.setTableNumRows(szTable, screen.getTableNumRows(szTable)-1)
+		if not bHasVotingRows:
+			self.deleteAllWidgets()
+			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
+			return
 		#
 		# <advc.703> Add info from Members tab
 		if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
@@ -477,8 +543,13 @@ class CvVictoryScreen:
 
 # BUG Additions Start
 	def showMembersScreen(self):
+		iRelVote, iRelVoteIdx, iUNVote, iUNVoteIdx  = self.getVoteAvailable()
+		if (iRelVote == -1 and iUNVote == -1):
+			self.deleteAllWidgets()
+			self.drawVoteSourceInactiveFallback(self.TEXT_MEMBERS_NO_VOTING_YET, [])
+			return
+
 		if AdvisorOpt.isMembers():
-			iRelVote, iRelVoteIdx, iUNVote, iUNVoteIdx  = self.getVoteAvailable()
 			if  iRelVote == -1:
 				self.VoteBody = 2 # AP Not active
 			elif iUNVote == -1:

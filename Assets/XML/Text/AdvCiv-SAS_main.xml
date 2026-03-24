@@ -719,6 +719,19 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
 		<English>Legendary cities</English>
 	</TEXT>
+	<!-- custom: fallback texts for Victory Advisor vote-source tabs when AP/UN entries are unavailable; keep tabs exhaustive and explain status clearly. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE</Tag>
+		<English>No resolution yet: requires one of the below.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET</Tag>
+		<English>No voting members yet: requires one of the below.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_NOT_ACTIVE_SHORT</Tag>
+		<English>Not active</English>
+	</TEXT>
 
 
 
