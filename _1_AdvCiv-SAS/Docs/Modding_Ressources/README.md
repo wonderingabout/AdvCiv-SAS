@@ -4,7 +4,7 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 
 ## Menu
 
-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast among other versions who/which could or not), feeding it the global search results of these entries and telling the format of the entries :) Thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them). If you want to know how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing)'s screenshots for details; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short).
+Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast among other versions who/which could or not), feeding it the global search results of these entries and telling the format of the entries :) Thanks a lot chatgpt 5 hehe (among other versions had i tried with them). If you want to know how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing)'s screenshots for details; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short).
 
 Note: do not remove the 2 spaces at the end of the links in the menu, or do so at your own risk xd (the difference is shown in the spoiler arrow below).
 
@@ -45,7 +45,7 @@ Instead of:
 [Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete) using regexp (with chatgpt 5's help) and vs code](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-how-to-fast-replace-many-redundant-entries-eg-400-strategy-entries-to-obsolete-using-regexp-with-chatgpt-5s-help-and-vs-code)  
 [Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)  
 [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
-[ICONS code XML names (may or not be exhaustive)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#icons-code-xml-names-may-or-not-be-exhaustive-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe)  
+[ICONS code XML names](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#icons-code-xml-names-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe)  
 [Insert an img in a text label in Sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
 [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building)  
 [(Not used anymore in advciv-sas) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)  
@@ -56,7 +56,7 @@ Instead of:
 [How to autoplay (let the AI play for you (super fast gameplay / testing tool)) in map (loaded save file, new game, etc.) view](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)  
 [Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor)  
 [Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display)  
-[Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but)  
+[Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time)  
 [Drive](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#drive)  
 
 ## Modding disclaimer and general information
@@ -85,7 +85,7 @@ Was not easy to find how so i am glad i found how so hopefully these instruction
 
 ### Download media assets for example on youtube
 
-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions: i have to cover myself xd.
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or use copyright-safe assets, at least it is your responsibility to do so, these are only provided as general instructions: i have to cover myself xd.
 
 Disclaimer 2: Specifically about downloading from youtube, it seems from chatgpt's explanation and what i understand of it that even if a media file is public domain, downloading it from youtube may violate a license for example if the recording is not public domain, it is your responsibility to verify and make sure you use a copyright-compliant media file for the general instructions below that i provide in hope they help and without any warranty, in addition to any disclaimers in main readme's copyright section and and in this modding_ressources section as well
 
@@ -101,17 +101,17 @@ Thanks for help thanks
 
 Here is now (I like this theatrical performance of an announcer i am performing xd and very excited to do so in my mind) an example of how to download one, for an audio asset for example here ! (,) As civ4 expects .mp3 files of a music without copyright claim on it, or "royalty free music" as it seems they call it (note: to be honest i think it's kinda shit (the music) but it is helpful and maybe not too bad, but thanks for that), for/to download(ing/) the entire media file as mp3 in this case if i'm not mistaken.
 
-But while writing this, it now played this very nice or cool/relaxing soft if as they say if i may say too in this caseor not or etc, from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example; also adding what i know of yt-dlp or not or yessuch as using `-x`
+But while writing this, it now played this very nice or cool/relaxing from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example; also adding `-x` in yt-dlp.
 
-(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs or not (untested but maybe or maybe not), also i prefer it more abstract i think? Not sure but is as it is, enable thumbnail if you want) (edit: also so i don't have to worry needlessly about whether/if the image itself is or may be copyrighted xd so hopefully or maybe best for all or in/for all cases or not or yes or etc but is as i want it at least in advciv-sas)
+(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs (untested), also so i don't have to worry needlessly about whether/if the image itself is or may be copyrighted xd)
 
 ```bash
 yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-metadata
 ```
 
-Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section for details still available...
+Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section for details still available.
 
-Here is an example of how to download same video/media file but from seconds 15 to seconds 45 (i.e. from 00:15 to 00:45 of the video/media file), not sure is best way to do it, may or not be, but at least seems to work; but since i couldn't find how exactly to download not best audio AND only a part of the video, then i asked chatgpt who told me how to do it so:
+Here is an example of how to download same video/media file but from seconds 15 to seconds 45 (i.e. from 00:15 to 00:45 of the video/media file), not sure is best way to do it, but at least seems to work; but since i couldn't find how exactly to download not best audio AND only a part of the video, then i asked chatgpt who told me how to do it so:
 
 ```bash
 yt-dlp -x --audio-format mp3 --postprocessor-args "-ss 00:00:15.000 -to 00:00:45.000" "https://www.youtube.com/watch?v=MM2-z8inpY8"
@@ -135,7 +135,7 @@ Note 2: there are other websites than youtube to download or find music, includi
 
 ### add media assets
 
-Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions; i have to cover myself xd.
+Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or use copyright-safe assets, at least it is your responsibility to do so, these are only provided as general instructions; i have to cover myself xd.
 
 To add music to a leader in advciv-sas for example (i assume would be the same or very similar in an advciv or civ4 based mod too), do a vs code global search for example of "ewuare_" (new leader we added in advciv-sas for the kingdom of benin) and see in audio xml files (and also a bit in leaderhead too if you track where the corresponding assets such as for example "DIPLO_EWUARE_EARLY" lead to in the leader head info xml file too) for an example of how we added his music.
 
@@ -153,7 +153,7 @@ See an example of this in the update note in [KI#51](/_1_AdvCiv-SAS/Docs/README_
 
 I have noticed while developing this advciv-sas mod at some point it is is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which. Not necessarily listing all changes, but the main ones or most relevant or important ones in importance i mean (redundant to say important importance) as bullet points or such as you prefer.
 
-Personally i do so in Notepad++ where i also store notes of ideas of things to add or not for example if i may say. I may often not look at it for a long time, and spend bit of time then sorting the ideas and organizing them or not but is very helpful so i would recommend this as well as part or and on top of in this case writing commit message notes in a .txt, i'd also recommend writing your ideas in another or same .txt if tidy or readable to you or some similar or as you prefer solution/idea.
+Personally i do so in Notepad++ where i also store notes of ideas of things to add for example. I may often not look at it for a long time, and spend bit of time then sorting the ideas and organizing them but is very helpful so i would recommend this as well as part or and on top of in this case writing commit message notes in a .txt, i'd also recommend writing your ideas in another or same .txt if tidy or readable to you or some similar or as you prefer solution/idea.
 
 I started this habit somewhere in this advciv-sas mod development i mean but is very helpful, so adding mention of it if helps.
 
@@ -213,7 +213,7 @@ A more advanced version would allow to better control the date we set to the tag
 
 To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functionnal (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally if i may say just in case))
 
-##### example 1 with more advanced version (me totally not using it selfishly as storage (is my mod too but still)... Or i am indeed)
+##### example 1 with more advanced version (me totally not using it selfishly as storage. Or i am indeed xd i guess here)
 
 ```cmd
 git fetch origin
@@ -242,7 +242,7 @@ git push --force origin "$TAG"
 
 Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again for exhaustiveness) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful.
 
-##### example 2 with more advanced version (totally not shameless(or yes xd)) (but it might also help as well hopefully or not hopefully or yes or etc)
+##### example 2 with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)
 
 ```cmd
 git fetch origin
@@ -273,13 +273,13 @@ git push --force origin "$TAG"
 
 Similarly, i have found it very useful to keep a .txt copy of the docs i use, in particular technical ones, and such as the [AdvCiv_Base_Docs](/_0_Common_Docs/AdvCiv_Base_Doc/) in particular the [manual in .txt](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt)
 
-When doing a global search with VS Code for anything, as long as this manual.txt for example (or other files) are in the mods folders (anywhere, this/her is an example, anyways), then i can and may often (not guaranteed but maybe) also find useful information as part of my global search results.
+When doing a global search with VS Code for anything, as long as this manual.txt for example are in the mods folders (anywhere, this/her is an example, anyways), then i can and may often (not guaranteed but maybe) also find useful information as part of my global search results.
 
 Not necessarily for all docs, or may if you want, but sure is very convenient, hopefully helpful tip or maybe not etc anyways.
 
 #### advciv id changes manual.txt results
 
-note: about the below example, a global search on "HandicapIncrementTurns" directly rather may be more useful (see civ4handicapinfo xml 's code comment(s) for details), but this shows how to navigate the manual.txt and global search features for example how to use them, may not be the best example but hopefully works-functions-suits quite well here...
+note: about the below example, a global search on "HandicapIncrementTurns" directly rather may be more useful (see civ4handicapinfo xml 's code comment(s) for details), but this shows how to navigate the manual.txt and global search features for example how to use them.
 
 VS Code's (for example) global search can be useful in particular but not only, for example, to try to understand what advciv id changes do.
 
@@ -316,14 +316,14 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
 
 While there is some unrelated info of it/about it, some results may also help us also (in (trying to?)?) understanding what this 251 id change, or maybe rather for our need specifically what the `iAIHandicapIncrementTurns` tag/field does.
 
-One of the main points of this is also to show a manual.txt is much easier to navigate and search on that the .pdf version of it, with VS Code global search or even with a normal text editor or such when simply looking for fast (access) info rather than detailed and nicely displayed one...
+One of the main points of this is also to show a manual.txt is much easier to navigate and search on that the .pdf version of it, with VS Code global search or even with a normal text editor or such when simply looking for fast (access) info rather than detailed and nicely displayed one.
 
 ### Sources about XML AI Attributes and their meaning
 
-Please read these docs (highly recommended) if you want to know more about AI attributes:
+You can read these docs if you want to know more about AI attributes:
 
 - [kujira's website](https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange) or for example list of unitAIs [kujira](https://gforestshade.github.io/kujira/post/keyichiran/#%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88) and
-[cfc forum with what they do (may be accurate or not anyways)](https://forums.civfanatics.com/threads/list-of-unitais-and-what-they-do.353919/post-8910602), see also [translate to english using web browser trick/technique for/in kujira's website](https://github.com/wonderingabout/kujira)
+[cfc forum with what they do](https://forums.civfanatics.com/threads/list-of-unitais-and-what-they-do.353919/post-8910602), see also [translate to english using web browser trick/technique for/in kujira's website](https://github.com/wonderingabout/kujira)
 - [modiki civfanatics website](https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos) or [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos) for example
 - [wikidot website for example for bonusinfos](http://civ4.wikidot.com/xml:civ4bonusinfos)
 
@@ -331,13 +331,12 @@ Please read these docs (highly recommended) if you want to know more about AI at
 
 - many links in the main README.md first for example maybe indeed in the [main README.md 's page link](/README.md)
 - todo: tutorial on how to compile the DLL or files for Advciv (but should not be needed if you only modify XML files)
-- [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what i use thanks to the person(s) who taught me about it) or other uses or such.
-- inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not, hopefully helpful
-- todo add links if i have/want(/do) more to add
+- [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is helpful) here in advciv-sas, in the file [civ4bug_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example).
+- inspecting an object, see for example, one way i found it to work is using `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it, with the help of Claude AI thanks
 
 ## In case UnitAIs info from link above is deleted someday, here is a copy here in case
 
-quote from website linked before, and adjusted or not or yes for AdvCiv-SAS (mod +/- project) :
+quote from website linked before, and adjusted for AdvCiv-SAS:
 
 ```text
 This is based on BBAI, so default BtS may be slightly different:
@@ -487,7 +486,7 @@ I don't know too much about these nor can really read these .dmp files, but Visu
 
 The exception/error info as well as possibly some other things i don't know about could help pinpoint the crash possible type of cause or try to solve it or such.
 
-I don't know too much about these but i thought i'd compile (no pun) this info quick if helps, hopefully helpful or not or yes or etc.
+I don't know too much about these but i thought i'd compile (no pun) this info quick if helps.
 
 To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-reproducible-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-check-if-accurate).
 
@@ -570,7 +569,7 @@ Sometimes the differences are small, sometimes the differences are huge as here,
 
 In this case i guess they changed the way old code worked or split it among other files or did some massive change that would explain the difference, but check if accurate as these are also just guesses of mine that may be accurate but i don't know for sure.
 
-Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe or not as removing maybe doesn't require asking as weird as it is maybe check if accurate too in license section of this mod's main readme if in doubt or to be sure)).
+Also as a corollary of this, if you see many versions of an asset, say `UNIT_WARRIOR` in different versions of unit infos, and you want to import it in your mod and modify it if not already there, generally i would say import latest version of it (so the BTS one), or you could even fetch it / steal it xd from other mods if they are okay with it (generally are but check as this is also just a guess, as for my mod generally fine too but read copyright and license section if you are in doubt or as the absolute reference despite what i said here in [README.md#license-and-reuse](/README.md#license-and-reuse) for the assets or any form of content i added or modified (or removed too but then you can't steal it xd if i may say unless you steal the idea then same applies maybe as removing maybe doesn't require asking as weird as it is maybe check if accurate too in license section of this mod's main readme if in doubt or to be sure)).
 
 Hopefully helpful.
 
@@ -653,7 +652,7 @@ In the following example of code, please note that there is a specific order of 
 </ProcessInfo>
 ```
 
-## ICONS code XML names (may or not be exhaustive) (with some color changing code as bonus or to be extra exhaustive a bit more than needed but is here if needed maybe)
+## ICONS code XML names (with some color changing code as bonus or to be extra exhaustive a bit more than needed but is here if needed maybe)
 
 from: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvDllTranslator.cpp`
 
@@ -788,15 +787,15 @@ note 4: we later also used this approach for emojis in our Sevopedia leader's ai
 
 See steps in screenshots in [this google drive folder (impluvium imported as nif)](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)
 
-In this example the nif was in a .fpk, but i assume it would work similarly if files were scattered in a folder raw...
+In this example the nif was in a .fpk, but i assume it would work similarly if files were scattered in a folder raw.
 
-Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful too for those who want to try it or not or maybe is helpful...
+Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful.
 
 Note: be careful, in some mods/cases the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, see screenshots in the drive link above for details/example), in such cases, i would recommend rather to use PakBuild, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details; note 2 about this: in some mods like c2c for example, unpacking in a fodler where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph
 
-note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer so can't find it in the ri mod, a hint to that may be if a ctrl+f of the filename for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists in base civ4), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 one so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hopefully i found the trick before ditching the ri mod files i had already downloaded, so all works, hopefully helpful...
+note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer so can't find it in the ri mod, a hint to that may be if a ctrl+f of the filename for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists in base civ4), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 one so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hopefully i found the trick before ditching the ri mod files i had already downloaded, so all works.
 
-Like this for example if it helps too... (not sayin this is a standard or ideal to follow, but free or fine maybe to do just i don't know if is best practice or such, but since it works-functions you may use freely this template, evn if it didn't work btw maybe, regardless in all cases here is an example that hopefully or maybe helps but in all cases)
+Like this for example if it helps too. (not saying this is a standard or ideal to follow, just how i do it so far)
 
 ```xml
 			<NIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal.nif</NIF>
@@ -804,17 +803,17 @@ Like this for example if it helps too... (not sayin this is a standard or ideal 
 			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
 ```
 
-note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder, so with nifskope (see screenshots in drive link in this section of the readme), for example for the usa_patriot of/in advciv-sas, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_americawhere the remaining and what i expected to be allunit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!!. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty in this case)... hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful
+note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder, so with nifskope (see screenshots in drive link in this section of the readme), for example for the usa_patriot of/in advciv-sas, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_americawhere the remaining and what i expected to be allunit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!!. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty in this case). hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful
 
-note 3.2 / update: i have found that as of now for ri mod in particular, downloading the SVN version (for example with TortoiseSVN as they recommend it on their website) allows to have directly all the asset files, which is extremely convenient, no need to browse through fpks painfully and very inefficiently!!!. Used for the mongol khishigten art assets! Thanks for assets to ri mod and for providing this version that happens to have no fpk to save my sanity and time or whatever or not or yes or etc.
+note 3.2 / update: i have found that as of now for ri mod in particular, downloading the SVN version (for example with TortoiseSVN as they recommend it on their website) allows to have directly all the asset files, which is extremely convenient, no need to browse through fpks painfully and very inefficiently!!!. Used for the mongol khishigten art assets! Thanks for assets to ri mod and for providing this version that happens to have no fpk to save my sanity and time or whatnot.
 
 ## (Not used anymore in advciv-sas) Example of how to add a static image file (such as .PNG, .JPG, etc) as a leader portrait
 
-Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful to me or others maybe so adding them for reference.
+Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful so adding them for reference.
 
 Note: if you want to add leaders or other kinds of button art assets or such, below instructions aim to help at that even though they may not be 100% accurate or best practive, but may be maybe or not; however it should also be noted that it may be easier to rather import existing art assets from many mods, but if you want to import your own manual art asset, perhaps as static images .dds files, this is how i do it, not guaranteed is best way to do it, may or may not be, but it worked and hopefully helpful enough if you want to do so, otherwise i would recommend in general or all cases to maybe import directy already refined art assets from other mods, adjust as you see fit.
 
-Leader dimensions obtained using Paint.NET manual selection (approximately but should be quite precise but not guaranteed may or not anyways) on a 4K screen windowed mode.
+Leader dimensions obtained using Paint.NET manual selection (approximately but should be quite precise) on a 4K screen windowed mode.
 
 First, AdvCiv (+/- / AdvCiv-SAS at least for now) base art dimensions:
 
@@ -826,7 +825,7 @@ Secondly, Realism invictus, used as reference:
 - in Sevopedia: 510 x 620     (ratio: 0,8226)   ;    (reverse-ratio: 1,2157)
 - ingame diplomacy: 708 x 866 (ratio: 0,8175)   ;    (reverse-ratio: 1,2231)
 
-Thirdly, example of use (not guaranteed to be accurate, may or not be, may help or not, i hope though so but not guaranteed, may or not ):
+Thirdly, example of use:
 
 Kingdom of Benin:
 
@@ -865,7 +864,7 @@ image: 499 x 610
 
 (note 2: it is also Realism Invictus who gave me indirectly the idea to do this non ratio (2nd) resize, now my image as theirs do not maintain aspect ratio)
 
-- finally, save the image as a .dds file using Paint.NET still (for example), (may use for example maybeDXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far todo or not ) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or maybe other specialized places/sources if you want a more specific or detailed or accurate info maybe)
+- finally, save the image as a .dds file using Paint.NET still (for example), (may use for example maybeDXT1 with mip maps (Bicubic) and keep gamma correction enabled, or DXT5 with mip maps (not tried so far) for example if you need/use transparency (i don't know a lot about this, is according to ChatGPT's info, which seems accurate about this at least ) and i don't know if gamma would be needed or best desired here too maybe, refer to ChatGPT or maybe other specialized places/sources if you want a more specific or detailed or accurate info maybe)
 
 - ingame check result, in my case looks very nice or as nice as could i think with starting image, displays well in (ingame) Sevopedia leader view and ingame diplomacy
 
@@ -873,7 +872,7 @@ This is just an example, adapt as you see fit
 
 ## (Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file (such as .PNG, .JPG, etc) (ideally from the leader head image portrait if any, but if i may say)
 
-Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful to me or others maybe so adding them for reference.
+Old information from my notes, as we now we use leader portraits (nif) with an animation, and while doing so also imported the corresponding .dds button that the mod where we imported the .nif animation and such from also had (this .dds button), so we don't make leader .dds buttons from our own leader static images anymore as of now at least in advciv-sas, but an earlier version used static images if i may say and am not mistaken in saying so. But these instructions may be helpful so adding them for reference.
 
 Fourthly, then for the leaderhead button (mini icon of the leader in the Sevopedia), since now the final dimension displayed is no longer a portrait (no 256 x 512 stretched to 512 x 512 if am not mistaken, so we can directly crop select at 64 x 64 for such a button (leader icon without any resize (stretching or compression of ratio or anything that alters ratio this time)) from the native image (for example .png, any size should do fine too so ideally take the original image if you still have it, else maybe the .dds (unstretched)) should maybe do fine anyways)
 
@@ -881,10 +880,9 @@ So for example you can first make a 96 x 96 crop selection around his head with 
 
 Note: if at 64x64 your leader head is too big or maybe too small, you may try instead to make a bigger selection of say for example 96 x 96 or maybe even 128 x 128 (or any number inbetwwen like 105 x 105, 99 x 99, etc should maybe work too? (to try i didn't but if you want to try it)) and then resize it to 64x64, this way leader head would be smaller relatively to the 64 x 64 button.
 
-Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say 256x512 to 512x512 since 64x64 is alreayd square so just pick same format maybe or other and should maybe be good (check to be sure myinfo/thought/feel/intutiion about it is accurate or not anwyays etc)
+Then regenerate the .dds in a similar manner than for the full portrait, but no restretching from say 256x512 to 512x512 since 64x64 is alreayd square so just pick same format maybe not sure.
 
-And finally implement it (the .dds) in XML, looks very very good, at least for me i think may or not do further beautification or not such as rounded edges or other things or not, but more than good enough for my purpose and i do what i want if i want or not anyways, hope this helps or not maybe doesn't, but wanted to send/write this as well, may serve me to reference it later again, or
-someone else or other purpose
+And finally implement it (the .dds) in XML, looks very very good, at least for me i think might do further beautification such as rounded edges or other things, but more than good enough for my purpose, hope this helps.
 
 (note: again check all this to make sure my intution or if no or such is accurate or updated, hopefully helpful)
 
@@ -900,9 +898,9 @@ All image and .dds files at different sizes used in the below experiment/analysi
 
 I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in Sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't know that these are those.
 
-So i have converted it to various sizes with Paint.NET from .png to .dds, always exiting the program (Paint.NET) and reopening the original 1024 x 1024 generated .png of ChatGPT at each new size conversion, if size is smaller than original (1024), i would thus (to explain and be exhaustive) resize image, then save as .dds, then exit
+So i have converted it to various sizes with Paint.NET from .png to .dds, always exiting the program (Paint.NET) and reopening the original 1024 x 1024 generated .png of ChatGPT at each new size conversion, if size is smaller than original (1024), i would thus (to explain and be exhaustive) resize image, then save as .dds, then exit.
 
-The lines are for example like this, as one may expect (at least for the button path for the little or not little i know of it) maybe, but centralized in a similar or maybe rather same folder, for clearer reuse, import, export, path linking and or such or and not or and other or and not:
+The lines are for example like this:
 
 ```xml
 		<UnitArtInfo>
@@ -941,13 +939,13 @@ The results, minus the small and ideally not too altering + 2 to icon size i mad
 
 (In all cases) my general conclusion would be that (it seems that) a ratio slightly bigger than 1 (256:(162(+2))) seems to give best results, at least for the 256px on 164px ratio image example for .dds files.
 
-This may or not apply to buttons, but need to display them at same size than others in the end (else the "overflow" out of the button box like for the 84px button or 128px or 96px or bigger ones too, but they also do not overflow in the unit pane even if 1024 or 256 is way bigger than 512px, todo find how/why, and todo look ingame if images fit in the button box or "overflow" out of it too)
+The need is to display buttons at same size than others in the end (else the "overflow" out of the button box like for the 84px button or 128px or 96px or bigger ones too, but they also do not overflow in the unit pane even if 1024 or 256 is way bigger than 512px, todo find how/why, and todo look ingame if images fit in the button box or "overflow" out of it too)
 
 Ideally i would redo the experiment without the uneeded and inaccurate due to my misunderstanding + 2, but is tedious.
 
 Note: ingame (map and playing an actual game), the game crashes after a few turn with a 1024px, freezes without end seemingly at 256px so exiting it after a short time of a few seconds or such, and similarly at 128px when trying to enter debug mode just like in 128px, at least (all this happens) with default game settings which i don't know a lot about at least not now or and always or and not but in all cases, (so) not using them for now (or maybe a smaller size that doesn't crash or displays accurately) if not always
 
-Note 2: Among all those sizes, only 64px doesn'(t crash wit default settings at least as i said that i don't know a lot about or not at least for now or not or and always or and not maybe not or yes or and other or and not), they seem a bit slower to load even at 64px ingame as they sometimes do not show but there is a default archer button instead the first times, so for now until i investigate more about it/this and know better how it works, not using them, may be for always or and not or and other or and not
+Note 2: Among all those sizes, only 64px doesn't crash with default settings it seemst), they seem a bit slower to load even at 64px ingame as they sometimes do not show but there is a default archer button instead the first times, so for now until i investigate more about it/this and know better how it works, not using them
 
 ## How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)
 
@@ -986,7 +984,7 @@ Small sample below /example too:
 
 This was done by adding a new `buildBTradeString` function in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
 
-And with the big help or support for ideas i found myself too of chatgpt as usual or not usual or usual but in all cases
+And with the big help or support for ideas i found myself too of chatgpt thanks
 
 Since i didn't know how to do it, what helped me, with past CvGameTextMgr.cpp modifying experiences i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in Sevopedia unit's experiences in mind, was to search for one message that is displayed seemingly specifically in Sevopedia tech's placeSpecial.
 
@@ -996,7 +994,7 @@ So back to CvGameTextMgr.cpp, i found this "Enables Bridge Building".
 
 Then i could search which TXT_KEY uses this, and it is only once and specifically in CvGameTextMgr.cpp.
 
-So by mirroring the functionning of it, but with the new `<bTrade>` (see [kujira's website bTrade info for details](https://gforestshade.github.io/kujira/post/civ4techinfos/#btrade) (translate to english with google chrome or your web browser or such or similar) or and some similar or not website or not or yes tat has the info or not or yes or etcfor details or and other examples or not)
+So by mirroring the functionning of it, but with the new `<bTrade>` (see [kujira's website bTrade info for details](https://gforestshade.github.io/kujira/post/civ4techinfos/#btrade) (translate to english with google chrome or your web browser or such or similar))
 
 For example kujira's website says this (translated as such as explained before in previous paragraph/sentence just above  as of now in case paragraph(s)'s/sentence(s)'s order changed) provided for convenience:
 
@@ -1015,15 +1013,13 @@ So then with the big help of chatgpt and my own ideas too and digging, but and a
 
 I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefully helpful).
 
-After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h (header? After checking it seems to be this too indeede)during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly (ideally todo add tutorial on how to compile DLL for civ4 advciv at least as i had intended to but not sure, i would, however ideally i would greatly want to do sobut not guaranteed may or may not do as sad as is or is not is maybe as is or not or yes or not or other or etc but in all cases), delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL
+After all done, recompile the DLL, fix errors if any such as i had forgotten to add the .h  during compile, then again recompile (no fastdep as they seem to cause errors as well sometimes) cleanly, delete the old DLL rather than overwrite, in case we need to revert to old DLL or such, we have it as backup rather than it being lost if we simply copy pasted and overwrote old DLL.
 
 What is very nice is that this same code change also displays it in tech advisor (tech tree view, F6 key ingame) which i also wanted to do and didn't know how, so this is also my first successful modification of the ingame behaviour of the tech tree view (minus the iGridX and iGridY i did before as well as part of modding)
 
-This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod but i only glanced quick, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs or arbitrary sadly or not sadly techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way)
+This bTrade feature being displayed in placeSpecial should ideally have been part of civ4, so i hope players can now see this info if some techs use it (even though it seems in civ4 only future tech uses it, some mods seem to use it for several techs such as middle-earth mod but i only glanced quick, as for us in advciv-sas i intend to use it or at least try to use it if not more in a few key techs i want to use it at to prevent aggressive tech whoreism that is too advantageous to human players, while not forbidding tech trading altogether, hopefully more balanced and interesting this way)
 
-I also added the info about the full list of which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case fo the placeSpecial of Sevopedia tech and helpful maybe too or not or yes or etc.
-
-Mods are welcome to use this quite simple but still hopefully useful code as long as they quote me and authors in [README.md#authors](/README.md#authors) as being the authors with mod name, even though it is not an obligation, it is a kind request i make, hopefully this feature is helpful or not but not to change topic
+I also added the info about the full list of which techs are not tradeable in placeSpecial, hopefully not too redundant or spammy this way in this case of the placeSpecial of Sevopedia tech and helpful maybe.
 
 Note: later we also similarly changed the c++ so that we now also display the bRepeat info in tech advisor and Sevopedia tech, see also similarly buildBRepeatString
 
@@ -1031,9 +1027,9 @@ Note: later we also similarly changed the c++ so that we now also display the bR
 
 See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display) on how this was implemented (google drive with screenshots link there too hopefully helpful)
 
-## Example of performance optimization of python loading time (as in when we load the code) and loading times (as in code performance due to how it is optimized from what little or not little i know or and did of it)
+## Example of performance optimization of python loading time (as in when we load the code) and loading times
 
-The AI Personality feature in/of Sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+The AI Personality feature in/of Sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
 
 ## Drive
 

@@ -63,10 +63,23 @@ class CvCivicsScreen:
 			}
 
 		self.iActivePlayer = -1
+		self.iLanguageLoaded = -1
 
 		self.m_paeCurrentCivics = []
 		self.m_paeDisplayCivics = []
 		self.m_paeOriginalCivics = []
+
+	def initText(self):
+		# <!-- custom: cache Civics Advisor static UI text once per language to reduce repeated translator work and keep future multi-tab expansion centralized. Dynamic gameplay-state text remains computed at draw/update time. (GPT-5.3-Codex) -->
+		if self.iLanguageLoaded == CyGame().getCurrentLanguage() or not CyGame().isFinalInitialized():
+			return
+		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+
+		self.TEXT_CANCEL = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_EXIT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_REVOLUTION = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_CONCEPT_REVOLUTION", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_NO_UPKEEP = localText.getText("TXT_KEY_CIVICS_SCREEN_NO_UPKEEP", ())
 
 	def updateRuntimeLayout(self, screen):
 		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
@@ -106,6 +119,7 @@ class CvCivicsScreen:
 		screen = self.getScreen()
 		if screen.isActive():
 			return
+		self.initText()
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 
@@ -119,10 +133,10 @@ class CvCivicsScreen:
 		screen.addPanel( "CivicsTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
 		screen.addPanel( "CivicsBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground(False)
-		screen.setText(self.CANCEL_NAME, "Background", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_CANCEL, self.Y_CANCEL, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
+		screen.setText(self.CANCEL_NAME, "Background", self.TEXT_CANCEL, CvUtil.FONT_CENTER_JUSTIFY, self.X_CANCEL, self.Y_CANCEL, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
 
 		# Header...
-		screen.setText(self.TITLE_NAME, "Background", SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.TITLE_NAME, "Background", self.TEXT_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 		self.setActivePlayer(gc.getGame().getActivePlayer())						
 
@@ -281,7 +295,7 @@ class CvCivicsScreen:
 		if ((gc.getCivicInfo(iCivic).getUpkeep() != -1) and not activePlayer.isNoCivicUpkeep(iCivicOption)):
 			szHelpText = gc.getUpkeepInfo(gc.getCivicInfo(iCivic).getUpkeep()).getDescription()
 		else:
-			szHelpText = localText.getText("TXT_KEY_CIVICS_SCREEN_NO_UPKEEP", ())
+			szHelpText = self.TEXT_NO_UPKEEP
 
 		szHelpText += CyGameTextMgr().parseCivicInfo(iCivic, False, True, True)
 
@@ -315,6 +329,7 @@ class CvCivicsScreen:
 	def updateAnarchy(self):
 
 		screen = self.getScreen()
+		self.initText()
 
 		activePlayer = gc.getPlayer(self.iActivePlayer)
 
@@ -328,10 +343,10 @@ class CvCivicsScreen:
 		# Make the revolution button
 		screen.deleteWidget(self.EXIT_NAME)
 		if (activePlayer.canRevolution(0) and bChange):			
-			screen.setText(self.EXIT_NAME, "Background", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_CONCEPT_REVOLUTION", ( )).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_REVOLUTION, 1, 0)
+			screen.setText(self.EXIT_NAME, "Background", self.TEXT_REVOLUTION, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_REVOLUTION, 1, 0)
 			screen.show(self.CANCEL_NAME)
 		else:
-			screen.setText(self.EXIT_NAME, "Background", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ( )).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, -1)
+			screen.setText(self.EXIT_NAME, "Background", self.TEXT_EXIT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, -1)
 			screen.hide(self.CANCEL_NAME)
 
 		# Anarchy
