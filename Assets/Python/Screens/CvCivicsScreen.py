@@ -5,8 +5,8 @@ import CvUtil
 import ScreenInput
 import CvScreenEnums
 import CvScreensInterface
-from LayoutDict import gRect # advc.002b
 from SASFontUtils import *
+from SASUtils import *
 
 # globals
 gc = CyGlobalContext()
@@ -30,12 +30,11 @@ class CvCivicsScreen:
 		self.BACKGROUND_ID = "CivicsBackground"
 		self.HELP_HEADER_NAME = "CivicsScreenHeaderName"
 
-		self.H_SCREEN = 768
-		# advc.002b: (Original horizontal constants moved into interfaceScreen.)
-		# Almost the same value as HEADINGS_WIDTH (199) used to be;
-		# now only used for the panels that list the civics.
-		# Looks better to keep those in panels that fit snugly.
-		self.CIVIC_LIST_PANEL_WIDTH = 200
+		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen via shared SASUtils helpers. (GPT-5.3-Codex) -->
+		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
+		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 
 		self.HEADINGS_TOP = 70
 		self.HEADINGS_SPACING = 5
@@ -69,6 +68,23 @@ class CvCivicsScreen:
 		self.m_paeDisplayCivics = []
 		self.m_paeOriginalCivics = []
 
+	def updateRuntimeLayout(self, screen):
+		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+			screen,
+			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+			self.H_TOP_SPACE_FOR_TECH_BAR,
+			self.H_BOTTOM_SPACE
+		)
+		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+		self.X_CANCEL = self.W_SCREEN / 2
+		self.X_SCREEN = self.W_SCREEN / 2
+		self.Y_CANCEL = self.Y_EXIT
+		self.BOTTOM_LINE_WIDTH = self.W_SCREEN - 10
+		self.BOTTOM_LINE_TOP = self.Y_BOTTOM_PANEL - self.BOTTOM_LINE_HEIGHT - 23
+		self.HELP_BOTTOM = self.BOTTOM_LINE_TOP - 20
+		self.HEADINGS_WIDTH = (self.W_SCREEN - self.HEADINGS_SPACING) / gc.getNumCivicOptionInfos() - self.HEADINGS_SPACING
+
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.CIVICS_SCREEN)
 
@@ -93,31 +109,15 @@ class CvCivicsScreen:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 
-		# <advc.002b> Moved from __init__
-		# Set the margin based on the position of the end-turn button;
-		# that leaves the scoreboard visible in the background.
-		lEndTurnButton = gRect("EndTurnButton")
-		self.HORIZONTAL_MARGIN = screen.getXResolution() - lEndTurnButton.x() - lEndTurnButton.width() / 2
-		self.W_SCREEN = screen.getXResolution() - 2 * self.HORIZONTAL_MARGIN # was 1024
-		if self.W_SCREEN < 1024:
-			self.HORIZONTAL_MARGIN -= (1024 - self.W_SCREEN) / 2
-			self.W_SCREEN = 1024
-		self.BOTTOM_LINE_WIDTH = self.W_SCREEN - 10
-		self.X_EXIT = self.W_SCREEN - 30
-		# Was shifted to the right by 40. Let's place it in the dead center.
-		self.X_CANCEL = self.W_SCREEN / 2
-		# Used for title, revolution help, maintenance. Was shifted to the left by 12.
-		self.X_SCREEN = self.W_SCREEN / 2
-		self.HEADINGS_WIDTH = (self.W_SCREEN - self.HEADINGS_SPACING) / gc.getNumCivicOptionInfos() - self.HEADINGS_SPACING
-		# </advc.002b>
+		# <!-- custom: remove dependency on EndTurnButton geometry (old gRect-based margin). We now use shared advisor runtime bounds/anchors so civics layout follows the same resolution logic as other advisors and avoids coupling to HUD widget positions. (GPT-5.3-Codex) -->
+		self.updateRuntimeLayout(screen)
 	
 		# Set the background and exit button, and show the screen
-		# advc.002b: First param was screen.centerX(0)
-		screen.setDimensions(self.HORIZONTAL_MARGIN, screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+		screen.setDimensions(self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN)
 		# advc.002b (note): The background image has 2:1 dimensions, so the increased W_SCREEN value makes it less distorted than in BtS. (Except maybe on very high resolutions.)
 		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addPanel( "CivicsTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "CivicsBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "CivicsBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground(False)
 		screen.setText(self.CANCEL_NAME, "Background", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_CANCEL, self.Y_CANCEL, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
 
@@ -176,24 +176,19 @@ class CvCivicsScreen:
 
 		for i in range(gc.getNumCivicOptionInfos()):
 		
-			#fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
-			# <advc.002b>
-			iDeltaWidths = self.HEADINGS_WIDTH - self.CIVIC_LIST_PANEL_WIDTH
-			fX = iDeltaWidths / 2 + self.HEADINGS_SPACING + (self.CIVIC_LIST_PANEL_WIDTH + self.HEADINGS_SPACING + iDeltaWidths) * i # </advc.002b>
+			fX = self.HEADINGS_SPACING + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
 			fY = self.HEADINGS_TOP
 			
 			szAreaID = self.AREA_NAME + str(i)
 			screen = self.getScreen()
 			screen.addPanel(szAreaID, "", "", True, True,
-					# advc.002b: CIVIC_LIST_PANEL_WIDTH instead of HEADINGS_WIDTH
-					fX, fY, self.CIVIC_LIST_PANEL_WIDTH, self.HEADINGS_BOTTOM - self.HEADINGS_TOP,
+					fX, fY, self.HEADINGS_WIDTH, self.HEADINGS_BOTTOM - self.HEADINGS_TOP,
 					PanelStyles.PANEL_STYLE_MAIN)
 
 			screen.setLabel("", "Background",
 					SAS_FONT_TAG_LABEL + gc.getCivicOptionInfo(i).getDescription().upper() + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_CENTER_JUSTIFY,
-					# advc.002b: CIVIC_LIST_PANEL_WIDTH instead of HEADINGS_WIDTH
-					fX + self.CIVIC_LIST_PANEL_WIDTH / 2, self.HEADINGS_TOP + self.TEXT_MARGIN, 0,
+					fX + self.HEADINGS_WIDTH / 2, self.HEADINGS_TOP + self.TEXT_MARGIN, 0,
 					FontTypes.GAME_FONT,
 					WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
