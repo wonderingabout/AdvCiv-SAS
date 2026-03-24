@@ -170,7 +170,11 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
 
 ### Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)
 
-Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.).
+Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
+
+Also, advisors are now excentered so overall more information is displayed, thus reducing the need for scrolling, while still preserving key relevant information for display (scoreboard, map, commerce sliders and values, etc.). Note: some right space for scoreboard and top space for the top bars of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore).
+
+See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
 
 #### New Advisors
 
@@ -206,8 +210,6 @@ Added with the very nice help of GPT-5.3-Codex thanks.
 
 #### Advisor reworks
 
-We notably refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
-
 We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
@@ -227,8 +229,6 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (4).JPG" alt="0.517_victory_screen (4).JPG" width="250"></img>
-
-See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
 
 ### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
 

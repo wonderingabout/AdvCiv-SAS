@@ -5,6 +5,7 @@ import CvUtil
 import ScreenInput
 import CvScreenEnums
 from SASFontUtils import *
+from SASUtils import *
 
 #	IMPORTANT INFORMATION
 #	
@@ -26,6 +27,35 @@ class CvDomesticAdvisor:
 	#
 	def __init__(self):
 		self.listSelectedCities = []
+		# <!-- custom: keep screen-independent advisor edge constants in init; runtime resolution-dependent geometry is computed in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
+		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
+		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
+		self.nNormalizedTableWidth = 970
+		self.nFirstSpecialistX = 30
+		self.nSpecialistWidth = 32
+		self.nSpecialistLength = 32
+		self.nSpecialistDistance = 100
+		self.nPlusOffsetX = -4
+		self.nMinusOffsetX = 16
+		self.nPlusOffsetY = self.nMinusOffsetY = 30
+		self.nPlusWidth = self.nPlusHeight = self.nMinusWidth = self.nMinusHeight = 20
+		self.nSpecTextOffsetX = 40
+		self.nSpecTextOffsetY = 10
+
+	def updateRuntimeLayout(self, screen):
+		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
+			screen,
+			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+			self.H_TOP_SPACE_FOR_TECH_BAR,
+			self.H_BOTTOM_SPACE
+		)
+		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
+		self.nTableWidth = self.nScreenWidth - 35
+		self.nTableHeight = self.nScreenHeight - 85
+		self.nSpecialistY = self.nScreenHeight - 55
 		
 	# Screen construction function
 	def interfaceScreen(self):
@@ -34,41 +64,10 @@ class CvDomesticAdvisor:
 		
 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
-
-		# <!-- custom: further beautify: expand to all width (remove the - 30). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-		# <!-- custom: update: empty left/right edges remain at full resolution and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
-		# self.iExtraWidth = 0
-		self.iExtraWidth = 4
-		self.nScreenWidth = screen.getXResolution() + (2 * self.iExtraWidth)
-		# advc.120c: Was -250. Need a little more space for the HUD.
-		# <!-- custom: further beautify: reduce height so more selected unit rows/HUD show (was - 255). Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-		self.nScreenHeight = screen.getYResolution() - 305
-		self.nTableWidth = self.nScreenWidth - 35
-		self.nTableHeight = self.nScreenHeight - 85
-		self.nNormalizedTableWidth = 970
-
-		self.nFirstSpecialistX = 30
-		self.nSpecialistY = self.nScreenHeight - 55
-		self.nSpecialistWidth = 32
-		self.nSpecialistLength = 32
-		self.nSpecialistDistance = 100
-
-		# Offset from Specialist Image/Size for the Specialist Plus/Minus buttons
-		self.nPlusOffsetX = -4
-		self.nMinusOffsetX = 16
-		self.nPlusOffsetY = self.nMinusOffsetY = 30
-		self.nPlusWidth = self.nPlusHeight = self.nMinusWidth = self.nMinusHeight = 20
-
-		# Offset from Specialist Image for the Specialist Text
-		self.nSpecTextOffsetX = 40
-		self.nSpecTextOffsetY = 10
+		self.updateRuntimeLayout(screen)
 
 		screen.setRenderInterfaceOnly(True)
-		# advc.120c: y position changed from 100 to 85 so that the unit icons aren't obscured. The espionage slider isn't normally visible anyway.
-		# <!-- custom: further beautify: expand to full width by removing the extra X starting position; also move the screen lower so the espionage slider shows. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-		# screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
-		# <!-- custom: update: empty left/right edges remain and are distracting, so expand a bit beyond. (GPT-5.2-Codex (summarized)) -->
-		screen.setDimensions(-self.iExtraWidth, 105, self.nScreenWidth, self.nScreenHeight)
+		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 	
 		# Here we set the background widget and exit button, and we show the screen
@@ -77,7 +76,7 @@ class CvDomesticAdvisor:
 				SAS_FONT_TAG_TITLE + # advc.193
 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
 				+ SAS_FONT_TAG_CLOSE, # advc.193
-				CvUtil.FONT_RIGHT_JUSTIFY, self.nScreenWidth - 25, self.nScreenHeight - 45, -0.1,
+				CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, -0.1,
 				FontTypes.TITLE_FONT,
 				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
 
@@ -109,7 +108,7 @@ class CvDomesticAdvisor:
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		
 		# Zoom to City
-		screen.setTableColumnHeader( "CityListBackground", 0, "", (30 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 0, "", (24 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Name Column (advc.193: Font size increased; was 2.)
 		screen.setTableColumnHeader( "CityListBackground", 1, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + SAS_FONT_TAG_CLOSE, (221 * self.nTableWidth) / self.nNormalizedTableWidth )
@@ -158,7 +157,7 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( "CityListBackground", 14, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + SAS_FONT_TAG_CLOSE, (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Production Column (advc.193: Font size increased; was 2.)
-		screen.setTableColumnHeader( "CityListBackground", 15, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE, (132 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 15, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE, (138 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Liberate Column
 		#screen.setTableColumnHeader( "CityListBackground", 16, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
