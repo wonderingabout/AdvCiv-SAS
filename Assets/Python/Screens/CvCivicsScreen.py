@@ -13,22 +13,22 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-class CvCivicsScreen:
-	"Civics Screen"
+class CvPolicyScreen:
+	"Policy Screen"
 
 	def __init__(self):
-		self.SCREEN_NAME = "CivicsScreen"
-		self.CANCEL_NAME = "CivicsCancel"
-		self.EXIT_NAME = "CivicsExit"
-		self.TITLE_NAME = "CivicsTitleHeader"
-		self.BUTTON_NAME = "CivicsScreenButton"
-		self.TEXT_NAME = "CivicsScreenText"
-		self.AREA_NAME = "CivicsScreenArea"
-		self.HELP_AREA_NAME = "CivicsScreenHelpArea"
-		self.HELP_IMAGE_NAME = "CivicsScreenCivicOptionImage"
-		self.DEBUG_DROPDOWN_ID =  "CivicsDropdownWidget"
-		self.BACKGROUND_ID = "CivicsBackground"
-		self.HELP_HEADER_NAME = "CivicsScreenHeaderName"
+		self.SCREEN_NAME = "PolicyScreen"
+		self.CANCEL_NAME = "PolicyCancel"
+		self.EXIT_NAME = "PolicyExit"
+		self.TITLE_NAME = "PolicyTitleHeader"
+		self.BUTTON_NAME = "PolicyScreenButton"
+		self.TEXT_NAME = "PolicyScreenText"
+		self.AREA_NAME = "PolicyScreenArea"
+		self.HELP_AREA_NAME = "PolicyScreenHelpArea"
+		self.HELP_IMAGE_NAME = "PolicyScreenCivicOptionImage"
+		self.DEBUG_DROPDOWN_ID =  "PolicyDropdownWidget"
+		self.BACKGROUND_ID = "PolicyBackground"
+		self.HELP_HEADER_NAME = "PolicyScreenHeaderName"
 
 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen via shared SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
@@ -55,9 +55,9 @@ class CvCivicsScreen:
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 		self.Z_TEXT = self.Z_SCREEN - 0.2
 
-		self.CivicsScreenInputMap = {
-			self.BUTTON_NAME		: self.CivicsButton,
-			self.TEXT_NAME			: self.CivicsButton,
+		self.PolicyScreenInputMap = {
+			self.BUTTON_NAME		: self.PolicyButton,
+			self.TEXT_NAME			: self.PolicyButton,
 			self.EXIT_NAME			: self.Revolution,
 			self.CANCEL_NAME		: self.Cancel,
 			}
@@ -65,12 +65,12 @@ class CvCivicsScreen:
 		self.iActivePlayer = -1
 		self.iLanguageLoaded = -1
 
-		self.m_paeCurrentCivics = []
-		self.m_paeDisplayCivics = []
-		self.m_paeOriginalCivics = []
+		self.m_paeCurrentPolicies = []
+		self.m_paeDisplayPolicies = []
+		self.m_paeOriginalPolicies = []
 
 	def initText(self):
-		# <!-- custom: cache Civics Advisor static UI text once per language to reduce repeated translator work and keep future multi-tab expansion centralized. Dynamic gameplay-state text remains computed at draw/update time. (GPT-5.3-Codex) -->
+		# <!-- custom: cache Policy Advisor static UI text once per language to reduce repeated translator work and keep future multi-tab expansion centralized. Dynamic gameplay-state text remains computed at draw/update time. (GPT-5.3-Codex) -->
 		if self.iLanguageLoaded == CyGame().getCurrentLanguage() or not CyGame().isFinalInitialized():
 			return
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
@@ -106,13 +106,13 @@ class CvCivicsScreen:
 		self.iActivePlayer = iPlayer
 		activePlayer = gc.getPlayer(iPlayer)
 
-		self.m_paeCurrentCivics = []
-		self.m_paeDisplayCivics = []
-		self.m_paeOriginalCivics = []
+		self.m_paeCurrentPolicies = []
+		self.m_paeDisplayPolicies = []
+		self.m_paeOriginalPolicies = []
 		for i in range (gc.getNumCivicOptionInfos()):
-			self.m_paeCurrentCivics.append(activePlayer.getCivics(i))
-			self.m_paeDisplayCivics.append(activePlayer.getCivics(i))
-			self.m_paeOriginalCivics.append(activePlayer.getCivics(i))
+			self.m_paeCurrentPolicies.append(activePlayer.getCivics(i))
+			self.m_paeDisplayPolicies.append(activePlayer.getCivics(i))
+			self.m_paeOriginalPolicies.append(activePlayer.getCivics(i))
 
 	def interfaceScreen (self):
 
@@ -123,15 +123,15 @@ class CvCivicsScreen:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 
-		# <!-- custom: remove dependency on EndTurnButton geometry (old gRect-based margin). We now use shared advisor runtime bounds/anchors so civics layout follows the same resolution logic as other advisors and avoids coupling to HUD widget positions. (GPT-5.3-Codex) -->
+		# <!-- custom: remove dependency on EndTurnButton geometry (old gRect-based margin). We now use shared advisor runtime bounds/anchors so policy layout follows the same resolution logic as other advisors and avoids coupling to HUD widget positions. (GPT-5.3-Codex) -->
 		self.updateRuntimeLayout(screen)
 	
 		# Set the background and exit button, and show the screen
 		screen.setDimensions(self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN)
 		# advc.002b (note): The background image has 2:1 dimensions, so the increased W_SCREEN value makes it less distorted than in BtS. (Except maybe on very high resolutions.)
 		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.addPanel( "CivicsTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "CivicsBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "PolicyTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+		screen.addPanel( "PolicyBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground(False)
 		screen.setText(self.CANCEL_NAME, "Background", self.TEXT_CANCEL, CvUtil.FONT_CENTER_JUSTIFY, self.X_CANCEL, self.Y_CANCEL, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
 
@@ -147,7 +147,7 @@ class CvCivicsScreen:
 				if (gc.getPlayer(j).isAlive()):
 					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
 
-		screen.addPanel("CivicsBottomLine", "", "", True, True, self.HEADINGS_SPACING, self.BOTTOM_LINE_TOP, self.BOTTOM_LINE_WIDTH, self.BOTTOM_LINE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+		screen.addPanel("PolicyBottomLine", "", "", True, True, self.HEADINGS_SPACING, self.BOTTOM_LINE_TOP, self.BOTTOM_LINE_WIDTH, self.BOTTOM_LINE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
 
 		# Draw Contents
 		self.drawContents()
@@ -174,16 +174,16 @@ class CvCivicsScreen:
 		for j in range(gc.getNumCivicInfos()):
 
 			if (gc.getCivicInfo(j).getCivicOptionType() == iCivicOption):										
-				screen.setState(self.getCivicsButtonName(j), self.m_paeCurrentCivics[iCivicOption] == j)
+				screen.setState(self.getPolicyButtonName(j), self.m_paeCurrentPolicies[iCivicOption] == j)
 							
-				if (self.m_paeDisplayCivics[iCivicOption] == j):
-					#screen.setState(self.getCivicsButtonName(j), True)
-					screen.show(self.getCivicsButtonName(j))
+				if (self.m_paeDisplayPolicies[iCivicOption] == j):
+					#screen.setState(self.getPolicyButtonName(j), True)
+					screen.show(self.getPolicyButtonName(j))
 				elif (activePlayer.canDoCivics(j)):
-					#screen.setState(self.getCivicsButtonName(j), False)
-					screen.show(self.getCivicsButtonName(j))
+					#screen.setState(self.getPolicyButtonName(j), False)
+					screen.show(self.getPolicyButtonName(j))
 				else:
-					screen.hide(self.getCivicsButtonName(j))
+					screen.hide(self.getPolicyButtonName(j))
 								
 	# Will draw the radio buttons (and revolution)
 	def drawAllButtons(self):				
@@ -212,24 +212,24 @@ class CvCivicsScreen:
 				if (gc.getCivicInfo(j).getCivicOptionType() == i):										
 					fY += 2 * self.TEXT_MARGIN
 
-					screen.addCheckBoxGFC(self.getCivicsButtonName(j), gc.getCivicInfo(j).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), fX + self.BUTTON_SIZE/2, fY, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+					screen.addCheckBoxGFC(self.getPolicyButtonName(j), gc.getCivicInfo(j).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), fX + self.BUTTON_SIZE/2, fY, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 
-					screen.setText(self.getCivicsTextName(j), "", SAS_FONT_TAG_LABEL + gc.getCivicInfo(j).getDescription() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, fX + self.BUTTON_SIZE + self.TEXT_MARGIN, fY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setText(self.getPolicyTextName(j), "", SAS_FONT_TAG_LABEL + gc.getCivicInfo(j).getDescription() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, fX + self.BUTTON_SIZE + self.TEXT_MARGIN, fY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 			self.drawCivicOptionButtons(i)
 							
 	def highlight(self, iCivic):
 		iCivicOption = gc.getCivicInfo(iCivic).getCivicOptionType()
-		if self.m_paeDisplayCivics[iCivicOption] != iCivic:
-			self.m_paeDisplayCivics[iCivicOption] = iCivic
+		if self.m_paeDisplayPolicies[iCivicOption] != iCivic:
+			self.m_paeDisplayPolicies[iCivicOption] = iCivic
 			self.drawCivicOptionButtons(iCivicOption)
 			return True
 		return False
 		
 	def unHighlight(self, iCivic):		
 		iCivicOption = gc.getCivicInfo(iCivic).getCivicOptionType()
-		if self.m_paeDisplayCivics[iCivicOption] != self.m_paeCurrentCivics[iCivicOption]:
-			self.m_paeDisplayCivics[iCivicOption] = self.m_paeCurrentCivics[iCivicOption]
+		if self.m_paeDisplayPolicies[iCivicOption] != self.m_paeCurrentPolicies[iCivicOption]:
+			self.m_paeDisplayPolicies[iCivicOption] = self.m_paeCurrentPolicies[iCivicOption]
 			self.drawCivicOptionButtons(iCivicOption)
 			return True
 		return False
@@ -243,22 +243,22 @@ class CvCivicsScreen:
 		iCivicOption = gc.getCivicInfo(iCivic).getCivicOptionType()
 		
 		# Set the previous widget
-		iCivicPrev = self.m_paeCurrentCivics[iCivicOption]
+		iCivicPrev = self.m_paeCurrentPolicies[iCivicOption]
 		
 		# Switch the widgets
-		self.m_paeCurrentCivics[iCivicOption] = iCivic
+		self.m_paeCurrentPolicies[iCivicOption] = iCivic
 		
 		# Unighlight the previous widget
 		self.unHighlight(iCivicPrev)
-		self.getScreen().setState(self.getCivicsButtonName(iCivicPrev), False)
+		self.getScreen().setState(self.getPolicyButtonName(iCivicPrev), False)
 
 		# highlight the new widget
 		self.highlight(iCivic)		
-		self.getScreen().setState(self.getCivicsButtonName(iCivic), True)
+		self.getScreen().setState(self.getPolicyButtonName(iCivic), True)
 		
 		return 0
 
-	def CivicsButton(self, inputClass):
+	def PolicyButton(self, inputClass):
 	
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED) :
 			if (inputClass.getFlags() & MouseFlags.MOUSE_RBUTTONUP):
@@ -284,9 +284,9 @@ class CvCivicsScreen:
 	def drawHelpText(self, iCivicOption):
 		
 		activePlayer = gc.getPlayer(self.iActivePlayer)
-		iCivic = self.m_paeDisplayCivics[iCivicOption]
+		iCivic = self.m_paeDisplayPolicies[iCivicOption]
 
-		szPaneID = "CivicsHelpTextBackground" + str(iCivicOption)
+		szPaneID = "PolicyHelpTextBackground" + str(iCivicOption)
 		screen = self.getScreen()
 
 		szHelpText = u""
@@ -301,7 +301,7 @@ class CvCivicsScreen:
 
 		fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * iCivicOption
 
-		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background",  SAS_FONT_TAG_LABEL + gc.getCivicInfo(self.m_paeDisplayCivics[iCivicOption]).getDescription().upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.HELP_HEADER_NAME + str(iCivicOption), "Background",  SAS_FONT_TAG_LABEL + gc.getCivicInfo(self.m_paeDisplayPolicies[iCivicOption]).getDescription().upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH/2, self.HELP_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		fY = self.HELP_TOP - self.BIG_BUTTON_SIZE
 		szHelpImageID = self.HELP_IMAGE_NAME + str(iCivicOption)		
@@ -318,7 +318,7 @@ class CvCivicsScreen:
 
 			fX = self.HEADINGS_SPACING  + (self.HEADINGS_WIDTH + self.HEADINGS_SPACING) * i
 
-			szPaneID = "CivicsHelpTextBackground" + str(i)
+			szPaneID = "PolicyHelpTextBackground" + str(i)
 			screen = self.getScreen()
 			screen.addPanel(szPaneID, "", "", True, True, fX, self.HELP_TOP, self.HEADINGS_WIDTH, self.HELP_BOTTOM - self.HELP_TOP, PanelStyles.PANEL_STYLE_MAIN)
 
@@ -336,7 +336,7 @@ class CvCivicsScreen:
 		bChange = False
 		i = 0
 		while (i  < gc.getNumCivicOptionInfos() and not bChange):
-			if (self.m_paeCurrentCivics[i] != self.m_paeOriginalCivics[i]):
+			if (self.m_paeCurrentPolicies[i] != self.m_paeOriginalPolicies[i]):
 				bChange = True
 			i += 1		
 		
@@ -350,19 +350,19 @@ class CvCivicsScreen:
 			screen.hide(self.CANCEL_NAME)
 
 		# Anarchy
-		iTurns = activePlayer.getCivicAnarchyLength(self.m_paeDisplayCivics)
+		iTurns = activePlayer.getCivicAnarchyLength(self.m_paeDisplayPolicies)
 		
 		if (activePlayer.canRevolution(0)):
 			szText = localText.getText("TXT_KEY_ANARCHY_TURNS", (iTurns, ))
 		else:
 			szText = CyGameTextMgr().setRevolutionHelp(self.iActivePlayer)
 
-		screen.setLabel("CivicsRevText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.BOTTOM_LINE_TOP + self.TEXT_MARGIN//2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel("PolicyRevText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.BOTTOM_LINE_TOP + self.TEXT_MARGIN//2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Maintenance		
-		#szText = localText.getText("TXT_KEY_CIVIC_SCREEN_UPKEEP", (activePlayer.getCivicUpkeep(self.m_paeDisplayCivics, True), ))
-		szText = localText.getText("TXT_KEY_CIVIC_SCREEN_UPKEEP", (activePlayer.getCivicUpkeep(self.m_paeDisplayCivics, True)*(100+activePlayer.calculateInflationRate())/100, )) # K-Mod
-		screen.setLabel("CivicsUpkeepText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.BOTTOM_LINE_TOP + self.BOTTOM_LINE_HEIGHT - 2 * self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		#szText = localText.getText("TXT_KEY_CIVIC_SCREEN_UPKEEP", (activePlayer.getCivicUpkeep(self.m_paeDisplayPolicies, True), ))
+		szText = localText.getText("TXT_KEY_CIVIC_SCREEN_UPKEEP", (activePlayer.getCivicUpkeep(self.m_paeDisplayPolicies, True)*(100+activePlayer.calculateInflationRate())/100, )) # K-Mod
+		screen.setLabel("PolicyUpkeepText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.BOTTOM_LINE_TOP + self.BOTTOM_LINE_HEIGHT - 2 * self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 	# Revolution!!!
 	def Revolution(self, inputClass):
@@ -373,7 +373,7 @@ class CvCivicsScreen:
 			# advc.001d: Clause added to prevent revolution when viewing another civ's civics through the Debug menu
 			if self.iActivePlayer == gc.getGame().getActivePlayer() and activePlayer.canRevolution(0):
 				messageControl = CyMessageControl()
-				messageControl.sendUpdateCivics(self.m_paeDisplayCivics)			
+				messageControl.sendUpdateCivics(self.m_paeDisplayPolicies)			
 			screen = self.getScreen()
 			screen.hideScreen()
 
@@ -382,16 +382,16 @@ class CvCivicsScreen:
 		screen = self.getScreen()
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED) :
 			for i in range (gc.getNumCivicOptionInfos()):
-				self.m_paeCurrentCivics[i] = self.m_paeOriginalCivics[i]
-				self.m_paeDisplayCivics[i] = self.m_paeOriginalCivics[i]
+				self.m_paeCurrentPolicies[i] = self.m_paeOriginalPolicies[i]
+				self.m_paeDisplayPolicies[i] = self.m_paeOriginalPolicies[i]
 			
 			self.drawContents()
 			
-	def getCivicsButtonName(self, iCivic):
+	def getPolicyButtonName(self, iCivic):
 		szName = self.BUTTON_NAME + str(iCivic)
 		return szName
 
-	def getCivicsTextName(self, iCivic):
+	def getPolicyTextName(self, iCivic):
 		szName = self.TEXT_NAME + str(iCivic)
 		return szName
 
@@ -403,12 +403,12 @@ class CvCivicsScreen:
 			self.setActivePlayer(screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex))
 			self.drawContents()
 			return 1
-		elif (self.CivicsScreenInputMap.has_key(inputClass.getFunctionName())):	
-			'Calls function mapped in CvCivicsScreen'
+		elif (self.PolicyScreenInputMap.has_key(inputClass.getFunctionName())):	
+			'Calls function mapped in CvPolicyScreen'
 			# only get from the map if it has the key		
 
 			# get bound function from map and call it
-			self.CivicsScreenInputMap.get(inputClass.getFunctionName())(inputClass)
+			self.PolicyScreenInputMap.get(inputClass.getFunctionName())(inputClass)
 			return 1
 		return 0
 		

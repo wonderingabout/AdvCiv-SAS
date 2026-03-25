@@ -3541,14 +3541,18 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
 	</TEXT>
-	<!-- custom: advisor hotkey labels updated: Civics = F2, Finance = F3, Info Screen = F8, Victory Screen = F9 (renamed from Victory), Sevopedia = F12. (GPT-5.3-Codex) -->
+	<!-- custom: advisor hotkey labels updated: Policy = F2, Finance = F3, Info Screen = F8, Victory Screen = F9 (renamed from Victory), Sevopedia = F12. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_FINANCE_ADVISOR</Tag>
 		<English>Finance [F3]:</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Tag>
-		<English>Civics Advisor</English>
+		<English>Policy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVICS_SCREEN_TITLE</Tag>
+		<English>Policy Advisor</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_INFO_SCREEN</Tag>

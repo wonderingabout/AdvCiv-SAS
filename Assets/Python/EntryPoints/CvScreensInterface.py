@@ -101,10 +101,10 @@ hallOfFameScreen = CvHallOfFameScreen.CvHallOfFameScreen(HALL_OF_FAME)
 def showHallOfFame(argsList):
 	hallOfFameScreen.interfaceScreen(argsList[0])
 
-civicScreen = CvCivicsScreen.CvCivicsScreen()
+policyScreen = CvCivicsScreen.CvPolicyScreen()
 def showCivicsScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		civicScreen.interfaceScreen()
+		policyScreen.interfaceScreen()
 
 religionScreen = CvReligionScreen.CvReligionScreen()
 def showReligionScreen():
@@ -1185,7 +1185,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 #					DOMESTIC_ADVISOR : domesticAdvisor,
 					RELIGION_SCREEN : religionScreen,
 					CORPORATION_SCREEN : corporationScreen,
-					CIVICS_SCREEN : civicScreen,
+					CIVICS_SCREEN : policyScreen,
 					TECH_CHOOSER : techChooser,
 					FOREIGN_ADVISOR : foreignAdvisor,
 #					FINANCE_ADVISOR : financeAdvisor,
