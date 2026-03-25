@@ -1315,8 +1315,7 @@ bool CvGame::canDoControl(ControlTypes eControl) const
 	case CONTROL_DOMESTIC_SCREEN:
 	case CONTROL_VICTORY_SCREEN:
 	case CONTROL_CIVILOPEDIA:
-	case CONTROL_RELIGION_SCREEN:
-	case CONTROL_CORPORATION_SCREEN:
+	// <!-- custom: CONTROL_RELIGION_SCREEN / CONTROL_CORPORATION_SCREEN removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 	case CONTROL_FOREIGN_SCREEN:
 	case CONTROL_FINANCIAL_SCREEN:
@@ -1682,15 +1681,7 @@ void CvGame::doControl(ControlTypes eControl)
 		GC.getPythonCaller()->callScreenFunction("pediaShow");
 		break;
 
-	case CONTROL_RELIGION_SCREEN:
-		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGERELIGION); // advc.004x
-		GC.getPythonCaller()->showPythonScreen("ReligionScreen");
-		break;
-
-	case CONTROL_CORPORATION_SCREEN:
-		GC.getPythonCaller()->showPythonScreen("CorporationScreen");
-		break;
-
+	// <!-- custom: control handlers for Religion/Corporation removed after control enum cleanup. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGECIVIC); // advc.004x
 		GC.getPythonCaller()->showPythonScreen("CivicsScreen");

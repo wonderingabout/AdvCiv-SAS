@@ -624,41 +624,12 @@
 			<bCtrlDownAlt>0</bCtrlDownAlt>
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
-		<ControlInfo>
-			<Type>CONTROL_RELIGION_SCREEN</Type>
-			<Description>TXT_KEY_ACTION_SHOW_RELIGION_SCREEN</Description>
-			<Help/>
-			<HotKey>KB_F7</HotKey>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<HotKeyAlt/>
-			<bAltDownAlt>0</bAltDownAlt>
-			<bShiftDownAlt>0</bShiftDownAlt>
-			<bCtrlDownAlt>0</bCtrlDownAlt>
-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
-		</ControlInfo>
-		<ControlInfo>
-			<Type>CONTROL_CORPORATION_SCREEN</Type>
-			<Description>TXT_KEY_ACTION_SHOW_CORPORATION_SCREEN</Description>
-			<Help/>
-			<HotKey>KB_F7</HotKey>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>1</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<HotKeyAlt/>
-			<bAltDownAlt>0</bAltDownAlt>
-			<bShiftDownAlt>0</bShiftDownAlt>
-			<bCtrlDownAlt>0</bCtrlDownAlt>
-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
-		</ControlInfo>
+		<!-- custom: Civics/Finance hotkeys swapped so Civics = F2 and Finance = F3. (GPT-5.3-Codex) -->
 		<ControlInfo>
 			<Type>CONTROL_CIVICS_SCREEN</Type>
 			<Description>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Description>
 			<Help/>
-			<HotKey>KB_F3</HotKey>
+			<HotKey>KB_F2</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
@@ -688,7 +659,7 @@
 			<Type>CONTROL_FINANCIAL_SCREEN</Type>
 			<Description>TXT_KEY_FINANCIAL_ADVISOR_TITLE</Description>
 			<Help/>
-			<HotKey>KB_F2</HotKey>
+			<HotKey>KB_F3</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>

@@ -509,10 +509,11 @@
 	<English>While in the city screen, press [CTRL] and a number key to save the production queue. This queue can be loaded in any other city by pressing the number key again.</English>
 </TEXT>
 
+<!-- custom: rename "Victory Conditions" to "Victory Screen" -->
 <!-- advc.008c: Minor changes -->
 <TEXT>
 	<Tag>TXT_KEY_HINT_INTERFACE_68</Tag>
-	<English>To view your Spaceship, go to the "Victory Conditions" screen [F8] and press the "View" button next to "Space Race."</English>
+	<English>To view your Spaceship, go to the "Victory Screen" screen [F8] and press the "View" button next to "Space Race."</English>
 </TEXT>
 
 <!-- advc.008c: This needed some more explanation -->

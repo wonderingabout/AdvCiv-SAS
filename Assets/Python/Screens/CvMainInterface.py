@@ -1400,9 +1400,9 @@ class CvMainInterface:
 
 	def setAdvisorButtonRects(self):
 		iSize = BTNSZ(28)
-		# <!-- custom: advisor button order updated to Info then Victory after the F8/F9 swap. (GPT-5.3-Codex) -->
-		advisorNames = [ "Domestic", "Finance", "Civics", "Foreign", "Military", "Tech",
-				"Religious", "Corporation", "Info", "Victory" ]
+		# <!-- custom: advisor button order follows active shortcuts (F1/F2/F3...); Religion/Corporation buttons removed. (GPT-5.3-Codex) -->
+		advisorNames = [ "Domestic", "Civics", "Finance", "Foreign", "Military", "Tech",
+				"Info", "Victory" ]
 		if GameUtil.isEspionage():
 			advisorNames.append("Espionage")
 		iButtons = len(advisorNames)
@@ -2073,14 +2073,7 @@ class CvMainInterface:
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex())
 		screen.hide("TechAdvisorButton")
-		self.setStyledButton("ReligiousAdvisorButton", "Button_HUDAdvisorReligious_Style",
-				WidgetTypes.WIDGET_ACTION,
-				gc.getControlInfo(ControlTypes.CONTROL_RELIGION_SCREEN).getActionInfoIndex())
-		screen.hide("ReligiousAdvisorButton")
-		self.setStyledButton("CorporationAdvisorButton", "Button_HUDAdvisorCorporation_Style",
-				WidgetTypes.WIDGET_ACTION,
-				gc.getControlInfo(ControlTypes.CONTROL_CORPORATION_SCREEN).getActionInfoIndex())
-		screen.hide("CorporationAdvisorButton")
+		# <!-- custom: Religion/Corporation advisor HUD buttons removed; those screens are planned to be merged as Civics tabs. (GPT-5.3-Codex) -->
 		self.setStyledButton("VictoryAdvisorButton", "Button_HUDAdvisorVictory_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_VICTORY_SCREEN).getActionInfoIndex())
@@ -3178,8 +3171,6 @@ class CvMainInterface:
 			screen.hide("ForeignAdvisorButton")
 			screen.hide("TechAdvisorButton")
 			screen.hide("CivicsAdvisorButton")
-			screen.hide("ReligiousAdvisorButton")
-			screen.hide("CorporationAdvisorButton")
 			screen.hide("FinanceAdvisorButton")
 			screen.hide("MilitaryAdvisorButton")
 			screen.hide("VictoryAdvisorButton")
@@ -3209,8 +3200,6 @@ class CvMainInterface:
 			screen.hide("ForeignAdvisorButton")
 			screen.hide("TechAdvisorButton")
 			screen.hide("CivicsAdvisorButton")
-			screen.hide("ReligiousAdvisorButton")
-			screen.hide("CorporationAdvisorButton")
 			screen.hide("FinanceAdvisorButton")
 			screen.hide("MilitaryAdvisorButton")
 			screen.hide("VictoryAdvisorButton")
@@ -3241,8 +3230,6 @@ class CvMainInterface:
 			screen.show("ForeignAdvisorButton")
 			screen.show("TechAdvisorButton")
 			screen.show("CivicsAdvisorButton")
-			screen.show("ReligiousAdvisorButton")
-			screen.show("CorporationAdvisorButton")
 			screen.show("FinanceAdvisorButton")
 			screen.show("MilitaryAdvisorButton")
 			screen.show("VictoryAdvisorButton")
@@ -3265,8 +3252,6 @@ class CvMainInterface:
 			screen.moveToFront("ForeignAdvisorButton")
 			screen.moveToFront("TechAdvisorButton")
 			screen.moveToFront("CivicsAdvisorButton")
-			screen.moveToFront("ReligiousAdvisorButton")
-			screen.moveToFront("CorporationAdvisorButton")
 			screen.moveToFront("FinanceAdvisorButton")
 			screen.moveToFront("MilitaryAdvisorButton")
 			screen.moveToFront("VictoryAdvisorButton")
@@ -3288,8 +3273,6 @@ class CvMainInterface:
 			screen.hide("ForeignAdvisorButton")
 			screen.hide("TechAdvisorButton")
 			screen.hide("CivicsAdvisorButton")
-			screen.hide("ReligiousAdvisorButton")
-			screen.hide("CorporationAdvisorButton")
 			screen.hide("FinanceAdvisorButton")
 			screen.hide("MilitaryAdvisorButton")
 			screen.hide("VictoryAdvisorButton")
@@ -3316,8 +3299,6 @@ class CvMainInterface:
 			screen.show("ForeignAdvisorButton")
 			screen.show("TechAdvisorButton")
 			screen.show("CivicsAdvisorButton")
-			screen.show("ReligiousAdvisorButton")
-			screen.show("CorporationAdvisorButton")
 			screen.show("FinanceAdvisorButton")
 			screen.show("MilitaryAdvisorButton")
 			screen.show("VictoryAdvisorButton")
@@ -3340,8 +3321,6 @@ class CvMainInterface:
 			screen.moveToFront("ForeignAdvisorButton")
 			screen.moveToFront("TechAdvisorButton")
 			screen.moveToFront("CivicsAdvisorButton")
-			screen.moveToFront("ReligiousAdvisorButton")
-			screen.moveToFront("CorporationAdvisorButton")
 			screen.moveToFront("FinanceAdvisorButton")
 			screen.moveToFront("MilitaryAdvisorButton")
 			screen.moveToFront("VictoryAdvisorButton")
@@ -3364,8 +3343,6 @@ class CvMainInterface:
 			screen.show("ForeignAdvisorButton")
 			screen.show("TechAdvisorButton")
 			screen.show("CivicsAdvisorButton")
-			screen.show("ReligiousAdvisorButton")
-			screen.show("CorporationAdvisorButton")
 			screen.show("FinanceAdvisorButton")
 			screen.show("MilitaryAdvisorButton")
 			screen.show("VictoryAdvisorButton")
@@ -3396,8 +3373,6 @@ class CvMainInterface:
 			screen.moveToFront("ForeignAdvisorButton")
 			screen.moveToFront("TechAdvisorButton")
 			screen.moveToFront("CivicsAdvisorButton")
-			screen.moveToFront("ReligiousAdvisorButton")
-			screen.moveToFront("CorporationAdvisorButton")
 			screen.moveToFront("FinanceAdvisorButton")
 			screen.moveToFront("MilitaryAdvisorButton")
 			screen.moveToFront("VictoryAdvisorButton")

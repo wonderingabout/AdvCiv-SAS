@@ -181,12 +181,14 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 ## XML
 
-- Any new XML text should to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
+- Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
 - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (becuase it will be filled later with lengthy content).
 - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
 - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
 - Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
+- Exception: preserve each XML file's existing encoding if it's not UTF-8; do not convert encodings unless explicitly requested for no tedium and as we have no reason to (e.g., keep legacy Windows-1252 files such as BUG XML files as-is), plus this would have a high chance of causing formatting errors otherwise.
+- Note and additional observation: the codex formatter seems unreliable and inconsistent with what users see (e.g., showing the LLM model a BOM text when user sees a non BOM one, causing mismatches and weird git diff: refer to git diff or what base AdvCiv mod uses as format if in doubt).
 
 ## C++
 
