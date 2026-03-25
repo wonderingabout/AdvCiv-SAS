@@ -136,7 +136,8 @@ class CvPolicyAdvisorScreen:
 		screen.setText(self.CANCEL_NAME, "Background", self.TEXT_CANCEL, CvUtil.FONT_CENTER_JUSTIFY, self.X_CANCEL, self.Y_CANCEL, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
 
 		# Header...
-		screen.setText(self.TITLE_NAME, "Background", self.TEXT_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: use setLabel with X_TITLE/-0.1 to match Domestic/Foreign advisor title alignment exactly; setText/X_SCREEN rendered slightly off. (GPT-5.3-Codex) -->
+		screen.setLabel(self.TITLE_NAME, "Background", self.TEXT_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 		self.setActivePlayer(gc.getGame().getActivePlayer())						
 
