@@ -728,6 +728,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET</Tag>
 		<English>No voting members yet: requires one of the below.</English>
 	</TEXT>
+	<!-- custom: dedicated vote-requirement line for Victory screen tabs; unlike TXT_KEY_POPUP_ELECTION_OPTION, this key has no leading optional placeholder, so spacing remains stable without Python-side trimming. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY</Tag>
+		<English>(Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_NOT_ACTIVE_SHORT</Tag>
 		<English>Not active</English>

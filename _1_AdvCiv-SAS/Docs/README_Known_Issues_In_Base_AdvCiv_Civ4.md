@@ -148,6 +148,7 @@ hopefully helpful, thanks thanks,
 [112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#112---seemingly-fixed-base-advciv-issue-of-missing-getprereqorpromotion3-in-sevopedia-promotion)  
 [113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia)  
 [114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked)  
+[115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4428,3 +4429,21 @@ Fix:
 Changed file:
 
 - [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py)
+
+## 115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Op8y2q_cNPvHC3Gs87JlHtB7CTPsDUdK?usp=sharing).
+
+Observed issue:
+
+- In the Victory Advisor Resolutions tab, the `(Requires X of Y Total Votes)` line could show odd leading spacing.
+- We did not test this directly in base AdvCiv, hence the "Likely Base AdvCiv issue" wording.
+
+Why:
+
+- `TXT_KEY_POPUP_ELECTION_OPTION` is built for a longer format with a first placeholder (`%s1_VoteName`). Passing an empty first value in this context leaves unwanted spacing.
+
+Fix:
+
+- Added a dedicated key without the first placeholder: `TXT_KEY_SAS_VOTE_REQ_ONLY`.
+- Updated `CvVictoryScreen.py` to use that key directly for the Resolutions "requires votes" line.

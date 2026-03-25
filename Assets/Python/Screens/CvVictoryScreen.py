@@ -92,29 +92,20 @@ class CvVictoryScreen:
 
 		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
 		someWRoomForCulturePercentages = 27
-		self.TABLE_WIDTH_0 = 350 - (2 * someWRoomForCulturePercentages)
-		self.TABLE_WIDTH_1 = 80
-		self.TABLE_WIDTH_2 = 180
-		self.TABLE_WIDTH_3 = 100 + someWRoomForCulturePercentages
-		self.TABLE_WIDTH_4 = 180
-		self.TABLE_WIDTH_5 = 100 + someWRoomForCulturePercentages
-
-		self.TABLE2_WIDTH_0 = 740
-		self.TABLE2_WIDTH_1 = 265
+		self.TABLE_WIDTH_BASE = [
+			350 - (2 * someWRoomForCulturePercentages),
+			80,
+			180,
+			100 + someWRoomForCulturePercentages,
+			180,
+			100 + someWRoomForCulturePercentages
+		]
+		self.TABLE2_WIDTH_BASE = [740, 265]
 		# <advc.703>
-		self.RF_TABLEW_0 = 125
-		self.RF_TABLEW_1 = 150
-		self.RF_TABLEW_2 = 250
-		self.RF_TABLEW_3 = 260
-		self.RF_TABLEW_4 = 205
+		self.RF_TABLEW_BASE = [125, 150, 250, 260, 205]
 		# </advc.703>
 # BUG Additions Start
-		self.TABLE3_WIDTH_0 = 450
-		self.TABLE3_WIDTH_1 = 90
-		self.TABLE3_WIDTH_2 = 90
-		self.TABLE3_WIDTH_3 = 90
-		self.TABLE3_WIDTH_4 = 90
-		self.TABLE3_WIDTH_5 = 200
+		self.TABLE3_WIDTH_BASE = [450, 90, 90, 90, 90, 200]
 
 		self.Vote_Pope_ID = "BUGVotePope_Widget"
 		self.Vote_DipVic_ID = "BUGVoteDiplomaticVictory_Widget"
@@ -138,6 +129,7 @@ class CvVictoryScreen:
 		# </advc.004>
 		self.SETTINGS_PANEL_Y = 150
 		self.SETTINGS_PANEL_HEIGHT = 500
+		self.SETTINGS_PANEL_OUTER_MARGIN = 30
 
 		self.nWidgetCount = 0
 		self.iActivePlayer = -1
@@ -175,6 +167,44 @@ class CvVictoryScreen:
 		self.X_SCREEN, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.W_AREA = self.W_SCREEN - 14
 		self.H_AREA = self.H_SCREEN - 118
+
+		iTargetTableWidth = self.W_AREA - 5
+		self.TABLE_WIDTH_0, self.TABLE_WIDTH_1, self.TABLE_WIDTH_2, self.TABLE_WIDTH_3, self.TABLE_WIDTH_4, self.TABLE_WIDTH_5 = self.scaleColumnsToWidth(self.TABLE_WIDTH_BASE, iTargetTableWidth)
+		self.TABLE2_WIDTH_0, self.TABLE2_WIDTH_1 = self.scaleColumnsToWidth(self.TABLE2_WIDTH_BASE, iTargetTableWidth)
+		self.TABLE3_WIDTH_0, self.TABLE3_WIDTH_1, self.TABLE3_WIDTH_2, self.TABLE3_WIDTH_3, self.TABLE3_WIDTH_4, self.TABLE3_WIDTH_5 = self.scaleColumnsToWidth(self.TABLE3_WIDTH_BASE, iTargetTableWidth)
+		self.RF_TABLEW_0, self.RF_TABLEW_1, self.RF_TABLEW_2, self.RF_TABLEW_3, self.RF_TABLEW_4 = self.scaleColumnsToWidth(self.RF_TABLEW_BASE, iTargetTableWidth)
+		# <!-- custom: for Resolutions/Members readability, reduce the first column only (no reallocation); remaining width stays unused on the right. (GPT-5.3-Codex) -->
+		self.TABLE2_WIDTH_0 = self.TABLE2_WIDTH_0 / 2
+		self.TABLE3_WIDTH_0 = self.TABLE3_WIDTH_0 / 2
+
+		iGap = self.SETTINGS_PANEL_OUTER_MARGIN
+		self.SETTINGS_PANEL_WIDTH = (self.W_SCREEN - 4 * iGap) / 3
+		self.SETTINGS_PANEL_X1 = iGap
+		self.SETTINGS_PANEL_X2 = self.SETTINGS_PANEL_X1 + self.SETTINGS_PANEL_WIDTH + iGap
+		self.SETTINGS_PANEL_X3 = self.SETTINGS_PANEL_X2 + self.SETTINGS_PANEL_WIDTH + iGap
+		self.SETTINGS_PANEL_Y = self.Y_AREA + iGap + 10
+		self.SETTINGS_PANEL_HEIGHT = self.Y_BOTTOM_PANEL - self.Y_AREA - 2 * iGap
+
+	def scaleColumnsToWidth(self, aiBaseWidths, iTargetWidth):
+		iBaseTotal = sum(aiBaseWidths)
+		iColumnCount = len(aiBaseWidths)
+		if iColumnCount <= 0:
+			return []
+		if iTargetWidth < iColumnCount:
+			iTargetWidth = iColumnCount
+		aiScaled = []
+		iUsed = 0
+		for i in range(iColumnCount - 1):
+			iWidth = (aiBaseWidths[i] * iTargetWidth + iBaseTotal / 2) / iBaseTotal
+			if iWidth < 1:
+				iWidth = 1
+			aiScaled.append(iWidth)
+			iUsed += iWidth
+		iLast = iTargetWidth - iUsed
+		if iLast < 1:
+			iLast = 1
+		aiScaled.append(iLast)
+		return aiScaled
 
 	# <!-- custom: initialize text and image tags once for performance, based on Info Screen pattern (claude opus 4.5) -->
 	def initText(self):
@@ -532,7 +562,9 @@ class CvVictoryScreen:
 							if gc.getGame().isVotePassed(iLoop):
 								self.setTableTextScaled(screen, szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							else:
-								self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_POPUP_ELECTION_OPTION", (u"", gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i))), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								# <!-- custom: use a dedicated key without the optional leading placeholder because this row only shows "(Requires X of Y total votes)" and should not depend on trimming localized text at runtime. (GPT-5.3-Codex) -->
+								szVoteReqText = localText.getText("TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY", (gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i)))
+								self.setTableTextScaled(screen, szTable, 1, iRow, szVoteReqText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				iRow = screen.appendTableRow(szTable) # empty row between vote sources. (K-Mod)
 		# Remove the final empty row (K-Mod)
 		if screen.getTableNumRows(szTable) > 0:
