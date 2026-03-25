@@ -1400,8 +1400,9 @@ class CvMainInterface:
 
 	def setAdvisorButtonRects(self):
 		iSize = BTNSZ(28)
+		# <!-- custom: advisor button order updated to Info then Victory after the F8/F9 swap. (GPT-5.3-Codex) -->
 		advisorNames = [ "Domestic", "Finance", "Civics", "Foreign", "Military", "Tech",
-				"Religious", "Corporation", "Victory", "Info" ]
+				"Religious", "Corporation", "Info", "Victory" ]
 		if GameUtil.isEspionage():
 			advisorNames.append("Espionage")
 		iButtons = len(advisorNames)

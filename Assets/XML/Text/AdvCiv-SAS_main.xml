@@ -3541,4 +3541,17 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
 	</TEXT>
+	<!-- custom: advisor hotkey labels: Info Screen = F8, Victory = F9. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_INFO_SCREEN</Tag>
+		<English>Info Screen</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
+		<English>Info Screen [F8]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
+		<English>Victory [F9]:</English>
+	</TEXT>
 </Civ4GameText>

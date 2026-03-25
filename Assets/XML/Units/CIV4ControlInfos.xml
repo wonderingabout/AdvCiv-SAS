@@ -789,11 +789,12 @@
 			<bCtrlDownAlt>0</bCtrlDownAlt>
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
+		<!-- custom: hotkeys swapped: Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex) -->
 		<ControlInfo>
 			<Type>CONTROL_VICTORY_SCREEN</Type>
 			<Description>TXT_KEY_VICTORY_SCREEN_TITLE</Description>
 			<Help/>
-			<HotKey>KB_F8</HotKey>
+			<HotKey>KB_F9</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
@@ -808,7 +809,7 @@
 			<Type>CONTROL_INFO</Type>
 			<Description>TXT_KEY_INFO_SCREEN</Description>
 			<Help/>
-			<HotKey>KB_F9</HotKey>
+			<HotKey>KB_F8</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
