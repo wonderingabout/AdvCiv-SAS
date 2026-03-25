@@ -44,6 +44,7 @@ class CvDomesticAdvisor:
 		self.nPlusWidth = self.nPlusHeight = self.nMinusWidth = self.nMinusHeight = 20
 		self.nSpecTextOffsetX = 40
 		self.nSpecTextOffsetY = 10
+		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
 	def initText(self):
 		# <!-- custom: cache Domestic Advisor header texts/icons once per language to avoid repeated translation/symbol lookups on redraw. Keep column widths runtime-based because they depend on current screen size. (GPT-5.3-Codex) -->
@@ -67,6 +68,7 @@ class CvDomesticAdvisor:
 		self.HEADER_GARRISON = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + SAS_FONT_TAG_CLOSE
 		self.HEADER_PRODUCING = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE
 		self.HEADER_REVOLT = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 
 	def updateRuntimeLayout(self, screen):
 		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
@@ -77,15 +79,27 @@ class CvDomesticAdvisor:
 			self.H_BOTTOM_SPACE
 		)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
-		self.nTableWidth = self.nScreenWidth - 35
-		self.nTableHeight = self.nScreenHeight - 85
-		self.nSpecialistY = self.nScreenHeight - 55
+		# <!-- custom: use the shared advisor shell layout (top/bottom bars + single content panel) so Domestic Advisor mirrors Victory/Info/Foreign structure instead of a floating table. (GPT-5.3-Codex) -->
+		# <!-- custom: remove outer advisor-content margins so Domestic can use the full area between top/bottom bars; keep spacing only as inner table margin. (GPT-5.3-Codex) -->
+		self.nMainPanelX = 0
+		# <!-- custom: panel styles can leave thin Y-axis seams at the shell boundaries; use a local vertical bleed and apply it symmetrically to top/bottom. (GPT-5.3-Codex) -->
+		iMainPanelYBleed = 10
+		self.nMainPanelY = 55 - iMainPanelYBleed
+		self.nMainPanelWidth = self.nScreenWidth - (2 * self.nMainPanelX)
+		self.nMainPanelHeight = (self.Y_BOTTOM_PANEL - self.nMainPanelY) + iMainPanelYBleed
+		self.nTableMargin = 8
+		# <!-- custom: TABLE_STYLE_STANDARD draws the header slightly above the anchor; add a tiny visual top offset so apparent top margin matches left/right/bottom. (GPT-5.3-Codex) -->
+		self.nTableTopVisualAdjust = 6
+		self.nTableX = self.nMainPanelX + self.nTableMargin
+		self.nTableY = self.nMainPanelY + self.nTableMargin + self.nTableTopVisualAdjust
+		self.nTableWidth = self.nMainPanelWidth - (2 * self.nTableMargin)
+		self.nTableHeight = self.nMainPanelHeight - (2 * self.nTableMargin) - self.nTableTopVisualAdjust
+		# <!-- custom: keep specialist controls in the footer strip so the table can use symmetric margins inside the main panel. (GPT-5.3-Codex) -->
+		self.nSpecialistY = self.Y_BOTTOM_PANEL + 2
 		
 	# Screen construction function
 	def interfaceScreen(self):
 	
-		player = gc.getPlayer(gc.getGame().getActivePlayer())
-		
 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		self.updateRuntimeLayout(screen)
@@ -93,9 +107,14 @@ class CvDomesticAdvisor:
 		screen.setRenderInterfaceOnly(True)
 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+		self.initText()
 	
 		# Here we set the background widget and exit button, and we show the screen
-		screen.addPanel( "DomesticAdvisorBG", u"", u"", True, False, 0, 0, self.nScreenWidth, self.nScreenHeight, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addDrawControl("DomesticAdvisorBackground", ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.nScreenWidth, self.nScreenHeight, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.addPanel( "DomesticTopPanel", u"", u"", True, False, 0, 0, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+		screen.addPanel( "DomesticBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.showWindowBackground(False)
+		screen.setLabel("DomesticTitleHeader", "Background", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setText("DomesticExit", "Background",
 				SAS_FONT_TAG_TITLE + # advc.193
 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
@@ -103,22 +122,8 @@ class CvDomesticAdvisor:
 				CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, -0.1,
 				FontTypes.TITLE_FONT,
 				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+		screen.addPanel("DomesticMainPanel", "", "", True, True, self.nMainPanelX, self.nMainPanelY, self.nMainPanelWidth, self.nMainPanelHeight, PanelStyles.PANEL_STYLE_BLUE50)
 
-		bCanLiberate = false
-		(loopCity, iter) = player.firstCity(false)
-		while(loopCity):
-			if loopCity.getLiberationPlayer(false) != -1:
-				# UNOFFICIAL_PATCH begin
-				if not gc.getTeam(gc.getPlayer(loopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
-					bCanLiberate = true
-					break
-				# UNOFFICIAL_PATCH end
-			(loopCity, iter) = player.nextCity(iter, false)
-		
-		if (bCanLiberate or gc.getPlayer(gc.getGame().getActivePlayer()).canSplitEmpire()):
-			screen.setImageButton( "DomesticSplit", "", self.nScreenWidth - 110, self.nScreenHeight - 45, 28, 28, WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FREE_COLONY).getActionInfoIndex(), -1 )
-			screen.setStyle( "DomesticSplit", "Button_HUDAdvisorVictory_Style" )
-	
 		# Erase the flag?
 		CyInterface().setDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT, True)
 
@@ -194,10 +199,8 @@ class CvDomesticAdvisor:
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		player = gc.getPlayer(CyGame().getActivePlayer())
 		
-		screen.moveToFront( "Background" )
-		
 		# Build the table	
-		screen.addTableControlGFC( "CityListBackground", 19, 18, 21, self.nTableWidth, self.nTableHeight, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD )
+		screen.addTableControlGFC( "CityListBackground", 19, self.nTableX, self.nTableY, self.nTableWidth, self.nTableHeight, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD )
 		screen.enableSelect( "CityListBackground", True )
 		screen.enableSort( "CityListBackground" )
 		screen.setStyle("CityListBackground", "Table_StandardCiv_Style")
@@ -216,8 +219,6 @@ class CvDomesticAdvisor:
 		self.drawHeaders()
 		
 		self.drawSpecialists()
-		
-		screen.moveToBack( "DomesticAdvisorBG" )
 		
 		self.updateAppropriateCitySelection()
 		
@@ -485,11 +486,6 @@ class CvDomesticAdvisor:
 			else:
 				self.updateAppropriateCitySelection()
 				self.updateSpecialists()
-		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
-			if (inputClass.getFunctionName() == "DomesticSplit"):
-				screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
-				screen.hideScreen()
-			
 		return 0
 	
 	def updateAppropriateCitySelection(self):
