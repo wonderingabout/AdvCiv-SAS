@@ -81,11 +81,9 @@ class CvPolicyAdvisorScreen:
 		self.m_paeDisplayPolicies = []
 		self.m_paeOriginalPolicies = []
 
-		# <!-- custom: Religion advisor tab integration state/constants kept in Policy advisor init so no standalone Religion screen state is required anymore. (GPT-5.3-Codex) -->
+		# <!-- custom: Religion advisor tab integration state/constants kept in Policy advisor init so no standalone Religion screen state is required anymore. Removed unused legacy Religion-screen members during migration to keep this tab-host class clean. (GPT-5.3-Codex) -->
 		self.RELIGION_NAME = "ReligionText"
 		self.RELIGION_BUTTON_NAME = "ReligionScreenButton"
-		self.RELIGION_CITY_NAME = "ReligionCity"
-		self.RELIGION_DEBUG_DROPDOWN_ID = "ReligionDropdownWidget"
 		self.RELIGION_TABLE_ID = "ReligionTableWidget"
 		self.RELIGION_AREA1_ID = "ReligionAreaWidget1"
 		self.RELIGION_AREA2_ID = "ReligionAreaWidget2"
@@ -96,33 +94,26 @@ class CvPolicyAdvisorScreen:
 		self.RELIGION_HEADER_FOUNDED_ID = "ReligionHelpFoundedHeader"
 		self.RELIGION_HEADER_HOLY_CITY_ID = "ReligionHelpHolyCityHeader"
 		self.RELIGION_HEADER_INFLUENCE_ID = "ReligionHelpInfluenceHeader"
-		self.BORDER_WIDTH = 2
-		self.HIGHLIGHT_EXTRA_SIZE = 4
 		self.DZ = -0.2
-		self.Z_CONTROLS = self.Z_TEXT
-		self.X_ANARCHY = 21
 		self.LEFT_EDGE_TEXT = 10
 		self.X_RELIGION_START = 180
 		self.DX_RELIGION = 98
-		self.Y_RELIGION = 35
 		self.Y_FOUNDED = 90
 		self.Y_HOLY_CITY = 115
 		self.Y_INFLUENCE = 140
 		self.Y_RELIGION_NAME = 58
-		self.X_SCROLLABLE_RELIGION_AREA = 0
-		self.Y_SCROLLABLE_RELIGION_AREA = 0
-		self.X_RELIGION_AREA = 45
-		self.Y_RELIGION_AREA = 84
-		self.W_RELIGION_AREA = 934
-		self.H_RELIGION_AREA = 175
+		# <!-- custom: Religion tab fixed layout constants; screen-dependent geometry is derived from these in updateRuntimeLayout. (GPT-5.3-Codex) -->
+		self.RELIGION_AREA_MARGIN_X = 45
+		self.RELIGION_PANEL_Y_EXPANDED = 44
+		self.RELIGION_PANEL_H_EXPANDED = 250
+		self.RELIGION_PANEL_Y_COMPACT = 84
+		self.RELIGION_PANEL_H_COMPACT = 175
+		self.RELIGION_CITY_TOP_GAP = 28
+		self.RELIGION_CITY_BOTTOM_GAP = 36
+		self.RELIGION_STATUS_TOP_GAP = 4
+		self.RELIGION_STATUS_BOTTOM_GAP = 6
 		self.H_SCROLL_OFFSET = 20
-		self.X_CITY1_AREA = 45
-		self.X_CITY2_AREA = 522
-		self.Y_CITY_AREA = 282
-		self.W_CITY_AREA = 457
-		self.H_CITY_AREA = 395
-		self.X_CITY = 10
-		self.DY_CITY = 38
+
 		self.NUM_RELIGIONS = -1
 		self.COL_ZOOM_CITY = 0
 		self.COL_CITY_NAME = 1
@@ -154,7 +145,7 @@ class CvPolicyAdvisorScreen:
 		self.PAGE_NAME_LIST = [self.TEXT_TAB_POLICY, self.TEXT_TAB_RELIGION]
 		self.EXIT_TEXT = self.TEXT_EXIT
 		self.CONVERT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_RELIGION_CONVERT", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.CANCEL_TEXT = self.TEXT_CANCEL
+		self.NO_STATE_BUTTON_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
 
 	def updateRuntimeLayout(self, screen):
 		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
@@ -175,21 +166,19 @@ class CvPolicyAdvisorScreen:
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_EXIT)
 
 		# <!-- custom: Religion tab layout follows runtime Policy advisor width/height so integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
-		self.X_RELIGION_AREA = 45
+		self.X_RELIGION_AREA = self.RELIGION_AREA_MARGIN_X
 		self.W_RELIGION_AREA = self.W_SCREEN - 2 * self.X_RELIGION_AREA
 		if self.isBugReligiousEnabled():
-			self.Y_RELIGION_AREA = 44
-			self.H_RELIGION_AREA = 250
+			self.Y_RELIGION_AREA, self.H_RELIGION_AREA = self.RELIGION_PANEL_Y_EXPANDED, self.RELIGION_PANEL_H_EXPANDED
 		else:
-			self.Y_RELIGION_AREA = 84
-			self.H_RELIGION_AREA = 175
-		self.Y_CITY_AREA = self.Y_RELIGION_AREA + self.H_RELIGION_AREA + 28
-		self.H_CITY_AREA = self.Y_BOTTOM_PANEL - self.Y_CITY_AREA - 36
+			self.Y_RELIGION_AREA, self.H_RELIGION_AREA = self.RELIGION_PANEL_Y_COMPACT, self.RELIGION_PANEL_H_COMPACT
+		self.Y_CITY_AREA = self.Y_RELIGION_AREA + self.H_RELIGION_AREA + self.RELIGION_CITY_TOP_GAP
+		self.H_CITY_AREA = self.Y_BOTTOM_PANEL - self.Y_CITY_AREA - self.RELIGION_CITY_BOTTOM_GAP
 		self.W_CITY_AREA = (self.W_SCREEN - 3 * self.X_RELIGION_AREA) / 2
 		self.X_CITY1_AREA = self.X_RELIGION_AREA
 		self.X_CITY2_AREA = self.X_CITY1_AREA + self.W_CITY_AREA + self.X_RELIGION_AREA
-		self.Y_RELIGION_STATUS = self.Y_CITY_AREA + self.H_CITY_AREA + 4
-		self.H_RELIGION_STATUS = self.Y_BOTTOM_PANEL - self.Y_RELIGION_STATUS - 6
+		self.Y_RELIGION_STATUS = self.Y_CITY_AREA + self.H_CITY_AREA + self.RELIGION_STATUS_TOP_GAP
+		self.H_RELIGION_STATUS = self.Y_BOTTOM_PANEL - self.Y_RELIGION_STATUS - self.RELIGION_STATUS_BOTTOM_GAP
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.POLICY_ADVISOR_SCREEN)
@@ -330,7 +319,6 @@ class CvPolicyAdvisorScreen:
 
 	def refreshReligionTabData(self):
 		self.iActivePlayer = gc.getGame().getActivePlayer()
-		self.NO_STATE_BUTTON_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
 		if self.NUM_RELIGIONS == -1:
 			self.NUM_RELIGIONS = ReligionUtil.getNumReligions()
 			self.COL_FIRST_UNIT = self.COL_FIRST_RELIGION + self.NUM_RELIGIONS
@@ -594,15 +582,15 @@ class CvPolicyAdvisorScreen:
 		for iRel in self.RELIGIONS:
 			szButtonName = self.getReligionButtonName(iRel)
 			if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
-				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_SCROLLABLE_RELIGION_AREA + xLoop - 25, self.Y_SCROLLABLE_RELIGION_AREA + 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - 25, 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
 			else:
-				screen.setImageButtonAt(szButtonName, szArea, gc.getReligionInfo(iRel).getButtonDisabled(), self.X_SCROLLABLE_RELIGION_AREA + xLoop - 25, self.Y_SCROLLABLE_RELIGION_AREA + 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setLabelAt(self.getReligionTextName(iRel), szArea, SAS_FONT_TAG_LABEL + gc.getReligionInfo(iRel).getDescription() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCROLLABLE_RELIGION_AREA + xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setImageButtonAt(szButtonName, szArea, gc.getReligionInfo(iRel).getButtonDisabled(), xLoop - 25, 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(self.getReligionTextName(iRel), szArea, SAS_FONT_TAG_LABEL + gc.getReligionInfo(iRel).getDescription() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
 		szButtonName = self.getReligionButtonName(gc.getNumReligionInfos())
-		screen.addCheckBoxGFCAt(szArea, szButtonName, self.NO_STATE_BUTTON_ART, ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_SCROLLABLE_RELIGION_AREA + xLoop - 25, self.Y_SCROLLABLE_RELIGION_AREA + 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
-		screen.setLabelAt(self.getReligionTextName(gc.getNumReligionInfos()), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_NO_STATE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCROLLABLE_RELIGION_AREA + xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addCheckBoxGFCAt(szArea, szButtonName, self.NO_STATE_BUTTON_ART, ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - 25, 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+		screen.setLabelAt(self.getReligionTextName(gc.getNumReligionInfos()), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_NO_STATE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def drawHelpInfo(self):
 		screen = self.getScreen()

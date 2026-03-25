@@ -104,7 +104,8 @@ policyAdvisorScreen = CvPolicyAdvisorScreen.CvPolicyAdvisorScreen()
 # <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
 def showPolicyAdvisorScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_POLICY])
+		# <!-- custom: preserve last visited Policy tab on reopen, matching tabbed-advisor behavior used elsewhere. (GPT-5.3-Codex) -->
+		policyAdvisorScreen.interfaceScreen()
 
 # <!-- custom: Religion advisor is integrated as a native Policy advisor tab; open Policy tab index for Religion instead of standalone CvReligionScreen. (GPT-5.3-Codex) -->
 def showReligionScreen():
