@@ -1721,8 +1721,6 @@ Created as part of AdvCiv-SAS improvements
 			<Path>Art/BUG/Null.dds</Path>
 		</InterfaceArtInfo>
 
-
-
 		<!-- custom: some civ4 buttons -->
 		<InterfaceArtInfo>
 			<Type>SAS_CITIES_LANDSCAPE</Type>
@@ -1733,15 +1731,11 @@ Created as part of AdvCiv-SAS improvements
 			<Path>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</Path>
 		</InterfaceArtInfo>
 
-
-
 		<!-- custom: new Draft button as part of the city screen rework, ai-generated with the help of Nano Banana Pro (Gemini 3 Pro) thanks -->
 		<InterfaceArtInfo>
 			<Type>INTERFACE_CITY_SCREEN_DRAFT</Type>
 			<Path>Art/AdvCiv_SAS/Interface/Draft/Gemini_Generated_Image_bb4mzkbb4mzkbb4m_draft_64px.dds</Path>
 		</InterfaceArtInfo>
-
-
 
 		<!-- custom: emoji icons as dds; Long_Comments_XML.txt #150 -->
 		<!-- 🕊️ emoji from emojiterra -->

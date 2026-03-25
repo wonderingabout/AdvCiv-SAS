@@ -17,8 +17,6 @@ Created as part of AdvCiv-SAS improvements
 			<Button>,Art/Interface/Buttons/Promotions/Recon_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,7</Button>
 		</UnitCombatInfo>
 
-
-
 		<!-- custom: archer combat types -->
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_ARCHER_BOW_SHORT</Type>
@@ -38,8 +36,6 @@ Created as part of AdvCiv-SAS improvements
 			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds</Button>
 		</UnitCombatInfo>
 
-
-
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
 			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>
@@ -50,8 +46,6 @@ Created as part of AdvCiv-SAS improvements
 			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_RANGED</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
 		</UnitCombatInfo>
-
-
 
 		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or such; button import from c2c mod -->
 		<UnitCombatInfo>
@@ -64,8 +58,6 @@ Created as part of AdvCiv-SAS improvements
 			<Description>TXT_KEY_UNITCOMBAT_MELEE_SHOCK</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
 		</UnitCombatInfo>
-
-
 
 		<UnitCombatInfo>
 			<Type>UNITCOMBAT_SIEGE</Type>
@@ -93,8 +85,6 @@ Created as part of AdvCiv-SAS improvements
 			<Description>TXT_KEY_UNITCOMBAT_NAVAL</Description>
 			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,7</Button>
 		</UnitCombatInfo>
-
-
 
 		<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas) -->
 		<UnitCombatInfo>

@@ -85,7 +85,7 @@ class CvVictoryScreen:
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
 		self.DZ = -0.2
 
-		self.Y_TITLE = 12
+		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
 		self.X_AREA = 10
 		self.Y_AREA = 60

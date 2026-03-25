@@ -448,7 +448,7 @@ class CvInfoScreen:
 		# <!-- custom: compute Info Screen geometry at runtime from the current resolution; this matches Foreign Advisor's pattern and avoids stale init-time layout. (GPT-5.3-Codex) -->
 		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, _ = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
-		self.Y_TITLE = 8
+		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
 		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
 		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->

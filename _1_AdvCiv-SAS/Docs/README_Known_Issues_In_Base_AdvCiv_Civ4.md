@@ -4447,3 +4447,5 @@ Fix:
 
 - Added a dedicated key without the first placeholder: `TXT_KEY_SAS_VOTE_REQ_ONLY`.
 - Updated `CvVictoryScreen.py` to use that key directly for the Resolutions "requires votes" line.
+
+Note: although this is fixed, the Members tab also has an extra spacing at the start of lines that start with a star chars but as of now left as such since i couldn't easily find how to fix it.

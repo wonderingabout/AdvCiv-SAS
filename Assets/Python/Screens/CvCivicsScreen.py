@@ -52,7 +52,7 @@ class CvCivicsScreen:
 
 		self.Y_SCREEN = 396
 		self.Z_SCREEN = -6.1
-		self.Y_TITLE = 8		
+		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 		self.Z_TEXT = self.Z_SCREEN - 0.2
 
 		self.CivicsScreenInputMap = {

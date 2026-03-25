@@ -1108,7 +1108,6 @@
 			<Rotate>90</Rotate>
 		</ArtRef>
 
-
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_MODERN,ERA_FUTURE</Attribute>
 			<Attribute Class="Scalar">NIF:Art/Structures/Cities/mod_eu.nif::2x1_01</Attribute>

@@ -17,6 +17,8 @@ SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD = 420
 SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
 SAS_ADVISOR_BOTTOM_SPACE = 0
 
+# <!-- custom: shared advisor title Y is screen-independent and unified for migrated advisors to reduce per-file noise; older per-screen values were close (e.g. 8/12), so use one midpoint default (10). Keep screen-dependent anchors computed at runtime. (GPT-5.3-Codex) -->
+SAS_ADVISOR_TITLE_Y = 10
 # <!-- custom: shared offsets/divisors for runtime screen-dependent anchor formulas (title/exit/link/footer) derived from each advisor's current panel width/height in interfaceScreen. (GPT-5.3-Codex) -->
 SAS_ADVISOR_TITLE_X_DIVISOR = 2
 SAS_ADVISOR_EXIT_X_OFFSET = 30
