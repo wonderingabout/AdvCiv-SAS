@@ -13,22 +13,22 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-class CvPolicyScreen:
-	"Policy Screen"
+class CvPolicyAdvisorScreen:
+	"Policy Advisor Screen"
 
 	def __init__(self):
-		self.SCREEN_NAME = "PolicyScreen"
+		self.SCREEN_NAME = "PolicyAdvisorScreen"
 		self.CANCEL_NAME = "PolicyCancel"
 		self.EXIT_NAME = "PolicyExit"
 		self.TITLE_NAME = "PolicyTitleHeader"
-		self.BUTTON_NAME = "PolicyScreenButton"
-		self.TEXT_NAME = "PolicyScreenText"
-		self.AREA_NAME = "PolicyScreenArea"
-		self.HELP_AREA_NAME = "PolicyScreenHelpArea"
-		self.HELP_IMAGE_NAME = "PolicyScreenCivicOptionImage"
+		self.BUTTON_NAME = "PolicyAdvisorScreenButton"
+		self.TEXT_NAME = "PolicyAdvisorScreenText"
+		self.AREA_NAME = "PolicyAdvisorScreenArea"
+		self.HELP_AREA_NAME = "PolicyAdvisorScreenHelpArea"
+		self.HELP_IMAGE_NAME = "PolicyAdvisorScreenCivicOptionImage"
 		self.DEBUG_DROPDOWN_ID =  "PolicyDropdownWidget"
 		self.BACKGROUND_ID = "PolicyBackground"
-		self.HELP_HEADER_NAME = "PolicyScreenHeaderName"
+		self.HELP_HEADER_NAME = "PolicyAdvisorScreenHeaderName"
 
 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen via shared SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
@@ -55,7 +55,7 @@ class CvPolicyScreen:
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 		self.Z_TEXT = self.Z_SCREEN - 0.2
 
-		self.PolicyScreenInputMap = {
+		self.PolicyAdvisorScreenInputMap = {
 			self.BUTTON_NAME		: self.PolicyButton,
 			self.TEXT_NAME			: self.PolicyButton,
 			self.EXIT_NAME			: self.Revolution,
@@ -99,7 +99,7 @@ class CvPolicyScreen:
 		self.HEADINGS_WIDTH = (self.W_SCREEN - self.HEADINGS_SPACING) / gc.getNumCivicOptionInfos() - self.HEADINGS_SPACING
 
 	def getScreen(self):
-		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.CIVICS_SCREEN)
+		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.POLICY_ADVISOR_SCREEN)
 
 	def setActivePlayer(self, iPlayer):
 
@@ -403,17 +403,18 @@ class CvPolicyScreen:
 			self.setActivePlayer(screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex))
 			self.drawContents()
 			return 1
-		elif (self.PolicyScreenInputMap.has_key(inputClass.getFunctionName())):	
-			'Calls function mapped in CvPolicyScreen'
+		elif (self.PolicyAdvisorScreenInputMap.has_key(inputClass.getFunctionName())):	
+			'Calls function mapped in CvPolicyAdvisorScreen'
 			# only get from the map if it has the key		
 
 			# get bound function from map and call it
-			self.PolicyScreenInputMap.get(inputClass.getFunctionName())(inputClass)
+			self.PolicyAdvisorScreenInputMap.get(inputClass.getFunctionName())(inputClass)
 			return 1
 		return 0
 		
 	def update(self, fDelta):
 		return
+
 
 
 

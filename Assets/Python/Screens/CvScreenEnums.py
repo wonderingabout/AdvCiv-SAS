@@ -14,7 +14,8 @@ FINANCE_ADVISOR = 5
 WONDER_MOVIE_SCREEN = 6
 RELIGION_SCREEN = 7
 INTRO_MOVIE_SCREEN = 8
-CIVICS_SCREEN = 9
+# <!-- custom: canonical policy advisor screen id; removed civics/policy alias layer for strict naming consistency. (GPT-5.3-Codex) -->
+POLICY_ADVISOR_SCREEN = 9
 DIPLOMACY_SCREEN = 10
 OPTIONS_SCREEN = 11
 TECH_SPLASH = 12

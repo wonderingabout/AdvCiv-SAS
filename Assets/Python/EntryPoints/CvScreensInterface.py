@@ -101,10 +101,11 @@ hallOfFameScreen = CvHallOfFameScreen.CvHallOfFameScreen(HALL_OF_FAME)
 def showHallOfFame(argsList):
 	hallOfFameScreen.interfaceScreen(argsList[0])
 
-policyScreen = CvCivicsScreen.CvPolicyScreen()
-def showCivicsScreen():
+policyAdvisorScreen = CvCivicsScreen.CvPolicyAdvisorScreen()
+# <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
+def showPolicyAdvisorScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		policyScreen.interfaceScreen()
+		policyAdvisorScreen.interfaceScreen()
 
 religionScreen = CvReligionScreen.CvReligionScreen()
 def showReligionScreen():
@@ -1185,7 +1186,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 #					DOMESTIC_ADVISOR : domesticAdvisor,
 					RELIGION_SCREEN : religionScreen,
 					CORPORATION_SCREEN : corporationScreen,
-					CIVICS_SCREEN : policyScreen,
+					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
 					TECH_CHOOSER : techChooser,
 					FOREIGN_ADVISOR : foreignAdvisor,
 #					FINANCE_ADVISOR : financeAdvisor,
@@ -1226,3 +1227,4 @@ AdvisorOpt = BugCore.game.Advisors
 CustDomAdvOpt = BugCore.game.CustDomAdv
 TechWindowOpt = BugCore.game.TechWindow
 # BUG - Options - end
+

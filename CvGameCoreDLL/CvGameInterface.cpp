@@ -1684,7 +1684,8 @@ void CvGame::doControl(ControlTypes eControl)
 	// <!-- custom: control handlers for Religion/Corporation removed after control enum cleanup. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGECIVIC); // advc.004x
-		GC.getPythonCaller()->showPythonScreen("CivicsScreen");
+		// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping control id for compatibility. (GPT-5.3-Codex) -->
+		GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
 		break;
 
 	case CONTROL_FOREIGN_SCREEN:

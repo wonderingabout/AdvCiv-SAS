@@ -2881,7 +2881,7 @@ class CvMainInterface:
 				self.updateFlag()
 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
-			# Miscellaneous buttons (civics screen, etc)
+			# Miscellaneous buttons (policy advisor screen, etc)
 			self.updateMiscButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.InfoPane_DIRTY_BIT)):
