@@ -516,7 +516,7 @@ It allowed to polish a bit the Sevopedia religion that also had a placeSpecial p
 
 Code provided by/with the help of claude ai too thanks if i may say (and thanks to me too maybe as well if i may say too).
 
-More recently, added the `iCivicPercentAnger` info in Sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really.
+More recently, added the `iCivicPercentAnger` info in Sevopedia and Policy Advisor with the help of chatgpt 5 thanks a lot i mean really.
 
 Since then, we also added the Leader count pattern in Sevopedia Traits in the Favorites (Leaders)' panel's header (example "Leader 12/53 (22%)").
 

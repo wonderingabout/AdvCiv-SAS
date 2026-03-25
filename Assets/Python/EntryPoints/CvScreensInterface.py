@@ -10,7 +10,7 @@ import CvTechChooser
 import CvForeignAdvisor
 import CvReligionScreen
 import CvCorporationScreen
-import CvCivicsScreen
+import CvPolicyAdvisorScreen
 import CvVictoryScreen
 
 import CvOptionsScreen
@@ -101,7 +101,7 @@ hallOfFameScreen = CvHallOfFameScreen.CvHallOfFameScreen(HALL_OF_FAME)
 def showHallOfFame(argsList):
 	hallOfFameScreen.interfaceScreen(argsList[0])
 
-policyAdvisorScreen = CvCivicsScreen.CvPolicyAdvisorScreen()
+policyAdvisorScreen = CvPolicyAdvisorScreen.CvPolicyAdvisorScreen()
 # <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
 def showPolicyAdvisorScreen():
 	if (-1 != CyGame().getActivePlayer()):
