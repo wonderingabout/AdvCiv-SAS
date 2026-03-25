@@ -8,7 +8,6 @@
 import CvMainInterface
 import CvTechChooser
 import CvForeignAdvisor
-import CvReligionScreen
 import CvCorporationScreen
 import CvPolicyAdvisorScreen
 import CvVictoryScreen
@@ -105,12 +104,12 @@ policyAdvisorScreen = CvPolicyAdvisorScreen.CvPolicyAdvisorScreen()
 # <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
 def showPolicyAdvisorScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		policyAdvisorScreen.interfaceScreen()
+		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_POLICY])
 
-religionScreen = CvReligionScreen.CvReligionScreen()
+# <!-- custom: Religion advisor is integrated as a native Policy advisor tab; open Policy tab index for Religion instead of standalone CvReligionScreen. (GPT-5.3-Codex) -->
 def showReligionScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		religionScreen.interfaceScreen()
+		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_RELIGION])
 
 corporationScreen = CvCorporationScreen.CvCorporationScreen()
 def showCorporationScreen():
@@ -1184,7 +1183,8 @@ HandleCloseMap = {  DAWN_OF_MAN : dawnOfMan,
 #######################################################################################
 HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 #					DOMESTIC_ADVISOR : domesticAdvisor,
-					RELIGION_SCREEN : religionScreen,
+					# <!-- custom: route RELIGION_SCREEN input to Policy advisor because Religion is now a native Policy tab. (GPT-5.3-Codex) -->
+					RELIGION_SCREEN : policyAdvisorScreen,
 					CORPORATION_SCREEN : corporationScreen,
 					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
 					TECH_CHOOSER : techChooser,
