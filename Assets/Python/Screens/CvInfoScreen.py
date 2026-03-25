@@ -105,6 +105,7 @@ class CvInfoScreen:
 			"TXT_KEY_DEMO_SCREEN_TITLE",
 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
 			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
+			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
 			]
 		self.PAGE_DRAW_LIST = [
 			self.drawGraphTab,
@@ -113,6 +114,7 @@ class CvInfoScreen:
 			self.drawDemographicsTab,
 			self.drawTopCitiesTab,
 			self.drawStatsTab,
+			self.drawEnvironmentTab,
 			]
 
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
@@ -133,6 +135,121 @@ class CvInfoScreen:
 		self.iDemographicsID	= 3
 		self.iTopCitiesID		= 4
 		self.iStatsID			= 5
+		self.iEnvironmentID		= 6
+
+		# <!-- custom: Environment tab constants independent from resolution; keep in init for consistency with other integrated tabs. (GPT-5.3-Codex) -->
+		self.ENV_INNER_MARGIN = 24
+		self.ENV_COLUMN_GAP = 20
+		self.ENV_TOP_PANEL_HEIGHT = 100
+		self.ENV_Y_SPACING = 30
+		self.ENV_TEXT_MARGIN = 15
+
+		# <!-- custom: move screen-independent Info Screen layout constants to init; updateRuntimeLayout now focuses on runtime-dependent geometry. (GPT-5.3-Codex) -->
+		# <!-- custom: X/Y margins are screen-independent constants set in init. (GPT-5.3-Codex) -->
+		self.X_MARGIN = 45
+		self.Y_MARGIN = 80
+		self.SMALL_MARGIN = 20
+		self.H_GRAPH_DROPDOWN = 35
+		self.W_DEMO_DROPDOWN = 200
+		self.PANEL_HEIGHT = 55
+		self.HISTORY_TABLE_VERTICAL_GAP = 28
+		self.W_LEFT_BUTTON = 20
+		self.H_LEFT_BUTTON = 20
+		self.X_LEGEND_MARGIN = 10
+		self.Y_LEGEND_MARGIN = 5
+		self.W_LEGEND_LINE = 30
+		self.H_LEGEND_TEXT = 16
+		self.iGraphLeaderIconSize = 16
+		self.iGraphTurnLabelYOffset = 16
+		self.Graph_Status_1in1 = 0
+		self.Graph_Status_7in1 = 1
+		self.Graph_Status_3in1 = 2
+		self.X_7_IN_1_CHART_ADJ = [0, 1, 2, 1, 2, 1, 2]
+		self.Y_7_IN_1_CHART_ADJ = [0, 0, 0, 1, 1, 2, 2]
+		self.X_3_IN_1_CHART_ADJ = [0, 1, 1]
+		self.Y_3_IN_1_CHART_ADJ = [0, 0, 1]
+		self.W_DEMOGRAPHICS_COL_DEM = 320
+		self.DEMOGRAPHICS_W_TEXT = 140
+		self.DEMOGRAPHICS_H_TEXT = 15
+		self.DEMOGRAPHICS_X_TEXT_BUFFER = 0
+		self.DEMOGRAPHICS_Y_TEXT_BUFFER = 43
+		self.DEMOGRAPHICS_NUMERICAL_COL_W = 150
+		self.DEMOGRAPHICS_RIVAL_COL_W = 220
+		self.W_DEMOGRAPHICS_COL_VALUE = self.DEMOGRAPHICS_NUMERICAL_COL_W
+		self.W_DEMOGRAPHICS_COL_RANK = self.DEMOGRAPHICS_NUMERICAL_COL_W
+		self.W_DEMOGRAPHICS_COL_RIVAL_BEST = self.DEMOGRAPHICS_RIVAL_COL_W
+		self.W_DEMOGRAPHICS_COL_RIVAL_WORST = self.DEMOGRAPHICS_RIVAL_COL_W
+		self.W_DEMOGRAPHICS_COL_RIVAL_AVG = self.DEMOGRAPHICS_NUMERICAL_COL_W
+		self.X_COL_1 = 535
+		self.X_COL_2 = self.X_COL_1 + self.DEMOGRAPHICS_W_TEXT + self.DEMOGRAPHICS_X_TEXT_BUFFER
+		self.X_COL_3 = self.X_COL_2 + self.DEMOGRAPHICS_W_TEXT + self.DEMOGRAPHICS_X_TEXT_BUFFER
+		self.X_COL_4 = self.X_COL_3 + self.DEMOGRAPHICS_W_TEXT + self.DEMOGRAPHICS_X_TEXT_BUFFER
+		self.Y_ROW_1 = 100
+		self.Y_ROW_2 = self.Y_ROW_1 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_3 = self.Y_ROW_2 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_4 = self.Y_ROW_3 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_5 = self.Y_ROW_4 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_6 = self.Y_ROW_5 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_7 = self.Y_ROW_6 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_8 = self.Y_ROW_7 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_9 = self.Y_ROW_8 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.Y_ROW_10 = self.Y_ROW_9 + self.DEMOGRAPHICS_H_TEXT + self.DEMOGRAPHICS_Y_TEXT_BUFFER
+		self.iRankIconSize = 16
+		self.W_WONDERS_RIGHT_PANE = 765
+		self.iTopCitiesHeaderHeight = 35
+		self.H_CITIES_DESC = 58
+		self.Y_CITIES_DESC_BUFFER = -9
+		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
+		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
+		self.iTopCitiesWonderButtonSize = 46
+		self.iTopCitiesWonderNumListsAutoCalculate = 1
+		self.iTopCitiesWonderColumnIndexAuto = 0
+		self.iTopCitiesWonderNumRows = 2
+		self.iTopCitiesWonderPanelMargin = 8
+		self.iTopCitiesWonderPanelHeightAdjust = -3
+		self.iTopCitiesDescWonderGap = -2
+		self.iTopCitiesInterCityMargin = 6
+		self.iTopCitiesInterLeftRightPartsGapAdjust = 2
+		self.iTopCitiesRightPartWAdjust = -16
+		self.W_CITY_ANIMATION = 150
+		self.W_WONDERS_CHART_COL_BUTTON = 30
+		self.WONDERS_COL_MOVE_TO_CITY_ID = 4
+		self.W_WONDERS_CHART_COL_DATE = 110
+		self.W_WONDERS_CHART_COL_OWNER = 155
+		self.W_WONDERS_CHART_COL_CITY = 155
+		self.W_WONDERS_STATS_PANE = 210
+		self.H_WONDERS_STATS_PANE = 220
+		self.WONDERS_FUDGE_FACTOR = 3
+		self.W_WONDERS_DROPDOWN = 420
+		self.W_WONDER_LIST_BASE = 200
+		self.W_WONDER_LIST = self.W_WONDER_LIST_BASE
+		self.H_WONDER_LIST = 180
+		self.X_WONDER_GRAPHIC = 540
+		self.W_WONDER_GRAPHIC = 420
+		self.H_WONDER_GRAPHIC = 190
+		self.X_ROTATION_WONDER_ANIMATION = -20
+		self.Z_ROTATION_WONDER_ANIMATION = 30
+		self.WONDERS_SCALE_ANIMATION = 0.5
+		self.W_PROJECT_ICON = 128
+		self.X_WONDER_SPECIAL_TITLE = 540
+		self.Y_WONDER_SPECIAL_TITLE = 517
+		self.X_WONDER_SPECIAL_PANE = 540
+		self.Y_WONDER_SPECIAL_PANE = 545
+		self.W_WONDER_SPECIAL_PANE = 420
+		self.H_WONDER_SPECIAL_PANE = 125
+		self.Y_STATS_BOTTOM_CHART = 280
+		self.Y_LEADER_ICON = 95
+		self.W_LEADER_ICON = 128
+		self.H_LEADER_ICON = 156
+		self.iExtraWTopChartValue = 12
+		self.H_STATS_TOP_PANEL = 0
+		self.STATS_TOP_CHART_W_COL_1 = 100
+		self.iNumTopChartCols = 2
+		self.W_DEMOGRAPHICS_BUTTON_SIZE = 24
+		self.H_DEMOGRAPHICS_BUTTON_SIZE = 24
+		self.W_STATS_BUTTON_SIZE = 24
+		self.H_STATS_BUTTON_SIZE = 24
+		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
 
 		self.iActiveTab = -1
 #		self.iActiveTab = self.iGraphID
@@ -450,22 +567,14 @@ class CvInfoScreen:
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, _ = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
-		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
-		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->
-		self.X_MARGIN = 45
-		self.Y_MARGIN = 80
-		self.SMALL_MARGIN = 20
+		# <!-- custom: margins/constants are initialized once in __init__; runtime method computes only values that depend on current screen bounds. (GPT-5.3-Codex) -->
 
 # GRAPH
 
 		# <!-- custom: add "_GRAPH_" to the name to not confuse it with the "_WONDERS_" dropdown and avoid future mistakes if i'm not mistaken. -->
-		self.H_GRAPH_DROPDOWN = 35
-
 		# <!-- custom: upscale this tab and make coordinates more dynamic with the help of chatgpt 5.2 -->
 		self.X_DEMO_DROPDOWN = self.X_MARGIN
 		self.Y_DEMO_DROPDOWN = self.Y_MARGIN
-		# <!-- custom: make the legend larger as text is too tight currently, and we have more room now. -->
-		self.W_DEMO_DROPDOWN = 200
 
 		self.X_ZOOM_DROPDOWN = self.X_DEMO_DROPDOWN
 		self.Y_ZOOM_DROPDOWN = self.Y_DEMO_DROPDOWN + self.H_GRAPH_DROPDOWN
@@ -483,21 +592,25 @@ class CvInfoScreen:
 		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
 
 		# History tab layout - vertically centered between header and footer panels
-		# Shared panel height (used by TechTopPanel and TechBottomPanel, both are 55px)
-		self.PANEL_HEIGHT = 55
-
 		# Content area boundaries (between the two panels)
 		self.CONTENT_Y_TOP = self.PANEL_HEIGHT  # Header panel bottom
 		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT  # Footer panel top
-
-		# Gap from panel edges to table (same for top and bottom = symmetric)
-		self.HISTORY_TABLE_VERTICAL_GAP = 28
 
 		# Table positioning - truly centered
 		self.X_HISTORY_TABLE = self.X_MARGIN
 		self.Y_HISTORY_TABLE = self.CONTENT_Y_TOP + self.HISTORY_TABLE_VERTICAL_GAP
 		self.W_HISTORY_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
 		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
+
+		# <!-- custom: Environment tab runtime geometry derived from active screen bounds; keep only position/size calculations here. (GPT-5.3-Codex) -->
+		self.ENV_X_LEFT_PANEL = self.X_MARGIN
+		self.ENV_PANE_WIDTH = (self.W_SCREEN - (2 * self.X_MARGIN) - (2 * self.ENV_COLUMN_GAP)) / 3
+		self.ENV_X_MIDDLE_PANEL = self.ENV_X_LEFT_PANEL + self.ENV_PANE_WIDTH + self.ENV_COLUMN_GAP
+		self.ENV_X_RIGHT_PANEL = self.ENV_X_MIDDLE_PANEL + self.ENV_PANE_WIDTH + self.ENV_COLUMN_GAP
+		self.ENV_Y_TOP_PANEL = self.CONTENT_Y_TOP + self.ENV_INNER_MARGIN
+		self.ENV_H_TOP_PANEL = self.ENV_TOP_PANEL_HEIGHT
+		self.ENV_Y_LOCATION = self.ENV_Y_TOP_PANEL + self.ENV_H_TOP_PANEL + self.ENV_INNER_MARGIN
+		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
 
 		# LOG button - positioned in top header bar (0-55px height)
 		# <!-- custom: scale History log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
@@ -508,10 +621,7 @@ class CvInfoScreen:
 			self.W_HISTORY_TABLE_LOG_BUTTON = 48
 			self.H_HISTORY_TABLE_LOG_BUTTON = 28
 		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
-		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
 
-		self.W_LEFT_BUTTON = 20
-		self.H_LEFT_BUTTON = 20
 		self.X_LEFT_BUTTON = self.X_GRAPH
 		self.Y_LEFT_BUTTON = self.Y_GRAPH + self.H_GRAPH
 
@@ -524,25 +634,12 @@ class CvInfoScreen:
 		self.X_RIGHT_LABEL = self.X_RIGHT_BUTTON - 10
 		self.Y_LABEL = self.Y_GRAPH + self.H_GRAPH + 3
 
-		self.X_LEGEND_MARGIN = 10
-		self.Y_LEGEND_MARGIN = 5
 		self.X_LEGEND_LINE = self.X_LEGEND_MARGIN
 		self.Y_LEGEND_LINE = self.Y_LEGEND_MARGIN + 9  # to center it relative to the text
-		self.W_LEGEND_LINE = 30
 		self.X_LEGEND_TEXT = self.X_LEGEND_LINE + self.W_LEGEND_LINE + 10
 		self.Y_LEGEND_TEXT = self.Y_LEGEND_MARGIN
-		self.H_LEGEND_TEXT = 16
-
-		# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
-		self.iGraphLeaderIconSize = 16
-
-		# <!-- custom: Y offset for turn number label below year in graph tab, added with claude opus 4.5's help thanks. -->
-		self.iGraphTurnLabelYOffset = 16
 
 #BUG: Change Graphs - start
-		self.Graph_Status_1in1 = 0
-		self.Graph_Status_7in1 = 1
-		self.Graph_Status_3in1 = 2
 		self.Graph_Status_Current = self.Graph_Status_1in1
 		self.Graph_Status_Prior = self.Graph_Status_7in1
 #		self.BIG_GRAPH = False
@@ -553,16 +650,12 @@ class CvInfoScreen:
 #    L 5 6
 #
 # where L is the legend and a number represents a graph
-		self.X_7_IN_1_CHART_ADJ = [0, 1, 2, 1, 2, 1, 2]
-		self.Y_7_IN_1_CHART_ADJ = [0, 0, 0, 1, 1, 2, 2]
 
 # the 3-in-1 graphs are layout out as follows:
 #    0 1
 #    L 2
 #
 # where L is the legend and a number represents a graph
-		self.X_3_IN_1_CHART_ADJ = [0, 1, 1]
-		self.Y_3_IN_1_CHART_ADJ = [0, 0, 1]
 #BUG: Change Graphs - end
 
 		# DEMOGRAPHICS
@@ -576,41 +669,6 @@ class CvInfoScreen:
 		self.W_DEMOGRAPHICS_CHART = self.W_SCREEN - 2 * self.X_DEMOGRAPHICS_CHART
 		self.H_DEMOGRAPHICS_CHART = self.H_SCREEN - 2 * self.Y_DEMOGRAPHICS_CHART
 
-		# <!-- custom: make self.W_TEXT and such local since we don't use them outside init it seems and add "demographics" so it is clearr if i'm not mistaken. -->
-		demographics_W_TEXT = 140
-		demographics_H_TEXT = 15
-		demographics_X_TEXT_BUFFER = 0
-		demographics_Y_TEXT_BUFFER = 43
-
-		# <!-- custom: make these dimensions as parameters so we can control them at init rather where more of the info is centralized. -->
-		self.W_DEMOGRAPHICS_COL_DEM = 320
-		demographicsNumericalColsW = 150
-		demographicsRivalColsW = 220
-		self.W_DEMOGRAPHICS_COL_VALUE = demographicsNumericalColsW
-		self.W_DEMOGRAPHICS_COL_RANK = demographicsNumericalColsW
-		self.W_DEMOGRAPHICS_COL_RIVAL_BEST = demographicsRivalColsW
-		self.W_DEMOGRAPHICS_COL_RIVAL_WORST = demographicsRivalColsW
-		self.W_DEMOGRAPHICS_COL_RIVAL_AVG = demographicsNumericalColsW
-
-		self.X_COL_1 = 535
-		self.X_COL_2 = self.X_COL_1 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
-		self.X_COL_3 = self.X_COL_2 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
-		self.X_COL_4 = self.X_COL_3 + demographics_W_TEXT + demographics_X_TEXT_BUFFER
-
-		self.Y_ROW_1 = 100
-		self.Y_ROW_2 = self.Y_ROW_1 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_3 = self.Y_ROW_2 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_4 = self.Y_ROW_3 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_5 = self.Y_ROW_4 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_6 = self.Y_ROW_5 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_7 = self.Y_ROW_6 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_8 = self.Y_ROW_7 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_9 = self.Y_ROW_8 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-		self.Y_ROW_10 = self.Y_ROW_9 + demographics_H_TEXT + demographics_Y_TEXT_BUFFER
-
-		# <!-- custom: rank icon size for demographics tab, added with claude opus 4.5's help thanks. -->
-		self.iRankIconSize = 16
-
 		self.bAbleToShowAllPlayers = false
 		self.iShowingPlayer = -1
 		self.aiDropdownPlayerIDs = []
@@ -618,36 +676,11 @@ class CvInfoScreen:
 		# TOP CITIES
 
 		# <!-- custom: self.W_WONDERS_RIGHT_PANE moved to top cities since it uses it to compute its dimensions. -->
-		self.W_WONDERS_RIGHT_PANE = 765
 		# <!-- custom: gap between the panels as noted by gemini 3 pro and chatgpt 5.2 before it thanks. -->
 		self.W_WONDERS_INTER_PANE_GAP = self.X_MARGIN
 
-		# <!-- custom: header height for "Top 5 Cities in the World" title, added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesHeaderHeight = 35
-
-		# <!-- custom: city name/founded panel dimensions, added with claude opus 4.5's help thanks. -->
-		self.H_CITIES_DESC = 58
-		# <!-- custom: Y offset adjustment to align city desc panel with city animation, added with claude opus 4.5's help thanks. -->
-		self.Y_CITIES_DESC_BUFFER = -9
-
-		# <!-- custom: multilist panel constants for top cities wonders, added with claude opus 4.5's help thanks. -->
-		self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER = 5
-		self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER = 5
-		self.iTopCitiesWonderButtonSize = 46
-		# <!-- custom: mirror Sevopedia multilist constants pattern (without shared module dependency). (GPT-5.3-Codex) -->
-		self.iTopCitiesWonderNumListsAutoCalculate = 1
-		self.iTopCitiesWonderColumnIndexAuto = 0
-		self.iTopCitiesWonderNumRows = 2
-		self.iTopCitiesWonderPanelMargin = 8
-		# <!-- custom: height adjustment for wonder panel (negative to reduce), added with claude opus 4.5's help thanks. -->
-		iTopCitiesWonderPanelHeightAdjust = -3
 		# <!-- custom: calculate wonder panel height based on rows, added with claude opus 4.5's help thanks. -->
-		self.H_CITIES_WONDER_PANEL = (self.iTopCitiesWonderNumRows * self.iTopCitiesWonderButtonSize) + (2 * self.iTopCitiesWonderPanelMargin) + iTopCitiesWonderPanelHeightAdjust
-
-		# <!-- custom: gap between city desc panel and wonder panel, added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesDescWonderGap = -2
-		# <!-- custom: margin between city components (bottom of one city to top of next), added with claude opus 4.5's help thanks. -->
-		self.iTopCitiesInterCityMargin = 6
+		self.H_CITIES_WONDER_PANEL = (self.iTopCitiesWonderNumRows * self.iTopCitiesWonderButtonSize) + (2 * self.iTopCitiesWonderPanelMargin) + self.iTopCitiesWonderPanelHeightAdjust
 
 		# <!-- custom: total height of right side (city desc + gap + wonder panel), added with claude opus 4.5's help thanks. -->
 		self.iTopCitiesRightSideHeight = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap + self.H_CITIES_WONDER_PANEL
@@ -662,7 +695,6 @@ class CvInfoScreen:
 		# Animated City thingies
 		self.X_CITY_ANIMATION = self.X_TOP_CITIES_LEFT_PANE + 20
 		self.Z_CITY_ANIMATION = self.Z_BACKGROUND - 0.5
-		self.W_CITY_ANIMATION = 150
 		# <!-- custom: match city animation height with right side panels, adjusted by trial, added with claude opus 4.5's help thanks. -->
 		self.H_CITY_ANIMATION = self.iTopCitiesRightSideHeight - 10
 		# <!-- custom: Y buffer adjusted to align top of animation with top of city desc panel, added with claude opus 4.5's help thanks. -->
@@ -682,10 +714,8 @@ class CvInfoScreen:
 			self.Y_ROWS_CITIES.append(self.Y_ROWS_CITIES[i-1] + self.Y_CITIES_BUFFER)
 
 		# <!-- custom: right part of the top cities panel if i'm not mistaken. -->
-		topCitiesInterLeftRightPartsGapAdjust = 2
-		self.X_COL_1_CITIES_DESC = self.X_TOP_CITIES_LEFT_PANE + self.W_CITY_ANIMATION + 30 + topCitiesInterLeftRightPartsGapAdjust
-		topcitiesRightPartWAdjust = -16
-		self.W_CITIES_DESC = self.W_TOP_CITIES_LEFT_PANE - self.W_CITY_ANIMATION - 30 + topcitiesRightPartWAdjust - topCitiesInterLeftRightPartsGapAdjust
+		self.X_COL_1_CITIES_DESC = self.X_TOP_CITIES_LEFT_PANE + self.W_CITY_ANIMATION + 30 + self.iTopCitiesInterLeftRightPartsGapAdjust
+		self.W_CITIES_DESC = self.W_TOP_CITIES_LEFT_PANE - self.W_CITY_ANIMATION - 30 + self.iTopCitiesRightPartWAdjust - self.iTopCitiesInterLeftRightPartsGapAdjust
 
 		# <!-- custom: wonder panel Y offset from city desc panel, added with claude opus 4.5's help thanks. -->
 		self.Y_CITIES_WONDER_BUFFER = self.H_CITIES_DESC + self.iTopCitiesDescWonderGap
@@ -700,52 +730,23 @@ class CvInfoScreen:
 		self.W_WONDERS_CHART = self.W_WONDERS_RIGHT_PANE - (2 * self.SMALL_MARGIN)
 		self.H_WONDERS_CHART = self.H_WONDERS_RIGHT_PANE - self.Y_WONDERS_RIGHT_PANE
 
-		self.W_WONDERS_CHART_COL_BUTTON = 30
-		self.WONDERS_COL_MOVE_TO_CITY_ID = 4
-		# <!-- custom: rebalanced Wonders table after widening the Wonders pane and shrinking Top 5 Cities:
-		# allocate roughly half of the gained width to Name (residual column) and the other half to Date/Owner/City. (GPT-5.3-Codex) -->
-		self.W_WONDERS_CHART_COL_DATE = 110
-		self.W_WONDERS_CHART_COL_OWNER = 155
-		self.W_WONDERS_CHART_COL_CITY = 155
 		totalWondersCharMostColsW = self.W_WONDERS_CHART_COL_BUTTON + self.W_WONDERS_CHART_COL_DATE + self.W_WONDERS_CHART_COL_OWNER + self.W_WONDERS_CHART_COL_CITY
 		self.W_WONDERS_CHART_COL_NAME = self.W_WONDERS_CHART - totalWondersCharMostColsW
 
 		self.X_WONDERS_STATS_PANE = self.X_WONDERS_RIGHT_PANE + 20
 		self.Y_WONDERS_STATS_PANE = self.Y_WONDERS_RIGHT_PANE + 20
-		self.W_WONDERS_STATS_PANE = 210
-		self.H_WONDERS_STATS_PANE = 220
-
-		self.WONDERS_FUDGE_FACTOR = 3
 
 		self.X_WONDERS_DROPDOWN = self.X_WONDERS_RIGHT_PANE + 20
 		self.Y_WONDERS_DROPDOWN = self.Y_WONDERS_RIGHT_PANE + 20
-		self.W_WONDERS_DROPDOWN = 420
 
 		self.X_WONDER_LIST = self.X_WONDERS_RIGHT_PANE + 240 + (2 * self.WONDERS_FUDGE_FACTOR)
 		self.Y_WONDER_LIST = self.Y_WONDERS_RIGHT_PANE + 60
-		self.W_WONDER_LIST = 200 - (2 * self.WONDERS_FUDGE_FACTOR)
-		self.H_WONDER_LIST = 180
+		self.W_WONDER_LIST = self.W_WONDER_LIST_BASE - (2 * self.WONDERS_FUDGE_FACTOR)
 
-		self.X_WONDER_GRAPHIC = 540
 		self.Y_WONDER_GRAPHIC = self.Y_WONDERS_RIGHT_PANE + 20 + 200 + 35
-		self.W_WONDER_GRAPHIC = 420
-		self.H_WONDER_GRAPHIC = 190
-
-		self.X_ROTATION_WONDER_ANIMATION = -20
-		self.Z_ROTATION_WONDER_ANIMATION = 30
-		self.WONDERS_SCALE_ANIMATION = 0.5
 
 		self.X_PROJECT_ICON = self.X_WONDER_GRAPHIC + self.W_WONDER_GRAPHIC / 2
 		self.Y_PROJECT_ICON = self.Y_WONDER_GRAPHIC + self.H_WONDER_GRAPHIC / 2
-		self.W_PROJECT_ICON = 128
-
-		self.X_WONDER_SPECIAL_TITLE = 540
-		self.Y_WONDER_SPECIAL_TITLE = 310 + 200 + 7
-
-		self.X_WONDER_SPECIAL_PANE = 540
-		self.Y_WONDER_SPECIAL_PANE = 310 + 200 + 20 + 15
-		self.W_WONDER_SPECIAL_PANE = 420
-		self.H_WONDER_SPECIAL_PANE = 140 - 15
 
 		self.szWDM_WorldWonder = "World Wonders"
 		self.szWDM_NatnlWonder = "National Wonders"
@@ -760,9 +761,8 @@ class CvInfoScreen:
 		self.iWonderID = -1 			# BuildingType ID of the active wonder, e.g. Palace is 0, Globe Theater is 66
 		self.iActiveWonderCounter = 0	# Screen ID for this wonder (0, 1, 2, etc.) - different from the above variable
 
-		# STATISTICS
+	# STATISTICS
 		self.X_STATS_BOTTOM_CHART = self.X_MARGIN
-		self.Y_STATS_BOTTOM_CHART = 280
 		iTotalStatsTabBottomW = self.W_SCREEN - 2 * self.X_STATS_BOTTOM_CHART
 		self.W_STATS_BOTTOM_CHART_UNITS = int(iTotalStatsTabBottomW * 455 / 935)
 		self.W_STATS_BOTTOM_CHART_BUILDINGS = int(iTotalStatsTabBottomW * 260 / 935)
@@ -772,30 +772,18 @@ class CvInfoScreen:
 		self.X_STATS_TOP_PANEL = self.X_MARGIN
 		self.Y_STATS_TOP_PANEL = self.Y_MARGIN
 		self.W_STATS_TOP_PANEL = self.W_SCREEN - 2 * self.X_STATS_TOP_PANEL
-		self.H_STATS_TOP_PANEL = 0
 
 		self.X_LEADER_ICON = self.X_STATS_TOP_PANEL
-		self.Y_LEADER_ICON = 95
-		self.W_LEADER_ICON = 128
-		self.H_LEADER_ICON = 156
 
 		self.X_STATS_TOP_CHART = self.X_LEADER_ICON + self.X_MARGIN + self.W_LEADER_ICON
 		self.Y_STATS_TOP_CHART = self.Y_LEADER_ICON
-		iExtraWTopChartValue = 12
-		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + iExtraWTopChartValue
+		self.W_STATS_TOP_CHART = self.W_STATS_BOTTOM_CHART_UNITS - self.X_STATS_TOP_CHART + self.iExtraWTopChartValue
 		self.H_STATS_TOP_CHART = self.H_LEADER_ICON
 
-		self.STATS_TOP_CHART_W_COL_1 = 100
 		self.STATS_TOP_CHART_W_COL_0 = self.W_STATS_TOP_CHART - self.STATS_TOP_CHART_W_COL_1
-		self.iNumTopChartCols = 2
 
 		self.X_LEADER_NAME = self.X_LEADER_ICON
 		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
-
-		self.W_DEMOGRAPHICS_BUTTON_SIZE = 24
-		self.H_DEMOGRAPHICS_BUTTON_SIZE = 24
-		self.W_STATS_BUTTON_SIZE = 24
-		self.H_STATS_BUTTON_SIZE = 24
 
 	def getLastTurn(self):
 		return (gc.getGame().getReplayMessageTurn(gc.getGame().getNumReplayMessages()-1))
@@ -833,12 +821,12 @@ class CvInfoScreen:
 
 		# Set the background widget and exit button
 		screen.addDDSGFC("DemographicsScreenBackground", ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, self.PANEL_HEIGHT, PanelStyles.PANEL_STYLE_TOPBAR )
 		# <!-- custom: in the foreign advisor and similar screens, too many players do not fit in one view, and the window does not use the full game window space. Make it larger like Sevopedia to reduce scrolling. Credit: Gemini 3 Pro; fixes reviewed by Claude Sonnet 4.5. (GPT-5.2-Codex (summarized)) -->
 		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
 		# screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		# screen.showWindowBackground( False )
-		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, self.H_SCREEN - 55, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, self.H_SCREEN - self.PANEL_HEIGHT, self.W_SCREEN, self.PANEL_HEIGHT, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground( False )
 
 		# <!-- custom: unlike the foreign advisor reuse, we must change the center settings here or the screen stays centered. With this change we can move the military advisor screen around the window. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
@@ -4211,6 +4199,151 @@ class CvInfoScreen:
 			screen.addLineGFC(canvas, self.getNextLineName(), x0, y0 + 1, x1, y1 + 1, color)
 			screen.addLineGFC(canvas, self.getNextLineName(), x0 + 1, y0, x1 + 1, y1, color)
 		screen.addLineGFC(canvas, self.getNextLineName(), x0, y0, x1, y1, color)
+
+	# ENVIRONMENT
+	def drawEnvironmentTab(self):
+		screen = self.getScreen()
+		game = CyGame()
+		player = gc.getPlayer(self.iActivePlayer)
+
+		X_LEFT_PANEL = self.ENV_X_LEFT_PANEL
+		X_MIDDLE_PANEL = self.ENV_X_MIDDLE_PANEL
+		X_RIGHT_PANEL = self.ENV_X_RIGHT_PANEL
+		Y_TOP_PANEL = self.ENV_Y_TOP_PANEL
+		H_TOP_PANEL = self.ENV_H_TOP_PANEL
+		Y_LOCATION = self.ENV_Y_LOCATION
+		PANE_WIDTH = self.ENV_PANE_WIDTH
+		PANE_HEIGHT = self.ENV_PANE_HEIGHT
+		TEXT_MARGIN = self.ENV_TEXT_MARGIN
+		Y_SPACING = self.ENV_Y_SPACING
+
+		szTopPanel = self.getNextWidgetName()
+		screen.addPanel(szTopPanel, u"", "", True, True, X_LEFT_PANEL, Y_TOP_PANEL, X_RIGHT_PANEL + PANE_WIDTH - X_LEFT_PANEL, H_TOP_PANEL, PanelStyles.PANEL_STYLE_MAIN)
+
+		iGlobalWarmingIndex = game.getGlobalWarmingIndex()
+		iGlobalWarmingChances = game.getGlobalWarmingChances()
+		iGwEventTally = game.getGwEventTally()
+		iSeverityRating = game.calculateGwSeverityRating()
+
+		szText = localText.getText("TXT_KEY_GW_SEVERITY_RATING", ()).upper() + ": "
+		# advc.137: Better use separate keys
+		if iSeverityRating < 30:
+			szText += localText.getColorText("TXT_KEY_LOW", (), gc.getInfoTypeForString("COLOR_GREEN")).upper()
+		elif iSeverityRating < 75:
+			szText += localText.getColorText("TXT_KEY_MEDIUM", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper()
+		else:
+			szText += localText.getColorText("TXT_KEY_HIGH", (), gc.getInfoTypeForString("COLOR_RED")).upper()
+		if CyGame().isDebugMode():
+			szText += u" (%d)" % iSeverityRating
+		screen.setLabel(self.getNextWidgetName(), szTopPanel, SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, self.Z_CONTROLS + self.DZ, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		szLeftPanel = self.getNextWidgetName()
+		screen.addPanel(szLeftPanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_DOMESTIC", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		szMiddlePanel = self.getNextWidgetName()
+		screen.addPanel(szMiddlePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		szRightPanel = self.getNextWidgetName()
+		screen.addPanel(szRightPanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		# Left panel: domestic
+		yLocation = Y_LOCATION
+		iPopulation = player.calculatePollution(PollutionTypes.POLLUTION_POPULATION)
+		iBuildings = player.calculatePollution(PollutionTypes.POLLUTION_BUILDINGS)
+		iResources = player.calculatePollution(PollutionTypes.POLLUTION_BONUSES)
+		iPower = player.calculatePollution(PollutionTypes.POLLUTION_POWER)
+		iLocalPollution = player.calculatePollution(PollutionTypes.POLLUTION_ALL)
+		iLocalThreshold = game.calculateGwSustainabilityThreshold(self.iActivePlayer)
+		iPollutionTypes = (iPopulation != 0) * PollutionTypes.POLLUTION_POPULATION | (iBuildings != 0) * PollutionTypes.POLLUTION_BUILDINGS | (iResources != 0) * PollutionTypes.POLLUTION_BONUSES | (iPower != 0) * PollutionTypes.POLLUTION_POWER
+		iLocalDefence = game.calculateGwLandDefence(self.iActivePlayer)
+
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLLUTION", ()) + ":" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+
+		if iPopulation != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DEMO_SCREEN_POPULATION_TEXT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPopulation) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
+		if iBuildings != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
+		if iResources != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResources) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
+		if iPower != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_TECH_ELECTRICITY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPower) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
+
+		yLocation += Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_TOTAL", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_OFFSETS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_IMPACT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution - iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_THRESHOLD", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+
+		# Middle panel: Global
+		yLocation = Y_LOCATION
+		iGlobalPollution = game.calculateGlobalPollution()
+		iGlobalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
+		iThreshold = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
+		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE") / 100
+
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_POLLUTION", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_OFFSETS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iGlobalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_THRESHOLD", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GW_CHANGE_RATE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(max(0, iChangeRate)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		iResponsibility = 100 * (iLocalPollution - iLocalDefence)
+		iResponsibility /= max(1, iLocalThreshold)
+		iResponsibility *= iThreshold
+		iResponsibility /= max(1, iGlobalPollution - iGlobalDefence)
+		if iGwEventTally >= 0 or CyGame().isDebugMode():
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_RELATIVE_CONTRIBUTION", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResponsibility) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
+
+		# Right panel: Effects
+		yLocation = Y_LOCATION
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GW_INDEX", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalWarmingIndex) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		fExpectedEvents = 1.0 * iGlobalWarmingChances * gc.getDefineINT("GLOBAL_WARMING_PROB") / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EXPECTED_EVENTS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + u"%0.1f" % fExpectedEvents + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		if iGwEventTally >= 0:
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EVENT_TALLY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwEventTally) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iGwPercentAnger = player.getGwPercentAnger()
+		if iGwPercentAnger >= 2:
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_ANGER_LEVEL", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwPercentAnger) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
+		if CyGame().isDebugMode():
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CHANCES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def getLog10(self, x):
 		return math.log10(max(1,x))
