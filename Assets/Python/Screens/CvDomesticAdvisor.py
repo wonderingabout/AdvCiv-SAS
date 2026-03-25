@@ -4,6 +4,9 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+import BugUtil
+import PlayerUtil
+import TradeUtil
 from SASFontUtils import *
 from SASUtils import *
 
@@ -45,6 +48,24 @@ class CvDomesticAdvisor:
 		self.nSpecTextOffsetX = 40
 		self.nSpecTextOffsetY = 10
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
+		self.PAGE_OVERVIEW = 0
+		self.PAGE_FINANCE = 1
+		self.iPage = self.PAGE_OVERVIEW
+		self.PAGE_TAB_IDS = ["DomesticTabButton0", "DomesticTabButton1"]
+		self.PAGE_LINK_WIDTH = []
+		self.bOverviewTableCreated = False
+		self.nFinanceWidgetCount = 0
+		self.FINANCE_WIDGET_ID = "DomesticFinanceWidget"
+		# <!-- custom: finance-tab layout constants are screen-independent; keep them in init and only compute runtime positions/sizes in configureFinanceLayout. (GPT-5.3-Codex) -->
+		self.FINANCE_INNER_MARGIN = 24
+		self.FINANCE_COLUMN_GAP = 20
+		self.FINANCE_TOP_PANEL_HEIGHT = 90
+		self.FINANCE_TEXT_MARGIN = 15
+		self.FINANCE_Y_SPACING = 30
+		self.FINANCE_Z_CONTROLS = -2.3
+		self.FINANCE_DZ = -0.2
+		# <!-- custom: tab labels that do not depend on runtime geometry stay in init/initText; only link widths are runtime-dependent. (GPT-5.3-Codex) -->
+		self.TEXT_TAB_OVERVIEW = "OVERVIEW"
 
 	def initText(self):
 		# <!-- custom: cache Domestic Advisor header texts/icons once per language to avoid repeated translation/symbol lookups on redraw. Keep column widths runtime-based because they depend on current screen size. (GPT-5.3-Codex) -->
@@ -69,6 +90,9 @@ class CvDomesticAdvisor:
 		self.HEADER_PRODUCING = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE
 		self.HEADER_REVOLT = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE
 		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_EXIT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
+		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW, self.TEXT_TAB_FINANCE]
 
 	def updateRuntimeLayout(self, screen):
 		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
@@ -96,18 +120,32 @@ class CvDomesticAdvisor:
 		self.nTableHeight = self.nMainPanelHeight - (2 * self.nTableMargin) - self.nTableTopVisualAdjust
 		# <!-- custom: keep specialist controls in the footer strip so the table can use symmetric margins inside the main panel. (GPT-5.3-Codex) -->
 		self.nSpecialistY = self.Y_BOTTOM_PANEL + 2
+
+	def updateRuntimeTabLinkWidths(self):
+		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_EXIT)
 		
 	# Screen construction function
-	def interfaceScreen(self):
+	def interfaceScreen(self, argsList=None):
+		if argsList is not None:
+			if isinstance(argsList, (list, tuple)) and len(argsList) > 0:
+				if argsList[0] in [self.PAGE_OVERVIEW, self.PAGE_FINANCE]:
+					self.iPage = argsList[0]
+			elif argsList in [self.PAGE_OVERVIEW, self.PAGE_FINANCE]:
+				self.iPage = argsList
 	
 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		self.updateRuntimeLayout(screen)
+		self.initText()
+		self.updateRuntimeTabLinkWidths()
+
+		if screen.isActive():
+			self.drawContents()
+			return
 
 		screen.setRenderInterfaceOnly(True)
 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		self.initText()
 	
 		# Here we set the background widget and exit button, and we show the screen
 		screen.addDrawControl("DomesticAdvisorBackground", ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.nScreenWidth, self.nScreenHeight, WidgetTypes.WIDGET_GENERAL, -1, -1 )
@@ -115,20 +153,59 @@ class CvDomesticAdvisor:
 		screen.addPanel( "DomesticBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground(False)
 		screen.setLabel("DomesticTitleHeader", "Background", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setText("DomesticExit", "Background",
-				SAS_FONT_TAG_TITLE + # advc.193
-				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
-				+ SAS_FONT_TAG_CLOSE, # advc.193
-				CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, -0.1,
-				FontTypes.TITLE_FONT,
-				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+		screen.setText("DomesticExit", "Background", self.TEXT_EXIT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
 		screen.addPanel("DomesticMainPanel", "", "", True, True, self.nMainPanelX, self.nMainPanelY, self.nMainPanelWidth, self.nMainPanelHeight, PanelStyles.PANEL_STYLE_BLUE50)
 
 		# Erase the flag?
 		CyInterface().setDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT, True)
 
-		# Draw the city list...
-		self.drawContents( )
+		self.drawContents()
+
+	def drawTabs(self):
+		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+		iX = 0
+		for iPage in range(len(self.PAGE_NAME_LIST)):
+			szLabel = self.PAGE_NAME_LIST[iPage]
+			if self.iPage == iPage:
+				szLabel = localText.changeTextColor(szLabel, gc.getInfoTypeForString("COLOR_YELLOW"))
+			szText = SAS_FONT_TAG_TITLE + szLabel + SAS_FONT_TAG_CLOSE
+			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
+			iX += self.PAGE_LINK_WIDTH[iPage]
+
+	def getScreen(self):
+		return CyGInterfaceScreen("DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR)
+
+	def configureFinanceLayout(self):
+		iInnerMargin = self.FINANCE_INNER_MARGIN
+		iColumnGap = self.FINANCE_COLUMN_GAP
+		self.FIN_X_LEFT_PANEL = self.nMainPanelX + iInnerMargin
+		self.FIN_PANE_WIDTH = (self.nMainPanelWidth - (2 * iInnerMargin) - (2 * iColumnGap)) / 3
+		self.FIN_X_MIDDLE_PANEL = self.FIN_X_LEFT_PANEL + self.FIN_PANE_WIDTH + iColumnGap
+		self.FIN_X_RIGHT_PANEL = self.FIN_X_MIDDLE_PANEL + self.FIN_PANE_WIDTH + iColumnGap
+		self.FIN_Y_TOP_PANEL = self.nMainPanelY + iInnerMargin
+		self.FIN_H_TOP_PANEL = self.FINANCE_TOP_PANEL_HEIGHT
+		self.FIN_Y_LOCATION = self.FIN_Y_TOP_PANEL + self.FIN_H_TOP_PANEL + iInnerMargin
+		self.FIN_PANE_HEIGHT = self.nMainPanelY + self.nMainPanelHeight - self.FIN_Y_LOCATION - iInnerMargin
+
+	def getNextFinanceWidgetName(self):
+		szName = self.FINANCE_WIDGET_ID + str(self.nFinanceWidgetCount)
+		self.nFinanceWidgetCount += 1
+		return szName
+
+	def clearOverviewWidgets(self):
+		screen = self.getScreen()
+		if self.bOverviewTableCreated:
+			screen.deleteWidget("CityListBackground")
+			self.bOverviewTableCreated = False
+		self.hideSpecialists()
+
+	def clearFinanceWidgets(self):
+		if self.nFinanceWidgetCount <= 0:
+			return
+		screen = self.getScreen()
+		for i in range(self.nFinanceWidgetCount - 1, -1, -1):
+			screen.deleteWidget(self.FINANCE_WIDGET_ID + str(i))
+		self.nFinanceWidgetCount = 0
 		
 	# headers...
 	def drawHeaders( self ):
@@ -194,13 +271,24 @@ class CvDomesticAdvisor:
 
 	# Function to draw the contents of the cityList passed in
 	def drawContents (self):
-	
+		self.drawTabs()
+		if self.iPage == self.PAGE_FINANCE:
+			self.drawFinanceContents()
+			return
+		self.drawOverviewContents()
+
+	def drawOverviewContents(self):
+		self.clearFinanceWidgets()
+
 		# Get the screen and the player
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		player = gc.getPlayer(CyGame().getActivePlayer())
-		
+		if self.bOverviewTableCreated:
+			screen.deleteWidget("CityListBackground")
+
 		# Build the table	
 		screen.addTableControlGFC( "CityListBackground", 19, self.nTableX, self.nTableY, self.nTableWidth, self.nTableHeight, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD )
+		self.bOverviewTableCreated = True
 		screen.enableSelect( "CityListBackground", True )
 		screen.enableSort( "CityListBackground" )
 		screen.setStyle("CityListBackground", "Table_StandardCiv_Style")
@@ -223,6 +311,331 @@ class CvDomesticAdvisor:
 		self.updateAppropriateCitySelection()
 		
 		CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, true)
+
+	def drawFinanceContents(self):
+		self.clearOverviewWidgets()
+		self.clearFinanceWidgets()
+		self.configureFinanceLayout()
+		self.iFinanceActiveLeader = CyGame().getActivePlayer()
+		self.drawFinanceTab()
+		screen = self.getScreen()
+		screen.setLabel("DomesticTitleHeader", "Background", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+	def drawFinanceTab(self):
+		screen = self.getScreen()
+		player = gc.getPlayer(self.iFinanceActiveLeader)
+		# <!-- custom: this is tab content inside Domestic Advisor; standalone EconomicsAdvisor-only chrome (separate header text, debug dropdown, own screen widgets) is intentionally not migrated. (GPT-5.3-Codex) -->
+
+		X_LEFT_PANEL = self.FIN_X_LEFT_PANEL
+		X_MIDDLE_PANEL = self.FIN_X_MIDDLE_PANEL
+		X_RIGHT_PANEL = self.FIN_X_RIGHT_PANEL
+		Y_TOP_PANEL = self.FIN_Y_TOP_PANEL
+		H_TOP_PANEL = self.FIN_H_TOP_PANEL
+		Y_LOCATION = self.FIN_Y_LOCATION
+		PANE_WIDTH = self.FIN_PANE_WIDTH
+		PANE_HEIGHT = self.FIN_PANE_HEIGHT
+		TEXT_MARGIN = self.FINANCE_TEXT_MARGIN
+		Y_SPACING = self.FINANCE_Y_SPACING
+		Z_CONTROLS = self.FINANCE_Z_CONTROLS
+		DZ = self.FINANCE_DZ
+
+		# K-Mod - I've changed these costs to include inflation.
+		# advc.001 (comment): CvPlayer::calculateInflatedCosts applies inflation (and rounding) only once in the end.
+		# Therefore, the inflated and rounded subtotals here often don't add up correctly. Not easy to fix.
+		inflationFactor = 100 + player.calculateInflationRate()
+		totalUnitCost = (player.calculateUnitCost() * inflationFactor + 50) / 100
+		totalUnitSupply = (player.calculateUnitSupply() * inflationFactor + 50) / 100
+		totalMaintenance = (player.getTotalMaintenance() * inflationFactor + 50) / 100
+		totalCivicUpkeep = (player.getCivicUpkeep([], False) * inflationFactor + 50) / 100
+
+		totalInflatedCosts = player.calculateInflatedCosts()
+		goldCommerce = player.getCommerceRate(CommerceTypes.COMMERCE_GOLD)
+		gold = player.getGold()
+		goldFromCivs = player.getGoldPerTurn()
+		goldPerTurn = player.calculateGoldRate()
+
+		szTreasuryPanel = self.getNextFinanceWidgetName()
+		screen.addPanel(szTreasuryPanel, u"", "", True, True, X_LEFT_PANEL, Y_TOP_PANEL, X_RIGHT_PANEL + PANE_WIDTH - X_LEFT_PANEL, H_TOP_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+		szText = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_TREASURY", (gold, )).upper()
+		if gold < 0:
+			if goldPerTurn != 0:
+				if gold + goldPerTurn >= 0:
+					szText += BugUtil.getText("TXT_KEY_MISC_POS_GOLD_PER_TURN", goldPerTurn)
+				elif goldPerTurn >= 0:
+					szText += BugUtil.getText("TXT_KEY_MISC_POS_WARNING_GOLD_PER_TURN", goldPerTurn)
+				else:
+					szText += BugUtil.getText("TXT_KEY_MISC_NEG_GOLD_PER_TURN", goldPerTurn)
+		else:
+			if goldPerTurn != 0:
+				if goldPerTurn >= 0:
+					szText += BugUtil.getText("TXT_KEY_MISC_POS_GOLD_PER_TURN", goldPerTurn)
+				elif gold + goldPerTurn >= 0:
+					szText += BugUtil.getText("TXT_KEY_MISC_NEG_WARNING_GOLD_PER_TURN", goldPerTurn)
+				else:
+					szText += BugUtil.getText("TXT_KEY_MISC_NEG_GOLD_PER_TURN", goldPerTurn)
+		screen.setLabel(self.getNextFinanceWidgetName(), szTreasuryPanel, SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_HELP_FINANCE_GOLD_RESERVE, -1, -1 )
+
+		szCommercePanel = self.getNextFinanceWidgetName()
+		screen.addPanel(szCommercePanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_COMMERCE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				
+		szIncomePanel = self.getNextFinanceWidgetName()
+		screen.addPanel(szIncomePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INCOME_HEADER", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		
+		szExpensePanel = self.getNextFinanceWidgetName()
+		screen.addPanel(szExpensePanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES_HEADER", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		# Commerce
+		yLocation = Y_LOCATION
+		iCommerce = 0
+		iWorkedTileCount = 0
+		iWorkedTiles = 0
+		bMultipliers = False # advc.004: in Bureaucracy (or sth. similar)?
+		for city in PlayerUtil.playerCities(player):
+			if not city.isDisorder():
+				for i in range(gc.getNUM_CITY_PLOTS()):
+					plot = city.getCityIndexPlot(i)
+					if plot and not plot.isNone() and plot.hasYield():
+						if city.isWorkingPlot(plot):
+							iWorkedTileCount += 1
+							iWorkedTiles += plot.getYield(YieldTypes.YIELD_COMMERCE)
+				if city.getBaseYieldRateModifier(YieldTypes.YIELD_COMMERCE, 0) != 100:
+					bMultipliers = True
+
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_WORKED_TILES", (iWorkedTileCount,)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iWorkedTiles) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		iCommerce += iWorkedTiles
+
+		iDomesticTrade, _, iForeignTrade, _ = TradeUtil.calculateTradeRoutes(player)
+
+		# advc.086: Always show this to avoid confusion
+		if TradeUtil.isFractionalTrade():
+			iDomesticTrade //= 100
+		yLocation += Y_SPACING
+		szDomesticTrade = localText.getText("TXT_KEY_CONCEPT_DOMESTIC_TRADE", ())
+		# advc.086: Call it just "Trade" if there is no foreign trade to show
+		if iForeignTrade <= 0:
+			szDomesticTrade = localText.getText("TXT_KEY_CONCEPT_TRADE", ())
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + szDomesticTrade + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iDomesticTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
+		iCommerce += iDomesticTrade
+
+		if iForeignTrade > 0:
+			if TradeUtil.isFractionalTrade():
+				iForeignTrade //= 100
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_FOREIGN_TRADE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iForeignTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
+			iCommerce += iForeignTrade
+
+		iCorporations = 0
+		for city in PlayerUtil.playerCities(player):
+			if not city.isDisorder():
+				iCorporations += city.getCorporationYield(YieldTypes.YIELD_COMMERCE)
+
+		if iCorporations > 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iCorporations) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			iCommerce += iCorporations
+
+		iSpecialists = 0
+		for city in PlayerUtil.playerCities(player):
+			if not city.isDisorder():
+				for eSpec in range(gc.getNumSpecialistInfos()):
+					iSpecialists += player.specialistYield(eSpec, YieldTypes.YIELD_COMMERCE) * (city.getSpecialistCount(eSpec) + city.getFreeSpecialistCount(eSpec))
+
+		if iSpecialists > 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iSpecialists) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			iCommerce += iSpecialists
+
+		# advc.001: "Current" total yield - i.e. excluding cities in disorder
+		iTotalCommerce = player.calculateCurrentTotalYield(YieldTypes.YIELD_COMMERCE)
+		iBuildings = iTotalCommerce - iCommerce
+		if iBuildings != 0:
+			yLocation += Y_SPACING
+			suLabel = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ())
+			if bMultipliers:
+				suLabel += u", " + localText.getText("TXT_KEY_MISC_CIVICS_MULTIPLIERS", ())
+			suLabel += SAS_FONT_TAG_CLOSE
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", suLabel, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			iCommerce += iBuildings
+
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_COMMERCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iCommerce) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		yLocation += 0.5 * Y_SPACING
+		for iI in range(CommerceTypes.NUM_COMMERCE_TYPES):
+			eCommerce = (iI + 1) % CommerceTypes.NUM_COMMERCE_TYPES
+			if player.isCommerceFlexible(eCommerce):
+				yLocation += Y_SPACING
+				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
+				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN + 24, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
+				szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(player.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+				screen.setLabel(self.getNextFinanceWidgetName(), "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN + 50, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				szRate = SAS_FONT_TAG_LABEL + unicode(player.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
+				screen.setLabel(self.getNextFinanceWidgetName(), "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		# K-Mod. Show gold rate if it hasn't been shown already
+		if not player.isCommerceFlexible(CommerceTypes.COMMERCE_GOLD):
+			yLocation += Y_SPACING
+			szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getDescription() + u" (" + unicode(player.getCommercePercent(CommerceTypes.COMMERCE_GOLD)) + u"%)" + SAS_FONT_TAG_CLOSE
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN + 50, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			szCommerce = SAS_FONT_TAG_LABEL + unicode(goldCommerce) + SAS_FONT_TAG_CLOSE
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", szCommerce, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		# Income
+		yLocation = Y_LOCATION
+		iTaxRate = player.getCommercePercent(CommerceTypes.COMMERCE_GOLD)
+		multipliers = []
+		for eBldg in range(gc.getNumBuildingInfos()):
+			info = gc.getBuildingInfo(eBldg)
+			iMultiplier = info.getCommerceModifier(CommerceTypes.COMMERCE_GOLD)
+			if iMultiplier > 0:
+				multipliers.append([eBldg, iMultiplier, 0, 0.0])
+
+		iBuildingCount = 0
+		iHeadquartersCount = 0
+		iShrinesCount = 0
+		fTaxes = 0.0
+		fBuildings = 0.0
+		fHeadquarters = 0.0
+		fShrines = 0.0
+		fCorporations = 0.0
+		fSpecialists = 0.0
+		iWealthCount = 0
+		fWealth = 0.0
+		eWealth = gc.getInfoTypeForString("PROCESS_WEALTH")
+		for city in PlayerUtil.playerCities(player):
+			if not city.isDisorder():
+				fCityTaxes = city.getYieldRate(YieldTypes.YIELD_COMMERCE) * iTaxRate / 100.0
+				fTaxes += fCityTaxes
+				fCityBuildings = 0.0
+				fCityHeadquarters = 0.0
+				fCityShrines = 0.0
+				for eBldg in range(gc.getNumBuildingInfos()):
+					iCount = city.getNumRealBuilding(eBldg)
+					if iCount > 0:
+						iBuildingGold = city.getBuildingCommerceByBuilding(CommerceTypes.COMMERCE_GOLD, eBldg)
+						if iBuildingGold > 0:
+							info = gc.getBuildingInfo(eBldg)
+							if info.getFoundsCorporation() != -1:
+								fCityHeadquarters += iBuildingGold
+								iHeadquartersCount += 1
+							elif info.getGlobalReligionCommerce() != -1:
+								fCityShrines += iBuildingGold
+								iShrinesCount += 1
+							else:
+								fCityBuildings += iBuildingGold
+								iBuildingCount += iCount
+				fBuildings += fCityBuildings
+				fHeadquarters += fCityHeadquarters
+				fShrines += fCityShrines
+				fCityCorporations = city.getCorporationCommerce(CommerceTypes.COMMERCE_GOLD)
+				fCorporations += fCityCorporations
+				fCitySpecialists = city.getSpecialistCommerce(CommerceTypes.COMMERCE_GOLD)
+				fSpecialists += fCitySpecialists
+				fCityWealth = 0.0
+				if city.isProductionProcess() and city.getProductionProcess() == eWealth:
+					fCityWealth = city.getProductionToCommerceModifier(CommerceTypes.COMMERCE_GOLD) * city.getYieldRate(YieldTypes.YIELD_PRODUCTION) / 100.0
+					fWealth += fCityWealth
+					iWealthCount += 1
+				# buildings don't multiply wealth
+				fCityTotel = fCityTaxes + fCityBuildings + fCityHeadquarters + fCityCorporations + fCitySpecialists
+				for entry in multipliers:
+					eBldg, iMultiplier, _, _ = entry
+					iCount = city.getNumRealBuilding(eBldg)
+					if iCount > 0:
+						entry[2] += iCount
+						entry[3] += iCount * fCityTotel * iMultiplier / 100.0
+
+		# K-Mod, karadoc
+		# The 'total minus taxes' was wrong. We don't need to use that anyway
+		# I've changed the 'taxes' output to use fTaxes instead of goldcommerce - totalminustaxes
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_TAXES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fTaxes)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		if fBuildings > 0.0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ()) + " (%d)" % iBuildingCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fBuildings)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		if fHeadquarters > 0.0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CORPORATION_HEADQUARTERS", ()) + " (%d)" % iHeadquartersCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fHeadquarters)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		if fCorporations > 0.0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fCorporations)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		if fShrines > 0.0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_RELIGIOUS_SHRINES", ()) + " (%d)" % iShrinesCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fShrines)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		if fSpecialists > 0.0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fSpecialists)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
+
+		for eBldg, iMultiplier, iCount, fGold in multipliers:
+			if iCount > 0 and fGold > 0.0:
+				fAverage = fGold / iCount
+				szDescription = gc.getBuildingInfo(eBldg).getDescription() + u" " + localText.getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_BUILDING_COUNT_AVERAGE", (iCount, BugUtil.formatFloat(fAverage, 2)))
+				yLocation += Y_SPACING
+				screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + szDescription + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fGold)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		if fWealth > 0.0 and iWealthCount > 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PROCESS_WEALTH", ()) + " (%d)" % iWealthCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fWealth)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		iIncome = goldCommerce
+		if goldFromCivs > 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_PER_TURN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+			iIncome += goldFromCivs
+
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INCOME", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iIncome) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		# Expenses
+		yLocation = Y_LOCATION
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_UNITCOST", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalUnitCost) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
+		yLocation += Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_UNITSUPPLY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalUnitSupply) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
+		yLocation += Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_MAINTENANCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalMaintenance) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
+		yLocation += Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_CIVICS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalCivicUpkeep) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
+
+		if goldFromCivs < 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_COST_PER_TURN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+
+		# advc: Unmarked K-Mod 1.45 change; inflation now already included
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalInflatedCosts) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iFinanceActiveLeader, 1 )
 
 	def updateTable(self, pLoopCity, i):
 
@@ -471,8 +884,19 @@ class CvDomesticAdvisor:
 		# Calls function mapped in DomesticAdvisorInputMap
 		#
 		# only get from the map if it has the key
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getButtonType() == WidgetTypes.WIDGET_GENERAL:
+			iData1 = inputClass.getData1()
+			if iData1 in [self.PAGE_OVERVIEW, self.PAGE_FINANCE] and iData1 != self.iPage:
+				self.iPage = iData1
+				self.drawContents()
+				return 1
+		if self.iPage == self.PAGE_FINANCE and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getButtonType() == WidgetTypes.WIDGET_CHANGE_PERCENT:
+			self.drawFinanceContents()
+			return 1
 		
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED ):
+			if self.iPage != self.PAGE_OVERVIEW:
+				return 0
 			if (inputClass.getMouseX() == 0):
 				screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 				screen.hideScreen()
@@ -489,6 +913,8 @@ class CvDomesticAdvisor:
 		return 0
 	
 	def updateAppropriateCitySelection(self):
+		if self.iPage != self.PAGE_OVERVIEW:
+			return
 		nCities = gc.getPlayer(gc.getGame().getActivePlayer()).getNumCities()
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		screen.updateAppropriateCitySelection( "CityListBackground", nCities, 1 )
@@ -498,6 +924,12 @@ class CvDomesticAdvisor:
 				self.listSelectedCities.append(screen.getTableText("CityListBackground", 2, i))
 								
 	def update(self, fDelta):
+		if self.iPage == self.PAGE_FINANCE:
+			if (CyInterface().isDirty(InterfaceDirtyBits.Financial_Screen_DIRTY_BIT)):
+				CyInterface().setDirty(InterfaceDirtyBits.Financial_Screen_DIRTY_BIT, False)
+				self.drawFinanceContents()
+			return
+
 		if (CyInterface().isDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT)):
 			CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, False)
 			

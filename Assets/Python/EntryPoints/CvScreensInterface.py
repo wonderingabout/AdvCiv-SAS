@@ -133,24 +133,18 @@ def showForeignAdvisorScreen(argsList):
 ##
 financeAdvisor = None
 def createFinanceAdvisor():
-	# Creates the correct Finance Advisor based on an option.
-	#
+	# <!-- custom: finance view is integrated as a Domestic Advisor tab; keep FINANCE_ADVISOR wiring as an alias to Domestic for compatibility with existing startup flow/hotkeys. (GPT-5.3-Codex) -->
 	global financeAdvisor
 	if financeAdvisor is None:
-		import EconomicsAdvisor
-		financeAdvisor = EconomicsAdvisor.EconomicsAdvisor()
-#		if (AdvisorOpt.isBugFinanceAdvisor()):
-#			import BugFinanceAdvisor
-#			financeAdvisor = BugFinanceAdvisor.BugFinanceAdvisor()
-#		else:
-#			import CvFinanceAdvisor
-#			financeAdvisor = CvFinanceAdvisor.CvFinanceAdvisor()
+		createDomesticAdvisor()
+		financeAdvisor = domesticAdvisor
 		HandleInputMap[FINANCE_ADVISOR] = financeAdvisor
 # BUG - Finance Advisor - end
 			
 def showFinanceAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		financeAdvisor.interfaceScreen()
+		createDomesticAdvisor()
+		domesticAdvisor.interfaceScreen([1])
 
 # BUG - CustDomAdv - start
 domesticAdvisor = None
