@@ -396,6 +396,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
 		<iDefineIntVal>206</iDefineIntVal>
 	</Define>
+	# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES</DefineName>
+		<iDefineIntVal>52</iDefineIntVal>
+	</Define>
 
 
 

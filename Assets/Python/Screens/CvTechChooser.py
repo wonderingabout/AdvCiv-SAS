@@ -171,6 +171,7 @@ class CvTechChooser:
 
 		self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = None
 		self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = None
+		self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES = None
 		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
 		self.PREF_ICON_BOTTOM = 0
 
@@ -190,17 +191,24 @@ class CvTechChooser:
 			self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH")
 		if self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES is None:
 			self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = gc.getDefineINT("SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES")
+		if self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES is None:
+			self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES = gc.getDefineINT("SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES")
 		iRightSpaceForScoreboard = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		iTopSpaceForTechBar = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		# <!-- custom: optional right-space replacement for scoreboard; on lower resolutions this lets users render a larger advisor so one more tech-tree column can be visible. (GPT-5.3-Codex) -->
 		if self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH > 0 and screen.getXResolution() < self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH:
 			iRightSpaceForScoreboard = self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES
+			# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
+			iTopSpaceForTechBar = self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES
 		if iRightSpaceForScoreboard < 0:
 			iRightSpaceForScoreboard = 0
+		if iTopSpaceForTechBar < 0:
+			iTopSpaceForTechBar = 0
 		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
 			screen,
 			SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
 			iRightSpaceForScoreboard,
-			SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR,
+			iTopSpaceForTechBar,
 			SAS_ADVISOR_BOTTOM_SPACE
 		)
 		self.iX_LEFT_START = 30
@@ -289,10 +297,11 @@ class CvTechChooser:
 		screen.setActivation( "TechChooserExit", ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
 
 		# Header...
-		szText = SAS_FONT_TAG_TITLE
+		# <!-- custom: keep Tech Chooser title styling/vertical anchor aligned with migrated advisor screens (bold title + shared screen-independent Y title constant). (GPT-5.3-Codex) -->
+		szText = SAS_FONT_TAG_TITLE_BOLD
 		szText = szText + localText.getText("TXT_KEY_TECH_CHOOSER_TITLE", ()).upper()
 		szText = szText + SAS_FONT_TAG_CLOSE
-		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, 8, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, SAS_ADVISOR_TITLE_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# <!-- custom: simplify code since this was disabled anyway. (GPT-5.2-Codex (summarized)) -->
 		# # Make the scrollable area for the city list...
