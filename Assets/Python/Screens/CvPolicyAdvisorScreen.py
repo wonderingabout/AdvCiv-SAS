@@ -26,6 +26,8 @@ class CvPolicyAdvisorScreen:
 		self.SCREEN_NAME = "PolicyAdvisorScreen"
 		self.CANCEL_NAME = "PolicyCancel"
 		self.EXIT_NAME = "PolicyExit"
+		self.CONVERT_NAME = "PolicyConvert"
+		self.RELIGION_CANCEL_NAME = "ReligionCancel"
 		self.TITLE_NAME = "PolicyTitleHeader"
 		self.BUTTON_NAME = "PolicyAdvisorScreenButton"
 		self.TEXT_NAME = "PolicyAdvisorScreenText"
@@ -81,7 +83,7 @@ class CvPolicyAdvisorScreen:
 		self.m_paeDisplayPolicies = []
 		self.m_paeOriginalPolicies = []
 
-		# <!-- custom: Religion advisor tab integration state/constants kept in Policy advisor init so no standalone Religion screen state is required anymore. Removed unused legacy Religion-screen members during migration to keep this tab-host class clean. (GPT-5.3-Codex) -->
+		# <!-- custom: Religion advisor tab integration state/constants kept in Policy advisor init so no standalone Religion screen state is required anymore. Removed unused legacy Religion-screen members during migration to keep this tab-host class clean. Legacy credit preserved from CvReligionScreen: scrolling aspect by johny smith (CFC thread 260697), inspiration from zappara for extended religion handling, then BUG/K-Mod/advc integration layers. (GPT-5.3-Codex) -->
 		self.RELIGION_NAME = "ReligionText"
 		self.RELIGION_BUTTON_NAME = "ReligionScreenButton"
 		self.RELIGION_TABLE_ID = "ReligionTableWidget"
@@ -93,26 +95,38 @@ class CvPolicyAdvisorScreen:
 		self.RELIGION_SCROLL_PANEL_ID = "ReligionList"
 		self.RELIGION_HEADER_FOUNDED_ID = "ReligionHelpFoundedHeader"
 		self.RELIGION_HEADER_HOLY_CITY_ID = "ReligionHelpHolyCityHeader"
+		self.RELIGION_HEADER_OWNER_ID = "ReligionHelpOwnerHeader"
 		self.RELIGION_HEADER_INFLUENCE_ID = "ReligionHelpInfluenceHeader"
 		self.DZ = -0.2
 		self.LEFT_EDGE_TEXT = 10
+		self.RELIGION_BUTTON_SIZE = 48
 		self.X_RELIGION_START = 180
 		self.DX_RELIGION = 98
+		self.RELIGION_LEFT_LABEL_WIDTH = 180
+		self.RELIGION_RIGHT_PADDING = 16
 		self.Y_FOUNDED = 90
 		self.Y_HOLY_CITY = 115
-		self.Y_INFLUENCE = 140
+		self.Y_OWNER = 140
+		self.Y_INFLUENCE = 165
 		self.Y_RELIGION_NAME = 58
+		self.RELIGION_HOLY_CITY_CITY_MAX_CHARS = 16
+		self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS = 22
 		# <!-- custom: Religion tab fixed layout constants; screen-dependent geometry is derived from these in updateRuntimeLayout. (GPT-5.3-Codex) -->
-		self.RELIGION_AREA_MARGIN_X = 45
+		self.RELIGION_AREA_MARGIN_X = -4
 		self.RELIGION_PANEL_Y_EXPANDED = 44
-		self.RELIGION_PANEL_H_EXPANDED = 250
+		self.RELIGION_PANEL_H_EXPANDED = 285
 		self.RELIGION_PANEL_Y_COMPACT = 84
-		self.RELIGION_PANEL_H_COMPACT = 175
-		self.RELIGION_CITY_TOP_GAP = 28
-		self.RELIGION_CITY_BOTTOM_GAP = 36
-		self.RELIGION_STATUS_TOP_GAP = 4
-		self.RELIGION_STATUS_BOTTOM_GAP = 6
-		self.H_SCROLL_OFFSET = 20
+		self.RELIGION_PANEL_H_COMPACT = 210
+		# <!-- custom: zero/near-zero gaps here are intentional final values (not placeholders) for a contiguous stacked religion layout similar to espionage tab density. (GPT-5.3-Codex) -->
+		self.RELIGION_CITY_TOP_GAP = 0
+		self.RELIGION_CITY_BOTTOM_GAP = -2
+		self.RELIGION_STATUS_TOP_GAP = 0
+		self.RELIGION_STATUS_BOTTOM_GAP = 0
+		self.RELIGION_STATUS_STRIP_H = 30
+		self.RELIGION_STATUS_TEXT_Y_OFFSET = -10
+		self.RELIGION_STATUS_RIGHT_PAD = 10
+		self.RELIGION_STATUS_CANCEL_GAP = 150
+		self.RELIGION_STACK_GAP = -6
 
 		self.NUM_RELIGIONS = -1
 		self.COL_ZOOM_CITY = 0
@@ -166,9 +180,15 @@ class CvPolicyAdvisorScreen:
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_EXIT)
 
 		# <!-- custom: Religion tab layout follows runtime Policy advisor width/height so integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
+		# <!-- custom: this is runtime (not init) because BUG advisor options can be toggled during a session; layout must react without recreating the screen object. (GPT-5.3-Codex) -->
+		bBugReligious = self.isBugReligiousEnabled()
 		self.X_RELIGION_AREA = self.RELIGION_AREA_MARGIN_X
 		self.W_RELIGION_AREA = self.W_SCREEN - 2 * self.X_RELIGION_AREA
-		if self.isBugReligiousEnabled():
+		# <!-- custom: spread religion columns across the full top panel width (after left header labels), instead of fixed legacy spacing that left unused horizontal space. (GPT-5.3-Codex) -->
+		iReligionColumns = gc.getNumReligionInfos() + 1
+		self.DX_RELIGION = (self.W_RELIGION_AREA - self.RELIGION_LEFT_LABEL_WIDTH - self.RELIGION_RIGHT_PADDING) / iReligionColumns
+		self.X_RELIGION_START = self.RELIGION_LEFT_LABEL_WIDTH + self.DX_RELIGION / 2
+		if bBugReligious:
 			self.Y_RELIGION_AREA, self.H_RELIGION_AREA = self.RELIGION_PANEL_Y_EXPANDED, self.RELIGION_PANEL_H_EXPANDED
 		else:
 			self.Y_RELIGION_AREA, self.H_RELIGION_AREA = self.RELIGION_PANEL_Y_COMPACT, self.RELIGION_PANEL_H_COMPACT
@@ -177,8 +197,11 @@ class CvPolicyAdvisorScreen:
 		self.W_CITY_AREA = (self.W_SCREEN - 3 * self.X_RELIGION_AREA) / 2
 		self.X_CITY1_AREA = self.X_RELIGION_AREA
 		self.X_CITY2_AREA = self.X_CITY1_AREA + self.W_CITY_AREA + self.X_RELIGION_AREA
-		self.Y_RELIGION_STATUS = self.Y_CITY_AREA + self.H_CITY_AREA + self.RELIGION_STATUS_TOP_GAP
-		self.H_RELIGION_STATUS = self.Y_BOTTOM_PANEL - self.Y_RELIGION_STATUS - self.RELIGION_STATUS_BOTTOM_GAP
+		if bBugReligious:
+			self.H_RELIGION_STATUS = self.RELIGION_STATUS_STRIP_H
+		else:
+			self.H_RELIGION_STATUS = self.Y_BOTTOM_PANEL - (self.Y_CITY_AREA + self.H_CITY_AREA + self.RELIGION_STATUS_TOP_GAP) - self.RELIGION_STATUS_BOTTOM_GAP
+		self.Y_RELIGION_STATUS = self.Y_CITY_AREA + self.H_CITY_AREA - self.H_RELIGION_STATUS
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.POLICY_ADVISOR_SCREEN)
@@ -279,10 +302,13 @@ class CvPolicyAdvisorScreen:
 		screen.deleteWidget(self.RELIGION_AREA1_ID)
 		screen.deleteWidget(self.RELIGION_AREA2_ID)
 		screen.deleteWidget(self.RELIGION_TABLE_ID)
+		screen.deleteWidget(self.CONVERT_NAME)
+		screen.deleteWidget(self.RELIGION_CANCEL_NAME)
 		screen.deleteWidget(self.RELIGION_STATUS_PANEL_ID)
 		screen.deleteWidget(self.RELIGION_ANARCHY_WIDGET)
 		screen.deleteWidget(self.RELIGION_HEADER_FOUNDED_ID)
 		screen.deleteWidget(self.RELIGION_HEADER_HOLY_CITY_ID)
+		screen.deleteWidget(self.RELIGION_HEADER_OWNER_ID)
 		screen.deleteWidget(self.RELIGION_HEADER_INFLUENCE_ID)
 		for iRel in range(gc.getNumReligionInfos() + 1):
 			screen.deleteWidget(self.getReligionButtonName(iRel))
@@ -333,6 +359,7 @@ class CvPolicyAdvisorScreen:
 			else:
 				self.RELIGIONS = ReligionUtil.getPlayerReligions(gc.getPlayer(self.iActivePlayer))
 		else:
+			# <!-- custom: preserve K-Mod/advc behavior from legacy Religion screen: in non-BUG mode, use all religions directly (the old BUG branch/condition mismatch was fixed in K-Mod and later BUG 4.5). (GPT-5.3-Codex) -->
 			self.RELIGIONS = range(gc.getNumReligionInfos())
 		self.iReligionSelected = gc.getPlayer(self.iActivePlayer).getStateReligion()
 		if self.iReligionSelected == -1:
@@ -579,17 +606,18 @@ class CvPolicyAdvisorScreen:
 		screen.setActivation(self.RELIGION_SCROLL_PANEL_ID, ActivationTypes.ACTIVATE_NORMAL)
 
 		xLoop = self.X_RELIGION_START
+		iButtonOffset = self.RELIGION_BUTTON_SIZE / 2
 		for iRel in self.RELIGIONS:
 			szButtonName = self.getReligionButtonName(iRel)
 			if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
-				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - 25, 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
 			else:
-				screen.setImageButtonAt(szButtonName, szArea, gc.getReligionInfo(iRel).getButtonDisabled(), xLoop - 25, 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setImageButtonAt(szButtonName, szArea, gc.getReligionInfo(iRel).getButtonDisabled(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setLabelAt(self.getReligionTextName(iRel), szArea, SAS_FONT_TAG_LABEL + gc.getReligionInfo(iRel).getDescription() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
 		szButtonName = self.getReligionButtonName(gc.getNumReligionInfos())
-		screen.addCheckBoxGFCAt(szArea, szButtonName, self.NO_STATE_BUTTON_ART, ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - 25, 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+		screen.addCheckBoxGFCAt(szArea, szButtonName, self.NO_STATE_BUTTON_ART, ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
 		screen.setLabelAt(self.getReligionTextName(gc.getNumReligionInfos()), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_NO_STATE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def drawHelpInfo(self):
@@ -606,6 +634,7 @@ class CvPolicyAdvisorScreen:
 			xLoop += self.DX_RELIGION
 
 		screen.setLabelAt(self.RELIGION_HEADER_HOLY_CITY_ID, szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_HOLY_CITY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt(self.RELIGION_HEADER_OWNER_ID, szArea, SAS_FONT_TAG_LABEL + u"Leader (ID)" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		xLoop = self.X_RELIGION_START
 		for iRel in self.RELIGIONS:
@@ -613,11 +642,18 @@ class CvPolicyAdvisorScreen:
 				pHolyCity = gc.getGame().getHolyCity(iRel)
 				if pHolyCity.isNone():
 					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_NONE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_NONE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				elif not pHolyCity.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), True): # advc.001d
 					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				else:
-					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + (u"(%s)" % gc.getPlayer(pHolyCity.getOwner()).getCivilizationAdjective(0)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY + 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + pHolyCity.getName() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY - 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					# <!-- custom: keep Holy City and Leader as separate rows so upscaled text stays readable; include player ID for precise debugging/reference in duplicate-civ setups. (GPT-5.3-Codex) -->
+					szHolyCityName = self.trimReligionColumnText(pHolyCity.getName(), self.RELIGION_HOLY_CITY_CITY_MAX_CHARS)
+					iOwner = pHolyCity.getOwner()
+					szOwnerCore = gc.getPlayer(iOwner).getName() + u" (%d)" % iOwner
+					szHolyCityOwner = self.trimReligionColumnText(szOwnerCore, self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS)
+					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + szHolyCityName + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + szHolyCityOwner + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
 
 		screen.setLabelAt(self.RELIGION_HEADER_INFLUENCE_ID, szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_INFLUENCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -715,13 +751,10 @@ class CvPolicyAdvisorScreen:
 		self.szMissionaries = localText.getText("TXT_KEY_BUG_RELIGIOUS_MISSIONARY", ())
 		self.zoomArt = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.sCity = localText.getText("TXT_KEY_WONDER_CITY", ())
-		if ReligionUtil.getNumReligions() > 7:
-			self.H_SCROLL_OFFSET = 20
-		else:
-			self.H_SCROLL_OFFSET = 0
 
 	def drawCityInfo(self, iReligion):
 		screen = self.getScreen()
+		bBugReligious = self.isBugReligiousEnabled()
 		if iReligion == gc.getNumReligionInfos():
 			iLinkReligion = -1
 		else:
@@ -730,9 +763,12 @@ class CvPolicyAdvisorScreen:
 		screen.deleteWidget(self.RELIGION_AREA1_ID)
 		screen.deleteWidget(self.RELIGION_AREA2_ID)
 		screen.deleteWidget(self.RELIGION_TABLE_ID)
+		screen.deleteWidget(self.CONVERT_NAME)
+		screen.deleteWidget(self.RELIGION_CANCEL_NAME)
 
-		if self.isBugReligiousEnabled():
-			screen.addPanel(self.RELIGION_AREA1_ID, "", "", True, True, self.X_RELIGION_AREA, self.Y_RELIGION_AREA + self.H_RELIGION_AREA + self.H_SCROLL_OFFSET + 3, self.W_RELIGION_AREA, self.H_CITY_AREA - self.H_SCROLL_OFFSET + 20, PanelStyles.PANEL_STYLE_MAIN)
+		if bBugReligious:
+			# <!-- custom: +17px here is intentional to remove the visible seam above the footer and make the second panel reach the footer like the top panel reaches the header. (GPT-5.3-Codex) -->
+			screen.addPanel(self.RELIGION_AREA1_ID, "", "", True, True, self.X_RELIGION_AREA, self.Y_CITY_AREA + self.RELIGION_STACK_GAP, self.W_RELIGION_AREA, self.H_CITY_AREA + 17, PanelStyles.PANEL_STYLE_MAIN)
 		else:
 			screen.addPanel(self.RELIGION_AREA1_ID, "", "", True, True, self.X_CITY1_AREA, self.Y_CITY_AREA, self.W_CITY_AREA, self.H_CITY_AREA, PanelStyles.PANEL_STYLE_MAIN)
 			screen.addPanel(self.RELIGION_AREA2_ID, "", "", True, True, self.X_CITY2_AREA, self.Y_CITY_AREA, self.W_CITY_AREA, self.H_CITY_AREA, PanelStyles.PANEL_STYLE_MAIN)
@@ -744,20 +780,34 @@ class CvPolicyAdvisorScreen:
 		iPlayer = PyPlayer(self.iActivePlayer)
 		cityList = iPlayer.getCityList()
 
-		if self.isBugReligiousEnabled():
-			screen.addTableControlGFC(self.RELIGION_TABLE_ID, self.TABLE_COLUMNS, self.X_RELIGION_AREA + 15, self.Y_RELIGION_AREA + self.H_RELIGION_AREA + self.H_SCROLL_OFFSET + 3 + 15, self.W_RELIGION_AREA - 2 * 15, self.H_CITY_AREA - self.H_SCROLL_OFFSET - 5, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		if bBugReligious:
+			iTableW = self.W_RELIGION_AREA - 2 * 15
+			screen.addTableControlGFC(self.RELIGION_TABLE_ID, self.TABLE_COLUMNS, self.X_RELIGION_AREA + 15, self.Y_CITY_AREA + self.RELIGION_STACK_GAP + 15, iTableW, self.H_CITY_AREA - self.H_RELIGION_STATUS - 20, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSort(self.RELIGION_TABLE_ID)
-			screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_ZOOM_CITY, "", 30)
-			screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_CITY_NAME, SAS_FONT_TAG_LABEL + self.sCity + SAS_FONT_TAG_CLOSE, 115)
+			iZoomW = 34
+			iCityW = 185
+			iReligionW = 28
+			iUnitW = 32
+			iBuildingW = 32
+			iFixedW = iZoomW + iCityW + self.NUM_RELIGIONS * iReligionW + ReligionUtil.getNumUnitTypes() * iUnitW + ReligionUtil.getNumBuildingTypes() * iBuildingW
+			iEffectsW = iTableW - iFixedW
+			if iEffectsW < 175:
+				iEffectsW = 175
+				iCityW = iTableW - iEffectsW - iZoomW - self.NUM_RELIGIONS * iReligionW - ReligionUtil.getNumUnitTypes() * iUnitW - ReligionUtil.getNumBuildingTypes() * iBuildingW
+			screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_ZOOM_CITY, "", iZoomW)
+			screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_CITY_NAME, SAS_FONT_TAG_LABEL + self.sCity + SAS_FONT_TAG_CLOSE, iCityW)
 
 			for iRel in range(self.NUM_RELIGIONS):
 				if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
-					screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_FIRST_RELIGION + iRel, SAS_FONT_TAG_LABEL + (u"%c" % (gc.getReligionInfo(iRel).getChar())) + SAS_FONT_TAG_CLOSE, 25)
+					szRelHeader = SAS_FONT_TAG_LABEL + (u"%c" % (gc.getReligionInfo(iRel).getChar())) + SAS_FONT_TAG_CLOSE
+				else:
+					szRelHeader = ""
+				screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_FIRST_RELIGION + iRel, szRelHeader, iReligionW)
 			for type in ReligionUtil.getUnitTypes():
-				screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_FIRST_UNIT + type.index, SAS_FONT_TAG_LABEL + (u"%s" % type.icon) + SAS_FONT_TAG_CLOSE, 30)
+				screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_FIRST_UNIT + type.index, SAS_FONT_TAG_LABEL + (u"%s" % type.icon) + SAS_FONT_TAG_CLOSE, iUnitW)
 			for type in ReligionUtil.getBuildingTypes():
-				screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_FIRST_BUILDING + type.index, SAS_FONT_TAG_LABEL + (u"%s" % type.icon) + SAS_FONT_TAG_CLOSE, 30)
-			screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_EFFECTS, "", 400)
+				screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_FIRST_BUILDING + type.index, SAS_FONT_TAG_LABEL + (u"%s" % type.icon) + SAS_FONT_TAG_CLOSE, iBuildingW)
+			screen.setTableColumnHeader(self.RELIGION_TABLE_ID, self.COL_EFFECTS, "", iEffectsW)
 
 			for iCity in range(len(cityList)):
 				pLoopCity = cityList[iCity]
@@ -827,15 +877,23 @@ class CvPolicyAdvisorScreen:
 			screen.hide(self.CANCEL_NAME)
 			szAnarchyTime = CyGameTextMgr().setConvertHelp(self.iActivePlayer, iLinkReligion)
 		else:
-			screen.setText(self.EXIT_NAME, "Background", self.CONVERT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CONVERT, iLinkReligion, 1)
-			screen.show(self.CANCEL_NAME)
+			# <!-- custom: keep Exit always at the rightmost footer slot; draw Convert on the in-panel status strip so footer tab labels never overlap it. (GPT-5.3-Codex) -->
+			screen.setText(self.EXIT_NAME, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
+			# <!-- custom: place Convert on the same in-panel status line as the convert-help text instead of footer, preventing overlap with bottom tab links. (GPT-5.3-Codex) -->
+			screen.setText(self.CONVERT_NAME, "Background", self.CONVERT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_RELIGION_AREA + self.W_RELIGION_AREA - self.RELIGION_STATUS_RIGHT_PAD, self.Y_RELIGION_STATUS + self.H_RELIGION_STATUS / 2 + self.RELIGION_STATUS_TEXT_Y_OFFSET, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CONVERT, iLinkReligion, 1)
+			screen.setText(self.RELIGION_CANCEL_NAME, "Background", self.TEXT_CANCEL, CvUtil.FONT_RIGHT_JUSTIFY, self.X_RELIGION_AREA + self.W_RELIGION_AREA - self.RELIGION_STATUS_CANCEL_GAP, self.Y_RELIGION_STATUS + self.H_RELIGION_STATUS / 2 + self.RELIGION_STATUS_TEXT_Y_OFFSET, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.hide(self.CANCEL_NAME)
 			szAnarchyTime = localText.getText("TXT_KEY_ANARCHY_TURNS", (gc.getPlayer(self.iActivePlayer).getReligionAnarchyLength(), ))
 
-		# <!-- custom: keep Religion status/help text out of the footer bar to avoid overlap with tab links/footer actions; use a dedicated strip panel below the city table. (GPT-5.3-Codex) -->
-		screen.addPanel(self.RELIGION_STATUS_PANEL_ID, "", "", True, True, self.X_RELIGION_AREA, self.Y_RELIGION_STATUS, self.W_RELIGION_AREA, self.H_RELIGION_STATUS, PanelStyles.PANEL_STYLE_MAIN)
-		screen.setLabel(self.RELIGION_ANARCHY_WIDGET, "Background", SAS_FONT_TAG_LABEL + szAnarchyTime + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_RELIGION_AREA + self.W_RELIGION_AREA / 2, self.Y_RELIGION_STATUS + self.H_RELIGION_STATUS / 2 - 8, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: in BUG-religious mode, place status text in the last strip of the city panel (no separate third panel) to keep the entire religion body contiguous. (GPT-5.3-Codex) -->
+		if bBugReligious:
+			screen.setLabel(self.RELIGION_ANARCHY_WIDGET, "Background", SAS_FONT_TAG_LABEL + szAnarchyTime + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_RELIGION_AREA + self.W_RELIGION_AREA / 2, self.Y_RELIGION_STATUS + self.H_RELIGION_STATUS / 2 + self.RELIGION_STATUS_TEXT_Y_OFFSET, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		else:
+			screen.addPanel(self.RELIGION_STATUS_PANEL_ID, "", "", True, True, self.X_RELIGION_AREA, self.Y_RELIGION_STATUS, self.W_RELIGION_AREA, self.H_RELIGION_STATUS, PanelStyles.PANEL_STYLE_MAIN)
+			screen.setLabel(self.RELIGION_ANARCHY_WIDGET, "Background", SAS_FONT_TAG_LABEL + szAnarchyTime + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_RELIGION_AREA + self.W_RELIGION_AREA / 2, self.Y_RELIGION_STATUS + self.H_RELIGION_STATUS / 2, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def cityHelp(self, lReligions, kCity, eHoverReligion):
+		# <!-- custom: preserve advc.172 legacy semantics from CvReligionScreen for CyGameTextMgr.getReligionHelpCity (bForceState behavior adjustment via hover-vs-state religion comparison). (GPT-5.3-Codex) -->
 		sHelp = ""
 		bFirst = True
 		eCurrStateReligion = gc.getPlayer(self.iActivePlayer).getStateReligion()
@@ -864,6 +922,11 @@ class CvPolicyAdvisorScreen:
 		else:
 			iConvertReligion = iReligion
 		return (iConvertReligion != iCurrentReligion and gc.getPlayer(self.iActivePlayer).canConvert(iConvertReligion))
+
+	def trimReligionColumnText(self, szText, iMaxChars):
+		if len(szText) <= iMaxChars:
+			return szText
+		return szText[:iMaxChars - 1] + u"."
 
 	def ReligionScreenButton(self, inputClass):
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
@@ -948,6 +1011,12 @@ class CvPolicyAdvisorScreen:
 				return 1
 			if szWidgetName == self.RELIGION_NAME or szWidgetName == self.RELIGION_BUTTON_NAME:
 				self.ReligionScreenButton(inputClass)
+				return 1
+			if szWidgetName == self.RELIGION_CANCEL_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+				self.ReligionCancel(inputClass)
+				return 1
+			if szWidgetName == self.CONVERT_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+				self.ReligionConvert(inputClass)
 				return 1
 			if szWidgetName == self.EXIT_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
 				self.ReligionConvert(inputClass)
