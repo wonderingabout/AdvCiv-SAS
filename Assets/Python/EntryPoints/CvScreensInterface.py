@@ -8,7 +8,6 @@
 import CvMainInterface
 import CvTechChooser
 import CvForeignAdvisor
-import CvCorporationScreen
 import CvPolicyAdvisorScreen
 import CvVictoryScreen
 
@@ -112,10 +111,10 @@ def showReligionScreen():
 	if (-1 != CyGame().getActivePlayer()):
 		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_RELIGION])
 
-corporationScreen = CvCorporationScreen.CvCorporationScreen()
+# <!-- custom: Corporation advisor is integrated as a native Policy advisor tab; open Policy tab index for Corporation instead of standalone CvCorporationScreen. (GPT-5.3-Codex) -->
 def showCorporationScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		corporationScreen.interfaceScreen()
+		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_CORPORATION])
 
 optionsScreen = CvOptionsScreen.CvOptionsScreen()
 def showOptionsScreen():
@@ -1186,7 +1185,8 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 #					DOMESTIC_ADVISOR : domesticAdvisor,
 					# <!-- custom: route RELIGION_SCREEN input to Policy advisor because Religion is now a native Policy tab. (GPT-5.3-Codex) -->
 					RELIGION_SCREEN : policyAdvisorScreen,
-					CORPORATION_SCREEN : corporationScreen,
+					# <!-- custom: route CORPORATION_SCREEN input to Policy advisor because Corporation is now a native Policy tab. (GPT-5.3-Codex) -->
+					CORPORATION_SCREEN : policyAdvisorScreen,
 					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
 					TECH_CHOOSER : techChooser,
 					FOREIGN_ADVISOR : foreignAdvisor,

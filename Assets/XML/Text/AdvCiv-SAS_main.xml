@@ -468,6 +468,15 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_CONCEPT_CORPORATIONS</Tag>
 		<English>Corporat.</English>
 	</TEXT>
+	<!-- custom: full plural labels for Policy advisor tabs (Religion/Corporation) to avoid singular or abbreviated captions in footer tabs. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_TAB_RELIGIONS</Tag>
+		<English>Religions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_TAB_CORPORATIONS</Tag>
+		<English>Corporations</English>
+	</TEXT>
 
 
 

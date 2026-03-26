@@ -40,8 +40,9 @@ class CvPolicyAdvisorScreen:
 		self.POLICY_OPTION_HEADER_NAME = "PolicyAdvisorScreenOptionHeader"
 		self.PAGE_POLICY = 0
 		self.PAGE_RELIGION = 1
+		self.PAGE_CORPORATION = 2
 		self.iPage = self.PAGE_POLICY
-		self.PAGE_TAB_IDS = ["PolicyTabButton0", "PolicyTabButton1"]
+		self.PAGE_TAB_IDS = ["PolicyTabButton0", "PolicyTabButton1", "PolicyTabButton2"]
 		self.PAGE_LINK_WIDTH = []
 
 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen via shared SASUtils helpers. (GPT-5.3-Codex) -->
@@ -142,6 +143,32 @@ class CvPolicyAdvisorScreen:
 		self.RELIGIONS = []
 		self.bBUGConstants = False
 
+		# <!-- custom: Corporation advisor tab integration constants/state (ported from BTS CvCorporationScreen) now live in Policy advisor for a single tabbed screen flow. (GPT-5.3-Codex) -->
+		self.CORPORATION_NAME = "CorporationText"
+		self.CORPORATION_BUTTON_NAME = "CorporationScreenButton"
+		self.CORPORATION_AREA1_ID = "CorporationAreaWidget1"
+		self.CORPORATION_AREA2_ID = "CorporationAreaWidget2"
+		self.CORPORATION_PANEL_ID = "CorporationPanel"
+		self.CORPORATION_HEADER_FOUNDED_ID = "CorporationHelpFoundedHeader"
+		self.CORPORATION_HEADER_HEADQUARTERS_ID = "CorporationHelpHeadquartersHeader"
+		self.CORPORATION_LEFT_LABEL_WIDTH = 150
+		self.CORPORATION_RIGHT_PADDING = 16
+		self.CORPORATION_BUTTON_SIZE = 48
+		self.X_CORPORATION_START = 155
+		self.DX_CORPORATION = 116
+		self.Y_CORPORATION_BUTTONS = 35
+		self.Y_CORPORATION_GREAT_PERSON = 57
+		self.Y_CORPORATION_BONUSES = 77
+		self.Y_CORPORATION_FOUNDED = 112
+		self.Y_CORPORATION_HEADQUARTERS = 142
+		# <!-- custom: Corporation tab fixed layout constants; screen-dependent geometry is derived in updateRuntimeLayout. (GPT-5.3-Codex) -->
+		self.CORPORATION_AREA_MARGIN_X = 45
+		self.CORPORATION_PANEL_Y = 84
+		self.CORPORATION_PANEL_H = 180
+		self.CORPORATION_CITY_TOP_GAP = 18
+		self.CORPORATION_CITY_BOTTOM_GAP = 2
+		self.iCorporationSelected = -1
+
 	def initText(self):
 		# <!-- custom: cache Policy Advisor static UI text once per language to reduce repeated translator work and keep future multi-tab expansion centralized. Dynamic gameplay-state text remains computed at draw/update time. (GPT-5.3-Codex) -->
 		if self.iLanguageLoaded == CyGame().getCurrentLanguage() or not CyGame().isFinalInitialized():
@@ -155,8 +182,10 @@ class CvPolicyAdvisorScreen:
 		self.TEXT_NO_UPKEEP = localText.getText("TXT_KEY_CIVICS_SCREEN_NO_UPKEEP", ())
 		# <!-- custom: tab captions should name subsections, not advisor screens; keep them concise like other merged advisors. (GPT-5.3-Codex) -->
 		self.TEXT_TAB_POLICY = localText.getText("TXT_KEY_CONCEPT_CIVICS", ()).upper()
-		self.TEXT_TAB_RELIGION = localText.getText("TXT_KEY_CONCEPT_RELIGION", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_POLICY, self.TEXT_TAB_RELIGION]
+		# <!-- custom: use dedicated plural tab text keys for subsection clarity and consistency with merged-advisor naming (not singular/abbreviated). (GPT-5.3-Codex) -->
+		self.TEXT_TAB_RELIGION = localText.getText("TXT_KEY_POLICY_TAB_RELIGIONS", ()).upper()
+		self.TEXT_TAB_CORPORATION = localText.getText("TXT_KEY_POLICY_TAB_CORPORATIONS", ()).upper()
+		self.PAGE_NAME_LIST = [self.TEXT_TAB_POLICY, self.TEXT_TAB_RELIGION, self.TEXT_TAB_CORPORATION]
 		self.EXIT_TEXT = self.TEXT_EXIT
 		self.CONVERT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_RELIGION_CONVERT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.NO_STATE_BUTTON_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
@@ -203,6 +232,21 @@ class CvPolicyAdvisorScreen:
 			self.H_RELIGION_STATUS = self.Y_BOTTOM_PANEL - (self.Y_CITY_AREA + self.H_CITY_AREA + self.RELIGION_STATUS_TOP_GAP) - self.RELIGION_STATUS_BOTTOM_GAP
 		self.Y_RELIGION_STATUS = self.Y_CITY_AREA + self.H_CITY_AREA - self.H_RELIGION_STATUS
 
+		# <!-- custom: Corporation tab layout follows runtime Policy advisor bounds so the integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
+		self.X_CORPORATION_AREA = self.CORPORATION_AREA_MARGIN_X
+		self.W_CORPORATION_AREA = self.W_SCREEN - 2 * self.X_CORPORATION_AREA
+		iCorporationColumns = gc.getNumCorporationInfos()
+		if iCorporationColumns > 0:
+			self.DX_CORPORATION = (self.W_CORPORATION_AREA - self.CORPORATION_LEFT_LABEL_WIDTH - self.CORPORATION_RIGHT_PADDING) / iCorporationColumns
+			self.X_CORPORATION_START = self.CORPORATION_LEFT_LABEL_WIDTH + self.DX_CORPORATION / 2
+		self.Y_CORPORATION_AREA = self.CORPORATION_PANEL_Y
+		self.H_CORPORATION_AREA = self.CORPORATION_PANEL_H
+		self.Y_CORPORATION_CITY_AREA = self.Y_CORPORATION_AREA + self.H_CORPORATION_AREA + self.CORPORATION_CITY_TOP_GAP
+		self.H_CORPORATION_CITY_AREA = self.Y_BOTTOM_PANEL - self.Y_CORPORATION_CITY_AREA - self.CORPORATION_CITY_BOTTOM_GAP
+		self.W_CORPORATION_CITY_AREA = (self.W_SCREEN - 3 * self.X_CORPORATION_AREA) / 2
+		self.X_CORPORATION_CITY1_AREA = self.X_CORPORATION_AREA
+		self.X_CORPORATION_CITY2_AREA = self.X_CORPORATION_CITY1_AREA + self.W_CORPORATION_CITY_AREA + self.X_CORPORATION_AREA
+
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.POLICY_ADVISOR_SCREEN)
 
@@ -223,9 +267,9 @@ class CvPolicyAdvisorScreen:
 
 		if argsList is not None:
 			if type(argsList) in [list, tuple]:
-				if len(argsList) > 0 and argsList[0] in [self.PAGE_POLICY, self.PAGE_RELIGION]:
+				if len(argsList) > 0 and argsList[0] in [self.PAGE_POLICY, self.PAGE_RELIGION, self.PAGE_CORPORATION]:
 					self.iPage = argsList[0]
-			elif argsList in [self.PAGE_POLICY, self.PAGE_RELIGION]:
+			elif argsList in [self.PAGE_POLICY, self.PAGE_RELIGION, self.PAGE_CORPORATION]:
 				self.iPage = argsList
 
 		screen = self.getScreen()
@@ -314,14 +358,31 @@ class CvPolicyAdvisorScreen:
 			screen.deleteWidget(self.getReligionButtonName(iRel))
 			screen.deleteWidget(self.getReligionTextName(iRel))
 
+	def clearCorporationTabWidgets(self):
+		screen = self.getScreen()
+		screen.deleteWidget(self.CORPORATION_PANEL_ID)
+		screen.deleteWidget(self.CORPORATION_AREA1_ID)
+		screen.deleteWidget(self.CORPORATION_AREA2_ID)
+		screen.deleteWidget(self.CORPORATION_HEADER_FOUNDED_ID)
+		screen.deleteWidget(self.CORPORATION_HEADER_HEADQUARTERS_ID)
+		for iCorp in range(gc.getNumCorporationInfos()):
+			screen.deleteWidget(self.getCorporationButtonName(iCorp))
+			screen.deleteWidget(self.getCorporationTextName(iCorp))
+
 	def drawContents(self):
 		self.drawTabs()
 		if self.iPage == self.PAGE_POLICY:
 			self.clearReligionTabWidgets()
+			self.clearCorporationTabWidgets()
 			self.drawPolicyTabContents()
+		elif self.iPage == self.PAGE_RELIGION:
+			self.clearPolicyTabWidgets()
+			self.clearCorporationTabWidgets()
+			self.drawReligionTabContents()
 		else:
 			self.clearPolicyTabWidgets()
-			self.drawReligionTabContents()
+			self.clearReligionTabWidgets()
+			self.drawCorporationTabContents()
 
 	def drawPolicyTabContents(self):
 		screen = self.getScreen()
@@ -342,6 +403,14 @@ class CvPolicyAdvisorScreen:
 		self.drawReligionInfo()
 		self.drawHelpInfo()
 		self.drawCityInfo(self.iReligionSelected)
+
+	def drawCorporationTabContents(self):
+		screen = self.getScreen()
+		# <!-- custom: keep advisor header stable across tabs (Policy Advisor), like Domestic/Foreign tabbed screens; tab labels already indicate the active subsection. (GPT-5.3-Codex) -->
+		screen.setLabel(self.TITLE_NAME, "Background", self.TEXT_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		self.refreshCorporationTabData()
+		self.drawCorporationInfo()
+		self.drawCorporationCityInfo(self.iCorporationSelected)
 
 	def refreshReligionTabData(self):
 		self.iActivePlayer = gc.getGame().getActivePlayer()
@@ -366,6 +435,11 @@ class CvPolicyAdvisorScreen:
 			self.iReligionSelected = gc.getNumReligionInfos()
 		self.iReligionExamined = self.iReligionSelected
 		self.iReligionOriginal = self.iReligionSelected
+
+	def refreshCorporationTabData(self):
+		self.iActivePlayer = gc.getGame().getActivePlayer()
+		if self.iCorporationSelected >= gc.getNumCorporationInfos():
+			self.iCorporationSelected = -1
 
 	def drawCivicOptionButtons(self, iCivicOption):
 
@@ -967,12 +1041,167 @@ class CvPolicyAdvisorScreen:
 		else:
 			return self.objectNotPossible
 
+	def getCorporationButtonName(self, iCorporation):
+		return self.CORPORATION_BUTTON_NAME + str(iCorporation)
+
+	def getCorporationTextName(self, iCorporation):
+		return self.CORPORATION_NAME + str(iCorporation)
+
+	def drawCorporationInfo(self):
+		screen = self.getScreen()
+		screen.addPanel(self.CORPORATION_PANEL_ID, "", "", False, True, self.X_CORPORATION_AREA, self.Y_CORPORATION_AREA, self.W_CORPORATION_AREA, self.H_CORPORATION_AREA, PanelStyles.PANEL_STYLE_MAIN)
+
+		xLoop = self.X_CORPORATION_START
+		iButtonOffset = self.CORPORATION_BUTTON_SIZE / 2
+		for iCorp in range(gc.getNumCorporationInfos()):
+			szButtonName = self.getCorporationButtonName(iCorp)
+			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, gc.getCorporationInfo(iCorp).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+			xLoop += self.DX_CORPORATION
+
+		xLoop = self.X_CORPORATION_START
+		for iCorp in range(gc.getNumCorporationInfos()):
+			szGreatPerson = ""
+			for iBuilding in range(gc.getNumBuildingInfos()):
+				if gc.getBuildingInfo(iBuilding).getFoundsCorporation() == iCorp:
+					break
+			for iUnit in range(gc.getNumUnitInfos()):
+				if gc.getUnitInfo(iUnit).getBuildings(iBuilding) or gc.getUnitInfo(iUnit).getForceBuildings(iBuilding):
+					szGreatPerson = gc.getUnitInfo(iUnit).getDescription()
+					break
+			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GreatPerson", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szGreatPerson + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			xLoop += self.DX_CORPORATION
+
+		xLoop = self.X_CORPORATION_START
+		for iCorp in range(gc.getNumCorporationInfos()):
+			szListLabels = []
+			iNum = 0
+			szList = u""
+			for iRequired in range(gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")):
+				eBonus = gc.getCorporationInfo(iCorp).getPrereqBonus(iRequired)
+				if -1 != eBonus:
+					if iNum > 0:
+						szList += u", "
+					iNum += 1
+					szList += u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
+					if iNum > 3:
+						iNum = 0
+						szListLabels.append(szList)
+						szList = u""
+			if len(szList) > 0:
+				szListLabels.append(szList)
+			iRow = 0
+			for szBonusRow in szListLabels:
+				screen.setLabelAt(self.getCorporationTextName(iCorp) + "BonusRow" + str(iRow), self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szBonusRow + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_BONUSES + iRow, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				iRow += 16
+			xLoop += self.DX_CORPORATION
+
+		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		xLoop = self.X_CORPORATION_START
+		for iCorp in range(gc.getNumCorporationInfos()):
+			if gc.getGame().getCorporationGameTurnFounded(iCorp) < 0:
+				szFounded = localText.getText("TXT_KEY_RELIGION_SCREEN_NOT_FOUNDED", ())
+			else:
+				szFounded = CyGameTextMgr().getTimeStr(gc.getGame().getCorporationGameTurnFounded(iCorp), false)
+			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Founded", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			xLoop += self.DX_CORPORATION
+
+		screen.setLabelAt(self.CORPORATION_HEADER_HEADQUARTERS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CORPORATION_SCREEN_HEADQUARTERS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		xLoop = self.X_CORPORATION_START
+		for iCorp in range(gc.getNumCorporationInfos()):
+			pHeadquarters = gc.getGame().getHeadquarters(iCorp)
+			if pHeadquarters.isNone():
+				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + u"-" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			elif not pHeadquarters.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), False):
+				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			else:
+				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersOwner", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + (u"(%s)" % gc.getPlayer(pHeadquarters.getOwner()).getCivilizationAdjective(0)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS + 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + pHeadquarters.getName() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS - 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			xLoop += self.DX_CORPORATION
+
+	def drawCorporationCityInfo(self, iCorporation):
+		screen = self.getScreen()
+		screen.deleteWidget(self.CORPORATION_AREA1_ID)
+		screen.deleteWidget(self.CORPORATION_AREA2_ID)
+
+		if iCorporation == gc.getNumCorporationInfos():
+			iLinkCorporation = -1
+		else:
+			iLinkCorporation = iCorporation
+
+		screen.addPanel(self.CORPORATION_AREA1_ID, "", "", True, True, self.X_CORPORATION_CITY1_AREA, self.Y_CORPORATION_CITY_AREA, self.W_CORPORATION_CITY_AREA, self.H_CORPORATION_CITY_AREA, PanelStyles.PANEL_STYLE_MAIN)
+		screen.addPanel(self.CORPORATION_AREA2_ID, "", "", True, True, self.X_CORPORATION_CITY2_AREA, self.Y_CORPORATION_CITY_AREA, self.W_CORPORATION_CITY_AREA, self.H_CORPORATION_CITY_AREA, PanelStyles.PANEL_STYLE_MAIN)
+
+		for iCorp in range(gc.getNumCorporationInfos()):
+			screen.setState(self.getCorporationButtonName(iCorp), self.iCorporationSelected == iCorp)
+
+		iPlayer = PyPlayer(self.iActivePlayer)
+		cityList = iPlayer.getCityList()
+		szLeftCities = u""
+		szRightCities = u""
+		for iCity in range(len(cityList)):
+			bFirstColumn = (iCity % 2 == 0)
+			pLoopCity = cityList[iCity]
+			szCityName = u""
+			if pLoopCity.isCapital():
+				szCityName += u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR)
+
+			lHeadquarters = pLoopCity.getHeadquarters()
+			if lHeadquarters:
+				for iHeadquarter in range(len(lHeadquarters)):
+					szCityName += u"%c" % (gc.getCorporationInfo(lHeadquarters[iHeadquarter]).getHeadquarterChar())
+
+			lCorporations = pLoopCity.getCorporations()
+			if lCorporations:
+				for iCorporationInCity in range(len(lCorporations)):
+					if lCorporations[iCorporationInCity] not in lHeadquarters:
+						szCityName += u"%c" % (gc.getCorporationInfo(lCorporations[iCorporationInCity]).getChar())
+
+			szCityName += pLoopCity.getName()[0:17] + "  "
+			if iLinkCorporation == -1:
+				bFirst = True
+				for iCorporationInCity in range(len(lCorporations)):
+					szTempBuffer = CyGameTextMgr().getCorporationHelpCity(lCorporations[iCorporationInCity], pLoopCity.GetCy(), False, False)
+					if szTempBuffer:
+						if not bFirst:
+							szCityName += u", "
+						szCityName += szTempBuffer
+						bFirst = False
+			else:
+				szCityName += CyGameTextMgr().getCorporationHelpCity(iLinkCorporation, pLoopCity.GetCy(), False, True)
+
+			if bFirstColumn:
+				szLeftCities += SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE + u"\n"
+			else:
+				szRightCities += SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE + u"\n"
+
+		screen.addMultilineText("Child" + self.CORPORATION_AREA1_ID, szLeftCities, self.X_CORPORATION_CITY1_AREA + 5, self.Y_CORPORATION_CITY_AREA + 5, self.W_CORPORATION_CITY_AREA - 10, self.H_CORPORATION_CITY_AREA - 10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText("Child" + self.CORPORATION_AREA2_ID, szRightCities, self.X_CORPORATION_CITY2_AREA + 5, self.Y_CORPORATION_CITY_AREA + 5, self.W_CORPORATION_CITY_AREA - 10, self.H_CORPORATION_CITY_AREA - 10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.hide(self.CANCEL_NAME)
+		screen.setText(self.EXIT_NAME, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, 0)
+
+	def CorporationScreenButton(self, inputClass):
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+			if self.iCorporationSelected == inputClass.getID():
+				self.iCorporationSelected = -1
+			else:
+				self.iCorporationSelected = inputClass.getID()
+			self.drawCorporationCityInfo(self.iCorporationSelected)
+		elif inputClass.getNotifyCode() == NotifyCode.NOTIFY_CURSOR_MOVE_ON:
+			self.drawCorporationCityInfo(inputClass.getID())
+		elif inputClass.getNotifyCode() == NotifyCode.NOTIFY_CURSOR_MOVE_OFF:
+			self.drawCorporationCityInfo(self.iCorporationSelected)
+		return 0
+
+	def closePolicyScreen(self, inputClass):
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+			self.getScreen().hideScreen()
+
 	# Will handle the input for this screen...
 	def handleInput(self, inputClass):
 		szWidgetName = inputClass.getFunctionName()
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and szWidgetName.startswith("PolicyTabButton"):
 			iData1 = inputClass.getData1()
-			if iData1 in [self.PAGE_POLICY, self.PAGE_RELIGION] and iData1 != self.iPage:
+			if iData1 in [self.PAGE_POLICY, self.PAGE_RELIGION, self.PAGE_CORPORATION] and iData1 != self.iPage:
 				self.iPage = iData1
 				self.drawContents()
 			return 1
@@ -983,7 +1212,7 @@ class CvPolicyAdvisorScreen:
 				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
 				self.setActivePlayer(screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex))
 				self.drawContents()
-			else:
+			elif self.iPage == self.PAGE_RELIGION:
 				szWidgetName = inputClass.getFunctionName()
 				if szWidgetName != self.RELIGION_TABLE_ID:
 					iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
@@ -991,6 +1220,11 @@ class CvPolicyAdvisorScreen:
 					self.drawReligionInfo()
 					self.drawHelpInfo()
 					self.drawCityInfo(self.iReligionSelected)
+			else:
+				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
+				self.drawCorporationInfo()
+				self.drawCorporationCityInfo(self.iCorporationSelected)
 			return 1
 
 		if self.iPage == self.PAGE_POLICY:
@@ -998,29 +1232,39 @@ class CvPolicyAdvisorScreen:
 				self.PolicyAdvisorScreenInputMap.get(inputClass.getFunctionName())(inputClass)
 				return 1
 		else:
-			if szWidgetName == self.RELIGION_TABLE_ID:
-				if inputClass.getMouseX() == 0:
-					screen = self.getScreen()
-					screen.hideScreen()
-					pPlayer = gc.getPlayer(inputClass.getData1())
-					pCity = pPlayer.getCity(inputClass.getData2())
-					CyInterface().selectCity(pCity, true)
-				return 1
-			if szWidgetName == self.CANCEL_NAME:
-				self.ReligionCancel(inputClass)
-				return 1
-			if szWidgetName == self.RELIGION_NAME or szWidgetName == self.RELIGION_BUTTON_NAME:
-				self.ReligionScreenButton(inputClass)
-				return 1
-			if szWidgetName == self.RELIGION_CANCEL_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
-				self.ReligionCancel(inputClass)
-				return 1
-			if szWidgetName == self.CONVERT_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
-				self.ReligionConvert(inputClass)
-				return 1
-			if szWidgetName == self.EXIT_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
-				self.ReligionConvert(inputClass)
-				return 1
+			if self.iPage == self.PAGE_RELIGION:
+				if szWidgetName == self.RELIGION_TABLE_ID:
+					if inputClass.getMouseX() == 0:
+						screen = self.getScreen()
+						screen.hideScreen()
+						pPlayer = gc.getPlayer(inputClass.getData1())
+						pCity = pPlayer.getCity(inputClass.getData2())
+						CyInterface().selectCity(pCity, true)
+					return 1
+				if szWidgetName == self.CANCEL_NAME:
+					self.ReligionCancel(inputClass)
+					return 1
+				if szWidgetName == self.RELIGION_NAME or szWidgetName == self.RELIGION_BUTTON_NAME:
+					self.ReligionScreenButton(inputClass)
+					return 1
+				if szWidgetName == self.RELIGION_CANCEL_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+					self.ReligionCancel(inputClass)
+					return 1
+				if szWidgetName == self.CONVERT_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+					self.ReligionConvert(inputClass)
+					return 1
+				if szWidgetName == self.EXIT_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+					self.closePolicyScreen(inputClass)
+					return 1
+				return 0
+			if self.iPage == self.PAGE_CORPORATION:
+				if szWidgetName == self.CORPORATION_NAME or szWidgetName == self.CORPORATION_BUTTON_NAME:
+					self.CorporationScreenButton(inputClass)
+					return 1
+				if szWidgetName == self.EXIT_NAME and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+					self.closePolicyScreen(inputClass)
+					return 1
+				return 0
 			return 0
 		return 0
 		
