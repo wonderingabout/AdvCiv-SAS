@@ -389,6 +389,7 @@ class CvPolicyAdvisorScreen:
 		for iCorp in range(gc.getNumCorporationInfos()):
 			screen.deleteWidget(self.getCorporationButtonName(iCorp))
 			screen.deleteWidget(self.getCorporationTextName(iCorp))
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GreatPersonIcon")
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GreatPerson")
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Generates")
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GeneratesYields")
@@ -1094,14 +1095,20 @@ class CvPolicyAdvisorScreen:
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
 			szGreatPerson = ""
+			iFoundingUnit = -1
 			for iBuilding in range(gc.getNumBuildingInfos()):
 				if gc.getBuildingInfo(iBuilding).getFoundsCorporation() == iCorp:
 					break
 			for iUnit in range(gc.getNumUnitInfos()):
 				if gc.getUnitInfo(iUnit).getBuildings(iBuilding) or gc.getUnitInfo(iUnit).getForceBuildings(iBuilding):
+					iFoundingUnit = iUnit
 					szGreatPerson = gc.getUnitInfo(iUnit).getDescription()
 					break
-			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GreatPerson", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szGreatPerson + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			iBuiltByLeftX = xLoop - 44
+			if iFoundingUnit != -1:
+				# <!-- custom: render Built by as a true inline pair (icon + text) by using one shared left anchor per column. (GPT-5.3-Codex) -->
+				screen.setImageButtonAt(self.getCorporationTextName(iCorp) + "GreatPersonIcon", self.CORPORATION_PANEL_ID, gc.getUnitInfo(iFoundingUnit).getButton(), iBuiltByLeftX, self.Y_CORPORATION_GREAT_PERSON, 24, 24, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GreatPerson", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szGreatPerson + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, iBuiltByLeftX + 22, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_CORPORATION
 
 		xLoop = self.X_CORPORATION_START
