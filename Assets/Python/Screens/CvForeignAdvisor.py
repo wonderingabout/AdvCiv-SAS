@@ -348,6 +348,19 @@ class CvForeignAdvisor:
 		self.TEXT_NO_TECH_TRADING = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
 		self.TEXT_MORE_CITIES = localText.getText("TXT_KEY_FOREIGN_ADVISOR_MORE_CITIES", (0,))  # format later with actual count
 		self.TEXT_FAVORITES = localText.getText("TXT_KEY_PEDIA_FAVORITES", ())
+		self.TEXT_REL_CONTACT = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CONTACT", ())
+		self.TEXT_CONCEPT_WAR = localText.getText("TXT_KEY_CONCEPT_WAR", ())
+		self.TEXT_TRADE_DEFENSIVE_PACT = localText.getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING", ())
+		self.TEXT_TRADE_OPEN_BORDERS = localText.getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING", ())
+		self.TEXT_PITBOSS_TEAM = localText.getText("TXT_KEY_PITBOSS_TEAM", ())
+		self.TEXT_MISC_VASSAL_SHORT = localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
+		self.TEXT_MISC_MASTER = localText.getText("TXT_KEY_MISC_MASTER", ())
+		self.LABEL_REL_CONTACT = SAS_FONT_TAG_BODY + self.TEXT_REL_CONTACT + SAS_FONT_TAG_CLOSE
+		self.LABEL_CONCEPT_WAR = SAS_FONT_TAG_BODY + self.TEXT_CONCEPT_WAR + SAS_FONT_TAG_CLOSE
+		self.LABEL_TRADE_DEFENSIVE_PACT = SAS_FONT_TAG_BODY + self.TEXT_TRADE_DEFENSIVE_PACT + SAS_FONT_TAG_CLOSE
+		self.LABEL_TRADE_OPEN_BORDERS = SAS_FONT_TAG_BODY + self.TEXT_TRADE_OPEN_BORDERS + SAS_FONT_TAG_CLOSE
+		self.LABEL_PITBOSS_TEAM = SAS_FONT_TAG_BODY + self.TEXT_PITBOSS_TEAM + SAS_FONT_TAG_CLOSE
+		self.LABEL_MISC_VASSAL_SHORT = SAS_FONT_TAG_BODY + self.TEXT_MISC_VASSAL_SHORT + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: precompute commonly used icon symbols (claude code sonnet 4.5) -->
 		self.iReligionIcon = CyGame().getSymbolID(FontSymbols.RELIGION_CHAR)
@@ -391,6 +404,11 @@ class CvForeignAdvisor:
 		self.SAS_TRADE_ICON_DEFENSIVE_PACT = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath()
 		self.SAS_TRADE_ICON_PERMANENT_ALLIANCE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath()
 		self.SAS_TRADE_ICON_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
+		self.SAS_ART_SCREEN_BG_OPAQUE = ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath()
+		self.SAS_ART_BUTTON_HILITE_SQUARE = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
+		self.SAS_ART_WHITE_CIRCLE_40 = ArtFileMgr.getInterfaceArtInfo("WHITE_CIRCLE_40").getPath()
+		self.SAS_ART_BUTTON_PLUS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath()
+		self.SAS_ART_BUTTON_MINUS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath()
 		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
 
 	def updateRuntimeLayout(self, screen):
@@ -560,7 +578,7 @@ class CvForeignAdvisor:
 		
 		# Set the background and exit button, and show the screen
 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
-		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.addDrawControl(self.BACKGROUND_ID, self.SAS_ART_SCREEN_BG_OPAQUE, 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
 		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		##########################################
@@ -887,27 +905,27 @@ class CvForeignAdvisor:
 		screen.addPanel(self.getNextWidgetName(), u"", u"", True, False, self.X_LEGEND, self.Y_LEGEND, self.W_LEGEND, self.H_LEGEND, PanelStyles.PANEL_STYLE_IN)
 		x = self.X_LEGEND + self.MARGIN_LEGEND
 		y = self.Y_LEGEND + self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_FOREIGN_ADVISOR_CONTACT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_REL_CONTACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_WHITE"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_CONCEPT_WAR", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_CONCEPT_WAR, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_RED"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_DEFENSIVE_PACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_BLUE"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_OPEN_BORDERS, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CITY_GREEN"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_PITBOSS_TEAM", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_PITBOSS_TEAM, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_YELLOW"))
 		y += 2 * self.MARGIN_LEGEND
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_MISC_VASSAL_SHORT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CYAN"))
 	
@@ -922,8 +940,8 @@ class CvForeignAdvisor:
 		playerBase = gc.getPlayer(iBaseLeader)
 		# K-Mod end
 		szLeaderHead = self.getNextWidgetName()
-		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
-		screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL) # K-Mod
+		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+		screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL) # K-Mod
 		if (self.iActiveLeader in self.listSelectedLeaders):
 			screen.setState(szLeaderHead, True)
 		else:
@@ -938,9 +956,9 @@ class CvForeignAdvisor:
 		player = playerActive
 		if iBaseLeader != self.iActiveLeader and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
 			if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
-				szText += localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
+				szText += self.TEXT_MISC_VASSAL_SHORT
 			elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
-				szText += localText.getText("TXT_KEY_MISC_MASTER", ())
+				szText += self.TEXT_MISC_MASTER
 			if not playerActive.isHuman():
 				if szText != "":
 					szText += ", "
@@ -966,7 +984,7 @@ class CvForeignAdvisor:
 			fY = int(fLeaderArcTop + fRadius * math.sin(deltaTheta * leaderMap[iPlayer]) - iLeaderHeight/2)
 
 			szLeaderHead = self.getNextWidgetName()
-			screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), int(fX), int(fY), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, iPlayer, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, int(fX), int(fY), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, iPlayer, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL)
 			if (iPlayer in self.listSelectedLeaders):
 				screen.setState(szLeaderHead, True)
 			else:
@@ -981,9 +999,9 @@ class CvForeignAdvisor:
 			szText = u""
 			if iBaseLeader != iPlayer and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
 				if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
-					szText += localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
+					szText += self.TEXT_MISC_VASSAL_SHORT
 				elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
-					szText += localText.getText("TXT_KEY_MISC_MASTER", ())
+					szText += self.TEXT_MISC_MASTER
 				if not gc.getPlayer(iPlayer).isHuman():
 					if szText != "":
 						szText += ", "
@@ -1550,7 +1568,7 @@ class CvForeignAdvisor:
 			if self.ltPlayerMet[iLoopPlayer]:
 				if (iLoopPlayer != self.iActiveLeader):
 					szName = self.getNextWidgetName()
-					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
+					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
 					if (self.iSelectedLeader == iLoopPlayer):
 						screen.setState(szName, True)
 					else:
@@ -1855,7 +1873,7 @@ class CvForeignAdvisor:
 				# Can't do the same for the amounts, so don't do this after all:
 				#if iIndex > maxIconsPerRow:
 				#	circleY += self.RESOURCE_ICON_SIZE
-				screen.addDDSGFC( self.availableTable + "Circle" + str(iIndex), ArtFileMgr.getInterfaceArtInfo("WHITE_CIRCLE_40").getPath(), self.SURPLUS_CIRCLE_X_START + iIndex * self.RESOURCE_ICON_SIZE, circleY, 16, 16, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.addDDSGFC( self.availableTable + "Circle" + str(iIndex), self.SAS_ART_WHITE_CIRCLE_40, self.SURPLUS_CIRCLE_X_START + iIndex * self.RESOURCE_ICON_SIZE, circleY, 16, 16, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		
 		# add the table showing the amounts
 		screen.addTableControlGFC( self.availableTable, len(listSurplus), self.SURPLUS_TABLE_X, self.SURPLUS_TABLE_Y, len(listSurplus) * self.RESOURCE_ICON_SIZE, self.TABLE_CONTROL_HEIGHT, False, False, 16, 16, TableStyles.TABLE_STYLE_EMPTY )
@@ -2588,7 +2606,7 @@ class CvForeignAdvisor:
 				self.ESP_iLeaderImagesID = 456
 				szName = "LeaderImage%d" %(iPlayerID)
 
-				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
+				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE,
 					iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
 				if (self.ESP_iTargetPlayer == iPlayerID):
 					screen.setState(szName, true)
@@ -2630,10 +2648,10 @@ class CvForeignAdvisor:
 				iSize = 16
 				self.ESP_iIncreaseButtonID = 555
 				szName = "IncreaseButton%d" %(iPlayerID)
-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
 				self.ESP_iDecreaseButtonID = 556
 				szName = "DecreaseButton%d" %(iPlayerID)
-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath(), self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
 
 
 				iPlayerLoop += 1
