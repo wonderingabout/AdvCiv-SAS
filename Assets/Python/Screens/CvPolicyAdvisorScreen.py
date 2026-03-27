@@ -105,17 +105,23 @@ class CvPolicyAdvisorScreen:
 		self.DX_RELIGION = 98
 		self.RELIGION_LEFT_LABEL_WIDTH = 180
 		self.RELIGION_RIGHT_PADDING = 16
-		self.Y_FOUNDED = 90
-		self.Y_HOLY_CITY = 115
-		self.Y_OWNER = 140
-		self.Y_INFLUENCE = 165
+		# <!-- custom: use one uniform Religion row rhythm for top info rows and BUG summary rows. (GPT-5.3-Codex) -->
+		self.RELIGION_ROW_START_Y = 90
+		self.RELIGION_ROW_STEP_Y = 26
+		self.Y_FOUNDED = self.RELIGION_ROW_START_Y
+		self.Y_HOLY_CITY = self.RELIGION_ROW_START_Y + self.RELIGION_ROW_STEP_Y
+		self.Y_OWNER = self.RELIGION_ROW_START_Y + 2 * self.RELIGION_ROW_STEP_Y
+		self.Y_INFLUENCE = self.RELIGION_ROW_START_Y + 3 * self.RELIGION_ROW_STEP_Y
+		self.RELIGION_BUG_SUMMARY_FIRST_OFFSET_Y = self.RELIGION_ROW_STEP_Y
 		self.Y_RELIGION_NAME = 58
-		self.RELIGION_HOLY_CITY_CITY_MAX_CHARS = 16
-		self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS = 22
+		# <!-- custom: keep separate max lengths for non-ID vs ID rows; non-ID fields can use a bit more room. (GPT-5.3-Codex) -->
+		self.RELIGION_HOLY_CITY_CITY_MAX_CHARS_NO_ID = 22
+		# <!-- custom: keep Leader (ID) values short enough to stay inside each Religion column at common upscaled UI sizes. (GPT-5.3-Codex) -->
+		self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS_WITH_ID = 16
 		# <!-- custom: Religions tab fixed layout constants; screen-dependent geometry is derived from these in updateRuntimeLayout. (GPT-5.3-Codex) -->
 		self.RELIGION_AREA_MARGIN_X = -4
 		self.RELIGION_PANEL_Y_EXPANDED = 44
-		self.RELIGION_PANEL_H_EXPANDED = 285
+		self.RELIGION_PANEL_H_EXPANDED = 309
 		self.RELIGION_PANEL_Y_COMPACT = 84
 		self.RELIGION_PANEL_H_COMPACT = 210
 		# <!-- custom: zero/near-zero gaps here are intentional final values (not placeholders) for a contiguous stacked religion layout similar to espionage tab density. (GPT-5.3-Codex) -->
@@ -158,21 +164,26 @@ class CvPolicyAdvisorScreen:
 		self.NUM_CORPORATION_PREREQ_BONUSES = None
 		self.CORPORATION_LEFT_LABEL_WIDTH = 150
 		self.CORPORATION_RIGHT_PADDING = 16
+		# <!-- custom: keep a distinct HQ (ID) cap constant for future independent tuning, but currently match Religion's ID-row cap. (GPT-5.3-Codex) -->
+		self.CORPORATION_HQ_MAX_CHARS_WITH_ID = self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS_WITH_ID
 		self.CORPORATION_BUTTON_SIZE = 48
 		self.X_CORPORATION_START = 155
 		self.DX_CORPORATION = 116
 		self.Y_CORPORATION_BUTTONS = 35
-		self.Y_CORPORATION_GREAT_PERSON = 57
-		self.Y_CORPORATION_CONSUMES = 77
-		self.Y_CORPORATION_GENERATES_BONUS = 97
-		self.Y_CORPORATION_GENERATES = 117
-		self.Y_CORPORATION_FOUNDED = 137
-		self.Y_CORPORATION_HEADQUARTERS = 157
+		# <!-- custom: keep corporation row spacing aligned with Religion now that Headquarters is single-line. (GPT-5.3-Codex) -->
+		self.CORPORATION_ROW_START_Y = 58
+		self.CORPORATION_ROW_STEP_Y = self.RELIGION_ROW_STEP_Y
+		self.Y_CORPORATION_GREAT_PERSON = self.CORPORATION_ROW_START_Y
+		self.Y_CORPORATION_CONSUMES = self.CORPORATION_ROW_START_Y + self.CORPORATION_ROW_STEP_Y
+		self.Y_CORPORATION_GENERATES_BONUS = self.CORPORATION_ROW_START_Y + 2 * self.CORPORATION_ROW_STEP_Y
+		self.Y_CORPORATION_GENERATES = self.CORPORATION_ROW_START_Y + 3 * self.CORPORATION_ROW_STEP_Y
+		self.Y_CORPORATION_FOUNDED = self.CORPORATION_ROW_START_Y + 4 * self.CORPORATION_ROW_STEP_Y
+		self.Y_CORPORATION_HEADQUARTERS = self.CORPORATION_ROW_START_Y + 5 * self.CORPORATION_ROW_STEP_Y
 		# <!-- custom: Corporations tab fixed layout constants; screen-dependent geometry is derived in updateRuntimeLayout. (GPT-5.3-Codex) -->
 		self.CORPORATION_AREA_MARGIN_X = 45
 		self.CORPORATION_PANEL_Y = 84
 		# <!-- custom: top panel height expanded to fit Built by + Consumes + Generates + Founded + Headquarters rows in one panel without overlaps. (GPT-5.3-Codex) -->
-		self.CORPORATION_PANEL_H = 190
+		self.CORPORATION_PANEL_H = 229
 		self.CORPORATION_CITY_TOP_GAP = 18
 		# <!-- custom: empirically keep corporations tab outer margins consistent; bottom margin matches side margin. (GPT-5.3-Codex) -->
 		self.CORPORATION_CITY_BOTTOM_GAP = 29
@@ -755,10 +766,9 @@ class CvPolicyAdvisorScreen:
 					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				else:
 					# <!-- custom: keep Holy City and Leader as separate rows so upscaled text stays readable; include player ID for precise debugging/reference in duplicate-civ setups. (GPT-5.3-Codex) -->
-					szHolyCityName = self.trimReligionColumnText(pHolyCity.getName(), self.RELIGION_HOLY_CITY_CITY_MAX_CHARS)
+					szHolyCityName = self.trimReligionColumnText(pHolyCity.getName(), self.RELIGION_HOLY_CITY_CITY_MAX_CHARS_NO_ID)
 					iOwner = pHolyCity.getOwner()
-					szOwnerCore = gc.getPlayer(iOwner).getName() + u" (%d)" % iOwner
-					szHolyCityOwner = self.trimReligionColumnText(szOwnerCore, self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS)
+					szHolyCityOwner = self.trimReligionOwnerWithId(gc.getPlayer(iOwner).getName(), iOwner, self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS_WITH_ID)
 					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + szHolyCityName + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + szHolyCityOwner + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_RELIGION
@@ -802,7 +812,8 @@ class CvPolicyAdvisorScreen:
 					if iUnit.getUnitType() == ReligionUtil.getUnit(iRel, ReligionUtil.UNIT_MISSIONARY):
 						iMissionaries_Active[iRel] += 1
 
-			iY = self.Y_INFLUENCE + 20
+			# <!-- custom: keep BUG summary rows on the same vertical rhythm as the main Religion rows for consistent line spacing in this integrated tab. (GPT-5.3-Codex) -->
+			iY = self.Y_INFLUENCE + self.RELIGION_BUG_SUMMARY_FIRST_OFFSET_Y
 			sCities = "%s [%i]:" % (self.szCities, len(cityList))
 			screen.setLabelAt("ReligionCityCountHeader", szArea, SAS_FONT_TAG_LABEL + sCities + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop = self.X_RELIGION_START
@@ -811,7 +822,7 @@ class CvPolicyAdvisorScreen:
 					screen.setLabelAt("ReligionCityCount" + str(iRel), szArea, SAS_FONT_TAG_LABEL + ("%i" % iCities[iRel]) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				xLoop += self.DX_RELIGION
 
-			iY = self.Y_INFLUENCE + 40
+			iY += self.RELIGION_ROW_STEP_Y
 			screen.setLabelAt("ReligionTempleHeader", szArea, SAS_FONT_TAG_LABEL + self.szTemples + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop = self.X_RELIGION_START
 			for iRel in self.RELIGIONS:
@@ -819,7 +830,7 @@ class CvPolicyAdvisorScreen:
 					screen.setLabelAt("ReligionTempleCount" + str(iRel), szArea, SAS_FONT_TAG_LABEL + ("%i" % iTemple[iRel]) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				xLoop += self.DX_RELIGION
 
-			iY = self.Y_INFLUENCE + 60
+			iY += self.RELIGION_ROW_STEP_Y
 			screen.setLabelAt("ReligionMonasteryHeader", szArea, SAS_FONT_TAG_LABEL + self.szMonastaries + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop = self.X_RELIGION_START
 			for iRel in self.RELIGIONS:
@@ -827,7 +838,7 @@ class CvPolicyAdvisorScreen:
 					screen.setLabelAt("ReligionMonasteryCount" + str(iRel), szArea, SAS_FONT_TAG_LABEL + ("%i" % iMonastery[iRel]) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				xLoop += self.DX_RELIGION
 
-			iY = self.Y_INFLUENCE + 80
+			iY += self.RELIGION_ROW_STEP_Y
 			screen.setLabelAt("ReligionMissionaryHeader", szArea, SAS_FONT_TAG_LABEL + self.szMissionaries + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, iY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop = self.X_RELIGION_START
 			for iRel in self.RELIGIONS:
@@ -1035,6 +1046,18 @@ class CvPolicyAdvisorScreen:
 			return szText
 		return szText[:iMaxChars - 1] + u"."
 
+	def trimReligionOwnerWithId(self, szLeaderName, iOwner, iMaxChars):
+		return self.trimTextWithId(szLeaderName, iOwner, iMaxChars)
+
+	def trimTextWithId(self, szText, iOwner, iMaxChars):
+		szSuffix = u" (%d)" % iOwner
+		iMaxLeaderChars = iMaxChars - len(szSuffix)
+		if iMaxLeaderChars <= 1:
+			return szSuffix
+		if len(szText) <= iMaxLeaderChars:
+			return szText + szSuffix
+		return szText[:iMaxLeaderChars - 1] + u"." + szSuffix
+
 	def ReligionScreenButton(self, inputClass):
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
 			if inputClass.getID() == gc.getNumReligionInfos() or gc.getGame().getReligionGameTurnFounded(inputClass.getID()) >= 0:
@@ -1125,7 +1148,7 @@ class CvPolicyAdvisorScreen:
 		screen.setLabelAt(self.CORPORATION_HEADER_CONSUMES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_CONSUMES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_YIELDS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES_2", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
 			if gc.getGame().getCorporationGameTurnFounded(iCorp) < 0:
@@ -1135,7 +1158,8 @@ class CvPolicyAdvisorScreen:
 			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Founded", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_CORPORATION
 
-		screen.setLabelAt(self.CORPORATION_HEADER_HEADQUARTERS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CORPORATION_SCREEN_HEADQUARTERS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: use one-line HQ values with owner ID (no separate nationality line) to match Religion-style concise ownership display and reduce vertical crowding. (GPT-5.3-Codex) -->
+		screen.setLabelAt(self.CORPORATION_HEADER_HEADQUARTERS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_HQ_ID", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
 			pHeadquarters = gc.getGame().getHeadquarters(iCorp)
@@ -1144,8 +1168,9 @@ class CvPolicyAdvisorScreen:
 			elif not pHeadquarters.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), False):
 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
-				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersOwner", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + (u"(%s)" % gc.getPlayer(pHeadquarters.getOwner()).getCivilizationAdjective(0)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS + 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + pHeadquarters.getName() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS - 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				iOwner = pHeadquarters.getOwner()
+				szHeadquarters = self.trimTextWithId(pHeadquarters.getName(), iOwner, self.CORPORATION_HQ_MAX_CHARS_WITH_ID)
+				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szHeadquarters + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_CORPORATION
 
 	def getCorporationGeneratedText(self, kCorpInfo):

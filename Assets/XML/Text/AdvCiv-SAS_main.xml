@@ -494,6 +494,14 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES_2</Tag>
 		<English>Generates 2:</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_FOUNDED</Tag>
+		<English>Founded:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_HQ_ID</Tag>
+		<English>HQ (ID):</English>
+	</TEXT>
 
 
 
