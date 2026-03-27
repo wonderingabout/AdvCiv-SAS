@@ -149,6 +149,10 @@ class CvPolicyAdvisorScreen:
 		self.CORPORATION_AREA1_ID = "CorporationAreaWidget1"
 		self.CORPORATION_AREA2_ID = "CorporationAreaWidget2"
 		self.CORPORATION_PANEL_ID = "CorporationPanel"
+		self.CORPORATION_HEADER_BUILT_BY_ID = "CorporationHelpBuiltByHeader"
+		self.CORPORATION_HEADER_GENERATES_ID = "CorporationHelpGeneratesHeader"
+		self.CORPORATION_HEADER_GENERATES_YIELDS_ID = "CorporationHelpGeneratesYieldsHeader"
+		self.CORPORATION_HEADER_CONSUMES_ID = "CorporationHelpConsumesHeader"
 		self.CORPORATION_HEADER_FOUNDED_ID = "CorporationHelpFoundedHeader"
 		self.CORPORATION_HEADER_HEADQUARTERS_ID = "CorporationHelpHeadquartersHeader"
 		self.NUM_CORPORATION_PREREQ_BONUSES = None
@@ -159,16 +163,18 @@ class CvPolicyAdvisorScreen:
 		self.DX_CORPORATION = 116
 		self.Y_CORPORATION_BUTTONS = 35
 		self.Y_CORPORATION_GREAT_PERSON = 57
-		self.Y_CORPORATION_BONUSES = 77
-		self.Y_CORPORATION_FOUNDED = 102
-		self.Y_CORPORATION_HEADQUARTERS = 127
-		# <!-- custom: Corporation tab fixed layout constants; screen-dependent geometry is derived in updateRuntimeLayout. (GPT-5.3-Codex) -->
+		self.Y_CORPORATION_CONSUMES = 77
+		self.Y_CORPORATION_GENERATES_BONUS = 97
+		self.Y_CORPORATION_GENERATES = 117
+		self.Y_CORPORATION_FOUNDED = 137
+		self.Y_CORPORATION_HEADQUARTERS = 157
+		# <!-- custom: Corporations tab fixed layout constants; screen-dependent geometry is derived in updateRuntimeLayout. (GPT-5.3-Codex) -->
 		self.CORPORATION_AREA_MARGIN_X = 45
 		self.CORPORATION_PANEL_Y = 84
-		# <!-- custom: bonuses are now single-line; reduce top panel height and give reclaimed space to bottom city panels. (GPT-5.3-Codex) -->
-		self.CORPORATION_PANEL_H = 165
+		# <!-- custom: top panel height expanded to fit Built by + Consumes + Generates + Founded + Headquarters rows in one panel without overlaps. (GPT-5.3-Codex) -->
+		self.CORPORATION_PANEL_H = 190
 		self.CORPORATION_CITY_TOP_GAP = 18
-		# <!-- custom: empirically keep corporation tab outer margins consistent; bottom margin matches side margin. (GPT-5.3-Codex) -->
+		# <!-- custom: empirically keep corporations tab outer margins consistent; bottom margin matches side margin. (GPT-5.3-Codex) -->
 		self.CORPORATION_CITY_BOTTOM_GAP = 29
 		self.iCorporationSelected = -1
 
@@ -235,7 +241,7 @@ class CvPolicyAdvisorScreen:
 			self.H_RELIGION_STATUS = self.Y_BOTTOM_PANEL - (self.Y_CITY_AREA + self.H_CITY_AREA + self.RELIGION_STATUS_TOP_GAP) - self.RELIGION_STATUS_BOTTOM_GAP
 		self.Y_RELIGION_STATUS = self.Y_CITY_AREA + self.H_CITY_AREA - self.H_RELIGION_STATUS
 
-		# <!-- custom: Corporation tab layout follows runtime Policy advisor bounds so the integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
+		# <!-- custom: Corporations tab layout follows runtime Policy advisor bounds so the integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
 		self.X_CORPORATION_AREA = self.CORPORATION_AREA_MARGIN_X
 		self.W_CORPORATION_AREA = self.W_SCREEN - 2 * self.X_CORPORATION_AREA
 		iCorporationColumns = gc.getNumCorporationInfos()
@@ -372,6 +378,10 @@ class CvPolicyAdvisorScreen:
 		# <!-- custom: fix observed tab-switch leak from Corporation second-panel multiline entries ("Child..."); remove them explicitly when leaving the tab. (GPT-5.3-Codex) -->
 		screen.deleteWidget("Child" + self.CORPORATION_AREA1_ID)
 		screen.deleteWidget("Child" + self.CORPORATION_AREA2_ID)
+		screen.deleteWidget(self.CORPORATION_HEADER_BUILT_BY_ID)
+		screen.deleteWidget(self.CORPORATION_HEADER_GENERATES_ID)
+		screen.deleteWidget(self.CORPORATION_HEADER_GENERATES_YIELDS_ID)
+		screen.deleteWidget(self.CORPORATION_HEADER_CONSUMES_ID)
 		screen.deleteWidget(self.CORPORATION_HEADER_FOUNDED_ID)
 		screen.deleteWidget(self.CORPORATION_HEADER_HEADQUARTERS_ID)
 		# <!-- custom: also clear dynamic top-panel corporation labels so no stale text survives cross-tab redraws. (GPT-5.3-Codex) -->
@@ -380,6 +390,9 @@ class CvPolicyAdvisorScreen:
 			screen.deleteWidget(self.getCorporationButtonName(iCorp))
 			screen.deleteWidget(self.getCorporationTextName(iCorp))
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GreatPerson")
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Generates")
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GeneratesYields")
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Consumes")
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "BonusList")
 			# <!-- custom: legacy cleanup for old wrapped bonus row widgets kept for one-way compatibility with earlier UI iterations. (GPT-5.3-Codex) -->
 			for iRow in range(iMaxBonusRows + 1):
@@ -1074,7 +1087,8 @@ class CvPolicyAdvisorScreen:
 		iButtonOffset = self.CORPORATION_BUTTON_SIZE / 2
 		for iCorp in range(gc.getNumCorporationInfos()):
 			szButtonName = self.getCorporationButtonName(iCorp)
-			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, gc.getCorporationInfo(iCorp).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+			kCorpInfo = gc.getCorporationInfo(iCorp)
+			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, kCorpInfo.getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
 			xLoop += self.DX_CORPORATION
 
 		xLoop = self.X_CORPORATION_START
@@ -1092,17 +1106,18 @@ class CvPolicyAdvisorScreen:
 
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
-			szBonuses = u""
-			for iRequired in range(self.NUM_CORPORATION_PREREQ_BONUSES):
-				eBonus = gc.getCorporationInfo(iCorp).getPrereqBonus(iRequired)
-				if -1 != eBonus:
-					if len(szBonuses) > 0:
-						szBonuses += u", "
-					szBonuses += u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
-			# <!-- custom: keep corporation bonuses as one natural comma-separated line (no wrapped row splitting). (GPT-5.3-Codex); done since there is enough space after expanding the Policy Advisor and it is more readable -->
-			screen.setLabelAt(self.getCorporationTextName(iCorp) + "BonusList", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szBonuses + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_BONUSES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			# <!-- custom: cache corporation info once per column and reuse across all row renderers to avoid repeated lookups in the same draw pass. (GPT-5.3-Codex) -->
+			kCorpInfo = gc.getCorporationInfo(iCorp)
+			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Consumes", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + self.getCorporationConsumedText(kCorpInfo) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Generates", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + self.getCorporationGeneratedBonusText(kCorpInfo) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GeneratesYields", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + self.getCorporationGeneratedText(kCorpInfo) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_CORPORATION
 
+		# <!-- custom: explicit row labels for corporation effects to keep top-panel semantics clear after tab integration and row reordering. (GPT-5.3-Codex) -->
+		screen.setLabelAt(self.CORPORATION_HEADER_BUILT_BY_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_BUILT_BY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt(self.CORPORATION_HEADER_CONSUMES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_CONSUMES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_YIELDS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES_2", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
@@ -1125,6 +1140,43 @@ class CvPolicyAdvisorScreen:
 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersOwner", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + (u"(%s)" % gc.getPlayer(pHeadquarters.getOwner()).getCivilizationAdjective(0)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS + 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + pHeadquarters.getName() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS - 8, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_CORPORATION
+
+	def getCorporationGeneratedText(self, kCorpInfo):
+		szText = u""
+		for iYield in range(YieldTypes.NUM_YIELD_TYPES):
+			iValue = kCorpInfo.getYieldProduced(iYield)
+			if iValue != 0:
+				if len(szText) > 0:
+					szText += u", "
+				szText += u"%d%c" % (iValue, gc.getYieldInfo(iYield).getChar())
+		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+			iValue = kCorpInfo.getCommerceProduced(iCommerce)
+			if iValue != 0:
+				if len(szText) > 0:
+					szText += u", "
+				szText += u"%d%c" % (iValue, gc.getCommerceInfo(iCommerce).getChar())
+		if len(szText) <= 0:
+			return u"-"
+		return szText
+
+	def getCorporationConsumedText(self, kCorpInfo):
+		# <!-- custom: keep consumed prerequisites as a single natural comma-separated bonus-char list; no row splitting needed at current panel width. (GPT-5.3-Codex) -->
+		szText = u""
+		for iRequired in range(self.NUM_CORPORATION_PREREQ_BONUSES):
+			eBonus = kCorpInfo.getPrereqBonus(iRequired)
+			if eBonus != -1:
+				if len(szText) > 0:
+					szText += u", "
+				szText += u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
+		if len(szText) <= 0:
+			return u"-"
+		return szText
+
+	def getCorporationGeneratedBonusText(self, kCorpInfo):
+		eBonus = kCorpInfo.getBonusProduced()
+		if eBonus == -1:
+			return u"-"
+		return u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
 
 	def drawCorporationCityInfo(self, iCorporation):
 		screen = self.getScreen()

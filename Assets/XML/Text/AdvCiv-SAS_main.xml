@@ -477,6 +477,23 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_POLICY_TAB_CORPORATIONS</Tag>
 		<English>Corporations</English>
 	</TEXT>
+	<!-- custom: Corporation row labels for Policy advisor integrated corporations tab. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_BUILT_BY</Tag>
+		<English>Built by:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_CONSUMES</Tag>
+		<English>Consumes:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES</Tag>
+		<English>Generates:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES_2</Tag>
+		<English>Generates 2:</English>
+	</TEXT>
 
 
 
