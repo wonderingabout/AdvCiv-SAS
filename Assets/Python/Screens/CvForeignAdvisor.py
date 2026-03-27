@@ -295,6 +295,47 @@ class CvForeignAdvisor:
 		self.ESP_Z_BACKGROUND = -2.1
 		self.ESP_Z_CONTROLS = self.ESP_Z_BACKGROUND - 0.2
 		self.ESP_DZ = -0.2
+		# <!-- custom: Espionage tab fixed layout constants belong in init; only resolution-derived geometry is computed at screen open. (GPT-5.3-Codex) -->
+		self.ESP_OUTER_MARGIN = 0
+		self.ESP_PANEL_GAP = 0
+		self.ESP_INNER_MARGIN = 12
+		self.ESP_MAIN_BLEED_X = 4
+		self.ESP_MAIN_BLEED_Y = 12
+		self.ESP_Y_MAIN_PANE_BASE = 54
+		self.ESP_LEFT_PANE_WIDTH_PERCENT = 38
+		self.ESP_LEFT_PANE_WIDTH_MIN = 380
+		self.ESP_LEFT_PANE_HEIGHT_MIN = 420
+		self.ESP_SCROLL_WIDTH_MIN = 220
+		self.ESP_SCROLL_HEIGHT_MIN = 220
+		self.ESP_TOTAL_PANE_WIDTH_MIN = 320
+		self.ESP_CITY_LIST_TOP_OFFSET = 45
+		self.ESP_CITY_LIST_WIDTH_PERCENT = 21
+		self.ESP_CITY_LIST_WIDTH_MIN = 110
+		self.ESP_CITY_LIST_HEIGHT_MIN = 150
+		self.ESP_EFFECTS_COSTS_WIDTH_PERCENT = 9
+		self.ESP_EFFECTS_COSTS_WIDTH_MIN = 52
+		self.ESP_EFFECTS_WIDTH_MIN = 140
+		self.ESP_EFFECTS_COSTS_GAP = 10
+		self.ESP_EFFECTS_HEIGHT_MIN = 70
+		self.ESP_EFFECTS_HEIGHT_DIVISOR = 3
+		self.ESP_EFFECTS_HEIGHT_OFFSET = 50
+		self.ESP_MISSIONS_TOP_GAP = 50
+		self.ESP_MISSIONS_HEIGHT_MIN = 90
+		self.ESP_MISSIONS_HEIGHT_NUMERATOR = 2
+		self.ESP_MISSIONS_HEIGHT_DENOMINATOR = 3
+		self.ESP_MISSION_BUTTON_TOP_GAP = 10
+		self.ESP_MISSION_BUTTON_HEIGHT = 30
+		self.ESP_ROW_X_NAME = 55
+		self.ESP_ROW_X_WEIGHT = 58
+		self.ESP_ROW_X_RIGHT_MIN = 205
+		self.ESP_ROW_X_RIGHT_OFFSET = 120
+		self.ESP_ROW_Y_TOP = -15
+		self.ESP_ROW_Y_BOTTOM = 2
+		self.ESP_ROW_Y_WEIGHT = 9
+		self.ESP_ROW_Y_BUTTON = 16
+		self.ESP_ROW_Y_ICON = -3
+		self.ESP_ROW_X_BUTTON_PLUS = 21
+		self.ESP_ROW_X_BUTTON_MINUS = 37
 		self.nEspionageWidgetCount = 0
 		self.ESP_iTargetPlayer = -1
 		self.ESP_iActiveCityID = -1
@@ -429,6 +470,52 @@ class CvForeignAdvisor:
 		self.ESP_Y_SCREEN = self.Y_SCREEN
 		self.ESP_W_SCREEN = self.W_SCREEN
 		self.ESP_H_SCREEN = self.H_SCREEN
+		# <!-- custom: Espionage geometry is runtime-dependent (resolution + advisor bounds), so keep it in the shared runtime layout method. (GPT-5.3-Codex) -->
+		self.ESP_X_MAIN_PANE = -self.ESP_MAIN_BLEED_X
+		self.ESP_Y_MAIN_PANE = self.ESP_Y_MAIN_PANE_BASE - self.ESP_MAIN_BLEED_Y
+		self.ESP_W_MAIN_PANE = self.ESP_W_SCREEN + (2 * self.ESP_MAIN_BLEED_X)
+		self.ESP_H_MAIN_PANE = (self.Y_BOTTOM_PANEL - self.ESP_Y_MAIN_PANE) + self.ESP_MAIN_BLEED_Y
+		self.ESP_X_LEFT_PANE = self.ESP_OUTER_MARGIN
+		self.ESP_Y_LEFT_PANE = self.ESP_Y_MAIN_PANE + self.ESP_OUTER_MARGIN
+		self.ESP_W_LEFT_PANE = max(self.ESP_LEFT_PANE_WIDTH_MIN, self.ESP_W_SCREEN * self.ESP_LEFT_PANE_WIDTH_PERCENT / 100)
+		self.ESP_H_LEFT_PANE = max(self.ESP_LEFT_PANE_HEIGHT_MIN, self.ESP_H_MAIN_PANE - self.ESP_OUTER_MARGIN)
+		self.ESP_X_SCROLL = self.ESP_X_LEFT_PANE + self.ESP_INNER_MARGIN
+		self.ESP_Y_SCROLL = self.ESP_Y_LEFT_PANE + self.ESP_INNER_MARGIN
+		self.ESP_W_SCROLL = max(self.ESP_SCROLL_WIDTH_MIN, self.ESP_W_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
+		self.ESP_H_SCROLL = max(self.ESP_SCROLL_HEIGHT_MIN, self.ESP_H_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
+		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + self.ESP_PANEL_GAP
+		self.ESP_Y_TOTAL_PANE = self.ESP_Y_LEFT_PANE
+		self.ESP_W_TOTAL_PANE = max(self.ESP_TOTAL_PANE_WIDTH_MIN, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - self.ESP_OUTER_MARGIN)
+		self.ESP_X_RIGHT_PANE = self.ESP_X_TOTAL_PANE
+		# <!-- custom: no separate top-summary pane in active layout; right pane starts at top and uses full height. (GPT-5.3-Codex) -->
+		self.ESP_Y_RIGHT_PANE = self.ESP_Y_LEFT_PANE
+		self.ESP_W_RIGHT_PANE = self.ESP_W_TOTAL_PANE
+		self.ESP_H_RIGHT_PANE = self.ESP_H_LEFT_PANE
+		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + self.ESP_INNER_MARGIN
+		self.ESP_Y_CITY_LIST = self.ESP_Y_RIGHT_PANE + self.ESP_CITY_LIST_TOP_OFFSET
+		self.ESP_W_CITY_LIST = max(self.ESP_CITY_LIST_WIDTH_MIN, self.ESP_W_RIGHT_PANE * self.ESP_CITY_LIST_WIDTH_PERCENT / 100)
+		self.ESP_H_CITY_LIST = max(self.ESP_CITY_LIST_HEIGHT_MIN, self.ESP_H_RIGHT_PANE - (self.ESP_CITY_LIST_TOP_OFFSET + self.ESP_INNER_MARGIN))
+		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + self.ESP_INNER_MARGIN
+		self.ESP_Y_EFFECTS_LIST = self.ESP_Y_CITY_LIST
+		self.ESP_W_EFFECTS_COSTS_LIST = max(self.ESP_EFFECTS_COSTS_WIDTH_MIN, self.ESP_W_RIGHT_PANE * self.ESP_EFFECTS_COSTS_WIDTH_PERCENT / 100)
+		self.ESP_W_EFFECTS_LIST = max(self.ESP_EFFECTS_WIDTH_MIN, self.ESP_W_RIGHT_PANE - (self.ESP_X_EFFECTS_LIST - self.ESP_X_RIGHT_PANE) - self.ESP_EFFECTS_COSTS_GAP - self.ESP_W_EFFECTS_COSTS_LIST - self.ESP_INNER_MARGIN)
+		self.ESP_H_EFFECTS_LIST = max(self.ESP_EFFECTS_HEIGHT_MIN, (self.ESP_H_CITY_LIST / self.ESP_EFFECTS_HEIGHT_DIVISOR) - self.ESP_EFFECTS_HEIGHT_OFFSET)
+		self.ESP_X_EFFECTS_COSTS_LIST = self.ESP_X_EFFECTS_LIST + self.ESP_W_EFFECTS_LIST + self.ESP_EFFECTS_COSTS_GAP
+		self.ESP_Y_EFFECTS_COSTS_LIST = self.ESP_Y_EFFECTS_LIST
+		self.ESP_H_EFFECTS_COSTS_LIST = self.ESP_H_EFFECTS_LIST
+		self.ESP_X_MISSIONS_LIST = self.ESP_X_EFFECTS_LIST
+		self.ESP_Y_MISSIONS_LIST = self.ESP_Y_EFFECTS_LIST + self.ESP_H_EFFECTS_LIST + self.ESP_MISSIONS_TOP_GAP
+		self.ESP_W_MISSIONS_LIST = self.ESP_W_EFFECTS_LIST
+		self.ESP_H_MISSIONS_LIST = max(self.ESP_MISSIONS_HEIGHT_MIN, self.ESP_H_CITY_LIST * self.ESP_MISSIONS_HEIGHT_NUMERATOR / self.ESP_MISSIONS_HEIGHT_DENOMINATOR)
+		self.ESP_X_MISSIONS_COSTS_LIST = self.ESP_X_MISSIONS_LIST + self.ESP_W_MISSIONS_LIST + self.ESP_EFFECTS_COSTS_GAP
+		self.ESP_Y_MISSIONS_COSTS_LIST = self.ESP_Y_MISSIONS_LIST
+		self.ESP_W_MISSIONS_COSTS_LIST = self.ESP_W_EFFECTS_COSTS_LIST
+		self.ESP_H_MISSIONS_COSTS_LIST = self.ESP_H_MISSIONS_LIST
+		self.ESP_X_MISSION_BUTTON = self.ESP_X_MISSIONS_LIST
+		self.ESP_Y_MISSION_BUTTON = self.ESP_Y_MISSIONS_LIST + self.ESP_H_MISSIONS_LIST + self.ESP_MISSION_BUTTON_TOP_GAP
+		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + self.ESP_EFFECTS_COSTS_GAP
+		self.ESP_H_MISSION_BUTTON = self.ESP_MISSION_BUTTON_HEIGHT
+		self.ESP_ROW_X_RIGHT = max(self.ESP_ROW_X_RIGHT_MIN, self.ESP_W_SCROLL - self.ESP_ROW_X_RIGHT_OFFSET)
 
 	def updateRuntimeTabLinkWidths(self):
 		# <!-- custom: tab-link widths depend on runtime X_EXIT; recompute every open using shared helper. (GPT-5.3-Codex) -->
@@ -440,83 +527,6 @@ class CvForeignAdvisor:
 	def interfaceScreen (self, iScreen):
 		screen = self.getScreen()
 		self.updateRuntimeLayout(screen)
-
-		# <!-- custom: use contiguous blue panels (no yellow gutters): zero outer margins and zero inter-panel gap; keep a small inner inset only for readability. (GPT-5.3-Codex) -->
-		self.ESP_OUTER_MARGIN = 0
-		self.ESP_PANEL_GAP = 0
-		self.ESP_INNER_MARGIN = 12
-
-		# <!-- custom: slightly overdraw the shared Espionage backdrop so no yellow rim leaks through; use tiny horizontal bleed and larger vertical bleed. (GPT-5.3-Codex) -->
-		self.ESP_MAIN_BLEED_X = 4
-		self.ESP_MAIN_BLEED_Y = 12
-		self.ESP_X_MAIN_PANE = -self.ESP_MAIN_BLEED_X
-		self.ESP_Y_MAIN_PANE = 54 - self.ESP_MAIN_BLEED_Y
-		self.ESP_W_MAIN_PANE = self.ESP_W_SCREEN + (2 * self.ESP_MAIN_BLEED_X)
-		self.ESP_H_MAIN_PANE = (self.Y_BOTTOM_PANEL - self.ESP_Y_MAIN_PANE) + self.ESP_MAIN_BLEED_Y
-
-		self.ESP_X_LEFT_PANE = self.ESP_OUTER_MARGIN
-		self.ESP_Y_LEFT_PANE = self.ESP_Y_MAIN_PANE + self.ESP_OUTER_MARGIN
-		self.ESP_W_LEFT_PANE = max(380, self.ESP_W_SCREEN * 38 / 100)
-		self.ESP_H_LEFT_PANE = max(420, self.ESP_H_MAIN_PANE - self.ESP_OUTER_MARGIN)
-
-		self.ESP_X_SCROLL = self.ESP_X_LEFT_PANE + self.ESP_INNER_MARGIN
-		self.ESP_Y_SCROLL = self.ESP_Y_LEFT_PANE + self.ESP_INNER_MARGIN
-		self.ESP_W_SCROLL = max(220, self.ESP_W_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
-		self.ESP_H_SCROLL = max(220, self.ESP_H_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
-
-		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + self.ESP_PANEL_GAP
-		self.ESP_Y_TOTAL_PANE = self.ESP_Y_LEFT_PANE
-		self.ESP_W_TOTAL_PANE = max(320, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - self.ESP_OUTER_MARGIN)
-		self.ESP_H_TOTAL_PANE = 60
-
-		self.ESP_X_RIGHT_PANE = self.ESP_X_TOTAL_PANE
-		# <!-- custom: remove Espionage top-summary area from active layout; commerce sliders on the right already provide this info, so the extra panel is redundant/noisy. Reuse that space for city/effects/missions content. Keep total-pane coordinates defined for easy future restoration. (GPT-5.3-Codex) -->
-		self.ESP_Y_RIGHT_PANE = self.ESP_Y_LEFT_PANE
-		self.ESP_W_RIGHT_PANE = self.ESP_W_TOTAL_PANE
-		self.ESP_H_RIGHT_PANE = self.ESP_H_LEFT_PANE
-
-		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + self.ESP_INNER_MARGIN
-		self.ESP_Y_CITY_LIST = self.ESP_Y_RIGHT_PANE + 45
-		self.ESP_W_CITY_LIST = max(110, self.ESP_W_RIGHT_PANE * 21 / 100)
-		self.ESP_H_CITY_LIST = max(150, self.ESP_H_RIGHT_PANE - (45 + self.ESP_INNER_MARGIN))
-
-		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + self.ESP_INNER_MARGIN
-		self.ESP_Y_EFFECTS_LIST = self.ESP_Y_CITY_LIST
-		self.ESP_W_EFFECTS_COSTS_LIST = max(52, self.ESP_W_RIGHT_PANE * 9 / 100)
-		self.ESP_W_EFFECTS_LIST = max(140, self.ESP_W_RIGHT_PANE - (self.ESP_X_EFFECTS_LIST - self.ESP_X_RIGHT_PANE) - 10 - self.ESP_W_EFFECTS_COSTS_LIST - self.ESP_INNER_MARGIN)
-		self.ESP_H_EFFECTS_LIST = max(70, (self.ESP_H_CITY_LIST / 3) - 50)
-
-		self.ESP_X_EFFECTS_COSTS_LIST = self.ESP_X_EFFECTS_LIST + self.ESP_W_EFFECTS_LIST + 10
-		self.ESP_Y_EFFECTS_COSTS_LIST = self.ESP_Y_EFFECTS_LIST
-		self.ESP_H_EFFECTS_COSTS_LIST = self.ESP_H_EFFECTS_LIST
-
-		self.ESP_X_MISSIONS_LIST = self.ESP_X_EFFECTS_LIST
-		self.ESP_Y_MISSIONS_LIST = self.ESP_Y_EFFECTS_LIST + self.ESP_H_EFFECTS_LIST + 50
-		self.ESP_W_MISSIONS_LIST = self.ESP_W_EFFECTS_LIST
-		self.ESP_H_MISSIONS_LIST = max(90, self.ESP_H_CITY_LIST * 2 / 3)
-
-		self.ESP_X_MISSIONS_COSTS_LIST = self.ESP_X_MISSIONS_LIST + self.ESP_W_MISSIONS_LIST + 10
-		self.ESP_Y_MISSIONS_COSTS_LIST = self.ESP_Y_MISSIONS_LIST
-		self.ESP_W_MISSIONS_COSTS_LIST = self.ESP_W_EFFECTS_COSTS_LIST
-		self.ESP_H_MISSIONS_COSTS_LIST = self.ESP_H_MISSIONS_LIST
-
-		self.ESP_X_MISSION_BUTTON = self.ESP_X_MISSIONS_LIST
-		self.ESP_Y_MISSION_BUTTON = self.ESP_Y_MISSIONS_LIST + self.ESP_H_MISSIONS_LIST + 10
-		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + 10
-		self.ESP_H_MISSION_BUTTON = 30
-		# <!-- custom: leader-row anchors are runtime-dependent so larger SAS fonts don't overlap fixed vanilla coordinates at 1080p/1440p+. (GPT-5.3-Codex) -->
-		self.ESP_ROW_X_NAME = 55
-		self.ESP_ROW_X_WEIGHT = 58
-		self.ESP_ROW_X_RIGHT = max(205, self.ESP_W_SCROLL - 120)
-		self.ESP_ROW_Y_TOP = -15
-		self.ESP_ROW_Y_BOTTOM = 2
-		self.ESP_ROW_Y_WEIGHT = 9
-		self.ESP_ROW_Y_AMOUNT = self.ESP_ROW_Y_WEIGHT
-		# <!-- custom: place +/- under the leader icon (instead of mid-line text area) to avoid click interference with scaled text and to use free left-side space more cleanly. (GPT-5.3-Codex) -->
-		self.ESP_ROW_X_BUTTON_PLUS = 21
-		self.ESP_ROW_X_BUTTON_MINUS = 37
-		self.ESP_ROW_Y_BUTTON = 16
-		self.ESP_ROW_Y_ICON = -3
 
 		# <!-- custom: initialize language-dependent text once, then recompute tab widths from runtime geometry. (GPT-5.3-Codex) -->
 		self.initText()
@@ -2643,7 +2653,7 @@ class CvForeignAdvisor:
 					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 
-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
@@ -2731,7 +2741,7 @@ class CvForeignAdvisor:
 					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 				screen.deleteWidget(szName)
-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
@@ -2999,7 +3009,7 @@ class CvForeignAdvisor:
 					else:
 						szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
-					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
 						szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
@@ -3032,7 +3042,7 @@ class CvForeignAdvisor:
 						else:
 							szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
-						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
 							szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
