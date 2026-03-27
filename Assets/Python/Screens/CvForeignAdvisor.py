@@ -339,8 +339,16 @@ class CvForeignAdvisor:
 		self.TEXT_ESPIONAGE_NO_SPY = localText.getText("TXT_KEY_ESPIONAGE_NO_SPY", ())
 		self.TEXT_MISC_THRESHOLD = localText.getText("TXT_KEY_MISC_THRESHOLD", ())
 		self.TEXT_CONCEPT_CITIES = localText.getText("TXT_KEY_CONCEPT_CITIES", ())
+		self.COLOR_WHITE = gc.getInfoTypeForString("COLOR_WHITE")
+		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+		self.COLOR_BLUE = gc.getInfoTypeForString("COLOR_BLUE")
+		self.COLOR_CITY_GREEN = gc.getInfoTypeForString("COLOR_CITY_GREEN")
+		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+		self.COLOR_CYAN = gc.getInfoTypeForString("COLOR_CYAN")
+		self.COLOR_LIGHT_GREY = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
+		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
 
-		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
+		eDenialColor = self.COLOR_WHITE
 		self.TEXT_REJECTS = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)
 		self.TEXT_WONT_CEDE = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)
 		# <!-- custom: messages (claude code sonnet 4.5) -->
@@ -907,27 +915,27 @@ class CvForeignAdvisor:
 		y = self.Y_LEGEND + self.MARGIN_LEGEND
 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_REL_CONTACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_WHITE"))
+		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_WHITE)
 		y += 2 * self.MARGIN_LEGEND
 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_CONCEPT_WAR, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_RED"))
+		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_RED)
 		y += 2 * self.MARGIN_LEGEND
 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_DEFENSIVE_PACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_BLUE"))
+		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_BLUE)
 		y += 2 * self.MARGIN_LEGEND
 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_OPEN_BORDERS, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CITY_GREEN"))
+		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_CITY_GREEN)
 		y += 2 * self.MARGIN_LEGEND
 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_PITBOSS_TEAM, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_YELLOW"))
+		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_YELLOW)
 		y += 2 * self.MARGIN_LEGEND
 		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_MISC_VASSAL_SHORT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		y += self.MARGIN_LEGEND
-		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CYAN"))
+		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, self.COLOR_CYAN)
 	
 		# Our leader head
 
@@ -1033,14 +1041,14 @@ class CvForeignAdvisor:
 					if (iSelectedLeader != iPlayer):
 						if (player.getTeam() == gc.getPlayer(iSelectedLeader).getTeam()):
 							szName = self.getNextLineName()
-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_YELLOW") )						
+							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_YELLOW )						
 						elif (gc.getTeam(player.getTeam()).isVassal(gc.getPlayer(iSelectedLeader).getTeam()) or gc.getTeam(gc.getPlayer(iSelectedLeader).getTeam()).isVassal(player.getTeam())):
 							szName = self.getNextLineName()
-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_CYAN") )						
+							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_CYAN )						
 						elif (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(iSelectedLeader).getTeam())):
 							if (gc.getTeam(player.getTeam()).isAtWar(gc.getPlayer(iSelectedLeader).getTeam())):
 								szName = self.getNextLineName()
-								screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_RED") )
+								screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_RED )
 							else:
 								bJustPeace = True
 								if (gc.getTeam(player.getTeam()).isOpenBorders(gc.getPlayer(iSelectedLeader).getTeam())):
@@ -1054,27 +1062,27 @@ class CvForeignAdvisor:
 									fSecondLineOffsetY = self.LINE_WIDTH * math.cos(fTheta)
 									fSecondLineOffsetX = -self.LINE_WIDTH * math.sin(fTheta)
 									szName = self.getNextLineName()
-									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(fX + fSecondLineOffsetX), int(fY + fSecondLineOffsetY), gc.getInfoTypeForString("COLOR_CITY_GREEN") )
+									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(fX + fSecondLineOffsetX), int(fY + fSecondLineOffsetY), self.COLOR_CITY_GREEN )
 									bJustPeace = False
 								if (gc.getTeam(player.getTeam()).isDefensivePact(gc.getPlayer(iSelectedLeader).getTeam())):
 									szName = self.getNextLineName()
-									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_BLUE") )
+									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_BLUE )
 									bJustPeace = False
 								if (bJustPeace):
 									szName = self.getNextLineName()
-									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), gc.getInfoTypeForString("COLOR_WHITE") )
+									screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(fX), int(fY), self.COLOR_WHITE )
 
 				player = gc.getPlayer(self.iActiveLeader)
 				if (player.getTeam() == gc.getPlayer(iSelectedLeader).getTeam()):
 					szName = self.getNextLineName()
-					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_YELLOW") )
+					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, self.COLOR_YELLOW )
 				elif (gc.getTeam(player.getTeam()).isVassal(gc.getPlayer(iSelectedLeader).getTeam()) or gc.getTeam(gc.getPlayer(iSelectedLeader).getTeam()).isVassal(player.getTeam())):
 					szName = self.getNextLineName()
-					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_CYAN") )
+					screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, self.COLOR_CYAN )
 				elif (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(iSelectedLeader).getTeam())):
 					if (gc.getTeam(player.getTeam()).isAtWar(gc.getPlayer(iSelectedLeader).getTeam())):
 						szName = self.getNextLineName()
-						screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, gc.getInfoTypeForString("COLOR_RED") )
+						screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight/2, self.COLOR_RED )
 					else:
 						bJustPeace = True
 						if (gc.getTeam(player.getTeam()).isOpenBorders(gc.getPlayer(iSelectedLeader).getTeam())):
@@ -1088,15 +1096,15 @@ class CvForeignAdvisor:
 							fSecondLineOffsetY = self.LINE_WIDTH * math.cos(fTheta)
 							fSecondLineOffsetX = -self.LINE_WIDTH * math.sin(fTheta)
 							szName = self.getNextLineName()
-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(self.X_LEADER_CIRCLE_TOP + fSecondLineOffsetX), int(fLeaderTop + iLeaderHeight/2 + fSecondLineOffsetY), gc.getInfoTypeForString("COLOR_CITY_GREEN") )
+							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected + fSecondLineOffsetX), int(fYSelected + fSecondLineOffsetY), int(self.X_LEADER_CIRCLE_TOP + fSecondLineOffsetX), int(fLeaderTop + iLeaderHeight/2 + fSecondLineOffsetY), self.COLOR_CITY_GREEN )
 							bJustPeace = False
 						if (gc.getTeam(player.getTeam()).isDefensivePact(gc.getPlayer(iSelectedLeader).getTeam())):
 							szName = self.getNextLineName()
-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), gc.getInfoTypeForString("COLOR_BLUE") )
+							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), self.COLOR_BLUE )
 							bJustPeace = False
 						if (bJustPeace):
 							szName = self.getNextLineName()
-							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), gc.getInfoTypeForString("COLOR_WHITE") )
+							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), self.COLOR_WHITE )
 
 															
 	def getNextWidgetName(self):
@@ -2279,7 +2287,7 @@ class CvForeignAdvisor:
 
 	def drawCityDeals(self, bInitial): # Based on drawTechDeals
 		screen = self.getScreen()
-		self.eDenialColor = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
+		self.eDenialColor = self.COLOR_LIGHT_GREY
 
 		iconGrid, PANEL_X, PANEL_Y = self.initCityTable()
 		PANEL_WIDTH = self.W_SCREEN - 2 * PANEL_X
@@ -2841,7 +2849,7 @@ class CvForeignAdvisor:
 								# <advc.120d>
 								costStr = str(iCost)
 								if pActivePlayer.canDoEspionageMission(iMissionLoop, self.ESP_iTargetPlayer, pPlot, 0):
-									costStr = localText.changeTextColor(costStr, gc.getInfoTypeForString("COLOR_GREEN"))
+									costStr = localText.changeTextColor(costStr, self.COLOR_GREEN)
 								# </advc.120d>
 								iRow = screen.appendTableRow(szEffectsTable)
 								self.setEspionageTableTextScaled(screen, szEffectsTable, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -2885,7 +2893,7 @@ class CvForeignAdvisor:
 							if iCost > 0:
 								costStr = str(iCost)
 								if pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam) >= iCost:
-									costStr = localText.changeTextColor(costStr, gc.getInfoTypeForString("COLOR_GREEN"))
+									costStr = localText.changeTextColor(costStr, self.COLOR_GREEN)
 							# Secret costs
 							if pMission.getBuyTechCostFactor() > 0 and not pActivePlayer.canSeeTech(self.ESP_iTargetPlayer):
 								# This can't happen so long as Alphabet enables both Spies and tech trading

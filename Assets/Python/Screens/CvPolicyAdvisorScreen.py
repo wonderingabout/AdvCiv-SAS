@@ -219,6 +219,13 @@ class CvPolicyAdvisorScreen:
 		self.TEXT_CORP_ROW_FOUNDED = localText.getText("TXT_KEY_POLICY_CORP_ROW_FOUNDED", ())
 		self.TEXT_CORP_ROW_HQ_ID = localText.getText("TXT_KEY_POLICY_CORP_ROW_HQ_ID", ())
 		self.TEXT_NOT_FOUNDED = localText.getText("TXT_KEY_RELIGION_SCREEN_NOT_FOUNDED", ())
+		self.TEXT_NONE = localText.getText("TXT_KEY_NONE", ())
+		self.TEXT_UNKNOWN = localText.getText("TXT_KEY_UNKNOWN", ())
+		self.TEXT_BUG_RELIGIOUS_CITY = localText.getText("TXT_KEY_BUG_RELIGIOUS_CITY", ())
+		self.TEXT_BUG_RELIGIOUS_TEMPLE = localText.getText("TXT_KEY_BUG_RELIGIOUS_TEMPLE", ())
+		self.TEXT_BUG_RELIGIOUS_MONASTARY = localText.getText("TXT_KEY_BUG_RELIGIOUS_MONASTARY", ())
+		self.TEXT_BUG_RELIGIOUS_MISSIONARY = localText.getText("TXT_KEY_BUG_RELIGIOUS_MISSIONARY", ())
+		self.TEXT_WONDER_CITY = localText.getText("TXT_KEY_WONDER_CITY", ())
 		self.LABEL_RELIGION_NO_STATE = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_NO_STATE + SAS_FONT_TAG_CLOSE
 		self.LABEL_RELIGION_DATE_FOUNDED = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_DATE_FOUNDED + SAS_FONT_TAG_CLOSE
 		self.LABEL_RELIGION_HOLY_CITY = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_HOLY_CITY + SAS_FONT_TAG_CLOSE
@@ -229,9 +236,17 @@ class CvPolicyAdvisorScreen:
 		self.LABEL_CORP_ROW_GENERATES_2 = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_GENERATES_2 + SAS_FONT_TAG_CLOSE
 		self.LABEL_CORP_ROW_FOUNDED = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_FOUNDED + SAS_FONT_TAG_CLOSE
 		self.LABEL_CORP_ROW_HQ_ID = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_HQ_ID + SAS_FONT_TAG_CLOSE
+		self.LABEL_NONE = SAS_FONT_TAG_LABEL + self.TEXT_NONE + SAS_FONT_TAG_CLOSE
+		self.LABEL_UNKNOWN = SAS_FONT_TAG_LABEL + self.TEXT_UNKNOWN + SAS_FONT_TAG_CLOSE
 		self.NO_STATE_BUTTON_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
 		self.BUTTON_HILITE_SQUARE_ART = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
 		self.BACKGROUND_ART = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
+		self.ZOOM_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.COLOR_GREEN = getInfoTypeOrFail("COLOR_GREEN")
+		self.COLOR_RED = getInfoTypeOrFail("COLOR_RED")
+		self.COLOR_BLUE = getInfoTypeOrFail("COLOR_BLUE")
+		self.COLOR_WHITE = getInfoTypeOrFail("COLOR_WHITE")
+		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
 
 	def updateRuntimeLayout(self, screen):
 		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
@@ -782,11 +797,11 @@ class CvPolicyAdvisorScreen:
 			if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
 				pHolyCity = gc.getGame().getHolyCity(iRel)
 				if pHolyCity.isNone():
-					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_NONE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_NONE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, self.LABEL_NONE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, self.LABEL_NONE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				elif not pHolyCity.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), True): # advc.001d
-					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("ReligionHolyCityValue" + str(iRel), szArea, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				else:
 					# <!-- custom: keep Holy City and Leader as separate rows so upscaled text stays readable; include player ID for precise debugging/reference in duplicate-civ setups. (GPT-5.3-Codex) -->
 					szHolyCityName = self.trimReligionColumnText(pHolyCity.getName(), self.RELIGION_HOLY_CITY_CITY_MAX_CHARS_NO_ID)
@@ -880,18 +895,18 @@ class CvPolicyAdvisorScreen:
 		self.objectIsNotPresent = "-"
 		self.objectCanBeBuild = "o"
 		self.objectUnderConstruction = self.hammerIcon
-		self.objectHave = localText.changeTextColor(self.objectIsPresent, gc.getInfoTypeForString("COLOR_GREEN"))
-		self.objectNotPossible = localText.changeTextColor(self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_RED"))
-		self.objectPossible = localText.changeTextColor(self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_BLUE"))
-		self.objectHaveObsolete = localText.changeTextColor(self.objectIsPresent, gc.getInfoTypeForString("COLOR_WHITE"))
-		self.objectNotPossibleConcurrent = localText.changeTextColor(self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_YELLOW"))
-		self.objectPossibleConcurrent = localText.changeTextColor(self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_YELLOW"))
-		self.szCities = localText.getText("TXT_KEY_BUG_RELIGIOUS_CITY", ())
-		self.szTemples = localText.getText("TXT_KEY_BUG_RELIGIOUS_TEMPLE", ())
-		self.szMonastaries = localText.getText("TXT_KEY_BUG_RELIGIOUS_MONASTARY", ())
-		self.szMissionaries = localText.getText("TXT_KEY_BUG_RELIGIOUS_MISSIONARY", ())
-		self.zoomArt = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
-		self.sCity = localText.getText("TXT_KEY_WONDER_CITY", ())
+		self.objectHave = localText.changeTextColor(self.objectIsPresent, self.COLOR_GREEN)
+		self.objectNotPossible = localText.changeTextColor(self.objectIsNotPresent, self.COLOR_RED)
+		self.objectPossible = localText.changeTextColor(self.objectCanBeBuild, self.COLOR_BLUE)
+		self.objectHaveObsolete = localText.changeTextColor(self.objectIsPresent, self.COLOR_WHITE)
+		self.objectNotPossibleConcurrent = localText.changeTextColor(self.objectIsNotPresent, self.COLOR_YELLOW)
+		self.objectPossibleConcurrent = localText.changeTextColor(self.objectCanBeBuild, self.COLOR_YELLOW)
+		self.szCities = self.TEXT_BUG_RELIGIOUS_CITY
+		self.szTemples = self.TEXT_BUG_RELIGIOUS_TEMPLE
+		self.szMonastaries = self.TEXT_BUG_RELIGIOUS_MONASTARY
+		self.szMissionaries = self.TEXT_BUG_RELIGIOUS_MISSIONARY
+		self.zoomArt = self.ZOOM_ART
+		self.sCity = self.TEXT_WONDER_CITY
 
 	def drawCityInfo(self, iReligion):
 		screen = self.getScreen()
@@ -1190,7 +1205,7 @@ class CvPolicyAdvisorScreen:
 			if pHeadquarters.isNone():
 				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + u"-" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			elif not pHeadquarters.isRevealed(gc.getPlayer(self.iActivePlayer).getTeam(), False):
-				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNKNOWN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(self.getCorporationTextName(iCorp) + "HeadquartersCity", self.CORPORATION_PANEL_ID, self.LABEL_UNKNOWN, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
 				iOwner = pHeadquarters.getOwner()
 				szHeadquarters = self.trimTextWithId(pHeadquarters.getName(), iOwner, self.CORPORATION_HQ_MAX_CHARS_WITH_ID)

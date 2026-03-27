@@ -249,6 +249,9 @@ class CvVictoryScreen:
 		self.TAB_VOTING = localText.getText("TXT_KEY_VOTING_TITLE", ()).upper()
 		self.TAB_MEMBERS = localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper()
 		self.TAB_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ()).upper()
+		self.TEXT_DIPLOMATIC = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
+		self.LABEL_SETTINGS_HEADER = SAS_FONT_TAG_LABEL_BOLD + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE
+		self.LABEL_OPTIONS_HEADER = SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TAB_VICTORIES_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_VICTORIES", (), self.COLOR_YELLOW).upper()
 		self.TAB_SETTINGS_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), self.COLOR_YELLOW).upper()
 		self.TAB_VOTING_ACTIVE = localText.getColorText("TXT_KEY_VOTING_TITLE", (), self.COLOR_YELLOW).upper()
@@ -730,7 +733,7 @@ class CvVictoryScreen:
 		screen.setText(self.Vote_Pope_ID, "", sText, CvUtil.FONT_RIGHT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		iX -= 10 + CyInterface().determineWidth(sText)
-		sText = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
+		sText = self.TEXT_DIPLOMATIC
 		if self.VoteType == 2:
 			sText = BugUtil.colorText(sText, "COLOR_YELLOW")
 		screen.setText(self.Vote_DipVic_ID, "", sText, CvUtil.FONT_RIGHT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -908,7 +911,7 @@ class CvVictoryScreen:
 		if self.VoteType == 1:
 			sSecGen = gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText()
 		else:
-			sSecGen = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
+			sSecGen = self.TEXT_DIPLOMATIC
 
 		# display SecGen vote prediction
 		if (iCand1Known != 0
@@ -1232,7 +1235,7 @@ class CvVictoryScreen:
 		szSettingsPanel = self.getNextWidgetName()
 		screen.addPanel(szSettingsPanel, "", "", True, True, self.SETTINGS_PANEL_X1, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
 		szSettingsHeader = self.getNextWidgetName()
-		screen.setLabel(szSettingsHeader, "Background", SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_MAIN_MENU_SETTINGS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X1 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(szSettingsHeader, "Background", self.LABEL_SETTINGS_HEADER, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X1 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		szSettingsTable = self.getNextWidgetName()
 		screen.addListBoxGFC(szSettingsTable, "", self.SETTINGS_PANEL_X1 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(szSettingsTable, False)
@@ -1354,7 +1357,7 @@ class CvVictoryScreen:
 		szOptionsPanel = self.getNextWidgetName()
 		screen.addPanel(szOptionsPanel, "", "", True, True, self.SETTINGS_PANEL_X2, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
 		szOptionsHeader = self.getNextWidgetName()
-		screen.setLabel(szOptionsHeader, "Background", SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X2 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(szOptionsHeader, "Background", self.LABEL_OPTIONS_HEADER, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X2 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		szOptionsTable = self.getNextWidgetName()
 		screen.addListBoxGFC(szOptionsTable, "", self.SETTINGS_PANEL_X2 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(szOptionsTable, False)

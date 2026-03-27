@@ -523,6 +523,9 @@ class CvInfoScreen:
 		self.TEXT_ENV_EXPECTED_EVENTS = localText.getText("TXT_KEY_ENVIRONMENT_EXPECTED_EVENTS", ())
 		self.TEXT_ENV_EVENT_TALLY = localText.getText("TXT_KEY_ENVIRONMENT_EVENT_TALLY", ())
 		self.TEXT_ENV_LOCAL_ANGER_LEVEL = localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_ANGER_LEVEL", ())
+		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
+		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
 
 		self.LABEL_ENV_DOMESTIC = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_DOMESTIC", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.LABEL_ENV_GLOBAL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE
@@ -4258,11 +4261,11 @@ class CvInfoScreen:
 		szText = self.TEXT_GW_SEVERITY_RATING + ": "
 		# advc.137: Better use separate keys
 		if iSeverityRating < 30:
-			szText += localText.getColorText("TXT_KEY_LOW", (), gc.getInfoTypeForString("COLOR_GREEN")).upper()
+			szText += localText.getColorText("TXT_KEY_LOW", (), self.COLOR_GREEN).upper()
 		elif iSeverityRating < 75:
-			szText += localText.getColorText("TXT_KEY_MEDIUM", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper()
+			szText += localText.getColorText("TXT_KEY_MEDIUM", (), self.COLOR_YELLOW).upper()
 		else:
-			szText += localText.getColorText("TXT_KEY_HIGH", (), gc.getInfoTypeForString("COLOR_RED")).upper()
+			szText += localText.getColorText("TXT_KEY_HIGH", (), self.COLOR_RED).upper()
 		if CyGame().isDebugMode():
 			szText += u" (%d)" % iSeverityRating
 		screen.setLabel(self.getNextWidgetName(), szTopPanel, SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, self.Z_CONTROLS + self.DZ, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
