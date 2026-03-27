@@ -112,7 +112,7 @@ class CvPolicyAdvisorScreen:
 		self.Y_RELIGION_NAME = 58
 		self.RELIGION_HOLY_CITY_CITY_MAX_CHARS = 16
 		self.RELIGION_HOLY_CITY_OWNER_MAX_CHARS = 22
-		# <!-- custom: Religion tab fixed layout constants; screen-dependent geometry is derived from these in updateRuntimeLayout. (GPT-5.3-Codex) -->
+		# <!-- custom: Religions tab fixed layout constants; screen-dependent geometry is derived from these in updateRuntimeLayout. (GPT-5.3-Codex) -->
 		self.RELIGION_AREA_MARGIN_X = -4
 		self.RELIGION_PANEL_Y_EXPANDED = 44
 		self.RELIGION_PANEL_H_EXPANDED = 285
@@ -151,6 +151,7 @@ class CvPolicyAdvisorScreen:
 		self.CORPORATION_PANEL_ID = "CorporationPanel"
 		self.CORPORATION_HEADER_FOUNDED_ID = "CorporationHelpFoundedHeader"
 		self.CORPORATION_HEADER_HEADQUARTERS_ID = "CorporationHelpHeadquartersHeader"
+		self.NUM_CORPORATION_PREREQ_BONUSES = None
 		self.CORPORATION_LEFT_LABEL_WIDTH = 150
 		self.CORPORATION_RIGHT_PADDING = 16
 		self.CORPORATION_BUTTON_SIZE = 48
@@ -208,7 +209,7 @@ class CvPolicyAdvisorScreen:
 		self.HEADINGS_WIDTH = (self.W_SCREEN - self.HEADINGS_SPACING) / gc.getNumCivicOptionInfos() - self.HEADINGS_SPACING
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_EXIT)
 
-		# <!-- custom: Religion tab layout follows runtime Policy advisor width/height so integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
+		# <!-- custom: Religions tab layout follows runtime Policy advisor width/height so integrated tab scales with resolution like other migrated advisors. (GPT-5.3-Codex) -->
 		# <!-- custom: this is runtime (not init) because BUG advisor options can be toggled during a session; layout must react without recreating the screen object. (GPT-5.3-Codex) -->
 		bBugReligious = self.isBugReligiousEnabled()
 		self.X_RELIGION_AREA = self.RELIGION_AREA_MARGIN_X
@@ -273,6 +274,9 @@ class CvPolicyAdvisorScreen:
 				self.iPage = argsList
 
 		screen = self.getScreen()
+		if self.NUM_CORPORATION_PREREQ_BONUSES is None:
+			# <!-- custom: initialize constant define cache once at screen entry (not per-tab draw); avoids early __init__ timing issues while staying stable at runtime. (GPT-5.3-Codex) -->
+			self.NUM_CORPORATION_PREREQ_BONUSES = gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")
 		if screen.isActive():
 			self.drawContents()
 			return
@@ -363,11 +367,22 @@ class CvPolicyAdvisorScreen:
 		screen.deleteWidget(self.CORPORATION_PANEL_ID)
 		screen.deleteWidget(self.CORPORATION_AREA1_ID)
 		screen.deleteWidget(self.CORPORATION_AREA2_ID)
+		# <!-- custom: fix observed tab-switch leak from Corporation second-panel multiline entries ("Child..."); remove them explicitly when leaving the tab. (GPT-5.3-Codex) -->
+		screen.deleteWidget("Child" + self.CORPORATION_AREA1_ID)
+		screen.deleteWidget("Child" + self.CORPORATION_AREA2_ID)
 		screen.deleteWidget(self.CORPORATION_HEADER_FOUNDED_ID)
 		screen.deleteWidget(self.CORPORATION_HEADER_HEADQUARTERS_ID)
+		# <!-- custom: also clear dynamic top-panel corporation labels so no stale text survives cross-tab redraws. (GPT-5.3-Codex) -->
+		iMaxBonusRows = self.NUM_CORPORATION_PREREQ_BONUSES
 		for iCorp in range(gc.getNumCorporationInfos()):
 			screen.deleteWidget(self.getCorporationButtonName(iCorp))
 			screen.deleteWidget(self.getCorporationTextName(iCorp))
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GreatPerson")
+			for iRow in range(iMaxBonusRows + 1):
+				screen.deleteWidget(self.getCorporationTextName(iCorp) + "BonusRow" + str(iRow))
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Founded")
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "HeadquartersOwner")
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "HeadquartersCity")
 
 	def drawContents(self):
 		self.drawTabs()
@@ -1076,7 +1091,7 @@ class CvPolicyAdvisorScreen:
 			szListLabels = []
 			iNum = 0
 			szList = u""
-			for iRequired in range(gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")):
+			for iRequired in range(self.NUM_CORPORATION_PREREQ_BONUSES):
 				eBonus = gc.getCorporationInfo(iCorp).getPrereqBonus(iRequired)
 				if -1 != eBonus:
 					if iNum > 0:
