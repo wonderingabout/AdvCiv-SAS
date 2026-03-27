@@ -160,14 +160,16 @@ class CvPolicyAdvisorScreen:
 		self.Y_CORPORATION_BUTTONS = 35
 		self.Y_CORPORATION_GREAT_PERSON = 57
 		self.Y_CORPORATION_BONUSES = 77
-		self.Y_CORPORATION_FOUNDED = 112
-		self.Y_CORPORATION_HEADQUARTERS = 142
+		self.Y_CORPORATION_FOUNDED = 102
+		self.Y_CORPORATION_HEADQUARTERS = 127
 		# <!-- custom: Corporation tab fixed layout constants; screen-dependent geometry is derived in updateRuntimeLayout. (GPT-5.3-Codex) -->
 		self.CORPORATION_AREA_MARGIN_X = 45
 		self.CORPORATION_PANEL_Y = 84
-		self.CORPORATION_PANEL_H = 180
+		# <!-- custom: bonuses are now single-line; reduce top panel height and give reclaimed space to bottom city panels. (GPT-5.3-Codex) -->
+		self.CORPORATION_PANEL_H = 165
 		self.CORPORATION_CITY_TOP_GAP = 18
-		self.CORPORATION_CITY_BOTTOM_GAP = 2
+		# <!-- custom: empirically keep corporation tab outer margins consistent; bottom margin matches side margin. (GPT-5.3-Codex) -->
+		self.CORPORATION_CITY_BOTTOM_GAP = 29
 		self.iCorporationSelected = -1
 
 	def initText(self):
@@ -378,6 +380,8 @@ class CvPolicyAdvisorScreen:
 			screen.deleteWidget(self.getCorporationButtonName(iCorp))
 			screen.deleteWidget(self.getCorporationTextName(iCorp))
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "GreatPerson")
+			screen.deleteWidget(self.getCorporationTextName(iCorp) + "BonusList")
+			# <!-- custom: legacy cleanup for old wrapped bonus row widgets kept for one-way compatibility with earlier UI iterations. (GPT-5.3-Codex) -->
 			for iRow in range(iMaxBonusRows + 1):
 				screen.deleteWidget(self.getCorporationTextName(iCorp) + "BonusRow" + str(iRow))
 			screen.deleteWidget(self.getCorporationTextName(iCorp) + "Founded")
@@ -1088,26 +1092,15 @@ class CvPolicyAdvisorScreen:
 
 		xLoop = self.X_CORPORATION_START
 		for iCorp in range(gc.getNumCorporationInfos()):
-			szListLabels = []
-			iNum = 0
-			szList = u""
+			szBonuses = u""
 			for iRequired in range(self.NUM_CORPORATION_PREREQ_BONUSES):
 				eBonus = gc.getCorporationInfo(iCorp).getPrereqBonus(iRequired)
 				if -1 != eBonus:
-					if iNum > 0:
-						szList += u", "
-					iNum += 1
-					szList += u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
-					if iNum > 3:
-						iNum = 0
-						szListLabels.append(szList)
-						szList = u""
-			if len(szList) > 0:
-				szListLabels.append(szList)
-			iRow = 0
-			for szBonusRow in szListLabels:
-				screen.setLabelAt(self.getCorporationTextName(iCorp) + "BonusRow" + str(iRow), self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szBonusRow + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_BONUSES + iRow, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				iRow += 16
+					if len(szBonuses) > 0:
+						szBonuses += u", "
+					szBonuses += u"%c" % (gc.getBonusInfo(eBonus).getChar(),)
+			# <!-- custom: keep corporation bonuses as one natural comma-separated line (no wrapped row splitting). (GPT-5.3-Codex); done since there is enough space after expanding the Policy Advisor and it is more readable -->
+			screen.setLabelAt(self.getCorporationTextName(iCorp) + "BonusList", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szBonuses + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_BONUSES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLoop += self.DX_CORPORATION
 
 		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)

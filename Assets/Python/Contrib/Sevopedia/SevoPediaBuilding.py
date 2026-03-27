@@ -744,6 +744,14 @@ class SevoPediaBuilding:
 				isButtonFound = True
 				iButtonIndex += 1
 
+		# <!-- custom: show corporations that this building can found so "Required For" also includes corp entries (e.g. Cereal Mills HQ building). (GPT-5.3-Codex) -->
+		iFoundedCorporation = gc.getBuildingInfo(self.iBuilding).getFoundsCorporation()
+		if iFoundedCorporation >= 0:
+			screen.appendMultiListButton(rowListName, gc.getCorporationInfo(iFoundedCorporation).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iFoundedCorporation, 1, False)
+
+			isButtonFound = True
+			iButtonIndex += 1
+
 		if not isButtonFound:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
 			textName = self.top.getNextWidgetName()
