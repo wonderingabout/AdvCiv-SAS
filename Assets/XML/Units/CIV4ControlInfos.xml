@@ -656,7 +656,7 @@
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
 		<ControlInfo>
-			<Type>CONTROL_FINANCIAL_SCREEN</Type>
+			<Type>CONTROL_FOREIGN_DIPLOMACY_SCREEN</Type>
 			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description>
 			<Help/>
 			<HotKey>KB_F3</HotKey>

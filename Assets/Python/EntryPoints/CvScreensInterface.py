@@ -70,7 +70,6 @@ def toggleSetScreenOn(argsList):
 # advc.009b: Renamed from "init"; now called via BugScreenInit.py.
 def initBugAdvisors():
 	createDomesticAdvisor()
-	createFinanceAdvisor()
 	createMilitaryAdvisor()
 	createCivilopedia()
 	createTechSplash()
@@ -140,24 +139,9 @@ def showForeignAdvisorScreen(argsList):
 		else:
 			foreignAdvisor.interfaceScreen(iScreen)
 
-# BUG - Finance Advisor - start
-##	
-# K-Mod, 18/dec/10, karadoc
-# I've disabled this option. We always use the 'economics advisor' now.	(but the way I've done it is a kludge)
-##
-financeAdvisor = None
-def createFinanceAdvisor():
-	# <!-- custom: finance view is integrated as a Domestic Advisor tab; keep FINANCE_ADVISOR wiring as an alias to Domestic for compatibility with existing startup flow/hotkeys. (GPT-5.3-Codex) -->
-	global financeAdvisor
-	if financeAdvisor is None:
-		createDomesticAdvisor()
-		financeAdvisor = domesticAdvisor
-		HandleInputMap[FINANCE_ADVISOR] = financeAdvisor
-# BUG - Finance Advisor - end
-			
-def showFinanceAdvisor():
+def showForeignDiplomacyAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		# <!-- custom: F3 slot now opens the Foreign Diplomacy/Intel advisor shell. (GPT-5.3-Codex) -->
+		# <!-- custom: F3 slot opens the Foreign Diplomacy/Intel advisor shell. (GPT-5.3-Codex) -->
 		foreignDiplomacyAdvisor.interfaceScreen(foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"])
 
 # BUG - CustDomAdv - start
@@ -1206,7 +1190,6 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					TECH_CHOOSER : techChooser,
 					FOREIGN_ADVISOR : foreignAdvisor,
 					FOREIGN_DIPLOMACY_ADVISOR : foreignDiplomacyAdvisor,
-#					FINANCE_ADVISOR : financeAdvisor,
 #					MILITARY_ADVISOR : militaryAdvisor,
 					DAWN_OF_MAN : dawnOfMan,
 					WONDER_MOVIE_SCREEN : wonderMovie,

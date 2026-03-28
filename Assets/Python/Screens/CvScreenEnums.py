@@ -10,7 +10,8 @@ REWARD_SCREEN = 1
 DAWN_OF_MAN = 2
 TECH_CHOOSER = 3
 FOREIGN_ADVISOR = 4
-FINANCE_ADVISOR = 5
+# <!-- custom: legacy screen id 5 now maps to Foreign Diplomacy naming. (GPT-5.3-Codex) -->
+FOREIGN_DIPLOMACY_SCREEN = 5
 WONDER_MOVIE_SCREEN = 6
 RELIGION_SCREEN = 7
 INTRO_MOVIE_SCREEN = 8

@@ -1318,7 +1318,7 @@ bool CvGame::canDoControl(ControlTypes eControl) const
 	// <!-- custom: CONTROL_RELIGION_SCREEN / CONTROL_CORPORATION_SCREEN removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 	case CONTROL_FOREIGN_SCREEN:
-	case CONTROL_FINANCIAL_SCREEN:
+	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
 	case CONTROL_MILITARY_SCREEN:
 	case CONTROL_TECH_CHOOSER:
 	case CONTROL_DIPLOMACY:
@@ -1692,8 +1692,9 @@ void CvGame::doControl(ControlTypes eControl)
 		GC.getPythonCaller()->showForeignAdvisorScreen();
 		break;
 
-	case CONTROL_FINANCIAL_SCREEN:
-		GC.getPythonCaller()->showPythonScreen("FinanceAdvisor");
+	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
+		// <!-- custom: F3 control opens the Foreign Diplomacy advisor shell. (GPT-5.3-Codex) -->
+		GC.getPythonCaller()->showPythonScreen("ForeignDiplomacyAdvisor");
 		break;
 
 	case CONTROL_MILITARY_SCREEN:
