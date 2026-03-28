@@ -36,6 +36,8 @@ UN_SCREEN = 26
 ESPIONAGE_ADVISOR = 27
 SPACE_SHIP_SCREEN = 28
 CORPORATION_SCREEN = 29
+# <!-- custom: split Foreign advisor shell id for diplomacy/intel cluster (F3 slot). (GPT-5.3-Codex) -->
+FOREIGN_DIPLOMACY_ADVISOR = 30
 
 GAMEFONT_DISPLAY_SCREEN = 75 # advc.gfd
 

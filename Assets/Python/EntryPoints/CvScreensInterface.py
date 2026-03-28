@@ -8,6 +8,7 @@
 import CvMainInterface
 import CvTechChooser
 import CvForeignAdvisor
+import CvForeignDiplomacyAdvisor
 import CvPolicyAdvisorScreen
 import CvVictoryScreen
 
@@ -120,11 +121,24 @@ optionsScreen = CvOptionsScreen.CvOptionsScreen()
 def showOptionsScreen():
 	optionsScreen.interfaceScreen()
 
-# <!-- custom: single canonical Foreign Advisor wiring: use "CvForeignAdvisor.py" only. This replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. Contrast: true alternatives use independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), not interdependent split files. (GPT-5.3-Codex) -->
+# <!-- custom: split Foreign advisors: canonical Foreign (F4) is the trade cluster, while diplomacy/intel is the derivative F3 slot shell. (GPT-5.3-Codex) -->
 foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
+foreignDiplomacyAdvisor = CvForeignDiplomacyAdvisor.CvForeignDiplomacyAdvisor()
+FOREIGN_DIPLOMACY_TABS = (foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"], foreignDiplomacyAdvisor.SCREEN_DICT["GLANCE"], foreignDiplomacyAdvisor.SCREEN_DICT["INFO"], foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"])
 def showForeignAdvisorScreen(argsList):
 	if (-1 != CyGame().getActivePlayer()):
-		foreignAdvisor.interfaceScreen(argsList[0])
+		iScreen = -1
+		if type(argsList) in [list, tuple]:
+			if len(argsList) > 0:
+				iScreen = argsList[0]
+		else:
+			iScreen = argsList
+		# <!-- custom: tab clicks from both Foreign shells are routed by the DLL through showForeignAdvisorScreen(iTab) using WIDGET_FOREIGN_ADVISOR.
+		# Keep canonical Foreign defaulting to trade (F4); only diplomacy/intel tab ids route to the F3 shell. (GPT-5.3-Codex) -->
+		if iScreen in FOREIGN_DIPLOMACY_TABS:
+			foreignDiplomacyAdvisor.interfaceScreen(iScreen)
+		else:
+			foreignAdvisor.interfaceScreen(iScreen)
 
 # BUG - Finance Advisor - start
 ##	
@@ -143,8 +157,8 @@ def createFinanceAdvisor():
 			
 def showFinanceAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		createDomesticAdvisor()
-		domesticAdvisor.interfaceScreen([1])
+		# <!-- custom: F3 slot now opens the Foreign Diplomacy/Intel advisor shell. (GPT-5.3-Codex) -->
+		foreignDiplomacyAdvisor.interfaceScreen(foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"])
 
 # BUG - CustDomAdv - start
 domesticAdvisor = None
@@ -193,7 +207,7 @@ def showMilitaryAdvisor():
 def showEspionageAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
 		# <!-- custom: Espionage screen is integrated into CvForeignAdvisor; open its Espionage tab instead of a separate advisor instance. (GPT-5.3-Codex) -->
-		foreignAdvisor.interfaceScreen(foreignAdvisor.SCREEN_DICT["ESPIONAGE"])
+		foreignDiplomacyAdvisor.interfaceScreen(foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"])
 
 dawnOfMan = CvDawnOfMan.CvDawnOfMan(DAWN_OF_MAN)
 def showDawnOfMan(argsList):
@@ -1140,7 +1154,8 @@ def featAccomplishedOnClickedCallback(argsList):
 		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
 			showMilitaryAdvisor()
 		elif ((iData1 >= FeatTypes.FEAT_COPPER_CONNECTED) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
-			showForeignAdvisorScreen([0])
+			# <!-- custom: resource-connected feat now belongs to the Foreign Trade cluster; open Bonuses tab there. (GPT-5.3-Codex) -->
+			showForeignAdvisorScreen([foreignAdvisor.SCREEN_DICT["BONUS"]])
 		elif ((iData1 == FeatTypes.FEAT_NATIONAL_WONDER)):
 			# 2 is for the wonder tab...
 			showInfoScreen([2, 0])
@@ -1190,6 +1205,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
 					TECH_CHOOSER : techChooser,
 					FOREIGN_ADVISOR : foreignAdvisor,
+					FOREIGN_DIPLOMACY_ADVISOR : foreignDiplomacyAdvisor,
 #					FINANCE_ADVISOR : financeAdvisor,
 #					MILITARY_ADVISOR : militaryAdvisor,
 					DAWN_OF_MAN : dawnOfMan,
@@ -1204,8 +1220,8 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					TOP_CIVS : topCivs,
 					HALL_OF_FAME : hallOfFameScreen,
 					VICTORY_MOVIE_SCREEN : victoryMovie,
-					# <!-- custom: route Espionage advisor input to CvForeignAdvisor because Espionage is now a native Foreign tab. (GPT-5.3-Codex) -->
-					ESPIONAGE_ADVISOR : foreignAdvisor,
+					# <!-- custom: route Espionage advisor input to diplomacy shell because Espionage is now a native Foreign Diplomacy tab. (GPT-5.3-Codex) -->
+					ESPIONAGE_ADVISOR : foreignDiplomacyAdvisor,
 					DAN_QUAYLE_SCREEN : danQuayleScreen,
 					WORLDBUILDER_SCREEN : worldBuilderScreen,
 					WORLDBUILDER_DIPLOMACY_SCREEN : worldBuilderDiplomacyScreen,

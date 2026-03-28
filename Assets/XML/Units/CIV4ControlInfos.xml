@@ -624,7 +624,7 @@
 			<bCtrlDownAlt>0</bCtrlDownAlt>
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
-		<!-- custom: Civics/Finance hotkeys swapped so Civics = F2 and Finance = F3. (GPT-5.3-Codex) -->
+		<!-- custom: advisor hotkeys updated for Foreign split: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4. (GPT-5.3-Codex) -->
 		<ControlInfo>
 			<Type>CONTROL_CIVICS_SCREEN</Type>
 			<Description>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Description>
@@ -642,7 +642,7 @@
 		</ControlInfo>
 		<ControlInfo>
 			<Type>CONTROL_FOREIGN_SCREEN</Type>
-			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description>
+			<Description>TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE</Description>
 			<Help/>
 			<HotKey>KB_F4</HotKey>
 			<bAltDown>0</bAltDown>
@@ -657,7 +657,7 @@
 		</ControlInfo>
 		<ControlInfo>
 			<Type>CONTROL_FINANCIAL_SCREEN</Type>
-			<Description>TXT_KEY_FINANCIAL_ADVISOR_TITLE</Description>
+			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description>
 			<Help/>
 			<HotKey>KB_F3</HotKey>
 			<bAltDown>0</bAltDown>

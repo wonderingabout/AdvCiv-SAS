@@ -10,7 +10,7 @@
 
 # This file has been edited for K-Mod in various places. Some changes marked, others not.
 
-# <!-- custom: canonical unified Foreign Advisor implementation with full tab set (Relations/Glance/Active/Bonus/Info/Espionage/Tech/Cities). This file "CvForeignAdvisor.py" replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
+# <!-- custom: canonical Foreign Trade advisor implementation (Treaties/Bonuses/Techs/Cities). Diplomacy/Intel tabs are split to CvForeignDiplomacyAdvisor shell. This file replaces the old interdependent two-file setup ("CvForeignAdvisor.py" + "CvExoticForeignAdvisor.py"), which was inconsistent with other screen structure. For contrast, true alternatives are independent variants (e.g. "CvBUGMilitaryAdvisor.py" / "CvMilitaryAdvisor.py"), while major screens like "CvMainInterface.py" and "CvInfoScreen.py" are lengthy but unified files. (GPT-5.3-Codex) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -88,7 +88,7 @@ class CvForeignAdvisor:
 		self.nLineCount = 0
 		self.WIDGET_ID = "ForeignAdvisorWidget"
 		self.LINE_ID = "ForeignAdvisorLine"
-		self.SCREEN_NAME = "ForeignAdvisor"
+		self.SCREEN_NAME = "ForeignTradeAdvisor"
 		self.DEBUG_DROPDOWN_ID =  "ForeignAdvisorDropdownWidget"
 		self.EXIT_ID = "ForeignAdvisorExitWidget"
 		self.BACKGROUND_ID = "ForeignAdvisorBackground"
@@ -267,14 +267,15 @@ class CvForeignAdvisor:
 			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
 			}
 
-		self.ORDER_LIST = ["RELATIONS", "GLANCE", "ACTIVE_TRADE", "BONUS", "INFO", "ESPIONAGE", "TECH", "CITIES"] # advc.ctr (add CITIES)
+		# <!-- custom: trade cluster tabs only; diplomacy/intel cluster moved to CvForeignDiplomacyAdvisor shell. (GPT-5.3-Codex) -->
+		self.ORDER_LIST = ["ACTIVE_TRADE", "BONUS", "TECH", "CITIES"]
 
 		# K-Mod
 		self.LABEL_WIDTH_LIST = []
 		self.iLanguageLoaded = -1
 		# K-Mod end
 
-		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
+		self.iDefaultScreen = self.SCREEN_DICT["ACTIVE_TRADE"]
 
 		# <!-- custom: shared size for treaty icons rendered inline in active-deals text. (GPT-5.3-Codex) -->
 		self.SAS_TREATY_ICON_SIZE = 24
@@ -350,7 +351,7 @@ class CvForeignAdvisor:
 
 		# <!-- custom: precompute commonly used text strings to avoid repeated lookups (claude code sonnet 4.5) -->
 		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: precompute tab/column header texts (claude code sonnet 4.5) -->
 		self.TEXT_LEADER = localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ())

@@ -1,0 +1,26 @@
+## Sid Meier's Civilization 4
+## Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+from CvPythonExtensions import *
+import CvScreenEnums
+import CvForeignAdvisor
+
+
+class CvForeignDiplomacyAdvisor(CvForeignAdvisor.CvForeignAdvisor):
+	# <!-- custom: diplomacy/intel shell over canonical Foreign advisor codebase so F3 stays the "derived split" while F4 keeps the base trade cluster. (GPT-5.3-Codex) -->
+	def __init__(self):
+		CvForeignAdvisor.CvForeignAdvisor.__init__(self)
+		self.SCREEN_NAME = "ForeignAdvisor"
+		self.ORDER_LIST = ["RELATIONS", "GLANCE", "INFO", "ESPIONAGE"]
+		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
+
+	def initText(self):
+		CvForeignAdvisor.CvForeignAdvisor.initText(self)
+		self.SCREEN_TITLE = CvForeignAdvisor.SAS_FONT_TAG_TITLE_BOLD + CvForeignAdvisor.localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + CvForeignAdvisor.SAS_FONT_TAG_CLOSE
+
+	def getScreen(self):
+		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_DIPLOMACY_ADVISOR)
