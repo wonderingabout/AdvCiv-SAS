@@ -39,7 +39,7 @@ _DETAIL_MANAGER_REL_PATH = os.path.join("Assets", "XML", "Misc", "CIV4DetailMana
 
 
 def _getMultiplierPercent(iFontBody):
-	"""Read SAS_BILLBOARD_SCALE_PERCENT_FONT_<N> for the given font level."""
+	# read SAS_BILLBOARD_SCALE_PERCENT_FONT_<N> for the given font level.
 	if iFontBody < 1 or iFontBody > 4:
 		return 100
 	szDefine = "SAS_BILLBOARD_SCALE_PERCENT_FONT_%d" % iFontBody
@@ -51,7 +51,7 @@ def _getMultiplierPercent(iFontBody):
 
 
 def _buildScaledKeys(iPercent):
-	"""Return list of formatted <Key> lines with scaled values."""
+	# return formatted CITYBILLBOARD_SCALE <Key> lines using the given percent multiplier.
 	fMult = iPercent / 100.0
 	lines = []
 	for (iDist, fBase) in _BASE_BILLBOARD_KEYS:
@@ -61,7 +61,7 @@ def _buildScaledKeys(iPercent):
 
 
 def _rewriteDetailManagerXML(szPath, scaledKeyLines):
-	"""Replace the CITYBILLBOARD_SCALE Key entries in the XML file."""
+	# replace CITYBILLBOARD_SCALE key lines in CIV4DetailManager.xml; skip file write when unchanged.
 	try:
 		f = open(szPath, "r")
 		content = f.read()
@@ -73,6 +73,18 @@ def _rewriteDetailManagerXML(szPath, scaledKeyLines):
 	# Match the CITYBILLBOARD_SCALE fader block and replace its Key lines.
 	pattern = r"(<Name>CITYBILLBOARD_SCALE</Name>\s*\n)((?:\s*<Key>[^<]*</Key>\s*\n)+)"
 	replacement = r"\1" + "\n".join(scaledKeyLines) + "\n"
+
+	match = re.search(pattern, content)
+	if match is None:
+		BugUtil.error("SASBillboardScale: CITYBILLBOARD_SCALE block not found in %s", szPath)
+		return False
+
+	currentKeys = [line.strip() for line in match.group(2).splitlines() if line.strip()]
+	targetKeys = [line.strip() for line in scaledKeyLines]
+	# If already in the desired state, do nothing to avoid needless disk churn.
+	if currentKeys == targetKeys:
+		BugUtil.info("SASBillboardScale: CITYBILLBOARD_SCALE already up to date in %s", szPath)
+		return True
 
 	newContent, count = re.subn(pattern, replacement, content)
 	if count == 0:
@@ -91,7 +103,7 @@ def _rewriteDetailManagerXML(szPath, scaledKeyLines):
 
 
 def apply():
-	"""Read font body level, compute billboard scale, rewrite XML."""
+	# apply define-driven CITYBILLBOARD_SCALE keys for the active SAS_UI_FONT_BODY.
 	iFontBody = getSASUIFontBody()
 	iPercent = _getMultiplierPercent(iFontBody)
 
