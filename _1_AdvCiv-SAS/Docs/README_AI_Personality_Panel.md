@@ -54,45 +54,7 @@ Here is how it would look like without emojis for example:
 
 ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
 
-note: to understand/find the meaning of abbreviations used in the ai panel, the best way would be (i think) to look directly in the code (use vs code for example in [/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)), find lines like these (or ctrl+f an abbreviation you don't understand):
-
-```python
-	fields_with_direct_getters = {
-		# ==== FIRST XML FIELDS PART 1 (from XML order) ====
-		"getWonderConstructRand": ("Wonder C.R", False),
-		"getBaseAttitude": ("Base Attitude", False),
-		"getBasePeaceWeight": ("Base Peace Weig", False),
-		"getPeaceWeightRand": ("Peace Weig Rand", False),
-		"getWarmongerRespect": ("Warmonger Resp", False),
-		"getEspionageWeight": ("Espionage Weig", False),
-		"getRefuseToTalkWarThreshold": ("RefToTalkW Span", False),
-		"getNoTechTradeThreshold": ("NoTech2AdvTrT", True),
-		"getTechTradeKnownPercent": ("NoTechYetRdy%", False),
-		"getMaxGoldTradePercent": ("Max Gold Tr%", False),
-		"getMaxGoldPerTurnTradePercent": ("Max GPT Tr%", False),
-		# ==== BBAI VICTORY WEIGHTS ====
-		# <!-- custom: now exposed to python, see Sevopedia helpers py file code comments for details -->
-		"getCultureVictoryWeight": ("Culture", False),
-		"getSpaceVictoryWeight": ("Space", False),
-		"getConquestVictoryWeight": ("Conquest", False),
-		"getDominationVictoryWeight": ("Domination", False),
-		"getDiplomacyVictoryWeight": ("Diplomacy", False),
-		# <!-- custom: end of now exposed to python fields -->
-		# ==== WAR XML FIELDS (from XML order) ====
-		"getMaxWarRand": ("T.W Likely", True),
-		"getMaxWarNearbyPowerRatio": ("T.W NearPR", False),
-		"getMaxWarDistantPowerRatio": ("T.W DistPR", False),
-```
-
-A code block like this means for example that for the line:
-
-```python
-"getMaxWarRand": ("T.W Likely", True),
-```
-
-that in the label in Sevopedia leader ingame "T.W Likely" refers to the field's getter name "getMaxWarRand", but to get info on what this field does, remove the "get" or some similar prefix to be safe, then search online what "MaxWarRand" means and does in civ4, for example go on kujira's and modiki's websites, then you'll hopefully find more info about what they do that should be quite if not very reliable anyways.
-
-Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "broad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
+See the corresponding [legend](/README.md#legends) in Sevopedia Mods Info.
 
 ### how to show keys or suffixes instead of abbreviated custom labels
 

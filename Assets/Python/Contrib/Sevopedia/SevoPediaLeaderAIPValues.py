@@ -522,7 +522,7 @@ def _compute_leader_cache_internal():
 			"getWarmongerRespect": ("Warmonger Resp", False),
 			"getEspionageWeight": ("EspionageWeig", False),
 			"getRefuseToTalkWarThreshold": ("Ref2TalkWSpan", False),
-			"getNoTechTradeThreshold": ("NoTech2AdvTrT", True),
+			"getNoTechTradeThreshold": ("NoTech2AdvT", True),
 			"getTechTradeKnownPercent": ("NoTechYetRdy%", False),
 			"getMaxGoldTradePercent": ("Max Gold Tr%", False),
 			"getMaxGoldPerTurnTradePercent": ("Max GPT Tr%", False),
@@ -1396,3 +1396,4 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 		is_emoji_enabled = IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS,
 		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
 	)
+
