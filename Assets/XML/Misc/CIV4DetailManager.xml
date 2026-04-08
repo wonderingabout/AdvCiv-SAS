@@ -67,13 +67,13 @@
 	</Fader>
 	<Fader>
 		<Name>CITYBILLBOARD_SCALE</Name>
-		<Key>500,    1.72</Key>
-		<Key>2500,   1.18</Key>
-		<Key>3800,   1.06</Key>
-		<Key>6000,   0.81</Key>
-		<Key>8500,   0.75</Key>
-		<Key>11500,  0.70</Key>
-		<Key>13500,  0.67</Key>
+		<Key>500,    2.75</Key>
+		<Key>2500,    1.89</Key>
+		<Key>3800,    1.70</Key>
+		<Key>6000,    1.30</Key>
+		<Key>8500,    1.20</Key>
+		<Key>11500,    1.12</Key>
+		<Key>13500,    1.07</Key>
 	</Fader>
 	<Fader>
 		<Name>CITYBILLBOARD_HEIGHT</Name>

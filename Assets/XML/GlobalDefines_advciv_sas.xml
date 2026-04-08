@@ -93,6 +93,23 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
+	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. (Claude code Opus 4.6) -->
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_1</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_2</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_3</DefineName>
+		<iDefineIntVal>130</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_4</DefineName>
+		<iDefineIntVal>160</iDefineIntVal>
+	</Define>
 
 
 
