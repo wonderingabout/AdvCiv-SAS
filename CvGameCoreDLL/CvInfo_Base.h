@@ -107,7 +107,6 @@ public:
 	CvScalableInfo() : m_fScale(1.0f), m_fInterfaceScale(1.0f) {}
 
 	DllExport float getScale() const; // Exposed to Python
-	void setScale(float fScale) { m_fScale = fScale; } // <!-- custom: runtime tuning hook for selected scalable art entries. (GPT-5.3-Codex) -->
 
 	// the scale of the unit appearing in the interface screens
 	DllExport float getInterfaceScale() const; // Exposed to Python

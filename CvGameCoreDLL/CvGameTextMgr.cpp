@@ -18941,36 +18941,9 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
 	}
 }
 
-// <!-- custom: assign name (trimmed if needed) + suffix so total fits within the per-font char limit (Claude code Opus 4.6) -->
-static void assignTrimmedBillboard(CvWStringBuffer& szBuffer,
-	const wchar* szName, CvWString const& szSuffix)
-{
-	static const int iBodyFont = GC.getDefineINT("SAS_UI_FONT_BODY");
-	static const int iLimit =
-		(iBodyFont == 1 ? GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_1") :
-		 iBodyFont == 2 ? GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_2") :
-		 iBodyFont == 3 ? GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_3") :
-		 GC.getDefineINT("SAS_CITY_BILLBOARD_MAX_CHARS_FONT_4"));
-	size_t uNameLen = wcslen(szName);
-	if (iLimit > 0)
-	{
-		// <!-- custom: as per GPT-5.4's previous fix on earlier version of the code: "cast the define-driven int limit to size_t because CvWString::length returns an unsigned size type, and this DLL build treats the old MSVC signed/unsigned warning as an error" + "szTrimmed.length() <= iCharLimit became szTrimmed.length() <= (size_t)iCharLimit". (GPT-5.4) -->
-		// 1>..\CvGameTextMgr.cpp(18969): error C2220: warning treated as error - no object file generated
-		// 1>..\CvGameTextMgr.cpp(18969): warning C4018: '<=' : signed/unsigned mismatch
-		// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
-		size_t uLimit = static_cast<size_t>(iLimit);
-		if (uNameLen + szSuffix.length() > uLimit && uLimit > szSuffix.length())
-			uNameLen = uLimit - szSuffix.length();
-	}
-	// <!-- custom: CvWString(ptr, len) is unavailable in MSVC 2003, so construct full string then substr. (Claude code Opus 4.6) -->
-	// 1>..\CvGameTextMgr.cpp(18965): error C2661: 'CvWString::CvWString' : no overloaded function takes 2 arguments
-	// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
-	szBuffer.assign(CvWString(szName).substr(0, uNameLen));
-	szBuffer.append(szSuffix);
-}
-
 void CvGameTextMgr::buildCityBillboardCityNameString(CvWStringBuffer& szBuffer, CvCity* pCity)
 {
+	szBuffer.assign(pCity->getName());
 	if (pCity->canBeSelected() &&
 		gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL) /*&&
 		pCity->foodDifference() > 0*/) // advc.189
@@ -18980,16 +18953,13 @@ void CvGameTextMgr::buildCityBillboardCityNameString(CvWStringBuffer& szBuffer, 
 		{
 			if (iTurns < MAX_INT)
 			{
-				assignTrimmedBillboard(szBuffer, pCity->getName(),
-						CvWString::format(L" (%d)",
+				szBuffer.append(CvWString::format(L" (%d)",
 						/*	advc.189: Absolute value. Red color would be nice,
 							but not possible here. */
 						abs(iTurns)));
-				return;
 			}
 		}
 	}
-	szBuffer.assign(pCity->getName());
 }
 
 void CvGameTextMgr::buildCityBillboardProductionString(CvWStringBuffer& szBuffer, CvCity* pCity)
@@ -19000,17 +18970,13 @@ void CvGameTextMgr::buildCityBillboardProductionString(CvWStringBuffer& szBuffer
 		return;
 	}
 
+	szBuffer.assign(pCity->getProductionName());
 	if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL))
 	{
 		int iTurns = pCity->getProductionTurnsLeft();
 		if (iTurns < MAX_INT)
-		{
-			assignTrimmedBillboard(szBuffer, pCity->getProductionName(),
-					CvWString::format(L" (%d)", iTurns));
-			return;
-		}
+			szBuffer.append(CvWString::format(L" (%d)", iTurns));
 	}
-	szBuffer.assign(pCity->getProductionName());
 }
 
 

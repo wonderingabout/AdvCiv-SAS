@@ -238,33 +238,3 @@ void CvArtFileMgr::swapCityBarPaths()
 	}
 }
 
-bool CvArtFileMgr::applyCityBillboardScaleFromDefines()
-{
-	CvArtInfoMisc* pCityBillboards = getMiscArtInfo("CITY_BILLBOARDS");
-	if (pCityBillboards == NULL)
-		return false;
-
-	int const iBodyFont = GC.getDefineINT("SAS_UI_FONT_BODY");
-	int iScaleTenths;
-	switch (iBodyFont)
-	{
-	case 1:
-		iScaleTenths = GC.getDefineINT("SAS_CITY_BILLBOARD_FSCALE_FONT_1");
-		break;
-	case 2:
-		iScaleTenths = GC.getDefineINT("SAS_CITY_BILLBOARD_FSCALE_FONT_2");
-		break;
-	case 3:
-		iScaleTenths = GC.getDefineINT("SAS_CITY_BILLBOARD_FSCALE_FONT_3");
-		break;
-	default:
-		iScaleTenths = GC.getDefineINT("SAS_CITY_BILLBOARD_FSCALE_FONT_4");
-		break;
-	}
-
-	float const fNewScale = ((float)iScaleTenths / 10.0f);
-	if (pCityBillboards->getScale() == fNewScale)
-		return false;
-	pCityBillboards->setScale(fNewScale);
-	return true;
-}

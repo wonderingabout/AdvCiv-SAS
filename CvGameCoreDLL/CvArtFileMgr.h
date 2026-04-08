@@ -92,7 +92,6 @@ public:
 	// <advc.095>
 	bool isCityBarPathsSwapped() const { return m_bCityBarPathsSwapped; }
 	void swapCityBarPaths(); // </advc.095>
-	bool applyCityBillboardScaleFromDefines(); // <!-- custom: apply CITY_BILLBOARDS fScale from SAS defines mapped by SAS_UI_FONT_LABEL. (GPT-5.3-Codex) -->
 private:
 	struct ltstr
 	{
