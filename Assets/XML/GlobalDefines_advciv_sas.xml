@@ -88,23 +88,23 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). As of now changed from 2 to 3 so text is more readable. Base Civ4 Font size: 2. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
+		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. (Claude code Opus 4.6) -->
+	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. Note: as of now increased from 100 to 120 at font 2 so it is more readable. (Claude code Opus 4.6) -->
 	<Define>
 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_1</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_2</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>120</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_3</DefineName>
-		<iDefineIntVal>130</iDefineIntVal>
+		<iDefineIntVal>140</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_4</DefineName>
