@@ -453,6 +453,8 @@ class CvMainInterface:
 		if iX is None and szRectName:
 			lRect = gRect(szRectName)
 			iX = lRect.x() + (lRect.width() - iTotalWidth) / 2
+			# <!-- custom: keep icon+text row within the target bar rect so larger upscaled fonts don't push the icon outside and make it look missing. (GPT-5.3-Codex) -->
+			iX = max(lRect.x(), min(iX, lRect.xRight() - iTotalWidth))
 		iTextX = iX + iIconSize + iMargin
 		gSetPoint(szTextName, PointLayout(iTextX, iY + iTextYOffset))
 		if szIcon.startswith("<img="):
@@ -1305,12 +1307,13 @@ class CvMainInterface:
 				gRect("CityLeftPanel").xRight() + HSPACE(8), VSPACE(2),
 				-(gRect("CityRightPanel").width() + HSPACE(8)),
 				2 * self.stackBarDefaultHeight())
-		fResearchBarWidth = fThinResearchBarWidth = 487
+		# <!-- custom: on upscaled 1080p, shift one-line top-bar space from research to GP so GP text fits while research keeps enough room. (GPT-5.3-Codex) -->
+		fResearchBarWidth = fThinResearchBarWidth = 415
 		fGGBarWidth = 100
 		fThinGGBarWidth = 84
 		iSpacing = HSPACE(7)
 		iThinSpacing = HSPACE(6)
-		fThinGPBarWidth = 320
+		fThinGPBarWidth = 392
 		fOneLineTotalWidth = float(fResearchBarWidth + fThinGPBarWidth + fThinGGBarWidth +
 				2 * iThinSpacing)
 		if self.bScaleHUD: # Scale to use up the available space
@@ -1370,7 +1373,8 @@ class CvMainInterface:
 		gSetRectangle("CityScrollPlus", lCityScrollButtons.next())
 
 	def setCityCenterBarRects(self):
-		iYieldTextWidth = HLEN(140)
+		# <!-- custom: shorten top city food/production bars so upscaled text does not overflow at 1080p when text is upscaled; keep both bars matched by sharing the same inset. (GPT-5.3-Codex); also since we increased base font size from body to label, this preserves the original distance from food/production bars' outside text to side panels feel -->
+		iYieldTextWidth = HLEN(160)
 		gSetRect("PopulationBar", "TopCityPanelLeftAndRight",
 				iYieldTextWidth, VSPACE(4),
 				-iYieldTextWidth, self.stackBarDefaultHeight())
