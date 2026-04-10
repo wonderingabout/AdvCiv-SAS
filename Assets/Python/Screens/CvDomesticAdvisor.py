@@ -73,22 +73,23 @@ class CvDomesticAdvisor:
 			return
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
 
-		self.HEADER_NAME = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_POPULATION = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)) + SAS_FONT_TAG_CLOSE
-		self.HEADER_HAPPINESS = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)) + SAS_FONT_TAG_CLOSE
-		self.HEADER_HEALTH = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)) + SAS_FONT_TAG_CLOSE
-		self.HEADER_FOOD = SAS_FONT_TAG_BODY + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_PRODUCTION = SAS_FONT_TAG_BODY + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_GOLD = SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_RESEARCH = SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_ESPIONAGE = SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_CULTURE = SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_TRADE = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)) + SAS_FONT_TAG_CLOSE
-		self.HEADER_MAINTENANCE = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.BAD_GOLD_CHAR)) + SAS_FONT_TAG_CLOSE
-		self.HEADER_GREAT_PERSON = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)) + SAS_FONT_TAG_CLOSE
-		self.HEADER_GARRISON = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + SAS_FONT_TAG_CLOSE
-		self.HEADER_PRODUCING = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + SAS_FONT_TAG_CLOSE
-		self.HEADER_REVOLT = SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE
+		# <!-- custom: cache only raw header text/symbols in init; apply font tags at draw time so runtime label scaling always takes effect. (GPT-5.3-Codex) -->
+		self.HEADER_NAME = localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ())
+		self.HEADER_POPULATION = (u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
+		self.HEADER_HAPPINESS = (u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR))
+		self.HEADER_HEALTH = (u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR))
+		self.HEADER_FOOD = (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
+		self.HEADER_PRODUCTION = (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
+		self.HEADER_GOLD = (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar())
+		self.HEADER_RESEARCH = (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
+		self.HEADER_ESPIONAGE = (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())
+		self.HEADER_CULTURE = (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar())
+		self.HEADER_TRADE = (u"%c" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR))
+		self.HEADER_MAINTENANCE = (u"%c" % CyGame().getSymbolID(FontSymbols.BAD_GOLD_CHAR))
+		self.HEADER_GREAT_PERSON = (u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR))
+		self.HEADER_GARRISON = (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR))
+		self.HEADER_PRODUCING = localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ())
+		self.HEADER_REVOLT = (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR))
 		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_EXIT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
@@ -237,6 +238,10 @@ class CvDomesticAdvisor:
 		for i in range(self.nFinanceWidgetCount - 1, -1, -1):
 			screen.deleteWidget(self.FINANCE_WIDGET_ID + str(i))
 		self.nFinanceWidgetCount = 0
+
+	def getOverviewHeaderLabel(self, szText):
+		# <!-- custom: draw-time label wrapping for Domestic Overview table headers; this is the effective upscale point for header text. (GPT-5.3-Codex) -->
+		return SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
 		
 	# headers...
 	def drawHeaders( self ):
@@ -249,56 +254,56 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( "CityListBackground", 0, "", (24 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Name Column (advc.193: Font size increased; was 2.)
-		screen.setTableColumnHeader( "CityListBackground", 1, self.HEADER_NAME, (221 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 1, self.getOverviewHeaderLabel(self.HEADER_NAME), (221 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Population Column
 		# advc.002f: Replace localText.getText("TXT_KEY_POPULATION", ()) with CITIZEN_CHAR from BULL
-		screen.setTableColumnHeader( "CityListBackground", 2, self.HEADER_POPULATION, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 2, self.getOverviewHeaderLabel(self.HEADER_POPULATION), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Happiness Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( "CityListBackground", 3, self.HEADER_HAPPINESS, (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 3, self.getOverviewHeaderLabel(self.HEADER_HAPPINESS), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Health Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( "CityListBackground", 4, self.HEADER_HEALTH, (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 4, self.getOverviewHeaderLabel(self.HEADER_HEALTH), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Food Column
-		screen.setTableColumnHeader( "CityListBackground", 5, self.HEADER_FOOD, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 5, self.getOverviewHeaderLabel(self.HEADER_FOOD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Production Column
-		screen.setTableColumnHeader( "CityListBackground", 6, self.HEADER_PRODUCTION, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 6, self.getOverviewHeaderLabel(self.HEADER_PRODUCTION), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Gold Column
-		screen.setTableColumnHeader( "CityListBackground", 7, self.HEADER_GOLD, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 7, self.getOverviewHeaderLabel(self.HEADER_GOLD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Research Column
-		screen.setTableColumnHeader( "CityListBackground", 8, self.HEADER_RESEARCH, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 8, self.getOverviewHeaderLabel(self.HEADER_RESEARCH), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Espionage Column
-		screen.setTableColumnHeader( "CityListBackground", 9, self.HEADER_ESPIONAGE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 9, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Culture Column
-		screen.setTableColumnHeader( "CityListBackground", 10, self.HEADER_CULTURE, (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 10, self.getOverviewHeaderLabel(self.HEADER_CULTURE), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Trade Column
-		screen.setTableColumnHeader( "CityListBackground", 11, self.HEADER_TRADE, (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 11, self.getOverviewHeaderLabel(self.HEADER_TRADE), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Maintenance Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( "CityListBackground", 12, self.HEADER_MAINTENANCE, (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 12, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Great Person Column
-		screen.setTableColumnHeader( "CityListBackground", 13, self.HEADER_GREAT_PERSON, (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 13, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Garrison Column
 		# advc.004: Use STRENGTH_CHAR instead of DEFENSE_CHAR
-		screen.setTableColumnHeader( "CityListBackground", 14, self.HEADER_GARRISON, (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 14, self.getOverviewHeaderLabel(self.HEADER_GARRISON), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Production Column (advc.193: Font size increased; was 2.)
-		screen.setTableColumnHeader( "CityListBackground", 15, self.HEADER_PRODUCING, (138 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( "CityListBackground", 15, self.getOverviewHeaderLabel(self.HEADER_PRODUCING), (138 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Liberate Column
 		#screen.setTableColumnHeader( "CityListBackground", 16, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
 		# <advc.ctr> Liberation now shown on "Cities" tab. Instead show revolt probability.
-		screen.setTableColumnHeader("CityListBackground", 16, self.HEADER_REVOLT, (80 * self.nTableWidth) / self.nNormalizedTableWidth)
+		screen.setTableColumnHeader("CityListBackground", 16, self.getOverviewHeaderLabel(self.HEADER_REVOLT), (80 * self.nTableWidth) / self.nNormalizedTableWidth)
 
 	# Function to draw the contents of the cityList passed in
 	def drawContents (self):
@@ -675,7 +680,9 @@ class CvDomesticAdvisor:
 		screen.setTableText( "CityListBackground", 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <advc.193>
-		iCellFontSize = getSASUIFontBody()
+		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update),
+		# but source size from LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
+		iCellFontSize = getSASUIFontLabel()
 		# (Uses of these tags in the code below aren't tagged w/ comments)
 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
 		szFontTagClose = SAS_FONT_TAG_CLOSE

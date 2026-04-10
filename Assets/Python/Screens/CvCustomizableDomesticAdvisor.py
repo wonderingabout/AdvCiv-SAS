@@ -770,10 +770,11 @@ class CvCustomizableDomesticAdvisor:
 		self.PAGES_DD_W = 300
 
 		# Location of Culture Threshold Info
-		self.nCultureLevelX = self.nPanelX + self.nPanelWidth - 354 # was 670 when nPanelWidth was 1024
+		# <!-- custom: widen the bottom-right culture legend block for upscaled text by moving it left and increasing label/value separation. (GPT-5.3-Codex) -->
+		self.nCultureLevelX = self.nPanelX + self.nPanelWidth - 430 # was 670 when nPanelWidth was 1024
 		self.nCultureLevelY = self.nPanelY + self.nPanelLength - 120 # was 450 when nPanelLength was 562
 		self.nCultureLevelDistance = 15
-		self.nCultureLevelTextOffset = 110
+		self.nCultureLevelTextOffset = 190
 
 		# Location of next GP Threshold Info
 		self.nGPLevelX = self.nPanelX + self.nPanelWidth - 154 # was 870 when nPanelWidth was 1024
@@ -939,9 +940,9 @@ class CvCustomizableDomesticAdvisor:
 			# Only show non-zero levels
 			if (nValue != 0):
 				# Set text
-				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", SAS_FONT_TAG_BODY + pCultureLevel.getText() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", SAS_FONT_TAG_LABEL + pCultureLevel.getText() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Set value
-				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", SAS_FONT_TAG_BODY + str(nValue) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", SAS_FONT_TAG_LABEL + str(nValue) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Increment counter
 				iCount += 1
 
@@ -950,7 +951,7 @@ class CvCustomizableDomesticAdvisor:
 
 		# GP Level Text
 		screen.setText (self.GP_TEXT_NAME, "Background", self.figureheadIcon, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", SAS_FONT_TAG_BODY + str (iPlayer.player.greatPeopleThreshold(false)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", SAS_FONT_TAG_LABEL + str (iPlayer.player.greatPeopleThreshold(false)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Header...
 		#szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
@@ -2261,10 +2262,12 @@ class CvCustomizableDomesticAdvisor:
 			fHScaleFactor = min(2, max((self.nTableWidth - 50.0) / iTotalColW,
 					# I don't think we should shrink columns when player configures too many
 					1))
+			# <!-- custom: minimally upscale main customizable-domestic table text (rows + non-building headers):
+			# keep base AdvCiv width logic and just bump the two legacy font steps by +1 for readability. (GPT-5.3-Codex) -->
 			if fHScaleFactor > 1.36:
-				iCellFontSize = 3
+				iCellFontSize = 4
 			else:
-				iCellFontSize = 2
+				iCellFontSize = 3
 			# (The three uses of these tags in the code below aren't tagged w/ comments)
 			szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
 			szFontTagClose = SAS_FONT_TAG_CLOSE
