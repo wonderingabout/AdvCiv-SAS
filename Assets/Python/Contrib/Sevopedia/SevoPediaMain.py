@@ -212,6 +212,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.Y_NEXT = Y_FOOTER_CONTROLS
 		self.X_EXIT = self.W_SCREEN - 30 # advc.004y: was 994
 		self.Y_EXIT = Y_FOOTER_CONTROLS
+		# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; keep BACK/NEXT left of the AIP area so those footer controls stay clickable. (GPT-5.3-Codex) -->
+		self.SAS_X_BACK_LEADERS = self.X_PEDIA_PAGE + 10
+		self.SAS_X_NEXT_LEADERS = self.SAS_X_BACK_LEADERS + 140
+		self.SAS_X_EXIT_LEADERS = self.SAS_X_NEXT_LEADERS + 140
 
 		self.tab = None
 		self.iActivePlayer = -1
@@ -678,6 +682,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iCategory = self.SAS_CATEGORY_DEFS[0][0]
 		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		self.deleteAllWidgets()
+		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
+		screen = self.getScreen()
 		if iCategory == SevoScreenEnums.PEDIA_MUSIC:
 			iMusicItemsWidth = self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH
 			if iMusicItemsWidth <= 0:
@@ -687,10 +693,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.SAS_setItemsWidth(self.SAS_getLeaderItemsWidthByCurrentUIFont())
 		else:
 			self.SAS_setItemsWidth(self.SAS_W_ITEMS_BASE)
+		# <!-- custom: after adding Leader AIP-specific footer positions for BACK/NEXT/EXIT, reapply the generic Sevopedia footer positions here first; otherwise those AIP positions carry over to every category, which we don't want. (GPT-5.3-Codex) -->
+		screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+		screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
+			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
+			screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+			screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
 		if not self.isContentsShowing():
 			BugUtil.debug("Drawing category list")
 			self.placeCategories(iCategory)
-			screen = self.getScreen()
 			if not self.SAS_USE_BOTTOM_TABS:
 				self.SAS_safeDeleteWidget(screen, self.TOC_ID)
 				self.SAS_safeDeleteWidget(screen, self.INDEX_ID)
@@ -718,7 +732,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 			# <!-- custom: force keyboard focus so UP/DOWN works without requiring a click (chatgpt 5.2 + claude opus 4.5) -->
 			try:
-				screen = self.getScreen()
+				# <!-- custom: after refactoring showContents, `screen` is initialized once in the outer method scope and reused here; keep this old line commented for traceability in case this focus block is revisited. (GPT-5.3-Codex) -->
+				# screen = self.getScreen()
 				# Focus the left list when present
 				if self.SAS_lastItemsWidget is not None:
 					try:
@@ -831,9 +846,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.setDimensions(X_SCREEN, Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
 
 		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
-		screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY,   self.X_BACK,  self.Y_BACK,  0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK,    1, -1)
-		screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY,   self.X_NEXT,  self.Y_NEXT,  0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
-		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY,  self.X_EXIT,  self.Y_EXIT,  0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->
 
 
 

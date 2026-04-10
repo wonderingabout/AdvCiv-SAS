@@ -99,9 +99,12 @@ class SevoPediaLeader:
 		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
-		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost. (GPT-5.3-Codex) -->
-		iScreenHeight = self.top.getScreen().getYResolution()
-		self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = self.buildAICategoriesForCurrentResolution(iScreenHeight)
+		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost. Also only do this when AIP is enabled; otherwise skip needless setup. We intentionally don't re-resolve on in-session resolution changes: main interface still needs restart after such changes for correct layout, so dynamic Sevopedia-only redraw adds complexity for little practical gain. (GPT-5.3-Codex) -->
+		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+			iScreenHeight = self.top.getScreen().getYResolution()
+			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = self.buildAICategoriesForCurrentResolution(iScreenHeight)
+		else:
+			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = (), (), ()
 
 		self.N_AI_TABLE_NUM = 3
 		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
@@ -540,7 +543,7 @@ class SevoPediaLeader:
 			"EventBadToUs", "CancelledVassalAgreement", "DeclaredWarRecent",
 			"ReceivedTechFromAny", "MadeDemandRecent", "CancelledOpenBorders",
 		]
-		if iScreenHeight > 1440:
+		if iScreenHeight >= 1440:
 			negative_memory_suffixes.append("StoppedTradingRecent")
 		# <!-- custom: at 1080p/1440p, keep "StoppedTradingRecent" hidden (lower-priority tail field) to avoid overflow in tighter panel layouts. (GPT-5.3-Codex) -->
 		negative_memory_suffixes.append("CancelledDefensivePact")
@@ -610,27 +613,40 @@ class SevoPediaLeader:
 			"getNoTechTradeThreshold", "getBuildUnitProb", "getWonderConstructRand", "getEspionageWeight",
 		))
 
-		middle_categories = (
-			contact_offer_probabilities_category,
-			contact_demand_probabilities_category,
-			refusal_thresholds_offer_category,
-			refusal_thresholds_demand_category,
-			attitude_changes_category,
-			misc_modifiers_category,
-		)
-		if iScreenHeight <= 1440:
-			# <!-- custom: for 1080p/1440p, keep "No War At" in middle to preserve the legacy compact ordering used on tighter layouts. (GPT-5.3-Codex) -->
-			middle_categories = middle_categories[:4] + (no_war_at_category,) + middle_categories[4:]
-
-		left_categories = (
-			core_personality_category,
-			victory_weights_category,
-			flavors_category,
-			war_strategy_category,
-		)
-		if iScreenHeight > 1440:
-			# <!-- custom: for higher Y resolutions, move "No War At" to left so middle has enough vertical room to fully display ACL-related rows. (GPT-5.3-Codex) -->
-			left_categories = left_categories[:3] + (no_war_at_category,) + left_categories[3:]
+		if iScreenHeight >= 1440:
+			# <!-- custom: at 1440p and above, move "No War At" to the left column so the middle column can fully show ACL-heavy rows. (GPT-5.3-Codex) -->
+			middle_categories = (
+				contact_offer_probabilities_category,
+				contact_demand_probabilities_category,
+				refusal_thresholds_offer_category,
+				refusal_thresholds_demand_category,
+				attitude_changes_category,
+				misc_modifiers_category,
+			)
+			left_categories = (
+				core_personality_category,
+				victory_weights_category,
+				flavors_category,
+				war_strategy_category,
+				no_war_at_category,
+			)
+		else:
+			# <!-- custom: below 1440p, keep "No War At" in middle to preserve the tighter legacy ordering. (GPT-5.3-Codex) -->
+			middle_categories = (
+				contact_offer_probabilities_category,
+				contact_demand_probabilities_category,
+				refusal_thresholds_offer_category,
+				refusal_thresholds_demand_category,
+				no_war_at_category,
+				attitude_changes_category,
+				misc_modifiers_category,
+			)
+			left_categories = (
+				core_personality_category,
+				victory_weights_category,
+				flavors_category,
+				war_strategy_category,
+			)
 
 		right_categories = (
 			economic_preferences_category,
