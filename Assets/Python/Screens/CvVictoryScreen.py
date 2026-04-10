@@ -23,6 +23,7 @@ import TechUtil
 from SASFontUtils import *
 import SASTextScale
 from SASUtils import *
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base victory-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 # <!-- custom: add trait icons in the Settings tab (claude opus 4.5). -->
 import TraitUtil
 

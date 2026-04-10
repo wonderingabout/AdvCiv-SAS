@@ -9,6 +9,7 @@ import PlayerUtil
 import TradeUtil
 from SASFontUtils import *
 from SASUtils import *
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base domestic-advisor text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
 #	IMPORTANT INFORMATION
 #	

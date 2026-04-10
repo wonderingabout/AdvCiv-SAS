@@ -24,6 +24,7 @@ from PyHelpers import PyPlayer
 from SASUtils import *
 from SASFontUtils import *
 import SASTextScale
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base info-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
 # <!-- custom: Begin - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
 import Scoreboard

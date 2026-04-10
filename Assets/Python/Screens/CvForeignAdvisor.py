@@ -19,6 +19,7 @@ import CvScreenEnums
 import math
 from SASUtils import *
 from SASFontUtils import *
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base advisor text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
 ############################################
 ### BEGIN CHANGES ENHANCED INTERFACE MOD ###

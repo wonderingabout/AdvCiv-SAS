@@ -11,6 +11,7 @@ import ScreenInput
 import CvScreenEnums
 from SASFontUtils import *
 from SASUtils import *
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base tech-chooser text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 import CvScreensInterface
 
 TEXTURE_SIZE = 24

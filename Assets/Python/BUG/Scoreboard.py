@@ -24,6 +24,7 @@ import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
 from SASFontUtils import *
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
 # Globals
 ScoreOpt = BugCore.game.Scores
