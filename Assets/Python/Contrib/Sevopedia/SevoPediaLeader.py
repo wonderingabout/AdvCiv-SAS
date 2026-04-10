@@ -108,16 +108,21 @@ class SevoPediaLeader:
 			iLeaderItemsWidthFont2 = self.top.SAS_W_ITEMS_BASE
 		iLabelFont = getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
 		elif iLabelFont == 2:
-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
 		elif iLabelFont == 3:
-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
 		else:
-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
-		if iLeaderItemsWidthCurrent <= 0:
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
+		if iLeaderItemsWidthCurrentForGain <= 0:
+			iLeaderItemsWidthCurrentForGain = self.top.SAS_W_ITEMS_BASE
+		# <!-- custom: keep AIP panel expansion tied to upscaled font widths, but when item-list reduction is disabled on wide screens, keep page-left anchored at base item width so the rest of the page absorbs the squeeze. (GPT-5.3-Codex) -->
+		iLeaderItemsWidthCurrent = iLeaderItemsWidthCurrentForGain
+		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH")
+		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
 			iLeaderItemsWidthCurrent = self.top.SAS_W_ITEMS_BASE
-		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrent
+		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrentForGain
 		if iLeaderItemsWidthGain < 0:
 			iLeaderItemsWidthGain = 0
 		iAIPPanelGain = iLeaderItemsWidthGain / self.N_AI_TABLE_NUM
