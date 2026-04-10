@@ -162,7 +162,7 @@ def scaleScoreboardText(text):
 		return text
 	if text.find("<font=") != -1:
 		return text
-	return SAS_FONT_TAG_BODY + text + SAS_FONT_TAG_CLOSE
+	return SAS_FONT_TAG_LABEL + text + SAS_FONT_TAG_CLOSE
 
 def onDealCanceled(argsList):
 	# Sets the scoreboard dirty bit so it will redraw.
@@ -809,3 +809,4 @@ class PlayerScore:
 		
 	def widget(self, part):
 		return self._widgets[part]
+

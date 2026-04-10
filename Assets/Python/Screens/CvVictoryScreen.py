@@ -936,13 +936,13 @@ class CvVictoryScreen:
 		iRow = screen.appendTableRow(szTable)
 		iVoteTimer = gc.getGame().getVoteTimer(iActiveVote)
 		sString = localText.getText("TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE", (iVoteTimer,) )
-		sString = SAS_FONT_TAG_BODY + sString + SAS_FONT_TAG_CLOSE
+		sString = SAS_FONT_TAG_LABEL + sString + SAS_FONT_TAG_CLOSE
 		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		iRow = screen.appendTableRow(szTable)
 		iSecGenTimer = gc.getGame().getSecretaryGeneralTimer(iActiveVote)
 		sString = localText.getText("TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION", (iSecGenTimer,) )
-		sString = SAS_FONT_TAG_BODY + sString + SAS_FONT_TAG_CLOSE
+		sString = SAS_FONT_TAG_LABEL + sString + SAS_FONT_TAG_CLOSE
 		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	# <advc.703> Now shared by showVotes and showMembersScreen_NonBUG
@@ -1160,7 +1160,7 @@ class CvVictoryScreen:
 		self.drawTabs()
 	
 	def highlight(self, s):
-		return SAS_FONT_TAG_BODY_BOLD + s + SAS_FONT_TAG_CLOSE
+		return SAS_FONT_TAG_LABEL_BOLD + s + SAS_FONT_TAG_CLOSE
 	# </advc.703>
 
 	def formatPercent(self, f):
@@ -2443,3 +2443,4 @@ class CvVictoryScreen:
 
 	def update(self, fDelta):
 		return
+

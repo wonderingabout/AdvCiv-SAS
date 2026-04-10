@@ -425,9 +425,9 @@ class CvInfoScreen:
 		self.TEXT_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
 
 #BUG: Change Graphs - start
-		self.SHOW_ALL = SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_SHOW_ALL", ()) + SAS_FONT_TAG_CLOSE
-		self.SHOW_NONE = SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_SHOW_NONE", ()) + SAS_FONT_TAG_CLOSE
-		self.LOG_SCALE = SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_LOGSCALE", ()) + SAS_FONT_TAG_CLOSE
+		self.SHOW_ALL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_SHOW_ALL", ()) + SAS_FONT_TAG_CLOSE
+		self.SHOW_NONE = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_SHOW_NONE", ()) + SAS_FONT_TAG_CLOSE
+		self.LOG_SCALE = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_LOGSCALE", ()) + SAS_FONT_TAG_CLOSE
 
 		sTemp1 = [""] * self.NUM_SCORES
 		sTemp2 = [""] * self.NUM_SCORES
@@ -577,22 +577,22 @@ class CvInfoScreen:
 		screen.hideScreen()
 
 	def scaleBodyText(self, szText):
-		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_BODY)
+		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_LABEL)
 
 	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
-		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
 
 	def setTableIntScaled(self, screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
-		SASTextScale.setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+		SASTextScale.setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
 
 	def setTableColumnHeaderScaled(self, screen, szTable, iCol, szText, iWidth):
-		SASTextScale.setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_BODY)
+		SASTextScale.setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_LABEL)
 
 	def appendListBoxStringScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
-		SASTextScale.appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+		SASTextScale.appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
 
 	def appendListBoxStringNoUpdateScaled(self, screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
-		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_BODY)
+		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute Info Screen geometry at runtime from the current resolution; this matches Foreign Advisor's pattern and avoids stale init-time layout. (GPT-5.3-Codex) -->
@@ -1102,7 +1102,7 @@ class CvInfoScreen:
 						if szCityName:
 							szText = szText.replace(szCityName, self.TEXT_HISTORY_UNKNOWN_CITY)
 
-			szFormattedText = localText.changeTextColor(SAS_FONT_TAG_BODY + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE, eColor)
+			szFormattedText = localText.changeTextColor(SAS_FONT_TAG_LABEL + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE, eColor)
 			entries.append(szFormattedText)
 
 		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
@@ -1121,14 +1121,14 @@ class CvInfoScreen:
 
 		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
 			self.szHistoryDbgLogPrettySummaryButton = self.getNextWidgetName()
-			szLabel = SAS_FONT_TAG_BODY + self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
+			szLabel = SAS_FONT_TAG_LABEL + self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
 			screen.setButtonGFC(self.szHistoryDbgLogPrettySummaryButton, szLabel, "", self.X_HISTORY_TABLE_LOG_BUTTON, self.Y_HISTORY_TABLE_LOG_BUTTON, self.W_HISTORY_TABLE_LOG_BUTTON, self.H_HISTORY_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 
 		# Build or reuse cache
 		aEntries = self.buildHistoryCache(not self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE)
 
 		if not aEntries:
-			szText = SAS_FONT_TAG_BODY + self.TEXT_HISTORY_EMPTY + SAS_FONT_TAG_CLOSE
+			szText = SAS_FONT_TAG_LABEL + self.TEXT_HISTORY_EMPTY + SAS_FONT_TAG_CLOSE
 			self.appendListBoxStringScaled(screen, self.szHistoryList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			return
 
@@ -1847,9 +1847,9 @@ class CvInfoScreen:
 #BUG: Change Graphs - end
 
 		# <!-- custom: show year on first line, added with claude opus 4.5's help thanks. -->
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + self.getTurnDate(turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_LABEL + self.getTurnDate(turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# <!-- custom: show turn number on second line below year, added with claude opus 4.5's help thanks. -->
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + (u"T%d" % turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL + self.iGraphTurnLabelYOffset, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_LABEL + (u"T%d" % turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL + self.iGraphTurnLabelYOffset, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def drawGraphs(self):
 
@@ -2235,7 +2235,7 @@ class CvInfoScreen:
 			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
 			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
 			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
-			szNameWithLeader = SAS_FONT_TAG_BODY + (u"%s %s" % (szLeaderImg, strColor)) + SAS_FONT_TAG_CLOSE
+			szNameWithLeader = SAS_FONT_TAG_LABEL + (u"%s %s" % (szLeaderImg, strColor)) + SAS_FONT_TAG_CLOSE
 
 #BUG: Change Graphs - start
 			if AdvisorOpt.isGraphs():
@@ -2272,7 +2272,7 @@ class CvInfoScreen:
 					textColorA = gc.getPlayer(p).getPlayerTextColorA()
 				# <!-- custom: avoid close to standard name like str -->
 				strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
-				screen.setLabel(self.sPlayerTextWidget[i], "", SAS_FONT_TAG_BODY + strColor + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabel(self.sPlayerTextWidget[i], "", SAS_FONT_TAG_LABEL + strColor + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				yLine += self.H_LEGEND_TEXT
 				yText += self.H_LEGEND_TEXT
 
@@ -2923,7 +2923,7 @@ class CvInfoScreen:
 			self.szCityNameWidgets.append(self.getNextWidgetName())
 #			szProjectDesc = u"<font=3b>" + pProjectInfo.getDescription().upper() + u"</font>"
 			szCityDesc = SAS_FONT_TAG_TITLE_BOLD + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + SAS_FONT_TAG_LABEL_BOLD + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
-			szCityDesc += SAS_FONT_TAG_BODY + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
+			szCityDesc += SAS_FONT_TAG_LABEL + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
 			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc,
 				self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 #			screen.attachMultilineText( szTextPanel, self.szCityNameWidgets[iWidgetLoop], str(self.iCitySizes[iWidgetLoop]) + " - " + self.szCityNames[iWidgetLoop] + "\n" + self.szCityDescs[iWidgetLoop], WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -3788,7 +3788,7 @@ class CvInfoScreen:
 				iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING
 
 			szWonderName = pWonderInfo.getDescription()
-			szTurnYearBuilt = SAS_FONT_TAG_BODY + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + SAS_FONT_TAG_CLOSE
+			szTurnYearBuilt = SAS_FONT_TAG_LABEL + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + SAS_FONT_TAG_CLOSE
 
 			# Check to see if active player can see this city
 			# advc.001d: replaced gc.getGame().getActiveTeam with self.iActiveTeam. Check bRevealAll.
@@ -4708,5 +4708,6 @@ class CvInfoScreen:
 					else:
 						self.aiPlayersMetNAEspionage.append(iLoopPlayer)
 						self.iNumPlayersMetNAEspionage += 1
+
 
 

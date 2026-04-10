@@ -71,12 +71,12 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_TINY</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_BODY</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
+		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
 	<Define>
@@ -93,6 +93,9 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
+
+
+
 	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. Note: as of now increased from 100 to 120 at font 2 so it is more readable. (Claude code Opus 4.6) -->
 	<Define>
 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_1</DefineName>
