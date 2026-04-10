@@ -41,6 +41,7 @@ localText = CyTranslator()
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
 IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
 IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
+IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
 SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
 SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
 SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
@@ -65,9 +66,6 @@ EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = _SAS_LeaderAIPValues.EXCLUDED_LEADER
 
 # <!-- custom: cache containers (populated once per session from SevoPediaMain). -->
 LEADERS_INFO_CACHED = {}
-AI_RIGHT_CATEGORIES = ()
-AI_MIDDLE_CATEGORIES = ()
-AI_LEFT_CATEGORIES = ()
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Called once (from SevoPediaMain) to prebuild the AI Personality Panel cache.
@@ -101,6 +99,8 @@ class SevoPediaLeader:
 		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
+		# <!-- custom: don't cache AI category headers/symbol lines separately; they are computed once at init when this screen object is created, so extra caching would be needlessly costly for no practical gain. (GPT-5.3-Codex) -->
+		self.aiRightCategoriesBase, self.aiMiddleCategoriesBase, self.aiLeftCategoriesBase = self.buildBaseAICategoriesForUI()
 
 		self.N_AI_TABLE_NUM = 3
 		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
@@ -497,6 +497,141 @@ class SevoPediaLeader:
 			# <!-- custom: space for next ai_category if any are there (else still space but not used more efficient this way i think i mean than rechecking each time and we have some tables that overflow vertically too so maybe fine this way too if not broken in this case i mean maybe-->
 			y += self.H_AI_CATEGORY_SPACING
 
+	def buildBaseAICategoriesForUI(self):
+		def get_header_text(header_key_or_text):
+			if header_key_or_text is None:
+				return None
+			if header_key_or_text.startswith("TXT_KEY_"):
+				return localText.getText(header_key_or_text, ())
+			return header_key_or_text
+
+		def get_ai_category(icon_button_art_key, header_key_or_text, ai_category_key_order):
+			if header_key_or_text is None:
+				ai_category_header_line = None
+				ai_category_x_offset = 0
+			else:
+				header_text = get_header_text(header_key_or_text)
+				if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI and icon_button_art_key:
+					button_size = 16
+					line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
+					ai_category_header_line = u"%s %s" % (line_button_txt, header_text)
+					# <!-- custom: keep a small negative header offset so emoji+title rows align with table body and waste less horizontal room. (GPT-5.3-Codex) -->
+					ai_category_x_offset = -7
+				else:
+					ai_category_header_line = header_text
+					ai_category_x_offset = 0
+			return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
+
+		def build_memory_order(positive_negative, affection_resentment, suffixes):
+			return tuple("iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) for suffix in suffixes)
+
+		positive_memory_suffixes = (
+			"GiveHelp", "AcceptDemand", "AcceptedReligion", "AcceptedCivic", "AcceptedJoinWar",
+			"AcceptedStopTrading", "VotedForUs", "EventGoodToUs", "LiberatedCities",
+			"Independence", "TradedTechToUs",
+		)
+		negative_memory_suffixes = (
+			"DeclaredWar", "DeclaredWarOnFriend", "HiredWarAlly", "NukedUs", "NukedFriend",
+			"RazedCity", "RazedHolyCity", "SpyCaught", "RefusedHelp", "RejectedDemand",
+			"DeniedReligion", "DeniedCivic", "DeniedJoinWar", "DeniedStopTrading",
+			"StoppedTrading", "HiredTradeEmbargo", "MadeDemand", "VotedAgainstUs",
+			"EventBadToUs", "CancelledVassalAgreement", "DeclaredWarRecent",
+			"ReceivedTechFromAny", "MadeDemandRecent", "CancelledOpenBorders",
+			# <!-- custom: "StoppedTradingRecent" intentionally omitted because panel width/height is tight and this row gives the least added value among negative-memory tails. (GPT-5.3-Codex) -->
+			# "StoppedTradingRecent",
+			"CancelledDefensivePact",
+		)
+
+		right_categories = (
+			get_ai_category("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", (
+				"getMaxGoldTradePercent", "getMaxGoldPerTurnTradePercent", "getTechTradeKnownPercent",
+				"getNoTechTradeThreshold", "getBuildUnitProb", "getWonderConstructRand", "getEspionageWeight",
+			)),
+			get_ai_category("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", build_memory_order("Positive", "Affection", positive_memory_suffixes)),
+			get_ai_category("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", build_memory_order("Negative", "Resentment", negative_memory_suffixes)),
+		)
+
+		middle_categories = (
+			get_ai_category("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", (
+				"iAggregatedContactProbPeaceTreaty", "iAggregatedContactProbOpenBorders", "iAggregatedContactProbTradeMap",
+				"iAggregatedContactProbTradeTech", "iAggregatedContactProbTradeBonus", "iAggregatedContactProbGiveHelp",
+				"iAggregatedContactProbDefensivePact", "iAggregatedContactProbPermanentAlliance",
+			)),
+			get_ai_category("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", (
+				"iAggregatedContactProbReligionPressure", "iAggregatedContactProbCivicPressure", "iAggregatedContactProbStopTrading",
+				"iAggregatedContactProbDemandTribute", "iAggregatedContactProbAskForHelp", "iAggregatedContactProbJoinWar",
+			)),
+			get_ai_category("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", (
+				"getOpenBordersRefuseAttitudeThreshold", "getMapRefuseAttitudeThreshold", "getTechRefuseAttitudeThreshold",
+				"getStrategicBonusRefuseAttitudeThreshold", "getHappinessBonusRefuseAttitudeThreshold", "getHealthBonusRefuseAttitudeThreshold",
+				"getNoGiveHelpAttitudeThreshold", "getDefensivePactRefuseAttitudeThreshold",
+			)),
+			get_ai_category("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", (
+				# <!-- custom: higher threshold means harder to convince, so this sits in demand-refusal section with the other attitude gates. (GPT-5.3-Codex) -->
+				"getConvertReligionRefuseAttitudeThreshold", "getAdoptCivicRefuseAttitudeThreshold", "getDeclareWarRefuseAttitudeThreshold",
+				"getDeclareWarThemRefuseAttitudeThreshold", "getStopTradingRefuseAttitudeThreshold", "getStopTradingThemRefuseAttitudeThreshold",
+				"getDemandTributeAttitudeThreshold", "getCityRefuseAttitudeThreshold", "getNativeCityRefuseAttitudeThreshold",
+				"getVassalRefuseAttitudeThreshold",
+			)),
+			get_ai_category("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", (
+				"iNoWarAttitudeProbFurious", "iNoWarAttitudeProbAnnoyed", "iNoWarAttitudeProbCautious",
+				"iNoWarAttitudeProbPleased", "iNoWarAttitudeProbFriendly",
+			)),
+			get_ai_category("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", (
+				"getSameReligionAttitudeChange", "getSameReligionAttitudeDivisor", "getDifferentReligionAttitudeChange",
+				"getDifferentReligionAttitudeDivisor", "getFavoriteCivicAttitudeChange", "getFavoriteCivicAttitudeDivisor",
+				"getLostWarAttitudeChange", "getAtWarAttitudeDivisor", "getAtWarAttitudeChangeLimit",
+				"getAtPeaceAttitudeDivisor", "getAtPeaceAttitudeChangeLimit", "getShareWarAttitudeChange",
+				"getShareWarAttitudeDivisor", "getBonusTradeAttitudeDivisor", "getBonusTradeAttitudeChangeLimit",
+				"getOpenBordersAttitudeDivisor", "getOpenBordersAttitudeChangeLimit", "getDefensivePactAttitudeDivisor",
+				"getDefensivePactAttitudeChangeLimit",
+			)),
+			get_ai_category("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", ("getFreedomAppreciation",)),
+		)
+
+		left_categories = (
+			get_ai_category("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", (
+				# <!-- custom: ACL limits stay here intentionally; thematic purity is secondary to keeping this column compact/readable on constrained widths. (GPT-5.3-Codex) -->
+				"getBaseAttitude", "getBasePeaceWeight", "getPeaceWeightRand", "getWorseRankDifferenceAttitudeChange",
+				"getBetterRankDifferenceAttitudeChange", "getWarmongerRespect", "getCloseBordersAttitudeChange",
+				"getSameReligionAttitudeChangeLimit", "getDifferentReligionAttitudeChangeLimit", "getFavoriteCivicAttitudeChangeLimit",
+			)),
+			get_ai_category("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", (
+				"getConquestVictoryWeight", "getDominationVictoryWeight", "getCultureVictoryWeight",
+				"getDiplomacyVictoryWeight", "getSpaceVictoryWeight",
+			)),
+			get_ai_category("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", (
+				"iFlavorMilitary", "iFlavorReligion", "iFlavorProduction", "iFlavorGold",
+				"iFlavorScience", "iFlavorCulture", "iFlavorGrowth", "iFlavorEspionage",
+			)),
+			get_ai_category("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", (
+				"getMaxWarRand", "getMaxWarNearbyPowerRatio", "getMaxWarDistantPowerRatio", "getMaxWarMinAdjacentLandPercent",
+				"getLimitedWarRand", "getLimitedWarPowerRatio", "getBaseAttackOddsChange", "getAttackOddsChangeRand",
+				"getRazeCityProb", "getDemandRebukedSneakProb", "getDemandRebukedWarProb", "getDogpileWarRand",
+				# <!-- custom: keep ShareWar ACL in this block so war heuristics remain visible together instead of introducing another micro-section. (GPT-5.3-Codex) -->
+				"getDeclareWarTradeRand", "getShareWarAttitudeChangeLimit", "getVassalPowerModifier",
+				"getRefuseToTalkWarThreshold", "getMakePeaceRand",
+			)),
+		)
+
+		return right_categories, middle_categories, left_categories
+
+	def getAICategoriesForCurrentResolution(self):
+		right_categories = list(self.aiRightCategoriesBase)
+		middle_categories = list(self.aiMiddleCategoriesBase)
+		left_categories = list(self.aiLeftCategoriesBase)
+		# <!-- custom: runtime AI panel layout is resolution-tunable based on vertical room (Y resolution) and independent from predumped cache data; UI owns per-resolution ordering directly (no XML toggle). (GPT-5.3-Codex) -->
+		iScreenHeight = self.top.getScreen().getYResolution()
+		if iScreenHeight <= 1440:
+			# <!-- custom: higher Y resolutions (e.g. 1440p) have enough vertical room to show ACL-related rows that are hidden at 1080p; move "No War At" to the left column so the middle column can fully display those ACL rows. (GPT-5.3-Codex) -->
+			for iCategory in xrange(len(middle_categories)):
+				category = middle_categories[iCategory]
+				if len(category) >= 3 and len(category[2]) > 0 and category[2][0] == "iNoWarAttitudeProbFurious":
+					left_categories.append(category)
+					del middle_categories[iCategory]
+					break
+		return tuple(right_categories), tuple(middle_categories), tuple(left_categories)
+
 
 
 	# Place AI Personality Panel (using precomputed scales)
@@ -514,10 +649,11 @@ class SevoPediaLeader:
 
 		# <!-- custom: cache for performance optimization. -->
 		leader_info_cached = LEADERS_INFO_CACHED[iLeader]
+		right_categories, middle_categories, left_categories = self.getAICategoriesForCurrentResolution()
 
-		self.renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
-		self.renderAICategories(screen, AI_MIDDLE_CATEGORIES, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
-		self.renderAICategories(screen, AI_LEFT_CATEGORIES, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, right_categories, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, middle_categories, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, left_categories, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
 
 
 
