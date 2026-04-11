@@ -676,7 +676,9 @@ class CvForeignAdvisor:
 			if (self.iScreen != self.SCREEN_DICT[szScreen]):
 				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getText (self.TXT_KEY_DICT[szScreen], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, self.SCREEN_DICT[szScreen], -1)
 			else:
-				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, -1, -1)
+				# <!-- custom: keep active tab labels non-routing; clicking an already-active tab should do nothing, not dispatch WIDGET_FOREIGN_ADVISOR with -1 (which can route to the other Foreign shell via CvScreensInterface).
+				# Without this, repeated clicks on the 2nd tab of Foreign Diplomacy Advisor (Glance) will jump to the 2nd tab of Foreign Trade Advisor (Bonuses), which is not consistent with how other links behave and is likely unnecessary nor desired for players. (GPT-5.3-Codex) -->
+				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLink += self.LABEL_WIDTH_LIST[i]
 	
 	def drawActive (self, bInitial):
