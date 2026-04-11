@@ -149,6 +149,7 @@ hopefully helpful, thanks thanks,
 [113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia)  
 [114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked)  
 [115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab)  
+[116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4449,3 +4450,21 @@ Fix:
 - Updated `CvVictoryScreen.py` to use that key directly for the Resolutions "requires votes" line.
 
 Note: although this is fixed, the Members tab also has an extra spacing at the start of lines that start with a star chars but as of now left as such since i couldn't easily find how to fix it.
+
+## 116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1T8D-mgc9ZrNnXa33ywEepGjjLQRCi1ab?usp=sharing).
+
+Observed issue:
+
+- In Foreign Diplomacy Advisor (F3), Glance tab cells could clip the final status icon when `SAS_UI_FONT_LABEL > 2`.
+- Typical failing case was double-digit attitude text with icon suffix, e.g., `+11` or single-digit attitudes (e.g., `-8`) when there are 2 trailing status icons (e.g., WE icon + war/peace/war-trade icon).
+- Visual width looked sufficient, but the last icon glyph was still trimmed by Civ4 text rendering.
+
+Workaround used (kept intentionally minimal):
+
+- In `CvForeignAdvisor.py` Glance rendering, keep normal upscaled label-font rendering by default.
+- Only when a row has at least 2 trailing status icons, render that icon suffix at fixed `<font=2>`; single-icon tails render fine, so no workaround is needed there.
+- Keep the numeric/head part at the current upscaled label font.
+
+This is a targeted workaround rather than a full Glance layout rewrite.

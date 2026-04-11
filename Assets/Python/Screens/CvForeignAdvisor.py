@@ -1690,7 +1690,23 @@ class CvForeignAdvisor:
 						if AdvisorOpt.isShowGlanceWarTrades():
 							widgType = WidgetTypes.WIDGET_LH_GLANCE
 						# </advc.152>
-						screen.setTextAt (szName, playerPanelName, self.scaleBodyText(szText), CvUtil.FONT_CENTER_JUSTIFY, self.X_GLANCE_OFFSET - 2 + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET + self.Y_Text_Offset, -0.1, FontTypes.GAME_FONT, widgType, j, iLoopPlayer)
+						# <!-- custom: when trailing status icons >= 2 (e.g., +11 or -8 with WE + war/peace/war-trade icons), keep that trailing icon run at fixed font=2 to avoid last-glyph clipping at larger label-font scales (this was observed to also happen for single-digit attitudes, so we do not gate on the number of attitude digits). Keep the rest of the cell text at scaled label font. See KI#116. (GPT-5.3-Codex) -->
+						szDisplayText = self.scaleBodyText(szText)
+						if szText:
+							iLastSpace = szText.rfind(u" ")
+							if iLastSpace != -1:
+								szTail = szText[iLastSpace + 1:]
+								# <!-- custom: we use the final tail text shape here instead of a separate icon counter because icons are assembled across multiple code paths (AttitudeUtil + local appends), and this keeps the workaround local/simple. (GPT-5.4? + GPT-5.3-Codex) -->
+								bHasPlainTrailingIcons = (szTail and szTail.find(u"<") == -1 and (not szTail[0].isdigit()) and szTail[0] != u"+" and szTail[0] != u"-")
+								iTrailingIconCount = len(szTail)
+								if bHasPlainTrailingIcons and iTrailingIconCount >= 2:
+									szHead = szText[:iLastSpace]
+									iLabelFont = getSASUIFontLabel()
+									if szHead:
+										szDisplayText = u"<font=%d>%s</font> <font=2>%s</font>" % (iLabelFont, szHead, szTail)
+									else:
+										szDisplayText = u"<font=2>%s</font>" % szTail
+						screen.setTextAt (szName, playerPanelName, szDisplayText, CvUtil.FONT_CENTER_JUSTIFY, self.X_GLANCE_OFFSET - 2 + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET + self.Y_Text_Offset, -0.1, FontTypes.GAME_FONT, widgType, j, iLoopPlayer)
 						nCount += 1
 
 			if nCount > 8:
