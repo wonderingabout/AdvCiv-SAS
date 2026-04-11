@@ -141,6 +141,36 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Sevopedia Game Speed chart first-column width by SAS_UI_FONT_LABEL (1..4). Lower values free more room for the speed-value columns when text is upscaled. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>180</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>180</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+	<!-- custom: disable first-column width reduction for Sevopedia Game Speed chart when screen width is >= this threshold; <=0 keeps reduced width always enabled. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_NO_REDUCE_MIN_WIDTH</DefineName>
+		<iDefineIntVal>2560</iDefineIntVal>
+	</Define>
+	<!-- custom: non-reduced first-column width used at/above the threshold above; this restores a roomier label column on high resolutions. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_NO_REDUCE</DefineName>
+		<iDefineIntVal>260</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
 	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
 	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).

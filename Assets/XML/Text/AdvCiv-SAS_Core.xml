@@ -160,5 +160,13 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND_PEDIA</Tag>
 		<English>[H1]Sevopedia Categories Legend[\H1][PARAGRAPH:2]This page explains shortened category labels used in the left Sevopedia category list.[PARAGRAPH:2]- Improv.: Improvements.[PARAGRAPH:2]- Un. List: Unit List.[PARAGRAPH:2]- Un. Tree: Unit Upgrade Tree.[PARAGRAPH:2]- Pr. List: Promotion List.[PARAGRAPH:2]- Pr. Tree: Promotion Tree.[PARAGRAPH:2]- N. Wond.: National Wonders.[PARAGRAPH:2]- W. Wond.: World Wonders.[PARAGRAPH:2]- W. Sizes: World Sizes.[PARAGRAPH:2]- Corporat.: Corporations.[PARAGRAPH:2]- Outdated: legacy/reference pages kept for compatibility/history.[PARAGRAPH:2]- Mods Info: custom AdvCiv-SAS concept pages and legends.[PARAGRAPH:2]Labels are shortened mainly to fit sidebar width cleanly at different resolutions and UI scales.</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND</Tag>
+		<English>Sevopedia Speed Chart Legend</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND_PEDIA</Tag>
+		<English>[H1]Sevopedia Speed Chart Legend[\H1][PARAGRAPH:2]This page explains abbreviated labels used in the Sevopedia Game Speed chart.[PARAGRAPH:2]- Inc Y XX: increments years chunk XX.[PARAGRAPH:2]- Inc M XX: increments months chunk XX.[PARAGRAPH:2]- Cal XX: calendar row XX.[PARAGRAPH:2]- S XX (N%): summary row XX at N percent of total turns.</English>
+	</TEXT>
 </Civ4GameText>
 
