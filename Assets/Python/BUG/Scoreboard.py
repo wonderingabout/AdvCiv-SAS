@@ -23,7 +23,7 @@ import re
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
-from SASFontUtils import *
+import SASTextScale
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
 # Globals
@@ -152,18 +152,11 @@ def init():
 	ANARCHY_ICON = smallSymbol(FontSymbols.BAD_GOLD_CHAR) # </advc.085>
 
 def smallText(text):
-	return scaleScoreboardText(u"%s" % text)
+	return SASTextScale.labelText(u"%s" % text)
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
 
-
-def scaleScoreboardText(text):
-	if text is None:
-		return text
-	if text.find("<font=") != -1:
-		return text
-	return SAS_FONT_TAG_LABEL + text + SAS_FONT_TAG_CLOSE
 
 def onDealCanceled(argsList):
 	# Sets the scoreboard dirty bit so it will redraw.
@@ -550,7 +543,7 @@ class Scoreboard:
 			elif (type == FIXED):
 				width = column.width
 				value = column.text
-				displayValue = scaleScoreboardText(value)
+				displayValue = SASTextScale.labelText(value)
 				x -= spacing
 				for p, playerScore in enumerate(self._playerScores):
 					# advc.085: Moved up, insert player ID (not _playerScores index)
@@ -596,7 +589,7 @@ class Scoreboard:
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
-						newWidth = CyInterface().determineWidth(scaleScoreboardText(value))
+						newWidth = CyInterface().determineWidth(SASTextScale.labelText(value))
 						if (newWidth > width):
 							width = newWidth
 				if (width == 0):
@@ -613,7 +606,7 @@ class Scoreboard:
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
-						displayValue = scaleScoreboardText(value)
+						displayValue = SASTextScale.labelText(value)
 						align = CvUtil.FONT_RIGHT_JUSTIFY
 						adjustX = 0
 						if (c == NAME):

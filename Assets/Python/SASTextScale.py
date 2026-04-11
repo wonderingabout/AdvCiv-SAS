@@ -27,6 +27,7 @@ def applyFontTag(szText, szTag):
 		return szText
 	# <!-- custom: usage rule: always try bodyText/labelText first (simple path). If text already contains <font=...>, leave it unchanged here to avoid double-wrapping.
 	# Escalate to normalize* only after reproducing a real failure with simple wrapping in that exact caller/data path.
+	# Note: this guidance was established while working on Sevopedia paths. Advisors/other UI also use this helper, but they were not necessarily migrated under the same strict "escalate to normalize* only after failure" rule.
 	# Current empirical examples: ConceptInfo/NewConceptInfo and Sevopedia Leader Civilopedia text need normalize; hints, Unit/History civilopedia text, and Traits (Effects/Background) often work with simple bodyText/labelText. (GPT-5.3-Codex) -->
 	if szUnicode.find(u"<font=") != -1:
 		return szUnicode
@@ -90,3 +91,23 @@ def appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1,
 
 def appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, szTag):
 	screen.appendListBoxStringNoUpdate(szWidgetName, applyFontTag(szText, szTag), eWidgetType, iData1, iData2, eJustify)
+
+
+def setTableTextLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+	setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+
+
+def setTableIntLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+	setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+
+
+def setTableColumnHeaderLabel(screen, szTable, iCol, szText, iWidth):
+	setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_LABEL)
+
+
+def appendListBoxStringLabel(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+	appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+
+
+def appendListBoxStringNoUpdateLabel(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
+	appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)

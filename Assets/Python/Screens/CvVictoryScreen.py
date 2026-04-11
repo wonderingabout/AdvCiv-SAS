@@ -315,15 +315,6 @@ class CvVictoryScreen:
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 
-	def scaleLabelText(self, szText):
-		return SASTextScale.applyFontTag(szText, SAS_FONT_TAG_LABEL)
-
-	def setTableTextScaled(self, screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify):
-		SASTextScale.setTableTextScaled(screen, szTable, iCol, iRow, szText, szButton, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
-
-	def appendListBoxStringNoUpdateScaled(self, screen, szTable, szText, eWidget, iData1, iData2, eJustify):
-		SASTextScale.appendListBoxStringNoUpdateScaled(screen, szTable, szText, eWidget, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
-
 	def hideScreen(self):
 		screen = self.getScreen()
 		screen.hideScreen()
@@ -416,7 +407,7 @@ class CvVictoryScreen:
 
 		# <!-- custom: shared fallback table for empty vote-source tabs (Voting/Members). Keep exhaustive tab navigation, show caller-specific intro text, and list required vote wonders with built/active state. (GPT-5.3-Codex) -->
 		iRow = screen.appendTableRow(szTable)
-		self.setTableTextScaled(screen, szTable, 0, iRow, szIntroText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szIntroText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		dRequirements = {}
 		for (iVoteSource, iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
@@ -447,7 +438,7 @@ class CvVictoryScreen:
 			szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
 			szSource = gc.getVoteSourceInfo(iVoteSource).getDescription()
 			iRow = screen.appendTableRow(szTable)
-			self.setTableTextScaled(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			if gc.getGame().isDiploVote(iVoteSource):
 				if iUNTeam != -1:
 					if bUnknown:
@@ -459,7 +450,7 @@ class CvVictoryScreen:
 					szStatus = self.TEXT_NOT_YET_BUILT
 			else:
 				szStatus = self.TEXT_NOT_ACTIVE_SHORT
-			self.setTableTextScaled(screen, szTable, 1, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		self.drawTabs()
 
@@ -501,15 +492,15 @@ class CvVictoryScreen:
 
 		# for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
 			# iRow = screen.appendTableRow(szTable)
-			# self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			# SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# if (iUNTeam != -1):
 				# if bUnknown:
 					# szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 				# else:
 					# szName = gc.getTeam(iUNTeam).getName()
-				# self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				# SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# else:
-				# self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				# SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		#for i in range(gc.getNumVoteSourceInfos()):
 		bHasVotingRows = false
@@ -524,13 +515,13 @@ class CvVictoryScreen:
 				iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
 				szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
 				szHeaderText = SAS_FONT_TAG_TITLE_BOLD + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
-				self.setTableTextScaled(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				if (gc.getGame().getVoteSourceReligion(i) != -1):
 					# <!-- custom: add religion icon (claude opus 4.5) -->
 					iReligion = gc.getGame().getVoteSourceReligion(i)
 					szReligionButton = gc.getReligionInfo(iReligion).getButton()
 					szReligionName = gc.getReligionInfo(iReligion).getDescription()
-					self.setTableTextScaled(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				# K-Mod end
 
 				#if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
@@ -539,7 +530,7 @@ class CvVictoryScreen:
 
 					# <!-- custom: add star icon to Secretary General / AP Resident row (claude opus 4.5) -->
 					szSecGenText = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
-					self.setTableTextScaled(screen, szTable, 0, iRow, szSecGenText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szSecGenText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add leader icon to secretary general name (claude opus 4.5) -->
 					iSecGenPlayer = self.getPlayerOnTeam(gc.getGame().getSecretaryGeneral(i))
 					szSecGenName = gc.getTeam(gc.getGame().getSecretaryGeneral(i)).getName()
@@ -547,7 +538,7 @@ class CvVictoryScreen:
 					if iSecGenPlayer >= 0:
 						szSecGenName = gc.getPlayer(iSecGenPlayer).getName()
 						szSecGenButton = self.getLeaderButton(iSecGenPlayer)
-					self.setTableTextScaled(screen, szTable, 1, iRow, szSecGenName, szSecGenButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szSecGenName, szSecGenButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# K-Mod
 				# vote timing
@@ -557,13 +548,13 @@ class CvVictoryScreen:
 					sString = localText.getText("TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE", (iVoteTimer,) )
 					#sString = u"<font=2b>" + sString + "</font>"
 					sString = BugUtil.colorText(sString, "COLOR_YELLOW")
-					self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					iSecGenTimer = gc.getGame().getSecretaryGeneralTimer(i)
 					sString = localText.getText("TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION", (iSecGenTimer,) )
 					#sString = u"<font=2b>" + sString + "</font>"
 					sString = BugUtil.colorText(sString, "COLOR_YELLOW")
-					self.setTableTextScaled(screen, szTable, 1, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				# K-Mod end
 
 				for iLoop in range(gc.getNumVoteInfos()):
@@ -575,14 +566,14 @@ class CvVictoryScreen:
 
 							# <!-- custom: add bullet icon to resolution rows (claude opus 4.5) -->
 							szResText = u"%c %s" % (self.iBulletIcon, info.getDescription())
-							self.setTableTextScaled(screen, szTable, 0, iRow, szResText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szResText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 							if gc.getGame().isVotePassed(iLoop):
-								self.setTableTextScaled(screen, szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.TEXT_POPUP_PASSED, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							else:
 								# <!-- custom: use a dedicated key without the optional leading placeholder because this row only shows "(Requires X of Y total votes)" and should not depend on trimming localized text at runtime. (GPT-5.3-Codex) -->
 								szVoteReqText = localText.getText("TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY", (gc.getGame().getVoteRequired(iLoop, i), gc.getGame().countPossibleVote(iLoop, i)))
-								self.setTableTextScaled(screen, szTable, 1, iRow, szVoteReqText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szVoteReqText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				iRow = screen.appendTableRow(szTable) # empty row between vote sources. (K-Mod)
 		# Remove the final empty row (K-Mod)
 		if screen.getTableNumRows(szTable) > 0:
@@ -686,7 +677,7 @@ class CvVictoryScreen:
 		if (gc.getGame().getVoteSourceReligion(iActiveVote) != -1):
 			sTableHeader += " (" + gc.getReligionInfo(gc.getGame().getVoteSourceReligion(iActiveVote)).getDescription() + ")"
 
-		self.setTableTextScaled(screen, szHeading, 0, iRow, sTableHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szHeading, 0, iRow, sTableHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# determine the two candidates, add to header
 		iCandTeam1 = -1
@@ -711,8 +702,8 @@ class CvVictoryScreen:
 		iCand1Known, sCand1Name = self.getCandStatusName(iCandTeam1)
 		iCand2Known, sCand2Name = self.getCandStatusName(iCandTeam2)
 
-		self.setTableTextScaled(screen, szHeading, 1, iRow, sCand1Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-		self.setTableTextScaled(screen, szHeading, 2, iRow, sCand2Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szHeading, 1, iRow, sCand1Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szHeading, 2, iRow, sCand2Name, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 		# set up the member table
 		szTable = self.getNextWidgetName()
@@ -815,7 +806,7 @@ class CvVictoryScreen:
 				szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (lMemberVotes, iActiveVote), )
 
 			iRow = screen.appendTableRow(szTable)
-			self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			if iMember != self.iActivePlayer:
 				# player attitude to candidate #1
@@ -823,14 +814,14 @@ class CvVictoryScreen:
 				if (szText != None
 				and iCand1Known == 1
 				and bKnown):
-					self.setTableTextScaled(screen, szTable, 1, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer1, CvUtil.FONT_CENTER_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# player attitude to candidate #2
 				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer2, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
 				if (szText != None
 				and iCand2Known == 1
 				and bKnown):
-					self.setTableTextScaled(screen, szTable, 3, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer2, CvUtil.FONT_CENTER_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer2, CvUtil.FONT_CENTER_JUSTIFY)
 
 			iVote = self.getVotesForWhichCandidate(iMember, iCandTeam1, iCandTeam2, self.VoteType)
 			iVote_Column = -1
@@ -843,17 +834,17 @@ class CvVictoryScreen:
 				if (iVote == 1
 				and lMemberVotes > 0
 				and iCand1Known == 1):
-					self.setTableTextScaled(screen, szTable, 2, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# number of votes for Candidate #2
 				if (iVote == 2
 				and lMemberVotes > 0
 				and iCand2Known == 1):
-					self.setTableTextScaled(screen, szTable, 4, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 			# player status
 			if bKnown:
-				self.setTableTextScaled(screen, szTable, 5, iRow, lMemberLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, lMemberLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			# store the candidates own votes
 			if (iCandTeam1 == gc.getPlayer(iMember).getTeam()
@@ -877,7 +868,7 @@ class CvVictoryScreen:
 		if (iCand1Known != 0
 		and iCand2Known != 0):
 			sString +=  localText.getText("TXT_KEY_BUG_VICTORY_VOTES_REQUIRED", (sVoteReq,))
-		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if iCand1Known == 1:
 			# color code the totals
@@ -885,14 +876,14 @@ class CvVictoryScreen:
 			iColor = self.getVoteTotalColor(iVoteReq, iVoteTotal[0], iVoteCand[0], iVoteTotal[0] > iVoteTotal[1], self.VoteType == 2)
 			if iColor != -1:
 				sVoteTotal = localText.changeTextColor(sVoteTotal, iColor)
-			self.setTableTextScaled(screen, szTable, 2, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 		if iCand2Known == 1:
 			sVoteTotal = str(iVoteTotal[1])
 			iColor = self.getVoteTotalColor(iVoteReq, iVoteTotal[1], iVoteCand[1], iVoteTotal[1] > iVoteTotal[0], self.VoteType == 2)
 			if iColor != -1:
 				sVoteTotal = localText.changeTextColor(sVoteTotal, iColor)
-			self.setTableTextScaled(screen, szTable, 4, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sVoteTotal, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 		# add a blank row
 		iRow = screen.appendTableRow(szTable)
@@ -919,17 +910,17 @@ class CvVictoryScreen:
 		and iCand2Known != 0):
 			sString = sSecGen + ":"
 			iRow = screen.appendTableRow(szTable)
-			self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			sString = "     " + localText.getText("TXT_KEY_BUG_VICTORY_BUG_POLL_RESULT", (sWin, self.formatPercent(fVotePercent), self.formatPercent(fMargin)))
 			iRow = screen.appendTableRow(szTable)
-			self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			# BUG Poll statistical error
 			iRandError = 3.5 + gc.getASyncRand().get(10, "Election Results Statistical Error") / 10.0
 			sString = localText.getText("TXT_KEY_BUG_VICTORY_BUG_POLL_ERROR", (self.formatPercent(iRandError), ))
 			iRow = screen.appendTableRow(szTable)
-			self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		iRow = screen.appendTableRow(szTable)
 
@@ -938,13 +929,13 @@ class CvVictoryScreen:
 		iVoteTimer = gc.getGame().getVoteTimer(iActiveVote)
 		sString = localText.getText("TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE", (iVoteTimer,) )
 		sString = SAS_FONT_TAG_LABEL + sString + SAS_FONT_TAG_CLOSE
-		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		iRow = screen.appendTableRow(szTable)
 		iSecGenTimer = gc.getGame().getSecretaryGeneralTimer(iActiveVote)
 		sString = localText.getText("TXT_KEY_BUG_VICTORY_VOTES_NEXT_ELECTION", (iSecGenTimer,) )
 		sString = SAS_FONT_TAG_LABEL + sString + SAS_FONT_TAG_CLOSE
-		self.setTableTextScaled(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	# <advc.703> Now shared by showVotes and showMembersScreen_NonBUG
 	# (I don't think the BUG version can be enabled in K-Mod)
@@ -964,13 +955,13 @@ class CvVictoryScreen:
 						szBuildingButton = gc.getBuildingInfo(iBuilding).getButton()
 						szHeaderText = SAS_FONT_TAG_TITLE_BOLD + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
 						break
-				self.setTableTextScaled(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				if (gc.getGame().getVoteSourceReligion(i) != -1):
 					# <!-- custom: add religion icon (claude opus 4.5) -->
 					iReligion = gc.getGame().getVoteSourceReligion(i)
 					szReligionButton = gc.getReligionInfo(iReligion).getButton()
 					szReligionName = gc.getReligionInfo(iReligion).getDescription()
-					self.setTableTextScaled(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szReligionName, szReligionButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				iSecretaryGeneralVote = -1
 				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i)):
@@ -995,17 +986,17 @@ class CvVictoryScreen:
 						# <!-- custom: add icons to membership status (claude opus 4.5) -->
 						if (gc.getGame().canHaveSecretaryGeneral(i) and gc.getGame().getSecretaryGeneral(i) == gc.getPlayer(j).getTeam()):
 							iRow = screen.appendTableRow(szTable)
-							self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							szStatusText = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(i).getSecretaryGeneralText())
-							self.setTableTextScaled(screen, szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szStatusText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						elif (gc.getPlayer(j).isFullMember(i)):
 							iRow = screen.appendTableRow(szTable)
-							self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							self.setTableTextScaled(screen, szTable, 1, iRow, self.szFullMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.szFullMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						elif (gc.getPlayer(j).isVotingMember(i)):
 							iRow = screen.appendTableRow(szTable)
-							self.setTableTextScaled(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							self.setTableTextScaled(screen, szTable, 1, iRow, self.szVotingMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPlayerText, szPlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, self.szVotingMemberText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				iRow = screen.appendTableRow(szTable)
 		# Remove the final empty row (K-Mod)
@@ -1047,7 +1038,7 @@ class CvVictoryScreen:
 		iNumRows = screen.getTableNumRows(szTable)
 		iTitleRow = iNumRows - 1
 		szHeading = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_RF_CHAPTER_PLURAL", ()) + SAS_FONT_TAG_CLOSE
-		self.setTableTextScaled(screen, szTable, 0, iTitleRow, szHeading, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szTable, 0, iTitleRow, szHeading, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		partialScore = 0
 		allScored = true
 		extGame = gc.getGame().getGameState() == GameStateTypes.GAMESTATE_EXTENDED
@@ -1067,7 +1058,7 @@ class CvVictoryScreen:
 			if ongoing:
 				s = self.highlight(s)
 			s = "  " + s # Don't want this to align exactly with the heading
-			self.setTableTextScaled(screen, szTable, 0, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# [1] Civ description
 			chapterCiv = gc.getGame().getChapterCiv(i)
 			activeCiv = gc.getGame().getActivePlayer()
@@ -1076,7 +1067,7 @@ class CvVictoryScreen:
 				s = gc.getPlayer(chapterCiv).getCivilizationShortDescription(0)
 				if ongoing and not extChapter:
 					s = self.highlight(s)
-			self.setTableTextScaled(screen, szTable, 1, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# [2] Start/end turn
 			s = localText.getText("TXT_KEY_RF_CHAPTER_INTERVAL", (startTurn, endTurn))
 			if endTurn < 0:
@@ -1085,7 +1076,7 @@ class CvVictoryScreen:
 				s = self.highlight(s)
 			if endTurn >= 0: # Don't highlight this part
 				s += " (" + BugUtil.getDisplayYear(gc.getGame().getTurnYear(endTurn)) + ")"
-			self.setTableTextScaled(screen, szTable, 2, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# [3] Points
 			chapterScore = gc.getGame().getChapterScore(i)
 			scoreTurn = gc.getGame().getChapterScoreTurn(i)
@@ -1112,7 +1103,7 @@ class CvVictoryScreen:
 				s = "-"
 			else:
 				partialScore += chapterScore
-			self.setTableTextScaled(screen, szTable, 3, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# [4] Scoring turn
 			s = localText.getText("TXT_KEY_RF_CHAPTER_SCORE_TURN", (scoreTurn,))
 			if i == maxChapters - 1 and scoreTurn < 0:
@@ -1120,7 +1111,7 @@ class CvVictoryScreen:
 			elif currentTurn >= scoreTurn:
 				s = self.highlight(s)
 			if not extGame or currentTurn >= scoreTurn:
-				self.setTableTextScaled(screen, szTable, 4, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			if extChapter:
 				break # The remaining chapters will never happen
 		iRow = screen.appendTableRow(szTable)
@@ -1129,8 +1120,8 @@ class CvVictoryScreen:
 		if allScored: # Only relevant when the game is over
 			s1 = self.highlight(localText.getText("TXT_KEY_RF_TOTAL", ()))
 			s2 = self.highlight(s2)
-		self.setTableTextScaled(screen, szTable, 2, iRow, s1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-		self.setTableTextScaled(screen, szTable, 3, iRow, s2, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, s1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, s2, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# The panels in the lower half are based on CvReligionScreen
 		# By default, let them take up the bottom half of the screen. But if there isn't enough room for the chapters in the upper part ...
 		iExcessChapters = min(maxChapters - 10, 3)
@@ -1246,14 +1237,14 @@ class CvVictoryScreen:
 #			failedHOFChecks = True
 #			showHOFSettingChecks = False
 
-#			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+#			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <!-- custom: add leader icon to active player name -->
 		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(self.iActivePlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
 		szTraitIcons = self.getTraitIconsString(self.iActivePlayer)
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		g = gc.getGame() # advc
 		m = gc.getMap() # advc
@@ -1288,21 +1279,21 @@ class CvVictoryScreen:
 				szActivePlayerChoice += localText.getText("TXT_KEY_RANDOM_LEADER", (szCivDesc,))
 			else:
 				szActivePlayerChoice += localText.getText("TXT_KEY_MANUALLY_CHOSEN", ())
-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szActivePlayerChoice, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerChoice, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.190c>
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
-		#self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		#SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# K-Mod. In multiplayer games, show both the game difficulty and the player difficulty
 		if activePlayer.getHandicapType() == g.getHandicapType():
-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <advc.708>
 		elif g.isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
 			szBuffer = localText.getText("TXT_KEY_RF_HANDICAP_SETTINGS",
 					(gc.getHandicapInfo(g.getHandicapType()).getTextKey(),
 					gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(),
 					gc.getHandicapInfo(g.getAIHandicap()).getTextKey(), ))
-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szBuffer,
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer,
 					WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.708>
 		else:
@@ -1314,21 +1305,21 @@ class CvVictoryScreen:
 					# advc.076: Was TXT_KEY_OPTIONS_GAME - which no longer just says "Game".
 					# But this BUG text key does.
 					localText.getText("TXT_KEY_SHORTCUTS_GAME", ()))
-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# K-Mod end
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, m.getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, m.getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <advc.190b>
 		for i in range(m.getNumCustomMapOptions()):
 			# Don't know how to call map script functions in Python, so I've implemented that in the DLL.
 			szDesc = m.getNonDefaultCustomMapOptionDesc(i)
 			if len(szDesc) <= 0: # Meaning that the option is set to its default value
 				continue
-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szDesc, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # </advc.190b>
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szDesc, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # </advc.190b>
 		# <advc.190c>
 		szPlayerCountText = str(g.countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ())
 		if bAllRandom:
@@ -1339,19 +1330,19 @@ class CvVictoryScreen:
 			szPlayerCountText += " ("
 			szPlayerCountText += localText.getText("TXT_KEY_NONE_AT_RANDOM", ())
 			szPlayerCountText += ")"
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, szPlayerCountText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szPlayerCountText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.190c>
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(g.getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(g.getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <advc.251>
 		iStartTurn = g.getStartTurn()
 		if iStartTurn != 0:
 			szTurnDate = CyGameTextMgr().getDateStr(iStartTurn, False, g.getCalendar(), g.getStartYear(), g.getGameSpeedType())
-			self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_START_TURN", (iStartTurn, szTurnDate)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_START_TURN", (iStartTurn, szTurnDate)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# </advc.251>
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(g.getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(g.getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# advc.190a:
-		self.appendListBoxStringNoUpdateScaled(screen, szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		screen.updateListBox(szSettingsTable)
 
@@ -1385,11 +1376,11 @@ class CvVictoryScreen:
 						szDescr += localText.getText("TXT_KEY_BARB_START", ())
 						szDescr += " " + str(iBarbarianStartTurn) + ")"
 				# </advc.300>
-				self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szDescr, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szDescr, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190a> Disabled victory conditions. Some overlap with CvReplayInfo::addSettingsMsg
 		for i in range(gc.getNumVictoryInfos()):
 			if not g.isVictoryValid(i):
-				self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + localText.getText("TXT_KEY_VICTORY_DISABLED",()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + localText.getText("TXT_KEY_VICTORY_DISABLED",()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.190a>
 
 		# <advc.104> AI settings
@@ -1400,7 +1391,7 @@ class CvVictoryScreen:
 		elif bLegacyAI: # Only possible if Aggressive AI disabled through XML
 			szAIOption = "Non-Aggressive AI"
 		if not szAIOption is None:
-			self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szAIOption, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szAIOption, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.104>
 
 		if (g.isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START)):
@@ -1411,12 +1402,12 @@ class CvVictoryScreen:
 				# Could be done directly in Python, but I also need it for advc.106i
 				szNumPoints = g.SPaHPointsForSettingsScreen()
 			# </advc.250b>
-			self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szNumPoints, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szNumPoints, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if g.isGameMultiPlayer():
 			for i in range(gc.getNumMPOptionInfos()):
 				if (g.isMPOption(i)):
-					self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, gc.getMPOptionInfo(i).getDescription(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, gc.getMPOptionInfo(i).getDescription(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			if g.getMaxTurns() > 0:
 				# <advc.135d> Based on code in CvGame::setStartTurnYear
@@ -1426,14 +1417,14 @@ class CvVictoryScreen:
 				if g.getMaxTurns() != iDefaultEndTurn:
 				# </advc.135d>
 					szMaxTurns = u"%s %d" % (localText.getText("TXT_KEY_TURN_LIMIT_TAG", ()), g.getMaxTurns())
-					self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szMaxTurns, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szMaxTurns, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			if (g.getMaxCityElimination() > 0):
 				szMaxCityElimination = u"%s %d" % (localText.getText("TXT_KEY_CITY_ELIM_TAG", ()), g.getMaxCityElimination())
-				self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, szMaxCityElimination, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, szMaxCityElimination, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if (g.hasSkippedSaveChecksum()):
-			self.appendListBoxStringNoUpdateScaled(screen, szOptionsTable, localText.getText("TXT_KEY_BUFFYWARNING_CHECKSUM_SKIPPED", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szOptionsTable, localText.getText("TXT_KEY_BUFFYWARNING_CHECKSUM_SKIPPED", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		screen.updateListBox(szOptionsTable)
 
@@ -1470,13 +1461,13 @@ class CvVictoryScreen:
 		for p in rivalsMet: # </advc.190c>
 			# <!-- custom: add leader icon to player names in Other Players panel (claude opus 4.5) -->
 			szPlayerName = u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())))
-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
 			szTraitIcons = self.getTraitIconsString(p.getID())
-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190c>
 		for p in knownRivalsNotMet:
 			# Don't call CvPlayer functions here. Use XML data b/c that's what appears during game setup.
@@ -1494,7 +1485,7 @@ class CvVictoryScreen:
 				# <!-- custom: add leader icon when only leader is known (claude opus 4.5) -->
 				szRivalInfo += u"%s %s" % (self.getLeaderIconTag(p.getID()), szLeader)
 
-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, szRivalInfo, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szRivalInfo, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			if not p.wasLeaderRandomlyChosen():
 				# (Not relevant for the trait string, but let's pass a proper argument anyway.)
 				eCiv = CivilizationTypes.NO_CIVILIZATION
@@ -1502,14 +1493,14 @@ class CvVictoryScreen:
 					eCiv = p.getCivilizationType()
 				# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
 				szTraitIcons = self.getTraitIconsString(p.getID())
-				self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
 		if iUnknownRivals > 0:
 			szUnknown = localText.getText("TXT_KEY_UNKNOWN_RIVALS", (iUnknownRivals,))
 			if iUnknownRivals == 1:
 				szUnknown = localText.getText("TXT_KEY_ONE_UNKNOWN_RIVAL", ())
-			self.appendListBoxStringNoUpdateScaled(screen, szCivsTable, szUnknown, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szUnknown, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# </advc.190c>
 
 		screen.updateListBox(szCivsTable)
@@ -1665,7 +1656,7 @@ class CvVictoryScreen:
 					szVictoryType += u"    " + SAS_FONT_TAG_LABEL + u"(" + szTurnsLeft + u")" + SAS_FONT_TAG_CLOSE
 
 				iVictoryTitleRow = iNumRows - 1
-				self.setTableTextScaled(screen, szTable, 0, iVictoryTitleRow, szVictoryType, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, szTable, 0, iVictoryTitleRow, szVictoryType, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				bSpaceshipFound = False
 
 				bEntriesFound = False
@@ -1675,12 +1666,12 @@ class CvVictoryScreen:
 				if (victory.isTargetScore() and iTargetScore != 0):
 
 					iRow = screen.appendTableRow(szTable)
-					self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (iTargetScore, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_TARGET_SCORE", (iTargetScore, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-					self.setTableTextScaled(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestScoreTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1691,9 +1682,9 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-						self.setTableTextScaled(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1704,11 +1695,11 @@ class CvVictoryScreen:
 					iRow = screen.appendTableRow(szTable)
 					# <!-- custom: add trophy icon to Highest Score row (claude opus 4.5) -->
 					szScoreText = u"%s %s" % (self.szTrophyImgTag, szText1)
-					self.setTableTextScaled(screen, szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szScoreText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-					self.setTableTextScaled(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestScoreTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1719,10 +1710,10 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-						self.setTableTextScaled(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1730,19 +1721,19 @@ class CvVictoryScreen:
 					iRow = screen.appendTableRow(szTable)
 
 					# <!-- custom: add strength icon to Conquest row (claude opus 4.5) -->
-					self.setTableTextScaled(screen, szTable, 0, iRow, self.szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					self.setTableTextScaled(screen, szTable, 2, iRow, self.TEXT_RIVALS_LEFT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, self.szConquestText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, self.TEXT_RIVALS_LEFT, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-					self.setTableTextScaled(screen, szTable, 3, iRow, unicode(nRivals), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, unicode(nRivals), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					bEntriesFound = True
 # BUG Additions Start
 					if AdvisorOpt.isVictories():
 						if nVassaled != 0:
 							sString = localText.getText("TXT_KEY_BUG_VICTORY_VASSALED", (nVassaled, ))
-							self.setTableTextScaled(screen, szTable, 4, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						if nRivals - nknown != 0:
 							sString = localText.getText("TXT_KEY_BUG_VICTORY_UNKNOWN", (nRivals - nknown, ))
-							self.setTableTextScaled(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End
 
 				# <!-- custom: cache adjusted population percent to avoid duplicate call (claude opus 4.5) -->
@@ -1752,11 +1743,11 @@ class CvVictoryScreen:
 
 					# <!-- custom: add population icon (claude opus 4.5) -->
 					szPopText = u"%c %s" % (self.iCitizenIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (iAdjustedPopPercent, )))
-					self.setTableTextScaled(screen, szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szPopText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					self.setTableTextScaled(screen, szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestPopTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1766,8 +1757,8 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1778,11 +1769,11 @@ class CvVictoryScreen:
 					iRow = screen.appendTableRow(szTable)
 					# <!-- custom: add map icon (claude opus 4.5) -->
 					szLandText = u"%c %s" % (self.iMapIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (iAdjustedLandPercent, )))
-					self.setTableTextScaled(screen, szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szLandText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
-					self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					self.setTableTextScaled(screen, szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestLandTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1792,23 +1783,23 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
 				if (victory.getReligionPercent() > 0):
 					iRow = screen.appendTableRow(szTable)
-					self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_RELIGION", (victory.getReligionPercent(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_RELIGION", (victory.getReligionPercent(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					if (iOurReligion != -1):
-						self.setTableTextScaled(screen, szTable, 2, iRow, gc.getReligionInfo(iOurReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 3, iRow, (u"%d%%" % ourReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, gc.getReligionInfo(iOurReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, (u"%d%%" % ourReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					else:
-						self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 3, iRow, u"No Holy City", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"No Holy City", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					if (iBestReligion != -1):
-						self.setTableTextScaled(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 5, iRow, (u"%d%%" % religionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%d%%" % religionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					bEntriesFound = True
 
 				if (victory.getTotalCultureRatio() > 0):
@@ -1828,9 +1819,9 @@ class CvVictoryScreen:
 					#iCulturePercent = int((100.0 * bestCulture) / victory.getTotalCultureRatio())
 					# advc.004: The above is neither helpful nor really a percentage. Let's simply show the target ratio for now. What's really needed is, I think, the ratio of bestCulture to secondBestCulture, where secondBestCulture is computed w/o checking isHasMet. Or possibly that ratio divided by victory.getTotalCultureRatio (meaning that 100% is needed for victory). 
 					iCulturePercent = victory.getTotalCultureRatio()
-					self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_CULTURE", (iCulturePercent, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					self.setTableTextScaled(screen, szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_CULTURE", (iCulturePercent, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestLandTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1840,8 +1831,8 @@ class CvVictoryScreen:
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
-						self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 5, iRow, unicode(bestCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, unicode(bestCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1862,9 +1853,9 @@ class CvVictoryScreen:
 					if (gc.getBuildingClassInfo(i).getVictoryThreshold(iLoopVC) > 0):
 						iRow = screen.appendTableRow(szTable)
 						szNumber = unicode(gc.getBuildingClassInfo(i).getVictoryThreshold(iLoopVC))
-						self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getBuildingClassInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 3, iRow, activePlayer.getTeam().getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getBuildingClassInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, activePlayer.getTeam().getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						if (iBestBuildingTeam != -1):
 							# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1874,8 +1865,8 @@ class CvVictoryScreen:
 							if iBestPlayer >= 0:
 								szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 								szBestButton = self.getLeaderButton(iBestPlayer)
-							self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							self.setTableTextScaled(screen, szTable, 5, iRow, gc.getTeam(iBestBuildingTeam).getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, gc.getTeam(iBestBuildingTeam).getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						bEntriesFound = True
 
@@ -1901,25 +1892,25 @@ class CvVictoryScreen:
 						if (gc.getProjectInfo(i).getVictoryThreshold(iLoopVC) > 0):
 							if not self.isApolloBuilt():
 								iRow = screen.appendTableRow(szTable)
-								self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-								self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-								self.setTableTextScaled(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 								bEntriesFound = True
 								break
 							else:
 								if not bApolloShown:
 									bApolloShown = True
 									iRow = screen.appendTableRow(szTable)
-									self.setTableTextScaled(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+									SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, localText.getText("TXT_KEY_PROJECT_APOLLO_PROGRAM", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 									if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
-										self.setTableTextScaled(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (activePlayer.getTeam().getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+										SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (activePlayer.getTeam().getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 									else:
-										self.setTableTextScaled(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-										self.setTableTextScaled(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+										SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+										SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 									if (iBestProjectTeam != -1):
-										self.setTableTextScaled(screen, szTable, 4, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (gc.getTeam(iBestProjectTeam).getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+										SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (gc.getTeam(iBestProjectTeam).getName(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 								iRow = screen.appendTableRow(szTable)
 								iReqTech = gc.getProjectInfo(i).getTechPrereq()
@@ -1932,7 +1923,7 @@ class CvVictoryScreen:
 								# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
 								szProjectButton = gc.getProjectInfo(i).getButton()
 								sSSPart = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey()))
-								self.setTableTextScaled(screen, szTable, 0, iRow, sSSPart, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sSSPart, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 								if self.isApolloBuiltbyTeam(activePlayer.getTeam()):
 
@@ -1952,9 +1943,9 @@ class CvVictoryScreen:
 										sSSPlayer = localText.changeTextColor(sSSPlayer, iSSColor)
 										sSSCount = localText.changeTextColor(sSSCount, iSSColor)
 
-									self.setTableTextScaled(screen, szTable, 2, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+									SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 									if bHasTech:
-										self.setTableTextScaled(screen, szTable, 3, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+										SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 									#check if spaceship
 									if (gc.getProjectInfo(i).isSpaceship()):
@@ -1982,8 +1973,8 @@ class CvVictoryScreen:
 										sSSPlayer = localText.changeTextColor(sSSPlayer, iSSColor)
 										sSSCount = localText.changeTextColor(sSSCount, iSSColor)
 
-									self.setTableTextScaled(screen, szTable, 4, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-									self.setTableTextScaled(screen, szTable, 5, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+									SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sSSPlayer, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+									SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, sSSCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 								bEntriesFound = True
 
@@ -1999,12 +1990,12 @@ class CvVictoryScreen:
 							# <!-- custom: add project icon to space ship part (claude opus 4.5) -->
 							szProjectButton = gc.getProjectInfo(i).getButton()
 							szProjectText = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getProjectInfo(i).getTextKey()))
-							self.setTableTextScaled(screen, szTable, 0, iRow, szProjectText, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szProjectText, szProjectButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 							szActivePlayerName = activePlayer.getName() + ":"
 
-							self.setTableTextScaled(screen, szTable, 2, iRow, szActivePlayerName, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							self.setTableTextScaled(screen, szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerName, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, str(activePlayer.getTeam().getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							
 							#check if spaceship
 							if (gc.getProjectInfo(i).isSpaceship()):
@@ -2018,8 +2009,8 @@ class CvVictoryScreen:
 								if iBestPlayer >= 0:
 									szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 									szBestButton = self.getLeaderButton(iBestPlayer)
-								self.setTableTextScaled(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-								self.setTableTextScaled(screen, szTable, 5, iRow, unicode(gc.getTeam(iBestProjectTeam).getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+								SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, unicode(gc.getTeam(iBestProjectTeam).getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 							bEntriesFound = True
 # BUG Additions End
@@ -2032,10 +2023,10 @@ class CvVictoryScreen:
 					victoryDelay = gc.getTeam(iActiveTeam).getVictoryCountdown(iLoopVC)
 					if((victoryDelay > 0) and (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_EXTENDED)):
 						victoryDate = CyGameTextMgr().getTimeStr(gc.getGame().getGameTurn() + victoryDelay, False)
-						self.setTableTextScaled(screen, szTable, 2, iVictoryTitleRow, localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ARRIVAL", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 3, iVictoryTitleRow, victoryDate, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 4, iVictoryTitleRow, localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						self.setTableTextScaled(screen, szTable, 5, iVictoryTitleRow, str(victoryDelay), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 2, iVictoryTitleRow, localText.getText("TXT_KEY_SPACE_SHIP_SCREEN_ARRIVAL", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 3, iVictoryTitleRow, victoryDate, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 4, iVictoryTitleRow, localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iVictoryTitleRow, str(victoryDelay), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						
 				if (victory.isDiploVote()):
 					for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
@@ -2044,7 +2035,7 @@ class CvVictoryScreen:
 						iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
 						szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
 						szElectionText = localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), ))
-						self.setTableTextScaled(screen, szTable, 0, iRow, szElectionText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szElectionText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						if (iUNTeam != -1):
 							if bUnknown:
@@ -2058,10 +2049,10 @@ class CvVictoryScreen:
 								if iUNPlayer >= 0:
 									szName = gc.getPlayer(iUNPlayer).getName()
 									szNameButton = self.getLeaderButton(iUNPlayer)
-							self.setTableTextScaled(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), szNameButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), szNameButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						else:
-							self.setTableTextScaled(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						bEntriesFound = True
 					
 				if (victory.getCityCulture() != CultureLevelTypes.NO_CULTURELEVEL and victory.getNumCultureCities() > 0):
@@ -2102,11 +2093,11 @@ class CvVictoryScreen:
 					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
 					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
 					szCultureVictoryText = u"%c %d %s (%s)" % (self.iCultureIcon, victory.getNumCultureCities(), self.TEXT_LEGENDARY_CITIES, self.separateThousands(iCultureThresh))
-					self.setTableTextScaled(screen, szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					for i in range(victory.getNumCultureCities()):
 						if (len(ourBestCities) > i):
-							self.setTableTextScaled(screen, szTable, 2, iRow, ourBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, ourBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions Start
 							# <!-- custom: add thousand separator and percentage to culture values (claude opus 4.5) -->
 							iCultureValue = ourBestCities[i][0]
@@ -2115,11 +2106,11 @@ class CvVictoryScreen:
 								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
 							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
 
-							self.setTableTextScaled(screen, szTable, 3, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End
 
 						if (len(theirBestCities) > i):
-							self.setTableTextScaled(screen, szTable, 4, iRow, theirBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, theirBestCities[i][1].getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 # BUG Additions Start
 							# <!-- custom: add thousand separator and percentage to rival culture values (claude opus 4.5) -->
@@ -2133,7 +2124,7 @@ class CvVictoryScreen:
 								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
 							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
 
-							self.setTableTextScaled(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End
 
 						if (i < victory.getNumCultureCities()-1):
