@@ -141,8 +141,8 @@ def showForeignAdvisorScreen(argsList):
 
 def showForeignDiplomacyAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		# <!-- custom: F3 slot opens the Foreign Diplomacy/Intel advisor shell. (GPT-5.3-Codex) -->
-		foreignDiplomacyAdvisor.interfaceScreen(foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"])
+		# <!-- custom: open F3 with the advisor's persisted tab state (same behavior as F4): -1 reuses last visited tab, and falls back to default only on first open. (GPT-5.4) -->
+		foreignDiplomacyAdvisor.interfaceScreen(-1)
 
 # BUG - CustDomAdv - start
 domesticAdvisor = None

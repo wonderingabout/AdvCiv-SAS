@@ -5697,8 +5697,9 @@ class CvMainInterface:
 		# This means that the city screen uses size 1 only for the
 		# BUG yield breakdowns ("Raw Yields").
 		if self.bScaleHUD and gRect("Top").height() > 900:
-			self.iBldgFontSize = getSASUIFontBody()
-			self.iTRFontSize = getSASUIFontBody()
+			# <!-- custom: use LABEL (not BODY) for city building/trade tables so label-font upscaling applies consistently when SAS_UI_FONT_LABEL is raised. (GPT-5.4) -->
+			self.iBldgFontSize = getSASUIFontLabel()
+			self.iTRFontSize = getSASUIFontLabel()
 			# Table rows don't or barely get higher, so the button size
 			# shouldn't be increased here.
 			iBldgBtnSize = None

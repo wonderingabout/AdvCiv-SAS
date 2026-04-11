@@ -3605,6 +3605,14 @@ Created as part of AdvCiv-SAS improvements
 		<English>Info Screen</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_VICTORY_SCREEN_TITLE</Tag>
+		<English>Victory Screen</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ESPIONAGE_SCREEN</Tag>
+		<English>Espionage Tab</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
 		<English>Info Screen [F8]:</English>
 	</TEXT>
