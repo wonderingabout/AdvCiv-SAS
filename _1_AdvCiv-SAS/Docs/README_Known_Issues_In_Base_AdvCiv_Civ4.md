@@ -4468,3 +4468,28 @@ Workaround used (kept intentionally minimal):
 - Keep the numeric/head part at the current upscaled label font.
 
 This is a targeted workaround rather than a full Glance layout rewrite.
+
+## 117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tTPS4NWkAe5sJ5xqD9Z3aqlLCV8-W9w0?usp=sharing).
+
+Observed issue:
+
+- In Info Screen (F9) Score tab, the `Att` attitude icon char disappeared when text was upscaled (`SAS_UI_FONT_LABEL` 3 or 4).
+- The same icon chars appeared at smaller font paths (`SAS_UI_FONT_LABEL` 2 or lower).
+
+Root cause:
+
+- The attitude smileys used by `AttitudeUtil.getAttitudeIcon()` are custom BUG symbols (`furious`, `annoyed`, `cautious`, `pleased`, `friendly`) mapped through `Assets/Config/init.xml`.
+- `GameFont_75.tga` had these attitude icon chars (16x16), but `GameFont.tga` did not have them at all (and so not in matching slots).
+- Upscaled label rendering uses the `GameFont.tga` path, so the engine resolved valid ordinals to empty/magenta slots and drew nothing.
+
+Fix applied:
+
+- Added attitude icon chars into `GameFont.tga` too, using higher-quality source icons (21x20, from RI mod) while keeping textual icon-char rendering in Score tab as it was.
+- Done with the help of Game Font Editor (V0.6) by Asaf.
+- Result: attitude icon chars are now visible at upscaled label fonts (3 and 4), while still working at lower label fonts.
+
+Note: these higher quality icons are as of now also used for the sevopedia leader attitude button icons (as DDS icons, not textual chars though), that used previously the 16x16 lower quality icons of base civ4 and that looked pixelated at higher dds icon; now the higher-quality version looks better at higher icon size.
+
+To add them as dds, we used Game Font Editor (V0.6) for Civ 4 by Asaf (select icon -> export -> .PNG), reduced dds to 20x20 (with Paint.NET canvas resize of these .PNG) (else they don't not display ingame), and then converted to .dds with Paint.NET.
