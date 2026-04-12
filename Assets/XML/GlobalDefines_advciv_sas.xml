@@ -81,7 +81,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
 	<Define>
@@ -192,6 +192,29 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES</DefineName>
 		<iDefineIntVal>52</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable icons (images) for unit-combat and unit rows in Military Advisor). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: base inline icon size (px) for Military Advisor (F5) unit list rows. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE</DefineName>
+		<iDefineIntVal>24</iDefineIntVal>
+	</Define>
+	<!-- custom: if current game resolution height is >= this value, Military Advisor uses the high-res inline icon size below. <=0 disables the high-res switch. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT</DefineName>
+		<iDefineIntVal>1440</iDefineIntVal>
+	</Define>
+	<!-- custom: high-res inline icon size (px) used by Military Advisor when resolution height reaches the threshold above. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES</DefineName>
+		<iDefineIntVal>32</iDefineIntVal>
 	</Define>
 
 
@@ -410,16 +433,6 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-
-
-
-	<!-- custom: enable buttons (i.e. images/icons for unit combats and units in the military advisor (F5 key)). -->
-	<Define>
-		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-
-
 
 	<!-- custom: show the History panel "Log" button; click to write the visible (spoiler-filtered) history lines to PythonDbg.log. -->
 	<Define>

@@ -149,7 +149,10 @@ class CvMilitaryAdvisor:
 		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - 10 - self.Y_MAP
 
 		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it doesn't work in many ingame py file (tech chooser, main interface for those i tried), so use safer pattern reliably rather -->
-		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
+		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
+		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE")
+		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT")
+		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
 
 
 	def initText(self):
@@ -389,7 +392,10 @@ class CvMilitaryAdvisor:
 		iFont = CvUtil.FONT_LEFT_JUSTIFY
 
 		# <!-- custom: render icons inline in list rows so icon/text stay aligned while scrolling; this replaces the old overlay-button workaround that did not scroll with rows. (GPT-5.3-Codex) -->
-		iInlineIconSize = 25
+		# <!-- custom: use screen-height threshold (vertical room) for larger inline icons on high resolutions (e.g. 1440p+). (GPT-5.3-Codex) -->
+		iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
+		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT > 0 and screen.getYResolution() >= self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT:
+			iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES
 		iListX = self.X_TEXT + self.MAP_MARGIN
 		iListY = self.Y_TEXT + self.MAP_MARGIN + 15
 		iListW = self.W_TEXT - 2*self.MAP_MARGIN
@@ -397,7 +403,7 @@ class CvMilitaryAdvisor:
 		# Extra text-indent is only needed when icons are disabled.
 		szUnitIndentSpace = u"  "  # <!-- custom: level 1: unit-type rows (e.g. Warrior (3)) (GPT-5.3-Codex) -->
 		szDetailIndentSpace = u"      "  # <!-- custom: level 2: individual unit detail rows (expanded view) (GPT-5.3-Codex) -->
-		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS:
+		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS:
 			# <!-- custom: with inline icons enabled, remove legacy text-side indents so icon indent/gap can be tuned independently; otherwise icon-indent edits would drag icon and text together.
 			# This notably lets us keep unit icons close to unit text for readability instead of forcing a wide icon->text gap. (GPT-5.3-Codex) -->
 			szUnitIndentSpace = u" "
@@ -420,7 +426,7 @@ class CvMilitaryAdvisor:
 
 		def formatListRowText(szText, szButton, iIndentLevel):
 			szLabelText = SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
-			if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS and szButton:
+			if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS and szButton:
 				# <!-- custom: note: inline <img> icon paths are stricter than icon-slot rendering; avoid risky button filenames (spaces/parentheses) to prevent magenta icons. See KI#118. (GPT-5.3-Codex) -->
 				return u"%s<img=%s size=%d></img>%s%s" % (
 					szIconIndentByLevel.get(iIndentLevel, u""),
