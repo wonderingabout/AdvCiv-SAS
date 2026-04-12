@@ -150,6 +150,8 @@ hopefully helpful, thanks thanks,
 [114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked)  
 [115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab)  
 [116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)  
+[117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)  
+[118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4493,3 +4495,39 @@ Fix applied:
 Note: these higher quality icons are as of now also used for the sevopedia leader attitude button icons (as DDS icons, not textual chars though), that used previously the 16x16 lower quality icons of base civ4 and that looked pixelated at higher dds icon; now the higher-quality version looks better at higher icon size.
 
 To add them as dds, we used Game Font Editor (V0.6) for Civ 4 by Asaf (select icon -> export -> .PNG), reduced dds to 20x20 (with Paint.NET canvas resize of these .PNG) (else they don't not display ingame), and then converted to .dds with Paint.NET.
+
+## 118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BR6F43geOVySyuZfCDc1l6jMr_-yPASp?usp=sharing).
+
+Observed issue:
+
+- After switching Military Advisor unit-list icons to inline `<img=...>` (for scroll-safe alignment), the Hajjan's unit icon renders magenta/purple even though other units' icons render fine (and the Hajjan unit icon renders fine in Sevopedia too).
+- Example fixed in this issue: Hajjan unit icon in Military Advisor.
+
+Root cause:
+
+- Inline `<img>` parsing is stricter than icon-slot rendering used by older UI paths.
+- Button paths containing spaces/parentheses (or atlas-style button strings) are more likely to fail in this inline path and produce magenta.
+
+Fix/workaround applied:
+
+- Renamed the problematic Hajjan button asset/path from `Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds` to `Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia.dds`, and updated XML accordingly.
+
+Audit notes (folder scan):
+
+- We scanned `Assets/Art/AdvCiv_SAS` for `.dds` filenames containing spaces/parentheses.
+- Found examples:
+  - `Buildings/Celtic_La_Tene_Smithy/nif/building attachments.dds`
+  - `Buildings/Celtic_La_Tene_Smithy/nif/building n shared03 2 map.dds`
+  - `Buildings/Celtic_La_Tene_Smithy/nif/building n shared04 2 map.dds`
+  - `Buildings/Natya_Shastra/indian sreni.dds`
+  - `Units/Mongol_Khishigten/nif/Mongol HeavyCavalry Body.dds`
+  - `Units/Robotic_Infantry/nif/t600_skin_red eye.dds`
+
+Safety rule used:
+
+- We only rename button assets not tied to NIF texture references by default (cheap/safe).
+- We avoid renaming files under `.../nif/...` unless all NIF references are also updated and validated, to avoid breaking models.
+
+So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`.
