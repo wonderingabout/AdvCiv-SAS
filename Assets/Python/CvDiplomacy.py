@@ -1,14 +1,21 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 from CvPythonExtensions import *
 import CvUtil
 import PyHelpers
+import SASTextScale
 
 PyPlayer = PyHelpers.PyPlayer
 
 DebugLogging = False
 
 gc = CyGlobalContext()
+localText = CyTranslator()
 
 class CvDiplomacy:
 	# Code used by Civ Diplomacy interface
@@ -358,7 +365,9 @@ class CvDiplomacy:
 		# Helper for adding User Comments
 		#
 		iComment = self.getCommentID( eComment )
-		self.diploScreen.addUserComment( iComment, iData1, iData2, self.getDiplomacyComment(iComment), args)
+		# <!-- custom: diplomacy response-option text uses label scaling for readability consistency with other upscaled UI screens. (GPT-5.3-Codex) -->
+		szComment, tArgs = self.getScaledDiplomacyDisplayText(self.getDiplomacyComment(iComment), args)
+		self.diploScreen.addUserComment( iComment, iData1, iData2, szComment, tArgs)
 		
 	def setAIComment (self, eComment, *args):
 		# Handles the determining the AI comments
@@ -370,6 +379,9 @@ class CvDiplomacy:
 			if (len(args)):
 				print "args", args
 			AIString = "(%d) - %s" %(self.getLastResponseID(), AIString)
+
+		# <!-- custom: diplomacy main AI line text uses label scaling so upscaled UI font settings apply here too. (GPT-5.3-Codex) -->
+		AIString, args = self.getScaledDiplomacyDisplayText(AIString, args)
 		
 		self.diploScreen.setAIString(AIString, args)
 		self.diploScreen.setAIComment(eComment)
@@ -468,6 +480,18 @@ class CvDiplomacy:
 	
 	def setLastResponseID(self, iResponse):
 		self.iLastResponseID = iResponse
+
+	def getScaledDiplomacyDisplayText(self, szText, args):
+		# <!-- custom: simple diplomacy scaling with one localization attempt and one fallback rule:
+		# if unresolved text still looks like a key (contains "_"), pass it through unchanged so EXE fallback can resolve it;
+		# otherwise scale plain/localized text directly. (GPT-5.3-Codex) -->
+		tArgs = tuple(args)
+		szLocalized = localText.getText(CvUtil.convertToStr(szText), tArgs)
+		if szLocalized != szText:
+			return (CvUtil.convertToStr(SASTextScale.labelText(szLocalized)), ())
+		if isinstance(szText, basestring) and ("_" in szText):
+			return (CvUtil.convertToStr(szText), tArgs)
+		return (CvUtil.convertToStr(SASTextScale.labelText(szText)), tArgs)
 	
 	def getLastResponseID(self):
 		return self.iLastResponseID
