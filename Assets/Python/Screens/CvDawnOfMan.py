@@ -8,6 +8,7 @@ import CvUtil
 from CvPythonExtensions import *
 from SASFontUtils import *
 import SASTextScale
+import TraitUtil
 
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -138,7 +139,15 @@ class CvDawnOfMan:
 		
 		szNameText = "<color=255,255,0,255>" + SAS_FONT_TAG_TITLE_BOLD + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
 		szNameText += u"\n" + SAS_FONT_TAG_LABEL + u"- " + self.player.getCivilizationDescription(0) + u" -" + SAS_FONT_TAG_CLOSE + u"\n"
-		szNameText += SAS_FONT_TAG_LABEL + CyGameTextMgr().parseLeaderTraits(self.player.getLeaderType(), self.player.getCivilizationType(), True, False) + SAS_FONT_TAG_CLOSE
+		# <!-- custom: prepend each trait name with its TraitUtil font-symbol icon (e.g. happy char for Charismatic,
+		# defense char for Protective) so the traits line in the Dawn of Man header reads without requiring pedia-jump wiring. Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6) -->
+		szTraits = CyGameTextMgr().parseLeaderTraits(self.player.getLeaderType(), self.player.getCivilizationType(), True, False)
+		leaderInfo = gc.getLeaderHeadInfo(self.player.getLeaderType())
+		for iTrait in range(gc.getNumTraitInfos()):
+			if leaderInfo.hasTrait(iTrait):
+				traitDesc = gc.getTraitInfo(iTrait).getDescription()
+				szTraits = szTraits.replace(traitDesc, TraitUtil.getIcon(iTrait) + u" " + traitDesc, 1)
+		szNameText += SAS_FONT_TAG_LABEL + szTraits + SAS_FONT_TAG_CLOSE
 		screen.addMultilineText( "NameText", szNameText, self.X_LEADER_TITLE_TEXT, self.Y_LEADER_TITLE_TEXT, self.W_LEADER_TITLE_TEXT, self.H_LEADER_TITLE_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		
 		if not isLaterEraStart: # advc.250c: No free tech
