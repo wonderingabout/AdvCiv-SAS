@@ -582,7 +582,7 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
 	chart_log_button_footer_bottom_padding = 9
 
 	widget = top.getNextWidgetName()
-	label = u"<font=2>" + localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ()).upper() + u"</font>"
+	label = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ()).upper() + SAS_FONT_TAG_CLOSE
 	if xPos is None:
 		if hasattr(top, "X_EXIT"):
 			xPos = top.X_EXIT - chart_log_button_w - 90

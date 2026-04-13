@@ -15,6 +15,8 @@ PyPlayer = PyHelpers.PyPlayer
 
 import BugUtil
 import BugCore
+from SASFontUtils import *
+import SASTextScale
 PleOpt = BugCore.game.PLE
 
 # globals
@@ -674,7 +676,8 @@ class PLE:
 		CyInterface().setDirty(InterfaceDirtyBits.PlotListButtons_DIRTY_BIT, True)
 
 	def displayHelpHover(self, sKey):
-		sText = u"<font=2>%s</font>" % BugUtil.getPlainText(sKey)
+		# <!-- custom: PLE filter/group/view hover help should scale with SAS hover-font settings instead of fixed font=2 so city-screen filter help remains readable when UI text is upscaled. (GPT-5.3-Codex) -->
+		sText = u"%s%s%s" % (SAS_FONT_TAG_HOVER, BugUtil.getPlainText(sKey), SAS_FONT_TAG_CLOSE)
 		self.displayInfoPane(sText)
 
 	# hides the info pane
@@ -1821,22 +1824,22 @@ class PLE:
 		iPromo		= self.dUnitPromoList[idUnit][idPromo-1]
 
 		# promo info
-		szPromoInfo = u"<font=2>" + mt.removeLinks(CyGameTextMgr().getPromotionHelp(iPromo, false)) + u"</font>\n"
+		szPromoInfo = SAS_FONT_TAG_LABEL + mt.removeLinks(CyGameTextMgr().getPromotionHelp(iPromo, false)) + SAS_FONT_TAG_CLOSE + u"\n"
 
 		# unit level 
 		iLevel = pUnit.getLevel()
 		iMaxLevel = mt.GetPossiblePromotions(pUnit.experienceNeeded(), pUnit.getExperience())
 		if iMaxLevel != iLevel:
 			# actual / available (= number of possible promotions)
-			szLevel = u"<font=2>" + localText.getText("INTERFACE_PANE_LEVEL", ()) + u"%i / %i" % (iLevel, (iMaxLevel+iLevel)) + u"</font>\n"
+			szLevel = SAS_FONT_TAG_LABEL + localText.getText("INTERFACE_PANE_LEVEL", ()) + u"%i / %i" % (iLevel, (iMaxLevel+iLevel)) + SAS_FONT_TAG_CLOSE + u"\n"
 		else:
 			# actual 
-			szLevel = u"<font=2>" + localText.getText("INTERFACE_PANE_LEVEL", ()) + u"%i" % iLevel + u"</font>\n"
+			szLevel = SAS_FONT_TAG_LABEL + localText.getText("INTERFACE_PANE_LEVEL", ()) + u"%i" % iLevel + SAS_FONT_TAG_CLOSE + u"\n"
 
 		# unit experience (actual / needed)
 		iExperience = pUnit.getExperience()
 		if (iExperience > 0):
-			szExperience = u"<font=2>" + localText.getText("INTERFACE_PANE_EXPERIENCE", ()) + u": %i / %i" %(iExperience, pUnit.experienceNeeded()) + u"</font>\n"
+			szExperience = SAS_FONT_TAG_LABEL + localText.getText("INTERFACE_PANE_EXPERIENCE", ()) + u": %i / %i" %(iExperience, pUnit.experienceNeeded()) + SAS_FONT_TAG_CLOSE + u"\n"
 		else:
 			szExperience = u""
 			
@@ -1903,7 +1906,7 @@ class PLE:
 		
 		szUpgradeHelp = localText.getText("TXT_KEY_PLE_UPGRADE_HELP", () )		
 
-		szText 		= (u"<font=2>" + szUnitName +
+		szText 		= (SAS_FONT_TAG_LABEL + szUnitName +
 						szCombatType  +
 						szStrength  +
 						szMovement +
@@ -1911,7 +1914,7 @@ class PLE:
 						szSpecialText +
 						szUpgradePrice +
 						szUpgradeHelp +
-					u"</font>")
+					SAS_FONT_TAG_CLOSE)
 					
 		# display the info pane
 		self.displayInfoPane(szText)
@@ -1942,12 +1945,12 @@ class PLE:
 			#szOwner = localText.changeTextColor(szOwner, pOwner.getPlayerColor())
 			# advc.069: ^Doesn't seem to be the proper use of changeTextColor. Tagging advc.001.
 			szOwner = u"<color=%d,%d,%d,%d>%s</color>" % (pOwner.getPlayerTextColorR(), pOwner.getPlayerTextColorG(), pOwner.getPlayerTextColorB(), pOwner.getPlayerTextColorA(), szOwner)
-			szOwner = u"<font=2> [" + szOwner + u"]</font>"
+			szOwner = SAS_FONT_TAG_LABEL + u" [" + szOwner + u"]" + SAS_FONT_TAG_CLOSE
 		else:
 			szOwner = u""
 
 		# unit type description + unit name (if given)
-		szUnitName = u"<font=2>" + localText.changeTextColor(pUnit.getName(), PleOpt.getUnitNameColor()) + szOwner + u"</font>\n"
+		szUnitName = SAS_FONT_TAG_LABEL + localText.changeTextColor(pUnit.getName(), PleOpt.getUnitNameColor()) + szOwner + SAS_FONT_TAG_CLOSE + u"\n"
 
 		# strength 
 		if (eUnitDomain == DomainTypes.DOMAIN_AIR):
@@ -1979,9 +1982,9 @@ class PLE:
 		if len(szTurnsToHeal) > 0:
 			szTurnsToHeal = "\n" + szTurnsToHeal
 		# </advc.069>
-		szStrength = u"<font=2>" + szCurrStrength + szMaxStrength
+		szStrength = SAS_FONT_TAG_LABEL + szCurrStrength + szMaxStrength
 		# advc.069: szTurnsToHeal omitted in the middle, appended at the end after a newline.
-		szStrength += u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + szTurnsToHeal + u"</font>\n"
+		szStrength += u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + szTurnsToHeal + SAS_FONT_TAG_CLOSE + u"\n"
 			
 		# movement
 		fCurrMoves = float(pUnit.movesLeft()) / gc.getMOVE_DENOMINATOR()
@@ -1996,15 +1999,15 @@ class PLE:
 		else:
 			szCurrMoves = u" %d" % iMaxMoves
 			szMaxMoves 	= u""
-		szMovement = u"<font=2>" + szCurrMoves + szMaxMoves + u"%c"%(CyGame().getSymbolID(FontSymbols.MOVES_CHAR)) + szAirRange + u"</font>\n"
+		szMovement = SAS_FONT_TAG_LABEL + szCurrMoves + szMaxMoves + u"%c"%(CyGame().getSymbolID(FontSymbols.MOVES_CHAR)) + szAirRange + SAS_FONT_TAG_CLOSE + u"\n"
 
 		# compressed display for standard display
-		szStrengthMovement = u"<font=2>" + szCurrStrength + szMaxStrength
+		szStrengthMovement = SAS_FONT_TAG_LABEL + szCurrStrength + szMaxStrength
 		# advc.069: szTurnsToHeal omitted in the middle, appended at the end after a newline.
 		szStrengthMovement += (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + ", " +
 							szCurrMoves + szMaxMoves +
 							u"%c"%(CyGame().getSymbolID(FontSymbols.MOVES_CHAR)) +
-							szAirRange + szTurnsToHeal + u"</font>\n")
+							szAirRange + szTurnsToHeal + SAS_FONT_TAG_CLOSE + u"\n")
 
 		# civilization type
 		szCiv = u""
@@ -2020,16 +2023,16 @@ class PLE:
 		iMaxLevel = mt.GetPossiblePromotions(pUnit.experienceNeeded(), pUnit.getExperience())
 		if (iMaxLevel > 0) or (iLevel > 1):
 			if iMaxLevel != iLevel:
-				szLevel = u"<font=2>" + localText.getText("INTERFACE_PANE_LEVEL", ()) + u" %i / %i" % (iLevel, (iMaxLevel+iLevel)) + u"</font>\n"
+				szLevel = SAS_FONT_TAG_LABEL + localText.getText("INTERFACE_PANE_LEVEL", ()) + u" %i / %i" % (iLevel, (iMaxLevel+iLevel)) + SAS_FONT_TAG_CLOSE + u"\n"
 			else:
-				szLevel = u"<font=2>" + localText.getText("INTERFACE_PANE_LEVEL", ()) + u" %i" % iLevel + u"</font>\n"
+				szLevel = SAS_FONT_TAG_LABEL + localText.getText("INTERFACE_PANE_LEVEL", ()) + u" %i" % iLevel + SAS_FONT_TAG_CLOSE + u"\n"
 		else:
 			szLevel = u""
 
 		# unit experience (actual / needed (possible promos))
 		iExperience = pUnit.getExperience()
 		if (iExperience > 0):
-			szExperience = u"<font=2>" + localText.getText("INTERFACE_PANE_EXPERIENCE", ()) + u": %i / %i" %(iExperience, pUnit.experienceNeeded()) + u"</font>\n"
+			szExperience = SAS_FONT_TAG_LABEL + localText.getText("INTERFACE_PANE_EXPERIENCE", ()) + u": %i / %i" %(iExperience, pUnit.experienceNeeded()) + SAS_FONT_TAG_CLOSE + u"\n"
 		else:
 			szExperience = u""
 
@@ -2037,7 +2040,7 @@ class PLE:
 		iCargoSpace = pUnit.cargoSpace()
 		if iCargoSpace > 0:
 			iCargo = pUnit.getCargo()
-			szCargo = u"<font=2>" + localText.getText("TXT_KEY_UNIT_HELP_CARGO_SPACE", (iCargo, iCargoSpace ) ) + u"</font>\n"
+			szCargo = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNIT_HELP_CARGO_SPACE", (iCargo, iCargoSpace ) ) + SAS_FONT_TAG_CLOSE + u"\n"
 		else:
 			szCargo = u""
 				
@@ -2045,7 +2048,7 @@ class PLE:
 		szFortifyBonus = u"" 
 		iFortifyBonus = pUnit.fortifyModifier()
 		if iFortifyBonus > 0:
-			szFortifyBonus = u"<font=2>" + localText.getText("TXT_KEY_UNIT_HELP_FORTIFY_BONUS", (iFortifyBonus, )) + u"\n" + u"</font>"
+			szFortifyBonus = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_UNIT_HELP_FORTIFY_BONUS", (iFortifyBonus, )) + u"\n" + SAS_FONT_TAG_CLOSE
 
 		# espionage info; mimic of CvGameTextMgr::setEspionageMissionHelp()
 		szEspionage = u""
@@ -2067,13 +2070,13 @@ class PLE:
 						if 0 != iModifier:
 							szEspionage += localText.getText("TXT_KEY_ESPIONAGE_COST", (iModifier,))
 		if szEspionage:
-			szEspionage = u"<font=2>" + szEspionage + u"\n</font>"
+			szEspionage = SAS_FONT_TAG_LABEL + szEspionage + u"\n" + SAS_FONT_TAG_CLOSE
 		
 		# unit type specialities
 		# advc.069: Don't show this heading
 		#szSpecialText 	= u"<font=2>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u":\n"
 		# advc.069: was getUnitHelp(iUnitType, true, false, false, None)
-		szSpecialText = CyGameTextMgr().getBasicUnitHelp(iUnitType, False)[1:] + u"</font>"
+		szSpecialText = SASTextScale.normalizeLabelText(CyGameTextMgr().getBasicUnitHelp(iUnitType, False)[1:])
 		szSpecialText = localText.changeTextColor(szSpecialText, PleOpt.getUnitTypeSpecialtiesColor())
 		
 		if iLevel > 1:

@@ -6,6 +6,7 @@ import ScreenInput
 import time
 import re
 import CvScreensInterface
+from SASFontUtils import *
 
 # globals
 gc = CyGlobalContext()
@@ -292,7 +293,7 @@ class CvReplayScreen:
 				szTextNoColor = re.sub("<color=.*?>", "", szText)
 				szText = re.sub("</color>", "", szTextNoColor)
 
-				szText =  u"<font=2>" + szEventDate + u": " + szText + u"</font>"
+				szText =  SAS_FONT_TAG_LABEL + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE
 				szText =localText.changeTextColor(szText, eColor)
 				screen.prependListBoxString(self.szAreaId, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
