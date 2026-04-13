@@ -200,7 +200,7 @@ Note: a hybrid DLL compute + Python caching version was tried in [timeline-tab-d
 
 ##### Score Tab (in the Info Screen Advisor)
 
-A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M.
+A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player color, Player ID (to distinguish identical Name/Civ/Leader/Player Color), Traits (T1 and T2) as icon chars, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M.
 
 Note: unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn
 

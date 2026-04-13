@@ -32,6 +32,7 @@ import DiplomacyUtil
 import AttitudeUtil
 import PlayerUtil
 import FontUtil
+import TraitUtil
 # <!-- custom: End - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
 
 # BUG - 3.17 No Espionage - start
@@ -1162,7 +1163,7 @@ class CvInfoScreen:
 			iTableH = self.H_TIMELINE_TABLE
 
 		szTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szTable, 26, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTable, 28, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
 
 		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
@@ -1171,27 +1172,29 @@ class CvInfoScreen:
 		iColColor = 2
 		iColPid = 3
 		iColName = 4
-		iColAttitude = 5
-		iColAttitudeNum = 6
-		iColScore = 7
-		iColDelta = 8
-		iColPower = 9
-		iColPowerAbs = 10
-		iColCities = 11
-		iColPowerPerCity = 12
-		iColLandPct = 13
-		iColVM = 14
-		iColTrade = 15
-		iColBorders = 16
-		iColPact = 17
-		iColReligion = 18
-		iColWarPeace = 19
-		iColWontTalk = 20
-		iColWorstEnemy = 21
-		iColGoldenAge = 22
-		iColEspionage = 23
-		iColResearch = 24
-		iColResearchPct = 25
+		iColTrait1 = 5
+		iColTrait2 = 6
+		iColAttitude = 7
+		iColAttitudeNum = 8
+		iColScore = 9
+		iColDelta = 10
+		iColPower = 11
+		iColPowerAbs = 12
+		iColCities = 13
+		iColPowerPerCity = 14
+		iColLandPct = 15
+		iColVM = 16
+		iColTrade = 17
+		iColBorders = 18
+		iColPact = 19
+		iColReligion = 20
+		iColWarPeace = 21
+		iColWontTalk = 22
+		iColWorstEnemy = 23
+		iColGoldenAge = 24
+		iColEspionage = 25
+		iColResearch = 26
+		iColResearchPct = 27
 
 		# <!-- custom: in max-render mode, reserve width for the table's right-side scrollbar gutter
 		# so text does not clip/overflow under it; this budget is absorbed by the flexible V/M column via width balancing. (GPT-5.3-Codex) -->
@@ -1203,17 +1206,18 @@ class CvInfoScreen:
 		iMinColW = 42
 		iFlagW = iMinColW
 		iDipW = iMinColW
-		iAttW = iMinColW + 8
-		iAttNumW = iMinColW + 8
+		iTraitW = iMinColW + 2
+		iAttW = iMinColW + 2
+		iAttNumW = iMinColW + 2
 		iColorW = iMinColW
 		iPidW = iMinColW - 10
 		iResearchPctW = iPidW + 8
-		iNameW = 122
+		iNameW = 112
 		# <!-- custom: second pass tuning after 1665 screenshot: reduce Score/dSc slightly, widen Att/Att#, significantly widen Land% and final research %, and fund it mostly from V/M baseline. (GPT-5.3-Codex) -->
-		iScoreW = 78
-		iDeltaW = 66
+		iScoreW = 69
+		iDeltaW = 52
 		iPowerW = 78
-		iPowerAbsW = 75
+		iPowerAbsW = 71
 		iPowerPerCityW = 66
 		iCitiesW = iMinColW
 		iLandPctW = iMinColW + 28
@@ -1222,7 +1226,7 @@ class CvInfoScreen:
 		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
 		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
 		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW +
-				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iAttNumW + iColorW + iResearchPctW + iAttW + 8 * iFlagW + iPidW +
+				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iTraitW + iTraitW + iAttNumW + iColorW + iResearchPctW + iAttW + 8 * iFlagW + iPidW +
 				iNameW + iResearchW)
 		iExtraW = iW - iUsedW
 		iVMW += iExtraW
@@ -1242,6 +1246,8 @@ class CvInfoScreen:
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColColor, u"Col", iColorW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColPid, u"ID", iPidW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColName, u"Leader", iNameW)
+		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColTrait1, u"T1", iTraitW)
+		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColTrait2, u"T2", iTraitW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColAttitude, u"Att", iAttW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColAttitudeNum, u"Att#", iAttNumW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColScore, self.TEXT_SCORE, iScoreW)
@@ -1334,6 +1340,25 @@ class CvInfoScreen:
 			if not bMet:
 				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Score tab trait columns (T1/T2): trait icon chars for compact readability next to leader identity data. (GPT-5.3-Codex) -->
+			iTrait1 = -1
+			iTrait2 = -1
+			kLeaderInfo = gc.getLeaderHeadInfo(pPlayer.getLeaderType())
+			for iTraitLoop in range(gc.getNumTraitInfos()):
+				if kLeaderInfo.hasTrait(iTraitLoop):
+					if iTrait1 < 0:
+						iTrait1 = iTraitLoop
+					elif iTrait2 < 0:
+						iTrait2 = iTraitLoop
+						break
+			szTrait1 = u""
+			szTrait2 = u""
+			if iTrait1 > -1:
+				szTrait1 = TraitUtil.getIcon(iTrait1)
+			if iTrait2 > -1:
+				szTrait2 = TraitUtil.getIcon(iTrait2)
+			SASTextScale.setTableTextLabel(screen, szTable, iColTrait1, iRow, szTrait1, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, iColTrait2, iRow, szTrait2, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 			iScore = game.getPlayerScore(ePlayer)
 			eScoreWidget = WidgetTypes.WIDGET_GENERAL
