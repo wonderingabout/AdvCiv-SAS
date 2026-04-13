@@ -17,7 +17,7 @@ from SASUtils import getNewConceptID
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
 IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 
 
@@ -572,7 +572,7 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 
 
 def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
-	if not IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE:
+	if not IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE:
 		return ""
 
 	chart_log_button_w = 48
@@ -582,7 +582,7 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
 	chart_log_button_footer_bottom_padding = 9
 
 	widget = top.getNextWidgetName()
-	label = u"<font=2>" + localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ()).upper() + u"</font>"
+	label = u"<font=2>" + localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ()).upper() + u"</font>"
 	if xPos is None:
 		if hasattr(top, "X_EXIT"):
 			xPos = top.X_EXIT - chart_log_button_w - 90

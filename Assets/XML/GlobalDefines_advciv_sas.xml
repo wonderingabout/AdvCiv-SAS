@@ -434,14 +434,14 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
-	<!-- custom: show the History panel "Log" button; click to write the visible (spoiler-filtered) history lines to PythonDbg.log. -->
+	<!-- custom: show the Timeline panel "Log" button; click to write the visible (spoiler-filtered) timeline lines to PythonDbg.log. -->
 	<Define>
-		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE</DefineName>
+		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: History tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
+	<!-- custom: Timeline tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
 	<Define>
-		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE</DefineName>
+		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: widen the Info Screen Score tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->

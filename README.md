@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
 
-Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and History Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
 A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions.
 
@@ -37,7 +37,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Home page](/README.md#home-page)  
 &emsp;[Simple Game rework](/README.md#simple-game-rework)  
 [UI (Ingame)](/README.md#ui-ingame)  
-&emsp;[Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)  
+&emsp;[Main Advisors reworks (e.g. Score Tab, Timeline Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
@@ -172,7 +172,7 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
 
 ## UI (Ingame)
 
-### Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)
+### Main Advisors reworks (e.g. Score Tab, Timeline Tab in the Info Screen Advisor)
 
 Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
 
@@ -182,9 +182,9 @@ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Ma
 
 #### New Advisors
 
-##### History Tab (in the Info Screen Advisor)
+##### Timeline Tab (in the Info Screen Advisor)
 
-We added in AdvCiv-SAS a new History Tab in the Info Screen:
+We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
 
 - shows a spoiler-free (religion founded by an unknown city, city founded but unexplored, etc.) if not known (not in debug, not yet revealed, etc.) account (based on the replay screen's data (except you don't need to retire to see it now), notably keeping its colored text for each player, but filtered) of the key moments that happened each turn.
 - unlike the Event Log (which was cumbersome to open and maximize as well btw), information is preserved on save reload.
@@ -192,7 +192,7 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
 - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
 - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
 
-Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+Note: a hybrid DLL compute + Python caching version was tried in [timeline-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/timeline-tab-dll-implementation) but load times of the Timeline Tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG" alt="0.516_info_screen (8).JPG" width="250"></img>

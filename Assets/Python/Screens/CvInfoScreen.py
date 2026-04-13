@@ -102,7 +102,7 @@ class CvInfoScreen:
 		self.PAGE_NAME_LIST = [
 			"TXT_KEY_INFO_GRAPH",
 			"TXT_KEY_GAME_SCORE",
-			"TXT_KEY_INFO_HISTORY",
+			"TXT_KEY_SAS_INFO_TIMELINE",
 			"TXT_KEY_DEMO_SCREEN_TITLE",
 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
 			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
@@ -111,7 +111,7 @@ class CvInfoScreen:
 		self.PAGE_DRAW_LIST = [
 			self.drawGraphTab,
 			self.drawScoreTab,
-			self.drawHistoryTab,
+			self.drawTimelineTab,
 			self.drawDemographicsTab,
 			self.drawTopCitiesTab,
 			self.drawStatsTab,
@@ -132,7 +132,7 @@ class CvInfoScreen:
 		# <!-- custom: Score tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
 		self.iGraphID			= 0
 		self.iScoreID			= 1
-		self.iHistoryID			= 2
+		self.iTimelineID		= 2
 		self.iDemographicsID	= 3
 		self.iTopCitiesID		= 4
 		self.iStatsID			= 5
@@ -153,7 +153,7 @@ class CvInfoScreen:
 		self.H_GRAPH_DROPDOWN = 35
 		self.W_DEMO_DROPDOWN = 200
 		self.PANEL_HEIGHT = 55
-		self.HISTORY_TABLE_VERTICAL_GAP = 28
+		self.TIMELINE_TABLE_VERTICAL_GAP = 28
 		self.W_LEFT_BUTTON = 20
 		self.H_LEFT_BUTTON = 20
 		self.X_LEGEND_MARGIN = 10
@@ -250,7 +250,7 @@ class CvInfoScreen:
 		self.H_DEMOGRAPHICS_BUTTON_SIZE = 24
 		self.W_STATS_BUTTON_SIZE = 24
 		self.H_STATS_BUTTON_SIZE = 24
-		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
+		self.Y_TIMELINE_TABLE_LOG_BUTTON = 14
 
 		self.iActiveTab = -1
 #		self.iActiveTab = self.iGraphID
@@ -274,15 +274,15 @@ class CvInfoScreen:
 		for t in self.RANGE_SCORES:
 			self.scoreCache.append(None)
 
-		# <!-- custom: History tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
+		# <!-- custom: Timeline tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
 		self.RE_COLOR_OPEN = re.compile(r"<color=.*?>")
 		self.RE_COLOR_CLOSE = re.compile(r"</color>")
 
-		# <!-- custom: History tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
-		self.historyCacheEntries = None  # List of formatted display strings
-		self.historyCacheActivePlayer = -1
-		self.historyCacheBRevealAll = False
-		self.historyCacheNumMessages = 0
+		# <!-- custom: Timeline tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
+		self.timelineCacheEntries = None  # List of formatted display strings
+		self.timelineCacheActivePlayer = -1
+		self.timelineCacheBRevealAll = False
+		self.timelineCacheNumMessages = 0
 
 		self.GRAPH_H_LINE = "GraphHLine"
 		self.GRAPH_V_LINE = "GraphVLine"
@@ -292,7 +292,7 @@ class CvInfoScreen:
 
 		self.graphLeftButtonID = ""
 		self.graphRightButtonID = ""
-		self.szHistoryDbgLogPrettySummaryButton = ""
+		self.szTimelineDbgLogPrettySummaryButton = ""
 
 		# <!-- custom: all screen-dependent geometry (bounds + tab layouts) is computed in updateRuntimeLayout() from the active resolution, following the same runtime pattern as CvForeignAdvisor. (GPT-5.3-Codex) -->
 
@@ -327,10 +327,10 @@ class CvInfoScreen:
 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
 		
-		self.TEXT_ENTIRE_HISTORY = localText.getText("TXT_KEY_INFO_ENTIRE_HISTORY", ())
-		self.TEXT_HISTORY_EMPTY = localText.getText("TXT_KEY_INFO_HISTORY_EMPTY", ())
-		self.TEXT_HISTORY_UNKNOWN_CITY = localText.getText("TXT_KEY_INFO_HISTORY_UNKNOWN_CITY", ())
-		self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON = localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ())
+		self.TEXT_ENTIRE_TIMELINE = localText.getText("TXT_KEY_SAS_INFO_ENTIRE_TIMELINE", ())
+		self.TEXT_TIMELINE_EMPTY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_EMPTY", ())
+		self.TEXT_TIMELINE_UNKNOWN_CITY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY", ())
+		self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ())
 		
 		self.TEXT_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ())
 		self.TEXT_POWER = localText.getText("TXT_KEY_POWER", ())
@@ -533,9 +533,9 @@ class CvInfoScreen:
 		self.LABEL_ENV_EFFECTS = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
-		self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
-		# <!-- custom: cache toggle; when disabled, history entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
-		self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE") > 0)
+		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
+		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE") > 0)
 		self.IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 		self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD = gc.getDefineINT("SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD")
 
@@ -607,16 +607,16 @@ class CvInfoScreen:
 		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
 		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
 
-		# History tab layout - vertically centered between header and footer panels
+		# Timeline tab layout - vertically centered between header and footer panels
 		# Content area boundaries (between the two panels)
 		self.CONTENT_Y_TOP = self.PANEL_HEIGHT  # Header panel bottom
 		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT  # Footer panel top
 
 		# Table positioning - truly centered
-		self.X_HISTORY_TABLE = self.X_MARGIN
-		self.Y_HISTORY_TABLE = self.CONTENT_Y_TOP + self.HISTORY_TABLE_VERTICAL_GAP
-		self.W_HISTORY_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
-		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
+		self.X_TIMELINE_TABLE = self.X_MARGIN
+		self.Y_TIMELINE_TABLE = self.CONTENT_Y_TOP + self.TIMELINE_TABLE_VERTICAL_GAP
+		self.W_TIMELINE_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
+		self.H_TIMELINE_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.TIMELINE_TABLE_VERTICAL_GAP)
 
 		# <!-- custom: Environment tab runtime geometry derived from active screen bounds; keep only position/size calculations here. (GPT-5.3-Codex) -->
 		self.ENV_X_LEFT_PANEL = self.X_MARGIN
@@ -629,14 +629,14 @@ class CvInfoScreen:
 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
 
 		# LOG button - positioned in top header bar (0-55px height)
-		# <!-- custom: scale History log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
+		# <!-- custom: scale Timeline log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
 		if getSASUIFontBody() > 2:
-			self.W_HISTORY_TABLE_LOG_BUTTON = 60
-			self.H_HISTORY_TABLE_LOG_BUTTON = 30
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 60
+			self.H_TIMELINE_TABLE_LOG_BUTTON = 30
 		else:
-			self.W_HISTORY_TABLE_LOG_BUTTON = 48
-			self.H_HISTORY_TABLE_LOG_BUTTON = 28
-		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
+			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
+		self.X_TIMELINE_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_TIMELINE_TABLE_LOG_BUTTON - 50
 
 		self.X_LEFT_BUTTON = self.X_GRAPH
 		self.Y_LEFT_BUTTON = self.Y_GRAPH + self.H_GRAPH
@@ -941,10 +941,10 @@ class CvInfoScreen:
 		self.drawPermanentGraphWidgets()
 		self.drawGraphs()
 
-	# HISTORY
+	# TIMELINE
 
-	# <!-- custom: History cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
-	def buildHistoryCache(self, bForceRebuild = False):
+	# <!-- custom: Timeline cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
+	def buildTimelineCache(self, bForceRebuild = False):
 		replayInfo = CyGame().getReplayInfo()
 		if replayInfo.isNone():
 			replayInfo = CyReplayInfo()
@@ -952,25 +952,25 @@ class CvInfoScreen:
 
 		iNumMessages = replayInfo.getNumReplayMessages()
 
-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
 			# Check if cache is still valid
 			if (not bForceRebuild and
-				self.historyCacheEntries is not None and
-				self.historyCacheActivePlayer == self.iActivePlayer and
-				self.historyCacheBRevealAll == self.bRevealAll and
-				self.historyCacheNumMessages == iNumMessages):
+				self.timelineCacheEntries is not None and
+				self.timelineCacheActivePlayer == self.iActivePlayer and
+				self.timelineCacheBRevealAll == self.bRevealAll and
+				self.timelineCacheNumMessages == iNumMessages):
 				# Cache is valid, no rebuild needed
-				return self.historyCacheEntries
+				return self.timelineCacheEntries
 
 		# Rebuild cache
 		entries = []
 
 		if iNumMessages <= 0:
-			if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
-				self.historyCacheEntries = entries
-				self.historyCacheActivePlayer = self.iActivePlayer
-				self.historyCacheBRevealAll = self.bRevealAll
-				self.historyCacheNumMessages = iNumMessages
+			if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+				self.timelineCacheEntries = entries
+				self.timelineCacheActivePlayer = self.iActivePlayer
+				self.timelineCacheBRevealAll = self.bRevealAll
+				self.timelineCacheNumMessages = iNumMessages
 			return entries
 
 		# Build unknown colors dict once
@@ -1083,42 +1083,42 @@ class CvInfoScreen:
 					if not bCityOwnerMet or bPlotHidden:
 						szCityName = pCity.getName()
 						if szCityName:
-							szText = szText.replace(szCityName, self.TEXT_HISTORY_UNKNOWN_CITY)
+							szText = szText.replace(szCityName, self.TEXT_TIMELINE_UNKNOWN_CITY)
 
 			szFormattedText = localText.changeTextColor(SAS_FONT_TAG_LABEL + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE, eColor)
 			entries.append(szFormattedText)
 
-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
 			# Store in instance vars (faster than dict)
-			self.historyCacheEntries = entries
-			self.historyCacheActivePlayer = self.iActivePlayer
-			self.historyCacheBRevealAll = self.bRevealAll
-			self.historyCacheNumMessages = iNumMessages
+			self.timelineCacheEntries = entries
+			self.timelineCacheActivePlayer = self.iActivePlayer
+			self.timelineCacheBRevealAll = self.bRevealAll
+			self.timelineCacheNumMessages = iNumMessages
 		return entries
 
-	def drawHistoryTab(self):
+	def drawTimelineTab(self):
 		screen = self.getScreen()
-		self.szHistoryList = self.getNextWidgetName()
-		screen.addListBoxGFC(self.szHistoryList, "", self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, TableStyles.TABLE_STYLE_STANDARD)
-		screen.enableSelect(self.szHistoryList, False)
+		self.szTimelineList = self.getNextWidgetName()
+		screen.addListBoxGFC(self.szTimelineList, "", self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSelect(self.szTimelineList, False)
 
-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
-			self.szHistoryDbgLogPrettySummaryButton = self.getNextWidgetName()
-			szLabel = SAS_FONT_TAG_LABEL + self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
-			screen.setButtonGFC(self.szHistoryDbgLogPrettySummaryButton, szLabel, "", self.X_HISTORY_TABLE_LOG_BUTTON, self.Y_HISTORY_TABLE_LOG_BUTTON, self.W_HISTORY_TABLE_LOG_BUTTON, self.H_HISTORY_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
+			self.szTimelineDbgLogPrettySummaryButton = self.getNextWidgetName()
+			szLabel = SAS_FONT_TAG_LABEL + self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
+			screen.setButtonGFC(self.szTimelineDbgLogPrettySummaryButton, szLabel, "", self.X_TIMELINE_TABLE_LOG_BUTTON, self.Y_TIMELINE_TABLE_LOG_BUTTON, self.W_TIMELINE_TABLE_LOG_BUTTON, self.H_TIMELINE_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 
 		# Build or reuse cache
-		aEntries = self.buildHistoryCache(not self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE)
+		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
 
 		if not aEntries:
-			szText = SAS_FONT_TAG_LABEL + self.TEXT_HISTORY_EMPTY + SAS_FONT_TAG_CLOSE
-			SASTextScale.appendListBoxStringLabel(screen, self.szHistoryList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szText = SAS_FONT_TAG_LABEL + self.TEXT_TIMELINE_EMPTY + SAS_FONT_TAG_CLOSE
+			SASTextScale.appendListBoxStringLabel(screen, self.szTimelineList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			return
 
 		# Cache is already in display order (newest first) - use append which is O(1)
 		# Local reference to method avoids repeated attribute lookup
 		fnAppend = screen.appendListBoxString
-		szWidget = self.szHistoryList
+		szWidget = self.szTimelineList
 		for szFormattedText in aEntries:
 			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -1152,14 +1152,14 @@ class CvInfoScreen:
 			# <!-- custom: expand max-render table equally upward and downward to fit ~2 extra rows while keeping vertical centering. (GPT-5.3-Codex) -->
 			iMaxRenderVerticalExpandPx = 24
 			iTableX = self.SMALL_MARGIN
-			iTableY = self.Y_HISTORY_TABLE - iMaxRenderVerticalExpandPx
+			iTableY = self.Y_TIMELINE_TABLE - iMaxRenderVerticalExpandPx
 			iTableW = self.W_SCREEN - (2 * self.SMALL_MARGIN)
-			iTableH = self.H_HISTORY_TABLE + (2 * iMaxRenderVerticalExpandPx)
+			iTableH = self.H_TIMELINE_TABLE + (2 * iMaxRenderVerticalExpandPx)
 		else:
-			iTableX = self.X_HISTORY_TABLE
-			iTableY = self.Y_HISTORY_TABLE
-			iTableW = self.W_HISTORY_TABLE
-			iTableH = self.H_HISTORY_TABLE
+			iTableX = self.X_TIMELINE_TABLE
+			iTableY = self.Y_TIMELINE_TABLE
+			iTableW = self.W_TIMELINE_TABLE
+			iTableH = self.H_TIMELINE_TABLE
 
 		szTable = self.getNextWidgetName()
 		screen.addTableControlGFC(szTable, 26, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -1539,11 +1539,11 @@ class CvInfoScreen:
 
 		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
 			szLegendLinkName = self.getNextWidgetName()
-			iLegendX = self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6
-			iLegendY = self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6
+			iLegendX = self.X_TIMELINE_TABLE + self.W_TIMELINE_TABLE - 6
+			iLegendY = self.Y_TIMELINE_TABLE + self.H_TIMELINE_TABLE + 6
 			if bUseMaxScoreTabSpace:
 				iLegendX = iTableX + iTableW - 6
-				iLegendY = self.Y_HISTORY_TABLE_LOG_BUTTON + 3
+				iLegendY = self.Y_TIMELINE_TABLE_LOG_BUTTON + 3
 			screen.setText(
 				szLegendLinkName,
 				"Background",
@@ -1559,14 +1559,14 @@ class CvInfoScreen:
 			)
 
 	def dbgLogPrettySummary(self):
-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
-			aEntries = self.historyCacheEntries
+		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+			aEntries = self.timelineCacheEntries
 		else:
-			aEntries = self.buildHistoryCache(True)
+			aEntries = self.buildTimelineCache(True)
 		if not aEntries:
-			print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_EMPTY")
+			print("SAS_CV_INFO_SCREEN_TIMELINE_PANEL_EMPTY")
 			return
-		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_BEGIN")
+		print("SAS_CV_INFO_SCREEN_TIMELINE_PANEL_BEGIN")
 		# Strip font/color tags from cached display strings for clean log output
 		# Entries are newest-first, reverse for chronological log output
 		reFont = re.compile(r"</?font[^>]*>")
@@ -1577,7 +1577,7 @@ class CvInfoScreen:
 			szClean = reColor.sub("", szClean)
 			aLines.append(u"- " + szClean)
 		print("\n".join(aLines))
-		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_END")
+		print("SAS_CV_INFO_SCREEN_TIMELINE_PANEL_END")
 
 	def drawPermanentGraphWidgets(self):
 
@@ -1689,7 +1689,7 @@ class CvInfoScreen:
 		start = CyGame().getStartTurn()
 		now = CyGame().getGameTurn()
 		nTurns = now - start - 1
-		screen.addPullDownString(self.szTurnsDropdownWidget, self.TEXT_ENTIRE_HISTORY, 0, 0, False)
+		screen.addPullDownString(self.szTurnsDropdownWidget, self.TEXT_ENTIRE_TIMELINE, 0, 0, False)
 		self.dropDownTurns.append(nTurns)
 		iCounter = 1
 		last = 50
@@ -4549,7 +4549,7 @@ class CvInfoScreen:
 
 			######## Screen 'Tabs' for Navigation ########
 
-			if self.iActiveTab == self.iHistoryID and szWidgetName == self.szHistoryDbgLogPrettySummaryButton and code == NotifyCode.NOTIFY_CLICKED:
+			if self.iActiveTab == self.iTimelineID and szWidgetName == self.szTimelineDbgLogPrettySummaryButton and code == NotifyCode.NOTIFY_CLICKED:
 				self.dbgLogPrettySummary()
 				return 0
 
