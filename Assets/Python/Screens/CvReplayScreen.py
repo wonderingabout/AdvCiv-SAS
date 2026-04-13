@@ -34,6 +34,8 @@ class CvReplayScreen:
 		self.WIDGET_ID = "ReplayScreenWidget"
 		self.EXIT_ID = "ReplayScreenExitWidget"
 		self.BACKGROUND_ID = "ReplayScreenBackground"
+		self.GRAPH_LABEL_X_ID = "ReplayGraphLabelX"
+		self.GRAPH_LABEL_Y_ID = "ReplayGraphLabelY"
 
 		self.Z_BACKGROUND = -6.1
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
@@ -148,11 +150,12 @@ class CvReplayScreen:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
-		self.PLAY_TEXT = u"<font=4>" + localText.getText("TXT_KEY_REPLAY_SCREEN_PLAY", ()).upper() + u"</font>"
-		self.FORWARD_TEXT = u"<font=4>" + localText.getText("TXT_KEY_REPLAY_SCREEN_NEXT", ()).upper() + u"</font>"
-		self.STOP_TEXT = u"<font=4>" + localText.getText("TXT_KEY_REPLAY_SCREEN_STOP", ()).upper() + u"</font>"
-		self.SPEED_TEXT = localText.getText("TXT_KEY_REPLAY_SCREEN_SPEED", ())
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.PLAY_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_REPLAY_SCREEN_PLAY", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.FORWARD_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_REPLAY_SCREEN_NEXT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.STOP_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_REPLAY_SCREEN_STOP", ()).upper() + SAS_FONT_TAG_CLOSE
+		# <!-- custom: Replay control labels (e.g., speed) should follow SAS UI scaling rather than fixed game-font size to stay readable at upscaled settings. (GPT-5.3-Codex) -->
+		self.SPEED_TEXT = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_REPLAY_SCREEN_SPEED", ()) + SAS_FONT_TAG_CLOSE
 
 		self.bPlaying = False
 		self.fLastUpdate = 0.
@@ -191,7 +194,7 @@ class CvReplayScreen:
 		# Header...
 		self.szHeader = self.getNextWidgetName()
 		# advc.106m: X position was self.X_SCREEN; that doesn't work anymore.
-		screen.setLabel(self.szHeader, "Background", u"<font=4b>" + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.szHeader, "Background", SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Minimap initialization
 		self.H_MAP = (self.W_MAP * self.replayInfo.getMapHeight()) / self.replayInfo.getMapWidth()
@@ -257,7 +260,7 @@ class CvReplayScreen:
 		szTurnDate = CyGameTextMgr().getDateStr(self.iTurn, false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
 		screen.deleteWidget(self.szHeader)
 		# advc.106m: x was X_SCREEN; that doesn't work anymore.
-		screen.setLabel(self.szHeader, "Background", u"<font=4b>" + szTurnDate + u"<font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.szHeader, "Background", SAS_FONT_TAG_TITLE_BOLD + szTurnDate + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		events = []
 		bFound = False
@@ -355,8 +358,18 @@ class CvReplayScreen:
 		for iPlayer in range(self.replayInfo.getNumPlayers()):
 			screen.addGraphLayer(self.szGraph, iPlayer, self.replayInfo.getColor(iPlayer))
 
-		screen.setGraphLabelX(self.szGraph, localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()))
-		screen.setGraphLabelY(self.szGraph, localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()))
+		# <!-- custom: Graph widget axis labels render raw text and do not parse <font=...> tags,
+		# so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
+		screen.setGraphLabelX(self.szGraph, u"")
+		screen.setGraphLabelY(self.szGraph, u"")
+		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background",
+				SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE,
+				CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 16,
+				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background",
+				SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE,
+				CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH + 8, self.Y_GRAPH + 8,
+				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setGraphYDataRange(self.szGraph, 0.0, 1.0)
 
 	def setPlaying(self, bPlaying):
