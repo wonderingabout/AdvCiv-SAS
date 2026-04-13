@@ -260,6 +260,14 @@ Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG" alt="0.970_diplomacy_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (3).JPG" alt="0.970_diplomacy_screen (3).JPG" width="250"></img>
 
+### Miscallenous screens
+
+Some miscallenous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen).
+
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG" alt="0.980_dawn_of_man_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.981_replay_screen.JPG" alt="0.981_replay_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.982_dan_qayle_screen.JPG" alt="0.982_dan_qayle_screen.JPG" width="250"></img>
+
 ### Main Interface rework
 
 Some common changes to city screen and map view include the tech bar's detail being enhanced with a new icon centered in the bar, followed by info like `Fusion: 2245 / 5774 (35)`, and show chars in the GP bar even if 100% (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`).

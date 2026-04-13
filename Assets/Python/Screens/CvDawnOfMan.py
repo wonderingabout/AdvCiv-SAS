@@ -1,8 +1,13 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 import CvUtil
 from CvPythonExtensions import *
+from SASFontUtils import *
+import SASTextScale
 
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -21,9 +26,12 @@ class CvDawnOfMan:
 		self.W_TECH = 425
 		self.H_TECH = 80
 
-		self.W_MAIN_PANEL = 750 # Was 550
+		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts,
+		# then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing
+		# the lower blue panel. Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
+		self.W_MAIN_PANEL = 800 # Was 550
 		
-		self.H_MAIN_PANEL = 500
+		self.H_MAIN_PANEL = 575
 		
 		self.X_MAIN_PANEL = (self.W_SCREEN/2) - (self.W_MAIN_PANEL/2)# Was 250
 		
@@ -34,11 +42,11 @@ class CvDawnOfMan:
 		self.X_HEADER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
 		self.Y_HEADER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
 		self.W_HEADER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
-		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0))
+		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 30
 		
 		self.X_LEADER_ICON = self.X_HEADER_PANEL + self.iMarginSpace
 		self.Y_LEADER_ICON = self.Y_HEADER_PANEL + self.iMarginSpace
-		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)#140
+		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
 		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
 		
 		
@@ -62,7 +70,7 @@ class CvDawnOfMan:
 		self.Y_TEXT_PANEL = self.Y_HEADER_PANEL + self.H_HEADER_PANEL + self.iMarginSpace - 10 #10 is the fudge factor
 		self.W_TEXT_PANEL = self.W_HEADER_PANEL
 		self.H_TEXT_PANEL = self.H_MAIN_PANEL - self.H_HEADER_PANEL - (self.iMarginSpace * 3) + 10 #10 is the fudge factor
-		self.iTEXT_PANEL_MARGIN = 35
+		self.iTEXT_PANEL_MARGIN = 30
 		
 		self.W_EXIT = 120
 		self.H_EXIT = 30
@@ -79,7 +87,7 @@ class CvDawnOfMan:
 		self.calculateSizesAndPositions()
 		
 		self.player = gc.getPlayer(gc.getGame().getActivePlayer())
-		self.EXIT_TEXT = localText.getText("TXT_KEY_SCREEN_CONTINUE", ())
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_SCREEN_CONTINUE", ()) + SAS_FONT_TAG_CLOSE
 		
 		# Create screen
 		
@@ -128,13 +136,13 @@ class CvDawnOfMan:
 		
 		# Info/"Stats" text
 		
-		szNameText = "<color=255,255,0,255>" + u"<font=3b>" + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + u"</font>"
-		szNameText += "\n- " + self.player.getCivilizationDescription(0) + " -\n"
-		szNameText += u"<font=2>" + CyGameTextMgr().parseLeaderTraits(self.player.getLeaderType(), self.player.getCivilizationType(), True, False) + u"</font>"
+		szNameText = "<color=255,255,0,255>" + SAS_FONT_TAG_TITLE_BOLD + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
+		szNameText += u"\n" + SAS_FONT_TAG_LABEL + u"- " + self.player.getCivilizationDescription(0) + u" -" + SAS_FONT_TAG_CLOSE + u"\n"
+		szNameText += SAS_FONT_TAG_LABEL + CyGameTextMgr().parseLeaderTraits(self.player.getLeaderType(), self.player.getCivilizationType(), True, False) + SAS_FONT_TAG_CLOSE
 		screen.addMultilineText( "NameText", szNameText, self.X_LEADER_TITLE_TEXT, self.Y_LEADER_TITLE_TEXT, self.W_LEADER_TITLE_TEXT, self.H_LEADER_TITLE_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		
 		if not isLaterEraStart: # advc.250c: No free tech
-			screen.addMultilineText( "HeaderText2", localText.getText("TXT_KEY_FREE_TECHS", ()) + ":", self.X_STATS_TEXT, self.Y_STATS_TEXT+15, self.W_STATS_TEXT, self.H_STATS_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText( "HeaderText2", SASTextScale.labelText(localText.getText("TXT_KEY_FREE_TECHS", ()) + ":"), self.X_STATS_TEXT, self.Y_STATS_TEXT+15, self.W_STATS_TEXT, self.H_STATS_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			screen.addPanel( "HeaderText3", "", "", false, true, self.X_STATS_TEXT, self.Y_STATS_TEXT+30, self.W_TECH, self.H_TECH, PanelStyles.PANEL_STYLE_EMPTY )
 		
@@ -144,7 +152,7 @@ class CvDawnOfMan:
 			
 		self.Text_BoxText = CyGameTextMgr().parseCivInfos(self.player.getCivilizationType(), True)
 		
-		screen.addMultilineText( "HeaderText4", self.Text_BoxText, self.X_STATS_TEXT, self.Y_STATS_TEXT+30+self.H_TECH, self.W_STATS_TEXT - (self.iMarginSpace * 3), self.H_STATS_TEXT - (self.iMarginSpace * 4), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText( "HeaderText4", SASTextScale.normalizeLabelText(self.Text_BoxText), self.X_STATS_TEXT, self.Y_STATS_TEXT+30+self.H_TECH, self.W_STATS_TEXT - (self.iMarginSpace * 3), self.H_STATS_TEXT - (self.iMarginSpace * 4), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							
 		# Fancy icon things
 		screen.addDDSGFC( "IconLeft", ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.player.getCivilizationType()).getArtDefineTag()).getButton(), self.X_FANCY_ICON1, self.Y_FANCY_ICON, self.WH_FANCY_ICON, self.WH_FANCY_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1 )
@@ -152,7 +160,7 @@ class CvDawnOfMan:
 		
 		# Main Body text
 		if not isLaterEraStart: # advc.250c
-			szDawnTitle = u"<font=3>" + localText.getText("TXT_KEY_DAWN_OF_MAN_SCREEN_TITLE", ()).upper() + u"</font>"
+			szDawnTitle = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_DAWN_OF_MAN_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 			screen.setLabel("DawnTitle", "Background", szDawnTitle, CvUtil.FONT_CENTER_JUSTIFY, self.X_TEXT_PANEL + (self.W_TEXT_PANEL / 2), self.Y_TEXT_PANEL + 15, -2.0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		# <advc.250c> Show the first text block only for Ancient start
 		bodyString1 = localText.getText("TXT_KEY_DAWN_OF_MAN_TEXT1", (CyGameTextMgr().getTimeStr(gc.getGame().getGameTurn(), false), self.player.getCivilizationAdjectiveKey()))
@@ -177,7 +185,7 @@ class CvDawnOfMan:
 				bodyString += bodyString1
 			bodyString += bodyString2
 		# </advc.250c>
-		screen.addMultilineText( "BodyText", bodyString, self.X_TEXT_PANEL + self.iMarginSpace, self.Y_TEXT_PANEL + self.iMarginSpace + self.iTEXT_PANEL_MARGIN, self.W_TEXT_PANEL - (self.iMarginSpace * 2), self.H_TEXT_PANEL - (self.iMarginSpace * 2) - 75, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText( "BodyText", SASTextScale.normalizeLabelText(bodyString), self.X_TEXT_PANEL + self.iMarginSpace, self.Y_TEXT_PANEL + self.iMarginSpace + self.iTEXT_PANEL_MARGIN, self.W_TEXT_PANEL - (self.iMarginSpace * 2), self.H_TEXT_PANEL - (self.iMarginSpace * 2) - 55, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		
 		screen.setButtonGFC("Exit", self.EXIT_TEXT, "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 		
@@ -207,7 +215,7 @@ class CvDawnOfMan:
 		self.W_TECH = 425
 		self.H_TECH = 80
 
-		self.W_MAIN_PANEL = 750 # Was 550
+		self.W_MAIN_PANEL = 800 # Was 550
 		
 		self.H_MAIN_PANEL = 575 # advc.002b: Was 525.
 		self.X_MAIN_PANEL = (self.W_SCREEN/2) - (self.W_MAIN_PANEL/2)# Was 250
@@ -219,11 +227,11 @@ class CvDawnOfMan:
 		self.X_HEADER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
 		self.Y_HEADER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
 		self.W_HEADER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
-		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 60
+		self.H_HEADER_PANEL = int(self.H_MAIN_PANEL * (2.0 / 5.0)) + 30
 		
 		self.X_LEADER_ICON = self.X_HEADER_PANEL + self.iMarginSpace
 		self.Y_LEADER_ICON = self.Y_HEADER_PANEL + self.iMarginSpace
-		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)#140
+		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
 		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
 		
 		
@@ -248,7 +256,7 @@ class CvDawnOfMan:
 		self.Y_TEXT_PANEL = self.Y_HEADER_PANEL + self.H_HEADER_PANEL + self.iMarginSpace - 10 #10 is the fudge factor
 		self.W_TEXT_PANEL = self.W_HEADER_PANEL
 		self.H_TEXT_PANEL = self.H_MAIN_PANEL - self.H_HEADER_PANEL - (self.iMarginSpace * 3) + 10 #10 is the fudge factor
-		self.iTEXT_PANEL_MARGIN = 35
+		self.iTEXT_PANEL_MARGIN = 30
 		
 		self.W_EXIT = 120
 		self.H_EXIT = 30

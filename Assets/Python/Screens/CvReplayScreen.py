@@ -1,5 +1,8 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -44,22 +47,13 @@ class CvReplayScreen:
 		if self.bLayoutDone:
 			return
 		self.bLayoutDone = True # </advc.106m>
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
-		#self.X_SCREEN = 500
-		#self.Y_SCREEN = 396
-		# <advc.106m>
-		self.HORIZONTAL_MARGIN = 25
-		self.VERTICAL_MARGIN = 20
 		iXRes = self.getScreen().getXResolution()
-		self.W_SCREEN = max(self.W_SCREEN, iXRes - 2 * self.HORIZONTAL_MARGIN)
 		iYRes = self.getScreen().getYResolution()
-		self.H_SCREEN = max(self.H_SCREEN, iYRes - 2 * self.VERTICAL_MARGIN)
-		self.HORIZONTAL_MARGIN = min(self.HORIZONTAL_MARGIN, (iXRes - self.W_SCREEN) / 2)
-		self.VERTICAL_MARGIN = min(self.VERTICAL_MARGIN, (iYRes - self.H_SCREEN) / 2)
-		# Those margins are outside of the screen dimensions
-		self.X_SCREEN = self.HORIZONTAL_MARGIN
-		self.Y_SCREEN = self.VERTICAL_MARGIN
+		# <!-- custom: use true fullscreen bounds for Replay (no outer margins): x/y start at 0,0 and width/height follow current resolution. (GPT-5.3-Codex) -->
+		self.W_SCREEN = iXRes
+		self.H_SCREEN = iYRes
+		self.X_SCREEN = 0
+		self.Y_SCREEN = 0
 		# </advc.106m>
 		self.Y_TITLE = 8
 		# advc: unused
