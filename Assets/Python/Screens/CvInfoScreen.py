@@ -1163,7 +1163,7 @@ class CvInfoScreen:
 			iTableH = self.H_TIMELINE_TABLE
 
 		szTable = self.getNextWidgetName()
-		screen.addTableControlGFC(szTable, 28, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(szTable, 29, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
 
 		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
@@ -1193,8 +1193,9 @@ class CvInfoScreen:
 		iColWorstEnemy = 23
 		iColGoldenAge = 24
 		iColEspionage = 25
-		iColResearch = 26
-		iColResearchPct = 27
+		iColTechs = 26
+		iColResearch = 27
+		iColResearchPct = 28
 
 		# <!-- custom: in max-render mode, reserve width for the table's right-side scrollbar gutter
 		# so text does not clip/overflow under it; this budget is absorbed by the flexible V/M column via width balancing. (GPT-5.3-Codex) -->
@@ -1212,7 +1213,9 @@ class CvInfoScreen:
 		iColorW = iMinColW
 		iPidW = iMinColW - 10
 		iResearchPctW = iPidW + 8
-		iNameW = 112
+		# <!-- custom: keep Tech width equal to '%' width because both are compact progress/count metrics and are near each other, so matched width reads cleaner; Tech is fine as 2-digit like '%' in AdvCiv-SAS (no 3-digit tech counts expected). (GPT-5.3-Codex) -->
+		iTechsW = iResearchPctW
+		iNameW = 72
 		# <!-- custom: second pass tuning after 1665 screenshot: reduce Score/dSc slightly, widen Att/Att#, significantly widen Land% and final research %, and fund it mostly from V/M baseline. (GPT-5.3-Codex) -->
 		iScoreW = 69
 		iDeltaW = 52
@@ -1226,7 +1229,7 @@ class CvInfoScreen:
 		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
 		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
 		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW +
-				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iTraitW + iTraitW + iAttNumW + iColorW + iResearchPctW + iAttW + 8 * iFlagW + iPidW +
+				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iTraitW + iTraitW + iAttNumW + iColorW + iResearchPctW + iTechsW + iAttW + 8 * iFlagW + iPidW +
 				iNameW + iResearchW)
 		iExtraW = iW - iUsedW
 		iVMW += iExtraW
@@ -1268,6 +1271,7 @@ class CvInfoScreen:
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColWorstEnemy, u"WE", iFlagW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColGoldenAge, u"GA", iFlagW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColEspionage, u"Esp", iFlagW)
+		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColTechs, u"Tech", iTechsW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColResearch, u"Res", iResearchW)
 		SASTextScale.setTableColumnHeaderLabel(screen, szTable, iColResearchPct, u"%", iResearchPctW)
 
@@ -1293,6 +1297,8 @@ class CvInfoScreen:
 		teamHasVassals = [False] * iMaxTeams
 		teamMasterTeams = []
 		teamVassalTeams = []
+		teamTechCounts = [0] * iMaxTeams
+		iNumTechInfos = gc.getNumTechInfos()
 		for iTeam in range(iMaxTeams):
 			teamMasterTeams.append([])
 			teamVassalTeams.append([])
@@ -1300,6 +1306,11 @@ class CvInfoScreen:
 			kTeam = teamCache[iTeam]
 			if not kTeam.isAlive():
 				continue
+			iTechCount = 0
+			for iTech in range(iNumTechInfos):
+				if kTeam.isHasTech(iTech):
+					iTechCount += 1
+			teamTechCounts[iTeam] = iTechCount
 			if kTeam.isAVassal():
 				for iOwnerTeam in range(iMaxTeams):
 					if kTeam.isVassal(iOwnerTeam):
@@ -1487,6 +1498,7 @@ class CvInfoScreen:
 						iProgressPct = pTeam.getResearchProgress(eCurrentResearch) * 100 / iResearchCost
 						iProgressPct = max(0, min(99, iProgressPct))
 						szResearchPct = str(iProgressPct)
+			SASTextScale.setTableIntLabel(screen, szTable, iColTechs, iRow, str(teamTechCounts[eTeam]), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			if iProgressPct > -1:
 				SASTextScale.setTableIntLabel(screen, szTable, iColResearchPct, iRow, str(iProgressPct), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
