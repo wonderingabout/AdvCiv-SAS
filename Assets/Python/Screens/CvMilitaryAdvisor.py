@@ -12,6 +12,7 @@ import time
 import PyHelpers
 import re
 from SASFontUtils import *
+from SASUtils import *
 
 PyPlayer = PyHelpers.PyPlayer
 PyInfo = PyHelpers.PyInfo
@@ -50,44 +51,15 @@ class CvMilitaryAdvisor:
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
 		self.DZ = -0.2
 
-		# <!-- custom: expand the screen like Foreign Advisor/Sevopedia so crowded player lists require less scrolling. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
-		# self.X_SCREEN = 500
-		# self.Y_SCREEN = 396
-		# self.W_SCREEN = 1024
-		# self.H_SCREEN = 768
-		# <!-- custom: screen isn't available in __init__ (unlike CvTechChooser); using hardcoded 1920x1080 avoids crashes, but verify on other resolutions. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-		xHardcodedResolution = 1920
-		yHardcodedResolution = 1080
-
-		# <!-- custom: keep the panel uncentered so the right side (scoreboard/map) stays visible; left panel is less important. (GPT-5.2-Codex (summarized)) -->
-
-		wLeftSpaceForCommerceSliders = 172
-		self.X_SCREEN = wLeftSpaceForCommerceSliders
-		# <!-- custom: preserve right-side scoreboard/map while letting the left side be tighter. (GPT-5.2-Codex (summarized)) -->
-		wRightSpaceForScoreBoard = 390
-		self.W_SCREEN = xHardcodedResolution - wRightSpaceForScoreBoard - wLeftSpaceForCommerceSliders
-
-		hTopSpaceForTechBar = 28
-		self.Y_SCREEN = hTopSpaceForTechBar
-		hBottomSpace = 0
-		# <!-- custom: compute remaining height so the panel fits to the bottom edge. (GPT-5.2-Codex (summarized)) -->
-		self.H_SCREEN = yHardcodedResolution - hTopSpaceForTechBar - hBottomSpace
-
-		# <!-- custom: add X_TITLE so the title can be centered after resizing. (GPT-5.2-Codex (summarized)) -->
-		# screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		# <!-- custom: X_TITLE is relative to the screen's X origin, not the window edge. (GPT-5.2-Codex (summarized)) -->
-		self.X_TITLE = self.W_SCREEN / 2
-		self.Y_TITLE = 8
+		# <!-- custom: keep screen-independent advisor shell constants in init; compute runtime resolution-dependent geometry in updateRuntimeLayout via SASUtils helpers. (GPT-5.3-Codex) -->
+		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
+		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
+		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
 		self.BORDER_WIDTH = 4
 		self.W_HELP_AREA = 200
-
-		# <!-- custom: reposition the exit button based on the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-		# self.X_EXIT = 994
-		# self.Y_EXIT = 726
-		# Exit Button (Bottom Right)
-		self.X_EXIT = self.W_SCREEN - 30
-		self.Y_EXIT = self.H_SCREEN - 42
 						
 		self.nWidgetCount = 0
 		self.nRefreshWidgetCount = 0
@@ -104,49 +76,24 @@ class CvMilitaryAdvisor:
 		# --- A. Leaders Panel (Top - Full Width) ---
 		self.X_LEADERS = 20
 		self.Y_LEADERS = 80
-		# self.W_LEADERS = 985
-		self.W_LEADERS = self.W_SCREEN - self.SIDE_MARGIN
 		self.H_LEADERS = 90
 		self.LEADER_BUTTON_SIZE = 64
 		self.LEADER_MARGIN = 12
-		
-		self.LEADER_COLUMNS = int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN))
+
 		self.bUnitDetails = False
 		self.iShiftKeyDown = 0
 
 		# --- B. Unit List (Right Side - Fixed Width) ---
-		# self.X_TEXT = 625
-		# self.Y_TEXT = 190
-		# self.W_TEXT = 380
-		# self.H_TEXT = 500
-		self.W_TEXT = 430  
-		self.X_TEXT = self.W_SCREEN - 20 - self.W_TEXT
-		self.Y_TEXT = self.Y_LEADERS + self.H_LEADERS + 15
-		# Height = Screen Height - Start Y - Bottom Panel (55) - Margin (15)
-		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - 15
+		self.W_TEXT = 430
 
 		# --- C. Map Panel (Left Side - Fills Remaining Space) ---
 		self.X_MAP = 20
-		# self.Y_MAP = 190
-		# self.W_MAP = 580
-		# self.H_MAP_MAX = 500
-		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + 15
-		# Map takes available width minus the text panel and a gap
-		self.W_MAP = self.X_TEXT - self.X_MAP - 14
 		# <!-- custom: MAP_MARGIN refers to the panel border wrap, not an empty margin. (GPT-5.2-Codex (summarized)) -->
 		self.MAP_MARGIN = 20
 
 		# --- D. Great General Bar (Moved to Bottom Left)
-		# self.X_GREAT_GENERAL_BAR = 20
-		# self.Y_GREAT_GENERAL_BAR = 730
-		# self.W_GREAT_GENERAL_BAR = 300
-		# self.H_GREAT_GENERAL_BAR = 30
-		self.W_GREAT_GENERAL_BAR = self.W_MAP
 		self.H_GREAT_GENERAL_BAR = 30
 		self.X_GREAT_GENERAL_BAR = 20
-		# Position: Screen Height - Bottom Panel - Bar Height - Padding
-		self.Y_GREAT_GENERAL_BAR = self.H_SCREEN - 55 - self.H_GREAT_GENERAL_BAR - 15
-		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - 10 - self.Y_MAP
 
 		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it doesn't work in many ingame py file (tech chooser, main interface for those i tried), so use safer pattern reliably rather -->
 		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
@@ -177,6 +124,35 @@ class CvMilitaryAdvisor:
 		self.COLOR_GREAT_PEOPLE_RATE = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE")
 		self.COLOR_EMPTY = gc.getInfoTypeForString("COLOR_EMPTY")
 
+	def updateRuntimeLayout(self, screen):
+		# <!-- custom: compute runtime shell bounds/anchors through shared helpers so Military Advisor follows the same runtime layout flow as Foreign/Info/Domestic. (GPT-5.3-Codex) -->
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+			screen,
+			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
+			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
+			self.H_TOP_SPACE_FOR_TECH_BAR,
+			self.H_BOTTOM_SPACE
+		)
+		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+
+		self.W_LEADERS = self.W_SCREEN - self.SIDE_MARGIN
+		self.LEADER_COLUMNS = max(1, int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
+
+		self.X_TEXT = self.W_SCREEN - 20 - self.W_TEXT
+		self.Y_TEXT = self.Y_LEADERS + self.H_LEADERS + 15
+		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - 15
+
+		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + 15
+		self.W_MAP = self.X_TEXT - self.X_MAP - 14
+		self.W_GREAT_GENERAL_BAR = self.W_MAP
+		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - 15
+		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - 10 - self.Y_MAP
+
+		# <!-- custom: inline icon size is resolution-dependent (vertical room), so compute once in runtime layout and reuse during row rendering. (GPT-5.3-Codex) -->
+		self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
+		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT > 0 and screen.getYResolution() >= self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT:
+			self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES
+
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.MILITARY_SCREEN_NAME, self.screenId)
@@ -196,23 +172,18 @@ class CvMilitaryAdvisor:
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
 		self.initText()
+		self.updateRuntimeLayout(screen)
 
 		self.nWidgetCount = 0
-	
+
 		# Set the background and exit button, and show the screen
-		# <!-- custom: resize the window (see also CvForeignAdvisor); centering was reverted. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
-		#screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
 		# <!-- custom: unlike Foreign Advisor, we must set X/Y directly or the screen stays centered. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
 
 		screen.addDDSGFC(self.BACKGROUND_ID, self.ART_MAINMENU_SLIDESHOW_LOAD, 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-		# <!-- custom: update panel positions to match the expanded screen size. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
-		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
-		# screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		# screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, self.H_SCREEN - 55, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 
 		screen.showWindowBackground(False)
 		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
@@ -392,10 +363,6 @@ class CvMilitaryAdvisor:
 		iFont = CvUtil.FONT_LEFT_JUSTIFY
 
 		# <!-- custom: render icons inline in list rows so icon/text stay aligned while scrolling; this replaces the old overlay-button workaround that did not scroll with rows. (GPT-5.3-Codex) -->
-		# <!-- custom: use screen-height threshold (vertical room) for larger inline icons on high resolutions (e.g. 1440p+). (GPT-5.3-Codex) -->
-		iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
-		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT > 0 and screen.getYResolution() >= self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT:
-			iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES
 		iListX = self.X_TEXT + self.MAP_MARGIN
 		iListY = self.Y_TEXT + self.MAP_MARGIN + 15
 		iListW = self.W_TEXT - 2*self.MAP_MARGIN
@@ -431,7 +398,7 @@ class CvMilitaryAdvisor:
 				return u"%s<img=%s size=%d></img>%s%s" % (
 					szIconIndentByLevel.get(iIndentLevel, u""),
 					szButton,
-					iInlineIconSize,
+					self.iInlineIconSize,
 					szIconGapByLevel.get(iIndentLevel, u" "),
 					szLabelText,
 				)
