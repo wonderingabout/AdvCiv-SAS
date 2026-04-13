@@ -41,6 +41,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
+&emsp;[Miscallenous screens](/README.md#miscallenous-screens)  
 &emsp;[Main interface rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
