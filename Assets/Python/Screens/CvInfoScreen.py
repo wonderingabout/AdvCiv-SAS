@@ -1147,20 +1147,18 @@ class CvInfoScreen:
 				continue
 			visiblePlayers.append(ePlayer)
 
-		# <!-- custom: only widen the score table when player count reaches the threshold; keep normal layout otherwise. (GPT-5.3-Codex) -->
-		bUseMaxScoreTabSpace = (len(visiblePlayers) >= self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD)
-		if bUseMaxScoreTabSpace:
-			# <!-- custom: expand max-render table equally upward and downward to fit ~2 extra rows while keeping vertical centering. (GPT-5.3-Codex) -->
-			iMaxRenderVerticalExpandPx = 24
-			iTableX = self.SMALL_MARGIN
-			iTableY = self.Y_TIMELINE_TABLE - iMaxRenderVerticalExpandPx
-			iTableW = self.W_SCREEN - (2 * self.SMALL_MARGIN)
-			iTableH = self.H_TIMELINE_TABLE + (2 * iMaxRenderVerticalExpandPx)
-		else:
-			iTableX = self.X_TIMELINE_TABLE
-			iTableY = self.Y_TIMELINE_TABLE
-			iTableW = self.W_TIMELINE_TABLE
-			iTableH = self.H_TIMELINE_TABLE
+		# <!-- custom: simple Score-tab table layout: fill the advisor content area (between top/bottom bars)
+		# with explicit tunable outer margins for X and Y. (GPT-5.3-Codex) -->
+		iTableBaseMarginPx = 6
+		# <!-- custom: for some reason despite simple layout margins are still asymetric (horizontal margins too short and shorter in comparison), manually add gap to empirically equalize it for score tab (as of now not done in domestic advisor's overview tab for example that served as inspiration/reference to do this) -->
+		iTableMarginXPx = iTableBaseMarginPx + 5
+		iTableMarginYPx = iTableBaseMarginPx
+		# <!-- custom: same layout formula on both axes: table size = available size - 2 * margin.
+		# Width available size is full screen width; height available size is content height (screen minus top/bottom bars). (GPT-5.3-Codex) -->
+		iTableX = iTableMarginXPx
+		iTableY = self.PANEL_HEIGHT + iTableMarginYPx
+		iTableW = self.W_SCREEN - (2 * iTableMarginXPx)
+		iTableH = self.H_SCREEN - (2 * self.PANEL_HEIGHT) - (2 * iTableMarginYPx)
 
 		szTable = self.getNextWidgetName()
 		screen.addTableControlGFC(szTable, 29, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
@@ -1197,11 +1195,9 @@ class CvInfoScreen:
 		iColResearch = 27
 		iColResearchPct = 28
 
-		# <!-- custom: in max-render mode, reserve width for the table's right-side scrollbar gutter
-		# so text does not clip/overflow under it; this budget is absorbed by the flexible V/M column via width balancing. (GPT-5.3-Codex) -->
-		iMaxRenderWidthReservePx = 0
-		if bUseMaxScoreTabSpace:
-			iMaxRenderWidthReservePx = 14
+		# <!-- custom: reserve right-side width for table scrollbar gutter in this always-expanded layout,
+		# so text does not clip/overflow under it; this budget is absorbed by V/M width balancing. (GPT-5.3-Codex) -->
+		iMaxRenderWidthReservePx = 14
 		iW = iTableW - iMaxRenderWidthReservePx
 		iIconW = 28
 		iMinColW = 42
@@ -1215,7 +1211,7 @@ class CvInfoScreen:
 		iResearchPctW = iPidW + 8
 		# <!-- custom: keep Tech width equal to '%' width because both are compact progress/count metrics and are near each other, so matched width reads cleaner; Tech is fine as 2-digit like '%' in AdvCiv-SAS (no 3-digit tech counts expected). (GPT-5.3-Codex) -->
 		iTechsW = iResearchPctW
-		iNameW = 72
+		iNameW = 115
 		# <!-- custom: second pass tuning after 1665 screenshot: reduce Score/dSc slightly, widen Att/Att#, significantly widen Land% and final research %, and fund it mostly from V/M baseline. (GPT-5.3-Codex) -->
 		iScoreW = 69
 		iDeltaW = 52
@@ -1576,11 +1572,8 @@ class CvInfoScreen:
 
 		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
 			szLegendLinkName = self.getNextWidgetName()
-			iLegendX = self.X_TIMELINE_TABLE + self.W_TIMELINE_TABLE - 6
-			iLegendY = self.Y_TIMELINE_TABLE + self.H_TIMELINE_TABLE + 6
-			if bUseMaxScoreTabSpace:
-				iLegendX = iTableX + iTableW - 6
-				iLegendY = self.Y_TIMELINE_TABLE_LOG_BUTTON + 3
+			iLegendX = iTableX + iTableW - 6
+			iLegendY = self.Y_TITLE
 			screen.setText(
 				szLegendLinkName,
 				"Background",
