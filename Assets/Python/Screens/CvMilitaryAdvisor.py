@@ -228,18 +228,19 @@ class CvMilitaryAdvisor:
 		self.refresh(true)
 		
 	def drawCombatExperience(self):
-	
-		if (gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(true) > 0):
-		
-			iExperience = gc.getPlayer(self.iActivePlayer).getCombatExperience()
-			
+		# <!-- custom: hoist repeated active-player/threshold lookups to locals for this draw pass (same behavior, fewer repeated engine calls). (GPT-5.3-Codex) -->
+		kActivePlayer = gc.getPlayer(self.iActivePlayer)
+		iGreatPeopleThreshold = kActivePlayer.greatPeopleThreshold(true)
+		if iGreatPeopleThreshold > 0:
+			iExperience = kActivePlayer.getCombatExperience()
+
 			screen = self.getScreen()
 			screen.addStackedBarGFC(self.GREAT_GENERAL_BAR_ID, self.X_GREAT_GENERAL_BAR, self.Y_GREAT_GENERAL_BAR, self.W_GREAT_GENERAL_BAR, self.H_GREAT_GENERAL_BAR, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, self.COLOR_GREAT_PEOPLE_STORED)
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE, self.COLOR_GREAT_PEOPLE_RATE)
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, self.COLOR_EMPTY)
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, self.COLOR_EMPTY)
-			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(true)))
+			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(iGreatPeopleThreshold))
 			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SAS_FONT_TAG_LABEL + self.TEXT_COMBAT_EXPERIENCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
 					
 																									
@@ -335,11 +336,13 @@ class CvMilitaryAdvisor:
 	# <!-- custom: add icon overlays on listbox rows with indent. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
 	def refreshUnitSelection(self, bReload):
 		screen = self.getScreen()
-		
+
 		screen.minimapClearAllFlashingTiles()
 
 		iNumUnitInfos = gc.getNumUnitInfos()
-		iActiveTeam = gc.getPlayer(self.iActivePlayer).getTeam()
+		# <!-- custom: hoist active-player/team lookups used across loops in this refresh pass to avoid repeated accessor calls. (GPT-5.3-Codex) -->
+		kActivePlayer = gc.getPlayer(self.iActivePlayer)
+		iActiveTeam = kActivePlayer.getTeam()
 
 		if (bReload):
 			if (self.bUnitDetails):
@@ -424,7 +427,8 @@ class CvMilitaryAdvisor:
 
 		if bReload:
 			for iUnit in range(iNumUnitInfos):
-				self.unitsList[iUnit] = (gc.getUnitInfo(iUnit).getUnitCombatType(), iUnit, [], 0)
+				kUnitInfo = gc.getUnitInfo(iUnit)
+				self.unitsList[iUnit] = (kUnitInfo.getUnitCombatType(), iUnit, [], 0)
 
 			for iPlayer in range(gc.getMAX_PLAYERS()):			
 				player = PyPlayer(iPlayer)
@@ -475,8 +479,9 @@ class CvMilitaryAdvisor:
 					szDescription = formatSelection(u"", szDescription, self.isSelectedGroup(self.unitsList[iUnit][0], False), self.isSelectedGroup(self.unitsList[iUnit][0], True))
 					iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][0] + iNumUnitInfos, szCombatButton, 0)
 				
-				szDescription = gc.getUnitInfo(self.unitsList[iUnit][1]).getDescription() + u" (" + unicode(len(self.unitsList[iUnit][2])) + u")"
-				szUnitButton = gc.getUnitInfo(self.unitsList[iUnit][1]).getButton()
+				kUnitInfo = gc.getUnitInfo(self.unitsList[iUnit][1])
+				szDescription = kUnitInfo.getDescription() + u" (" + unicode(len(self.unitsList[iUnit][2])) + u")"
+				szUnitButton = kUnitInfo.getButton()
 				szDescription = formatSelection(szUnitIndentSpace, szDescription, self.isSelectedUnitType(self.unitsList[iUnit][1], False), self.isSelectedUnitType(self.unitsList[iUnit][1], True))
 				iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][1], szUnitButton, 1)
 				
@@ -517,12 +522,16 @@ class CvMilitaryAdvisor:
 						screen.minimapFlashPlot(loopUnit.getX(), loopUnit.getY(), iFlashColor, -1)
 
 	def refresh(self, bReload):
-	
+
 		if (self.iActivePlayer < 0):
 			return
-						
+
 		screen = self.getScreen()
-				
+		# <!-- custom: hoist values reused by the leader loop (team/debug) so we don't repeat gc lookups per iteration. (GPT-5.3-Codex) -->
+		kActivePlayer = gc.getPlayer(self.iActivePlayer)
+		iActiveTeam = kActivePlayer.getTeam()
+		bDebugMode = gc.getGame().isDebugMode()
+
 		if (bReload):
 			# Set scrollable area for unit buttons
 			screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_MAIN)
@@ -533,7 +542,7 @@ class CvMilitaryAdvisor:
 		listLeaders = []
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			player = gc.getPlayer(iLoopPlayer)
-			if (player.isAlive() and (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(self.iActivePlayer).getTeam()) or gc.getGame().isDebugMode())):
+			if player.isAlive() and (gc.getTeam(player.getTeam()).isHasMet(iActiveTeam) or bDebugMode):
 				listLeaders.append(iLoopPlayer)
 				
 		iNumLeaders = len(listLeaders)
