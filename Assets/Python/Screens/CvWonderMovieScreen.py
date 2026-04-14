@@ -10,6 +10,7 @@ import PyHelpers
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+import SASTextScale
 
 PyPlayer = PyHelpers.PyPlayer
 PyInfo = PyHelpers.PyInfo
@@ -106,7 +107,8 @@ class CvWonderMovieScreen:
 		elif self.iMovieType == MOVIE_SCREEN_PROJECT:
 			szHeader = gc.getProjectInfo(iMovieItem).getDescription()
 
-		screen.setLabel(szHeaderId, "Background", u"<font=4b>" + szHeader + "</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_WINDOW + self.W_WINDOW / 2, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: this screen already used legacy <font=4b>, but we switch to SAS title scaling for consistency/readability with the rest of AdvCiv-SAS upscaled UI (plain title tag instead of bold). (GPT-5.3-Codex) -->
+		screen.setLabel(szHeaderId, "Background", SASTextScale.titleText(szHeader), CvUtil.FONT_CENTER_JUSTIFY, self.X_WINDOW + self.W_WINDOW / 2, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				
 		screen.hide("Background")
 
@@ -125,7 +127,7 @@ class CvWonderMovieScreen:
 		else:
 			screen.playMovie(self.szMovieFile, self.X_WINDOW + self.X_MOVIE, self.Y_WINDOW + self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, -2.3 )
 			
-		screen.setButtonGFC("WonderExit" + str(self.iWonderId), localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+		screen.setButtonGFC("WonderExit" + str(self.iWonderId), SASTextScale.titleText(localText.getText("TXT_KEY_MAIN_MENU_OK", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):

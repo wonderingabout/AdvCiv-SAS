@@ -145,7 +145,7 @@ class CvTechSplashScreen:
 		screen.setStyle(szTextPanel, "Panel_TanT_Style")
 		
 		# Exit Button
-		screen.setButtonGFC("Exit", localText.getText("TXT_KEY_SCREEN_CONTINUE", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT , self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+		screen.setButtonGFC("Exit", SASTextScale.labelText(localText.getText("TXT_KEY_SCREEN_CONTINUE", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT , self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 		
 		# Special Panel
 		szSpecialPanel = "TechSplashSpecialPanel"

@@ -2426,7 +2426,7 @@ class CvVictoryScreen:
 				screen.setDying(True)
 				CyInterface().clearSelectedCities()
 
-				#popup spaceship screen
+				# <!-- custom: note: useful temporary test hook: this popup target can be rerouted to inspect/debug legacy screens (e.g., Wonder Movie) during UI upscaling/layout checks, then restored to showSpaceShip. (GPT-5.3-Codex) -->
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
 				popupInfo.setData1(-1)
