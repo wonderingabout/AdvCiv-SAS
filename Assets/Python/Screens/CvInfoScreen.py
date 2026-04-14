@@ -630,10 +630,10 @@ class CvInfoScreen:
 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
 
 		# LOG button - positioned in top header bar (0-55px height)
-		# <!-- custom: scale Timeline log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
-		if getSASUIFontBody() > 2:
-			self.W_TIMELINE_TABLE_LOG_BUTTON = 60
-			self.H_TIMELINE_TABLE_LOG_BUTTON = 30
+		# <!-- custom: slightly enlarge Timeline LOG button only when label font is upscaled (4), so text fits without wasting space at default sizes. (GPT-5.3-Codex) -->
+		if getSASUIFontLabel() > 3:
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
+			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
 		else:
 			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
 			self.H_TIMELINE_TABLE_LOG_BUTTON = 28

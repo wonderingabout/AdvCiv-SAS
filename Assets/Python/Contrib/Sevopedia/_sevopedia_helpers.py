@@ -575,8 +575,13 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
 	if not IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE:
 		return ""
 
-	chart_log_button_w = 48
-	chart_log_button_h = 28
+	# <!-- custom: mirror Timeline LOG sizing: keep compact default, slightly enlarge only when label font is upscaled (4) so "LOG" remains readable. (GPT-5.3-Codex) -->
+	if getSASUIFontLabel() > 3:
+		chart_log_button_w = 66
+		chart_log_button_h = 32
+	else:
+		chart_log_button_w = 48
+		chart_log_button_h = 28
 	chart_log_button_margin_x = 10
 	chart_log_button_margin_y = 8
 	chart_log_button_footer_bottom_padding = 9

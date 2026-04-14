@@ -380,10 +380,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex) -->
+	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex). Update: increase to support upscaled text in a simple way (not much to display so we can be aggressive; the longest AMB_FINAL_FRONTIER row now barely fits so this is in fact conservative) (was 800) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH</DefineName>
-		<iDefineIntVal>800</iDefineIntVal>
+		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
 
