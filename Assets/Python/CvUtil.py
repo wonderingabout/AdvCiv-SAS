@@ -1,6 +1,10 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
 #
+# <!-- custom: AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (Claude code Opus 4.6) -->
+#
 # for error reporting
 import traceback
 
@@ -10,6 +14,7 @@ import sys
 
 # For Civ game code access
 from CvPythonExtensions import *
+import SASTextScale
 
 # For exception handling
 SHOWEXCEPTIONS = 1
@@ -257,10 +262,13 @@ def getIcon(iconEntry):						# returns Font Icons
 		return (u"%c" %(191,))
 
 # advc: Helper for combatDetailMessageBuilder
+def addCombatMessageScaled(ePlayer, szText):
+	# <!-- custom: upscale Combat Log entries via SAS label font; combat lines are emitted through CyInterface().addCombatMessage from CvUtil/CvEventManager paths. (GPT-5.3-Codex) -->
+	CyInterface().addCombatMessage(ePlayer, SASTextScale.labelText(szText))
+
 def _addCombatMsg(ePlayer, iModifier, szTextKey):
 	if iModifier != 0:
-		CyInterface().addCombatMessage(ePlayer,
-				localText.getText(szTextKey, (iModifier,)))
+		addCombatMessageScaled(ePlayer, localText.getText(szTextKey, (iModifier,)))
 
 def combatDetailMessageBuilder(cdUnit, ePlayer, iChange):
 	_addCombatMsg(ePlayer, cdUnit.iExtraCombatPercent * iChange,
@@ -343,11 +351,11 @@ def combatMessageBuilder(cdAttacker, cdDefender, iCombatOdds):
 	if (cdDefender.eOwner == cdDefender.eVisualOwner):
 		combatMessage += "%s's " %(gc.getPlayer(cdDefender.eOwner).getName(),)
 	combatMessage += "%s (%.2f)" %(cdDefender.sUnitName,cdDefender.iCurrCombatStr/100.0,)
-	CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-	CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+	addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+	addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 	combatMessage = "%s %.1f%%" %(localText.getText("TXT_KEY_COMBAT_MESSAGE_ODDS", ()),iCombatOdds/10.0,)
-	CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-	CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+	addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+	addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 	combatDetailMessageBuilder(cdAttacker,cdAttacker.eOwner,-1)
 	combatDetailMessageBuilder(cdDefender,cdAttacker.eOwner,1)
 	combatDetailMessageBuilder(cdAttacker,cdDefender.eOwner,-1)

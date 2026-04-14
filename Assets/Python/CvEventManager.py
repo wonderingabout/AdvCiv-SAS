@@ -1,6 +1,10 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2006
-## 
+##
+# <!-- custom: AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (Claude code Opus 4.6) -->
+#
 ## CvEventManager
 ## This class is passed an argsList from CvAppInterface.onEvent
 ## The argsList can contain anything from mouse location to key info
@@ -392,20 +396,21 @@ class CvEventManager:
 
 		if (iIsAttacker == 0):				
 			combatMessage = localText.getText("TXT_KEY_COMBAT_MESSAGE_HIT", (szDefenderName, cdDefender.sUnitName, iDamage, cdDefender.iCurrHitPoints, cdDefender.iMaxHitPoints))
-			CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-			CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+			# <!-- custom: route Combat Log lines through CvUtil.addCombatMessageScaled so they follow SAS label upscaling. (GPT-5.3-Codex) -->
+			CvUtil.addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+			CvUtil.addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 			if (cdDefender.iCurrHitPoints <= 0):
 				combatMessage = localText.getText("TXT_KEY_COMBAT_MESSAGE_DEFEATED", (szAttackerName, cdAttacker.sUnitName, szDefenderName, cdDefender.sUnitName))
-				CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-				CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+				CvUtil.addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+				CvUtil.addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 		elif (iIsAttacker == 1):
 			combatMessage = localText.getText("TXT_KEY_COMBAT_MESSAGE_HIT", (szAttackerName, cdAttacker.sUnitName, iDamage, cdAttacker.iCurrHitPoints, cdAttacker.iMaxHitPoints))
-			CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-			CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+			CvUtil.addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+			CvUtil.addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 			if (cdAttacker.iCurrHitPoints <= 0):
 				combatMessage = localText.getText("TXT_KEY_COMBAT_MESSAGE_DEFEATED", (szDefenderName, cdDefender.sUnitName, szAttackerName, cdAttacker.sUnitName))
-				CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-				CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+				CvUtil.addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+				CvUtil.addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 
 	def onImprovementBuilt(self, argsList):
 		'Improvement Built'
