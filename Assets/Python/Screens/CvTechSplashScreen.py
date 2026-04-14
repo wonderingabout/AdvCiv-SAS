@@ -1,9 +1,15 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import string
+from SASFontUtils import *
+import SASTextScale
 
 localText = CyTranslator()
 
@@ -35,17 +41,18 @@ class CvTechSplashScreen:
 		
 		self.iMarginSpace = 15
 		
-		self.X_MAIN_PANEL = 205
-		self.Y_MAIN_PANEL = 55
-		self.W_MAIN_PANEL = 620
-		self.H_MAIN_PANEL = 545
+		# <!-- custom: modest tech splash expansion (+140 width/+100 height) to reduce scrolling for long quotes/unlock lists while preserving the original visual style. (GPT-5.3-Codex) -->
+		self.W_MAIN_PANEL = 760
+		self.H_MAIN_PANEL = 645
+		self.X_MAIN_PANEL = (self.W_SCREEN - self.W_MAIN_PANEL) / 2
+		self.Y_MAIN_PANEL = (self.H_SCREEN - self.H_MAIN_PANEL) / 2
 		
 		# Upper Panel
 		
 		self.X_UPPER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
 		self.Y_UPPER_PANEL = self.Y_MAIN_PANEL + self.iMarginSpace
 		self.W_UPPER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
-		self.H_UPPER_PANEL = 200
+		self.H_UPPER_PANEL = 235
 		
 		self.X_TITLE = self.X_MAIN_PANEL + (self.W_MAIN_PANEL / 2)
 		self.Y_TITLE = self.Y_UPPER_PANEL + 12
@@ -57,12 +64,12 @@ class CvTechSplashScreen:
 		
 		self.X_ICON_PANEL = self.X_UPPER_PANEL + self.iMarginSpace + 2
 		self.Y_ICON_PANEL = self.Y_UPPER_PANEL + self.iMarginSpace + 33
-		self.W_ICON_PANEL = 140
+		self.W_ICON_PANEL = 150
 		self.H_ICON_PANEL = 135#self.H_MAIN_PANEL - (self.iMarginSpace * 2)
 		
 		self.X_QUOTE = self.X_UPPER_PANEL + self.W_ICON_PANEL + (self.iMarginSpace * 2)
 		self.Y_QUOTE = self.Y_UPPER_PANEL + self.iMarginSpace + 36
-		self.W_QUOTE = 400
+		self.W_QUOTE = 500
 		self.H_QUOTE = self.H_UPPER_PANEL - (self.iMarginSpace * 2) - 38
 		
 		# Lower Panel
@@ -70,17 +77,17 @@ class CvTechSplashScreen:
 		self.X_LOWER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
 		self.Y_LOWER_PANEL = self.Y_UPPER_PANEL + self.H_UPPER_PANEL + self.iMarginSpace - 10
 		self.W_LOWER_PANEL = self.W_MAIN_PANEL - (self.iMarginSpace * 2)
-		self.H_LOWER_PANEL = 275#self.H_MAIN_PANEL - (self.iMarginSpace * 2)
+		self.H_LOWER_PANEL = 340#self.H_MAIN_PANEL - (self.iMarginSpace * 2)
 		
 		self.X_SPECIAL_PANEL = self.X_LOWER_PANEL + self.iMarginSpace
 		self.Y_SPECIAL_PANEL = self.Y_LOWER_PANEL + self.iMarginSpace + 25
 		self.W_SPECIAL_PANEL = self.W_LOWER_PANEL - (self.iMarginSpace * 2)
-		self.H_SPECIAL_PANEL = int(self.H_LOWER_PANEL / 2.5)#- (self.iMarginSpace * 2)
+		self.H_SPECIAL_PANEL = int(self.H_LOWER_PANEL / 2.2)#- (self.iMarginSpace * 2)
 		
 		self.X_ALLOWS_PANEL = self.X_LOWER_PANEL + self.iMarginSpace
 		self.Y_ALLOWS_PANEL = self.Y_SPECIAL_PANEL + self.H_SPECIAL_PANEL+ self.iMarginSpace + 15
 		self.W_ALLOWS_PANEL = self.W_LOWER_PANEL - (self.iMarginSpace * 2)
-		self.H_ALLOWS_PANEL = 80
+		self.H_ALLOWS_PANEL = 95
 		
 		# Contents
 		
@@ -158,10 +165,11 @@ class CvTechSplashScreen:
 		screen.setStyle(panelName, "Panel_Black25_Style")
 		
 		# Add Contents
+		# <!-- custom: scale unlocked-tech splash text in Original view so it follows SAS label/title font defines like other upscaled UI screens. (GPT-5.3-Codex) -->
 		
 		# Title
 		szTech = techInfo.getDescription()
-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=4>" + szTech.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY,
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_TITLE + szTech.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY,
 			self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		
 		# Tech Icon
@@ -173,11 +181,11 @@ class CvTechSplashScreen:
 			#screen.addPanel( szQuotePanel, "", "", true, true,
              #                    self.X_QUOTE, self.Y_QUOTE, self.W_QUOTE, self.H_QUOTE, PanelStyles.PANEL_STYLE_IN )
 		
-			screen.addMultilineText( "Text", techInfo.getQuote(),
+			screen.addMultilineText( "Text", SASTextScale.labelText(techInfo.getQuote()),
 						 self.X_QUOTE, self.Y_QUOTE + self.iMarginSpace*2, self.W_QUOTE - (self.iMarginSpace * 2), self.H_QUOTE - (self.iMarginSpace * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		
 		# Special
-		szSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"
+		szSpecialTitle = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
 		szSpecialTitleWidget = "SpecialTitle"
 		screen.setText(szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY,
 			       self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -185,10 +193,10 @@ class CvTechSplashScreen:
 		listName = self.getNextWidgetName()
 		
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, True, -1)[1:]
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
+		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
 		
 		# Allows
-		szAllowsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + u"</font>"
+		szAllowsTitleDesc = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SAS_FONT_TAG_CLOSE
 		szAllowsTitleWidget = "AllowsTitle"
 		screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY,
 			       self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -238,6 +246,3 @@ class CvTechSplashScreen:
 		
 	def update(self, fDelta):
 		return
-
-		
-		

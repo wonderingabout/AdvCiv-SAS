@@ -260,11 +260,13 @@ Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per 
 
 ### Miscallenous screens
 
-Some miscallenous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen).
+Some miscallenous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen), [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py).
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG" alt="0.980_dawn_of_man_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.981_replay_screen.JPG" alt="0.981_replay_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.982_dan_qayle_screen.JPG" alt="0.982_dan_qayle_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG" alt="0.981_tech_splash_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.982_replay_screen.JPG" alt="0.982_replay_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.983_dan_qayle_screen.JPG" alt="0.983_dan_qayle_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG" alt="0.984_hall_of_fame_screen.JPG" width="250"></img>
 
 ### Main Interface rework
 
