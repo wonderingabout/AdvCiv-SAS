@@ -2017,7 +2017,7 @@ class CvVictoryScreen:
 						
 				#add spaceship button
 				if (bSpaceshipFound):
-					screen.setButtonGFC("SpaceShipButton" + str(iLoopVC), localText.getText("TXT_KEY_GLOBELAYER_STRATEGY_VIEW", ()), "", 0, 0, 15, 10, WidgetTypes.WIDGET_GENERAL, self.SPACESHIP_SCREEN_BUTTON, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+					screen.setButtonGFC("SpaceShipButton" + str(iLoopVC), SASTextScale.labelText(localText.getText("TXT_KEY_GLOBELAYER_STRATEGY_VIEW", ())), "", 0, 0, 15, 10, WidgetTypes.WIDGET_GENERAL, self.SPACESHIP_SCREEN_BUTTON, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 					screen.attachControlToTableCell("SpaceShipButton" + str(iLoopVC), szTable, iVictoryTitleRow, 1)
 					
 					victoryDelay = gc.getTeam(iActiveTeam).getVictoryCountdown(iLoopVC)
