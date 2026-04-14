@@ -152,7 +152,7 @@ class CvInfoScreen:
 		self.Y_MARGIN = 80
 		self.SMALL_MARGIN = 20
 		self.H_GRAPH_DROPDOWN = 35
-		self.W_DEMO_DROPDOWN = 200
+		self.W_DEMO_DROPDOWN = 260
 		self.PANEL_HEIGHT = 55
 		self.TIMELINE_TABLE_VERTICAL_GAP = 28
 		self.W_LEFT_BUTTON = 20
@@ -160,8 +160,7 @@ class CvInfoScreen:
 		self.X_LEGEND_MARGIN = 10
 		self.Y_LEGEND_MARGIN = 5
 		self.W_LEGEND_LINE = 30
-		self.H_LEGEND_TEXT = 16
-		self.iGraphLeaderIconSize = 16
+
 		self.iGraphTurnLabelYOffset = 16
 		self.Graph_Status_1in1 = 0
 		self.Graph_Status_7in1 = 1
@@ -252,6 +251,13 @@ class CvInfoScreen:
 		self.W_STATS_BUTTON_SIZE = 24
 		self.H_STATS_BUTTON_SIZE = 24
 		self.Y_TIMELINE_TABLE_LOG_BUTTON = 14
+		# <!-- custom: slightly enlarge Timeline LOG button only when label font is upscaled (4), so text fits without wasting space at default sizes. (GPT-5.3-Codex) -->
+		if getSASUIFontLabel() > 3:
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
+			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
+		else:
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
+			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
 
 		self.iActiveTab = -1
 #		self.iActiveTab = self.iGraphID
@@ -600,10 +606,11 @@ class CvInfoScreen:
 
 		self.X_LEGEND = self.X_DEMO_DROPDOWN
 		self.Y_LEGEND = self.Y_ZOOM_DROPDOWN + self.H_GRAPH_DROPDOWN + 3
+		# <!-- custom: we widened the left control column for legend readability at larger label fonts (3+); keep dropdown width matched to this same column so both stay aligned. In AdvCiv-SAS, most advisors were expanded to use more of the screen, so plenty width still remains for the graph even after this legend increase. (GPT-5.3-Codex) -->
 		self.W_LEGEND = self.W_DEMO_DROPDOWN
 		#self.H_LEGEND = 200	this is computed from the number of players
 
-		self.X_GRAPH = self.X_DEMO_DROPDOWN + self.W_DEMO_DROPDOWN + 10
+		self.X_GRAPH = self.X_LEGEND + self.W_LEGEND + 10
 		self.Y_GRAPH = self.Y_MARGIN
 		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
 		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
@@ -630,13 +637,6 @@ class CvInfoScreen:
 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
 
 		# LOG button - positioned in top header bar (0-55px height)
-		# <!-- custom: slightly enlarge Timeline LOG button only when label font is upscaled (4), so text fits without wasting space at default sizes. (GPT-5.3-Codex) -->
-		if getSASUIFontLabel() > 3:
-			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
-			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
-		else:
-			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
-			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
 		self.X_TIMELINE_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_TIMELINE_TABLE_LOG_BUTTON - 50
 
 		self.X_LEFT_BUTTON = self.X_GRAPH
@@ -650,11 +650,6 @@ class CvInfoScreen:
 		self.X_LEFT_LABEL = self.X_LEFT_BUTTON + self.W_LEFT_BUTTON + 10
 		self.X_RIGHT_LABEL = self.X_RIGHT_BUTTON - 10
 		self.Y_LABEL = self.Y_GRAPH + self.H_GRAPH + 3
-
-		self.X_LEGEND_LINE = self.X_LEGEND_MARGIN
-		self.Y_LEGEND_LINE = self.Y_LEGEND_MARGIN + 9  # to center it relative to the text
-		self.X_LEGEND_TEXT = self.X_LEGEND_LINE + self.W_LEGEND_LINE + 10
-		self.Y_LEGEND_TEXT = self.Y_LEGEND_MARGIN
 
 #BUG: Change Graphs - start
 		self.Graph_Status_Current = self.Graph_Status_1in1
@@ -2162,6 +2157,14 @@ class CvInfoScreen:
 
 	def drawLegend(self):
 		screen = self.getScreen()
+		# Horizontal layout constants (independent of player count and screen height)
+		iXLegendLine = self.X_LEGEND_MARGIN
+		iXLegendText = iXLegendLine + self.W_LEGEND_LINE + 10
+		# Preferred row height: taller for upscaled fonts; capped later to available space
+		if getSASUIFontLabel() >= 3:
+			iPreferRowH = 20
+		else:
+			iPreferRowH = 16
 		# <advc.091>
 		aiLegendPlayers = copy.copy(self.aiPlayersMet)
 		bIgnoreEspionage = False
@@ -2180,8 +2183,8 @@ class CvInfoScreen:
 				szPlayerName = self.getPlayerName(p)
 				if not gc.getPlayer(p).isAlive():
 					szPlayerName += self.BUG_LEGEND_DEAD_SQ_BRACKETED
-				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
-					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
+				if iW_LEGEND < iXLegendText + CyInterface().determineWidth(szPlayerName) + 10:
+					iW_LEGEND = iXLegendText + CyInterface().determineWidth(szPlayerName) + 10
 			for p in self.aiPlayersMetNAEspionage:
 				# <advc.091>
 				if bIgnoreEspionage and self.showTotalScoreGraph(p):
@@ -2189,18 +2192,36 @@ class CvInfoScreen:
 				szPlayerName = self.getPlayerName(p)
 				if not gc.getPlayer(p).isAlive():
 					szPlayerName += self.BUG_LEGEND_DEAD_SQ_BRACKETED
-				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
-					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
+				if iW_LEGEND < iXLegendText + CyInterface().determineWidth(szPlayerName) + 10:
+					iW_LEGEND = iXLegendText + CyInterface().determineWidth(szPlayerName) + 10
 		iLegendRows = self.iNumPlayersMet + self.iNumPlayersMetNAEspionage # advc.091
+		# <!-- custom: keep legend inside the left control area so it never overdraws into the graph when long names enlarge iW_LEGEND. (GPT-5.3-Codex) -->
+		iLegendMaxW = self.X_GRAPH - self.X_LEGEND - 6
+		if iW_LEGEND > iLegendMaxW:
+			iW_LEGEND = iLegendMaxW
+		# <!-- custom: cap row height at runtime so the legend fits between dropdown controls and graph bottom with any number of players. H_LEGEND_TEXT is the preferred height; shrink only when needed. (Claude code Sonnet 4.6) -->
+		if AdvisorOpt.isGraphs():
+			iExtraRows = 4
+		else:
+			iExtraRows = 0
+		if AdvisorOpt.isGraphsLogScale():
+			iExtraRows += 1
+		iAvailH = self.Y_GRAPH + self.H_GRAPH - (self.Y_ZOOM_DROPDOWN + self.H_GRAPH_DROPDOWN + 3)
+		iRowH = iPreferRowH
+		if iLegendRows + iExtraRows > 0:
+			iMaxRowH = max(8, (iAvailH - 2 * self.Y_LEGEND_MARGIN - 3) // (iLegendRows + iExtraRows))
+			if iRowH > iMaxRowH:
+				iRowH = iMaxRowH
+		iLeaderIconSize = max(8, iRowH - 2)
 		if not AdvisorOpt.isGraphs():
-			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + iLegendRows * self.H_LEGEND_TEXT + 3
+			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + iLegendRows * iRowH + 3
 			if AdvisorOpt.isGraphsLogScale():
-				self.H_LEGEND += self.H_LEGEND_TEXT
+				self.H_LEGEND += iRowH
 			self.Y_LEGEND = self.Y_GRAPH + self.H_GRAPH - self.H_LEGEND
 		else:
-			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + (iLegendRows + 4) * self.H_LEGEND_TEXT + 3
+			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + (iLegendRows + 4) * iRowH + 3
 			if AdvisorOpt.isGraphsLogScale():
-				self.H_LEGEND += self.H_LEGEND_TEXT
+				self.H_LEGEND += iRowH
 
 			self.X_LEGEND = self.X_MARGIN + 5
 			if self.Graph_Status_Current == self.Graph_Status_1in1:
@@ -2218,8 +2239,8 @@ class CvInfoScreen:
 		sLEGEND_CANVAS_ID = self.getNextWidgetName()
 		screen.addDrawControl(sLEGEND_CANVAS_ID, None, self.X_LEGEND, self.Y_LEGEND, iW_LEGEND, self.H_LEGEND, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		yLine = self.Y_LEGEND_LINE
-		yText = self.Y_LEGEND + self.Y_LEGEND_TEXT
+		yLine = self.Y_LEGEND_MARGIN + (iRowH // 2) + 1
+		yText = self.Y_LEGEND + self.Y_LEGEND_MARGIN
 
 		for p in aiLegendPlayers:
 #BUG: Change Graphs - start
@@ -2237,7 +2258,7 @@ class CvInfoScreen:
 				textColorA = gc.getPlayer(p).getPlayerTextColorA()
 
 				lineColor = gc.getPlayerColorInfo(gc.getPlayer(p).getPlayerColor()).getColorTypePrimary()
-				self.drawLine(screen, sLEGEND_CANVAS_ID, self.X_LEGEND_LINE, yLine, self.X_LEGEND_LINE + self.W_LEGEND_LINE, yLine, lineColor, True)
+				self.drawLine(screen, sLEGEND_CANVAS_ID, iXLegendLine, yLine, iXLegendLine + self.W_LEGEND_LINE, yLine, lineColor, True)
 			else:
 				textColorR = 175
 				textColorG = 175
@@ -2248,25 +2269,25 @@ class CvInfoScreen:
 			strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
 			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
 			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
-			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
+			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, iLeaderIconSize)
 			szNameWithLeader = SAS_FONT_TAG_LABEL + (u"%s %s" % (szLeaderImg, strColor)) + SAS_FONT_TAG_CLOSE
 
 #BUG: Change Graphs - start
 			if AdvisorOpt.isGraphs():
-				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
-				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 #BUG: Change Graphs - end
 
-			yLine += self.H_LEGEND_TEXT
-			yText += self.H_LEGEND_TEXT
+			yLine += iRowH
+			yText += iRowH
 
 #BUG: Change Graphs - start
 # ADD players where you don't have enough espionage points
 		if AdvisorOpt.isGraphs():
 			# add blank line
-			yLine += self.H_LEGEND_TEXT
-			yText += self.H_LEGEND_TEXT
+			yLine += iRowH
+			yText += iRowH
 			for p in self.aiPlayersMetNAEspionage:
 				# <advc.091>
 				if bIgnoreEspionage and self.showTotalScoreGraph(p):
@@ -2286,20 +2307,20 @@ class CvInfoScreen:
 					textColorA = gc.getPlayer(p).getPlayerTextColorA()
 				# <!-- custom: avoid close to standard name like str -->
 				strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
-				screen.setLabel(self.sPlayerTextWidget[i], "", SAS_FONT_TAG_LABEL + strColor + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				yLine += self.H_LEGEND_TEXT
-				yText += self.H_LEGEND_TEXT
+				screen.setLabel(self.sPlayerTextWidget[i], "", SAS_FONT_TAG_LABEL + strColor + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				yLine += iRowH
+				yText += iRowH
 
-			yText += self.H_LEGEND_TEXT
+			yText += iRowH
 			xShow = self.X_LEGEND + iW_LEGEND / 2
 			screen.setText(self.sShowAllWidget, "", self.SHOW_ALL, CvUtil.FONT_CENTER_JUSTIFY, xShow, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			yText += self.H_LEGEND_TEXT
+			yText += iRowH
 			screen.setText(self.sShowNoneWidget, "", self.SHOW_NONE, CvUtil.FONT_CENTER_JUSTIFY, xShow, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if AdvisorOpt.isGraphsLogScale():
 			xShow = self.X_LEGEND + iW_LEGEND / 2
 			if AdvisorOpt.isGraphs():
-				yText += self.H_LEGEND_TEXT
+				yText += iRowH
 			screen.setLabel(self.getNextWidgetName(), "", self.LOG_SCALE, CvUtil.FONT_CENTER_JUSTIFY, xShow, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def getPlayerName(self, ePlayer):
