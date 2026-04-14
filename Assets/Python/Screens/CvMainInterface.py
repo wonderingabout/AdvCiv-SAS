@@ -4826,8 +4826,8 @@ class CvMainInterface:
 				iEra = gc.getGame().getCurrentEra()
 			else: # </advc.067>
 				iEra = gc.getPlayer(ePlayer).getCurrentEra()
-			szText = localText.getText("TXT_KEY_BUG_ERA",
-					(gc.getEraInfo(iEra).getDescription(),))
+			# <!-- custom: skip TXT_KEY_BUG_ERA ("%s1 Era") and use the description directly — "Renaissance" is shorter and self-explanatory without the "Era" suffix, and avoids overflow with left-side text when upscaled (e.g. during a golden age). (Claude code Sonnet 4.6) -->
+			szText = gc.getEraInfo(iEra).getDescription()
 			if ClockOpt.isUseEraColor():
 				iEraColor = ClockOpt.getEraColor(gc.getEraInfo(iEra).getType())
 				if iEraColor >= 0:

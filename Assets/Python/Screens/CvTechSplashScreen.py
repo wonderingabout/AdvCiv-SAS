@@ -122,31 +122,26 @@ class CvTechSplashScreen:
 		
 		# Main Panel
 		szMainPanel = "TechSplashMainPanel"
-		screen.addPanel( szMainPanel, "", "", true, true,
-			self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( szMainPanel, "", "", true, true, self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
 		
 		# Top Panel
 		szHeaderPanel = "TechSplashHeaderPanel"
-		screen.addPanel( szHeaderPanel, "", "", true, true,
-			self.X_UPPER_PANEL, self.Y_UPPER_PANEL, self.W_UPPER_PANEL, self.H_UPPER_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
+		screen.addPanel( szHeaderPanel, "", "", true, true, self.X_UPPER_PANEL, self.Y_UPPER_PANEL, self.W_UPPER_PANEL, self.H_UPPER_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
 		screen.setStyle(szHeaderPanel, "Panel_DawnBottom_Style")
 		
 		# Icon Panel
 		szIconPanel = "IconPanel"
-		screen.addPanel( szIconPanel, "", "", true, true,
-			self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_UPPER_PANEL-(self.iMarginSpace * 2), self.H_UPPER_PANEL-(self.iMarginSpace * 4), PanelStyles.PANEL_STYLE_MAIN_TAN15 )
+		screen.addPanel( szIconPanel, "", "", true, true, self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_UPPER_PANEL-(self.iMarginSpace * 2), self.H_UPPER_PANEL-(self.iMarginSpace * 4), PanelStyles.PANEL_STYLE_MAIN_TAN15 )
 		screen.setStyle(szIconPanel, "Panel_TechDiscover_Style")
 		
 		# Icon Panel
 		szIconPanel = "IconPanelGlow"
-		screen.addPanel( szIconPanel, "", "", true, true,
-			self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_ICON_PANEL, self.H_ICON_PANEL, PanelStyles.PANEL_STYLE_MAIN_TAN15 )
+		screen.addPanel( szIconPanel, "", "", true, true, self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_ICON_PANEL, self.H_ICON_PANEL, PanelStyles.PANEL_STYLE_MAIN_TAN15 )
 		screen.setStyle(szIconPanel, "Panel_TechDiscoverGlow_Style")
 		
 		# Bottom Panel
 		szTextPanel = "TechSplashTextPanel"
-		screen.addPanel( szTextPanel, "", "", true, true,
-			self.X_LOWER_PANEL+self.iMarginSpace, self.Y_LOWER_PANEL, self.W_LOWER_PANEL-(self.iMarginSpace * 2), self.H_LOWER_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( szTextPanel, "", "", true, true, self.X_LOWER_PANEL+self.iMarginSpace, self.Y_LOWER_PANEL, self.W_LOWER_PANEL-(self.iMarginSpace * 2), self.H_LOWER_PANEL, PanelStyles.PANEL_STYLE_MAIN )
 		screen.setStyle(szTextPanel, "Panel_TanT_Style")
 		
 		# Exit Button
@@ -154,14 +149,12 @@ class CvTechSplashScreen:
 		
 		# Special Panel
 		szSpecialPanel = "TechSplashSpecialPanel"
-		screen.addPanel( szSpecialPanel, "", "", true, true,
-				self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL, self.W_SPECIAL_PANEL-(self.iMarginSpace * 2), self.H_SPECIAL_PANEL, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( szSpecialPanel, "", "", true, true, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL, self.W_SPECIAL_PANEL-(self.iMarginSpace * 2), self.H_SPECIAL_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(szSpecialPanel, "Panel_Black25_Style")
 		
 		# Allows Panel
 		panelName = self.getNextWidgetName()
-		screen.addPanel( panelName, "", "", false, true,
-                                 self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( panelName, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelName, "Panel_Black25_Style")
 		
 		# Add Contents
@@ -169,8 +162,7 @@ class CvTechSplashScreen:
 		
 		# Title
 		szTech = techInfo.getDescription()
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_TITLE + szTech.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY,
-			self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_TITLE + szTech.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		
 		# Tech Icon
 		screen.addDDSGFC(self.getNextWidgetName(), techInfo.getButton(), self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, self.iTech, -1 )
@@ -181,14 +173,12 @@ class CvTechSplashScreen:
 			#screen.addPanel( szQuotePanel, "", "", true, true,
              #                    self.X_QUOTE, self.Y_QUOTE, self.W_QUOTE, self.H_QUOTE, PanelStyles.PANEL_STYLE_IN )
 		
-			screen.addMultilineText( "Text", SASTextScale.labelText(techInfo.getQuote()),
-						 self.X_QUOTE, self.Y_QUOTE + self.iMarginSpace*2, self.W_QUOTE - (self.iMarginSpace * 2), self.H_QUOTE - (self.iMarginSpace * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.addMultilineText( "Text", SASTextScale.labelText(techInfo.getQuote()), self.X_QUOTE, self.Y_QUOTE + self.iMarginSpace*2, self.W_QUOTE - (self.iMarginSpace * 2), self.H_QUOTE - (self.iMarginSpace * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		
 		# Special
 		szSpecialTitle = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
 		szSpecialTitleWidget = "SpecialTitle"
-		screen.setText(szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY,
-			       self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 		listName = self.getNextWidgetName()
 		
@@ -198,30 +188,25 @@ class CvTechSplashScreen:
 		# Allows
 		szAllowsTitleDesc = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SAS_FONT_TAG_CLOSE
 		szAllowsTitleWidget = "AllowsTitle"
-		screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY,
-			       self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 		for j in range( CyGlobalContext().getNumUnitClassInfos() ):
 			eLoopUnit = CyGlobalContext().getCivilizationInfo(CyGlobalContext().getGame().getActiveCivilizationType()).getCivilizationUnits(j)
 			if (eLoopUnit != -1):
 				if (isTechRequiredForUnit(self.iTech, eLoopUnit)):
-	        			screen.attachImageButton( panelName, "", CyGlobalContext().getActivePlayer().getUnitButton(eLoopUnit), GenericButtonSizes.BUTTON_SIZE_CUSTOM,
-								  WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
+					screen.attachImageButton( panelName, "", CyGlobalContext().getActivePlayer().getUnitButton(eLoopUnit), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
 
 		for j in range(CyGlobalContext().getNumBuildingClassInfos()):
 			bTechFound = 0
 			eLoopBuilding = CyGlobalContext().getCivilizationInfo(CyGlobalContext().getGame().getActiveCivilizationType()).getCivilizationBuildings(j)
 			if (eLoopBuilding != -1):
 				if (isTechRequiredForBuilding(self.iTech, eLoopBuilding)):
-	        			screen.attachImageButton( panelName, "", CyGlobalContext().getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM,
-								  WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
+					screen.attachImageButton( panelName, "", CyGlobalContext().getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
 
 		for j in range(CyGlobalContext().getNumProjectInfos()):
 			bTechFound = 0
 			if (isTechRequiredForProject(self.iTech, j)):
-				screen.attachImageButton( panelName, "", CyGlobalContext().getProjectInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM,
-							  WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, j, 1, False )
-							  				
+				screen.attachImageButton( panelName, "", CyGlobalContext().getProjectInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, j, 1, False )
 
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):

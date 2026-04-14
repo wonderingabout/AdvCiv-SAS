@@ -1676,7 +1676,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					szTrackName = info.getSoundtrackScriptName(iTrack)
 				except:
 					szTrackName = u""
-				szLabel = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()) + u" - Track " + (u"%02d" % (iTrack + 1))
+				szLabel = u"Track " + (u"%02d" % (iTrack + 1))
 				if szTrackName:
 					szLabel = szLabel + u" - " + unicode(szTrackName)
 				return szLabel
