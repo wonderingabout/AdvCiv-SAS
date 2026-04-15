@@ -6,7 +6,7 @@ Note: if a google drive link is missing or redundantly copy pasted from one know
 
 Note 2: this doc may be outdated or not updated for some parts, but it is still useful for documentation, google drive links with screenshots of before/after, documentation, context for the changes, observed results, etc. For the updated changes, see rather the main change guides, for example the [Main Changes Guide](/README.md#main-changes-guide).
 
-hopefully helpful, thanks thanks,
+Note 3: all issues that have a drive link are also accessible via the [common known issues drive folder](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8).
 
 ## Menu
 
@@ -3978,9 +3978,9 @@ If you want, paste your current **AI** growth-related rows (or just confirm you 
 
 ## 92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pIXiY183a1NpEBSxr5zFUtcg56rwAXwV?usp=sharing).
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NoH3gqWnHBD9J5e_VwmQxJO_iUsFpfv6?usp=sharing).
 
-I noticed these in the new Sevopedia Game speed that below Marathon values were way to high vs what marathon had (100 vs 1).
+I noticed these in the new Sevopedia Game speed that below Marathon values were way too high vs what marathon had (100 vs 1).
 
 Now fixed with code comments, and added the `iExtraFreeOutsideUnits` (plus `iUnitCostPercent`) fields that were missing in XML too instead of relying on DLL defaults.
 

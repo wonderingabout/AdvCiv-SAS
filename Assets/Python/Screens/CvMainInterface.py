@@ -7263,93 +7263,63 @@ class CvMainInterface:
 			scores = None # </advc>
 # BUG - Align Icons - end
 		# (BUG - Power Rating)  advc: Moved into the loop
-		i = gc.getMAX_CIV_TEAMS() - 1
-		while i > -1:
-			eTeam = gc.getGame().getRankTeam(i)
+		# <!-- custom: refactor: keep a single ranked traversal, then reuse that ordered list for slice-based non-aligned draw or aligned BUG draw; this removes duplicate nested loops while preserving behavior. (GPT-5.3-Codex) -->
+		aeVisiblePlayers = []
+		for iTeamRank in range(gc.getMAX_CIV_TEAMS() - 1, -1, -1):
+			eTeam = gc.getGame().getRankTeam(iTeamRank)
 			# advc.085: Moved to BUG Scoreboard (static method)
-			if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+			if not Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+				continue
 # BUG - Align Icons - start
+			if bAlignIcons:
+				scores.addTeam(gc.getTeam(eTeam), iTeamRank)
+# BUG - Align Icons - end
+			for iPlayerRank in range(gc.getMAX_CIV_PLAYERS() - 1, -1, -1):
+				ePlayer = gc.getGame().getRankPlayer(iPlayerRank)
+				# advc.085: Moved to BUG Scoreboard
+				if (not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) or
+						gc.getPlayer(ePlayer).getTeam() != eTeam):
+					continue
+				aeVisiblePlayers.append(ePlayer)
 				if bAlignIcons:
-					scores.addTeam(gc.getTeam(eTeam), i)
-# BUG - Align Icons - end
-				j = gc.getMAX_CIV_PLAYERS() - 1
-				while j > -1:
-					ePlayer = gc.getGame().getRankPlayer(j)
-					# advc.085: Moved to BUG Scoreboard
-					if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
-							gc.getPlayer(ePlayer).getTeam() == eTeam):
-						szBuffer = SAS_FONT_TAG_LABEL
-# BUG - Align Icons - start
-						if bAlignIcons:
-							scores.addPlayer(gc.getPlayer(ePlayer), j)
-# BUG - Align Icons - end
-						# advc: Code moved into auxiliary function
-						szBuffer += self.playerScoreString(ePlayer, scores, bAlignIcons)
-						szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
-# BUG - Align Icons - start
-						if not bAlignIcons:
-							iCount += 1
-# BUG - Align Icons - end
-					j = j - 1
-			i = i - 1
-		# <!-- custom: for the non-BUG path, iTotalCount is now in iCount; reset iCount for the drawing pass below. -->
+					scores.addPlayer(gc.getPlayer(ePlayer), iPlayerRank)
+					# AdvCiv/BUG aligned path fills per-part fields through playerScoreString side effects.
+					self.playerScoreString(ePlayer, scores, True)
+		iTotalCount = len(aeVisiblePlayers)
 		if not bAlignIcons:
-			iTotalCount = iCount
-			iCount = 0
-			# Clamp scroll offset
 			if iTotalCount <= iMaxRows:
 				self.iScoreScrollOffset = 0
 			else:
 				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
-			# Second pass: draw only the visible window
-			i = gc.getMAX_CIV_TEAMS() - 1
-			iValidIdx = 0
-			while i > -1:
-				eTeam = gc.getGame().getRankTeam(i)
-				if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
-					j = gc.getMAX_CIV_PLAYERS() - 1
-					while j > -1:
-						ePlayer = gc.getGame().getRankPlayer(j)
-						if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
-								gc.getPlayer(ePlayer).getTeam() == eTeam):
-							if iValidIdx >= self.iScoreScrollOffset and iValidIdx < self.iScoreScrollOffset + iMaxRows:
-								szBuffer = SAS_FONT_TAG_LABEL
-								szBuffer += self.playerScoreString(ePlayer, None, False)
-								szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
-								if CyInterface().determineWidth(szBuffer) > iWidth:
-									iWidth = CyInterface().determineWidth(szBuffer)
-								szName = "ScoreText" + str(ePlayer)
+			aeVisibleSlice = aeVisiblePlayers[self.iScoreScrollOffset : self.iScoreScrollOffset + iMaxRows]
+			iCount = 0
+			for ePlayer in aeVisibleSlice:
+				szBuffer = SAS_FONT_TAG_LABEL + self.playerScoreString(ePlayer, None, False) + SAS_FONT_TAG_CLOSE
+				iTextW = CyInterface().determineWidth(szBuffer)
+				if iTextW > iWidth:
+					iWidth = iTextW
+				szName = "ScoreText" + str(ePlayer)
 # BUG - Dead Civs - start
-								if gc.getPlayer(ePlayer).isAlive():
-									iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
-									eContactPlayer = ePlayer
-								else:
-									iWidgetType = WidgetTypes.WIDGET_GENERAL
-									eContactPlayer = -1
-								yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
-								screen.setText(szName, "Background",
-										szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
-										gPoint("ScoreTextLowerRight").x(),
-										yCoord - iCount * iBtnHeight,
-										-0.3, FontTypes.SMALL_FONT,
-										iWidgetType, eContactPlayer, -1)
+				if gc.getPlayer(ePlayer).isAlive():
+					iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
+					eContactPlayer = ePlayer
+				else:
+					iWidgetType = WidgetTypes.WIDGET_GENERAL
+					eContactPlayer = -1
+				yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
+				screen.setText(szName, "Background",
+						szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
+						gPoint("ScoreTextLowerRight").x(),
+						yCoord - iCount * iBtnHeight,
+						-0.3, FontTypes.SMALL_FONT,
+						iWidgetType, eContactPlayer, -1)
 # BUG - Dead Civs - end
-								screen.show(szName)
-								CyInterface().checkFlashReset(ePlayer)
-								iCount += 1
-							iValidIdx += 1
-						j = j - 1
-				i = i - 1
+				screen.show(szName)
+				CyInterface().checkFlashReset(ePlayer)
+				iCount += 1
 			self.updateScoreBackgrSize(iWidth, iBtnHeight * iCount) # advc.092
-			iTotalCount = iValidIdx  # actual total (may differ from pre-count if filters changed)
 		else:
-			# BUG aligned path: let Scoreboard.draw handle slicing
-			if scores is not None:
-				iTotalCount = len(scores._playerScores)
-			else:
-				iTotalCount = 0
-			# Clamp scroll offset against the pre-sort count (sort may truncate via maxPlayers)
-			# draw() will re-clamp after sort; this is a best-effort pre-clamp.
+			# BUG aligned path: let Scoreboard.draw handle slicing.
 			if iTotalCount <= iMaxRows:
 				self.iScoreScrollOffset = 0
 			else:
