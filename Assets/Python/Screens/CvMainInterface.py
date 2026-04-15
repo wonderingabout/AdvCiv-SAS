@@ -669,6 +669,8 @@ class CvMainInterface:
 		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
 		self.bSASLastCommerceRectsCityScreen = None
+		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
+		self.iScoreScrollOffset = 0
 
 
 
@@ -964,6 +966,10 @@ class CvMainInterface:
 		gSetSquare("TurnLogButton", "Top",
 				iTurnLogBtnMargin, gRect("AdvisorButtons").y() - 1,
 				gRect("AdvisorButtons").height())
+		# <!-- custom: score-scroll button placeholder rects; actual position is set at runtime in updateScoreStrings via moveItem because GlobeToggle.y() is still 0 at init time. (Claude code Sonnet 4.6) -->
+		iSScrollBtnSz = BTNSZ(20)
+		gSetRect("ScoreScrollUp", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+		gSetRect("ScoreScrollDown", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		if self.bScaleHUD:
 			# To make room for the Turn Log, whose (default) position I can't change.
 			gRect("TurnLogButton").move(6, -3)
@@ -2350,6 +2356,13 @@ class CvMainInterface:
 		self.addStackedBar("NationalityBar", WidgetTypes.WIDGET_HELP_NATIONALITY)
 		screen.hide("NationalityBar")
 
+		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows. (Claude code Sonnet 4.6) -->
+		self.setStyledButton("ScoreScrollUp", ButtonStyles.BUTTON_STYLE_CITY_PLUS,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.hide("ScoreScrollUp")
+		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.hide("ScoreScrollDown")
 		self.setStyledButton("CityScrollMinus", ButtonStyles.BUTTON_STYLE_ARROW_LEFT,
 				WidgetTypes.WIDGET_CITY_SCROLL, -1)
 		screen.hide("CityScrollMinus")
@@ -7159,13 +7172,14 @@ class CvMainInterface:
 	# with BUG code from Scoreboard.draw.
 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
 		iRMargin = gRect("Top").xRight() - gPoint("ScoreTextLowerRight").x()
-		iBMargin = gRect("GlobeToggle").y() - gPoint("ScoreTextLowerRight").y()
-		# These are bigger inner margins than I thought should be needed. Strange.
+		# <!-- custom: fixed symmetric panel margin matching original (3*iBMargin/2 with iBMargin=VSPACE(6)) so text is always centered; no longer derived from iBMargin which blows up when iScoreBottom moves. (Claude code Sonnet 4.6) -->
+		iSidePad = VSPACE(9)
+		iScoreBottomY = gPoint("ScoreTextLowerRight").y()
 		self.screen.setPanelSize("ScoreBackground",
 				gRect("Top").xRight() - iTextWidth - 2 * iRMargin,
-				gRect("GlobeToggle").y() - iTextHeight - (5 * iBMargin) / 2,
+				iScoreBottomY - iTextHeight - iSidePad,
 				iTextWidth + (7 * iRMargin) / 4,
-				iTextHeight + 3 * iBMargin)
+				iTextHeight + 2 * iSidePad)
 
 	def updateScoreStrings(self, bOnlyBackgr = False): # advc.004z: new param
 		screen = self.screen
@@ -7173,6 +7187,8 @@ class CvMainInterface:
 		if not bOnlyBackgr:
 			self.hideScoreStrings() # </advc.004z>
 		screen.hide("ScoreBackground")
+		screen.hide("ScoreScrollUp")
+		screen.hide("ScoreScrollDown")
 		eUIVis = CyInterface().getShowInterface()
 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or
 				eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or
@@ -7194,9 +7210,20 @@ class CvMainInterface:
 		iCount = 0
 		iBtnHeight = VLEN(22)
 		# <advc.092> The Scoreboard module will use this too
+		# <!-- custom: compute available scoreboard height and cap visible rows; show scroll buttons when player count exceeds capacity. (Claude code Sonnet 4.6) -->
+		# <!-- custom: buttons sit just above GlobeToggle; iScoreBottom is panel text-bottom = buttons_y - gap - iSidePad, so panel is exactly symmetric (9px each side) matching original. (Claude code Sonnet 4.6) -->
+		iSScrollBtnSz = gRect("ScoreScrollUp").width()
+		iSScrollY = gRect("GlobeToggle").y() - iSScrollBtnSz  # buttons flush above GlobeToggle
+		iScoreBottom = iSScrollY - VSPACE(2) - VSPACE(9)  # 2px gap + 9px panel bottom margin
 		gSetPoint("ScoreTextLowerRight", PointLayout(
 				gRect("MiniMap").xRight(),
-				gRect("GlobeToggle").y() - VSPACE(6))) # </advc.092>
+				iScoreBottom)) # </advc.092>
+		iScoreTopMin = gRect("AdvisorButtons").yBottom()
+		iAvailH = iScoreBottom - iScoreTopMin
+		iMaxRows = max(1, iAvailH // iBtnHeight)
+		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
+		screen.moveItem("ScoreScrollUp", gPoint("ScoreTextLowerRight").x() - 2 * iSScrollBtnSz - HSPACE(1), iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollDown", gPoint("ScoreTextLowerRight").x() - iSScrollBtnSz, iSScrollY, -0.3)
 # BUG - Align Icons - start
 		bAlignIcons = ScoreOpt.isAlignIcons()
 		if bAlignIcons:
@@ -7234,38 +7261,81 @@ class CvMainInterface:
 						szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
 # BUG - Align Icons - start
 						if not bAlignIcons:
-							if CyInterface().determineWidth(szBuffer) > iWidth:
-								iWidth = CyInterface().determineWidth(szBuffer)
-							szName = "ScoreText" + str(ePlayer)
-# BUG - Dead Civs - start
-							# Don't try to contact dead civs
-							if gc.getPlayer(ePlayer).isAlive():
-								iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
-								eContactPlayer = ePlayer
-							else:
-								iWidgetType = WidgetTypes.WIDGET_GENERAL
-								eContactPlayer = -1
-							yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
-							screen.setText(szName, "Background",
-									szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
-									gPoint("ScoreTextLowerRight").x(),
-									yCoord - iCount * iBtnHeight,
-									-0.3, FontTypes.SMALL_FONT,
-									iWidgetType, eContactPlayer, -1)
-# BUG - Dead Civs - end
-							screen.show(szName)
-							CyInterface().checkFlashReset(ePlayer)
 							iCount += 1
 # BUG - Align Icons - end
 					j = j - 1
 			i = i - 1
-
-# BUG - Align Icons - start
-		if bAlignIcons:
-			scores.draw(screen)
-		else:
+		# <!-- custom: for the non-BUG path, iTotalCount is now in iCount; reset iCount for the drawing pass below. -->
+		if not bAlignIcons:
+			iTotalCount = iCount
+			iCount = 0
+			# Clamp scroll offset
+			if iTotalCount <= iMaxRows:
+				self.iScoreScrollOffset = 0
+			else:
+				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
+			# Second pass: draw only the visible window
+			i = gc.getMAX_CIV_TEAMS() - 1
+			iValidIdx = 0
+			while i > -1:
+				eTeam = gc.getGame().getRankTeam(i)
+				if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+					j = gc.getMAX_CIV_PLAYERS() - 1
+					while j > -1:
+						ePlayer = gc.getGame().getRankPlayer(j)
+						if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
+								gc.getPlayer(ePlayer).getTeam() == eTeam):
+							if iValidIdx >= self.iScoreScrollOffset and iValidIdx < self.iScoreScrollOffset + iMaxRows:
+								szBuffer = SAS_FONT_TAG_LABEL
+								szBuffer += self.playerScoreString(ePlayer, None, False)
+								szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
+								if CyInterface().determineWidth(szBuffer) > iWidth:
+									iWidth = CyInterface().determineWidth(szBuffer)
+								szName = "ScoreText" + str(ePlayer)
+# BUG - Dead Civs - start
+								if gc.getPlayer(ePlayer).isAlive():
+									iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
+									eContactPlayer = ePlayer
+								else:
+									iWidgetType = WidgetTypes.WIDGET_GENERAL
+									eContactPlayer = -1
+								yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
+								screen.setText(szName, "Background",
+										szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
+										gPoint("ScoreTextLowerRight").x(),
+										yCoord - iCount * iBtnHeight,
+										-0.3, FontTypes.SMALL_FONT,
+										iWidgetType, eContactPlayer, -1)
+# BUG - Dead Civs - end
+								screen.show(szName)
+								CyInterface().checkFlashReset(ePlayer)
+								iCount += 1
+							iValidIdx += 1
+						j = j - 1
+				i = i - 1
 			self.updateScoreBackgrSize(iWidth, iBtnHeight * iCount) # advc.092
+			iTotalCount = iValidIdx  # actual total (may differ from pre-count if filters changed)
+		else:
+			# BUG aligned path: let Scoreboard.draw handle slicing
+			if scores is not None:
+				iTotalCount = len(scores._playerScores)
+			else:
+				iTotalCount = 0
+			# Clamp scroll offset against the pre-sort count (sort may truncate via maxPlayers)
+			# draw() will re-clamp after sort; this is a best-effort pre-clamp.
+			if iTotalCount <= iMaxRows:
+				self.iScoreScrollOffset = 0
+			else:
+				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
+# BUG - Align Icons - start
+			scores.draw(screen, self.iScoreScrollOffset, iMaxRows)
 # BUG - Align Icons - end
+		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
+		if iTotalCount > iMaxRows:
+			if self.iScoreScrollOffset < iTotalCount - iMaxRows:
+				screen.show("ScoreScrollUp")
+			if self.iScoreScrollOffset > 0:
+				screen.show("ScoreScrollDown")
 
 	# <advc> Body cut from updateScoreStrings in order to reduce indentation
 	def playerScoreString(self, ePlayer, scores, bAlignIcons):
@@ -8008,6 +8078,15 @@ class CvMainInterface:
 						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
 					self.iCityBuildBarPinnedRow += 1
 					return 0
+				# <!-- custom: score scroll buttons; + scrolls down (more lower-ranked), - scrolls back up (toward rank 1). (Claude code Sonnet 4.6) -->
+				elif fn == "ScoreScrollUp":
+					self.iScoreScrollOffset += 1
+					self.updateScoreStrings()
+					return 1
+				elif fn == "ScoreScrollDown":
+					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - 1)
+					self.updateScoreStrings()
+					return 1
 				elif fn.startswith("BuildFilter"):
 					iNewFilter = inputClass.getData1()
 					if iNewFilter != self.iBuildingFilter:

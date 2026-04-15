@@ -450,7 +450,7 @@ class Scoreboard:
 
 	
 		
-	def draw(self, screen):
+	def draw(self, screen, iScrollOffset=0, iMaxRows=None):
 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
 		#
 		timer = BugUtil.Timer("scores")
@@ -458,6 +458,10 @@ class Scoreboard:
 		self.assignRanks()
 		self.gatherVassals()
 		self.sort()
+		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. (Claude code Sonnet 4.6) -->
+		if iMaxRows is not None:
+			iScrollOffset = max(0, min(iScrollOffset, max(0, len(self._playerScores) - iMaxRows)))
+			self._playerScores = self._playerScores[iScrollOffset : iScrollOffset + iMaxRows]
 		# <advc.092> "Default" choices added
 		bScaleHUD = BugCore.game.MainInterface.isEnlargeHUD()
 		if ScoreOpt.isRowHeightDefault():
