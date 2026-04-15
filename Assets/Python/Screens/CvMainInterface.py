@@ -53,6 +53,16 @@ import ProgressBarUtil # BUG - Progress Bar
 import PLE # PLE Code
 import MinimapOptions # advc.002a
 import RawYields # BUG - Raw Yields
+import WidgetUtil
+# <!-- custom: custom widget types for scoreboard scroll/expand buttons; registered once at module load so hover text works. (Claude code Sonnet 4.6) -->
+WIDGET_SCORE_SCROLL_UP     = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
+WIDGET_SCORE_SCROLL_DOWN   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
+WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
+def _scoreHelp(szText):
+	return lambda *_: SAS_FONT_TAG_HOVER + szText + SAS_FONT_TAG_CLOSE
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP,     _scoreHelp(u"Scroll scoreboard up"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN,   _scoreHelp(u"Scroll scoreboard down"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
 # <advc.090>
 import math
 def floor(f):
@@ -671,6 +681,8 @@ class CvMainInterface:
 		self.bSASLastCommerceRectsCityScreen = None
 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
 		self.iScoreScrollOffset = 0
+		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
+		self.bScoreAlwaysExpand = False
 
 
 
@@ -750,6 +762,8 @@ class CvMainInterface:
 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
+		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
 		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
@@ -970,6 +984,7 @@ class CvMainInterface:
 		iSScrollBtnSz = BTNSZ(20)
 		gSetRect("ScoreScrollUp", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreScrollDown", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+		gSetRect("ScoreExpandToggle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		if self.bScaleHUD:
 			# To make room for the Turn Log, whose (default) position I can't change.
 			gRect("TurnLogButton").move(6, -3)
@@ -2358,11 +2373,18 @@ class CvMainInterface:
 
 		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows. (Claude code Sonnet 4.6) -->
 		self.setStyledButton("ScoreScrollUp", ButtonStyles.BUTTON_STYLE_CITY_PLUS,
-				WidgetTypes.WIDGET_GENERAL, -1, -1)
+				WIDGET_SCORE_SCROLL_UP, -1, -1)
 		screen.hide("ScoreScrollUp")
 		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS,
-				WidgetTypes.WIDGET_GENERAL, -1, -1)
+				WIDGET_SCORE_SCROLL_DOWN, -1, -1)
 		screen.hide("ScoreScrollDown")
+		# <!-- custom: always-expand toggle; resolve SAS emoji path explicitly (addCheckBox only auto-resolves INTERFACE_/BUTTON_/RAW_YIELDS_/PLE_ prefixes). (Claude code Sonnet 4.6) -->
+		self.addCheckBox("ScoreExpandToggle",
+				self.szScoreExpandTogglePath, self.szScoreExpandTogglePath,
+				ButtonStyles.BUTTON_STYLE_IMAGE,
+				WIDGET_SCORE_EXPAND_TOGGLE)
+		screen.setState("ScoreExpandToggle", False)
+		screen.hide("ScoreExpandToggle")
 		self.setStyledButton("CityScrollMinus", ButtonStyles.BUTTON_STYLE_ARROW_LEFT,
 				WidgetTypes.WIDGET_CITY_SCROLL, -1)
 		screen.hide("CityScrollMinus")
@@ -7189,6 +7211,7 @@ class CvMainInterface:
 		screen.hide("ScoreBackground")
 		screen.hide("ScoreScrollUp")
 		screen.hide("ScoreScrollDown")
+		screen.hide("ScoreExpandToggle")
 		eUIVis = CyInterface().getShowInterface()
 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or
 				eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or
@@ -7224,6 +7247,10 @@ class CvMainInterface:
 		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
 		screen.moveItem("ScoreScrollUp", gPoint("ScoreTextLowerRight").x() - 2 * iSScrollBtnSz - HSPACE(1), iSScrollY, -0.3)
 		screen.moveItem("ScoreScrollDown", gPoint("ScoreTextLowerRight").x() - iSScrollBtnSz, iSScrollY, -0.3)
+		# <!-- custom: always-expand toggle sits to the left of the scroll buttons with a small gap. (Claude code Sonnet 4.6) -->
+		screen.moveItem("ScoreExpandToggle", gPoint("ScoreTextLowerRight").x() - 3 * iSScrollBtnSz - HSPACE(6), iSScrollY, -0.3)
+		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
+		screen.show("ScoreExpandToggle")
 # BUG - Align Icons - start
 		bAlignIcons = ScoreOpt.isAlignIcons()
 		if bAlignIcons:
@@ -7328,7 +7355,7 @@ class CvMainInterface:
 			else:
 				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
 # BUG - Align Icons - start
-			scores.draw(screen, self.iScoreScrollOffset, iMaxRows)
+			scores.draw(screen, self.iScoreScrollOffset, iMaxRows, self.bScoreAlwaysExpand)
 # BUG - Align Icons - end
 		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
 		if iTotalCount > iMaxRows:
@@ -8085,6 +8112,11 @@ class CvMainInterface:
 					return 1
 				elif fn == "ScoreScrollDown":
 					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - 1)
+					self.updateScoreStrings()
+					return 1
+				# <!-- custom: always-expand toggle; flips bScoreAlwaysExpand so expanded columns are shown permanently. (Claude code Sonnet 4.6) -->
+				elif fn == "ScoreExpandToggle":
+					self.bScoreAlwaysExpand = not self.bScoreAlwaysExpand
 					self.updateScoreStrings()
 					return 1
 				elif fn.startswith("BuildFilter"):
