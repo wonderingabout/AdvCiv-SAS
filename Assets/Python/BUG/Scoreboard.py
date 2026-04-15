@@ -450,7 +450,7 @@ class Scoreboard:
 
 	
 		
-	def draw(self, screen, iScrollOffset=0, iMaxRows=None):
+	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False):
 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
 		#
 		timer = BugUtil.Timer("scores")
@@ -494,7 +494,8 @@ class Scoreboard:
 		szDisplayOrder = ScoreOpt.getDisplayOrder()
 		# <advc.085>
 		bExpanded = False
-		if gc.getPlayer(self._activePlayer).isScoreboardExpanded():
+		# <!-- custom: bForceExpanded overrides hover requirement; always shows expanded columns. (Claude code Sonnet 4.6) -->
+		if bForceExpanded or gc.getPlayer(self._activePlayer).isScoreboardExpanded():
 			bExpanded = True
 		else: # Take out the keys preceded by an underscore
 			stringsToRemove = []

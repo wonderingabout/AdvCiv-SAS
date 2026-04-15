@@ -10,7 +10,7 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 
 
 Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
-A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions.
+A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
 
 New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
@@ -45,6 +45,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Main interface rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
+&emsp;[Scoreboard](/README.md#scoreboard)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia)](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia)  
 &emsp;[Other new categories](/README.md#other-new-categories)  
@@ -289,6 +290,14 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
 #### Map view rework
 
 Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
+
+### Scoreboard
+
+New features have been added: scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
+
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG" alt="0.410_scoreboard (3).JPG" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
 
