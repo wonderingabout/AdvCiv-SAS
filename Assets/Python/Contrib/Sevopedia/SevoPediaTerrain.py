@@ -8,6 +8,8 @@
 
 from CvPythonExtensions import *
 import CvUtil
+from SASFontUtils import *
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -116,6 +118,7 @@ class SevoPediaTerrain:
 		self.placeUnitsImpassable()
 		self.placeSpecial()
 		self.placeHistory()
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
 
 
 
@@ -132,7 +135,7 @@ class SevoPediaTerrain:
 
 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panel, False)
-		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, SASTextScale.titleText(info.getDescription()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <!-- custom: add missing txt key "Terrain" not in RFC DOC mod (didn't recheck but i assume it was as such seeing it is as of now hardcoded), instead of hardcoded one, now moved to its own txt key -->
 		# <!-- custom: also display some terrains as plot types / terrains, see xml txt key code comment for details. -->
@@ -141,7 +144,7 @@ class SevoPediaTerrain:
 		else:
 			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_TERRAIN_CUSTOM"
 
-		screen.appendListBoxString(panel, localText.getText(txtKeyTerrainPlotTypeLabel, ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, SASTextScale.labelText(localText.getText(txtKeyTerrainPlotTypeLabel, ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if self.iTerrain == self.I_TERRAIN_HILL:
 			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
@@ -153,7 +156,7 @@ class SevoPediaTerrain:
 				if iYieldChange != 0:
 					szStats += (u"%d%c  " % (iYieldChange, gc.getYieldInfo(iYield).getChar()))
 
-		screen.appendListBoxString(panel, szStats, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, SASTextScale.titleText(szStats), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -204,7 +207,7 @@ class SevoPediaTerrain:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = self.Y_BUILD_UNITS + (self.H_BUILD_UNITS / 2)
-			screen.addMultilineText(textName, szText, self.X_BUILD_UNITS + 7, yPanelCenter, self.W_BUILD_UNITS - 14, self.H_BUILD_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILD_UNITS + 7, yPanelCenter, self.W_BUILD_UNITS - 14, self.H_BUILD_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -229,13 +232,13 @@ class SevoPediaTerrain:
 			# <!-- custom: note: do not use yPanelCenter as this is a panel with quite high height, higher (no pun) than default or usual panel height, and it seems that maybe the panel's height is not a clean as chatgpt said this word clean to rephrase my more explanation and question of it maybe not being a multiplier of one line height, so starting from center it would overfill (as it would start a bit below the exact half if inner panel does not have an exactly aligned total height being a line multiplier maybe, check if accurate, so to solve this start a bit higher than the center instead. -->
 			#yPanelCenter = yPanel + (hPanel / 2)
 			yPanelCenter = yPanel + int(0.42 * hPanel)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		else:
 			szText = info.getHelp()
 			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
 			szText = szText.replace("\n\n", "\n").strip()
-			screen.addMultilineText(text, szText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(text, SASTextScale.labelText(szText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -257,7 +260,7 @@ class SevoPediaTerrain:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
 			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		else:
 			for iFeature in xrange(gc.getNumFeatureInfos()):
@@ -288,7 +291,7 @@ class SevoPediaTerrain:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
 			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		else:
 			isHillTerrain = (self.iTerrain == self.I_TERRAIN_HILL)
@@ -338,7 +341,7 @@ class SevoPediaTerrain:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
 			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
@@ -373,7 +376,7 @@ class SevoPediaTerrain:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoDisplay, ())
 			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
@@ -473,22 +476,7 @@ class SevoPediaTerrain:
 					if (iHillsAttack != 0 or iHillsDefense != 0):
 						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
 					else:
-						# <!-- custom: display first the modifier, and only if there are no modifiers, try to display the promotion(s) instead if there are any promotion(s); also efficient code computationally provided added with the help of chatgpt thanks. -->
-						s = ""
-						if isHasHM1:
-							s = "HM1"
-						if isHasHM2:
-							if s:
-								s += "+2"
-							else:
-								s = "HM2"
-						if isHasHM3:
-							if s:
-								s += "+3"
-							else:
-								s = "HM3"
-						if s:
-							numTxt = s
+						numTxt = get_numTxt_promotion_tier_compact("HM", isHasHM1, isHasHM2, isHasHM3)
 
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
@@ -643,9 +631,10 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
 
 		szHistory = info.getCivilopedia()
-		screen.addMultilineText(text, szHistory, self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(text, SASTextScale.labelText(szHistory), self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
 	def handleInput (self, inputClass):
 		return 0
+

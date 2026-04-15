@@ -20,8 +20,9 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
+from SASFontUtils import SAS_FONT_TAG_LABEL_BOLD
 from _sevopedia_helpers import *
-from SASUtils import getNewConceptID
 # <!-- custom: import to display chars before Traits -->
 import TraitUtil
 
@@ -38,9 +39,9 @@ localText = CyTranslator()
 
 # <!-- custom: Leader page display toggle (not part of AI cache module). -->
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
-IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
 IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
+IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
 SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
 SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
 SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
@@ -65,9 +66,6 @@ EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = _SAS_LeaderAIPValues.EXCLUDED_LEADER
 
 # <!-- custom: cache containers (populated once per session from SevoPediaMain). -->
 LEADERS_INFO_CACHED = {}
-AI_RIGHT_CATEGORIES = ()
-AI_MIDDLE_CATEGORIES = ()
-AI_LEFT_CATEGORIES = ()
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Called once (from SevoPediaMain) to prebuild the AI Personality Panel cache.
@@ -101,18 +99,51 @@ class SevoPediaLeader:
 		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
+		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost. Also only do this when AIP is enabled; otherwise skip needless setup. We intentionally don't re-resolve on in-session resolution changes: main interface still needs restart after such changes for correct layout, so dynamic Sevopedia-only redraw adds complexity for little practical gain. (GPT-5.3-Codex) -->
+		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+			iScreenHeight = self.top.getScreen().getYResolution()
+			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = self.buildAICategoriesForCurrentResolution(iScreenHeight)
+		else:
+			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = (), (), ()
 
-		self.X_LEADERHEAD_PANE = self.top.X_PEDIA_PAGE
+		self.N_AI_TABLE_NUM = 3
+		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+		if iLeaderItemsWidthFont2 <= 0:
+			iLeaderItemsWidthFont2 = self.top.SAS_W_ITEMS_BASE
+		iLabelFont = getSASUIFontLabel()
+		if iLabelFont <= 1:
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+		elif iLabelFont == 2:
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+		elif iLabelFont == 3:
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+		else:
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
+		if iLeaderItemsWidthCurrentForGain <= 0:
+			iLeaderItemsWidthCurrentForGain = self.top.SAS_W_ITEMS_BASE
+		# <!-- custom: keep AIP panel expansion tied to upscaled font widths, but when item-list reduction is disabled on wide screens, keep page-left anchored at base item width so the rest of the page absorbs the squeeze. (GPT-5.3-Codex) -->
+		iLeaderItemsWidthCurrent = iLeaderItemsWidthCurrentForGain
+		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH")
+		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
+			iLeaderItemsWidthCurrent = self.top.SAS_W_ITEMS_BASE
+		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrentForGain
+		if iLeaderItemsWidthGain < 0:
+			iLeaderItemsWidthGain = 0
+		iAIPPanelGain = iLeaderItemsWidthGain / self.N_AI_TABLE_NUM
+		iAIPLabelGain = (iAIPPanelGain * 70) / 100
+		iAIPRemainingGain = iAIPPanelGain - iAIPLabelGain
+		iAIPValueGain = iAIPRemainingGain / 2
+		iAIPScaleGain = iAIPRemainingGain - iAIPValueGain
+
+		# <!-- custom: for leader page, compute page-left from leader item width directly so layout is deterministic at init. (GPT-5.3-Codex) -->
+		self.X_LEADERHEAD_PANE = self.top.X_ITEMS + iLeaderItemsWidthCurrent + 18
 		self.Y_LEADERHEAD_PANE = self.top.Y_PEDIA_PAGE
 		# <!-- custom: for the ratio of the portrait, aim to match closely the ingame diplomacy portrait ratio; Long_Comments_py.txt #2 -->
 		self.W_LEADERHEAD_PANE = 327
 		self.H_LEADERHEAD_PANE = 400
 
 		# <!-- custom: 1) (most) absolute dimensions first -->
-
-		# <!-- custom: make room to add AI personality panel -->
-		self.W_AI_PERSONALITY = 290
-
+		self.W_AI_PERSONALITY = 290 + iAIPPanelGain
 		self.SMALL_MARGIN = 10
 		self.MEDIUM_MARGIN = 20
 		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements
@@ -120,11 +151,7 @@ class SevoPediaLeader:
 		self.H_CIV = 64
 		self.CIV_MARGIN = 0
 		self.CIV_DISELEVATION = 38
-		
 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
-		self.N_AI_TABLE_NUM = 3
-		self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
-		self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
 
 		# <!-- custom: 2) (most) relative dimensions or positions then -->
 
@@ -166,8 +193,8 @@ class SevoPediaLeader:
 		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
 
 		# <!-- custom: AI Personality Panel(s) column widths -->
-		self.W_AI_VALUE = 35
-		self.W_AI_SCALE = 100
+		self.W_AI_VALUE = 35 + iAIPValueGain
+		self.W_AI_SCALE = 100 + iAIPScaleGain
 		self.W_AI_LABEL = self.W_AI_PERSONALITY - self.W_AI_VALUE - self.W_AI_SCALE
 		self.H_AI_LINE_HEIGHT = 22
 		self.H_AI_CATEGORY_SPACING = 10
@@ -203,7 +230,7 @@ class SevoPediaLeader:
 		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
-		self.placeLegendLink()
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
@@ -312,7 +339,7 @@ class SevoPediaLeader:
 				szLabel = u"<img=%s size=%d></img>" % (szEmojiPath, iEmojiSize)
 				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
 			else:
-				szLabel = self.getAttitudeButtonLabel(iAttitude)
+				szLabel = SASTextScale.labelText(self.getAttitudeButtonLabel(iAttitude))
 				screen.setButtonGFC(szWidget, szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iAttitudeX += iAttitudeButtonW + iAttitudeSpacing
 
@@ -332,7 +359,7 @@ class SevoPediaLeader:
 
 		for iAction, szLabel in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			szWidget = self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction]
-			screen.setButtonGFC(szWidget, szLabel, "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
+			screen.setButtonGFC(szWidget, SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iActionX += iActionButtonW + iActionSpacing
 
 
@@ -361,36 +388,14 @@ class SevoPediaLeader:
 
 
 
-	def placeLegendLink(self):
-		if not IS_SAS_SHOW_LEGEND_LINK:
-			return
-		if self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID < 0:
-			return
-		screen = self.top.getScreen()
-		screen.setText(
-			self.top.getNextWidgetName(),
-			"Background",
-			self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT,
-			CvUtil.FONT_LEFT_JUSTIFY,
-			self.top.X_TOC,
-			self.top.Y_BOT_PANEL + 16,
-			0,
-			FontTypes.TITLE_FONT,
-			WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
-			CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
-			self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID
-		)
-
-
-
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		historyTextName = self.top.getNextWidgetName()
 		CivilopediaText = gc.getLeaderHeadInfo(self.iLeader).getCivilopedia()
-		CivilopediaText = u"<font=2>" + CivilopediaText + u"</font>"
-		screen.attachMultilineText(panelName, historyTextName, CivilopediaText, WidgetTypes.WIDGET_GENERAL,-1,-1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (GPT-5.3-Codex); also trim the bottom a bit to remove last incompletely rendered line for beautification -->
+		screen.addMultilineText(historyTextName, SASTextScale.normalizeLabelText(CivilopediaText), self.X_HISTORY + 7, self.Y_HISTORY + 6, self.W_HISTORY - 5, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -446,7 +451,7 @@ class SevoPediaLeader:
 
 		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was headerExtraHeight 30 -->
 		headerExtraHeight = 10
-		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS + 5, self.Y_TRAITS + headerExtraHeight, self.W_TRAITS - 10, self.H_TRAITS - headerExtraHeight - 5, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_TRAITS + 5, self.Y_TRAITS + headerExtraHeight, self.W_TRAITS - 10, self.H_TRAITS - headerExtraHeight - 5, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -462,9 +467,9 @@ class SevoPediaLeader:
 
 
 	def fillAITableRow(self, screen, label, value, scale, xLabel, xValue, xScale, y):
-		labelText = u"<font=2>%s</font>" % label
-		valueText = u"<font=2b>%d</font>" % value
-		scaleText = u"<font=2>%s</font>" % scale
+		labelText = SASTextScale.labelText(label)
+		valueText = SASTextScale.applyFontTag(u"%d" % value, SAS_FONT_TAG_LABEL_BOLD)
+		scaleText = SASTextScale.labelText(scale)
 
 		screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setText(self.top.getNextWidgetName(), "", valueText, CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -484,7 +489,7 @@ class SevoPediaLeader:
 			# AI Category Header Line
 			if ai_category_header_line is not None:
 				xOffsetButton = xLabel + ai_category_x_offset
-				screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.top.getNextWidgetName(), "", SASTextScale.applyFontTag(ai_category_header_line, SAS_FONT_TAG_LABEL_BOLD), CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				y += self.H_AI_LINE_HEIGHT
 
 			# <!-- custom: AI Category items in their predefined order -->
@@ -496,7 +501,160 @@ class SevoPediaLeader:
 			# <!-- custom: space for next ai_category if any are there (else still space but not used more efficient this way i think i mean than rechecking each time and we have some tables that overflow vertically too so maybe fine this way too if not broken in this case i mean maybe-->
 			y += self.H_AI_CATEGORY_SPACING
 
+	# <!-- custom: build categories once at init using runtime resolution (Y), with named category variables so layout tuning stays readable. (GPT-5.3-Codex) -->
+	def buildAICategoriesForCurrentResolution(self, iScreenHeight):
+		def get_header_text(header_key_or_text):
+			if header_key_or_text is None:
+				return None
+			if header_key_or_text.startswith("TXT_KEY_"):
+				return localText.getText(header_key_or_text, ())
+			return header_key_or_text
 
+		def get_ai_category(icon_button_art_key, header_key_or_text, ai_category_key_order):
+			if header_key_or_text is None:
+				ai_category_header_line = None
+				ai_category_x_offset = 0
+			else:
+				header_text = get_header_text(header_key_or_text)
+				if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI and icon_button_art_key:
+					button_size = 16
+					line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
+					ai_category_header_line = u"%s %s" % (line_button_txt, header_text)
+					# <!-- custom: keep a small negative header offset so emoji+title rows align with table body and waste less horizontal room. (GPT-5.3-Codex) -->
+					ai_category_x_offset = -7
+				else:
+					ai_category_header_line = header_text
+					ai_category_x_offset = 0
+			return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
+
+		def build_memory_order(positive_negative, affection_resentment, suffixes):
+			return tuple("iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) for suffix in suffixes)
+
+		positive_memory_suffixes = (
+			"GiveHelp", "AcceptDemand", "AcceptedReligion", "AcceptedCivic", "AcceptedJoinWar",
+			"AcceptedStopTrading", "VotedForUs", "EventGoodToUs", "LiberatedCities",
+			"Independence", "TradedTechToUs",
+		)
+		negative_memory_suffixes = [
+			"DeclaredWar", "DeclaredWarOnFriend", "HiredWarAlly", "NukedUs", "NukedFriend",
+			"RazedCity", "RazedHolyCity", "SpyCaught", "RefusedHelp", "RejectedDemand",
+			"DeniedReligion", "DeniedCivic", "DeniedJoinWar", "DeniedStopTrading",
+			"StoppedTrading", "HiredTradeEmbargo", "MadeDemand", "VotedAgainstUs",
+			"EventBadToUs", "CancelledVassalAgreement", "DeclaredWarRecent",
+			"ReceivedTechFromAny", "MadeDemandRecent", "CancelledOpenBorders",
+		]
+		if iScreenHeight >= 1440:
+			negative_memory_suffixes.append("StoppedTradingRecent")
+		# <!-- custom: at 1080p/1440p, keep "StoppedTradingRecent" hidden (lower-priority tail field) to avoid overflow in tighter panel layouts. (GPT-5.3-Codex) -->
+		negative_memory_suffixes.append("CancelledDefensivePact")
+		negative_memory_suffixes = tuple(negative_memory_suffixes)
+
+		positive_memory_affections_category = get_ai_category("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", build_memory_order("Positive", "Affection", positive_memory_suffixes))
+		negative_memory_resentments_category = get_ai_category("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", build_memory_order("Negative", "Resentment", negative_memory_suffixes))
+		contact_offer_probabilities_category = get_ai_category("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", (
+			"iAggregatedContactProbPeaceTreaty", "iAggregatedContactProbOpenBorders", "iAggregatedContactProbTradeMap",
+			"iAggregatedContactProbTradeTech", "iAggregatedContactProbTradeBonus", "iAggregatedContactProbGiveHelp",
+			"iAggregatedContactProbDefensivePact", "iAggregatedContactProbPermanentAlliance",
+		))
+		contact_demand_probabilities_category = get_ai_category("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", (
+			"iAggregatedContactProbReligionPressure", "iAggregatedContactProbCivicPressure", "iAggregatedContactProbStopTrading",
+			"iAggregatedContactProbDemandTribute", "iAggregatedContactProbAskForHelp", "iAggregatedContactProbJoinWar",
+		))
+		refusal_thresholds_offer_category = get_ai_category("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", (
+			"getOpenBordersRefuseAttitudeThreshold", "getMapRefuseAttitudeThreshold", "getTechRefuseAttitudeThreshold",
+			"getStrategicBonusRefuseAttitudeThreshold", "getHappinessBonusRefuseAttitudeThreshold", "getHealthBonusRefuseAttitudeThreshold",
+			"getNoGiveHelpAttitudeThreshold", "getDefensivePactRefuseAttitudeThreshold",
+		))
+		refusal_thresholds_demand_category = get_ai_category("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", (
+			# <!-- custom: higher threshold means harder to convince, so this sits in demand-refusal section with the other attitude gates. (GPT-5.3-Codex) -->
+			"getConvertReligionRefuseAttitudeThreshold", "getAdoptCivicRefuseAttitudeThreshold", "getDeclareWarRefuseAttitudeThreshold",
+			"getDeclareWarThemRefuseAttitudeThreshold", "getStopTradingRefuseAttitudeThreshold", "getStopTradingThemRefuseAttitudeThreshold",
+			"getDemandTributeAttitudeThreshold", "getCityRefuseAttitudeThreshold", "getNativeCityRefuseAttitudeThreshold",
+			"getVassalRefuseAttitudeThreshold",
+		))
+		no_war_at_category = get_ai_category("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", (
+			"iNoWarAttitudeProbFurious", "iNoWarAttitudeProbAnnoyed", "iNoWarAttitudeProbCautious",
+			"iNoWarAttitudeProbPleased", "iNoWarAttitudeProbFriendly",
+		))
+		attitude_changes_category = get_ai_category("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", (
+			"getSameReligionAttitudeChange", "getSameReligionAttitudeDivisor", "getDifferentReligionAttitudeChange",
+			"getDifferentReligionAttitudeDivisor", "getFavoriteCivicAttitudeChange", "getFavoriteCivicAttitudeDivisor",
+			"getLostWarAttitudeChange", "getAtWarAttitudeDivisor", "getAtWarAttitudeChangeLimit",
+			"getAtPeaceAttitudeDivisor", "getAtPeaceAttitudeChangeLimit", "getShareWarAttitudeChange",
+			"getShareWarAttitudeDivisor", "getBonusTradeAttitudeDivisor", "getBonusTradeAttitudeChangeLimit",
+			"getOpenBordersAttitudeDivisor", "getOpenBordersAttitudeChangeLimit", "getDefensivePactAttitudeDivisor",
+			"getDefensivePactAttitudeChangeLimit",
+		))
+		misc_modifiers_category = get_ai_category("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", ("getFreedomAppreciation",))
+		core_personality_category = get_ai_category("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", (
+			# <!-- custom: ACL limits stay here intentionally; thematic purity is secondary to keeping this column compact/readable on constrained widths. (GPT-5.3-Codex) -->
+			"getBaseAttitude", "getBasePeaceWeight", "getPeaceWeightRand", "getWorseRankDifferenceAttitudeChange",
+			"getBetterRankDifferenceAttitudeChange", "getWarmongerRespect", "getCloseBordersAttitudeChange",
+			"getSameReligionAttitudeChangeLimit", "getDifferentReligionAttitudeChangeLimit", "getFavoriteCivicAttitudeChangeLimit",
+		))
+		victory_weights_category = get_ai_category("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", (
+			"getConquestVictoryWeight", "getDominationVictoryWeight", "getCultureVictoryWeight",
+			"getDiplomacyVictoryWeight", "getSpaceVictoryWeight",
+		))
+		flavors_category = get_ai_category("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", (
+			"iFlavorMilitary", "iFlavorReligion", "iFlavorProduction", "iFlavorGold",
+			"iFlavorScience", "iFlavorCulture", "iFlavorGrowth", "iFlavorEspionage",
+		))
+		war_strategy_category = get_ai_category("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", (
+			"getMaxWarRand", "getMaxWarNearbyPowerRatio", "getMaxWarDistantPowerRatio", "getMaxWarMinAdjacentLandPercent",
+			"getLimitedWarRand", "getLimitedWarPowerRatio", "getBaseAttackOddsChange", "getAttackOddsChangeRand",
+			"getRazeCityProb", "getDemandRebukedSneakProb", "getDemandRebukedWarProb", "getDogpileWarRand",
+			# <!-- custom: keep ShareWar ACL in this block so war heuristics remain visible together instead of introducing another micro-section. (GPT-5.3-Codex) -->
+			"getDeclareWarTradeRand", "getShareWarAttitudeChangeLimit", "getVassalPowerModifier",
+			"getRefuseToTalkWarThreshold", "getMakePeaceRand",
+		))
+		economic_preferences_category = get_ai_category("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", (
+			"getMaxGoldTradePercent", "getMaxGoldPerTurnTradePercent", "getTechTradeKnownPercent",
+			"getNoTechTradeThreshold", "getBuildUnitProb", "getWonderConstructRand", "getEspionageWeight",
+		))
+
+		if iScreenHeight >= 1440:
+			# <!-- custom: at 1440p and above, move "No War At" to the left column so the middle column can fully show ACL-heavy rows. (GPT-5.3-Codex) -->
+			middle_categories = (
+				contact_offer_probabilities_category,
+				contact_demand_probabilities_category,
+				refusal_thresholds_offer_category,
+				refusal_thresholds_demand_category,
+				attitude_changes_category,
+				misc_modifiers_category,
+			)
+			left_categories = (
+				core_personality_category,
+				victory_weights_category,
+				flavors_category,
+				war_strategy_category,
+				no_war_at_category,
+			)
+		else:
+			# <!-- custom: below 1440p, keep "No War At" in middle to preserve the tighter legacy ordering. (GPT-5.3-Codex) -->
+			middle_categories = (
+				contact_offer_probabilities_category,
+				contact_demand_probabilities_category,
+				refusal_thresholds_offer_category,
+				refusal_thresholds_demand_category,
+				no_war_at_category,
+				attitude_changes_category,
+				misc_modifiers_category,
+			)
+			left_categories = (
+				core_personality_category,
+				victory_weights_category,
+				flavors_category,
+				war_strategy_category,
+			)
+
+		right_categories = (
+			economic_preferences_category,
+			positive_memory_affections_category,
+			negative_memory_resentments_category,
+		)
+
+		return right_categories, middle_categories, left_categories
 
 	# Place AI Personality Panel (using precomputed scales)
 	# Renders the full AI Personality panel in the Sevopedia Leader page using precomputed <!-- custom: leader info tuples in leaders_info_cached --> for the given leader.
@@ -513,10 +671,9 @@ class SevoPediaLeader:
 
 		# <!-- custom: cache for performance optimization. -->
 		leader_info_cached = LEADERS_INFO_CACHED[iLeader]
-
-		self.renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
-		self.renderAICategories(screen, AI_MIDDLE_CATEGORIES, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
-		self.renderAICategories(screen, AI_LEFT_CATEGORIES, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, self.aiRightCategories, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, self.aiMiddleCategories, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
+		self.renderAICategories(screen, self.aiLeftCategories, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
 
 
 

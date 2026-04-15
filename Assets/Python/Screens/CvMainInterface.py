@@ -14,6 +14,8 @@ del globals()["gSetScaleFactors"]
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+from SASFontUtils import *
+# <!-- custom: in main interface, use LABEL as the base text font instead of BODY because it is more readable. (GPT-5.3-Codex) -->
 import CvEventInterface
 import time
 import BugDll # BUG - DLL
@@ -451,6 +453,8 @@ class CvMainInterface:
 		if iX is None and szRectName:
 			lRect = gRect(szRectName)
 			iX = lRect.x() + (lRect.width() - iTotalWidth) / 2
+			# <!-- custom: keep icon+text row within the target bar rect so larger upscaled fonts don't push the icon outside and make it look missing. (GPT-5.3-Codex) -->
+			iX = max(lRect.x(), min(iX, lRect.xRight() - iTotalWidth))
 		iTextX = iX + iIconSize + iMargin
 		gSetPoint(szTextName, PointLayout(iTextX, iY + iTextYOffset))
 		if szIcon.startswith("<img="):
@@ -662,8 +666,11 @@ class CvMainInterface:
 		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = None
 		# <!-- custom: optional unit info button in the map view unit panel. (GPT-5.2-Codex) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
-		# <!-- custom: optional top-left flag and left-text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
-		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = None
+		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
+		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
+		self.bSASLastCommerceRectsCityScreen = None
+		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
+		self.iScoreScrollOffset = 0
 
 
 
@@ -739,11 +746,11 @@ class CvMainInterface:
 		self.buildFilterAllBuildingsOff = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.buildFilterRegularBuildingsOn = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
 		self.buildFilterRegularBuildingsOff = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
-		self.buildFilterNatWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_ON").getPath()
+		self.buildFilterNatWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
-		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_ON").getPath()
+		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
-		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_ON").getPath()
+		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
@@ -755,7 +762,7 @@ class CvMainInterface:
 		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
 		self.szTextWaitingForYou = localText.getText("SYSTEM_WAITING_FOR_YOU", ())
 		#
-		self.szTextDraftText = "<font=1>" + localText.getText("TXT_KEY_DRAFT", ()) + "</font>"
+		self.szTextDraftText = SAS_FONT_TAG_TINY + localText.getText("TXT_KEY_DRAFT", ()) + SAS_FONT_TAG_CLOSE
 
 		# <advc.092>
 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))
@@ -959,23 +966,30 @@ class CvMainInterface:
 		gSetSquare("TurnLogButton", "Top",
 				iTurnLogBtnMargin, gRect("AdvisorButtons").y() - 1,
 				gRect("AdvisorButtons").height())
+		# <!-- custom: score-scroll button placeholder rects; actual position is set at runtime in updateScoreStrings via moveItem because GlobeToggle.y() is still 0 at init time. (Claude code Sonnet 4.6) -->
+		iSScrollBtnSz = BTNSZ(20)
+		gSetRect("ScoreScrollUp", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+		gSetRect("ScoreScrollDown", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		if self.bScaleHUD:
 			# To make room for the Turn Log, whose (default) position I can't change.
 			gRect("TurnLogButton").move(6, -3)
 		lBUGOptBtn = gRect("TurnLogButton").copy()
 		lBUGOptBtn.move(gRect("TurnLogButton").size() + HSPACE(4), 0)
 		gSetRectangle("BUGOptionsScreenWidget", lBUGOptBtn)
-		iGoldTextX = (gRect("TurnLogButton").x() * 2) / 3
-		bTopLeftFlagAndTreasuryShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT
-		if bTopLeftFlagAndTreasuryShift is None:
-			bTopLeftFlagAndTreasuryShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
-		if bTopLeftFlagAndTreasuryShift:
+		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
+		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT
+		if bTopLeftFlagAndLeftSideTextShift is None:
+			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
+		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
-			iGoldTextX += HSPACE(18)
-		gSetPoint("GoldText", PointLayout(iGoldTextX, gPoint("TimeText").y()))
+			iLeftTopTextX += HSPACE(18)
+		gSetPoint("TimeText", PointLayout(iLeftTopTextX, gPoint("TimeText").y()))
 		gSetPoint("EraText", PointLayout(
-				gRect("CityLeftPanel").xRight() - HSPACE(8), gPoint("GoldText").y()))
+				gRect("CityLeftPanel").xRight() - HSPACE(8), gPoint("TimeText").y()))
+		gOffSetPoint("GoldText", "TopRightButtons",
+				-HSPACE(1), (4 * 24) / gRect("TopRightButtons").height())
 		self.setCommerceAdjustRects()
+		self.bSASLastCommerceRectsCityScreen = CyInterface().isCityScreenUp()
 
 		gSetPoint("EndTurnText", PointLayout(0, # (gets centered through text alignment)
 				max(
@@ -1299,12 +1313,13 @@ class CvMainInterface:
 				gRect("CityLeftPanel").xRight() + HSPACE(8), VSPACE(2),
 				-(gRect("CityRightPanel").width() + HSPACE(8)),
 				2 * self.stackBarDefaultHeight())
-		fResearchBarWidth = fThinResearchBarWidth = 487
+		# <!-- custom: on upscaled 1080p, shift one-line top-bar space from research to GP so GP text fits while research keeps enough room. (GPT-5.3-Codex) -->
+		fResearchBarWidth = fThinResearchBarWidth = 415
 		fGGBarWidth = 100
 		fThinGGBarWidth = 84
 		iSpacing = HSPACE(7)
 		iThinSpacing = HSPACE(6)
-		fThinGPBarWidth = 320
+		fThinGPBarWidth = 392
 		fOneLineTotalWidth = float(fResearchBarWidth + fThinGPBarWidth + fThinGGBarWidth +
 				2 * iThinSpacing)
 		if self.bScaleHUD: # Scale to use up the available space
@@ -1364,7 +1379,8 @@ class CvMainInterface:
 		gSetRectangle("CityScrollPlus", lCityScrollButtons.next())
 
 	def setCityCenterBarRects(self):
-		iYieldTextWidth = HLEN(140)
+		# <!-- custom: shorten top city food/production bars so upscaled text does not overflow at 1080p when text is upscaled; keep both bars matched by sharing the same inset. (GPT-5.3-Codex); also since we increased base font size from body to label, this preserves the original distance from food/production bars' outside text to side panels feel -->
+		iYieldTextWidth = HLEN(160)
 		gSetRect("PopulationBar", "TopCityPanelLeftAndRight",
 				iYieldTextWidth, VSPACE(4),
 				-iYieldTextWidth, self.stackBarDefaultHeight())
@@ -1395,8 +1411,9 @@ class CvMainInterface:
 
 	def setAdvisorButtonRects(self):
 		iSize = BTNSZ(28)
-		advisorNames = [ "Domestic", "Finance", "Civics", "Foreign", "Military", "Tech",
-				"Religious", "Corporation", "Victory", "Info" ]
+		# <!-- custom: advisor button order follows active shortcuts (F1/F2/F3...); Religion/Corporation buttons removed. (GPT-5.3-Codex) -->
+		advisorNames = [ "Domestic", "Policy", "ForeignDiplomacy", "Foreign", "Military", "Tech",
+				"Info", "Victory" ]
 		if GameUtil.isEspionage():
 			advisorNames.append("Espionage")
 		iButtons = len(advisorNames)
@@ -1426,15 +1443,30 @@ class CvMainInterface:
 		iHSpacing = HSPACE(0)
 		iRowH = iBtnSize + iVSpacing
 		iColumnW = iBtnSize + iHSpacing
+		if CyInterface().isCityScreenUp():
+			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
+			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET")
+			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT") > 0)
+		else:
+			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
+			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET")
+			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT") > 0)
+		if bCommerceBlockAnchorRight:
+			iPercentTextBaseX = gRect("InterfaceTopRight").x()
+		else:
+			iPercentTextBaseX = gRect("InterfaceTopLeft").x()
+		iPercentTextX = iPercentTextBaseX + HSPACE(iRightCommerceBlockXOffset)
+		iCommerceRowsTopOffset = VSPACE(iRightCommerceBlockYOffset)
 		for i in range(iMaxRows):
-			gOffSetPoint("PercentText" + str(i), "Top",
-					HSPACE(14),
+			gSetPoint("PercentText" + str(i), PointLayout(
+					iPercentTextX,
 					gRect("InterfaceTopLeft").yBottom() + VSPACE(-8)
-					+ i * iRowH)
+					+ i * iRowH + iCommerceRowsTopOffset))
 			if self.bScaleHUD:
 				# Make room for the Turn Log, whose (default) position I can't change.
 				gPoint("PercentText" + str(i)).move(0, -3)
-		iX = 36 + HSPACE(36) # Space for the PercentText label
+		iPercentTextToButtonsX = 36 + HSPACE(56) - HSPACE(14)
+		iX = iPercentTextX + iPercentTextToButtonsX # Space for the PercentText label
 		for i in range(4): # Up to 4 buttons per row (2 for BUG - Min/Max Sliders)
 			lSliderBtns = ColumnLayout(gRect("Top"),
 					iX, gPoint("PercentText0").y(),
@@ -1462,8 +1494,9 @@ class CvMainInterface:
 
 		# <advc.002b> Placing the buttons at just the same y coord as the labels
 		# doesn't quite work out
+		iSliderButtonsVerticalOffset = 25 - iBtnSize
 		for i in range(4):
-			gRect("CommerceSliderBtns" + str(i)).move(0, 21 - iBtnSize)
+			gRect("CommerceSliderBtns" + str(i)).move(0, iSliderButtonsVerticalOffset)
 		# </advc.002b>
 		gSetPoint("MaintenanceText", PointLayout(
 				gPoint("PercentText0").x() + 1,
@@ -1477,7 +1510,7 @@ class CvMainInterface:
 		gSetRect("CityAdjustPanel", "CityLeftPanel",
 				RectLayout.CENTER,
 				gPoint("PercentText0").y() - gRect("CityLeftPanel").y() - iVSpace,
-				min(-1, gRect("CityLeftPanel").x() - gPoint("PercentText0").x() + HSPACE(6)),
+				-1,
 				gPoint("MaintenanceText").y() + iBtnSize + 1
 				- gPoint("PercentText0").y() + 2 * iVSpace)
 
@@ -1602,7 +1635,7 @@ class CvMainInterface:
 		iCityArrowBtnSz = BTNSZ(32)
 		iCityArrowSpacing = HSPACE(-12)
 		iCityArrowRowW = 2 * iCityArrowBtnSz + iCityArrowSpacing
-		iCityArrowRowX = gRect("CityTaskBtns").x() - iCityArrowRowW - HSPACE(2) + HSPACE(3)
+		iCityArrowRowX = gRect("CityTaskBtns").x() - iCityArrowRowW - HSPACE(6)
 		iCityArrowRowY = gRect("CityTaskBtns").y() - VSPACE(4)
 		gSetRect("CityScrollButtons", "Top",
 				iCityArrowRowX, iCityArrowRowY,
@@ -1926,8 +1959,8 @@ class CvMainInterface:
 			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN") > 0)
 		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
 			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
-		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
+		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT is None:
+			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
 		lTop = gRect("Top")
 
 		self.setDefaultHelpTextArea()
@@ -2031,15 +2064,16 @@ class CvMainInterface:
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_DOMESTIC_SCREEN).getActionInfoIndex())
 		screen.hide("DomesticAdvisorButton")
-		self.setStyledButton("FinanceAdvisorButton", "Button_HUDAdvisorFinance_Style",
+		# <!-- custom: swap F3/F4 advisor button art: F3 (Foreign Diplomacy slot) uses foreign icon; F4 (Foreign Trade slot) uses finance icon. (GPT-5.3-Codex) -->
+		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorForeign_Style",
 				WidgetTypes.WIDGET_ACTION,
-				gc.getControlInfo(ControlTypes.CONTROL_FINANCIAL_SCREEN).getActionInfoIndex())
-		screen.hide("FinanceAdvisorButton")
-		self.setStyledButton("CivicsAdvisorButton", "Button_HUDAdvisorCivics_Style",
+				gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_DIPLOMACY_SCREEN).getActionInfoIndex())
+		screen.hide("ForeignDiplomacyAdvisorButton")
+		self.setStyledButton("PolicyAdvisorButton", "Button_HUDAdvisorCivics_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_CIVICS_SCREEN).getActionInfoIndex())
-		screen.hide("CivicsAdvisorButton")
-		self.setStyledButton("ForeignAdvisorButton", "Button_HUDAdvisorForeign_Style",
+		screen.hide("PolicyAdvisorButton")
+		self.setStyledButton("ForeignAdvisorButton", "Button_HUDAdvisorFinance_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_SCREEN).getActionInfoIndex())
 		screen.hide("ForeignAdvisorButton")
@@ -2051,14 +2085,7 @@ class CvMainInterface:
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex())
 		screen.hide("TechAdvisorButton")
-		self.setStyledButton("ReligiousAdvisorButton", "Button_HUDAdvisorReligious_Style",
-				WidgetTypes.WIDGET_ACTION,
-				gc.getControlInfo(ControlTypes.CONTROL_RELIGION_SCREEN).getActionInfoIndex())
-		screen.hide("ReligiousAdvisorButton")
-		self.setStyledButton("CorporationAdvisorButton", "Button_HUDAdvisorCorporation_Style",
-				WidgetTypes.WIDGET_ACTION,
-				gc.getControlInfo(ControlTypes.CONTROL_CORPORATION_SCREEN).getActionInfoIndex())
-		screen.hide("CorporationAdvisorButton")
+		# <!-- custom: Religion/Corporation advisor HUD buttons removed; those screens are planned to be merged as Policy tabs. (GPT-5.3-Codex) -->
 		self.setStyledButton("VictoryAdvisorButton", "Button_HUDAdvisorVictory_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_VICTORY_SCREEN).getActionInfoIndex())
@@ -2329,6 +2356,13 @@ class CvMainInterface:
 		self.addStackedBar("NationalityBar", WidgetTypes.WIDGET_HELP_NATIONALITY)
 		screen.hide("NationalityBar")
 
+		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows. (Claude code Sonnet 4.6) -->
+		self.setStyledButton("ScoreScrollUp", ButtonStyles.BUTTON_STYLE_CITY_PLUS,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.hide("ScoreScrollUp")
+		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS,
+				WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.hide("ScoreScrollDown")
 		self.setStyledButton("CityScrollMinus", ButtonStyles.BUTTON_STYLE_ARROW_LEFT,
 				WidgetTypes.WIDGET_CITY_SCROLL, -1)
 		screen.hide("CityScrollMinus")
@@ -2550,7 +2584,13 @@ class CvMainInterface:
 		# City screen: show more build rows in production chooser
 		if self.iBarExtraRows > 0:
 			if CyInterface().isCityScreenUp():
-				iTMargin += - (self.iBarExtraRows * iButtonSize) + self.iBarExtraRowsExtraManualAdjust # extend upward; keep bottom aligned
+				iManualAdjust = self.iBarExtraRowsExtraManualAdjust
+				# <!-- custom: scale manual pixel tweak across resolutions; keep sign, but scale magnitude like regular vertical spacing. (GPT-5.3-Codex) -->
+				if iManualAdjust < 0:
+					iManualAdjust = -VSPACE(-iManualAdjust)
+				else:
+					iManualAdjust = VSPACE(iManualAdjust)
+				iTMargin += - (self.iBarExtraRows * iButtonSize) + iManualAdjust # extend upward; keep bottom aligned
 		# End - City screen: show more build rows in production chooser
 
 # BUG - Build/Action Icon Size - end
@@ -2815,8 +2855,8 @@ class CvMainInterface:
 			#else:
 			#	screen.hide("EraText") # advc.067
 			self.updateTimeText()
-			self.setLabel("TimeText", "Background", g_szTimeText,
-					CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
+			self.setLabel("TimeText", "Background", SAS_FONT_TAG_LABEL + g_szTimeText + SAS_FONT_TAG_CLOSE,
+					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 			screen.show("TimeText")
 
 		else:
@@ -2856,11 +2896,11 @@ class CvMainInterface:
 			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT)):
 			# <!-- custom: changed from unconditional refresh to define-gated refresh so this optional UI feature stays no-op when disabled. (GPT-5.3-Codex) -->
-			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
+			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT:
 				self.updateFlag()
 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
-			# Miscellaneous buttons (civics screen, etc)
+			# Miscellaneous buttons (policy advisor screen, etc)
 			self.updateMiscButtons()
 			CyInterface().setDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.InfoPane_DIRTY_BIT)):
@@ -3099,8 +3139,13 @@ class CvMainInterface:
 
 	def updateMiscButtons(self):
 		screen = self.screen
-		self._applyCityScreenSideLift(CyInterface().isCityScreenUp())
-		self._applyMapViewRightPanelNarrow(not CyInterface().isCityScreenUp())
+		bCityScreen = CyInterface().isCityScreenUp()
+		self._applyCityScreenSideLift(bCityScreen)
+		self._applyMapViewRightPanelNarrow(not bCityScreen)
+		if self.bSASLastCommerceRectsCityScreen is None or self.bSASLastCommerceRectsCityScreen != bCityScreen:
+			self.setCommerceAdjustRects()
+			self.bSASLastCommerceRectsCityScreen = bCityScreen
+			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, True)
 # BUG - Great Person Bar - start
 		if (CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and
 				CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
@@ -3111,7 +3156,7 @@ class CvMainInterface:
 		# <advc.004y> Don't check shouldDisplayFlag for the Civilopedia button, but do check if the city screen is up.
 		# <!-- custom: we also show the flag in city screen, unlike base AdvCiv. Because this mod moves it to a small top-left slot, it no longer interferes with city-action buttons; therefore keeping it visible in city screen is useful (traits hover + capital jump) rather than intrusive. This remains an optional behavior. (GPT-5.3-Codex) -->
 		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW):
-			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
+			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT:
 				self.updateFlag()
 			if CyInterface().isCityScreenUp():
 				screen.hide("InterfaceHelpButton")
@@ -3144,10 +3189,8 @@ class CvMainInterface:
 			screen.hide("DomesticAdvisorButton")
 			screen.hide("ForeignAdvisorButton")
 			screen.hide("TechAdvisorButton")
-			screen.hide("CivicsAdvisorButton")
-			screen.hide("ReligiousAdvisorButton")
-			screen.hide("CorporationAdvisorButton")
-			screen.hide("FinanceAdvisorButton")
+			screen.hide("PolicyAdvisorButton")
+			screen.hide("ForeignDiplomacyAdvisorButton")
 			screen.hide("MilitaryAdvisorButton")
 			screen.hide("VictoryAdvisorButton")
 			screen.hide("InfoAdvisorButton")
@@ -3175,10 +3218,8 @@ class CvMainInterface:
 			screen.hide("DomesticAdvisorButton")
 			screen.hide("ForeignAdvisorButton")
 			screen.hide("TechAdvisorButton")
-			screen.hide("CivicsAdvisorButton")
-			screen.hide("ReligiousAdvisorButton")
-			screen.hide("CorporationAdvisorButton")
-			screen.hide("FinanceAdvisorButton")
+			screen.hide("PolicyAdvisorButton")
+			screen.hide("ForeignDiplomacyAdvisorButton")
 			screen.hide("MilitaryAdvisorButton")
 			screen.hide("VictoryAdvisorButton")
 			screen.hide("InfoAdvisorButton")
@@ -3207,10 +3248,8 @@ class CvMainInterface:
 			screen.show("DomesticAdvisorButton")
 			screen.show("ForeignAdvisorButton")
 			screen.show("TechAdvisorButton")
-			screen.show("CivicsAdvisorButton")
-			screen.show("ReligiousAdvisorButton")
-			screen.show("CorporationAdvisorButton")
-			screen.show("FinanceAdvisorButton")
+			screen.show("PolicyAdvisorButton")
+			screen.show("ForeignDiplomacyAdvisorButton")
 			screen.show("MilitaryAdvisorButton")
 			screen.show("VictoryAdvisorButton")
 			screen.show("InfoAdvisorButton")
@@ -3231,10 +3270,8 @@ class CvMainInterface:
 			screen.moveToFront("DomesticAdvisorButton")
 			screen.moveToFront("ForeignAdvisorButton")
 			screen.moveToFront("TechAdvisorButton")
-			screen.moveToFront("CivicsAdvisorButton")
-			screen.moveToFront("ReligiousAdvisorButton")
-			screen.moveToFront("CorporationAdvisorButton")
-			screen.moveToFront("FinanceAdvisorButton")
+			screen.moveToFront("PolicyAdvisorButton")
+			screen.moveToFront("ForeignDiplomacyAdvisorButton")
 			screen.moveToFront("MilitaryAdvisorButton")
 			screen.moveToFront("VictoryAdvisorButton")
 			screen.moveToFront("InfoAdvisorButton")
@@ -3254,10 +3291,8 @@ class CvMainInterface:
 			screen.hide("DomesticAdvisorButton")
 			screen.hide("ForeignAdvisorButton")
 			screen.hide("TechAdvisorButton")
-			screen.hide("CivicsAdvisorButton")
-			screen.hide("ReligiousAdvisorButton")
-			screen.hide("CorporationAdvisorButton")
-			screen.hide("FinanceAdvisorButton")
+			screen.hide("PolicyAdvisorButton")
+			screen.hide("ForeignDiplomacyAdvisorButton")
 			screen.hide("MilitaryAdvisorButton")
 			screen.hide("VictoryAdvisorButton")
 			screen.hide("InfoAdvisorButton")
@@ -3282,10 +3317,8 @@ class CvMainInterface:
 			screen.show("DomesticAdvisorButton")
 			screen.show("ForeignAdvisorButton")
 			screen.show("TechAdvisorButton")
-			screen.show("CivicsAdvisorButton")
-			screen.show("ReligiousAdvisorButton")
-			screen.show("CorporationAdvisorButton")
-			screen.show("FinanceAdvisorButton")
+			screen.show("PolicyAdvisorButton")
+			screen.show("ForeignDiplomacyAdvisorButton")
 			screen.show("MilitaryAdvisorButton")
 			screen.show("VictoryAdvisorButton")
 			screen.show("InfoAdvisorButton")
@@ -3306,10 +3339,8 @@ class CvMainInterface:
 			screen.moveToFront("DomesticAdvisorButton")
 			screen.moveToFront("ForeignAdvisorButton")
 			screen.moveToFront("TechAdvisorButton")
-			screen.moveToFront("CivicsAdvisorButton")
-			screen.moveToFront("ReligiousAdvisorButton")
-			screen.moveToFront("CorporationAdvisorButton")
-			screen.moveToFront("FinanceAdvisorButton")
+			screen.moveToFront("PolicyAdvisorButton")
+			screen.moveToFront("ForeignDiplomacyAdvisorButton")
 			screen.moveToFront("MilitaryAdvisorButton")
 			screen.moveToFront("VictoryAdvisorButton")
 			screen.moveToFront("InfoAdvisorButton")
@@ -3330,10 +3361,8 @@ class CvMainInterface:
 			screen.show("DomesticAdvisorButton")
 			screen.show("ForeignAdvisorButton")
 			screen.show("TechAdvisorButton")
-			screen.show("CivicsAdvisorButton")
-			screen.show("ReligiousAdvisorButton")
-			screen.show("CorporationAdvisorButton")
-			screen.show("FinanceAdvisorButton")
+			screen.show("PolicyAdvisorButton")
+			screen.show("ForeignDiplomacyAdvisorButton")
 			screen.show("MilitaryAdvisorButton")
 			screen.show("VictoryAdvisorButton")
 			screen.show("InfoAdvisorButton")
@@ -3362,10 +3391,8 @@ class CvMainInterface:
 			screen.moveToFront("DomesticAdvisorButton")
 			screen.moveToFront("ForeignAdvisorButton")
 			screen.moveToFront("TechAdvisorButton")
-			screen.moveToFront("CivicsAdvisorButton")
-			screen.moveToFront("ReligiousAdvisorButton")
-			screen.moveToFront("CorporationAdvisorButton")
-			screen.moveToFront("FinanceAdvisorButton")
+			screen.moveToFront("PolicyAdvisorButton")
+			screen.moveToFront("ForeignDiplomacyAdvisorButton")
 			screen.moveToFront("MilitaryAdvisorButton")
 			screen.moveToFront("VictoryAdvisorButton")
 			screen.moveToFront("InfoAdvisorButton")
@@ -3810,7 +3837,7 @@ class CvMainInterface:
 				g_pSelectedUnit = 0
 
 				# Liberate button
-				#szText = "<font=1>" + localText.getText("TXT_KEY_LIBERATE_CITY", ()) + "</font>"
+				#szText = SAS_FONT_TAG_TINY + localText.getText("TXT_KEY_LIBERATE_CITY", ()) + SAS_FONT_TAG_CLOSE
 				#screen.setButtonGFC("Liberate", szText, "", iBtnX, iBtnY, iBtnW, iBtnH, WidgetTypes.WIDGET_LIBERATE_CITY, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 				#screen.setStyle("Liberate", "Button_CityT1_Style")
 				#screen.hide("Liberate")
@@ -4713,9 +4740,9 @@ class CvMainInterface:
 				#if (gc.getPlayer(ePlayer).isCommerceFlexible(eCommerce) or (CyInterface().isCityScreenUp() and (eCommerce == CommerceTypes.COMMERCE_GOLD))):
 				if not self.showCommercePercent(eCommerce, ePlayer): # K-Mod
 					continue
-				szOutText = u"<font=2>%c:%d%%</font>" %(
+				szOutText = SAS_FONT_TAG_LABEL + u"%c:%d%%" %(
 						gc.getCommerceInfo(eCommerce).getChar(),
-						gc.getPlayer(ePlayer).getCommercePercent(eCommerce))
+						gc.getPlayer(ePlayer).getCommercePercent(eCommerce)) + SAS_FONT_TAG_CLOSE
 				szString = "PercentText" + str(iCount)
 				self.setLabel(szString, "Background", szOutText,
 						CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
@@ -4724,10 +4751,10 @@ class CvMainInterface:
 						# <advc.004p>
 						and (eCommerce != CommerceTypes.COMMERCE_CULTURE or
 						MainOpt.isShowTotalCultureRate())): # </advc.004p>
-					szOutText = u"<font=2>" + localText.getText(
+					szOutText = SAS_FONT_TAG_LABEL + localText.getText(
 							"TXT_KEY_MISC_POS_GOLD_PER_TURN",
 							(gc.getPlayer(ePlayer).getCommerceRate(CommerceTypes(eCommerce)),))
-					szOutText += u"</font>"
+					szOutText += SAS_FONT_TAG_CLOSE
 					szString = "RateText" + str(iCount)
 # BUG - Min/Max Sliders - start
 					szPointKey = szString
@@ -4742,8 +4769,8 @@ class CvMainInterface:
 					screen.show(szString)
 				iCount += 1
 		self.updateTimeText()
-		self.setLabel("TimeText", "Background", g_szTimeText,
-				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
+		self.setLabel("TimeText", "Background", SAS_FONT_TAG_LABEL + g_szTimeText + SAS_FONT_TAG_CLOSE,
+				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("TimeText")
 		# advc.103: Don't show gold rate and current research when investigating
 		if (not gc.getPlayer(ePlayer).isAlive() or
@@ -4795,8 +4822,8 @@ class CvMainInterface:
 		#if not MainOpt.isGoldRateWarning():
 		#	szText = CyGameTextMgr().getGoldStr(ePlayer)
 # BUG - Gold Rate Warning - end
-		self.setLabel("GoldText", "Background", szText,
-				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
+		self.setLabel("GoldText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
+				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 		screen.show("GoldText")
 
 		if ((gc.getPlayer(ePlayer).calculateGoldRate() != 0 and
@@ -4812,13 +4839,13 @@ class CvMainInterface:
 				iEra = gc.getGame().getCurrentEra()
 			else: # </advc.067>
 				iEra = gc.getPlayer(ePlayer).getCurrentEra()
-			szText = localText.getText("TXT_KEY_BUG_ERA",
-					(gc.getEraInfo(iEra).getDescription(),))
+			# <!-- custom: skip TXT_KEY_BUG_ERA ("%s1 Era") and use the description directly — "Renaissance" is shorter and self-explanatory without the "Era" suffix, and avoids overflow with left-side text when upscaled (e.g. during a golden age). (Claude code Sonnet 4.6) -->
+			szText = gc.getEraInfo(iEra).getDescription()
 			if ClockOpt.isUseEraColor():
 				iEraColor = ClockOpt.getEraColor(gc.getEraInfo(iEra).getType())
 				if iEraColor >= 0:
 					szText = localText.changeTextColor(szText, iEraColor)
-			self.setLabel("EraText", "Background", szText,
+			self.setLabel("EraText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
 			screen.show("EraText")
 # BUG - NJAGC - end
@@ -4856,6 +4883,7 @@ class CvMainInterface:
 			else:
 				szText = CyGameTextMgr().getResearchStr(ePlayer)
 		if szText:
+			szText = SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
 			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
 					and not bAnarchy and iTech != -1 and szTechBtn):
 				self.setSASCenteredImageButtonAtLeftOfTextRow("ResearchText", "ResearchIconText",
@@ -4928,7 +4956,7 @@ class CvMainInterface:
 		szText = GPUtil.getGreatPeopleText(pGPCity, iGPTurns,
 				gRect(szGPBar).width(),
 				MainOpt.isGPBarTypesNone(), MainOpt.isGPBarTypesOne(), True)
-		szText = u"<font=2>%s</font>" % (szText)
+		szText = SAS_FONT_TAG_LABEL + u"%s" % (szText) + SAS_FONT_TAG_CLOSE
 		if pGPCity:
 			iCityID = pGPCity.getID()
 		else:
@@ -4973,7 +5001,7 @@ class CvMainInterface:
 		iCombatExp = pPlayer.getCombatExperience()
 		iThresholdExp = pPlayer.greatPeopleThreshold(True)
 		iNeededExp = iThresholdExp - iCombatExp
-		szText = u"<font=2>%s</font>" %(GGUtil.getGreatGeneralText(iNeededExp))
+		szText = SAS_FONT_TAG_LABEL + u"%s" %(GGUtil.getGreatGeneralText(iNeededExp)) + SAS_FONT_TAG_CLOSE
 # BUG - Bars on single line for higher resolution screens - start
 		self.setLabel("GreatGeneralBarText", "Background", szText,
 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
@@ -5313,7 +5341,7 @@ class CvMainInterface:
 		iProductionDiffJustFood = (pHeadSelectedCity.getCurrentProductionDifference(False, True)
 				- iProductionDiffNoFood)
 
-		szBuffer = u"<font=4>"
+		szBuffer = SAS_FONT_TAG_TITLE
 
 		if (pHeadSelectedCity.isCapital()):
 			szBuffer += self.szStarIcon
@@ -5346,7 +5374,7 @@ class CvMainInterface:
 				szDefBuffer = szDefBuffer + szTempBuffer
 			szBuffer += u"  " + szDefBuffer
 
-		szBuffer += u"</font>"
+		szBuffer += SAS_FONT_TAG_CLOSE
 
 		self.setText("CityNameText", "Background", szBuffer,
 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.3, 
@@ -5382,7 +5410,7 @@ class CvMainInterface:
 			else:
 				szBuffer = "Stagnant - %d / %d" % (iFoodNow, iFoodThresh)
 
-			self.setLabel("PopulationText", "Background", szBuffer,
+			self.setLabel("PopulationText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
 			screen.setHitTest("PopulationText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("PopulationText")
@@ -5416,7 +5444,7 @@ class CvMainInterface:
 					self.szFoodIcon)
 			# draw label below
 		# advc.004: BULL widget help enabled
-		self.setLabel("PopulationInputText", "Background", szBuffer,
+		self.setLabel("PopulationInputText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 				WidgetTypes.WIDGET_FOOD_MOD_HELP)
 		screen.show("PopulationInputText")
@@ -5438,7 +5466,7 @@ class CvMainInterface:
 				szBuffer = localText.getText(
 						"INTERFACE_CITY_HEALTH_GOOD_NO_BAD",
 						(pHeadSelectedCity.goodHealth(),))
-			self.setLabel("HealthText", "Background", szBuffer,
+			self.setLabel("HealthText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 					WidgetTypes.WIDGET_HELP_HEALTH)
 			screen.show("HealthText")
@@ -5534,15 +5562,16 @@ class CvMainInterface:
 			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
 					and szProdBtn):
 				iImgSize = BTNSZ(20)
+				szProdText = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
 				self.setSASCenteredImageButtonAtLeftOfTextRow("ProductionText", "ProductionIconText",
-						"Background", szBuffer,
+						"Background", szProdText,
 						"<img=%s size=%d/>" % (szProdBtn, iImgSize),
 						iImgSize, None, gPoint("ProductionText").y(),
 						HSPACE(2), "ProductionBar", 0, 0,
 						FontTypes.GAME_FONT, -1.3, WidgetTypes.WIDGET_GENERAL)
 				screen.show("ProductionIconText")
 			else:
-				self.setLabel("ProductionText", "Background", szBuffer,
+				self.setLabel("ProductionText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 						CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3,
 						WidgetTypes.WIDGET_GENERAL)
 				screen.hide("ProductionIconText")
@@ -5561,7 +5590,7 @@ class CvMainInterface:
 		else:
 			szBuffer = u"%d%s" %(iProductionDiffNoFood,
 					self.szProductionIcon)
-		self.setLabel("ProductionInputText", "Background", szBuffer,
+		self.setLabel("ProductionInputText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 				WidgetTypes.WIDGET_PRODUCTION_MOD_HELP)
 		screen.show("ProductionInputText")
@@ -5597,7 +5626,7 @@ class CvMainInterface:
 				if iAngerTimer > 0:
 					szBuffer += u" (%i)" % iAngerTimer
 # BUG - Anger Display - end
-			self.setLabel("HappinessText", "Background", szBuffer,
+			self.setLabel("HappinessText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
 					WidgetTypes.WIDGET_HELP_HAPPINESS)
 			screen.show("HappinessText")
@@ -5670,7 +5699,7 @@ class CvMainInterface:
 								self.szUnhappyIcon)
 					szBuffer = szBuffer + szTempBuffer
 				szName = "CityPercentText" + str(iCount)
-				self.setLabel(szName, "Background", szBuffer,
+				self.setLabel(szName, "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 						CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3,
 						WidgetTypes.WIDGET_COMMERCE_MOD_HELP, eCommerce)
 				screen.show(szName)
@@ -5681,14 +5710,15 @@ class CvMainInterface:
 		# This means that the city screen uses size 1 only for the
 		# BUG yield breakdowns ("Raw Yields").
 		if self.bScaleHUD and gRect("Top").height() > 900:
-			self.iBldgFontSize = 2
-			self.iTRFontSize = 2
+			# <!-- custom: use LABEL (not BODY) for city building/trade tables so label-font upscaling applies consistently when SAS_UI_FONT_LABEL is raised. (GPT-5.4) -->
+			self.iBldgFontSize = getSASUIFontLabel()
+			self.iTRFontSize = getSASUIFontLabel()
 			# Table rows don't or barely get higher, so the button size
 			# shouldn't be increased here.
 			iBldgBtnSize = None
 		else: # </advc.092>
-			self.iBldgFontSize = 1
-			self.iTRFontSize = 1
+			self.iBldgFontSize = getSASUIFontTiny()
+			self.iTRFontSize = getSASUIFontTiny()
 			iBldgBtnSize = None
 		self.addTable("BuildingListTable", 3, "Table_City_Style", iBldgBtnSize)
 # BUG - Raw Yields - start
@@ -5928,11 +5958,11 @@ class CvMainInterface:
 				# </advc.097>
 				szFontStart = "<font="+ str(self.iBldgFontSize) + ">" # advc.092
 				screen.setTableText("BuildingListTable", 0, iNumBuildings,
-						szFontStart + szLeftBuffer + "</font>", szIcon,
+						szFontStart + szLeftBuffer + SAS_FONT_TAG_CLOSE, szIcon,
 						WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1,
 						CvUtil.FONT_LEFT_JUSTIFY)
 				screen.setTableText("BuildingListTable", 1, iNumBuildings,
-						szFontStart + szRightBuffer + "</font>", "",
+						szFontStart + szRightBuffer + SAS_FONT_TAG_CLOSE, "",
 						WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1,
 						CvUtil.FONT_RIGHT_JUSTIFY)
 				iNumBuildings = iNumBuildings + 1
@@ -5998,11 +6028,11 @@ class CvMainInterface:
 					screen.appendTableRow("TradeRouteTable")
 					szFontStart = "<font=" + str(self.iTRFontSize) + ">" # advc.092
 					screen.setTableText("TradeRouteTable", 0, iNumTradeRoutes,
-							szFontStart + szLeftBuffer + "</font>", "",
+							szFontStart + szLeftBuffer + SAS_FONT_TAG_CLOSE, "",
 							WidgetTypes.WIDGET_HELP_TRADE_ROUTE_CITY, i, -1,
 							CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText("TradeRouteTable", 1, iNumTradeRoutes,
-							szFontStart + szRightBuffer + "</font>", "",
+							szFontStart + szRightBuffer + SAS_FONT_TAG_CLOSE, "",
 							WidgetTypes.WIDGET_HELP_TRADE_ROUTE_CITY, i, -1,
 							CvUtil.FONT_RIGHT_JUSTIFY)
 # BUG - Raw Yields - end
@@ -6024,9 +6054,9 @@ class CvMainInterface:
 				gRect("Top").height() > 900
 				# Quick adjustment for mod-mods that add resources
 				+ max(0, gc.getNumBonusInfos() - 35) * 12):
-			iFontSize = 3
+			iFontSize = getSASUIFontLabel()
 		else:
-			iFontSize = 1 # (2 doesn't really increase the size of icons)
+			iFontSize = getSASUIFontTiny() # (2 doesn't really increase the size of icons)
 		szFontStart = u"<font=" + str(iFontSize) + u">"
 		# </advc.092>
 		iLeftCount = 0
@@ -6046,7 +6076,7 @@ class CvMainInterface:
 			if iAmount > 1:
 				szTempBuffer = u"(%d)" %(iAmount)
 				szLeadBuffer = szLeadBuffer + szTempBuffer
-			szLeadBuffer = szLeadBuffer + "</font>"
+			szLeadBuffer = szLeadBuffer + SAS_FONT_TAG_CLOSE
 			iVSpace = VSPACE(4)
 			iRowHeight = BTNSZ(22) # advc.002b: 20 in BtS
 			# advc.002b: Removed the plus signs and commas before the amounts
@@ -6128,13 +6158,13 @@ class CvMainInterface:
 				pHeadSelectedCity.getOwner()).calculateInflationRate()
 		iMaintenance /= 100 # </K-Mod>
 		szBuffer = self.szTextMaintenance
-		self.setLabel("MaintenanceText", "Background", szBuffer,
+		self.setLabel("MaintenanceText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.3, 
 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
 		screen.show("MaintenanceText")
 		szBuffer = u"-%d.%02d %c" %(iMaintenance/100, iMaintenance%100,
 				gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar())
-		self.setLabel("MaintenanceAmountText", "Background", szBuffer,
+		self.setLabel("MaintenanceAmountText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3,
 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
 		screen.show("MaintenanceAmountText")
@@ -6364,7 +6394,7 @@ class CvMainInterface:
 		szBuffer = u"%d%% %s" %(
 				pHeadSelectedCity.plot().calculateCulturePercent(pHeadSelectedCity.getOwner()),
 				gc.getPlayer(pHeadSelectedCity.getOwner()).getCivilizationAdjective(0))
-		self.setLabel("NationalityText", "Background", szBuffer,
+		self.setLabel("NationalityText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.3)
 		screen.setHitTest("NationalityText", HitTestTypes.HITTEST_NOHIT)
 		screen.show("NationalityText")
@@ -6426,7 +6456,7 @@ class CvMainInterface:
 							"INTERFACE_CITY_TURNS",
 							(((iCultureLeftTimes100 + iRate - 1) / iRate),))
 # BUG - Culture Turns - end
-			self.setLabel("CultureText", "Background", szBuffer,
+			self.setLabel("CultureText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
 			screen.setHitTest("CultureText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("CultureText")
@@ -6447,7 +6477,7 @@ class CvMainInterface:
 					szBuffer += u" " + localText.getText(
 							"INTERFACE_CITY_TURNS", (iGPTurns,))
 # BUG - Great Person Turns - end
-			self.setLabel("GreatPeopleText", "Background", szBuffer,
+			self.setLabel("GreatPeopleText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -1.3)
 			screen.setHitTest("GreatPeopleText", HitTestTypes.HITTEST_NOHIT)
 			screen.show("GreatPeopleText")
@@ -6525,22 +6555,21 @@ class CvMainInterface:
 				szTurns = u"(-)"
 
 			# 3. Construct ROW 1 (Top Line): "(5 [Silver Star] 3 [Cit]) +25% [GP]"
-			szRow1 = u"<font=2>(%d%s %d%s)" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
+			szRow1 = SAS_FONT_TAG_LABEL + u"(%d%s %d%s)" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
 			if iModPercent != 0:
 				szRow1 += u" +%d%%" % (iModPercent)
-			szRow1 += u"</font>"
+			szRow1 += SAS_FONT_TAG_CLOSE
 
 			# 4. Construct ROW 2 (Bottom Line): "10 [GP]: 109/249 (14)"
-			szRow2 = u"<font=2>%d%s: %d/%d %s</font>" % (iTotalRate, self.szGreatPeopleIcon, iProgress, iThreshold, szTurns)
+			szRow2 = SAS_FONT_TAG_LABEL + u"%d%s: %d/%d %s" % (iTotalRate, self.szGreatPeopleIcon, iProgress, iThreshold, szTurns) + SAS_FONT_TAG_CLOSE
 
 			# 5. Positioning & Rendering (Split into TWO Labels)
 			# screen.setLabel ignores \n, so we must draw two separate text widgets.
 			iX = gRect("CityRightPanelContents").x() + 2
 		
-			# Position Row 2 (Bottom) just above the yellow bar
-			iY2 = gRect("GreatPeopleBar").y() - 22
-			# Position Row 1 (Top) above Row 2
-			iY1 = gRect("GreatPeopleBar").y() - 42
+			# Position specialist rows above culture rows
+			iY2 = gRect("GreatPeopleBar").y() - 62
+			iY1 = gRect("GreatPeopleBar").y() - 82
 
 			# Draw Label 1 (Top)
 			screen.setLabel("SpecBreakdownLabel1", "Background", szRow1, CvUtil.FONT_LEFT_JUSTIFY, iX, iY1, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -6606,7 +6635,7 @@ class CvMainInterface:
 				if iBaseRate > 0 and iTotalCultureRateTimes100 > iBaseRate * 100:
 					iModPercent = (iTotalCultureRateTimes100 / iBaseRate) - 100
 				
-				szRow1 = u"<font=2>(%d%s %d%s %d%s %d%s %d%s)" % (
+				szRow1 = SAS_FONT_TAG_LABEL + u"(%d%s %d%s %d%s %d%s %d%s)" % (
 						iRelCulture, self.szReligionIcon,
 						iCorpCulture, self.szTradeIcon,
 						iBldgCulture, self.szProductionIcon,
@@ -6615,7 +6644,7 @@ class CvMainInterface:
 				)
 				if iModPercent != 0:
 					szRow1 += u" +%d%%" % (iModPercent)
-				szRow1 += u"</font>"
+				szRow1 += SAS_FONT_TAG_CLOSE
 				
 				iCultureProgressTimes100 = pHeadSelectedCity.getCultureTimes100(
 						pHeadSelectedCity.getOwner())
@@ -6632,15 +6661,9 @@ class CvMainInterface:
 				iProgFrac = iCultureProgressTimes100 % 100
 				szRate = u"%d.%02d" % (iRateWhole, iRateFrac)
 				szProgress = u"%d.%02d" % (iProgWhole, iProgFrac)
-				szRow2 = u"<font=2>%s%s: %s/%d %s</font>" % (szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns)
+				szRow2 = SAS_FONT_TAG_LABEL + u"%s%s: %s/%d %s" % (szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
 				
-				iSpecW1 = CyInterface().determineWidth(szRow1)
-				iSpecW2 = CyInterface().determineWidth(szRow2)
-				iSpecW = max(iSpecW1, iSpecW2)
-				iSpecMaxW = (gRect("CityRightPanelContents").width() / 2) - HSPACE(18)
-				iSpecW = min(iSpecW, iSpecMaxW)
-				wSpecCultureBreakdownsSpacingAdjust = - HSPACE(10)
-				iXRight = iX + iSpecW + wSpecCultureBreakdownsSpacingAdjust
+				iXRight = iX
 				iY2 = gRect("GreatPeopleBar").y() - 22
 				iY1 = gRect("GreatPeopleBar").y() - 42
 				screen.setLabel("CultureBreakdownLabel1", "Background", szRow1,
@@ -6659,10 +6682,10 @@ class CvMainInterface:
 		if iAmount > 1:
 			self.addDDS("CityBonusCircle" + szIndex, "WHITE_CIRCLE_40",
 					WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus)
-			szAmount = (u"<font=2>"
+			szAmount = (SAS_FONT_TAG_LABEL
 					+ localText.changeTextColor(str(iAmount),
 					self.colorYellow)
-					+ "</font>")
+					+ SAS_FONT_TAG_CLOSE)
 			self.setLabel("CityBonusAmount" + szIndex, "BonusBack0", szAmount,
 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.1,
 					WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus)
@@ -6814,9 +6837,11 @@ class CvMainInterface:
 				screen.appendTableRow("SelectedCityText")
 
 				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
-				screen.setTableText("SelectedCityText", 0, iRow, szLeftBuffer, szButton, WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)  
+				szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+				szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+				screen.setTableText("SelectedCityText", 0, iRow, szLeftText, szButton, WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-				screen.setTableText("SelectedCityText", 1, iRow, szRightBuffer, "", WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				screen.setTableText("SelectedCityText", 1, iRow, szRightText, "", WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				screen.show("SelectedCityText")
 				screen.show("SelectedUnitPanel")
 				iRow += 1
@@ -6869,6 +6894,8 @@ class CvMainInterface:
 					fMaxMoves = float(iMaxMoves) / self.iMoveDenominator
 					szBuffer += u" %.1f - %.1f%s" % (fMinMoves, fMaxMoves,
 							self.szMovesIcon)
+			if (szBuffer.find("<font=") == -1):
+				szBuffer = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
 			self.setText("SelectedUnitLabel", "Background", szBuffer,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1,
 					WidgetTypes.WIDGET_UNIT_NAME)
@@ -6903,7 +6930,7 @@ class CvMainInterface:
 							screen.moveToFront(szName)
 							screen.show(szName)
 							szName = "PromotionButtonCount" + str(iPromotionCount)
-							szText = u"<font=2>%d</font>" % iCount
+							szText = SAS_FONT_TAG_LABEL + u"%d" % iCount + SAS_FONT_TAG_CLOSE
 							if iCount == iNumUnits:
 								szText = BugUtil.colorText(szText, iSPColorAll)
 							else:
@@ -6934,10 +6961,12 @@ class CvMainInterface:
 								szRightBuffer = u"(" + str(iCount) + u")"
 							szBuffer = szLeftBuffer + u"  " + szRightBuffer
 							screen.appendTableRow("SelectedUnitText")
-							screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, szButton,
+							szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+							szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+							screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, szButton,
 							# <!-- custom: End - add buttons to unit selection panel in the main map view (Claude code Sonnet 4.5) -->
 									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
-							screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+							screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 							screen.show("SelectedUnitText")
 							screen.show("SelectedUnitPanel")
@@ -6950,7 +6979,9 @@ class CvMainInterface:
 				szBuffer = localText.getText("INTERFACE_PANE_UNIT_NAME_HOT_KEY",
 						(pHeadSelectedUnit.getHotKeyNumber(), pHeadSelectedUnit.getName()))
 			if (len(szBuffer) > 60):
-				szBuffer = "<font=2>" + szBuffer + "</font>"
+				szBuffer = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
+			if (szBuffer.find("<font=") == -1):
+				szBuffer = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
 			self.setText("SelectedUnitLabel", "Background", szBuffer,
 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1, 
 					WidgetTypes.WIDGET_UNIT_NAME)
@@ -6991,9 +7022,11 @@ class CvMainInterface:
 				szBuffer = szLeftBuffer + szRightBuffer
 				if (szBuffer):
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")
@@ -7039,9 +7072,11 @@ class CvMainInterface:
 # BUG - Unit Movement Fraction - end
 				szBuffer = szLeftBuffer + "  " + szRightBuffer
 				screen.appendTableRow("SelectedUnitText")
-				screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+				szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+				szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+				screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 						WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+				screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 						WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				screen.show("SelectedUnitText")
 				screen.show("SelectedUnitPanel")
@@ -7052,9 +7087,11 @@ class CvMainInterface:
 					szRightBuffer = u"%d" %(pHeadSelectedUnit.getLevel())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")
@@ -7066,9 +7103,11 @@ class CvMainInterface:
 							pHeadSelectedUnit.experienceNeeded())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")
@@ -7104,9 +7143,11 @@ class CvMainInterface:
 								gc.getMissionInfo(pSelectedGroup.getMissionType(i)).getDescription())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
 					screen.appendTableRow("SelectedUnitText")
-					screen.setTableText("SelectedUnitText", 0, iRow, szLeftBuffer, "",
+					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
+					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
-					screen.setTableText("SelectedUnitText", 1, iRow, szRightBuffer, "",
+					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
 							WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 					screen.show("SelectedUnitText")
 					screen.show("SelectedUnitPanel")
@@ -7131,13 +7172,14 @@ class CvMainInterface:
 	# with BUG code from Scoreboard.draw.
 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
 		iRMargin = gRect("Top").xRight() - gPoint("ScoreTextLowerRight").x()
-		iBMargin = gRect("GlobeToggle").y() - gPoint("ScoreTextLowerRight").y()
-		# These are bigger inner margins than I thought should be needed. Strange.
+		# <!-- custom: fixed symmetric panel margin matching original (3*iBMargin/2 with iBMargin=VSPACE(6)) so text is always centered; no longer derived from iBMargin which blows up when iScoreBottom moves. (Claude code Sonnet 4.6) -->
+		iSidePad = VSPACE(9)
+		iScoreBottomY = gPoint("ScoreTextLowerRight").y()
 		self.screen.setPanelSize("ScoreBackground",
 				gRect("Top").xRight() - iTextWidth - 2 * iRMargin,
-				gRect("GlobeToggle").y() - iTextHeight - (5 * iBMargin) / 2,
+				iScoreBottomY - iTextHeight - iSidePad,
 				iTextWidth + (7 * iRMargin) / 4,
-				iTextHeight + 3 * iBMargin)
+				iTextHeight + 2 * iSidePad)
 
 	def updateScoreStrings(self, bOnlyBackgr = False): # advc.004z: new param
 		screen = self.screen
@@ -7145,6 +7187,8 @@ class CvMainInterface:
 		if not bOnlyBackgr:
 			self.hideScoreStrings() # </advc.004z>
 		screen.hide("ScoreBackground")
+		screen.hide("ScoreScrollUp")
+		screen.hide("ScoreScrollDown")
 		eUIVis = CyInterface().getShowInterface()
 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or
 				eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or
@@ -7166,9 +7210,20 @@ class CvMainInterface:
 		iCount = 0
 		iBtnHeight = VLEN(22)
 		# <advc.092> The Scoreboard module will use this too
+		# <!-- custom: compute available scoreboard height and cap visible rows; show scroll buttons when player count exceeds capacity. (Claude code Sonnet 4.6) -->
+		# <!-- custom: buttons sit just above GlobeToggle; iScoreBottom is panel text-bottom = buttons_y - gap - iSidePad, so panel is exactly symmetric (9px each side) matching original. (Claude code Sonnet 4.6) -->
+		iSScrollBtnSz = gRect("ScoreScrollUp").width()
+		iSScrollY = gRect("GlobeToggle").y() - iSScrollBtnSz  # buttons flush above GlobeToggle
+		iScoreBottom = iSScrollY - VSPACE(2) - VSPACE(9)  # 2px gap + 9px panel bottom margin
 		gSetPoint("ScoreTextLowerRight", PointLayout(
 				gRect("MiniMap").xRight(),
-				gRect("GlobeToggle").y() - VSPACE(6))) # </advc.092>
+				iScoreBottom)) # </advc.092>
+		iScoreTopMin = gRect("AdvisorButtons").yBottom()
+		iAvailH = iScoreBottom - iScoreTopMin
+		iMaxRows = max(1, iAvailH // iBtnHeight)
+		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
+		screen.moveItem("ScoreScrollUp", gPoint("ScoreTextLowerRight").x() - 2 * iSScrollBtnSz - HSPACE(1), iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollDown", gPoint("ScoreTextLowerRight").x() - iSScrollBtnSz, iSScrollY, -0.3)
 # BUG - Align Icons - start
 		bAlignIcons = ScoreOpt.isAlignIcons()
 		if bAlignIcons:
@@ -7196,48 +7251,91 @@ class CvMainInterface:
 					# advc.085: Moved to BUG Scoreboard
 					if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
 							gc.getPlayer(ePlayer).getTeam() == eTeam):
-						szBuffer = u"<font=2>"
+						szBuffer = SAS_FONT_TAG_LABEL
 # BUG - Align Icons - start
 						if bAlignIcons:
 							scores.addPlayer(gc.getPlayer(ePlayer), j)
 # BUG - Align Icons - end
 						# advc: Code moved into auxiliary function
 						szBuffer += self.playerScoreString(ePlayer, scores, bAlignIcons)
-						szBuffer = szBuffer + "</font>"
+						szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
 # BUG - Align Icons - start
 						if not bAlignIcons:
-							if CyInterface().determineWidth(szBuffer) > iWidth:
-								iWidth = CyInterface().determineWidth(szBuffer)
-							szName = "ScoreText" + str(ePlayer)
-# BUG - Dead Civs - start
-							# Don't try to contact dead civs
-							if gc.getPlayer(ePlayer).isAlive():
-								iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
-								eContactPlayer = ePlayer
-							else:
-								iWidgetType = WidgetTypes.WIDGET_GENERAL
-								eContactPlayer = -1
-							yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
-							screen.setText(szName, "Background",
-									szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
-									gPoint("ScoreTextLowerRight").x(),
-									yCoord - iCount * iBtnHeight,
-									-0.3, FontTypes.SMALL_FONT,
-									iWidgetType, eContactPlayer, -1)
-# BUG - Dead Civs - end
-							screen.show(szName)
-							CyInterface().checkFlashReset(ePlayer)
 							iCount += 1
 # BUG - Align Icons - end
 					j = j - 1
 			i = i - 1
-
-# BUG - Align Icons - start
-		if bAlignIcons:
-			scores.draw(screen)
-		else:
+		# <!-- custom: for the non-BUG path, iTotalCount is now in iCount; reset iCount for the drawing pass below. -->
+		if not bAlignIcons:
+			iTotalCount = iCount
+			iCount = 0
+			# Clamp scroll offset
+			if iTotalCount <= iMaxRows:
+				self.iScoreScrollOffset = 0
+			else:
+				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
+			# Second pass: draw only the visible window
+			i = gc.getMAX_CIV_TEAMS() - 1
+			iValidIdx = 0
+			while i > -1:
+				eTeam = gc.getGame().getRankTeam(i)
+				if Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+					j = gc.getMAX_CIV_PLAYERS() - 1
+					while j > -1:
+						ePlayer = gc.getGame().getRankPlayer(j)
+						if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
+								gc.getPlayer(ePlayer).getTeam() == eTeam):
+							if iValidIdx >= self.iScoreScrollOffset and iValidIdx < self.iScoreScrollOffset + iMaxRows:
+								szBuffer = SAS_FONT_TAG_LABEL
+								szBuffer += self.playerScoreString(ePlayer, None, False)
+								szBuffer = szBuffer + SAS_FONT_TAG_CLOSE
+								if CyInterface().determineWidth(szBuffer) > iWidth:
+									iWidth = CyInterface().determineWidth(szBuffer)
+								szName = "ScoreText" + str(ePlayer)
+# BUG - Dead Civs - start
+								if gc.getPlayer(ePlayer).isAlive():
+									iWidgetType = WidgetTypes.WIDGET_CONTACT_CIV
+									eContactPlayer = ePlayer
+								else:
+									iWidgetType = WidgetTypes.WIDGET_GENERAL
+									eContactPlayer = -1
+								yCoord = gPoint("ScoreTextLowerRight").y() - iBtnHeight
+								screen.setText(szName, "Background",
+										szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
+										gPoint("ScoreTextLowerRight").x(),
+										yCoord - iCount * iBtnHeight,
+										-0.3, FontTypes.SMALL_FONT,
+										iWidgetType, eContactPlayer, -1)
+# BUG - Dead Civs - end
+								screen.show(szName)
+								CyInterface().checkFlashReset(ePlayer)
+								iCount += 1
+							iValidIdx += 1
+						j = j - 1
+				i = i - 1
 			self.updateScoreBackgrSize(iWidth, iBtnHeight * iCount) # advc.092
+			iTotalCount = iValidIdx  # actual total (may differ from pre-count if filters changed)
+		else:
+			# BUG aligned path: let Scoreboard.draw handle slicing
+			if scores is not None:
+				iTotalCount = len(scores._playerScores)
+			else:
+				iTotalCount = 0
+			# Clamp scroll offset against the pre-sort count (sort may truncate via maxPlayers)
+			# draw() will re-clamp after sort; this is a best-effort pre-clamp.
+			if iTotalCount <= iMaxRows:
+				self.iScoreScrollOffset = 0
+			else:
+				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
+# BUG - Align Icons - start
+			scores.draw(screen, self.iScoreScrollOffset, iMaxRows)
 # BUG - Align Icons - end
+		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
+		if iTotalCount > iMaxRows:
+			if self.iScoreScrollOffset < iTotalCount - iMaxRows:
+				screen.show("ScoreScrollUp")
+			if self.iScoreScrollOffset > 0:
+				screen.show("ScoreScrollDown")
 
 	# <advc> Body cut from updateScoreStrings in order to reduce indentation
 	def playerScoreString(self, ePlayer, scores, bAlignIcons):
@@ -7608,7 +7706,12 @@ class CvMainInterface:
 		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL):
 			screen.setHelpTextString("")
 		else:
-			screen.setHelpTextString(CyInterface().getHelpString())
+			szHelpText = CyInterface().getHelpString()
+			if (szHelpText.find("<font=") == -1):
+				szTag = SAS_FONT_TAG_HOVER._build()
+				if szTag:
+					szHelpText = szTag + szHelpText + SAS_FONT_TAG_CLOSE
+			screen.setHelpTextString(szHelpText)
 		return 0
 
 	# Will set the promotion button position
@@ -7975,6 +8078,15 @@ class CvMainInterface:
 						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
 					self.iCityBuildBarPinnedRow += 1
 					return 0
+				# <!-- custom: score scroll buttons; + scrolls down (more lower-ranked), - scrolls back up (toward rank 1). (Claude code Sonnet 4.6) -->
+				elif fn == "ScoreScrollUp":
+					self.iScoreScrollOffset += 1
+					self.updateScoreStrings()
+					return 1
+				elif fn == "ScoreScrollDown":
+					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - 1)
+					self.updateScoreStrings()
+					return 1
 				elif fn.startswith("BuildFilter"):
 					iNewFilter = inputClass.getData1()
 					if iNewFilter != self.iBuildingFilter:

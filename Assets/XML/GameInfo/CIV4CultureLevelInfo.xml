@@ -7,9 +7,6 @@
 <!-- custom: added new game speeds with the help of chatgpt5. thanks, and the compact display is super more readable thanks a lot! -->
 <Civ4CultureLevelInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<CultureLevelInfos>
-
-
-
 		<CultureLevelInfo>
 			<Type>CULTURELEVEL_NONE</Type>
 			<Description>TXT_KEY_CULTURELEVEL_NONE</Description>
@@ -25,9 +22,6 @@
 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>0</iThreshold></SpeedThreshold>
 			</SpeedThresholds>
 		</CultureLevelInfo>
-
-
-
 		<CultureLevelInfo>
 			<Type>CULTURELEVEL_POOR</Type>
 			<Description>TXT_KEY_CULTURELEVEL_POOR</Description>
@@ -43,9 +37,6 @@
 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>0</iThreshold></SpeedThreshold>
 			</SpeedThresholds>
 		</CultureLevelInfo>
-
-
-
 		<CultureLevelInfo>
 			<Type>CULTURELEVEL_FLEDGLING</Type>
 			<Description>TXT_KEY_CULTURELEVEL_FLEDGLING</Description>
@@ -61,9 +52,6 @@
 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>40</iThreshold></SpeedThreshold>
 			</SpeedThresholds>
 		</CultureLevelInfo>
-
-
-
 		<CultureLevelInfo>
 			<Type>CULTURELEVEL_DEVELOPING</Type>
 			<Description>TXT_KEY_CULTURELEVEL_DEVELOPING</Description>
@@ -79,9 +67,6 @@
 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>400</iThreshold></SpeedThreshold>
 			</SpeedThresholds>
 		</CultureLevelInfo>
-
-
-
 		<CultureLevelInfo>
 			<Type>CULTURELEVEL_REFINED</Type>
 			<Description>TXT_KEY_CULTURELEVEL_REFINED</Description>
@@ -96,11 +81,7 @@
 				<SpeedThreshold><GameSpeedType>GAMESPEED_SLOW</GameSpeedType><iThreshold>1500</iThreshold></SpeedThreshold>
 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>2000</iThreshold></SpeedThreshold>
 			</SpeedThresholds>
-
 		</CultureLevelInfo>
-
-
-
 		<CultureLevelInfo>
 			<Type>CULTURELEVEL_INFLUENTIAL</Type>
 			<Description>TXT_KEY_CULTURELEVEL_INFLUENTIAL</Description>
@@ -116,9 +97,6 @@
 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>20000</iThreshold></SpeedThreshold>
 			</SpeedThresholds>
 		</CultureLevelInfo>
-
-
-
 		<!-- advc.251: Quick was 25k, Normal 50k, Epic 75k, Marathon 150k.
 			 Marathon corresponds to a ca. 225% adjustment. -->
 		<CultureLevelInfo>
@@ -136,8 +114,5 @@
 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>180000</iThreshold></SpeedThreshold>
 			</SpeedThresholds>
 		</CultureLevelInfo>
-
-
-
 	</CultureLevelInfos>
 </Civ4CultureLevelInfo>

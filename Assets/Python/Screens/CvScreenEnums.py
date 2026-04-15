@@ -10,11 +10,13 @@ REWARD_SCREEN = 1
 DAWN_OF_MAN = 2
 TECH_CHOOSER = 3
 FOREIGN_ADVISOR = 4
-FINANCE_ADVISOR = 5
+# <!-- custom: legacy screen id 5 now maps to Foreign Diplomacy naming. (GPT-5.3-Codex) -->
+FOREIGN_DIPLOMACY_SCREEN = 5
 WONDER_MOVIE_SCREEN = 6
 RELIGION_SCREEN = 7
 INTRO_MOVIE_SCREEN = 8
-CIVICS_SCREEN = 9
+# <!-- custom: canonical policy advisor screen id; removed civics/policy alias layer for strict naming consistency. (GPT-5.3-Codex) -->
+POLICY_ADVISOR_SCREEN = 9
 DIPLOMACY_SCREEN = 10
 OPTIONS_SCREEN = 11
 TECH_SPLASH = 12
@@ -35,6 +37,8 @@ UN_SCREEN = 26
 ESPIONAGE_ADVISOR = 27
 SPACE_SHIP_SCREEN = 28
 CORPORATION_SCREEN = 29
+# <!-- custom: split Foreign advisor shell id for diplomacy/intel cluster (F3 slot). (GPT-5.3-Codex) -->
+FOREIGN_DIPLOMACY_ADVISOR = 30
 
 GAMEFONT_DISPLAY_SCREEN = 75 # advc.gfd
 

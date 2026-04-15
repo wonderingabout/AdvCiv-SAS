@@ -2,10 +2,58 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
+
 from CvPythonExtensions import *
 
 
 gc = CyGlobalContext()
+
+
+
+# <!-- custom: shared advisor layout constants that are screen-independent (safe to read in __init__); runtime screen-dependent geometry is derived per screen from current resolution in interfaceScreen. (GPT-5.3-Codex) -->
+# <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
+SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS = 0
+SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD = 420
+SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
+SAS_ADVISOR_BOTTOM_SPACE = 0
+
+# <!-- custom: shared advisor title Y is screen-independent and unified for migrated advisors to reduce per-file noise; older per-screen values were close (e.g. 8/12), so use one midpoint default (10). Keep screen-dependent anchors computed at runtime. (GPT-5.3-Codex) -->
+SAS_ADVISOR_TITLE_Y = 10
+# <!-- custom: shared offsets/divisors for runtime screen-dependent anchor formulas (title/exit/link/footer) derived from each advisor's current panel width/height in interfaceScreen. (GPT-5.3-Codex) -->
+SAS_ADVISOR_TITLE_X_DIVISOR = 2
+SAS_ADVISOR_EXIT_X_OFFSET = 30
+SAS_ADVISOR_EXIT_Y_OFFSET = 42
+SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET = 55
+
+# <!-- custom: shared runtime advisor bounds (screen-dependent) and shared title/exit/link anchors; callers pass screen and configured margins from __init__. (GPT-5.3-Codex) -->
+def getAdvisorRuntimeBounds(screen, iLeftSpace, iRightSpace, iTopSpace, iBottomSpace):
+	iXScreen = iLeftSpace
+	iWScreen = screen.getXResolution() - iLeftSpace - iRightSpace
+	iYScreen = iTopSpace
+	iHScreen = screen.getYResolution() - iTopSpace - iBottomSpace
+	return (iXScreen, iYScreen, iWScreen, iHScreen)
+
+
+def getAdvisorRuntimeAnchors(iWScreen, iHScreen):
+	iXTitle = iWScreen / SAS_ADVISOR_TITLE_X_DIVISOR
+	iXExit = iWScreen - SAS_ADVISOR_EXIT_X_OFFSET
+	iYExit = iHScreen - SAS_ADVISOR_EXIT_Y_OFFSET
+	iYLink = iYExit
+	iYBottomPanel = iHScreen - SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET
+	return (iXTitle, iXExit, iYExit, iYLink, iYBottomPanel)
+
+
+# <!-- custom: shared weighted tab-link width helper used by advisor tab bars; weights by text width and scales to runtime X_EXIT. (GPT-5.3-Codex) -->
+def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
+	aiLabelWidths = []
+	for szLabel in aszLabels:
+		aiLabelWidths.append(cyInterface.determineWidth(szLabel) + 20)
+	iTotalWidth = sum(aiLabelWidths) + cyInterface.determineWidth(szExitLabel) + 20
+	aiLinkWidths = []
+	for iWidth in aiLabelWidths:
+		aiLinkWidths.append((iXExit * iWidth + iTotalWidth/2) / iTotalWidth)
+	return aiLinkWidths
+
 
 
 # <!-- custom: shared strict XML lookup helper for maps/screens; raise loudly instead of silently accepting missing tags. (GPT-5.3-Codex) -->

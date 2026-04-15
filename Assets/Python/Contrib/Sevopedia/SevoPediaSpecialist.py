@@ -21,6 +21,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -89,6 +90,8 @@ class SevoPediaSpecialist:
 
 
 
+
+
 	def placeSpecialistPane(self):
 		screen = self.top.getScreen()
 
@@ -107,6 +110,7 @@ class SevoPediaSpecialist:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS_SPECIALISTS", ()), "", True, False, self.X_EFFECTS_PANEL, self.Y_EFFECTS_PANEL, self.W_EFFECTS_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getSpecialistHelp(self.iSpecialist, True)
+		szSpecialText = SASTextScale.normalizeLabelText(szSpecialText)
 		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was Y + headerExtraHeight (i.e. + 10) -->
 		headerExtraHeight = 10
 		screen.addMultilineText(textName, szSpecialText, self.X_EFFECTS_PANEL + 5, self.Y_EFFECTS_PANEL - headerExtraHeight, self.W_EFFECTS_PANEL - 10, self.H_TOP_PANEL - headerExtraHeight, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -174,7 +178,7 @@ class SevoPediaSpecialist:
 					else:
 						textName = self.top.getNextWidgetName()
 						screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
-						screen.setLabelAt(textName, scrollName, u"<font=4>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 						iY += (iButtonSize + 8)
 
 		for key in sorted(specialSlots.keys()):
@@ -186,7 +190,7 @@ class SevoPediaSpecialist:
 				widgetID1 = specialSlots[key][4]
 				widgetID2 = specialSlots[key][5]
 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
-				screen.setLabelAt(textName, scrollName, u"<font=4>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		for iCivic in xrange(gc.getNumCivicInfos()):
@@ -194,12 +198,12 @@ class SevoPediaSpecialist:
 			if civicInfo.isSpecialistValid(self.iSpecialist):
 				textName = self.top.getNextWidgetName()
 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, civicInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1)
-				screen.setLabelAt(textName, scrollName, u"<font=4>Unlimited</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(textName, scrollName, SASTextScale.titleText("Unlimited"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		if iY == 6:
 			textName = self.top.getNextWidgetName()
-			screen.setLabelAt(textName, scrollName, u"<font=4>No extra slots gained</font>", CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra slots gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -242,12 +246,12 @@ class SevoPediaSpecialist:
 		for buttonPath, widgetType, widgetID, szText in entries:
 			textName = self.top.getNextWidgetName()
 			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID, 1)
-			screen.setLabelAt(textName, scrollName, u"<font=4>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		if iY == 6:
 			textName = self.top.getNextWidgetName()
-			screen.setLabelAt(textName, scrollName, u"<font=4>No extra yields gained</font>", CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra yields gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -257,6 +261,7 @@ class SevoPediaSpecialist:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		textName = self.top.getNextWidgetName()
 		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
+		szText = SASTextScale.normalizeLabelText(szText)
 		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
 		panelTopPadding = 40
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -265,3 +270,4 @@ class SevoPediaSpecialist:
 
 	def handleInput (self, inputClass):
 		return 0
+

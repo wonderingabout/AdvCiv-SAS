@@ -787,6 +787,19 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
 	}
+	// <!-- custom: Optionally upscale hover help text via SAS_UI_FONT_HOVER define (Claude code Opus 4.6) -->
+	if (!szBuffer.isEmpty())
+	{
+		static int const iFontSize = GC.getDefineINT("SAS_UI_FONT_HOVER");
+		if (iFontSize >= 1 && iFontSize <= 4)
+		{
+			CvWString szWrapped;
+			szWrapped.Format(L"<font=%d>", iFontSize);
+			szWrapped.append(szBuffer.getCString());
+			szWrapped.append(L"</font>");
+			szBuffer.assign(szWrapped);
+		}
+	} // <!-- custom: (Claude code Opus 4.6) -->
 	if (getActivePlayer() == NO_PLAYER)
 		return;
 	static WidgetTypes aeExpandTypes[] =
@@ -5732,10 +5745,10 @@ void CvDLLWidgetData::parseBonusTradeHelp(CvWidgetDataStruct &widgetDataStruct, 
 	else /* <advc.073> Hack. Need to distinguish between the import and export columns.
 			Too few iData parameters for that and widgetDataStruct.m_bOption
 			can't be set from Python (via setImageButton in the EXE).
-			I'm adding +1000 to the bonus id in Python (CvExoticForeignAdvisor.
+			I'm adding +1000 to the bonus id in Python (CvForeignAdvisor.
 			drawResourceDeals) to signal that the widget is in the import column,
 			Proper solution: Two separate widget types - probably wouldn't be that
-			much work to implement either. */
+			much work to implement either.; <!-- custom: removed "Exotic" since it is now unified in a single file --> */
 	{
 		bool bImport = false;
 		if(widgetDataStruct.m_iData1 >= 1000)
@@ -6323,7 +6336,7 @@ bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget,
 	// bListMore, eOwner and eWhoTo are all folded into data1
 	int iPlayerCode = kWidget.m_iData1;
 	FAssert(iPlayerCode >= 100);
-	// Undo the computation in drawCityDeals (CvExoticForeignAdvisor.py)
+	// Undo the computation in drawCityDeals (CvForeignAdvisor.py); <!-- custom: removed "Exotic" since it is now unified in a single file -->
 	if (iPlayerCode >= 10000)
 	{
 		bListMore = true;

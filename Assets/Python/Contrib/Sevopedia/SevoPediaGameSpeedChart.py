@@ -26,7 +26,22 @@ class SevoPediaGameSpeedChart:
 		self.MARGIN = CHART_TABLE_MARGIN
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
-		self.W_FIELD = 180
+		iLabelFont = getSASUIFontLabel()
+		if iLabelFont <= 1:
+			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_1")
+		elif iLabelFont == 2:
+			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_2")
+		elif iLabelFont == 3:
+			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_3")
+		else:
+			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_4")
+		if self.W_FIELD <= 0:
+			raise ValueError("[FATAL] SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_* must be >= 1.")
+		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_NO_REDUCE_MIN_WIDTH")
+		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
+			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_NO_REDUCE")
+			if self.W_FIELD <= 0:
+				raise ValueError("[FATAL] SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_NO_REDUCE must be >= 1.")
 		self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
@@ -35,6 +50,7 @@ class SevoPediaGameSpeedChart:
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
 		self._drawTable(screen)
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND")
 
 	def _drawTable(self, screen):
 		x = self.top.X_ITEMS
@@ -54,12 +70,7 @@ class SevoPediaGameSpeedChart:
 
 		data = self._getTableData()
 		if not data:
-			screen.setLabel(self.top.getNextWidgetName(), "Background",
-					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
-					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
-					WidgetTypes.WIDGET_GENERAL, -1, -1)
-			return
-
+			raise RuntimeError("[FATAL] SevoPediaGameSpeedChart received no table data; this should never happen.")
 		header = data[0]
 		rows = data[1:]
 		nCols = len(header)
@@ -207,7 +218,6 @@ class SevoPediaGameSpeedChart:
 		# Icon libraries
 		# Each icon definition includes a "sort group" so sorting by the icon column is meaningful.
 		# (The group is also embedded into an invisible tie-breaker so ordering is fully deterministic.)
-		localText = CyTranslator()
 		game = CyGame()
 
 		# Keep icon libraries lean: define only icons we actually use in this chart.
@@ -343,11 +353,11 @@ class SevoPediaGameSpeedChart:
 		for iChunk in xrange(years_chunk_count):
 			szField = "IncrementsYears_%02d" % (iChunk + 1)
 			years_increment_fields.append(szField)
-			display_label_by_field[szField] = "Increments Years %02d" % (iChunk + 1)
+			display_label_by_field[szField] = "Inc Y %02d" % (iChunk + 1)
 		for iChunk in xrange(months_chunk_count):
 			szField = "IncrementsMonths_%02d" % (iChunk + 1)
 			months_increment_fields.append(szField)
-			display_label_by_field[szField] = "Increments Months %02d" % (iChunk + 1)
+			display_label_by_field[szField] = "Inc M %02d" % (iChunk + 1)
 
 		# Additional derived increment rows split across chunks for readability.
 		for i in xrange(gc.getNumGameSpeedInfos()):
@@ -377,7 +387,9 @@ class SevoPediaGameSpeedChart:
 		calendar_fields = []
 		for iRow in xrange(max_increments):
 			# %02d keeps the displayed "Calendar 01" order stable and nicely aligned.
-			calendar_fields.append("Calendar_%02d" % (iRow + 1))
+			szField = "Calendar_%02d" % (iRow + 1)
+			calendar_fields.append(szField)
+			display_label_by_field[szField] = "Cal %02d" % (iRow + 1)
 
 		for i in xrange(gc.getNumGameSpeedInfos()):
 			info = gc.getGameSpeedInfo(i)
@@ -421,7 +433,7 @@ class SevoPediaGameSpeedChart:
 			iPercent = summary_percents[iSummary]
 			szField = "Summary_%02d" % (iSummary + 1)
 			summary_fields.append(szField)
-			display_label_by_field[szField] = "Summary %02d (%d%%)" % (iSummary + 1, iPercent)
+			display_label_by_field[szField] = "S %02d (%d%%)" % (iSummary + 1, iPercent)
 
 		for i in xrange(gc.getNumGameSpeedInfos()):
 			info = gc.getGameSpeedInfo(i)
@@ -452,7 +464,7 @@ class SevoPediaGameSpeedChart:
 		if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
 			header.append("")
 		for sz in speed_labels:
-			header.append(sz)
+			header.append(chart_font2(sz))
 		table.append(header)
 
 		row_index = 0
@@ -475,7 +487,7 @@ class SevoPediaGameSpeedChart:
 		# Culture level thresholds (scaled by iCulturePercent) appended at bottom.
 		for iLevel in xrange(gc.getNumCultureLevelInfos()):
 			info = gc.getCultureLevelInfo(iLevel)
-			szName = CyTranslator().getText(str(info.getTextKey()), ())
+			szName = localText.getText(str(info.getTextKey()), ())
 
 			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key("iCulturePercent", row_index), chart_font2(szName)]

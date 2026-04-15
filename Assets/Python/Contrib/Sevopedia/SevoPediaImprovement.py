@@ -19,6 +19,8 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+from SASFontUtils import *
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -160,8 +162,8 @@ class SevoPediaImprovement:
 		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + self.SMALL_MARGIN
 		self.W_IMPROVEMENT_LEADERS = leftAreaRight - self.X_IMPROVEMENT_PANE
 
-		self.H_SPECIAL = 295
-		self.H_HISTORY = 295
+		self.H_SPECIAL = 289
+		self.H_HISTORY = 289
 		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
 		self.X_SPECIAL = self.X_IMPROVEMENT_PANE
 		self.W_SPECIAL = min(360, (self.W_IMPROVEMENT_LEADERS / 3) + 100)
@@ -214,8 +216,8 @@ class SevoPediaImprovement:
 		panel = self.top.getNextWidgetName()
 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panel, False)
-		screen.appendListBoxString(panel, u"<font=4b>" + info.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
-		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.appendListBoxString(panel, SASTextScale.titleText(info.getDescription()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
+		screen.appendListBoxString(panel, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_IMPROVEMENT", ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_CENTER_JUSTIFY)
 
 		# <!-- custom: move base yield info from yields panel to the improvement_pane panel, prettier or/adn clearer/more accurate as well maybe (a bit like in sevopedia terrain and sevopedia feature) -->
 		# <!-- custom: line removed that seemed safe to do see diff with earlier code for comparison if needed -->
@@ -260,7 +262,7 @@ class SevoPediaImprovement:
 
 		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
 
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -294,7 +296,7 @@ class SevoPediaImprovement:
 				screen.attachPanel(panelName, childPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
 				screen.attachLabel(childPanelName, "", "  ")
 				screen.attachImageButton( childPanelName, "", gc.getBonusInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, j, 1, False )
-				screen.attachLabel(childPanelName, "", u"<font=4>" + szYield + u"</font>")
+				screen.attachLabel(childPanelName, "", SASTextScale.titleText(szYield))
 
 
 
@@ -323,7 +325,7 @@ class SevoPediaImprovement:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_BUILD_PANEL + (self.H_BUILD_PANEL / 2)
-			screen.addMultilineText(textName, szText, self.X_BUILD_PANEL + 7, yPanelCenter, self.W_BUILD_PANEL - 14, self.H_BUILD_PANEL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILD_PANEL + 7, yPanelCenter, self.W_BUILD_PANEL - 14, self.H_BUILD_PANEL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -345,7 +347,7 @@ class SevoPediaImprovement:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
-			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -373,7 +375,7 @@ class SevoPediaImprovement:
 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 		if len(sText) > 0:
 			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION)
-			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		# Hills yield changes
@@ -385,7 +387,7 @@ class SevoPediaImprovement:
 		if len(sText) > 0:
 			iHill = self.I_TERRAIN_HILL
 			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
-			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		# River yield changes
@@ -404,7 +406,7 @@ class SevoPediaImprovement:
 			riversConceptID = get_concept_id("CONCEPT_RIVERS")
 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(riversConceptID, WidgetTypes, CivilopediaPageTypes)
 			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
-			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			iY += (iButtonSize + 8)
 
 		# Tech yield changes
@@ -416,7 +418,7 @@ class SevoPediaImprovement:
 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 			if len(sText):
 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTechInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1)
-				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		# Civic yield changes
@@ -428,7 +430,7 @@ class SevoPediaImprovement:
 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 			if len(sText):
 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getCivicInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1)
-				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 		# Route yield changes
@@ -451,7 +453,7 @@ class SevoPediaImprovement:
 					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
 
 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild)
-				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
 
@@ -463,6 +465,11 @@ class SevoPediaImprovement:
 		hPanel = self.H_IMPROVEMENT_LEADERS
 
 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS", ()), "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+		innerPanelX = xPanel + INCHART_TABLE_MARGIN
+		innerPanelY = yPanel + 28
+		innerPanelW = wPanel - (2 * INCHART_TABLE_MARGIN)
+		innerPanelH = hPanel - 34
+		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, innerPanelX, innerPanelY, innerPanelW, innerPanelH, PanelStyles.PANEL_STYLE_BLUE50)
 
 		cache = IMPROVEMENT_LEADER_CACHE
 		if cache is None:
@@ -472,14 +479,14 @@ class SevoPediaImprovement:
 		weightToLeaders, weightsSorted, maxLeaders = cache["improvements"].get(self.iImprovement, (None, (), 0))
 
 		if not weightToLeaders:
-			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			inchart_show_no_content_text(screen, self.top, innerPanelX, innerPanelY, innerPanelW, innerPanelH)
 			return
 
 		tableMargin = INCHART_TABLE_MARGIN
-		tableX = xPanel + tableMargin
-		tableY = yPanel + 30
-		tableW = wPanel - (2 * tableMargin)
-		tableH = hPanel - 40
+		tableX = innerPanelX + tableMargin
+		tableY = innerPanelY + tableMargin
+		tableW = innerPanelW - (2 * tableMargin)
+		tableH = innerPanelH - (2 * tableMargin)
 
 		weightColW = 60
 		countColW = 60
@@ -487,7 +494,7 @@ class SevoPediaImprovement:
 		leaderColW, maxLeaders = inchart_calc_icon_col_width(tableW, fixedColsW, maxLeaders)
 
 		tableName = self.top.getNextWidgetName()
-		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, INCHART_ROW_HEIGHT, INCHART_ROW_HEIGHT, TableStyles.TABLE_STYLE_EMPTY)
+		screen.addTableControlGFC(tableName, 2 + maxLeaders, tableX, tableY, tableW, tableH, True, False, INCHART_ROW_HEIGHT, INCHART_ROW_HEIGHT, CHART_TABLE_STYLE)
 		screen.enableSort(tableName)
 
 		screen.setTableColumnHeader(tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_WEIGHT", ()), weightColW)
@@ -496,9 +503,9 @@ class SevoPediaImprovement:
 
 		for weight in weightsSorted:
 			iRow = screen.appendTableRow(tableName)
-			screen.setTableText(tableName, 0, iRow, u"<font=2>%+d</font>" % weight, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.setTableText(tableName, 0, iRow, SASTextScale.labelText(u"%+d" % weight), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			leaderCount = len(weightToLeaders[weight])
-			screen.setTableText(tableName, 1, iRow, u"<font=2>%d</font>" % leaderCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.setTableText(tableName, 1, iRow, SASTextScale.labelText(u"%d" % leaderCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			inchart_set_icon_cells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
 
@@ -528,7 +535,7 @@ class SevoPediaImprovement:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -555,7 +562,7 @@ class SevoPediaImprovement:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNoButtonFound, ())
 			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -566,9 +573,10 @@ class SevoPediaImprovement:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
 		textName = self.top.getNextWidgetName()
-		screen.addMultilineText(textName, gc.getImprovementInfo(self.iImprovement).getCivilopedia(), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, SASTextScale.labelText(gc.getImprovementInfo(self.iImprovement).getCivilopedia()), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
 	def handleInput (self, inputClass):
 		return 0
+

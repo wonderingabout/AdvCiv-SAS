@@ -1721,8 +1721,6 @@ Created as part of AdvCiv-SAS improvements
 			<Path>Art/BUG/Null.dds</Path>
 		</InterfaceArtInfo>
 
-
-
 		<!-- custom: some civ4 buttons -->
 		<InterfaceArtInfo>
 			<Type>SAS_CITIES_LANDSCAPE</Type>
@@ -1733,15 +1731,11 @@ Created as part of AdvCiv-SAS improvements
 			<Path>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</Path>
 		</InterfaceArtInfo>
 
-
-
 		<!-- custom: new Draft button as part of the city screen rework, ai-generated with the help of Nano Banana Pro (Gemini 3 Pro) thanks -->
 		<InterfaceArtInfo>
 			<Type>INTERFACE_CITY_SCREEN_DRAFT</Type>
 			<Path>Art/AdvCiv_SAS/Interface/Draft/Gemini_Generated_Image_bb4mzkbb4mzkbb4m_draft_64px.dds</Path>
 		</InterfaceArtInfo>
-
-
 
 		<!-- custom: emoji icons as dds; Long_Comments_XML.txt #150 -->
 		<!-- 🕊️ emoji from emojiterra -->
@@ -1884,26 +1878,26 @@ Created as part of AdvCiv-SAS improvements
 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
 		</InterfaceArtInfo>
-		<!-- custom: extracted from GameFont_75.tga that had them with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf (since we couldn't insert them in sevopedia leader attitude buttons easily) to .PNG and then converted to .dds with Paint.NET -->
+		<!-- custom: extracted from GameFont.tga with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf. We found the higher quality icons (21x20) in ri mod, and used them instead because base civ4 only had GameFont_75.tga (16x16) icons (see also KI#117). We added them as dds here because we couldn't insert them in sevopedia leader attitude buttons easily. Also reduced to 20x20 else the dds does not display ingame. -->
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_ATTITUDE_FURIOUS</Type>
-			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_furious.dds</Path>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/furious_20x20.dds</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_ATTITUDE_ANNOYED</Type>
-			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_annoyed.dds</Path>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/annoyed_20x20.dds</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_ATTITUDE_CAUTIOUS</Type>
-			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_cautious.dds</Path>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/cautious_20x20.dds</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_ATTITUDE_PLEASED</Type>
-			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_pleased.dds</Path>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/pleased_20x20.dds</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_ATTITUDE_FRIENDLY</Type>
-			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/attitude_friendly.dds</Path>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/friendly_20x20.dds</Path>
 		</InterfaceArtInfo>
 	</InterfaceArtInfos>
 </Civ4ArtDefines>

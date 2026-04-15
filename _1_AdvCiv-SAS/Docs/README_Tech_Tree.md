@@ -13,7 +13,6 @@ If any images below in this readme mention a google drive link, you can access i
 [Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-prototype--alternative-version)  
 [Earlier but much later version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-but-much-later-version)  
 [Starting techs rework](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#starting-techs-rework)  
-[Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width)  
 
 ## Current Tech Tree ingame
 
@@ -74,16 +73,3 @@ Then much later i did this swapping based version but that was based or closer (
 ## Starting techs rework
 
 After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md (Civs' Starting techs rework)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework) for details/results.
-
-## Customizable technology advisor width
-
-Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or 3 (4 different options possible in total) in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) (see as of now `SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE` there).
-
-Visual comparison of how each looks below.
-
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (1).JPG" alt="0.5150_technology_advisor_customizable_width (1).JPG" width="250"></img>
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (2).JPG" alt="0.5150_technology_advisor_customizable_width (2).JPG" width="250"></img>
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (3).JPG" alt="0.5150_technology_advisor_customizable_width (3).JPG" width="250"></img>
-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (4).JPG" alt="0.5150_technology_advisor_customizable_width (4).JPG" width="250"></img>
-
-See also [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).

@@ -11,10 +11,15 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
 		<English>Bonuses</English>
 	</TEXT>
-	<!-- custom: tab rename in Exotic Foreign Advisor (Active -> Treaties). (GPT-5.3-Codex) -->
+	<!-- custom: tab rename in Foreign Advisor (Active -> Treaties). (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_TREATIES</Tag>
 		<English>Treaties</English>
+	</TEXT>
+	<!-- custom: short tab label for unified Foreign Advisor (use "Espionage", not "Espionage Screen"). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_ESPIONAGE_SHORT</Tag>
+		<English>Espionage</English>
 	</TEXT>
 	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
 	<TEXT>
@@ -36,6 +41,13 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 
+	<!-- Foreign Advisor -->
+	<!-- custom: "advc.004: Note about patch history added" + removed "Exotic" since Foreign Advisor is now a single unified file -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER</Tag>
+		<English>Shows the "Glance" tab (relations matrix) on the Foreign Advisor screen. (This tab had been briefly disabled for aesthetic reasons
+		by a BtS patch.)</English>
+	</TEXT>
 	<!-- Technology Advisor -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_TEXT</Tag>
@@ -309,6 +321,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Eras</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_CORPORATION</Tag>
+		<English>Corporations</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES</Tag>
 		<English>Tech Quotes</English>
 	</TEXT>
@@ -451,6 +467,40 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_CORPORATIONS</Tag>
 		<English>Corporat.</English>
+	</TEXT>
+	<!-- custom: full plural labels for Policy advisor tabs (Religion/Corporation) to avoid singular or abbreviated captions in footer tabs. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_TAB_RELIGIONS</Tag>
+		<English>Religions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_TAB_CORPORATIONS</Tag>
+		<English>Corporations</English>
+	</TEXT>
+	<!-- custom: Corporation row labels for Policy advisor integrated corporations tab. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_BUILT_BY</Tag>
+		<English>Built by:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_CONSUMES</Tag>
+		<English>Consumes:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES</Tag>
+		<English>Generates:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES_2</Tag>
+		<English>Generates 2:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_FOUNDED</Tag>
+		<English>Founded:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_HQ_ID</Tag>
+		<English>HQ (ID):</English>
 	</TEXT>
 
 
@@ -703,6 +753,24 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
 		<English>Legendary cities</English>
 	</TEXT>
+	<!-- custom: fallback texts for Victory Advisor vote-source tabs when AP/UN entries are unavailable; keep tabs exhaustive and explain status clearly. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE</Tag>
+		<English>No resolution yet: requires one of the below.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET</Tag>
+		<English>No voting members yet: requires one of the below.</English>
+	</TEXT>
+	<!-- custom: dedicated vote-requirement line for Victory screen tabs; unlike TXT_KEY_POPUP_ELECTION_OPTION, this key has no leading optional placeholder, so spacing remains stable without Python-side trimming. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY</Tag>
+		<English>(Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_NOT_ACTIVE_SHORT</Tag>
+		<English>Not active</English>
+	</TEXT>
 
 
 
@@ -861,6 +929,18 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_RESULTS_SHORT</Tag>
 		<English>Result</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_COMPETES_WITH</Tag>
+		<English>Competes With</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSES_CONSUMED</Tag>
+		<English>Bonuses Consumed</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSES_GENERATED</Tag>
+		<English>Bonuses Generated</English>
 	</TEXT>
 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
 	<TEXT>
@@ -1214,10 +1294,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>Total</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_PAIR_COMBO</Tag>
-		<English>Combination</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_RANKING</Tag>
 		<English>Rank</English>
 	</TEXT>
@@ -1228,24 +1304,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Starting Tech</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_NO_STARTING_TECHS</Tag>
-		<English>No starting techs found.</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER</Tag>
 		<English>Untradeable</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_NO_UNTRADEABLE_TECHS</Tag>
-		<English>No untradeable techs.</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_TECH_COMBOS_HEADER</Tag>
-		<English>Tech Combos</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_NO_COMBOS_FOUND</Tag>
-		<English>No combinations found.</English>
 	</TEXT>
 
 	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot, check if accurate -->
@@ -1471,20 +1531,24 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<TEXT>
-		<Tag>TXT_KEY_INFO_HISTORY</Tag>
-		<English>History</English>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE</Tag>
+		<English>Timeline</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_INFO_HISTORY_EMPTY</Tag>
-		<English>No history entries yet.</English>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE_EMPTY</Tag>
+		<English>No timeline entries yet.</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON</Tag>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON</Tag>
 		<English>Log</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_INFO_HISTORY_UNKNOWN_CITY</Tag>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY</Tag>
 		<English>an unknown city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_INFO_ENTIRE_TIMELINE</Tag>
+		<English>Entire timeline</English>
 	</TEXT>
 
 
@@ -3514,5 +3578,54 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
+	</TEXT>
+	<!-- custom: advisor hotkey labels updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, Info Screen = F8, Victory Screen = F9, Sevopedia = F12. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_TITLE</Tag>
+		<English>Foreign Diplomacy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE</Tag>
+		<English>Foreign Trade Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR</Tag>
+		<English>Foreign Trade [F4]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_DIPLOMACY_ADVISOR</Tag>
+		<English>Foreign Diplomacy [F3]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Tag>
+		<English>Policy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVICS_SCREEN_TITLE</Tag>
+		<English>Policy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_INFO_SCREEN</Tag>
+		<English>Info Screen</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_VICTORY_SCREEN_TITLE</Tag>
+		<English>Victory Screen</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ESPIONAGE_SCREEN</Tag>
+		<English>Espionage Tab</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
+		<English>Info Screen [F8]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
+		<English>Victory Screen [F9]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
+		<English>Sevopedia [F12]:</English>
 	</TEXT>
 </Civ4GameText>

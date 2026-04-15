@@ -1996,8 +1996,6 @@ now.
 ----- Comment #94 -----
 long code comment in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Audio\AudioDefines.xml causes(d) a crash before game can fully start, recorded in C:\Users\PC\Documents\My Games\beyond the sword\Logs\audio.log :
 
-
-
 [8213.390] Audio Manager: Loading Audio Defines file XML\Audio\AudioDefines.xml...
 [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string SND_BUILD_PAGAN Art/AdvCiv_SAS/Religions/Paganism/Baalism DYNAMIC_RES 1 1 of TagId 8
 [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string Generic of TagId 8
@@ -2009,11 +2007,7 @@ long code comment in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's C
 [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GENERAL 1.0 0.0 0.0 1.0 0.0 FOREST of TagId 8
 [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string TXT_KEY_OPTION_SOUND_SYSTEM_CONFIG of TagId 8
 
-
-
 so moving these (code comments) below in this now .txt file
-
-
 
 		<!-- custom: was (after renaming religion from confucianism/confucian(ist was it?) to paganism/pagan):
 		<SoundData>
@@ -2343,15 +2337,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #106 -----
 
-	<!-- 
-		-> 0 (default): the tech tree goes from leftmost part of the screen (tightly compressed left margin as there is less room), to about halfway in the scoreboard on the right: we see leader name, the tech they are researching (if we know it), their tech %
-
-		-> 1: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about half of the scoreboard on the right: we see about half of the player names on the scoreboard unless theirs is extremely short (e.g. "Joao II" not visible, most are visible partially), plus the tech they are researching (if we know it), their tech %.
-
-		-> 2: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to about 2 thirds of the scoreboard on the right: we don't see player names on the scoreboard anymore, but we see the tech players are researching (if we know it) and their tech %.
-
-		-> 3: the tech tree goes from the leftmost part of the screen (usual left margin though since there is room) to the rightmost part of the screen on the right: it provides maximum immersion visually as potentially distracting info is removed, but we don't know anymore their tech (and the world map is now hidden as well).
-	-->
+Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). The original hover text used FontTypes.SMALL_FONT in the setHelpTextArea() call, which corresponds to <font=2> in the tag system. So the old/default hover size was effectively 2
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #107 -----

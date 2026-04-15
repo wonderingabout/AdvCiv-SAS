@@ -74,7 +74,7 @@ When a Python getter seems missing or unclear (e.g., the culture breakdown error
 
 Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpful, consider reading it for double check or grep needs if in doubt or such. It helped us find the `Destroy2DSound` python function for example, doc is helpful as reference (but lengthy):
 
-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_pythonAPI_AllClasses_html.txt"
 
 ## Information Fetching online
 
@@ -165,6 +165,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 ### Python (Civ4)
 
 - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+- For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`SAS_FONT_TAG_*` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText`.
 - Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
 - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
 - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
@@ -180,12 +181,14 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 ## XML
 
-- Any new XML text should to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
+- Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
 - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (becuase it will be filled later with lengthy content).
 - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
 - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
 - Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
+- Exception: preserve each XML file's existing encoding if it's not UTF-8; do not convert encodings unless explicitly requested for no tedium and as we have no reason to (e.g., keep legacy Windows-1252 files such as BUG XML files as-is), plus this would have a high chance of causing formatting errors otherwise.
+- Note and additional observation: the codex formatter seems unreliable and inconsistent with what users see (e.g., showing the LLM model a BOM text when user sees a non BOM one, causing mismatches and weird git diff: refer to git diff or what base AdvCiv mod uses as format if in doubt).
 
 ## C++
 
@@ -203,4 +206,5 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 ### Docs
 
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
-- When adding doc entries in dev mode (most of the time), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers. Current rule of thumb: last stable is 5500, so 5501+ is beta/dev and should carry the prefix until the next stable release.
+- When adding doc entries in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), prefix bullet titles with `- (Requires AdvCiv-SAS X+)` where `X` is current latest commit + 1, since docs describe post-commit state for readers. Current rule of thumb: latest stable is 5500, so the first commit after it would be 5501+, 10 commits later would be 5510+, etc.
+- When a new stable release is made, then all these previous markers can be stripped (e.g. if next stable is AdvCiv-SAS 5560, then any requires <= 5559+ is stripped because players would have the changes in latest stable, so they don't need anymore the marker about a change they might not have yet (in tech-rework i.e. as of now our dev branch)). We don't need to mark other files since they are generally not player facing in that way and more general information on the mod (plus it's less tedious as such).

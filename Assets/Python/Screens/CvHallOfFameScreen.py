@@ -4,6 +4,9 @@
 ## Win-Loss code based on mod by Shelly Crawford (Fallblau on CFC/Apolyton)
 ## Rewritten by EmperorFool to use player's language and not break if no message is found.
 ## Modified by Alerum of the BUG Team to bring up to latest revision of Civilization 4: Patch 1.74.
+# <!-- custom: AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (GPT-5.3-Codex) -->
 
 from CvPythonExtensions import *
 import BugUtil
@@ -12,6 +15,8 @@ import ScreenInput
 from CvScreenEnums import *
 import CvReplayScreen
 import CvScreensInterface
+from SASFontUtils import *
+import SASTextScale
 import re
 
 # globals
@@ -61,6 +66,12 @@ class CvHallOfFameScreen:
 		self.DROPDOWN_Y = 70
 		self.DROPDOWN_SPACING_X = 45
 		self.DROPDOWN_SPACING_Y = 50
+		self.DROPDOWN_START_X = self.DROPDOWN_SPACING_X
+		self.TABLE_X = 2
+		self.TABLE_Y = 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y
+		self.TABLE_W = 1018
+		self.TABLE_H = 545
+		self.TOP_BOTTOM_PANEL_H = 55
 								
 		self.nWidgetCount = 0
 		self.infoList = [] # K-Mod
@@ -74,6 +85,33 @@ class CvHallOfFameScreen:
 	def hideScreen(self):
 		screen = self.getScreen()
 		screen.hideScreen()									
+
+	def updateLayoutForResolution(self, screen):
+		# <!-- custom: Hall of Fame now uses replay-style fullscreen layout so table/dropdowns scale with resolution and reduce wasted margins at widescreen. (GPT-5.3-Codex) -->
+		self.W_SCREEN = screen.getXResolution()
+		self.H_SCREEN = screen.getYResolution()
+		self.X_SCREEN = self.W_SCREEN / 2
+		self.X_EXIT = self.W_SCREEN - 30
+		self.Y_EXIT = self.H_SCREEN - 42
+		self.DROPDOWN_WIDTH = max(200, min(240, self.W_SCREEN / 6))
+		self.DROPDOWN_SPACING_X = max(20, self.W_SCREEN / 60)
+		self.DROPDOWN_SPACING_Y = 50
+		iDropDownColumns = 4
+		iDropDownTotalW = iDropDownColumns * self.DROPDOWN_WIDTH + (iDropDownColumns - 1) * self.DROPDOWN_SPACING_X
+		self.DROPDOWN_START_X = (self.W_SCREEN - iDropDownTotalW) / 2
+		self.TABLE_X = 2
+		self.TABLE_Y = 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y
+		self.TABLE_W = self.W_SCREEN - 2 * self.TABLE_X
+		self.TABLE_H = self.H_SCREEN - self.TABLE_Y - self.TOP_BOTTOM_PANEL_H - 2
+		if self.TABLE_H < 250:
+			self.TABLE_H = 250
+
+	def getDropdownPos(self, iNumDropDowns):
+		iRow = iNumDropDowns % 2
+		iColumn = iNumDropDowns / 2
+		xDropDown = self.DROPDOWN_START_X + iColumn * (self.DROPDOWN_WIDTH + self.DROPDOWN_SPACING_X)
+		yDropDown = self.DROPDOWN_Y + iRow * self.DROPDOWN_SPACING_Y
+		return xDropDown, yDropDown
 		
 	# Screen construction function
 	def interfaceScreen(self, bAllowReplay):
@@ -85,6 +123,7 @@ class CvHallOfFameScreen:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 		screen.setAlwaysShown(True)
+		self.updateLayoutForResolution(screen)
 	
 		self.bAllowReplay = bAllowReplay
 		self.iLeaderFilter = -1
@@ -101,26 +140,25 @@ class CvHallOfFameScreen:
 			self.iMultiplayerFilter = 0
 		self.iSortBy = SORT_BY_NORMALIZED_SCORE
 
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
+		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		self.hallOfFame = CyHallOfFameInfo()
 		self.hallOfFame.loadReplays()
 
 		# Set the background widget and exit button
-		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+		screen.setDimensions(0, 0, self.W_SCREEN, self.H_SCREEN)
 		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
-		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, 713, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, self.TOP_BOTTOM_PANEL_H, PanelStyles.PANEL_STYLE_TOPBAR )
+		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, self.H_SCREEN - self.TOP_BOTTOM_PANEL_H, self.W_SCREEN, self.TOP_BOTTOM_PANEL_H, PanelStyles.PANEL_STYLE_BOTTOMBAR )
 		screen.showWindowBackground(False)
 		screen.setText(self.EXIT_ID, "", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Header...
-		screen.setLabel(self.HEADER_ID, "Background", u"<font=4b>" + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.HEADER_ID, "Background", SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 
 
-		xDropDown = self.DROPDOWN_SPACING_X
-		yDropDown = self.DROPDOWN_Y
+		xDropDown, yDropDown = self.getDropdownPos(0)
 		iNumDropDowns = 0
 
 		# Leader dropdown initialization
@@ -134,8 +172,7 @@ class CvHallOfFameScreen:
 						screen.addPullDownString(self.LEADER_DROPDOWN_ID, gc.getLeaderHeadInfo(iLeader).getDescription(), iCiv, iLeader, False)
 		iNumDropDowns += 1
 		
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Victory dropdown initialization
 		screen.addDropDownBoxGFC(self.VICTORY_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -144,8 +181,7 @@ class CvHallOfFameScreen:
 			screen.addPullDownString(self.VICTORY_DROPDOWN_ID, gc.getVictoryInfo(i).getDescription(), i, i, False)
 		iNumDropDowns += 1
 
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Difficulty level dropdown initialization
 		screen.addDropDownBoxGFC(self.DIFFICULTY_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -154,8 +190,7 @@ class CvHallOfFameScreen:
 			screen.addPullDownString(self.DIFFICULTY_DROPDOWN_ID, gc.getHandicapInfo(iHandicap).getDescription(), iHandicap, iHandicap, False)
 		iNumDropDowns += 1
 			
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# World Size dropdown initialization
 		screen.addDropDownBoxGFC(self.MAPSIZE_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -164,8 +199,7 @@ class CvHallOfFameScreen:
 			screen.addPullDownString(self.MAPSIZE_DROPDOWN_ID, gc.getWorldInfo(i).getDescription(), i, i, False)
 		iNumDropDowns += 1
 			
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Era dropdown initialization
 		screen.addDropDownBoxGFC(self.ERA_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -174,8 +208,7 @@ class CvHallOfFameScreen:
 			screen.addPullDownString(self.ERA_DROPDOWN_ID, gc.getEraInfo(i).getDescription(), i, i, False)
 		iNumDropDowns += 1
 			
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Game Speed dropdown initialization
 		screen.addDropDownBoxGFC(self.SPEED_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -184,8 +217,7 @@ class CvHallOfFameScreen:
 			screen.addPullDownString(self.SPEED_DROPDOWN_ID, gc.getGameSpeedInfo(i).getDescription(), i, i, False)
 		iNumDropDowns += 1
 		
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Climate dropdown initialization
 		#screen.addDropDownBoxGFC(self.CLIMATE_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -204,8 +236,7 @@ class CvHallOfFameScreen:
 		#	screen.addPullDownString(self.SEALEVEL_DROPDOWN_ID, gc.getSeaLevelInfo(i).getDescription(), i, i, False)
 		#iNumDropDowns += 1
 			
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Multiplayer dropdown initialization
 		screen.addDropDownBoxGFC(self.MULTIPLAYER_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -217,8 +248,7 @@ class CvHallOfFameScreen:
 			screen.addPullDownString(self.MULTIPLAYER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_MULTIPLAYER", ()), 1, 1, False)
 		iNumDropDowns += 1
 			
-		yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
-		xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
+		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Score dropdown initialization
 		screen.addDropDownBoxGFC(self.SORT_DROPDOWN_ID, xDropDown, yDropDown, self.DROPDOWN_WIDTH, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -252,33 +282,50 @@ class CvHallOfFameScreen:
 		screen.deleteWidget(self.TABLE_ID)
 		# K-Mod end
 		
-		screen.addTableControlGFC(self.TABLE_ID, 10, 2, 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y, 1018, 545, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(self.TABLE_ID, 10, self.TABLE_X, self.TABLE_Y, self.TABLE_W, self.TABLE_H, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(self.TABLE_ID, False)
 		screen.enableSort(self.TABLE_ID)
 		# <advc.106i> Don't show replay button column when game has just ended;
 		# replays don't work at that point. (Why is that? Issue introduced by AdvCiv? Oh well ...)
 		bAllowReplay = (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_OVER)
 		iColumn = 0 # Replacing hardcoded column numbers
+		iReplayButtonColumnW = 20
+		# <!-- custom: with fullscreen Hall of Fame we have more lateral room, so expand narrow columns when needed (e.g., Finished/Speed) and let Leader absorb the remaining width. (GPT-5.3-Codex) -->
+		iNormalizedScoreW = 140
+		iDateW = 115
+		iGameScoreW = 100
+		iVictoryW = 140
+		iDifficultyW = 150
+		iWorldSizeW = 125
+		iEraW = 125
+		iSpeedW = 250
+		iNonLeaderTotalW = (iNormalizedScoreW + iDateW + iGameScoreW + iVictoryW +
+				iDifficultyW + iWorldSizeW + iEraW + iSpeedW)
+		iLeaderColumnW = self.TABLE_W - iNonLeaderTotalW - 12
 		if bAllowReplay:
-			screen.setTableColumnHeader(self.TABLE_ID, iColumn, "", 20)
+			iLeaderColumnW -= iReplayButtonColumnW
+		if iLeaderColumnW < 202:
+			iLeaderColumnW = 202
+		if bAllowReplay:
+			SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iReplayButtonColumnW)
 			iColumn += 1 # </advc.106i>
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_LEADER", ()), 202)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_LEADER", ()), iLeaderColumnW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_NORMALIZED_SCORE", ()), 100)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_NORMALIZED_SCORE", ()), iNormalizedScoreW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HALL_OF_FAME_SORT_BY_DATE", ()), 88)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HALL_OF_FAME_SORT_BY_DATE", ()), iDateW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_GAME_SCORE", ()), 100)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_GAME_SCORE", ()), iGameScoreW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_CONCEPT_VICTORY", ()), 100)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_CONCEPT_VICTORY", ()), iVictoryW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), 100)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), iDifficultyW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_SIZE", ()), 100)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_SIZE", ()), iWorldSizeW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_STARTING_ERA", ()), 100)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_STARTING_ERA", ()), iEraW)
 		iColumn += 1
-		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_GAME_SPEED", ()), 105)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_GAME_SPEED", ()), iSpeedW)
 #		screen.setTableColumnHeader(self.TABLE_ID,, "", 73)
 
 		# count the filtered replays
@@ -339,10 +386,12 @@ class CvHallOfFameScreen:
 				else:
 					szSpeed = szUnknown
 				# </advc.106i>
+				szFinalDate = CyGameTextMgr().getDateStr(replayInfo.getFinalTurn(), false,
+						replayInfo.getCalendar(), replayInfo.getStartYear(), replayInfo.getGameSpeed())
 				self.infoList[iItem] = (iValue,
 						localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (replayInfo.getLeaderName(), replayInfo.getShortCivDescription())),
 						replayInfo.getNormalizedScore(),
-						replayInfo.getFinalDate(),
+						szFinalDate,
 						replayInfo.getFinalScore(), 
 						szVictory,
 						# <advc.106i>
@@ -375,25 +424,25 @@ class CvHallOfFameScreen:
 				screen.attachControlToTableCell(szButtonName, self.TABLE_ID, i, iColumn)
 				iColumn += 1
 			# </advc.106i>
-			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][1], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][1], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
 			if self.infoList[i][2] >= 0:
-				screen.setTableInt(self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][2], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				SASTextScale.setTableIntLabel(screen, self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][2], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			iColumn += 1
-			screen.setTableDate(self.TABLE_ID, iColumn, i, self.infoList[i][3], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][3], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
 			if self.infoList[i][4] >= 0:
-				screen.setTableInt(self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][4], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				SASTextScale.setTableIntLabel(screen, self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][4], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			iColumn += 1
-			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][5], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][5], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
-			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][6], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][6], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
-			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][7], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][7], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
-			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][8], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][8], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
-			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][9], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][9], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 								
 		return
 	

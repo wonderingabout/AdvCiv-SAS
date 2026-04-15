@@ -8,6 +8,25 @@
 #include "CvPlot.h"
 #include "RiseFall.h" // advc.700
 
+namespace
+{
+	void wrapSASLabelFontText(CvWString& szText)
+	{
+		if (szText.empty())
+			return;
+		if (szText.find(L"<font=") != CvWString::npos)
+			return;
+		static int const iSAS_UI_FONT_LABEL = GC.getDefineINT("SAS_UI_FONT_LABEL");
+		if (iSAS_UI_FONT_LABEL < 1 || iSAS_UI_FONT_LABEL > 4)
+			return;
+		CvWString szWrapped;
+		szWrapped.Format(L"<font=%d>", iSAS_UI_FONT_LABEL);
+		szWrapped.append(szText);
+		szWrapped.append(L"</font>");
+		szText = szWrapped;
+	}
+}
+
 void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
 	int iLength, CvWString szString, LPCTSTR pszSound,
 	InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor,
@@ -60,6 +79,9 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
 	// <advc.106>
 	if (gDLL->getEngineIFace()->isGlobeviewUp())
 		bForce = false; // </advc.106>
+	// <!-- custom: upscale top-center event ticker lines and Event Log message text by wrapping addMessageExternal payloads here (single hook for all addMessage call sites).
+	// Date prefixes (e.g. "AD1600:") are rendered separately by EXE/UI from message-turn metadata, so this wrapper scales the right message text only. (GPT-5.3-Codex) -->
+	wrapSASLabelFontText(szString);
 	addMessageExternal(ePlayer, bForce, iLength, szString,
 			pszSound, eType, pszIcon, eFlashColor, iFlashX, iFlashY,
 			bShowOffScreenArrows, bShowOnScreenArrows);

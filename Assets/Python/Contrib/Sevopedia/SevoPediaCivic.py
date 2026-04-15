@@ -19,6 +19,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
 
 from _sevopedia_helpers import *
 
@@ -37,11 +38,11 @@ class SevoPediaCivic:
 		self.MEDIUM_MARGIN = 15
 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 
-		# <!-- custom: multilist leaders panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
-		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
-		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
-		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
-		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+		# <!-- custom: multilist favorites panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
+		self.W_FAVORITES = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+		self.X_FAVORITES = self.top.R_PEDIA_PAGE - self.W_FAVORITES
+		self.Y_FAVORITES = self.top.Y_PEDIA_PAGE
+		self.H_FAVORITES = self.top.B_PEDIA_PAGE - self.Y_FAVORITES
 
 		self.X_CIVIC_PANE = self.top.X_PEDIA_PAGE
 		self.Y_CIVIC_PANE = self.top.Y_PEDIA_PAGE
@@ -62,7 +63,7 @@ class SevoPediaCivic:
 		self.W_STATS = 250
 		self.H_STATS = 200
 
-		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_LEADERS + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN)
+		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN)
 
 		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
 
@@ -82,7 +83,7 @@ class SevoPediaCivic:
 
 		self.X_HISTORY = self.X_CIVIC_PANE
 		self.Y_HISTORY = self.Y_CIVIC_PANE + self.H_CIVIC_PANE + self.SMALL_MARGIN
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_LEADERS + self.MEDIUM_MARGIN)
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_FAVORITES + self.MEDIUM_MARGIN)
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
@@ -90,7 +91,7 @@ class SevoPediaCivic:
 	def interfaceScreen(self, iCivic):
 		self.iCivic = iCivic
 
-		self.placeLeaders()
+		self.placeFavorites()
 		self.placeCivicPane()
 		self.placeStats()
 		self.placeSpecial()
@@ -107,13 +108,14 @@ class SevoPediaCivic:
 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
 	#			TableStyles.TABLE_STYLE_STANDARD)
 	# if it helps us adapt/use the addMultiListControlGFC method -->
-	def placeLeaders(self):
-		xPanel = self.X_LEADERS
-		yPanel = self.Y_LEADERS
-		wPanel = self.W_LEADERS
-		hPanel = self.H_LEADERS
+	def placeFavorites(self):
+		xPanel = self.X_FAVORITES
+		yPanel = self.Y_FAVORITES
+		wPanel = self.W_FAVORITES
+		hPanel = self.H_FAVORITES
 
-		txtKeyPanel = "TXT_KEY_PEDIA_CATEGORY_LEADER"
+		# <!-- custom: this panel lists AI favorites for the selected civic, so "Favorites" is clearer than "Leaders". (GPT-5.3-Codex) -->
+		txtKeyPanel = "TXT_KEY_PEDIA_FAVORITES"
 		headerLabel = localText.getText(txtKeyPanel, ())
 		numWithCivic, totalRealLeaders = get_favorite_leader_counts(FAVORITE_LEADER_TYPE_CIVIC, self.iCivic, EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
 		headerText = format_leaders_header_text(numWithCivic, totalRealLeaders, headerLabel)
@@ -160,12 +162,11 @@ class SevoPediaCivic:
 		screen.addListBoxGFC(panelName, "", self.X_STATS, self.Y_STATS, self.W_STATS, self.H_STATS, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
 		iCivicOptionType = gc.getCivicInfo(self.iCivic).getCivicOptionType()
-		# <!-- custom: make text a bit bigger/wider, was font=4 -->
 		if (iCivicOptionType != -1):
-			screen.appendListBoxString(panelName, u"<font=4>" + gc.getCivicOptionInfo(iCivicOptionType).getDescription().upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(gc.getCivicOptionInfo(iCivicOptionType).getDescription().upper()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		pUpkeepInfo = gc.getUpkeepInfo(gc.getCivicInfo(self.iCivic).getUpkeep())
 		if (pUpkeepInfo):
-			screen.appendListBoxString(panelName, u"<font=4>" + pUpkeepInfo.getDescription().upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(pUpkeepInfo.getDescription().upper()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -179,7 +180,7 @@ class SevoPediaCivic:
 		szSpecialText = CyGameTextMgr().parseCivicInfo(self.iCivic, True, False, True)
 		# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain -->
 		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -209,7 +210,7 @@ class SevoPediaCivic:
 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
 		# </advc.004y>
 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

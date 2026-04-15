@@ -247,6 +247,9 @@ void CyInfoPythonInterface3()
 
 		// Arrays
 		// advc.003t: py_...
+		// <!-- custom: BEGIN expose getBonusProduced in Python bindings so Sevopedia Corporation can query produced bonuses directly from CvCorporationInfo. (GPT-5.3-Codex) -->
+		.def("getBonusProduced", &CvCorporationInfo::py_getBonusProduced, "int ()")
+		// <!-- custom: END expose getBonusProduced in Python bindings. (GPT-5.3-Codex) -->
 		.def("getPrereqBonus", &CvCorporationInfo::py_getPrereqBonus, "int (int i)")
 		.def("getHeadquarterCommerce", &CvCorporationInfo::getHeadquarterCommerce, "int (int i)")
 		.def("getCommerceProduced", &CvCorporationInfo::getCommerceProduced, "int (int i)")

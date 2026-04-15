@@ -20,8 +20,6 @@ localText = CyTranslator()
 
 
 
-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
-IS_DISPLAY_AI_CATEGORY_HEADERS = True
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
 
 # <!-- custom: Long_Comments_py.txt #8 -->
@@ -48,12 +46,10 @@ PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
 
 
 
-def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
+def dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
 	# Dumps the leader cache to PythonDbg.log in a format that can be copy-pasted into a .py module file.
 	def emit(line):
 		sys.stdout.write("%s\n" % line)
-
-	leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories = leader_cache
 	leader_index_type_pairs = []
 	for iLeader in xrange(gc.getNumLeaderHeadInfos()):
 		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
@@ -83,10 +79,6 @@ def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji
 			emit("		%r: %r," % (cache_key, leader_info_cached[cache_key]))
 		emit("	},")
 	emit("}")
-	emit("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
-	emit("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
-	emit("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
-
 	# END marker
 	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
 
@@ -104,12 +96,9 @@ def try_load_predumped_cache():
 		predumped = __import__(PREDUMPED_MODULE_NAME)
 		
 		leaders_info_cached = predumped.LEADERS_INFO_CACHED
-		ai_right_categories = predumped.AI_RIGHT_CATEGORIES
-		ai_middle_categories = predumped.AI_MIDDLE_CATEGORIES
-		ai_left_categories = predumped.AI_LEFT_CATEGORIES
 		
 		print("AI Personality Panel cache Loaded pre-dumped cache from %s.py" % PREDUMPED_MODULE_NAME)
-		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
+		return leaders_info_cached
 	
 	except:
 		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
@@ -127,13 +116,13 @@ def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, i
 	
 	# Compute at runtime
 	print("AI Personality Panel cache Computing leader cache at runtime...")
-	leader_cache = compute_func()
+	leaders_info_cached = compute_func()
 	
 	# Dump to log only if enabled via define
 	if IS_DUMP_CACHE_TO_LOG:
-		dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names)
+		dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, is_emoji_enabled, is_raw_xml_names)
 	
-	return leader_cache
+	return leaders_info_cached
 
 
 
@@ -520,9 +509,9 @@ def _compute_leader_cache_internal():
 			"getBasePeaceWeight": ("Base Peace Weig", False),
 			"getPeaceWeightRand": ("Peace Weig Rand", False),
 			"getWarmongerRespect": ("Warmonger Resp", False),
-			"getEspionageWeight": ("Espionage Weig", False),
-			"getRefuseToTalkWarThreshold": ("RefToTalkW Span", False),
-			"getNoTechTradeThreshold": ("NoTech2AdvTrT", True),
+			"getEspionageWeight": ("EspionageWeig", False),
+			"getRefuseToTalkWarThreshold": ("Ref2TalkWSpan", False),
+			"getNoTechTradeThreshold": ("NoTech2AdvT", True),
 			"getTechTradeKnownPercent": ("NoTechYetRdy%", False),
 			"getMaxGoldTradePercent": ("Max Gold Tr%", False),
 			"getMaxGoldPerTurnTradePercent": ("Max GPT Tr%", False),
@@ -538,49 +527,49 @@ def _compute_leader_cache_internal():
 			"getMaxWarRand": ("T.W Likely", True),
 			"getMaxWarNearbyPowerRatio": ("T.W NearPR", False),
 			"getMaxWarDistantPowerRatio": ("T.W DistPR", False),
-			"getMaxWarMinAdjacentLandPercent": ("T.W Min NearPR", True),
+			"getMaxWarMinAdjacentLandPercent": ("T.W MinNearPR", True),
 			"getLimitedWarRand": ("Lim.W Likely", True),
-			"getLimitedWarPowerRatio": ("Lim.W PR.", False),
+			"getLimitedWarPowerRatio": ("Lim.W PR", False),
 			"getDogpileWarRand": ("Dogpile Likely", True),
 			"getMakePeaceRand": ("MakePeaceLikely", True),
-			"getDeclareWarTradeRand": ("W AllianceMaker", False),
-			"getDemandRebukedSneakProb": ("TribRef SneakW%", False),
+			"getDeclareWarTradeRand": ("WAllianceMaker", False),
+			"getDemandRebukedSneakProb": ("TribRSneakW%", False),
 			"getDemandRebukedWarProb": ("TribRef W%", False),
 			"getRazeCityProb": ("Raz C %", False),
 			"getBuildUnitProb": ("Build Unit %", False),
 			# ==== ATTITUDE MODIFIER FIELDS (from XML order) ====
 			"getBaseAttackOddsChange": ("Risky Aggr", False),
-			"getAttackOddsChangeRand": ("Risky Aggr Rand+", False),
+			"getAttackOddsChangeRand": ("Risky AggrRand+", False),
 			"getWorseRankDifferenceAttitudeChange": ("Worse Rank AC", False),
 			"getBetterRankDifferenceAttitudeChange": ("Better Rank AC", False),
 			# <!-- custom: inverted according to: https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos at "iCloseBordersAttitudeChange" and then according to also https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange (description translated(ion) seems a bit less accurate but is informative and helpful maybe etc -->
-			"getCloseBordersAttitudeChange": ("CloseBordersSpark", True),
+			"getCloseBordersAttitudeChange": ("CloseBordSpark", True),
 			"getLostWarAttitudeChange": ("Lost W AC", False),
 			"getAtWarAttitudeDivisor": ("At W AD", False),
 			"getAtWarAttitudeChangeLimit": ("At W ACL", False),
 			"getAtPeaceAttitudeDivisor": ("At Peace AD", False),
 			"getAtPeaceAttitudeChangeLimit": ("At Peace ACL", False),
-			"getSameReligionAttitudeChange": ("Same Religion AC", False),
-			"getSameReligionAttitudeDivisor": ("Same Religion AD", False),
-			"getSameReligionAttitudeChangeLimit": ("Same Religion ACL", False),
-			"getDifferentReligionAttitudeChange": ("Diff.Religion AC", False),
-			"getDifferentReligionAttitudeDivisor": ("Diff.Religion AD", False),
-			"getDifferentReligionAttitudeChangeLimit": ("Diff.Religion ACL", True),
+			"getSameReligionAttitudeChange": ("Same Relig AC", False),
+			"getSameReligionAttitudeDivisor": ("Same Relig AD", False),
+			"getSameReligionAttitudeChangeLimit": ("Same Relig ACL", False),
+			"getDifferentReligionAttitudeChange": ("Diff Relig AC", False),
+			"getDifferentReligionAttitudeDivisor": ("Diff Relig AD", False),
+			"getDifferentReligionAttitudeChangeLimit": ("Diff Relig ACL", True),
 			"getBonusTradeAttitudeDivisor": ("Bonus Tr AD", False),
 			"getBonusTradeAttitudeChangeLimit": ("Bonus Tr ACL", False),
-			"getOpenBordersAttitudeDivisor": ("Open Borders AD", False),
-			"getOpenBordersAttitudeChangeLimit": ("Open Borders ACL", False),
-			"getDefensivePactAttitudeDivisor": ("Defensive Pact AD", False),
-			"getDefensivePactAttitudeChangeLimit": ("Defensive Pact ACL", False),
+			"getOpenBordersAttitudeDivisor": ("Open Bord AD", False),
+			"getOpenBordersAttitudeChangeLimit": ("Open Bord ACL", False),
+			"getDefensivePactAttitudeDivisor": ("Defens Pact AD", False),
+			"getDefensivePactAttitudeChangeLimit": ("Defens Pact ACL", False),
 			"getShareWarAttitudeChange": ("Share W AC", False),
 			"getShareWarAttitudeDivisor": ("Share W AD", False),
 			"getShareWarAttitudeChangeLimit": ("Share W ACL", False),
-			"getFavoriteCivicAttitudeChange": ("Favorite Civic AC", False),
-			"getFavoriteCivicAttitudeDivisor": ("Favorite Civic AD", False),
-			"getFavoriteCivicAttitudeChangeLimit": ("Favorite Civic ACL", False),
+			"getFavoriteCivicAttitudeChange": ("Fav Civic AC", False),
+			"getFavoriteCivicAttitudeDivisor": ("Fav Civic AD", False),
+			"getFavoriteCivicAttitudeChangeLimit": ("Fav Civic ACL", False),
 			# <!-- custom: attitude thresholds later in code in case we want to aggregate them or do aggregate them but not sure may or may not do -->
 			# ==== VASSAL AND FREEDOM FIELDS (from XML order) ====
-			"getVassalPowerModifier": ("ResistCapitulP.M", False),
+			"getVassalPowerModifier": ("ResistCapitulPM", False),
 			"getFreedomAppreciation": ("FreedomApprec", False),
 			# <!-- custom: then fields with nested or incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more) are handled separately later -->
 		}
@@ -608,9 +597,9 @@ def _compute_leader_cache_internal():
 			"getStopTradingThemRefuseAttitudeThreshold": ("LoyaltyNoStopTr", True),
 			"getAdoptCivicRefuseAttitudeThreshold": ("Adopt Civic", False),
 			"getConvertReligionRefuseAttitudeThreshold": ("Convert Religion", False),
-			"getOpenBordersRefuseAttitudeThreshold": ("Open Borders", False),
-			"getDefensivePactRefuseAttitudeThreshold": ("Defensive Pact", False),
-			"getPermanentAllianceRefuseAttitudeThreshold": ("Perm. Alliance", False),
+			"getOpenBordersRefuseAttitudeThreshold": ("Open Bord", False),
+			"getDefensivePactRefuseAttitudeThreshold": ("DefensPact", False),
+			"getPermanentAllianceRefuseAttitudeThreshold": ("PermAlliance", False),
 			"getVassalRefuseAttitudeThreshold": ("Vassal", False),
 		}
 
@@ -847,17 +836,17 @@ def _compute_leader_cache_internal():
 
 		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now see latest value or code comments or docs for updated value or and info)) order -->
 		contact_index_labels = {
-			0: "Relig. Press.",		# CONTACT_RELIGION_PRESSURE
-			1: "Civic Press.",		# CONTACT_CIVIC_PRESSURE
+			0: "Relig Press",		# CONTACT_RELIGION_PRESSURE
+			1: "Civic Press",		# CONTACT_CIVIC_PRESSURE
 			2: "Join W", 			# CONTACT_JOIN_WAR
 			3: "Stop Tr",			# CONTACT_STOP_TRADING
 			4: "Gave Help",			# CONTACT_GIVE_HELP
 			5: "Help",				# CONTACT_ASK_FOR_HELP
 			6: "Trib",				# CONTACT_DEMAND_TRIBUTE
 			7: "Open Borders",		# CONTACT_OPEN_BORDERS
-			8: "Defensive Pact",	# CONTACT_DEFENSIVE_PACT
-			9: "Perm. Alliance",	# CONTACT_PERMANENT_ALLIANCE
-			10: "Peace Treaty",		# CONTACT_PEACE_TREATY
+			8: "DefensPact",		# CONTACT_DEFENSIVE_PACT
+			9: "PermAlliance",		# CONTACT_PERMANENT_ALLIANCE
+			10: "PeaceTreaty",		# CONTACT_PEACE_TREATY
 			11: "Tr Tech",			# CONTACT_TRADE_TECH
 			12: "Tr Bonus",			# CONTACT_TRADE_BONUS
 			13: "Tr Map",			# CONTACT_TRADE_MAP
@@ -866,42 +855,42 @@ def _compute_leader_cache_internal():
 		positive_memory_index_labels = {
 			8:  "Gave Help",		# MEMORY_GIVE_HELP
 			10: "AcD",				# MEMORY_ACCEPT_DEMAND
-			12: "AcReligion",		# MEMORY_ACCEPTED_RELIGION
+			12: "AcRelig",			# MEMORY_ACCEPTED_RELIGION
 			14: "AcCivic",			# MEMORY_ACCEPTED_CIVIC
 			16: "AcJoin W",			# MEMORY_ACCEPTED_JOIN_WAR
 			18: "AcStop Tr",		# MEMORY_ACCEPTED_STOP_TRADING
 			28: "Tr Tech",			# MEMORY_TRADED_TECH_TO_US
 			31: "VotedForUs",		# MEMORY_VOTED_FOR_US
 			32: "Event Good",		# MEMORY_EVENT_GOOD_TO_US
-			34: "Liberated C",		# MEMORY_LIBERATED_CITIES
+			34: "LiberatedC",		# MEMORY_LIBERATED_CITIES
 			35: "Indep",			# MEMORY_INDEPENDENCE
 		}
 
 		negative_memory_index_labels = {
 			0:  "D.W",				# MEMORY_DECLARED_WAR
-			1:  "D.W on Fr",		# MEMORY_DECLARED_WAR_ON_FRIEND
-			2:  "HiredW Ally",		# MEMORY_HIRED_WAR_ALLY
+			1:  "D.W onFr",			# MEMORY_DECLARED_WAR_ON_FRIEND
+			2:  "HirWAlly",			# MEMORY_HIRED_WAR_ALLY
 			3:  "Nuked Us",			# MEMORY_NUKED_US
 			4:  "Nuked Fr",			# MEMORY_NUKED_FRIEND
-			5:  "Raz C",			# MEMORY_RAZED_CITY
-			6:  "Raz Holy C",		# MEMORY_RAZED_HOLY_CITY
+			5:  "RazC",				# MEMORY_RAZED_CITY
+			6:  "RazHolyC",			# MEMORY_RAZED_HOLY_CITY
 			7:  "Spy Caught",		# MEMORY_SPY_CAUGHT
-			9:  "Ref Help Us",		# MEMORY_REFUSED_HELP
+			9:  "RefHelpUs",		# MEMORY_REFUSED_HELP
 			11: "Rej D",			# MEMORY_REJECTED_DEMAND
-			13: "Dn Religion",		# MEMORY_DENIED_RELIGION
+			13: "Dn Relig",			# MEMORY_DENIED_RELIGION
 			15: "Dn Civic",			# MEMORY_DENIED_CIVIC
-			17: "Dn Join W",		# MEMORY_DENIED_JOIN_WAR
-			19: "Dn Stop Tr",		# MEMORY_DENIED_STOP_TRADING
-			20: "Stopped Tr",		# MEMORY_STOPPED_TRADING
-			21: "Rec Stopped Tr",	# MEMORY_STOPPED_TRADING_RECENT
-			22: "Tr Embargo",		# MEMORY_HIRED_TRADE_EMBARGO
+			17: "Dn JoinW",			# MEMORY_DENIED_JOIN_WAR
+			19: "Dn StopTr",		# MEMORY_DENIED_STOP_TRADING
+			20: "StoppedTr",		# MEMORY_STOPPED_TRADING
+			21: "RecStoppedTr",		# MEMORY_STOPPED_TRADING_RECENT
+			22: "TrEmbargo",		# MEMORY_HIRED_TRADE_EMBARGO
 			23: "Made D",			# MEMORY_MADE_DEMAND
-			24: "CancelledVassal",	# MEMORY_CANCELLED_VASSAL_AGREEMENT
-			25: "Recent MadeD",		# MEMORY_MADE_DEMAND_RECENT
-			26: "Cancelled OB",		# MEMORY_CANCELLED_OPEN_BORDERS
-			27: "Cancelled DP",		# MEMORY_CANCELLED_DEFENSIVE_PACT
-			29: "Recent Tech Any",	# MEMORY_RECEIVED_TECH_FROM_ANY
-			30: "Voted Ag Us",		# MEMORY_VOTED_AGAINST_US
+			24: "CancVassal",		# MEMORY_CANCELLED_VASSAL_AGREEMENT
+			25: "RecentMadeD",		# MEMORY_MADE_DEMAND_RECENT
+			26: "CancelledOB",		# MEMORY_CANCELLED_OPEN_BORDERS
+			27: "CancelledDP",		# MEMORY_CANCELLED_DEFENSIVE_PACT
+			29: "RecentTechAny",	# MEMORY_RECEIVED_TECH_FROM_ANY
+			30: "VotedAgUs",		# MEMORY_VOTED_AGAINST_US
 			33: "Event Bad",		# MEMORY_EVENT_BAD_TO_US
 			36: "Recent W",			# MEMORY_DECLARED_WAR_RECENT
 		}
@@ -1085,322 +1074,12 @@ def _compute_leader_cache_internal():
 
 
 
-	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_art_key, ai_category_header):
-		if not IS_DISPLAY_AI_CATEGORY_HEADERS:
-			return (None, 0)
-		# If the header is disabled (None), keep the exact same "no header" tuple semantics.
-		if ai_category_header is None:
-			return (None, 0)
-
-		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS and icon_button_art_key:
-			button_size = 16
-			# <!-- custom: No caching needed here since this precomputes to a file (not called repeatedly during gameplay). (GPT-5.2-Codex (summarized)) -->
-			line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
-			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
-
-			# <!-- custom: add x offset (negative) so we can push button a bit left and reduce whitespace -->
-			ai_category_x_offset_with_button = -7
-
-			return (ai_category_header_line_with_button, ai_category_x_offset_with_button)
-		else:
-			ai_category_header_line_without_button = u"<font=3b>%s</font>" % ai_category_header
-			ai_category_x_offset_without_button = 0
-
-			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
-
-	def get_ai_category(icon_button_art_key, ai_category_header, ai_category_key_order):
-		ai_category_header_line, ai_category_x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(
-			icon_button_art_key,
-			ai_category_header
-		)
-
-		return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
-
-	def get_ai_category_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
-		ai_category_key_order_positive_memories = (
-			"iAggregated%sMemoryGiveHelp%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryAcceptDemand%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryAcceptedReligion%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryAcceptedCivic%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryAcceptedJoinWar%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryAcceptedStopTrading%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryVotedForUs%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryEventGoodToUs%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryLiberatedCities%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryIndependence%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryTradedTechToUs%s" % (positive_negative, affection_resentment),
-		)
-
-		return ai_category_key_order_positive_memories
-
-
-
-	def get_ai_category_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
-		ai_category_key_order_negative_memories = (
-			"iAggregated%sMemoryDeclaredWar%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryDeclaredWarOnFriend%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryHiredWarAlly%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryNukedUs%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryNukedFriend%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryRazedCity%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryRazedHolyCity%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemorySpyCaught%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryRefusedHelp%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryRejectedDemand%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryDeniedReligion%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryDeniedCivic%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryDeniedJoinWar%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryDeniedStopTrading%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryStoppedTrading%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryHiredTradeEmbargo%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryMadeDemand%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryVotedAgainstUs%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryEventBadToUs%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
-			# <!-- custom: hide this one because we don't have enough space in the table. (GPT-5.2-Codex (summarized)) -->
-			# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
-			"iAggregated%sMemoryCancelledDefensivePact%s" % (positive_negative, affection_resentment),
-		)
-
-		return ai_category_key_order_negative_memories
-
-
-	def get_ai_category_order_contact_probs(is_offer):
-		if is_offer:
-			return (
-				"iAggregatedContactProbPeaceTreaty",
-				"iAggregatedContactProbOpenBorders",
-				"iAggregatedContactProbTradeMap",
-				"iAggregatedContactProbTradeTech",
-				"iAggregatedContactProbTradeBonus",
-				"iAggregatedContactProbGiveHelp",
-				"iAggregatedContactProbDefensivePact",
-				"iAggregatedContactProbPermanentAlliance",
-			)
-		return (
-			"iAggregatedContactProbReligionPressure",
-			"iAggregatedContactProbCivicPressure",
-			"iAggregatedContactProbStopTrading",
-			"iAggregatedContactProbDemandTribute",
-			"iAggregatedContactProbAskForHelp",
-			"iAggregatedContactProbJoinWar",
-		)
-
-	def get_ai_category_order_refusal_thresholds(is_offer):
-		if is_offer:
-			return (
-				"getOpenBordersRefuseAttitudeThreshold",
-				"getMapRefuseAttitudeThreshold",
-				"getTechRefuseAttitudeThreshold",
-				"getStrategicBonusRefuseAttitudeThreshold",
-				"getHappinessBonusRefuseAttitudeThreshold",
-				"getHealthBonusRefuseAttitudeThreshold",
-				"getNoGiveHelpAttitudeThreshold",
-				"getDefensivePactRefuseAttitudeThreshold",
-			)
-		return (
-			"getConvertReligionRefuseAttitudeThreshold",
-			"getAdoptCivicRefuseAttitudeThreshold",
-			# <!-- custom: probability to refuse declaring war based on attitude (higher = less likely to attack). (GPT-5.2-Codex) -->
-			"getDeclareWarRefuseAttitudeThreshold",
-			"getDeclareWarThemRefuseAttitudeThreshold",
-			"getStopTradingRefuseAttitudeThreshold",
-			"getStopTradingThemRefuseAttitudeThreshold",
-			"getDemandTributeAttitudeThreshold",
-			"getCityRefuseAttitudeThreshold",
-			"getNativeCityRefuseAttitudeThreshold",
-			"getVassalRefuseAttitudeThreshold",
-		)
-
-	def get_ai_category_order_war_strategy():
-		return (
-			"getMaxWarRand",
-			"getMaxWarNearbyPowerRatio",
-			"getMaxWarDistantPowerRatio",
-			"getMaxWarMinAdjacentLandPercent",
-			"getLimitedWarRand",
-			"getLimitedWarPowerRatio",
-			"getBaseAttackOddsChange",
-			"getAttackOddsChangeRand",
-			"getRazeCityProb",
-			"getDemandRebukedSneakProb",
-			"getDemandRebukedWarProb",
-			"getDogpileWarRand",
-			"getDeclareWarTradeRand",
-			# <!-- custom: not ideal but keep this ACL here so War Strategy stays in one block and fits the panel. (GPT-5.2-Codex) -->
-			"getShareWarAttitudeChangeLimit",
-			"getVassalPowerModifier",
-			"getRefuseToTalkWarThreshold",
-			"getMakePeaceRand",
-		)
-
-	def get_ai_category_order_core_personality():
-		# <!-- custom: order is tuned to fit the panel; not strictly thematic (e.g., some ACL fields stay here) to keep
-		# headers readable within the available space. (GPT-5.2-Codex) -->
-		return (
-			"getBaseAttitude",
-			"getBasePeaceWeight",
-			"getPeaceWeightRand",
-			"getWorseRankDifferenceAttitudeChange",
-			"getBetterRankDifferenceAttitudeChange",
-			"getWarmongerRespect",
-			"getCloseBordersAttitudeChange",
-			# <!-- custom: table is tight, so keep ACL fields here to avoid another header. (GPT-5.2-Codex) -->
-			"getSameReligionAttitudeChangeLimit",
-			"getDifferentReligionAttitudeChangeLimit",
-			"getFavoriteCivicAttitudeChangeLimit",
-		)
-
-	def get_ai_category_order_victory_weights():
-		return (
-			"getConquestVictoryWeight",
-			"getDominationVictoryWeight",
-			"getCultureVictoryWeight",
-			"getDiplomacyVictoryWeight",
-			"getSpaceVictoryWeight",
-		)
-
-	def get_ai_category_order_flavors():
-		return (
-			"iFlavorMilitary",
-			"iFlavorReligion",
-			"iFlavorProduction",
-			"iFlavorGold",
-			"iFlavorScience",
-			"iFlavorCulture",
-			"iFlavorGrowth",
-			"iFlavorEspionage",
-		)
-
-	def get_ai_category_order_economic_preferences():
-		return (
-			"getMaxGoldTradePercent",
-			"getMaxGoldPerTurnTradePercent",
-			"getTechTradeKnownPercent",
-			"getNoTechTradeThreshold",
-			"getBuildUnitProb",
-			"getWonderConstructRand",
-			"getEspionageWeight",
-		)
-
-	def get_ai_category_order_no_war_at():
-		return (
-			"iNoWarAttitudeProbFurious",
-			"iNoWarAttitudeProbAnnoyed",
-			"iNoWarAttitudeProbCautious",
-			"iNoWarAttitudeProbPleased",
-			"iNoWarAttitudeProbFriendly",
-		)
-
-	def get_ai_category_order_attitude_changes():
-		return (
-			"getSameReligionAttitudeChange",
-			"getSameReligionAttitudeDivisor",
-			"getDifferentReligionAttitudeChange",
-			"getDifferentReligionAttitudeDivisor",
-			"getFavoriteCivicAttitudeChange",
-			"getFavoriteCivicAttitudeDivisor",
-			"getLostWarAttitudeChange",
-			"getAtWarAttitudeDivisor",
-			"getAtWarAttitudeChangeLimit",
-			"getAtPeaceAttitudeDivisor",
-			"getAtPeaceAttitudeChangeLimit",
-			"getShareWarAttitudeChange",
-			"getShareWarAttitudeDivisor",
-			"getBonusTradeAttitudeDivisor",
-			"getBonusTradeAttitudeChangeLimit",
-			"getOpenBordersAttitudeDivisor",
-			"getOpenBordersAttitudeChangeLimit",
-			"getDefensivePactAttitudeDivisor",
-			"getDefensivePactAttitudeChangeLimit",
-		)
-
-	def get_ai_category_order_misc_modifiers():
-		return ("getFreedomAppreciation",)
-
-
-	# <!-- custom: Python 2.4 global lookup is brittle; keep these helper names stable to avoid NameError at runtime when refactoring. (GPT-5.2-Codex) -->
-	def get_ai_categories():
-		def get_header_text(header_key_or_text):
-			if header_key_or_text is None:
-				return None
-			if header_key_or_text.startswith("TXT_KEY_"):
-				return localText.getText(header_key_or_text, ())
-			return header_key_or_text
-
-		# === AI Panel's Categories (display order) ===
-		# <!-- custom: We keep icon_button_art_key values local here for clarity and to avoid any global "emoji mapping" state. (GPT-5.2-Codex (summarized)) -->
-
-		right_defs = (
-			# <!-- custom: Economic Preferences. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
-			# <!-- custom: Contact Offer Probabilities. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
-			# <!-- custom: Contact Demand Probabilities. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
-			# <!-- custom: Offer Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
-			# <!-- custom: Demand Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
-			# <!-- custom: Misc Modifiers. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
-		)
-
-		middle_defs = (
-			# <!-- custom: Positive Memory Affections. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
-			# <!-- custom: Negative Memory Resentments. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
-			# <!-- custom: No War At. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
-			# <!-- custom: Attitude Changes +/- Lims +/- Divs. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
-		)
-
-		left_defs = (
-			# <!-- custom: Core Personality. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
-			# <!-- custom: Victory Weights (BBAI-style). (GPT-5.2-Codex) -->
-			("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
-			# <!-- custom: Flavors. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
-			# <!-- custom: War Strategy. (GPT-5.2-Codex) -->
-			("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
-		)
-
-		right_categories = []
-		middle_categories = []
-		left_categories = []
-
-		if IS_DISPLAY_AI_CATEGORY_HEADERS:
-			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
-				right_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
-			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
-				middle_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
-			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
-				left_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
-		else:
-			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
-				right_categories.append(get_ai_category(None, None, ai_category_key_order))
-			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
-				middle_categories.append(get_ai_category(None, None, ai_category_key_order))
-			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
-				left_categories.append(get_ai_category(None, None, ai_category_key_order))
-
-		return (tuple(right_categories), tuple(middle_categories), tuple(left_categories))
-
-	# === AI Panel's Categories ===
-	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories()
-
+	# <!-- custom: category definitions are now owned by SevoPediaLeader.py (UI layer); this cache module remains data-only for predump/runtime cache values. (GPT-5.3-Codex) -->
 	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players. -->
 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short -->
 	print("Sevopedia Leader cache prebuilt cache prebuilt. This should appear only once per gaming session.")
 
-	return LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+	return LEADERS_INFO_CACHED
 
 
 
@@ -1409,6 +1088,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
 	return get_leader_cache_predumped_or_compute(
 		compute_func = _compute_leader_cache_internal,
 		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA,
-		is_emoji_enabled = IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS,
+		is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0),
 		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
 	)
+

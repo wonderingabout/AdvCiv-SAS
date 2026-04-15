@@ -53,6 +53,8 @@ import UnitUpgradesGraph
 import TraitUtil
 import BugCore
 import BugUtil
+from SASFontUtils import *
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -117,6 +119,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
 		self.SAS_PEDIA_MOVIE_TYPE_RELIGION = 4
 		self.SAS_PEDIA_MOVIE_TYPE_ERA = 5
+		self.SAS_PEDIA_MOVIE_TYPE_CORPORATION = 6
 		self.SAS_PEDIA_MUSIC_TYPE_TECH = 1
 		self.SAS_PEDIA_MUSIC_TYPE_ERA = 2
 		self.SAS_PEDIA_MUSIC_TYPE_LEADER = 3
@@ -164,17 +167,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		self.X_CATEGORIES = 0
 		self.Y_CATEGORIES = (self.Y_TOP_PANEL + self.H_TOP_PANEL) - 4
-		# <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have much more room hopefully to accomodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: for some users, 124px is barely not enough although seems to run fine for most, increase width a bit to accomodate that; was 124 -->
-		# advc.002b: was 175
-		# <!-- custom: was 200 -->
-		self.W_CATEGORIES = 126
+		# <!-- custom: shorter category column width to have more room in sevopedia; Long_Comments_XML.txt #15. Update: increased for upscaled text (as of now if font size > 2) -->
+		# <!-- custom: keep categories narrower at default font, but widen when UI label font is upscaled so text doesn't clip (GPT-5.3-Codex); Long_Comments_XML.txt #16. -->
+		iCategoryWidth = 124
+		if getSASUIFontLabel() > 3:
+			iCategoryWidth = 166
+		self.W_CATEGORIES = iCategoryWidth
 		# <advc.004y>
 		if self.bWideScreen:
-			# <!-- custom: could reduce it to 200 still displaying all text in the dedicated panel (but very close, 199 does not fit, 200 is the strict minimum on 1920 x 1080, and i assume resolutions don't affect this but i don't know, still even if they did is quite minor (at worse the text would need 2 rows (in total to be displayed in just the category, but the place/room i gain is very (and much more useful than this header width, so leaving as is, even if does not work/function as intended is fine, as long as not critically broken this is (just but anyways...) the category header text, we need info on the main big panel rather, anyways), was 230
-			# May actually even be visually clearer as the distance between the words in categories and the items's words in the items category is smaller, perhaps allowing for an even smaller,allowing for a faster and more direct, perhaps clearer intutive connection between these maybe but anyways -->
-			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
-			# <!-- custom: was 200 -->
-			self.W_CATEGORIES = 126
+			self.W_CATEGORIES = iCategoryWidth
 		# </advc.004y>
 		self.H_CATEGORIES = (self.Y_BOT_PANEL + 3) - self.Y_CATEGORIES
 
@@ -211,6 +212,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.Y_NEXT = Y_FOOTER_CONTROLS
 		self.X_EXIT = self.W_SCREEN - 30 # advc.004y: was 994
 		self.Y_EXIT = Y_FOOTER_CONTROLS
+		# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; keep BACK/NEXT left of the AIP area so those footer controls stay clickable. (GPT-5.3-Codex) -->
+		self.SAS_X_BACK_LEADERS = self.X_PEDIA_PAGE + 10
+		self.SAS_X_NEXT_LEADERS = self.SAS_X_BACK_LEADERS + 140
+		self.SAS_X_EXIT_LEADERS = self.SAS_X_NEXT_LEADERS + 140
 
 		self.tab = None
 		self.iActivePlayer = -1
@@ -371,6 +376,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
 		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
 		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
@@ -436,14 +446,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			szText = self.SAS_SEARCH_DEFAULT_TEXT
 
 		screen.setLabel(self.SAS_SEARCH_LABEL_ID, self.SAS_SEARCH_PANEL_ID,
-				u"<font=3>%s</font>" % szText,
+				SASTextScale.labelText(szText),
 				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
 				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Show a clear button only when active.
 		if self.SAS_isSearchActive():
 			screen.setLabel(self.SAS_SEARCH_CLEAR_ID, self.SAS_SEARCH_PANEL_ID,
-					u"<font=3>x</font>",
+					SASTextScale.labelText(u"x"),
 					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
 					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
@@ -672,17 +682,29 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iCategory = self.SAS_CATEGORY_DEFS[0][0]
 		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		self.deleteAllWidgets()
+		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
+		screen = self.getScreen()
 		if iCategory == SevoScreenEnums.PEDIA_MUSIC:
 			iMusicItemsWidth = self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH
 			if iMusicItemsWidth <= 0:
 				iMusicItemsWidth = self.SAS_W_ITEMS_BASE
 			self.SAS_setItemsWidth(iMusicItemsWidth)
+		elif iCategory == SevoScreenEnums.PEDIA_LEADERS:
+			self.SAS_setItemsWidth(self.SAS_getLeaderItemsWidthByCurrentUIFont())
 		else:
 			self.SAS_setItemsWidth(self.SAS_W_ITEMS_BASE)
+		# <!-- custom: after adding Leader AIP-specific footer positions for BACK/NEXT/EXIT, reapply the generic Sevopedia footer positions here first; otherwise those AIP positions carry over to every category, which we don't want. (GPT-5.3-Codex) -->
+		screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+		screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
+			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
+			screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+			screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
 		if not self.isContentsShowing():
 			BugUtil.debug("Drawing category list")
 			self.placeCategories(iCategory)
-			screen = self.getScreen()
 			if not self.SAS_USE_BOTTOM_TABS:
 				self.SAS_safeDeleteWidget(screen, self.TOC_ID)
 				self.SAS_safeDeleteWidget(screen, self.INDEX_ID)
@@ -710,7 +732,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 			# <!-- custom: force keyboard focus so UP/DOWN works without requiring a click (chatgpt 5.2 + claude opus 4.5) -->
 			try:
-				screen = self.getScreen()
+				# <!-- custom: after refactoring showContents, `screen` is initialized once in the outer method scope and reused here; keep this old line commented for traceability in case this focus block is revisited. (GPT-5.3-Codex) -->
+				# screen = self.getScreen()
 				# Focus the left list when present
 				if self.SAS_lastItemsWidget is not None:
 					try:
@@ -751,16 +774,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
-		self.HEAD_TEXT = u"<font=4b>" + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + u"</font>"
-		self.BACK_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper() + u"</font>"
-		self.NEXT_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper() + u"</font>"
-		self.EXIT_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper() + u"</font>"
+		self.HEAD_TEXT = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
+		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper())
+		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
+		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
 		
-		self.TOC_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper() + u"</font>"
-		self.INDEX_TEXT = u"<font=4>"  + localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper() + u"</font>"
+		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
+		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
 		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
-		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
+		self.TOC_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper())
+		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper())
 
 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
@@ -823,9 +846,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.setDimensions(X_SCREEN, Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
 
 		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
-		screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY,   self.X_BACK,  self.Y_BACK,  0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK,    1, -1)
-		screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY,   self.X_NEXT,  self.Y_NEXT,  0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
-		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY,  self.X_EXIT,  self.Y_EXIT,  0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->
 
 
 
@@ -855,6 +876,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				iThresh = 19
 			if len(szHeading) <= iThresh:
 				szHeading = graphic + szHeading # </advc.002b>
+			szHeading = SASTextScale.labelText(szHeading)
 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, category[2], 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(self.CATEGORY_LIST_ID)
 
@@ -1269,7 +1291,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: prebuild the sevopedia leader cache only when=after we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think. After asking chatgpt, it advised me to do this here; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe -->
 		if self.IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE and (not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT):
 			# <!-- custom: when AI personality is disabled by define, skip cache precompute entirely to avoid needless work. (GPT-5.3-Codex) -->
-			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
+			SevoPediaLeader.LEADERS_INFO_CACHED = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected  -->
 			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
 			print("Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
@@ -1444,7 +1466,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		hintText = szHintsText.split("\n")
 		for hint in hintText:
 			if len(hint) != 0:
-				screen.appendListBoxStringNoUpdate(szHintBox, hint, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.appendListBoxStringNoUpdate(szHintBox, SASTextScale.labelText(hint), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(szHintBox)
 
 
@@ -1477,7 +1499,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_PEDIA_MOVIE_TYPE_WONDER,
 				self.SAS_PEDIA_MOVIE_TYPE_PROJECT,
 				self.SAS_PEDIA_MOVIE_TYPE_RELIGION,
-				self.SAS_PEDIA_MOVIE_TYPE_ERA
+				self.SAS_PEDIA_MOVIE_TYPE_ERA,
+				self.SAS_PEDIA_MOVIE_TYPE_CORPORATION
 			)
 			self.SAS_cacheMoviesTuple = tuple(listEntries)
 		return self.SAS_cacheMoviesTuple
@@ -1539,6 +1562,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return gc.getReligionInfo(iMovieId)
 		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return gc.getEraInfo(iMovieId)
+		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			return gc.getCorporationInfo(iMovieId)
 		return None
 	
 	def getMusicInfo(self, iPacked):
@@ -1651,7 +1676,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					szTrackName = info.getSoundtrackScriptName(iTrack)
 				except:
 					szTrackName = u""
-				szLabel = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()) + u" - Track " + (u"%02d" % (iTrack + 1))
+				szLabel = u"Track " + (u"%02d" % (iTrack + 1))
 				if szTrackName:
 					szLabel = szLabel + u" - " + unicode(szTrackName)
 				return szLabel
@@ -1950,7 +1975,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 			# <advc.001> Widget help for leaders needs the civ ID in data2 (from Taurus)
 			elif (info == gc.getLeaderHeadInfo):
-				if data1 == -1:
+				# <!-- custom: detect headers/spacers from the original list marker (item[1] == -1), not from data1.
+				# In Builds, data1 is repurposed to tech prereq for WIDGET_HELP_IMPROVEMENT; removable builds use <PrereqTech>NONE</PrereqTech>,
+				# so data1 becomes -1 even though they are real entries. If we check data1 here, those entries are misclassified as headers,
+				# their button/icon is cleared, and they appear without icons in Sevopedia Builds; the index remains fine because it uses a different list path. See also KI#113. (GPT-5.3-Codex) -->
+				if item[1] == -1:
 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
 					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
 					szButtonPlaceItems = szCustomHeaderButtonPlaceItems
@@ -1969,7 +1998,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
 				# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages. Code added with the help of chatgpt 5.2 thanks -->
 				# (That is basically the DoC approach, adapted to your variable names.). After this, your item lists can safely contain (..., -1) headers and blank separators.
-				if data1 == -1:
+				if item[1] == -1:
 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], self.COLOR_HIGHLIGHT_TEXT)
 					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
 					szButtonPlaceItems = szCustomHeaderButtonPlaceItems
@@ -1980,7 +2009,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_selectableListIdx.append(idx)
 
 			screen.appendTableRow(self.ITEM_LIST_ID)
-			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + sTitlePlaceItems + u"</font>", szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.ITEM_LIST_ID, 0, i, SASTextScale.labelText(sTitlePlaceItems), szButtonPlaceItems, widgetPlaceItems, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
 			self.SAS_rowToListIdx[i] = idx
 			i += 1
 		#screen.updateListBox(self.ITEM_LIST_ID)
@@ -2244,6 +2273,23 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.X_PEDIA_PAGE = self.X_ITEMS + self.W_ITEMS + 18
 		self.R_PEDIA_PAGE = self.W_SCREEN - 20
 		self.W_PEDIA_PAGE = self.R_PEDIA_PAGE - self.X_PEDIA_PAGE
+
+	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
+		if self.getScreen().getXResolution() >= self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH:
+			return self.SAS_W_ITEMS_BASE
+
+		iLabelFont = getSASUIFontLabel()
+		if iLabelFont <= 1:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1
+		elif iLabelFont == 2:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2
+		elif iLabelFont == 3:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3
+		else:
+			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4
+		if iWidth <= 0:
+			return self.SAS_W_ITEMS_BASE
+		return iWidth
 
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount)

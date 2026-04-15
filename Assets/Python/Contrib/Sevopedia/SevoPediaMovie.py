@@ -10,6 +10,8 @@
 from CvPythonExtensions import *
 import CvUtil
 import SevoScreenEnums
+from SASFontUtils import *
+import SASTextScale
 
 from _sevopedia_helpers import *
 from SevoPediaMediaPlayer import SevoPediaMediaPlayer
@@ -97,7 +99,7 @@ class SevoPediaMovie:
 		szTitleText = ""
 		if info:
 			szTitleText = info.getDescription()
-		szTitle = u"<font=4b>" + szTitleText.upper() + u"</font>"
+		szTitle = SAS_FONT_TAG_TITLE_BOLD + szTitleText.upper() + SAS_FONT_TAG_CLOSE
 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if self.hasMovie(iMovieType, iMovieId):
@@ -119,7 +121,9 @@ class SevoPediaMovie:
 				szText = ""
 		if szText and szText.startswith("TXT_KEY_"):
 			szText = ""
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = SASTextScale.labelText(szText)
+		textName = self.top.getNextWidgetName()
+		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -410,6 +414,8 @@ class SevoPediaMovie:
 			return gc.getReligionInfo(iMovieId)
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return gc.getEraInfo(iMovieId)
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			return gc.getCorporationInfo(iMovieId)
 		return None
 
 
@@ -472,6 +478,22 @@ class SevoPediaMovie:
 				return None
 			return (szMovieFile, "dds", "AS2D_NEW_ERA")
 
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			szMovieFile = gc.getCorporationInfo(iMovieId).getMovieFile()
+			if (not szMovieFile) or (szMovieFile == "NONE"):
+				return None
+			szMovieKind = "movie"
+			if szMovieFile.find(".nif") > -1:
+				szMovieKind = "nif"
+			szSoundScript = ""
+			try:
+				szSoundScript = gc.getCorporationInfo(iMovieId).getMovieSound()
+			except:
+				szSoundScript = ""
+			if szSoundScript == "NONE":
+				szSoundScript = ""
+			return (szMovieFile, szMovieKind, szSoundScript)
+
 		return None
 
 
@@ -505,6 +527,16 @@ class SevoPediaMovie:
 			return (info is not None) and bool(info.getMovieFile())
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return bool(gc.getEraInfo(iMovieId).getButton())
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			info = gc.getCorporationInfo(iMovieId)
+			if info is None:
+				return False
+			szMovieFile = ""
+			try:
+				szMovieFile = info.getMovieFile()
+			except:
+				szMovieFile = ""
+			return bool(szMovieFile) and szMovieFile != "NONE"
 		return False
 
 
@@ -519,6 +551,8 @@ class SevoPediaMovie:
 		# <!-- custom: this successfully works: redirects to Sevopedia Eras Chart category, that has no item and only a chart (like Promotions Tree for example). Done with the very nice help of Claude code Sonnet 4.5 thanks a lot! -->
 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
 			return (WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iMovieId, 1)
 		return (WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 

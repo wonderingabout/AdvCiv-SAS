@@ -145,7 +145,13 @@ hopefully helpful, thanks thanks,
 [109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions)  
 [110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---advciv-sas-music-shuffle-cleanup-intermittent-python-startupmaininterface-errors-from-early-bug-path-calls-in-sevopedia-music-path-helper)  
 [111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#111---reverted-this-patch-sevopedia-index-unicodedecodeerror-in-buildsortfilter-unicodedecodeerror-ascii-codec-cant-decode-byte-0xc8-in-position-0)  
+[112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#112---seemingly-fixed-base-advciv-issue-of-missing-getprereqorpromotion3-in-sevopedia-promotion)  
 [113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia)  
+[114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked)  
+[115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab)  
+[116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)  
+[117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)  
+[118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3092,7 +3098,7 @@ This is another very nice feature that was missing in base advciv 1.12 and very 
 
 I had noted the issue as example 145 in base advciv 1.12 issues i had listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814).
 
-Now added with the very nice help of gemini 3 pro and claude sonnet 4.5 and my own help too i mean if i may say as well, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), with as of now a star icon for players who want to become vassal to us, and as of now a strength icon if they are our vassal.
+Now added with the very nice help of gemini 3 pro and claude sonnet 4.5, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), with as of now a star icon for players who want to become vassal to us, and as of now a strength icon if they are our vassal.
 
 Update: now also added a tooltip (on hover), in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) with gemini 3 pro's help as well thanks.
 
@@ -4358,6 +4364,16 @@ Update 2: findings so far:
 
 In short, takeaway seems to pay special attention to capitalization and making sure path or names are correct or such.
 
+## 112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion
+
+While doing the ui font upscaling, GPT-5.3-Codex noticed and fixed the base advciv issue of missing `gc.getPromotionInfo(j).getPrereqOrPromotion3` prereq check in sevopedia promotion, despite it being present in other parts of our code and seemingly being an extra K-Mod extra prereq.
+
+```py
+# <!-- custom: include PrereqOrPromotion3 (K-Mod extra OR prereq) so Leads To lists all promotions that depend on this one; otherwise some valid upgrades are missing from this panel. (GPT-5.3-Codex) -->
+```
+
+Not tested to see if it fixes a specific missing prereq, but as it seems to cause no issue, kept as such.
+
 ## 113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1C8Fh29p8kXsDhiipZJ34zQtJMQKqxXmY?usp=sharing).
@@ -4391,3 +4407,127 @@ Result:
 
 - Hover text and click usefulness are both kept across all Build-entry paths that now use this hybrid approach.
 - User flow is now consistent across Tech Advisor and Sevopedia build entries.
+
+Update:
+
+- After the KI#113 refactor, a regression appeared in Sevopedia Builds list: removable builds (e.g. Remove Jungle, Chop Down a Forest, Scrub Fallout) could lose their icon/button in the left list, while route builds still looked fine (Sevopedia Index stayed unaffected).
+- Root cause: in `SevoPediaMain.placeItems`, header detection used `data1 == -1`, but for Builds `data1` is repurposed to build tech prereq for `WIDGET_HELP_IMPROVEMENT`; removable builds often have `<PrereqTech>NONE</PrereqTech>`, so they were falsely treated as headers.
+- Fix: detect real headers/spacers using the original list marker `item[1] == -1` (not mutated `data1`), which restores those Build icons/buttons in Sevopedia Builds.
+
+## 114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Z4BmwuUuJgh2YsABubqZFmbNLhyBn6uV?usp=sharing).
+
+Observed issue:
+
+- After loading a save, Technology Advisor could show `Constitution` without `(1)` (only queue-style text).
+- Clicking `Later Abrahamism (4)`, then clicking back `Constitution (1)`, made the timer appear.
+- Reloading the save reproduced the issue again.
+
+Fix:
+
+- Update first draw path (`placeTechs`) to append turns-left like refresh path (`updateTechRecords`) so timer is present immediately after load.
+- Keep first-draw and refresh text rendering consistent (same anchoring behavior).
+
+Changed file:
+
+- [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py)
+
+## 115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Op8y2q_cNPvHC3Gs87JlHtB7CTPsDUdK?usp=sharing).
+
+Observed issue:
+
+- In the Victory Advisor Resolutions tab, the `(Requires X of Y Total Votes)` line could show odd leading spacing.
+- We did not test this directly in base AdvCiv, hence the "Likely Base AdvCiv issue" wording.
+
+Why:
+
+- `TXT_KEY_POPUP_ELECTION_OPTION` is built for a longer format with a first placeholder (`%s1_VoteName`). Passing an empty first value in this context leaves unwanted spacing.
+
+Fix:
+
+- Added a dedicated key without the first placeholder: `TXT_KEY_SAS_VOTE_REQ_ONLY`.
+- Updated `CvVictoryScreen.py` to use that key directly for the Resolutions "requires votes" line.
+
+Note: although this is fixed, the Members tab also has an extra spacing at the start of lines that start with a star chars but as of now left as such since i couldn't easily find how to fix it.
+
+## 116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1T8D-mgc9ZrNnXa33ywEepGjjLQRCi1ab?usp=sharing).
+
+Observed issue:
+
+- In Foreign Diplomacy Advisor (F3), Glance tab cells could clip the final status icon when `SAS_UI_FONT_LABEL > 2`.
+- Typical failing case was double-digit attitude text with icon suffix, e.g., `+11` or single-digit attitudes (e.g., `-8`) when there are 2 trailing status icons (e.g., WE icon + war/peace/war-trade icon).
+- Visual width looked sufficient, but the last icon glyph was still trimmed by Civ4 text rendering.
+
+Workaround used (kept intentionally minimal):
+
+- In `CvForeignAdvisor.py` Glance rendering, keep normal upscaled label-font rendering by default.
+- Only when a row has at least 2 trailing status icons, render that icon suffix at fixed `<font=2>`; single-icon tails render fine, so no workaround is needed there.
+- Keep the numeric/head part at the current upscaled label font.
+
+This is a targeted workaround rather than a full Glance layout rewrite.
+
+## 117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tTPS4NWkAe5sJ5xqD9Z3aqlLCV8-W9w0?usp=sharing).
+
+Observed issue:
+
+- In Info Screen (F9) Score tab, the `Att` attitude icon char disappeared when text was upscaled (`SAS_UI_FONT_LABEL` 3 or 4).
+- The same icon chars appeared at smaller font paths (`SAS_UI_FONT_LABEL` 2 or lower).
+
+Root cause:
+
+- The attitude smileys used by `AttitudeUtil.getAttitudeIcon()` are custom BUG symbols (`furious`, `annoyed`, `cautious`, `pleased`, `friendly`) mapped through `Assets/Config/init.xml`.
+- `GameFont_75.tga` had these attitude icon chars (16x16), but `GameFont.tga` did not have them at all (and so not in matching slots).
+- Upscaled label rendering uses the `GameFont.tga` path, so the engine resolved valid ordinals to empty/magenta slots and drew nothing.
+
+Fix applied:
+
+- Added attitude icon chars into `GameFont.tga` too, using higher-quality source icons (21x20, from RI mod) while keeping textual icon-char rendering in Score tab as it was.
+- Done with the help of Game Font Editor (V0.6) by Asaf.
+- Result: attitude icon chars are now visible at upscaled label fonts (3 and 4), while still working at lower label fonts.
+
+Note: these higher quality icons are as of now also used for the sevopedia leader attitude button icons (as DDS icons, not textual chars though), that used previously the 16x16 lower quality icons of base civ4 and that looked pixelated at higher dds icon; now the higher-quality version looks better at higher icon size.
+
+To add them as dds, we used Game Font Editor (V0.6) for Civ 4 by Asaf (select icon -> export -> .PNG), reduced dds to 20x20 (with Paint.NET canvas resize of these .PNG) (else they don't not display ingame), and then converted to .dds with Paint.NET.
+
+## 118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BR6F43geOVySyuZfCDc1l6jMr_-yPASp?usp=sharing).
+
+Observed issue:
+
+- After switching Military Advisor unit-list icons to inline `<img=...>` (for scroll-safe alignment), the Hajjan's unit icon renders magenta/purple even though other units' icons render fine (and the Hajjan unit icon renders fine in Sevopedia too).
+- Example fixed in this issue: Hajjan unit icon in Military Advisor.
+
+Root cause:
+
+- Inline `<img>` parsing is stricter than icon-slot rendering used by older UI paths.
+- Button paths containing spaces/parentheses (or atlas-style button strings) are more likely to fail in this inline path and produce magenta.
+
+Fix/workaround applied:
+
+- Renamed the problematic Hajjan button asset/path from `Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds` to `Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia.dds`, and updated XML accordingly.
+
+Audit notes (folder scan):
+
+- We scanned `Assets/Art/AdvCiv_SAS` for `.dds` filenames containing spaces/parentheses.
+- Found examples:
+  - `Buildings/Celtic_La_Tene_Smithy/nif/building attachments.dds`
+  - `Buildings/Celtic_La_Tene_Smithy/nif/building n shared03 2 map.dds`
+  - `Buildings/Celtic_La_Tene_Smithy/nif/building n shared04 2 map.dds`
+  - `Buildings/Natya_Shastra/indian sreni.dds`
+  - `Units/Mongol_Khishigten/nif/Mongol HeavyCavalry Body.dds`
+  - `Units/Robotic_Infantry/nif/t600_skin_red eye.dds`
+
+Safety rule used:
+
+- We only rename button assets not tied to NIF texture references by default (cheap/safe).
+- We avoid renaming files under `.../nif/...` unless all NIF references are also updated and validated, to avoid breaking models.
+
+So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`.

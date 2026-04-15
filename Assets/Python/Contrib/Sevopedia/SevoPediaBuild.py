@@ -10,6 +10,8 @@
 
 from CvPythonExtensions import *
 import CvUtil
+from SASFontUtils import *
+import SASTextScale
 from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
@@ -121,8 +123,8 @@ class SevoPediaBuild:
 		panel = self.top.getNextWidgetName()
 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panel, False)
-		screen.appendListBoxString(panel, u"<font=4b>" + buildInfo.getDescription() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.appendListBoxString(panel, localText.getText("TXT_KEY_PEDIA_BUILD", ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, SASTextScale.titleText(buildInfo.getDescription()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(panel, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_BUILD", ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeRequires(self):
@@ -144,7 +146,7 @@ class SevoPediaBuild:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
-			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeImprovements(self):
@@ -180,7 +182,7 @@ class SevoPediaBuild:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
-			screen.addMultilineText(textName, szText, self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeFeatureProduction(self):
@@ -195,7 +197,7 @@ class SevoPediaBuild:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
-			screen.addMultilineText(textName, szText, self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			return
 
 		for iTech, unused_iModifier in techModifiers:
@@ -227,7 +229,7 @@ class SevoPediaBuild:
 			textName = self.top.getNextWidgetName()
 			szText = localText.getText(txtKeyNone, ())
 			yPanelCenter = self.Y_UNITS_BUILD + (self.H_UNITS_BUILD / 2)
-			screen.addMultilineText(textName, szText, self.X_UNITS_BUILD + 7, yPanelCenter, self.W_UNITS_BUILD - 14, self.H_UNITS_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_UNITS_BUILD + 7, yPanelCenter, self.W_UNITS_BUILD - 14, self.H_UNITS_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeFeatureStructs(self):
@@ -283,7 +285,7 @@ class SevoPediaBuild:
 			textH = (panelY + buttonTopRel) - textTop - 6
 			if textH < 20:
 				textH = 20
-			screen.addMultilineText(textName, text, panelX + textMarginX, textTop, panelW - (textMarginX * 2), textH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(textName, SASTextScale.labelText(text), panelX + textMarginX, textTop, panelW - (textMarginX * 2), textH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			buttons = []
 			if featureTech > -1:
@@ -340,7 +342,7 @@ class SevoPediaBuild:
 			szSpecialText += u"%s%s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_KILL_WORKER", ()))
 
 		listName = self.top.getNextWidgetName()
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def placeHistory(self):
@@ -352,8 +354,9 @@ class SevoPediaBuild:
 		screen.addPanel(panel, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 
 		szHistory = info.getCivilopedia()
-		screen.addMultilineText(text, szHistory, self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(text, SASTextScale.labelText(szHistory), self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def handleInput(self, inputClass):
 		return 0
+

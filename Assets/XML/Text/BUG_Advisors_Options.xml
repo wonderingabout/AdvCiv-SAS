@@ -24,7 +24,7 @@
 		<Spanish>Permite emplear el consejero financiero incluído en BUG (requiere reiniciar).</Spanish>
 	</TEXT>
 
-<!-- Exotic Foreign Advisor -->
+<!-- Foreign Advisor -->
 
 	<!-- advc.004: The tab is called "Einblick" in German (though "Überblick"
 		 would perhaps indeed be a better name) -->
@@ -37,16 +37,6 @@
 		<Spanish>Pestaña Mirar</Spanish>
 	</TEXT>
 	
-	<!-- advc.004: Note about patch history added; German rewritten. -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER</Tag>
-		<English>Shows the "Glance" tab (relations matrix) on the Foreign Advisor screen. (This tab had been briefly disabled for aesthetic reasons
-		by a BtS patch.)</English>
-		<French>En activant, montre la page 'Coup d'Oeuil' sur la page de l'Adviseur Etranger Exotique.</French>
-		<German>Zeigt auf dem Auslandsberater-Bildschirm den Reiter "Einblick" an, der die internationalen Beziehungen in einer Matrix darstellt.</German>
-		<Italian>Quando è selezionato, visualizza la tabella "Occhiata" nella schermata del Consigliere Estero (utilizzando l'Exotic Foreign Advisor Mod).</Italian>
-		<Spanish>Activa la pestaña 'Mirar' en el consejero de asuntos exteriores.</Spanish>
-	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #238 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_LIST</Tag>

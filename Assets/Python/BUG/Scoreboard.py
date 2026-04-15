@@ -23,6 +23,8 @@ import re
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
+import SASTextScale
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
 # Globals
 ScoreOpt = BugCore.game.Scores
@@ -150,10 +152,11 @@ def init():
 	ANARCHY_ICON = smallSymbol(FontSymbols.BAD_GOLD_CHAR) # </advc.085>
 
 def smallText(text):
-	return u"<font=2>%s</font>" % text
+	return SASTextScale.labelText(u"%s" % text)
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
+
 
 def onDealCanceled(argsList):
 	# Sets the scoreboard dirty bit so it will redraw.
@@ -447,7 +450,7 @@ class Scoreboard:
 
 	
 		
-	def draw(self, screen):
+	def draw(self, screen, iScrollOffset=0, iMaxRows=None):
 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
 		#
 		timer = BugUtil.Timer("scores")
@@ -455,6 +458,10 @@ class Scoreboard:
 		self.assignRanks()
 		self.gatherVassals()
 		self.sort()
+		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. (Claude code Sonnet 4.6) -->
+		if iMaxRows is not None:
+			iScrollOffset = max(0, min(iScrollOffset, max(0, len(self._playerScores) - iMaxRows)))
+			self._playerScores = self._playerScores[iScrollOffset : iScrollOffset + iMaxRows]
 		# <advc.092> "Default" choices added
 		bScaleHUD = BugCore.game.MainInterface.isEnlargeHUD()
 		if ScoreOpt.isRowHeightDefault():
@@ -540,6 +547,7 @@ class Scoreboard:
 			elif (type == FIXED):
 				width = column.width
 				value = column.text
+				displayValue = SASTextScale.labelText(value)
 				x -= spacing
 				for p, playerScore in enumerate(self._playerScores):
 					# advc.085: Moved up, insert player ID (not _playerScores index)
@@ -556,7 +564,7 @@ class Scoreboard:
 								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 							else: # </advc.085>
 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
-						screen.setText(name, "Background", value,
+						screen.setText(name, "Background", displayValue,
 								CvUtil.FONT_RIGHT_JUSTIFY,
 								# advc.002b: text offset
 								x, y - p * height + iYTextOffset, Z_DEPTH,
@@ -585,7 +593,7 @@ class Scoreboard:
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
-						newWidth = CyInterface().determineWidth( value )
+						newWidth = CyInterface().determineWidth(SASTextScale.labelText(value))
 						if (newWidth > width):
 							width = newWidth
 				if (width == 0):
@@ -602,6 +610,7 @@ class Scoreboard:
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
+						displayValue = SASTextScale.labelText(value)
 						align = CvUtil.FONT_RIGHT_JUSTIFY
 						adjustX = 0
 						if (c == NAME):
@@ -623,7 +632,7 @@ class Scoreboard:
 								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 							else: # </advc.085>
 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
-						screen.setText(name, "Background", value,
+						screen.setText(name, "Background", displayValue,
 								align,
 								# advc.002b: text offset
 								x - adjustX, y - p * height + iYTextOffset, Z_DEPTH, 
@@ -798,3 +807,4 @@ class PlayerScore:
 		
 	def widget(self, part):
 		return self._widgets[part]
+

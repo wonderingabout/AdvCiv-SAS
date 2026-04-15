@@ -8,13 +8,17 @@ from CvPythonExtensions import *
 
 import CvUtil
 import re
+from SASFontUtils import *
+import SASTextScale
+from SASUtils import getNewConceptID
 
 
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
+IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 
 
 
@@ -299,6 +303,29 @@ def get_concept_id(concept_type):
 
 
 
+def place_new_concept_legend_link(top, new_concept_type):
+	if not IS_SAS_SHOW_LEGEND_LINK:
+		return
+	iConcept = getNewConceptID(new_concept_type)
+	if iConcept < 0:
+		return
+	screen = top.getScreen()
+	szLabel = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
+	screen.setText(
+		top.getNextWidgetName(),
+		"Background",
+		szLabel,
+		CvUtil.FONT_LEFT_JUSTIFY,
+		top.X_TOC,
+		top.Y_BOT_PANEL + 16,
+		0,
+		FontTypes.TITLE_FONT,
+		WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+		CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
+		iConcept
+	)
+
+
 def get_concept_widgetType_widgetID1_widgetID2(conceptID, widgetTypes, civilopediaPageTypes):
 	if conceptID != -1:
 		# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
@@ -337,10 +364,36 @@ def get_numTxt_combat_type_modifiers(iModCombat):
 
 
 
+def get_numTxt_promotion_tier_compact(prefix, bHasTier1, bHasTier2, bHasTier3):
+	tierIds = []
+	if bHasTier1:
+		tierIds.append(1)
+	if bHasTier2:
+		tierIds.append(2)
+	if bHasTier3:
+		tierIds.append(3)
+	if len(tierIds) == 0:
+		return ""
+	if len(tierIds) == 1:
+		return "%s%d" % (prefix, tierIds[0])
+
+	iMin = min(tierIds)
+	iMax = max(tierIds)
+	bContiguous = (len(tierIds) == (iMax - iMin + 1))
+	if bContiguous:
+		return "%s%d-%d" % (prefix, iMin, iMax)
+
+	szText = "%s%d" % (prefix, tierIds[0])
+	for iTier in tierIds[1:]:
+		szText += "+%d" % iTier
+	return szText
+
+
+
 def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
 	# <!-- custom: note: for freebonus, done according to kujira's website, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of sevopedia building py file if needed: based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this -->
 	if iNumFreeBonuses == -1:
-		return "RM"
+		return "FBBR"
 	elif iNumFreeBonuses >= 1:
 		return "%d" % (iNumFreeBonuses)
 	else:
@@ -349,6 +402,14 @@ def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
 
 
 def get_extra_correction_x(numTxt):
+	# <!-- custom: shorter custom abbreviations (InC, ACs, AUC, AC N+R, etc.) looked slightly left after shortening, so nudge them right without changing generic modifier labels. (GPT-5.3-Codex) -->
+	if numTxt in ("InC", "ACs", "AUC"):
+		return -3
+	if numTxt in ("(!)Cvc", "FBBR"):
+		return -2
+	if numTxt.startswith("AC ") and numTxt.endswith("+R"):
+		return -4
+
 	if len(numTxt) <= 3:
 		# <!-- custom: example "_/_", "1", etc -->
 		return -6
@@ -393,6 +454,9 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 
 	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
 	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING) + MULTILIST_NUMTXT_GLOBAL_X_ADJUST
+	iLabelFont = getSASUIFontLabel()
+	if iLabelFont > 2:
+		textX += (-3 * (iLabelFont - 2))
 
 	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful or not or yes or etc to do so -->
 	extraCorrectionY = -9
@@ -401,13 +465,14 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	textW = 2 * button_size
 	textH = 30
 
-	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
+	szNumTxt = SAS_FONT_TAG_LABEL + numTxt + SAS_FONT_TAG_CLOSE
+	screen.addMultilineText(textName, szNumTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
 
 
 
 def chart_font2(szText):
-	# Wrap text in <font=2> tags for chart table cells.
-	return u"<font=2>%s</font>" % unicode(szText)  # noqa: F821
+	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
+	return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE  # noqa: F821
 
 
 
@@ -507,17 +572,22 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 
 
 def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
-	if not IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE:
+	if not IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE:
 		return ""
 
-	chart_log_button_w = 48
-	chart_log_button_h = 28
+	# <!-- custom: mirror Timeline LOG sizing: keep compact default, slightly enlarge only when label font is upscaled (4) so "LOG" remains readable. (GPT-5.3-Codex) -->
+	if getSASUIFontLabel() > 3:
+		chart_log_button_w = 66
+		chart_log_button_h = 32
+	else:
+		chart_log_button_w = 48
+		chart_log_button_h = 28
 	chart_log_button_margin_x = 10
 	chart_log_button_margin_y = 8
 	chart_log_button_footer_bottom_padding = 9
 
 	widget = top.getNextWidgetName()
-	label = u"<font=2>" + localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ()).upper() + u"</font>"
+	label = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ()).upper() + SAS_FONT_TAG_CLOSE
 	if xPos is None:
 		if hasattr(top, "X_EXIT"):
 			xPos = top.X_EXIT - chart_log_button_w - 90
@@ -643,7 +713,7 @@ def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH
 	szText = localText.getText(txtKey, ())
 	yPanelCenter = panelY + (panelH / 2)
 	screen.addMultilineText(
-		textName, szText,
+		textName, SASTextScale.labelText(szText),
 		panelX + 7, yPanelCenter,
 		panelW - 14, panelH - 20,
 		WidgetTypes.WIDGET_GENERAL, -1, -1,

@@ -105,6 +105,7 @@ import BugUtil
 import InputUtil
 import types
 import SASDefineGuard
+import SASBillboardScale
 # <advc.007b>
 import CvUtil
 import CvScreensInterface
@@ -660,6 +661,9 @@ def configure(logging=None, noLogEvents=None):
 	g_eventManager.addEventHandler("GameStart", g_eventManager.resetActiveTurn)
 	g_eventManager.addEventHandler("gameUpdate", g_eventManager.onGameUpdate)
 	# --
+
+	# <!-- custom: scale city billboard based on SAS font body level (Claude code Opus 4.6) -->
+	SASBillboardScale.apply()
 
 def hookupPreGameStartEvent():
 	BugUtil.extend(preGameStart, "CvAppInterface", "preGameStart")

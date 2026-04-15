@@ -98,6 +98,7 @@
 		<!-- advc.002b: Was (700, 1.5), (2500, 1.0), (6000, 0.67).
 			 Some 10% bigger for the medium distances to accommodate large
 			 displays better. More enlargement close up. -->
+		<!-- custom: See also Assets/Python/SASBillboardScale.py for define-driven CITYBILLBOARD_SCALE profile application on load. (GPT-5.3-Codex) -->
 		<Key>500,    1.72</Key>
 		<Key>2500,   1.18</Key>
 		<Key>3800,   1.06</Key>

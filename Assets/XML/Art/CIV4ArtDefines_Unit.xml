@@ -1876,9 +1876,10 @@
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: removed spaces/parentheses from the button filename because inline <img=...> UI paths (e.g., Military Advisor list rows) renders magenta with such paths; see KI#118. (GPT-5.3-Codex) -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ARABIA_HAJJAN</Type>
-			<Button>Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds</Button>
+			<Button>Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia.dds</Button>
 			<!-- advc.002j: was 0.39 -->
 			<fScale>0.38</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>

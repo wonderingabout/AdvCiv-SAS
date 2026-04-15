@@ -232,7 +232,7 @@ Author: wonderingabout <hidden>
 Date:   2026-02-23 11:08:18 +0100
 
 Add new Score Tab (Info Screen), Add legend text and sevopedia concept pages/items
-- Added in the **Info Screen** (F9 key) a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+- Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
 - Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the AI Personality Panel). See also: [README.md (Legends)](/README.md#legends).
 
 commit 8827c3e2d96e7a7fc6944cae2e746326a40ac350
@@ -966,7 +966,7 @@ Author: wonderingabout <hidden>
 Date:   2026-01-25 05:51:04 +0100
 
 Add new History Tab in the Info Screen; update 48 civs DLL
-- Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors).
+- Additionally, added in the **Info Screen** a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors).
 
 commit 5102770120052fdc9fdb9280d988cf0caecc26d6
 Author: wonderingabout <hidden>
@@ -1437,8 +1437,8 @@ commit 2f0b12f754908f7956136776ceb97dda93625b36
 Author: wonderingabout <hidden>
 Date:   2026-01-10 18:16:23 +0100
 
-Invert BUG Options for the Technology Advisor and the Religious Advisor so they are more accessible
-- **Inverted BUG Options** for the **Technology Advisor** and the **Religious Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+Invert BUG Options for the Technology Advisor and the Religion Advisor so they are more accessible
+- **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
 
 commit 21f67530d536c6d93b42cf1223237b34e1ca7d0a
 Author: wonderingabout <hidden>
@@ -1947,7 +1947,7 @@ commit cd1292fe3f8033d3442c7fd1d838b67070a44277
 Author: wonderingabout <hidden>
 Date:   2025-12-27 13:06:54 +0100
 
-refactor, upscale, and beautify the info screen (F9 key) + other changes
+refactor, upscale, and beautify the info screen + other changes
 - rename "USAmerican" to "US American".
 - rename "the people of Benin" (adjective) to "Edo": "After asking gemini 3 pro, it recommended "Edo" (as in "Edo people") and also suggested "Bini" (as in "Bini workers"). As it advised, i also thought independently beforehand that Beninese should be avoided since the modern Benin is not to be confused with the old Kingdom of Benin.". The old name was too long and not a real adjective to begin with anyway.
 
@@ -2732,7 +2732,7 @@ Author: wonderingabout <hidden>
 Date:   2025-12-10 21:36:59 +0100
 
 Beautified the Domestic Advisor: now shows in Producing column the button of the current item being built
-**Beautified** the **Domestic Advisor** (F1 key): now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
+**Beautified** the **Domestic Advisor**: now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
 
 commit 8cf11089499e0152e4b4664042e879a9262be019
 Author: wonderingabout <hidden>
@@ -3318,7 +3318,7 @@ Author: wonderingabout <hidden>
 Date:   2025-11-11 13:47:35 +0100
 
 Adjust the civics' order in xml so that their display order ingame in the civics advisor matches tech tree pace
-- Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Vassalage is after Caste System not before, Pacifism is before Organized Religion not after, Environmentalism is before State Property not after).
+- Adjust the civics' order in xml so that their display order ingame in the civics advisor matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Vassalage is after Caste System not before, Pacifism is before Organized Religion not after, Environmentalism is before State Property not after).
 
 commit a85a49b1afd3301bfcfc450cbe5bbe06805ab5f3
 Author: wonderingabout <hidden>
@@ -5492,7 +5492,7 @@ finished modifying global defines and such for advciv-sas (mostly at least), upd
 - add info about the seemingly base advciv +/- civ4 bug of a barbarian city being stuck producing a 1 hammer barbarian workboat for few dozen turns several times in same autoplay, see known README_Known_Issues_In_Base_AdvCiv_Civ4.md at issue number 23 as of now at least is this number
 - other minor or not related or changes
 
-note: this is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which, i started this habit somewhere in this advciv-sas mod development i mean but is very helpful, so adding mention fo it if helps
+note: this is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which, i started this habit somewhere in this advciv-sas mod development i mean but is very helpful, so adding mention of it if helps
 
 commit a9d6994c3ae34e965a75fea4664a975171b52a70
 Author: wonderingabout <hidden>
@@ -6250,7 +6250,7 @@ rework bonuses heavily (buff water ressources and make them less rare, nerf land
 - increase the appearence frequency of water animal bonuses, using a lower value (but not 0 as it disables it according to kujira's website (translated website using google chrome (for example is what i used, see docs for details) page translate to english) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper) for iTilesPer, for example for molluscs lowering it from 32 to 16 (lower value is less pronounced in less general ressources like crabs for example, see XML in (adjust to where your mod path is) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Terrain\CIV4BonusInfos.xml for details), reducing iPlayer to 0 if need be to make it player-independent too and flat, always constant spanwing.
 - this is also more generally to buff water tiles and to incentivize and reward more coastal/naval city planting/founding, that is currently too weak as compared to land founding, and too often ignored, without making it op either else would be the same problem reversed xd if i may say...
 - rework BONUS_WHALE: new pedia real wikipedia based entry, fixing inaccuracy or rather uncompleteness, sooner tech time, reworked stats, see xml for details
-- rename _CLAM to the more general _MOLLUSCS according to/using as base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/, since fish is so general for any type fo fish, use the more general mollusc is probably fine as well and less confusing then clam vs crab for example similar naming
+- rename _CLAM to the more general _MOLLUSCS according to/using as base https://oceanconservancy.org/blog/2021/03/19/clams-mussels-oysters/, since fish is so general for any type of fish, use the more general mollusc is probably fine as well and less confusing then clam vs crab for example similar naming
 - buff water ressources since they are few and to make coastal cities stronger too
 - increase base yield of crab(s?), molluscs, and rework base yield of whale to match a food like formula and be more balanced like fish is, and to give water tiles more incentive too.
 - clarify the old "improvement bonus tile yields" type of messages we added, by repalcing "bonus" with "yield change" as yield could be negative (for example in base advciv (civ4 too?) gold gives extra yield change -1/+6). Then also reworking these messages hopefully simplifying them by splitting them or rather renaming them to in Sevopedia improvement "Base Tile Yield Change(s)" (we know we are in Sevopedia improvement already (for example of the mine improvement) so saying improvement again is needless and perhaps even confusing, but keep adding the "base" idea; and then also still in Sevopedia improvement (for example of the mine still) "On Bonus(es)/Ressource(s) Extra Tile Yield Change(s)" (remove the word improvement as needless as well and perhaps even confusing); finally in Sevopedia bonus rename "Improvements Bonus Tile Yields" to "Total (Base + extra) Improvements Tile Yield Change(s)" now adding the word improvement as it is relevant i think since we are in Sevopedia bonus not Sevopedia improvement anymore, plus mention the idea of "Total (base + extra)" to link it to how it is calculated from Sevopedia improvement's stats). Finally as well, also rename the natural yield part in Sevopedia bonus to "Natural Tile Yield Change(s)" to match these.
@@ -9737,7 +9737,7 @@ rename "Reveals" to "Revealed By" in the Sevopedia Ressources category, and all 
 keeping the old TXT KEY "Reveals" for the civilopedia as it may fit
 better there (i think).
 Got the idea from a suggestion made to me to separate Sevopedia
-and civilopedia TXT KEY, which i was not aware fo to even consider,
+and civilopedia TXT KEY, which i was not aware of to even consider,
 i mean anwyys and am thnakful for, may not necessarily change all
 soon, but about this, but if i remember maybe i would,
 but would also need to want wish, as i don't maintain or care sadly

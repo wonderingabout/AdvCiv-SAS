@@ -44,6 +44,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 12: promotions category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-12-promotions-category)  
 &emsp;[example 13: civics category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-13-civics-category)  
 &emsp;[example 14: projects category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-14-projects-category)  
+&emsp;[example 15: corporations category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-corporations-category)  
 
 ## Some Lower Level Changes or new features
 
@@ -137,7 +138,7 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
 
 Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
 
-Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors) we added in AdvCiv-SAS.
+Note: it mirrors the log button we added in the Info screen's [new Timeline Tab](/README.md#new-advisors) we added in AdvCiv-SAS.
 
 #### example 0.5: Handicap Chart category
 
@@ -153,7 +154,7 @@ Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs anymore.
 
 <img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (2).JPG" alt="0.625_sevopedia_handicaps_chart (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.6252_sevopedia_handicaps_chart_DLL_getters.JPG" alt="0.6252_sevopedia_handicaps_chart_DLL_getters.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.6252_sevopedia_handicaps_chart_getters.JPG" alt="0.6252_sevopedia_handicaps_chart_getters.JPG" width="250"></img>
 
 ### example 0.6: Game Speed Chart category
 
@@ -216,9 +217,11 @@ So the common media playing logic to Sevopedia Movies and Music is in [SevoPedia
 
 ### example 0.91: Movies category (with audio support)
 
-Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
+Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras, Corporations) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
 
-Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
+Emoji-based Play button is added to corresponding Sevopedia page like Sevopedia Building or such.
+
+Note: Corporations show "None" because as of now no `MovieFile` nor `MovieSound` are set for them.
 
 <img src="../Images/sevopedia/0.820_sevopedia_movies (1).JPG" alt="0.820_sevopedia_movies (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.820_sevopedia_movies (2).JPG" alt="0.820_sevopedia_movies (2).JPG" width="250"></img>
@@ -278,6 +281,8 @@ More recently, we also added linking from the traits panel's textual description
 More recently, added optional grouping by civilization with a civilization icon, with the help of GPT-5.3-Codex thanks.
 
 More recently, added leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
+
+Since then, increased ai personality panel default font size from body (default 2) to label (default 3), and made item bar shorter with a per font size tunable value to accomodate the AI Personality panel larger rows.
 
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
@@ -386,11 +391,11 @@ Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Maize, Pasture -
 
 ### example 5: religion category
 
-new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or adjustments or not, as well as civ4 BUG_Doc, see code comments in Sevopediareligion.py for details.
+new Favorites (Leaders) (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or adjustments or not, as well as civ4 BUG_Doc, see code comments in Sevopediareligion.py for details.
 
-Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it.
+Also note that all Favorites (Leaders) now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it.
 
-Since then, we also added the Leader count pattern in Sevopedia Traits in the Leaders' panel's header (example "Leader 12/53 (22%)").
+Since then, we also added the Leader count pattern in Sevopedia Traits in the Favorites (Leaders)' panel's header (example "Leader 12/53 (22%)").
 
 <img src="../Images/sevopedia/0.660_sevopedia_religions.JPG" alt="0.660_sevopedia_religions.JPG" width="250"></img>
 
@@ -447,7 +452,7 @@ In particular, added hoverable great person image links in as of now `placeStats
 <img src="../Images/sevopedia/0.690_sevopedia_buildings (1).JPG" alt="0.690_sevopedia_buildings (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.690_sevopedia_buildings (2).JPG" alt="0.690_sevopedia_buildings (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.690_sevopedia_buildings (3).JPG" alt="0.690_sevopedia_buildings (3).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" alt="0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" width="250"></img>
+<img src="../Images/sevopedia/0.691_sevopedia_buildings_hover_click_GP.JPG" alt="0.691_sevopedia_buildings_hover_click_GP.JPG" width="250"></img>
 
 ### example 9: terrains category
 
@@ -505,15 +510,15 @@ Output is really nice and nicely informative too, examples below:
 
 ### example 13: civics category
 
-This is another very nice rework :) I should have thought of it sooner xd, but it is the quite natural expansion of the placeLeaders panel in Sevopedia religion (not that i believe (anymore) in them).
+This is another very nice rework :) I should have thought of it sooner xd, but it is the quite natural expansion of the placeFavorites (Leaders) panel in Sevopedia religion (not that i believe (anymore) in them).
 
 It allowed to polish a bit the Sevopedia religion that also had a placeSpecial panel that i could beautify a bit as well (upper spacing).
 
 Code provided by/with the help of claude ai too thanks if i may say (and thanks to me too maybe as well if i may say too).
 
-More recently, added the `iCivicPercentAnger` info in Sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really.
+More recently, added the `iCivicPercentAnger` info in Sevopedia and Policy Advisor with the help of chatgpt 5 thanks a lot i mean really.
 
-Since then, we also added the Leader count pattern in Sevopedia Traits in the Leaders' panel's header (example "Leader 12/53 (22%)").
+Since then, we also added the Leader count pattern in Sevopedia Traits in the Favorites (Leaders)' panel's header (example "Leader 12/53 (22%)").
 
 Examples of output below.:
 
@@ -529,3 +534,12 @@ As for the grouping, since this is a nice functionnal change, i wanted to show i
 
 <img src="../Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.750_sevopedia_projects (2).JPG" alt="0.750_sevopedia_projects (2).JPG" width="250"></img>
+
+### example 15: corporations category
+
+As part of the Sevopedia upscaling pass, we also reworked and beautified the Sevopedia Corporations page, and notably added new Bonuses Consumed, Bonuses Generated, Competes With, and Movie panels (that we had previously overlooked and were missing) with the very nice help of GPT-5.3-Codex thanks a lot.
+
+For the Bonuses Generated panel in particular, we exposed to Python in the DLL `getBonusProduced` (files changed: [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp)).
+
+<img src="../Images/sevopedia/0.770_sevopedia_corporations (1).JPG" alt="0.770_sevopedia_corporations (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>

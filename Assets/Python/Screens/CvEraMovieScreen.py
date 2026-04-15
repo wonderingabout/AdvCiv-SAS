@@ -1,10 +1,15 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 from CvPythonExtensions import *
 import PyHelpers
 import CvUtil
 import ScreenInput
 import CvScreenEnums
+import SASTextScale
 
 PyPlayer = PyHelpers.PyPlayer
 PyInfo = PyHelpers.PyInfo
@@ -45,11 +50,11 @@ class CvEraMovieScreen:
 		screen.showScreen(PopupStates.POPUPSTATE_MINIMIZED, False)
 
 		# Header...
-		szHeader = localText.getText("TXT_KEY_ERA_SPLASH_SCREEN", (gc.getEraInfo(iEra).getTextKey(), ))
+		szHeader = SASTextScale.titleText(localText.getText("TXT_KEY_ERA_SPLASH_SCREEN", (gc.getEraInfo(iEra).getTextKey(), )))
 		szHeaderId = "EraTitleHeader" + str(iEra)
 		screen.setText(szHeaderId, "Background", szHeader, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCREEN / 2, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		screen.setButtonGFC("EraExit" + str(iEra), localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+		screen.setButtonGFC("EraExit" + str(iEra), SASTextScale.titleText(localText.getText("TXT_KEY_MAIN_MENU_OK", ())), "", self.X_EXIT, self.Y_EXIT, self.W_EXIT, self.H_EXIT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
 
 		# Play the movie
 		# <!-- custom: remove old hardcoded era button path, now use the new XML field <Button> we added -->

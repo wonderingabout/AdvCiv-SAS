@@ -225,6 +225,12 @@ void CvCorporationInfo::setHeadquarterChar(wchar c)
 {
 	m_cHeadquarterChar = c;
 }
+// <!-- custom: BEGIN Python bridge for CorporationInfo BonusProduced; Sevopedia needs this getter to render produced bonus icons from authoritative XML-backed data instead of parsing help text. (GPT-5.3-Codex) -->
+int CvCorporationInfo::py_getBonusProduced() const
+{
+	return m_eBonusProduced;
+}
+// <!-- custom: END Python bridge for CorporationInfo BonusProduced. (GPT-5.3-Codex) -->
 // advc.003t: Calls from Python aren't going to respect the bounds
 int CvCorporationInfo::py_getPrereqBonus(int i) const
 {

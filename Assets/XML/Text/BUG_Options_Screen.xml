@@ -242,14 +242,7 @@
 		<Italian>Interno [F1]:</Italian>
 		<Spanish>Interior [F1]:</Spanish>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_FINANCE_ADVISOR</Tag>
-		<English>Finance [F2]:</English>
-		<French>Finance [F2]:</French>
-		<German>Finanzen [F2]:</German>
-		<Italian>Economico [F2]:</Italian>
-		<Spanish>Financiero [F2]:</Spanish>
-	</TEXT>
+	<!-- custom: removed obsolete/duplicate advisor labels (Religion/Finance/Victory/Info/Sevopedia) from BUG base text after advisor control cleanup; active English overrides are in AdvCiv-SAS_main.xml where needed. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR</Tag>
 		<English>Foreign [F4]:</English>
@@ -273,34 +266,6 @@
 		<German>Technologiebaum [F6]:</German>
 		<Italian>Tecnologico [F6]:</Italian>
 		<Spanish>Tecnología [F6]:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_RELIGIOUS_ADVISOR</Tag>
-		<English>Religion [F7]:</English>
-		<French>Religion [F7]:</French>
-		<German>Religion [F7]:</German>
-		<Italian>Religioso [F7]:</Italian>
-		<Spanish>Religión [F7]:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
-		<English>Victory [F8]:</English>
-		<French>Victory [F8]:</French>
-		<German>Siegbedingungen [F8]:</German>
-		<Italian>Vittoria [F8]:</Italian>
-		<Spanish>Victoria [F8]:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
-		<English>Info [F9]:</English>
-		<French>Info [F9]:</French>
-		<German>Info-Bildschirm [F9]:</German>
-		<Italian>Info [F9]:</Italian>
-		<Spanish>Info [F9]:</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
-		<English>Sevopedia [F12]:</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_ESPIONAGE_SCREEN</Tag>
@@ -827,3 +792,4 @@
 		<Spanish>Agradecimientos</Spanish>
 	</TEXT>
 </Civ4GameText>
+

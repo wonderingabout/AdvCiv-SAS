@@ -6,7 +6,11 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+
+Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+
+A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions.
 
 New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
@@ -33,10 +37,11 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Home page](/README.md#home-page)  
 &emsp;[Simple Game rework](/README.md#simple-game-rework)  
 [UI (Ingame)](/README.md#ui-ingame)  
-&emsp;[Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)  
+&emsp;[Main Advisors reworks (e.g. Score Tab, Timeline Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
+&emsp;[Miscallenous screens](/README.md#miscallenous-screens)  
 &emsp;[Main interface rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
@@ -168,15 +173,19 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
 
 ## UI (Ingame)
 
-### Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)
+### Main Advisors reworks (e.g. Score Tab, Timeline Tab in the Info Screen Advisor)
 
-Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors' display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.).
+Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
+
+Also, advisors are now excentered so overall more information is displayed, thus reducing the need for scrolling, while still preserving key relevant information for display (scoreboard, map, commerce sliders and values, etc.). Note: some right space for scoreboard and top space for the top bars of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore).
+
+See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
 
 #### New Advisors
 
-##### History Tab (in the Info Screen Advisor)
+##### Timeline Tab (in the Info Screen Advisor)
 
-We added in AdvCiv-SAS a new History Tab in the Info Screen:
+We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
 
 - shows a spoiler-free (religion founded by an unknown city, city founded but unexplored, etc.) if not known (not in debug, not yet revealed, etc.) account (based on the replay screen's data (except you don't need to retire to see it now), notably keeping its colored text for each player, but filtered) of the key moments that happened each turn.
 - unlike the Event Log (which was cumbersome to open and maximize as well btw), information is preserved on save reload.
@@ -184,41 +193,35 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
 - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
 - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
 
-Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+Note: a hybrid DLL compute + Python caching version was tried in [timeline-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/timeline-tab-dll-implementation) but load times of the Timeline Tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG" alt="0.516_info_screen (8).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG" alt="0.516_info_screen (7).JPG" width="250"></img>
 
 ##### Score Tab (in the Info Screen Advisor)
 
-A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M.
+A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player color, Player ID (to distinguish identical Name/Civ/Leader/Player Color), Traits (T1 and T2) as icon chars, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M, Tech (total techs).
 
 Note: unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn
 
 Added a clickable "Legend" text that redirects to Sevopedia Concepts' "Score Tab Columns" page that shows the legend.
 
-It optionally expands and Legend link moves to top right if table has more than max rows (else legend link stays bottom right so it is not distracting, and table is not expanded).
-
 Added with the very nice help of GPT-5.3-Codex thanks.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (7).JPG" alt="0.516_info_screen (7).JPG" width="250"></img>
 
 #### Advisor reworks
 
-For the technology advisor in particular, players can now tune as they prefer the tech tree's width. Visual comparison at [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it. Notably, it also features the new "Remove Jungle" and "Chop Down a Forest" buttons (from the Middle-Earth mod thanks!).
-
-Also refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
-
-We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons.
+We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG" alt="0.510_foreign_advisor (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG" alt="0.510_foreign_advisor (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG" alt="0.510_foreign_advisor (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG" alt="0.510_foreign_advisor (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG" alt="0.510_foreign_advisor (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG" alt="0.510_foreign_advisor (5)_FONT_4.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG" alt="0.510_foreign_advisor (6).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG" alt="0.510_foreign_advisor (7).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
@@ -229,13 +232,11 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_victory_screen (4).JPG" alt="0.517_victory_screen (4).JPG" width="250"></img>
 
-See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
-
 ### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
 
 We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks, icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such. Also added a tooltip (on hover). See [KI#84](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but).
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal.jpg" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5132_willing_vassal_trade.jpg" alt="0.5132_willing_vassal_trade.jpg" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
 
@@ -243,7 +244,7 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
 
 We find some of the BUG advisor features valuable and not obvious to many players. So we have inverted the options, rather than simply force enabling or disabling them.
 
-This means the default is now ON, and ticking the option toggles it to OFF. Applied as of now only to the Tech Advisor (F6 key) and Religious Advisor (F7 key) which we find most valuable. Updated the texts to match this new behaviour and sometimes clarify it (e.g. vague "GP Research" -> clearer "Hide bulbing indicators").
+This means the default is now ON, and ticking the option toggles it to OFF. Applied as of now only to the Tech Advisor and Religion Advisor which we find most valuable. Updated the texts to match this new behaviour and sometimes clarify it (e.g. vague "GP Research" -> clearer "Hide bulbing indicators").
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5151_inverted_bug_advisors.JPG" alt="0.5151_inverted_bug_advisors.JPG" width="250"></img>
 
@@ -256,6 +257,16 @@ Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (1).JPG" alt="0.970_diplomacy_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (2).JPG" alt="0.970_diplomacy_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.970_diplomacy_screen (3).JPG" alt="0.970_diplomacy_screen (3).JPG" width="250"></img>
+
+### Miscallenous screens
+
+Some miscallenous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen), [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py).
+
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.980_dawn_of_man_screen.JPG" alt="0.980_dawn_of_man_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.981_tech_splash_screen.JPG" alt="0.981_tech_splash_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.982_replay_screen.JPG" alt="0.982_replay_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.983_dan_qayle_screen.JPG" alt="0.983_dan_qayle_screen.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG" alt="0.984_hall_of_fame_screen.JPG" width="250"></img>
 
 ### Main Interface rework
 
@@ -336,7 +347,7 @@ Supports Previous Track and Next track, Toggle Movies/Music button, Fast Up and 
 
 ##### Movies
 
-Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided. See [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-ingame).
+Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, Corporations, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided. See [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-ingame).
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_movies (1).JPG" alt="0.820_sevopedia_movies (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_movies (2).JPG" alt="0.820_sevopedia_movies (2).JPG" width="250"></img>
@@ -412,6 +423,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.740_sevopedia_civics (1).JPG" alt="0.740_sevopedia_civics (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>
 
 #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
 
@@ -450,10 +462,11 @@ The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, th
 
 ##### Legends
 
-We also use the Mods info category to show the legend of some tables, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
+We also use the Mods info category to show the legend of some tables or abbreviations, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG" alt="0.806_sevopedia_mods_info_legend (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG" alt="0.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG" alt="0.806_sevopedia_mods_info_legend (3).JPG" width="250"></img>
 
 ## UI (Common)
 
@@ -544,7 +557,7 @@ The civs you can expect in this mod come from these parts of the world (circled 
 
 Among other maps or information i found online, i mostly also used the map below as well in order to determine which civs should get which terrain/feature modifiers in advciv-sas:
 
-![0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg](/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg)
+![0.221_main_world_map_for_civs_terrain_feature.jpg](/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature.jpg)
 
 Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw, but they is cold, so symbolize it as having if relevant enough a bit of tundra in civ4 terms (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification))
 
@@ -934,7 +947,7 @@ After having used other LLMs mostly via web chat (i.e. using the web browser), m
 
 Done with the help of Claude code Opus 4.6 whic was god-like precise. See [/LLM_Helpers/](/LLM_Helpers/).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG" alt="claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG" alt="claude_code_opus_4_6_5_3_calibration.PNG" width="250"></img>
 
 ##### Other tasks: e.g. performance optimizations
 

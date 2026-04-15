@@ -68,6 +68,157 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TINY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_BODY</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). As of now changed from 2 to 3 so text is more readable. Base Civ4 Font size: 2. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. Note: as of now increased from 100 to 120 at font 2 so it is more readable. (Claude code Opus 4.6) -->
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_1</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_2</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_3</DefineName>
+		<iDefineIntVal>140</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_4</DefineName>
+		<iDefineIntVal>160</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: disable the Sevopedia Leader custom item-list width when screen width is above this threshold (strictly >). Set to <=0 to keep custom width always enabled. (GPT-5.3-Codex). This is because at higher resolutions we have enough width to accomodate an enlarged AI Personality Panel, so we don't need to reduce width of the item bar anymore. Note: AI Personality panel is still expanded when text is upscaled (so it is not cramped) regardless of this item bar setting -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH</DefineName>
+		<iDefineIntVal>2560</iDefineIntVal>
+	</Define>
+	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Sevopedia Game Speed chart first-column width by SAS_UI_FONT_LABEL (1..4). Lower values free more room for the speed-value columns when text is upscaled. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>180</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>180</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+	<!-- custom: disable first-column width reduction for Sevopedia Game Speed chart when screen width is >= this threshold; <=0 keeps reduced width always enabled. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_NO_REDUCE_MIN_WIDTH</DefineName>
+		<iDefineIntVal>2560</iDefineIntVal>
+	</Define>
+	<!-- custom: non-reduced first-column width used at/above the threshold above; this restores a roomier label column on high resolutions. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_NO_REDUCE</DefineName>
+		<iDefineIntVal>260</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
+	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
+	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
+	(GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH</DefineName>
+		<iDefineIntVal>2560</iDefineIntVal>
+	</Define>
+	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active.
+	Lower value => wider tech tree and more chance to fit one extra column at low resolution.
+	Higher value => preserves more scoreboard/map area.
+	This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible.
+	Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
+		<iDefineIntVal>206</iDefineIntVal>
+	</Define>
+	# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES</DefineName>
+		<iDefineIntVal>52</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable icons (images) for unit-combat and unit rows in Military Advisor). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: base inline icon size (px) for Military Advisor (F5) unit list rows. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE</DefineName>
+		<iDefineIntVal>24</iDefineIntVal>
+	</Define>
+	<!-- custom: if current game resolution height is >= this value, Military Advisor uses the high-res inline icon size below. <=0 disables the high-res switch. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT</DefineName>
+		<iDefineIntVal>1440</iDefineIntVal>
+	</Define>
+	<!-- custom: high-res inline icon size (px) used by Military Advisor when resolution height reaches the threshold above. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES</DefineName>
+		<iDefineIntVal>32</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: show/hide score-related legend links (Info Screen Score tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
@@ -229,10 +380,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex) -->
+	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex). Update: increase to support upscaled text in a simple way (not much to display so we can be aggressive; the longest AMB_FINAL_FRONTIER row now barely fits so this is in fact conservative) (was 800) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH</DefineName>
-		<iDefineIntVal>800</iDefineIntVal>
+		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
 
@@ -242,10 +393,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
 		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
 	</Define>
-	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
+	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accomodate font size 4 (was 65). -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
-		<iDefineIntVal>65</iDefineIntVal>
+		<iDefineIntVal>71</iDefineIntVal>
 	</Define>
 	<!-- custom: enable (1) / disable (0) to add an icon column for the left-side field labels in the handicap chart table. (GPT-5.2-Codex) -->
 	<Define>
@@ -283,34 +434,14 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
-
-
-	<!-- custom: enable buttons (i.e. images/icons for unit combats and units in the military advisor (F5 key)). -->
+	<!-- custom: show the Timeline panel "Log" button; click to write the visible (spoiler-filtered) timeline lines to PythonDbg.log. -->
 	<Define>
-		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS</DefineName>
+		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-
-
-
-	<!-- custom: choose how wide the tech tree should be horizontally -->
-	<!-- custom: Tech chooser width preset: 0 = compact (keeps scoreboard names), 1 = medium (partial names), 2 = wide (hide names, keep tech/%), 3 = max (hide scoreboard + minimap). (GPT-5.2-Codex (summarized)) -->
-	<!-- custom: Long_Comments_XML.txt #106 -->
+	<!-- custom: Timeline tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
 	<Define>
-		<DefineName>SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: show the History panel "Log" button; click to write the visible (spoiler-filtered) history lines to PythonDbg.log. -->
-	<Define>
-		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: History tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
-	<Define>
-		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE</DefineName>
+		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: widen the Info Screen Score tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
@@ -326,10 +457,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: extra adjustment (note: inactive if the above is set to 0 or a lower value, and allows pixel per pixel precise positioning of the things to build bar). Adjust as you see fit or leave as is if fine for you -->
+	<!-- custom: extra vertical adjustment for the city-screen things-to-build bar (inactive if SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS <= 0). Value is resolution-scaled and sign-preserving: < 0 moves the bar up, > 0 moves it down, 0 keeps base placement. Adjust as you see fit. (GPT-5.3-Codex (summarized)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
-		<iDefineIntVal>-17</iDefineIntVal>
+		<iDefineIntVal>-15</iDefineIntVal>
 	</Define>
 	<!-- custom: hide the unit bar ("PlotListPanel") (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
 	<Define>
@@ -348,8 +479,37 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: enable compact top-left civ flag (hover/click) and matching left-text spacing shift (e.g. treasury); set to 0 to hide the flag and keep left text at base position. (GPT-5.3-Codex (summarized)) -->
 	<Define>
-		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT</DefineName>
+		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<!-- custom: vertical offset for the same map-view commerce block anchor; negative moves up, positive moves down. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: horizontal offset for the same commerce block while city screen is open; lets map view and city screen use separate positions. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET</DefineName>
+		<iDefineIntVal>14</iDefineIntVal>
+	</Define>
+	<!-- custom: vertical offset for the same commerce block while city screen is open; negative moves up, positive moves down. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
 
 

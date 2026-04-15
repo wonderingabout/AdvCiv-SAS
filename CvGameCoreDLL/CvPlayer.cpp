@@ -18957,6 +18957,24 @@ void CvPlayer::buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
 
 /*	advc (note): This function doesn't use any CvPlayer members, but I suppose
 	that could change. Can't easily move it b/c of DllExport. */
+namespace
+{
+	void applySASDiploTradeFont(CvWString& szText)
+	{
+		// <!-- custom: diplomacy trade-table strings are composed in DLL and rendered by EXE widgets (not Python-managed table text), so apply SAS label scaling here at the source string. (GPT-5.3-Codex) -->
+		if (szText.empty())
+			return;
+		static int const iSAS_UI_FONT_LABEL = GC.getDefineINT("SAS_UI_FONT_LABEL");
+		if (iSAS_UI_FONT_LABEL < 1 || iSAS_UI_FONT_LABEL > 4)
+			return;
+		CvWString szWrapped;
+		szWrapped.Format(L"<font=%d>", iSAS_UI_FONT_LABEL);
+		szWrapped.append(szText);
+		szWrapped.append(L"</font>");
+		szText = szWrapped;
+	}
+}
+
 bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem,
 	CvWString& szString, CvString& szIcon) const
 {
@@ -19001,6 +19019,7 @@ bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eI
 		return false;
 	}
 	szString = gDLL->getText(szTag); // advc: Moved out of the cases
+	// <!-- custom: do not wrap trade-table headings with <font=...>; this EXE header widget can render font tags literally (e.g. "<font=4>Technology"), so keep headings unwrapped. (GPT-5.3-Codex) -->
 
 	return true;
 }
@@ -19226,6 +19245,8 @@ bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
 		szString.append(gDLL->getText("INTERFACE_CITY_TURNS",
 				pDeal->turnsToCancel()).GetCString());
 	} // </advc.072>
+	// <!-- custom: diplomacy trade-table rows are EXE-rendered from DLL strings, so wrap item text here to apply SAS label upscaling consistently. (GPT-5.3-Codex) -->
+	applySASDiploTradeFont(szString);
 	return true;
 }
 

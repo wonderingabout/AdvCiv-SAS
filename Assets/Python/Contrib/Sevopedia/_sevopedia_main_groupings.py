@@ -1206,7 +1206,7 @@ def SAS_getCivicsGroupedByCivicOption(bSortLists):
 		if not tmp:
 			continue
 
-		# <!-- custom: do not alphabetize civics inside each civic-option group; keep their CIV4CivicInfos.xml order so progression is consistent with XML/game design and easier to scan while still keeping option-type headers. (GPT-5.3-Codex (summarized)) -->
+		# <!-- custom: do not alphabetize civics inside each civic-option group; keep their CIV4CivicInfos.xml order so it is more intuitive and logical to read (for civics). (GPT-5.3-Codex) -->
 		# # If BUG "Sort Lists" is ON, alphabetize within each option group
 		# if bSortLists:
 		# 	tmp.sort()
@@ -1324,8 +1324,8 @@ def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
 	return szLabel
 
 
-def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTypeVictory, iTypeWonder, iTypeProject, iTypeReligion, iTypeEra):
-	# Return the Movies left-list entries with section headers (Victory/Wonder/Project/Religion/Era).
+def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTypeVictory, iTypeWonder, iTypeProject, iTypeReligion, iTypeEra, iTypeCorporation):
+	# Return the Movies left-list entries with section headers (Victory/Wonder/Project/Religion/Era/Corporation).
 	# Implementation detail: we build a single flat base list first, then split into sections.
 	#
 	baseList = []
@@ -1390,6 +1390,19 @@ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTy
 		szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
 		baseList.append((szEraName, packMovieKey(iTypeEra, iEra)))
 
+	# Corporation movies
+	for iCorporation in range(gc.getNumCorporationInfos()):
+		info = gc.getCorporationInfo(iCorporation)
+		if (not info) or info.isGraphicalOnly():
+			continue
+		szMovie = ""
+		try:
+			szMovie = info.getMovieFile()
+		except:
+			szMovie = ""
+		if szMovie and szMovie != "NONE":
+			baseList.append((info.getDescription(), packMovieKey(iTypeCorporation, iCorporation)))
+
 	if bSortLists:
 		baseList.sort()
 
@@ -1399,6 +1412,7 @@ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTy
 	projectItems = []
 	religionItems = []
 	eraItems = []
+	corporationItems = []
 
 	for (szName, iPacked) in baseList:
 		iType, _ = unpackMovieKey(iPacked)
@@ -1412,6 +1426,8 @@ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTy
 			religionItems.append((szName, iPacked))
 		elif iType == iTypeEra:
 			eraItems.append((szName, iPacked))
+		elif iType == iTypeCorporation:
+			corporationItems.append((szName, iPacked))
 
 	# <!-- custom: Sort eraItems by era index (chronological order) regardless of bSortLists
 	# (Era order should always be Ancient -> Classical -> Medieval -> etc.) (Claude code Sonnet 4.5) -->
@@ -1424,6 +1440,7 @@ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTy
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_PROJECT", ()), projectItems)
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_RELIGION", ()), religionItems)
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA", ()), eraItems)
+	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_CORPORATION", ()), corporationItems)
 	return listEntries
 
 

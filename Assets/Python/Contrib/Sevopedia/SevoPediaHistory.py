@@ -15,6 +15,8 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+from SASFontUtils import *
+import SASTextScale
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -44,7 +46,10 @@ class SevoPediaHistory:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = self.getCivilopedia(iEntry)
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: some engine-provided text can carry embedded <font=...>; use normalize* helper (strip + reapply) so SAS scaling is consistent. See SASTextScale normalize comments. (GPT-5.3-Codex) -->
+		szText = SASTextScale.normalizeLabelText(szText)
+		textName = self.top.getNextWidgetName()
+		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
