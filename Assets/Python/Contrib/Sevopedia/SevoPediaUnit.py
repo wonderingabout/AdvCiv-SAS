@@ -40,6 +40,7 @@ class SevoPediaUnit:
 	def __init__(self, main):
 		self.iUnit = -1
 		self.top = main
+		self.bHistoryExpanded = False
 		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 
 		self.MEDIUM_MARGIN = 15
@@ -191,6 +192,8 @@ class SevoPediaUnit:
 
 
 	def interfaceScreen(self, iUnit):
+		if self.iUnit != iUnit:
+			self.bHistoryExpanded = False
 		self.iUnit = iUnit
 
 		# Row 0: Unit Pane + Promotions (left) | Animation (right)
@@ -219,6 +222,39 @@ class SevoPediaUnit:
 		self.placeSpecial()
 		self.placeHistory()
 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
+
+
+
+	def _getHistoryText(self):
+		szText = u""
+		unitInfo = gc.getUnitInfo(self.iUnit)
+		# <!-- custom: prepend unique names for units that define them, then keep original background text below. (GPT-5.3-Codex) -->
+		aUniqueNames = []
+		for iName in xrange(unitInfo.getNumUnitNames()):
+			szName = localText.getText(unitInfo.getUnitNames(iName), ())
+			if szName and szName not in aUniqueNames:
+				aUniqueNames.append(szName)
+		if len(aUniqueNames) > 0:
+			szText += SAS_FONT_TAG_TITLE + u"Unique Names" + SAS_FONT_TAG_CLOSE + u"\n\n"
+			for i in xrange(len(aUniqueNames)):
+				if i == 0:
+					szLine = localText.getText("[ICON_STAR]", ()) + aUniqueNames[i]
+				else:
+					szLine = localText.getText("[ICON_BULLET]", ()) + aUniqueNames[i]
+				if i > 0:
+					szText += u"\n"
+				szText += SAS_FONT_TAG_LABEL + szLine + SAS_FONT_TAG_CLOSE
+			szText += u"\n\n"
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
+		# <!-- custom: normalize/upscale concept text in Sevopedia Unit history panel ("Background") to match concept page readability. (GPT-5.3-Codex) -->
+		szText += SASTextScale.normalizeLabelText(unitInfo.getCivilopedia())
+		return szText
+
+
+
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
 
 
 
@@ -945,17 +981,20 @@ class SevoPediaUnit:
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		textName = self.top.getNextWidgetName()
-		szText = u""
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
-		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
-		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
-		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
-		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		#screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 41, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = self._getHistoryText()
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 

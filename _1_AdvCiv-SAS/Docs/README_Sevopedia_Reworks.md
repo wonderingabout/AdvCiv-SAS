@@ -26,6 +26,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;&emsp;[example 0.90: Media Player](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player)  
 &emsp;&emsp;[example 0.91: Movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support)  
 &emsp;&emsp;[example 0.92: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia)  
+&emsp;&emsp;[example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
 &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
@@ -260,6 +261,15 @@ The implementation still needs some minor polish, but it is as of now entirely f
 <img src="../Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.830_sevopedia_music (5).JPG" alt="0.830_sevopedia_music (5).JPG" width="250"></img>
 
+### example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)
+
+We also added the ability to view text panel using the item's full page space. Originally to show the newly added great person units' uniquenames (in `placeHistory`), it was added to [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py) to be reused in other sevopedia categories.
+
+Added with the very nice help of GPT-5.3-Codex thanks.
+
+<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+
 ## Sevopedia Pages individual reworks
 
 This section focuses on the higher level changes we did to Sevopedia, mostly about UI or such.
@@ -432,6 +442,8 @@ More recently, i also fixed based advciv issue of obsoletes spanning vertically 
 Then, i added a new Obsolete With panel similarly to how was done in Sevopedia building, with the help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot!
 
 Then added worker speed modifiers bullet with the help of GPT-5.3-Codex thanks.
+
+More recently, added unique names in the history (as of now "Background") panel in Sevopedia Unit (e.g., Great General, Great Scientist, Great Prophet) as prepended text before the rest of `placeHistory` pedia text based on the `placeCities`,  with the help of GPT-5.3-Codex thanks.
 
 <img src="../Images/sevopedia/0.680_sevopedia_units (1).JPG" alt="0.680_sevopedia_units (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.680_sevopedia_units (2).JPG" alt="0.680_sevopedia_units (2).JPG" width="250"></img>

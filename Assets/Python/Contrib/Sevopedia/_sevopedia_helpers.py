@@ -326,6 +326,88 @@ def place_new_concept_legend_link(top, new_concept_type):
 	)
 
 
+
+def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, panelH, szText, bExpanded, iPythonWidgetData1, iCollapsedTextYOffset=0):
+	# <!-- custom: reusable Sevopedia expandable text panel helper (collapsed panel + opaque full-page overlay). Use WIDGET_PYTHON routing via iPythonWidgetData1. data2=1 expands, data2=0 closes. (GPT-5.3-Codex) -->
+	iCloseButtonW = 85
+	iExpandButtonW = 107
+	if bExpanded:
+		iOverlayX = top.X_PEDIA_PAGE
+		iOverlayY = top.Y_PEDIA_PAGE
+		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
+		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
+
+		screen.addDDSGFC(
+			top.getNextWidgetName(),
+			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
+			iOverlayX,
+			iOverlayY,
+			iOverlayW,
+			iOverlayH,
+			WidgetTypes.WIDGET_GENERAL,
+			-1,
+			-1
+		)
+		panelName = top.getNextWidgetName()
+		screen.addPanel(panelName, panelTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setButtonGFC(
+			top.getNextWidgetName(),
+			SASTextScale.labelText(u"CLOSE"),
+			"",
+			iOverlayX + iOverlayW - (iCloseButtonW + 10),
+			iOverlayY + 8,
+			iCloseButtonW,
+			26,
+			WidgetTypes.WIDGET_PYTHON,
+			iPythonWidgetData1,
+			0,
+			ButtonStyles.BUTTON_STYLE_STANDARD
+		)
+		screen.addMultilineText(
+			top.getNextWidgetName(),
+			SASTextScale.labelText(szText),
+			iOverlayX + 10,
+			iOverlayY + 40,
+			iOverlayW - 20,
+			iOverlayH - 50,
+			WidgetTypes.WIDGET_GENERAL,
+			-1,
+			-1,
+			CvUtil.FONT_LEFT_JUSTIFY
+		)
+		return 1
+
+	panelName = top.getNextWidgetName()
+	screen.addPanel(panelName, panelTitle, "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+	screen.setButtonGFC(
+		top.getNextWidgetName(),
+		SASTextScale.labelText(u"EXPAND"),
+		"",
+		panelX + panelW - (iExpandButtonW + 8),
+		panelY + 6,
+		iExpandButtonW,
+		24,
+		WidgetTypes.WIDGET_PYTHON,
+		iPythonWidgetData1,
+		1,
+		ButtonStyles.BUTTON_STYLE_STANDARD
+	)
+	screen.addMultilineText(
+		top.getNextWidgetName(),
+		SASTextScale.labelText(szText),
+		panelX + 7,
+		panelY + 10 + iCollapsedTextYOffset,
+		panelW - 5,
+		panelH - (15 * 2) - 25,
+		WidgetTypes.WIDGET_GENERAL,
+		-1,
+		-1,
+		CvUtil.FONT_LEFT_JUSTIFY
+	)
+	return 0
+
+
+
 def get_concept_widgetType_widgetID1_widgetID2(conceptID, widgetTypes, civilopediaPageTypes):
 	if conceptID != -1:
 		# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
