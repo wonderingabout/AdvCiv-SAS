@@ -33,6 +33,7 @@ class SevoPediaProject:
 	
 	def __init__(self, main):
 		self.iProject = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		self.W_REQUIRES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
@@ -74,6 +75,8 @@ class SevoPediaProject:
 
 
 	def interfaceScreen(self, iProject):
+		if self.iProject != iProject:
+			self.bHistoryExpanded = False
 		self.iProject = iProject
 
 		self.placeProjectPane()
@@ -175,12 +178,26 @@ class SevoPediaProject:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeText(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = gc.getProjectInfo(self.iProject).getCivilopedia()
-		screen.attachMultilineText(panelName, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			u"",
+			self.X_TEXT,
+			self.Y_TEXT,
+			self.W_TEXT,
+			self.H_TEXT,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+		)
 
 
 

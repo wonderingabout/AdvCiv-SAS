@@ -26,6 +26,7 @@ class SevoPediaBuild:
 
 	def __init__(self, main):
 		self.iBuild = -1
+		self.bHistoryExpanded = False
 		self.top = main
 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
@@ -101,6 +102,8 @@ class SevoPediaBuild:
 
 
 	def interfaceScreen(self, iBuild):
+		if self.iBuild != iBuild:
+			self.bHistoryExpanded = False
 		self.iBuild = iBuild
 
 		self.placeBuildPane()
@@ -345,16 +348,27 @@ class SevoPediaBuild:
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panel = self.top.getNextWidgetName()
-		text = self.top.getNextWidgetName()
-		info = gc.getBuildInfo(self.iBuild)
-
-		screen.addPanel(panel, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-
-		szHistory = info.getCivilopedia()
-		screen.addMultilineText(text, SASTextScale.labelText(szHistory), self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = gc.getBuildInfo(self.iBuild).getCivilopedia()
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 	def handleInput(self, inputClass):

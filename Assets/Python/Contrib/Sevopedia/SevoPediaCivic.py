@@ -33,6 +33,7 @@ class SevoPediaCivic:
 
 	def __init__(self, main):
 		self.iCivic = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -89,6 +90,8 @@ class SevoPediaCivic:
 
 
 	def interfaceScreen(self, iCivic):
+		if self.iCivic != iCivic:
+			self.bHistoryExpanded = False
 		self.iCivic = iCivic
 
 		self.placeFavorites()
@@ -196,21 +199,26 @@ class SevoPediaCivic:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		# advc.004y: Label added for this panel
-		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-
-		textName = self.top.getNextWidgetName()
-		szText = u""
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
-		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
-		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
-		# </advc.004y>
-		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			u"",
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+		)
 
 
 

@@ -78,6 +78,7 @@ class SevoPediaImprovement:
 
 	def __init__(self, main):
 		self.iImprovement = -1
+		self.bHistoryExpanded = False
 		self.top = main
 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
@@ -180,8 +181,6 @@ class SevoPediaImprovement:
 		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
-
 		# <!-- custom: Leader icon sizes now use centralized INCHART_* constants from _sevopedia_helpers.
 		# IMPROVEMENT_LEADER_ICON_SIZE, IMPROVEMENT_LEADER_BUTTON_SPACING, IMPROVEMENT_LEADER_ROW_H replaced by
 		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
@@ -189,6 +188,8 @@ class SevoPediaImprovement:
 
 
 	def interfaceScreen(self, iImprovement):
+		if self.iImprovement != iImprovement:
+			self.bHistoryExpanded = False
 		self.iImprovement = iImprovement
 
 		self.placeImprovementPane()
@@ -566,14 +567,28 @@ class SevoPediaImprovement:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	# <!-- custom: addition based on our existing mod's code in some other class, as for pedia entries, imported from m-e mod (see main readme for mod abbreviation details in as of now credits section) (but i also found them later in c2c mod and they are seemingly the same but the file is sadly/unfortunately way too bloated so going for the m-e mod one(s if talking about the assets themselves in thinking/saying so)) -->
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panelName, "", "  ")
-		textName = self.top.getNextWidgetName()
-		screen.addMultilineText(textName, SASTextScale.labelText(gc.getImprovementInfo(self.iImprovement).getCivilopedia()), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = gc.getImprovementInfo(self.iImprovement).getCivilopedia()
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 

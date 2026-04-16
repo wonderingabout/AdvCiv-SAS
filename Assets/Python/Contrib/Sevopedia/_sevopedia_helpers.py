@@ -36,6 +36,8 @@ HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING = 10
 HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING = 4
 # <!-- custom: shared standard height for Sevopedia single-row non-multilist panels. (GPT-5.3-Codex) -->
 NON_MULTILIST_PANEL_STANDARD_HEIGHT = 110
+# <!-- custom: shared Y offset for history/background text panels that sit below an animation but have no panel header. Used by Bonus, Improvement, Building, Tech, Unit and the expandable text panel helper. (Claude code Sonnet 4.6); the panel is lifted up when there is no header so text needs to follow. -->
+H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 
 
 
@@ -348,8 +350,13 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 			-1,
 			-1
 		)
+		# <!-- custom: when the caller passed no title, use "(Background)" so the expanded overlay always has a header bar for the CLOSE button to sit on. (Claude code Sonnet 4.6) -->
+		if panelTitle:
+			expandedTitle = panelTitle
+		else:
+			expandedTitle = u"(" + localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()) + u")"
 		panelName = top.getNextWidgetName()
-		screen.addPanel(panelName, panelTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
+		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
 		screen.setButtonGFC(
 			top.getNextWidgetName(),
 			SASTextScale.labelText(u"CLOSE"),
@@ -379,12 +386,16 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 
 	panelName = top.getNextWidgetName()
 	screen.addPanel(panelName, panelTitle, "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+	# <!-- custom: when the panel has no title, Civ4 renders no header bar so the button at panelY+6 would overlap the content. Place it just above the panel instead. (Claude code Sonnet 4.6) -->
+	iExpandButtonY = panelY + 6
+	if not panelTitle:
+		iExpandButtonY -= H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
 	screen.setButtonGFC(
 		top.getNextWidgetName(),
 		SASTextScale.labelText(u"EXPAND"),
 		"",
 		panelX + panelW - (iExpandButtonW + 8),
-		panelY + 6,
+		iExpandButtonY,
 		iExpandButtonW,
 		24,
 		WidgetTypes.WIDGET_PYTHON,
@@ -392,13 +403,14 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 		1,
 		ButtonStyles.BUTTON_STYLE_STANDARD
 	)
+	# <!-- custom: note: in some panels replace old code's screen.attachMultilineText with screen.addMultilineText to allow padding for text -->
 	screen.addMultilineText(
 		top.getNextWidgetName(),
 		SASTextScale.labelText(szText),
 		panelX + 7,
 		panelY + 10 + iCollapsedTextYOffset,
 		panelW - 5,
-		panelH - (15 * 2) - 25,
+		panelH - (10 + iCollapsedTextYOffset) - 25,
 		WidgetTypes.WIDGET_GENERAL,
 		-1,
 		-1,

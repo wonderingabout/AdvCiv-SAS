@@ -2223,12 +2223,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					return 1
 			# <!-- custom: toggle expanded Background/History overlay for any pedia category via WIDGET_PYTHON routing. All categories share one ID since only one category is active at a time. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_HISTORY_EXPAND:
-				if self.iCategory == SevoScreenEnums.PEDIA_UNITS and self.iItem != -1:
-					pediaScreen = self.mapScreenFunctions.get(SevoScreenEnums.PEDIA_UNITS, None)
-					if pediaScreen:
+				if self.iItem != -1:
+					pediaScreen = self.mapScreenFunctions.get(self.iCategory, None)
+					if pediaScreen and hasattr(pediaScreen, "setHistoryExpanded"):
 						pediaScreen.setHistoryExpanded(iData2 == 1)
-					self.pediaJump(SevoScreenEnums.PEDIA_UNITS, self.iItem, False, False)
-					return 1
+						self.pediaJump(self.iCategory, self.iItem, False, False)
+						return 1
 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
 			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:

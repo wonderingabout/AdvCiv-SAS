@@ -134,6 +134,7 @@ class SevoPediaTrait:
 
 	def __init__(self, main):
 		self.iTrait = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		# <!-- custom: Enhanced layout - Leaders on right, Statistics center, Effects bottom-left, History bottom-right.
@@ -227,6 +228,8 @@ class SevoPediaTrait:
 	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
 	def interfaceScreen(self, iTrait):
 		self.iLeader = -1
+		if self.iTrait != iTrait:
+			self.bHistoryExpanded = False
 		self.iTrait = iTrait
 
 		self.placeLeaders()
@@ -426,16 +429,28 @@ class SevoPediaTrait:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	# <!-- custom: History panel showing civilopedia text for the trait, similar to SevoPediaImprovement. (Claude code Opus 4.5) -->
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-
-		textName = self.top.getNextWidgetName()
 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
-		szText = SASTextScale.labelText(szText)
-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 5, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 

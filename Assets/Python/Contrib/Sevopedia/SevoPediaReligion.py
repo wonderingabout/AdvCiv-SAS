@@ -33,6 +33,7 @@ class SevoPediaReligion:
 
 	def __init__(self, main):
 		self.iReligion = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		# <!-- custom: based on sevopediabuilding's code, see there for details and differences of implementation --> 
@@ -102,6 +103,8 @@ class SevoPediaReligion:
 
 
 	def interfaceScreen(self, iReligion):
+		if self.iReligion != iReligion:
+			self.bHistoryExpanded = False
 		self.iReligion = iReligion
 
 		self.placeFavorites()
@@ -262,12 +265,26 @@ class SevoPediaReligion:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
-		screen.attachMultilineText(panelName, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			u"",
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+		)
 
 
 

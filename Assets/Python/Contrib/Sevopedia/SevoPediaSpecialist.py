@@ -23,6 +23,8 @@ import ScreenInput
 import SevoScreenEnums
 import SASTextScale
 
+from _sevopedia_helpers import *
+
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
@@ -33,6 +35,7 @@ class SevoPediaSpecialist:
 
 	def __init__(self, main):
 		self.iSpecialist = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -80,6 +83,8 @@ class SevoPediaSpecialist:
 
 
 	def interfaceScreen(self, iSpecialist):
+		if self.iSpecialist != iSpecialist:
+			self.bHistoryExpanded = False
 		self.iSpecialist = iSpecialist
 
 		self.placeSpecialistPane()
@@ -255,16 +260,28 @@ class SevoPediaSpecialist:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		textName = self.top.getNextWidgetName()
-		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
-		szText = SASTextScale.normalizeLabelText(szText)
-		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
-		panelTopPadding = 40
-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: pre-normalize so the helper's labelText call is a no-op (specialist civilopedia entries need normalizeLabelText like leaders). -->
+		szText = SASTextScale.normalizeLabelText(gc.getSpecialistInfo(self.iSpecialist).getCivilopedia())
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 

@@ -76,6 +76,7 @@ class SevoPediaLeader:
 
 	def __init__(self, main):
 		self.iLeader = -1
+		self.bHistoryExpanded = False
 		self.top = main
 		self.iSelectedAttitude = AttitudeTypes.ATTITUDE_PLEASED
 		self.ATTITUDE_SELECTED_EMOJI_SIZE = 24
@@ -220,14 +221,16 @@ class SevoPediaLeader:
 
 
 	def interfaceScreen(self, iLeader):
+		if self.iLeader != iLeader:
+			self.bHistoryExpanded = False
 		self.iLeader = iLeader
 
 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
+		# <!-- custom: placeHistory must be last so its expanded overlay renders on top of all other panels (traits, AI personality). (Claude code Sonnet 4.6) -->
 		self.placeLeaderHeadPane()
 		self.placeFavorites()
 		self.placeMusic()
 		self.placeAttitudes()
-		self.placeHistory()
 		self.placeCiv()
 		self.placeTraits()
 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
@@ -239,6 +242,7 @@ class SevoPediaLeader:
 		else:
 			if IS_DEBUG_LEADER and IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
+		self.placeHistory()
 
 
 
@@ -388,14 +392,27 @@ class SevoPediaLeader:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		historyTextName = self.top.getNextWidgetName()
-		CivilopediaText = gc.getLeaderHeadInfo(self.iLeader).getCivilopedia()
-		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (GPT-5.3-Codex); also trim the bottom a bit to remove last incompletely rendered line for beautification -->
-		screen.addMultilineText(historyTextName, SASTextScale.normalizeLabelText(CivilopediaText), self.X_HISTORY + 7, self.Y_HISTORY + 6, self.W_HISTORY - 5, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
+		szText = SASTextScale.normalizeLabelText(gc.getLeaderHeadInfo(self.iLeader).getCivilopedia())
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			u"",
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+		)
 
 
 

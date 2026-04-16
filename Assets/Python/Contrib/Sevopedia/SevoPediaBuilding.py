@@ -38,6 +38,7 @@ class SevoPediaBuilding:
 
 	def __init__(self, main):
 		self.iBuilding = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -140,8 +141,6 @@ class SevoPediaBuilding:
 		self.Y_CIVILIZATIONS = self.Y_REPLACE
 		self.H_CIVILIZATIONS = self.H_REPLACE
 
-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
-
 		self.X_HISTORY = self.X_BUILDING_ANIMATION
 		self.Y_HISTORY = self.Y_CIVILIZATIONS + self.H_CIVILIZATIONS + self.SMALL_MARGIN
 		self.W_HISTORY = self.W_BUILDING_ANIMATION
@@ -150,6 +149,8 @@ class SevoPediaBuilding:
 
 
 	def interfaceScreen(self, iBuilding):
+		if self.iBuilding != iBuilding:
+			self.bHistoryExpanded = False
 		self.iBuilding = iBuilding
 
 		self.placeBuildingPane()
@@ -1136,23 +1137,27 @@ class SevoPediaBuilding:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
-		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
-		textName = self.top.getNextWidgetName()
-		szText = u""
-		# <!-- custom: too much hassle/"nightmare" to maintain the strategy texts in history panel (which i agree with), + also often inaccurate, especially if someone were to make a mod, just ignoring them without importing the XML assets as well is much more efficient, more reliable, and perhaps clearer in the sevopedia too maybe. -->
-		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
-		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
-		#	szText += u"\n\n"
-		# <!-- custom: i also don't need the "History:" in TXT_KEY_CIVILOPEDIA_HISTORY, is redundant with background that is already about the building's background -->
-		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
-		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
-		# <!-- custom: but here we also restore/add padding -->
-		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = gc.getBuildingInfo(self.iBuilding).getCivilopedia()
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 

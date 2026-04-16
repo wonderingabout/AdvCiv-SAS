@@ -185,6 +185,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 	def __init__(self, main):
 		self.iTech = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -305,12 +306,11 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL
 
-		# <!-- custom: for multiline text vertical adjustment after panel header -->
-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
-
 
 
 	def interfaceScreen(self, iTech):
+		if self.iTech != iTech:
+			self.bHistoryExpanded = False
 		self.iTech = iTech
 
 		self.placeTechPane()
@@ -1145,18 +1145,28 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		szText = u""
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
-		szText += gc.getTechInfo(self.iTech).getQuote()
+		szText = gc.getTechInfo(self.iTech).getQuote()
 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
-		szQuoteTextWidget = self.top.getNextWidgetName()
-		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
-		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(szQuoteTextWidget, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 

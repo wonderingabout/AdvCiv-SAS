@@ -32,6 +32,7 @@ class SevoPediaCorporation:
 
 	def __init__(self, main):
 		self.iCorporation = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -92,6 +93,8 @@ class SevoPediaCorporation:
 
 
 	def interfaceScreen(self, iCorporation):
+		if self.iCorporation != iCorporation:
+			self.bHistoryExpanded = False
 		self.iCorporation = iCorporation
 
 		self.placeCorporationPane()
@@ -247,12 +250,26 @@ class SevoPediaCorporation:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = gc.getCorporationInfo(self.iCorporation).getCivilopedia()
-		screen.attachMultilineText(panelName, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			u"",
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
+		)
 
 
 

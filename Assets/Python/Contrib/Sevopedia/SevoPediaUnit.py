@@ -181,8 +181,6 @@ class SevoPediaUnit:
 		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS
 		self.citiesButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_CITIES_LANDSCAPE").getPath()
 
-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
-
 		# Row 5 right half: History panel - aligned with Special panel
 		self.X_HISTORY = self.X_UNIT_ANIMATION
 		self.Y_HISTORY = self.Y_SPECIAL  # Same Y as Special panel for alignment
@@ -245,7 +243,7 @@ class SevoPediaUnit:
 					szText += u"\n"
 				szText += SAS_FONT_TAG_LABEL + szLine + SAS_FONT_TAG_CLOSE
 			szText += u"\n\n"
-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py, removing (hiding) the entry entirely from sevopedia. -->
 		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
 		# <!-- custom: normalize/upscale concept text in Sevopedia Unit history panel ("Background") to match concept page readability. (GPT-5.3-Codex) -->
 		szText += SASTextScale.normalizeLabelText(unitInfo.getCivilopedia())
@@ -993,7 +991,7 @@ class SevoPediaUnit:
 			szText,
 			self.bHistoryExpanded,
 			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
-			self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
 		)
 
 

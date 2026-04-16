@@ -36,6 +36,7 @@ class SevoPediaBonus:
 
 	def __init__(self, main):
 		self.iBonus = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -134,8 +135,6 @@ class SevoPediaBonus:
 		self.W_FEATURE_TERRAIN_BOOLEANS = self.W_FEATURES
 		self.H_FEATURE_TERRAIN_BOOLEANS = self.H_IMPROVEMENTS
 
-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
-
 		self.X_HISTORY = self.X_BONUS_ANIMATION
 		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
 		self.W_HISTORY = self.W_BONUS_ANIMATION
@@ -144,6 +143,8 @@ class SevoPediaBonus:
 
 
 	def interfaceScreen(self, iBonus):
+		if self.iBonus != iBonus:
+			self.bHistoryExpanded = False
 		self.iBonus = iBonus
 
 		# <!-- custom: Move the panel position, so that it starts from a lower point in the screen.
@@ -627,16 +628,27 @@ class SevoPediaBonus:
 
 
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
+
+
+
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panelName, "", "  ")
-		textName = self.top.getNextWidgetName()
-		# <!-- custom: reduce padding to match how it was changed in the other categories -->
-		# <!-- custom: i also don't think we need casting (30), so keeping it as the more simple 30 after testing (no casting), seems to run fine so leaving as is, not that it was an error i think per say but i don't know, but weird so "fixed" it even though it was not an "error" i think, just redudant maybe. -->
-		#screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (30), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.addMultilineText(textName, SASTextScale.labelText(gc.getBonusInfo(self.iBonus).getCivilopedia()), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		szText = gc.getBonusInfo(self.iBonus).getCivilopedia()
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
+			szText,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		)
 
 
 
