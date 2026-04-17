@@ -39,6 +39,7 @@ class SevoPediaBuilding:
 	def __init__(self, main):
 		self.iBuilding = -1
 		self.bHistoryExpanded = False
+		self.bContentExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -151,7 +152,12 @@ class SevoPediaBuilding:
 	def interfaceScreen(self, iBuilding):
 		if self.iBuilding != iBuilding:
 			self.bHistoryExpanded = False
+			self.bContentExpanded = False
 		self.iBuilding = iBuilding
+
+		if self.bContentExpanded:
+			self.placeBuildingAnimation()
+			return
 
 		self.placeBuildingPane()
 		self.placeStats()
@@ -162,7 +168,8 @@ class SevoPediaBuilding:
 		self.placeFreePBBS()
 		self.placeFreeWith()
 		self.placeSpecial()
-		self.placeBuildingAnimation()
+		if not self.bHistoryExpanded:
+			self.placeBuildingAnimation()
 		self.placeReplace()
 		self.placeCivilizations()
 		self.placeHistory()
@@ -1132,13 +1139,30 @@ class SevoPediaBuilding:
 
 
 	def placeBuildingAnimation(self):
-		screen = self.top.getScreen()	
-		screen.addBuildingGraphicGFC(self.top.getNextWidgetName(), self.iBuilding, self.X_BUILDING_ANIMATION, self.Y_BUILDING_ANIMATION, self.W_BUILDING_ANIMATION, self.H_BUILDING_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BUILDING_ANIMATION, self.Z_ROTATION_BUILDING_ANIMATION, self.SCALE_ANIMATION, True)
+		screen = self.top.getScreen()
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(
+			screen,
+			self.top,
+			u"",
+			self.X_BUILDING_ANIMATION,
+			self.Y_BUILDING_ANIMATION,
+			self.W_BUILDING_ANIMATION,
+			self.H_BUILDING_ANIMATION,
+			self.bContentExpanded,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
+		)
+		screen.addBuildingGraphicGFC(self.top.getNextWidgetName(), self.iBuilding, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BUILDING_ANIMATION, self.Z_ROTATION_BUILDING_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
+
+
+
+	def setContentExpanded(self, bExpanded):
+		self.bContentExpanded = bExpanded
 
 
 

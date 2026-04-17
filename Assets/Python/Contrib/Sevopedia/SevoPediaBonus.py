@@ -37,6 +37,7 @@ class SevoPediaBonus:
 	def __init__(self, main):
 		self.iBonus = -1
 		self.bHistoryExpanded = False
+		self.bContentExpanded = False
 		self.top = main
 
 		self.MEDIUM_MARGIN = 15
@@ -145,12 +146,19 @@ class SevoPediaBonus:
 	def interfaceScreen(self, iBonus):
 		if self.iBonus != iBonus:
 			self.bHistoryExpanded = False
+			self.bContentExpanded = False
 		self.iBonus = iBonus
+
+		if self.bContentExpanded:
+			self.placeBonusAnimation()
+			return
 
 		# <!-- custom: Move the panel position, so that it starts from a lower point in the screen.
 		# We will use this newly freed place to put the larger Buildings, while we create a RevealedBy panel instead where the Buildings panel was. Hopefully much clearer and more room to fit many buildings this way now, and to separate tech revealed by and tech tradeable since, both currently in the "Requires" panel which is very weird i think, now renamed to "RevealedBy" and "TradeableSince") -->
 		self.placeBonusPane()
 		self.placeStats()
+		if not self.bHistoryExpanded:
+			self.placeBonusAnimation()
 		self.placeImprovements()
 		self.placeUnits()
 		self.placeBuildingsAndProjects()
@@ -172,7 +180,6 @@ class SevoPediaBonus:
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBonusInfo(self.iBonus).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, self.X_BONUS_ANIMATION, self.Y_BONUS_ANIMATION, self.W_BONUS_ANIMATION, self.H_BONUS_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BONUS_ANIMATION, self.Z_ROTATION_BONUS_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 
@@ -630,6 +637,29 @@ class SevoPediaBonus:
 
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
+
+
+
+	def setContentExpanded(self, bExpanded):
+		self.bContentExpanded = bExpanded
+
+
+
+	def placeBonusAnimation(self):
+		screen = self.top.getScreen()
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(
+			screen,
+			self.top,
+			u"",
+			self.X_BONUS_ANIMATION,
+			self.Y_BONUS_ANIMATION,
+			self.W_BONUS_ANIMATION,
+			self.H_BONUS_ANIMATION,
+			self.bContentExpanded,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
+		)
+		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BONUS_ANIMATION, self.Z_ROTATION_BONUS_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 

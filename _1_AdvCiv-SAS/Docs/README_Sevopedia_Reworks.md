@@ -272,15 +272,17 @@ Added with the very nice help of GPT-5.3-Codex and Claude code Sonnet 4.6 thanks
 
 <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG" alt="0.840_sevopedia_expanded_text (3).JPG" width="250"></img>
 
 ### example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons)
 
 Similarly also added expanded animation (as of now it's the only use case) panels, for example for units' animations.
 
-We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change color of the unit) without having to tediously exit and reopen expanded view.
+We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view.
 
 <img src="../Images/sevopedia/0.841_sevopedia_expanded_content (1).JPG" alt="0.841_sevopedia_expanded_content (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.841_sevopedia_expanded_content (3).JPG" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

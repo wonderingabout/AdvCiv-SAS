@@ -79,6 +79,7 @@ class SevoPediaImprovement:
 	def __init__(self, main):
 		self.iImprovement = -1
 		self.bHistoryExpanded = False
+		self.bContentExpanded = False
 		self.top = main
 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
@@ -190,12 +191,18 @@ class SevoPediaImprovement:
 	def interfaceScreen(self, iImprovement):
 		if self.iImprovement != iImprovement:
 			self.bHistoryExpanded = False
+			self.bContentExpanded = False
 		self.iImprovement = iImprovement
+
+		if self.bContentExpanded:
+			self.placeImprovementAnimation()
+			return
 
 		self.placeImprovementPane()
 		self.placeSpecial()
 		self.placeBonusYields()
-		self.placeImprovementAnimation()
+		if not self.bHistoryExpanded:
+			self.placeImprovementAnimation()
 		self.placeBuilds()
 		self.placeRequires()
 		self.placeMostYields()
@@ -303,7 +310,19 @@ class SevoPediaImprovement:
 
 	def placeImprovementAnimation(self):
 		screen = self.top.getScreen()
-		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, self.X_IMPROVEMENT_ANIMATION, self.Y_IMPROVEMENT_ANIMATION, self.W_IMPROVEMENT_ANIMATION, self.H_IMPROVEMENT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_IMPROVEMENT_ANIMATION, self.Z_ROTATION_IMPROVEMENT_ANIMATION, self.SCALE_ANIMATION, True)
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(
+			screen,
+			self.top,
+			u"",
+			self.X_IMPROVEMENT_ANIMATION,
+			self.Y_IMPROVEMENT_ANIMATION,
+			self.W_IMPROVEMENT_ANIMATION,
+			self.H_IMPROVEMENT_ANIMATION,
+			self.bContentExpanded,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
+		)
+		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_IMPROVEMENT_ANIMATION, self.Z_ROTATION_IMPROVEMENT_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 
@@ -569,6 +588,11 @@ class SevoPediaImprovement:
 
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
+
+
+
+	def setContentExpanded(self, bExpanded):
+		self.bContentExpanded = bExpanded
 
 
 
