@@ -41,6 +41,7 @@ class SevoPediaUnit:
 		self.iUnit = -1
 		self.top = main
 		self.bHistoryExpanded = False
+		self.bContentExpanded = False
 		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 
 		self.MEDIUM_MARGIN = 15
@@ -192,13 +193,19 @@ class SevoPediaUnit:
 	def interfaceScreen(self, iUnit):
 		if self.iUnit != iUnit:
 			self.bHistoryExpanded = False
+			self.bContentExpanded = False
 		self.iUnit = iUnit
+
+		if self.bContentExpanded:
+			self.placeUnitAnimation()
+			return
 
 		# Row 0: Unit Pane + Promotions (left) | Animation (right)
 		self.placeUnitPane()
 		self.placeStats()
 		self.placePromotions()
-		self.placeUnitAnimation()
+		if not self.bHistoryExpanded:
+			self.placeUnitAnimation()
 
 		# Row 1 left: Requires | Obsolete With | Free Promotions
 		self.placeRequires()
@@ -253,6 +260,11 @@ class SevoPediaUnit:
 
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
+
+
+
+	def setContentExpanded(self, bExpanded):
+		self.bContentExpanded = bExpanded
 
 
 
@@ -858,7 +870,18 @@ class SevoPediaUnit:
 
 	def placeUnitAnimation(self):
 		screen = self.top.getScreen()
-		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, self.X_UNIT_ANIMATION, self.Y_UNIT_ANIMATION, self.W_UNIT_ANIMATION, self.H_UNIT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_UNIT_ANIMATION, self.Z_ROTATION_UNIT_ANIMATION, self.SCALE_ANIMATION, True)
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(
+			screen,
+			self.top,
+			u"",
+			self.X_UNIT_ANIMATION,
+			self.Y_UNIT_ANIMATION,
+			self.W_UNIT_ANIMATION,
+			self.H_UNIT_ANIMATION,
+			self.bContentExpanded,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND
+		)
+		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_UNIT_ANIMATION, self.Z_ROTATION_UNIT_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 

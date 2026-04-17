@@ -36,8 +36,12 @@ HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING = 10
 HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING = 4
 # <!-- custom: shared standard height for Sevopedia single-row non-multilist panels. (GPT-5.3-Codex) -->
 NON_MULTILIST_PANEL_STANDARD_HEIGHT = 110
-# <!-- custom: shared Y offset for history/background text panels that sit below an animation but have no panel header. Used by Bonus, Improvement, Building, Tech, Unit and the expandable text panel helper. (Claude code Sonnet 4.6); the panel is lifted up when there is no header so text needs to follow. -->
+# <!-- custom: shared Y offset for history/background text panels that sit below an animation but have no panel header. Used by Bonus, Improvement, Building, Tech, Unit and the expandable text panel helper. (Claude code Sonnet 4.6) -->
 H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+# <!-- custom: Y offset to place the EXPAND button above a headerless animation panel. Smaller than H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER because animation panels sit near the top of the pedia area, leaving less room above them. (Claude code Sonnet 4.6) -->
+H_ADJUST_ANIMATION_NO_HEADER_EXPAND_BUTTON = 28
+# <!-- custom: Y offset for the CLOSE button inside the expanded overlay header bar. Shared by both draw_expandable_text_panel and draw_expandable_content_panel_container. (Claude code Sonnet 4.6) -->
+EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET = 4
 
 
 
@@ -362,7 +366,7 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 			SASTextScale.labelText(u"CLOSE"),
 			"",
 			iOverlayX + iOverlayW - (iCloseButtonW + 10),
-			iOverlayY + 8,
+			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
 			iCloseButtonW,
 			26,
 			WidgetTypes.WIDGET_PYTHON,
@@ -417,6 +421,73 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 		CvUtil.FONT_LEFT_JUSTIFY
 	)
 	return 0
+
+
+
+def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, panelY, panelW, panelH, bExpanded, iPythonWidgetData1):
+	# <!-- custom: reusable expandable panel container helper for non-text content (animations, 3D previews, etc.). Draws expand/collapse chrome and returns content rect (x, y, w, h). Always shows a bracketed title when none given, mirroring draw_expandable_text_panel. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
+	iCloseButtonW = 85
+	iExpandButtonW = 107
+	# <!-- custom: for the expanded overlay, use a bracketed fallback title so it always has a visible header bar; for collapsed, keep panelTitle as-is (animation panels look cleaner without a header). (Claude code Sonnet 4.6) -->
+	if panelTitle:
+		expandedTitle = panelTitle
+	else:
+		expandedTitle = u"(Content)"
+
+	if bExpanded:
+		iOverlayX = top.X_PEDIA_PAGE
+		iOverlayY = top.Y_PEDIA_PAGE
+		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
+		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
+		screen.addDDSGFC(
+			top.getNextWidgetName(),
+			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
+			iOverlayX,
+			iOverlayY,
+			iOverlayW,
+			iOverlayH,
+			WidgetTypes.WIDGET_GENERAL,
+			-1,
+			-1
+		)
+		panelName = top.getNextWidgetName()
+		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setButtonGFC(
+			top.getNextWidgetName(),
+			SASTextScale.labelText(u"CLOSE"),
+			"",
+			iOverlayX + iOverlayW - (iCloseButtonW + 10),
+			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
+			iCloseButtonW,
+			26,
+			WidgetTypes.WIDGET_PYTHON,
+			iPythonWidgetData1,
+			0,
+			ButtonStyles.BUTTON_STYLE_STANDARD
+		)
+		return (iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50)
+
+	panelName = top.getNextWidgetName()
+	screen.addPanel(panelName, panelTitle, "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+	iExpandButtonY = panelY + 6
+	if not panelTitle:
+		iExpandButtonY -= H_ADJUST_ANIMATION_NO_HEADER_EXPAND_BUTTON
+	screen.setButtonGFC(
+		top.getNextWidgetName(),
+		SASTextScale.labelText(u"EXPAND"),
+		"",
+		panelX + panelW - (iExpandButtonW + 8),
+		iExpandButtonY,
+		iExpandButtonW,
+		24,
+		WidgetTypes.WIDGET_PYTHON,
+		iPythonWidgetData1,
+		1,
+		ButtonStyles.BUTTON_STYLE_STANDARD
+	)
+	if panelTitle:
+		return (panelX + 4, panelY + 30, panelW - 8, panelH - 35)
+	return (panelX, panelY, panelW, panelH)
 
 
 

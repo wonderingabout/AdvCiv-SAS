@@ -116,6 +116,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_PYTHON_CHART_LOG = 6804
 		# <!-- custom: note: 6805 = SAS_PEDIA_PYTHON_LEADER_ATTITUDE and 6806 = SAS_PEDIA_PYTHON_LEADER_ACTION are already defined as module-level constants in SevoPediaLeader.py. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 		self.SAS_PEDIA_PYTHON_HISTORY_EXPAND = 6807
+		self.SAS_PEDIA_PYTHON_CONTENT_EXPAND = 6808
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -2227,6 +2228,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					pediaScreen = self.mapScreenFunctions.get(self.iCategory, None)
 					if pediaScreen and hasattr(pediaScreen, "setHistoryExpanded"):
 						pediaScreen.setHistoryExpanded(iData2 == 1)
+						self.pediaJump(self.iCategory, self.iItem, False, False)
+						return 1
+			# <!-- custom: toggle expanded content (non-text; e.g., animation) overlay for pages that implement setContentExpanded (starting with Units). (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_CONTENT_EXPAND:
+				if self.iItem != -1:
+					pediaScreen = self.mapScreenFunctions.get(self.iCategory, None)
+					if pediaScreen and hasattr(pediaScreen, "setContentExpanded"):
+						pediaScreen.setContentExpanded(iData2 == 1)
 						self.pediaJump(self.iCategory, self.iItem, False, False)
 						return 1
 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
