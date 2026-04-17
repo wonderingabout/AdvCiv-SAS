@@ -117,6 +117,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: note: 6805 = SAS_PEDIA_PYTHON_LEADER_ATTITUDE and 6806 = SAS_PEDIA_PYTHON_LEADER_ACTION are already defined as module-level constants in SevoPediaLeader.py. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 		self.SAS_PEDIA_PYTHON_HISTORY_EXPAND = 6807
 		self.SAS_PEDIA_PYTHON_CONTENT_EXPAND = 6808
+		self.SAS_PEDIA_PYTHON_CONTENT_RELOAD = 6809
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -2238,6 +2239,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						pediaScreen.setContentExpanded(iData2 == 1)
 						self.pediaJump(self.iCategory, self.iItem, False, False)
 						return 1
+			# <!-- custom: reload expanded content panel (re-renders animation with potentially different color) without changing expanded state. (Claude code Sonnet 4.6) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_CONTENT_RELOAD:
+				if self.iItem != -1:
+					self.pediaJump(self.iCategory, self.iItem, False, False)
+					return 1
 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
 			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:

@@ -424,9 +424,10 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 
 
 
-def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, panelY, panelW, panelH, bExpanded, iPythonWidgetData1):
+def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, panelY, panelW, panelH, bExpanded, iPythonWidgetData1, iPythonReloadData1):
 	# <!-- custom: reusable expandable panel container helper for non-text content (animations, 3D previews, etc.). Draws expand/collapse chrome and returns content rect (x, y, w, h). Always shows a bracketed title when none given, mirroring draw_expandable_text_panel. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 	iCloseButtonW = 85
+	iReloadButtonW = 106
 	iExpandButtonW = 107
 	# <!-- custom: for the expanded overlay, use a bracketed fallback title so it always has a visible header bar; for collapsed, keep panelTitle as-is (animation panels look cleaner without a header). (Claude code Sonnet 4.6) -->
 	if panelTitle:
@@ -452,6 +453,19 @@ def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, pan
 		)
 		panelName = top.getNextWidgetName()
 		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setButtonGFC(
+			top.getNextWidgetName(),
+			SASTextScale.labelText(u"RELOAD"),
+			"",
+			iOverlayX + iOverlayW - (iCloseButtonW + 10 + iReloadButtonW),
+			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
+			iReloadButtonW,
+			26,
+			WidgetTypes.WIDGET_PYTHON,
+			iPythonReloadData1,
+			-1,
+			ButtonStyles.BUTTON_STYLE_STANDARD
+		)
 		screen.setButtonGFC(
 			top.getNextWidgetName(),
 			SASTextScale.labelText(u"CLOSE"),

@@ -879,7 +879,8 @@ class SevoPediaUnit:
 			self.W_UNIT_ANIMATION,
 			self.H_UNIT_ANIMATION,
 			self.bContentExpanded,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND
+			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
 		)
 		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_UNIT_ANIMATION, self.Z_ROTATION_UNIT_ANIMATION, self.SCALE_ANIMATION, True)
 
