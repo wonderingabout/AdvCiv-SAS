@@ -531,6 +531,11 @@ Then, more recently, i added new Extra Slots and Extra Yields panel based on the
 
 No graphical change, only added info about some shortcuts, as of now only about Alt+S (Toggle on/off write some text ("Enter caption") on a tile).
 
+More recently, also added a Cheats Section (from the [CFC thread: All Keyboard Cheats for Civ 4](https://forums.civfanatics.com/threads/all-keyboard-cheats-for-civ-4.664273/)). Also equalized tabs that were misaligned (was seemingly aligned for font 2 instead of **label 3** after upscaling, and fixed a few misaligned rows). Done with the very nice help of GPT-5.3-Codex thanks.
+
+<img src="../Images/sevopedia/0.850_sevopedia_shortcuts (1).JPG" alt="0.850_sevopedia_shortcuts (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.850_sevopedia_shortcuts (2).JPG" alt="0.850_sevopedia_shortcuts (2).JPG" width="250"></img>
+
 ### example 12: promotions category
 
 This is also a very as of now recent refactor, beautification (moderate), and enhancement by adding as of now the free promotions (units) and place promotion (buildings) using the multilist code from previous Sevopedia reworks.

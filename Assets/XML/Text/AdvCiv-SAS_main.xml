@@ -3625,6 +3625,14 @@ Created as part of AdvCiv-SAS improvements
 		<English>Victory Screen [F9]:</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_BUG</Tag>
+		<English>Mods</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_CHEATS</Tag>
+		<English>Cheats</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
 		<English>Sevopedia [F12]:</English>
 	</TEXT>
