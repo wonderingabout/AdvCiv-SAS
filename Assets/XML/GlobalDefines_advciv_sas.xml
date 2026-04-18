@@ -396,7 +396,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accomodate font size 4 (was 65). -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
-		<iDefineIntVal>71</iDefineIntVal>
+		<iDefineIntVal>80</iDefineIntVal>
 	</Define>
 	<!-- custom: enable (1) / disable (0) to add an icon column for the left-side field labels in the handicap chart table. (GPT-5.2-Codex) -->
 	<Define>
@@ -415,7 +415,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: set the world size chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT</DefineName>
-		<iDefineIntVal>76</iDefineIntVal>
+		<iDefineIntVal>85</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS</DefineName>

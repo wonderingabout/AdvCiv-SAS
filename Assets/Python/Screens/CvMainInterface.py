@@ -764,19 +764,16 @@ class CvMainInterface:
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
-		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
-		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
 		self.szBuildFilterTooltipNational = "TXT_KEY_BUILDING_FILTER_NATIONAL"
 		self.szBuildFilterTooltipWorld = "TXT_KEY_BUILDING_FILTER_WORLD"
 		#
-		self.szTextWaiting = localText.getText("SYSTEM_WAITING", ())
+		# <!-- custom: use LABEL for waiting states so "Waiting for other civilizations..." follows main-interface text upscaling/readability. (GPT-5.3-Codex) -->
+		self.szTextWaiting = SAS_FONT_TAG_LABEL + localText.getText("SYSTEM_WAITING", ()) + SAS_FONT_TAG_CLOSE
 		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
-		self.szTextWaitingForYou = localText.getText("SYSTEM_WAITING_FOR_YOU", ())
-		#
-		self.szTextDraftText = SAS_FONT_TAG_TINY + localText.getText("TXT_KEY_DRAFT", ()) + SAS_FONT_TAG_CLOSE
+		self.szTextWaitingForYou = SAS_FONT_TAG_LABEL + localText.getText("SYSTEM_WAITING_FOR_YOU", ()) + SAS_FONT_TAG_CLOSE
 
 		# <advc.092>
 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))

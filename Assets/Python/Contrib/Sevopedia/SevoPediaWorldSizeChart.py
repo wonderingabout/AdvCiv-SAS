@@ -26,7 +26,7 @@ class SevoPediaWorldSizeChart:
 		self.MARGIN = CHART_TABLE_MARGIN
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
-		self.W_FIELD = 210
+		self.W_FIELD = 280
 		self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS") > 0)
 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT")
 		if self.TABLE_FILL_PERCENT <= 0:
@@ -332,7 +332,7 @@ class SevoPediaWorldSizeChart:
 			if iDefaultPlayers > 18:
 				parsed_data[world_type]["RecommendedDLL"] = "48 civs"
 			else:
-				parsed_data[world_type]["RecommendedDLL"] = "Base"
+				parsed_data[world_type]["RecommendedDLL"] = "18 civs"
 
 		header = []
 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
