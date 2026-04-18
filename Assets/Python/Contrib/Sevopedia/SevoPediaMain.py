@@ -1420,11 +1420,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
 	def getReligionList(self):
-		baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
 		if self.SAS_cacheReligionsTuple is None:
 			if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
+				# <!-- custom: keep XML order within each era group (e.g. Paganism before Hinduism), so grouped religions follow CIV4ReligionInfo.xml instead of alphabetic sorting. (GPT-5.3-Codex) -->
+				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo, noSort=True)
 				self.SAS_cacheReligionsTuple = tuple(self.SAS_getReligionsGroupedByEra_fromBaseList(baseList))
 			else:
+				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
 				self.SAS_cacheReligionsTuple = tuple(baseList)
 		return self.SAS_cacheReligionsTuple
 
