@@ -623,6 +623,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if not screen.isActive():
 			self.createScreen(screen)
 
+		# <!-- custom: fix Sevopedia category-open UX: many categories land on a blank header/spacer page first
+		# (item id -1), which slows navigation; auto-jump to first real item on fresh category clicks only.
+		# Also avoid auto-jump for no-item categories. See KI#119. (GPT-5.3-Codex) -->
 		if (iCategory == SevoScreenEnums.PEDIA_MAIN):
 			BugUtil.debug("Main link %d" % iItem)
 			self.SAS_lastPediaJump = (iCategory, iItem)
@@ -630,7 +633,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iListIndex = self.SAS_categoryEnumToIndex.get(iItem, -1)
 			if iListIndex != -1:
 				screen.setSelectedListBoxStringGFC(self.CATEGORY_LIST_ID, iListIndex)
-			#self.iCategory = iItem
+			if bRemoveFwdList and self.SAS_lastItemsWidget is not None:
+				iFirstItem = self.SAS_getFirstSelectableItemIdFromCurrentList()
+				if iFirstItem != -1:
+					# <!-- custom: drop the transient category node from history when auto-redirecting to the
+					# first real item; this avoids needless BACK/NEXT steps that pollute pedia navigation.
+					# Keep category history when no redirect occurs (e.g., no-item category). See KI#119. (GPT-5.3-Codex) -->
+					if self.pediaHistory and self.pediaHistory[-1] == (SevoScreenEnums.PEDIA_MAIN, iItem):
+						self.pediaHistory.pop()
+					return self.pediaJump(iItem, iFirstItem, bRemoveFwdList, False)
 			return
 
 		if (iCategory == SevoScreenEnums.PEDIA_BUILDINGS):
@@ -677,6 +688,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if (self.isShortcutInfo(info)):
 			return SevoScreenEnums.PEDIA_SHORTCUTS
 		return SevoScreenEnums.PEDIA_BTS_CONCEPTS
+
+	def SAS_getFirstSelectableItemIdFromCurrentList(self):
+		if not hasattr(self, "list"):
+			return -1
+		for item in self.list:
+			if len(item) > 1 and item[1] != -1:
+				return item[1]
+		return -1
 
 	def isContentsShowing(self):
 		return self.tab == self.TAB_TOC

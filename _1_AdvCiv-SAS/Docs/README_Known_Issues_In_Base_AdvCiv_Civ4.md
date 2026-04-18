@@ -152,6 +152,7 @@ Note 3: all issues that have a drive link are also accessible via the [common kn
 [116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)  
 [117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)  
 [118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
+[119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4531,3 +4532,22 @@ Safety rule used:
 - We avoid renaming files under `.../nif/...` unless all NIF references are also updated and validated, to avoid breaking models.
 
 So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`.
+
+## 119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Pmlc3XtyCe6qwUYRVBwEL4dYNEIUOZTK?usp=sharing).
+
+Observed issue:
+
+- In many Sevopedia categories, opening the category lands first on a blank no-item page (header/spacer row where `item id == -1`) instead of the first real entry.
+- This slows navigation (extra click per category) and adds useless transient pages in BACK/NEXT history.
+
+Fix applied:
+
+- In `SevoPediaMain.pediaJump`, when opening a category from `PEDIA_MAIN`, resolve and auto-jump to the first selectable item (`item[1] != -1`) on fresh category clicks.
+- Skip auto-jump for no-item categories.
+- If redirect happened, remove the transient `(PEDIA_MAIN, category)` node from history so BACK/NEXT stays focused on real pages.
+
+Files changed:
+
+- [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
