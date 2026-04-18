@@ -77,6 +77,7 @@ class SevoPediaLeader:
 	def __init__(self, main):
 		self.iLeader = -1
 		self.bHistoryExpanded = False
+		self.bContentExpanded = False
 		self.top = main
 		self.iSelectedAttitude = AttitudeTypes.ATTITUDE_PLEASED
 		self.ATTITUDE_SELECTED_EMOJI_SIZE = 24
@@ -223,11 +224,17 @@ class SevoPediaLeader:
 	def interfaceScreen(self, iLeader):
 		if self.iLeader != iLeader:
 			self.bHistoryExpanded = False
+			self.bContentExpanded = False
 		self.iLeader = iLeader
+
+		if self.bContentExpanded:
+			self.placeLeaderHeadPane()
+			return
 
 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
 		# <!-- custom: placeHistory must be last so its expanded overlay renders on top of all other panels (traits, AI personality). (Claude code Sonnet 4.6) -->
-		self.placeLeaderHeadPane()
+		if not self.bHistoryExpanded:
+			self.placeLeaderHeadPane()
 		self.placeFavorites()
 		self.placeMusic()
 		self.placeAttitudes()
@@ -249,10 +256,17 @@ class SevoPediaLeader:
 	# <!-- custom: wrap leader placement in a specific function for clarity or flexibility or not anyways, -->
 	def placeLeaderHeadPane(self):
 		screen = self.top.getScreen()
-		leaderPanelWidget = self.top.getNextWidgetName()
-		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		(iLhX, iLhY, iLhW, iLhH), (iAttX, iAttY, iAttW, iAttH) = draw_expandable_leaderhead_panel(
+			screen, self.top,
+			self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE,
+			self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD,
+			self.bContentExpanded,
+			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND
+		)
 		self.leaderWidget = self.top.getNextWidgetName()
-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		if self.bContentExpanded:
+			self._drawAttitudeRowAt(screen, iAttX, iAttY, iAttW, iAttH)
 
 
 
@@ -394,6 +408,44 @@ class SevoPediaLeader:
 
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
+
+
+
+	def setContentExpanded(self, bExpanded):
+		self.bContentExpanded = bExpanded
+
+
+
+	def _drawAttitudeRowAt(self, screen, iX, iY, iW, iH):
+		# <!-- custom: draws attitude+action buttons in the expanded overlay right column. iW and iH are fixed by the helper (191x100), so no need for the dynamic fallback resizing that placeAttitudes uses for variable screen widths. (Claude code Sonnet 4.6) -->
+		iSpacing = 3
+		iPadding = 6
+		iButtonH = (iH - 20) / 2
+		iAttitudeY = iY + 11
+
+		iAttitudeCount = len(SAS_LEADER_ATTITUDE_PREVIEW_ORDER)
+		iAttitudeButtonW = (iW - 2 * iPadding - iSpacing * (iAttitudeCount - 1)) / iAttitudeCount
+		iAttitudeX = iX + (iW - (iAttitudeCount * iAttitudeButtonW + (iAttitudeCount - 1) * iSpacing)) / 2
+
+		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
+			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
+				iEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
+				if iAttitude == self.iSelectedAttitude:
+					iEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
+				szLabel = u"<img=%s size=%d></img>" % (self.attitudeSelectedEmojiPathByAttitude[iAttitude], iEmojiSize)
+			else:
+				szLabel = SASTextScale.labelText(self.getAttitudeButtonLabel(iAttitude))
+			screen.setButtonGFC(self.top.getNextWidgetName(), szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
+			iAttitudeX += iAttitudeButtonW + iSpacing
+
+		iActionCount = len(SAS_LEADER_ACTION_PREVIEW_ORDER)
+		iActionButtonW = (iW - 2 * iPadding - iSpacing * (iActionCount - 1)) / iActionCount
+		iActionX = iX + (iW - (iActionCount * iActionButtonW + (iActionCount - 1) * iSpacing)) / 2
+		iActionY = iAttitudeY + iButtonH + 4
+
+		for iAction, szLabel in SAS_LEADER_ACTION_PREVIEW_ORDER:
+			screen.setButtonGFC(self.top.getNextWidgetName(), SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
+			iActionX += iActionButtonW + iSpacing
 
 
 
@@ -729,6 +781,10 @@ class SevoPediaLeader:
 		if iAttitude not in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
 			return 0
 		self.iSelectedAttitude = iAttitude
+		if self.bContentExpanded:
+			# <!-- custom: in expanded mode a full re-render is needed so the leaderhead and attitude row both redraw at expanded coords. (Claude code Sonnet 4.6) -->
+			self.top.pediaJump(self.top.iCategory, self.top.iItem, False, False)
+			return 1
 		# <!-- custom: force-refresh the leaderhead widget so attitude changes show immediately on click; mood-only updates can be visually ignored while another anim is still running. (GPT-5.3-Codex) -->
 		self.refreshLeaderheadWidget()
 		self.placeAttitudes()

@@ -28,6 +28,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;&emsp;[example 0.92: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia)  
 &emsp;&emsp;[example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons)  
 &emsp;&emsp;[example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons)  
+&emsp;&emsp;[example 0.95: Expanded leaderhead panel](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel)  
 [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
 &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
 &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
@@ -283,6 +284,14 @@ We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to ch
 <img src="../Images/sevopedia/0.841_sevopedia_expanded_content (1).JPG" alt="0.841_sevopedia_expanded_content (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.841_sevopedia_expanded_content (3).JPG" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
+
+### example 0.95: Expanded leaderhead panel
+
+Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude and action buttons matching the ones in sevopedia leader.
+
+Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible).
+
+<img src="../Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG" alt="0.842_sevopedia_expanded_lh (1).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 

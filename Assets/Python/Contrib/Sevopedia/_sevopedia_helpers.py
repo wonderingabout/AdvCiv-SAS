@@ -42,6 +42,11 @@ H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
 H_ADJUST_ANIMATION_NO_HEADER_EXPAND_BUTTON = 28
 # <!-- custom: Y offset for the CLOSE button inside the expanded overlay header bar. Shared by both draw_expandable_text_panel and draw_expandable_content_panel_container. (Claude code Sonnet 4.6) -->
 EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET = 4
+# <!-- custom: leaderhead expanded overlay: width = height * PCT / 100, keeping portrait proportions. Tune this value to taste.
+# Empirically, 80 shows most of the animation height (head to torso/clothes) and most of the width (background included). (Claude code Sonnet 4.6) -->
+EXPANDED_LEADERHEAD_WIDTH_PCT = 80
+# <!-- custom: Y offset of the EXPAND button inside the collapsed leaderhead pane (placed inside the panel, not above it). (Claude code Sonnet 4.6) -->
+LEADERHEAD_EXPAND_BUTTON_Y_OFFSET = -16
 
 
 
@@ -502,6 +507,59 @@ def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, pan
 	if panelTitle:
 		return (panelX + 4, panelY + 30, panelW - 8, panelH - 35)
 	return (panelX, panelY, panelW, panelH)
+
+
+
+def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH, leaderX, leaderY, leaderW, leaderH, bExpanded, iPythonWidgetData1):
+	# <!-- custom: expandable panel helper for the leaderhead. Like draw_expandable_content_panel_container but has no RELOAD button (leaderhead re-renders only on attitude/action button clicks, not on reload — use the attitude/action buttons in the right column instead) and reserves a right column for those buttons. Returns ((lhX, lhY, lhW, lhH), (attX, attY, attW, attH)). Collapsed returns the passed leader coords unchanged. (Claude code Sonnet 4.6) -->
+	iCloseButtonW = 85
+	iAttColW = 191
+	iExpandButtonW = 107
+	if bExpanded:
+		iOverlayX = top.X_PEDIA_PAGE
+		iOverlayY = top.Y_PEDIA_PAGE
+		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
+		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
+		screen.addDDSGFC(
+			top.getNextWidgetName(),
+			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
+			iOverlayX, iOverlayY, iOverlayW, iOverlayH,
+			WidgetTypes.WIDGET_GENERAL, -1, -1
+		)
+		screen.addPanel(top.getNextWidgetName(), u"(Content)", "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setButtonGFC(
+			top.getNextWidgetName(),
+			SASTextScale.labelText(u"CLOSE"),
+			"",
+			iOverlayX + iOverlayW - (iCloseButtonW + 10),
+			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
+			iCloseButtonW, 26,
+			WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0,
+			ButtonStyles.BUTTON_STYLE_STANDARD
+		)
+		# attitude/action column: right-aligned, same width as old RELOAD+CLOSE combined
+		iAttX = iOverlayX + iOverlayW - (iAttColW + 10)
+		iAttW = iAttColW
+		iAttY = iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET + 26 + 4
+		iAttH = 100
+		# leaderhead: full height, width capped by ratio to preserve portrait proportions
+		iLhX = iOverlayX + 10
+		iLhY = iOverlayY + 40
+		iLhH = iOverlayH - 50
+		iLhW = iLhH * EXPANDED_LEADERHEAD_WIDTH_PCT / 100
+		return (iLhX, iLhY, iLhW, iLhH), (iAttX, iAttY, iAttW, iAttH)
+	screen.addPanel(top.getNextWidgetName(), u"", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+	screen.setButtonGFC(
+		top.getNextWidgetName(),
+		SASTextScale.labelText(u"EXPAND"),
+		"",
+		panelX + panelW - (iExpandButtonW + 8),
+		panelY + LEADERHEAD_EXPAND_BUTTON_Y_OFFSET,
+		iExpandButtonW, 24,
+		WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 1,
+		ButtonStyles.BUTTON_STYLE_STANDARD
+	)
+	return (leaderX, leaderY, leaderW, leaderH), (0, 0, 0, 0)
 
 
 

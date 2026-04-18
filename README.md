@@ -47,7 +47,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
 &emsp;[Scoreboard](/README.md#scoreboard)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
-&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels)  
+&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)  
 &emsp;[Other new categories](/README.md#other-new-categories)  
 &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
@@ -303,7 +303,7 @@ New features have been added: scroll up button, scroll down button, the do not r
 
 Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
 
-### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels
+### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead panel
 
 #### Items grouping
 
@@ -369,25 +369,17 @@ We also added a new Sevopedia Music that allows to play ~1750 audio scripts in S
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (3).JPG" alt="0.830_sevopedia_music (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
 
-#### Expanded Text Panels
+#### Expanded Panels
 
-We also added Sevopedia Expanded Text Panels, with EXPAND and CLOSE buttons.
+We also added Sevopedia Expanded Text Panels, with EXPAND and CLOSE buttons. See [Sevopedia Reworks (example 0.93: Expanded text panel (with EXPAND and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
 
-See [Sevopedia Reworks (example 0.93: Expanded text panel (with EXPAND and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+We similarly also added Expanded Content (Non-text; e.g., Animation) Panels. We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view. See [Sevopedia Reworks (example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons).
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
+Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude and action buttons matching the ones in sevopedia leader. Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible). See [Sevopedia Reworks (example 0.95: Expanded leaderhead panel))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG" alt="0.840_sevopedia_expanded_text (3).JPG" width="250"></img>
-
-#### Expanded Content (Non-text; e.g., Animation) Panels
-
-We similarly also added Expanded Content (Non-text; e.g., Animation) Panels. We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view.
-
-See [Sevopedia Reworks (example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons).
-
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (1).JPG" alt="0.841_sevopedia_expanded_content (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (3).JPG" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0842" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
 
 ### Other new categories
 
