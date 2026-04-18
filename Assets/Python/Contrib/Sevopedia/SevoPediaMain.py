@@ -618,6 +618,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.pediaHistory.append((iCategory, iItem))
 		if (bRemoveFwdList):
 			self.pediaFuture = []
+		iPrevCategory = self.iCategory
+		iPrevItem = self.iItem
 
 		screen = self.getScreen()
 		if not screen.isActive():
@@ -674,11 +676,31 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					#break
 					# <!-- custom: End - when filtering, select the displayed row, not the original list index (chatgpt 5.2 + claude opus 4.5) -->
 
+		# <!-- custom: when switching items inside the same category, preserve active expanded overlays (history/content) by reopening them after the new item is drawn.
+		# This keeps the user in expanded mode while browsing via the item list. (GPT-5.3-Codex) -->
+		bKeepHistoryExpanded = False
+		bKeepContentExpanded = False
+		if iPrevCategory == iCategory and iPrevItem != -1 and iItem != iPrevItem:
+			pediaScreenCurrent = self.mapScreenFunctions.get(iCategory)
+			if pediaScreenCurrent is not None:
+				bKeepHistoryExpanded = bool(getattr(pediaScreenCurrent, "bHistoryExpanded", False))
+				bKeepContentExpanded = bool(getattr(pediaScreenCurrent, "bContentExpanded", False))
+
 		#self.iCategory = iCategory
 		BugUtil.debug("Drawing screen %d item %d" % (iCategory, iItem))
 		self.deleteAllWidgets()
 		func = self.mapScreenFunctions.get(iCategory)
 		func.interfaceScreen(iItem)
+		if bKeepContentExpanded and hasattr(func, "setContentExpanded"):
+			func.setContentExpanded(True)
+			# <!-- custom: clear first-pass (collapsed) widgets before re-rendering expanded, otherwise artifacts from the normal layout can remain visible under/around the overlay. (GPT-5.3-Codex) -->
+			self.deleteAllWidgets()
+			func.interfaceScreen(iItem)
+		elif bKeepHistoryExpanded and hasattr(func, "setHistoryExpanded"):
+			func.setHistoryExpanded(True)
+			# <!-- custom: same cleanup for history-expanded re-render; prevents leftover page controls (e.g. AI panel/expand button) when switching items while expanded. (GPT-5.3-Codex) -->
+			self.deleteAllWidgets()
+			func.interfaceScreen(iItem)
 
 	def determineNewConceptSubCategory(self, iItem):
 		info = gc.getNewConceptInfo(iItem)
