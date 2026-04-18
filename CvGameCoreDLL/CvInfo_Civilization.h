@@ -203,6 +203,8 @@ public: // advc: All the const functions are exposed to Python except those adde
 	int getLoveOfPeace() const { return m_iLoveOfPeace; } // advc.104
 
 	const TCHAR* getArtDefineTag() const;
+	// <!-- custom: per-era leader art (optional). Returns "" if nothing set for that era. (Claude code Opus 4.7) -->
+	const TCHAR* getEraArtDefineTag(EraTypes eEra) const;
 
 	// Array access:
 
@@ -322,6 +324,8 @@ protected:
 	ReligionTypes m_eFavoriteReligion;
 
 	CvString m_szArtDefineTag;
+	// <!-- custom: optional per-era leader art tags, indexed by EraTypes (size = NumEraInfos). (Claude code Opus 4.7) -->
+	CvString* m_paszEraArtDefineTags;
 
 	bool* m_pbTraits;
 

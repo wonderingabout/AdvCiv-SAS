@@ -2812,6 +2812,37 @@ Created as part of AdvCiv-SAS improvements
 			<Description>TXT_KEY_LEADER_CYRUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_CYRUS_PEDIA</Civilopedia>
 			<ArtDefineTag>ART_DEF_LEADER_CYRUS</ArtDefineTag>
+			<!-- custom: per-era leader art test. Each entry overrides the leader model for exactly that era; eras without an explicit entry fall back to the base ArtDefineTag above. All 7 eras are filled with visibly different stock leaders so you can confirm which era is active. (Claude code Opus 4.7) -->
+			<EraArtDefineTags>
+				<EraArtDefineTag>
+					<EraType>ERA_ANCIENT</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_HAMMURABI</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_CLASSICAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_HATSHEPSUT</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_MEDIEVAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_EWUARE</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_RENAISSANCE</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_NAPOLEON</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_GANDHI</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_MODERN</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_STALIN</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_FUTURE</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
+				</EraArtDefineTag>
+			</EraArtDefineTags>
 			<iWonderConstructRand>40</iWonderConstructRand>
 			<iBaseAttitude>1</iBaseAttitude>
 			<iBasePeaceWeight>3</iBasePeaceWeight>
@@ -3257,6 +3288,37 @@ Created as part of AdvCiv-SAS improvements
 			<Description>TXT_KEY_LEADER_DE_GAULLE</Description>
 			<Civilopedia>TXT_KEY_LEADER_DE_GAULLE_PEDIA</Civilopedia>
 			<ArtDefineTag>ART_DEF_LEADER_DE_GAULLE</ArtDefineTag>
+			<!-- custom: per-era leader art test. Each entry overrides the leader model for exactly that era; eras without an explicit entry fall back to the base ArtDefineTag above. All 7 eras are filled with visibly different stock leaders so you can confirm which era is active. (Claude code Opus 4.7) -->
+			<EraArtDefineTags>
+				<EraArtDefineTag>
+					<EraType>ERA_ANCIENT</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_HAMMURABI</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_CLASSICAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_HATSHEPSUT</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_MEDIEVAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_EWUARE</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_RENAISSANCE</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_NAPOLEON</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_GANDHI</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_MODERN</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_STALIN</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_FUTURE</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
+				</EraArtDefineTag>
+			</EraArtDefineTags>
 			<iWonderConstructRand>10</iWonderConstructRand>
 			<iBaseAttitude>-1</iBaseAttitude>
 			<iBasePeaceWeight>0</iBasePeaceWeight>
