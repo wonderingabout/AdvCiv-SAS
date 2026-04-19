@@ -42,8 +42,12 @@ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SH
 IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
 IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
 IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
+# <!-- custom: era art feature gate — mirrors the C++ XML-load define. When False, the era art row in the Sevopedia leader attitude panel is never shown. (Claude code Sonnet 4.6) -->
+IS_SAS_LEADERHEAD_ERA_ART = (gc.getDefineINT("SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS") > 0)
 SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
 SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
+# <!-- custom: 6810 — Sevopedia leader era art preview buttons (default/"D" + per-era index buttons). Routed via SevoPediaMain.handleInput → applyLeaderEra. (Claude code Sonnet 4.6) -->
+SAS_PEDIA_PYTHON_LEADER_ERA = 6810
 SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
 	AttitudeTypes.ATTITUDE_FURIOUS,
 	AttitudeTypes.ATTITUDE_ANNOYED,
@@ -101,6 +105,17 @@ class SevoPediaLeader:
 		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
+		# <!-- custom: era art preview state: -1 = default (no override), else the selected era index. (Claude code Sonnet 4.6) -->
+		self.iSelectedEra = -1
+		self.ERA_DEFAULT_BUTTON_WIDGET = "SevoPediaLeaderEraDefaultBtn"
+		self.ERA_BUTTON_WIDGET_BY_ERA = {}
+		for iEra in xrange(gc.getNumEraInfos()):
+			self.ERA_BUTTON_WIDGET_BY_ERA[iEra] = "SevoPediaLeaderEraBtn%d" % iEra
+		self.eraDefaultIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+		self.eraIconPathByEra = {}
+		for iEra in xrange(gc.getNumEraInfos()):
+			self.eraIconPathByEra[iEra] = gc.getEraInfo(iEra).getButton()
+		self.ERA_ICON_SIZE = 16
 		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost. Also only do this when AIP is enabled; otherwise skip needless setup. We intentionally don't re-resolve on in-session resolution changes: main interface still needs restart after such changes for correct layout, so dynamic Sevopedia-only redraw adds complexity for little practical gain. (GPT-5.3-Codex) -->
 		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
 			iScreenHeight = self.top.getScreen().getYResolution()
@@ -225,6 +240,7 @@ class SevoPediaLeader:
 		if self.iLeader != iLeader:
 			self.bHistoryExpanded = False
 			self.bContentExpanded = False
+			self.iSelectedEra = -1
 		self.iLeader = iLeader
 
 		if self.bContentExpanded:
@@ -264,7 +280,8 @@ class SevoPediaLeader:
 			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND
 		)
 		self.leaderWidget = self.top.getNextWidgetName()
-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iRenderLeader = self._getEraRenderLeader(self.iLeader, self.iSelectedEra)
+		screen.addLeaderheadGFC(self.leaderWidget, iRenderLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		if self.bContentExpanded:
 			self._drawAttitudeRowAt(screen, iAttX, iAttY, iAttW, iAttH)
 
@@ -318,12 +335,20 @@ class SevoPediaLeader:
 		# <!-- custom: add direct mood buttons in the center gap (between Favorites and Music) so clicking previews leader attitude animations without keyboard-only hotkeys. (GPT-5.3-Codex) -->
 		screen.addPanel(self.ATTITUDES_PANEL_ID, "", "", False, True, self.X_ATTITUDES, self.Y_ATTITUDES, self.W_ATTITUDES, self.H_ATTITUDES, PanelStyles.PANEL_STYLE_BLUE50)
 
+		# <!-- custom: 3 rows when this leader has era art, 2 rows otherwise. (Claude code Sonnet 4.6) -->
+		leaderEraArts = []
+		if IS_SAS_LEADERHEAD_ERA_ART:
+			leaderEraArts = self._getLeaderEraArts(self.iLeader)
+		iNumRows = 2
+		if leaderEraArts:
+			iNumRows = 3
+
 		iRowGap = 4
 		iTopPadding = 8
 		iBottomPadding = 8
 		# <!-- custom: simple manual Y nudge for the two attitude/action rows as one block; increase to move both rows lower. (GPT-5.3-Codex) -->
 		iVerticalNudgeY = 3
-		iButtonH = (self.H_ATTITUDES - iTopPadding - iBottomPadding - iRowGap) / 2
+		iButtonH = (self.H_ATTITUDES - iTopPadding - iBottomPadding - iRowGap * (iNumRows - 1)) / iNumRows
 		if iButtonH < 16:
 			iButtonH = 16
 
@@ -380,6 +405,10 @@ class SevoPediaLeader:
 			screen.setButtonGFC(szWidget, SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iActionX += iActionButtonW + iActionSpacing
 
+		# <!-- custom: era art preview row — only when IS_SAS_LEADERHEAD_ERA_ART and this leader has era art entries. (Claude code Sonnet 4.6) -->
+		if leaderEraArts:
+			self._placeEraRowAt(screen, self.X_ATTITUDES, iActionY + iButtonH + iRowGap, self.W_ATTITUDES, iButtonH, leaderEraArts, named=True)
+
 
 	def deleteAttitudeWidgets(self, screen):
 		screen.deleteWidget(self.ATTITUDES_PANEL_ID)
@@ -387,6 +416,9 @@ class SevoPediaLeader:
 			screen.deleteWidget(self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude])
 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			screen.deleteWidget(self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction])
+		screen.deleteWidget(self.ERA_DEFAULT_BUTTON_WIDGET)
+		for iEra in xrange(gc.getNumEraInfos()):
+			screen.deleteWidget(self.ERA_BUTTON_WIDGET_BY_ERA[iEra])
 
 
 	def getAttitudeButtonLabel(self, iAttitude):
@@ -396,12 +428,85 @@ class SevoPediaLeader:
 		return szLabelLower
 
 
+	# <!-- custom: era art helpers. (Claude code Sonnet 4.6) -->
+
+	def _getLeaderEraArts(self, iLeader):
+		# Returns [(iEra, szArtTag), ...] for eras that have art defined for this leader.
+		result = []
+		leaderInfo = gc.getLeaderHeadInfo(iLeader)
+		for iEra in xrange(gc.getNumEraInfos()):
+			szTag = leaderInfo.getEraArtDefineTag(iEra)
+			if szTag:
+				result.append((iEra, szTag))
+		return result
+
+	def _getEraRenderLeader(self, iLeader, iSelectedEra):
+		# Returns the leader index to pass to addLeaderheadGFC for the given era selection.
+		# iSelectedEra == -1 means default (no override). Otherwise finds the leader whose
+		# base ArtDefineTag matches the era art tag, so the right 3D model is rendered.
+		if iSelectedEra < 0:
+			return iLeader
+		szEraTag = gc.getLeaderHeadInfo(iLeader).getEraArtDefineTag(iSelectedEra)
+		if not szEraTag:
+			return iLeader
+		for i in xrange(gc.getNumLeaderHeadInfos()):
+			if gc.getLeaderHeadInfo(i).getArtDefineTag() == szEraTag:
+				return i
+		return iLeader
+
+	def _placeEraRowAt(self, screen, iX, iY, iW, iH, leaderEraArts, named):
+		# Draws default + era buttons. named=True uses stable widget IDs (for deleteAttitudeWidgets);
+		# named=False uses anonymous widget names (expanded overlay, cleaned up by pediaJump).
+		iSpacing = -3
+		iPadding = 0
+		iEraCount = 1 + len(leaderEraArts)  # 1 for default button
+		iButtonW = (iW - 2 * iPadding - iSpacing * (iEraCount - 1)) / iEraCount
+		if iButtonW < 14:
+			iButtonW = 14
+		iTotalW = iEraCount * iButtonW + iSpacing * (iEraCount - 1)
+		iDrawX = iX + (iW - iTotalW) / 2
+
+		if self.iSelectedEra < 0:
+			szDefaultLabel = u"<img=%s size=%d></img>" % (self.eraDefaultIconPath, self.ERA_ICON_SIZE)
+		else:
+			szDefaultLabel = SASTextScale.labelText(u"d")
+		if named:
+			szDefaultWidget = self.ERA_DEFAULT_BUTTON_WIDGET
+		else:
+			szDefaultWidget = self.top.getNextWidgetName()
+		screen.setButtonGFC(szDefaultWidget, szDefaultLabel, "", iDrawX, iY, iButtonW, iH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ERA, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		iDrawX += iButtonW + iSpacing
+
+		for iEra, _ in leaderEraArts:
+			if self.iSelectedEra == iEra:
+				szEraLabel = u"<img=%s size=%d></img>" % (self.eraIconPathByEra[iEra], self.ERA_ICON_SIZE)
+			else:
+				szEraLabel = SASTextScale.labelText(u"%d" % iEra)
+			if named:
+				szEraWidget = self.ERA_BUTTON_WIDGET_BY_ERA[iEra]
+			else:
+				szEraWidget = self.top.getNextWidgetName()
+			screen.setButtonGFC(szEraWidget, szEraLabel, "", iDrawX, iY, iButtonW, iH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ERA, iEra, ButtonStyles.BUTTON_STYLE_STANDARD)
+			iDrawX += iButtonW + iSpacing
+
+	def applyLeaderEra(self, iEra):
+		# iEra == -1 resets to default art; otherwise selects that era's art.
+		self.iSelectedEra = iEra
+		if self.bContentExpanded:
+			self.top.pediaJump(self.top.iCategory, self.top.iItem, False, False)
+			return 1
+		self.refreshLeaderheadWidget()
+		self.placeAttitudes()
+		return 1
+
+
 	def refreshLeaderheadWidget(self):
 		if self.iLeader < 0:
 			return 0
 		screen = self.top.getScreen()
 		screen.deleteWidget(self.leaderWidget)
-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iRenderLeader = self._getEraRenderLeader(self.iLeader, self.iSelectedEra)
+		screen.addLeaderheadGFC(self.leaderWidget, iRenderLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		return 1
 
 
@@ -417,10 +522,16 @@ class SevoPediaLeader:
 
 
 	def _drawAttitudeRowAt(self, screen, iX, iY, iW, iH):
-		# <!-- custom: draws attitude+action buttons in the expanded overlay right column. iW and iH are fixed by the helper (191x100), so no need for the dynamic fallback resizing that placeAttitudes uses for variable screen widths. (Claude code Sonnet 4.6) -->
+		# <!-- custom: draws attitude+action (+ optional era) buttons in the expanded overlay right column. iW and iH are fixed by the helper (191x100), so no need for the dynamic fallback resizing that placeAttitudes uses for variable screen widths. (Claude code Sonnet 4.6) -->
 		iSpacing = 3
 		iPadding = 6
-		iButtonH = (iH - 20) / 2
+		leaderEraArts = []
+		if IS_SAS_LEADERHEAD_ERA_ART:
+			leaderEraArts = self._getLeaderEraArts(self.iLeader)
+		iNumRows = 2
+		if leaderEraArts:
+			iNumRows = 3
+		iButtonH = (iH - 20 - 4 * (iNumRows - 2)) / iNumRows
 		iAttitudeY = iY + 11
 
 		iAttitudeCount = len(SAS_LEADER_ATTITUDE_PREVIEW_ORDER)
@@ -446,6 +557,9 @@ class SevoPediaLeader:
 		for iAction, szLabel in SAS_LEADER_ACTION_PREVIEW_ORDER:
 			screen.setButtonGFC(self.top.getNextWidgetName(), SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iActionX += iActionButtonW + iSpacing
+
+		if leaderEraArts:
+			self._placeEraRowAt(screen, iX, iActionY + iButtonH + 4, iW, iButtonH, leaderEraArts, named=False)
 
 
 
@@ -752,6 +866,8 @@ class SevoPediaLeader:
 				return self.applyLeaderAttitude(inputClass.getData2())
 			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ACTION:
 				return self.applyLeaderAction(inputClass.getData2())
+			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ERA:
+				return self.applyLeaderEra(inputClass.getData2())
 
 		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search,
 		# consider removing or remapping here. (GPT-5.2-Codex) -->

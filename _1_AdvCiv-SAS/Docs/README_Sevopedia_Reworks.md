@@ -317,6 +317,8 @@ More recently, added leader Attitude (furious, annoyed, cautious, pleased, frien
 
 Since then, increased ai personality panel default font size from body (default 2) to label (default 3), and made item bar shorter with a per font size tunable value to accomodate the AI Personality panel larger rows.
 
+Since then, we also added era attitude buttons with the very nice help of Claude code Sonnet 4.6 thanks.
+
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>

@@ -513,7 +513,7 @@ def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, pan
 def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH, leaderX, leaderY, leaderW, leaderH, bExpanded, iPythonWidgetData1):
 	# <!-- custom: expandable panel helper for the leaderhead. Like draw_expandable_content_panel_container but has no RELOAD button (leaderhead re-renders only on attitude/action button clicks, not on reload — use the attitude/action buttons in the right column instead) and reserves a right column for those buttons. Returns ((lhX, lhY, lhW, lhH), (attX, attY, attW, attH)). Collapsed returns the passed leader coords unchanged. (Claude code Sonnet 4.6) -->
 	iCloseButtonW = 85
-	iAttColW = 191
+	iAttColW = 260
 	iExpandButtonW = 107
 	if bExpanded:
 		iOverlayX = top.X_PEDIA_PAGE
@@ -541,7 +541,7 @@ def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH
 		iAttX = iOverlayX + iOverlayW - (iAttColW + 10)
 		iAttW = iAttColW
 		iAttY = iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET + 26 + 4
-		iAttH = 100
+		iAttH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		# leaderhead: full height, width capped by ratio to preserve portrait proportions
 		iLhX = iOverlayX + 10
 		iLhY = iOverlayY + 40

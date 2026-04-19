@@ -118,6 +118,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_PYTHON_HISTORY_EXPAND = 6807
 		self.SAS_PEDIA_PYTHON_CONTENT_EXPAND = 6808
 		self.SAS_PEDIA_PYTHON_CONTENT_RELOAD = 6809
+		# <!-- custom: 6810 = SAS_PEDIA_PYTHON_LEADER_ERA (Sevopedia leader era art preview buttons) defined in SevoPediaLeader.py. (Claude code Sonnet 4.6) -->
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -2296,6 +2297,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ACTION:
 				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
 					return self.pediaLeader.applyLeaderAction(iData2)
+			# <!-- custom: route era art preview buttons. (Claude code Sonnet 4.6) -->
+			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ERA:
+				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
+					return self.pediaLeader.applyLeaderEra(iData2)
 		elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
 			iBuild = inputClass.getData2()
 			# <!-- custom: use same hybrid trick as Tech Chooser for Sevopedia build entries: this widget restores
