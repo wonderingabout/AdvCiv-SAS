@@ -4557,7 +4557,7 @@ Files changed:
 
 ## 120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Pmlc3XtyCe6qwUYRVBwEL4dYNEIUOZTK?usp=sharing).
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_idRpqnUsnPtbYnuzLbnB3nBCV7WivFd?usp=sharing).
 
 Observed issue:
 

@@ -246,11 +246,12 @@ class SevoPediaLeader:
 		if self.bContentExpanded:
 			self.placeLeaderHeadPane()
 			return
+		# <!-- custom: when history is expanded, render only the overlay to avoid underlying panel bleed-through. (GPT-5.3-Codex) -->
+		if self.bHistoryExpanded:
+			self.placeHistory()
+			return
 
-		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
-		# <!-- custom: placeHistory must be last so its expanded overlay renders on top of all other panels (traits, AI personality). (Claude code Sonnet 4.6) -->
-		if not self.bHistoryExpanded:
-			self.placeLeaderHeadPane()
+		self.placeLeaderHeadPane()
 		self.placeFavorites()
 		self.placeMusic()
 		self.placeAttitudes()
@@ -265,6 +266,7 @@ class SevoPediaLeader:
 		else:
 			if IS_DEBUG_LEADER and IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
+		# <!-- custom: normal-mode panels are drawn first; placeHistory() is called last so its expandable overlay remains top-most. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 		self.placeHistory()
 
 
