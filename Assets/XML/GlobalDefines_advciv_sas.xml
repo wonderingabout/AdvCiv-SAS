@@ -219,6 +219,36 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Enable/Disable e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc: Long_Comments_XML.txt #213 -->
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #200 -->
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: some players may prefer that all leaders keep a single fixed leaderhead art across the whole game. When enabled, leaders with EraArtDefineTags entries in CIV4LeaderHeadInfos.xml show different art for their current era; when disabled the parser is skipped at XML load and every leader always shows the base ArtDefineTag. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: show/hide score-related legend links (Info Screen Score tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
@@ -518,31 +548,6 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: Enable/Disable e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc: Long_Comments_XML.txt #213 -->
-	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: Long_Comments_XML.txt #200 -->
-	<Define>
-		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
 
