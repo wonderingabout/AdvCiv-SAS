@@ -923,22 +923,22 @@ const TCHAR* CvLeaderHeadInfo::getEraArtDefineTag(EraTypes eEra) const
 
 const CvArtInfoLeaderhead* CvLeaderHeadInfo::getArtInfo() const
 {
-	// <!-- custom: per-era leader art. Locate the (first) alive player using this leader and, if an override is set for their current era, return that. Eras without an explicit override (and any non-ingame context: XML load, pedia browsing for unused leaders) fall straight back to the base ArtDefineTag. (Claude code Opus 4.7) -->
-	EraTypes eEra = NO_ERA;
-	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+	// <!-- custom: per-era leader art. Early-out when no overrides are defined for this leader (the common case) avoids the MAX_PLAYERS scan on every scene render. Otherwise locate the (first) alive player using this leader and, if an override is set for their current era, return that. Eras without an explicit override (and any non-ingame context: XML load, pedia browsing for unused leaders) fall straight back to the base ArtDefineTag. (Claude code Opus 4.7) -->
+	if (m_paszEraArtDefineTags != NULL)
 	{
-		CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-		if (kPlayer.isEverAlive() &&
-			&GC.getInfo(kPlayer.getLeaderType()) == this)
+		EraTypes eEra = NO_ERA;
+		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
 		{
-			eEra = kPlayer.getCurrentEra();
-			break;
+			CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (kPlayer.isEverAlive() &&
+				&GC.getInfo(kPlayer.getLeaderType()) == this)
+			{
+				eEra = kPlayer.getCurrentEra();
+				break;
+			}
 		}
-	}
-	if (eEra != NO_ERA && m_paszEraArtDefineTags != NULL &&
-		!m_paszEraArtDefineTags[eEra].empty())
-	{
-		return ARTFILEMGR.getLeaderheadArtInfo(m_paszEraArtDefineTags[eEra]);
+		if (eEra != NO_ERA && !m_paszEraArtDefineTags[eEra].empty())
+			return ARTFILEMGR.getLeaderheadArtInfo(m_paszEraArtDefineTags[eEra]);
 	}
 	return ARTFILEMGR.getLeaderheadArtInfo(getArtDefineTag());
 }
