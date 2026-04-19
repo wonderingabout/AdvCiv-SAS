@@ -122,6 +122,8 @@ void CyInfoPythonInterface3()
 		.def("getFreedomAppreciation", &CvLeaderHeadInfo::getFreedomAppreciation, "int ()")
 
 		.def("getArtDefineTag", &CvLeaderHeadInfo::getArtDefineTag, "string ()")
+		// <!-- custom: per-era leader art tag query — exposed for Sevopedia leader era art preview buttons only; ingame rendering goes through getArtInfo(), not this. (Claude code Sonnet 4.6) -->
+		.def("getEraArtDefineTag", &CvLeaderHeadInfo::py_getEraArtDefineTag, "string (int i)")
 
 		// Arrays
 

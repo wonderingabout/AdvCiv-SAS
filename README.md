@@ -12,7 +12,7 @@ Among notable UI changes, advisor screens have been reworked or new ones were ad
 
 A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
 
-New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
+New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
@@ -56,7 +56,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [UI (Common)](/README.md#ui-common)  
 &emsp;[Emojis](/README.md#emojis)  
 &emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
-[New optional XML fields (e.g. ObsoleteTech for units, Button for eras)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)  
+[New optional XML fields (e.g. ObsoleteTech for units, Button for eras, EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras-eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art)  
 [AI-generated images](/README.md#ai-generated-images)  
 [Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
@@ -375,7 +375,7 @@ We also added Sevopedia Expanded Text Panels, with EXPAND and CLOSE buttons. See
 
 We similarly also added Expanded Content (Non-text; e.g., Animation) Panels. We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view. See [Sevopedia Reworks (example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons).
 
-Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude and action buttons matching the ones in sevopedia leader. Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible). See [Sevopedia Reworks (example 0.95: Expanded leaderhead panel))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude, action, and (if set) leaderhead art era buttons matching the ones in sevopedia leader. Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible). See [Sevopedia Reworks (example 0.95: Expanded leaderhead panel))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
@@ -424,7 +424,7 @@ Another significant contribution from our AI helpers is the new Traits Charts, t
 
 Based on it, we notably also made, in Sevopedia Improvement, a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement.
 
-Another notable addition is the new sevopedia leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
+Another notable addition is the new sevopedia leader Attitude (furious, annoyed, cautious, pleased, friendly), Action (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there), and (if set) Leaderhead Art Era Buttons. On click, the animation changes its behaviour to that of the buttons clicked.
 
 Here is below a sample of the example screenshots showing the AI Personality panel, Traits Charts, and the many other reworks we did in Sevopedia in AdvCiv-SAS:
 
@@ -515,7 +515,7 @@ See also:
 - [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)
 - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor).
 
-## New optional XML fields (e.g. ObsoleteTech for units, Button for eras)
+## New optional XML fields (e.g. ObsoleteTech for units, Button for eras, EraArtDefineTags and EraArtDefineTag for leaderhead era art)
 
 ### ObsoleteTech for units
 
@@ -540,6 +540,53 @@ Allows to cleanly add era buttons in Sevopedia Movies and other places without h
 Civ4 already supported it, no idea why it was not the default!
 
 Change in [CIV4GameInfoSchema.xml](/Assets/XML/GameInfo/CIV4GameInfoSchema.xml), [CIV4EraInfos.xml](/Assets/XML/GameInfo/CIV4EraInfos.xml), [CvEraMovieScreen.py](/Assets/Python/Screens/CvEraMovieScreen.py). Added with the help of GPT-5.2 Thinking and Claude code Sonnet 4.5, thanks a lot!
+
+### EraArtDefineTags and EraArtDefineTag for leaderhead era art
+
+We have recently added with the help of Claude code Opus 4.7 thanks per-era leaderhead art. It allows the leader's art (nif animation, button, etc. if any more fields) to change at each era. Note: it is leader-centric and not human-centric (matches the Era progress of the specific player not of the human player).
+
+Example of usage:
+
+```xml
+		<LeaderHeadInfo> <!-- custom: Cyrus -->
+			<Type>LEADER_CYRUS</Type>
+			<Description>TXT_KEY_LEADER_CYRUS</Description>
+			<Civilopedia>TXT_KEY_LEADER_CYRUS_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_CYRUS</ArtDefineTag>
+			<EraArtDefineTags>
+				<EraArtDefineTag>
+					<EraType>ERA_ANCIENT</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_HAMMURABI</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_CLASSICAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_HATSHEPSUT</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_MEDIEVAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_EWUARE</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_RENAISSANCE</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_NAPOLEON</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_GANDHI</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_MODERN</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_STALIN</ArtDefineTag>
+				</EraArtDefineTag>
+				<EraArtDefineTag>
+					<EraType>ERA_FUTURE</EraType>
+					<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
+				</EraArtDefineTag>
+			</EraArtDefineTags>
+			<iWonderConstructRand>40</iWonderConstructRand>
+```
+
+Technical limitation when a leaderhead is used several times, only the era of one leader will be applied to all other players using the same leader. See also [KI#120](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players).
 
 ## AI-generated images
 

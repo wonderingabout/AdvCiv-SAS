@@ -8,6 +8,8 @@ Note 2: this doc may be outdated or not updated for some parts, but it is still 
 
 Note 3: all issues that have a drive link are also accessible via the [common known issues drive folder](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8).
 
+Note 4: some entries especially later ones are written with the help of LLMs; while they may be generally correct in describing the problem, for explanation/causes i did not always check or verify it, and i may be mistaken too.
+
 ## Menu
 
 [1 - Redundant attribute values for all AI Civs](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#1---redundant-attribute-values-for-all-ai-civs)  
@@ -153,6 +155,7 @@ Note 3: all issues that have a drive link are also accessible via the [common kn
 [117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)  
 [118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
 [119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history)  
+[120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -3997,7 +4000,7 @@ Not updating every issue here, but since then a much cleaner fix to aberrant obs
 
 Initial version at [commit/a134450486e0104df9473d46017ebc6e4d7bc553](https://github.com/wonderingabout/AdvCiv-SAS/commit/a134450486e0104df9473d46017ebc6e4d7bc553).
 
-See details at [README.md#new-optional-xml-fields-eg-obsoletetech-for-units](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)
+See details at [README.md#new-optional-xml-fields-eg-obsoletetech-for-units](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras-eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art).
 
 ## 94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)
 
@@ -4551,3 +4554,21 @@ Fix applied:
 Files changed:
 
 - [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
+
+## 120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Pmlc3XtyCe6qwUYRVBwEL4dYNEIUOZTK?usp=sharing).
+
+Observed issue:
+
+- The per-era leader art feature (gated by `SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS`) picks the era from the first alive player using a given leader. In the common case (unique leaders per game) this is correct.
+- When the same leader is assigned to multiple players (unrestricted leaders, or custom scenarios placing e.g. De Gaulle on 3 civs), all duplicates render with the lowest-index player's era art — even if player A is in Classical while player B is in Industrial. This is acceptable because a leader used several times by diffetrent players is a rare occurence that happens outside of normal play.
+
+Why not fixed:
+
+- `CvLeaderHeadInfo::getArtInfo()` is called by the EXE with no player context — it only receives the global info pointer. The function signature can't be extended across the DLL/EXE boundary.
+- The failure mode is purely cosmetic (wrong era art on a duplicate) and never crashes; fallback to the base `ArtDefineTag` works normally when no override is set.
+
+Files affected:
+
+- [CvGameCoreDLL/CvInfo_Civilization.cpp](/CvGameCoreDLL/CvInfo_Civilization.cpp) - `CvLeaderHeadInfo::getArtInfo()`
