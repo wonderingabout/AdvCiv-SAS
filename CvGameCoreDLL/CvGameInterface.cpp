@@ -2943,6 +2943,8 @@ void CvGame::onCityScreenChange()
 		map excerpt on the city screen better. */
 	if (m_bCityScreenUp)
 	{
+		static float const fSASCityScreenCameraNorthBias = GC.getDefineINT("SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT") / 100.0f;
+		static float const fSASCityScreenCameraNorthBiasHUDBonus = GC.getDefineINT("SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_HUD_BONUS_PERCENT") / 100.0f;
 		CvPlot const* pCityPlot = gDLL->UI().getSelectionPlot();
 		if (pCityPlot != NULL)
 		{
@@ -2952,9 +2954,10 @@ void CvGame::onCityScreenChange()
 			{
 				NiPoint3 nOneNorth = pOneNorth->getPoint();
 				NiPoint3 nCity = pCityPlot->getPoint();
-				float const fDisplWeight = 0.23f +
+				// <!-- custom: keep city-screen camera north shift tunable via SAS defines so city UI can reclaim bottom room (e.g. multi-row city panels) without showing tiles beyond BFC. (GPT-5.3-Codex) -->
+				float const fDisplWeight = fSASCityScreenCameraNorthBias +
 						(BUGOption::isEnabled("MainInterface__EnlargeHUD", true) ?
-						0.03f : 0);
+						fSASCityScreenCameraNorthBiasHUDBonus : 0);
 				NiPoint3 nLookAt(nCity.x,
 						nCity.y + fDisplWeight * (nOneNorth.y - nCity.y), nCity.z);
 				gDLL->UI().lookAt(nLookAt, CAMERALOOKAT_CITY_ZOOM_IN);

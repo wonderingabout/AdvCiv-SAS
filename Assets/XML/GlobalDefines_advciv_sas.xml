@@ -497,6 +497,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: city-screen camera recenter north-bias percent (integer percent of one-plot north delta). With current camera orientation, increasing this value moves the city view lower; decrease it to lift the city higher and free bottom-space for city UI rows. (GPT-5.3-Codex); Base AdvCiv value: 23. -->
+	<Define>
+		<DefineName>SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT</DefineName>
+		<iDefineIntVal>-2</iDefineIntVal>
+	</Define>
+	<!-- custom: extra north-bias percent applied when BUG "Enlarge HUD" is enabled. (GPT-5.3-Codex); Base AdvCiv value: 3. -->
+	<Define>
+		<DefineName>SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_HUD_BONUS_PERCENT</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
 	<!-- custom: add buttons city screen in the production queue and other places, with the help of claude opus 4.5 -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS</DefineName>
