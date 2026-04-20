@@ -176,7 +176,7 @@ class CvMainInterface:
 				gRect("CenterBottomPanel").x(), gRect("CenterBottomPanel").y(),
 				gRect("CenterBottomPanel").width(), gRect("CenterBottomPanel").height())
 	def cityScreenBottomLift(self):
-		# <!-- custom: lift by 1 row plus an extra gap to mirror bottom spacing. (GPT-5.2-Codex) -->
+		# <!-- custom: base city-screen lift used by side panels/bars; keep shared behavior stable. (GPT-5.3-Codex) -->
 		return self.bottomListBtnSize() + VSPACE(16)
 
 	def _cacheCityScreenSideLiftRects(self):
@@ -194,6 +194,7 @@ class CvMainInterface:
 		aRects = [
 			"LowerLeftCornerPanel", "LowerLeftCornerBackgr", "LowerLeftCorner",
 			"LowerRightCornerPanel", "LowerRightCorner",
+			"CenterBottomPanel", "CenterBottom",
 			"CultureBars", "CultureBar",
 			"GreatPeopleBar",
 		]
@@ -211,10 +212,20 @@ class CvMainInterface:
 		if bEnable == self.bCityScreenSideLiftApplied:
 			return
 		iLift = self.cityScreenBottomLift()
+		iRibbonExtraLift = self.iCityScreenBlueRibbonExtraLift
 		for szName in self._cityScreenSideLiftRectNames():
 			lBase = self.cityScreenSideLiftRects[szName].copy()
 			if bEnable:
-				if szName in ("LowerLeftCornerPanel", "LowerRightCornerPanel"):
+				if szName == "CenterBottomPanel":
+					# <!-- custom: decorative ribbon gets the full lift (base + ribbon-extra). (Claude code Opus 4.7) -->
+					iCenterLift = iLift + iRibbonExtraLift
+					lBase.move(0, -iCenterLift)
+					lBase.adjustSize(0, iCenterLift)
+				elif szName == "CenterBottom":
+					# <!-- custom: bar container gets base lift only, so the bar rect (and iMaxHeight feeding updateBottomButtonList) stays independent of the ribbon-extra-lift knob. (Claude code Opus 4.7) -->
+					lBase.move(0, -iLift)
+					lBase.adjustSize(0, iLift)
+				elif szName in ("LowerLeftCornerPanel", "LowerRightCornerPanel"):
 					lBase.move(0, -iLift)
 					lBase.adjustSize(0, iLift)
 				else:
@@ -239,6 +250,9 @@ class CvMainInterface:
 		self.screen.setPanelSize("LowerRightCornerPanel",
 				gRect("LowerRightCornerPanel").x(), gRect("LowerRightCornerPanel").y(),
 				gRect("LowerRightCornerPanel").width(), gRect("LowerRightCornerPanel").height())
+		self.screen.setPanelSize("CenterBottomPanel",
+				gRect("CenterBottomPanel").x(), gRect("CenterBottomPanel").y(),
+				gRect("CenterBottomPanel").width(), gRect("CenterBottomPanel").height())
 		self.screen.setPanelSize("CityLeftPanel",
 				gRect("CityLeftPanel").x(), gRect("CityLeftPanel").y(),
 				gRect("CityLeftPanel").width(), gRect("CityLeftPanel").height())
@@ -659,6 +673,8 @@ class CvMainInterface:
 		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here. (GPT-5.2-Codex (summarized)) -->
 		self.iBarExtraRows = None
 		self.iBarExtraRowsExtraManualAdjust = None
+		self.iBarExtraHeightExtraManualAdjust = None
+		self.iCityScreenBlueRibbonExtraLift = None
 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
 		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
@@ -1965,6 +1981,10 @@ class CvMainInterface:
 		if self.iBarExtraRows is None:
 			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
+		if self.iBarExtraHeightExtraManualAdjust is None:
+			self.iBarExtraHeightExtraManualAdjust = VSPACE(gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_HEIGHT_EXTRA_MANUAL_ADJUST"))
+		if self.iCityScreenBlueRibbonExtraLift is None:
+			self.iCityScreenBlueRibbonExtraLift = VSPACE(gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BLUE_RIBBON_EXTRA_LIFT"))
 		if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS is None:
 			self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS") > 0)
 		if self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN is None:
@@ -2590,6 +2610,9 @@ class CvMainInterface:
 		iMaxHeight = gRect("CenterBottom").height() - 2 * VSPACE(1)
 		iHeight = max(iButtonSize, iMaxHeight - (iMaxHeight % iButtonSize)
 				+ 4) # A little extra to avoid a vertical slider
+		# <!-- custom: optional city-screen build-bar height tweak; raw pixel add so the last row can fit (e.g. 3.9 -> 4.0 rows) without growing the decorative ribbon. Safe because CenterBottom (and thus iMaxHeight) no longer varies with the ribbon-extra-lift knob. (GPT-5.3-Codex + Claude code Opus 4.7) -->
+		if CyInterface().isCityScreenUp() and self.iBarExtraHeightExtraManualAdjust != 0:
+			iHeight += self.iBarExtraHeightExtraManualAdjust
 		iVMargin = iMaxHeight - iHeight + 2 * VSPACE(1)
 		# <advc.004> Lower position goes better with the filter buttons
 		if PleOpt.isPLE_Style() and PleOpt.isShowButtons:

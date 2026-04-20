@@ -490,7 +490,17 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: extra vertical adjustment for the city-screen things-to-build bar (inactive if SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS <= 0). Value is resolution-scaled and sign-preserving: < 0 moves the bar up, > 0 moves it down, 0 keeps base placement. Adjust as you see fit. (GPT-5.3-Codex (summarized)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
-		<iDefineIntVal>-15</iDefineIntVal>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: extra city-screen build-bar height tweak (pixels, VSPACE-scaled). Positive = taller (helps clipped bottom-row icons), negative = shorter. 0 keeps base behavior. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_HEIGHT_EXTRA_MANUAL_ADJUST</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<!-- custom: extra city-screen center blue-ribbon lift only (on top of base city-screen lift). Positive lifts more, negative lowers. 0 keeps base behavior. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BLUE_RIBBON_EXTRA_LIFT</DefineName>
+		<iDefineIntVal>27</iDefineIntVal>
 	</Define>
 	<!-- custom: hide the unit bar ("PlotListPanel") (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
 	<Define>
@@ -500,7 +510,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: city-screen camera recenter north-bias percent (integer percent of one-plot north delta). With current camera orientation, increasing this value moves the city view lower; decrease it to lift the city higher and free bottom-space for city UI rows. (GPT-5.3-Codex); Base AdvCiv value: 23. -->
 	<Define>
 		<DefineName>SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT</DefineName>
-		<iDefineIntVal>-2</iDefineIntVal>
+		<iDefineIntVal>-3</iDefineIntVal>
 	</Define>
 	<!-- custom: extra north-bias percent applied when BUG "Enlarge HUD" is enabled. (GPT-5.3-Codex); Base AdvCiv value: 3. -->
 	<Define>
