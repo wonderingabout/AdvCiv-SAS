@@ -243,6 +243,8 @@ class CvTechChooser:
 
 		# Hide the screen
 		screen.hideScreen()
+		# <!-- custom: force scoreboard redraw when closing Tech Chooser so any Tech-Chooser-specific alignment/layout rules revert immediately. (GPT-5.3-Codex) -->
+		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: runtime geometry wrapper to mirror Info/Foreign advisor structure: keep resolution-dependent bounds in one place and out of init-time setup. (GPT-5.3-Codex) -->
@@ -289,6 +291,8 @@ class CvTechChooser:
 
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+		# <!-- custom: force scoreboard redraw when opening Tech Chooser so Tech-Chooser-specific scoreboard alignment applies immediately (not only after hover-triggered redraw). (GPT-5.3-Codex) -->
+		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
 		screen.hide("AddTechButton")
 		screen.hide("ASPointsLabel")
@@ -1551,6 +1555,8 @@ class CvTechChooser:
 			screen.hide("AddTechButton")
 
 	def onClose(self):
+		# <!-- custom: ensure scoreboard alignment state resets even when Tech Chooser closes through onClose (not hideScreen). (GPT-5.3-Codex) -->
+		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 		pPlayer = gc.getPlayer(self.iCivSelected)
 		if (pPlayer.getAdvancedStartPoints() >= 0):
 			CyInterface().setDirty(InterfaceDirtyBits.Advanced_Start_DIRTY_BIT, true)

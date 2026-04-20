@@ -23,6 +23,7 @@ import re
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
+import CvScreenEnums
 import SASTextScale
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
@@ -512,6 +513,11 @@ class Scoreboard:
 		# </advc.085>
 		format = re.findall('(-?[0-9]+|[^0-9])', szDisplayOrder.replace(' ', '').upper())
 		format.reverse()
+		# <!-- custom: when Tech Chooser is open, right-align scoreboard names to recover usable width near the left edge of the panel; keep normal alignment elsewhere. (GPT-5.3-Codex) -->
+		bLeftAlignName = ScoreOpt.isLeftAlignName()
+		bTechChooserActive = CyGInterfaceScreen("TechChooser", CvScreenEnums.TECH_CHOOSER).isActive()
+		if bTechChooserActive:
+			bLeftAlignName = False
 		for k in format:
 			if k == '-':
 				spacing = 0
@@ -590,7 +596,7 @@ class Scoreboard:
 					if (playerScore.has(c)):
 						value = playerScore.value(c)
 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
-							if (ScoreOpt.isLeftAlignName()):
+							if (bLeftAlignName):
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
@@ -607,7 +613,7 @@ class Scoreboard:
 					if (playerScore.has(c)):
 						value = playerScore.value(c)
 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
-							if (ScoreOpt.isLeftAlignName()):
+							if (bLeftAlignName):
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
@@ -616,7 +622,7 @@ class Scoreboard:
 						adjustX = 0
 						if (c == NAME):
 							name = "ScoreText%d" % playerScore.getID() # advc.085: was p
-							if (ScoreOpt.isLeftAlignName()):
+							if (bLeftAlignName):
 								align = CvUtil.FONT_LEFT_JUSTIFY
 								adjustX = width
 								# advc.001: Only a workaround? Can't figure out exactly
