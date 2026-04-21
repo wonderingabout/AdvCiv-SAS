@@ -206,6 +206,29 @@ class SevoPediaSpecialist:
 				screen.setLabelAt(textName, scrollName, SASTextScale.titleText("Unlimited"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				iY += (iButtonSize + 8)
 
+		for iVoteSource in xrange(gc.getNumVoteSourceInfos()):
+			voteSourceInfo = gc.getVoteSourceInfo(iVoteSource)
+			if voteSourceInfo.getFreeSpecialist() == self.iSpecialist:
+				iVoteTarget = -1
+				for iVote in xrange(gc.getNumVoteInfos()):
+					voteInfo = gc.getVoteInfo(iVote)
+					if voteInfo and voteInfo.isVoteSourceType(iVoteSource):
+						iVoteTarget = iVote
+						break
+				for iBuilding in xrange(gc.getNumBuildingInfos()):
+					buildingInfo = gc.getBuildingInfo(iBuilding)
+					if buildingInfo.getVoteSourceType() == iVoteSource:
+						textName = self.top.getNextWidgetName()
+						if iVoteTarget > -1:
+							# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo,
+							# while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
+							screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVoteTarget)
+						else:
+							screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
+						screen.setLabelAt(textName, scrollName, SASTextScale.titleText("+1 Free (V.Sources)"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						iY += (iButtonSize + 8)
+						break
+
 		if iY == 6:
 			textName = self.top.getNextWidgetName()
 			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra slots gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)

@@ -1316,6 +1316,78 @@ def _SAS_addSection(listEntries, szHeader, items):
 		listEntries.append(x)
 
 
+# <!-- custom: shorten vote labels in the left list so they fit in the item bar without
+# changing global list width. We strip source prefixes (already shown by section headers),
+# then abbreviate Election -> E: and Resolution # -> R#. Full vote names remain visible on
+# the vote page itself. (GPT-5.4?) -->
+def _SAS_shortenVoteListLabel(szLabel):
+	if not szLabel:
+		return szLabel
+	szOut = szLabel
+	for szPrefix in ("U.N. ", "UN ", "Apostolic Palace "):
+		if szOut.startswith(szPrefix):
+			szOut = szOut[len(szPrefix):]
+			break
+	if szOut.startswith("Election"):
+		szRest = szOut[len("Election"):].strip()
+		if szRest:
+			return "E: " + szRest
+		return "E"
+	if szOut.startswith("Resolution #"):
+		szRest = szOut[len("Resolution #"):].strip()
+		if szRest:
+			return "R#" + szRest
+		return "R#"
+	return szOut
+
+
+# <!-- custom: sort vote sources from oldest to newest using the hosting building's
+# prerequisite AND tech progression (era, then grid X). This places Apostolic Palace
+# before United Nations in default XML. Fallback keeps deterministic order by source id.
+# (GPT-5.4?) -->
+def _SAS_getVoteSourceOldestFirstSortKey(iVoteSource):
+	for iBuilding in range(gc.getNumBuildingInfos()):
+		bi = gc.getBuildingInfo(iBuilding)
+		if bi and bi.getVoteSourceType() == iVoteSource:
+			iTech = bi.getPrereqAndTech()
+			if iTech > -1:
+				ti = gc.getTechInfo(iTech)
+				if ti:
+					return (ti.getEra(), ti.getGridX(), iVoteSource)
+			return (999, 999, iVoteSource)
+	return (999, 999, iVoteSource)
+
+
+# <!-- custom: Sevopedia Votes grouped by vote source. Each vote in current
+# CIV4VoteInfo.xml has exactly one source (isVoteSourceType true for one iVoteSource),
+# so we attribute each vote to the first matching source. Modders adding multi-source votes
+# would need custom duplication/grouping logic. (Claude code Opus 4.7 + GPT-5.4?) -->
+def SAS_getVotesGroupedByVoteSource(bSortLists):
+	listEntries = []
+	iNumVoteSources = gc.getNumVoteSourceInfos()
+	iNumVotes = gc.getNumVoteInfos()
+	listVoteSources = []
+	for iVoteSource in range(iNumVoteSources):
+		srcInfo = gc.getVoteSourceInfo(iVoteSource)
+		if srcInfo:
+			listVoteSources.append((_SAS_getVoteSourceOldestFirstSortKey(iVoteSource), iVoteSource, srcInfo))
+	listVoteSources.sort()
+	for _, iVoteSource, srcInfo in listVoteSources:
+		items = []
+		for iVote in range(iNumVotes):
+			voteInfo = gc.getVoteInfo(iVote)
+			if not voteInfo:
+				continue
+			if voteInfo.isVoteSourceType(iVoteSource):
+				items.append((_SAS_shortenVoteListLabel(voteInfo.getDescription()), iVote))
+		if bSortLists:
+			items.sort()
+		# VoteSourceInfo.getDescription() resolves to the hosting building's name
+		# (TXT_KEY_BUILDING_UNITED_NATIONS / TXT_KEY_BUILDING_APOSTOLIC_PALACE).
+		_SAS_addSection(listEntries, srcInfo.getDescription(), items)
+	return listEntries
+
+
 def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
 	if szSoundScript:
 		return szLabel + " - " + szSoundScript

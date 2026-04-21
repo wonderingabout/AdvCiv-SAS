@@ -156,6 +156,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
 [119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history)  
 [120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players)  
+[121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4572,3 +4573,30 @@ Why not fixed:
 Files affected:
 
 - [CvGameCoreDLL/CvInfo_Civilization.cpp](/CvGameCoreDLL/CvInfo_Civilization.cpp) - `CvLeaderHeadInfo::getArtInfo()`
+
+## 121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/17whOKSiVxA88oZxGlBUwIHl2Aa5U5Z1M?usp=sharing).
+
+Observed issue:
+
+- In Sevopedia Votes, `Religion Commerces` could display `None` even when XML had non-zero values in `CIV4VoteSourceInfos.xml` under `<ReligionCommerces>`.
+
+Root cause:
+
+- In `CvVoteSourceInfo::read` (`CvInfo_Building.cpp`), the XML loader call for commerce values incorrectly targeted the yield container:
+  - `SetCommerceList(ReligionYield(), "ReligionCommerces")` (wrong target)
+- Because of that, `getReligionCommerce(i)` returned zeroes, so UI and gameplay readers saw no commerce bonuses from vote sources.
+
+Fix:
+
+- In `CvVoteSourceInfo::read` (`CvInfo_Building.cpp`), changed the loader target, from `SetCommerceList(ReligionYield(), "ReligionCommerces")` (wrong target) to `SetCommerceList(ReligionCommerce(), "ReligionCommerces")` (the proper commerce container).
+
+Result:
+
+- Vote-source commerce values now load from XML correctly.
+- Sevopedia Votes `Vote Source Info` now shows the expected non-zero religion commerce entries instead of `None` when data exists.
+
+File changed:
+
+- [CvGameCoreDLL/CvInfo_Building.cpp](/CvGameCoreDLL/CvInfo_Building.cpp)

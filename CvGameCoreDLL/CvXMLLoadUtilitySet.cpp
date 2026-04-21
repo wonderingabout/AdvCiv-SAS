@@ -698,6 +698,15 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paSpecialUnitInfo, "CIV4SpecialUnitInfos", "Units", "Civ4SpecialUnitInfos/SpecialUnitInfos/SpecialUnitInfo", false);
 	LoadGlobalClassInfo(GC.m_paProjectInfo, "CIV4ProjectInfo", "GameInfo", "Civ4ProjectInfo/ProjectInfos/ProjectInfo", true);
 	LoadGlobalClassInfo(GC.m_paCivicInfo, "CIV4CivicInfos", "GameInfo", "Civ4CivicInfos/CivicInfos/CivicInfo", false, &CvDLLUtilityIFaceBase::createCivicInfoCacheObject);
+	// <!-- custom: moved CIV4VoteInfo load here from LoadPostMenuGlobals
+	// so VoteInfos are parsed at app startup instead of only after leaving the main menu.
+	// Reason: our Sevopedia Votes category would otherwise show an empty list when opened
+	// from the main menu, since gc.getNumVoteInfos() returns 0 pre-game, and Sevopedia
+	// caches that empty list. Placed AFTER CivicInfos because CIV4VoteInfo.xml references
+	// civic types via <ForceCivics>; loading it before civics triggers unknown-civic-type
+	// XML errors at launch. Safe to move: CvVoteInfo is plain XML-backed data with no
+	// per-game state. (Claude code Opus 4.7) -->
+	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
 	FOR_EACH_ENUM(VoteSource)
 		GC.getInfo(eLoopVoteSource).readPass3();
 	LoadGlobalClassInfo(GC.m_paLeaderHeadInfo, "CIV4LeaderHeadInfos", "Civilizations", "Civ4LeaderHeadInfos/LeaderHeadInfos/LeaderHeadInfo", false, &CvDLLUtilityIFaceBase::createLeaderHeadInfoCacheObject);
@@ -808,8 +817,12 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paCommandInfo, "CIV4CommandInfos", "Units", "Civ4CommandInfos/CommandInfos/CommandInfo", false);
 	LoadGlobalClassInfo(GC.m_paAutomateInfo, "CIV4AutomateInfos", "Units", "Civ4AutomateInfos/AutomateInfos/AutomateInfo", false);
 
-	UpdateProgressCB("Global Vote");
-	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
+	// <!-- custom: CIV4VoteInfo load moved to LoadPreMenuGlobals (placed right
+	// after CIV4CivicInfos since <ForceCivics> references civic types) so the Sevopedia
+	// Votes category populates from the main menu too. See the matching comment there for
+	// the full rationale. (Claude code Opus 4.7) -->
+	//UpdateProgressCB("Global Vote");
+	//LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
 
 	UpdateProgressCB("Global Interface");
 	// advc.003j:

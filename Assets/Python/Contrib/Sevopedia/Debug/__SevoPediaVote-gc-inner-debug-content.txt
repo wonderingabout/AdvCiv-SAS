@@ -1,0 +1,103 @@
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
+in sevopediavote, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+printObjAttrs(gc.getVoteInfo(self.iVote))
+returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+
+
+[DEBUG] Beginning of show obj inner fields.
+
+__class__
+
+__delattr__
+
+__dict__ = {}
+
+__doc__ = None
+
+__getattribute__
+
+__hash__
+
+__init__
+
+__instance_size__ = 368
+
+__module__ = CvPythonExtensions
+
+__new__
+
+__reduce__
+
+__reduce_ex__
+
+__repr__
+
+__setattr__
+
+__str__
+
+__weakref__ = None
+
+getButton
+
+getCivilopedia
+
+getDescription
+
+getDescriptionForm
+
+getHelp
+
+getMinVoters
+
+getPopulationThreshold
+
+getStateReligionVotePercent
+
+getStrategy
+
+getText
+
+getTextKey
+
+getTradeRoutes
+
+getType
+
+isAssignCity
+
+isCityVoting
+
+isCivVoting
+
+isDefensivePact
+
+isForceCivic
+
+isForceNoTrade
+
+isForcePeace
+
+isForceWar
+
+isFreeTrade
+
+isGraphicalOnly
+
+isMatchForLink
+
+isNoNukes
+
+isOpenBorders
+
+isSecretaryGeneral
+
+isVictory
+
+isVoteSourceType
+
+[DEBUG] End of show show obj inner fields.

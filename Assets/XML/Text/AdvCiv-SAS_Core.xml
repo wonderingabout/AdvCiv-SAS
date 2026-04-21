@@ -168,5 +168,13 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND_PEDIA</Tag>
 		<English>[H1]Sevopedia Speed Chart Legend[\H1][PARAGRAPH:2]This page explains abbreviated labels used in the Sevopedia Game Speed chart.[PARAGRAPH:2]- Inc Y XX: increments years chunk XX.[PARAGRAPH:2]- Inc M XX: increments months chunk XX.[PARAGRAPH:2]- Cal XX: calendar row XX.[PARAGRAPH:2]- S XX (N%): summary row XX at N percent of total turns.</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Tag>
+		<English>Sevopedia Votes Legend</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND_PEDIA</Tag>
+		<English>[H1]Sevopedia Votes Legend[\H1][PARAGRAPH:2]This page explains abbreviations used in Sevopedia Votes.[PARAGRAPH:2]List abbreviations:[PARAGRAPH:2]- Source prefixes are removed in entries because votes are already grouped by source section headers (for example, United Nations and Apostolic Palace).[PARAGRAPH:2]- E: means Election.[PARAGRAPH:2]- R# means Resolution #.[PARAGRAPH:2]Panel abbreviations:[PARAGRAPH:2]- V.Source means Vote Source.[PARAGRAPH:2]- S.Civic means Vote Source Civic.[PARAGRAPH:2]- S.Free.Sp means Vote Source Free Specialist.[PARAGRAPH:2]- Fo.Civics means Forced Civics.[PARAGRAPH:2]Scope difference:[PARAGRAPH:2]- Vote Source fields (V.Source, S.Civic, S.Free.Sp, Vote Source Info) apply to the vote source itself and are shared by votes that belong to that source.[PARAGRAPH:2]- Vote fields (Requirements, Effects, Fo.Civics) apply to the selected vote/resolution entry.[PARAGRAPH:2]- Full vote names remain visible in the Name panel.</English>
+	</TEXT>
 </Civ4GameText>
 

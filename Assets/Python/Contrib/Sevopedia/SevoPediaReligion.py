@@ -113,6 +113,8 @@ class SevoPediaReligion:
 		self.placeMovie()
 		self.placeUnit()
 		self.placeRequires()
+		# <!-- custom: no V.Source panel on Religion page: vote sources with religion-yield/religion-commerce effects are global systems
+		# (UN/AP-level) and not specific to one religion entry, so showing them per-religion would be misleading. (GPT-5.3-Codex) -->
 		self.placeSpecial()
 		self.placeHistory()
 

@@ -468,6 +468,131 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_CONCEPT_CORPORATIONS</Tag>
 		<English>Corporat.</English>
 	</TEXT>
+	<!-- custom: Sevopedia Votes category label and grouping section headers. Grouped by vote source (UN / Apostolic Palace); current XML has all votes single-sourced. (Claude code Opus 4.7) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_VOTE</Tag>
+		<English>Votes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE</Tag>
+		<English>V.Source</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INFO</Tag>
+		<English>Vote Source Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INTERVAL</Tag>
+		<English>Vote Interval</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_SECRETARY_GENERAL_TEXT</Tag>
+		<English>Secretary General Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_FREE_SPECIALIST_PANEL</Tag>
+		<English>S.Free.Sp</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_CIVIC_PANEL</Tag>
+		<English>S.Civic</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_YIELDS</Tag>
+		<English>Religion Yields</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_COMMERCES</Tag>
+		<English>Religion Commerces</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_REQUIREMENTS</Tag>
+		<English>Requirements</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_FORCE_CIVICS</Tag>
+		<English>Fo.Civics</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_CIVICS_SEE_PANEL</Tag>
+		<English>Force Civic(s) (see Fo.Civics)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_NAME</Tag>
+		<English>Name</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_POPULATION_THRESHOLD</Tag>
+		<English>Population Threshold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_MIN_VOTERS</Tag>
+		<English>Minimum Voters</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_STATE_RELIGION_VOTE</Tag>
+		<English>State Religion Vote</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_TRADE_ROUTES</Tag>
+		<English>Trade Routes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CITY_VOTING</Tag>
+		<English>City-level voting</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CIV_VOTING</Tag>
+		<English>Civ-level voting</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_SECRETARY_GENERAL</Tag>
+		<English>Elects Secretary General</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_VICTORY</Tag>
+		<English>Diplomatic Victory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FREE_TRADE</Tag>
+		<English>Free Trade</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_NO_NUKES</Tag>
+		<English>No Nuclear Weapons</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_DEFENSIVE_PACT</Tag>
+		<English>Forced Defensive Pact</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_OPEN_BORDERS</Tag>
+		<English>Forced Open Borders</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_PEACE</Tag>
+		<English>Forces Peace</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_NO_TRADE</Tag>
+		<English>Forces Trade Embargo</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_WAR</Tag>
+		<English>Forces War</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_ASSIGN_CITY</Tag>
+		<English>Assigns City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_TRADE_ROUTES_ALL_CITIES</Tag>
+		<English>All Cities Trade Routes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CIVIC_FORCE_VOTES_PANEL</Tag>
+		<English>Fo.Votes</English>
+	</TEXT>
 	<!-- custom: full plural labels for Policy advisor tabs (Religion/Corporation) to avoid singular or abbreviated captions in footer tabs. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_POLICY_TAB_RELIGIONS</Tag>

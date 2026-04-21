@@ -18,6 +18,7 @@ Note 2: in below sample examples, click the images to view them full size.
 [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
 &emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)  
+&emsp;&emsp;[example 0.41 Votes category (VoteInfo and VoteSourceInfos)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos)  
 &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
 &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
 &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
@@ -142,6 +143,16 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
 Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
 
 Note: it mirrors the log button we added in the Info screen's [new Timeline Tab](/README.md#new-advisors) we added in AdvCiv-SAS.
+
+#### example 0.41 Votes category (VoteInfo and VoteSourceInfos)
+
+More recently, we have added using widget python trick as well a new Votes category that was totally absent from Civ4, with the help of Claude code Opus 4.7 thanks a lot and GPT-5.4? (which i wanted to be GPT-5.3-Codex but it seems openai or such annoyingly forcibly rerouted it to 5.4 causing all kinds of issues or complications) and GPT-5.3-Codex? (not sure if it reverted back somewhere along the way).
+
+It features both VoteInfo and VoteSourceInfos. See [Main Changes Guide](/README.md#main-changes-guide).
+
+<img src="../Images/sevopedia/0.860_sevopedia_votes (1).JPG" alt="0.860_sevopedia_votes (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.860_sevopedia_votes (2).JPG" alt="0.860_sevopedia_votes (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
 
 #### example 0.5: Handicap Chart category
 

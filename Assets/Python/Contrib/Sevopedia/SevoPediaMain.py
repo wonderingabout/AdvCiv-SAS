@@ -45,6 +45,7 @@ import SevoPediaHistory
 import SevoPediaProject
 import SevoPediaReligion
 import SevoPediaCorporation
+import SevoPediaVote
 import SevoPediaMovie
 import SevoPediaMusic
 import SevoPediaIndex
@@ -119,6 +120,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_PYTHON_CONTENT_EXPAND = 6808
 		self.SAS_PEDIA_PYTHON_CONTENT_RELOAD = 6809
 		# <!-- custom: 6810 = SAS_PEDIA_PYTHON_LEADER_ERA (Sevopedia leader era art preview buttons) defined in SevoPediaLeader.py. (Claude code Sonnet 4.6) -->
+		# <!-- custom: Votes category has no native engine jump widget (no WIDGET_PEDIA_JUMP_TO_VOTE), so left-list entries use WIDGET_PYTHON dispatched via this id. (Claude code Opus 4.7) -->
+		self.SAS_PEDIA_PYTHON_VOTE_ENTRY = 6811
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -253,6 +256,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheFeaturesTuple = None
 		self.SAS_cacheMoviesTuple = None
 		self.SAS_cacheMusicTuple = None
+		self.SAS_cacheVotesTuple = None
 		self.SAS_musicEraTracks = None
 		self.SAS_musicLeaderTracks = None
 		self.SAS_musicCivTracks = None
@@ -354,6 +358,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconOccupation, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
 			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconOccupation, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
 			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconOccupation, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
+			(SevoScreenEnums.PEDIA_VOTES, "TXT_KEY_PEDIA_CATEGORY_VOTE", iconOccupation, "placeVotes", SevoPediaVote.SevoPediaVote, None),
 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
 		)
 
@@ -1475,6 +1480,40 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_cacheCorporationsTuple = tuple(baseList)
 		return self.SAS_cacheCorporationsTuple
 
+	# <!-- custom: Sevopedia Votes category (grouped by vote source). No native engine jump
+	# widget for votes, so items use WIDGET_PYTHON routed via SAS_PEDIA_PYTHON_VOTE_ENTRY.
+	# Vote pages have no dedicated icon art, so the left-list button reuses the hosting
+	# building's icon. Design assumes each vote has exactly one source (modders adding
+	# multi-source votes would need to extend the grouping helper). (Claude code Opus 4.7) -->
+	def placeVotes(self):
+		self.list = self.getVoteList()
+		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getVoteInfoForList)
+
+	def getVoteList(self):
+		if self.SAS_cacheVotesTuple is None:
+			listEntries = SAS_MainGroupings.SAS_getVotesGroupedByVoteSource(self.isSortLists())
+			self.SAS_cacheVotesTuple = tuple(listEntries)
+		return self.SAS_cacheVotesTuple
+
+	def getVoteInfoForList(self, id):
+		# Return CvVoteInfo; used as the `info` arg to placeItems. The button branch in
+		# placeItems detects this function identity and routes to SAS_getVoteButton.
+		return gc.getVoteInfo(id)
+
+	def SAS_getVoteButton(self, iVote):
+		voteInfo = gc.getVoteInfo(iVote)
+		if not voteInfo:
+			return ""
+		for iSrc in range(gc.getNumVoteSourceInfos()):
+			if voteInfo.isVoteSourceType(iSrc):
+				for iBuilding in range(gc.getNumBuildingInfos()):
+					bi = gc.getBuildingInfo(iBuilding)
+					if bi and bi.getVoteSourceType() == iSrc:
+						return bi.getButton()
+				break
+		return ""
+
+
 	def placeConcepts(self):
 		self.list = self.getConceptList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_DESCRIPTION, gc.getConceptInfo)
@@ -1981,6 +2020,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						szButtonPlaceItems = infoObj.getButton()
 				elif info == self.getMusicInfo:
 					szButtonPlaceItems = self.SAS_getMusicButton(data1)
+				elif info == self.getVoteInfoForList:
+					szButtonPlaceItems = self.SAS_getVoteButton(data1)
 				else:
 					szButtonPlaceItems = info(data1).getButton()
 
@@ -2010,6 +2051,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if data1 != -1:
 					data2 = data1
 					data1 = self.SAS_PEDIA_PYTHON_MUSIC_ENTRY
+					bSAS_hasCustomData2 = True
+			# <!-- custom: votes use WIDGET_PYTHON routing since no native jump-to-vote widget exists. (Claude code Opus 4.7) -->
+			if info == self.getVoteInfoForList:
+				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
+				if data1 != -1:
+					data2 = data1
+					data1 = self.SAS_PEDIA_PYTHON_VOTE_ENTRY
 					bSAS_hasCustomData2 = True
 
 			if info == gc.getConceptInfo:
@@ -2225,6 +2273,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						self.pediaJump(SevoScreenEnums.PEDIA_MUSIC, item[1], True, False)
 						self.pediaMusic.playMusic(item[1])
 						return 1
+			# <!-- custom: Votes list click -> vote page. (Claude code Opus 4.7) -->
+			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_VOTES:
+				iRow = inputClass.getData()
+				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
+				if iListIdx is not None:
+					item = self.list[iListIdx]
+					if item[1] != -1:
+						return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, item[1], True, False)
 
 		# Existing TOC/INDEX buttons.
 		if self.SAS_USE_BOTTOM_TABS:
@@ -2253,6 +2309,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iData1 == self.SAS_PEDIA_PYTHON_MUSIC_PLAY:
 				self.pediaMusic.playMusic(iData2)
 				return 1
+			# <!-- custom: Vote WIDGET_PYTHON route (no native WIDGET_PEDIA_JUMP_TO_VOTE exists). (Claude code Opus 4.7) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_VOTE_ENTRY:
+				return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, iData2, True, False)
 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
 				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:

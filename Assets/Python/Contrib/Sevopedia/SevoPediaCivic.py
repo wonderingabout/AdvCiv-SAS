@@ -64,19 +64,26 @@ class SevoPediaCivic:
 		self.W_STATS = 250
 		self.H_STATS = 200
 
-		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN)
-
+		# <!-- custom: left-to-right civic page layout:
+		# civic pane -> effects -> requires (top) / vote source + force votes (bottom) -> favorites.
+		# Effects width is computed from the remaining horizontal space after placing right-side panels. (GPT-5.4?) -->
 		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
 
 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
-
-		self.W_SPECIAL = self.W_REMAINING_CENTER_SPACE - self.W_REQUIRES
-
-		self.X_REQUIRES = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
-
+		self.W_VOTE_SOURCE = self.W_REQUIRES
+		self.W_VOTES = self.W_REQUIRES
+		xRightEdgeBeforeFavorites = self.X_FAVORITES - self.MEDIUM_MARGIN
+		self.W_RIGHT_BLOCK = self.W_REQUIRES + self.MEDIUM_MARGIN + self.W_VOTE_SOURCE
+		self.X_REQUIRES = xRightEdgeBeforeFavorites - self.W_RIGHT_BLOCK
+		self.X_VOTE_SOURCE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.X_VOTES = self.X_VOTE_SOURCE
+		self.W_SPECIAL = self.X_REQUIRES - self.MEDIUM_MARGIN - self.X_SPECIAL
 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
-
-		self.Y_REQUIRES = self.Y_CIVIC_PANE + self.H_CIVIC_PANE - self.H_REQUIRES
+		self.Y_REQUIRES = self.Y_CIVIC_PANE
+		self.Y_VOTE_SOURCE = self.Y_REQUIRES
+		self.H_VOTE_SOURCE = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+		self.Y_VOTES = self.Y_VOTE_SOURCE + self.H_VOTE_SOURCE + self.SMALL_MARGIN
+		self.H_VOTES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.Y_SPECIAL = self.Y_CIVIC_PANE
 
@@ -99,6 +106,8 @@ class SevoPediaCivic:
 		self.placeStats()
 		self.placeSpecial()
 		self.placeRequires()
+		self.placeVoteSource()
+		self.placeVotes()
 		self.placeHistory()
 
 
@@ -181,6 +190,12 @@ class SevoPediaCivic:
 		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(listName, False)
 		szSpecialText = CyGameTextMgr().parseCivicInfo(self.iCivic, True, False, True)
+		if not szSpecialText or len(szSpecialText.strip()) == 0:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_SPECIAL + (self.H_SPECIAL / 2)
+			screen.addMultilineText(listName, SASTextScale.labelText(szText), self.X_SPECIAL + 7, yPanelCenter, self.W_SPECIAL - 14, self.H_SPECIAL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			return
 		# <!-- custom: leave some room on top, based on placeSpecial in sevopedia terrain -->
 		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -196,6 +211,73 @@ class SevoPediaCivic:
 		iTech = gc.getCivicInfo(self.iCivic).getTechPrereq()
 		if (iTech > -1):
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+		else:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeVotes(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_CIVIC_FORCE_VOTES_PANEL", ()), "", False, True, self.X_VOTES, self.Y_VOTES, self.W_VOTES, self.H_VOTES, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.enableSelect(panelName, False)
+		screen.attachLabel(panelName, "", "  ")
+
+		bFound = False
+		for iVote in range(gc.getNumVoteInfos()):
+			voteInfo = gc.getVoteInfo(iVote)
+			if voteInfo and voteInfo.isForceCivic(self.iCivic):
+				szButton = ""
+				for iVoteSource in range(gc.getNumVoteSourceInfos()):
+					if voteInfo.isVoteSourceType(iVoteSource):
+						for iBuilding in range(gc.getNumBuildingInfos()):
+							bi = gc.getBuildingInfo(iBuilding)
+							if bi and bi.getVoteSourceType() == iVoteSource:
+								szButton = bi.getButton()
+								break
+						break
+				if szButton:
+					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVote, False)
+					bFound = True
+				break
+		if not bFound:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_VOTES + (self.H_VOTES / 2)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTES + 7, yPanelCenter, self.W_VOTES - 14, self.H_VOTES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+
+
+	def placeVoteSource(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_SOURCE", ()), "", False, True, self.X_VOTE_SOURCE, self.Y_VOTE_SOURCE, self.W_VOTE_SOURCE, self.H_VOTE_SOURCE, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.enableSelect(panelName, False)
+		screen.attachLabel(panelName, "", "  ")
+
+		bFound = False
+		for iVoteSource in range(gc.getNumVoteSourceInfos()):
+			srcInfo = gc.getVoteSourceInfo(iVoteSource)
+			if srcInfo and srcInfo.getCivic() == self.iCivic:
+				for iBuilding in range(gc.getNumBuildingInfos()):
+					bi = gc.getBuildingInfo(iBuilding)
+					if bi and bi.getVoteSourceType() == iVoteSource:
+						screen.attachImageButton(panelName, "", bi.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+						bFound = True
+						break
+				if bFound:
+					break
+		if not bFound:
+			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+			textName = self.top.getNextWidgetName()
+			szText = localText.getText(txtKeyNone, ())
+			yPanelCenter = self.Y_VOTE_SOURCE + (self.H_VOTE_SOURCE / 2)
+			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTE_SOURCE + 7, yPanelCenter, self.W_VOTE_SOURCE - 14, self.H_VOTE_SOURCE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
