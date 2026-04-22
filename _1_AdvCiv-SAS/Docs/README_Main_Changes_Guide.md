@@ -56,6 +56,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 &emsp;[Culture](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#culture)  
 &emsp;[Religions](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#religions)  
 &emsp;[Corporations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#corporations)  
+&emsp;[Votes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#votes)  
 &emsp;[Civilizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilizations)  
 &emsp;[Leaders](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#leaders)  
 &emsp;[Barbarians](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians)  
@@ -525,6 +526,10 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 - **Executives:** significantly **cheaper**.
 - **Executives** now **require the same Tech(s)** to be built as their corresponding corporation's does (e.g. `TECH_MARINE_TECHNOLOGY` and `TECH_CORPORATION` for the Sid Sushi's executive unit; was `NONE`.) to be built. This simplifies the Sevopedia Unit Era grouping implementation so they are correctly listed (e.g. "at Modern Era", not at "No Technology Prequisite"), and executive's effective availability (i.e. not until the later eras). This also balances **rival city acquisition** so a player **cannot produce executives if we do not have the corresponding Corporation** in the city (mirroring the shrine prerequirement change).
 - **Great Person variety:** each corporation uses **one distinct Great Person type** (no overlaps).
+
+## Votes
+
+- (Requires AdvCiv-SAS 5695+) Add `<Civilopedia>` field to the [CIV4GameInfoSchema.xml](/Assets/XML/GameInfo/CIV4GameInfoSchema.xml) and populate them in [CIV4VoteInfo.xml](/Assets/XML/GameInfo/CIV4VoteInfo.xml) so votes show **text** in the new **Sevopedia Votes** (from existing Civ4 text in the "Outdated" sevopedia category (`ConceptInfos`)).
 
 ## Civilizations
 

@@ -160,6 +160,8 @@
 	<ElementType name="VoteInfo" content="eltOnly">
 		<element type="Type"/>
 		<element type="Description"/>
+		<!-- custom: new optional VoteInfo Civilopedia field so vote entries can provide shared pedia text keys (UN/AP) without forcing every vote to define one. (GPT-5.3-Codex) -->
+		<element type="Civilopedia" minOccurs="0"/>
 		<element type="iPopulationThreshold"/>
 		<element type="bCityVoting"/>
 		<element type="bCivVoting"/>

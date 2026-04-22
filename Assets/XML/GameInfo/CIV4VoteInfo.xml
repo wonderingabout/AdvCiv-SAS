@@ -5,11 +5,13 @@
 <!-- -->
 <!-- custom: import from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo and adjusted or not for AdvCiv-SAS-->
 <!-- Vote Infos -->
+<!-- custom: added a new optional VoteInfo Civilopedia field in schema and populated entries here for all votes; UN votes use TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA and Apostolic votes use TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA. (GPT-5.3-Codex) -->
 <Civ4VoteInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<VoteInfos>
 		<VoteInfo>
 			<Type>VOTE_SECRETARY_GENERAL</Type>
 			<Description>TXT_KEY_VOTE_SECRETARY_GENERAL</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>40</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -37,6 +39,7 @@
 		<VoteInfo>
 			<Type>VOTE_VICTORY</Type>
 			<Description>TXT_KEY_VOTE_VICTORY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -64,6 +67,7 @@
 		<VoteInfo>
 			<Type>VOTE_SINGLE_CURRENCY</Type>
 			<Description>TXT_KEY_VOTE_SINGLE_CURRENCY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -91,6 +95,7 @@
 		<VoteInfo>
 			<Type>VOTE_FREE_TRADE</Type>
 			<Description>TXT_KEY_VOTE_FREE_TRADE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -118,6 +123,7 @@
 		<VoteInfo>
 			<Type>VOTE_NO_NUKES</Type>
 			<Description>TXT_KEY_VOTE_NO_NUKES</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -145,6 +151,7 @@
 		<VoteInfo>
 			<Type>VOTE_UNIVERSAL_SUFFRAGE</Type>
 			<Description>TXT_KEY_VOTE_UNIVERSAL_SUFFRAGE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -177,6 +184,7 @@
 		<VoteInfo>
 			<Type>VOTE_FREE_SPEECH</Type>
 			<Description>TXT_KEY_VOTE_FREE_SPEECH</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -209,6 +217,7 @@
 		<VoteInfo>
 			<Type>VOTE_WAGE_LABOR</Type>
 			<Description>TXT_KEY_VOTE_WAGE_LABOR</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -241,6 +250,7 @@
 		<VoteInfo>
 			<Type>VOTE_TRADE_BLOC</Type>
 			<Description>TXT_KEY_VOTE_TRADE_BLOC</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -273,6 +283,7 @@
 		<VoteInfo>
 			<Type>VOTE_FREE_RELIGION</Type>
 			<Description>TXT_KEY_VOTE_FREE_RELIGION</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>51</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -305,6 +316,7 @@
 		<VoteInfo>
 			<Type>VOTE_UN_FORCE_PEACE</Type>
 			<Description>TXT_KEY_VOTE_UN_FORCE_PEACE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -332,6 +344,7 @@
 		<VoteInfo>
 			<Type>VOTE_UN_FORCE_NO_TRADE</Type>
 			<Description>TXT_KEY_UN_VOTE_FORCE_NO_TRADE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -359,6 +372,7 @@
 		<VoteInfo>
 			<Type>VOTE_UN_FORCE_WAR</Type>
 			<Description>TXT_KEY_UN_VOTE_FORCE_WAR</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -386,6 +400,7 @@
 		<VoteInfo>
 			<Type>VOTE_UN_ASSIGN_CITY</Type>
 			<Description>TXT_KEY_VOTE_UN_ASSIGN_CITY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -413,6 +428,7 @@
 		<VoteInfo>
 			<Type>VOTE_POPE</Type>
 			<Description>TXT_KEY_VOTE_POPE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>40</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -440,6 +456,7 @@
 		<VoteInfo>
 			<Type>VOTE_RELIGIOUS_VICTORY</Type>
 			<Description>TXT_KEY_VOTE_RELIGIOUS_VICTORY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>75</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -467,6 +484,7 @@
 		<VoteInfo>
 			<Type>VOTE_OPEN_BORDERS</Type>
 			<Description>TXT_KEY_VOTE_OPEN_BORDERS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -494,6 +512,7 @@
 		<VoteInfo>
 			<Type>VOTE_DEFENSIVE_PACT</Type>
 			<Description>TXT_KEY_VOTE_DEFENSIVE_PACT</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -521,6 +540,7 @@
 		<VoteInfo>
 			<Type>VOTE_FORCE_PEACE</Type>
 			<Description>TXT_KEY_VOTE_FORCE_PEACE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -548,6 +568,7 @@
 		<VoteInfo>
 			<Type>VOTE_FORCE_NO_TRADE</Type>
 			<Description>TXT_KEY_VOTE_FORCE_NO_TRADE</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -575,6 +596,7 @@
 		<VoteInfo>
 			<Type>VOTE_FORCE_WAR</Type>
 			<Description>TXT_KEY_VOTE_FORCE_WAR</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>
@@ -602,6 +624,7 @@
 		<VoteInfo>
 			<Type>VOTE_ASSIGN_CITY</Type>
 			<Description>TXT_KEY_VOTE_ASSIGN_CITY</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
 			<iPopulationThreshold>62</iPopulationThreshold>
 			<bCityVoting>0</bCityVoting>
 			<bCivVoting>0</bCivVoting>

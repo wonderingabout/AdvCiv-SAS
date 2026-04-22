@@ -370,7 +370,7 @@ class SevoPediaVote:
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
-		szText = gc.getVoteInfo(self.iVote).getCivilopedia()
+		szText = SASTextScale.normalizeLabelText(gc.getVoteInfo(self.iVote).getCivilopedia())
 		draw_expandable_text_panel(
 			screen,
 			self.top,

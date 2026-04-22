@@ -29,7 +29,8 @@ def applyFontTag(szText, szTag):
 	# Escalate to normalize* only after reproducing a real failure with simple wrapping in that exact caller/data path.
 	# Note: this guidance was established while working on Sevopedia paths. Advisors/other UI also use this helper, but they were not necessarily migrated under the same strict "escalate to normalize* only after failure" rule.
 	# Current empirical examples: ConceptInfo/NewConceptInfo and Sevopedia Leader Civilopedia text need normalize; hints, Unit/History civilopedia text, and Traits (Effects/Background) often work with simple bodyText/labelText. (GPT-5.3-Codex) -->
-	# Extra example: Sevopedia Unit history panel ("Background") for concept-based entries (e.g. Great People units) needed normalizeLabelText; simple wrapping did not apply SAS scaling there. (GPT-5.3-Codex) -->
+	# Extra example: Sevopedia Unit history panel ("Background") for concept-based entries (e.g. Great People units) needed normalizeLabelText; simple wrapping did not apply SAS scaling there.
+	# Same issue/pattern applies to Sevopedia Vote history when vote Civilopedia reuses concept pages (UN/AP). (GPT-5.3-Codex) -->
 	if szUnicode.find(u"<font=") != -1:
 		return szUnicode
 	return szTag + szUnicode + SAS_FONT_TAG_CLOSE
