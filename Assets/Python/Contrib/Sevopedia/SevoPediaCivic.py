@@ -36,9 +36,6 @@ class SevoPediaCivic:
 		self.bHistoryExpanded = False
 		self.top = main
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		# <!-- custom: multilist favorites panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
 		self.W_FAVORITES = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 		self.X_FAVORITES = self.top.R_PEDIA_PAGE - self.W_FAVORITES
@@ -67,22 +64,22 @@ class SevoPediaCivic:
 		# <!-- custom: left-to-right civic page layout:
 		# civic pane -> effects -> requires (top) / vote source + force votes (bottom) -> favorites.
 		# Effects width is computed from the remaining horizontal space after placing right-side panels. (GPT-5.4?) -->
-		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
+		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + MEDIUM_MARGIN
 
 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.W_VOTE_SOURCE = self.W_REQUIRES
 		self.W_VOTES = self.W_REQUIRES
-		xRightEdgeBeforeFavorites = self.X_FAVORITES - self.MEDIUM_MARGIN
-		self.W_RIGHT_BLOCK = self.W_REQUIRES + self.MEDIUM_MARGIN + self.W_VOTE_SOURCE
+		xRightEdgeBeforeFavorites = self.X_FAVORITES - MEDIUM_MARGIN
+		self.W_RIGHT_BLOCK = self.W_REQUIRES + MEDIUM_MARGIN + self.W_VOTE_SOURCE
 		self.X_REQUIRES = xRightEdgeBeforeFavorites - self.W_RIGHT_BLOCK
-		self.X_VOTE_SOURCE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.X_VOTE_SOURCE = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
 		self.X_VOTES = self.X_VOTE_SOURCE
-		self.W_SPECIAL = self.X_REQUIRES - self.MEDIUM_MARGIN - self.X_SPECIAL
+		self.W_SPECIAL = self.X_REQUIRES - MEDIUM_MARGIN - self.X_SPECIAL
 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		self.Y_REQUIRES = self.Y_CIVIC_PANE
 		self.Y_VOTE_SOURCE = self.Y_REQUIRES
 		self.H_VOTE_SOURCE = NON_MULTILIST_PANEL_STANDARD_HEIGHT
-		self.Y_VOTES = self.Y_VOTE_SOURCE + self.H_VOTE_SOURCE + self.SMALL_MARGIN
+		self.Y_VOTES = self.Y_VOTE_SOURCE + self.H_VOTE_SOURCE + SMALL_MARGIN
 		self.H_VOTES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.Y_SPECIAL = self.Y_CIVIC_PANE
@@ -90,8 +87,8 @@ class SevoPediaCivic:
 		self.H_SPECIAL = self.H_CIVIC_PANE
 
 		self.X_HISTORY = self.X_CIVIC_PANE
-		self.Y_HISTORY = self.Y_CIVIC_PANE + self.H_CIVIC_PANE + self.SMALL_MARGIN
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_FAVORITES + self.MEDIUM_MARGIN)
+		self.Y_HISTORY = self.Y_CIVIC_PANE + self.H_CIVIC_PANE + SMALL_MARGIN
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_FAVORITES + MEDIUM_MARGIN)
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 

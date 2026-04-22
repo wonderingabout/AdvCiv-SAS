@@ -36,15 +36,11 @@ class SevoPediaCivilization:
 		self.bHistoryExpanded = False
 		self.top = main
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
-
-		rowH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_CIVILIZATION_PANE = self.top.X_PEDIA_PAGE
 		self.Y_CIVILIZATION_PANE = self.top.Y_PEDIA_PAGE
-		self.H_CIVILIZATION_PANE = (2 * rowH) + self.SMALL_MARGIN
+		self.H_CIVILIZATION_PANE = (2 * NON_MULTILIST_PANEL_STANDARD_HEIGHT) + SMALL_MARGIN
 		self.W_CIVILIZATION_PANE = self.H_CIVILIZATION_PANE
 
 		self.W_CITIES = 290
@@ -53,22 +49,22 @@ class SevoPediaCivilization:
 		self.H_CITIES = self.top.B_PEDIA_PAGE - self.Y_CITIES
 
 		# <!-- custom: Music panel uses helper-computed one-button width, right of Civilization Pane. -->
-		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN
+		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + MEDIUM_MARGIN
 		self.Y_MUSIC = self.Y_CIVILIZATION_PANE
 		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
-		self.H_MUSIC = rowH
+		self.H_MUSIC = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
-		halfRowW = (self.top.R_PEDIA_PAGE - self.X_MUSIC - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2
+		halfRowW = (self.top.R_PEDIA_PAGE - self.X_MUSIC - self.W_CITIES - (2 * MEDIUM_MARGIN)) / 2
 
-		self.X_TECH = self.X_MUSIC + self.W_MUSIC + self.MEDIUM_MARGIN
+		self.X_TECH = self.X_MUSIC + self.W_MUSIC + MEDIUM_MARGIN
 		self.Y_TECH = self.Y_CIVILIZATION_PANE
-		self.W_TECH = halfRowW - self.W_MUSIC - self.MEDIUM_MARGIN
-		self.H_TECH = rowH
+		self.W_TECH = halfRowW - self.W_MUSIC - MEDIUM_MARGIN
+		self.H_TECH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_LEADER = self.X_MUSIC
-		self.Y_LEADER = self.Y_MUSIC + rowH + self.SMALL_MARGIN
+		self.Y_LEADER = self.Y_MUSIC + NON_MULTILIST_PANEL_STANDARD_HEIGHT + SMALL_MARGIN
 		self.W_LEADER = halfRowW
-		self.H_LEADER = rowH
+		self.H_LEADER = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.W_ICON = 150
 		self.H_ICON = 150
@@ -77,19 +73,19 @@ class SevoPediaCivilization:
 		self.Y_ICON = self.Y_CIVILIZATION_PANE + iconCenter
 		self.ICON_SIZE = 64
 
-		self.X_BUILDING = self.X_TECH + self.W_TECH + self.MEDIUM_MARGIN
+		self.X_BUILDING = self.X_TECH + self.W_TECH + MEDIUM_MARGIN
 		self.Y_BUILDING = self.Y_TECH
 		self.W_BUILDING = halfRowW
-		self.H_BUILDING = rowH
+		self.H_BUILDING = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
-		self.X_UNIT = self.X_LEADER + self.W_LEADER + self.MEDIUM_MARGIN
-		self.Y_UNIT = self.Y_BUILDING + rowH + self.SMALL_MARGIN
+		self.X_UNIT = self.X_LEADER + self.W_LEADER + MEDIUM_MARGIN
+		self.Y_UNIT = self.Y_BUILDING + NON_MULTILIST_PANEL_STANDARD_HEIGHT + SMALL_MARGIN
 		self.W_UNIT = halfRowW
-		self.H_UNIT = rowH
+		self.H_UNIT = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_HISTORY = self.X_CIVILIZATION_PANE
-		self.Y_HISTORY = self.Y_CIVILIZATION_PANE + self.H_CIVILIZATION_PANE + self.MEDIUM_MARGIN
-		self.W_HISTORY = self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN + self.W_LEADER + self.MEDIUM_MARGIN + self.W_UNIT
+		self.Y_HISTORY = self.Y_CIVILIZATION_PANE + self.H_CIVILIZATION_PANE + MEDIUM_MARGIN
+		self.W_HISTORY = self.W_CIVILIZATION_PANE + MEDIUM_MARGIN + self.W_LEADER + MEDIUM_MARGIN + self.W_UNIT
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 

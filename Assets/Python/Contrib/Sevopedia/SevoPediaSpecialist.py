@@ -38,9 +38,6 @@ class SevoPediaSpecialist:
 		self.bHistoryExpanded = False
 		self.top = main
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		self.H_TOP_PANEL = 200
 		self.W_ICON_PANEL = 200
 
@@ -48,27 +45,27 @@ class SevoPediaSpecialist:
 		self.Y_ICON_PANEL = self.top.Y_PEDIA_PAGE
 
 		self.X_LEFT = self.X_ICON_PANEL
-		self.W_LEFT = (self.top.R_PEDIA_PAGE - self.X_LEFT - self.MEDIUM_MARGIN) / 2
-		self.X_RIGHT = self.X_LEFT + self.W_LEFT + self.MEDIUM_MARGIN
+		self.W_LEFT = (self.top.R_PEDIA_PAGE - self.X_LEFT - MEDIUM_MARGIN) / 2
+		self.X_RIGHT = self.X_LEFT + self.W_LEFT + MEDIUM_MARGIN
 		self.W_RIGHT = self.top.R_PEDIA_PAGE - self.X_RIGHT
 
-		self.X_EFFECTS_PANEL = self.X_ICON_PANEL + self.W_ICON_PANEL + self.MEDIUM_MARGIN
+		self.X_EFFECTS_PANEL = self.X_ICON_PANEL + self.W_ICON_PANEL + MEDIUM_MARGIN
 		self.Y_EFFECTS_PANEL = self.Y_ICON_PANEL
-		self.W_EFFECTS_PANEL = self.W_LEFT - self.W_ICON_PANEL - self.MEDIUM_MARGIN
+		self.W_EFFECTS_PANEL = self.W_LEFT - self.W_ICON_PANEL - MEDIUM_MARGIN
 
-		self.W_EXTRA_SLOTS = (self.W_RIGHT - self.SMALL_MARGIN) / 2
+		self.W_EXTRA_SLOTS = (self.W_RIGHT - SMALL_MARGIN) / 2
 		self.W_EXTRA_YIELDS = self.W_EXTRA_SLOTS
 
 		self.X_EXTRA_SLOTS = self.X_RIGHT
 		self.Y_EXTRA_SLOTS = self.top.Y_PEDIA_PAGE
 		self.H_EXTRA_SLOTS = self.top.B_PEDIA_PAGE - self.Y_EXTRA_SLOTS
 
-		self.X_EXTRA_YIELDS = self.X_EXTRA_SLOTS + self.W_EXTRA_SLOTS + self.SMALL_MARGIN
+		self.X_EXTRA_YIELDS = self.X_EXTRA_SLOTS + self.W_EXTRA_SLOTS + SMALL_MARGIN
 		self.Y_EXTRA_YIELDS = self.Y_EXTRA_SLOTS
 		self.H_EXTRA_YIELDS = self.H_EXTRA_SLOTS
 
 		self.X_HISTORY = self.X_ICON_PANEL
-		self.Y_HISTORY = self.Y_ICON_PANEL + self.H_TOP_PANEL + self.SMALL_MARGIN
+		self.Y_HISTORY = self.Y_ICON_PANEL + self.H_TOP_PANEL + SMALL_MARGIN
 		self.W_HISTORY = self.W_LEFT
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 

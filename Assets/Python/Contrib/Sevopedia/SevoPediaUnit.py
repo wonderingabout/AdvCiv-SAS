@@ -44,13 +44,10 @@ class SevoPediaUnit:
 		self.bContentExpanded = False
 		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		self.X_UNIT_PANE = self.top.X_PEDIA_PAGE
 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
 		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe -->
-		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - self.MEDIUM_MARGIN) / 4
+		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - MEDIUM_MARGIN) / 4
 		self.H_UNIT_PANE = 190
 
 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
@@ -110,22 +107,22 @@ class SevoPediaUnit:
 
 		# Requires takes remaining space
 		self.X_REQUIRES = self.X_UNIT_PANE
-		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
-		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
+		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + SMALL_MARGIN
+		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - MEDIUM_MARGIN - self.W_OBSOLETE_WITH - MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
-		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
 		self.Y_OBSOLETE_WITH = self.Y_REQUIRES
 		self.H_OBSOLETE_WITH = self.H_REQUIRES
 
-		self.X_FREE_PROMOTIONS = self.X_OBSOLETE_WITH + self.W_OBSOLETE_WITH + self.MEDIUM_MARGIN
+		self.X_FREE_PROMOTIONS = self.X_OBSOLETE_WITH + self.W_OBSOLETE_WITH + MEDIUM_MARGIN
 		self.Y_FREE_PROMOTIONS = self.Y_REQUIRES
 		self.H_FREE_PROMOTIONS = self.H_REQUIRES
 
 		# Row 2 left half: Replaces | Civs | Upgrades To (aligned under Free Promotions)
 		self.W_UPGRADES_TO = self.W_SMALL_PANEL
 		self.X_UPGRADES_TO = self.X_FREE_PROMOTIONS  # Aligned under Free Promotions
-		self.Y_UPGRADES_TO = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+		self.Y_UPGRADES_TO = self.Y_REQUIRES + self.H_REQUIRES + SMALL_MARGIN
 		self.H_UPGRADES_TO = self.H_REQUIRES
 
 		# Civs aligned under Obsolete With
@@ -135,33 +132,33 @@ class SevoPediaUnit:
 
 		self.X_REPLACE = self.X_UNIT_PANE
 		self.Y_REPLACE = self.Y_UPGRADES_TO
-		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - self.MEDIUM_MARGIN  # Takes remaining space (same as Requires)
+		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - MEDIUM_MARGIN  # Takes remaining space (same as Requires)
 		self.H_REPLACE = self.H_REQUIRES
 
 		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; currently not implemented since we only use a button size of 64px so as of now using the same variable in all our file rather than declaring and passing a different button size locally in the multilist panels that have many rows, for simplicity. -->
 		# self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
 		# Row 3-4: Of Other Units panel (full width, 2 rows height) - under Row 2
 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
-		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + self.SMALL_MARGIN
+		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + SMALL_MARGIN
 		self.W_OF_OTHER_UNITS_MODIFIERS = self.top.R_PEDIA_PAGE - self.X_UNIT_PANE
 		# self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
 		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + MULTILIST_BUTTON_SIZE
 
 		# Row 5: Special panel (left half)
 		self.X_SPECIAL = self.X_UNIT_PANE
-		self.Y_SPECIAL = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + self.SMALL_MARGIN
+		self.Y_SPECIAL = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + SMALL_MARGIN
 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_UNIT_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
 		# Right column: Unit Animation
 		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
 
-		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + self.MEDIUM_MARGIN
+		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + MEDIUM_MARGIN
 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.W_UNIT_ANIMATION = self.W_TOTAL_EFFECTIVE_UNIT_PANE
 		# <!-- custom: make it one panel height smaller to accomodate the higher placeSpecial panel that we use to display AI information and or such if any other info displayed or to better display the info in cases where the placeSpecial was a bit too short in height -->
-		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
-		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + SMALL_MARGIN + self.H_REQUIRES + SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 
 		self.X_ROTATION_UNIT_ANIMATION = -20
 		self.Z_ROTATION_UNIT_ANIMATION = 30
@@ -172,11 +169,11 @@ class SevoPediaUnit:
 		self.H_UNDER_ANIMATION_PANELS = self.H_REQUIRES
 
 		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_ANIMATION
-		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.SMALL_MARGIN
-		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = (self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN) / 2
+		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + SMALL_MARGIN
+		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = (self.W_UNIT_ANIMATION - MEDIUM_MARGIN) / 2
 		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_UNDER_ANIMATION_PANELS
 
-		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
+		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + MEDIUM_MARGIN
 		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
 		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS

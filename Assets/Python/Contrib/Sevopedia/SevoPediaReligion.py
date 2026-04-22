@@ -36,11 +36,6 @@ class SevoPediaReligion:
 		self.bHistoryExpanded = False
 		self.top = main
 
-		# <!-- custom: based on sevopediabuilding's code, see there for details and differences of implementation --> 
-
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		# <!-- custom: multilist favorites panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
 		self.W_FAVORITES = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 		self.X_FAVORITES = self.top.R_PEDIA_PAGE - self.W_FAVORITES
@@ -64,12 +59,12 @@ class SevoPediaReligion:
 		self.X_ICON = self.X_RELIGION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
 
-		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN)
+		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + MEDIUM_MARGIN) - MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + MEDIUM_MARGIN)
 		self.W_LEFT_COLUMN = self.W_REMAINING_CENTER_SPACE / 2
 
-		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
+		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + MEDIUM_MARGIN
 		self.Y_BUILDINGS = self.Y_RELIGION_PANE
-		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - self.MEDIUM_MARGIN
+		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - MEDIUM_MARGIN
 		self.H_BUILDINGS = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
@@ -77,27 +72,27 @@ class SevoPediaReligion:
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		self.X_UNITS = self.X_BUILDINGS
-		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + self.SMALL_MARGIN
+		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + SMALL_MARGIN
 		self.W_UNITS = self.W_BUILDINGS
 		self.H_UNITS = self.H_BUILDINGS
 
 		self.H_REQUIRES = self.H_BUILDINGS
 
-		self.X_MOVIE = self.X_BUILDINGS + self.W_BUILDINGS + self.MEDIUM_MARGIN
+		self.X_MOVIE = self.X_BUILDINGS + self.W_BUILDINGS + MEDIUM_MARGIN
 		self.Y_MOVIE = self.Y_BUILDINGS
 		self.H_MOVIE = self.H_REQUIRES
 
 		self.X_REQUIRES = self.X_MOVIE
 		self.Y_REQUIRES = self.Y_UNITS
 
-		self.X_SPECIAL = self.X_BUILDINGS + self.W_LEFT_COLUMN + self.MEDIUM_MARGIN
+		self.X_SPECIAL = self.X_BUILDINGS + self.W_LEFT_COLUMN + MEDIUM_MARGIN
 		self.Y_SPECIAL = self.Y_BUILDINGS
-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_FAVORITES - self.MEDIUM_MARGIN
-		self.H_SPECIAL = self.H_BUILDINGS + self.SMALL_MARGIN + self.H_UNITS
+		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_FAVORITES - MEDIUM_MARGIN
+		self.H_SPECIAL = self.H_BUILDINGS + SMALL_MARGIN + self.H_UNITS
 
 		self.X_HISTORY = self.X_RELIGION_PANE
-		self.Y_HISTORY = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_FAVORITES - self.MEDIUM_MARGIN
+		self.Y_HISTORY = self.Y_UNITS + self.H_UNITS + SMALL_MARGIN
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_FAVORITES - MEDIUM_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 

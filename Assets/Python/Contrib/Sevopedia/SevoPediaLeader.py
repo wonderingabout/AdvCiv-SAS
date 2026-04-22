@@ -161,8 +161,6 @@ class SevoPediaLeader:
 
 		# <!-- custom: 1) (most) absolute dimensions first -->
 		self.W_AI_PERSONALITY = 290 + iAIPPanelGain
-		self.SMALL_MARGIN = 10
-		self.MEDIUM_MARGIN = 20
 		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements
 		self.W_CIV = 64
 		self.H_CIV = 64
@@ -177,14 +175,14 @@ class SevoPediaLeader:
 		self.X_LEADERHEAD = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_LEADERHEAD) / 2
 		self.Y_LEADERHEAD = self.Y_LEADERHEAD_PANE + (self.H_LEADERHEAD_PANE - self.H_LEADERHEAD) / 2 + 3
 
-		self.W_AI_TOTAL_TABLES_WIDTH = self.N_AI_TABLE_NUM * self.W_AI_PERSONALITY + self.N_AI_TABLE_NUM * self.MEDIUM_MARGIN
+		self.W_AI_TOTAL_TABLES_WIDTH = self.N_AI_TABLE_NUM * self.W_AI_PERSONALITY + self.N_AI_TABLE_NUM * LARGE_MARGIN
 
-		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
+		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + SMALL_MARGIN
 
 		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history panel is placed under/after the favourites panel when i constructed the page's "spacing" and dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on the history panel's (relative) position, anyways -->
 		# <!-- custom: might as well put the other/rest/remaining HISTORY coordinates if doesn't harm and they are perhaps needed too, anyways -->
 		self.X_HISTORY = self.X_LEADERHEAD_PANE
-		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + self.SMALL_MARGIN
+		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + SMALL_MARGIN
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
@@ -195,19 +193,19 @@ class SevoPediaLeader:
 		self.W_FAVORITES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		# <!-- custom: layout order tweak: Favorites at left, then Music, then civ icon at far right. (GPT-5.3-Codex) -->
 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
-		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_MUSIC
+		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - SMALL_MARGIN - self.W_MUSIC
 		self.Y_MUSIC = self.Y_FAVORITES
 		self.H_MUSIC = self.H_FAVORITES
-		self.X_ATTITUDES = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
+		self.X_ATTITUDES = self.X_FAVORITES + self.W_FAVORITES + SMALL_MARGIN
 		self.Y_ATTITUDES = self.Y_FAVORITES
-		self.W_ATTITUDES = self.X_MUSIC - self.X_ATTITUDES - self.SMALL_MARGIN
+		self.W_ATTITUDES = self.X_MUSIC - self.X_ATTITUDES - SMALL_MARGIN
 		self.H_ATTITUDES = self.H_FAVORITES
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
 		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
 		self.Y_AI_PERSONALITY = self.Y_LEADERHEAD_PANE
-		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
+		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + SMALL_MARGIN + self.H_FAVORITES + SMALL_MARGIN + self.H_HISTORY
 
 		# <!-- custom: AI Personality Panel(s) column widths -->
 		self.W_AI_VALUE = 35 + iAIPValueGain
@@ -224,9 +222,9 @@ class SevoPediaLeader:
 		self.AI_PANEL_MIDDLE_TXT_KEY = "TXT_KEY_AI_PERSONALITY_MIDDLE_PANEL"
 		self.AI_PANEL_LEFT_TXT_KEY = "TXT_KEY_AI_PERSONALITY_LEFT_PANEL"
 
-		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + self.SMALL_MARGIN
+		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + SMALL_MARGIN
 		self.Y_TRAITS = self.Y_LEADERHEAD_PANE
-		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - self.SMALL_MARGIN
+		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - SMALL_MARGIN
 		self.H_TRAITS = self.H_LEADERHEAD_PANE
 
 		self.X_CIV = self.X_HISTORY + self.W_HISTORY - self.CIV_MARGIN - self.W_CIV
@@ -641,7 +639,7 @@ class SevoPediaLeader:
 
 
 	def getXAIPanelCoordinate(self, tableId):
-		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * self.MEDIUM_MARGIN
+		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * LARGE_MARGIN
 
 
 

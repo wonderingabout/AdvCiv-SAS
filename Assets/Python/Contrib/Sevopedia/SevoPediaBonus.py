@@ -40,12 +40,9 @@ class SevoPediaBonus:
 		self.bContentExpanded = False
 		self.top = main
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		self.X_BONUS_PANE = self.top.X_PEDIA_PAGE
 		self.Y_BONUS_PANE = self.top.Y_PEDIA_PAGE
-		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - self.MEDIUM_MARGIN) / 2
+		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - MEDIUM_MARGIN) / 2
 		self.H_BONUS_PANE = 250
 
 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
@@ -74,34 +71,34 @@ class SevoPediaBonus:
 		self.W_TOTAL_EFFECTIVE_BONUS_PANE = self.W_BONUS_PANE
 
 		self.X_IMPROVEMENTS = self.X_BONUS_PANE
-		self.Y_IMPROVEMENTS = self.Y_BONUS_PANE + self.H_BONUS_PANE + self.SMALL_MARGIN
+		self.Y_IMPROVEMENTS = self.Y_BONUS_PANE + self.H_BONUS_PANE + SMALL_MARGIN
 		self.W_IMPROVEMENTS = self.W_TOTAL_EFFECTIVE_BONUS_PANE
 		self.H_IMPROVEMENTS = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		self.X_UNITS = self.X_BONUS_PANE
 		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_UNITS
-		self.Y_UNITS = self.Y_IMPROVEMENTS + self.H_IMPROVEMENTS + self.SMALL_MARGIN
+		self.Y_UNITS = self.Y_IMPROVEMENTS + self.H_IMPROVEMENTS + SMALL_MARGIN
 		self.H_UNITS = self.H_IMPROVEMENTS
 
 		# <!-- custom: put the buildings panel under the units panel so easier to refer to it directly, it will also be identical in dimensions (or very close) so we will not need to change much (coordinates or other things) this way -->
 		self.X_BUILDINGS_AND_PROJECTS = self.X_BONUS_PANE
-		self.Y_BUILDINGS_AND_PROJECTS = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
+		self.Y_BUILDINGS_AND_PROJECTS = self.Y_UNITS + self.H_UNITS + SMALL_MARGIN
 		self.W_BUILDINGS_AND_PROJECTS = self.W_UNITS
 		self.H_BUILDINGS_AND_PROJECTS = self.H_IMPROVEMENTS
 
 		self.X_TERRAINS = self.X_BONUS_PANE
-		self.Y_TERRAINS = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + self.SMALL_MARGIN
+		self.Y_TERRAINS = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + SMALL_MARGIN
 		self.W_TERRAINS = self.W_IMPROVEMENTS
 		self.H_TERRAINS = self.H_IMPROVEMENTS
 
 		self.X_SPECIAL = self.X_BONUS_PANE
-		self.Y_SPECIAL = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
+		self.Y_SPECIAL = self.Y_TERRAINS + self.H_TERRAINS + SMALL_MARGIN
 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_BONUS_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
 		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
 
-		self.X_BONUS_ANIMATION = self.X_BONUS_PANE + self.W_TOTAL_EFFECTIVE_BONUS_PANE + self.MEDIUM_MARGIN
+		self.X_BONUS_ANIMATION = self.X_BONUS_PANE + self.W_TOTAL_EFFECTIVE_BONUS_PANE + MEDIUM_MARGIN
 		self.Y_BONUS_ANIMATION = self.Y_BONUS_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.W_BONUS_ANIMATION = self.W_TOTAL_EFFECTIVE_BONUS_PANE
 		self.H_BONUS_ANIMATION = self.H_BONUS_PANE - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
@@ -110,34 +107,34 @@ class SevoPediaBonus:
 		self.Z_ROTATION_BONUS_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
-		# <!-- custom: since we split this right side width in 3 panels, (each) and it is separated by 2 self.MEDIUM_MARGINS, substract these before diving -->
+		# <!-- custom: since we split this right side width in 3 panels, (each) and it is separated by 2 MEDIUM_MARGINS, substract these before diving -->
 		self.X_REVEALED_BY = self.X_BONUS_ANIMATION
-		self.Y_REVEALED_BY = self.Y_BONUS_ANIMATION + self.H_BONUS_ANIMATION + self.SMALL_MARGIN
-		self.W_REVEALED_BY = (self.W_BONUS_PANE - (2 * self.MEDIUM_MARGIN)) / 3
+		self.Y_REVEALED_BY = self.Y_BONUS_ANIMATION + self.H_BONUS_ANIMATION + SMALL_MARGIN
+		self.W_REVEALED_BY = (self.W_BONUS_PANE - (2 * MEDIUM_MARGIN)) / 3
 		self.H_REVEALED_BY = self.H_IMPROVEMENTS
 
-		self.X_TRADEABLE_SINCE = self.X_REVEALED_BY + self.W_REVEALED_BY + self.MEDIUM_MARGIN
+		self.X_TRADEABLE_SINCE = self.X_REVEALED_BY + self.W_REVEALED_BY + MEDIUM_MARGIN
 		self.Y_TRADEABLE_SINCE = self.Y_REVEALED_BY
 		self.W_TRADEABLE_SINCE = self.W_REVEALED_BY
 		self.H_TRADEABLE_SINCE = self.H_IMPROVEMENTS
 
-		self.X_OBSOLETE_WITH = self.X_TRADEABLE_SINCE + self.W_TRADEABLE_SINCE + self.MEDIUM_MARGIN
+		self.X_OBSOLETE_WITH = self.X_TRADEABLE_SINCE + self.W_TRADEABLE_SINCE + MEDIUM_MARGIN
 		self.Y_OBSOLETE_WITH = self.Y_REVEALED_BY
 		self.W_OBSOLETE_WITH = self.W_REVEALED_BY
 		self.H_OBSOLETE_WITH = self.H_IMPROVEMENTS
 
 		self.X_FEATURES = self.X_BONUS_ANIMATION
 		self.Y_FEATURES = self.Y_TERRAINS
-		self.W_FEATURES = (self.W_BONUS_ANIMATION / 2) - self.MEDIUM_MARGIN
+		self.W_FEATURES = (self.W_BONUS_ANIMATION / 2) - MEDIUM_MARGIN
 		self.H_FEATURES = self.H_IMPROVEMENTS
 
-		self.X_FEATURE_TERRAIN_BOOLEANS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
+		self.X_FEATURE_TERRAIN_BOOLEANS = self.X_FEATURES + self.W_FEATURES + MEDIUM_MARGIN
 		self.Y_FEATURE_TERRAIN_BOOLEANS = self.Y_FEATURES
 		self.W_FEATURE_TERRAIN_BOOLEANS = self.W_FEATURES
 		self.H_FEATURE_TERRAIN_BOOLEANS = self.H_IMPROVEMENTS
 
 		self.X_HISTORY = self.X_BONUS_ANIMATION
-		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
+		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + SMALL_MARGIN
 		self.W_HISTORY = self.W_BONUS_ANIMATION
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 

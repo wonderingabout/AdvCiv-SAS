@@ -188,9 +188,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.bHistoryExpanded = False
 		self.top = main
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		# <!-- custom: SevopediaTech layout rework (starting-tech stats tables)
 		# Row 1: Tech Pane (left) | Requires | Leads To
 		# Row 2: First to D (one-button) | Obsoletes (wide) | Music (one-button)
@@ -220,22 +217,22 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		self.W_LEADS_TO = get_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.X_LEADS_TO = self.top.R_PEDIA_PAGE - self.W_LEADS_TO
-		self.X_REQUIRES = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
-		self.W_REQUIRES = self.X_LEADS_TO - self.MEDIUM_MARGIN - self.X_REQUIRES
+		self.X_REQUIRES = self.X_TECH_PANE + self.W_TECH_PANE + MEDIUM_MARGIN
+		self.W_REQUIRES = self.X_LEADS_TO - MEDIUM_MARGIN - self.X_REQUIRES
 		if self.W_REQUIRES < 50:
 			# Safety fallback if the page is too narrow.
 			self.W_REQUIRES = 50
 
 		# Row 2: First to D | Tradeable | Obsoletes | Music
 		self.H_ROW = NON_MULTILIST_PANEL_STANDARD_HEIGHT
-		self.Y_FIRST_TO_DISCOVER = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
+		self.Y_FIRST_TO_DISCOVER = self.Y_TECH_PANE + self.H_TECH_PANE + SMALL_MARGIN
 		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
 
 		self.W_FIRST_TO_DISCOVER = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_FIRST_TO_DISCOVER = self.H_ROW
 
 		# <!-- custom: Tradeable panel showing if tech can be traded (Claude Opus 4.5) -->
-		self.X_TRADEABLE = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
+		self.X_TRADEABLE = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + MEDIUM_MARGIN
 		self.Y_TRADEABLE = self.Y_FIRST_TO_DISCOVER
 		self.W_TRADEABLE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_TRADEABLE = self.H_ROW
@@ -248,8 +245,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.noEntryButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_NO_ENTRY").getPath()
 
 		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
-		self.X_OBSOLETES = self.X_TRADEABLE + self.W_TRADEABLE + self.MEDIUM_MARGIN
-		self.W_OBSOLETES = self.X_MUSIC - self.MEDIUM_MARGIN - self.X_OBSOLETES
+		self.X_OBSOLETES = self.X_TRADEABLE + self.W_TRADEABLE + MEDIUM_MARGIN
+		self.W_OBSOLETES = self.X_MUSIC - MEDIUM_MARGIN - self.X_OBSOLETES
 		self.H_OBSOLETES = self.H_ROW
 
 		# <!-- custom: note: Now that we switched to the thinner ChatGPT 5.2 based model, 64 is a bit too small, so extending it to fit buttons -->
@@ -258,14 +255,14 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		# Row 3: Enables (full width)
 		self.X_ENABLES = self.X_TECH_PANE
-		self.Y_ENABLES = self.Y_FIRST_TO_DISCOVER + self.H_ROW + self.SMALL_MARGIN
+		self.Y_ENABLES = self.Y_FIRST_TO_DISCOVER + self.H_ROW + SMALL_MARGIN
 		self.W_ENABLES = self.top.R_PEDIA_PAGE - self.X_ENABLES
 		self.H_ENABLES = self.H_ROW
 
 		# Row 4: Starting tech statistics tables (2 left stacked, 1 right)
 		# <!-- custom: Statistics panel - blue panels without headers, tables inside. Left side wider (~200px more than right). (Claude Opus 4.5) -->
 		self.X_STATS = self.X_TECH_PANE
-		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + self.SMALL_MARGIN
+		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + SMALL_MARGIN
 		self.W_STATS = self.top.R_PEDIA_PAGE - self.X_STATS
 		# Stats height - slightly increased to avoid bottom clipping in stats tables.
 		self.H_STATS = 384
@@ -297,11 +294,11 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		# Bottom row: Special / History (reduced height by 120px)
 		self.X_SPECIAL = self.X_TECH_PANE
-		self.Y_SPECIAL = self.Y_STATS + self.H_STATS + self.SMALL_MARGIN
+		self.Y_SPECIAL = self.Y_STATS + self.H_STATS + SMALL_MARGIN
 		self.W_SPECIAL = self.W_TECH_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
 		self.Y_HISTORY = self.Y_SPECIAL
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL

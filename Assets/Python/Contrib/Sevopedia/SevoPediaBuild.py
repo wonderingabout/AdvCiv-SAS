@@ -31,9 +31,6 @@ class SevoPediaBuild:
 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		self.X_BUILD_PANE = self.top.X_PEDIA_PAGE
 		self.Y_BUILD_PANE = self.top.Y_PEDIA_PAGE
 		self.W_BUILD_PANE = 330
@@ -49,37 +46,37 @@ class SevoPediaBuild:
 		self.W_INFO_TEXT = self.W_BUILD_PANE - 120
 		self.H_INFO_TEXT = self.H_BUILD_PANE - 20
 
-		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + self.MEDIUM_MARGIN
+		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + MEDIUM_MARGIN
 		self.Y_REQUIRES = self.Y_BUILD_PANE
 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_REQUIRES = self.H_BUILD_PANE
 
-		self.X_FEATURE_PRODUCTION = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+		self.X_FEATURE_PRODUCTION = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
 		self.Y_FEATURE_PRODUCTION = self.Y_BUILD_PANE
 		self.W_FEATURE_PRODUCTION = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_FEATURE_PRODUCTION = self.H_BUILD_PANE
 
-		self.X_IMPROVEMENTS = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + self.MEDIUM_MARGIN
+		self.X_IMPROVEMENTS = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + MEDIUM_MARGIN
 		self.Y_IMPROVEMENTS = self.Y_BUILD_PANE
 		self.W_IMPROVEMENTS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.H_IMPROVEMENTS = self.H_BUILD_PANE
 
-		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + self.MEDIUM_MARGIN
+		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + MEDIUM_MARGIN
 		self.Y_UNITS_BUILD = self.Y_BUILD_PANE
 		self.W_UNITS_BUILD = self.top.R_PEDIA_PAGE - self.X_UNITS_BUILD
 		self.H_UNITS_BUILD = self.H_BUILD_PANE
 
 		self.X_FEATURE_STRUCTS = self.X_BUILD_PANE
-		self.Y_FEATURE_STRUCTS = self.Y_BUILD_PANE + self.H_BUILD_PANE + self.SMALL_MARGIN
+		self.Y_FEATURE_STRUCTS = self.Y_BUILD_PANE + self.H_BUILD_PANE + SMALL_MARGIN
 		self.W_FEATURE_STRUCTS = self.top.R_PEDIA_PAGE - self.X_FEATURE_STRUCTS
 		self.H_FEATURE_STRUCTS = 350
 
 		self.X_SPECIAL = self.X_BUILD_PANE
-		self.Y_SPECIAL = self.Y_FEATURE_STRUCTS + self.H_FEATURE_STRUCTS + self.SMALL_MARGIN
+		self.Y_SPECIAL = self.Y_FEATURE_STRUCTS + self.H_FEATURE_STRUCTS + SMALL_MARGIN
 		self.W_SPECIAL = self.W_BUILD_PANE
 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
 
-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
 		self.Y_HISTORY = self.Y_SPECIAL
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL
@@ -256,7 +253,7 @@ class SevoPediaBuild:
 			return
 
 		panelCount = len(featureStructs)
-		panelW = (self.W_FEATURE_STRUCTS - ((panelCount - 1) * self.MEDIUM_MARGIN)) / panelCount
+		panelW = (self.W_FEATURE_STRUCTS - ((panelCount - 1) * MEDIUM_MARGIN)) / panelCount
 		panelH = self.H_FEATURE_STRUCTS
 		panelY = self.Y_FEATURE_STRUCTS
 		textMarginX = 7
@@ -268,7 +265,7 @@ class SevoPediaBuild:
 
 		for i, (iFeature, featureTech, featureTime, featureProduction, bRemove) in enumerate(featureStructs):
 			featureInfo = gc.getFeatureInfo(iFeature)
-			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + self.MEDIUM_MARGIN))
+			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + MEDIUM_MARGIN))
 			panelTitle = u"%s: %s" % (localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO", ()), featureInfo.getDescription())
 			panelName = self.top.getNextWidgetName()
 			screen.addPanel(panelName, panelTitle, "", False, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)

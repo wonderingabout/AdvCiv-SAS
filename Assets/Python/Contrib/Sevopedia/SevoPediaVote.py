@@ -23,9 +23,6 @@ class SevoPediaVote:
 		self.top = main
 		self.bHistoryExpanded = False
 
-		self.MEDIUM_MARGIN = 15
-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
-
 		self.X_VOTE_PANE = self.top.X_PEDIA_PAGE
 		self.Y_VOTE_PANE = self.top.Y_PEDIA_PAGE
 		self.W_VOTE_PANE = 200
@@ -39,7 +36,7 @@ class SevoPediaVote:
 		self.X_ICON = self.X_VOTE_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
 		self.Y_ICON = self.Y_VOTE_PANE + (self.H_VOTE_PANE - self.H_ICON) / 2 + 3
 
-		self.X_RIGHT = self.X_VOTE_PANE + self.W_VOTE_PANE + self.MEDIUM_MARGIN
+		self.X_RIGHT = self.X_VOTE_PANE + self.W_VOTE_PANE + MEDIUM_MARGIN
 
 		self.W_SOURCE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
@@ -47,9 +44,9 @@ class SevoPediaVote:
 		# while F.Civics is shown on the mid row to reflect vote-level scope. (GPT-5.4?) -->
 		self.X_SOURCE = self.X_RIGHT
 		self.Y_SOURCE = self.Y_VOTE_PANE
-		self.H_SOURCE = (self.H_VOTE_PANE - self.SMALL_MARGIN) / 2
+		self.H_SOURCE = (self.H_VOTE_PANE - SMALL_MARGIN) / 2
 
-		self.X_SOURCE_INFO = self.X_SOURCE + self.W_SOURCE + self.MEDIUM_MARGIN
+		self.X_SOURCE_INFO = self.X_SOURCE + self.W_SOURCE + MEDIUM_MARGIN
 		self.Y_SOURCE_INFO = self.Y_VOTE_PANE
 		self.X_SOURCE_SPECIALIST = self.top.R_PEDIA_PAGE - self.W_SOURCE
 		self.Y_SOURCE_SPECIALIST = self.Y_VOTE_PANE
@@ -57,23 +54,23 @@ class SevoPediaVote:
 		self.H_SOURCE_SPECIALIST = self.H_SOURCE
 
 		self.X_SOURCE_CIVIC = self.X_SOURCE
-		self.Y_SOURCE_CIVIC = self.Y_SOURCE + self.H_SOURCE + self.SMALL_MARGIN
+		self.Y_SOURCE_CIVIC = self.Y_SOURCE + self.H_SOURCE + SMALL_MARGIN
 		self.W_SOURCE_CIVIC = self.W_SOURCE
-		self.H_SOURCE_CIVIC = self.H_VOTE_PANE - self.H_SOURCE - self.SMALL_MARGIN
+		self.H_SOURCE_CIVIC = self.H_VOTE_PANE - self.H_SOURCE - SMALL_MARGIN
 
-		self.W_SOURCE_INFO = self.X_SOURCE_SPECIALIST - self.MEDIUM_MARGIN - self.X_SOURCE_INFO
+		self.W_SOURCE_INFO = self.X_SOURCE_SPECIALIST - MEDIUM_MARGIN - self.X_SOURCE_INFO
 		self.H_SOURCE_INFO = self.H_VOTE_PANE
 
 		self.X_VOTE_NAME = self.X_VOTE_PANE
-		self.Y_VOTE_NAME = self.Y_VOTE_PANE + self.H_VOTE_PANE + self.SMALL_MARGIN
+		self.Y_VOTE_NAME = self.Y_VOTE_PANE + self.H_VOTE_PANE + SMALL_MARGIN
 		self.W_VOTE_NAME = self.top.R_PEDIA_PAGE - self.X_VOTE_NAME
 		self.H_VOTE_NAME = 75
 
 		# <!-- custom: mid row is split into Requirements (left) and Effects (right), with the
 		# top row dedicated to vote-source panels and the bottom row to Background text. (GPT-5.4?) -->
 		self.X_REQUIREMENTS = self.X_VOTE_PANE
-		self.Y_REQUIREMENTS = self.Y_VOTE_NAME + self.H_VOTE_NAME + self.SMALL_MARGIN
-		self.W_REQUIREMENTS = (self.top.R_PEDIA_PAGE - self.X_REQUIREMENTS - self.MEDIUM_MARGIN) / 2
+		self.Y_REQUIREMENTS = self.Y_VOTE_NAME + self.H_VOTE_NAME + SMALL_MARGIN
+		self.W_REQUIREMENTS = (self.top.R_PEDIA_PAGE - self.X_REQUIREMENTS - MEDIUM_MARGIN) / 2
 		self.H_REQUIREMENTS = 200
 
 		self.X_FORCE_CIVICS = self.X_SOURCE_SPECIALIST
@@ -81,13 +78,13 @@ class SevoPediaVote:
 		self.W_FORCE_CIVICS = self.W_SOURCE
 		self.H_FORCE_CIVICS = self.H_SOURCE
 
-		self.X_SPECIAL = self.X_REQUIREMENTS + self.W_REQUIREMENTS + self.MEDIUM_MARGIN
+		self.X_SPECIAL = self.X_REQUIREMENTS + self.W_REQUIREMENTS + MEDIUM_MARGIN
 		self.Y_SPECIAL = self.Y_REQUIREMENTS
-		self.W_SPECIAL = self.X_FORCE_CIVICS - self.MEDIUM_MARGIN - self.X_SPECIAL
+		self.W_SPECIAL = self.X_FORCE_CIVICS - MEDIUM_MARGIN - self.X_SPECIAL
 		self.H_SPECIAL = 200
 
 		self.X_HISTORY = self.X_VOTE_PANE
-		self.Y_HISTORY = self.Y_REQUIREMENTS + self.H_REQUIREMENTS + self.SMALL_MARGIN
+		self.Y_HISTORY = self.Y_REQUIREMENTS + self.H_REQUIREMENTS + SMALL_MARGIN
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_VOTE_PANE
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 

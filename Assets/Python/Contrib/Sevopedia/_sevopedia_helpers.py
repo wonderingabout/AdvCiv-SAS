@@ -47,6 +47,10 @@ EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET = 4
 EXPANDED_LEADERHEAD_WIDTH_PCT = 80
 # <!-- custom: Y offset of the EXPAND button inside the collapsed leaderhead pane (placed inside the panel, not above it). (Claude code Sonnet 4.6) -->
 LEADERHEAD_EXPAND_BUTTON_Y_OFFSET = -16
+# <!-- custom: some constants often used in sevopedia -->
+LARGE_MARGIN = 20
+MEDIUM_MARGIN = 15
+SMALL_MARGIN = 10
 
 
 
