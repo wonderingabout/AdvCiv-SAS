@@ -71,7 +71,6 @@ class SevoPediaCivilization:
 		iconCenter = (self.H_CIVILIZATION_PANE - self.H_ICON) / 2
 		self.X_ICON = self.X_CIVILIZATION_PANE + iconCenter
 		self.Y_ICON = self.Y_CIVILIZATION_PANE + iconCenter
-		self.ICON_SIZE = 64
 
 		self.X_BUILDING = self.X_TECH + self.W_TECH + MEDIUM_MARGIN
 		self.Y_BUILDING = self.Y_TECH
@@ -111,7 +110,7 @@ class SevoPediaCivilization:
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_CIVILIZATION_PANE, self.Y_CIVILIZATION_PANE, self.W_CIVILIZATION_PANE, self.H_CIVILIZATION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.iCivilization).getArtDefineTag()).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.iCivilization).getArtDefineTag()).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

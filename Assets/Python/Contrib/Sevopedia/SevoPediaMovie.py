@@ -52,7 +52,6 @@ class SevoPediaMovie:
 		self.H_ICON = 100
 		self.X_ICON = self.X_HEADER + 10
 		self.Y_ICON = self.Y_HEADER + 10
-		self.ICON_SIZE = 64
 
 		self.X_TITLE = self.X_ICON + self.W_ICON + 10
 		self.Y_TITLE = self.Y_HEADER + 12
@@ -64,10 +63,10 @@ class SevoPediaMovie:
 		self.Y_BUTTON = self.Y_HEADER + (self.H_HEADER - self.H_BUTTON) / 2
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
-		self.X_TEXT = self.X_HEADER
-		self.Y_TEXT = self.Y_HEADER + self.H_HEADER + 10
-		self.W_TEXT = self.top.W_PEDIA_PAGE
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.X_HISTORY = self.X_HEADER
+		self.Y_HISTORY = self.Y_HEADER + self.H_HEADER + 10
+		self.W_HISTORY = self.top.W_PEDIA_PAGE
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
@@ -75,7 +74,7 @@ class SevoPediaMovie:
 		self.iMovie = iVictory
 
 		self.placeHeader()
-		self.placeText()
+		self.placeHistory()
 
 
 
@@ -92,9 +91,9 @@ class SevoPediaMovie:
 		if szButton:
 			widgetType, widgetData1, widgetData2 = self.getPediaJumpWidget(iMovieType, iMovieId)
 			if widgetType == WidgetTypes.WIDGET_GENERAL:
-				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
-				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, widgetType, widgetData1, widgetData2)
+				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, widgetType, widgetData1, widgetData2)
 
 		szTitleText = ""
 		if info:
@@ -107,10 +106,10 @@ class SevoPediaMovie:
 
 
 
-	def placeText(self):
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		iMovieType, iMovieId = self.top.SAS_unpackMovieKey(self.iMovie)
 		info = self.getMovieInfo(iMovieType, iMovieId)
 		szText = ""
@@ -123,7 +122,7 @@ class SevoPediaMovie:
 			szText = ""
 		szText = SASTextScale.labelText(szText)
 		textName = self.top.getNextWidgetName()
-		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY + 10, self.Y_HISTORY + 10, self.W_HISTORY - 20, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

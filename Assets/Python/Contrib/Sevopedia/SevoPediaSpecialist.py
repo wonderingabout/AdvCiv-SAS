@@ -73,7 +73,6 @@ class SevoPediaSpecialist:
 		self.H_ICON = 150
 		self.X_ICON = self.X_ICON_PANEL + (self.W_ICON_PANEL - self.W_ICON) / 2
 		self.Y_ICON = self.Y_ICON_PANEL + (self.H_TOP_PANEL - self.H_ICON) / 2
-		self.ICON_SIZE = 64
 
 		self.BUTTON_SIZE = 64
 
@@ -101,7 +100,7 @@ class SevoPediaSpecialist:
 		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getSpecialistInfo(self.iSpecialist).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getSpecialistInfo(self.iSpecialist).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

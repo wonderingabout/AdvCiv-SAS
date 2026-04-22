@@ -40,12 +40,9 @@ class SevoPediaCorporation:
 		self.W_CORPORATION_PANE = 200
 		self.H_CORPORATION_PANE = 230
 
-		self.ICON_SIZE = 64
-		self.ICON_FRAME_SIZE = 164
-		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
-		self.W_ICON = self.ICON_SIZE
-		self.H_ICON = self.ICON_SIZE
-		self.X_ICON = self.X_CORPORATION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
+		self.W_ICON = PANE_ICON_SIZE
+		self.H_ICON = PANE_ICON_SIZE
+		self.X_ICON = self.X_CORPORATION_PANE + (PANE_ICON_FRAME_SIZE - PANE_ICON_SIZE) / 2 + 19
 		self.Y_ICON = self.Y_CORPORATION_PANE + (self.H_CORPORATION_PANE - self.H_ICON) / 2 + 3
 
 		self.X_RIGHT = self.X_CORPORATION_PANE + self.W_CORPORATION_PANE + MEDIUM_MARGIN
@@ -109,7 +106,7 @@ class SevoPediaCorporation:
 		screen = self.top.getScreen()
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_CORPORATION_PANE, self.Y_CORPORATION_PANE, self.W_CORPORATION_PANE, self.H_CORPORATION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCorporationInfo(self.iCorporation).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCorporationInfo(self.iCorporation).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

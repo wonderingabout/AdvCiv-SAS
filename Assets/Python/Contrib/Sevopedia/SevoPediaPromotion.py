@@ -44,7 +44,6 @@ class SevoPediaPromotion:
 		self.H_ICON = 100
 		self.X_ICON = self.X_PROMOTION_PANE + (self.H_PROMOTION_PANE - self.H_ICON) / 2
 		self.Y_ICON = self.Y_PROMOTION_PANE + (self.H_PROMOTION_PANE - self.H_ICON) / 2
-		self.ICON_SIZE = 64
 
 		self.X_REQUIRES = self.X_PROMOTION_PANE + self.W_PROMOTION_PANE + MEDIUM_MARGIN
 		self.Y_REQUIRES = self.Y_PROMOTION_PANE
@@ -98,7 +97,7 @@ class SevoPediaPromotion:
 		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getPromotionInfo(self.iPromotion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getPromotionInfo(self.iPromotion).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

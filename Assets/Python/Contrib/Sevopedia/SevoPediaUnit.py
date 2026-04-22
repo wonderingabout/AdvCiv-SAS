@@ -50,19 +50,14 @@ class SevoPediaUnit:
 		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - MEDIUM_MARGIN) / 4
 		self.H_UNIT_PANE = 190
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
-		self.ICON_SIZE = 64
-		self.ICON_FRAME_SIZE = 164
-		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
-
-		self.W_ICON = self.ICON_SIZE
-		self.H_ICON = self.ICON_SIZE
-		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_UNIT_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_UNIT_PANE; same reasoning for Y position -->
-		self.X_ICON = self.X_UNIT_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
+		self.W_ICON = PANE_ICON_SIZE
+		self.H_ICON = PANE_ICON_SIZE
+		# <!-- custom: if PANE_ICON_SIZE is small (e.g. 64), start at the center of self.X_UNIT_PANE, but if PANE_ICON_SIZE is big (e.g. 164) start at the left most part of self.X_UNIT_PANE; same reasoning for Y position -->
+		self.X_ICON = self.X_UNIT_PANE + (PANE_ICON_FRAME_SIZE - PANE_ICON_SIZE) / 2
 		self.Y_ICON = self.Y_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
 
-		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer -->
-		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
+		# <!-- custom: add an extra margin to accomodate the potentially larger PANE_ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger PANE_ICON_SIZE (vs old PANE_ICON_SIZE of 64) that you may keep or remove as you prefer -->
+		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (PANE_ICON_FRAME_SIZE - PANE_ICON_SIZE) / 2
 
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
 		self.STATS_PANE_UPPER_PADDING = 42
@@ -160,8 +155,6 @@ class SevoPediaUnit:
 		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + SMALL_MARGIN + self.H_REQUIRES + SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 
-		self.X_ROTATION_UNIT_ANIMATION = -20
-		self.Z_ROTATION_UNIT_ANIMATION = 30
 		self.SCALE_ANIMATION = 1.0
 
 		# Row 2 right half (under animation): Against Classes (left) | Peak/Hill/City (right)
@@ -277,7 +270,7 @@ class SevoPediaUnit:
 		if iActivePlayer >= 0:
 			szButton = gc.getPlayer(iActivePlayer).getUnitButton(self.iUnit)
 		# </advc.003l>
-		screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -879,7 +872,7 @@ class SevoPediaUnit:
 			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
 			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
 		)
-		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_UNIT_ANIMATION, self.Z_ROTATION_UNIT_ANIMATION, self.SCALE_ANIMATION, True)
+		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 

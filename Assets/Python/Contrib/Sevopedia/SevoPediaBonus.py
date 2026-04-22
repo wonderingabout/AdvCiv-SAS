@@ -45,19 +45,14 @@ class SevoPediaBonus:
 		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - MEDIUM_MARGIN) / 2
 		self.H_BONUS_PANE = 250
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
-		self.ICON_SIZE = 64
-		self.ICON_FRAME_SIZE = 164
-		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
-
-		self.W_ICON = self.ICON_SIZE
-		self.H_ICON = self.ICON_SIZE
-		# <!-- custom: if self.ICON_SIZE is small (e.g. 64), start at the center of self.X_BONUS_PANE, but if self.ICON_SIZE is big (e.g. 164) start at the left most part of self.X_BONUS_PANE; same reasoning for Y position -->
-		self.X_ICON = self.X_BONUS_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
+		self.W_ICON = PANE_ICON_SIZE
+		self.H_ICON = PANE_ICON_SIZE
+		# <!-- custom: if PANE_ICON_SIZE is small (e.g. 64), start at the center of self.X_BONUS_PANE, but if PANE_ICON_SIZE is big (e.g. 164) start at the left most part of self.X_BONUS_PANE; same reasoning for Y position -->
+		self.X_ICON = self.X_BONUS_PANE + (PANE_ICON_FRAME_SIZE - PANE_ICON_SIZE) / 2
 		self.Y_ICON = self.Y_BONUS_PANE + (self.H_BONUS_PANE - self.H_ICON) / 2
 
-		# <!-- custom: add an extra margin to accomodate the potentially larger self.ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger self.ICON_SIZE (vs old self.ICON_SIZE of 64) that you may keep or remove as you prefer -->
-		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2
+		# <!-- custom: add an extra margin to accomodate the potentially larger PANE_ICON_SIZE (than for example 64), if diff is 0 this is harmless to keep too so is dynamical code that can handle optionally larger PANE_ICON_SIZE (vs old PANE_ICON_SIZE of 64) that you may keep or remove as you prefer -->
+		self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN = (PANE_ICON_FRAME_SIZE - PANE_ICON_SIZE) / 2
 
 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
 		self.STATS_PANE_UPPER_PADDING = 38
@@ -102,9 +97,7 @@ class SevoPediaBonus:
 		self.Y_BONUS_ANIMATION = self.Y_BONUS_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
 		self.W_BONUS_ANIMATION = self.W_TOTAL_EFFECTIVE_BONUS_PANE
 		self.H_BONUS_ANIMATION = self.H_BONUS_PANE - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
-		
-		self.X_ROTATION_BONUS_ANIMATION = -20
-		self.Z_ROTATION_BONUS_ANIMATION = 30
+
 		self.SCALE_ANIMATION = 0.7
 
 		# <!-- custom: since we split this right side width in 3 panels, (each) and it is separated by 2 MEDIUM_MARGINS, substract these before diving -->
@@ -176,7 +169,7 @@ class SevoPediaBonus:
 		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_BONUS_PANE, self.Y_BONUS_PANE, self.W_BONUS_PANE, self.H_BONUS_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBonusInfo(self.iBonus).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBonusInfo(self.iBonus).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 
 
@@ -656,7 +649,7 @@ class SevoPediaBonus:
 			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
 			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
 		)
-		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_BONUS_ANIMATION, self.Z_ROTATION_BONUS_ANIMATION, self.SCALE_ANIMATION, True)
+		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 

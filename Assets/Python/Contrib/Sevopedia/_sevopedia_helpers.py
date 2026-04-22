@@ -51,6 +51,13 @@ LEADERHEAD_EXPAND_BUTTON_Y_OFFSET = -16
 LARGE_MARGIN = 20
 MEDIUM_MARGIN = 15
 SMALL_MARGIN = 10
+X_ROTATION_ANIMATION = -20
+Z_ROTATION_ANIMATION = 30
+# <!-- custom: based on iIconFrameSize from sevopediaunit in base advciv code -->
+PANE_ICON_SIZE = 64
+PANE_ICON_FRAME_SIZE = 164
+if PANE_ICON_SIZE > PANE_ICON_FRAME_SIZE:
+	raise ValueError(u"[FATAL] PANE_ICON_SIZE=%d cannot be bigger/higher than PANE_ICON_FRAME_SIZE=%d, PANE_ICON_SIZE must fit within the frame, please adjust PANE_ICON_SIZE or PANE_ICON_FRAME_SIZE so that 0 < PANE_ICON_SIZE < PANE_ICON_FRAME_SIZE" % (PANE_ICON_SIZE, PANE_ICON_FRAME_SIZE))
 
 
 
@@ -270,12 +277,6 @@ def check_overlapping_keys_between_dicts(d1, d2):
 			overlap.append(k)
 	if overlap:
 		raise ValueError("Overlapping keys between dictionaries: %s" % str(overlap))
-
-
-
-def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
-	if icon_size > icon_frame_size:
-		raise ValueError(u"[FATAL] icon_size=%d cannot be bigger/higher than icon_frame_size=%d, icon_size must fit within the frame, please adjust icon_size or icon_frame_size so that 0 < icon_size < icon_frame_size" % (icon_size, icon_frame_size))
 
 
 

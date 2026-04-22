@@ -44,8 +44,6 @@ class SevoPediaCivic:
 
 		self.X_CIVIC_PANE = self.top.X_PEDIA_PAGE
 		self.Y_CIVIC_PANE = self.top.Y_PEDIA_PAGE
-		#self.W_CIVIC_PANE = 290
-		#self.H_CIVIC_PANE = 151
 		self.W_CIVIC_PANE = 440
 		self.H_CIVIC_PANE = 230
 
@@ -53,10 +51,8 @@ class SevoPediaCivic:
 		self.H_ICON = 125
 		self.X_ICON = self.X_CIVIC_PANE + (self.H_CIVIC_PANE - self.H_ICON) / 2
 		self.Y_ICON = self.Y_CIVIC_PANE + (self.H_CIVIC_PANE - self.H_ICON) / 2
-		self.ICON_SIZE = 64
 
 		self.X_STATS = self.X_ICON + self.W_ICON 
-		#self.Y_STATS = 112
 		self.Y_STATS = 141
 		self.W_STATS = 250
 		self.H_STATS = 200
@@ -161,7 +157,7 @@ class SevoPediaCivic:
 		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCivicInfo(self.iCivic).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCivicInfo(self.iCivic).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

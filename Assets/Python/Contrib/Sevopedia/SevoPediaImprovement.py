@@ -81,6 +81,7 @@ class SevoPediaImprovement:
 		self.bHistoryExpanded = False
 		self.bContentExpanded = False
 		self.top = main
+
 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
 		self.I_CONCEPT_IRRIGATION = getInfoTypeOrFail("CONCEPT_IRRIGATION")
@@ -96,7 +97,7 @@ class SevoPediaImprovement:
 		self.H_ICON = 150
 		self.X_ICON = self.X_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
 		self.Y_ICON = self.Y_IMPROVEMENT_PANE + (self.H_IMPROVEMENT_PANE - self.H_ICON) / 2
-		self.ICON_SIZE = 64
+
 		self.X_INFO_TEXT = self.X_IMPROVEMENT_PANE + 8
 		self.Y_INFO_TEXT = self.Y_IMPROVEMENT_PANE + 8
 		self.W_INFO_TEXT = self.W_IMPROVEMENT_PANE - 16
@@ -175,8 +176,6 @@ class SevoPediaImprovement:
 		if self.H_IMPROVEMENT_LEADERS < 0:
 			self.H_IMPROVEMENT_LEADERS = 0
 
-		self.X_ROTATION_IMPROVEMENT_ANIMATION = -20
-		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
 		self.SCALE_ANIMATION = 0.7
 
 		# <!-- custom: Leader icon sizes now use centralized INCHART_* constants from _sevopedia_helpers.
@@ -216,7 +215,7 @@ class SevoPediaImprovement:
 		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_IMPROVEMENT_PANE, self.Y_IMPROVEMENT_PANE, self.W_IMPROVEMENT_PANE, self.H_IMPROVEMENT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), info.getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.addDDSGFC(self.top.getNextWidgetName(), info.getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		panel = self.top.getNextWidgetName()
 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
@@ -319,7 +318,7 @@ class SevoPediaImprovement:
 			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
 			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
 		)
-		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_IMPROVEMENT_ANIMATION, self.Z_ROTATION_IMPROVEMENT_ANIMATION, self.SCALE_ANIMATION, True)
+		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
 
 
 

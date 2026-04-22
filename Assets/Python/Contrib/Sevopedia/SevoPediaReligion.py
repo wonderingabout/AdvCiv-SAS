@@ -47,16 +47,11 @@ class SevoPediaReligion:
 		self.W_RELIGION_PANE = 200
 		self.H_RELIGION_PANE = 230
 
-		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
-		self.ICON_SIZE = 64
-		self.ICON_FRAME_SIZE = 164
-		check_icon_size_fits_within_icon_frame_size(self.ICON_SIZE, self.ICON_FRAME_SIZE)
-
-		self.W_ICON = self.ICON_SIZE
-		self.H_ICON = self.ICON_SIZE
+		self.W_ICON = PANE_ICON_SIZE
+		self.H_ICON = PANE_ICON_SIZE
 		# <!-- custom: icon at the center of the panel for its middle point.
 		# Note: formula is approximative but seems to work quite well for a button size of 64px -->
-		self.X_ICON = self.X_RELIGION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
+		self.X_ICON = self.X_RELIGION_PANE + (PANE_ICON_FRAME_SIZE - PANE_ICON_SIZE) / 2 + 19
 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
 
 		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + MEDIUM_MARGIN) - MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + MEDIUM_MARGIN)
@@ -172,7 +167,7 @@ class SevoPediaReligion:
 		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 

@@ -53,7 +53,6 @@ class SevoPediaMusic:
 		self.H_ICON = 100
 		self.X_ICON = self.X_HEADER + 10
 		self.Y_ICON = self.Y_HEADER + 10
-		self.ICON_SIZE = 64
 
 		self.X_TITLE = self.X_ICON + self.W_ICON + 10
 		self.Y_TITLE = self.Y_HEADER + 12
@@ -64,10 +63,10 @@ class SevoPediaMusic:
 		self.Y_BUTTON = self.Y_HEADER + (self.H_HEADER - self.H_BUTTON) / 2
 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
-		self.X_TEXT = self.X_HEADER
-		self.Y_TEXT = self.Y_HEADER + self.H_HEADER + 10
-		self.W_TEXT = self.top.W_PEDIA_PAGE - iExtraWidth
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.X_HISTORY = self.X_HEADER
+		self.Y_HISTORY = self.Y_HEADER + self.H_HEADER + 10
+		self.W_HISTORY = self.top.W_PEDIA_PAGE - iExtraWidth
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
@@ -75,7 +74,7 @@ class SevoPediaMusic:
 		self.iMusic = iMusic
 
 		self.placeHeader()
-		self.placeText()
+		self.placeHistory()
 
 
 
@@ -91,23 +90,23 @@ class SevoPediaMusic:
 			szButton = self.top.SAS_getMusicButton(self.iMusic)
 		if szButton:
 			if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
-				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iMusicId, 1)
+				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iMusicId, 1)
 			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_ERA:
-				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
 			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
 				iLeaderId = self.top.SAS_getMusicLeaderId(self.iMusic)
 				if iLeaderId != -1:
-					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
+					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
 				else:
-					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
 				iCivId = self.top.SAS_getMusicCivId(self.iMusic)
 				if iCivId != -1:
-					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCivId, 1)
+					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCivId, 1)
 				else:
-					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			else:
-				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		szTitleText = ""
 		szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
@@ -119,10 +118,10 @@ class SevoPediaMusic:
 
 
 
-	def placeText(self):
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
 		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
 		info = self.getMusicInfo(self.iMusic)
 		szText = ""
@@ -210,7 +209,7 @@ class SevoPediaMusic:
 				szText = szTitleText + u"\n" + szScript
 		szText = SASTextScale.labelText(szText)
 		textName = self.top.getNextWidgetName()
-		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(textName, szText, self.X_HISTORY + 10, self.Y_HISTORY + 10, self.W_HISTORY - 20, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

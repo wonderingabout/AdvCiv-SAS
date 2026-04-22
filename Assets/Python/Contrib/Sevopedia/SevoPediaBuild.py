@@ -40,7 +40,6 @@ class SevoPediaBuild:
 		self.H_ICON = 100
 		self.X_ICON = self.X_BUILD_PANE + 10
 		self.Y_ICON = self.Y_BUILD_PANE + 10
-		self.ICON_SIZE = 64
 		self.X_INFO_TEXT = self.X_BUILD_PANE + 110
 		self.Y_INFO_TEXT = self.Y_ICON + 15
 		self.W_INFO_TEXT = self.W_BUILD_PANE - 120
@@ -118,7 +117,7 @@ class SevoPediaBuild:
 		buildInfo = gc.getBuildInfo(self.iBuild)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_BUILD_PANE, self.Y_BUILD_PANE, self.W_BUILD_PANE, self.H_BUILD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBuildInfo(self.iBuild).getButton(), self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBuildInfo(self.iBuild).getButton(), self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		panel = self.top.getNextWidgetName()
 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)

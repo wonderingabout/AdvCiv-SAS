@@ -55,7 +55,6 @@ class SevoPediaProject:
 		self.H_ICON = 100
 		self.X_ICON = self.X_PROJECT_PANE + (self.H_PROJECT_PANE - self.H_ICON) / 2
 		self.Y_ICON = self.Y_PROJECT_PANE + (self.H_PROJECT_PANE - self.H_ICON) / 2
-		self.ICON_SIZE = 64
 
 		self.X_STATS_PANE = self.X_ICON + self.W_ICON
 		self.Y_STATS_PANE = 79
@@ -67,10 +66,10 @@ class SevoPediaProject:
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
 		self.H_SPECIAL = 210
 
-		self.X_TEXT = self.X_PROJECT_PANE
-		self.Y_TEXT = self.Y_SPECIAL + self.H_SPECIAL + 10
-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_PROJECT_PANE
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.X_HISTORY = self.X_PROJECT_PANE
+		self.Y_HISTORY = self.Y_SPECIAL + self.H_SPECIAL + 10
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_PROJECT_PANE
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
 
 
@@ -84,7 +83,7 @@ class SevoPediaProject:
 		self.placeRequires()
 		self.placeMovie()
 		self.placeSpecial()
-		self.placeText()
+		self.placeHistory()
 
 
 
@@ -95,7 +94,7 @@ class SevoPediaProject:
 		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
 		# screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 
 
@@ -183,17 +182,17 @@ class SevoPediaProject:
 
 
 
-	def placeText(self):
+	def placeHistory(self):
 		screen = self.top.getScreen()
 		szText = gc.getProjectInfo(self.iProject).getCivilopedia()
 		draw_expandable_text_panel(
 			screen,
 			self.top,
 			u"",
-			self.X_TEXT,
-			self.Y_TEXT,
-			self.W_TEXT,
-			self.H_TEXT,
+			self.X_HISTORY,
+			self.Y_HISTORY,
+			self.W_HISTORY,
+			self.H_HISTORY,
 			szText,
 			self.bHistoryExpanded,
 			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
