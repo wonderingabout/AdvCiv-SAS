@@ -258,7 +258,15 @@ class SevoPediaEventTrigger:
 		parts = []
 		# Commerce-ish numeric rewards/penalties with their icons.
 		if eventInfo.getGold() != 0:
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD", ()) + u": %+d %c" % (eventInfo.getGold(), self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
+			# <!-- custom: isGoldToPlayer flips the direction — if true, the gold is
+			# gifted TO the other player (subtracted from you and handed over) rather
+			# than just added to your treasury. Used by "bribe"/"gift" events.
+			# (Claude code Opus 4.7) -->
+			if eventInfo.isGoldToPlayer():
+				szGoldKey = "TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD_TO_PLAYER"
+			else:
+				szGoldKey = "TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD"
+			parts.append(localText.getText(szGoldKey, ()) + u": %+d %c" % (eventInfo.getGold(), self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
 		if eventInfo.getRandomGold() != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_RANDOM_GOLD", ()) + u": %+d %c" % (eventInfo.getRandomGold(), self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
 		if eventInfo.getCulture() != 0:
@@ -331,7 +339,17 @@ class SevoPediaEventTrigger:
 		if iFreeBuildingClass >= 0:
 			buildingClassInfo = gc.getBuildingClassInfo(iFreeBuildingClass)
 			if buildingClassInfo:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING", ()) + u": " + buildingClassInfo.getDescription())
+				# <!-- custom: getBuildingChange > 0 grants the building, < 0 destroys
+				# it. Same field on CvEventInfo drives both directions — surface them
+				# distinctly so destroyed buildings don't show up as "Free Building".
+				# (Claude code Opus 4.7) -->
+				iBuildingChange = eventInfo.getBuildingChange()
+				if iBuildingChange > 0:
+					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING", ()) + u": " + buildingClassInfo.getDescription())
+				elif iBuildingChange < 0:
+					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DESTROY_BUILDING", ()) + u": " + buildingClassInfo.getDescription())
+				else:
+					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING", ()) + u": " + buildingClassInfo.getDescription())
 		iFreePromotion = eventInfo.getUnitPromotion()
 		if iFreePromotion >= 0:
 			promoInfo = gc.getPromotionInfo(iFreePromotion)
@@ -468,6 +486,49 @@ class SevoPediaEventTrigger:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_IMMOBILE", ()) + u": %d" % eventInfo.getUnitImmobileTurns())
 		if eventInfo.isQuest():
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_QUEST", ()))
+
+		if eventInfo.getFreeUnitSupport() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNIT_SUPPORT", ()) + u": %+d" % eventInfo.getFreeUnitSupport())
+		iMaxReligions = eventInfo.getMaxNumReligions()
+		if iMaxReligions >= 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_MAX_RELIGIONS", ()) + u": %d" % iMaxReligions)
+
+		# <!-- custom: pillage gold range — from raided caravans / pillaged improvements.
+		# Both fields populate together; show as a single range line.
+		# (Claude code Opus 4.7) -->
+		iMinPillage = eventInfo.getMinPillage()
+		iMaxPillage = eventInfo.getMaxPillage()
+		if iMinPillage != 0 or iMaxPillage != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD", ()) + u": %d-%d %c" % (iMinPillage, iMaxPillage, self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
+
+		# <!-- custom: <PlotExtraYields> — permanent yield bonus on the target plot,
+		# indexed by Yield type. Same list-struct probe pattern as the per-BuildingClass
+		# extras. Useful for events like "The Volcano has fertilized this plot: +2 food".
+		# (Claude code Opus 4.7) -->
+		for iY in range(YieldTypes.NUM_YIELD_TYPES):
+			iExtra = eventInfo.getPlotExtraYield(iY)
+			if iExtra != 0:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD", ()) + u": %+d %c" % (iExtra, self.YIELD_CHARS[iY]))
+
+		# <!-- custom: <AdditionalEvents> — follow-up events that may fire after this one,
+		# each with a %chance and a turn delay. Probed per event index (same pattern as
+		# the BuildingClass scan). Surfaces event chains like "This opens a quest that
+		# will resolve in N turns". (Claude code Opus 4.7) -->
+		for iOtherEvent in range(gc.getNumEventInfos()):
+			iChance = eventInfo.getAdditionalEventChance(iOtherEvent)
+			if iChance <= 0:
+				continue
+			otherInfo = gc.getEventInfo(iOtherEvent)
+			if not otherInfo:
+				continue
+			iTime = eventInfo.getAdditionalEventTime(iOtherEvent)
+			szOtherName = otherInfo.getDescription()
+			if (not szOtherName) or len(szOtherName.strip()) == 0:
+				szOtherName = otherInfo.getType()
+			if iTime > 0:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ()) + u": %s (%d%%, %d turns)" % (szOtherName, iChance, iTime))
+			else:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ()) + u": %s (%d%%)" % (szOtherName, iChance))
 
 		if not parts:
 			# No direct XML effects. Distinguish scripted (Python callback) from

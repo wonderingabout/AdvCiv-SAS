@@ -4014,4 +4014,32 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_RESPONDS</Tag>
 		<English>Other player gets a response choice</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD_TO_PLAYER</Tag>
+		<English>Gift Gold to Other Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DESTROY_BUILDING</Tag>
+		<English>Destroy Building</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNIT_SUPPORT</Tag>
+		<English>Free Unit Support</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_MAX_RELIGIONS</Tag>
+		<English>Max Religions in City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD</Tag>
+		<English>Pillage Gold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD</Tag>
+		<English>Plot Extra Yield</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT</Tag>
+		<English>Triggers Follow-up Event</English>
+	</TEXT>
 </Civ4GameText>
