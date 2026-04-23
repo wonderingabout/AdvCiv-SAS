@@ -46,6 +46,7 @@ import SevoPediaProject
 import SevoPediaReligion
 import SevoPediaCorporation
 import SevoPediaVote
+import SevoPediaEventTrigger
 import SevoPediaMovie
 import SevoPediaMusic
 import SevoPediaIndex
@@ -122,6 +123,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: 6810 = SAS_PEDIA_PYTHON_LEADER_ERA (Sevopedia leader era art preview buttons) defined in SevoPediaLeader.py. (Claude code Sonnet 4.6) -->
 		# <!-- custom: Votes category has no native engine jump widget (no WIDGET_PEDIA_JUMP_TO_VOTE), so left-list entries use WIDGET_PYTHON dispatched via this id. (Claude code Opus 4.7) -->
 		self.SAS_PEDIA_PYTHON_VOTE_ENTRY = 6811
+		# <!-- custom: Event Trigger category also has no native jump widget in the DLL, so
+		# use WIDGET_PYTHON routing like Votes. (Claude code Opus 4.7) -->
+		self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY = 6812
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -257,6 +261,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheMoviesTuple = None
 		self.SAS_cacheMusicTuple = None
 		self.SAS_cacheVotesTuple = None
+		self.SAS_cacheEventTriggersTuple = None
 		self.SAS_musicEraTracks = None
 		self.SAS_musicLeaderTracks = None
 		self.SAS_musicCivTracks = None
@@ -359,6 +364,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconOccupation, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
 			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconOccupation, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
 			(SevoScreenEnums.PEDIA_VOTES, "TXT_KEY_PEDIA_CATEGORY_VOTE", iconOccupation, "placeVotes", SevoPediaVote.SevoPediaVote, None),
+			(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, "TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS", iconOccupation, "placeEventTriggers", SevoPediaEventTrigger.SevoPediaEventTrigger, None),
 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
 		)
 
@@ -1513,6 +1519,43 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				break
 		return ""
 
+	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the
+	# "Any era (no tech requirement)" bucket placed FIRST since those events fire from
+	# turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON
+	# + SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to
+	# the first child event's icon when the trigger itself has no button art in XML.
+	# (Claude code Opus 4.7) -->
+	def placeEventTriggers(self):
+		self.list = self.getEventTriggerList()
+		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getEventTriggerInfoForList)
+
+	def getEventTriggerList(self):
+		if self.SAS_cacheEventTriggersTuple is None:
+			listEntries = SAS_MainGroupings.SAS_getEventTriggersGroupedByEra(self.isSortLists())
+			self.SAS_cacheEventTriggersTuple = tuple(listEntries)
+		return self.SAS_cacheEventTriggersTuple
+
+	def getEventTriggerInfoForList(self, id):
+		return gc.getEventTriggerInfo(id)
+
+	def SAS_getEventTriggerButton(self, iTrigger):
+		info = gc.getEventTriggerInfo(iTrigger)
+		if not info:
+			return ""
+		szButton = info.getButton()
+		if szButton:
+			return szButton
+		for i in range(info.getNumEvents()):
+			iEvent = info.getEvent(i)
+			if iEvent < 0:
+				continue
+			eventInfo = gc.getEventInfo(iEvent)
+			if eventInfo:
+				szEventButton = eventInfo.getButton()
+				if szEventButton:
+					return szEventButton
+		return ""
+
 
 	def placeConcepts(self):
 		self.list = self.getConceptList()
@@ -2022,6 +2065,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					szButtonPlaceItems = self.SAS_getMusicButton(data1)
 				elif info == self.getVoteInfoForList:
 					szButtonPlaceItems = self.SAS_getVoteButton(data1)
+				elif info == self.getEventTriggerInfoForList:
+					szButtonPlaceItems = self.SAS_getEventTriggerButton(data1)
 				else:
 					szButtonPlaceItems = info(data1).getButton()
 
@@ -2058,6 +2103,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if data1 != -1:
 					data2 = data1
 					data1 = self.SAS_PEDIA_PYTHON_VOTE_ENTRY
+					bSAS_hasCustomData2 = True
+			# <!-- custom: event triggers also have no native jump widget, so route through
+			# WIDGET_PYTHON like Votes. (Claude code Opus 4.7) -->
+			if info == self.getEventTriggerInfoForList:
+				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
+				if data1 != -1:
+					data2 = data1
+					data1 = self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY
 					bSAS_hasCustomData2 = True
 
 			if info == gc.getConceptInfo:
@@ -2281,6 +2334,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					item = self.list[iListIdx]
 					if item[1] != -1:
 						return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, item[1], True, False)
+			# <!-- custom: Event Triggers list click -> trigger page. (Claude code Opus 4.7) -->
+			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_EVENT_TRIGGERS:
+				iRow = inputClass.getData()
+				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
+				if iListIdx is not None:
+					item = self.list[iListIdx]
+					if item[1] != -1:
+						return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, item[1], True, False)
 
 		# Existing TOC/INDEX buttons.
 		if self.SAS_USE_BOTTOM_TABS:
@@ -2312,6 +2373,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: Vote WIDGET_PYTHON route (no native WIDGET_PEDIA_JUMP_TO_VOTE exists). (Claude code Opus 4.7) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_VOTE_ENTRY:
 				return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, iData2, True, False)
+			# <!-- custom: Event Trigger WIDGET_PYTHON route (same situation as Votes — no
+			# native jump-to-event-trigger widget in the DLL). (Claude code Opus 4.7) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY:
+				return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, iData2, True, False)
 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
 				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:

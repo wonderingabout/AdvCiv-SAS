@@ -1388,6 +1388,98 @@ def SAS_getVotesGroupedByVoteSource(bSortLists):
 	return listEntries
 
 
+# <!-- custom: earliest era at which an event trigger can fire, based on its prereq techs.
+# Iterates both OR-prereqs and AND-prereqs and returns the minimum era found. Returns -1 if
+# the trigger has no tech prereqs at all (these are "always available" flavor/social events
+# and are surfaced in their own "Any era" bucket placed at the TOP of the list, since from
+# the player's perspective they start firing immediately, not "after all other eras".
+# (Claude code Opus 4.7) -->
+def _SAS_getEventTriggerEarliestEra(iTrigger):
+	info = gc.getEventTriggerInfo(iTrigger)
+	if not info:
+		return -1
+	iBestEra = -1
+	for i in range(info.getNumPrereqOrTechs()):
+		iTech = info.getPrereqOrTechs(i)
+		if iTech >= 0:
+			techInfo = gc.getTechInfo(iTech)
+			if techInfo:
+				iEra = techInfo.getEra()
+				if iBestEra == -1 or iEra < iBestEra:
+					iBestEra = iEra
+	for i in range(info.getNumPrereqAndTechs()):
+		iTech = info.getPrereqAndTechs(i)
+		if iTech >= 0:
+			techInfo = gc.getTechInfo(iTech)
+			if techInfo:
+				iEra = techInfo.getEra()
+				if iBestEra == -1 or iEra < iBestEra:
+					iBestEra = iEra
+	return iBestEra
+
+
+def _SAS_getEventTriggerRowLabel(iTrigger):
+	info = gc.getEventTriggerInfo(iTrigger)
+	if not info:
+		return "Trigger %d" % iTrigger
+	szLabel = info.getDescription()
+	if (not szLabel) or len(szLabel.strip()) == 0:
+		szType = info.getType()
+		if szType and szType.startswith("EVENTTRIGGER_"):
+			szType = szType[len("EVENTTRIGGER_"):]
+		if szType:
+			szLabel = szType.replace("_", " ").title()
+		else:
+			szLabel = "Trigger %d" % iTrigger
+	return szLabel
+
+
+# <!-- custom: Sevopedia Event Triggers grouped by the earliest era at which they can fire.
+# - "Any era (no tech requirement)" bucket is placed FIRST because these triggers are
+#   active from turn 1 — putting them first matches the player's "when does this fire?"
+#   mental model better than appending them at the end.
+# - Within each era section, triggers are emitted in XML declaration order. This preserves
+#   the modder's intended grouping (families like FESTIVAL / FESTIVAL_AGAIN / FESTIVAL_DONE
+#   are typically declared adjacently in CIV4EventTriggerInfos.xml, so they stay adjacent
+#   in the list for free). If a family is ever scattered in the XML, fix at XML level.
+# - bSortLists is honored: when the user enables Sort Lists, entries within each era
+#   sort alphabetically by label instead of XML order (same convention as other pedia
+#   categories in this module). (Claude code Opus 4.7) -->
+def SAS_getEventTriggersGroupedByEra(bSortLists):
+	listEntries = []
+	iNumEras = gc.getNumEraInfos()
+	# -1 bucket holds "no prereq tech" triggers; iEra 0..iNumEras-1 are real eras.
+	groups = {}
+	iNumTriggers = gc.getNumEventTriggerInfos()
+	for iTrigger in range(iNumTriggers):
+		info = gc.getEventTriggerInfo(iTrigger)
+		if not info:
+			continue
+		iEra = _SAS_getEventTriggerEarliestEra(iTrigger)
+		if iEra not in groups:
+			groups[iEra] = []
+		groups[iEra].append((_SAS_getEventTriggerRowLabel(iTrigger), iTrigger))
+
+	# Any-era bucket FIRST.
+	if -1 in groups:
+		items = groups[-1]
+		if bSortLists:
+			items = sorted(items)
+		_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH", ()), items)
+
+	# Then era buckets in era order.
+	for iEra in range(iNumEras):
+		if iEra not in groups:
+			continue
+		items = groups[iEra]
+		if bSortLists:
+			items = sorted(items)
+		szHeader = gc.getEraInfo(iEra).getDescription()
+		_SAS_addSection(listEntries, szHeader, items)
+
+	return listEntries
+
+
 def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
 	if szSoundScript:
 		return szLabel + " - " + szSoundScript

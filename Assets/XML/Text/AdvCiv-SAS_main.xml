@@ -3761,4 +3761,160 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
 		<English>Sevopedia [F12]:</English>
 	</TEXT>
+	<!-- custom: Sevopedia Event Triggers category text keys. Category groups event
+	triggers by earliest era (no-tech bucket first, since those fire from turn 1).
+	Trigger detail page shows its events as "choice cards" a la Slay the Spire.
+	(Claude code Opus 4.7) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS</Tag>
+		<English>Event Triggers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH</Tag>
+		<English>Any era (no tech requirement)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TYPE</Tag>
+		<English>Type</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN</Tag>
+		<English>Unknown</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SUMMARY</Tag>
+		<English>Summary</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY</Tag>
+		<English>Probability</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES</Tag>
+		<English>Active in Games</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT</Tag>
+		<English>Outcomes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAGS</Tag>
+		<English>Flags</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_RECURRING</Tag>
+		<English>Recurring</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_GLOBAL</Tag>
+		<English>Global</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_TEAM</Tag>
+		<English>Team</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_SINGLE_PLAYER</Tag>
+		<English>Single Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OR_TECHS</Tag>
+		<English>Any of Techs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_AND_TECHS</Tag>
+		<English>All of Techs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OBSOLETE_TECHS</Tag>
+		<English>Obsolete with</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CIVIC</Tag>
+		<English>Civic</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP</Tag>
+		<English>Min Population</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_POP</Tag>
+		<English>Max Population</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_TREASURY</Tag>
+		<English>Min Treasury</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_UNITS</Tag>
+		<English>City Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_BUILDINGS</Tag>
+		<English>City Buildings</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_UNITS</Tag>
+		<English>Global Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_BUILDINGS</Tag>
+		<English>Global Buildings</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_EVENTS_HEADER</Tag>
+		<English>Events</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FAMILY</Tag>
+		<English>Family</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD</Tag>
+		<English>Gold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_RANDOM_GOLD</Tag>
+		<English>Random Gold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CULTURE</Tag>
+		<English>Culture</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ESPIONAGE</Tag>
+		<English>Espionage</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS</Tag>
+		<English>Happy Turns</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_POPULATION</Tag>
+		<English>Population</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLDEN_AGE</Tag>
+		<English>Golden Age</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DECLARE_WAR</Tag>
+		<English>Declare War</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH</Tag>
+		<English>Free Tech</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT</Tag>
+		<English>Tech Percent</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED</Tag>
+		<English>Scripted or conditional</English>
+	</TEXT>
 </Civ4GameText>
