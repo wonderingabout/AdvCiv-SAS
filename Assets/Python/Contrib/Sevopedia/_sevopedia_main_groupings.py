@@ -1388,34 +1388,127 @@ def SAS_getVotesGroupedByVoteSource(bSortLists):
 	return listEntries
 
 
-# <!-- custom: earliest era at which an event trigger can fire, based on its prereq techs.
-# Iterates both OR-prereqs and AND-prereqs and returns the minimum era found. Returns -1 if
-# the trigger has no tech prereqs at all (these are "always available" flavor/social events
-# and are surfaced in their own "Any era" bucket placed at the TOP of the list, since from
-# the player's perspective they start firing immediately, not "after all other eras".
-# (Claude code Opus 4.7) -->
+# <!-- custom: earliest era at which an event trigger can fire. The trigger's direct
+# <OrPreReqs>/<AndPreReqs> tech lists are only one of several era-gating fields — we also
+# check <OtherPlayerHasTech>, <CivicPrereq> (single civic), and <UnitsRequired> /
+# <BuildingsRequired> / <ReligionsRequired> / <CorporationsRequired> / <RoutesRequired>
+# whose required assets each imply a tech-era through their own XML prereqs. Without these
+# indirect checks, events like Airliner Crash (gated only by <OtherPlayerHasTech>TECH_FLIGHT</>)
+# wrongly land in the "Any era" bucket.
+#
+# Algorithm: OR-techs allow any single member to satisfy the constraint, so the OR list
+# contributes min(eras) only if non-empty. Every other constraint (AND techs, civic,
+# required asset, OtherPlayerHasTech) must ALL be satisfied, so each contributes its own
+# era and the trigger cannot fire before the max of all those contributions. Returns -1
+# only when the trigger has zero era-gating fields of any kind. (Claude code Opus 4.7) -->
+def _SAS_getTechEra(iTech):
+	if iTech < 0:
+		return -1
+	techInfo = gc.getTechInfo(iTech)
+	if not techInfo:
+		return -1
+	return techInfo.getEra()
+
+
+def _SAS_getBuildingClassEra(iBuildingClass):
+	if iBuildingClass < 0:
+		return -1
+	buildingClassInfo = gc.getBuildingClassInfo(iBuildingClass)
+	if not buildingClassInfo:
+		return -1
+	iBuilding = buildingClassInfo.getDefaultBuildingIndex()
+	if iBuilding < 0:
+		return -1
+	buildingInfo = gc.getBuildingInfo(iBuilding)
+	if not buildingInfo:
+		return -1
+	return _SAS_getTechEra(buildingInfo.getPrereqAndTech())
+
+
+def _SAS_getUnitClassEra(iUnitClass):
+	if iUnitClass < 0:
+		return -1
+	unitClassInfo = gc.getUnitClassInfo(iUnitClass)
+	if not unitClassInfo:
+		return -1
+	iUnit = unitClassInfo.getDefaultUnitIndex()
+	if iUnit < 0:
+		return -1
+	unitInfo = gc.getUnitInfo(iUnit)
+	if not unitInfo:
+		return -1
+	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
+
+
 def _SAS_getEventTriggerEarliestEra(iTrigger):
 	info = gc.getEventTriggerInfo(iTrigger)
 	if not info:
 		return -1
-	iBestEra = -1
+
+	# OR tech list: any single tech satisfies the constraint, take min.
+	iOrMin = -1
 	for i in range(info.getNumPrereqOrTechs()):
-		iTech = info.getPrereqOrTechs(i)
-		if iTech >= 0:
-			techInfo = gc.getTechInfo(iTech)
-			if techInfo:
-				iEra = techInfo.getEra()
-				if iBestEra == -1 or iEra < iBestEra:
-					iBestEra = iEra
+		iEra = _SAS_getTechEra(info.getPrereqOrTechs(i))
+		if iEra >= 0:
+			if iOrMin == -1 or iEra < iOrMin:
+				iOrMin = iEra
+
+	# Every other constraint is AND-ish: the trigger can't fire until the latest-era
+	# prereq is satisfied. Collect them all, take max at the end.
+	iHardMax = -1
+	def _bumpHard(iEra):
+		# Nested function can only read iHardMax in py2.4, so use a 1-element list
+		# proxy via a shared mutable container.
+		if iEra < 0:
+			return
+		if iHardHolder[0] == -1 or iEra > iHardHolder[0]:
+			iHardHolder[0] = iEra
+	iHardHolder = [iHardMax]
+
 	for i in range(info.getNumPrereqAndTechs()):
-		iTech = info.getPrereqAndTechs(i)
-		if iTech >= 0:
-			techInfo = gc.getTechInfo(iTech)
-			if techInfo:
-				iEra = techInfo.getEra()
-				if iBestEra == -1 or iEra < iBestEra:
-					iBestEra = iEra
-	return iBestEra
+		_bumpHard(_SAS_getTechEra(info.getPrereqAndTechs(i)))
+	_bumpHard(_SAS_getTechEra(info.getOtherPlayerHasTech()))
+
+	iCivic = info.getCivic()
+	if iCivic >= 0:
+		civicInfo = gc.getCivicInfo(iCivic)
+		if civicInfo:
+			_bumpHard(_SAS_getTechEra(civicInfo.getTechPrereq()))
+
+	for i in range(info.getNumBuildingsRequired()):
+		_bumpHard(_SAS_getBuildingClassEra(info.getBuildingRequired(i)))
+	for i in range(info.getNumUnitsRequired()):
+		_bumpHard(_SAS_getUnitClassEra(info.getUnitRequired(i)))
+	for i in range(info.getNumReligionsRequired()):
+		iRel = info.getReligionRequired(i)
+		if iRel >= 0:
+			relInfo = gc.getReligionInfo(iRel)
+			if relInfo:
+				_bumpHard(_SAS_getTechEra(relInfo.getTechPrereq()))
+	for i in range(info.getNumCorporationsRequired()):
+		iCorp = info.getCorporationRequired(i)
+		if iCorp >= 0:
+			corpInfo = gc.getCorporationInfo(iCorp)
+			if corpInfo:
+				_bumpHard(_SAS_getTechEra(corpInfo.getTechPrereq()))
+	# Routes use TechMovementChanges (a list, not a single prereq) so there's no clean
+	# single-era answer — skipped. Route-required triggers are rare enough that the
+	# other constraints on the same trigger usually give a correct era anyway.
+
+	iHardMax = iHardHolder[0]
+
+	# Overall earliest era: the trigger is gated by the LATER of (min OR tech) and
+	# (max hard-required era). If OR has no entries we only need iHardMax; if no hard
+	# constraints exist we only need iOrMin; if neither list yields anything → -1.
+	if iOrMin == -1 and iHardMax == -1:
+		return -1
+	if iOrMin == -1:
+		return iHardMax
+	if iHardMax == -1:
+		return iOrMin
+	if iOrMin > iHardMax:
+		return iOrMin
+	return iHardMax
 
 
 def _SAS_getEventTriggerRowLabel(iTrigger):
