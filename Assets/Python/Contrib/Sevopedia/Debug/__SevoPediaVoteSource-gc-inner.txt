@@ -6,7 +6,7 @@ in sevopediavote, after having imported the sevopedia_debuggers (`from _sevopedi
 iDbgSrc = self._getVoteSourceType()
 if iDbgSrc > -1:
 	printObjAttrs(gc.getVoteSourceInfo(iDbgSrc))
-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
 
 
 

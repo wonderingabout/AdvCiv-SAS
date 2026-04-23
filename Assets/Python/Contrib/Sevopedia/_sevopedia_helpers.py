@@ -92,6 +92,22 @@ SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO = 0
 
 
 
+# <!-- custom: wrap an asset description in Civ4's <link=literal>...</link> markup so
+# addMultilineText renders it as a clickable link. When clicked, the engine calls
+# SevoPediaMain.link(szLink), which reverse-looks-up the text through SAS_linkMatchDefs
+# (techs, civics, buildings, units, promotions, specialists, features, improvements,
+# bonuses, religions, corporations, traits, concepts, etc.) via each info's
+# isMatchForLink(...) and pedia-jumps to the right page. No DLL change needed — this
+# piggybacks on the mechanism already used by Sevopedia Building/Unit/Trait/Leader pages
+# and by CvGameTextMgr for inline pedia links. Pass the exact localized description
+# string (whatever info.getDescription() returned) so the reverse lookup finds a match.
+# (Claude code Opus 4.7) -->
+def make_pedia_link(szText):
+	if not szText:
+		return szText
+	return u"<link=literal>%s</link>" % szText
+
+
 def get_multilist_panel_width_for_buttons(iNumButtons, iButtonSize, iLeftEdgePadding, iRightEdgePadding, iInterButtonSpacing):
 	# <!-- custom: width formula for a horizontal multilist panel:
 	# width = (n * buttonSize) + leftEdgePadding + rightEdgePadding + ((n - 1) * interSpacing)

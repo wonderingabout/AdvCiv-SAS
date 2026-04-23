@@ -623,7 +623,7 @@ class SevoPediaLeader:
 			for iTrait in xrange(gc.getNumTraitInfos()):
 				if leader.hasTrait(iTrait):
 					traitDesc = gc.getTraitInfo(iTrait).getDescription()
-					traitLink = u"<link=literal>%s</link>" % traitDesc
+					traitLink = make_pedia_link(traitDesc)
 					traitIcon = TraitUtil.getIcon(iTrait)
 					# <!-- custom: prefer replacing the linked trait label; if traits are plain text, replace the first matching trait name only. (GPT-5.2-Codex) -->
 					szReplaced = szSpecialText.replace(traitLink, traitIcon + u" " + traitLink)

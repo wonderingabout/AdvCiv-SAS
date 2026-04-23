@@ -11,7 +11,6 @@ import SevoScreenEnums
 import SASTextScale
 
 from _sevopedia_helpers import *
-from _sevopedia_debuggers import *
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -101,21 +100,6 @@ class SevoPediaEventTrigger:
 		if bTriggerChanged:
 			self.bHistoryExpanded = False
 		self.iTrigger = iTrigger
-		if bTriggerChanged:
-			info = self._getTriggerInfo()
-			if not info:
-				return
-			print("\n\n[DEBUG] SevoPediaEventTrigger trigger dump: iTrigger=%d, Type=%s" % (self.iTrigger, info.getType()))
-			printObjAttrs(info)
-			for i in range(info.getNumEvents()):
-				iEvent = info.getEvent(i)
-				if iEvent < 0:
-					continue
-				eventInfo = gc.getEventInfo(iEvent)
-				if not eventInfo:
-					continue
-				print("\n\n[DEBUG] SevoPediaEventTrigger event dump: iEvent=%d, Type=%s" % (iEvent, eventInfo.getType()))
-				printObjAttrs(eventInfo)
 
 		self.placeName()
 		self.placeRequiresText()
@@ -195,32 +179,6 @@ class SevoPediaEventTrigger:
 		else:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_SUMMARY + 14, self.Y_SUMMARY + 34, self.W_SUMMARY - 28, self.H_SUMMARY - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-	# <!-- custom: wrap an asset description in Civ4's <link=literal>...</link> markup so
-	# addMultilineText renders it as a clickable link. When clicked, the engine calls
-	# SevoPediaMain.link(szLink), which reverse-looks-up the text through SAS_linkMatchDefs
-	# (techs, civics, buildings, units, promotions, specialists, features, improvements,
-	# bonuses, routes, civs, leaders, traits, religions, corporations, concepts) via each
-	# info's isMatchForLink(...) and pedia-jumps to the right page. No DLL change needed;
-	# this simply joins onto the mechanism already used by Sevopedia Building/Unit/Trait
-	# pages. (Claude code Opus 4.7) -->
-	def _link(self, szText):
-		if not szText:
-			return szText
-		return u"<link=literal>%s</link>" % szText
-
-
-	def _joinInfoNames(self, listIds, infoGetter):
-		listNames = []
-		for iId in listIds:
-			if iId >= 0:
-				info = infoGetter(iId)
-				if info:
-					listNames.append(info.getDescription())
-		if listNames:
-			return u", ".join(listNames)
-		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 
 
 	def placeRequiresText(self):
@@ -325,7 +283,7 @@ class SevoPediaEventTrigger:
 		if iTech >= 0:
 			techInfo = gc.getTechInfo(iTech)
 			if techInfo:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH", ()) + u": " + self._link(techInfo.getDescription()))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH", ()) + u": " + make_pedia_link(techInfo.getDescription()))
 		elif eventInfo.getTechPercent() > 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT", ()) + u": %d%%" % eventInfo.getTechPercent())
 		if eventInfo.getTechCostPercent() != 0:
@@ -348,7 +306,7 @@ class SevoPediaEventTrigger:
 		if iFreeUnitClass >= 0 and eventInfo.getNumUnits() > 0:
 			unitClassInfo = gc.getUnitClassInfo(iFreeUnitClass)
 			if unitClassInfo:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS", ()) + u": %dx %s" % (eventInfo.getNumUnits(), self._link(unitClassInfo.getDescription())))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS", ()) + u": %dx %s" % (eventInfo.getNumUnits(), make_pedia_link(unitClassInfo.getDescription())))
 		iFreeBuildingClass = eventInfo.getBuildingClass()
 		if iFreeBuildingClass >= 0:
 			buildingClassInfo = gc.getBuildingClassInfo(iFreeBuildingClass)
@@ -358,7 +316,7 @@ class SevoPediaEventTrigger:
 				# distinctly so destroyed buildings don't show up as "Free Building".
 				# (Claude code Opus 4.7) -->
 				iBuildingChange = eventInfo.getBuildingChange()
-				szLinkedBC = self._link(buildingClassInfo.getDescription())
+				szLinkedBC = make_pedia_link(buildingClassInfo.getDescription())
 				if iBuildingChange > 0:
 					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING", ()) + u": " + szLinkedBC)
 				elif iBuildingChange < 0:
@@ -369,26 +327,26 @@ class SevoPediaEventTrigger:
 		if iFreePromotion >= 0:
 			promoInfo = gc.getPromotionInfo(iFreePromotion)
 			if promoInfo:
-				parts.append(self.STAR_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_PROMOTION", ()) + u": " + self._link(promoInfo.getDescription()))
+				parts.append(self.STAR_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_PROMOTION", ()) + u": " + make_pedia_link(promoInfo.getDescription()))
 
 		# Plot / terrain / feature changes.
 		iFeature = eventInfo.getFeature()
 		if iFeature >= 0:
 			featureInfo = gc.getFeatureInfo(iFeature)
 			if featureInfo and eventInfo.getFeatureChange() != 0:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FEATURE_CHANGE", ()) + u": " + self._link(featureInfo.getDescription()))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FEATURE_CHANGE", ()) + u": " + make_pedia_link(featureInfo.getDescription()))
 		iImprovement = eventInfo.getImprovement()
 		if iImprovement >= 0:
 			improvementInfo = gc.getImprovementInfo(iImprovement)
 			if improvementInfo and eventInfo.getImprovementChange() != 0:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + self._link(improvementInfo.getDescription()))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + make_pedia_link(improvementInfo.getDescription()))
 		iBonus = eventInfo.getBonus()
 		if iBonus >= 0:
 			bonusInfo = gc.getBonusInfo(iBonus)
 			if bonusInfo and eventInfo.getBonusRevealed():
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_REVEALED", ()) + u": " + self._link(bonusInfo.getDescription()))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_REVEALED", ()) + u": " + make_pedia_link(bonusInfo.getDescription()))
 			if bonusInfo and eventInfo.getBonusChange() != 0:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE", ()) + u": %+d " % eventInfo.getBonusChange() + self._link(bonusInfo.getDescription()))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE", ()) + u": %+d " % eventInfo.getBonusChange() + make_pedia_link(bonusInfo.getDescription()))
 
 		# <!-- custom: <BonusGift> — gifts a bonus resource to the other player in the
 		# popup chain. Core effect for events like Brothers In Need (the "help with
@@ -397,7 +355,7 @@ class SevoPediaEventTrigger:
 		if iBonusGift >= 0:
 			bonusGiftInfo = gc.getBonusInfo(iBonusGift)
 			if bonusGiftInfo:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT", ()) + u": " + self._link(bonusGiftInfo.getDescription()))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT", ()) + u": " + make_pedia_link(bonusGiftInfo.getDescription()))
 
 		# <!-- custom: <RouteType> + <iRouteChange> — add/remove a road/railroad on the
 		# target plot. (Claude code Opus 4.7) -->
@@ -405,7 +363,7 @@ class SevoPediaEventTrigger:
 		if iRoute >= 0 and eventInfo.getRouteChange() != 0:
 			routeInfo = gc.getRouteInfo(iRoute)
 			if routeInfo:
-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE", ()) + u": %+d " % eventInfo.getRouteChange() + self._link(routeInfo.getDescription()))
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE", ()) + u": %+d " % eventInfo.getRouteChange() + make_pedia_link(routeInfo.getDescription()))
 
 		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain
 		# gets their own popup with response choices — the real consequences of this
@@ -438,7 +396,7 @@ class SevoPediaEventTrigger:
 				if defaultBuilding:
 					szBCName = defaultBuilding.getDescription()
 
-			szLinkedBCName = self._link(szBCName)
+			szLinkedBCName = make_pedia_link(szBCName)
 			iHappyBC = eventInfo.getBuildingHappyChange(iBC)
 			if iHappyBC != 0:
 				parts.append(szLinkedBCName + u": %+d %s" % (iHappyBC, self.HAPPY_CHAR))
@@ -470,14 +428,14 @@ class SevoPediaEventTrigger:
 				unitClassInfo = gc.getUnitClassInfo(iUC)
 				promoInfo = gc.getPromotionInfo(iPromo)
 				if unitClassInfo and promoInfo:
-					parts.append(self.STAR_CHAR + u" " + self._link(unitClassInfo.getDescription()) + u": " + self._link(promoInfo.getDescription()))
+					parts.append(self.STAR_CHAR + u" " + make_pedia_link(unitClassInfo.getDescription()) + u": " + make_pedia_link(promoInfo.getDescription()))
 		for iComb in range(gc.getNumUnitCombatInfos()):
 			iPromo = eventInfo.getUnitCombatPromotion(iComb)
 			if iPromo >= 0:
 				combatInfo = gc.getUnitCombatInfo(iComb)
 				promoInfo = gc.getPromotionInfo(iPromo)
 				if combatInfo and promoInfo:
-					parts.append(self.STAR_CHAR + u" " + self._link(combatInfo.getDescription()) + u": " + self._link(promoInfo.getDescription()))
+					parts.append(self.STAR_CHAR + u" " + make_pedia_link(combatInfo.getDescription()) + u": " + make_pedia_link(promoInfo.getDescription()))
 
 		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type
 		# in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per
@@ -487,7 +445,7 @@ class SevoPediaEventTrigger:
 			if iCount != 0:
 				specInfo = gc.getSpecialistInfo(iSp)
 				if specInfo:
-					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ()) + u": %dx %s" % (iCount, self._link(specInfo.getDescription())))
+					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ()) + u": %dx %s" % (iCount, make_pedia_link(specInfo.getDescription())))
 
 		# Other less-common scalar fields that can still carry the whole effect on their own.
 		if eventInfo.getHurryAnger() != 0:

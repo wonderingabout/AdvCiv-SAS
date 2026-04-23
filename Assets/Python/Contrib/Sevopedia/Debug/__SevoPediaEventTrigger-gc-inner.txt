@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
 
 in sevopediaeventtrigger, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
 printObjAttrs(gc.getEventTriggerInfo(self.iTrigger))
-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
 
 
 
