@@ -1,16 +1,9 @@
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: The page treats the trigger as the dominant entity (matches player's mental model: the trigger is "what happens", events are "the choices when it fires"). (Claude code Opus 4.7) -->
 
-
-# <!-- custom: Sevopedia Event Trigger detail page. Layout mirrors SevoPediaBuild:
-# - Top strip: trigger icon/name/type header + small Probability/Flags panel + Requires panel
-# - Mid strip: horizontal stack of "Choices" cards (one per event in getNumEvents()), each
-#   showing the event's icon, name and bullet-effect summary — a la Slay the Spire outcomes
-# - Bottom: Family panel (sibling triggers sharing the stripped-suffix root) + Civilopedia
-#   Background expandable panel
-# The page treats the trigger as the dominant entity (matches player's mental model: the
-# trigger is "what happens", events are "the choices when it fires"). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -24,81 +17,83 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-IS_DEBUG_SEVOPEDIA_EVENT_TRIGGER_INFO = True
-
-
-# <!-- custom: strip trigger "family suffix" so siblings in a family share a root.
-# Example: EVENTTRIGGER_FESTIVAL / EVENTTRIGGER_FESTIVAL_AGAIN / EVENTTRIGGER_FESTIVAL_DONE
-# all share root EVENTTRIGGER_FESTIVAL. Used by the Family panel to find siblings.
-# (Claude code Opus 4.7) -->
-def _stripFamilySuffix(szType):
-	if not szType:
-		return szType
-	for szSuffix in ("_AGAIN", "_DONE", "_REVEALED"):
-		if szType.endswith(szSuffix):
-			return szType[:-len(szSuffix)]
-	return szType
-
 
 class SevoPediaEventTrigger:
 
 	def __init__(self, main):
 		self.iTrigger = -1
 		self.top = main
+		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch
+		# in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this
+		# page the expandable panel is actually Texts, not a Civilopedia/History panel —
+		# but reusing the shared mechanism avoids adding a new python widget id just for
+		# one page. (Claude code Opus 4.7) -->
 		self.bHistoryExpanded = False
 
-		# Full-width Name row at the top (like Votes' Name panel). Trigger has no button
-		# art of its own in general, so we skip the icon pane entirely and surface the
-		# trigger name + type directly — this reads better than a large empty icon frame.
 		self.X_NAME = self.top.X_PEDIA_PAGE
 		self.Y_NAME = self.top.Y_PEDIA_PAGE
 		self.W_NAME = self.top.R_PEDIA_PAGE - self.X_NAME
 		self.H_NAME = 75
 
-		# Trigger info row: Requires | Summary | Family (three equal-ish columns).
-		# Requires sits leftmost because "what has to be true for this to fire" reads
-		# before "how often / what flags" and "what other variants exist".
+		# Trigger info row: Requires (Text) | Summary.
 		iColGap = MEDIUM_MARGIN
 		iRowTop = self.Y_NAME + self.H_NAME + SMALL_MARGIN
-		iRowH = 180
-		iAvailableW = self.W_NAME - 2 * iColGap
-		iColW = iAvailableW / 3
+		iRowH = 173
+		iColW = (self.W_NAME - iColGap) / 2
 
-		self.X_REQUIREMENTS = self.X_NAME
-		self.Y_REQUIREMENTS = iRowTop
-		self.W_REQUIREMENTS = iColW
-		self.H_REQUIREMENTS = iRowH
+		self.X_REQUIRES_TEXT = self.X_NAME
+		self.Y_REQUIRES_TEXT = iRowTop
+		self.W_REQUIRES_TEXT = iColW
+		self.H_REQUIRES_TEXT = iRowH
 
-		self.X_SUMMARY = self.X_REQUIREMENTS + self.W_REQUIREMENTS + iColGap
+		self.X_SUMMARY = self.X_REQUIRES_TEXT + self.W_REQUIRES_TEXT + iColGap
 		self.Y_SUMMARY = iRowTop
-		self.W_SUMMARY = iColW
+		self.W_SUMMARY = self.top.R_PEDIA_PAGE - self.X_SUMMARY
 		self.H_SUMMARY = iRowH
 
-		self.X_FAMILY = self.X_SUMMARY + self.W_SUMMARY + iColGap
-		self.Y_FAMILY = iRowTop
-		self.W_FAMILY = self.top.R_PEDIA_PAGE - self.X_FAMILY
-		self.H_FAMILY = iRowH
+		iBtnRowTop = iRowTop + iRowH + SMALL_MARGIN
+		iBtnRowH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+		self.X_REQUIRES_BUTTONS = self.X_NAME
+		self.Y_REQUIRES_BUTTONS = iBtnRowTop
+		self.W_REQUIRES_BUTTONS = iColW
+		self.H_REQUIRES_BUTTONS = iBtnRowH
 
-		# Events row (Slay-the-Spire-style horizontal choice cards) — fixed height so
-		# the cards stay proportionate instead of stretching to fill leftover vertical
-		# space. Anchored directly under the trigger info row.
+		self.X_OBSOLETE_BUTTONS = self.X_REQUIRES_BUTTONS + self.W_REQUIRES_BUTTONS + iColGap
+		self.Y_OBSOLETE_BUTTONS = iBtnRowTop
+		self.W_OBSOLETE_BUTTONS = iColW
+		self.H_OBSOLETE_BUTTONS = iBtnRowH
+
+		self.X_TEXTS = self.X_NAME
+		self.Y_TEXTS = iBtnRowTop + iBtnRowH + SMALL_MARGIN
+		self.W_TEXTS = self.W_NAME
+		self.H_TEXTS = 170
+
+		# <!-- custom: no Civilopedia/History panel here — event triggers rarely set
+		# <Civilopedia> in XML, so the bottom panel would nearly always show "None" and
+		# just steals space from the Texts variants. The freed space is given to Texts
+		# instead, and Events fills the remainder down to the page bottom.
+		# (Claude code Opus 4.7) -->
 		self.X_EVENTS = self.X_NAME
-		self.Y_EVENTS = iRowTop + iRowH + SMALL_MARGIN
+		self.Y_EVENTS = self.Y_TEXTS + self.H_TEXTS + SMALL_MARGIN
 		self.W_EVENTS = self.W_NAME
-		self.H_EVENTS = 400
+		self.H_EVENTS = self.top.B_PEDIA_PAGE - self.Y_EVENTS
 
-		# History/Civilopedia fills the remaining page space.
-		self.X_HISTORY = self.X_NAME
-		self.Y_HISTORY = self.Y_EVENTS + self.H_EVENTS + SMALL_MARGIN
-		self.W_HISTORY = self.W_NAME
-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
-
-		# Event-card layout constants.
-		self.EVENT_CARD_BUTTON_BOTTOM_MARGIN = 12
-		self.EVENT_CARD_BUTTON_SIZE = 48
 		self.EVENT_CARD_PANEL_HEADER_H = 28
 
 		self.BULLET_PREFIX = u"%c " % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
+
+		self.COMMERCE_CHARS = []
+		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+			self.COMMERCE_CHARS.append(gc.getCommerceInfo(iCommerce).getChar())
+		self.YIELD_CHARS = []
+		for iYield in range(YieldTypes.NUM_YIELD_TYPES):
+			self.YIELD_CHARS.append(gc.getYieldInfo(iYield).getChar())
+		self.HAPPY_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)
+		self.UNHAPPY_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR)
+		self.HEALTHY_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)
+		self.UNHEALTHY_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.UNHEALTHY_CHAR)
+		self.GOLDEN_AGE_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.GOLDEN_AGE_CHAR)
+		self.STAR_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR)
 
 
 	def interfaceScreen(self, iTrigger):
@@ -106,35 +101,30 @@ class SevoPediaEventTrigger:
 		if bTriggerChanged:
 			self.bHistoryExpanded = False
 		self.iTrigger = iTrigger
-		if IS_DEBUG_SEVOPEDIA_EVENT_TRIGGER_INFO and bTriggerChanged:
-			self._debugDumpTriggerAndEvents()
+		if bTriggerChanged:
+			info = self._getTriggerInfo()
+			if not info:
+				return
+			print("\n\n[DEBUG] SevoPediaEventTrigger trigger dump: iTrigger=%d, Type=%s" % (self.iTrigger, info.getType()))
+			printObjAttrs(info)
+			for i in range(info.getNumEvents()):
+				iEvent = info.getEvent(i)
+				if iEvent < 0:
+					continue
+				eventInfo = gc.getEventInfo(iEvent)
+				if not eventInfo:
+					continue
+				print("\n\n[DEBUG] SevoPediaEventTrigger event dump: iEvent=%d, Type=%s" % (iEvent, eventInfo.getType()))
+				printObjAttrs(eventInfo)
 
-		# Order top-to-bottom: trigger identity first (Name), then trigger metadata row
-		# (Requires / Summary / Family), then events ("choices" shown as cards), then
-		# the flavor Civilopedia panel at the bottom.
 		self.placeName()
-		self.placeRequirements()
+		self.placeRequiresText()
 		self.placeSummary()
-		self.placeFamily()
+		self.placeRequiresButtons()
+		self.placeObsoleteButtons()
 		self.placeEvents()
-		self.placeHistory()
-
-
-	def _debugDumpTriggerAndEvents(self):
-		info = self._getTriggerInfo()
-		if not info:
-			return
-		print("\n\n[DEBUG] SevoPediaEventTrigger trigger dump: iTrigger=%d, Type=%s" % (self.iTrigger, info.getType()))
-		printObjAttrs(info)
-		for i in range(info.getNumEvents()):
-			iEvent = info.getEvent(i)
-			if iEvent < 0:
-				continue
-			eventInfo = gc.getEventInfo(iEvent)
-			if not eventInfo:
-				continue
-			print("\n\n[DEBUG] SevoPediaEventTrigger event dump: iEvent=%d, Type=%s" % (iEvent, eventInfo.getType()))
-			printObjAttrs(eventInfo)
+		# <!-- custom: Draw order, places Texts LAST so that when Texts is expanded, its full-page overlay covers the Events panel below it (draw order in Civ4 screens is z-order — later calls paint on top). (Claude code Opus 4.7) -->
+		self.placeTexts()
 
 
 	def _getTriggerInfo(self):
@@ -219,31 +209,18 @@ class SevoPediaEventTrigger:
 		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 
 
-	def placeRequirements(self):
+	def placeRequiresText(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", True, False, self.X_REQUIREMENTS, self.Y_REQUIREMENTS, self.W_REQUIREMENTS, self.H_REQUIREMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()) + u" (Text)", "", True, False, self.X_REQUIRES_TEXT, self.Y_REQUIRES_TEXT, self.W_REQUIRES_TEXT, self.H_REQUIRES_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 
 		info = self._getTriggerInfo()
 		lines = []
 		if info:
-			listOrTechs = [info.getPrereqOrTechs(i) for i in range(info.getNumPrereqOrTechs())]
-			listAndTechs = [info.getPrereqAndTechs(i) for i in range(info.getNumPrereqAndTechs())]
-			listObsoleteTechs = [info.getObsoleteTech(i) for i in range(info.getNumObsoleteTechs())]
-
-			if listOrTechs:
-				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OR_TECHS", ()) + u": " + self._joinInfoNames(listOrTechs, gc.getTechInfo))
-			if listAndTechs:
-				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_AND_TECHS", ()) + u": " + self._joinInfoNames(listAndTechs, gc.getTechInfo))
-			if listObsoleteTechs:
-				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OBSOLETE_TECHS", ()) + u": " + self._joinInfoNames(listObsoleteTechs, gc.getTechInfo))
-
-			iCivic = info.getCivic()
-			if iCivic >= 0:
-				civicInfo = gc.getCivicInfo(iCivic)
-				if civicInfo:
-					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CIVIC", ()) + u": " + civicInfo.getDescription())
-
+			# <!-- custom: tech prereqs, obsolete techs, and civic now live in the button
+			# rows below this panel (clickable icons). Only numeric / count conditions
+			# stay here as text, since they have no pedia target to link to.
+			# (Claude code Opus 4.7) -->
 			if info.getMinPopulation() > 0:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP", ()) + u": %d" % info.getMinPopulation())
 			if info.getMaxPopulation() > 0:
@@ -263,32 +240,65 @@ class SevoPediaEventTrigger:
 			szText = u"\n".join(lines)
 		else:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
-		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIREMENTS + 14, self.Y_REQUIREMENTS + 34, self.W_REQUIREMENTS - 28, self.H_REQUIREMENTS - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_TEXT + 14, self.Y_REQUIRES_TEXT + 34, self.W_REQUIRES_TEXT - 28, self.H_REQUIRES_TEXT - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
+	# <!-- custom: compose a per-event "what actually happens" bullet list. Covers the
+	# common numeric/flag fields on CvEventInfo and inlines Civ4 commerce/yield/happy
+	# icons so effect values read at a glance. If no known fields are populated we fall
+	# back to probing for a Python callback (getPythonCallback) — only in that case do
+	# we label the event "Scripted (Python callback)". Otherwise events that truly do
+	# nothing directly get a plain "No direct effect" to avoid false "scripted" labels.
+	# (Claude code Opus 4.7) -->
 	def _formatEventEffectSummary(self, iEvent):
 		eventInfo = gc.getEventInfo(iEvent)
 		if not eventInfo:
 			return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 
 		parts = []
+		# Commerce-ish numeric rewards/penalties with their icons.
 		if eventInfo.getGold() != 0:
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD", ()) + u": %+d" % eventInfo.getGold())
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD", ()) + u": %+d %c" % (eventInfo.getGold(), self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
 		if eventInfo.getRandomGold() != 0:
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_RANDOM_GOLD", ()) + u": %+d" % eventInfo.getRandomGold())
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_RANDOM_GOLD", ()) + u": %+d %c" % (eventInfo.getRandomGold(), self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
 		if eventInfo.getCulture() != 0:
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CULTURE", ()) + u": %+d" % eventInfo.getCulture())
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CULTURE", ()) + u": %+d %c" % (eventInfo.getCulture(), self.COMMERCE_CHARS[CommerceTypes.COMMERCE_CULTURE]))
 		if eventInfo.getEspionagePoints() != 0:
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ESPIONAGE", ()) + u": %+d" % eventInfo.getEspionagePoints())
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ESPIONAGE", ()) + u": %+d %c" % (eventInfo.getEspionagePoints(), self.COMMERCE_CHARS[CommerceTypes.COMMERCE_ESPIONAGE]))
+
+		# Happiness / health (flat + turn-based).
+		if eventInfo.getHappy() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY", ()) + u": %+d %s" % (eventInfo.getHappy(), self.HAPPY_CHAR))
 		if eventInfo.getHappyTurns() != 0:
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS", ()) + u": %d" % eventInfo.getHappyTurns())
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS", ()) + u": %d %s" % (eventInfo.getHappyTurns(), self.HAPPY_CHAR))
+		if eventInfo.getHealth() != 0:
+			# Health can be negative (unhealthy) or positive — use the sign of the value
+			# to pick the appropriate Civ4 icon rather than having two separate fields.
+			if eventInfo.getHealth() > 0:
+				szHealthChar = self.HEALTHY_CHAR
+			else:
+				szHealthChar = self.UNHEALTHY_CHAR
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HEALTH", ()) + u": %+d %s" % (eventInfo.getHealth(), szHealthChar))
+
+		# City / population changes.
 		if eventInfo.getPopulationChange() != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_POPULATION", ()) + u": %+d" % eventInfo.getPopulationChange())
+		if eventInfo.getRevoltTurns() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_REVOLT_TURNS", ()) + u": %d" % eventInfo.getRevoltTurns())
+		if eventInfo.getConvertOwnCities() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CONVERT_OWN_CITIES", ()) + u": %d" % eventInfo.getConvertOwnCities())
+		if eventInfo.getConvertOtherCities() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CONVERT_OTHER_CITIES", ()) + u": %d" % eventInfo.getConvertOtherCities())
+
+		# Flags.
 		if eventInfo.isGoldenAge():
-			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLDEN_AGE", ()))
+			parts.append(self.GOLDEN_AGE_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLDEN_AGE", ()))
 		if eventInfo.isDeclareWar():
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DECLARE_WAR", ()))
+		if eventInfo.isDisbandUnit():
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DISBAND_UNIT", ()))
 
+		# Tech grant / discount.
 		iTech = eventInfo.getTech()
 		if iTech >= 0:
 			techInfo = gc.getTechInfo(iTech)
@@ -296,9 +306,176 @@ class SevoPediaEventTrigger:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH", ()) + u": " + techInfo.getDescription())
 		elif eventInfo.getTechPercent() > 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT", ()) + u": %d%%" % eventInfo.getTechPercent())
+		if eventInfo.getTechCostPercent() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_COST_PERCENT", ()) + u": %+d%%" % eventInfo.getTechCostPercent())
+
+		# Modifiers (%).
+		if eventInfo.getInflationModifier() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_INFLATION", ()) + u": %+d%%" % eventInfo.getInflationModifier())
+		if eventInfo.getSpaceProductionModifier() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SPACE_PRODUCTION", ()) + u": %+d%%" % eventInfo.getSpaceProductionModifier())
+
+		# Diplomacy.
+		if eventInfo.getOurAttitudeModifier() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OUR_ATTITUDE", ()) + u": %+d" % eventInfo.getOurAttitudeModifier())
+		if eventInfo.getAttitudeModifier() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_THEIR_ATTITUDE", ()) + u": %+d" % eventInfo.getAttitudeModifier())
+
+		# Free units / promotion grants.
+		iFreeUnitClass = eventInfo.getUnitClass()
+		if iFreeUnitClass >= 0 and eventInfo.getNumUnits() > 0:
+			unitClassInfo = gc.getUnitClassInfo(iFreeUnitClass)
+			if unitClassInfo:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS", ()) + u": %dx %s" % (eventInfo.getNumUnits(), unitClassInfo.getDescription()))
+		iFreeBuildingClass = eventInfo.getBuildingClass()
+		if iFreeBuildingClass >= 0:
+			buildingClassInfo = gc.getBuildingClassInfo(iFreeBuildingClass)
+			if buildingClassInfo:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING", ()) + u": " + buildingClassInfo.getDescription())
+		iFreePromotion = eventInfo.getUnitPromotion()
+		if iFreePromotion >= 0:
+			promoInfo = gc.getPromotionInfo(iFreePromotion)
+			if promoInfo:
+				parts.append(self.STAR_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_PROMOTION", ()) + u": " + promoInfo.getDescription())
+
+		# Plot / terrain / feature changes.
+		iFeature = eventInfo.getFeature()
+		if iFeature >= 0:
+			featureInfo = gc.getFeatureInfo(iFeature)
+			if featureInfo and eventInfo.getFeatureChange() != 0:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FEATURE_CHANGE", ()) + u": " + featureInfo.getDescription())
+		iImprovement = eventInfo.getImprovement()
+		if iImprovement >= 0:
+			improvementInfo = gc.getImprovementInfo(iImprovement)
+			if improvementInfo and eventInfo.getImprovementChange() != 0:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + improvementInfo.getDescription())
+		iBonus = eventInfo.getBonus()
+		if iBonus >= 0:
+			bonusInfo = gc.getBonusInfo(iBonus)
+			if bonusInfo and eventInfo.getBonusRevealed():
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_REVEALED", ()) + u": " + bonusInfo.getDescription())
+			if bonusInfo and eventInfo.getBonusChange() != 0:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE", ()) + u": %+d " % eventInfo.getBonusChange() + bonusInfo.getDescription())
+
+		# <!-- custom: <BonusGift> — gifts a bonus resource to the other player in the
+		# popup chain. Core effect for events like Brothers In Need (the "help with
+		# Copper/Iron/Horses/..." choices). (Claude code Opus 4.7) -->
+		iBonusGift = eventInfo.getBonusGift()
+		if iBonusGift >= 0:
+			bonusGiftInfo = gc.getBonusInfo(iBonusGift)
+			if bonusGiftInfo:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT", ()) + u": " + bonusGiftInfo.getDescription())
+
+		# <!-- custom: <RouteType> + <iRouteChange> — add/remove a road/railroad on the
+		# target plot. (Claude code Opus 4.7) -->
+		iRoute = eventInfo.getRoute()
+		if iRoute >= 0 and eventInfo.getRouteChange() != 0:
+			routeInfo = gc.getRouteInfo(iRoute)
+			if routeInfo:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE", ()) + u": %+d " % eventInfo.getRouteChange() + routeInfo.getDescription())
+
+		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain
+		# gets their own popup with response choices — the real consequences of this
+		# branch are applied by whichever response they pick. Surfacing this so readers
+		# know the choice has downstream effects even if no XML effect fires on this side.
+		# (Claude code Opus 4.7) -->
+		szOtherPopup = eventInfo.getOtherPlayerPopup()
+		if szOtherPopup and len(str(szOtherPopup).strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_RESPONDS", ()))
+
+		# <!-- custom: per-BuildingClass extras — <BuildingExtraHappies>, <...Healths>,
+		# <BuildingExtraCommerces>, <BuildingExtraYields>. These are list-structs in XML
+		# and are queried via scalar accessors that take a BuildingClass index (plus a
+		# Commerce/Yield index for those two). Scanning all classes is the only way to
+		# surface them since there's no getNum... method. This is what finally makes
+		# events like Antimonarchists (Palace +3 happy, Cathedrals +2 gold each) show
+		# their actual effect instead of falling through to "No direct effect".
+		# (Claude code Opus 4.7) -->
+		iNumBuildingClass = gc.getNumBuildingClassInfos()
+		iNumCommerce = CommerceTypes.NUM_COMMERCE_TYPES
+		iNumYield = YieldTypes.NUM_YIELD_TYPES
+		for iBC in range(iNumBuildingClass):
+			buildingClassInfo = gc.getBuildingClassInfo(iBC)
+			if not buildingClassInfo:
+				continue
+			szBCName = buildingClassInfo.getDescription()
+			iDefault = buildingClassInfo.getDefaultBuildingIndex()
+			if iDefault >= 0:
+				defaultBuilding = gc.getBuildingInfo(iDefault)
+				if defaultBuilding:
+					szBCName = defaultBuilding.getDescription()
+
+			iHappyBC = eventInfo.getBuildingHappyChange(iBC)
+			if iHappyBC != 0:
+				parts.append(szBCName + u": %+d %s" % (iHappyBC, self.HAPPY_CHAR))
+			iHealthBC = eventInfo.getBuildingHealthChange(iBC)
+			if iHealthBC != 0:
+				if iHealthBC > 0:
+					szHealthBCChar = self.HEALTHY_CHAR
+				else:
+					szHealthBCChar = self.UNHEALTHY_CHAR
+				parts.append(szBCName + u": %+d %s" % (iHealthBC, szHealthBCChar))
+			for iC in range(iNumCommerce):
+				iVal = eventInfo.getBuildingCommerceChange(iBC, iC)
+				if iVal != 0:
+					parts.append(szBCName + u": %+d %c" % (iVal, self.COMMERCE_CHARS[iC]))
+			for iY in range(iNumYield):
+				iVal = eventInfo.getBuildingYieldChange(iBC, iY)
+				if iVal != 0:
+					parts.append(szBCName + u": %+d %c" % (iVal, self.YIELD_CHARS[iY]))
+
+		# <!-- custom: per-UnitClass and per-UnitCombat promotion grants. Same list-struct
+		# pattern as the per-BuildingClass extras: the XML tags <UnitClassPromotions> and
+		# <UnitCombatPromotions> are probed via scalar accessors that take the class/combat
+		# index and return -1 for "no promotion". Catches events like Noble Knights Done_1
+		# that grant PROMOTION_RETREAT1 to Knight and Camel Knight classes.
+		# (Claude code Opus 4.7) -->
+		for iUC in range(gc.getNumUnitClassInfos()):
+			iPromo = eventInfo.getUnitClassPromotion(iUC)
+			if iPromo >= 0:
+				unitClassInfo = gc.getUnitClassInfo(iUC)
+				promoInfo = gc.getPromotionInfo(iPromo)
+				if unitClassInfo and promoInfo:
+					parts.append(self.STAR_CHAR + u" " + unitClassInfo.getDescription() + u": " + promoInfo.getDescription())
+		for iComb in range(gc.getNumUnitCombatInfos()):
+			iPromo = eventInfo.getUnitCombatPromotion(iComb)
+			if iPromo >= 0:
+				combatInfo = gc.getUnitCombatInfo(iComb)
+				promoInfo = gc.getPromotionInfo(iPromo)
+				if combatInfo and promoInfo:
+					parts.append(self.STAR_CHAR + u" " + combatInfo.getDescription() + u": " + promoInfo.getDescription())
+
+		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type
+		# in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per
+		# Specialist index, same pattern as UnitClass above. (Claude code Opus 4.7) -->
+		for iSp in range(gc.getNumSpecialistInfos()):
+			iCount = eventInfo.getFreeSpecialistCount(iSp)
+			if iCount != 0:
+				specInfo = gc.getSpecialistInfo(iSp)
+				if specInfo:
+					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ()) + u": %dx %s" % (iCount, specInfo.getDescription()))
+
+		# Other less-common scalar fields that can still carry the whole effect on their own.
+		if eventInfo.getHurryAnger() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HURRY_ANGER", ()) + u": %+d" % eventInfo.getHurryAnger())
+		if eventInfo.getFood() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FOOD", ()) + u": %+d" % eventInfo.getFood())
+		if eventInfo.getFoodPercent() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FOOD_PERCENT", ()) + u": %+d%%" % eventInfo.getFoodPercent())
+		if eventInfo.getUnitExperience() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_EXPERIENCE", ()) + u": %+d" % eventInfo.getUnitExperience())
+		if eventInfo.getUnitImmobileTurns() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_IMMOBILE", ()) + u": %d" % eventInfo.getUnitImmobileTurns())
+		if eventInfo.isQuest():
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_QUEST", ()))
 
 		if not parts:
-			return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED", ())
+			# No direct XML effects. Distinguish scripted (Python callback) from
+			# "truly does nothing on its own".
+			szPy = eventInfo.getPythonCallback()
+			if szPy and len(szPy.strip()) > 0:
+				return self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED", ()) + u" (" + szPy + u")"
+			return self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_NO_DIRECT", ())
 		return u"\n".join([self.BULLET_PREFIX + p for p in parts])
 
 
@@ -315,6 +492,75 @@ class SevoPediaEventTrigger:
 		if szType:
 			return szType.replace("_", " ").title()
 		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
+
+
+	def setHistoryExpanded(self, bExpanded):
+		# Renamed from bTextsExpanded at the method level only — the dispatch layer in
+		# SevoPediaMain always calls setHistoryExpanded (it's the shared hook), and on
+		# this page the expandable panel happens to be Texts.
+		self.bHistoryExpanded = bExpanded
+
+
+	# <!-- custom: render the trigger's narrator text variants (from getNumTexts() /
+	# getText(i), matching the XML <Texts><Text>...</Text></Texts> block). These are
+	# the variants the engine picks from at runtime to introduce the event popup —
+	# surfacing them here so Sevopedia readers see the same flavor context a player
+	# gets when the trigger actually fires. Rendered through draw_expandable_text_panel
+	# so very long / multi-variant Texts stay readable when they overflow the panel.
+	# (Claude code Opus 4.7) -->
+	def placeTexts(self):
+		screen = self.top.getScreen()
+		info = self._getTriggerInfo()
+		# <!-- custom: dedupe identical resolved text variants and append a "(xN)"
+		# multiplier to each repeated entry. Many vanilla BtS triggers list the same
+		# flavor string several times to weight the random roll (e.g. Joyous Wedding
+		# repeats "A ??? industrial heiress..." 3 times); showing them as separate
+		# bullets just wastes vertical space without telling the reader anything new.
+		# First-seen insertion order is preserved so the bullet sequence still matches
+		# the XML declaration order. (Claude code Opus 4.7) -->
+		order = []
+		counts = {}
+		if info:
+			for i in range(info.getNumTexts()):
+				szKey = info.getText(i)
+				if szKey and len(szKey.strip()) > 0:
+					szResolved = localText.getText(str(szKey), ())
+					if szResolved and len(szResolved.strip()) > 0:
+						if szResolved not in counts:
+							counts[szResolved] = 0
+							order.append(szResolved)
+						counts[szResolved] += 1
+
+		lines = []
+		for szResolved in order:
+			iCount = counts[szResolved]
+			if iCount > 1:
+				lines.append(self.BULLET_PREFIX + szResolved + u" (x%d)" % iCount)
+			else:
+				lines.append(self.BULLET_PREFIX + szResolved)
+
+		if lines:
+			szBody = u"\n".join(lines)
+		else:
+			szBody = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+
+		draw_expandable_text_panel(
+			screen,
+			self.top,
+			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS", ()),
+			self.X_TEXTS,
+			self.Y_TEXTS,
+			self.W_TEXTS,
+			self.H_TEXTS,
+			szBody,
+			self.bHistoryExpanded,
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+			# <!-- custom: push collapsed body text below the panel's "Texts" header bar
+			# (helper's default 10 px leaves the first line crammed into/over the header).
+			# 24 matches the offset draw_expandable_text_panel uses for similar cases in
+			# other Sevopedia pages. (Claude code Opus 4.7) -->
+			24
+		)
 
 
 	def placeEvents(self):
@@ -358,8 +604,10 @@ class SevoPediaEventTrigger:
 		cardH = innerH
 
 		availableInnerH = cardH - (2 * cardInnerMargin) - panelGap
-		minSummaryPanelH = self.EVENT_CARD_BUTTON_SIZE + self.EVENT_CARD_BUTTON_BOTTOM_MARGIN + 24
-		namePanelH = 200
+		# Summary panel needs enough room for a few bullet lines of effects — ~60 px
+		# floor keeps it readable when the event name is long and pushes the split down.
+		minSummaryPanelH = 60
+		namePanelH = 160
 		maxNamePanelH = availableInnerH - minSummaryPanelH
 		if namePanelH > maxNamePanelH:
 			namePanelH = maxNamePanelH
@@ -390,73 +638,119 @@ class SevoPediaEventTrigger:
 			textMarginY = 8
 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szName), namePanelX + textMarginX, namePanelY + textMarginY, namePanelW - (textMarginX * 2), namePanelH - (textMarginY * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
+			# <!-- custom: effect summary fills the entire card body. Dropped the bottom
+			# event icon (eventInfo.getButton) since it eats real estate and the card
+			# header already labels the choice; mirrors the "upper name box" pattern
+			# where text uses the full panel. (Claude code Opus 4.7) -->
 			szSummary = self._formatEventEffectSummary(iEvent)
-			buttonTopRel = summaryPanelH - self.EVENT_CARD_BUTTON_SIZE - self.EVENT_CARD_BUTTON_BOTTOM_MARGIN
 			summaryTextTop = textMarginY
-			summaryTextH = buttonTopRel - summaryTextTop - 6
+			summaryTextH = summaryPanelH - (textMarginY * 2)
 			if summaryTextH < 20:
 				summaryTextH = 20
 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szSummary), summaryPanelX + textMarginX, summaryPanelY + summaryTextTop, summaryPanelW - (textMarginX * 2), summaryTextH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-			szEventButton = eventInfo.getButton()
-			if szEventButton:
-				btnX = (summaryPanelW - self.EVENT_CARD_BUTTON_SIZE) / 2
-				screen.setImageButtonAt(self.top.getNextWidgetName(), summaryPanel, szEventButton, btnX, buttonTopRel, self.EVENT_CARD_BUTTON_SIZE, self.EVENT_CARD_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, iEvent, 1)
 
-
-	def placeFamily(self):
+	def placeRequiresButtons(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FAMILY", ()), "", True, False, self.X_FAMILY, self.Y_FAMILY, self.W_FAMILY, self.H_FAMILY, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()) + u" (Buttons)", "", False, True, self.X_REQUIRES_BUTTONS, self.Y_REQUIRES_BUTTONS, self.W_REQUIRES_BUTTONS, self.H_REQUIRES_BUTTONS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
 
 		info = self._getTriggerInfo()
-		lines = []
-		if info:
-			szRoot = _stripFamilySuffix(info.getType())
-			for iOther in range(gc.getNumEventTriggerInfos()):
-				if iOther == self.iTrigger:
-					continue
-				otherInfo = gc.getEventTriggerInfo(iOther)
-				if not otherInfo:
-					continue
-				if _stripFamilySuffix(otherInfo.getType()) == szRoot:
-					lines.append(self.BULLET_PREFIX + otherInfo.getType())
+		if not info:
+			return
 
-		if lines:
-			szText = u"\n".join(lines)
-		else:
+		# <!-- custom: use the same attachImageButton/label flow as SevoPediaUnit.placeRequires:
+		# stable left-to-right layout with automatic wrapping, and explicit OR/AND separators
+		# so mixed prereq groups are readable at a glance. (GPT-5.3-Codex) -->
+		isButtonFound = False
+
+		seenAnd = {}
+		andTechs = []
+		for i in range(info.getNumPrereqAndTechs()):
+			iTech = info.getPrereqAndTechs(i)
+			if iTech >= 0 and iTech not in seenAnd:
+				seenAnd[iTech] = True
+				andTechs.append(iTech)
+		for iTech in andTechs:
+			techInfo = gc.getTechInfo(iTech)
+			if techInfo:
+				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
+				isButtonFound = True
+
+		seenOr = {}
+		orTechs = []
+		for i in range(info.getNumPrereqOrTechs()):
+			iTech = info.getPrereqOrTechs(i)
+			if iTech >= 0 and iTech not in seenOr:
+				seenOr[iTech] = True
+				orTechs.append(iTech)
+
+		if andTechs and orTechs:
+			if len(orTechs) > 1:
+				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ()) + u"("))
+			else:
+				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
+		bFirstOr = True
+		for iTech in orTechs:
+			if not bFirstOr:
+				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+			else:
+				bFirstOr = False
+			techInfo = gc.getTechInfo(iTech)
+			if techInfo:
+				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
+				isButtonFound = True
+		if andTechs and len(orTechs) > 1:
+			screen.attachLabel(panelName, "", SASTextScale.labelText(u")"))
+
+		# Civic is an additional AND requirement.
+		iCivic = info.getCivic()
+		if iCivic >= 0:
+			if isButtonFound:
+				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
+			civicInfo = gc.getCivicInfo(iCivic)
+			if civicInfo:
+				screen.attachImageButton(panelName, "", civicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
+				isButtonFound = True
+
+		if not isButtonFound:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
-		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_FAMILY + 14, self.Y_FAMILY + 34, self.W_FAMILY - 28, self.H_FAMILY - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			yCenter = self.Y_REQUIRES_BUTTONS + (self.H_REQUIRES_BUTTONS / 2)
+			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_BUTTONS + 7, yCenter, self.W_REQUIRES_BUTTONS - 14, self.H_REQUIRES_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
-	def setHistoryExpanded(self, bExpanded):
-		self.bHistoryExpanded = bExpanded
-
-
-	def placeHistory(self):
+	def placeObsoleteButtons(self):
 		screen = self.top.getScreen()
-		szText = u""
-		info = self._getTriggerInfo()
-		if info:
-			szCivilopedia = info.getCivilopedia()
-			if szCivilopedia and len(szCivilopedia.strip()) > 0:
-				szText = szCivilopedia
-		if not szText:
-			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OBSOLETE_TECHS", ()), "", False, True, self.X_OBSOLETE_BUTTONS, self.Y_OBSOLETE_BUTTONS, self.W_OBSOLETE_BUTTONS, self.H_OBSOLETE_BUTTONS, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.attachLabel(panelName, "", "  ")
 
-		draw_expandable_text_panel(
-			screen,
-			self.top,
-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
-			self.X_HISTORY,
-			self.Y_HISTORY,
-			self.W_HISTORY,
-			self.H_HISTORY,
-			szText,
-			self.bHistoryExpanded,
-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
-			24
-		)
+		info = self._getTriggerInfo()
+		if not info:
+			return
+
+		seen = {}
+		bFirst = True
+		isButtonFound = False
+		for i in range(info.getNumObsoleteTechs()):
+			iTech = info.getObsoleteTech(i)
+			if iTech < 0 or iTech in seen:
+				continue
+			seen[iTech] = True
+			if not bFirst:
+				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
+			else:
+				bFirst = False
+			techInfo = gc.getTechInfo(iTech)
+			if techInfo:
+				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+				isButtonFound = True
+
+		if not isButtonFound:
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+			yCenter = self.Y_OBSOLETE_BUTTONS + (self.H_OBSOLETE_BUTTONS / 2)
+			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_OBSOLETE_BUTTONS + 7, yCenter, self.W_OBSOLETE_BUTTONS - 14, self.H_OBSOLETE_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 	def handleInput(self, inputClass):

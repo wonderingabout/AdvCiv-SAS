@@ -3761,21 +3761,14 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
 		<English>Sevopedia [F12]:</English>
 	</TEXT>
-	<!-- custom: Sevopedia Event Triggers category text keys. Category groups event
-	triggers by earliest era (no-tech bucket first, since those fire from turn 1).
-	Trigger detail page shows its events as "choice cards" a la Slay the Spire.
-	(Claude code Opus 4.7) -->
+	<!-- custom: Sevopedia Event Triggers category text keys. (Claude code Opus 4.7) -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS</Tag>
-		<English>Event Triggers</English>
+		<English>Event Tri.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH</Tag>
 		<English>Any era (no tech requirement)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TYPE</Tag>
-		<English>Type</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE</Tag>
@@ -3822,20 +3815,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Single Player</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OR_TECHS</Tag>
-		<English>Any of Techs</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_AND_TECHS</Tag>
-		<English>All of Techs</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OBSOLETE_TECHS</Tag>
 		<English>Obsolete with</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CIVIC</Tag>
-		<English>Civic</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP</Tag>
@@ -3870,8 +3851,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Events</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FAMILY</Tag>
-		<English>Family</English>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS</Tag>
+		<English>Texts</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD</Tag>
@@ -3915,6 +3896,122 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED</Tag>
-		<English>Scripted or conditional</English>
+		<English>Scripted (Python callback)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_NO_DIRECT</Tag>
+		<English>No direct effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY</Tag>
+		<English>Happy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HEALTH</Tag>
+		<English>Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_REVOLT_TURNS</Tag>
+		<English>Revolt Turns</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CONVERT_OWN_CITIES</Tag>
+		<English>Convert Own Cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CONVERT_OTHER_CITIES</Tag>
+		<English>Convert Other Cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DISBAND_UNIT</Tag>
+		<English>Disband Unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_COST_PERCENT</Tag>
+		<English>Tech Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_INFLATION</Tag>
+		<English>Inflation</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SPACE_PRODUCTION</Tag>
+		<English>Space Production</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OUR_ATTITUDE</Tag>
+		<English>Our Attitude Toward Them</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_THEIR_ATTITUDE</Tag>
+		<English>Their Attitude Toward Us</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS</Tag>
+		<English>Free Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING</Tag>
+		<English>Free Building</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_PROMOTION</Tag>
+		<English>Free Promotion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FEATURE_CHANGE</Tag>
+		<English>Feature Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE</Tag>
+		<English>Improvement Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_REVEALED</Tag>
+		<English>Bonus Revealed</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HURRY_ANGER</Tag>
+		<English>Hurry Anger</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FOOD</Tag>
+		<English>Food</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FOOD_PERCENT</Tag>
+		<English>Stored Food</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_EXPERIENCE</Tag>
+		<English>Unit Experience</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_IMMOBILE</Tag>
+		<English>Immobile (turns)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_QUEST</Tag>
+		<English>Starts a Quest</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST</Tag>
+		<English>Free Specialist</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT</Tag>
+		<English>Gift Bonus to Other Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE</Tag>
+		<English>Bonus Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE</Tag>
+		<English>Route Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_RESPONDS</Tag>
+		<English>Other player gets a response choice</English>
 	</TEXT>
 </Civ4GameText>

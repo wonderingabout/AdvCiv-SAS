@@ -633,29 +633,58 @@ void CyInfoPythonInterface3()
 		.def("getNumBonusesRequired", &CvEventTriggerInfo::getNumBonusesRequired, "int ()")
 		.def("getRouteRequired", &CvEventTriggerInfo::getRouteRequired, "int (int)")
 		.def("getNumRoutesRequired", &CvEventTriggerInfo::getNumRoutesRequired, "int ()")
-		.def("getReligionRequired", &CvEventTriggerInfo::getBonusRequired, "int (int)")
+		// <!-- custom: fix Python binding bug: getReligionRequired was incorrectly bound to getBonusRequired; bind to getReligionRequired so EventTrigger debug/API matches XML fields. (GPT-5.3-Codex). See also KI#122. -->
+		.def("getReligionRequired", &CvEventTriggerInfo::getReligionRequired, "int (int)")
+		// <!-- custom: end - fix Python binding bug: getReligionRequired was incorrectly bound to getBonusRequired; bind to getReligionRequired so EventTrigger debug/API matches XML fields. (GPT-5.3-Codex). See also KI#122. -->
 		.def("getNumReligionsRequired", &CvEventTriggerInfo::getNumReligionsRequired, "int ()")
 		.def("getCorporationRequired", &CvEventTriggerInfo::getCorporationRequired, "int (int)")
 		.def("getNumCorporationsRequired", &CvEventTriggerInfo::getNumCorporationsRequired, "int ()")
+		// <!-- custom: expose missing EventTrigger text/world-news arrays with their original getter names so Python/debug output matches schema and existing CvInfo conventions. (GPT-5.3-Codex) -->
+		.def("getText", &CvEventTriggerInfo::pyGetText, "wstring (int)")
+		.def("getTextEra", &CvEventTriggerInfo::getTextEra, "int (int)")
+		.def("getNumTexts", &CvEventTriggerInfo::getNumTexts, "int ()")
+		.def("getWorldNews", &CvEventTriggerInfo::pyGetWorldNews, "wstring (int)")
+		.def("getNumWorldNews", &CvEventTriggerInfo::getNumWorldNews, "int ()")
+		.def("getPythonCallback", &CvEventTriggerInfo::getPythonCallback, "string ()")
+		.def("getPythonCanDo", &CvEventTriggerInfo::getPythonCanDo, "string ()")
+		.def("getPythonCanDoCity", &CvEventTriggerInfo::getPythonCanDoCity, "string ()")
+		.def("getPythonCanDoUnit", &CvEventTriggerInfo::getPythonCanDoUnit, "string ()")
+		// <!-- custom: end - expose missing EventTrigger text/world-news arrays with their original getter names so Python/debug output matches schema and existing CvInfo conventions. (GPT-5.3-Codex) -->
 
 		.def("isSinglePlayer", &CvEventTriggerInfo::isSinglePlayer, "bool ()")
 		.def("isTeam", &CvEventTriggerInfo::isTeam, "bool ()")
 		.def("isRecurring", &CvEventTriggerInfo::isRecurring, "bool ()")
 		.def("isGlobal", &CvEventTriggerInfo::isGlobal, "bool ()")
 		.def("isPickPlayer", &CvEventTriggerInfo::isPickPlayer, "bool ()")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isOtherPlayerWar", &CvEventTriggerInfo::isOtherPlayerWar, "bool ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 		.def("isOtherPlayerHasReligion", &CvEventTriggerInfo::isOtherPlayerHasReligion, "bool ()")
 		.def("isOtherPlayerHasOtherReligion", &CvEventTriggerInfo::isOtherPlayerHasOtherReligion, "bool ()")
 		.def("isOtherPlayerAI", &CvEventTriggerInfo::isOtherPlayerAI, "bool ()")
 		.def("isPickCity", &CvEventTriggerInfo::isPickCity, "bool ()")
-		.def("isPickOtherPlayerCity", &CvEventTriggerInfo::isPickCity, "bool ()")
+		// <!-- custom: fix Python binding bug: isPickOtherPlayerCity was incorrectly bound to isPickCity. (GPT-5.3-Codex). See also KI#122. -->
+		.def("isPickOtherPlayerCity", &CvEventTriggerInfo::isPickOtherPlayerCity, "bool ()")
+		// <!-- custom: end - fix Python binding bug: isPickOtherPlayerCity was incorrectly bound to isPickCity. (GPT-5.3-Codex). See also KI#122. -->
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isShowPlot", &CvEventTriggerInfo::isShowPlot, "bool ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 		.def("isUnitsOnPlot", &CvEventTriggerInfo::isUnitsOnPlot, "bool ()")
 		.def("isOwnPlot", &CvEventTriggerInfo::isOwnPlot, "bool ()")
 		.def("isPickReligion", &CvEventTriggerInfo::isPickReligion, "bool ()")
 		.def("isStateReligion", &CvEventTriggerInfo::isStateReligion, "bool ()")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isHolyCity", &CvEventTriggerInfo::isHolyCity, "bool ()")
+		.def("isPickCorporation", &CvEventTriggerInfo::isPickCorporation, "bool ()")
+		.def("isHeadquarters", &CvEventTriggerInfo::isHeadquarters, "bool ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 		.def("isProbabilityUnitMultiply", &CvEventTriggerInfo::isProbabilityUnitMultiply, "bool ()")
 		.def("isProbabilityBuildingMultiply", &CvEventTriggerInfo::isProbabilityBuildingMultiply, "bool ()")
 		.def("isPrereqEventCity", &CvEventTriggerInfo::isPrereqEventCity, "bool ()")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isPlotEventTrigger", &CvEventTriggerInfo::isPlotEventTrigger, "bool ()")
 		;
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 
 	python::class_<CvEventInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvEventInfo")
 		.def("isQuest", &CvEventInfo::isQuest, "bool ()")
@@ -677,7 +706,9 @@ void CyInfoPythonInterface3()
 		.def("getTechMinTurnsLeft", &CvEventInfo::getTechMinTurnsLeft, "int ()")
 		.def("getPrereqTech", &CvEventInfo::getPrereqTech, "int ()")
 		.def("getUnitClass", &CvEventInfo::getUnitClass, "int ()")
-		.def("getNumUnits", &CvEventTriggerInfo::getNumUnits, "int ()")
+		// <!-- custom: fix Python binding bug: CvEventInfo.getNumUnits was incorrectly bound to CvEventTriggerInfo::getNumUnits. (GPT-5.3-Codex). See also KI#122. -->
+		.def("getNumUnits", &CvEventInfo::getNumUnits, "int ()")
+		// <!-- custom: end - fix Python binding bug: CvEventInfo.getNumUnits was incorrectly bound to CvEventTriggerInfo::getNumUnits. (GPT-5.3-Codex). See also KI#122. -->
 		.def("getBuildingClass", &CvEventInfo::getBuildingClass, "int ()")
 		.def("getBuildingChange", &CvEventInfo::getBuildingChange, "int ()")
 		.def("getHappy", &CvEventInfo::getHappy, "int ()")
@@ -722,6 +753,18 @@ void CyInfoPythonInterface3()
 		.def("getFreeSpecialistCount", &CvEventInfo::getFreeSpecialistCount, "int (int)")
 		.def("getUnitCombatPromotion", &CvEventInfo::getUnitCombatPromotion, "int (int)")
 		.def("getUnitClassPromotion", &CvEventInfo::getUnitClassPromotion, "int (int)")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("getWorldNews", &CvEventInfo::pyGetWorldNews, "wstring (int)")
+		.def("getNumWorldNews", &CvEventInfo::getNumWorldNews, "int ()")
+		.def("getPythonCallback", &CvEventInfo::getPythonCallback, "string ()")
+		.def("getPythonExpireCheck", &CvEventInfo::getPythonExpireCheck, "string ()")
+		.def("getPythonCanDo", &CvEventInfo::getPythonCanDo, "string ()")
+		.def("getPythonHelp", &CvEventInfo::getPythonHelp, "string ()")
+		.def("getUnitNameKey", &CvEventInfo::pyGetUnitNameKey, "wstring ()")
+		.def("getQuestFailTextKey", &CvEventInfo::pyGetQuestFailTextKey, "wstring ()")
+		.def("getOtherPlayerPopup", &CvEventInfo::pyGetOtherPlayerPopup, "wstring ()")
+		.def("getLocalInfoTextKey", &CvEventInfo::pyGetLocalInfoTextKey, "wstring ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 
 		.def("getBuildingYieldChange", &CvEventInfo::py_getBuildingYieldChange, "int (int /*BuildingClassTypes*/, int /*YieldTypes*/)")
 		/*	advc.003t: The DLL doesn't need the getNum... functions, and

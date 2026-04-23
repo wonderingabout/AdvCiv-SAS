@@ -121,6 +121,8 @@ getImprovementChange
 
 getInflationModifier
 
+getLocalInfoTextKey
+
 getMaxNumReligions
 
 getMaxPillage
@@ -129,6 +131,10 @@ getMinPillage
 
 getNumUnits
 
+getNumWorldNews
+
+getOtherPlayerPopup
+
 getOurAttitudeModifier
 
 getPlotExtraYield
@@ -136,6 +142,16 @@ getPlotExtraYield
 getPopulationChange
 
 getPrereqTech
+
+getPythonCallback
+
+getPythonCanDo
+
+getPythonExpireCheck
+
+getPythonHelp
+
+getQuestFailTextKey
 
 getRandomGold
 
@@ -177,7 +193,11 @@ getUnitExperience
 
 getUnitImmobileTurns
 
+getUnitNameKey
+
 getUnitPromotion
+
+getWorldNews
 
 isCityEffect
 

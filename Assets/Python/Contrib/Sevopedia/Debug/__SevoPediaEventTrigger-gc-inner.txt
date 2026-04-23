@@ -122,11 +122,15 @@ getNumRoutesRequired
 
 getNumTerrainsRequired
 
+getNumTexts
+
 getNumUnits
 
 getNumUnitsGlobal
 
 getNumUnitsRequired
+
+getNumWorldNews
 
 getObsoleteTech
 
@@ -146,6 +150,14 @@ getPrereqOrTechs
 
 getProbability
 
+getPythonCallback
+
+getPythonCanDo
+
+getPythonCanDoCity
+
+getPythonCanDoUnit
+
 getReligionRequired
 
 getRouteRequired
@@ -155,6 +167,8 @@ getStrategy
 getTerrainRequired
 
 getText
+
+getTextEra
 
 getTextKey
 
@@ -170,9 +184,15 @@ getUnitExperienceWeight
 
 getUnitRequired
 
+getWorldNews
+
 isGlobal
 
 isGraphicalOnly
+
+isHeadquarters
+
+isHolyCity
 
 isMatchForLink
 
@@ -182,15 +202,21 @@ isOtherPlayerHasOtherReligion
 
 isOtherPlayerHasReligion
 
+isOtherPlayerWar
+
 isOwnPlot
 
 isPickCity
+
+isPickCorporation
 
 isPickOtherPlayerCity
 
 isPickPlayer
 
 isPickReligion
+
+isPlotEventTrigger
 
 isPrereqEventCity
 
@@ -199,6 +225,8 @@ isProbabilityBuildingMultiply
 isProbabilityUnitMultiply
 
 isRecurring
+
+isShowPlot
 
 isSinglePlayer
 

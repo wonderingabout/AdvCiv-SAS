@@ -157,6 +157,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history)  
 [120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players)  
 [121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array)  
+[122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#122---fixed-while-adding-sevopedia-eventtriggerinfo-missing-getters-found-and-fixed-3-dll-python-binding-bugs)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4600,3 +4601,18 @@ Result:
 File changed:
 
 - [CvGameCoreDLL/CvInfo_Building.cpp](/CvGameCoreDLL/CvInfo_Building.cpp)
+
+## 122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs
+
+While exposing missing EventTrigger/EventInfo getters for Sevopedia, we noticed and fixed 3 existing binding bugs in `CyInfoInterface3.cpp`: `getReligionRequired`, `isPickOtherPlayerCity`, and `getNumUnits` were bound to wrong functions.
+
+Fix:
+
+- Corrected each Python binding to the matching C++ getter:
+  - `getReligionRequired -> CvEventTriggerInfo::getReligionRequired`
+  - `isPickOtherPlayerCity -> CvEventTriggerInfo::isPickOtherPlayerCity`
+  - `getNumUnits -> CvEventInfo::getNumUnits`
+
+File changed:
+
+- [CvGameCoreDLL/CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp)

@@ -674,4 +674,3 @@ class SevoPediaBonus:
 
 	def handleInput (self, inputClass):
 		return 0
-
