@@ -16,6 +16,16 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
+# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order.
+# Centralize labels here so the rare case of changing enum order is easy to audit.
+# (GPT-5.5) -->
+SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS = (
+	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK",
+	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS",
+	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND",
+	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN",
+)
+
 
 class SevoPediaEventTrigger:
 
@@ -209,6 +219,97 @@ class SevoPediaEventTrigger:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_UNITS", ()) + u": %d" % info.getNumUnitsGlobal())
 			if info.getNumBuildingsGlobal() > 0:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_BUILDINGS", ()) + u": %d" % info.getNumBuildingsGlobal())
+			if info.getMinDifficulty() >= 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_DIFFICULTY", ()) + u": " + gc.getHandicapInfo(info.getMinDifficulty()).getDescription())
+			if info.getAngry() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ANGRY", ()) + u": %d" % info.getAngry())
+			if info.getUnhealthy() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNHEALTHY", ()) + u": %d" % info.getUnhealthy())
+			if info.getMinMapLandmass() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_MAP_LANDMASS", ()) + u": %d" % info.getMinMapLandmass())
+			if info.getMinOurLandmass() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_OUR_LANDMASS", ()) + u": %d" % info.getMinOurLandmass())
+			if info.getMaxOurLandmass() >= 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_OUR_LANDMASS", ()) + u": %d" % info.getMaxOurLandmass())
+			if info.getNumPlotsRequired() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOTS_REQUIRED", ()) + u": %d" % info.getNumPlotsRequired())
+			if info.isOwnPlot():
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OWN_PLOT", ()))
+			if info.getPlotsType() >= 0:
+				iPlotType = info.getPlotsType()
+				if iPlotType < len(SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS):
+					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE", ()) + u": " + localText.getText(SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS[iPlotType], ()))
+				else:
+					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE", ()) + u": %d" % iPlotType)
+			if info.getNumReligions() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_RELIGIONS", ()) + u": %d" % info.getNumReligions())
+			if info.getNumCorporations() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_CORPORATIONS", ()) + u": %d" % info.getNumCorporations())
+			listFlagKeys = []
+			if info.isPickReligion():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_RELIGION")
+			if info.isStateReligion():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_STATE_RELIGION")
+			if info.isHolyCity():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HOLY_CITY")
+			if info.isPickCorporation():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CORPORATION")
+			if info.isHeadquarters():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HEADQUARTERS")
+			if info.isPrereqEventCity():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PREREQ_EVENT_CITY")
+			if info.isPickPlayer():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_PLAYER")
+			if info.isOtherPlayerWar():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_WAR")
+			if info.isOtherPlayerHasReligion():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_RELIGION")
+			if info.isOtherPlayerHasOtherReligion():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_OTHER_RELIGION")
+			if info.isOtherPlayerAI():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_AI")
+			if info.isPickCity():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CITY")
+			if info.isPickOtherPlayerCity():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_OTHER_PLAYER_CITY")
+			if info.isShowPlot():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SHOW_PLOT")
+			if info.isUnitsOnPlot():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNITS_ON_PLOT")
+			if info.isProbabilityUnitMultiply():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY")
+			if info.isProbabilityBuildingMultiply():
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY")
+			for szKey in listFlagKeys:
+				lines.append(self.BULLET_PREFIX + localText.getText(szKey, ()))
+			if info.getOtherPlayerShareBorders() > 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_SHARE_BORDERS", ()) + u": %d" % info.getOtherPlayerShareBorders())
+			if info.getCityFoodWeight() != 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_FOOD_WEIGHT", ()) + u": %d" % info.getCityFoodWeight())
+			if info.getUnitDamagedWeight() != 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DAMAGED_WEIGHT", ()) + u": %d" % info.getUnitDamagedWeight())
+			if info.getUnitDistanceWeight() != 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DISTANCE_WEIGHT", ()) + u": %d" % info.getUnitDistanceWeight())
+			if info.getUnitExperienceWeight() != 0:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_EXPERIENCE_WEIGHT", ()) + u": %d" % info.getUnitExperienceWeight())
+			listRoutes = []
+			for i in range(info.getNumRoutesRequired()):
+				iRoute = info.getRouteRequired(i)
+				if iRoute >= 0:
+					routeInfo = gc.getRouteInfo(iRoute)
+					if routeInfo:
+						listRoutes.append(routeInfo.getDescription())
+			if listRoutes:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_REQUIRED_ROUTES", ()) + u": " + localText.getText("TXT_KEY_OR", ()).join([u" " + szRoute + u" " for szRoute in listRoutes]).strip())
+			listPython = []
+			if info.getPythonCanDo() and len(info.getPythonCanDo().strip()) > 0:
+				listPython.append(info.getPythonCanDo())
+			if info.getPythonCanDoCity() and len(info.getPythonCanDoCity().strip()) > 0:
+				listPython.append(info.getPythonCanDoCity())
+			if info.getPythonCanDoUnit() and len(info.getPythonCanDoUnit().strip()) > 0:
+				listPython.append(info.getPythonCanDoUnit())
+			if listPython:
+				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PYTHON_GATES", ()) + u": " + u", ".join(listPython))
 
 		if lines:
 			szText = u"\n".join(lines)
@@ -714,6 +815,7 @@ class SevoPediaEventTrigger:
 
 		iButtonIndex = 0
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+		szOrLabel = localText.getText("TXT_KEY_OR", ())
 
 		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands
 		# in the earliest grid slot. numTxt is placed at absolute coordinates (no grid
@@ -728,7 +830,10 @@ class SevoPediaEventTrigger:
 				add_multilist_numTxt_under_button(multiListX, multiListY, -3, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, u"Oth.P.", screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 				iButtonIndex += 1
 
-		# Direct AND prereq techs — no numTxt, icon alone = implicit AND.
+		# <!-- custom: direct AND prereqs are intentionally shown as adjacent unlabeled
+		# icons. Rendering "and" between every required icon makes dense panels noisy;
+		# in Sevopedia icon rows, plain adjacency means all are required, while explicit
+		# connector numTxt is reserved for real alternatives such as "A or B". (GPT-5.5) -->
 		seenAnd = {}
 		for i in range(info.getNumPrereqAndTechs()):
 			iTech = info.getPrereqAndTechs(i)
@@ -750,9 +855,6 @@ class SevoPediaEventTrigger:
 			if iTech >= 0 and iTech not in seenOr:
 				seenOr[iTech] = True
 				orTechList.append(iTech)
-		szOrLabel = None
-		if len(orTechList) > 1:
-			szOrLabel = localText.getText("TXT_KEY_OR", ())
 		bFirstOrTech = True
 		for iTech in orTechList:
 			techInfo = gc.getTechInfo(iTech)
@@ -825,6 +927,84 @@ class SevoPediaEventTrigger:
 			if corpInfo:
 				screen.appendMultiListButton(rowListName, corpInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iCorp, 1, False)
 				iButtonIndex += 1
+
+		iListButtonIndex = 0
+		for i in range(info.getNumFeaturesRequired()):
+			iFeature = info.getFeatureRequired(i)
+			if iFeature < 0:
+				continue
+			featureInfo = gc.getFeatureInfo(iFeature)
+			if featureInfo:
+				if iListButtonIndex > 0:
+					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.appendMultiListButton(rowListName, featureInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+				iButtonIndex += 1
+				iListButtonIndex += 1
+
+		iListButtonIndex = 0
+		for i in range(info.getNumTerrainsRequired()):
+			iTerrain = info.getTerrainRequired(i)
+			if iTerrain < 0:
+				continue
+			terrainInfo = gc.getTerrainInfo(iTerrain)
+			if terrainInfo:
+				if iListButtonIndex > 0:
+					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.appendMultiListButton(rowListName, terrainInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
+				iButtonIndex += 1
+				iListButtonIndex += 1
+
+		iListButtonIndex = 0
+		for i in range(info.getNumImprovementsRequired()):
+			iImprovement = info.getImprovementRequired(i)
+			if iImprovement < 0:
+				continue
+			improvementInfo = gc.getImprovementInfo(iImprovement)
+			if improvementInfo:
+				if iListButtonIndex > 0:
+					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.appendMultiListButton(rowListName, improvementInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+				iButtonIndex += 1
+				iListButtonIndex += 1
+
+		iListButtonIndex = 0
+		for i in range(info.getNumBonusesRequired()):
+			iBonus = info.getBonusRequired(i)
+			if iBonus < 0:
+				continue
+			bonusInfo = gc.getBonusInfo(iBonus)
+			if bonusInfo:
+				if iListButtonIndex > 0:
+					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.appendMultiListButton(rowListName, bonusInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+				iButtonIndex += 1
+				iListButtonIndex += 1
+
+		iListButtonIndex = 0
+		for i in range(info.getNumPrereqEvents()):
+			iPrereqEvent = info.getPrereqEvent(i)
+			if iPrereqEvent < 0:
+				continue
+			eventInfo = gc.getEventInfo(iPrereqEvent)
+			if not eventInfo:
+				continue
+			iTargetTrigger = -1
+			for iLoopTrigger in range(gc.getNumEventTriggerInfos()):
+				loopInfo = gc.getEventTriggerInfo(iLoopTrigger)
+				if not loopInfo:
+					continue
+				for j in range(loopInfo.getNumEvents()):
+					if loopInfo.getEvent(j) == iPrereqEvent:
+						iTargetTrigger = iLoopTrigger
+						break
+				if iTargetTrigger >= 0:
+					break
+			if iTargetTrigger >= 0:
+				if iListButtonIndex > 0:
+					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.appendMultiListButton(rowListName, eventInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY, iTargetTrigger, False)
+				iButtonIndex += 1
+				iListButtonIndex += 1
 
 		if iButtonIndex == 0:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())

@@ -1440,16 +1440,34 @@ def _SAS_getUnitClassEra(iUnitClass):
 	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
 
 
-def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
+def _SAS_getEventTriggerForEvent(iEvent):
+	if iEvent < 0:
+		return -1
+	for iTrigger in range(gc.getNumEventTriggerInfos()):
+		info = gc.getEventTriggerInfo(iTrigger)
+		if not info:
+			continue
+		for i in range(info.getNumEvents()):
+			if info.getEvent(i) == iEvent:
+				return iTrigger
+	return -1
+
+
+def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 	# <!-- custom: returns (iEra, bDirect). bDirect is True when the trigger declares
 	# at least one entry in <OrPreReqs> or <AndPreReqs> — i.e. the era is visible at
 	# a glance on the trigger itself. bDirect is False when the era had to be inferred
-	# indirectly via chain lookups (OtherPlayerHasTech, required civic/building/unit/
-	# religion/corporation). The grouping function uses this to split each era section
+	# indirectly via chain lookups (OtherPlayerHasTech, prerequisite event chains,
+	# required civic/building/unit/religion/corporation). The grouping function uses this to split each era section
 	# into "Ancient" vs "Ancient (indirect)" so readers can tell at-a-glance which
 	# triggers are obviously era-gated vs which rely on our indirect inference.
 	# iEra is -1 only when NO prereq of any kind gives an era — in that case bDirect
-	# is irrelevant (caller puts those in the "Any era" bucket). (Claude code Opus 4.7) -->
+	# is irrelevant (caller puts those in the "Any era" bucket). (Claude code Opus 4.7; GPT-5.5 update) -->
+	if seenTriggers is None:
+		seenTriggers = {}
+	if iTrigger in seenTriggers:
+		return (-1, False)
+	seenTriggers[iTrigger] = True
 	info = gc.getEventTriggerInfo(iTrigger)
 	if not info:
 		return (-1, False)
@@ -1471,8 +1489,8 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
 			iAndMax = iEra
 	bHasDirectAnd = (iAndMax >= 0)
 
-	# Indirect constraints (OtherPlayerHasTech, required civic/building/unit/religion/
-	# corporation) are all AND-ish — the trigger can't fire until the latest-era
+	# Indirect constraints (OtherPlayerHasTech, prerequisite event chains, required
+	# civic/building/unit/religion/corporation) are all AND-ish — the trigger can't fire until the latest-era
 	# inference is satisfied. Collected separately so we can classify direct vs indirect.
 	iIndirectMax = -1
 	def _bumpIndirect(iEra):
@@ -1506,6 +1524,15 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
 			corpInfo = gc.getCorporationInfo(iCorp)
 			if corpInfo:
 				_bumpIndirect(_SAS_getTechEra(corpInfo.getTechPrereq()))
+	# <!-- custom: prerequisite event chains inherit the prerequisite trigger's inferred era.
+	# This stays indirect because the current trigger does not declare the tech itself; it
+	# depends on a prior event outcome that may have its own tech or chain gate. (GPT-5.5) -->
+	for i in range(info.getNumPrereqEvents()):
+		iPrereqEvent = info.getPrereqEvent(i)
+		iPrereqTrigger = _SAS_getEventTriggerForEvent(iPrereqEvent)
+		if iPrereqTrigger >= 0:
+			iPrereqEra = _SAS_getEventTriggerEarliestEraAndSource(iPrereqTrigger, seenTriggers.copy())[0]
+			_bumpIndirect(iPrereqEra)
 	# Routes use TechMovementChanges (a list, not a single prereq) so there's no clean
 	# single-era answer — skipped. Route-required triggers are rare enough that the
 	# other constraints on the same trigger usually give a correct era anyway.
@@ -1557,8 +1584,8 @@ def _SAS_getEventTriggerRowLabel(iTrigger):
 #   mental model better than appending them at the end.
 # - Each real era produces TWO buckets: "Ancient" (triggers whose tech prereq is visible
 #   directly in <OrPreReqs> / <AndPreReqs>) and "Ancient (indirect)" (triggers whose era
-#   was inferred from <OtherPlayerHasTech> or from a required civic/building/unit/
-#   religion/corporation's own tech prereq). The indirect bucket exists so readers can
+#   was inferred from <OtherPlayerHasTech>, a prerequisite event chain, or a required
+#   civic/building/unit/religion/corporation's own tech prereq). The indirect bucket exists so readers can
 #   tell at-a-glance which placements are "the XML says so" vs "our chain-lookup says so".
 # - Within each section, triggers are emitted in XML declaration order. This preserves
 #   the modder's intended grouping (families like FESTIVAL / FESTIVAL_AGAIN / FESTIVAL_DONE
@@ -1566,7 +1593,7 @@ def _SAS_getEventTriggerRowLabel(iTrigger):
 #   in the list for free). If a family is ever scattered in the XML, fix at XML level.
 # - bSortLists is honored: when the user enables Sort Lists, entries within each section
 #   sort alphabetically by label instead of XML order (same convention as other pedia
-#   categories in this module). (Claude code Opus 4.7) -->
+#   categories in this module). (Claude code Opus 4.7; GPT-5.5 update) -->
 def SAS_getEventTriggersGroupedByEra(bSortLists):
 	listEntries = []
 	iNumEras = gc.getNumEraInfos()

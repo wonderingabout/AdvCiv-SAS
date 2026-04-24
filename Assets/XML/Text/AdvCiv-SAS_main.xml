@@ -3851,6 +3851,162 @@ Created as part of AdvCiv-SAS improvements
 		<English>Global Buildings</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_DIFFICULTY</Tag>
+		<English>Min Difficulty</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ANGRY</Tag>
+		<English>Angry Citizens</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNHEALTHY</Tag>
+		<English>Unhealthy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_MAP_LANDMASS</Tag>
+		<English>Min Map Landmass</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_OUR_LANDMASS</Tag>
+		<English>Min Our Landmass</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_OUR_LANDMASS</Tag>
+		<English>Max Our Landmass</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOTS_REQUIRED</Tag>
+		<English>Plots Required</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OWN_PLOT</Tag>
+		<English>Requires our plot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE</Tag>
+		<English>Plot Type</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK</Tag>
+		<English>Peak</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS</Tag>
+		<English>Hills</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND</Tag>
+		<English>Land</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN</Tag>
+		<English>Ocean</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_RELIGIONS</Tag>
+		<English>Religions Count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_CORPORATIONS</Tag>
+		<English>Corporations Count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_RELIGION</Tag>
+		<English>Picks a religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_STATE_RELIGION</Tag>
+		<English>Requires state religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HOLY_CITY</Tag>
+		<English>Requires holy city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CORPORATION</Tag>
+		<English>Picks a corporation</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HEADQUARTERS</Tag>
+		<English>Requires headquarters</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PREREQ_EVENT_CITY</Tag>
+		<English>Prereq event must be in the same city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_PLAYER</Tag>
+		<English>Picks another player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_WAR</Tag>
+		<English>Other player at war</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_RELIGION</Tag>
+		<English>Other player has religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_OTHER_RELIGION</Tag>
+		<English>Other player has another religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_AI</Tag>
+		<English>Other player must be AI</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CITY</Tag>
+		<English>Picks one of our cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_OTHER_PLAYER_CITY</Tag>
+		<English>Picks another player's city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SHOW_PLOT</Tag>
+		<English>Shows target plot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNITS_ON_PLOT</Tag>
+		<English>Requires units on plot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY</Tag>
+		<English>Probability multiplied by unit count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY</Tag>
+		<English>Probability multiplied by building count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_SHARE_BORDERS</Tag>
+		<English>Other Player Shared Borders</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_FOOD_WEIGHT</Tag>
+		<English>City Food Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DAMAGED_WEIGHT</Tag>
+		<English>Unit Damaged Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DISTANCE_WEIGHT</Tag>
+		<English>Unit Distance Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_EXPERIENCE_WEIGHT</Tag>
+		<English>Unit Experience Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_REQUIRED_ROUTES</Tag>
+		<English>Required Routes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PYTHON_GATES</Tag>
+		<English>Python Gates</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_EVENTS_HEADER</Tag>
 		<English>Events</English>
 	</TEXT>
