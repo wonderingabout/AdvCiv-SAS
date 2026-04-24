@@ -1440,75 +1440,99 @@ def _SAS_getUnitClassEra(iUnitClass):
 	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
 
 
-def _SAS_getEventTriggerEarliestEra(iTrigger):
+def _SAS_getEventTriggerEarliestEraAndSource(iTrigger):
+	# <!-- custom: returns (iEra, bDirect). bDirect is True when the trigger declares
+	# at least one entry in <OrPreReqs> or <AndPreReqs> — i.e. the era is visible at
+	# a glance on the trigger itself. bDirect is False when the era had to be inferred
+	# indirectly via chain lookups (OtherPlayerHasTech, required civic/building/unit/
+	# religion/corporation). The grouping function uses this to split each era section
+	# into "Ancient" vs "Ancient (indirect)" so readers can tell at-a-glance which
+	# triggers are obviously era-gated vs which rely on our indirect inference.
+	# iEra is -1 only when NO prereq of any kind gives an era — in that case bDirect
+	# is irrelevant (caller puts those in the "Any era" bucket). (Claude code Opus 4.7) -->
 	info = gc.getEventTriggerInfo(iTrigger)
 	if not info:
-		return -1
+		return (-1, False)
 
-	# OR tech list: any single tech satisfies the constraint, take min.
+	# OR tech list: any single tech satisfies the constraint, take min. Counts as direct.
 	iOrMin = -1
 	for i in range(info.getNumPrereqOrTechs()):
 		iEra = _SAS_getTechEra(info.getPrereqOrTechs(i))
 		if iEra >= 0:
 			if iOrMin == -1 or iEra < iOrMin:
 				iOrMin = iEra
+	bHasDirectOr = (iOrMin >= 0)
 
-	# Every other constraint is AND-ish: the trigger can't fire until the latest-era
-	# prereq is satisfied. Collect them all, take max at the end.
-	iHardMax = -1
-	def _bumpHard(iEra):
-		# Nested function can only read iHardMax in py2.4, so use a 1-element list
-		# proxy via a shared mutable container.
+	# AND tech list: all must be satisfied, take max. Counts as direct.
+	iAndMax = -1
+	for i in range(info.getNumPrereqAndTechs()):
+		iEra = _SAS_getTechEra(info.getPrereqAndTechs(i))
+		if iEra >= 0 and iEra > iAndMax:
+			iAndMax = iEra
+	bHasDirectAnd = (iAndMax >= 0)
+
+	# Indirect constraints (OtherPlayerHasTech, required civic/building/unit/religion/
+	# corporation) are all AND-ish — the trigger can't fire until the latest-era
+	# inference is satisfied. Collected separately so we can classify direct vs indirect.
+	iIndirectMax = -1
+	def _bumpIndirect(iEra):
 		if iEra < 0:
 			return
-		if iHardHolder[0] == -1 or iEra > iHardHolder[0]:
-			iHardHolder[0] = iEra
-	iHardHolder = [iHardMax]
+		if iIndirectHolder[0] == -1 or iEra > iIndirectHolder[0]:
+			iIndirectHolder[0] = iEra
+	iIndirectHolder = [iIndirectMax]
 
-	for i in range(info.getNumPrereqAndTechs()):
-		_bumpHard(_SAS_getTechEra(info.getPrereqAndTechs(i)))
-	_bumpHard(_SAS_getTechEra(info.getOtherPlayerHasTech()))
+	_bumpIndirect(_SAS_getTechEra(info.getOtherPlayerHasTech()))
 
 	iCivic = info.getCivic()
 	if iCivic >= 0:
 		civicInfo = gc.getCivicInfo(iCivic)
 		if civicInfo:
-			_bumpHard(_SAS_getTechEra(civicInfo.getTechPrereq()))
+			_bumpIndirect(_SAS_getTechEra(civicInfo.getTechPrereq()))
 
 	for i in range(info.getNumBuildingsRequired()):
-		_bumpHard(_SAS_getBuildingClassEra(info.getBuildingRequired(i)))
+		_bumpIndirect(_SAS_getBuildingClassEra(info.getBuildingRequired(i)))
 	for i in range(info.getNumUnitsRequired()):
-		_bumpHard(_SAS_getUnitClassEra(info.getUnitRequired(i)))
+		_bumpIndirect(_SAS_getUnitClassEra(info.getUnitRequired(i)))
 	for i in range(info.getNumReligionsRequired()):
 		iRel = info.getReligionRequired(i)
 		if iRel >= 0:
 			relInfo = gc.getReligionInfo(iRel)
 			if relInfo:
-				_bumpHard(_SAS_getTechEra(relInfo.getTechPrereq()))
+				_bumpIndirect(_SAS_getTechEra(relInfo.getTechPrereq()))
 	for i in range(info.getNumCorporationsRequired()):
 		iCorp = info.getCorporationRequired(i)
 		if iCorp >= 0:
 			corpInfo = gc.getCorporationInfo(iCorp)
 			if corpInfo:
-				_bumpHard(_SAS_getTechEra(corpInfo.getTechPrereq()))
+				_bumpIndirect(_SAS_getTechEra(corpInfo.getTechPrereq()))
 	# Routes use TechMovementChanges (a list, not a single prereq) so there's no clean
 	# single-era answer — skipped. Route-required triggers are rare enough that the
 	# other constraints on the same trigger usually give a correct era anyway.
 
-	iHardMax = iHardHolder[0]
+	iIndirectMax = iIndirectHolder[0]
 
-	# Overall earliest era: the trigger is gated by the LATER of (min OR tech) and
-	# (max hard-required era). If OR has no entries we only need iHardMax; if no hard
-	# constraints exist we only need iOrMin; if neither list yields anything → -1.
-	if iOrMin == -1 and iHardMax == -1:
-		return -1
-	if iOrMin == -1:
-		return iHardMax
-	if iHardMax == -1:
-		return iOrMin
-	if iOrMin > iHardMax:
-		return iOrMin
-	return iHardMax
+	# Direct era contribution = max(OR min, AND max). Indirect era contribution is what
+	# we just computed. Final era = max of both. Classification: direct if the trigger
+	# has ANY direct prereq at all (OR or AND list non-empty). Rationale: users see
+	# "ancient (indirect)" as "we had to dig into indirect refs to place this", whereas
+	# "ancient" means "the trigger XML says so up-front".
+	iDirectEra = -1
+	if iOrMin >= 0:
+		iDirectEra = iOrMin
+	if iAndMax >= 0 and iAndMax > iDirectEra:
+		iDirectEra = iAndMax
+
+	if iDirectEra == -1 and iIndirectMax == -1:
+		return (-1, False)
+	if iDirectEra == -1:
+		return (iIndirectMax, False)
+	if iIndirectMax == -1:
+		return (iDirectEra, True)
+	# Both contributed; final era = max.
+	if iDirectEra >= iIndirectMax:
+		return (iDirectEra, True)
+	return (iIndirectMax, bHasDirectOr or bHasDirectAnd)
 
 
 def _SAS_getEventTriggerRowLabel(iTrigger):
@@ -1531,44 +1555,63 @@ def _SAS_getEventTriggerRowLabel(iTrigger):
 # - "Any era (no tech requirement)" bucket is placed FIRST because these triggers are
 #   active from turn 1 — putting them first matches the player's "when does this fire?"
 #   mental model better than appending them at the end.
-# - Within each era section, triggers are emitted in XML declaration order. This preserves
+# - Each real era produces TWO buckets: "Ancient" (triggers whose tech prereq is visible
+#   directly in <OrPreReqs> / <AndPreReqs>) and "Ancient (indirect)" (triggers whose era
+#   was inferred from <OtherPlayerHasTech> or from a required civic/building/unit/
+#   religion/corporation's own tech prereq). The indirect bucket exists so readers can
+#   tell at-a-glance which placements are "the XML says so" vs "our chain-lookup says so".
+# - Within each section, triggers are emitted in XML declaration order. This preserves
 #   the modder's intended grouping (families like FESTIVAL / FESTIVAL_AGAIN / FESTIVAL_DONE
 #   are typically declared adjacently in CIV4EventTriggerInfos.xml, so they stay adjacent
 #   in the list for free). If a family is ever scattered in the XML, fix at XML level.
-# - bSortLists is honored: when the user enables Sort Lists, entries within each era
+# - bSortLists is honored: when the user enables Sort Lists, entries within each section
 #   sort alphabetically by label instead of XML order (same convention as other pedia
 #   categories in this module). (Claude code Opus 4.7) -->
 def SAS_getEventTriggersGroupedByEra(bSortLists):
 	listEntries = []
 	iNumEras = gc.getNumEraInfos()
-	# -1 bucket holds "no prereq tech" triggers; iEra 0..iNumEras-1 are real eras.
-	groups = {}
+	# directGroups[iEra] / indirectGroups[iEra] hold row tuples. -1 goes in the shared
+	# "any era" bucket (no tech requirement of any kind — direct/indirect distinction
+	# isn't meaningful there).
+	anyEraItems = []
+	directGroups = {}
+	indirectGroups = {}
 	iNumTriggers = gc.getNumEventTriggerInfos()
 	for iTrigger in range(iNumTriggers):
 		info = gc.getEventTriggerInfo(iTrigger)
 		if not info:
 			continue
-		iEra = _SAS_getEventTriggerEarliestEra(iTrigger)
-		if iEra not in groups:
-			groups[iEra] = []
-		groups[iEra].append((_SAS_getEventTriggerRowLabel(iTrigger), iTrigger))
+		iEra, bDirect = _SAS_getEventTriggerEarliestEraAndSource(iTrigger)
+		row = (_SAS_getEventTriggerRowLabel(iTrigger), iTrigger)
+		if iEra < 0:
+			anyEraItems.append(row)
+		elif bDirect:
+			if iEra not in directGroups:
+				directGroups[iEra] = []
+			directGroups[iEra].append(row)
+		else:
+			if iEra not in indirectGroups:
+				indirectGroups[iEra] = []
+			indirectGroups[iEra].append(row)
 
-	# Any-era bucket FIRST.
-	if -1 in groups:
-		items = groups[-1]
+	if anyEraItems:
 		if bSortLists:
-			items = sorted(items)
-		_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH", ()), items)
+			anyEraItems = sorted(anyEraItems)
+		_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH", ()), anyEraItems)
 
-	# Then era buckets in era order.
+	szIndirectSuffix = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_INDIRECT_SUFFIX", ())
 	for iEra in range(iNumEras):
-		if iEra not in groups:
-			continue
-		items = groups[iEra]
-		if bSortLists:
-			items = sorted(items)
-		szHeader = gc.getEraInfo(iEra).getDescription()
-		_SAS_addSection(listEntries, szHeader, items)
+		szEraName = gc.getEraInfo(iEra).getDescription()
+		if iEra in directGroups:
+			items = directGroups[iEra]
+			if bSortLists:
+				items = sorted(items)
+			_SAS_addSection(listEntries, szEraName, items)
+		if iEra in indirectGroups:
+			items = indirectGroups[iEra]
+			if bSortLists:
+				items = sorted(items)
+			_SAS_addSection(listEntries, szEraName + u" " + szIndirectSuffix, items)
 
 	return listEntries
 

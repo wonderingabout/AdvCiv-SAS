@@ -686,9 +686,9 @@ def get_extra_correction_x(numTxt):
 
 
 def get_extra_correction_x_inbetween_buttons(button_size):
-	# <!-- custom: adjustment to the extraCorrectionX so that the numTxt is inbetween buttons, useful for handling the "or" numTxt for example -->
-
-	# <!-- custom: also add a small extra correction because we are slightly off from the center point of between the panels -->
+	# <!-- custom: offset numTxt from the current button center into the gap before it, for connector labels such as "or"
+	# that describe the relationship between adjacent buttons rather than either button itself. The small extra nudge
+	# keeps the connector visually centered in the gap. (GPT-5.5) -->
 	extraCorrectionOffFromTheCenter = -3
 
 	return (-1 * (int(button_size / 2))) + extraCorrectionOffFromTheCenter
@@ -725,6 +725,20 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 
 	szNumTxt = SAS_FONT_TAG_LABEL + numTxt + SAS_FONT_TAG_CLOSE
 	screen.addMultilineText(textName, szNumTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
+
+
+def add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, button_size, maxButtonsPerRow, numTxt, screen, selfTop, widgetType, font):
+	# <!-- custom: draw a connector numTxt before the current button, e.g. "A or B" for OR prereqs/obsolete alternatives.
+	# It deliberately skips the first button and row-start buttons because there is no previous same-row button to connect
+	# to; callers should use normal add_multilist_numTxt_under_button when the text labels one specific icon instead.
+	# (GPT-5.5) -->
+	if not numTxt:
+		return
+	if iButtonIndex <= 0:
+		return
+	if (iButtonIndex % maxButtonsPerRow) == 0:
+		return
+	add_multilist_numTxt_under_button(multiListX, multiListY, get_extra_correction_x_inbetween_buttons(button_size), iButtonIndex, button_size, maxButtonsPerRow, numTxt, screen, selfTop, widgetType, font)
 
 
 

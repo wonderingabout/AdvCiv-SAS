@@ -48,6 +48,11 @@
 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
 		<!-- advc.004y: Shortcut categories restored (originally by
 			 Ekmek) -->
 		<NewConceptInfo>

@@ -109,6 +109,7 @@ class SevoPediaEventTrigger:
 		self.placeEvents()
 		# <!-- custom: Draw order, places Texts LAST so that when Texts is expanded, its full-page overlay covers the Events panel below it (draw order in Civ4 screens is z-order — later calls paint on top). (Claude code Opus 4.7) -->
 		self.placeTexts()
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND")
 
 
 	def _getTriggerInfo(self):
@@ -189,10 +190,11 @@ class SevoPediaEventTrigger:
 		info = self._getTriggerInfo()
 		lines = []
 		if info:
-			# <!-- custom: tech prereqs, obsolete techs, and civic now live in the button
-			# rows below this panel (clickable icons). Only numeric / count conditions
-			# stay here as text, since they have no pedia target to link to.
-			# (Claude code Opus 4.7) -->
+			# <!-- custom: only non-linkable numeric thresholds live here as text. All
+			# linkable prereqs (direct techs, civic, obsolete techs, OtherPlayerHasTech,
+			# required buildings/units/religions/corporations) are icon buttons in the
+			# Requires-Buttons panel below, which avoids duplicating every asset name
+			# as both an icon and a text line. (Claude code Opus 4.7) -->
 			if info.getMinPopulation() > 0:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP", ()) + u": %d" % info.getMinPopulation())
 			if info.getMaxPopulation() > 0:
@@ -695,61 +697,136 @@ class SevoPediaEventTrigger:
 		if not info:
 			return
 
-		# <!-- custom: use the same attachImageButton/label flow as SevoPediaUnit.placeRequires:
-		# stable left-to-right layout with automatic wrapping, and explicit OR/AND separators
-		# so mixed prereq groups are readable at a glance. (GPT-5.3-Codex) -->
-		isButtonFound = False
+		# <!-- custom: multilist layout (a la SevoPediaUnit.placeRequires) so each button
+		# gets a consistent grid slot and we can place a numTxt under the ones that need
+		# disambiguating. Only the OtherPlayerHasTech button carries a "Oth.P." numTxt —
+		# direct AND-tech / OR-tech / civic / required-building/unit/religion/corporation
+		# icons are self-identifying by art and don't need extra text. AND/OR separator
+		# labels are dropped vs the previous inline flow; the distinction is rare in
+		# vanilla triggers and keeping multilist discipline is worth the small loss.
+		# (Claude code Opus 4.7) -->
+		rowListName = self.top.getNextWidgetName()
+		multiListX = self.X_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = self.Y_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = self.W_REQUIRES_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = self.H_REQUIRES_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
+		iButtonIndex = 0
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+
+		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands
+		# in the earliest grid slot. numTxt is placed at absolute coordinates (no grid
+		# scroll support), so keeping the labeled button on the first row guarantees the
+		# label stays visible even if later buttons wrap past the panel height.
+		# (Claude code Opus 4.7) -->
+		iOtherTech = info.getOtherPlayerHasTech()
+		if iOtherTech >= 0:
+			otherTechInfo = gc.getTechInfo(iOtherTech)
+			if otherTechInfo:
+				screen.appendMultiListButton(rowListName, otherTechInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iOtherTech, -1, False)
+				add_multilist_numTxt_under_button(multiListX, multiListY, -3, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, u"Oth.P.", screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				iButtonIndex += 1
+
+		# Direct AND prereq techs — no numTxt, icon alone = implicit AND.
 		seenAnd = {}
-		andTechs = []
 		for i in range(info.getNumPrereqAndTechs()):
 			iTech = info.getPrereqAndTechs(i)
-			if iTech >= 0 and iTech not in seenAnd:
-				seenAnd[iTech] = True
-				andTechs.append(iTech)
-		for iTech in andTechs:
+			if iTech < 0 or iTech in seenAnd:
+				continue
+			seenAnd[iTech] = True
 			techInfo = gc.getTechInfo(iTech)
 			if techInfo:
-				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
-				isButtonFound = True
+				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
+				iButtonIndex += 1
 
+		# <!-- custom: direct OR prereq techs use connector numTxt between buttons, so
+		# they read as "A or B" instead of labeling either icon as "or". Single OR
+		# entries do not need a connector. (GPT-5.5) -->
 		seenOr = {}
-		orTechs = []
+		orTechList = []
 		for i in range(info.getNumPrereqOrTechs()):
 			iTech = info.getPrereqOrTechs(i)
 			if iTech >= 0 and iTech not in seenOr:
 				seenOr[iTech] = True
-				orTechs.append(iTech)
-
-		if andTechs and orTechs:
-			if len(orTechs) > 1:
-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ()) + u"("))
-			else:
-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
-		bFirstOr = True
-		for iTech in orTechs:
-			if not bFirstOr:
-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
-			else:
-				bFirstOr = False
+				orTechList.append(iTech)
+		szOrLabel = None
+		if len(orTechList) > 1:
+			szOrLabel = localText.getText("TXT_KEY_OR", ())
+		bFirstOrTech = True
+		for iTech in orTechList:
 			techInfo = gc.getTechInfo(iTech)
 			if techInfo:
-				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
-				isButtonFound = True
-		if andTechs and len(orTechs) > 1:
-			screen.attachLabel(panelName, "", SASTextScale.labelText(u")"))
+				if bFirstOrTech:
+					szConnector = None
+					bFirstOrTech = False
+				else:
+					szConnector = szOrLabel
+				add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szConnector, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
+				iButtonIndex += 1
 
-		# Civic is an additional AND requirement.
+		# Civic.
 		iCivic = info.getCivic()
 		if iCivic >= 0:
-			if isButtonFound:
-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_AND", ())))
 			civicInfo = gc.getCivicInfo(iCivic)
 			if civicInfo:
-				screen.attachImageButton(panelName, "", civicInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
-				isButtonFound = True
+				screen.appendMultiListButton(rowListName, civicInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
+				iButtonIndex += 1
 
-		if not isButtonFound:
+		# Required buildings — display default building of the class.
+		for i in range(info.getNumBuildingsRequired()):
+			iBC = info.getBuildingRequired(i)
+			if iBC < 0:
+				continue
+			bcInfo = gc.getBuildingClassInfo(iBC)
+			if not bcInfo:
+				continue
+			iDefault = bcInfo.getDefaultBuildingIndex()
+			if iDefault < 0:
+				continue
+			buildingInfo = gc.getBuildingInfo(iDefault)
+			if buildingInfo:
+				screen.appendMultiListButton(rowListName, buildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefault, 1, False)
+				iButtonIndex += 1
+
+		# Required units — default unit of the class.
+		for i in range(info.getNumUnitsRequired()):
+			iUC = info.getUnitRequired(i)
+			if iUC < 0:
+				continue
+			ucInfo = gc.getUnitClassInfo(iUC)
+			if not ucInfo:
+				continue
+			iDefaultUnit = ucInfo.getDefaultUnitIndex()
+			if iDefaultUnit < 0:
+				continue
+			unitInfo = gc.getUnitInfo(iDefaultUnit)
+			if unitInfo:
+				screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iDefaultUnit, 1, False)
+				iButtonIndex += 1
+
+		# Required religions.
+		for i in range(info.getNumReligionsRequired()):
+			iRel = info.getReligionRequired(i)
+			if iRel < 0:
+				continue
+			relInfo = gc.getReligionInfo(iRel)
+			if relInfo:
+				screen.appendMultiListButton(rowListName, relInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iRel, 1, False)
+				iButtonIndex += 1
+
+		# Required corporations.
+		for i in range(info.getNumCorporationsRequired()):
+			iCorp = info.getCorporationRequired(i)
+			if iCorp < 0:
+				continue
+			corpInfo = gc.getCorporationInfo(iCorp)
+			if corpInfo:
+				screen.appendMultiListButton(rowListName, corpInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iCorp, 1, False)
+				iButtonIndex += 1
+
+		if iButtonIndex == 0:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 			yCenter = self.Y_REQUIRES_BUTTONS + (self.H_REQUIRES_BUTTONS / 2)
 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_BUTTONS + 7, yCenter, self.W_REQUIRES_BUTTONS - 14, self.H_REQUIRES_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -765,24 +842,37 @@ class SevoPediaEventTrigger:
 		if not info:
 			return
 
+		rowListName = self.top.getNextWidgetName()
+		multiListX = self.X_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = self.Y_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = self.W_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = self.H_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+
+		# <!-- custom: obsolete techs are alternatives: any listed tech blocks the
+		# trigger. Use connector numTxt between buttons instead of labeling each icon
+		# as "or", so this reads as "A or B" and matches Requires OR prereqs.
+		# (GPT-5.5) -->
+		iButtonIndex = 0
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+		szOrLabel = localText.getText("TXT_KEY_OR", ())
+		listTechs = []
 		seen = {}
-		bFirst = True
-		isButtonFound = False
 		for i in range(info.getNumObsoleteTechs()):
 			iTech = info.getObsoleteTech(i)
 			if iTech < 0 or iTech in seen:
 				continue
 			seen[iTech] = True
-			if not bFirst:
-				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
-			else:
-				bFirst = False
+			listTechs.append(iTech)
+
+		for iTech in listTechs:
 			techInfo = gc.getTechInfo(iTech)
 			if techInfo:
-				screen.attachImageButton(panelName, "", techInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
-				isButtonFound = True
+				add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+				iButtonIndex += 1
 
-		if not isButtonFound:
+		if iButtonIndex == 0:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 			yCenter = self.Y_OBSOLETE_BUTTONS + (self.H_OBSOLETE_BUTTONS / 2)
 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_OBSOLETE_BUTTONS + 7, yCenter, self.W_OBSOLETE_BUTTONS - 14, self.H_OBSOLETE_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

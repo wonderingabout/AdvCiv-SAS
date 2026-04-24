@@ -3771,6 +3771,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Any era (no tech requirement)</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_INDIRECT_SUFFIX</Tag>
+		<English>(indirect)</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE</Tag>
 		<English>None</English>
 	</TEXT>
