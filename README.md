@@ -447,6 +447,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.850_sevopedia_shortcuts (1).JPG" alt="0.850_sevopedia_shortcuts (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG" alt="0.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
 
 #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
 

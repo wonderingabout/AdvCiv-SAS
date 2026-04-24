@@ -3787,8 +3787,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Summary</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY</Tag>
-		<English>Probability</English>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT</Tag>
+		<English>iWeight</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES</Tag>
@@ -3971,12 +3971,12 @@ Created as part of AdvCiv-SAS improvements
 		<English>Requires units on plot</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY</Tag>
-		<English>Probability multiplied by unit count</English>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_UNIT_MULTIPLY</Tag>
+		<English>iWeight multiplied by unit count</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY</Tag>
-		<English>Probability multiplied by building count</English>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_BUILDING_MULTIPLY</Tag>
+		<English>iWeight multiplied by building count</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_SHARE_BORDERS</Tag>

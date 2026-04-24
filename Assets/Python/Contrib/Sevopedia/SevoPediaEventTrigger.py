@@ -40,14 +40,26 @@ class SevoPediaEventTrigger:
 
 		self.X_NAME = self.top.X_PEDIA_PAGE
 		self.Y_NAME = self.top.Y_PEDIA_PAGE
-		self.W_NAME = self.top.R_PEDIA_PAGE - self.X_NAME
-		self.H_NAME = 75
+		self.W_PAGE = self.top.R_PEDIA_PAGE - self.X_NAME
+		self.H_NAME = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+
+		iColGap = MEDIUM_MARGIN
+		# <!-- custom: Obsolete-with shares the top row with Name and stays sized for 8
+		# buttons because War Chariots is the longest current event trigger obsolete list,
+		# with enough room for "or" connector numTxt. Requires Buttons gets the full row
+		# below because it usually has more elements and is more likely to scroll. (GPT-5.5) -->
+		iObsoleteButtonW = get_multilist_panel_width_for_buttons(8, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+		self.W_NAME = self.W_PAGE - iColGap - iObsoleteButtonW
+
+		self.X_OBSOLETE_BUTTONS = self.X_NAME + self.W_NAME + iColGap
+		self.Y_OBSOLETE_BUTTONS = self.Y_NAME
+		self.W_OBSOLETE_BUTTONS = iObsoleteButtonW
+		self.H_OBSOLETE_BUTTONS = self.H_NAME
 
 		# Trigger info row: Requires (Text) | Summary.
-		iColGap = MEDIUM_MARGIN
 		iRowTop = self.Y_NAME + self.H_NAME + SMALL_MARGIN
-		iRowH = 173
-		iColW = (self.W_NAME - iColGap) / 2
+		iRowH = 213
+		iColW = (self.W_PAGE - iColGap) / 2
 
 		self.X_REQUIRES_TEXT = self.X_NAME
 		self.Y_REQUIRES_TEXT = iRowTop
@@ -63,18 +75,13 @@ class SevoPediaEventTrigger:
 		iBtnRowH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 		self.X_REQUIRES_BUTTONS = self.X_NAME
 		self.Y_REQUIRES_BUTTONS = iBtnRowTop
-		self.W_REQUIRES_BUTTONS = iColW
+		self.W_REQUIRES_BUTTONS = self.W_PAGE
 		self.H_REQUIRES_BUTTONS = iBtnRowH
-
-		self.X_OBSOLETE_BUTTONS = self.X_REQUIRES_BUTTONS + self.W_REQUIRES_BUTTONS + iColGap
-		self.Y_OBSOLETE_BUTTONS = iBtnRowTop
-		self.W_OBSOLETE_BUTTONS = iColW
-		self.H_OBSOLETE_BUTTONS = iBtnRowH
 
 		self.X_TEXTS = self.X_NAME
 		self.Y_TEXTS = iBtnRowTop + iBtnRowH + SMALL_MARGIN
-		self.W_TEXTS = self.W_NAME
-		self.H_TEXTS = 170
+		self.W_TEXTS = self.W_PAGE
+		self.H_TEXTS = 130
 
 		# <!-- custom: no Civilopedia/History panel here — event triggers rarely set
 		# <Civilopedia> in XML, so the bottom panel would nearly always show "None" and
@@ -83,7 +90,7 @@ class SevoPediaEventTrigger:
 		# (Claude code Opus 4.7) -->
 		self.X_EVENTS = self.X_NAME
 		self.Y_EVENTS = self.Y_TEXTS + self.H_TEXTS + SMALL_MARGIN
-		self.W_EVENTS = self.W_NAME
+		self.W_EVENTS = self.W_PAGE
 		self.H_EVENTS = self.top.B_PEDIA_PAGE - self.Y_EVENTS
 
 		self.EVENT_CARD_PANEL_HEADER_H = 28
@@ -166,9 +173,8 @@ class SevoPediaEventTrigger:
 		info = self._getTriggerInfo()
 		lines = []
 		if info:
-			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY", ()) + u": %d" % info.getProbability())
+			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT", ()) + u": %d" % info.getProbability())
 			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES", ()) + u": %d%%" % info.getPercentGamesActive())
-			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT", ()) + u": %d" % info.getNumEvents())
 			listFlags = []
 			if info.isRecurring():
 				listFlags.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_RECURRING", ()))
@@ -276,9 +282,9 @@ class SevoPediaEventTrigger:
 			if info.isUnitsOnPlot():
 				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNITS_ON_PLOT")
 			if info.isProbabilityUnitMultiply():
-				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_UNIT_MULTIPLY")
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_UNIT_MULTIPLY")
 			if info.isProbabilityBuildingMultiply():
-				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY_BUILDING_MULTIPLY")
+				listFlagKeys.append("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_BUILDING_MULTIPLY")
 			for szKey in listFlagKeys:
 				lines.append(self.BULLET_PREFIX + localText.getText(szKey, ()))
 			if info.getOtherPlayerShareBorders() > 0:
@@ -412,6 +418,11 @@ class SevoPediaEventTrigger:
 			iFlavorValue = eventInfo.getTechFlavorValue(iFlavor)
 			if iFlavorValue != 0:
 				szFlavor = gc.getFlavorTypes(iFlavor)
+				# <!-- custom: trim the repeated "FLAVOR_" prefix because tech flavor lists
+				# can contain many entries; saving horizontal space reduces wrapping/scrolling
+				# and makes the event-effect bullet easier to scan. (GPT-5.5) -->
+				if szFlavor.startswith("FLAVOR_"):
+					szFlavor = szFlavor[len("FLAVOR_"):]
 				listTechFlavors.append(szFlavor + u" %+d" % iFlavorValue)
 		if listTechFlavors:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_FLAVORS", ()) + u": " + u", ".join(listTechFlavors))
@@ -818,7 +829,7 @@ class SevoPediaEventTrigger:
 		# Summary panel needs enough room for a few bullet lines of effects — ~60 px
 		# floor keeps it readable when the event name is long and pushes the split down.
 		minSummaryPanelH = 60
-		namePanelH = 160
+		namePanelH = 120
 		maxNamePanelH = availableInnerH - minSummaryPanelH
 		if namePanelH > maxNamePanelH:
 			namePanelH = maxNamePanelH

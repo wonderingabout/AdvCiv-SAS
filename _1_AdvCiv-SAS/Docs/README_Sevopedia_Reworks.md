@@ -19,6 +19,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)  
 &emsp;&emsp;[example 0.41 Votes category (VoteInfo and VoteSourceInfos)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos)  
+&emsp;&emsp;[example 0.42 EventTriggers category (EventTriggerInfo and EventInfo cards)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-042-eventtriggers-category-eventtriggerinfo-and-eventinfo-cards)  
 &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
 &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
 &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
@@ -153,6 +154,16 @@ It features both VoteInfo and VoteSourceInfos. See [Main Changes Guide](/README.
 <img src="../Images/sevopedia/0.860_sevopedia_votes (1).JPG" alt="0.860_sevopedia_votes (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.860_sevopedia_votes (2).JPG" alt="0.860_sevopedia_votes (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
+
+#### example 0.42 EventTriggers category (EventTriggerInfo and EventInfo cards)
+
+We also added a new EventTriggers category showing Event triggers and their event cards with the very nice help of Claude code Opus 4.7, "GPT-5.4?" (hard to use but was a bit helpful after some careful and long steering), and GPT-5.5 thanks a lot.
+
+See main implementation points at the [Main Changes Guide](/README.md#main-changes-guide).
+
+<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG" alt="0.870_sevopedia_eventtriggers (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG" alt="0.870_sevopedia_eventtriggers (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG" alt="0.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
 
 #### example 0.5: Handicap Chart category
 
