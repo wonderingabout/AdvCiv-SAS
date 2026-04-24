@@ -4202,4 +4202,80 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT</Tag>
 		<English>Triggers Follow-up Event</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_THEIR_ENEMY_ATTITUDE</Tag>
+		<English>Their Attitude Toward Their Enemy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_NAME</Tag>
+		<English>Unit Name</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_IMPROVEMENT_CHANGE</Tag>
+		<English>Current Plot Improvement Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_ROUTE_CHANGE</Tag>
+		<English>Current Plot Route Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PREREQ_TECH_DETAIL</Tag>
+		<English>Tech Selection Prereq</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_MIN_TURNS_LEFT</Tag>
+		<English>Tech Min Turns Left</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_FLAVORS</Tag>
+		<English>Tech Flavor Weights</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_CAN_DO</Tag>
+		<English>Python Apply Gate</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_HELP</Tag>
+		<English>Python Help</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_EXPIRE_CHECK</Tag>
+		<English>Python Expire Check</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CLEAR_EVENT</Tag>
+		<English>Clears Event</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_WORLD_NEWS</Tag>
+		<English>World News Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_LOCAL_INFO</Tag>
+		<English>Local Info Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_QUEST_FAIL_TEXT</Tag>
+		<English>Quest Fail Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GLOBAL</Tag>
+		<English>Global Event Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TEAM</Tag>
+		<English>Team Event Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CITY_EFFECT</Tag>
+		<English>City Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_CITY_EFFECT</Tag>
+		<English>Other Player City Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GRAPHICAL_ONLY</Tag>
+		<English>Graphical Only</English>
+	</TEXT>
 </Civ4GameText>

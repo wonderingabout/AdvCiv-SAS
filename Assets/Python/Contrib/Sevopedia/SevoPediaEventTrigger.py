@@ -16,22 +16,21 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order.
-# Centralize labels here so the rare case of changing enum order is easy to audit.
-# (GPT-5.5) -->
-SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS = (
-	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK",
-	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS",
-	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND",
-	"TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN",
-)
-
-
 class SevoPediaEventTrigger:
 
 	def __init__(self, main):
 		self.iTrigger = -1
 		self.top = main
+		# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order.
+		# Cache translated labels once per page object so rendering requirements does not
+		# repeat translator lookups, while keeping the rare enum-order audit point obvious.
+		# (GPT-5.5) -->
+		self.PLOT_TYPE_LABELS = (
+			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()),
+			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()),
+			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()),
+			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()),
+		)
 		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch
 		# in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this
 		# page the expandable panel is actually Texts, not a Civilopedia/History panel —
@@ -237,8 +236,8 @@ class SevoPediaEventTrigger:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OWN_PLOT", ()))
 			if info.getPlotsType() >= 0:
 				iPlotType = info.getPlotsType()
-				if iPlotType < len(SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS):
-					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE", ()) + u": " + localText.getText(SAS_EVENT_TRIGGER_PLOT_TYPE_TEXT_KEYS[iPlotType], ()))
+				if iPlotType < len(self.PLOT_TYPE_LABELS):
+					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE", ()) + u": " + self.PLOT_TYPE_LABELS[iPlotType])
 				else:
 					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE", ()) + u": %d" % iPlotType)
 			if info.getNumReligions() > 0:
@@ -374,6 +373,16 @@ class SevoPediaEventTrigger:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CONVERT_OTHER_CITIES", ()) + u": %d" % eventInfo.getConvertOtherCities())
 
 		# Flags.
+		if eventInfo.isGlobal():
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GLOBAL", ()))
+		if eventInfo.isTeam():
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TEAM", ()))
+		if eventInfo.isCityEffect():
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CITY_EFFECT", ()))
+		if eventInfo.isOtherPlayerCityEffect():
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_CITY_EFFECT", ()))
+		if eventInfo.isGraphicalOnly():
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GRAPHICAL_ONLY", ()))
 		if eventInfo.isGoldenAge():
 			parts.append(self.GOLDEN_AGE_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLDEN_AGE", ()))
 		if eventInfo.isDeclareWar():
@@ -391,6 +400,21 @@ class SevoPediaEventTrigger:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT", ()) + u": %d%%" % eventInfo.getTechPercent())
 		if eventInfo.getTechCostPercent() != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_COST_PERCENT", ()) + u": %+d%%" % eventInfo.getTechCostPercent())
+		iPrereqTech = eventInfo.getPrereqTech()
+		if iPrereqTech >= 0:
+			prereqTechInfo = gc.getTechInfo(iPrereqTech)
+			if prereqTechInfo:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PREREQ_TECH_DETAIL", ()) + u": " + make_pedia_link(prereqTechInfo.getDescription()))
+		if eventInfo.getTechMinTurnsLeft() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_MIN_TURNS_LEFT", ()) + u": %d" % eventInfo.getTechMinTurnsLeft())
+		listTechFlavors = []
+		for iFlavor in range(gc.getNumFlavorTypes()):
+			iFlavorValue = eventInfo.getTechFlavorValue(iFlavor)
+			if iFlavorValue != 0:
+				szFlavor = gc.getFlavorTypes(iFlavor)
+				listTechFlavors.append(szFlavor + u" %+d" % iFlavorValue)
+		if listTechFlavors:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_FLAVORS", ()) + u": " + u", ".join(listTechFlavors))
 
 		# Modifiers (%).
 		if eventInfo.getInflationModifier() != 0:
@@ -403,6 +427,8 @@ class SevoPediaEventTrigger:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OUR_ATTITUDE", ()) + u": %+d" % eventInfo.getOurAttitudeModifier())
 		if eventInfo.getAttitudeModifier() != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_THEIR_ATTITUDE", ()) + u": %+d" % eventInfo.getAttitudeModifier())
+		if eventInfo.getTheirEnemyAttitudeModifier() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_THEIR_ENEMY_ATTITUDE", ()) + u": %+d" % eventInfo.getTheirEnemyAttitudeModifier())
 
 		# Free units / promotion grants.
 		iFreeUnitClass = eventInfo.getUnitClass()
@@ -410,6 +436,9 @@ class SevoPediaEventTrigger:
 			unitClassInfo = gc.getUnitClassInfo(iFreeUnitClass)
 			if unitClassInfo:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS", ()) + u": %dx %s" % (eventInfo.getNumUnits(), make_pedia_link(unitClassInfo.getDescription())))
+		szUnitNameKey = eventInfo.getUnitNameKey()
+		if szUnitNameKey and len(szUnitNameKey.strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_NAME", ()) + u": " + localText.getText(str(szUnitNameKey), ()))
 		iFreeBuildingClass = eventInfo.getBuildingClass()
 		if iFreeBuildingClass >= 0:
 			buildingClassInfo = gc.getBuildingClassInfo(iFreeBuildingClass)
@@ -443,6 +472,13 @@ class SevoPediaEventTrigger:
 			improvementInfo = gc.getImprovementInfo(iImprovement)
 			if improvementInfo and eventInfo.getImprovementChange() != 0:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + make_pedia_link(improvementInfo.getDescription()))
+		elif eventInfo.getImprovementChange() != 0:
+			# <!-- custom: Some events set iImprovementChange while ImprovementType is NONE.
+			# Negative values remove whatever improvement is on the target plot; positive values
+			# are surfaced as a raw flag because the DLL only applies them when a concrete
+			# ImprovementType is provided. Showing this avoids false "No direct effect" cards.
+			# (GPT-5.5) -->
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_IMPROVEMENT_CHANGE", ()) + u": %+d" % eventInfo.getImprovementChange())
 		iBonus = eventInfo.getBonus()
 		if iBonus >= 0:
 			bonusInfo = gc.getBonusInfo(iBonus)
@@ -467,6 +503,8 @@ class SevoPediaEventTrigger:
 			routeInfo = gc.getRouteInfo(iRoute)
 			if routeInfo:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE", ()) + u": %+d " % eventInfo.getRouteChange() + make_pedia_link(routeInfo.getDescription()))
+		elif eventInfo.getRouteChange() != 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_ROUTE_CHANGE", ()) + u": %+d" % eventInfo.getRouteChange())
 
 		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain
 		# gets their own popup with response choices — the real consequences of this
@@ -551,6 +589,18 @@ class SevoPediaEventTrigger:
 					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ()) + u": %dx %s" % (iCount, make_pedia_link(specInfo.getDescription())))
 
 		# Other less-common scalar fields that can still carry the whole effect on their own.
+		szPythonCanDo = eventInfo.getPythonCanDo()
+		if szPythonCanDo and len(szPythonCanDo.strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_CAN_DO", ()) + u": " + szPythonCanDo)
+		szPythonCallback = eventInfo.getPythonCallback()
+		if szPythonCallback and len(szPythonCallback.strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED", ()) + u": " + szPythonCallback)
+		szPythonHelp = eventInfo.getPythonHelp()
+		if szPythonHelp and len(szPythonHelp.strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_HELP", ()) + u": " + szPythonHelp)
+		szPythonExpireCheck = eventInfo.getPythonExpireCheck()
+		if szPythonExpireCheck and len(szPythonExpireCheck.strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_EXPIRE_CHECK", ()) + u": " + szPythonExpireCheck)
 		if eventInfo.getHurryAnger() != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HURRY_ANGER", ()) + u": %+d" % eventInfo.getHurryAnger())
 		if eventInfo.getFood() != 0:
@@ -607,12 +657,35 @@ class SevoPediaEventTrigger:
 			else:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ()) + u": %s (%d%%)" % (szOtherName, iChance))
 
+		# <!-- custom: Surface event-chain cleanup and presentation/script text hooks too.
+		# These are not always direct mechanical rewards, but they are populated CvEventInfo
+		# effects/metadata and otherwise some cards misleadingly fall through to
+		# "No direct effect". Keep labels explicit so readers know what kind of field it is.
+		# (GPT-5.5) -->
+		for iOtherEvent in range(gc.getNumEventInfos()):
+			iChance = eventInfo.getClearEventChance(iOtherEvent)
+			if iChance <= 0:
+				continue
+			otherInfo = gc.getEventInfo(iOtherEvent)
+			if not otherInfo:
+				continue
+			szOtherName = otherInfo.getDescription()
+			if (not szOtherName) or len(szOtherName.strip()) == 0:
+				szOtherName = otherInfo.getType()
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CLEAR_EVENT", ()) + u": %s (%d%%)" % (szOtherName, iChance))
+
+		for iNews in range(eventInfo.getNumWorldNews()):
+			szWorldNewsKey = eventInfo.getWorldNews(iNews)
+			if szWorldNewsKey and len(szWorldNewsKey.strip()) > 0:
+				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_WORLD_NEWS", ()) + u": " + localText.getText(str(szWorldNewsKey), ()))
+		szLocalInfoKey = eventInfo.getLocalInfoTextKey()
+		if szLocalInfoKey and len(szLocalInfoKey.strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_LOCAL_INFO", ()) + u": " + localText.getText(str(szLocalInfoKey), ()))
+		szQuestFailKey = eventInfo.getQuestFailTextKey()
+		if szQuestFailKey and len(szQuestFailKey.strip()) > 0:
+			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_QUEST_FAIL_TEXT", ()) + u": " + localText.getText(str(szQuestFailKey), ()))
+
 		if not parts:
-			# No direct XML effects. Distinguish scripted (Python callback) from
-			# "truly does nothing on its own".
-			szPy = eventInfo.getPythonCallback()
-			if szPy and len(szPy.strip()) > 0:
-				return self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED", ()) + u" (" + szPy + u")"
 			return self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_NO_DIRECT", ())
 		return u"\n".join([self.BULLET_PREFIX + p for p in parts])
 
