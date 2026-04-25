@@ -1,14 +1,13 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
-
+#
 # Thanks to "Ulf 'ulfn' Norell" from Apolyton for his additions relating to the graph section of this screen
-
+#
 # This file has been edited for K-Mod in various places. Some changes marked, some not. (deletions generally not marked)
 #
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
-#
 
 from CvPythonExtensions import *
 import CvUtil
@@ -4754,6 +4753,3 @@ class CvInfoScreen:
 					else:
 						self.aiPlayersMetNAEspionage.append(iLoopPlayer)
 						self.iNumPlayersMetNAEspionage += 1
-
-
-
