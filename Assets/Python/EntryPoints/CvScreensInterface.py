@@ -22,6 +22,7 @@ import CvDawnOfMan
 import CvTechSplashScreen
 import CvTopCivs
 import CvInfoScreen
+import CvWorldAdvisorScreen
 
 import CvIntroMovieScreen
 import CvVictoryMovieScreen
@@ -242,6 +243,12 @@ def showInfoScreen(argsList):
 		iTabID = argsList[0]
 		iEndGame = argsList[1]
 		infoScreen.showScreen(-1, iTabID, iEndGame)
+
+# <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+worldAdvisorScreen = CvWorldAdvisorScreen.CvWorldAdvisorScreen(WORLD_ADVISOR)
+def showWorldAdvisorScreen():
+	if (-1 != CyGame().getActivePlayer()):
+		worldAdvisorScreen.showScreen()
 
 debugInfoScreen = CvDebugInfoScreen.CvDebugInfoScreen()
 def showDebugInfoScreen():
@@ -1198,6 +1205,7 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					INTRO_MOVIE_SCREEN : introMovie,
 					OPTIONS_SCREEN : optionsScreen,
 					INFO_SCREEN : infoScreen,
+					WORLD_ADVISOR : worldAdvisorScreen,
 					REPLAY_SCREEN : replayScreen,
 					VICTORY_SCREEN : victoryScreen,
 					TOP_CIVS : topCivs,

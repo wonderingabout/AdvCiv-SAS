@@ -700,6 +700,22 @@
 			<bCtrlDownAlt>0</bCtrlDownAlt>
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
+		<!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+		<ControlInfo>
+			<Type>CONTROL_WORLD_ADVISOR_SCREEN</Type>
+			<Description>TXT_KEY_WORLD_ADVISOR_TITLE</Description>
+			<Help/>
+			<HotKey>KB_F7</HotKey>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<HotKeyAlt/>
+			<bAltDownAlt>0</bAltDownAlt>
+			<bShiftDownAlt>0</bShiftDownAlt>
+			<bCtrlDownAlt>0</bCtrlDownAlt>
+			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+		</ControlInfo>
 		<ControlInfo>
 			<Type>CONTROL_TURN_LOG</Type>
 			<Description>TXT_KEY_EVENT_LOG</Description>

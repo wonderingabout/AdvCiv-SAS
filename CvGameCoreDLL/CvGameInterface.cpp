@@ -1321,6 +1321,8 @@ bool CvGame::canDoControl(ControlTypes eControl) const
 	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
 	case CONTROL_MILITARY_SCREEN:
 	case CONTROL_TECH_CHOOSER:
+	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+	case CONTROL_WORLD_ADVISOR_SCREEN:
 	case CONTROL_DIPLOMACY:
 	case CONTROL_HALL_OF_FAME:
 	case CONTROL_INFO:
@@ -1703,6 +1705,11 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_TECH_CHOOSER:
 		GC.getPythonCaller()->showPythonScreen("TechChooser");
+		break;
+
+	// <!-- custom: F7 World Advisor. (GPT-5.5) -->
+	case CONTROL_WORLD_ADVISOR_SCREEN:
+		GC.getPythonCaller()->showPythonScreen("WorldAdvisorScreen");
 		break;
 
 	case CONTROL_TURN_LOG:

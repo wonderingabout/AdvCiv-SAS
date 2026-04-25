@@ -106,7 +106,6 @@ class CvInfoScreen:
 			"TXT_KEY_DEMO_SCREEN_TITLE",
 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
 			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
-			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
 			]
 		self.PAGE_DRAW_LIST = [
 			self.drawGraphTab,
@@ -115,7 +114,6 @@ class CvInfoScreen:
 			self.drawDemographicsTab,
 			self.drawTopCitiesTab,
 			self.drawStatsTab,
-			self.drawEnvironmentTab,
 			]
 
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
@@ -136,7 +134,6 @@ class CvInfoScreen:
 		self.iDemographicsID	= 3
 		self.iTopCitiesID		= 4
 		self.iStatsID			= 5
-		self.iEnvironmentID		= 6
 
 		# <!-- custom: Environment tab constants independent from resolution; keep in init for consistency with other integrated tabs. (GPT-5.3-Codex) -->
 		self.ENV_INNER_MARGIN = 24
@@ -899,7 +896,7 @@ class CvInfoScreen:
 		self.graphZoom	= self.graphEnd - CyGame().getStartTurn()
 
 #		self.iActiveTab = iTabID
-		if self.iActiveTab == -1:
+		if self.iActiveTab == -1 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
 			self.iActiveTab = self.iGraphID
 
 		if (self.iNumPlayersMet > 1):

@@ -3703,7 +3703,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
 	</TEXT>
-	<!-- custom: advisor hotkey labels updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, Info Screen = F8, Victory Screen = F9, Sevopedia = F12. (GPT-5.3-Codex) -->
+	<!-- custom: advisor hotkey labels updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, World Advisor = F7, Info Screen = F8, Victory Screen = F9, Sevopedia = F12. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_TITLE</Tag>
 		<English>Foreign Diplomacy Advisor</English>
@@ -3727,6 +3727,10 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_CIVICS_SCREEN_TITLE</Tag>
 		<English>Policy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TITLE</Tag>
+		<English>World Advisor</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_INFO_SCREEN</Tag>
