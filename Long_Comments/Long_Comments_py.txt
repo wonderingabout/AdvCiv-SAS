@@ -932,3 +932,11 @@ v. 0.41
 <!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have more room to accomodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: since the upscaling text changes, increased (from 124) to accomodate a max font size of 4. -->
 		# advc.002b: was 175
 		# <!-- custom: was 200 -->
+
+===== \Assets\Python\Screens\CvWorldAdvisorScreen.py =====
+----- Comment #17 -----
+
+	# We tried two alternatives and rejected both:
+	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
+	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
+	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant.

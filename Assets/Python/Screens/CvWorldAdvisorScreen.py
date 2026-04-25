@@ -42,19 +42,19 @@ class CvWorldAdvisorScreen:
 		self.ENV_Y_SPACING = 30
 		self.ENV_TEXT_MARGIN = 15
 		self.BFC_TABLE_GAP = 18
-		self.BFC_CITY_COL_WIDTH = 180
+		self.BFC_CITY_COL_WIDTH = 170
 		self.BFC_ZOOM_COL_WIDTH = 28
 		self.BFC_ICON_SIZE = 24
 
 		self.PAGE_NAME_LIST = [
 			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
-			"TXT_KEY_WORLD_ADVISOR_BFC_TAB",
+			"TXT_KEY_WORLD_ADVISOR_BFC1_TAB",
 			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
 			"TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB",
 			]
 		self.PAGE_LINK_WIDTH = []
 		self.iEnvironmentID = 0
-		self.iBFCID = 1
+		self.iBFC1ID = 1
 		self.iBFC2ID = 2
 		self.iTerritoryID = 3
 		self.iActiveTab = self.iEnvironmentID
@@ -156,8 +156,8 @@ class CvWorldAdvisorScreen:
 		self.LABEL_ENV_GLOBAL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.LABEL_ENV_EFFECTS = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_CITY = localText.getText("TXT_KEY_WORLD_ADVISOR_CITY", ())
-		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_POP", ())
-		self.TEXT_YEAR = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_YEAR", ())
+		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_POP", ())
+		self.TEXT_YEAR = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_YEAR", ())
 		self.TEXT_BFC = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_SHORT", ())
 		self.TEXT_LAND = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAND", ())
 		self.TEXT_WATER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_WATER", ())
@@ -227,8 +227,8 @@ class CvWorldAdvisorScreen:
 
 		if self.iActiveTab == self.iEnvironmentID:
 			self.drawEnvironmentTab()
-		elif self.iActiveTab == self.iBFCID:
-			self.drawBFCTab()
+		elif self.iActiveTab == self.iBFC1ID:
+			self.drawBFC1Tab()
 		elif self.iActiveTab == self.iBFC2ID:
 			self.drawBFC2Tab()
 		elif self.iActiveTab == self.iTerritoryID:
@@ -379,39 +379,34 @@ class CvWorldAdvisorScreen:
 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_CHANCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
-	# <!-- custom: BFC tab design notes — icons in column headers (yellow header background gives the strongest contrast / readability for icon recognition).
-	# We tried two alternatives and rejected both:
-	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
-	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
-	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant.
-	# Resolution: keep icons-in-headers (readable, sortable); pedia widgets now make the improvement meanings accessible where needed. (Claude code Opus 4.7; summarized GPT-5.5) -->
-	# BFC
-	def drawBFCTab(self):
-		aiFortColumns = self.getBFCFortImprovementTypes()
-		aszTableRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals = self.collectBFCData(aiFortColumns)
+	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC 1 is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
+	# <!-- custom: BFC 1 tab design notes — icons in column headers (yellow header background gives the strongest contrast / readability for icon recognition); ; Long_Comments_py.txt #17
+	# Resolution: keep icons-in-headers (readable, sortable). Now that the Territory tab natively supports hover + pedia redirect on every entry (it renders rows, not column headers, so widgets just work), it covers the icon-identification need for the whole World Advisor — so BFC 1 / BFC 2 don't need hover on headers either. Prioritize header clarity for icon recognition and clean left-click sort over re-attempting any hover-on-header workaround. (Claude code Opus 4.7; summarized GPT-5.5) -->
+	# BFC 1
+	def drawBFC1Tab(self):
+		aiFortColumns = self.getBFC1FortImprovementTypes()
+		# <!-- custom: routes (path/road/railroad) live in BFC 2's improvements table now — they are man-made infrastructure rather than geography. (Claude code Opus 4.7) -->
+		aszTableRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals, aaiFortTotals = self.collectBFC1Data(aiFortColumns)
 		aiTerrainColumns = range(gc.getNumTerrainInfos())
 		aiFeatureColumns = range(gc.getNumFeatureInfos())
-		aiRouteColumns = range(gc.getNumRouteInfos())
 
-		self.drawBFCPlotTable(aszTableRows, aiPlotTotals)
-		self.drawBFCTerrainFeatureTable(aszTableRows, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals, aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns)
+		self.drawBFC1PlotTable(aszTableRows, aiPlotTotals)
+		self.drawBFC1TerrainFeatureTable(aszTableRows, aaiTerrainTotals, aaiFeatureTotals, aaiFortTotals, aiTerrainColumns, aiFeatureColumns, aiFortColumns)
 
-	def getBFCFortImprovementTypes(self):
+	def getBFC1FortImprovementTypes(self):
 		aiFortColumns = []
 		for iImprovement in range(gc.getNumImprovementInfos()):
 			if "FORT" in gc.getImprovementInfo(iImprovement).getType():
 				aiFortColumns.append(iImprovement)
 		return aiFortColumns
 
-	def collectBFCData(self, aiFortColumns):
+	def collectBFC1Data(self, aiFortColumns):
 		player = gc.getPlayer(self.iActivePlayer)
 		bDebug = CyGame().isDebugMode()
 		aszRows = []
 		aiPlotTotals = [0, 0, 0, 0, 0, 0]
 		aaiTerrainTotals = []
 		aaiFeatureTotals = []
-		aaiRouteTotals = []
 		aaiFortTotals = []
 
 		(pCity, iter) = player.firstCity(False)
@@ -419,7 +414,6 @@ class CvWorldAdvisorScreen:
 			aiPlotCounts = [0, 0, 0, 0, 0, 0]
 			aiTerrainCounts = [0] * gc.getNumTerrainInfos()
 			aiFeatureCounts = [0] * gc.getNumFeatureInfos()
-			aiRouteCounts = [0] * gc.getNumRouteInfos()
 			aiFortCounts = [0] * len(aiFortColumns)
 
 			for iPlot in range(gc.getNUM_CITY_PLOTS()):
@@ -443,26 +437,22 @@ class CvWorldAdvisorScreen:
 					iFeature = pPlot.getFeatureType()
 					if iFeature >= 0:
 						aiFeatureCounts[iFeature] += 1
-					iRoute = pPlot.getRouteType()
-					if iRoute >= 0:
-						aiRouteCounts[iRoute] += 1
 					iImprovement = pPlot.getImprovementType()
 					if iImprovement in aiFortColumns:
 						aiFortCounts[aiFortColumns.index(iImprovement)] += 1
 
 			iFoundYear = CyGame().getTurnYear(pCity.getGameTurnFounded())
-			aszRows.append([pCity.getName(), pCity.getOwner(), pCity.getID(), pCity.getPopulation(), iFoundYear, aiPlotCounts, aiTerrainCounts, aiFeatureCounts, aiRouteCounts, aiFortCounts])
+			aszRows.append([pCity.getName(), pCity.getOwner(), pCity.getID(), pCity.getPopulation(), iFoundYear, aiPlotCounts, aiTerrainCounts, aiFeatureCounts, aiFortCounts])
 			for i in range(len(aiPlotTotals)):
 				aiPlotTotals[i] += aiPlotCounts[i]
 			aaiTerrainTotals.append(aiTerrainCounts)
 			aaiFeatureTotals.append(aiFeatureCounts)
-			aaiRouteTotals.append(aiRouteCounts)
 			aaiFortTotals.append(aiFortCounts)
 			(pCity, iter) = player.nextCity(iter, False)
 
-		return aszRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals
+		return aszRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals, aaiFortTotals
 
-	def drawBFCPlotTable(self, aszRows, aiPlotTotals):
+	def drawBFC1PlotTable(self, aszRows, aiPlotTotals):
 		screen = self.getScreen()
 		szTable = self.getNextWidgetName()
 		iNumCols = 10
@@ -483,14 +473,14 @@ class CvWorldAdvisorScreen:
 		screen.setTableColumnHeader(szTable, 9, SAS_FONT_TAG_LABEL + self.TEXT_FLAT + SAS_FONT_TAG_CLOSE, iDataW)
 
 		for iRow in range(len(aszRows)):
-			self.appendBFCPlotRow(screen, szTable, iRow, aszRows[iRow][0], aszRows[iRow][1], aszRows[iRow][2], aszRows[iRow][3], aszRows[iRow][4], aszRows[iRow][5])
+			self.appendBFC1PlotRow(screen, szTable, iRow, aszRows[iRow][0], aszRows[iRow][1], aszRows[iRow][2], aszRows[iRow][3], aszRows[iRow][4], aszRows[iRow][5])
 		if len(aszRows) > 0:
 			iTotalPopulation = 0
 			for rowData in aszRows:
 				iTotalPopulation += rowData[3]
-			self.appendBFCPlotRow(screen, szTable, len(aszRows), self.TEXT_TOTAL, -1, -1, iTotalPopulation, 0, aiPlotTotals)
+			self.appendBFC1PlotRow(screen, szTable, len(aszRows), self.TEXT_TOTAL, -1, -1, iTotalPopulation, 0, aiPlotTotals)
 
-	def appendBFCPlotRow(self, screen, szTable, iRow, szCityName, iOwner, iCityID, iPopulation, iFoundYear, aiPlotCounts):
+	def appendBFC1PlotRow(self, screen, szTable, iRow, szCityName, iOwner, iCityID, iPopulation, iFoundYear, aiPlotCounts):
 		screen.appendTableRow(szTable)
 		if iOwner >= 0:
 			screen.setTableText(szTable, 0, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, iOwner, iCityID, CvUtil.FONT_LEFT_JUSTIFY)
@@ -506,10 +496,10 @@ class CvWorldAdvisorScreen:
 		for iCol in range(len(aiPlotCounts)):
 			screen.setTableInt(szTable, iCol + 4, iRow, SAS_FONT_TAG_LABEL + str(aiPlotCounts[iCol]) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-	def drawBFCTerrainFeatureTable(self, aszRows, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals, aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns):
+	def drawBFC1TerrainFeatureTable(self, aszRows, aaiTerrainTotals, aaiFeatureTotals, aaiFortTotals, aiTerrainColumns, aiFeatureColumns, aiFortColumns):
 		screen = self.getScreen()
 		szTable = self.getNextWidgetName()
-		iNumDataCols = len(aiTerrainColumns) + len(aiFeatureColumns) + len(aiRouteColumns) + len(aiFortColumns)
+		iNumDataCols = len(aiTerrainColumns) + len(aiFeatureColumns) + len(aiFortColumns)
 		iNumCols = 2 + iNumDataCols
 		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, self.BFC_Y_TERRAIN_TABLE, self.BFC_W_TABLE, self.BFC_H_TERRAIN_TABLE, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
@@ -525,32 +515,26 @@ class CvWorldAdvisorScreen:
 		for iFeature in aiFeatureColumns:
 			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getFeatureInfo(iFeature).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
 			iCol += 1
-		for iRoute in aiRouteColumns:
-			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getRouteInfo(iRoute).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
-			iCol += 1
 		for iFort in aiFortColumns:
 			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getImprovementInfo(iFort).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
 			iCol += 1
 
 		for iRow in range(len(aszRows)):
-			self.appendBFCTerrainFeatureRow(screen, szTable, iRow, aszRows[iRow], aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns)
+			self.appendBFC1TerrainFeatureRow(screen, szTable, iRow, aszRows[iRow], aiTerrainColumns, aiFeatureColumns, aiFortColumns)
 		if len(aszRows) > 0:
 			aiTerrainTotals = [0] * gc.getNumTerrainInfos()
 			aiFeatureTotals = [0] * gc.getNumFeatureInfos()
-			aiRouteTotals = [0] * gc.getNumRouteInfos()
 			aiFortTotals = [0] * len(aiFortColumns)
 			for iRow in range(len(aszRows)):
 				for iTerrain in range(gc.getNumTerrainInfos()):
 					aiTerrainTotals[iTerrain] += aaiTerrainTotals[iRow][iTerrain]
 				for iFeature in range(gc.getNumFeatureInfos()):
 					aiFeatureTotals[iFeature] += aaiFeatureTotals[iRow][iFeature]
-				for iRoute in range(gc.getNumRouteInfos()):
-					aiRouteTotals[iRoute] += aaiRouteTotals[iRow][iRoute]
 				for iFort in range(len(aiFortColumns)):
 					aiFortTotals[iFort] += aaiFortTotals[iRow][iFort]
-			self.appendBFCTerrainFeatureRow(screen, szTable, len(aszRows), [self.TEXT_TOTAL, -1, -1, 0, 0, [], aiTerrainTotals, aiFeatureTotals, aiRouteTotals, aiFortTotals], aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns)
+			self.appendBFC1TerrainFeatureRow(screen, szTable, len(aszRows), [self.TEXT_TOTAL, -1, -1, 0, 0, [], aiTerrainTotals, aiFeatureTotals, aiFortTotals], aiTerrainColumns, aiFeatureColumns, aiFortColumns)
 
-	def appendBFCTerrainFeatureRow(self, screen, szTable, iRow, rowData, aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns):
+	def appendBFC1TerrainFeatureRow(self, screen, szTable, iRow, rowData, aiTerrainColumns, aiFeatureColumns, aiFortColumns):
 		screen.appendTableRow(szTable)
 		szCityName = rowData[0]
 		iOwner = rowData[1]
@@ -568,22 +552,22 @@ class CvWorldAdvisorScreen:
 		for iFeature in aiFeatureColumns:
 			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[7][iFeature])
 			iCol += 1
-		for iRoute in aiRouteColumns:
-			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[8][iRoute])
-			iCol += 1
 		for iFort in range(len(aiFortColumns)):
-			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[9][iFort])
+			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[8][iFort])
 			iCol += 1
 
-	# <!-- custom: BFC 2 tab — bonuses (top) and improvements (bottom), icon-headered like BFC's terrain table; shows every type exhaustively, matching the BFC tab's all-terrains/features/routes layout. Bonuses are filtered to placeable types (PlacementOrder >= 0); abstract bonuses can't appear in any BFC. See drawBFCTab above for the full design rationale (why icons live in the header, why hover-on-header was abandoned). (Claude code Opus 4.7) -->
+	# <!-- custom: BFC 2 tab — bonuses (top) and worker-built infrastructure (bottom: improvements + routes), icon-headered like BFC 1's terrain table. Bonuses are filtered to placeable types (PlacementOrder >= 0); abstract bonuses can't appear in any BFC. Routes (path/road/railroad) live here rather than BFC 1 because they are man-made infrastructure, matching the same routes-with-improvements grouping in the Territory tab. See drawBFC1Tab above for the full design rationale (why icons live in the header, why hover-on-header was abandoned). (Claude code Opus 4.7) -->
 	def drawBFC2Tab(self):
 		aiBonusColumns = []
 		for iBonus in range(gc.getNumBonusInfos()):
 			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
 				aiBonusColumns.append(iBonus)
-		aszRows, aaiBonusCounts, aaiImprovementCounts = self.collectBFC2Data()
-		self.drawBFC2IconTable(aszRows, aaiBonusCounts, aiBonusColumns, gc.getBonusInfo, gc.getNumBonusInfos(), self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
-		self.drawBFC2IconTable(aszRows, aaiImprovementCounts, range(gc.getNumImprovementInfos()), gc.getImprovementInfo, gc.getNumImprovementInfos(), self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
+		aszRows, aaiBonusCounts, aaiImprovementCounts, aaiRouteCounts = self.collectBFC2Data()
+		self.drawBFC2IconTable(aszRows, [(aiBonusColumns, gc.getBonusInfo, aaiBonusCounts)], self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
+		self.drawBFC2IconTable(aszRows, [
+			(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts),
+			(range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts),
+			], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
 
 	def collectBFC2Data(self):
 		player = gc.getPlayer(self.iActivePlayer)
@@ -591,10 +575,12 @@ class CvWorldAdvisorScreen:
 		aszRows = []
 		aaiBonusCounts = []
 		aaiImprovementCounts = []
+		aaiRouteCounts = []
 		(pCity, iter) = player.firstCity(False)
 		while pCity and not pCity.isNone():
 			aiBonusCounts = [0] * gc.getNumBonusInfos()
 			aiImprovementCounts = [0] * gc.getNumImprovementInfos()
+			aiRouteCounts = [0] * gc.getNumRouteInfos()
 			for iPlot in range(gc.getNUM_CITY_PLOTS()):
 				pPlot = pCity.getCityIndexPlot(iPlot)
 				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
@@ -604,16 +590,23 @@ class CvWorldAdvisorScreen:
 					iImprovement = pPlot.getImprovementType()
 					if iImprovement >= 0:
 						aiImprovementCounts[iImprovement] += 1
+					iRoute = pPlot.getRouteType()
+					if iRoute >= 0:
+						aiRouteCounts[iRoute] += 1
 			aszRows.append([pCity.getName(), pCity.getOwner(), pCity.getID()])
 			aaiBonusCounts.append(aiBonusCounts)
 			aaiImprovementCounts.append(aiImprovementCounts)
+			aaiRouteCounts.append(aiRouteCounts)
 			(pCity, iter) = player.nextCity(iter, False)
-		return aszRows, aaiBonusCounts, aaiImprovementCounts
+		return aszRows, aaiBonusCounts, aaiImprovementCounts, aaiRouteCounts
 
-	def drawBFC2IconTable(self, aszRows, aaiCounts, aiColumns, fnGetInfo, iNumTypes, iY, iH):
+	# <!-- custom: aoGroups is a list of (aiColumns, fnGetInfo, aaiCounts) tuples; aaiCounts[iCity][iType] holds the per-city count for that group. Multi-group support lets one BFC 2 table render two icon families side by side (improvements + routes). (Claude code Opus 4.7) -->
+	def drawBFC2IconTable(self, aszRows, aoGroups, iY, iH):
 		screen = self.getScreen()
 		szTable = self.getNextWidgetName()
-		iNumDataCols = len(aiColumns)
+		iNumDataCols = 0
+		for aiColumns, fnGetInfo, aaiCounts in aoGroups:
+			iNumDataCols += len(aiColumns)
 		iNumCols = 2 + iNumDataCols
 		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, iY, self.BFC_W_TABLE, iH, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
@@ -622,19 +615,18 @@ class CvWorldAdvisorScreen:
 			iDataW = (self.BFC_W_TABLE - self.BFC_ZOOM_COL_WIDTH - self.BFC_CITY_COL_WIDTH) / iNumDataCols
 		screen.setTableColumnHeader(szTable, 0, "", self.BFC_ZOOM_COL_WIDTH)
 		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_CITY + SAS_FONT_TAG_CLOSE, self.BFC_CITY_COL_WIDTH)
-		for iCol in range(iNumDataCols):
-			screen.setTableColumnHeader(szTable, iCol + 2, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (fnGetInfo(aiColumns[iCol]).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+		iColIdx = 2
+		for aiColumns, fnGetInfo, aaiCounts in aoGroups:
+			for iType in aiColumns:
+				screen.setTableColumnHeader(szTable, iColIdx, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (fnGetInfo(iType).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+				iColIdx += 1
 
 		for iRow in range(len(aszRows)):
-			self.appendBFC2Row(screen, szTable, iRow, aszRows[iRow], aaiCounts[iRow], aiColumns)
+			self.appendBFC2Row(screen, szTable, iRow, aszRows[iRow], aoGroups, False)
 		if len(aszRows) > 0:
-			aiTotals = [0] * iNumTypes
-			for aiRow in aaiCounts:
-				for iType in aiColumns:
-					aiTotals[iType] += aiRow[iType]
-			self.appendBFC2Row(screen, szTable, len(aszRows), [self.TEXT_TOTAL, -1, -1], aiTotals, aiColumns)
+			self.appendBFC2Row(screen, szTable, len(aszRows), [self.TEXT_TOTAL, -1, -1], aoGroups, True)
 
-	def appendBFC2Row(self, screen, szTable, iRow, rowData, aiCounts, aiColumns):
+	def appendBFC2Row(self, screen, szTable, iRow, rowData, aoGroups, bIsTotal):
 		screen.appendTableRow(szTable)
 		szCityName = rowData[0]
 		iOwner = rowData[1]
@@ -645,8 +637,17 @@ class CvWorldAdvisorScreen:
 		else:
 			screen.setTableText(szTable, 0, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		for iCol in range(len(aiColumns)):
-			self.setBFCCountCell(screen, szTable, iCol + 2, iRow, aiCounts[aiColumns[iCol]])
+		iColIdx = 2
+		for aiColumns, fnGetInfo, aaiCounts in aoGroups:
+			for iType in aiColumns:
+				if bIsTotal:
+					iCount = 0
+					for iCityRow in range(len(aaiCounts)):
+						iCount += aaiCounts[iCityRow][iType]
+				else:
+					iCount = aaiCounts[iRow][iType]
+				self.setBFCCountCell(screen, szTable, iColIdx, iRow, iCount)
+				iColIdx += 1
 
 	# TERRITORY
 	def drawTerritoryTab(self):
@@ -731,13 +732,12 @@ class CvWorldAdvisorScreen:
 			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
 			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
 			]
+		# <!-- custom: routes (path/road/railroad) are worker-built infrastructure, so they belong with the Improvements table thematically rather than with natural Terrain & Features. (Claude code Opus 4.7) -->
 		aTerrainFeatureRows = []
 		for iTerrain in range(gc.getNumTerrainInfos()):
 			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
 		for iFeature in range(gc.getNumFeatureInfos()):
 			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
-		for iRoute in range(gc.getNumRouteInfos()):
-			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_GENERAL, -1, aaiRouteCounts[iRoute])
 		aBonusRows = []
 		for iBonus in range(gc.getNumBonusInfos()):
 			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
@@ -745,6 +745,8 @@ class CvWorldAdvisorScreen:
 		aImprovementRows = []
 		for iImprovement in range(gc.getNumImprovementInfos()):
 			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
+		for iRoute in range(gc.getNumRouteInfos()):
+			self.appendTerritoryInfoRow(aImprovementRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_GENERAL, -1, aaiRouteCounts[iRoute])
 		return aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows
 
 	def getTerritoryBFCPlotSet(self):
@@ -783,6 +785,19 @@ class CvWorldAdvisorScreen:
 			self.setBFCCountCell(screen, szTable, 1, iRow, row[4])
 			self.setBFCCountCell(screen, szTable, 2, iRow, row[5])
 			self.setBFCCountCell(screen, szTable, 3, iRow, row[4] + row[5])
+		# <!-- custom: append a Total row to every Territory sub-table for consistency — table 1 (Plots) already had Total/Land/Water/... so the Bonuses / Improvements+Routes / Terrain & Features tables get an aggregate row too. Skip if the table is the Plots table whose rows are already pre-aggregated (its first row is itself the Total). (Claude code Opus 4.7) -->
+		if len(aRows) > 0 and aRows[0][0] != self.TEXT_TOTAL:
+			iTotalBFC = 0
+			iTotalSub = 0
+			for row in aRows:
+				iTotalBFC += row[4]
+				iTotalSub += row[5]
+			iTotalRow = len(aRows)
+			screen.appendTableRow(szTable)
+			screen.setTableText(szTable, 0, iTotalRow, SAS_FONT_TAG_LABEL + self.TEXT_TOTAL + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			self.setBFCCountCell(screen, szTable, 1, iTotalRow, iTotalBFC)
+			self.setBFCCountCell(screen, szTable, 2, iTotalRow, iTotalSub)
+			self.setBFCCountCell(screen, szTable, 3, iTotalRow, iTotalBFC + iTotalSub)
 
 	def setBFCCountCell(self, screen, szTable, iCol, iRow, iCount):
 		if iCount == 0:
@@ -820,7 +835,7 @@ class CvWorldAdvisorScreen:
 				self.pActiveTeam = gc.getTeam(self.iActiveTeam)
 				self.redrawContents()
 				return 1
-			if (self.iActiveTab == self.iBFCID or self.iActiveTab == self.iBFC2ID) and inputClass.getMouseX() == 0:
+			if (self.iActiveTab == self.iBFC1ID or self.iActiveTab == self.iBFC2ID) and inputClass.getMouseX() == 0:
 				self.getScreen().hideScreen()
 				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), True)
 				popupInfo = CyPopupInfo()

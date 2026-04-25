@@ -2096,16 +2096,16 @@ class CvMainInterface:
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_DOMESTIC_SCREEN).getActionInfoIndex())
 		screen.hide("DomesticAdvisorButton")
-		# <!-- custom: swap F3/F4 advisor button art: F3 (Foreign Diplomacy slot) uses foreign icon; F4 (Foreign Trade slot) uses finance icon. (GPT-5.3-Codex) -->
-		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorForeign_Style",
-				WidgetTypes.WIDGET_ACTION,
-				gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_DIPLOMACY_SCREEN).getActionInfoIndex())
-		screen.hide("ForeignDiplomacyAdvisorButton")
 		self.setStyledButton("PolicyAdvisorButton", "Button_HUDAdvisorCivics_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_CIVICS_SCREEN).getActionInfoIndex())
 		screen.hide("PolicyAdvisorButton")
-		self.setStyledButton("ForeignAdvisorButton", "Button_HUDAdvisorFinance_Style",
+		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorForeign_Style",
+				WidgetTypes.WIDGET_ACTION,
+				gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_DIPLOMACY_SCREEN).getActionInfoIndex())
+		screen.hide("ForeignDiplomacyAdvisorButton")
+		# <!-- custom: F4 (Foreign Trade slot) uses the HUD Globe Trade style: more directly evocative of "foreign trade" than the generic Finance icon. GlobeTrade was unused in CvMainInterface (only GlobeUnit is bound), and the Finance icon would otherwise read as plain treasury rather than international trade. (Claude code Opus 4.7) -->
+		self.setStyledButton("ForeignAdvisorButton", "Button_HUDGlobeTrade_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_SCREEN).getActionInfoIndex())
 		screen.hide("ForeignAdvisorButton")
@@ -2117,7 +2117,8 @@ class CvMainInterface:
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex())
 		screen.hide("TechAdvisorButton")
-		self.setStyledButton("WorldAdvisorButton", "Button_HUDAdvisorReligious_Style",
+		# <!-- custom: World Advisor F7 button uses the HUD Globe Strategy style. Among the 11 HUDAdvisor styles every one is taken (Espionage by the legacy EspionageAdvisorButton, Corporation by the BUG options widget, etc.). The HUD theme also defines 5 Globe styles for minimap-layer toggles, of which only GlobeUnit is actually used in CvMainInterface — the other four (Strategy/Religion/Culture/Trade) are free. Strategy is picked because the art fits "world overview". (Claude code Opus 4.7) -->
+		self.setStyledButton("WorldAdvisorButton", "Button_HUDGlobeStrategy_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_WORLD_ADVISOR_SCREEN).getActionInfoIndex())
 		screen.hide("WorldAdvisorButton")

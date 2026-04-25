@@ -3733,8 +3733,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>World Advisor</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_TAB</Tag>
-		<English>BFC</English>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC1_TAB</Tag>
+		<English>BFC 1</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC2_TAB</Tag>
@@ -3749,11 +3749,11 @@ Created as part of AdvCiv-SAS improvements
 		<English>City</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_POP</Tag>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC1_POP</Tag>
 		<English>Pop</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_YEAR</Tag>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC1_YEAR</Tag>
 		<English>Year</English>
 	</TEXT>
 	<TEXT>
