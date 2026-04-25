@@ -1,6 +1,6 @@
-# <!-- custom: AI, UI, or other modifications
+# AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
-# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (GPT-5.3-Codex) -->
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
 
 
 from CvPythonExtensions import *

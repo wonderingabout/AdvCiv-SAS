@@ -1,6 +1,6 @@
-# <!-- custom: AI, UI, or other modifications
+# AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
-# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (GPT-5.3-Codex) -->
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
 #
 # <!-- custom: Purpose:
 # Python reads defines through CyGlobalContext (DLL runtime define table), not by parsing XML directly.

@@ -1,6 +1,6 @@
-# <!-- custom: AI, UI, or other modifications
+# AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
-# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (Claude code Opus 4.6) -->
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
 #
 # <!-- custom: Purpose:
 # Scales CITYBILLBOARD_SCALE values in CIV4DetailManager.xml based on the

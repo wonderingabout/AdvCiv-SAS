@@ -251,13 +251,6 @@ class CvInfoScreen:
 		self.W_STATS_BUTTON_SIZE = 24
 		self.H_STATS_BUTTON_SIZE = 24
 		self.Y_TIMELINE_TABLE_LOG_BUTTON = 14
-		# <!-- custom: slightly enlarge Timeline LOG button only when label font is upscaled (4), so text fits without wasting space at default sizes. (GPT-5.3-Codex) -->
-		if getSASUIFontLabel() > 3:
-			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
-			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
-		else:
-			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
-			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
 
 		self.iActiveTab = -1
 #		self.iActiveTab = self.iGraphID
@@ -635,6 +628,23 @@ class CvInfoScreen:
 		self.ENV_H_TOP_PANEL = self.ENV_TOP_PANEL_HEIGHT
 		self.ENV_Y_LOCATION = self.ENV_Y_TOP_PANEL + self.ENV_H_TOP_PANEL + self.ENV_INNER_MARGIN
 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
+
+		# <!-- custom: size the Timeline LOG button after game defines are initialized; doing this in __init__ queried SAS_UI_FONT_LABEL too early during CvScreensInterface startup and logged a false invalid-define warning. (GPT-5.5) -->
+		# <!-- custom: previous error shown for reference in PythonDbg.log (now fixed by moving this from init to updateRuntimeLayout) -->
+		#
+		# load_module CvStrategyOverlay
+		# load_module SASDefineGuard
+		# SASFontUtils: invalid or unavailable SAS_UI_FONT_LABEL=0; using default 3
+		# init-ing world builder screen
+		# load_module CvWBPopups
+		#
+		# load_module CvCameraControls
+		if getSASUIFontLabel() > 3:
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
+			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
+		else:
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
+			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
 
 		# LOG button - positioned in top header bar (0-55px height)
 		self.X_TIMELINE_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_TIMELINE_TABLE_LOG_BUTTON - 50

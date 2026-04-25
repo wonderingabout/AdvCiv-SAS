@@ -4,9 +4,10 @@
 ## Win-Loss code based on mod by Shelly Crawford (Fallblau on CFC/Apolyton)
 ## Rewritten by EmperorFool to use player's language and not break if no message is found.
 ## Modified by Alerum of the BUG Team to bring up to latest revision of Civilization 4: Patch 1.74.
-# <!-- custom: AI, UI, or other modifications
+#
+# AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
-# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (GPT-5.3-Codex) -->
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
 
 from CvPythonExtensions import *
 import BugUtil
