@@ -3737,6 +3737,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>BFC</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC2_TAB</Tag>
+		<English>BFC 2</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CITY</Tag>
 		<English>City</English>
 	</TEXT>

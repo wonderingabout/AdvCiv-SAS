@@ -133,6 +133,17 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Tag>
+		<English>World Advisor BFC 2 Legend</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND_PEDIA</Tag>
+		<English>[H1]World Advisor BFC 2 Legend[\H1][PARAGRAPH:2]The first four columns of the Improvements table are engine-only markers that aren't built by Workers. They are listed here because they can appear on plots inside a city's BFC and the icons aren't always self-evident.[NEWLINE][NEWLINE][ICON_BULLET]Land Worked: internal marker that a city is currently working this land plot. Not a real improvement; it disappears when the plot stops being worked.[NEWLINE][ICON_BULLET]Water Worked: same as above, but for water plots worked by a coastal city.[NEWLINE][ICON_BULLET]City Ruins: leftover marker on a tile where a city was destroyed; blocks resettlement of the exact same tile for a while and slowly decays.[NEWLINE][ICON_BULLET]Goody Hut: tribal village placed at game start. Entering one with a non-barbarian unit triggers a goody (gold, map, tech, scout, warrior, etc.) and removes the hut.[NEWLINE][NEWLINE]All other columns in the Bonuses and Improvements tables are standard map resources and Worker-built improvements; their meanings are visible from their pedia entries via right-click on the icons.</English>
+	</TEXT>
+
+
+
+	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Tag>
 		<English>Sevopedia Leader Legend</English>
 	</TEXT>

@@ -339,8 +339,6 @@ class CvInfoScreen:
 		self.SCORETAB_ANARCHY_CHAR = FontUtil.getChar(FontSymbols.BAD_GOLD_CHAR)
 		self.SCORETAB_ESPIONAGE_CHAR = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar()
 		self.SCORETAB_COLOR_MARKER = u"|||||"
-		self.SCORETAB_LEGEND_LINK_TEXT = SAS_FONT_TAG_LABEL + "Legend" + SAS_FONT_TAG_CLOSE
-		self.SCORETAB_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SCORE_TAB_COLUMNS")
 
 		self.TEXT_VALUE = localText.getText("TXT_KEY_DEMO_SCREEN_VALUE_TEXT", ())
 		self.TEXT_RANK = localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ())
@@ -498,7 +496,6 @@ class CvInfoScreen:
 		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
 		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
 		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE") > 0)
-		self.IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 		self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD = gc.getDefineINT("SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD")
 
 	def reset(self):
@@ -1528,23 +1525,8 @@ class CvInfoScreen:
 					szGoldenAge = self.SCORETAB_GOLDEN_AGE_CHAR
 			SASTextScale.setTableTextLabel(screen, szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
-			szLegendLinkName = self.getNextWidgetName()
-			iLegendX = iTableX + iTableW - 6
-			iLegendY = self.Y_TITLE
-			screen.setText(
-				szLegendLinkName,
-				"Background",
-				self.SCORETAB_LEGEND_LINK_TEXT,
-				CvUtil.FONT_RIGHT_JUSTIFY,
-				iLegendX,
-				iLegendY,
-				self.Z_CONTROLS,
-				FontTypes.TITLE_FONT,
-				WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
-				CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
-				self.SCORETAB_LEGEND_NEW_CONCEPT_ID
-			)
+		# <!-- custom: refactored to the shared placeAdvisorLegendLink helper in SASUtils so AdvCiv-SAS advisors share one canonical legend-link path. The helper applies the SAS_SHOW_LEGEND_LINK gate and missing-concept guard internally. (Claude code Opus 4.7) -->
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_SCORE_TAB_COLUMNS", iTableX + iTableW - 6, self.Y_TITLE)
 
 	def dbgLogPrettySummary(self):
 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:

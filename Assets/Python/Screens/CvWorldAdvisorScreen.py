@@ -42,17 +42,19 @@ class CvWorldAdvisorScreen:
 		self.ENV_Y_SPACING = 30
 		self.ENV_TEXT_MARGIN = 15
 		self.BFC_TABLE_GAP = 18
-		self.BFC_CITY_COL_WIDTH = 190
+		self.BFC_CITY_COL_WIDTH = 180
 		self.BFC_ZOOM_COL_WIDTH = 28
 		self.BFC_ICON_SIZE = 24
 
 		self.PAGE_NAME_LIST = [
 			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
 			"TXT_KEY_WORLD_ADVISOR_BFC_TAB",
+			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
 			]
 		self.PAGE_LINK_WIDTH = []
 		self.iEnvironmentID = 0
 		self.iBFCID = 1
+		self.iBFC2ID = 2
 		self.iActiveTab = self.iEnvironmentID
 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
 
@@ -219,6 +221,8 @@ class CvWorldAdvisorScreen:
 			self.drawEnvironmentTab()
 		elif self.iActiveTab == self.iBFCID:
 			self.drawBFCTab()
+		elif self.iActiveTab == self.iBFC2ID:
+			self.drawBFC2Tab()
 
 	# ENVIRONMENT
 	def drawEnvironmentTab(self):
@@ -366,6 +370,12 @@ class CvWorldAdvisorScreen:
 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
+	# <!-- custom: BFC tab design notes — icons in column headers (yellow header background gives the strongest contrast / readability for icon recognition).
+	# We tried two alternatives and rejected both:
+	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
+	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
+	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant.
+	# Resolution: keep icons-in-headers (readable, sortable) and add a Legend link in BFC 2 that jumps to the Sevopedia Bonus index, where every icon is listed with its name and description. (Claude code Opus 4.7) -->
 	# BFC
 	def drawBFCTab(self):
 		aiFortColumns = self.getBFCFortImprovementTypes()
@@ -555,6 +565,86 @@ class CvWorldAdvisorScreen:
 			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[9][iFort])
 			iCol += 1
 
+	# <!-- custom: BFC 2 tab — bonuses (top) and improvements (bottom), icon-headered like BFC's terrain table; shows every type exhaustively, matching the BFC tab's all-terrains/features/routes layout. Bonuses are filtered to placeable types (PlacementOrder >= 0); abstract bonuses can't appear in any BFC. See drawBFCTab above for the full design rationale (why icons live in the header, why hover-on-header was abandoned). (Claude code Opus 4.7) -->
+	def drawBFC2Tab(self):
+		aiBonusColumns = []
+		for iBonus in range(gc.getNumBonusInfos()):
+			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
+				aiBonusColumns.append(iBonus)
+		aszRows, aaiBonusCounts, aaiImprovementCounts = self.collectBFC2Data()
+		self.drawBFC2IconTable(aszRows, aaiBonusCounts, aiBonusColumns, gc.getBonusInfo, gc.getNumBonusInfos(), self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
+		self.drawBFC2IconTable(aszRows, aaiImprovementCounts, range(gc.getNumImprovementInfos()), gc.getImprovementInfo, gc.getNumImprovementInfos(), self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
+		self.drawBFC2LegendLink()
+
+	# <!-- custom: Legend link top-right of the BFC 2 content area; uses the shared placeAdvisorLegendLink helper (same pattern as Score tab in CvInfoScreen). The link jumps to the CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND Sevopedia/NewConcept page. (Claude code Opus 4.7) -->
+	def drawBFC2LegendLink(self):
+		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
+		iY = self.Y_TITLE
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND", iX, iY)
+
+	def collectBFC2Data(self):
+		player = gc.getPlayer(self.iActivePlayer)
+		bDebug = CyGame().isDebugMode()
+		aszRows = []
+		aaiBonusCounts = []
+		aaiImprovementCounts = []
+		(pCity, iter) = player.firstCity(False)
+		while pCity and not pCity.isNone():
+			aiBonusCounts = [0] * gc.getNumBonusInfos()
+			aiImprovementCounts = [0] * gc.getNumImprovementInfos()
+			for iPlot in range(gc.getNUM_CITY_PLOTS()):
+				pPlot = pCity.getCityIndexPlot(iPlot)
+				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
+					iBonus = pPlot.getBonusType(self.iActiveTeam)
+					if iBonus >= 0:
+						aiBonusCounts[iBonus] += 1
+					iImprovement = pPlot.getImprovementType()
+					if iImprovement >= 0:
+						aiImprovementCounts[iImprovement] += 1
+			aszRows.append([pCity.getName(), pCity.getOwner(), pCity.getID()])
+			aaiBonusCounts.append(aiBonusCounts)
+			aaiImprovementCounts.append(aiImprovementCounts)
+			(pCity, iter) = player.nextCity(iter, False)
+		return aszRows, aaiBonusCounts, aaiImprovementCounts
+
+	def drawBFC2IconTable(self, aszRows, aaiCounts, aiColumns, fnGetInfo, iNumTypes, iY, iH):
+		screen = self.getScreen()
+		szTable = self.getNextWidgetName()
+		iNumDataCols = len(aiColumns)
+		iNumCols = 2 + iNumDataCols
+		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, iY, self.BFC_W_TABLE, iH, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+		iDataW = 0
+		if iNumDataCols > 0:
+			iDataW = (self.BFC_W_TABLE - self.BFC_ZOOM_COL_WIDTH - self.BFC_CITY_COL_WIDTH) / iNumDataCols
+		screen.setTableColumnHeader(szTable, 0, "", self.BFC_ZOOM_COL_WIDTH)
+		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_CITY + SAS_FONT_TAG_CLOSE, self.BFC_CITY_COL_WIDTH)
+		for iCol in range(iNumDataCols):
+			screen.setTableColumnHeader(szTable, iCol + 2, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (fnGetInfo(aiColumns[iCol]).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+
+		for iRow in range(len(aszRows)):
+			self.appendBFC2Row(screen, szTable, iRow, aszRows[iRow], aaiCounts[iRow], aiColumns)
+		if len(aszRows) > 0:
+			aiTotals = [0] * iNumTypes
+			for aiRow in aaiCounts:
+				for iType in aiColumns:
+					aiTotals[iType] += aiRow[iType]
+			self.appendBFC2Row(screen, szTable, len(aszRows), [self.TEXT_TOTAL, -1, -1], aiTotals, aiColumns)
+
+	def appendBFC2Row(self, screen, szTable, iRow, rowData, aiCounts, aiColumns):
+		screen.appendTableRow(szTable)
+		szCityName = rowData[0]
+		iOwner = rowData[1]
+		iCityID = rowData[2]
+		if iOwner >= 0:
+			screen.setTableText(szTable, 0, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, iOwner, iCityID, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		else:
+			screen.setTableText(szTable, 0, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		for iCol in range(len(aiColumns)):
+			self.setBFCCountCell(screen, szTable, iCol + 2, iRow, aiCounts[aiColumns[iCol]])
+
 	def setBFCCountCell(self, screen, szTable, iCol, iRow, iCount):
 		if iCount == 0:
 			screen.setTableText(szTable, iCol, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
@@ -591,7 +681,7 @@ class CvWorldAdvisorScreen:
 				self.pActiveTeam = gc.getTeam(self.iActiveTeam)
 				self.redrawContents()
 				return 1
-			if self.iActiveTab == self.iBFCID and inputClass.getMouseX() == 0:
+			if (self.iActiveTab == self.iBFCID or self.iActiveTab == self.iBFC2ID) and inputClass.getMouseX() == 0:
 				self.getScreen().hideScreen()
 				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), True)
 				popupInfo = CyPopupInfo()

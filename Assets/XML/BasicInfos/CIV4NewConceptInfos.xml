@@ -24,6 +24,11 @@
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
+			<Type>CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
 			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Civilopedia>

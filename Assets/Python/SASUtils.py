@@ -4,9 +4,20 @@
 
 
 from CvPythonExtensions import *
+import CvUtil
+from SASFontUtils import SAS_FONT_TAG_LABEL, SAS_FONT_TAG_CLOSE
 
 
 gc = CyGlobalContext()
+
+
+# <!-- custom: lazy-init cache for SAS_SHOW_LEGEND_LINK GlobalDefine. Cannot be resolved at module import time because SASUtils is imported before CyGlobalContext finishes loading XML defines (eager init returns False and the legend link silently disappears). Resolved on first use via _isLegendLinkEnabled, matching the lazy-init-to-None approach used by other AdvCiv-SAS advisors. (Claude code Opus 4.7) -->
+_IS_SAS_SHOW_LEGEND_LINK = None
+def _isLegendLinkEnabled():
+	global _IS_SAS_SHOW_LEGEND_LINK
+	if _IS_SAS_SHOW_LEGEND_LINK is None:
+		_IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+	return _IS_SAS_SHOW_LEGEND_LINK
 
 
 
@@ -72,3 +83,17 @@ def getNewConceptID(szConceptType):
 		if gc.getNewConceptInfo(i).getType() == szConceptType:
 			return i
 	return -1
+
+
+# <!-- custom: shared advisor "Legend" link helper, factored from CvInfoScreen's Score-tab pattern so any AdvCiv-SAS advisor can drop a Sevopedia legend link with one call. Caller passes the screen object (must expose getScreen, getNextWidgetName, Z_CONTROLS), the NewConcept XML type, and the (X,Y) anchor in screen coords. Skips silently when the SAS_SHOW_LEGEND_LINK GlobalDefine is off or the concept is missing. setText params mirror the Score-tab call exactly: WIDGET_PEDIA_DESCRIPTION + CIVILOPEDIA_PAGE_CONCEPT_NEW + concept ID is the pedia jump that actually resolves through SevoPediaMain.pediaJump. (Claude code Opus 4.7) -->
+def placeAdvisorLegendLink(top, szConceptType, iX, iY, eJustify=None):
+	if not _isLegendLinkEnabled():
+		return
+	iConcept = getNewConceptID(szConceptType)
+	if iConcept < 0:
+		return
+	if eJustify is None:
+		eJustify = CvUtil.FONT_RIGHT_JUSTIFY
+	screen = top.getScreen()
+	szLabel = SAS_FONT_TAG_LABEL + "Legend" + SAS_FONT_TAG_CLOSE
+	screen.setText(top.getNextWidgetName(), "Background", szLabel, eJustify, iX, iY, top.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
