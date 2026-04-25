@@ -50,11 +50,13 @@ class CvWorldAdvisorScreen:
 			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
 			"TXT_KEY_WORLD_ADVISOR_BFC_TAB",
 			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
+			"TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB",
 			]
 		self.PAGE_LINK_WIDTH = []
 		self.iEnvironmentID = 0
 		self.iBFCID = 1
 		self.iBFC2ID = 2
+		self.iTerritoryID = 3
 		self.iActiveTab = self.iEnvironmentID
 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
 
@@ -163,6 +165,12 @@ class CvWorldAdvisorScreen:
 		self.TEXT_HILL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_HILL", ())
 		self.TEXT_FLAT = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_FLAT", ())
 		self.TEXT_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
+		self.TEXT_TERRITORY_PLOTS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS", ())
+		self.TEXT_TERRITORY_TERRAIN_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES", ())
+		self.TEXT_TERRITORY_BONUSES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES", ())
+		self.TEXT_TERRITORY_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
+		self.TEXT_TERRITORY_SUBURBS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR", ())
+		self.TEXT_TERRITORY_TOTAL_ABBR = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR", ())
 
 	def showScreen(self):
 		screen = self.getScreen()
@@ -223,6 +231,8 @@ class CvWorldAdvisorScreen:
 			self.drawBFCTab()
 		elif self.iActiveTab == self.iBFC2ID:
 			self.drawBFC2Tab()
+		elif self.iActiveTab == self.iTerritoryID:
+			self.drawTerritoryTab()
 
 	# ENVIRONMENT
 	def drawEnvironmentTab(self):
@@ -375,7 +385,7 @@ class CvWorldAdvisorScreen:
 	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
 	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
 	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant.
-	# Resolution: keep icons-in-headers (readable, sortable) and add a Legend link in BFC 2 that jumps to the Sevopedia Bonus index, where every icon is listed with its name and description. (Claude code Opus 4.7) -->
+	# Resolution: keep icons-in-headers (readable, sortable); pedia widgets now make the improvement meanings accessible where needed. (Claude code Opus 4.7; summarized GPT-5.5) -->
 	# BFC
 	def drawBFCTab(self):
 		aiFortColumns = self.getBFCFortImprovementTypes()
@@ -574,13 +584,6 @@ class CvWorldAdvisorScreen:
 		aszRows, aaiBonusCounts, aaiImprovementCounts = self.collectBFC2Data()
 		self.drawBFC2IconTable(aszRows, aaiBonusCounts, aiBonusColumns, gc.getBonusInfo, gc.getNumBonusInfos(), self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
 		self.drawBFC2IconTable(aszRows, aaiImprovementCounts, range(gc.getNumImprovementInfos()), gc.getImprovementInfo, gc.getNumImprovementInfos(), self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
-		self.drawBFC2LegendLink()
-
-	# <!-- custom: Legend link top-right of the BFC 2 content area; uses the shared placeAdvisorLegendLink helper (same pattern as Score tab in CvInfoScreen). The link jumps to the CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND Sevopedia/NewConcept page. (Claude code Opus 4.7) -->
-	def drawBFC2LegendLink(self):
-		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
-		iY = self.Y_TITLE
-		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND", iX, iY)
 
 	def collectBFC2Data(self):
 		player = gc.getPlayer(self.iActivePlayer)
@@ -644,6 +647,142 @@ class CvWorldAdvisorScreen:
 			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		for iCol in range(len(aiColumns)):
 			self.setBFCCountCell(screen, szTable, iCol + 2, iRow, aiCounts[aiColumns[iCol]])
+
+	# TERRITORY
+	def drawTerritoryTab(self):
+		aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows = self.collectTerritoryData()
+		iGap = 14
+		iTableW = (self.BFC_W_TABLE - 3 * iGap) / 4
+		iY = self.BFC_Y_PLOT_TABLE
+		iH = self.CONTENT_Y_BOTTOM - iY - 18
+		self.drawTerritoryCountTable(aPlotRows, self.TEXT_TERRITORY_PLOTS, self.BFC_X_TABLE, iY, iTableW, iH)
+		self.drawTerritoryCountTable(aTerrainFeatureRows, self.TEXT_TERRITORY_TERRAIN_FEATURES, self.BFC_X_TABLE + iTableW + iGap, iY, iTableW, iH)
+		self.drawTerritoryCountTable(aBonusRows, self.TEXT_TERRITORY_BONUSES, self.BFC_X_TABLE + 2 * (iTableW + iGap), iY, iTableW, iH)
+		self.drawTerritoryCountTable(aImprovementRows, self.TEXT_TERRITORY_IMPROVEMENTS, self.BFC_X_TABLE + 3 * (iTableW + iGap), iY, self.BFC_W_TABLE - 3 * (iTableW + iGap), iH)
+		self.drawTerritoryLegendLink()
+
+	# <!-- custom: Territory uses compact BFC/Sub/Tot headers to fit four side-by-side tables, so keep the column meanings
+	# in a Sevopedia legend link instead of expanding the headers. (GPT-5.5) -->
+	def drawTerritoryLegendLink(self):
+		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
+		iY = self.Y_TITLE
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND", iX, iY)
+
+	def collectTerritoryData(self):
+		aiBFCPlots = self.getTerritoryBFCPlotSet()
+		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+		aaiTerrainCounts = []
+		aaiFeatureCounts = []
+		aaiRouteCounts = []
+		aaiBonusCounts = []
+		aaiImprovementCounts = []
+		for i in range(gc.getNumTerrainInfos()):
+			aaiTerrainCounts.append([0, 0])
+		for i in range(gc.getNumFeatureInfos()):
+			aaiFeatureCounts.append([0, 0])
+		for i in range(gc.getNumRouteInfos()):
+			aaiRouteCounts.append([0, 0])
+		for i in range(gc.getNumBonusInfos()):
+			aaiBonusCounts.append([0, 0])
+		for i in range(gc.getNumImprovementInfos()):
+			aaiImprovementCounts.append([0, 0])
+
+		cyMap = CyMap()
+		bDebug = CyGame().isDebugMode()
+		for iPlot in range(cyMap.numPlots()):
+			pPlot = cyMap.plotByIndex(iPlot)
+			if pPlot and not pPlot.isNone() and pPlot.getOwner() == self.iActivePlayer and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
+				iBucket = 1
+				if iPlot in aiBFCPlots:
+					iBucket = 0
+				aiPlotCounts[0][iBucket] += 1
+				if pPlot.isWater():
+					aiPlotCounts[2][iBucket] += 1
+				else:
+					aiPlotCounts[1][iBucket] += 1
+					if pPlot.isPeak():
+						aiPlotCounts[3][iBucket] += 1
+					elif pPlot.isHills():
+						aiPlotCounts[4][iBucket] += 1
+					else:
+						aiPlotCounts[5][iBucket] += 1
+
+				iTerrain = pPlot.getTerrainType()
+				if iTerrain >= 0:
+					aaiTerrainCounts[iTerrain][iBucket] += 1
+				iFeature = pPlot.getFeatureType()
+				if iFeature >= 0:
+					aaiFeatureCounts[iFeature][iBucket] += 1
+				iRoute = pPlot.getRouteType()
+				if iRoute >= 0:
+					aaiRouteCounts[iRoute][iBucket] += 1
+				iBonus = pPlot.getBonusType(self.iActiveTeam)
+				if iBonus >= 0:
+					aaiBonusCounts[iBonus][iBucket] += 1
+				iImprovement = pPlot.getImprovementType()
+				if iImprovement >= 0:
+					aaiImprovementCounts[iImprovement][iBucket] += 1
+
+		aPlotRows = [
+			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1]],
+			[self.TEXT_LAND, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1]],
+			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[2][0], aiPlotCounts[2][1]],
+			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[3][0], aiPlotCounts[3][1]],
+			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
+			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
+			]
+		aTerrainFeatureRows = []
+		for iTerrain in range(gc.getNumTerrainInfos()):
+			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
+		for iFeature in range(gc.getNumFeatureInfos()):
+			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
+		for iRoute in range(gc.getNumRouteInfos()):
+			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_GENERAL, -1, aaiRouteCounts[iRoute])
+		aBonusRows = []
+		for iBonus in range(gc.getNumBonusInfos()):
+			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
+				self.appendTerritoryInfoRow(aBonusRows, gc.getBonusInfo(iBonus), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, aaiBonusCounts[iBonus])
+		aImprovementRows = []
+		for iImprovement in range(gc.getNumImprovementInfos()):
+			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
+		return aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows
+
+	def getTerritoryBFCPlotSet(self):
+		aiBFCPlots = {}
+		cyMap = CyMap()
+		player = gc.getPlayer(self.iActivePlayer)
+		(pCity, iter) = player.firstCity(False)
+		while pCity and not pCity.isNone():
+			for iPlot in range(gc.getNUM_CITY_PLOTS()):
+				pPlot = pCity.getCityIndexPlot(iPlot)
+				if pPlot and not pPlot.isNone():
+					aiBFCPlots[cyMap.plotNum(pPlot.getX(), pPlot.getY())] = True
+			(pCity, iter) = player.nextCity(iter, False)
+		return aiBFCPlots
+
+	def appendTerritoryInfoRow(self, aRows, info, eWidget, iData, aiCounts):
+		# <!-- custom: Keep zero-count rows in Territory so each table doubles as a stable checklist of map types known
+		# to the mod; players can still sort by BFC/Sub/Tot to put present assets first. (GPT-5.5) -->
+		aRows.append([info.getDescription(), info.getButton(), eWidget, iData, aiCounts[0], aiCounts[1]])
+
+	def drawTerritoryCountTable(self, aRows, szTitle, iX, iY, iW, iH):
+		screen = self.getScreen()
+		szTable = self.getNextWidgetName()
+		screen.addTableControlGFC(szTable, 4, iX, iY, iW, iH, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+		iCountW = 60
+		iNameW = iW - 3 * iCountW
+		screen.setTableColumnHeader(szTable, 0, SAS_FONT_TAG_LABEL + szTitle + SAS_FONT_TAG_CLOSE, iNameW)
+		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_BFC + SAS_FONT_TAG_CLOSE, iCountW)
+		screen.setTableColumnHeader(szTable, 2, SAS_FONT_TAG_LABEL + self.TEXT_TERRITORY_SUBURBS + SAS_FONT_TAG_CLOSE, iCountW)
+		screen.setTableColumnHeader(szTable, 3, SAS_FONT_TAG_LABEL + self.TEXT_TERRITORY_TOTAL_ABBR + SAS_FONT_TAG_CLOSE, iCountW)
+		for iRow in range(len(aRows)):
+			screen.appendTableRow(szTable)
+			row = aRows[iRow]
+			screen.setTableText(szTable, 0, iRow, SAS_FONT_TAG_LABEL + row[0] + SAS_FONT_TAG_CLOSE, row[1], row[2], row[3], -1, CvUtil.FONT_LEFT_JUSTIFY)
+			self.setBFCCountCell(screen, szTable, 1, iRow, row[4])
+			self.setBFCCountCell(screen, szTable, 2, iRow, row[5])
+			self.setBFCCountCell(screen, szTable, 3, iRow, row[4] + row[5])
 
 	def setBFCCountCell(self, screen, szTable, iCol, iRow, iCount):
 		if iCount == 0:

@@ -133,12 +133,12 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Tag>
-		<English>World Advisor BFC 2 Legend</English>
+		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Tag>
+		<English>World Advisor Territory Legend</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND_PEDIA</Tag>
-		<English>[H1]World Advisor BFC 2 Legend[\H1][PARAGRAPH:2]The first four columns of the Improvements table are engine-only markers that aren't built by Workers. They are listed here because they can appear on plots inside a city's BFC and the icons aren't always self-evident.[NEWLINE][NEWLINE][ICON_BULLET]Land Worked: internal marker that a city is currently working this land plot. Not a real improvement; it disappears when the plot stops being worked.[NEWLINE][ICON_BULLET]Water Worked: same as above, but for water plots worked by a coastal city.[NEWLINE][ICON_BULLET]City Ruins: leftover marker on a tile where a city was destroyed; blocks resettlement of the exact same tile for a while and slowly decays.[NEWLINE][ICON_BULLET]Goody Hut: tribal village placed at game start. Entering one with a non-barbarian unit triggers a goody (gold, map, tech, scout, warrior, etc.) and removes the hut.[NEWLINE][NEWLINE]All other columns in the Bonuses and Improvements tables are standard map resources and Worker-built improvements; their meanings are visible from their pedia entries via right-click on the icons.</English>
+		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND_PEDIA</Tag>
+		<English>[H1]World Advisor Territory Legend[\H1][PARAGRAPH:2]The Territory tab counts plots and map assets owned by the selected player. It separates plots inside city big fat crosses from the rest of the player's owned land so empire-wide resources can be read without losing city-workable context.[NEWLINE][NEWLINE][ICON_BULLET]BFC: owned plots that are inside at least one selected-player city's big fat cross.[NEWLINE][ICON_BULLET]Sub: suburbs; owned plots outside all selected-player city big fat crosses. These plots are controlled territory, but no selected-player city can work them directly unless a city is founded, captured or culturally expanded differently later.[NEWLINE][ICON_BULLET]Tot: total owned plots or assets, equal to BFC plus Sub.[NEWLINE][NEWLINE]The World Advisor respects normal map knowledge: hidden or unexplored plots and bonuses stay hidden unless debug mode is active. More entries can therefore appear as territory and city BFCs become fully explored, or when debug mode lets you inspect another player.[NEWLINE][NEWLINE]Hover over a row icon for the usual tooltip, or click it to open the corresponding Sevopedia entry when one exists.</English>
 	</TEXT>
 
 

@@ -3741,6 +3741,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>BFC 2</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB</Tag>
+		<English>Territory</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CITY</Tag>
 		<English>City</English>
 	</TEXT>
@@ -3775,6 +3779,26 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_FLAT</Tag>
 		<English>Flat</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS</Tag>
+		<English>Plots</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES</Tag>
+		<English>Map</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES</Tag>
+		<English>Bonuses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR</Tag>
+		<English>Sub</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR</Tag>
+		<English>Tot</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_INFO_SCREEN</Tag>

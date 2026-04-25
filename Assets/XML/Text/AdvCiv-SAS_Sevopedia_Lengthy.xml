@@ -1009,6 +1009,17 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Add Civilopedia text for the graphical-only worked-plot markers now that Sevopedia exposes them.
+	Water Worked keeps the inherited BTS/AdvCiv bWater value of 0, so this documents the land preview
+	quirk without changing gameplay or map-art behavior. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_IMPROVEMENT_LAND_WORKED_PEDIA</Tag>
+		<English>[TAB]Land Worked is a graphical-only marker used by the plot art system to show that a land plot is being worked by a city. It is not a buildable Worker improvement and does not itself add yields; the plot's normal terrain, feature, bonus, route, improvement and city-working rules determine what the city receives.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_IMPROVEMENT_WATER_WORKED_PEDIA</Tag>
+		<English>[TAB]Water Worked is a graphical-only marker used by the plot art system to show that a water plot is being worked by a city. It is not a buildable Worker improvement and does not itself add yields; the plot's normal water terrain, bonus, route, improvement and city-working rules determine what the city receives.[NEWLINE][NEWLINE]Its Sevopedia preview can appear on land because this inherited Civilization IV / AdvCiv XML entry has a bWater value of 0. That setting existed before AdvCiv-SAS exposed the entry in Sevopedia, so this page documents the preview quirk rather than changing the underlying XML behavior.</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_IMPROVEMENT_CITY_RUINS_PEDIA</Tag>
 		<English>[TAB]Ruins are the remains of human-made architecture: structures that were once complete, as time went by, have fallen into a state of partial or complete disrepair, due to lack of maintenance or deliberate acts of destruction. Disasters, war and depopulation are the most common root causes, with many structures becoming progressively derelict over time due to long-term weathering and scavenging.</English>

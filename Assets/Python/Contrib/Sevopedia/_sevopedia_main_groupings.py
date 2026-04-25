@@ -134,6 +134,21 @@ def SAS_isBonusCapableImprovement(iImprovement):
 
 	return False
 
+def SAS_isBuildCreatedImprovement(iImprovement):
+	for iBuild in xrange(gc.getNumBuildInfos()):
+		buildInfo = gc.getBuildInfo(iBuild)
+		if buildInfo and buildInfo.getImprovement() == iImprovement:
+			return True
+	return False
+
+def SAS_isSpecialMapImprovement(iImprovement):
+	info = gc.getImprovementInfo(iImprovement)
+	if not info or info.isGraphicalOnly():
+		return False
+	if SAS_isBuildCreatedImprovement(iImprovement):
+		return False
+	return info.getPillageGold() <= 0 and not info.isRequiresFeature() and not info.isOutsideBorders()
+
 # Helper: get ALL improvements that make a bonus tradable (i.e. "improve/connect" it).
 # This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping.
 # Unlike a "primary improvement" heuristic, we keep multi-improvement cases exhaustive by using
@@ -362,6 +377,8 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
 	landGrowth = []
 	landBonusCapable = []
 	landOther = []
+	graphicalOnly = []
+	specialMap = []
 	waterFood = []
 	waterOther = []
 
@@ -392,6 +409,19 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
 
 	for (szName, iImprovement) in baseList:
 		info = gc.getImprovementInfo(iImprovement)
+		# <!-- custom: Expose graphical-only improvements such as worked-land/water markers in Sevopedia, mirroring how
+		# Sevopedia Terrain shows graphical-only Peak/Hill because they provide useful map and rules context. Keep these
+		# separate from gameplay improvements because helper predicates intentionally ignore graphical-only infos. (GPT-5.5) -->
+		if info and info.isGraphicalOnly():
+			graphicalOnly.append((szName, iImprovement))
+			continue
+		# <!-- custom: Show special map improvements separately from Worker improvements. These are not graphical-only
+		# infos; they are map/engine-placed improvements with no creating Build, so they fail AdvCiv's old filter for
+		# Worker improvements with pillage/features/outside-border rules. World Advisor Territory and BFC 2 can expose
+		# them on real plots, so Sevopedia should document them too. (GPT-5.5) -->
+		if SAS_isSpecialMapImprovement(iImprovement):
+			specialMap.append((szName, iImprovement))
+			continue
 
 		if info and info.isWater():
 			# Check if water improvement provides food yields from any bonus
@@ -478,6 +508,22 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
 
 
 	# Emit headers + items in alphabetical order by header name
+	if graphicalOnly:
+		r.append(("GraphicalOnly", -1))
+		for x in graphicalOnly:
+			r.append(x)
+
+	if graphicalOnly and (specialMap or landBonusCapable or landGrowth or landOther or waterFood or waterOther):
+		r.append(("", -1))
+
+	if specialMap:
+		r.append(("Special Map", -1))
+		for x in specialMap:
+			r.append(x)
+
+	if specialMap and (landBonusCapable or landGrowth or landOther or waterFood or waterOther):
+		r.append(("", -1))
+
 	if landBonusCapable:
 		r.append(("Land (Bonus-capable)", -1))
 		for x in landBonusCapable:

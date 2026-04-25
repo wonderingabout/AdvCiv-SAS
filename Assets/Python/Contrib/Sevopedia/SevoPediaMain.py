@@ -1271,13 +1271,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getImprovementList(self):
 		if self.SAS_cacheImprovementsTuple is None:
-			imprList = self.getSortedList(gc.getNumImprovementInfos(), gc.getImprovementInfo)
+			# <!-- custom: Use the unfiltered list so graphical-only improvements can be considered below; Territory/BFC
+			# tables now expose those markers on real plots, and grouping code keeps them separate from Worker improvements. (GPT-5.5) -->
+			imprList = self.getUnfilteredSortedList(gc.getNumImprovementInfos(), gc.getImprovementInfo)
 			# <advc.004y>
 			baseList = []
 			for descr, i in imprList:
 				info = gc.getImprovementInfo(i)
 				# The alt. conditions are for Forest Preserve and Fort
-				if info.getPillageGold() > 0 or info.isRequiresFeature() or info.isOutsideBorders():
+				# <!-- custom: Include special map improvements alongside the newly unfiltered graphical-only entries. (GPT-5.5) -->
+				if info.isGraphicalOnly() or SAS_MainGroupings.SAS_isSpecialMapImprovement(i) or info.getPillageGold() > 0 or info.isRequiresFeature() or info.isOutsideBorders():
 					baseList.append((descr, i))
 			# </advc.004y>
 
