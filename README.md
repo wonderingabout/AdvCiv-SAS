@@ -430,7 +430,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_units_chart (1).JPG" alt="0.630_sevopedia_units_chart (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_unit_chart (1).JPG" alt="0.630_sevopedia_unit_chart (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG" alt="0.700_sevopedia_terrains (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG" alt="0.640_sevopedia_features (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG" alt="0.720_sevopedia_improvements (1).JPG" width="250"></img>

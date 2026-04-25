@@ -41,7 +41,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 4: bonuses category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category)  
 &emsp;[example 5: religion category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-5-religion-category)  
 &emsp;[example 6: civilization category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-6-civilization-category)  
-&emsp;[example 7: unit list category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category)  
+&emsp;[example 7: units category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category)  
 &emsp;[example 8: buildings category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category)  
 &emsp;[example 9: terrains category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category)  
 &emsp;[example 10: specialists category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-specialists-category)  
@@ -379,8 +379,8 @@ Also added an Untradeable panel with an emoji to visually clearly and quickly in
 
 (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
 
-<img src="../Images/sevopedia/0.630_sevopedia_units_chart (1).JPG" alt="0.630_sevopedia_units_chart (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.630_sevopedia_units_chart (2).JPG" alt="0.630_sevopedia_units_chart (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.630_sevopedia_unit_chart (1).JPG" alt="0.630_sevopedia_unit_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/0.630_sevopedia_unit_chart (2).JPG" alt="0.630_sevopedia_unit_chart (2).JPG" width="250"></img>
 
 ### example 3: features category
 
@@ -432,9 +432,7 @@ Done with the help of GPT-5.2-Codex thanks a lot!
 
 ### example 4: bonuses category
 
-Mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or other pages or not, may tweak it further or not as i see fit, anyways
-
-After having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-buildings-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech). Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements; although code is maybe a bit shaky and not too optimal, it does seem to work well for a small number of improvements (didn't test for more how it would display).
+A more extensive rewrite/refactor was done based on [example 7: units category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category) and [example-8-buildings-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) for details), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech). Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements; although code is maybe a bit shaky and not too optimal, it does seem to work well for a small number of improvements (didn't test for more how it would display).
 
 More recently, also added with chatgpt's help thanks the terrainbooleans, featurebooleans, and featureterrainbooleans info, see Sevopedia feature screenshots or ingame for what these mean in their respective panel headers (for example featureterrainbooleans is as of now "Terrains only if with this bonus's features" or something similar to this abbreviated if needed for example or if updated since then and not shown in screenshot sample or also updated as well) section information or Main Changes Guide or code comments.
 
@@ -468,9 +466,9 @@ More recently, added optional grouping by Artstyle (e.g. European, Asian) with t
 <img src="../Images/sevopedia/0.670_sevopedia_civilizations (2).JPG" alt="0.670_sevopedia_civilizations (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.670_sevopedia_civilizations (3).JPG" alt="0.670_sevopedia_civilizations (3).JPG" width="250"></img>
 
-### example 7: unit list category
+### example 7: units category
 
-Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
+Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should adjust to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
 
 Finally and most importantly, new placeReplace (Replaced By / Replaces) addition from (for the replaced by part and idea) RFC DOC, as well as new placeCivilizations (renamed from the original name Claude AI gave to it placeExclusiveCivs) with the help of Claude AI thanks and small adjustments of already working code (tweaked coordinates) and adjusted.
 

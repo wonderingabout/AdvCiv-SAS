@@ -332,7 +332,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 ## 5 - (seemingly worked around now) player name same as windows (10's for example) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled
 
-A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeCivilizations new Sevopedia feature (see the [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
+A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeCivilizations new Sevopedia feature (see the [README_Sevopedia_Reworks.md (example 7: units category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category) for details)
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/19T9I75vGCk58pFSR60y2Tmj69-NoFFtk?usp=sharing)
 

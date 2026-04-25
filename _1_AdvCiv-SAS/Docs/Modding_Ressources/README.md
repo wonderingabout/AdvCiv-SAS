@@ -888,7 +888,7 @@ And finally implement it (the .dds) in XML, looks very very good, at least for m
 
 ## .dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in Sevopedia unit's unit pane('s icon frame)
 
-Trying to implement the new AI-generated images of ChatGPT (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after the [sevopedia unit rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-unit-list-category) i first tried to assess the size at which they display optimally.
+Trying to implement the new AI-generated images of ChatGPT (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after the [sevopedia units rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-7-units-category) i first tried to assess the size at which they display optimally.
 
 Lower size may result in smaller file size, perhaps even performance increase (but not sure i don't know), but may reduce image quality if too low.
 

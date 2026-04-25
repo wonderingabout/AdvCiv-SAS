@@ -645,8 +645,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Techs</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT</Tag>
-		<English>Un. List</English>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNITS</Tag>
+		<English>Units</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
@@ -664,10 +664,9 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION</Tag>
 		<English>Pr. List</English>
 	</TEXT>
-    <!-- custom: use civ4 dev language unless we have a reason not, harmonizes terminlogy hopefully while being clearer for players. -->
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
-		<English>Combat</English>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_CHART</Tag>
+		<English>Un. Chart</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILD</Tag>
