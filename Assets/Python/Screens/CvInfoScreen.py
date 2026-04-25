@@ -1326,9 +1326,10 @@ class CvInfoScreen:
 			screen.appendTableRow(szTable)
 			iRow = screen.getTableNumRows(szTable) - 1
 
-			# Leader/Civ icons: click opens diplomacy/contact context.
-			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Score tab is a reference matrix, so leader/civ identity cells open Sevopedia
+			# instead of diplomacy; contact actions are already covered by the scoreboard and Foreign Advisor. (GPT-5.5) -->
+			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 			szColor = self.SCORETAB_COLOR_MARKER
 			ePlayerColor = pPlayer.getPlayerColor()
 			if ePlayerColor > -1:
@@ -1341,7 +1342,7 @@ class CvInfoScreen:
 			szName = pPlayer.getName()
 			if not bMet:
 				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
-			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
 			# <!-- custom: Score tab trait columns (T1/T2): trait icon chars for compact readability next to leader identity data. (GPT-5.3-Codex) -->
 			iTrait1 = -1
 			iTrait2 = -1

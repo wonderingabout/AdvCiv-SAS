@@ -17,6 +17,7 @@ import CvReplayScreen
 import CvScreensInterface
 from SASFontUtils import *
 import SASTextScale
+import TraitUtil
 import re
 
 # globals
@@ -72,6 +73,8 @@ class CvHallOfFameScreen:
 		self.TABLE_W = 1018
 		self.TABLE_H = 545
 		self.TOP_BOTTOM_PANEL_H = 55
+		self.HOF_ICON_SIZE = 24
+		self.HOF_COLOR_MARKER = u"|||||"
 								
 		self.nWidgetCount = 0
 		self.infoList = [] # K-Mod
@@ -141,6 +144,9 @@ class CvHallOfFameScreen:
 		self.iSortBy = SORT_BY_NORMALIZED_SCORE
 
 		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		# <!-- custom: initialize TraitUtil here because doing it in __init__ broke Civ startup;
+		# by the time Hall of Fame opens, the game/font symbols are ready and trait icons render correctly. (GPT-5.5) -->
+		TraitUtil.init()
 
 		self.hallOfFame = CyHallOfFameInfo()
 		self.hallOfFame.loadReplays()
@@ -270,6 +276,43 @@ class CvHallOfFameScreen:
 			and (self.iVictoryFilter == -1 or self.iVictoryFilter == replayInfo.getVictoryType()) 
 			and ((self.iMultiplayerFilter == 1) == replayInfo.isMultiplayer()))
 
+	def getReplayCivType(self, replayInfo):
+		# <!-- custom: Hall of Fame identity columns mirror the Info Screen Score tab:
+		# leader icon, civ icon, player color marker, leader/civ name, then trait icons.
+		# CyReplayInfo stores leader id and player color directly, so those survive custom
+		# leader names. It does not store civilization id, only civ name strings; match them
+		# back to XML for the civ icon, and let custom civ names return -1 for no unreliable icon. (GPT-5.5) -->
+		szShort = replayInfo.getShortCivDescription()
+		szFull = replayInfo.getCivDescription()
+		szAdjective = replayInfo.getCivAdjective()
+		for iCiv in range(gc.getNumCivilizationInfos()):
+			civInfo = gc.getCivilizationInfo(iCiv)
+			if (szShort == civInfo.getShortDescription(0) or
+				szFull == civInfo.getDescription() or
+				szAdjective == civInfo.getAdjective(0)):
+				return iCiv
+		return -1
+
+	def getReplayColorMarker(self, replayInfo):
+		iColor = replayInfo.getColor(replayInfo.getActivePlayer())
+		if iColor >= 0:
+			return localText.changeTextColor(self.HOF_COLOR_MARKER, iColor)
+		return self.HOF_COLOR_MARKER
+
+	def getLeaderTraitIcons(self, iLeader):
+		szTrait1 = u""
+		szTrait2 = u""
+		if iLeader >= 0 and iLeader < gc.getNumLeaderHeadInfos():
+			leaderInfo = gc.getLeaderHeadInfo(iLeader)
+			for iTrait in range(gc.getNumTraitInfos()):
+				if leaderInfo.hasTrait(iTrait):
+					if szTrait1 == u"":
+						szTrait1 = TraitUtil.getIcon(iTrait)
+					elif szTrait2 == u"":
+						szTrait2 = TraitUtil.getIcon(iTrait)
+						break
+		return szTrait1, szTrait2
+
 
 	def drawContents(self):
 				
@@ -282,7 +325,7 @@ class CvHallOfFameScreen:
 		screen.deleteWidget(self.TABLE_ID)
 		# K-Mod end
 		
-		screen.addTableControlGFC(self.TABLE_ID, 10, self.TABLE_X, self.TABLE_Y, self.TABLE_W, self.TABLE_H, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(self.TABLE_ID, 15, self.TABLE_X, self.TABLE_Y, self.TABLE_W, self.TABLE_H, True, True, self.HOF_ICON_SIZE, self.HOF_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(self.TABLE_ID, False)
 		screen.enableSort(self.TABLE_ID)
 		# <advc.106i> Don't show replay button column when game has just ended;
@@ -290,6 +333,9 @@ class CvHallOfFameScreen:
 		bAllowReplay = (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_OVER)
 		iColumn = 0 # Replacing hardcoded column numbers
 		iReplayButtonColumnW = 20
+		iIconColumnW = 34
+		iColorColumnW = 45
+		iTraitColumnW = 44
 		# <!-- custom: with fullscreen Hall of Fame we have more lateral room, so expand narrow columns when needed (e.g., Finished/Speed) and let Leader absorb the remaining width. (GPT-5.3-Codex) -->
 		iNormalizedScoreW = 140
 		iDateW = 115
@@ -301,7 +347,7 @@ class CvHallOfFameScreen:
 		iSpeedW = 250
 		iNonLeaderTotalW = (iNormalizedScoreW + iDateW + iGameScoreW + iVictoryW +
 				iDifficultyW + iWorldSizeW + iEraW + iSpeedW)
-		iLeaderColumnW = self.TABLE_W - iNonLeaderTotalW - 12
+		iLeaderColumnW = self.TABLE_W - iNonLeaderTotalW - (2 * iIconColumnW) - iColorColumnW - (2 * iTraitColumnW) - 12
 		if bAllowReplay:
 			iLeaderColumnW -= iReplayButtonColumnW
 		if iLeaderColumnW < 202:
@@ -309,7 +355,17 @@ class CvHallOfFameScreen:
 		if bAllowReplay:
 			SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iReplayButtonColumnW)
 			iColumn += 1 # </advc.106i>
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iIconColumnW)
+		iColumn += 1
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iIconColumnW)
+		iColumn += 1
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, u"Col", iColorColumnW)
+		iColumn += 1
 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_LEADER", ()), iLeaderColumnW)
+		iColumn += 1
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, u"T1", iTraitColumnW)
+		iColumn += 1
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, u"T2", iTraitColumnW)
 		iColumn += 1
 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_NORMALIZED_SCORE", ()), iNormalizedScoreW)
 		iColumn += 1
@@ -335,7 +391,7 @@ class CvHallOfFameScreen:
 			if self.isDisplayed(replayInfo):
 				iNumGames += 1
 
-		self.infoList = [(-1,"",-1,"",-1,"","","","","",0)] * iNumGames
+		self.infoList = [(-1,"",-1,"",-1,"","","","","",0,-1,-1,"","","")] * iNumGames
 		iItem = 0
 		for i in range(self.hallOfFame.getNumGames()):
 			replayInfo = self.hallOfFame.getReplayInfo(i)
@@ -388,6 +444,10 @@ class CvHallOfFameScreen:
 				# </advc.106i>
 				szFinalDate = CyGameTextMgr().getDateStr(replayInfo.getFinalTurn(), false,
 						replayInfo.getCalendar(), replayInfo.getStartYear(), replayInfo.getGameSpeed())
+				iReplayLeader = replayInfo.getLeader(replayInfo.getActivePlayer())
+				iReplayCiv = self.getReplayCivType(replayInfo)
+				szReplayColor = self.getReplayColorMarker(replayInfo)
+				szTrait1, szTrait2 = self.getLeaderTraitIcons(iReplayLeader)
 				self.infoList[iItem] = (iValue,
 						localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (replayInfo.getLeaderName(), replayInfo.getShortCivDescription())),
 						replayInfo.getNormalizedScore(),
@@ -402,7 +462,12 @@ class CvHallOfFameScreen:
 # gc.getSeaLevelInfo(replayInfo.getSeaLevel()).getDescription(),
 						szStartEra,
 						szSpeed, # </advc.106i>
-						i)
+						i,
+						iReplayLeader,
+						iReplayCiv,
+						szReplayColor,
+						szTrait1,
+						szTrait2)
 				iItem += 1
 		self.infoList.sort()
 
@@ -424,7 +489,21 @@ class CvHallOfFameScreen:
 				screen.attachControlToTableCell(szButtonName, self.TABLE_ID, i, iColumn)
 				iColumn += 1
 			# </advc.106i>
+			iReplayLeader = self.infoList[i][11]
+			if iReplayLeader >= 0 and iReplayLeader < gc.getNumLeaderHeadInfos():
+				SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, "", gc.getLeaderHeadInfo(iReplayLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iReplayLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
+			iColumn += 1
+			iReplayCiv = self.infoList[i][12]
+			if iReplayCiv >= 0 and iReplayCiv < gc.getNumCivilizationInfos():
+				SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, "", gc.getCivilizationInfo(iReplayCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iReplayCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			iColumn += 1
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][13], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			iColumn += 1
 			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][1], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			iColumn += 1
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][14], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			iColumn += 1
+			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][15], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			iColumn += 1
 			if self.infoList[i][2] >= 0:
 				SASTextScale.setTableIntLabel(screen, self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][2], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
