@@ -246,7 +246,8 @@ def showInfoScreen(argsList):
 
 # <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
 worldAdvisorScreen = CvWorldAdvisorScreen.CvWorldAdvisorScreen(WORLD_ADVISOR)
-def showWorldAdvisorScreen():
+# <!-- custom: argsList=None because the engine invokes this both bare (keyboard hotkey) and with an argsList (e.g. on screen close/reopen); without the default, the latter raises "takes no arguments (1 given)". (Claude code Opus 4.7) -->
+def showWorldAdvisorScreen(argsList=None):
 	if (-1 != CyGame().getActivePlayer()):
 		worldAdvisorScreen.showScreen()
 

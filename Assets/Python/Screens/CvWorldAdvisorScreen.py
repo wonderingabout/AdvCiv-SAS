@@ -41,12 +41,18 @@ class CvWorldAdvisorScreen:
 		self.ENV_TOP_PANEL_HEIGHT = 100
 		self.ENV_Y_SPACING = 30
 		self.ENV_TEXT_MARGIN = 15
+		self.BFC_TABLE_GAP = 18
+		self.BFC_CITY_COL_WIDTH = 190
+		self.BFC_ZOOM_COL_WIDTH = 28
+		self.BFC_ICON_SIZE = 24
 
 		self.PAGE_NAME_LIST = [
 			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
+			"TXT_KEY_WORLD_ADVISOR_BFC_TAB",
 			]
 		self.PAGE_LINK_WIDTH = []
 		self.iEnvironmentID = 0
+		self.iBFCID = 1
 		self.iActiveTab = self.iEnvironmentID
 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
 
@@ -85,6 +91,13 @@ class CvWorldAdvisorScreen:
 		self.ENV_Y_LOCATION = self.ENV_Y_TOP_PANEL + self.ENV_H_TOP_PANEL + self.ENV_INNER_MARGIN
 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
 
+		self.BFC_X_TABLE = self.X_MARGIN
+		self.BFC_W_TABLE = self.W_SCREEN - 2 * self.X_MARGIN
+		self.BFC_Y_PLOT_TABLE = self.CONTENT_Y_TOP + 18
+		self.BFC_H_PLOT_TABLE = (self.CONTENT_Y_BOTTOM - self.BFC_Y_PLOT_TABLE - self.BFC_TABLE_GAP - 18) / 2
+		self.BFC_Y_TERRAIN_TABLE = self.BFC_Y_PLOT_TABLE + self.BFC_H_PLOT_TABLE + self.BFC_TABLE_GAP
+		self.BFC_H_TERRAIN_TABLE = self.CONTENT_Y_BOTTOM - self.BFC_Y_TERRAIN_TABLE - 18
+
 	def initText(self):
 		if not CyGame().isFinalInitialized():
 			return
@@ -92,9 +105,13 @@ class CvWorldAdvisorScreen:
 		aszPageLabels = []
 		for szPageName in self.PAGE_NAME_LIST:
 			aszPageLabels.append(localText.getText(szPageName, ()).upper())
-		self.PAGE_LINK_WIDTH[:] = []
-		for szPageLabel in aszPageLabels:
-			self.PAGE_LINK_WIDTH.append(CyInterface().determineWidth(szPageLabel) + 30)
+		szExitLabel = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
+		if len(aszPageLabels) > 1:
+			self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), aszPageLabels, szExitLabel, self.X_EXIT)
+		else:
+			self.PAGE_LINK_WIDTH[:] = []
+			for szPageLabel in aszPageLabels:
+				self.PAGE_LINK_WIDTH.append(CyInterface().determineWidth(szPageLabel) + 30)
 
 		if self.iLanguageLoaded == CyGame().getCurrentLanguage():
 			return
@@ -104,6 +121,9 @@ class CvWorldAdvisorScreen:
 		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
 		self.ART_POPUPS_BACKGROUND_TRANSPARENT = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
+		self.ART_CITY_SELECTION_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.BUTTON_TERRAIN_PEAK = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_PEAK")).getButton()
+		self.BUTTON_TERRAIN_HILL = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_HILL")).getButton()
 
 		self.TEXT_GW_SEVERITY_RATING = localText.getText("TXT_KEY_GW_SEVERITY_RATING", ()).upper()
 		self.TEXT_ENV_POLLUTION = localText.getText("TXT_KEY_POLLUTION", ())
@@ -131,6 +151,16 @@ class CvWorldAdvisorScreen:
 		self.LABEL_ENV_DOMESTIC = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_DOMESTIC", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.LABEL_ENV_GLOBAL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.LABEL_ENV_EFFECTS = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_CITY = localText.getText("TXT_KEY_WORLD_ADVISOR_CITY", ())
+		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_POP", ())
+		self.TEXT_YEAR = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_YEAR", ())
+		self.TEXT_BFC = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_SHORT", ())
+		self.TEXT_LAND = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAND", ())
+		self.TEXT_WATER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_WATER", ())
+		self.TEXT_PEAK = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_PEAK", ())
+		self.TEXT_HILL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_HILL", ())
+		self.TEXT_FLAT = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_FLAT", ())
+		self.TEXT_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
 
 	def showScreen(self):
 		screen = self.getScreen()
@@ -166,7 +196,8 @@ class CvWorldAdvisorScreen:
 					screen.addPullDownString(self.DEBUG_DROPDOWN_ID, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == self.iActivePlayer)
 
 		self.iNumPermanentWidgets = self.nWidgetCount
-		self.iActiveTab = self.iEnvironmentID
+		if self.iActiveTab < 0 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
+			self.iActiveTab = self.iEnvironmentID
 		self.redrawContents()
 
 	def redrawContents(self):
@@ -186,6 +217,8 @@ class CvWorldAdvisorScreen:
 
 		if self.iActiveTab == self.iEnvironmentID:
 			self.drawEnvironmentTab()
+		elif self.iActiveTab == self.iBFCID:
+			self.drawBFCTab()
 
 	# ENVIRONMENT
 	def drawEnvironmentTab(self):
@@ -332,6 +365,202 @@ class CvWorldAdvisorScreen:
 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_CHANCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
+	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
+	# BFC
+	def drawBFCTab(self):
+		aiFortColumns = self.getBFCFortImprovementTypes()
+		aszTableRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals = self.collectBFCData(aiFortColumns)
+		aiTerrainColumns = range(gc.getNumTerrainInfos())
+		aiFeatureColumns = range(gc.getNumFeatureInfos())
+		aiRouteColumns = range(gc.getNumRouteInfos())
+
+		self.drawBFCPlotTable(aszTableRows, aiPlotTotals)
+		self.drawBFCTerrainFeatureTable(aszTableRows, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals, aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns)
+
+	def getBFCFortImprovementTypes(self):
+		aiFortColumns = []
+		for iImprovement in range(gc.getNumImprovementInfos()):
+			if "FORT" in gc.getImprovementInfo(iImprovement).getType():
+				aiFortColumns.append(iImprovement)
+		return aiFortColumns
+
+	def collectBFCData(self, aiFortColumns):
+		player = gc.getPlayer(self.iActivePlayer)
+		bDebug = CyGame().isDebugMode()
+		aszRows = []
+		aiPlotTotals = [0, 0, 0, 0, 0, 0]
+		aaiTerrainTotals = []
+		aaiFeatureTotals = []
+		aaiRouteTotals = []
+		aaiFortTotals = []
+
+		(pCity, iter) = player.firstCity(False)
+		while pCity and not pCity.isNone():
+			aiPlotCounts = [0, 0, 0, 0, 0, 0]
+			aiTerrainCounts = [0] * gc.getNumTerrainInfos()
+			aiFeatureCounts = [0] * gc.getNumFeatureInfos()
+			aiRouteCounts = [0] * gc.getNumRouteInfos()
+			aiFortCounts = [0] * len(aiFortColumns)
+
+			for iPlot in range(gc.getNUM_CITY_PLOTS()):
+				pPlot = pCity.getCityIndexPlot(iPlot)
+				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
+					aiPlotCounts[0] += 1
+					if pPlot.isWater():
+						aiPlotCounts[2] += 1
+					else:
+						aiPlotCounts[1] += 1
+						if pPlot.isPeak():
+							aiPlotCounts[3] += 1
+						elif pPlot.isHills():
+							aiPlotCounts[4] += 1
+						else:
+							aiPlotCounts[5] += 1
+
+					iTerrain = pPlot.getTerrainType()
+					if iTerrain >= 0:
+						aiTerrainCounts[iTerrain] += 1
+					iFeature = pPlot.getFeatureType()
+					if iFeature >= 0:
+						aiFeatureCounts[iFeature] += 1
+					iRoute = pPlot.getRouteType()
+					if iRoute >= 0:
+						aiRouteCounts[iRoute] += 1
+					iImprovement = pPlot.getImprovementType()
+					if iImprovement in aiFortColumns:
+						aiFortCounts[aiFortColumns.index(iImprovement)] += 1
+
+			iFoundYear = CyGame().getTurnYear(pCity.getGameTurnFounded())
+			aszRows.append([pCity.getName(), pCity.getOwner(), pCity.getID(), pCity.getPopulation(), iFoundYear, aiPlotCounts, aiTerrainCounts, aiFeatureCounts, aiRouteCounts, aiFortCounts])
+			for i in range(len(aiPlotTotals)):
+				aiPlotTotals[i] += aiPlotCounts[i]
+			aaiTerrainTotals.append(aiTerrainCounts)
+			aaiFeatureTotals.append(aiFeatureCounts)
+			aaiRouteTotals.append(aiRouteCounts)
+			aaiFortTotals.append(aiFortCounts)
+			(pCity, iter) = player.nextCity(iter, False)
+
+		return aszRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals
+
+	def drawBFCPlotTable(self, aszRows, aiPlotTotals):
+		screen = self.getScreen()
+		szTable = self.getNextWidgetName()
+		iNumCols = 10
+		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, self.BFC_Y_PLOT_TABLE, self.BFC_W_TABLE, self.BFC_H_PLOT_TABLE, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+		iCityW = self.BFC_CITY_COL_WIDTH
+		iDataW = (self.BFC_W_TABLE - self.BFC_ZOOM_COL_WIDTH - iCityW) / (iNumCols - 2)
+		screen.setTableColumnHeader(szTable, 0, "", self.BFC_ZOOM_COL_WIDTH)
+		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_CITY + SAS_FONT_TAG_CLOSE, iCityW)
+		screen.setTableColumnHeader(szTable, 2, SAS_FONT_TAG_LABEL + self.TEXT_POP + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 3, SAS_FONT_TAG_LABEL + self.TEXT_YEAR + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 4, SAS_FONT_TAG_LABEL + self.TEXT_BFC + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 5, SAS_FONT_TAG_LABEL + self.TEXT_LAND + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 6, SAS_FONT_TAG_LABEL + self.TEXT_WATER + SAS_FONT_TAG_CLOSE, iDataW)
+		# <!-- custom: Plot-type columns have room for icon + text; Peak and Hill buttons are visually similar, so labels avoid ambiguity. (GPT-5.5) -->
+		screen.setTableColumnHeader(szTable, 7, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK) + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 8, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL) + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 9, SAS_FONT_TAG_LABEL + self.TEXT_FLAT + SAS_FONT_TAG_CLOSE, iDataW)
+
+		for iRow in range(len(aszRows)):
+			self.appendBFCPlotRow(screen, szTable, iRow, aszRows[iRow][0], aszRows[iRow][1], aszRows[iRow][2], aszRows[iRow][3], aszRows[iRow][4], aszRows[iRow][5])
+		if len(aszRows) > 0:
+			iTotalPopulation = 0
+			for rowData in aszRows:
+				iTotalPopulation += rowData[3]
+			self.appendBFCPlotRow(screen, szTable, len(aszRows), self.TEXT_TOTAL, -1, -1, iTotalPopulation, 0, aiPlotTotals)
+
+	def appendBFCPlotRow(self, screen, szTable, iRow, szCityName, iOwner, iCityID, iPopulation, iFoundYear, aiPlotCounts):
+		screen.appendTableRow(szTable)
+		if iOwner >= 0:
+			screen.setTableText(szTable, 0, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, iOwner, iCityID, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		else:
+			screen.setTableText(szTable, 0, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableInt(szTable, 2, iRow, SAS_FONT_TAG_LABEL + str(iPopulation) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		if iOwner >= 0:
+			screen.setTableInt(szTable, 3, iRow, SAS_FONT_TAG_LABEL + str(iFoundYear) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		else:
+			screen.setTableText(szTable, 3, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		for iCol in range(len(aiPlotCounts)):
+			screen.setTableInt(szTable, iCol + 4, iRow, SAS_FONT_TAG_LABEL + str(aiPlotCounts[iCol]) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+	def drawBFCTerrainFeatureTable(self, aszRows, aaiTerrainTotals, aaiFeatureTotals, aaiRouteTotals, aaiFortTotals, aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns):
+		screen = self.getScreen()
+		szTable = self.getNextWidgetName()
+		iNumDataCols = len(aiTerrainColumns) + len(aiFeatureColumns) + len(aiRouteColumns) + len(aiFortColumns)
+		iNumCols = 2 + iNumDataCols
+		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, self.BFC_Y_TERRAIN_TABLE, self.BFC_W_TABLE, self.BFC_H_TERRAIN_TABLE, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+		iDataW = 0
+		if iNumDataCols > 0:
+			iDataW = (self.BFC_W_TABLE - self.BFC_ZOOM_COL_WIDTH - self.BFC_CITY_COL_WIDTH) / iNumDataCols
+		screen.setTableColumnHeader(szTable, 0, "", self.BFC_ZOOM_COL_WIDTH)
+		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_CITY + SAS_FONT_TAG_CLOSE, self.BFC_CITY_COL_WIDTH)
+		iCol = 2
+		for iTerrain in aiTerrainColumns:
+			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getTerrainInfo(iTerrain).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+			iCol += 1
+		for iFeature in aiFeatureColumns:
+			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getFeatureInfo(iFeature).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+			iCol += 1
+		for iRoute in aiRouteColumns:
+			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getRouteInfo(iRoute).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+			iCol += 1
+		for iFort in aiFortColumns:
+			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getImprovementInfo(iFort).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+			iCol += 1
+
+		for iRow in range(len(aszRows)):
+			self.appendBFCTerrainFeatureRow(screen, szTable, iRow, aszRows[iRow], aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns)
+		if len(aszRows) > 0:
+			aiTerrainTotals = [0] * gc.getNumTerrainInfos()
+			aiFeatureTotals = [0] * gc.getNumFeatureInfos()
+			aiRouteTotals = [0] * gc.getNumRouteInfos()
+			aiFortTotals = [0] * len(aiFortColumns)
+			for iRow in range(len(aszRows)):
+				for iTerrain in range(gc.getNumTerrainInfos()):
+					aiTerrainTotals[iTerrain] += aaiTerrainTotals[iRow][iTerrain]
+				for iFeature in range(gc.getNumFeatureInfos()):
+					aiFeatureTotals[iFeature] += aaiFeatureTotals[iRow][iFeature]
+				for iRoute in range(gc.getNumRouteInfos()):
+					aiRouteTotals[iRoute] += aaiRouteTotals[iRow][iRoute]
+				for iFort in range(len(aiFortColumns)):
+					aiFortTotals[iFort] += aaiFortTotals[iRow][iFort]
+			self.appendBFCTerrainFeatureRow(screen, szTable, len(aszRows), [self.TEXT_TOTAL, -1, -1, 0, 0, [], aiTerrainTotals, aiFeatureTotals, aiRouteTotals, aiFortTotals], aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns)
+
+	def appendBFCTerrainFeatureRow(self, screen, szTable, iRow, rowData, aiTerrainColumns, aiFeatureColumns, aiRouteColumns, aiFortColumns):
+		screen.appendTableRow(szTable)
+		szCityName = rowData[0]
+		iOwner = rowData[1]
+		iCityID = rowData[2]
+		if iOwner >= 0:
+			screen.setTableText(szTable, 0, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, iOwner, iCityID, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		else:
+			screen.setTableText(szTable, 0, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		iCol = 2
+		for iTerrain in aiTerrainColumns:
+			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[6][iTerrain])
+			iCol += 1
+		for iFeature in aiFeatureColumns:
+			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[7][iFeature])
+			iCol += 1
+		for iRoute in aiRouteColumns:
+			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[8][iRoute])
+			iCol += 1
+		for iFort in range(len(aiFortColumns)):
+			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[9][iFort])
+			iCol += 1
+
+	def setBFCCountCell(self, screen, szTable, iCol, iRow, iCount):
+		if iCount == 0:
+			screen.setTableText(szTable, iCol, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		else:
+			screen.setTableInt(szTable, iCol, iRow, SAS_FONT_TAG_LABEL + str(iCount) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount)
 		self.nWidgetCount += 1
@@ -362,10 +591,18 @@ class CvWorldAdvisorScreen:
 				self.pActiveTeam = gc.getTeam(self.iActiveTeam)
 				self.redrawContents()
 				return 1
+			if self.iActiveTab == self.iBFCID and inputClass.getMouseX() == 0:
+				self.getScreen().hideScreen()
+				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), True)
+				popupInfo = CyPopupInfo()
+				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
+				popupInfo.setText(u"showWorldAdvisorScreen")
+				popupInfo.addPopup(inputClass.getData1())
+				return 1
 
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
-			iSelected = inputClass.getData()
-			if iSelected >= 0 and iSelected < len(self.PAGE_NAME_LIST) and iSelected != self.iActiveTab:
+			iSelected = inputClass.getData1()
+			if iSelected >= 0 and iSelected < len(self.PAGE_NAME_LIST) and iSelected != self.iActiveTab and szWidgetName == "WorldAdvisorTabButton" + str(iSelected):
 				self.iActiveTab = iSelected
 				self.redrawContents()
 				return 1

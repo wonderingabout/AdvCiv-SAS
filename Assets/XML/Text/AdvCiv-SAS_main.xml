@@ -3733,6 +3733,46 @@ Created as part of AdvCiv-SAS improvements
 		<English>World Advisor</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_TAB</Tag>
+		<English>BFC</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CITY</Tag>
+		<English>City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_POP</Tag>
+		<English>Pop</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_YEAR</Tag>
+		<English>Year</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_SHORT</Tag>
+		<English>BFC</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_LAND</Tag>
+		<English>Land</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_WATER</Tag>
+		<English>Water</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_PEAK</Tag>
+		<English>Peak</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_HILL</Tag>
+		<English>Hill</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_FLAT</Tag>
+		<English>Flat</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_INFO_SCREEN</Tag>
 		<English>Info Screen</English>
 	</TEXT>
