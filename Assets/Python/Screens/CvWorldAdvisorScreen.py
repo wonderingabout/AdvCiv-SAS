@@ -129,8 +129,10 @@ class CvWorldAdvisorScreen:
 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
 		self.ART_POPUPS_BACKGROUND_TRANSPARENT = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
 		self.ART_CITY_SELECTION_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
-		self.BUTTON_TERRAIN_PEAK = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_PEAK")).getButton()
-		self.BUTTON_TERRAIN_HILL = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_HILL")).getButton()
+		self.iTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
+		self.iTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
+		self.BUTTON_TERRAIN_PEAK = gc.getTerrainInfo(self.iTerrainPeak).getButton()
+		self.BUTTON_TERRAIN_HILL = gc.getTerrainInfo(self.iTerrainHill).getButton()
 		# <!-- custom: River has no terrain type (it's a plot-edge property), so reuse the WorldBuilder river-placement art.
 		# Lake intentionally stays text-only because BTS represents lakes as coast-type water plots and TERRAIN_COAST's icon is already used for Coast, making the Lake column misleading. Coastal Land has no canonical art so it stays text-only like Land/Water/Flat. (Claude code Opus 4.7; summarized GPT-5.5) -->
 		self.BUTTON_RIVER = ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath()
@@ -139,7 +141,6 @@ class CvWorldAdvisorScreen:
 		self.TEXT_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
 		self.TEXT_CITY = localText.getText("TXT_KEY_WORLD_ADVISOR_CITY", ())
 		self.TEXT_BFC = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_SHORT", ())
-		self.TEXT_LAND = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAND", ())
 		self.TEXT_WATER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_WATER", ())
 		self.TEXT_PEAK = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_PEAK", ())
 		self.TEXT_HILL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_HILL", ())
@@ -157,7 +158,8 @@ class CvWorldAdvisorScreen:
 
 		# Territory
 		self.TEXT_TERRITORY_PLOTS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS", ())
-		self.TEXT_TERRITORY_TERRAIN_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES", ())
+		self.TEXT_TERRITORY_TERRAIN = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN", ())
+		self.TEXT_TERRITORY_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_FEATURES", ())
 		self.TEXT_TERRITORY_BONUSES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES", ())
 		self.TEXT_TERRITORY_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
 		self.TEXT_TERRITORY_SUBURBS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR", ())
@@ -249,14 +251,11 @@ class CvWorldAdvisorScreen:
 		elif self.iActiveTab == self.iEnvironmentID:
 			self.drawEnvironmentTab()
 
-	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC 1 is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
-	# <!-- custom: BFC 1 tab design notes — icons in column headers (yellow header background gives the strongest contrast / readability for icon recognition); ; Long_Comments_py.txt #17
-	# Resolution: keep icons-in-headers (readable, sortable). Now that the Territory tab natively supports hover + pedia redirect on every entry (it renders rows, not column headers, so widgets just work), it covers the icon-identification need for the whole World Advisor — so BFC 1 / BFC 2 don't need hover on headers either. Prioritize header clarity for icon recognition and clean left-click sort over re-attempting any hover-on-header workaround. (Claude code Opus 4.7; summarized GPT-5.5) -->
 	# BFC 1
+	# <!-- custom: Long_Comments_py.txt #17 -->
 	def drawBFC1Tab(self):
-		# <!-- custom: routes (path/road/railroad) live in BFC 2's improvements table — they are man-made infrastructure rather than geography. (Claude code Opus 4.7) -->
 		aszTableRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals = self.collectBFC1Data()
-		aiTerrainColumns = range(gc.getNumTerrainInfos())
+		aiTerrainColumns = self.getTerrainColumnsWithoutPlotShapes()
 		aiFeatureColumns = range(gc.getNumFeatureInfos())
 
 		self.drawBFC1PlotTable(aszTableRows, aiPlotTotals)
@@ -266,14 +265,14 @@ class CvWorldAdvisorScreen:
 		player = gc.getPlayer(self.iActivePlayer)
 		bDebug = CyGame().isDebugMode()
 		aszRows = []
-		# Plot count slots: 0=Total 1=Land 2=Water 3=Peak 4=Hill 5=Flat 6=River 7=Lake 8=Coastal
-		aiPlotTotals = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+		# Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal
+		aiPlotTotals = [0, 0, 0, 0, 0, 0, 0, 0]
 		aaiTerrainTotals = []
 		aaiFeatureTotals = []
 
 		(pCity, iter) = player.firstCity(False)
 		while pCity and not pCity.isNone():
-			aiPlotCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+			aiPlotCounts = [0, 0, 0, 0, 0, 0, 0, 0]
 			aiTerrainCounts = [0] * gc.getNumTerrainInfos()
 			aiFeatureCounts = [0] * gc.getNumFeatureInfos()
 
@@ -282,21 +281,20 @@ class CvWorldAdvisorScreen:
 				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
 					aiPlotCounts[0] += 1
 					if pPlot.isWater():
-						aiPlotCounts[2] += 1
-						if pPlot.isLake():
-							aiPlotCounts[7] += 1
-					else:
 						aiPlotCounts[1] += 1
+						if pPlot.isLake():
+							aiPlotCounts[6] += 1
+					else:
 						if pPlot.isPeak():
-							aiPlotCounts[3] += 1
+							aiPlotCounts[2] += 1
 						elif pPlot.isHills():
-							aiPlotCounts[4] += 1
+							aiPlotCounts[3] += 1
 						else:
-							aiPlotCounts[5] += 1
+							aiPlotCounts[4] += 1
 						if pPlot.isCoastalLand():
-							aiPlotCounts[8] += 1
+							aiPlotCounts[7] += 1
 					if pPlot.isRiverSide():
-						aiPlotCounts[6] += 1
+						aiPlotCounts[5] += 1
 
 					iTerrain = pPlot.getTerrainType()
 					if iTerrain >= 0:
@@ -318,7 +316,7 @@ class CvWorldAdvisorScreen:
 	def drawBFC1PlotTable(self, aszRows, aiPlotTotals):
 		screen = self.getScreen()
 		szTable = self.getNextWidgetName()
-		iNumCols = 13
+		iNumCols = 12
 		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, self.BFC_Y_PLOT_TABLE, self.BFC_W_TABLE, self.BFC_H_PLOT_TABLE, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
 		iCityW = self.BFC_CITY_COL_WIDTH
@@ -328,15 +326,14 @@ class CvWorldAdvisorScreen:
 		screen.setTableColumnHeader(szTable, 2, SAS_FONT_TAG_LABEL + self.TEXT_POP + SAS_FONT_TAG_CLOSE, iDataW)
 		screen.setTableColumnHeader(szTable, 3, SAS_FONT_TAG_LABEL + self.TEXT_YEAR + SAS_FONT_TAG_CLOSE, iDataW)
 		screen.setTableColumnHeader(szTable, 4, SAS_FONT_TAG_LABEL + self.TEXT_BFC + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 5, SAS_FONT_TAG_LABEL + self.TEXT_LAND + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 6, SAS_FONT_TAG_LABEL + self.TEXT_WATER + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 5, SAS_FONT_TAG_LABEL + self.TEXT_WATER + SAS_FONT_TAG_CLOSE, iDataW)
 		# <!-- custom: Plot-type columns have room for icon + text; Peak and Hill buttons are visually similar, so labels avoid ambiguity. (GPT-5.5) -->
-		screen.setTableColumnHeader(szTable, 7, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK) + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 8, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL) + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 9, SAS_FONT_TAG_LABEL + self.TEXT_FLAT + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 10, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_RIVER, self.BFC_ICON_SIZE, self.TEXT_RIVER) + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 11, SAS_FONT_TAG_LABEL + self.TEXT_LAKE + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 12, SAS_FONT_TAG_LABEL + self.TEXT_COASTAL + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 6, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK) + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 7, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL) + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 8, SAS_FONT_TAG_LABEL + self.TEXT_FLAT + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 9, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_RIVER, self.BFC_ICON_SIZE, self.TEXT_RIVER) + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 10, SAS_FONT_TAG_LABEL + self.TEXT_LAKE + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 11, SAS_FONT_TAG_LABEL + self.TEXT_COASTAL + SAS_FONT_TAG_CLOSE, iDataW)
 
 		for iRow in range(len(aszRows)):
 			self.appendBFC1PlotRow(screen, szTable, iRow, aszRows[iRow][0], aszRows[iRow][1], aszRows[iRow][2], aszRows[iRow][3], aszRows[iRow][4], aszRows[iRow][5])
@@ -413,7 +410,6 @@ class CvWorldAdvisorScreen:
 			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[7][iFeature])
 			iCol += 1
 
-	# <!-- custom: BFC 2 tab — bonuses (top) and worker-built infrastructure (bottom: improvements + routes), icon-headered like BFC 1's terrain table. Bonuses are filtered to placeable types (PlacementOrder >= 0); abstract bonuses can't appear in any BFC. Routes (path/road/railroad) live here rather than BFC 1 because they are man-made infrastructure, matching the same routes-with-improvements grouping in the Territory tab. See drawBFC1Tab above for the full design rationale (why icons live in the header, why hover-on-header was abandoned). (Claude code Opus 4.7) -->
 	def drawBFC2Tab(self):
 		aiBonusColumns = []
 		for iBonus in range(gc.getNumBonusInfos()):
@@ -507,21 +503,21 @@ class CvWorldAdvisorScreen:
 				iColIdx += 1
 
 	# TERRITORY
-	# <!-- custom: Territory and BFC tabs are live snapshots of current map state (plot iteration), NOT save-persistent counters. They are the canonical home for "what's on my plots right now" — empire totals (Territory: BFC vs Suburbs) and per-city detail (BFC 1 / BFC 2). Better fit than the previously-redundant "Improvements Current" column in CvInfoScreen's Stats tab (now removed): more exhaustive (terrain/feature/route/bonus/improvement, not just improvements) and thematically grouped with other current-geography views, instead of sitting alone next to history counters (Built/Killed/Lost from CyStatistics). (Claude code Opus 4.7) -->
 	def drawTerritoryTab(self):
-		aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows = self.collectTerritoryData()
+		aPlotRows, aTerrainRows, aFeatureRows, aBonusRows, aImprovementRows = self.collectTerritoryData()
 		iGap = 14
 		iTableW = (self.BFC_W_TABLE - 3 * iGap) / 4
 		iY = self.BFC_Y_PLOT_TABLE
 		iH = self.CONTENT_Y_BOTTOM - iY - 18
+		iHalfH = (iH - iGap) / 2
+		iX2 = self.BFC_X_TABLE + iTableW + iGap
 		self.drawTerritoryCountTable(aPlotRows, self.TEXT_TERRITORY_PLOTS, self.BFC_X_TABLE, iY, iTableW, iH)
-		self.drawTerritoryCountTable(aTerrainFeatureRows, self.TEXT_TERRITORY_TERRAIN_FEATURES, self.BFC_X_TABLE + iTableW + iGap, iY, iTableW, iH)
+		self.drawTerritoryCountTable(aTerrainRows, self.TEXT_TERRITORY_TERRAIN, iX2, iY, iTableW, iHalfH)
+		self.drawTerritoryCountTable(aFeatureRows, self.TEXT_TERRITORY_FEATURES, iX2, iY + iHalfH + iGap, iTableW, iHalfH)
 		self.drawTerritoryCountTable(aBonusRows, self.TEXT_TERRITORY_BONUSES, self.BFC_X_TABLE + 2 * (iTableW + iGap), iY, iTableW, iH)
 		self.drawTerritoryCountTable(aImprovementRows, self.TEXT_TERRITORY_IMPROVEMENTS, self.BFC_X_TABLE + 3 * (iTableW + iGap), iY, self.BFC_W_TABLE - 3 * (iTableW + iGap), iH)
 		self.drawTerritoryLegendLink()
 
-	# <!-- custom: Territory uses compact BFC/Sub/Tot headers to fit four side-by-side tables, so keep the column meanings
-	# in a Sevopedia legend link instead of expanding the headers. (GPT-5.5) -->
 	def drawTerritoryLegendLink(self):
 		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
 		iY = self.Y_TITLE
@@ -529,8 +525,8 @@ class CvWorldAdvisorScreen:
 
 	def collectTerritoryData(self):
 		aiBFCPlots = self.getTerritoryBFCPlotSet()
-		# Plot count slots: 0=Total 1=Land 2=Water 3=Peak 4=Hill 5=Flat 6=River 7=Lake 8=Coastal
-		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+		# Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal
+		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
 		aaiTerrainCounts = []
 		aaiFeatureCounts = []
 		aaiRouteCounts = []
@@ -557,21 +553,20 @@ class CvWorldAdvisorScreen:
 					iBucket = 0
 				aiPlotCounts[0][iBucket] += 1
 				if pPlot.isWater():
-					aiPlotCounts[2][iBucket] += 1
-					if pPlot.isLake():
-						aiPlotCounts[7][iBucket] += 1
-				else:
 					aiPlotCounts[1][iBucket] += 1
+					if pPlot.isLake():
+						aiPlotCounts[6][iBucket] += 1
+				else:
 					if pPlot.isPeak():
-						aiPlotCounts[3][iBucket] += 1
+						aiPlotCounts[2][iBucket] += 1
 					elif pPlot.isHills():
-						aiPlotCounts[4][iBucket] += 1
+						aiPlotCounts[3][iBucket] += 1
 					else:
-						aiPlotCounts[5][iBucket] += 1
+						aiPlotCounts[4][iBucket] += 1
 					if pPlot.isCoastalLand():
-						aiPlotCounts[8][iBucket] += 1
+						aiPlotCounts[7][iBucket] += 1
 				if pPlot.isRiverSide():
-					aiPlotCounts[6][iBucket] += 1
+					aiPlotCounts[5][iBucket] += 1
 
 				iTerrain = pPlot.getTerrainType()
 				if iTerrain >= 0:
@@ -589,23 +584,24 @@ class CvWorldAdvisorScreen:
 				if iImprovement >= 0:
 					aaiImprovementCounts[iImprovement][iBucket] += 1
 
-		# <!-- custom: Note: Plots Total can't be auto-summed by drawTerritoryCountTable because Land/Water/Peak/... overlap (Peak is also Land, etc.) — the pre-built row stays. (Claude code Opus 4.7) -->
 		aPlotRows = [
-			[self.TEXT_LAND, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1]],
-			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[2][0], aiPlotCounts[2][1]],
-			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[3][0], aiPlotCounts[3][1]],
-			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
-			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
-			[self.TEXT_RIVER, self.BUTTON_RIVER, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1]],
-			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1]],
-			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[8][0], aiPlotCounts[8][1]],
+			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1]],
+			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[2][0], aiPlotCounts[2][1]],
+			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[3][0], aiPlotCounts[3][1]],
+			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
+			[self.TEXT_RIVER, self.BUTTON_RIVER, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
+			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1]],
+			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1]],
 			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1]],
 			]
-		aTerrainFeatureRows = []
-		for iTerrain in range(gc.getNumTerrainInfos()):
-			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
+		# <!-- custom: Peak and Hill are plot-shape categories, not real terrain here: e.g. a Grassland Hill still has
+		# Grassland as getTerrainType(). Keep them in Plots, not Terrain. (GPT-5.5) -->
+		aTerrainRows = []
+		for iTerrain in self.getTerrainColumnsWithoutPlotShapes():
+			self.appendTerritoryInfoRow(aTerrainRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
+		aFeatureRows = []
 		for iFeature in range(gc.getNumFeatureInfos()):
-			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
+			self.appendTerritoryInfoRow(aFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
 		aBonusRows = []
 		for iBonus in range(gc.getNumBonusInfos()):
 			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
@@ -615,7 +611,14 @@ class CvWorldAdvisorScreen:
 			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
 		for iRoute in range(gc.getNumRouteInfos()):
 			self.appendTerritoryInfoRow(aImprovementRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_GENERAL, -1, aaiRouteCounts[iRoute])
-		return aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows
+		return aPlotRows, aTerrainRows, aFeatureRows, aBonusRows, aImprovementRows
+
+	def getTerrainColumnsWithoutPlotShapes(self):
+		aiTerrainColumns = []
+		for iTerrain in range(gc.getNumTerrainInfos()):
+			if iTerrain != self.iTerrainPeak and iTerrain != self.iTerrainHill:
+				aiTerrainColumns.append(iTerrain)
+		return aiTerrainColumns
 
 	def getTerritoryBFCPlotSet(self):
 		aiBFCPlots = {}

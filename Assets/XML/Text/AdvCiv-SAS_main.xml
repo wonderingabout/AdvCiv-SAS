@@ -3761,10 +3761,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>BFC</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_LAND</Tag>
-		<English>Land</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_WATER</Tag>
 		<English>Water</English>
 	</TEXT>
@@ -3797,8 +3793,12 @@ Created as part of AdvCiv-SAS improvements
 		<English>Plots</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES</Tag>
-		<English>Map</English>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN</Tag>
+		<English>Terrain</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_FEATURES</Tag>
+		<English>Features</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES</Tag>
