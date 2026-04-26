@@ -239,7 +239,7 @@ commit 8827c3e2d96e7a7fc6944cae2e746326a40ac350
 Author: wonderingabout <hidden>
 Date:   2026-02-22 18:45:20 +0100
 
-change default ordering from from alphabetical to from most to least Built/Current in the Info screen's Statistics tab
+change default ordering from from alphabetical to from most to least Built in the Info screen's Statistics tab
 avoids tedious manual user ordering each time
 
 commit 42823ae07df0f8e19602467de9df7faa1b5a2fbe

@@ -426,6 +426,8 @@ Also beautified the Improvement pane with text based on the Sevopedia Feature im
 
 Done with the help of GPT-5.2-Codex thanks a lot!
 
+Since then, added Graphical Only (e.g., Land Worked, Water Worked) (similarly to how Hill and Peak are shown in Sevopedia Terrain) and Special Map (e.g., City Ruins, Tribal Village) so Sevopedia Improvements can redirect to them and for exhaustiveness, under these groupings.
+
 <img src="../Images/sevopedia/0.720_sevopedia_improvements (1).JPG" alt="0.720_sevopedia_improvements (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.720_sevopedia_improvements (2).JPG" alt="0.720_sevopedia_improvements (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.720_sevopedia_improvements (3).JPG" alt="0.720_sevopedia_improvements (3).JPG" width="250"></img>

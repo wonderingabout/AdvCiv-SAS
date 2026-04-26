@@ -15,7 +15,7 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 class CvWorldAdvisorScreen:
-	"World Advisor! Contains the Environment tab."
+	"World Advisor"
 
 	def __init__(self, screenId):
 		self.screenId = screenId
