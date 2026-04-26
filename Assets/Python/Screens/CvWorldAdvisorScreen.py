@@ -650,6 +650,7 @@ class CvWorldAdvisorScreen:
 				iColIdx += 1
 
 	# TERRITORY
+	# <!-- custom: Territory and BFC tabs are live snapshots of current map state (plot iteration), NOT save-persistent counters. They are the canonical home for "what's on my plots right now" — empire totals (Territory: BFC vs Suburbs) and per-city detail (BFC 1 / BFC 2). Better fit than the previously-redundant "Improvements Current" column in CvInfoScreen's Stats tab (now removed): more exhaustive (terrain/feature/route/bonus/improvement, not just improvements) and thematically grouped with other current-geography views, instead of sitting alone next to history counters (Built/Killed/Lost from CyStatistics). (Claude code Opus 4.7) -->
 	def drawTerritoryTab(self):
 		aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows = self.collectTerritoryData()
 		iGap = 14

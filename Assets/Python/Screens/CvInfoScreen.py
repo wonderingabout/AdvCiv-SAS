@@ -735,9 +735,9 @@ class CvInfoScreen:
 	# STATISTICS
 		self.X_STATS_BOTTOM_CHART = self.X_MARGIN
 		iTotalStatsTabBottomW = self.W_SCREEN - 2 * self.X_STATS_BOTTOM_CHART
-		self.W_STATS_BOTTOM_CHART_UNITS = int(iTotalStatsTabBottomW * 455 / 935)
-		self.W_STATS_BOTTOM_CHART_BUILDINGS = int(iTotalStatsTabBottomW * 260 / 935)
-		self.W_STATS_BOTTOM_CHART_IMPROVEMENTS = iTotalStatsTabBottomW - self.W_STATS_BOTTOM_CHART_UNITS - self.W_STATS_BOTTOM_CHART_BUILDINGS
+		# <!-- custom: Improvements column removed; units/buildings split the full bottom width 455:260, preserving their previous ratio. (Claude code Opus 4.7) -->
+		self.W_STATS_BOTTOM_CHART_UNITS = int(iTotalStatsTabBottomW * 455 / 715)
+		self.W_STATS_BOTTOM_CHART_BUILDINGS = iTotalStatsTabBottomW - self.W_STATS_BOTTOM_CHART_UNITS
 		self.H_STATS_BOTTOM_CHART = self.H_SCREEN - self.Y_STATS_BOTTOM_CHART - 78
 
 		self.X_STATS_TOP_PANEL = self.X_MARGIN
@@ -3856,15 +3856,12 @@ class CvInfoScreen:
 
 		iNumUnits = gc.getNumUnitInfos()
 		iNumBuildings = gc.getNumBuildingInfos()
-		iNumImprovements = gc.getNumImprovementInfos()
 
 		self.iNumUnitStatsChartCols = 5
 		self.iNumBuildingStatsChartCols = 2
-		self.iNumImprovementStatsChartCols = 2
 
 		self.iNumUnitStatsChartRows = iNumUnits
 		self.iNumBuildingStatsChartRows = iNumBuildings
-		self.iNumImprovementStatsChartRows = iNumImprovements
 
 # CALCULATE STATS
 
@@ -3915,19 +3912,7 @@ class CvInfoScreen:
 			iType = pUnit.getUnitType()
 			aiUnitsCurrent[iType] += 1
 
-		aiImprovementsCurrent = []
-		for iImprovementLoop in range(iNumImprovements):
-			aiImprovementsCurrent.append(0)
-
-		iGridW = CyMap().getGridWidth()
-		iGridH = CyMap().getGridHeight()
-		for iX in range(iGridW):
-			for iY in range(iGridH):
-				plot = CyMap().plot(iX, iY)
-				if (plot.getOwner() == self.iActivePlayer):
-					iType = plot.getImprovementType()
-					if (iType != ImprovementTypes.NO_IMPROVEMENT):
-						aiImprovementsCurrent[iType] += 1
+		# <!-- custom: Improvements column removed from the Stats tab. Rationale: this tab tracks save-persistent history counters (Units Built/Killed/Lost, Buildings Built — all from CyStatistics). The Improvements column was a snapshot ("Current", live plot iteration) — inconsistent with the rest of the table and not from CyStatistics (BTS has no getPlayerNumImprovementsBuilt). Concrete example of the inconsistency: build a Farm on a plot, replace it with a Cottage, then replace it back with a Farm — Units/Buildings tables would show Built=2 for an analogous build/destroy/rebuild, but the Improvements column showed Current=1 (one Farm on the map right now), giving "total Farms 1" instead of "total Farms built 2". Current-state info is now covered by World Advisor's Territory tab — a better home: more exhaustive and thematically grouped with other current-geography views. (Claude code Opus 4.7) -->
 
 		# TOP PANEL
 
@@ -4037,58 +4022,25 @@ class CvInfoScreen:
 		screen.addTableControlGFC(szBuildingsTable, self.iNumBuildingStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_BUILDINGS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szBuildingsTable)
 
-#BUG: improvements - start
-		#if AdvisorOpt.isShowImprovements():
-		if True: # advc.004
-			szImprovementsTable = self.getNextWidgetName()
-			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
-			screen.enableSort(szImprovementsTable)
-#BUG: improvements - end
-
 		# Reducing the width a bit to leave room for the vertical scrollbar, preventing a horizontal scrollbar from also being created
-#BUG: improvements - start
-		#if AdvisorOpt.isShowImprovements():
-		if True: # advc.004
-			iChartWidth = self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS + self.W_STATS_BOTTOM_CHART_IMPROVEMENTS - 24
+		iChartWidth = self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS - 24
 
-			# Add Columns
-			iColWidth = int((iChartWidth / 16 * 3))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 0, self.TEXT_UNITS, iColWidth)
-			iColWidth = int((iChartWidth / 14 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 1, self.TEXT_CURRENT, iColWidth)
-			iColWidth = int((iChartWidth / 14 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 2, self.TEXT_BUILT, iColWidth)
-			iColWidth = int((iChartWidth / 14 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 3, self.TEXT_KILLED, iColWidth)
-			iColWidth = int((iChartWidth / 14 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 4, self.TEXT_LOST, iColWidth)
-			iColWidth = int((iChartWidth / 16 * 3))
-			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 0, self.TEXT_BUILDINGS, iColWidth)
-			iColWidth = int((iChartWidth / 14 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
-			iColWidth = int((iChartWidth / 14 * 2))
-			SASTextScale.setTableColumnHeaderLabel(screen, szImprovementsTable, 0, self.TEXT_IMPROVEMENTS, iColWidth)
-			iColWidth = int((iChartWidth / 14 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szImprovementsTable, 1, self.TEXT_CURRENT, iColWidth)
-		else:
-			iChartWidth = self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS - 24
-
-			# Add Columns
-			iColWidth = int((iChartWidth / 12 * 3))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 0, self.TEXT_UNITS, iColWidth)
-			iColWidth = int((iChartWidth / 12 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 1, self.TEXT_CURRENT, iColWidth)
-			iColWidth = int((iChartWidth / 12 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 2, self.TEXT_BUILT, iColWidth)
-			iColWidth = int((iChartWidth / 12 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 3, self.TEXT_KILLED, iColWidth)
-			iColWidth = int((iChartWidth / 12 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 4, self.TEXT_LOST, iColWidth)
-			iColWidth = int((iChartWidth / 12 * 4))
-			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 0, self.TEXT_BUILDINGS, iColWidth)
-			iColWidth = int((iChartWidth / 12 * 1))
-			SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
-#BUG: improvements - end
+		# Add Columns
+		iColWidth = int((iChartWidth / 12 * 3))
+		SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 0, self.TEXT_UNITS, iColWidth)
+		iColWidth = int((iChartWidth / 12 * 1))
+		SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 1, self.TEXT_CURRENT, iColWidth)
+		iColWidth = int((iChartWidth / 12 * 1))
+		SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 2, self.TEXT_BUILT, iColWidth)
+		iColWidth = int((iChartWidth / 12 * 1))
+		SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 3, self.TEXT_KILLED, iColWidth)
+		iColWidth = int((iChartWidth / 12 * 1))
+		SASTextScale.setTableColumnHeaderLabel(screen, szUnitsTable, 4, self.TEXT_LOST, iColWidth)
+		# <!-- custom: Buildings Name shrunk from 4 to 3 grid units (matching Units Name) so the Built column gets its full intended width and its header isn't clipped by the table's scrollbar margin. (Claude code Opus 4.7) -->
+		iColWidth = int((iChartWidth / 12 * 3))
+		SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 0, self.TEXT_BUILDINGS, iColWidth)
+		iColWidth = int((iChartWidth / 12 * 1))
+		SASTextScale.setTableColumnHeaderLabel(screen, szBuildingsTable, 1, self.TEXT_BUILT, iColWidth)
 
 # K-Mod: I've disabled this pre-appending of rows code - because it messes up my other stuff.
 		# # Add Rows
@@ -4177,33 +4129,6 @@ class CvInfoScreen:
 			iNumBuildingsBuilt = aiBuildingsBuilt[iBuildingLoop]
 			SASTextScale.setTableIntLabel(screen, szBuildingsTable, iCol, iRow, str(iNumBuildingsBuilt), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
 			iRow += 1 # K-Mod
-
-#BUG: improvements - start
-		#if AdvisorOpt.isShowImprovements():
-		if True: # advc.004
-			# Add Improvements to table	
-			iRow = 0
-			# <!-- custom: default stats-tab improvement order to "most current first" so the highest-impact rows show immediately; name breaks ties. (GPT-5.3-Codex) -->
-			improvIDsByCurrentDesc = []
-			for iImprovementLoop in range(iNumImprovements):
-				if aiImprovementsCurrent[iImprovementLoop] > 0:
-					improvIDsByCurrentDesc.append((-aiImprovementsCurrent[iImprovementLoop],
-							gc.getImprovementInfo(iImprovementLoop).getDescription(), iImprovementLoop))
-			improvIDsByCurrentDesc.sort()
-			for i in range(len(improvIDsByCurrentDesc)):
-				(iNegCurrent, szImprovementName, iImprovementLoop) = improvIDsByCurrentDesc[i]
-				screen.appendTableRow(szImprovementsTable) # K-Mod
-				iCol = 0
-
-				# <!-- custom: add buttons in the stats tab's rows with claude opus 4.5's help thanks. -->
-				# SASTextScale.setTableTextLabel(screen, szImprovementsTable, iCol, iRow, szImprovementName, "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-				szImprovementButton = gc.getImprovementInfo(iImprovementLoop).getButton()
-				SASTextScale.setTableTextLabel(screen, szImprovementsTable, iCol, iRow, szImprovementName, szImprovementButton, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovementLoop, -1, statsRowFont)
-
-				iCol = 1
-				SASTextScale.setTableIntLabel(screen, szImprovementsTable, iCol, iRow, str(aiImprovementsCurrent[iImprovementLoop]), "", statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
-				iRow += 1
-#BUG: improvements - end
 
 	# OTHER
 
