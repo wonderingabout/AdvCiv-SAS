@@ -36,28 +36,31 @@ class CvWorldAdvisorScreen:
 		self.PANEL_HEIGHT = 55
 		self.X_MARGIN = 45
 
-		self.ENV_INNER_MARGIN = 24
-		self.ENV_COLUMN_GAP = 20
-		self.ENV_TOP_PANEL_HEIGHT = 100
-		self.ENV_Y_SPACING = 30
-		self.ENV_TEXT_MARGIN = 15
+		# Layout constants ordered to match the tab order (BFC 1 / BFC 2 / Territory / Environment); BFC_* are shared by BFC 1 / BFC 2 / Territory.
 		self.BFC_TABLE_GAP = 18
 		self.BFC_CITY_COL_WIDTH = 170
 		self.BFC_ZOOM_COL_WIDTH = 28
 		self.BFC_ICON_SIZE = 24
 
+		self.ENV_INNER_MARGIN = 24
+		self.ENV_COLUMN_GAP = 20
+		self.ENV_TOP_PANEL_HEIGHT = 100
+		self.ENV_Y_SPACING = 30
+		self.ENV_TEXT_MARGIN = 15
+
+		# <!-- custom: Tab order: BFC 1 / BFC 2 / Territory cover the city- and empire-level current map state (the most actionable info), Environment last because its global-warming readouts are less important. (Claude code Opus 4.7) -->
 		self.PAGE_NAME_LIST = [
-			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
 			"TXT_KEY_WORLD_ADVISOR_BFC1_TAB",
 			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
 			"TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB",
+			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
 			]
 		self.PAGE_LINK_WIDTH = []
-		self.iEnvironmentID = 0
-		self.iBFC1ID = 1
-		self.iBFC2ID = 2
-		self.iTerritoryID = 3
-		self.iActiveTab = self.iEnvironmentID
+		self.iBFC1ID = 0
+		self.iBFC2ID = 1
+		self.iTerritoryID = 2
+		self.iEnvironmentID = 3
+		self.iActiveTab = self.iBFC1ID
 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
 
 		self.iLanguageLoaded = -1
@@ -86,6 +89,13 @@ class CvWorldAdvisorScreen:
 		self.CONTENT_Y_TOP = self.PANEL_HEIGHT
 		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT
 
+		self.BFC_X_TABLE = self.X_MARGIN
+		self.BFC_W_TABLE = self.W_SCREEN - 2 * self.X_MARGIN
+		self.BFC_Y_PLOT_TABLE = self.CONTENT_Y_TOP + 18
+		self.BFC_H_PLOT_TABLE = (self.CONTENT_Y_BOTTOM - self.BFC_Y_PLOT_TABLE - self.BFC_TABLE_GAP - 18) / 2
+		self.BFC_Y_TERRAIN_TABLE = self.BFC_Y_PLOT_TABLE + self.BFC_H_PLOT_TABLE + self.BFC_TABLE_GAP
+		self.BFC_H_TERRAIN_TABLE = self.CONTENT_Y_BOTTOM - self.BFC_Y_TERRAIN_TABLE - 18
+
 		self.ENV_X_LEFT_PANEL = self.X_MARGIN
 		self.ENV_PANE_WIDTH = (self.W_SCREEN - (2 * self.X_MARGIN) - (2 * self.ENV_COLUMN_GAP)) / 3
 		self.ENV_X_MIDDLE_PANEL = self.ENV_X_LEFT_PANEL + self.ENV_PANE_WIDTH + self.ENV_COLUMN_GAP
@@ -94,13 +104,6 @@ class CvWorldAdvisorScreen:
 		self.ENV_H_TOP_PANEL = self.ENV_TOP_PANEL_HEIGHT
 		self.ENV_Y_LOCATION = self.ENV_Y_TOP_PANEL + self.ENV_H_TOP_PANEL + self.ENV_INNER_MARGIN
 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
-
-		self.BFC_X_TABLE = self.X_MARGIN
-		self.BFC_W_TABLE = self.W_SCREEN - 2 * self.X_MARGIN
-		self.BFC_Y_PLOT_TABLE = self.CONTENT_Y_TOP + 18
-		self.BFC_H_PLOT_TABLE = (self.CONTENT_Y_BOTTOM - self.BFC_Y_PLOT_TABLE - self.BFC_TABLE_GAP - 18) / 2
-		self.BFC_Y_TERRAIN_TABLE = self.BFC_Y_PLOT_TABLE + self.BFC_H_PLOT_TABLE + self.BFC_TABLE_GAP
-		self.BFC_H_TERRAIN_TABLE = self.CONTENT_Y_BOTTOM - self.BFC_Y_TERRAIN_TABLE - 18
 
 	def initText(self):
 		if not CyGame().isFinalInitialized():
@@ -129,6 +132,32 @@ class CvWorldAdvisorScreen:
 		self.BUTTON_TERRAIN_PEAK = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_PEAK")).getButton()
 		self.BUTTON_TERRAIN_HILL = gc.getTerrainInfo(getInfoTypeOrFail("TERRAIN_HILL")).getButton()
 
+		# Shared (used across multiple tabs)
+		self.TEXT_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
+		self.TEXT_CITY = localText.getText("TXT_KEY_WORLD_ADVISOR_CITY", ())
+		self.TEXT_BFC = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_SHORT", ())
+		self.TEXT_LAND = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAND", ())
+		self.TEXT_WATER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_WATER", ())
+		self.TEXT_PEAK = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_PEAK", ())
+		self.TEXT_HILL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_HILL", ())
+		self.TEXT_FLAT = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_FLAT", ())
+		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
+		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+
+		# BFC 1
+		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_POP", ())
+		self.TEXT_YEAR = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_YEAR", ())
+
+		# Territory
+		self.TEXT_TERRITORY_PLOTS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS", ())
+		self.TEXT_TERRITORY_TERRAIN_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES", ())
+		self.TEXT_TERRITORY_BONUSES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES", ())
+		self.TEXT_TERRITORY_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
+		self.TEXT_TERRITORY_SUBURBS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR", ())
+		self.TEXT_TERRITORY_TOTAL_ABBR = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR", ())
+
+		# Environment
 		self.TEXT_GW_SEVERITY_RATING = localText.getText("TXT_KEY_GW_SEVERITY_RATING", ()).upper()
 		self.TEXT_ENV_POLLUTION = localText.getText("TXT_KEY_POLLUTION", ())
 		self.TEXT_ENV_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
@@ -148,29 +177,9 @@ class CvWorldAdvisorScreen:
 		self.TEXT_ENV_EXPECTED_EVENTS = localText.getText("TXT_KEY_ENVIRONMENT_EXPECTED_EVENTS", ())
 		self.TEXT_ENV_EVENT_TALLY = localText.getText("TXT_KEY_ENVIRONMENT_EVENT_TALLY", ())
 		self.TEXT_ENV_LOCAL_ANGER_LEVEL = localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_ANGER_LEVEL", ())
-		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
-
 		self.LABEL_ENV_DOMESTIC = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_DOMESTIC", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.LABEL_ENV_GLOBAL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.LABEL_ENV_EFFECTS = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.TEXT_CITY = localText.getText("TXT_KEY_WORLD_ADVISOR_CITY", ())
-		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_POP", ())
-		self.TEXT_YEAR = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_YEAR", ())
-		self.TEXT_BFC = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_SHORT", ())
-		self.TEXT_LAND = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAND", ())
-		self.TEXT_WATER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_WATER", ())
-		self.TEXT_PEAK = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_PEAK", ())
-		self.TEXT_HILL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_HILL", ())
-		self.TEXT_FLAT = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_FLAT", ())
-		self.TEXT_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
-		self.TEXT_TERRITORY_PLOTS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS", ())
-		self.TEXT_TERRITORY_TERRAIN_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES", ())
-		self.TEXT_TERRITORY_BONUSES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES", ())
-		self.TEXT_TERRITORY_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
-		self.TEXT_TERRITORY_SUBURBS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR", ())
-		self.TEXT_TERRITORY_TOTAL_ABBR = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR", ())
 
 	def showScreen(self):
 		screen = self.getScreen()
@@ -207,7 +216,7 @@ class CvWorldAdvisorScreen:
 
 		self.iNumPermanentWidgets = self.nWidgetCount
 		if self.iActiveTab < 0 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
-			self.iActiveTab = self.iEnvironmentID
+			self.iActiveTab = self.iBFC1ID
 		self.redrawContents()
 
 	def redrawContents(self):
@@ -225,159 +234,14 @@ class CvWorldAdvisorScreen:
 				screen.setText(szTextId, "", SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
 			xLink += self.PAGE_LINK_WIDTH[iPage]
 
-		if self.iActiveTab == self.iEnvironmentID:
-			self.drawEnvironmentTab()
-		elif self.iActiveTab == self.iBFC1ID:
+		if self.iActiveTab == self.iBFC1ID:
 			self.drawBFC1Tab()
 		elif self.iActiveTab == self.iBFC2ID:
 			self.drawBFC2Tab()
 		elif self.iActiveTab == self.iTerritoryID:
 			self.drawTerritoryTab()
-
-	# ENVIRONMENT
-	def drawEnvironmentTab(self):
-		screen = self.getScreen()
-		game = CyGame()
-		player = gc.getPlayer(self.iActivePlayer)
-
-		X_LEFT_PANEL = self.ENV_X_LEFT_PANEL
-		X_MIDDLE_PANEL = self.ENV_X_MIDDLE_PANEL
-		X_RIGHT_PANEL = self.ENV_X_RIGHT_PANEL
-		Y_TOP_PANEL = self.ENV_Y_TOP_PANEL
-		H_TOP_PANEL = self.ENV_H_TOP_PANEL
-		Y_LOCATION = self.ENV_Y_LOCATION
-		PANE_WIDTH = self.ENV_PANE_WIDTH
-		PANE_HEIGHT = self.ENV_PANE_HEIGHT
-		TEXT_MARGIN = self.ENV_TEXT_MARGIN
-		Y_SPACING = self.ENV_Y_SPACING
-
-		szTopPanel = self.getNextWidgetName()
-		screen.addPanel(szTopPanel, u"", "", True, True, X_LEFT_PANEL, Y_TOP_PANEL, X_RIGHT_PANEL + PANE_WIDTH - X_LEFT_PANEL, H_TOP_PANEL, PanelStyles.PANEL_STYLE_MAIN)
-
-		iGlobalWarmingIndex = game.getGlobalWarmingIndex()
-		iGlobalWarmingChances = game.getGlobalWarmingChances()
-		iGwEventTally = game.getGwEventTally()
-		iSeverityRating = game.calculateGwSeverityRating()
-
-		szText = self.TEXT_GW_SEVERITY_RATING + ": "
-		# advc.137: Better use separate keys
-		if iSeverityRating < 30:
-			szText += localText.getColorText("TXT_KEY_LOW", (), self.COLOR_GREEN).upper()
-		elif iSeverityRating < 75:
-			szText += localText.getColorText("TXT_KEY_MEDIUM", (), self.COLOR_YELLOW).upper()
-		else:
-			szText += localText.getColorText("TXT_KEY_HIGH", (), self.COLOR_RED).upper()
-		if CyGame().isDebugMode():
-			szText += u" (%d)" % iSeverityRating
-		screen.setLabel(self.getNextWidgetName(), szTopPanel, SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, self.Z_CONTROLS + self.DZ, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-		szLeftPanel = self.getNextWidgetName()
-		screen.addPanel(szLeftPanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
-		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_DOMESTIC, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-		szMiddlePanel = self.getNextWidgetName()
-		screen.addPanel(szMiddlePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
-		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_GLOBAL, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-		szRightPanel = self.getNextWidgetName()
-		screen.addPanel(szRightPanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
-		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_EFFECTS, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-		# Left panel: domestic
-		yLocation = Y_LOCATION
-		iPopulation = player.calculatePollution(PollutionTypes.POLLUTION_POPULATION)
-		iBuildings = player.calculatePollution(PollutionTypes.POLLUTION_BUILDINGS)
-		iResources = player.calculatePollution(PollutionTypes.POLLUTION_BONUSES)
-		iPower = player.calculatePollution(PollutionTypes.POLLUTION_POWER)
-		iLocalPollution = player.calculatePollution(PollutionTypes.POLLUTION_ALL)
-		iLocalThreshold = game.calculateGwSustainabilityThreshold(self.iActivePlayer)
-		iPollutionTypes = (iPopulation != 0) * PollutionTypes.POLLUTION_POPULATION | (iBuildings != 0) * PollutionTypes.POLLUTION_BUILDINGS | (iResources != 0) * PollutionTypes.POLLUTION_BONUSES | (iPower != 0) * PollutionTypes.POLLUTION_POWER
-		iLocalDefence = game.calculateGwLandDefence(self.iActivePlayer)
-
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_POLLUTION + ":" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
-
-		if iPopulation != 0:
-			yLocation += Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_POPULATION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPopulation) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
-		if iBuildings != 0:
-			yLocation += Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_BUILDINGS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
-		if iResources != 0:
-			yLocation += Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_RESOURCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResources) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
-		if iPower != 0:
-			yLocation += Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_ELECTRICITY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPower) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
-
-		yLocation += Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_OFFSETS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_IMPACT + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution - iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_LOCAL_THRESHOLD + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
-
-		# Middle panel: Global
-		yLocation = Y_LOCATION
-		iGlobalPollution = game.calculateGlobalPollution()
-		iGlobalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
-		iThreshold = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
-		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE") / 100
-
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_POLLUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_OFFSETS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iGlobalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_THRESHOLD + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_GW_CHANGE_RATE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(max(0, iChangeRate)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-		iResponsibility = 100 * (iLocalPollution - iLocalDefence)
-		iResponsibility /= max(1, iLocalThreshold)
-		iResponsibility *= iThreshold
-		iResponsibility /= max(1, iGlobalPollution - iGlobalDefence)
-		if iGwEventTally >= 0 or CyGame().isDebugMode():
-			yLocation += 1.5 * Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_RELATIVE_CONTRIBUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResponsibility) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
-
-		# Right panel: Effects
-		yLocation = Y_LOCATION
-		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_GW_INDEX + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalWarmingIndex) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
-		yLocation += 1.5 * Y_SPACING
-		fExpectedEvents = 1.0 * iGlobalWarmingChances * gc.getDefineINT("GLOBAL_WARMING_PROB") / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_EXPECTED_EVENTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + u"%0.1f" % fExpectedEvents + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		if iGwEventTally >= 0:
-			yLocation += 1.5 * Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_EVENT_TALLY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwEventTally) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		iGwPercentAnger = player.getGwPercentAnger()
-		if iGwPercentAnger >= 2:
-			yLocation += 1.5 * Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_LOCAL_ANGER_LEVEL + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwPercentAnger) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
-		if CyGame().isDebugMode():
-			yLocation += 1.5 * Y_SPACING
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_CHANCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		elif self.iActiveTab == self.iEnvironmentID:
+			self.drawEnvironmentTab()
 
 	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC 1 is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
 	# <!-- custom: BFC 1 tab design notes — icons in column headers (yellow header background gives the strongest contrast / readability for icon recognition); ; Long_Comments_py.txt #17
@@ -805,6 +669,151 @@ class CvWorldAdvisorScreen:
 			screen.setTableText(szTable, iCol, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		else:
 			screen.setTableInt(szTable, iCol, iRow, SAS_FONT_TAG_LABEL + str(iCount) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+	# ENVIRONMENT
+	def drawEnvironmentTab(self):
+		screen = self.getScreen()
+		game = CyGame()
+		player = gc.getPlayer(self.iActivePlayer)
+
+		X_LEFT_PANEL = self.ENV_X_LEFT_PANEL
+		X_MIDDLE_PANEL = self.ENV_X_MIDDLE_PANEL
+		X_RIGHT_PANEL = self.ENV_X_RIGHT_PANEL
+		Y_TOP_PANEL = self.ENV_Y_TOP_PANEL
+		H_TOP_PANEL = self.ENV_H_TOP_PANEL
+		Y_LOCATION = self.ENV_Y_LOCATION
+		PANE_WIDTH = self.ENV_PANE_WIDTH
+		PANE_HEIGHT = self.ENV_PANE_HEIGHT
+		TEXT_MARGIN = self.ENV_TEXT_MARGIN
+		Y_SPACING = self.ENV_Y_SPACING
+
+		szTopPanel = self.getNextWidgetName()
+		screen.addPanel(szTopPanel, u"", "", True, True, X_LEFT_PANEL, Y_TOP_PANEL, X_RIGHT_PANEL + PANE_WIDTH - X_LEFT_PANEL, H_TOP_PANEL, PanelStyles.PANEL_STYLE_MAIN)
+
+		iGlobalWarmingIndex = game.getGlobalWarmingIndex()
+		iGlobalWarmingChances = game.getGlobalWarmingChances()
+		iGwEventTally = game.getGwEventTally()
+		iSeverityRating = game.calculateGwSeverityRating()
+
+		szText = self.TEXT_GW_SEVERITY_RATING + ": "
+		# advc.137: Better use separate keys
+		if iSeverityRating < 30:
+			szText += localText.getColorText("TXT_KEY_LOW", (), self.COLOR_GREEN).upper()
+		elif iSeverityRating < 75:
+			szText += localText.getColorText("TXT_KEY_MEDIUM", (), self.COLOR_YELLOW).upper()
+		else:
+			szText += localText.getColorText("TXT_KEY_HIGH", (), self.COLOR_RED).upper()
+		if CyGame().isDebugMode():
+			szText += u" (%d)" % iSeverityRating
+		screen.setLabel(self.getNextWidgetName(), szTopPanel, SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, self.Z_CONTROLS + self.DZ, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		szLeftPanel = self.getNextWidgetName()
+		screen.addPanel(szLeftPanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_DOMESTIC, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		szMiddlePanel = self.getNextWidgetName()
+		screen.addPanel(szMiddlePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_GLOBAL, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		szRightPanel = self.getNextWidgetName()
+		screen.addPanel(szRightPanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_EFFECTS, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		# Left panel: domestic
+		yLocation = Y_LOCATION
+		iPopulation = player.calculatePollution(PollutionTypes.POLLUTION_POPULATION)
+		iBuildings = player.calculatePollution(PollutionTypes.POLLUTION_BUILDINGS)
+		iResources = player.calculatePollution(PollutionTypes.POLLUTION_BONUSES)
+		iPower = player.calculatePollution(PollutionTypes.POLLUTION_POWER)
+		iLocalPollution = player.calculatePollution(PollutionTypes.POLLUTION_ALL)
+		iLocalThreshold = game.calculateGwSustainabilityThreshold(self.iActivePlayer)
+		iPollutionTypes = (iPopulation != 0) * PollutionTypes.POLLUTION_POPULATION | (iBuildings != 0) * PollutionTypes.POLLUTION_BUILDINGS | (iResources != 0) * PollutionTypes.POLLUTION_BONUSES | (iPower != 0) * PollutionTypes.POLLUTION_POWER
+		iLocalDefence = game.calculateGwLandDefence(self.iActivePlayer)
+
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_POLLUTION + ":" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+
+		if iPopulation != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_POPULATION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPopulation) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
+		if iBuildings != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_BUILDINGS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
+		if iResources != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_RESOURCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResources) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
+		if iPower != 0:
+			yLocation += Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_ELECTRICITY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPower) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
+
+		yLocation += Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_OFFSETS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_IMPACT + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution - iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_LOCAL_THRESHOLD + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+
+		# Middle panel: Global
+		yLocation = Y_LOCATION
+		iGlobalPollution = game.calculateGlobalPollution()
+		iGlobalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
+		iThreshold = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
+		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE") / 100
+
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_POLLUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_OFFSETS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iGlobalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_THRESHOLD + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_GW_CHANGE_RATE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(max(0, iChangeRate)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		iResponsibility = 100 * (iLocalPollution - iLocalDefence)
+		iResponsibility /= max(1, iLocalThreshold)
+		iResponsibility *= iThreshold
+		iResponsibility /= max(1, iGlobalPollution - iGlobalDefence)
+		if iGwEventTally >= 0 or CyGame().isDebugMode():
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_RELATIVE_CONTRIBUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResponsibility) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
+
+		# Right panel: Effects
+		yLocation = Y_LOCATION
+		yLocation += 1.5 * Y_SPACING
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_GW_INDEX + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalWarmingIndex) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+		yLocation += 1.5 * Y_SPACING
+		fExpectedEvents = 1.0 * iGlobalWarmingChances * gc.getDefineINT("GLOBAL_WARMING_PROB") / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_EXPECTED_EVENTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + u"%0.1f" % fExpectedEvents + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		if iGwEventTally >= 0:
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_EVENT_TALLY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwEventTally) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iGwPercentAnger = player.getGwPercentAnger()
+		if iGwPercentAnger >= 2:
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_LOCAL_ANGER_LEVEL + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwPercentAnger) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
+		if CyGame().isDebugMode():
+			yLocation += 1.5 * Y_SPACING
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_CHANCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount)
