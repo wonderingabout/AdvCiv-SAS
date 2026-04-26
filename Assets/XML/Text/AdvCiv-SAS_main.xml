@@ -3781,6 +3781,18 @@ Created as part of AdvCiv-SAS improvements
 		<English>Flat</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_RIVER</Tag>
+		<English>River</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_LAKE</Tag>
+		<English>Lake</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_COASTAL</Tag>
+		<English>Coastal</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS</Tag>
 		<English>Plots</English>
 	</TEXT>
