@@ -147,42 +147,55 @@ def showForeignDiplomacyAdvisor():
 
 # BUG - CustDomAdv - start
 domesticAdvisor = None
+domesticAdvisorUsesBUG = None
 def createDomesticAdvisor():
-	# Creates the correct Domestic Advisor based on an option.
-	#
 	global domesticAdvisor
-	if domesticAdvisor is None:
-		if (CustDomAdvOpt.isEnabled()):
-			import CvCustomizableDomesticAdvisor
-			domesticAdvisor = CvCustomizableDomesticAdvisor.CvCustomizableDomesticAdvisor()
-		else:
-			import CvDomesticAdvisor
-			domesticAdvisor = CvDomesticAdvisor.CvDomesticAdvisor()
-		HandleInputMap[DOMESTIC_ADVISOR] = domesticAdvisor
+	global domesticAdvisorUsesBUG
+	bUseBUG = CustDomAdvOpt.isEnabled()
+	# <!-- custom: Fix: Domestic and Military advisor variant options are live BUG settings, but cached screen objects
+	# previously kept using the old variant until restarting Civ4. Rebuild on option changes so F1/F5 switch immediately.
+	# Religion did not need this path after moving into Policy Advisor. See KI#123. (GPT-5.5) -->
+	if domesticAdvisor is not None and domesticAdvisorUsesBUG == bUseBUG:
+		return
+	if (bUseBUG):
+		import CvCustomizableDomesticAdvisor
+		# <!-- custom: Fix KI#123 follow-up Python error: CDA stores its position-cache flag at module level, so the rebuilt advisor object skipped createPositions and raised missing nScreenX. See KI#123. (GPT-5.5) -->
+		CvCustomizableDomesticAdvisor.forcePositionCalc()
+		domesticAdvisor = CvCustomizableDomesticAdvisor.CvCustomizableDomesticAdvisor()
+	else:
+		import CvDomesticAdvisor
+		domesticAdvisor = CvDomesticAdvisor.CvDomesticAdvisor()
+	domesticAdvisorUsesBUG = bUseBUG
+	HandleInputMap[DOMESTIC_ADVISOR] = domesticAdvisor
 # BUG - CustDomAdv - end
 
 # advc.003y: Default value for unused param added to simplify calls from the DLL
 def showDomesticAdvisor(argsList=None):
 	if (-1 != CyGame().getActivePlayer()):
+		createDomesticAdvisor()
 		domesticAdvisor.interfaceScreen()
 
 # BUG - Military Advisor - start
 militaryAdvisor = None
+militaryAdvisorUsesBUG = None
 def createMilitaryAdvisor():
-	# Creates the correct Military Advisor based on an option.
-	#
 	global militaryAdvisor
-	if militaryAdvisor is None:
-		if (AdvisorOpt.isBUG_MA()):
-			import CvBUGMilitaryAdvisor
-			militaryAdvisor = CvBUGMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
-		else:
-			import CvMilitaryAdvisor
-			militaryAdvisor = CvMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
-		HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
+	global militaryAdvisorUsesBUG
+	bUseBUG = AdvisorOpt.isBUG_MA()
+	if militaryAdvisor is not None and militaryAdvisorUsesBUG == bUseBUG:
+		return
+	if (bUseBUG):
+		import CvBUGMilitaryAdvisor
+		militaryAdvisor = CvBUGMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
+	else:
+		import CvMilitaryAdvisor
+		militaryAdvisor = CvMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
+	militaryAdvisorUsesBUG = bUseBUG
+	HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
 
 def showMilitaryAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
+		createMilitaryAdvisor()
 		if (AdvisorOpt.isBUG_MA()):
 			# TODO: move to CvBUGMilitaryAdvisor.interfaceScreen()
 			militaryAdvisor.IconGridActive = False

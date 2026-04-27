@@ -158,6 +158,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players)  
 [121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array)  
 [122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#122---fixed-while-adding-sevopedia-eventtriggerinfo-missing-getters-found-and-fixed-3-dll-python-binding-bugs)  
+[123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4616,3 +4617,50 @@ Fix:
 File changed:
 
 - [CvGameCoreDLL/CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp)
+
+## 123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1WUooo99uQ9KuXa9mrXvt_74s-R4DL0br?usp=sharing).
+
+Observed issue:
+
+- Changing the BUG menu setting for Domestic Advisor (F1) or Military Advisor (F5) did not affect the next advisor open in the same game session.
+- The change only appeared after restarting Civ4.
+- From in-game testing, the Religion advisor option did not have this issue (even after Religion was moved into the Policy Advisor).
+
+Cause:
+
+- `CvScreensInterface.py` cached the Domestic and Military advisor screen objects after startup.
+- Changing the BUG option updated the option value, but the cached screen object was still the old advisor variant.
+
+Fix:
+
+- `CvScreensInterface.py` now remembers which Domestic/Military advisor variant was created.
+- When F1 or F5 is opened, it compares the cached variant with the current BUG option and rebuilds the advisor object if the option changed.
+- `HandleInputMap` is updated with the rebuilt object so input routing follows the active advisor variant.
+
+Note:
+
+As part of this change, also applied the following change:
+
+```py
+		# <!-- custom: Fix KI#123 follow-up Python error: CDA stores its position-cache flag at module level, so the rebuilt advisor object skipped createPositions and raised missing nScreenX. See KI#123. (GPT-5.5) -->
+		CvCustomizableDomesticAdvisor.forcePositionCalc()
+```
+
+to fix the following py error:
+
+```log
+Traceback (most recent call last):
+
+  File "CvScreensInterface", line 174, in showDomesticAdvisor
+
+  File "CvCustomizableDomesticAdvisor", line 861, in interfaceScreen
+
+AttributeError: CvCustomizableDomesticAdvisor instance has no attribute 'nScreenX'
+ERR: Python function showDomesticAdvisor failed, module CvScreensInterface
+```
+
+File changed:
+
+- [Assets/Python/EntryPoints/CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py)

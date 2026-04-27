@@ -3824,6 +3824,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_ESPIONAGE_SCREEN</Tag>
 		<English>Espionage Tab</English>
 	</TEXT>
+	<!-- custom: BUG options advisor headers reflect AdvCiv-SAS shortcut layout: Religion is now inside Policy Advisor (F2), and Info Screen is F8. (GPT-5.5); note: although these TXT_KEY_BUG_OPTLABEL_ seem to be enough to apply the change ingame, also changed the hardcoded text equivalent strings in BugAdvisorOptionsTab.py just in case and for consistency. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_RELIGIOUS_ADVISOR</Tag>
+		<English>Religion [F2]:</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
 		<English>Info Screen [F8]:</English>

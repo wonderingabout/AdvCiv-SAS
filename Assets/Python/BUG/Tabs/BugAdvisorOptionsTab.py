@@ -70,7 +70,8 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
 
 		self.addSpacer(screen, center, "Before_Religious_Advisor") # advc.004
 		
-		self.addLabel(screen, center, "Religious_Advisor", "Religion [F7]:")
+		# <!-- custom: changing TXT_KEY_BUG_OPTLABEL_ seems to be enough to change them but changing them here as well to reflect new advisor organization just in case and for consistency (was F7) -->
+		self.addLabel(screen, center, "Religious_Advisor", "Religion [F2]:")
 		self.addCheckbox(screen, center, "Advisors__BugReligiousTab")
 		self.addTextDropdown(screen, center, center, "Advisors__ShowReligions", True)
 
@@ -79,7 +80,8 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
 		#self.addCheckbox(screen, center, "Advisors__BugMembersTab")
 
 		# K-Mod, info stuff moved from center panel to right
-		self.addLabel(screen, right, "Info_Screens", "Info [F9]:")
+		# <!-- custom: changing TXT_KEY_BUG_OPTLABEL_ seems to be enough to change them ingame but changing them here as well to reflect new advisor organization just in case and for consistency (was "Info [F9]:") -->
+		self.addLabel(screen, right, "Info_Screens", "Info Screen [F8]:")
 		# <advc.004>
 		# Moved up b/c the sub-option looked strange at the end of the block
 		self.addCheckbox(screen, right, "Advisors__BugInfoWonders")
