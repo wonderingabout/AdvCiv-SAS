@@ -785,9 +785,6 @@ class CvMainInterface:
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
-		# <!-- custom: use the black version rather because the red version of the cross mark is too distracting visually; also use on off dds emojis because actually implementing the yellow border halo effect is tedious and this works more than well enough for this need (pencil luckily coincidentally perfectly overlaps with half of the cross mark) -->
-		self.szAnnotationsToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_CROSS_MARK_BLACK").getPath()
-		self.szAnnotationsToggleOnPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PENCIL").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
@@ -866,7 +863,8 @@ class CvMainInterface:
 			MiniMapButton("Grid", ControlTypes.CONTROL_GRID, "Button_HUDBtnGrid_Style"),
 			MiniMapButton("Yields", ControlTypes.CONTROL_YIELDS, "Button_HUDBtnTileAssets_Style"),
 			MiniMapButton("BareMap", ControlTypes.CONTROL_BARE_MAP, "Button_HUDBtnClearMap_Style"),
-			MiniMapButton("AnnotationsVisible", None, None, self.szAnnotationsToggleOffPath, self.szAnnotationsToggleOnPath),
+			# <!-- custom: annotation visibility toggle uses Civ4's turn-log notebook/pencil art; only the widget handler differs from the built-in minimap buttons. (GPT-5.5) -->
+			MiniMapButton("AnnotationsVisible", None, "Button_HUDLog_Style"),
 			MiniMapButton("ScoresVisible", ControlTypes.CONTROL_SCORES, "Button_HUDBtnRank_Style")
 		]
 
@@ -2095,8 +2093,8 @@ class CvMainInterface:
 		screen.setStyle("InterfaceTopRight", "Panel_Game_HudTR_Style")
 		screen.hide("InterfaceTopRight")
 
-		# Turn log Button
-		self.setStyledButton("TurnLogButton", "Button_HUDLog_Style",
+		# <!-- custom: give the turn log the diplomatic-advisor icon so the log notebook/pencil icon can represent map annotations in the minimap row. (GPT-5.5) -->
+		self.setStyledButton("TurnLogButton", "Button_HUDAdvisorForeign_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_TURN_LOG).getActionInfoIndex())
 		screen.hide("TurnLogButton")
@@ -2109,7 +2107,8 @@ class CvMainInterface:
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_CIVICS_SCREEN).getActionInfoIndex())
 		screen.hide("PolicyAdvisorButton")
-		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorForeign_Style",
+		# <!-- custom: use the corporation-advisor icon for foreign diplomacy after moving the diplomatic-advisor icon to the turn log; thematically close enough for relationship/network management. (GPT-5.5) -->
+		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorCorporation_Style",
 				WidgetTypes.WIDGET_ACTION,
 				gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_DIPLOMACY_SCREEN).getActionInfoIndex())
 		screen.hide("ForeignDiplomacyAdvisorButton")
@@ -7975,11 +7974,7 @@ class CvMainInterface:
 		iX = gRect("MiniMapPanel").x()
 		i = 0
 		for szButton in aShow:
-			if szButton == "AnnotationsVisible":
-				iAnnotationInset = self.annotationToggleInset()
-				screen.moveItem(szButton, iX + iAnnotationInset, iY + iAnnotationInset, 0.0)
-			else:
-				screen.moveItem(szButton, iX, iY, 0.0)
+			screen.moveItem(szButton, iX, iY, 0.0)
 			screen.moveToFront(szButton)
 			if szButton == "AnnotationsVisible":
 				screen.setState(szButton, self.bAnnotationsVisible)
@@ -8012,15 +8007,13 @@ class CvMainInterface:
 		lRect = gRect("MiniMapButton")
 		# advc: Replacing a lot of redundant code
 		for btn in self.aMiniMapMainButtons:
-			# <!-- custom: annotations toggle is not a BtS ControlInfo action, so use a custom widget and temporary SAS emoji art. (GPT-5.5) -->
 			if btn.eControl is None:
-				iAnnotationInset = self.annotationToggleInset()
-				screen.addCheckBoxGFC(btn.szName,
-						btn.szTexturePath, btn.szTextureHLPath,
-						lRect.x() + iAnnotationInset, lRect.y() + iAnnotationInset,
-						lRect.size() - 2 * iAnnotationInset, lRect.size() - 2 * iAnnotationInset,
+				# <!-- custom: annotations toggle has no BtS ControlInfo action, so route it through a custom widget while keeping the standard styled HUD checkbox path. (GPT-5.5) -->
+				screen.addCheckBoxGFC(btn.szName, "", "",
+						lRect.x(), lRect.y(), lRect.size(), lRect.size(),
 						WIDGET_ANNOTATIONS_TOGGLE, -1, -1,
-						ButtonStyles.BUTTON_STYLE_IMAGE)
+						ButtonStyles.BUTTON_STYLE_LABEL)
+				screen.setStyle(btn.szName, btn.szStyle)
 			else:
 				screen.addCheckBoxGFC(btn.szName, "", "",
 						# advc (note): Same preliminary position for all of them
@@ -8043,10 +8036,6 @@ class CvMainInterface:
 		screen.setState("GlobeToggle", False)
 		screen.hide("GlobeToggle")
 	# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
-
-	def annotationToggleInset(self):
-		# <!-- custom: custom emoji DDS fills its full checkbox and can spill visually into the minimap; keep the slot size but inset this one icon slightly. (GPT-5.5) -->
-		return max(1, gRect("MiniMapButton").size() / 12)
 
 	def update(self, fDelta):
 		return
@@ -8107,7 +8096,7 @@ class CvMainInterface:
 			self.PLE.hideInfoPane()
 		return 0
 
-	# <!-- custom: map-annotation toggle helpers for the new minimap button: hide/show dotmap overlays and cached sign/landmark billboards together. (GPT-5.5) -->
+	# <!-- custom: map-annotation toggle helpers: hide/show dotmap overlays and cached sign/landmark billboards together. (GPT-5.5) -->
 	def toggleMapAnnotations(self):
 		self.bAnnotationsVisible = not self.bAnnotationsVisible
 		if self.bAnnotationsVisible:
@@ -8388,10 +8377,7 @@ class CvMainInterface:
 
 # advc:
 class MiniMapButton:
-	def __init__(self, szName, eControl, szStyle, szTexturePath = None, szTextureHLPath = None):
+	def __init__(self, szName, eControl, szStyle):
 		self.szName = szName
 		self.eControl = eControl
 		self.szStyle = szStyle
-		# <!-- custom: add texture paths for Python-only minimap buttons such as the annotation toggle, which has no native ControlInfo action/style art path. (GPT-5.5) -->
-		self.szTexturePath = szTexturePath
-		self.szTextureHLPath = szTextureHLPath
