@@ -9,6 +9,7 @@ from CvPythonExtensions import *
 import CvUtil
 from SASUtils import *
 from SASFontUtils import *
+import SASTextScale
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -252,7 +253,6 @@ class CvWorldAdvisorScreen:
 			self.drawEnvironmentTab()
 
 	# BFC 1
-	# <!-- custom: Long_Comments_py.txt #17 -->
 	def drawBFC1Tab(self):
 		aszTableRows, aiPlotTotals, aaiTerrainTotals, aaiFeatureTotals = self.collectBFC1Data()
 		aiTerrainColumns = self.getTerrainColumnsWithoutPlotShapes()
@@ -328,10 +328,10 @@ class CvWorldAdvisorScreen:
 		screen.setTableColumnHeader(szTable, 4, SAS_FONT_TAG_LABEL + self.TEXT_BFC + SAS_FONT_TAG_CLOSE, iDataW)
 		screen.setTableColumnHeader(szTable, 5, SAS_FONT_TAG_LABEL + self.TEXT_WATER + SAS_FONT_TAG_CLOSE, iDataW)
 		# <!-- custom: Plot-type columns have room for icon + text; Peak and Hill buttons are visually similar, so labels avoid ambiguity. (GPT-5.5) -->
-		screen.setTableColumnHeader(szTable, 6, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK) + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 7, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL) + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 6, SASTextScale.labelImageText(self.BUTTON_TERRAIN_PEAK, self.BFC_ICON_SIZE, self.TEXT_PEAK), iDataW)
+		screen.setTableColumnHeader(szTable, 7, SASTextScale.labelImageText(self.BUTTON_TERRAIN_HILL, self.BFC_ICON_SIZE, self.TEXT_HILL), iDataW)
 		screen.setTableColumnHeader(szTable, 8, SAS_FONT_TAG_LABEL + self.TEXT_FLAT + SAS_FONT_TAG_CLOSE, iDataW)
-		screen.setTableColumnHeader(szTable, 9, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img> %s" % (self.BUTTON_RIVER, self.BFC_ICON_SIZE, self.TEXT_RIVER) + SAS_FONT_TAG_CLOSE, iDataW)
+		screen.setTableColumnHeader(szTable, 9, SASTextScale.labelImageText(self.BUTTON_RIVER, self.BFC_ICON_SIZE, self.TEXT_RIVER), iDataW)
 		screen.setTableColumnHeader(szTable, 10, SAS_FONT_TAG_LABEL + self.TEXT_LAKE + SAS_FONT_TAG_CLOSE, iDataW)
 		screen.setTableColumnHeader(szTable, 11, SAS_FONT_TAG_LABEL + self.TEXT_COASTAL + SAS_FONT_TAG_CLOSE, iDataW)
 
@@ -353,7 +353,7 @@ class CvWorldAdvisorScreen:
 			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.setTableInt(szTable, 2, iRow, SAS_FONT_TAG_LABEL + str(iPopulation) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		if iOwner >= 0:
-			screen.setTableInt(szTable, 3, iRow, SAS_FONT_TAG_LABEL + str(iFoundYear) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableIntLabel(screen, szTable, 3, iRow, iFoundYear, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		else:
 			screen.setTableText(szTable, 3, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		for iCol in range(len(aiPlotCounts)):
@@ -373,10 +373,10 @@ class CvWorldAdvisorScreen:
 		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_CITY + SAS_FONT_TAG_CLOSE, self.BFC_CITY_COL_WIDTH)
 		iCol = 2
 		for iTerrain in aiTerrainColumns:
-			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getTerrainInfo(iTerrain).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+			screen.setTableColumnHeader(szTable, iCol, SASTextScale.labelImageText(gc.getTerrainInfo(iTerrain).getButton(), self.BFC_ICON_SIZE), iDataW)
 			iCol += 1
 		for iFeature in aiFeatureColumns:
-			screen.setTableColumnHeader(szTable, iCol, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (gc.getFeatureInfo(iFeature).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+			screen.setTableColumnHeader(szTable, iCol, SASTextScale.labelImageText(gc.getFeatureInfo(iFeature).getButton(), self.BFC_ICON_SIZE), iDataW)
 			iCol += 1
 
 		for iRow in range(len(aszRows)):
@@ -471,7 +471,7 @@ class CvWorldAdvisorScreen:
 		iColIdx = 2
 		for aiColumns, fnGetInfo, aaiCounts in aoGroups:
 			for iType in aiColumns:
-				screen.setTableColumnHeader(szTable, iColIdx, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (fnGetInfo(iType).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
+				screen.setTableColumnHeader(szTable, iColIdx, SASTextScale.labelImageText(fnGetInfo(iType).getButton(), self.BFC_ICON_SIZE), iDataW)
 				iColIdx += 1
 
 		for iRow in range(len(aszRows)):

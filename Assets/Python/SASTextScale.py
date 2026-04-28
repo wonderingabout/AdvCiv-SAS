@@ -62,6 +62,18 @@ def labelText(szText):
 	return applyFontTag(szText, SAS_FONT_TAG_LABEL)
 
 
+def imageText(szButton, iSize, szText=None):
+	# <!-- custom: table headers use inline <img> text instead of separate hoverable/clickable image widgets because separate header icons do not sort with the table column. Centralizing this keeps advisor icon headers consistent. Long_Comments_py.txt #17. (GPT-5.5) -->
+	szImage = u"<img=%s size=%d></img>" % (unicode(szButton), iSize)
+	if szText is None or szText == "":
+		return szImage
+	return szImage + u" " + unicode(szText)
+
+
+def labelImageText(szButton, iSize, szText=None):
+	return labelText(imageText(szButton, iSize, szText))
+
+
 def titleText(szText):
 	return applyFontTag(szText, SAS_FONT_TAG_TITLE)
 
@@ -100,6 +112,7 @@ def setTableTextLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, 
 
 
 def setTableIntLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
+	# <!-- custom: use this for sortable numeric table cells, even when display strings include signs or color tags (e.g. +8, -2, raw signed years like -4000). Do not use it for formatted date text such as 4000 BC / 800 AD; those are intentionally textual. Civ4 table sorting treats setTableInt cells numerically, while setTableText sorts lexically. (GPT-5.5) -->
 	setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
 
 
