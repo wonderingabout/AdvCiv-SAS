@@ -63,7 +63,7 @@ def labelText(szText):
 
 
 def imageText(szButton, iSize, szText=None):
-	# <!-- custom: table headers use inline <img> text instead of separate hoverable/clickable image widgets because separate header icons do not sort with the table column. Centralizing this keeps advisor icon headers consistent. Long_Comments_py.txt #17. (GPT-5.5) -->
+	# <!-- custom: table headers use inline <img> text instead of separate hoverable/clickable image widgets because separate header icons do not easily sort with the table column. Centralizing this keeps advisor icon headers consistent. Long_Comments_py.txt #17. (GPT-5.5) -->
 	szImage = u"<img=%s size=%d></img>" % (unicode(szButton), iSize)
 	if szText is None or szText == "":
 		return szImage

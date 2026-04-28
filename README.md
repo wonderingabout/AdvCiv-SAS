@@ -44,8 +44,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Miscallenous screens](/README.md#miscallenous-screens)  
 &emsp;[Main interface rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
-&emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
-&emsp;[Scoreboard](/README.md#scoreboard)  
+&emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
 &emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)  
 &emsp;[Other new categories](/README.md#other-new-categories)  
@@ -298,17 +297,26 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
 
-#### Map view rework
+#### Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)
 
 Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
 
-### Scoreboard
+Besides these and other changes in the main changes guide or code only, a notable change is the new toggle or scroll buttons in map view.
 
-New features have been added: scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
+##### Scoreboard
+
+New scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button features have been added.
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG" alt="0.410_scoreboard (3).JPG" width="250"></img>
+
+##### Map annotations
+
+A new toggle button to show or hide map annotations (Alt + S captions or Alt + X BFC marks) in map view has been added. The toggled state persists on save and load.
+
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG" alt="0.420_annotations (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG" alt="0.420_annotations (2).JPG" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
 

@@ -58,11 +58,13 @@ import WidgetUtil
 WIDGET_SCORE_SCROLL_UP     = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
 WIDGET_SCORE_SCROLL_DOWN   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
 WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
+WIDGET_ANNOTATIONS_TOGGLE  = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
 def _scoreHelp(szText):
 	return lambda *_: SAS_FONT_TAG_HOVER + szText + SAS_FONT_TAG_CLOSE
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP,     _scoreHelp(u"Scroll scoreboard up"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN,   _scoreHelp(u"Scroll scoreboard down"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE,  _scoreHelp(u"Toggle show map annotations"))
 # <advc.090>
 import math
 def floor(f):
@@ -699,6 +701,9 @@ class CvMainInterface:
 		self.iScoreScrollOffset = 0
 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
 		self.bScoreAlwaysExpand = False
+		# <!-- custom: main-map annotation visibility toggle; signs/landmarks have no Python visibility flag, so hide caches them and removes engine billboards until restored. (GPT-5.5) -->
+		self.bAnnotationsVisible = True
+		self.aHiddenAnnotationSigns = []
 
 
 
@@ -780,6 +785,9 @@ class CvMainInterface:
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+		# <!-- custom: use the black version rather because the red version of the cross mark is too distracting visually; also use on off dds emojis because actually implementing the yellow border halo effect is tedious and this works more than well enough for this need (pencil luckily coincidentally perfectly overlaps with half of the cross mark) -->
+		self.szAnnotationsToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_CROSS_MARK_BLACK").getPath()
+		self.szAnnotationsToggleOnPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PENCIL").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
@@ -858,6 +866,7 @@ class CvMainInterface:
 			MiniMapButton("Grid", ControlTypes.CONTROL_GRID, "Button_HUDBtnGrid_Style"),
 			MiniMapButton("Yields", ControlTypes.CONTROL_YIELDS, "Button_HUDBtnTileAssets_Style"),
 			MiniMapButton("BareMap", ControlTypes.CONTROL_BARE_MAP, "Button_HUDBtnClearMap_Style"),
+			MiniMapButton("AnnotationsVisible", None, None, self.szAnnotationsToggleOffPath, self.szAnnotationsToggleOnPath),
 			MiniMapButton("ScoresVisible", ControlTypes.CONTROL_SCORES, "Button_HUDBtnRank_Style")
 		]
 
@@ -7966,8 +7975,14 @@ class CvMainInterface:
 		iX = gRect("MiniMapPanel").x()
 		i = 0
 		for szButton in aShow:
-			screen.moveItem(szButton, iX, iY, 0.0)
+			if szButton == "AnnotationsVisible":
+				iAnnotationInset = self.annotationToggleInset()
+				screen.moveItem(szButton, iX + iAnnotationInset, iY + iAnnotationInset, 0.0)
+			else:
+				screen.moveItem(szButton, iX, iY, 0.0)
 			screen.moveToFront(szButton)
+			if szButton == "AnnotationsVisible":
+				screen.setState(szButton, self.bAnnotationsVisible)
 			screen.show(szButton)
 			iX += iStep
 			i += 1
@@ -7997,13 +8012,23 @@ class CvMainInterface:
 		lRect = gRect("MiniMapButton")
 		# advc: Replacing a lot of redundant code
 		for btn in self.aMiniMapMainButtons:
-			screen.addCheckBoxGFC(btn.szName, "", "",
-					# advc (note): Same preliminary position for all of them
-					lRect.x(), lRect.y(), lRect.size(), lRect.size(),
-					WidgetTypes.WIDGET_ACTION,
-					gc.getControlInfo(btn.eControl).getActionInfoIndex(), -1,
-					ButtonStyles.BUTTON_STYLE_LABEL)
-			screen.setStyle(btn.szName, btn.szStyle)
+			# <!-- custom: annotations toggle is not a BtS ControlInfo action, so use a custom widget and temporary SAS emoji art. (GPT-5.5) -->
+			if btn.eControl is None:
+				iAnnotationInset = self.annotationToggleInset()
+				screen.addCheckBoxGFC(btn.szName,
+						btn.szTexturePath, btn.szTextureHLPath,
+						lRect.x() + iAnnotationInset, lRect.y() + iAnnotationInset,
+						lRect.size() - 2 * iAnnotationInset, lRect.size() - 2 * iAnnotationInset,
+						WIDGET_ANNOTATIONS_TOGGLE, -1, -1,
+						ButtonStyles.BUTTON_STYLE_IMAGE)
+			else:
+				screen.addCheckBoxGFC(btn.szName, "", "",
+						# advc (note): Same preliminary position for all of them
+						lRect.x(), lRect.y(), lRect.size(), lRect.size(),
+						WidgetTypes.WIDGET_ACTION,
+						gc.getControlInfo(btn.eControl).getActionInfoIndex(), -1,
+						ButtonStyles.BUTTON_STYLE_LABEL)
+				screen.setStyle(btn.szName, btn.szStyle)
 			screen.setState(btn.szName, False)
 			screen.hide(btn.szName)
 
@@ -8018,6 +8043,10 @@ class CvMainInterface:
 		screen.setState("GlobeToggle", False)
 		screen.hide("GlobeToggle")
 	# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
+
+	def annotationToggleInset(self):
+		# <!-- custom: custom emoji DDS fills its full checkbox and can spill visually into the minimap; keep the slot size but inset this one icon slightly. (GPT-5.5) -->
+		return max(1, gRect("MiniMapButton").size() / 12)
 
 	def update(self, fDelta):
 		return
@@ -8078,6 +8107,106 @@ class CvMainInterface:
 			self.PLE.hideInfoPane()
 		return 0
 
+	# <!-- custom: map-annotation toggle helpers for the new minimap button: hide/show dotmap overlays and cached sign/landmark billboards together. (GPT-5.5) -->
+	def toggleMapAnnotations(self):
+		self.bAnnotationsVisible = not self.bAnnotationsVisible
+		if self.bAnnotationsVisible:
+			self.showMapAnnotations()
+		else:
+			self.hideMapAnnotations()
+		self.screen.setState("AnnotationsVisible", self.bAnnotationsVisible)
+
+	def hideMapAnnotations(self):
+		self.hideMapAnnotationSigns()
+		try:
+			import CvStrategyOverlay
+			# <!-- custom: reuse DotMap because we both call its normal hide() and then force-clear its visual layers. In-game testing showed drawings can be visible while DotMap.visible is already false; without clearCityLayers(), the first toggle hides signs but leaves Alt+X BFC drawings until toggled again. (GPT-5.5) -->
+			kDotMap = CvStrategyOverlay.getDotMap()
+			kDotMap.hide()
+			kDotMap.clearCityLayers()
+			CvStrategyOverlay.StratLayerOpt.setShowDotMap(False)
+		except:
+			BugUtil.warn("CvMainInterface.hideMapAnnotations failed to hide dotmap overlay")
+
+	def showMapAnnotations(self):
+		self.showMapAnnotationSigns()
+		try:
+			import CvStrategyOverlay
+			CvStrategyOverlay.StratLayerOpt.setShowDotMap(True)
+			CvStrategyOverlay.getDotMap().show()
+		except:
+			BugUtil.warn("CvMainInterface.showMapAnnotations failed to show dotmap overlay")
+
+	# <!-- custom: save/load support for hidden annotations. Empirically, the previous save hook re-added hidden captions during save, so captions appeared immediately while BFC drawings stayed hidden; reloading that save then showed only BFC annotations and lost the caption annotations. Persisting this cache keeps the hidden state stable and lets the toggle restore captions later. (GPT-5.5) -->
+	def isMapAnnotationsHiddenForSave(self):
+		return not self.bAnnotationsVisible
+
+	def getHiddenMapAnnotationSignsForSave(self):
+		if not self.bAnnotationsVisible and self.aHiddenAnnotationSigns:
+			return self.aHiddenAnnotationSigns
+		return []
+
+	def loadHiddenMapAnnotationSigns(self, aHiddenAnnotationSigns):
+		if aHiddenAnnotationSigns is None:
+			aHiddenAnnotationSigns = []
+		self.aHiddenAnnotationSigns = aHiddenAnnotationSigns
+		self.bAnnotationsVisible = False
+		try:
+			self.screen.setState("AnnotationsVisible", self.bAnnotationsVisible)
+		except:
+			BugUtil.warn("CvMainInterface.loadHiddenMapAnnotationSigns could not update the annotation toggle button state")
+
+	def loadVisibleMapAnnotations(self):
+		self.aHiddenAnnotationSigns = []
+		self.bAnnotationsVisible = True
+		try:
+			self.screen.setState("AnnotationsVisible", self.bAnnotationsVisible)
+		except:
+			BugUtil.warn("CvMainInterface.loadVisibleMapAnnotations could not update the annotation toggle button state")
+
+	def hideMapAnnotationSigns(self):
+		kEngine = CyEngine()
+		self.aHiddenAnnotationSigns = []
+		for iSign in range(kEngine.getNumSigns()):
+			kSign = kEngine.getSignByIndex(iSign)
+			kPlot = kSign.getPlot()
+			if kPlot and not kPlot.isNone():
+				self.aHiddenAnnotationSigns.append((
+						kPlot.getX(), kPlot.getY(),
+						int(kSign.getPlayerType()), kSign.getCaption()))
+		for iX, iY, ePlayer, szCaption in self.aHiddenAnnotationSigns:
+			kPlot = gc.getMap().plot(iX, iY)
+			if ePlayer == -1:
+				kEngine.removeLandmark(kPlot)
+			else:
+				kEngine.removeSign(kPlot, ePlayer)
+
+	def showMapAnnotationSigns(self):
+		kEngine = CyEngine()
+		for iX, iY, ePlayer, szCaption in self.aHiddenAnnotationSigns:
+			kPlot = gc.getMap().plot(iX, iY)
+			if isinstance(szCaption, unicode):
+				# <!-- custom: this fixes the below error with the help of GPT-5.5 thanks -->
+				# Traceback (most recent call last):
+				#
+				# File "CvScreensInterface", line 961, in handleInput
+				# File "CvMainInterface", line 8203, in handleInput
+				# File "CvMainInterface", line 8101, in toggleMapAnnotations
+				# File "CvMainInterface", line 8116, in showMapAnnotations
+				# File "CvMainInterface", line 8154, in showMapAnnotationSigns
+				# ArgumentError: Python argument types in
+				# 	CyEngine.addSign(CyEngine, CyPlot, CvPythonExtensions.PlayerTypes, unicode)
+				# did not match C++ signature:
+				# 	addSign(class CyEngine {lvalue}, class CyPlot *, int, char const *)
+				# ERR: Python function handleInput failed, module CvScreensInterface
+				#
+				szCaption = szCaption.encode('latin_1')
+			if ePlayer == -1:
+				kEngine.addLandmark(kPlot, szCaption)
+			else:
+				kEngine.addSign(kPlot, ePlayer, szCaption)
+		self.aHiddenAnnotationSigns = []
+
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):
 #		BugUtil.debugInput(inputClass)
@@ -8122,6 +8251,9 @@ class CvMainInterface:
 				elif fn == "ScoreExpandToggle":
 					self.bScoreAlwaysExpand = not self.bScoreAlwaysExpand
 					self.updateScoreStrings()
+					return 1
+				elif fn == "AnnotationsVisible":
+					self.toggleMapAnnotations()
 					return 1
 				elif fn.startswith("BuildFilter"):
 					iNewFilter = inputClass.getData1()
@@ -8256,7 +8388,10 @@ class CvMainInterface:
 
 # advc:
 class MiniMapButton:
-	def __init__(self, szName, eControl, szStyle):
+	def __init__(self, szName, eControl, szStyle, szTexturePath = None, szTextureHLPath = None):
 		self.szName = szName
 		self.eControl = eControl
 		self.szStyle = szStyle
+		# <!-- custom: add texture paths for Python-only minimap buttons such as the annotation toggle, which has no native ControlInfo action/style art path. (GPT-5.5) -->
+		self.szTexturePath = szTexturePath
+		self.szTextureHLPath = szTextureHLPath
