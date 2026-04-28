@@ -271,7 +271,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 		return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
 	else:
-		# <!-- custom: the higher the delay the worse/lower the contact prob (example gandhi's data/values vs montezuma so we (should i think anyways) invert both)-->
+		# <!-- custom: the higher the delay the worse/lower the contact prob (example gandhi's data/values vs montezuma so we should (i think) invert both) -->
 		adjusted_delay = contact_delay_raw
 		if is_debug:
 			print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw, forced to zero aggregation has yet to be determined. Values of these are contact_delay_raw=%d, adjusted_delay=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, str(force_zero_adjusted_values)))
@@ -287,7 +287,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
 		else:
-			# <!-- custom: (and else,), if both delay and rand are compatible with havig a scaling and acutal contact probability (that we can compute too maybe here indeed), then (to compute this we propose this formula that) the higher the delay the worse/lower the contact prob, and the higher the rand the worse/lower the contact prob (example gandhi's data/values vs montezuma so we (should i think anyways) invert both)-->
+			# <!-- custom: (and else,), if both delay and rand are compatible with havig a scaling and acutal contact probability (that we can compute too maybe here indeed), then (to compute this we propose this formula that) the higher the delay the worse/lower the contact prob, and the higher the rand the worse/lower the contact prob (example gandhi's data/values vs montezuma so we should (i think) invert both) -->
 			adjusted_rand = contact_rand_raw
 			force_zero_adjusted_values = False # Normal aggregation
 			if is_debug:

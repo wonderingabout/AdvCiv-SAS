@@ -3381,7 +3381,7 @@ bool CvUnit::canScrap() const
 			(eUnitAI == UNITAI_ATTACK_CITY_LEMMING) ||
 			(eUnitAI == UNITAI_COUNTER) ||
 			(eUnitAI == UNITAI_CITY_COUNTER) ||
-			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity)-->
+			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity) -->
 			//
 			(eUnitAI == UNITAI_CITY_DEFENSE) ||
 			(eUnitAI == UNITAI_CITY_SPECIAL) ||
@@ -3661,7 +3661,7 @@ bool CvUnit::canScrap() const
 			return false;
 		}
 
-		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases)-->
+		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases) -->
 		const bool bAirMissileUnitAIs = (
 			(eUnitAI == UNITAI_ICBM) ||
 			(eUnitAI == UNITAI_MISSILE_AIR)

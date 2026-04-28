@@ -1883,7 +1883,7 @@ Created as part of AdvCiv-SAS improvements
 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
 		</InterfaceArtInfo>
-		<!-- ❌ emoji from emojiterra (red (base) version: Noto Color Emoji 17.0)-->
+		<!-- ❌ emoji from emojiterra (red (base) version: Google Noto Color Emoji 17.0) -->
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_CROSS_MARK</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds</Path>

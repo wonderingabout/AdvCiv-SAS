@@ -4719,7 +4719,7 @@ and gold or religion or culture or such or growth or science or other would not 
 				</Building>
 				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help thanks -->
 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this way so they can focus more on producing units. -->
-				<!-- custom: (Normal Buildings)-->
+				<!-- custom: (Normal Buildings) -->
 
 ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
 ----- Comment #347 -----
@@ -4729,7 +4729,7 @@ and gold or religion or culture or such or growth or science or other would not 
 					<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
 					<BuildingType>NONE</BuildingType>
 				</Building>
-				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless)-->
+				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless) -->
 
 ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
 ----- Comment #348 -----

@@ -1776,7 +1776,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				}
 				// <!-- custom: else nothing to do on flatland snow, that would raise our yields at all (we DON'T want forts...) -->
 			}
-			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml (although i didn't check too much if at all to be fair but it seems to function as such ingame)-->
+			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml (although i didn't check too much if at all but it seems to function as such ingame) -->
 			else if (eTerrain == eTerrainDesert)
 			{
 				if (kPlot.isHills())

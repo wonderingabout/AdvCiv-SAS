@@ -37,7 +37,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<Define>
 		<!-- The prospect of a speedy military victory incites us to wage war. This covers Domination, Conquest and Diplomatic victory; Diplo victory also factors into ILL_WILL. -->
-		<!-- custom: slightly increase war propension if we are likely to win, but not increasing it a lot, as there is a risk too of going too soon to war (exposure to other rivals, risk if war fails, slower economy short term, was 100)-->
+		<!-- custom: slightly increase war propension if we are likely to win, but not increasing it a lot, as there is a risk too of going too soon to war (exposure to other rivals, risk if war fails, slower economy short term, was 100) -->
 		<DefineName>UWAI_WEIGHT_MILITARY_VICTORY</DefineName>
 		<iDefineIntVal>105</iDefineIntVal>
 	</Define>

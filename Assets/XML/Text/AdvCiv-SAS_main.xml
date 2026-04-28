@@ -740,7 +740,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you'd need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
+	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you'd need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there) -->
 	<TEXT>
 		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
 		<English></English>

@@ -904,7 +904,7 @@ int AIFoundValue::evaluate()
 					{
 						iValue += iValueHomeFloodPlains;
 					}
-					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it)-->
+					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it) -->
 					else 
 					{
 						if (pIsHills)
@@ -3605,7 +3605,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // 		} // </advc.031>
 // 		// K-Mod.
 
-// 		// <!-- custom: remove long distance penalties, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar)--> 
+// 		// <!-- custom: remove long distance penalties, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar) --> 
 // 		/*  advc.031: Make expansive leaders indifferent about distance 5 vs. 6,
 // 			but don't encourage greater distances. */
 // 		// if (iNearestDistance > iTargetRange +
