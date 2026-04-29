@@ -1606,9 +1606,10 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
 		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
+	<!-- custom: abbreviated collateral damage to avoid having to have a 2nd line for siege or such units (that have a base of e.g., 100 (instead of 0 or a 2 digit value) that can cause to require one more new line so we trim it to try to avoid that) -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
-		<English>[ICON_BULLET]Coll. Damage (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+		<English>[ICON_BULLET]Coll. D. (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
 	</TEXT>
 	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name; since this shouldn't refer to iCollateralDamage i guess, adding the word "extra" -->
 	<TEXT>

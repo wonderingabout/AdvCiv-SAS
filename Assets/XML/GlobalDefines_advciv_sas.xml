@@ -532,10 +532,25 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: width adjustment (resolution-scaled pixels) for the left-side default help text area used in the map view (unit hover info, plot/unit-list selection details). Positive (e.g., 100) widens the box rightward into the map; negative (e.g., -50) narrows it. (Claude code Opus 4.7). Note: Extreme values (e.g., -1000, 2000) can produce the opposite effect so use moderate values to produce the intended effect. (Base AdvCiv value: 0) -->
+	<!-- custom: width adjustment (resolution-scaled (HLEN/VLEN) pixels) for the left-side default help text area used in the map view (unit hover info, plot/unit-list selection details). Positive (e.g., 100) widens the box rightward into the map; negative (e.g., -50) narrows it. (Claude code Opus 4.7). Note: Extreme values (e.g., -1000, 2000) can produce the opposite effect so use moderate values to produce the intended effect. (Base AdvCiv value: 0) -->
 	<Define>
-		<DefineName>SAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT</DefineName>
-		<iDefineIntVal>26</iDefineIntVal>
+		<DefineName>SAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: shift the map-view unit bar horizontally (resolution-scaled pixels). Positive = right, negative = left. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: shift the map-view unit bar vertically (resolution-scaled pixels). Positive = down, negative = up. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: hard-pixel width tweak for the unit bar (not resolution-scaled). Negative shrinks rows = fewer buttons per row, useful when an expanded scoreboard or an X/Y offset pushes the bar into other UI / off-screen. Granularity is one button width: e.g. -100 vs -110 may behave the same, then -120 drops one column. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT</DefineName>
+		<iDefineIntVal>-120</iDefineIntVal>
 	</Define>
 	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
 	<Define>

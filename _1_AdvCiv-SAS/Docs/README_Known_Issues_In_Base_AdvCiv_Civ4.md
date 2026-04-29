@@ -159,6 +159,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#121---fixed-base-advciv-bug-cvvotesourceinfo-parses-religioncommerces-into-the-wrong-array)  
 [122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#122---fixed-while-adding-sevopedia-eventtriggerinfo-missing-getters-found-and-fixed-3-dll-python-binding-bugs)  
 [123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4)  
+[124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4664,3 +4665,27 @@ ERR: Python function showDomesticAdvisor failed, module CvScreensInterface
 File changed:
 
 - [Assets/Python/EntryPoints/CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py)
+
+## 124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1VRXC3ke-rHgnlevnY7BIazvHDCTcseU6?usp=sharing).
+
+Observed issue:
+
+- A full row of the unit bar (any row count, even just one) extends behind the scoreboard when the scoreboard is hovered/expanded to its widest.
+
+Not tested in base AdvCiv only in AdvCiv-SAS, but it likely happens there too.
+
+Fix:
+
+- Added SAS defines to shrink the unit bar's width (fewer buttons per row before wrapping) (as part of the broader change that allows to shift the unit bar horizontally / vertically), letting the user trim it back from the scoreboard.
+
+Note:
+
+- The width knob is hard-pixel (not resolution-scaled) on purpose, since what it compensates for (scoreboard width) is also font-driven.
+- Width adjustment granularity is one button width: small steps may have no effect until a column drops.
+
+File changed:
+
+- [Assets/Python/Screens/CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py)
+- [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)

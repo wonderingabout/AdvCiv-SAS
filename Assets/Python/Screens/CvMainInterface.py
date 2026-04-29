@@ -678,7 +678,12 @@ class CvMainInterface:
 		self.iBarExtraHeightExtraManualAdjust = None
 		self.iCityScreenBlueRibbonExtraLift = None
 		# <!-- custom: cached resolution-scaled width adjustment for the left-side default help text area; positive widens, negative narrows. (Claude code Opus 4.7) -->
-		self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = None
+		self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = None
+		# <!-- custom: cached resolution-scaled offsets for the map-view unit selection bar (PlotListPanel). (Claude code Opus 4.7) -->
+		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = None
+		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = None
+		# <!-- custom: cached HARD-px width adjustment for the unit bar's available row width; negative shrinks (fewer buttons per row, avoids overflow into scoreboard / off-screen). (Claude code Opus 4.7) -->
+		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT = None
 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
 		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
@@ -1229,18 +1234,23 @@ class CvMainInterface:
 		self.setBuildingListRects()
 
 		iPlotListUnitBtnSz = self.plotListUnitButtonSize()
+		# <!-- custom: lazy-cache HARD-px unit-bar width adjustment; no resolution scaling because scoreboard width is font-driven, not resolution-scaled. Negative shrinks row (fewer buttons per row), helping avoid scoreboard / off-screen overflow on multi-row stacks. See KI#124. (Claude code Opus 4.7) -->
+		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT is None:
+			self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT")
 		self.m_iNumPlotListButtonsPerRow = (
-				(gRect("BottomButtonMaxSpace").width() - 2 * iPlotListUnitBtnSz) /
+				(gRect("BottomButtonMaxSpace").width()
+				+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT
+				- 2 * iPlotListUnitBtnSz) /
 				iPlotListUnitBtnSz)
 		# <!-- custom: cache resolution-scaled width adjustment for the left-side help text area; HLEN asserts on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
-		if self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT is None:
-			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT")
+		if self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT is None:
+			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT")
 			if iHelpAreaWidthAdjustRaw > 0:
-				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = HLEN(iHelpAreaWidthAdjustRaw)
+				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = HLEN(iHelpAreaWidthAdjustRaw)
 			elif iHelpAreaWidthAdjustRaw < 0:
-				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = -HLEN(-iHelpAreaWidthAdjustRaw)
+				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = -HLEN(-iHelpAreaWidthAdjustRaw)
 			else:
-				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = 0
+				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = 0
 		# (Also used for the PLE Info Pane)
 		gSetRect("DefaultHelpArea", "Top",
 				HSPACE(7),
@@ -1258,7 +1268,7 @@ class CvMainInterface:
 				# The help text really doesn't use that much width; it's been kept short
 				# with the original width in mind. So ...
 				gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width()))
-				+ self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT,
+				+ self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT,
 				0)
 		gSetRect("DefaultHelpAreaMin", "Top",
 				HSPACE(7),
@@ -2675,15 +2685,34 @@ class CvMainInterface:
 		iBtnSize = self.plotListUnitButtonSize()
 		iRows = self.numPlotListRows()
 		iCols = self.numPlotListButtonsPerRow()
+		# <!-- custom: lazy-cache resolution-scaled unit-bar offsets; HLEN/VLEN assert on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
+		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET is None:
+			iRawPLPX = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET")
+			if iRawPLPX > 0:
+				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = HLEN(iRawPLPX)
+			elif iRawPLPX < 0:
+				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = -HLEN(-iRawPLPX)
+			else:
+				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = 0
+		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET is None:
+			iRawPLPY = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET")
+			if iRawPLPY > 0:
+				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = VLEN(iRawPLPY)
+			elif iRawPLPY < 0:
+				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = -VLEN(-iRawPLPY)
+			else:
+				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = 0
 		for j in range(iRows):
 			szPanelName = "PlotListPanel" + str(j)
 			# <!-- custom: move unit bar ("PlotListPanel") more to the left so it is as of now aligned with where production chooser buttons start. Done with the help of GPT-5.2-Codex thanks a lot, was 6 -->
 			plotListPanelWGap = 0
 			gSetRect(szPanelName, "Top",
 					# (Don't want these margins to scale fully)
-					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap,
+					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap
+					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET,
 					gRect("CenterBottomPanel").y() - VSPACE(2) - 4
-					+ (j - iRows) * iBtnSize,
+					+ (j - iRows) * iBtnSize
+					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET,
 					iCols * iBtnSize + HSPACE(3),
 					iBtnSize + VSPACE(1))
 			self.addPanel(szPanelName, PanelStyles.PANEL_STYLE_EMPTY)
