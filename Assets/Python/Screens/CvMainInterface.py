@@ -677,6 +677,8 @@ class CvMainInterface:
 		self.iBarExtraRowsExtraManualAdjust = None
 		self.iBarExtraHeightExtraManualAdjust = None
 		self.iCityScreenBlueRibbonExtraLift = None
+		# <!-- custom: cached resolution-scaled width adjustment for the left-side default help text area; positive widens, negative narrows. (Claude code Opus 4.7) -->
+		self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = None
 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
 		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
@@ -1230,6 +1232,15 @@ class CvMainInterface:
 		self.m_iNumPlotListButtonsPerRow = (
 				(gRect("BottomButtonMaxSpace").width() - 2 * iPlotListUnitBtnSz) /
 				iPlotListUnitBtnSz)
+		# <!-- custom: cache resolution-scaled width adjustment for the left-side help text area; HLEN asserts on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
+		if self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT is None:
+			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT")
+			if iHelpAreaWidthAdjustRaw > 0:
+				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = HLEN(iHelpAreaWidthAdjustRaw)
+			elif iHelpAreaWidthAdjustRaw < 0:
+				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = -HLEN(-iHelpAreaWidthAdjustRaw)
+			else:
+				self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT = 0
 		# (Also used for the PLE Info Pane)
 		gSetRect("DefaultHelpArea", "Top",
 				HSPACE(7),
@@ -1246,7 +1257,8 @@ class CvMainInterface:
 				max(280,
 				# The help text really doesn't use that much width; it's been kept short
 				# with the original width in mind. So ...
-				gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width())),
+				gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width()))
+				+ self.iSAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT,
 				0)
 		gSetRect("DefaultHelpAreaMin", "Top",
 				HSPACE(7),

@@ -532,6 +532,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: width adjustment (resolution-scaled pixels) for the left-side default help text area used in the map view (unit hover info, plot/unit-list selection details). Positive (e.g., 100) widens the box rightward into the map; negative (e.g., -50) narrows it. (Claude code Opus 4.7). Note: Extreme values (e.g., -1000, 2000) can produce the opposite effect so use moderate values to produce the intended effect. (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_DEFAULT_HELP_AREA_WIDTH_ADJUSTMENT</DefineName>
+		<iDefineIntVal>26</iDefineIntVal>
+	</Define>
 	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT</DefineName>
