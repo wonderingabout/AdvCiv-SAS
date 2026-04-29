@@ -713,6 +713,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: same cleanup for history-expanded re-render; prevents leftover page controls (e.g. AI panel/expand button) when switching items while expanded. (GPT-5.3-Codex) -->
 			self.deleteAllWidgets()
 			func.interfaceScreen(iItem)
+		# <!-- custom: fix first-visit Sevopedia category keyboard navigation within the same open Sevopedia session:
+		# the first click on Specialists left UP/DOWN inactive, but after clicking Bonuses and then Specialists again,
+		# UP/DOWN worked in Specialists. Tested: first Specialists open now has working UP/DOWN. Additional sanity checks,
+		# not confirmed original failures: first direct open to expanded panels works, and first direct open to the Leaders
+		# category animation panel works. (GPT-5.5) -->
+		self.SAS_refocusItemListForKeyboardNavigation()
 
 	def determineNewConceptSubCategory(self, iItem):
 		info = gc.getNewConceptInfo(iItem)
@@ -730,6 +736,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if len(item) > 1 and item[1] != -1:
 				return item[1]
 		return -1
+
+	def SAS_refocusItemListForKeyboardNavigation(self):
+		if self.SAS_lastItemsWidget is None:
+			return
+		try:
+			self.getScreen().setFocus(self.ITEM_LIST_ID)
+		except:
+			pass
 
 	def isContentsShowing(self):
 		return self.tab == self.TAB_TOC
