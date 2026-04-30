@@ -4367,4 +4367,9 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GRAPHICAL_ONLY</Tag>
 		<English>Graphical Only</English>
 	</TEXT>
+	<!-- custom: footer Clear button to reset session-persistent Sevopedia Back/Next history without closing the game. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CLEAR</Tag>
+		<English>Clear</English>
+	</TEXT>
 </Civ4GameText>

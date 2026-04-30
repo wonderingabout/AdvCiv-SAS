@@ -160,6 +160,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#122---fixed-while-adding-sevopedia-eventtriggerinfo-missing-getters-found-and-fixed-3-dll-python-binding-bugs)  
 [123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4)  
 [124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)  
+[125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4674,7 +4675,7 @@ Observed issue:
 
 - A full row of the unit bar (any row count, even just one) extends behind the scoreboard when the scoreboard is hovered/expanded to its widest.
 
-Not tested in base AdvCiv only in AdvCiv-SAS, but it likely happens there too.
+Not tested in base AdvCiv, only in AdvCiv-SAS, but it likely happens there too.
 
 Fix:
 
@@ -4689,3 +4690,19 @@ File changed:
 
 - [Assets/Python/Screens/CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py)
 - [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)
+
+## 125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit
+
+Observed issue:
+
+- Closing Sevopedia cleared its Back/Next navigation history.
+- This made it tedious to revisit previously browsed pages after returning to the map, especially when comparing several Leader AIP pages or other related Civilopedia entries.
+
+Fix:
+
+- Sevopedia now keeps Back/Next history for the current game session after exiting and reopening.
+- Added a footer `Clear` button to reset the session navigation chain while keeping the current page as the new history root.
+
+File changed:
+
+- [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
