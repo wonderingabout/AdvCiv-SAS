@@ -769,16 +769,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.SAS_setItemsWidth(self.SAS_getLeaderItemsWidthByCurrentUIFont())
 		else:
 			self.SAS_setItemsWidth(self.SAS_W_ITEMS_BASE)
-		# <!-- custom: after adding Leader AIP-specific footer positions for BACK/NEXT/EXIT, reapply the generic Sevopedia footer positions here first; otherwise those AIP positions carry over to every category, which we don't want. (GPT-5.3-Codex) -->
-		screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
-		screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
-		screen.setText(self.SAS_CLEAR_ID, "Background", self.SAS_CLEAR_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_CLEAR, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
-		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
-			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
-			screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
-			screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
-			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+		self.SAS_setFooterNavigationTexts(screen, iCategory)
 		if not self.isContentsShowing():
 			BugUtil.debug("Drawing category list")
 			self.placeCategories(iCategory)
@@ -858,6 +849,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
 		self.SAS_CLEAR_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper())
 		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
+		# <!-- custom: build grey labels for global footer controls that stay visible but may be inactive. Page-specific
+		# Legend links still appear only when applicable: no Legend means no page legend, not an inactive global command. See KI#126. (GPT-5.5) -->
+		eLightGrey = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
+		self.BACK_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK", ()).upper(), eLightGrey))
+		self.NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper(), eLightGrey))
+		self.SAS_CLEAR_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper(), eLightGrey))
 		
 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
 		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
@@ -927,6 +924,33 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
 		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->
+
+	def SAS_setFooterNavigationTexts(self, screen, iCategory):
+		bCanBack = (len(self.pediaHistory) > 1)
+		bCanForward = (len(self.pediaFuture) > 0)
+		bCanClear = (bCanBack or bCanForward)
+		if bCanBack:
+			szBackText = self.BACK_TEXT
+		else:
+			szBackText = self.BACK_TEXT_DISABLED
+		if bCanForward:
+			szNextText = self.NEXT_TEXT
+		else:
+			szNextText = self.NEXT_TEXT_DISABLED
+		if bCanClear:
+			szClearText = self.SAS_CLEAR_TEXT
+		else:
+			szClearText = self.SAS_CLEAR_TEXT_DISABLED
+		# <!-- custom: keep footer controls stable but grey Back/Next/Clear when they have no effect. (GPT-5.5) -->
+		screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+		screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+		screen.setText(self.SAS_CLEAR_ID, "Background", szClearText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_CLEAR, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
+			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
+			screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+			screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
 
 
 
@@ -2214,6 +2238,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.pediaHistory = [(self.iCategory, self.iItem)]
 		else:
 			self.pediaHistory = []
+		self.SAS_setFooterNavigationTexts(self.getScreen(), self.iCategory)
 		return 1
 
 

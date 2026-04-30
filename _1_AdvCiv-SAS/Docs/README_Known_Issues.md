@@ -161,6 +161,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4)  
 [124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)  
 [125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit)  
+[126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4622,7 +4623,7 @@ File changed:
 
 ## 123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1WUooo99uQ9KuXa9mrXvt_74s-R4DL0br?usp=sharing).
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I6QRzBWnLw9u0kduHIBBsXiQ7DTxBxqR?usp=sharing).
 
 Observed issue:
 
@@ -4702,6 +4703,24 @@ Fix:
 
 - Sevopedia now keeps Back/Next history for the current game session after exiting and reopening.
 - Added a footer `Clear` button to reset the session navigation chain while keeping the current page as the new history root.
+
+File changed:
+
+- [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
+
+## 126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1VRXC3ke-rHgnlevnY7BIazvHDCTcseU6?usp=sharing) (only after fix because any sevopedia screenshot would show the non-greyed former behaviour).
+
+Observed issue:
+
+- Sevopedia footer controls such as `Back`, `Next`, and `Clear` could look active even when clicking them would do nothing.
+- This is independent of session-persistent history, but became especially confusing there: after exiting and reopening Sevopedia in the same session, `Back` and `Next` could remain visible while having no current navigation effect.
+
+Fix:
+
+- `Back`, `Next`, and `Clear` remain in stable footer positions, but their text is greyed out when the corresponding action has no effect.
+- Contextual page links such as `Legend` keep their existing behavior: they are hidden when the page has no legend, because that means the page-specific link does not apply rather than a global command being temporarily inactive.
 
 File changed:
 

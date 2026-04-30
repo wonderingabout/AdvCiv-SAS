@@ -313,9 +313,8 @@ class SevoPediaBuild:
 		szSpecialText = u""
 
 		bullet = localText.getText("[ICON_BULLET]", ())
-		iImprovement = buildInfo.getImprovement()
-		if iImprovement > -1:
-			szSpecialText += u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_IMPROVEMENT", ()), gc.getImprovementInfo(iImprovement).getDescription())
+		# <!-- custom: do not repeat the created Improvement here because the Result panel already shows it with a Pedia link.
+		# Keep Route below because Sevopedia has no Route category/page to link to, so the text bullet still adds information. (GPT-5.5) -->
 
 		iRoute = buildInfo.getRoute()
 		if iRoute > -1:
