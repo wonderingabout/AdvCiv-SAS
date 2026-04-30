@@ -119,7 +119,7 @@ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in
 
 As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the Builds page corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)! Added with the big and nice help of GPT-5.2-Codex thanks a lot!
 
-Note: while `WIDGET_PYTHON` is excellent for custom redirects, it does not provide built-in build hover text by itself. In Tech Chooser/Sevopedia build-entry paths we therefore use a hybrid approach (`WIDGET_HELP_IMPROVEMENT` for hover + Python click routing to Builds). See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia).
+Note: while `WIDGET_PYTHON` is excellent for custom redirects, it does not provide built-in build hover text by itself. In Tech Chooser/Sevopedia build-entry paths we therefore use a hybrid approach (`WIDGET_HELP_IMPROVEMENT` for hover + Python click routing to Builds). See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#113---worked-around-widget_python-missing-hover-text-in-ui-contexts-eg-builds-in-tech-chooser-and-sevopedia).
 
 We then also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter. See also [example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
 
@@ -365,7 +365,7 @@ Also added caching at category click for the entire session similarly to how was
 
 This is a more recent refactor and beautify that adds era information and such other beautifications. The info pane (top left info of the tech, era, cost as of now) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas.
 
-More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
+More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
 
 And after that, added a new Obsoletes panel with the help of Claude code Sonnet 4.5, that notably shows a new thinner RedX art than in Civ4 (as it was too bold and hard to read at 64px) for any asset that has a button this tech obsoletes. ChatGPT 5.2 very impressively helped adding such a feature. See [README.md#redx-new-art-button](/README.md#redx-new-art-button).
 
@@ -484,7 +484,7 @@ Also added the AI information now of as of now the UnitAI and iAIWeight informat
 
 Also added the "May grant unit(s) on capture" info (`<Capture>` in the XML, for example for the generic settler or generic worker) with the help of claude ai thanks.
 
-More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
+More recently, i also fixed based advciv issue of obsoletes spanning vertically with one bullet each instead of horizontally, with the help of Claude code Sonnet 4.5, which was a problem when we had many of them. See [KI#96](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#96---fixedenhanced-base-advciv-issue-of-obsoletes-spanning-vertically-instead-of-being-horizontally-comma-separated).
 
 Then, i added a new Obsolete With panel similarly to how was done in Sevopedia building, with the help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot!
 

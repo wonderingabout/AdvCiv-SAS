@@ -147,7 +147,7 @@ If you have an issue that happens only for split seconds or even shorter and har
 
 I noticed this accidentally or rather unconsciously xd, and it helped me identify an issue that we can only for like 0.2 seconds or such, but that can be captured in a screenshot this way.
 
-See an example of this in the update note in [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure).
+See an example of this in the update note in [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure).
 
 ### write git commit message gradually as you do changes before committing them, and keep notes of ideas
 
@@ -447,7 +447,7 @@ Sources (GPT-5.2 Thinking):
 
 ### old info
 
-[KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc).
+[KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc).
 
 ## Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum)
 
@@ -480,7 +480,7 @@ Which would help you solve them, in my case by doing a global search, finding th
 
 In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path, update to your own windows user account path), there is an option that you can set to `generatecrashdumps = 1`.
 
-It is useful in issues such as for example [57 - (Not reproducible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#57---not-reproducible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots.
+It is useful in issues such as for example [57 - (Not reproducible) Unknown game crash at turn 94](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#57---not-reproducible-unknown-game-crash-at-turn-94) (with a screenshot), or in previous related crashes in known issues as of now 56 and 55 too with such screenshots.
 
 I don't know too much about these nor can really read these .dmp files, but Visual 2010 C++ Express seemingly can, and so can WinDbg although that may be bit trickier/harder (but check if accurate again as i don't know too much about this).
 
@@ -488,7 +488,7 @@ The exception/error info as well as possibly some other things i don't know abou
 
 I don't know too much about these but i thought i'd compile (no pun) this info quick if helps.
 
-To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-reproducible-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-check-if-accurate).
+To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#60---fixed-seemingly-rare-reproducible-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-check-if-accurate).
 
 ## Another example of how to use VS Code global search (also shows an example of how to also browse the CIV4 BUG_Doc (copy included in our mod))
 
@@ -971,7 +971,7 @@ Then ingame (save file load, new map, etc), press ctrl+z if your mod has this sh
 
 I don't know if autoplay is a feature of base civ4 or bts or some mods that then most mods implemented check to know more (you could ask chatbots like chatgpt or such if you don't know, but their answers may be inaccurate or lead you astray, so double check or such even though they could be accurate or do web search for you or such but check to be sure) (or your best bet may be alternatively to check in cfc or such forums somewhere or google it xd)
 
-Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity), if we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns.
+Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. For example in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity), if we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns.
 
 ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in Sevopedia tech 's placeSpecial and in tech tree view (technology advisor)
 
@@ -1025,7 +1025,7 @@ Note: later we also similarly changed the c++ so that we now also display the bR
 
 ## Example of DLL modification 2: missing BBAI getters expose them to Sevopedia leader info in gc too for display
 
-See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display) on how this was implemented (google drive with screenshots link there too hopefully helpful)
+See [README_Known_Issues.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display) on how this was implemented (google drive with screenshots link there too hopefully helpful)
 
 ## Example of performance optimization of python loading time (as in when we load the code) and loading times
 
