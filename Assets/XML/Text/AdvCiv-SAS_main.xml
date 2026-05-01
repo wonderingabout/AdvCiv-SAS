@@ -285,6 +285,14 @@ Created as part of AdvCiv-SAS improvements
 		<English>Music</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_PREV</Tag>
+		<English>[%d1_Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT</Tag>
+		<English>%d1_Player]</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_PLAY_MOVIE</Tag>
 		<English>Play Movie</English>
 	</TEXT>

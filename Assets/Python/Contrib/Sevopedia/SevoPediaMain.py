@@ -95,6 +95,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.BACK_ID		= "PediaMainBack"
 		self.NEXT_ID		= "PediaMainForward"
 		self.SAS_CLEAR_ID = "PediaMainClear"
+		self.SAS_GAME_PLAYER_ID_PREV_ID = "PediaMainGamePlayerIdPrev"
+		self.SAS_GAME_PLAYER_ID_NEXT_ID = "PediaMainGamePlayerIdNext"
 		self.EXIT_ID		= "PediaMainExit"
 		self.CATEGORY_LIST_ID	= "PediaMainCategoryList"
 		self.ITEM_LIST_ID	= "PediaMainItemList"
@@ -127,6 +129,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: Event Trigger category also has no native jump widget in the DLL, so
 		# use WIDGET_PYTHON routing like Votes. (Claude code Opus 4.7) -->
 		self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY = 6812
+		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV = 6813
+		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT = 6814
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -226,10 +230,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: place Clear near the Legend footer link, opposite Exit and visually separate from Back/Next. (GPT-5.5) -->
 		self.SAS_X_CLEAR = self.X_TOC + 120
 		self.SAS_Y_CLEAR = Y_FOOTER_CONTROLS
+		self.SAS_X_GAME_PLAYER_ID_PREV = self.SAS_X_CLEAR + 120
+		self.SAS_X_GAME_PLAYER_ID_NEXT = self.SAS_X_GAME_PLAYER_ID_PREV + 65
 		self.X_EXIT = self.W_SCREEN - 30 # advc.004y: was 994
 		self.Y_EXIT = Y_FOOTER_CONTROLS
-		# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; keep BACK/NEXT left of the AIP area so those footer controls stay clickable. (GPT-5.3-Codex) -->
-		self.SAS_X_BACK_LEADERS = self.X_PEDIA_PAGE + 10
+		# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; keep BACK/NEXT/EXIT in the left footer zone.
+		# Leave room after Clear for current-game leader/civ arrows, then push EXIT right into the blank footer space before the AIP columns. (GPT-5.5) -->
+		self.SAS_X_BACK_LEADERS = self.SAS_X_GAME_PLAYER_ID_NEXT + 75
 		self.SAS_X_NEXT_LEADERS = self.SAS_X_BACK_LEADERS + 140
 		self.SAS_X_EXIT_LEADERS = self.SAS_X_NEXT_LEADERS + 140
 
@@ -718,6 +725,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: same cleanup for history-expanded re-render; prevents leftover page controls (e.g. AI panel/expand button) when switching items while expanded. (GPT-5.3-Codex) -->
 			self.deleteAllWidgets()
 			func.interfaceScreen(iItem)
+		self.SAS_setFooterNavigationTexts(screen, iCategory)
 		# <!-- custom: fix first-visit Sevopedia category keyboard navigation within the same open Sevopedia session:
 		# the first click on Specialists left UP/DOWN inactive, but after clicking Bonuses and then Specialists again,
 		# UP/DOWN worked in Specialists. Tested: first Specialists open now has working UP/DOWN. Additional sanity checks,
@@ -852,9 +860,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: build grey labels for global footer controls that stay visible but may be inactive. Page-specific
 		# Legend links still appear only when applicable: no Legend means no page legend, not an inactive global command. See KI#126. (GPT-5.5) -->
 		eLightGrey = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
+		self.SAS_eFooterDisabledColor = eLightGrey
 		self.BACK_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK", ()).upper(), eLightGrey))
 		self.NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper(), eLightGrey))
 		self.SAS_CLEAR_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper(), eLightGrey))
+		# <!-- custom: use bracket-direction labels for player-id arrows instead of "<-" / "->"; empirically, literal
+		# angle brackets in this footer text path render as broken markup such as "/color" and can corrupt the control text. (GPT-5.5) -->
+		self.SAS_GAME_PLAYER_ID_PREV_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_PREV", (-1,)), eLightGrey))
+		self.SAS_GAME_PLAYER_ID_NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT", (-1,)), eLightGrey))
 		
 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
 		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
@@ -946,11 +959,111 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
 		screen.setText(self.SAS_CLEAR_ID, "Background", szClearText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_CLEAR, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+		self.SAS_setGamePlayerIdNavigationTexts(screen, iCategory)
 		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
-			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
+			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.5) -->
 			screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
 			screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
 			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+
+	def SAS_setGamePlayerIdNavigationTexts(self, screen, iCategory):
+		targets = self.SAS_getGamePlayerIdTargets(iCategory)
+		iPrevItem = -1
+		iNextItem = -1
+		szPrevText = self.SAS_GAME_PLAYER_ID_PREV_TEXT_DISABLED
+		szNextText = self.SAS_GAME_PLAYER_ID_NEXT_TEXT_DISABLED
+		if len(targets) > 0:
+			prevTarget = targets[0]
+			nextTarget = targets[len(targets) - 1]
+			iPos = self.SAS_getGamePlayerIdTargetPos(targets, self.iItem)
+			if iPos != -1:
+				if iPos > 0:
+					prevTarget = targets[iPos - 1]
+					iPrevItem = prevTarget[1]
+				if iPos < len(targets) - 1:
+					nextTarget = targets[iPos + 1]
+					iNextItem = nextTarget[1]
+			else:
+				prevTarget = (-1, -1)
+				nextTarget = targets[0]
+				iNextItem = nextTarget[1]
+			if iPrevItem >= 0:
+				szPrevText = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_PREV", (prevTarget[0],)))
+			else:
+				szPrevText = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_PREV", (prevTarget[0],)), self.SAS_eFooterDisabledColor))
+			if iNextItem >= 0:
+				szNextText = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT", (nextTarget[0],)))
+			else:
+				szNextText = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT", (nextTarget[0],)), self.SAS_eFooterDisabledColor))
+		if iCategory == SevoScreenEnums.PEDIA_LEADERS or iCategory == SevoScreenEnums.PEDIA_CIVS:
+			if iPrevItem >= 0:
+				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_PREV, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV, iPrevItem)
+			else:
+				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_PREV, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			if iNextItem >= 0:
+				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT, iNextItem)
+			else:
+				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		else:
+			screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_PREV, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+	def SAS_getGamePlayerIdTargetPos(self, targets, iItem):
+		for i, target in enumerate(targets):
+			if target[1] == iItem:
+				return i
+		return -1
+
+	def SAS_getGamePlayerIdTargets(self, iCategory):
+		if iCategory != SevoScreenEnums.PEDIA_LEADERS and iCategory != SevoScreenEnums.PEDIA_CIVS:
+			return []
+		iActivePlayer = gc.getGame().getActivePlayer()
+		if iActivePlayer < 0 or iActivePlayer >= gc.getMAX_CIV_PLAYERS():
+			return []
+		activePlayer = gc.getPlayer(iActivePlayer)
+		iActiveTeam = activePlayer.getTeam()
+		activeTeam = gc.getTeam(iActiveTeam)
+		bDebugMode = gc.getGame().isDebugMode()
+		targets = []
+		seen = {}
+		# <!-- custom: game-player-id arrows intentionally cover only Leaders/Civs, whose pages map cleanly to current opponents.
+		# Broader pages such as Traits, Units, or Techs are relation graphs with duplicates/missing links and can confuse scope.
+		# Browse unique known living major players' leader/civ infos; exclude barbarian/minor slots like AIP and require met
+		# players to avoid spoilers unless debug mode is active. Rebuild on draw/click so stale targets cannot crash
+		# if state changed before reopening. (GPT-5.5) -->
+		for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+			player = gc.getPlayer(iPlayer)
+			if not player.isAlive():
+				continue
+			if player.isBarbarian() or player.isMinorCiv():
+				continue
+			iTeam = player.getTeam()
+			if iPlayer != iActivePlayer and not bDebugMode and not activeTeam.isHasMet(iTeam):
+				continue
+			if iCategory == SevoScreenEnums.PEDIA_LEADERS:
+				iInfo = player.getLeaderType()
+			else:
+				iInfo = player.getCivilizationType()
+			if iInfo < 0:
+				continue
+			if not seen.has_key(iInfo):
+				targets.append((iPlayer, iInfo))
+				seen[iInfo] = True
+		return targets
+
+	def SAS_jumpGamePlayerId(self, iData2):
+		if iData2 < 0:
+			self.SAS_setFooterNavigationTexts(self.getScreen(), self.iCategory)
+			return 1
+		if self.iCategory != SevoScreenEnums.PEDIA_LEADERS and self.iCategory != SevoScreenEnums.PEDIA_CIVS:
+			return 1
+		targets = self.SAS_getGamePlayerIdTargets(self.iCategory)
+		if self.SAS_getGamePlayerIdTargetPos(targets, iData2) == -1:
+			self.SAS_setFooterNavigationTexts(self.getScreen(), self.iCategory)
+			return 1
+		# <!-- custom: active game-player-id clicks are real Sevopedia navigation and should enter Back/Next history;
+		# disabled or stale controls return above after only refreshing footer state. (GPT-5.5) -->
+		return self.pediaJump(self.iCategory, iData2, True, False)
 
 
 
@@ -2442,6 +2555,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# native jump-to-event-trigger widget in the DLL). (Claude code Opus 4.7) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY:
 				return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, iData2, True, False)
+			if iData1 == self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV or iData1 == self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT:
+				return self.SAS_jumpGamePlayerId(iData2)
 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
 				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:

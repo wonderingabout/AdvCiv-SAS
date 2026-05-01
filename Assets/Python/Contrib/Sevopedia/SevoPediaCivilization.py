@@ -101,6 +101,7 @@ class SevoPediaCivilization:
 		self.placeBuilding()
 		self.placeUnit()
 		self.placeLeader()
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_CIVILIZATION_LEGEND")
 		self.placeHistory()
 
 

@@ -348,7 +348,7 @@ def place_new_concept_legend_link(top, new_concept_type):
 		"Background",
 		szLabel,
 		CvUtil.FONT_LEFT_JUSTIFY,
-		top.X_TOC,
+		top.X_TOC - 10,
 		top.Y_BOT_PANEL + 16,
 		0,
 		FontTypes.TITLE_FONT,
