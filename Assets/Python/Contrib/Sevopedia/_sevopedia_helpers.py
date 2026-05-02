@@ -370,6 +370,29 @@ def place_new_concept_legend_link(top, new_concept_type):
 
 
 
+def draw_none_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
+	# <!-- custom: place a centered "None" (or custom-keyed) message inside a panel that has no buttons/content
+	# to show. Replaces the ~5-line addMultilineText boilerplate scattered across pedia files. (Claude code Opus 4.7) -->
+	# screen: CyGInterfaceScreen
+	# selfTop: reference to main pedia class (for getNextWidgetName)
+	# panelX, panelY, panelW, panelH: panel dimensions
+	# txtKey: optional custom text key (defaults to TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE)
+	if txtKey is None:
+		txtKey = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+
+	textName = selfTop.getNextWidgetName()
+	szText = localText.getText(txtKey, ())
+	yPanelCenter = panelY + (panelH / 2)
+	screen.addMultilineText(
+		textName, SASTextScale.labelText(szText),
+		panelX + 7, yPanelCenter,
+		panelW - 14, panelH - 20,
+		WidgetTypes.WIDGET_GENERAL, -1, -1,
+		CvUtil.FONT_LEFT_JUSTIFY
+	)
+
+
+
 def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, panelH, szText, bExpanded, iPythonWidgetData1, iCollapsedTextYOffset=None):
 	# <!-- custom: reusable Sevopedia expandable text panel helper (collapsed panel + opaque full-page overlay). Use WIDGET_PYTHON routing via iPythonWidgetData1. data2=1 expands, data2=0 closes. (GPT-5.3-Codex) -->
 	# <!-- custom: iCollapsedTextYOffset auto-resolves from panelTitle when None: with a title we push body text below the header bar, without a title we start at the top. Callers can still pass an explicit value for fine-tuning (e.g., Vote, EventTrigger). (Claude code Opus 4.7) -->
@@ -989,26 +1012,6 @@ def inchart_set_icon_column_headers(screen, tableName, startCol, numCols, colWid
 
 
 
-def draw_none_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
-	# <!-- custom: place a centered "None" (or custom-keyed) message inside a panel that has no buttons/content
-	# to show. Replaces the ~5-line addMultilineText boilerplate scattered across pedia files. (Claude code Opus 4.7) -->
-	# screen: CyGInterfaceScreen
-	# selfTop: reference to main pedia class (for getNextWidgetName)
-	# panelX, panelY, panelW, panelH: panel dimensions
-	# txtKey: optional custom text key (defaults to TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE)
-	if txtKey is None:
-		txtKey = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-
-	textName = selfTop.getNextWidgetName()
-	szText = localText.getText(txtKey, ())
-	yPanelCenter = panelY + (panelH / 2)
-	screen.addMultilineText(
-		textName, SASTextScale.labelText(szText),
-		panelX + 7, yPanelCenter,
-		panelW - 14, panelH - 20,
-		WidgetTypes.WIDGET_GENERAL, -1, -1,
-		CvUtil.FONT_LEFT_JUSTIFY
-	)
 
 
 

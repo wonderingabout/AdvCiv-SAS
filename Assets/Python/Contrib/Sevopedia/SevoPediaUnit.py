@@ -837,18 +837,7 @@ class SevoPediaUnit:
 
 	def placeUnitAnimation(self):
 		screen = self.top.getScreen()
-		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(
-			screen,
-			self.top,
-			u"",
-			self.X_UNIT_ANIMATION,
-			self.Y_UNIT_ANIMATION,
-			self.W_UNIT_ANIMATION,
-			self.H_UNIT_ANIMATION,
-			self.bContentExpanded,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
-		)
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_UNIT_ANIMATION, self.Y_UNIT_ANIMATION, self.W_UNIT_ANIMATION, self.H_UNIT_ANIMATION, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND, self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD)
 		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
 
 

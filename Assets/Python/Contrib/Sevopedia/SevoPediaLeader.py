@@ -272,13 +272,7 @@ class SevoPediaLeader:
 	# <!-- custom: wrap leader placement in a specific function for clarity or flexibility or not anyways, -->
 	def placeLeaderHeadPane(self):
 		screen = self.top.getScreen()
-		(iLhX, iLhY, iLhW, iLhH), (iAttX, iAttY, iAttW, iAttH) = draw_expandable_leaderhead_panel(
-			screen, self.top,
-			self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE,
-			self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD,
-			self.bContentExpanded,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND
-		)
+		(iLhX, iLhY, iLhW, iLhH), (iAttX, iAttY, iAttW, iAttH) = draw_expandable_leaderhead_panel(screen, self.top, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND)
 		self.leaderWidget = self.top.getNextWidgetName()
 		iRenderLeader = self._getEraRenderLeader(self.iLeader, self.iSelectedEra)
 		screen.addLeaderheadGFC(self.leaderWidget, iRenderLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)

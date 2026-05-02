@@ -607,18 +607,7 @@ class SevoPediaBonus:
 
 	def placeBonusAnimation(self):
 		screen = self.top.getScreen()
-		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(
-			screen,
-			self.top,
-			u"",
-			self.X_BONUS_ANIMATION,
-			self.Y_BONUS_ANIMATION,
-			self.W_BONUS_ANIMATION,
-			self.H_BONUS_ANIMATION,
-			self.bContentExpanded,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
-		)
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_BONUS_ANIMATION, self.Y_BONUS_ANIMATION, self.W_BONUS_ANIMATION, self.H_BONUS_ANIMATION, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND, self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD)
 		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
 
 

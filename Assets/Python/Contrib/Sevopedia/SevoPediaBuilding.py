@@ -1103,18 +1103,7 @@ class SevoPediaBuilding:
 
 	def placeBuildingAnimation(self):
 		screen = self.top.getScreen()
-		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(
-			screen,
-			self.top,
-			u"",
-			self.X_BUILDING_ANIMATION,
-			self.Y_BUILDING_ANIMATION,
-			self.W_BUILDING_ANIMATION,
-			self.H_BUILDING_ANIMATION,
-			self.bContentExpanded,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND,
-			self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD
-		)
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_BUILDING_ANIMATION, self.Y_BUILDING_ANIMATION, self.W_BUILDING_ANIMATION, self.H_BUILDING_ANIMATION, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND, self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD)
 		screen.addBuildingGraphicGFC(self.top.getNextWidgetName(), self.iBuilding, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
 
 
