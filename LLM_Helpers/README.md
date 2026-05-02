@@ -1,6 +1,13 @@
-﻿# External helper tools for timeline tuning
+﻿# External helper tools
 
-This folder contains external Python 3 scripts for balancing workflows outside Civ4's embedded Python 2.4 runtime.
+This folder contains external Python 3 scripts for tasks outside Civ4's embedded Python 2.4 runtime — balancing workflows, code refactoring, etc.
+
+- `collapse_multiline_brackets.py`
+  - Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
+  - Use to make boilerplate Civ4 API calls and helper invocations greppable on one line.
+  - Preserves line endings (CRLF or LF), string literals, and out-of-range comments.
+  - Strips line comments and indentation **inside** collapsed ranges.
+  - **Run on ONE file at a time** and eyeball the diff before committing — a whole-directory sweep was tried once and reverted.
 
 - `compare_speed_summaries.py`
   - Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
@@ -17,6 +24,10 @@ This folder contains external Python 3 scripts for balancing workflows outside C
   - Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
 
 Examples (PowerShell from mod root):
+
+```powershell
+python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+```
 
 ```powershell
 python LLM_Helpers\compare_speed_summaries.py --speed slow

@@ -141,9 +141,7 @@ def attach_button_label_row(screen, top, panelName, buttonPath, widgetType, widg
 # <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
 # LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
 # LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->
-EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA = (
-	"LEADER_BARBARIAN",
-)
+EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA = ("LEADER_BARBARIAN",)
 
 
 
@@ -256,12 +254,7 @@ def format_leaders_header_text(num_with, total, headerLabel):
 	percent = 0
 	if total > 0:
 		percent = (100 * num_with) / total
-	return u"%s %d/%d (%d%%)" % (
-		headerLabel,
-		num_with,
-		total,
-		percent,
-	)
+	return u"%s %d/%d (%d%%)" % (headerLabel, num_with, total, percent,)
 
 
 
@@ -354,19 +347,7 @@ def place_new_concept_legend_link(top, new_concept_type):
 		return
 	screen = top.getScreen()
 	szLabel = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
-	screen.setText(
-		top.getNextWidgetName(),
-		"Background",
-		szLabel,
-		CvUtil.FONT_LEFT_JUSTIFY,
-		top.X_TOC - 10,
-		top.Y_BOT_PANEL + 16,
-		0,
-		FontTypes.TITLE_FONT,
-		WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
-		CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
-		iConcept
-	)
+	screen.setText(top.getNextWidgetName(), "Background", szLabel, CvUtil.FONT_LEFT_JUSTIFY, top.X_TOC - 10, top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
 
 
 
@@ -383,13 +364,7 @@ def draw_none_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None)
 	textName = selfTop.getNextWidgetName()
 	szText = localText.getText(txtKey, ())
 	yPanelCenter = panelY + (panelH / 2)
-	screen.addMultilineText(
-		textName, SASTextScale.labelText(szText),
-		panelX + 7, yPanelCenter,
-		panelW - 14, panelH - 20,
-		WidgetTypes.WIDGET_GENERAL, -1, -1,
-		CvUtil.FONT_LEFT_JUSTIFY
-	)
+	screen.addMultilineText(textName, SASTextScale.labelText(szText), panelX + 7, yPanelCenter, panelW - 14, panelH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -409,17 +384,7 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
 		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
 
-		screen.addDDSGFC(
-			top.getNextWidgetName(),
-			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
-			iOverlayX,
-			iOverlayY,
-			iOverlayW,
-			iOverlayH,
-			WidgetTypes.WIDGET_GENERAL,
-			-1,
-			-1
-		)
+		screen.addDDSGFC(top.getNextWidgetName(), ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), iOverlayX, iOverlayY, iOverlayW, iOverlayH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# <!-- custom: when the caller passed no title, use "(Background)" so the expanded overlay always has a header bar for the CLOSE button to sit on. (Claude code Sonnet 4.6) -->
 		if panelTitle:
 			expandedTitle = panelTitle
@@ -427,31 +392,8 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 			expandedTitle = u"(" + localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()) + u")"
 		panelName = top.getNextWidgetName()
 		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
-		screen.setButtonGFC(
-			top.getNextWidgetName(),
-			SASTextScale.labelText(u"CLOSE"),
-			"",
-			iOverlayX + iOverlayW - (iCloseButtonW + 10),
-			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
-			iCloseButtonW,
-			26,
-			WidgetTypes.WIDGET_PYTHON,
-			iPythonWidgetData1,
-			0,
-			ButtonStyles.BUTTON_STYLE_STANDARD
-		)
-		screen.addMultilineText(
-			top.getNextWidgetName(),
-			SASTextScale.labelText(szText),
-			iOverlayX + 10,
-			iOverlayY + 40,
-			iOverlayW - 20,
-			iOverlayH - 50,
-			WidgetTypes.WIDGET_GENERAL,
-			-1,
-			-1,
-			CvUtil.FONT_LEFT_JUSTIFY
-		)
+		screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"CLOSE"), "", iOverlayX + iOverlayW - (iCloseButtonW + 10), iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET, iCloseButtonW, 26, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0, ButtonStyles.BUTTON_STYLE_STANDARD)
+		screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szText), iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		return 1
 
 	panelName = top.getNextWidgetName()
@@ -460,32 +402,9 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 	iExpandButtonY = panelY + 6
 	if not panelTitle:
 		iExpandButtonY -= H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
-	screen.setButtonGFC(
-		top.getNextWidgetName(),
-		SASTextScale.labelText(u"EXPAND"),
-		"",
-		panelX + panelW - (iExpandButtonW + 8),
-		iExpandButtonY,
-		iExpandButtonW,
-		24,
-		WidgetTypes.WIDGET_PYTHON,
-		iPythonWidgetData1,
-		1,
-		ButtonStyles.BUTTON_STYLE_STANDARD
-	)
+	screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"EXPAND"), "", panelX + panelW - (iExpandButtonW + 8), iExpandButtonY, iExpandButtonW, 24, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
 	# <!-- custom: note: in some panels replace old code's screen.attachMultilineText with screen.addMultilineText to allow padding for text -->
-	screen.addMultilineText(
-		top.getNextWidgetName(),
-		SASTextScale.labelText(szText),
-		panelX + 7,
-		panelY + 10 + iCollapsedTextYOffset,
-		panelW - 5,
-		panelH - (10 + iCollapsedTextYOffset) - 25,
-		WidgetTypes.WIDGET_GENERAL,
-		-1,
-		-1,
-		CvUtil.FONT_LEFT_JUSTIFY
-	)
+	screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szText), panelX + 7, panelY + 10 + iCollapsedTextYOffset, panelW - 5, panelH - (10 + iCollapsedTextYOffset) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 	return 0
 
 
@@ -506,45 +425,11 @@ def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, pan
 		iOverlayY = top.Y_PEDIA_PAGE
 		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
 		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
-		screen.addDDSGFC(
-			top.getNextWidgetName(),
-			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
-			iOverlayX,
-			iOverlayY,
-			iOverlayW,
-			iOverlayH,
-			WidgetTypes.WIDGET_GENERAL,
-			-1,
-			-1
-		)
+		screen.addDDSGFC(top.getNextWidgetName(), ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), iOverlayX, iOverlayY, iOverlayW, iOverlayH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		panelName = top.getNextWidgetName()
 		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
-		screen.setButtonGFC(
-			top.getNextWidgetName(),
-			SASTextScale.labelText(u"RELOAD"),
-			"",
-			iOverlayX + iOverlayW - (iCloseButtonW + 10 + iReloadButtonW),
-			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
-			iReloadButtonW,
-			26,
-			WidgetTypes.WIDGET_PYTHON,
-			iPythonReloadData1,
-			-1,
-			ButtonStyles.BUTTON_STYLE_STANDARD
-		)
-		screen.setButtonGFC(
-			top.getNextWidgetName(),
-			SASTextScale.labelText(u"CLOSE"),
-			"",
-			iOverlayX + iOverlayW - (iCloseButtonW + 10),
-			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
-			iCloseButtonW,
-			26,
-			WidgetTypes.WIDGET_PYTHON,
-			iPythonWidgetData1,
-			0,
-			ButtonStyles.BUTTON_STYLE_STANDARD
-		)
+		screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"RELOAD"), "", iOverlayX + iOverlayW - (iCloseButtonW + 10 + iReloadButtonW), iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET, iReloadButtonW, 26, WidgetTypes.WIDGET_PYTHON, iPythonReloadData1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"CLOSE"), "", iOverlayX + iOverlayW - (iCloseButtonW + 10), iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET, iCloseButtonW, 26, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0, ButtonStyles.BUTTON_STYLE_STANDARD)
 		return (iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50)
 
 	panelName = top.getNextWidgetName()
@@ -552,19 +437,7 @@ def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, pan
 	iExpandButtonY = panelY + 6
 	if not panelTitle:
 		iExpandButtonY -= H_ADJUST_ANIMATION_NO_HEADER_EXPAND_BUTTON
-	screen.setButtonGFC(
-		top.getNextWidgetName(),
-		SASTextScale.labelText(u"EXPAND"),
-		"",
-		panelX + panelW - (iExpandButtonW + 8),
-		iExpandButtonY,
-		iExpandButtonW,
-		24,
-		WidgetTypes.WIDGET_PYTHON,
-		iPythonWidgetData1,
-		1,
-		ButtonStyles.BUTTON_STYLE_STANDARD
-	)
+	screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"EXPAND"), "", panelX + panelW - (iExpandButtonW + 8), iExpandButtonY, iExpandButtonW, 24, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
 	if panelTitle:
 		return (panelX + 4, panelY + 30, panelW - 8, panelH - 35)
 	return (panelX, panelY, panelW, panelH)
@@ -581,23 +454,9 @@ def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH
 		iOverlayY = top.Y_PEDIA_PAGE
 		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
 		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
-		screen.addDDSGFC(
-			top.getNextWidgetName(),
-			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
-			iOverlayX, iOverlayY, iOverlayW, iOverlayH,
-			WidgetTypes.WIDGET_GENERAL, -1, -1
-		)
+		screen.addDDSGFC(top.getNextWidgetName(), ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), iOverlayX, iOverlayY, iOverlayW, iOverlayH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.addPanel(top.getNextWidgetName(), u"(Content)", "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
-		screen.setButtonGFC(
-			top.getNextWidgetName(),
-			SASTextScale.labelText(u"CLOSE"),
-			"",
-			iOverlayX + iOverlayW - (iCloseButtonW + 10),
-			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
-			iCloseButtonW, 26,
-			WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0,
-			ButtonStyles.BUTTON_STYLE_STANDARD
-		)
+		screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"CLOSE"), "", iOverlayX + iOverlayW - (iCloseButtonW + 10), iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET, iCloseButtonW, 26, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0, ButtonStyles.BUTTON_STYLE_STANDARD)
 		# attitude/action column: right-aligned, same width as old RELOAD+CLOSE combined
 		iAttX = iOverlayX + iOverlayW - (iAttColW + 10)
 		iAttW = iAttColW
@@ -610,16 +469,7 @@ def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH
 		iLhW = iLhH * EXPANDED_LEADERHEAD_WIDTH_PCT / 100
 		return (iLhX, iLhY, iLhW, iLhH), (iAttX, iAttY, iAttW, iAttH)
 	screen.addPanel(top.getNextWidgetName(), u"", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
-	screen.setButtonGFC(
-		top.getNextWidgetName(),
-		SASTextScale.labelText(u"EXPAND"),
-		"",
-		panelX + panelW - (iExpandButtonW + 8),
-		panelY + LEADERHEAD_EXPAND_BUTTON_Y_OFFSET,
-		iExpandButtonW, 24,
-		WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 1,
-		ButtonStyles.BUTTON_STYLE_STANDARD
-	)
+	screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"EXPAND"), "", panelX + panelW - (iExpandButtonW + 8), panelY + LEADERHEAD_EXPAND_BUTTON_Y_OFFSET, iExpandButtonW, 24, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
 	return (leaderX, leaderY, leaderW, leaderH), (0, 0, 0, 0)
 
 
@@ -1063,8 +913,7 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount, 
 	for iCol in xrange(colCount):  # noqa: F821
 		if iCol >= len(itemIds):
 			# Empty cell
-			screen.setTableText(tableName, colStart + iCol, row, "", "",
-				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(tableName, colStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			continue
 
 		itemId = itemIds[iCol]
@@ -1105,8 +954,6 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount, 
 				widgetData2 = -1
 
 		if buttonPath:
-			screen.setTableText(tableName, colStart + iCol, row, "", buttonPath,
-				widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(tableName, colStart + iCol, row, "", buttonPath, widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
 		else:
-			screen.setTableText(tableName, colStart + iCol, row, "", "",
-				WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(tableName, colStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

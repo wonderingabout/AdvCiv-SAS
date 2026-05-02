@@ -378,7 +378,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, "TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS", iconOccupation, "placeEventTriggers", SevoPediaEventTrigger.SevoPediaEventTrigger, None),
 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
 		)
-
 		self.mapListGenerators = {}
 		self.mapScreenFunctions = {}
 		self.SAS_mainLinkToCategory = {}
@@ -472,17 +471,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		else:
 			szText = self.SAS_SEARCH_DEFAULT_TEXT
 
-		screen.setLabel(self.SAS_SEARCH_LABEL_ID, self.SAS_SEARCH_PANEL_ID,
-				SASTextScale.labelText(szText),
-				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
-				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.SAS_SEARCH_LABEL_ID, self.SAS_SEARCH_PANEL_ID, SASTextScale.labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Show a clear button only when active.
 		if self.SAS_isSearchActive():
-			screen.setLabel(self.SAS_SEARCH_CLEAR_ID, self.SAS_SEARCH_PANEL_ID,
-					SASTextScale.labelText(u"x"),
-					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
-					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.SAS_SEARCH_CLEAR_ID, self.SAS_SEARCH_PANEL_ID, SASTextScale.labelText(u"x"), CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	# <!-- custom: convert InputTypes keyboard code to visible character, based on how other mod(s) use ScreenInput.getVisibleCharacter (chatgpt 5.2 + claude opus 4.5) -->
 
@@ -915,8 +908,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			("getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS),
 			("getNumConceptInfos", "getConceptInfo", SevoScreenEnums.PEDIA_CONCEPTS),
 			("getNumNewConceptInfos", "getNewConceptInfo", SevoScreenEnums.PEDIA_BTS_CONCEPTS),
-			)
-
+		)
 		screen = self.getScreen()
 		screen.setRenderInterfaceOnly(True)
 		screen.setScreenGroup(1)
@@ -1346,8 +1338,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, gc.getTerrainInfo)
 
 	def SAS_getTerrainsGroupedByLandWater_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getTerrainsGroupedByLandWater_fromBaseList(
-			baseList, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
+		return SAS_MainGroupings.SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
 
 
 	def getTerrainList(self):
@@ -1372,8 +1363,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			print("Sevopedia Feature pre load XML data validation done from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE=%s)." % str(self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE))
 
 	def SAS_getFeaturesGroupedByLandWater_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getFeaturesGroupedByLandWater_fromBaseList(
-			baseList, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
+		return SAS_MainGroupings.SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
 
 
 	def getFeatureList(self):
@@ -1394,8 +1384,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return SAS_MainGroupings.SAS_getTradingImprovementsForBonus(iBonus)
 
 	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getBonusesGroupedByImprovement_fromBaseList(
-			baseList, False)
+		return SAS_MainGroupings.SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, False)
 
 
 	def getBonusList(self):
@@ -1425,8 +1414,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return SAS_MainGroupings.SAS_isFoodYieldImprovement(iImprovement)
 
 	def SAS_getImprovementsGroupedByTerrain_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getImprovementsGroupedByTerrain_fromBaseList(
-			baseList, False)
+		return SAS_MainGroupings.SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, False)
 
 
 	def getImprovementList(self):
@@ -1462,8 +1450,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# - Water (Food): builds that create food-yielding water improvements (Fishing Boats, Whaling Boats)
 	# - Water (Other): builds that create other water improvements (Offshore Platform)
 	def SAS_getBuildsGroupedByType_fromBaseList(self, baseList):
-		return SAS_MainGroupings.SAS_getBuildsGroupedByType_fromBaseList(
-			baseList, False)
+		return SAS_MainGroupings.SAS_getBuildsGroupedByType_fromBaseList(baseList, False)
 
 
 	def getBuildList(self):
@@ -1748,8 +1735,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen = self.getScreen()
 		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		# <advc.004y> Put a Blue50-styled panel behind the ListBox below, using the same dimensions.
-		screen.addPanel(self.getNextWidgetName(), "", "", false, false,
-			self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, PanelStyles.PANEL_STYLE_BLUE50)
+		screen.addPanel(self.getNextWidgetName(), "", "", false, false, self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, PanelStyles.PANEL_STYLE_BLUE50)
 		# </advc.004y>
 		szHintBox = self.getNextWidgetName()
 		screen.addListBoxGFC(szHintBox, "", self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, TableStyles.TABLE_STYLE_STANDARD)
