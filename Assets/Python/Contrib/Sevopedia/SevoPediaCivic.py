@@ -205,11 +205,7 @@ class SevoPediaCivic:
 		if (iTech > -1):
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
 		else:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
 
 
 
@@ -238,11 +234,7 @@ class SevoPediaCivic:
 					bFound = True
 				break
 		if not bFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_VOTES + (self.H_VOTES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTES + 7, yPanelCenter, self.W_VOTES - 14, self.H_VOTES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_VOTES, self.Y_VOTES, self.W_VOTES, self.H_VOTES)
 
 
 
@@ -266,11 +258,7 @@ class SevoPediaCivic:
 				if bFound:
 					break
 		if not bFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_VOTE_SOURCE + (self.H_VOTE_SOURCE / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTE_SOURCE + 7, yPanelCenter, self.W_VOTE_SOURCE - 14, self.H_VOTE_SOURCE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_VOTE_SOURCE, self.Y_VOTE_SOURCE, self.W_VOTE_SOURCE, self.H_VOTE_SOURCE)
 
 
 

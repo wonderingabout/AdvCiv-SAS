@@ -370,11 +370,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			buttonY = 10
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
 		else:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_MUSIC + (self.H_MUSIC / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MUSIC + 7, yPanelCenter, self.W_MUSIC - 14, self.H_MUSIC - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_MUSIC, self.Y_MUSIC, self.W_MUSIC, self.H_MUSIC)
 
 
 
@@ -444,11 +440,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		if not bButtonFound:
 			# No first-to-discover effects - display "None" text
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_FIRST_TO_DISCOVER + (self.H_FIRST_TO_DISCOVER / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_FIRST_TO_DISCOVER + 7, yPanelCenter, self.W_FIRST_TO_DISCOVER - 14, self.H_FIRST_TO_DISCOVER - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_FIRST_TO_DISCOVER, self.Y_FIRST_TO_DISCOVER, self.W_FIRST_TO_DISCOVER, self.H_FIRST_TO_DISCOVER)
 
 
 
@@ -623,11 +615,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		
 		else:
 			# No obsolete items - display "None" text
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_OBSOLETES + (self.H_OBSOLETES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_OBSOLETES + 7, yPanelCenter, self.W_OBSOLETES - 14, self.H_OBSOLETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_OBSOLETES, self.Y_OBSOLETES, self.W_OBSOLETES, self.H_OBSOLETES)
 
 
 
@@ -652,11 +640,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 					bButtonFound = True
 
 		if not bButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_LEADS_TO + (self.H_LEADS_TO / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_LEADS_TO + 7, yPanelCenter, self.W_LEADS_TO - 14, self.H_LEADS_TO - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
 
 
 
@@ -705,11 +689,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			screen.attachLabel(panelName, "", SASTextScale.labelText(szRightDelimeter))
 
 		if not bButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
 
 
 
@@ -907,11 +887,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			bButtonFound = True
 
 		if not bButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_ENABLES + (self.H_ENABLES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_ENABLES + 7, yPanelCenter, self.W_ENABLES - 14, self.H_ENABLES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_ENABLES, self.Y_ENABLES, self.W_ENABLES, self.H_ENABLES)
 
 
 

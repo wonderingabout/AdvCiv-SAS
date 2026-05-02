@@ -159,7 +159,7 @@ class SevoPediaVote:
 			bi = gc.getBuildingInfo(iBuilding)
 			screen.attachImageButton(panelName, "", bi.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 		else:
-			self._drawNoneText(screen, self.X_SOURCE, self.Y_SOURCE, self.W_SOURCE, self.H_SOURCE)
+			draw_none_text(screen, self.top, self.X_SOURCE, self.Y_SOURCE, self.W_SOURCE, self.H_SOURCE)
 
 
 
@@ -252,7 +252,7 @@ class SevoPediaVote:
 				if iSpecialist > -1:
 					screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
 					return
-		self._drawNoneText(screen, self.X_SOURCE_SPECIALIST, self.Y_SOURCE_SPECIALIST, self.W_SOURCE_SPECIALIST, self.H_SOURCE_SPECIALIST)
+		draw_none_text(screen, self.top, self.X_SOURCE_SPECIALIST, self.Y_SOURCE_SPECIALIST, self.W_SOURCE_SPECIALIST, self.H_SOURCE_SPECIALIST)
 
 
 
@@ -270,7 +270,7 @@ class SevoPediaVote:
 				if iCivic > -1:
 					screen.attachImageButton(panelName, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
 					return
-		self._drawNoneText(screen, self.X_SOURCE_CIVIC, self.Y_SOURCE_CIVIC, self.W_SOURCE_CIVIC, self.H_SOURCE_CIVIC)
+		draw_none_text(screen, self.top, self.X_SOURCE_CIVIC, self.Y_SOURCE_CIVIC, self.W_SOURCE_CIVIC, self.H_SOURCE_CIVIC)
 
 
 
@@ -292,7 +292,7 @@ class SevoPediaVote:
 					screen.attachImageButton(panelName, "", ci.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
 					bFound = True
 		if not bFound:
-			self._drawNoneText(screen, self.X_FORCE_CIVICS, self.Y_FORCE_CIVICS, self.W_FORCE_CIVICS, self.H_FORCE_CIVICS)
+			draw_none_text(screen, self.top, self.X_FORCE_CIVICS, self.Y_FORCE_CIVICS, self.W_FORCE_CIVICS, self.H_FORCE_CIVICS)
 
 
 
@@ -373,11 +373,6 @@ class SevoPediaVote:
 		szText = SASTextScale.normalizeLabelText(gc.getVoteInfo(self.iVote).getCivilopedia())
 		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
 		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
-	def _drawNoneText(self, screen, iX, iY, iW, iH):
-		textName = self.top.getNextWidgetName()
-		szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
-		yCenter = iY + (iH / 2)
-		screen.addMultilineText(textName, SASTextScale.labelText(szText), iX + 7, yCenter, iW - 14, iH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

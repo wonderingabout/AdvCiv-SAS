@@ -141,11 +141,7 @@ class SevoPediaBuild:
 			bFound = True
 
 		if not bFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
 
 
 	def placeImprovements(self):
@@ -177,11 +173,7 @@ class SevoPediaBuild:
 			bFound = True
 
 		if not bFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
 
 
 	def placeFeatureProduction(self):
@@ -192,11 +184,7 @@ class SevoPediaBuild:
 
 		techModifiers = self._getBuildFeatureProductionModifierTechs()
 		if len(techModifiers) <= 0:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION)
 			return
 
 		for iTech, unused_iModifier in techModifiers:
@@ -224,11 +212,7 @@ class SevoPediaBuild:
 				bUnitFound = True
 
 		if not bUnitFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_UNITS_BUILD + (self.H_UNITS_BUILD / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_UNITS_BUILD + 7, yPanelCenter, self.W_UNITS_BUILD - 14, self.H_UNITS_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_UNITS_BUILD, self.Y_UNITS_BUILD, self.W_UNITS_BUILD, self.H_UNITS_BUILD)
 
 
 	def placeFeatureStructs(self):

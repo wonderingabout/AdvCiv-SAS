@@ -989,8 +989,9 @@ def inchart_set_icon_column_headers(screen, tableName, startCol, numCols, colWid
 
 
 
-def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
-	# Display "None" or custom text when a panel has no content to show.
+def draw_none_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
+	# <!-- custom: place a centered "None" (or custom-keyed) message inside a panel that has no buttons/content
+	# to show. Replaces the ~5-line addMultilineText boilerplate scattered across pedia files. (Claude code Opus 4.7) -->
 	# screen: CyGInterfaceScreen
 	# selfTop: reference to main pedia class (for getNextWidgetName)
 	# panelX, panelY, panelW, panelH: panel dimensions

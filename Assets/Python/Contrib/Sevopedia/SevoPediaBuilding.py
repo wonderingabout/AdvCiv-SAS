@@ -605,11 +605,7 @@ class SevoPediaBuilding:
 					iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 
 
@@ -632,11 +628,7 @@ class SevoPediaBuilding:
 			buttonY = 10
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
 
 	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas -->  
@@ -751,11 +743,7 @@ class SevoPediaBuilding:
 			iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
 
 
 
@@ -791,10 +779,7 @@ class SevoPediaBuilding:
 		else:
 			# <!-- custom: prettier display -->
 			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
-			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER")
 
 
 
@@ -887,11 +872,7 @@ class SevoPediaBuilding:
 				iButtonIndex += 1
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 
 
@@ -1007,11 +988,7 @@ class SevoPediaBuilding:
 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuildingLoop).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, False)
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 
 
@@ -1058,11 +1035,7 @@ class SevoPediaBuilding:
 						screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
 
 		if not isButtonFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
 
 
 

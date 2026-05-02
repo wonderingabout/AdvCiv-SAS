@@ -168,11 +168,7 @@ class SevoPediaCorporation:
 				bFound = True
 
 		if not bFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_COMPETES + (self.H_COMPETES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_COMPETES + 7, yPanelCenter, self.W_COMPETES - 14, self.H_COMPETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_COMPETES, self.Y_COMPETES, self.W_COMPETES, self.H_COMPETES)
 
 
 
@@ -187,11 +183,7 @@ class SevoPediaCorporation:
 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
 		if len(prereqs) == 0:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_BONUSES_CONSUMED + (self.H_BONUSES_CONSUMED / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BONUSES_CONSUMED + 7, yPanelCenter, self.W_BONUSES_CONSUMED - 14, self.H_BONUSES_CONSUMED - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_BONUSES_CONSUMED, self.Y_BONUSES_CONSUMED, self.W_BONUSES_CONSUMED, self.H_BONUSES_CONSUMED)
 
 
 
@@ -206,10 +198,7 @@ class SevoPediaCorporation:
 		if iBonusProduced > -1:
 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iBonusProduced).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonusProduced, 1, False)
 		else:
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
-			yPanelCenter = self.Y_BONUSES_GENERATED + (self.H_BONUSES_GENERATED / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BONUSES_GENERATED + 7, yPanelCenter, self.W_BONUSES_GENERATED - 14, self.H_BONUSES_GENERATED - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_BONUSES_GENERATED, self.Y_BONUSES_GENERATED, self.W_BONUSES_GENERATED, self.H_BONUSES_GENERATED)
 
 
 
@@ -226,11 +215,7 @@ class SevoPediaCorporation:
 			buttonY = 10
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
 
 

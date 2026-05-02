@@ -337,11 +337,7 @@ class SevoPediaImprovement:
 				bButtonFound = True
 
 		if not bButtonFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_BUILD_PANEL + (self.H_BUILD_PANEL / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILD_PANEL + 7, yPanelCenter, self.W_BUILD_PANEL - 14, self.H_BUILD_PANEL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_BUILD_PANEL, self.Y_BUILD_PANEL, self.W_BUILD_PANEL, self.H_BUILD_PANEL)
 
 
 
@@ -359,11 +355,7 @@ class SevoPediaImprovement:
 					bButtonFound = True
 
 		if not bButtonFound:
-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNone, ())
-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
 
 
 
@@ -473,7 +465,7 @@ class SevoPediaImprovement:
 		weightToLeaders, weightsSorted, maxLeaders = cache["improvements"].get(self.iImprovement, (None, (), 0))
 
 		if not weightToLeaders:
-			inchart_show_no_content_text(screen, self.top, innerPanelX, innerPanelY, innerPanelW, innerPanelH)
+			draw_none_text(screen, self.top, innerPanelX, innerPanelY, innerPanelW, innerPanelH)
 			return
 
 		tableMargin = INCHART_TABLE_MARGIN
@@ -526,10 +518,7 @@ class SevoPediaImprovement:
 
 		if not isButtonFound:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 
 
@@ -553,10 +542,7 @@ class SevoPediaImprovement:
 
 		if not isButtonFound:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 
 

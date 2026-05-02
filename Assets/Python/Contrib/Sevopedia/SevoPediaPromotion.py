@@ -153,7 +153,7 @@ class SevoPediaPromotion:
 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False)
 				isButtonFound = True
 		if not isButtonFound:
-			inchart_show_no_content_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
+			draw_none_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
 
 
 
@@ -198,7 +198,7 @@ class SevoPediaPromotion:
 				#iButtonIndex += 1
 
 		if not isButtonFound:
-			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 
 
@@ -243,7 +243,7 @@ class SevoPediaPromotion:
 				#iButtonIndex += 1
 
 		if not isButtonFound:
-			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 
 

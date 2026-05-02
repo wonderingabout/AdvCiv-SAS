@@ -202,11 +202,7 @@ class SevoPediaTerrain:
 				bUnitFound = True
 
 		if not bUnitFound:
-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoButtonFound, ())
-			yPanelCenter = self.Y_BUILD_UNITS + (self.H_BUILD_UNITS / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILD_UNITS + 7, yPanelCenter, self.W_BUILD_UNITS - 14, self.H_BUILD_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, self.X_BUILD_UNITS, self.Y_BUILD_UNITS, self.W_BUILD_UNITS, self.H_BUILD_UNITS)
 
 
 
@@ -256,10 +252,7 @@ class SevoPediaTerrain:
 		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or for consistency, also exclude from display here -->
 		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoDisplay, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 		else:
 			for iFeature in xrange(gc.getNumFeatureInfos()):
@@ -287,10 +280,7 @@ class SevoPediaTerrain:
 		# <!-- custom: exclude peak (no improvements), but show hills using improvement rules instead of skipping; hills were previously hidden because output was unreliable (forts missing, cottages conditional on food, forest preserve dependent on forest/jungle). Now we show improvements that explicitly allow hills (isHillsMakesValid) or that become valid via a feature that can appear on hills, which is closer to actual in-game placement while still avoiding false positives. (GPT-5.2-Codex (summarized)) -->
 		if self.iTerrain == self.I_TERRAIN_PEAK:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoDisplay, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 		else:
 			isHillTerrain = (self.iTerrain == self.I_TERRAIN_HILL)
@@ -337,10 +327,7 @@ class SevoPediaTerrain:
 		# <!-- custom: not applicable for this plot type / terrain, so show an alternative text instead -->
 		if self.iTerrain == self.I_TERRAIN_PEAK:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoDisplay, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
@@ -372,10 +359,7 @@ class SevoPediaTerrain:
 
 		if self.iTerrain == self.I_TERRAIN_HILL or self.iTerrain == self.I_TERRAIN_PEAK:
 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			textName = self.top.getNextWidgetName()
-			szText = localText.getText(txtKeyNoDisplay, ())
-			yPanelCenter = yPanel + (hPanel / 2)
-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
