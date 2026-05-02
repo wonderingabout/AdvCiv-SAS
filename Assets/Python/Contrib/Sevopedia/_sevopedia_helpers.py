@@ -127,6 +127,17 @@ def get_panel_width_for_buttons(iNumButtons, iButtonSize, iEdgePadding, iInterBu
 
 
 
+# <!-- custom: shared row helper for bonus-yields-style panels (one attached child panel per row,
+# spacer + image button + label). (Claude code Opus 4.7) -->
+def attach_button_label_row(screen, top, panelName, buttonPath, widgetType, widgetID1, widgetID2, szText):
+	childPanelName = top.getNextWidgetName()
+	screen.attachPanel(panelName, childPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
+	screen.attachLabel(childPanelName, "", "  ")
+	screen.attachImageButton(childPanelName, "", buttonPath, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, widgetID2, False)
+	screen.attachLabel(childPanelName, "", SASTextScale.titleText(szText))
+
+
+
 # <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
 # LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
 # LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->

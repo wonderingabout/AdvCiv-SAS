@@ -74,8 +74,6 @@ class SevoPediaSpecialist:
 		self.X_ICON = self.X_ICON_PANEL + (self.W_ICON_PANEL - self.W_ICON) / 2
 		self.Y_ICON = self.Y_ICON_PANEL + (self.H_TOP_PANEL - self.H_ICON) / 2
 
-		self.BUTTON_SIZE = 64
-
 
 
 	def interfaceScreen(self, iSpecialist):
@@ -139,16 +137,13 @@ class SevoPediaSpecialist:
 
 
 
+	# <!-- custom: use the bonus-yields row template for consistency. (Claude code Opus 4.7) -->
 	def placeExtraSlots(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, u"Extra Slots", "", True, True, self.X_EXTRA_SLOTS, self.Y_EXTRA_SLOTS, self.W_EXTRA_SLOTS, self.H_EXTRA_SLOTS, PanelStyles.PANEL_STYLE_BLUE50)
-		scrollName = self.top.getNextWidgetName()
-		screen.addScrollPanel(scrollName, "", self.X_EXTRA_SLOTS - 2, self.Y_EXTRA_SLOTS + 20, self.W_EXTRA_SLOTS + 4, self.H_EXTRA_SLOTS - 26, PanelStyles.PANEL_STYLE_EMPTY)
 
-		iButtonSize = self.BUTTON_SIZE
-		iY = 6
-
+		bAnyFound = False
 		specialSlots = {}
 
 		# <!-- custom: note: unlike temples, monasteries, and cathedrals, shrines are not a special building, so showing the first entry (as of now Pagan Shrine) only instead for concision since the effect is always the same anyway -->
@@ -177,30 +172,20 @@ class SevoPediaSpecialist:
 						if iFree > specialSlots[key][1]:
 							specialSlots[key][1] = iFree
 					else:
-						textName = self.top.getNextWidgetName()
-						screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
-						screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-						iY += (iButtonSize + 8)
+						attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, szText)
+						bAnyFound = True
 
 		for key in sorted(specialSlots.keys()):
 			szText = self._format_slot_label(specialSlots[key][0], specialSlots[key][1])
 			if szText:
-				textName = self.top.getNextWidgetName()
-				buttonPath = specialSlots[key][2]
-				widgetType = specialSlots[key][3]
-				widgetID1 = specialSlots[key][4]
-				widgetID2 = specialSlots[key][5]
-				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
-				screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				iY += (iButtonSize + 8)
+				attach_button_label_row(screen, self.top, panelName, specialSlots[key][2], specialSlots[key][3], specialSlots[key][4], specialSlots[key][5], szText)
+				bAnyFound = True
 
 		for iCivic in xrange(gc.getNumCivicInfos()):
 			civicInfo = gc.getCivicInfo(iCivic)
 			if civicInfo.isSpecialistValid(self.iSpecialist):
-				textName = self.top.getNextWidgetName()
-				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, civicInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1)
-				screen.setLabelAt(textName, scrollName, SASTextScale.titleText("Unlimited"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				iY += (iButtonSize + 8)
+				attach_button_label_row(screen, self.top, panelName, civicInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, "Unlimited")
+				bAnyFound = True
 
 		for iVoteSource in xrange(gc.getNumVoteSourceInfos()):
 			voteSourceInfo = gc.getVoteSourceInfo(iVoteSource)
@@ -214,20 +199,19 @@ class SevoPediaSpecialist:
 				for iBuilding in xrange(gc.getNumBuildingInfos()):
 					buildingInfo = gc.getBuildingInfo(iBuilding)
 					if buildingInfo.getVoteSourceType() == iVoteSource:
-						textName = self.top.getNextWidgetName()
+						# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo,
+						# while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
 						if iVoteTarget > -1:
-							# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo,
-							# while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
-							screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVoteTarget)
+							attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVoteTarget, "+1 Free (V.Sources)")
 						else:
-							screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
-						screen.setLabelAt(textName, scrollName, SASTextScale.titleText("+1 Free (V.Sources)"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-						iY += (iButtonSize + 8)
+							attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, "+1 Free (V.Sources)")
+						bAnyFound = True
 						break
 
-		if iY == 6:
+		if not bAnyFound:
+			yPanelCenter = self.Y_EXTRA_SLOTS + (self.H_EXTRA_SLOTS / 2)
 			textName = self.top.getNextWidgetName()
-			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra slots gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.addMultilineText(textName, SASTextScale.labelText("No extra slots gained"), self.X_EXTRA_SLOTS + 7, yPanelCenter, self.W_EXTRA_SLOTS - 14, self.H_EXTRA_SLOTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 
@@ -235,8 +219,6 @@ class SevoPediaSpecialist:
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, u"Extra Yields", "", True, True, self.X_EXTRA_YIELDS, self.Y_EXTRA_YIELDS, self.W_EXTRA_YIELDS, self.H_EXTRA_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
-		scrollName = self.top.getNextWidgetName()
-		screen.addScrollPanel(scrollName, "", self.X_EXTRA_YIELDS - 2, self.Y_EXTRA_YIELDS + 20, self.W_EXTRA_YIELDS + 4, self.H_EXTRA_YIELDS - 26, PanelStyles.PANEL_STYLE_EMPTY)
 
 		entries = []
 
@@ -264,18 +246,13 @@ class SevoPediaSpecialist:
 			if szText:
 				entries.append((buildingInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, szText))
 
-		iButtonSize = self.BUTTON_SIZE
-		iY = 6
-
 		for buttonPath, widgetType, widgetID, szText in entries:
-			textName = self.top.getNextWidgetName()
-			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID, 1)
-			screen.setLabelAt(textName, scrollName, SASTextScale.titleText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			iY += (iButtonSize + 8)
+			attach_button_label_row(screen, self.top, panelName, buttonPath, widgetType, widgetID, 1, szText)
 
-		if iY == 6:
+		if not entries:
+			yPanelCenter = self.Y_EXTRA_YIELDS + (self.H_EXTRA_YIELDS / 2)
 			textName = self.top.getNextWidgetName()
-			screen.setLabelAt(textName, scrollName, SASTextScale.titleText("No extra yields gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.addMultilineText(textName, SASTextScale.labelText("No extra yields gained"), self.X_EXTRA_YIELDS + 7, yPanelCenter, self.W_EXTRA_YIELDS - 14, self.H_EXTRA_YIELDS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 
 

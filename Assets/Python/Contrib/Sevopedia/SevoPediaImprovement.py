@@ -367,20 +367,12 @@ class SevoPediaImprovement:
 
 
 
-	# <!-- custom: code entirely replaced with a code provided by claude ai based on m-e mod 's placeImprovements code (in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaImprovement.py ), also with gemini ai's help too thanks a lot as well, and adjusted or not for advciv-sas -->
+	# <!-- custom: use the bonus-yields row template for consistency with placeBonusYields above. (Claude code Opus 4.7) -->
 	def placeMostYields(self):
 		screen = self.top.getScreen()
-		panelX = self.X_MOST_YIELDS
-		panelY = self.Y_MOST_YIELDS
-		panelW = self.W_MOST_YIELDS
-		panelH = self.H_MOST_YIELDS
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, self.X_MOST_YIELDS, self.Y_MOST_YIELDS, self.W_MOST_YIELDS, self.H_MOST_YIELDS, PanelStyles.PANEL_STYLE_BLUE50)
 
-		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES", ()), "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
-		scrollPanelName = self.top.getNextWidgetName()
-		screen.addScrollPanel(scrollPanelName, "", panelX - 2, panelY + 20, panelW + 4, panelH - 46, PanelStyles.PANEL_STYLE_EMPTY)
-
-		iY = 6
-		iButtonSize = 64  # Use default 64px button size for better visibility
 		Info = gc.getImprovementInfo(self.iImprovement)
 
 		# Irrigated yield changes
@@ -390,9 +382,7 @@ class SevoPediaImprovement:
 			if iYieldChange != 0:
 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 		if len(sText) > 0:
-			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION)
-			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			iY += (iButtonSize + 8)
+			attach_button_label_row(screen, self.top, panelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION, sText)
 
 		# Hills yield changes
 		sText = ""
@@ -402,9 +392,7 @@ class SevoPediaImprovement:
 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 		if len(sText) > 0:
 			iHill = self.I_TERRAIN_HILL
-			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
-			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			iY += (iButtonSize + 8)
+			attach_button_label_row(screen, self.top, panelName, gc.getTerrainInfo(iHill).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1, sText)
 
 		# River yield changes
 		sText = ""
@@ -414,16 +402,12 @@ class SevoPediaImprovement:
 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 		if len(sText) > 0:
 			# <!-- custom: unlike in m-e mod or so it seems, we don't use WidgetTypes.WIDGET_PYTHON (for/in this placeMostYields method) and id 6783 neither, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather, is also thanks to gemini ai's help, and adjusted or not by me too hehe if i may say in this casefor advciv-sas -->
-			#screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, 6783, -1)
-			#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			# This button now links to the Civilopedia concept for Rivers.
 			# Its tooltip and click behavior are handled by the built-in Civ4 widget system.
 			# Ensure 'CONCEPT_RIVERS' is defined in your Civilopedia XML.
 			riversConceptID = get_concept_id("CONCEPT_RIVERS")
 			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(riversConceptID, WidgetTypes, CivilopediaPageTypes)
-			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
-			screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			iY += (iButtonSize + 8)
+			attach_button_label_row(screen, self.top, panelName, ArtFileMgr.getInterfaceArtInfo("WORLDBUILDER_RIVER_PLACEMENT").getPath(), widgetType, widgetID1, widgetID2, sText)
 
 		# Tech yield changes
 		for item in xrange(gc.getNumTechInfos()):
@@ -433,9 +417,7 @@ class SevoPediaImprovement:
 				if iYieldChange != 0:
 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 			if len(sText):
-				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getTechInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1)
-				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				iY += (iButtonSize + 8)
+				attach_button_label_row(screen, self.top, panelName, gc.getTechInfo(item).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, item, 1, sText)
 
 		# Civic yield changes
 		for item in xrange(gc.getNumCivicInfos()):
@@ -445,9 +427,7 @@ class SevoPediaImprovement:
 				if iYieldChange != 0:
 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 			if len(sText):
-				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, gc.getCivicInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1)
-				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				iY += (iButtonSize + 8)
+				attach_button_label_row(screen, self.top, panelName, gc.getCivicInfo(item).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, item, 1, sText)
 
 		# Route yield changes
 		for item in xrange(gc.getNumRouteInfos()):
@@ -468,9 +448,7 @@ class SevoPediaImprovement:
 				if iBuild < 0:
 					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
 
-				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollPanelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild)
-				screen.setLabelAt(self.top.getNextWidgetName(), scrollPanelName, SASTextScale.titleText(sText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				iY += (iButtonSize + 8)
+				attach_button_label_row(screen, self.top, panelName, routeInfo.getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild, sText)
 
 
 	def placeImprovementLeaderTable(self):
