@@ -26,13 +26,9 @@ class SevoPediaIndex:
 		
 		self.index = None
 		self.letterTextIDs = None
-		self.SAS_INDEX_SEARCH_PANEL_ID = "PediaIndexSearchPanel"
-		self.SAS_INDEX_SEARCH_LABEL_ID = "PediaIndexSearchLabel"
-		self.SAS_INDEX_SEARCH_CLEAR_ID = "PediaIndexSearchClear"
-		self.SAS_INDEX_SEARCH_DEFAULT_TEXT = u"Enter text"
-		self.SAS_INDEX_SEARCH_H = 32
-		self.SAS_szIndexSearchString = u""
-		self.SAS_indexKeyDebounceByKey = {}
+		# <!-- custom: filter reads SevoPediaMain.SAS_szSearchString; the shared top-header search bar
+		# is drawn by SevoPediaMain.SAS_syncSearchPanel and refreshed via SAS_refreshActiveListView.
+		# This page owns no search state of its own. (Claude code Opus 4.7) -->
 		self.SAS_indexWidgetNames = []
 
 	def SAS_indexSetLayout(self, bCategory):
@@ -56,43 +52,6 @@ class SevoPediaIndex:
 		self.buildIndex()
 		self.placeIndex()
 	
-	def SAS_indexDeleteSearchWidgets(self):
-		screen = self.top.getScreen()
-		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_PANEL_ID)
-		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_LABEL_ID)
-		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_CLEAR_ID)
-	
-	def SAS_indexIsSearchActive(self):
-		return (self.SAS_szIndexSearchString is not None and len(self.SAS_szIndexSearchString.strip()) > 0)
-	
-	def SAS_indexSyncSearchPanel(self):
-		screen = self.top.getScreen()
-		
-		self.SAS_indexDeleteSearchWidgets()
-		
-		iX = self.X_INDEX
-		iY = self.Y_INDEX
-		iW = self.W_INDEX
-		iH = self.SAS_INDEX_SEARCH_H
-		
-		screen.addPanel(self.SAS_INDEX_SEARCH_PANEL_ID, u"", u"", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_BLUE50)
-		
-		if self.SAS_indexIsSearchActive():
-			szText = self.SAS_szIndexSearchString
-		else:
-			szText = self.SAS_INDEX_SEARCH_DEFAULT_TEXT
-		
-		screen.setLabel(self.SAS_INDEX_SEARCH_LABEL_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
-				SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
-				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
-				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		
-		if self.SAS_indexIsSearchActive():
-			screen.setLabel(self.SAS_INDEX_SEARCH_CLEAR_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
-					SAS_FONT_TAG_LABEL + u"x" + SAS_FONT_TAG_CLOSE,
-					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
-					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
 	def buildIndex(self):
 		if self.index:
 			return
@@ -223,15 +182,21 @@ class SevoPediaIndex:
 					pass
 			self.SAS_indexWidgetNames = []
 		
-		self.SAS_indexSyncSearchPanel()
-		
+		# <!-- custom: draw the shared top-header search bar from SevoPediaMain, and register this
+		# method as the active refresher so Main's search handlers can invoke it on each keystroke
+		# without needing any category-specific branching. (Claude code Opus 4.7) -->
+		self.top.SAS_syncSearchPanel()
+		self.top.SAS_activeListRefresher = self.placeIndex
+
 		nColumns = 3
 		self.tableName = self.top.getNextWidgetName()
 		self.SAS_rowToBuild = {}
 		self.SAS_rowToTrait = {}  # <!-- custom: row-to-trait mapping for WIDGET_PYTHON trait handling. (Claude Opus 4.5) -->
 		self.iTableWidgetId = int(self.tableName.replace(self.top.WIDGET_ID, ""))
-		iTableY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
-		iTableH = self.H_INDEX - (iTableY - self.Y_INDEX)
+		# <!-- custom: search bar lives in the top header, so the Index table uses the full Y_INDEX
+		# area below it. (Claude code Opus 4.7) -->
+		iTableY = self.Y_INDEX
+		iTableH = self.H_INDEX
 		# <!-- custom: For Build entries, table selection is the only reliable click signal, so keep the table selectable and capture
 		# row->Build mapping in handleInput. We previously tried overlay buttons, but they ignored table scrolling and desynced from rows.
 		# Also, if the table doesn't have focus on first open, NOTIFY_CHARACTER goes nowhere and the search bar appears "dead" until
@@ -248,10 +213,10 @@ class SevoPediaIndex:
 		iColumn = 0
 		sLetter = "#"
 		iX = self.X_LETTER
-		iLetterY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
+		iLetterY = self.Y_INDEX
 		self.letterTextIDs = {}
 		# <!-- custom: note: while adding leaderhead art_def in AdvCiv-SAS-NIF-Gallery mod we saw the error "UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0" and in Sevopedia Leader, fixed by respecting path case sensitivity (e.g. "Art/LeaderHeads"). So reverted a previous patch that would workaround that: prefer to fail loudly instead and fix path or asset cause directly rather. See KI#111. (GPT-5.3-Codex) -->
-		szFilter = self.SAS_szIndexSearchString.strip().lower()
+		szFilter = self.top.SAS_szSearchString.strip().lower()
 		bFilter = (len(szFilter) > 0)
 		for name, type, item in self.index:
 			if item[1] < 0:
@@ -344,45 +309,9 @@ class SevoPediaIndex:
 
 	def handleInput (self, inputClass):
 		BugUtil.debugInput(inputClass)
-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
-			if inputClass.getFunctionName() == self.SAS_INDEX_SEARCH_CLEAR_ID:
-				if self.SAS_indexIsSearchActive():
-					self.SAS_szIndexSearchString = u""
-					self.SAS_indexKeyDebounceByKey = {}
-					self.placeIndex()
-				return 1
-		
-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
-			screen = self.top.getScreen()
-			if screen.isActive():
-				if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
-					iKey = inputClass.getData()
-					
-					if self.top.SAS_shouldDebounceKey(iKey):
-						if self.SAS_indexKeyDebounceByKey.get(iKey, 0):
-							self.SAS_indexKeyDebounceByKey[iKey] = 0
-							return 1
-						self.SAS_indexKeyDebounceByKey[iKey] = 1
-					
-					szChar = self.top.SAS_getVisibleCharacter(inputClass)
-					if len(szChar) > 0:
-						self.SAS_szIndexSearchString = self.SAS_szIndexSearchString + szChar
-						self.placeIndex()
-						return 1
-					
-					if iKey == int(InputTypes.KB_BACKSPACE):
-						if len(self.SAS_szIndexSearchString) > 0:
-							self.SAS_szIndexSearchString = self.SAS_szIndexSearchString[:-1]
-							self.placeIndex()
-							return 1
-					elif iKey == int(InputTypes.KB_ESCAPE):
-						if self.SAS_indexIsSearchActive():
-							self.SAS_szIndexSearchString = u""
-							self.SAS_indexKeyDebounceByKey = {}
-							self.placeIndex()
-							return 1
-		
-		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED 
+		# <!-- custom: search typing + CLEAR live in SevoPediaMain.handleInput; this method only
+		# handles letter buttons and table-row clicks specific to the Index page. (Claude code Opus 4.7) -->
+		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED
 				and inputClass.getFunctionName() + str(inputClass.getID()) in self.letterTextIDs):
 			screen = self.top.getScreen()
 			screen.selectRow(self.tableName, self.iLastRow, True)

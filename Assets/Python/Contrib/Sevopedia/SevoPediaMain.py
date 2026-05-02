@@ -284,6 +284,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_szSearchString = u""
 		self.SAS_lastItemsWidget = None
 		self.SAS_lastItemsInfo = None
+		# <!-- custom: only one Sevopedia page renders at a time, so a single callable is enough to
+		# remember what to re-render after a search keystroke. Each list page sets this when drawn:
+		# placeItems for regular listbox categories, SevoPediaIndex.placeIndex for the Index 3-column
+		# table. Search handlers just invoke whichever is registered, no per-category branching. (Claude code Opus 4.7) -->
+		self.SAS_activeListRefresher = None
 
 		# <!-- custom: debounce for type-to-filter to prevent double keypress even when key-up events are interleaved (chatgpt 5.2 + claude opus 4.5) -->
 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
@@ -452,6 +457,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_isSearchActive(self):
 		return (self.SAS_szSearchString is not None and len(self.SAS_szSearchString.strip()) > 0)
 
+	# <!-- custom: invoke the registered refresher; see SAS_activeListRefresher comment in __init__. (Claude code Opus 4.7) -->
+	def SAS_refreshActiveListView(self):
+		if self.SAS_activeListRefresher is not None:
+			self.SAS_activeListRefresher()
+
+	def _SAS_refreshLastItems(self):
+		if self.SAS_lastItemsWidget is not None:
+			self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
+
 	# <!-- custom: type-to-filter search bar sync panel (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_syncSearchPanel(self):
 		screen = self.getScreen()
@@ -459,11 +473,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Recreate each time: simple + safe (mirrors the approach used in other mod(s)).
 		self.SAS_deleteSearchWidgets(screen)
 
-		# <!-- custom: search bar lives in the otherwise-empty top header now. Right edge stops
-		# short of the central "Sevopedia" title so they don't visually collide; the gap also
-		# hosts the CLEAR button, rendered outside the panel as a screen-level text widget so
-		# clicks actually fire (the previous in-panel "x" was a setLabel under the search panel
-		# parent, which never reached handleInput). (Claude code Opus 4.7) -->
+		# <!-- custom: search bar sits in the top header, X aligned with the items column. Right edge
+		# stops `iSafetyToTitle` pixels short of the central "Sevopedia" title to leave room for the
+		# CLEAR button and avoid visually colliding with the title. CLEAR is rendered OUTSIDE the
+		# panel as a screen-level setText widget; a setLabel inside the search panel parent does
+		# not reach handleInput in this engine, so the click never fires. (Claude code Opus 4.7) -->
 		iSafetyToTitle = 200
 		iClearGap = 8
 		iX = self.X_ITEMS
@@ -766,7 +780,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def showContents(self, bForce=False, iCategory=None):
 		if iCategory is None:
 			iCategory = self.SAS_CATEGORY_DEFS[0][0]
-		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		self.deleteAllWidgets()
 		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
 		screen = self.getScreen()
@@ -796,9 +809,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if not self.isContentsShowing() or self.iCategory != iCategory or bForce:
 			BugUtil.debug("Drawing item list %d" % iCategory)
 			# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+			# <!-- custom: reset search state on every category change. Players almost always want to
+			# look up something different on the next visit, so we drop the query rather than restoring
+			# it. (Claude code Opus 4.7) -->
 			# <!-- custom: reset search state when changing category (chatgpt 5.2 + claude opus 4.5) -->
 			self.SAS_lastItemsWidget = None
 			self.SAS_lastItemsInfo = None
+			self.SAS_activeListRefresher = None
 			if (not self.isContentsShowing()) or (self.iCategory != iCategory):
 				self.SAS_szSearchString = u""
 				# <!-- custom: reset debounce state when search is reset (chatgpt 5.2 + claude opus 4.5) -->
@@ -846,6 +863,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen = self.getScreen()
 		self.SAS_lastItemsWidget = None
 		self.SAS_lastItemsInfo = None
+		self.SAS_activeListRefresher = None
 		self.SAS_szSearchString = u""
 		self.SAS_keyDebounceByKey = {}
 		self.SAS_deleteSearchWidgets(screen)
@@ -2101,6 +2119,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: remember last list kind so typing can rebuild it (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_lastItemsWidget = widget
 		self.SAS_lastItemsInfo = info
+		# <!-- custom: register self as the active refresher; see SAS_activeListRefresher comment. (Claude code Opus 4.7) -->
+		self.SAS_activeListRefresher = self._SAS_refreshLastItems
 
 		# <!-- custom: search bar (top of item list) (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_syncSearchPanel()
@@ -2395,10 +2415,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iHandled:
 				return iHandled
 
-		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
-		# Index has its own input (existing behavior).
+		# <!-- custom: forward to Index for its letter-button and table clicks; fall through if it
+		# does not consume the event so the shared search handler below can still process typing. (Claude code Opus 4.7) -->
 		if self.SAS_USE_BOTTOM_TABS and self.isIndexShowing():
-			return self.pediaIndex.handleInput(inputClass)
+			iHandled = self.pediaIndex.handleInput(inputClass)
+			if iHandled:
+				return iHandled
 		if self.isContentsShowing() and self.iCategory == SevoScreenEnums.PEDIA_INDEX:
 			iHandled = self.pediaIndex.handleInput(inputClass)
 			if iHandled:
@@ -2415,36 +2437,37 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					self.SAS_szSearchString = u""
 					# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->
 					self.SAS_keyDebounceByKey = {}
-					if self.SAS_lastItemsWidget is not None:
-						self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
+					self.SAS_refreshActiveListView()
 				return 1
 
 		# <!-- custom: type-to-filter keyboard input using InputTypes constants like other mod(s) do (chatgpt 5.2 + claude opus 4.5) -->
+		# <!-- custom: gate fires whenever a list-rendering page has registered itself as the active
+		# refresher, regardless of which tab/mode hosts it. (Claude code Opus 4.7) -->
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
-			if self.SAS_lastItemsWidget is not None and self.isContentsShowing():
+			if (self.isContentsShowing() or self.isIndexShowing()) and self.SAS_activeListRefresher is not None:
 				screen = self.getScreen()
 				if screen.isActive():
 					if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
 						iKey = inputClass.getData()
-						
+
 						# <!-- custom: debounce per key so fast typing does not produce interleaved duplicates like 'gr' -> 'grgr' (chatgpt 5.2 + claude opus 4.5) -->
 						if self.SAS_shouldDebounceKey(iKey):
 							if self.SAS_keyDebounceByKey.get(iKey, 0):
 								self.SAS_keyDebounceByKey[iKey] = 0
 								return 1
 							self.SAS_keyDebounceByKey[iKey] = 1
-						
+
 						szChar = self.SAS_getVisibleCharacter(inputClass)
 						if len(szChar) > 0:
 							self.SAS_szSearchString = self.SAS_szSearchString + szChar
-							self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
+							self.SAS_refreshActiveListView()
 							return 1
-						
+
 						# Handle backspace to delete last character
 						if iKey == int(InputTypes.KB_BACKSPACE):
 							if len(self.SAS_szSearchString) > 0:
 								self.SAS_szSearchString = self.SAS_szSearchString[:-1]
-								self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
+								self.SAS_refreshActiveListView()
 								return 1
 						# Handle escape to clear search
 						elif iKey == int(InputTypes.KB_ESCAPE):
@@ -2452,7 +2475,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 								self.SAS_szSearchString = u""
 								# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->
 								self.SAS_keyDebounceByKey = {}
-								self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
+								self.SAS_refreshActiveListView()
 								return 1
 						# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 						# <!-- custom: arrow key navigation for item list (chatgpt 5.2 + claude opus 4.5) -->
@@ -2639,7 +2662,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 		# <!-- custom: also delete search widgets when deleting list widgets (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_deleteSearchWidgets(screen)
-		self.pediaIndex.SAS_indexDeleteSearchWidgets()
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
 	def SAS_setItemsWidth(self, iW):

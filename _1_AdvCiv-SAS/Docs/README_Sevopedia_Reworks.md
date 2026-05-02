@@ -107,6 +107,8 @@ More recently, added the Builds entries to the Index. See [example 0.40 builds c
 
 Then, to make those Index Builds entries fully clickable and stable, we kept the table selectable, mapped row->Build IDs, and routed the click in `SevoPediaIndex.handleInput` instead of overlaying buttons. The overlay approach looked correct at first but the buttons did not scroll with the table and became desynced. Also, the index search bar was dead on first open until the table received focus, so we explicitly set focus to the index table when building it. Credit: Claude code Opus 4.5 + GPT-5.2-Codex.
 
+Update: Sevopedia Index now uses the same search bar as the shared one the other sevopedia categories use (no longer duplicated Search bar logic in Sevopedia index).
+
 <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
