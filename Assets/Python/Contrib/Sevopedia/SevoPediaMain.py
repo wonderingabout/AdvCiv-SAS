@@ -105,8 +105,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_SEARCH_PANEL_ID = "PediaMainSearchPanel"
 		self.SAS_SEARCH_LABEL_ID = "PediaMainSearchLabel"
-		self.SAS_SEARCH_CLEAR_ID = "PediaMainSearchClear"
-		self.SAS_SEARCH_DEFAULT_TEXT = u"Type to filter..."
+		self.SAS_CLEAR_SEARCH_ID = "PediaMainSearchClear"
+		self.SAS_SEARCH_DEFAULT_TEXT = u"Enter text"
 		self.SAS_SEARCH_H = 32
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 		# <!-- custom: WIDGET_PYTHON magic IDs for custom Sevopedia categories. These allow Builds and Traits to have
@@ -434,7 +434,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_deleteSearchWidgets(self, screen):
 		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_PANEL_ID)
 		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_LABEL_ID)
-		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_CLEAR_ID)
+		self.SAS_safeDeleteWidget(screen, self.SAS_CLEAR_SEARCH_ID)
 
 	# <!-- custom: clear search state for special pages that delete the item list (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_prepareSpecialPageDeletingItemList(self, screen):
@@ -459,10 +459,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Recreate each time: simple + safe (mirrors the approach used in other mod(s)).
 		self.SAS_deleteSearchWidgets(screen)
 
+		# <!-- custom: search bar lives in the otherwise-empty top header now. Right edge stops
+		# short of the central "Sevopedia" title so they don't visually collide; the gap also
+		# hosts the CLEAR button, rendered outside the panel as a screen-level text widget so
+		# clicks actually fire (the previous in-panel "x" was a setLabel under the search panel
+		# parent, which never reached handleInput). (Claude code Opus 4.7) -->
+		iSafetyToTitle = 200
+		iClearGap = 8
 		iX = self.X_ITEMS
-		iY = self.Y_ITEMS
-		iW = self.W_ITEMS
 		iH = self.SAS_SEARCH_H
+		iY = self.Y_TOP_PANEL + (self.H_TOP_PANEL - iH) / 2
+		iW = self.X_TITLE - iSafetyToTitle - iX
 
 		screen.addPanel(self.SAS_SEARCH_PANEL_ID, u"", u"", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_BLUE50)
 
@@ -473,9 +480,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 		screen.setLabel(self.SAS_SEARCH_LABEL_ID, self.SAS_SEARCH_PANEL_ID, SASTextScale.labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		# Show a clear button only when active.
+		# Show the CLEAR button (outside the panel, screen-level) only when search is active.
 		if self.SAS_isSearchActive():
-			screen.setLabel(self.SAS_SEARCH_CLEAR_ID, self.SAS_SEARCH_PANEL_ID, SASTextScale.labelText(u"x"), CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			iClearX = iX + iW + iClearGap
+			iClearY = self.Y_TOP_PANEL + 16
+			screen.setText(self.SAS_CLEAR_SEARCH_ID, "Background", self.SAS_CLEAR_TEXT, CvUtil.FONT_LEFT_JUSTIFY, iClearX, iClearY, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	# <!-- custom: convert InputTypes keyboard code to visible character, based on how other mod(s) use ScreenInput.getVisibleCharacter (chatgpt 5.2 + claude opus 4.5) -->
 
@@ -2096,8 +2105,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: search bar (top of item list) (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_syncSearchPanel()
 
-		iTableY = self.Y_ITEMS + self.SAS_SEARCH_H + 2
-		iTableH = self.H_ITEMS - (self.SAS_SEARCH_H + 2)
+		# <!-- custom: search bar lives in the top header now, so the items list reclaims the
+		# vertical space it used to give up. (Claude code Opus 4.7) -->
+		iTableY = self.Y_ITEMS
+		iTableH = self.H_ITEMS
 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
 
 		screen.clearListBoxGFC(self.ITEM_LIST_ID)
@@ -2399,7 +2410,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				# <!-- custom: manual reset for session-persistent Sevopedia Back/Next history; keeps the current page only
 				# so players can recover a clean navigation chain without closing the game. (GPT-5.5) -->
 				return self.SAS_clearNavigation()
-			if inputClass.getFunctionName() == self.SAS_SEARCH_CLEAR_ID:
+			if inputClass.getFunctionName() == self.SAS_CLEAR_SEARCH_ID:
 				if self.SAS_isSearchActive():
 					self.SAS_szSearchString = u""
 					# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->

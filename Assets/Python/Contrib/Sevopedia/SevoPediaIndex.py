@@ -29,7 +29,7 @@ class SevoPediaIndex:
 		self.SAS_INDEX_SEARCH_PANEL_ID = "PediaIndexSearchPanel"
 		self.SAS_INDEX_SEARCH_LABEL_ID = "PediaIndexSearchLabel"
 		self.SAS_INDEX_SEARCH_CLEAR_ID = "PediaIndexSearchClear"
-		self.SAS_INDEX_SEARCH_DEFAULT_TEXT = u"Type to filter..."
+		self.SAS_INDEX_SEARCH_DEFAULT_TEXT = u"Enter text"
 		self.SAS_INDEX_SEARCH_H = 32
 		self.SAS_szIndexSearchString = u""
 		self.SAS_indexKeyDebounceByKey = {}
