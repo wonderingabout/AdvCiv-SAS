@@ -361,8 +361,7 @@ class SevoPediaBuild:
 			self.H_HISTORY,
 			szText,
 			self.bHistoryExpanded,
-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
-			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
 		)
 
 

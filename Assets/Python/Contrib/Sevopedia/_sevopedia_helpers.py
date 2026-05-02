@@ -370,8 +370,14 @@ def place_new_concept_legend_link(top, new_concept_type):
 
 
 
-def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, panelH, szText, bExpanded, iPythonWidgetData1, iCollapsedTextYOffset=0):
+def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, panelH, szText, bExpanded, iPythonWidgetData1, iCollapsedTextYOffset=None):
 	# <!-- custom: reusable Sevopedia expandable text panel helper (collapsed panel + opaque full-page overlay). Use WIDGET_PYTHON routing via iPythonWidgetData1. data2=1 expands, data2=0 closes. (GPT-5.3-Codex) -->
+	# <!-- custom: iCollapsedTextYOffset auto-resolves from panelTitle when None: with a title we push body text below the header bar, without a title we start at the top. Callers can still pass an explicit value for fine-tuning (e.g., Vote, EventTrigger). (Claude code Opus 4.7) -->
+	if iCollapsedTextYOffset is None:
+		if panelTitle:
+			iCollapsedTextYOffset = H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+		else:
+			iCollapsedTextYOffset = 0
 	iCloseButtonW = 85
 	iExpandButtonW = 107
 	if bExpanded:
