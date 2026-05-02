@@ -567,21 +567,8 @@ class SevoPediaLeader:
 		screen = self.top.getScreen()
 		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 		szText = SASTextScale.normalizeLabelText(gc.getLeaderHeadInfo(self.iLeader).getCivilopedia())
-		draw_expandable_text_panel(
-			screen,
-			self.top,
-			u"",
-			self.X_HISTORY,
-			self.Y_HISTORY,
-			self.W_HISTORY,
-			self.H_HISTORY,
-			szText,
-			self.bHistoryExpanded,
-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
-		)
-
-
-
+		szTitle = u""
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
 	# <!-- custom: logo / flag of the civ -->
 	def placeCiv(self):
 		screen = self.top.getScreen()

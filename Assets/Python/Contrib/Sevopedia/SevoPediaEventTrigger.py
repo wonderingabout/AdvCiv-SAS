@@ -766,25 +766,8 @@ class SevoPediaEventTrigger:
 		else:
 			szBody = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 
-		draw_expandable_text_panel(
-			screen,
-			self.top,
-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS", ()),
-			self.X_TEXTS,
-			self.Y_TEXTS,
-			self.W_TEXTS,
-			self.H_TEXTS,
-			szBody,
-			self.bHistoryExpanded,
-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
-			# <!-- custom: push collapsed body text below the panel's "Texts" header bar
-			# (helper's default 10 px leaves the first line crammed into/over the header).
-			# 24 matches the offset draw_expandable_text_panel uses for similar cases in
-			# other Sevopedia pages. (Claude code Opus 4.7) -->
-			24
-		)
-
-
+		szTitle = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS", ())
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_TEXTS, self.Y_TEXTS, self.W_TEXTS, self.H_TEXTS, szBody, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
 	def placeEvents(self):
 		screen = self.top.getScreen()
 		info = self._getTriggerInfo()

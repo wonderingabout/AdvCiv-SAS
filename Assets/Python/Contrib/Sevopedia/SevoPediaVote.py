@@ -371,22 +371,8 @@ class SevoPediaVote:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		szText = SASTextScale.normalizeLabelText(gc.getVoteInfo(self.iVote).getCivilopedia())
-		draw_expandable_text_panel(
-			screen,
-			self.top,
-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
-			self.X_HISTORY,
-			self.Y_HISTORY,
-			self.W_HISTORY,
-			self.H_HISTORY,
-			szText,
-			self.bHistoryExpanded,
-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
-			20
-		)
-
-
-
+		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
 	def _drawNoneText(self, screen, iX, iY, iW, iH):
 		textName = self.top.getNextWidgetName()
 		szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())

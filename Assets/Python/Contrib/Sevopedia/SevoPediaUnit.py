@@ -994,21 +994,8 @@ class SevoPediaUnit:
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		szText = self._getHistoryText()
-		draw_expandable_text_panel(
-			screen,
-			self.top,
-			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
-			self.X_HISTORY,
-			self.Y_HISTORY,
-			self.W_HISTORY,
-			self.H_HISTORY,
-			szText,
-			self.bHistoryExpanded,
-			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
-		)
-
-
-
+		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
 	def placePromotions(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
