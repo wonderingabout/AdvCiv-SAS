@@ -88,7 +88,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). As of now changed from 2 to 3 so text is more readable. Base Civ4 Font size: 2. -->
+	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc); Long_Comments_XML.txt #106. Keep in [1..4]. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>

@@ -6,59 +6,49 @@
 from CvPythonExtensions import *
 
 gc = CyGlobalContext()
-_FONT_SIZE_CACHE = {}
+_SAS_UI_FONT_SIZE_CACHE = {}
 
 
-def _getFontSizeOrDefault(szDefineName, iDefault):
-	if szDefineName in _FONT_SIZE_CACHE:
-		return _FONT_SIZE_CACHE[szDefineName]
+def _getSASUIFontSize(szDefineName):
+	if szDefineName in _SAS_UI_FONT_SIZE_CACHE:
+		return _SAS_UI_FONT_SIZE_CACHE[szDefineName]
 	iSize = gc.getDefineINT(szDefineName)
 	if iSize < 1 or iSize > 4:
-		if iDefault > 0:
-			print("SASFontUtils: invalid or unavailable %s=%d; using default %d" % (szDefineName, iSize, iDefault))
-		return iDefault
-	# Cache once valid to avoid repeated define lookups.
-	_FONT_SIZE_CACHE[szDefineName] = iSize
+		_SAS_UI_FONT_SIZE_CACHE[szDefineName] = None
+		raise RuntimeError("SASFontUtils: %s=%d out of [1,4] - check CIV4SASDefines.xml" % (szDefineName, iSize))
+	_SAS_UI_FONT_SIZE_CACHE[szDefineName] = iSize
+	print("SASFontUtils: initialized %s = %d" % (szDefineName, iSize))
 	return iSize
 
 
 def getSASUIFontTiny():
-	return _getFontSizeOrDefault("SAS_UI_FONT_TINY", 1)
+	return _getSASUIFontSize("SAS_UI_FONT_TINY")
 
 
 def getSASUIFontBody():
-	return _getFontSizeOrDefault("SAS_UI_FONT_BODY", 2)
+	return _getSASUIFontSize("SAS_UI_FONT_BODY")
 
 
 def getSASUIFontLabel():
-	return _getFontSizeOrDefault("SAS_UI_FONT_LABEL", 3)
+	return _getSASUIFontSize("SAS_UI_FONT_LABEL")
 
 
 def getSASUIFontTitle():
-	return _getFontSizeOrDefault("SAS_UI_FONT_TITLE", 4)
+	return _getSASUIFontSize("SAS_UI_FONT_TITLE")
 
 
 def getSASUIFontHover():
-	# Returns 0 (disabled) or 1-4. 0 means no hover font scaling.
-	szName = "SAS_UI_FONT_HOVER"
-	if szName in _FONT_SIZE_CACHE:
-		return _FONT_SIZE_CACHE[szName]
-	iSize = gc.getDefineINT(szName)
-	if iSize < 0 or iSize > 4:
-		return 0
-	_FONT_SIZE_CACHE[szName] = iSize
-	return iSize
+	return _getSASUIFontSize("SAS_UI_FONT_HOVER")
 
 
 class _DynamicFontTag:
-	def __init__(self, szDefineName, iDefault, bBold):
+	def __init__(self, szDefineName, bBold):
 		self.szDefineName = szDefineName
-		self.iDefault = iDefault
 		self.bBold = bBold
 
 	def _build(self):
-		iSize = _getFontSizeOrDefault(self.szDefineName, self.iDefault)
-		if iSize < 1:
+		iSize = _getSASUIFontSize(self.szDefineName)
+		if iSize is None:
 			return u""
 		if self.bBold:
 			return u"<font=%db>" % iSize
@@ -79,13 +69,13 @@ class _DynamicFontTag:
 
 SAS_FONT_TAG_CLOSE = u"</font>"
 
-SAS_FONT_TAG_TINY = _DynamicFontTag("SAS_UI_FONT_TINY", 1, False)
-SAS_FONT_TAG_BODY = _DynamicFontTag("SAS_UI_FONT_BODY", 2, False)
-SAS_FONT_TAG_LABEL = _DynamicFontTag("SAS_UI_FONT_LABEL", 3, False)
-SAS_FONT_TAG_TITLE = _DynamicFontTag("SAS_UI_FONT_TITLE", 4, False)
-SAS_FONT_TAG_HOVER = _DynamicFontTag("SAS_UI_FONT_HOVER", 0, False)
+SAS_FONT_TAG_TINY = _DynamicFontTag("SAS_UI_FONT_TINY", False)
+SAS_FONT_TAG_BODY = _DynamicFontTag("SAS_UI_FONT_BODY", False)
+SAS_FONT_TAG_LABEL = _DynamicFontTag("SAS_UI_FONT_LABEL", False)
+SAS_FONT_TAG_TITLE = _DynamicFontTag("SAS_UI_FONT_TITLE", False)
+SAS_FONT_TAG_HOVER = _DynamicFontTag("SAS_UI_FONT_HOVER", False)
 
-SAS_FONT_TAG_TINY_BOLD = _DynamicFontTag("SAS_UI_FONT_TINY", 1, True)
-SAS_FONT_TAG_BODY_BOLD = _DynamicFontTag("SAS_UI_FONT_BODY", 2, True)
-SAS_FONT_TAG_LABEL_BOLD = _DynamicFontTag("SAS_UI_FONT_LABEL", 3, True)
-SAS_FONT_TAG_TITLE_BOLD = _DynamicFontTag("SAS_UI_FONT_TITLE", 4, True)
+SAS_FONT_TAG_TINY_BOLD = _DynamicFontTag("SAS_UI_FONT_TINY", True)
+SAS_FONT_TAG_BODY_BOLD = _DynamicFontTag("SAS_UI_FONT_BODY", True)
+SAS_FONT_TAG_LABEL_BOLD = _DynamicFontTag("SAS_UI_FONT_LABEL", True)
+SAS_FONT_TAG_TITLE_BOLD = _DynamicFontTag("SAS_UI_FONT_TITLE", True)
