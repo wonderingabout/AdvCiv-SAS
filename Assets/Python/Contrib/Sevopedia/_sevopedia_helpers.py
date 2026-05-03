@@ -346,7 +346,7 @@ def place_new_concept_legend_link(top, new_concept_type):
 	if iConcept < 0:
 		return
 	screen = top.getScreen()
-	szLabel = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
+	szLabel = sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
 	screen.setText(top.getNextWidgetName(), "Background", szLabel, CvUtil.FONT_LEFT_JUSTIFY, top.X_TOC - 10, top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
 
 
@@ -612,7 +612,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, 
 	textW = 2 * button_size
 	textH = 30
 
-	szNumTxt = SAS_FONT_TAG_LABEL + numTxt + SAS_FONT_TAG_CLOSE
+	szNumTxt = sasFontTagLabel + numTxt + SAS_FONT_TAG_CLOSE
 	screen.addMultilineText(textName, szNumTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
 
 
@@ -633,7 +633,7 @@ def add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButton
 
 def chart_font2(szText):
 	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
-	return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE  # noqa: F821
+	return sasFontTagLabel + unicode(szText) + SAS_FONT_TAG_CLOSE  # noqa: F821
 
 
 
@@ -748,7 +748,7 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
 	chart_log_button_footer_bottom_padding = 9
 
 	widget = top.getNextWidgetName()
-	label = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ()).upper() + SAS_FONT_TAG_CLOSE
+	label = sasFontTagLabel + localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ()).upper() + SAS_FONT_TAG_CLOSE
 	if xPos is None:
 		if hasattr(top, "X_EXIT"):
 			xPos = top.X_EXIT - chart_log_button_w - 90

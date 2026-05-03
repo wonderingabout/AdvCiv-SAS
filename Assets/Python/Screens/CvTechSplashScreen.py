@@ -162,7 +162,7 @@ class CvTechSplashScreen:
 		
 		# Title
 		szTech = techInfo.getDescription()
-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_TITLE + szTech.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagTitle + szTech.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		
 		# Tech Icon
 		screen.addDDSGFC(self.getNextWidgetName(), techInfo.getButton(), self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, self.iTech, -1 )
@@ -176,7 +176,7 @@ class CvTechSplashScreen:
 			screen.addMultilineText( "Text", SASTextScale.labelText(techInfo.getQuote()), self.X_QUOTE, self.Y_QUOTE + self.iMarginSpace*2, self.W_QUOTE - (self.iMarginSpace * 2), self.H_QUOTE - (self.iMarginSpace * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		
 		# Special
-		szSpecialTitle = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
+		szSpecialTitle = sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
 		szSpecialTitleWidget = "SpecialTitle"
 		screen.setText(szSpecialTitleWidget, "", szSpecialTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
@@ -186,7 +186,7 @@ class CvTechSplashScreen:
 		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
 		
 		# Allows
-		szAllowsTitleDesc = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SAS_FONT_TAG_CLOSE
+		szAllowsTitleDesc = sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + SAS_FONT_TAG_CLOSE
 		szAllowsTitleWidget = "AllowsTitle"
 		screen.setText(szAllowsTitleWidget, "", szAllowsTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		

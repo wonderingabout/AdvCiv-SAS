@@ -88,7 +88,7 @@ class CvDawnOfMan:
 		self.calculateSizesAndPositions()
 		
 		self.player = gc.getPlayer(gc.getGame().getActivePlayer())
-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_SCREEN_CONTINUE", ()) + SAS_FONT_TAG_CLOSE
+		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_SCREEN_CONTINUE", ()) + SAS_FONT_TAG_CLOSE
 		
 		# Create screen
 		
@@ -137,8 +137,8 @@ class CvDawnOfMan:
 		
 		# Info/"Stats" text
 		
-		szNameText = "<color=255,255,0,255>" + SAS_FONT_TAG_TITLE_BOLD + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
-		szNameText += u"\n" + SAS_FONT_TAG_LABEL + u"- " + self.player.getCivilizationDescription(0) + u" -" + SAS_FONT_TAG_CLOSE + u"\n"
+		szNameText = "<color=255,255,0,255>" + sasFontTagTitleBold + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
+		szNameText += u"\n" + sasFontTagLabel + u"- " + self.player.getCivilizationDescription(0) + u" -" + SAS_FONT_TAG_CLOSE + u"\n"
 		# <!-- custom: prepend each trait name with its TraitUtil font-symbol icon (e.g. happy char for Charismatic,
 		# defense char for Protective) so the traits line in the Dawn of Man header reads without requiring pedia-jump wiring. Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6) -->
 		szTraits = CyGameTextMgr().parseLeaderTraits(self.player.getLeaderType(), self.player.getCivilizationType(), True, False)
@@ -147,7 +147,7 @@ class CvDawnOfMan:
 			if leaderInfo.hasTrait(iTrait):
 				traitDesc = gc.getTraitInfo(iTrait).getDescription()
 				szTraits = szTraits.replace(traitDesc, TraitUtil.getIcon(iTrait) + u" " + traitDesc, 1)
-		szNameText += SAS_FONT_TAG_LABEL + szTraits + SAS_FONT_TAG_CLOSE
+		szNameText += sasFontTagLabel + szTraits + SAS_FONT_TAG_CLOSE
 		screen.addMultilineText( "NameText", szNameText, self.X_LEADER_TITLE_TEXT, self.Y_LEADER_TITLE_TEXT, self.W_LEADER_TITLE_TEXT, self.H_LEADER_TITLE_TEXT, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		
 		if not isLaterEraStart: # advc.250c: No free tech
@@ -211,7 +211,7 @@ class CvDawnOfMan:
 		
 		# Main Body text
 		if not isLaterEraStart: # advc.250c
-			szDawnTitle = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_DAWN_OF_MAN_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+			szDawnTitle = sasFontTagTitle + localText.getText("TXT_KEY_DAWN_OF_MAN_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 			screen.setLabel("DawnTitle", "Background", szDawnTitle, CvUtil.FONT_CENTER_JUSTIFY, self.X_TEXT_PANEL + (self.W_TEXT_PANEL / 2), self.Y_TEXT_PANEL + 15, -2.0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		# <advc.250c> Show the first text block only for Ancient start
 		bodyString1 = localText.getText("TXT_KEY_DAWN_OF_MAN_TEXT1", (CyGameTextMgr().getTimeStr(gc.getGame().getGameTurn(), false), self.player.getCivilizationAdjectiveKey()))

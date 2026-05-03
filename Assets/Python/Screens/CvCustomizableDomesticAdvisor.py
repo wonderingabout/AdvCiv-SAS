@@ -898,7 +898,7 @@ class CvCustomizableDomesticAdvisor:
 
 		# Text Buttons
 		screen.setText(self.EXIT_NAME, "Background",
-				SAS_FONT_TAG_TITLE + # advc.193
+				sasFontTagTitle + # advc.193
 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
 				+ SAS_FONT_TAG_CLOSE, # advc.193
 				CvUtil.FONT_RIGHT_JUSTIFY,
@@ -946,9 +946,9 @@ class CvCustomizableDomesticAdvisor:
 			# Only show non-zero levels
 			if (nValue != 0):
 				# Set text
-				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", SAS_FONT_TAG_LABEL + pCultureLevel.getText() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", sasFontTagLabel + pCultureLevel.getText() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Set value
-				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", SAS_FONT_TAG_LABEL + str(nValue) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", sasFontTagLabel + str(nValue) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Increment counter
 				iCount += 1
 
@@ -957,10 +957,10 @@ class CvCustomizableDomesticAdvisor:
 
 		# GP Level Text
 		screen.setText (self.GP_TEXT_NAME, "Background", self.figureheadIcon, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", SAS_FONT_TAG_LABEL + str (iPlayer.player.greatPeopleThreshold(false)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", sasFontTagLabel + str (iPlayer.player.greatPeopleThreshold(false)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Header...
-		#szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		#szText = sasFontTagTitle + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		#screen.setLabel( "DomesticTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, 472, 40, STANDARD_Z, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Draw the specialist (but don't SHOW them)
@@ -1573,7 +1573,7 @@ class CvCustomizableDomesticAdvisor:
 
 	def calculateSpecialists (self, city, szKey, arg):
 
-		szReturn = SAS_FONT_TAG_TINY
+		szReturn = sasFontTagTiny
 
 		# For each specialist type
 		for i in range( self.getNumSpecialistInfos() ):
@@ -1591,7 +1591,7 @@ class CvCustomizableDomesticAdvisor:
 
 	def calculateAutomation (self, city, szKey, arg):
 
-		szReturn = SAS_FONT_TAG_TINY
+		szReturn = sasFontTagTiny
 
 		nNumEmphasize = self.getNumEmphasizeInfos()
 		if city.isCitizensAutomated():

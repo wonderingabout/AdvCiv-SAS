@@ -5,7 +5,7 @@
 
 from CvPythonExtensions import *
 import CvUtil
-from SASFontUtils import SAS_FONT_TAG_LABEL, SAS_FONT_TAG_CLOSE
+from SASFontUtils import sasFontTagLabel, SAS_FONT_TAG_CLOSE
 
 
 gc = CyGlobalContext()
@@ -95,5 +95,5 @@ def placeAdvisorLegendLink(top, szConceptType, iX, iY, eJustify=None):
 	if eJustify is None:
 		eJustify = CvUtil.FONT_RIGHT_JUSTIFY
 	screen = top.getScreen()
-	szLabel = SAS_FONT_TAG_LABEL + "Legend" + SAS_FONT_TAG_CLOSE
+	szLabel = sasFontTagLabel + "Legend" + SAS_FONT_TAG_CLOSE
 	screen.setText(top.getNextWidgetName(), "Background", szLabel, eJustify, iX, iY, top.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)

@@ -135,8 +135,8 @@ class CvDomesticAdvisor:
 			if gc.getSpecialistInfo(eSpec).isVisible():
 				self.aOverview3Specialists.append(eSpec)
 				self.aOverview3SpecialistHeaders.append(SASTextScale.labelImageText(gc.getSpecialistInfo(eSpec).getButton(), self.OVERVIEW3_SPECIALIST_ICON_SIZE))
-		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.TEXT_EXIT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_EXIT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
 		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW, self.TEXT_TAB_OVERVIEW2, self.TEXT_TAB_OVERVIEW3, self.TEXT_TAB_FINANCE]
 		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
@@ -245,7 +245,7 @@ class CvDomesticAdvisor:
 			szLabel = self.PAGE_NAME_LIST[iPage]
 			if self.iPage == iPage:
 				szLabel = localText.changeTextColor(szLabel, self.COLOR_YELLOW)
-			szText = SAS_FONT_TAG_TITLE + szLabel + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagTitle + szLabel + SAS_FONT_TAG_CLOSE
 			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
 			iX += self.PAGE_LINK_WIDTH[iPage]
 
@@ -292,7 +292,7 @@ class CvDomesticAdvisor:
 
 	def getOverviewHeaderLabel(self, szText):
 		# <!-- custom: draw-time label wrapping for Domestic Overview table headers; this is the effective upscale point for header text. (GPT-5.3-Codex) -->
-		return SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
+		return sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE
 
 	def getSignedText(self, iValue, bShowZeroAsDash):
 		if iValue > 0:
@@ -513,19 +513,19 @@ class CvDomesticAdvisor:
 					szText += BugUtil.getText("TXT_KEY_MISC_NEG_WARNING_GOLD_PER_TURN", goldPerTurn)
 				else:
 					szText += BugUtil.getText("TXT_KEY_MISC_NEG_GOLD_PER_TURN", goldPerTurn)
-		screen.setLabel(self.getNextFinanceWidgetName(), szTreasuryPanel, SAS_FONT_TAG_TITLE + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_HELP_FINANCE_GOLD_RESERVE, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), szTreasuryPanel, sasFontTagTitle + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, (X_LEFT_PANEL + PANE_WIDTH + X_RIGHT_PANEL) / 2, Y_TOP_PANEL + H_TOP_PANEL / 2 - Y_SPACING / 2, Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_HELP_FINANCE_GOLD_RESERVE, -1, -1 )
 
 		szCommercePanel = self.getNextFinanceWidgetName()
 		screen.addPanel(szCommercePanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + self.TEXT_FIN_COMMERCE.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  sasFontTagLabel + self.TEXT_FIN_COMMERCE.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 				
 		szIncomePanel = self.getNextFinanceWidgetName()
 		screen.addPanel(szIncomePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + self.TEXT_FIN_INCOME_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  sasFontTagLabel + self.TEXT_FIN_INCOME_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		
 		szExpensePanel = self.getNextFinanceWidgetName()
 		screen.addPanel(szExpensePanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + self.TEXT_FIN_EXPENSES_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  sasFontTagLabel + self.TEXT_FIN_EXPENSES_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Commerce
 		yLocation = Y_LOCATION
@@ -545,8 +545,8 @@ class CvDomesticAdvisor:
 					bMultipliers = True
 
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_WORKED_TILES", (iWorkedTileCount,)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iWorkedTiles) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + localText.getText("TXT_KEY_CONCEPT_WORKED_TILES", (iWorkedTileCount,)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iWorkedTiles) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		iCommerce += iWorkedTiles
 
 		iDomesticTrade, _, iForeignTrade, _ = TradeUtil.calculateTradeRoutes(player)
@@ -559,16 +559,16 @@ class CvDomesticAdvisor:
 		# advc.086: Call it just "Trade" if there is no foreign trade to show
 		if iForeignTrade <= 0:
 			szDomesticTrade = self.TEXT_FIN_TRADE
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + szDomesticTrade + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iDomesticTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + szDomesticTrade + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iDomesticTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
 		iCommerce += iDomesticTrade
 
 		if iForeignTrade > 0:
 			if TradeUtil.isFractionalTrade():
 				iForeignTrade //= 100
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_FOREIGN_TRADE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iForeignTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_FOREIGN_TRADE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iForeignTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
 			iCommerce += iForeignTrade
 
 		iCorporations = 0
@@ -578,8 +578,8 @@ class CvDomesticAdvisor:
 
 		if iCorporations > 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_CORPORATIONS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iCorporations) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_CORPORATIONS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iCorporations) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			iCommerce += iCorporations
 
 		iSpecialists = 0
@@ -590,8 +590,8 @@ class CvDomesticAdvisor:
 
 		if iSpecialists > 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_SPECIALISTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iSpecialists) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_SPECIALISTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iSpecialists) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			iCommerce += iSpecialists
 
 		# advc.001: "Current" total yield - i.e. excluding cities in disorder
@@ -599,17 +599,17 @@ class CvDomesticAdvisor:
 		iBuildings = iTotalCommerce - iCommerce
 		if iBuildings != 0:
 			yLocation += Y_SPACING
-			suLabel = SAS_FONT_TAG_LABEL + self.TEXT_FIN_BUILDINGS
+			suLabel = sasFontTagLabel + self.TEXT_FIN_BUILDINGS
 			if bMultipliers:
 				suLabel += u", " + self.TEXT_FIN_CIVICS_MULTIPLIERS
 			suLabel += SAS_FONT_TAG_CLOSE
 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", suLabel, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			iCommerce += iBuildings
 
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_BUG_COMMERCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iCommerce) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_BUG_COMMERCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iCommerce) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		yLocation += 0.5 * Y_SPACING
 		for iI in range(CommerceTypes.NUM_COMMERCE_TYPES):
@@ -618,17 +618,17 @@ class CvDomesticAdvisor:
 				yLocation += Y_SPACING
 				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
 				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN + 24, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
-				szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(player.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+				szText = sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(player.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
 				screen.setLabel(self.getNextFinanceWidgetName(), "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN + 50, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-				szRate = SAS_FONT_TAG_LABEL + unicode(player.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
+				szRate = sasFontTagLabel + unicode(player.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
 				screen.setLabel(self.getNextFinanceWidgetName(), "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# K-Mod. Show gold rate if it hasn't been shown already
 		if not player.isCommerceFlexible(CommerceTypes.COMMERCE_GOLD):
 			yLocation += Y_SPACING
-			szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getDescription() + u" (" + unicode(player.getCommercePercent(CommerceTypes.COMMERCE_GOLD)) + u"%)" + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagLabel + gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getDescription() + u" (" + unicode(player.getCommercePercent(CommerceTypes.COMMERCE_GOLD)) + u"%)" + SAS_FONT_TAG_CLOSE
 			screen.setLabel(self.getNextFinanceWidgetName(), "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN + 50, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			szCommerce = SAS_FONT_TAG_LABEL + unicode(goldCommerce) + SAS_FONT_TAG_CLOSE
+			szCommerce = sasFontTagLabel + unicode(goldCommerce) + SAS_FONT_TAG_CLOSE
 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", szCommerce, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Income
@@ -700,82 +700,82 @@ class CvDomesticAdvisor:
 		# The 'total minus taxes' was wrong. We don't need to use that anyway
 		# I've changed the 'taxes' output to use fTaxes instead of goldcommerce - totalminustaxes
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_TAXES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fTaxes)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_TAXES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fTaxes)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		if fBuildings > 0.0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_BUILDINGS + " (%d)" % iBuildingCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fBuildings)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_BUILDINGS + " (%d)" % iBuildingCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fBuildings)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		if fHeadquarters > 0.0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_HQ + " (%d)" % iHeadquartersCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fHeadquarters)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_HQ + " (%d)" % iHeadquartersCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fHeadquarters)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		if fCorporations > 0.0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_CORPORATIONS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fCorporations)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_CORPORATIONS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fCorporations)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		if fShrines > 0.0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_SHRINES + " (%d)" % iShrinesCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fShrines)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_SHRINES + " (%d)" % iShrinesCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fShrines)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		if fSpecialists > 0.0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_SPECIALISTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fSpecialists)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_SPECIALISTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fSpecialists)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
 
 		for eBldg, iMultiplier, iCount, fGold in multipliers:
 			if iCount > 0 and fGold > 0.0:
 				fAverage = fGold / iCount
 				szDescription = gc.getBuildingInfo(eBldg).getDescription() + u" " + localText.getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_BUILDING_COUNT_AVERAGE", (iCount, BugUtil.formatFloat(fAverage, 2)))
 				yLocation += Y_SPACING
-				screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + szDescription + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-				screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fGold)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + szDescription + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fGold)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		if fWealth > 0.0 and iWealthCount > 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_WEALTH + " (%d)" % iWealthCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fWealth)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_WEALTH + " (%d)" % iWealthCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(int(fWealth)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		iIncome = goldCommerce
 		if goldFromCivs > 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_PER_TURN + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_PER_TURN + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
 			iIncome += goldFromCivs
 
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_INCOME + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iIncome) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_INCOME + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iIncome) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Expenses
 		yLocation = Y_LOCATION
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_UNIT_COST + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalUnitCost) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_UNIT_COST + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(totalUnitCost) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
 		yLocation += Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_UNIT_SUPPLY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalUnitSupply) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_UNIT_SUPPLY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(totalUnitSupply) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
 		yLocation += Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_MAINTENANCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalMaintenance) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_MAINTENANCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(totalMaintenance) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
 		yLocation += Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_CIVICS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalCivicUpkeep) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_CIVICS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(totalCivicUpkeep) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
 
 		if goldFromCivs < 0:
 			yLocation += Y_SPACING
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_COST_PER_TURN + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_COST_PER_TURN + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+			screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(-goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
 
 		# advc: Unmarked K-Mod 1.45 change; inflation now already included
 		yLocation += 1.5 * Y_SPACING
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_EXPENSES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalInflatedCosts) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iFinanceActiveLeader, 1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_EXPENSES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(totalInflatedCosts) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iFinanceActiveLeader, 1 )
 
 	def updateTable(self, pLoopCity, i):
 
@@ -934,7 +934,7 @@ class CvDomesticAdvisor:
 		#if bCanSplit or pLoopCity.getLiberationPlayer(false) != -1:
 			# UNOFFICIAL_PATCH begin
 		#	if bCanSplit or not gc.getTeam(gc.getPlayer(pLoopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
-		#		screen.setTableText( self.TABLE_OVERVIEW, 18, i, SAS_FONT_TAG_BODY + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		#		screen.setTableText( self.TABLE_OVERVIEW, 18, i, sasFontTagBody + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 			# UNOFFICIAL_PATCH end
 		# <advc.ctr> Replace this column with revolt probability
 		revoltPr = pLoopCity.revoltProbability()
@@ -1005,7 +1005,7 @@ class CvDomesticAdvisor:
 
 	def updateTable2(self, pLoopCity, i):
 		screen = self.getScreen()
-		szFontTagOpen = SAS_FONT_TAG_LABEL
+		szFontTagOpen = sasFontTagLabel
 		szFontTagClose = SAS_FONT_TAG_CLOSE
 
 		screen.setTableText( self.TABLE_OVERVIEW2, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
@@ -1129,7 +1129,7 @@ class CvDomesticAdvisor:
 
 	def updateTable3(self, pLoopCity, i):
 		screen = self.getScreen()
-		szFontTagOpen = SAS_FONT_TAG_LABEL
+		szFontTagOpen = sasFontTagLabel
 		szFontTagClose = SAS_FONT_TAG_CLOSE
 
 		screen.setTableText( self.TABLE_OVERVIEW3, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)

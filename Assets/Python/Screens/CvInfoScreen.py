@@ -306,9 +306,9 @@ class CvInfoScreen:
 		# K-Mod end
 
 		###### TEXT ######
-		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_INFO_SCREEN", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_INFO_SCREEN", ()).upper() + SAS_FONT_TAG_CLOSE
 
-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: move these up as we don't need to compute them every time if i'm not mistaken. -->
 		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
@@ -413,9 +413,9 @@ class CvInfoScreen:
 		self.TEXT_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
 
 #BUG: Change Graphs - start
-		self.SHOW_ALL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_SHOW_ALL", ()) + SAS_FONT_TAG_CLOSE
-		self.SHOW_NONE = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_SHOW_NONE", ()) + SAS_FONT_TAG_CLOSE
-		self.LOG_SCALE = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_LOGSCALE", ()) + SAS_FONT_TAG_CLOSE
+		self.SHOW_ALL = sasFontTagLabel + localText.getText("TXT_KEY_SHOW_ALL", ()) + SAS_FONT_TAG_CLOSE
+		self.SHOW_NONE = sasFontTagLabel + localText.getText("TXT_KEY_SHOW_NONE", ()) + SAS_FONT_TAG_CLOSE
+		self.LOG_SCALE = sasFontTagLabel + localText.getText("TXT_KEY_LOGSCALE", ()) + SAS_FONT_TAG_CLOSE
 
 		sTemp1 = [""] * self.NUM_SCORES
 		sTemp2 = [""] * self.NUM_SCORES
@@ -462,7 +462,7 @@ class CvInfoScreen:
 		self.TEXT_WORLD_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS", ())
 		self.TEXT_NATIONAL_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS", ())
 		self.TEXT_PROJECTS = localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
-		self.szWondersSpecialTitle = SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
+		self.szWondersSpecialTitle = sasFontTagLabelBold + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: moved here from drawWondersList_BUG: performance optimimization: avoid redundant recomputation if i'm not mistaken. -->
 		self.sNameWonders = BugUtil.getPlainText("TXT_KEY_WONDER_NAME")
@@ -872,9 +872,9 @@ class CvInfoScreen:
 		for i in range (len(self.PAGE_NAME_LIST)):
 			szTextId = "InfoTabButton"+str(i)
 			if (self.iActiveTab != i):
-				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getText (self.PAGE_NAME_LIST[i], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, i, -1)
+				screen.setText (szTextId, "", sasFontTagTitle + localText.getText (self.PAGE_NAME_LIST[i], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, i, -1)
 			else:
-				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getColorText (self.PAGE_NAME_LIST[i], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.PAGE_NAME_LIST[i], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLink += self.PAGE_LINK_WIDTH[i]
 
 		if (self.iActiveTab >= 0 and self.iActiveTab < len(self.PAGE_NAME_LIST)):
@@ -1040,7 +1040,7 @@ class CvInfoScreen:
 						if szCityName:
 							szText = szText.replace(szCityName, self.TEXT_TIMELINE_UNKNOWN_CITY)
 
-			szFormattedText = localText.changeTextColor(SAS_FONT_TAG_LABEL + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE, eColor)
+			szFormattedText = localText.changeTextColor(sasFontTagLabel + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE, eColor)
 			entries.append(szFormattedText)
 
 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
@@ -1059,14 +1059,14 @@ class CvInfoScreen:
 
 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
 			self.szTimelineDbgLogPrettySummaryButton = self.getNextWidgetName()
-			szLabel = SAS_FONT_TAG_LABEL + self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
+			szLabel = sasFontTagLabel + self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
 			screen.setButtonGFC(self.szTimelineDbgLogPrettySummaryButton, szLabel, "", self.X_TIMELINE_TABLE_LOG_BUTTON, self.Y_TIMELINE_TABLE_LOG_BUTTON, self.W_TIMELINE_TABLE_LOG_BUTTON, self.H_TIMELINE_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 
 		# Build or reuse cache
 		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
 
 		if not aEntries:
-			szText = SAS_FONT_TAG_LABEL + self.TEXT_TIMELINE_EMPTY + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagLabel + self.TEXT_TIMELINE_EMPTY + SAS_FONT_TAG_CLOSE
 			SASTextScale.appendListBoxStringLabel(screen, self.szTimelineList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			return
 
@@ -1801,9 +1801,9 @@ class CvInfoScreen:
 #BUG: Change Graphs - end
 
 		# <!-- custom: show year on first line, added with claude opus 4.5's help thanks. -->
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_LABEL + self.getTurnDate(turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "", sasFontTagLabel + self.getTurnDate(turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# <!-- custom: show turn number on second line below year, added with claude opus 4.5's help thanks. -->
-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_LABEL + (u"T%d" % turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL + self.iGraphTurnLabelYOffset, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "", sasFontTagLabel + (u"T%d" % turn) + SAS_FONT_TAG_CLOSE, just, x, self.Y_LABEL + self.iGraphTurnLabelYOffset, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def drawGraphs(self):
 
@@ -2215,7 +2215,7 @@ class CvInfoScreen:
 			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
 			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
 			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, iLeaderIconSize)
-			szNameWithLeader = SAS_FONT_TAG_LABEL + (u"%s %s" % (szLeaderImg, strColor)) + SAS_FONT_TAG_CLOSE
+			szNameWithLeader = sasFontTagLabel + (u"%s %s" % (szLeaderImg, strColor)) + SAS_FONT_TAG_CLOSE
 
 #BUG: Change Graphs - start
 			if AdvisorOpt.isGraphs():
@@ -2252,7 +2252,7 @@ class CvInfoScreen:
 					textColorA = gc.getPlayer(p).getPlayerTextColorA()
 				# <!-- custom: avoid close to standard name like str -->
 				strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
-				screen.setLabel(self.sPlayerTextWidget[i], "", SAS_FONT_TAG_LABEL + strColor + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabel(self.sPlayerTextWidget[i], "", sasFontTagLabel + strColor + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + iXLegendText + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				yLine += iRowH
 				yText += iRowH
 
@@ -2875,7 +2875,7 @@ class CvInfoScreen:
 			self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
 
 		# <!-- custom: add "Top 5 Cities in the World" header (Civ3 vibe!), removed bold, added with claude opus 4.5's help thanks. -->
-		szHeaderText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_TOP_5_CITIES_IN_THE_WORLD", ()) + SAS_FONT_TAG_CLOSE
+		szHeaderText = sasFontTagTitle + localText.getText("TXT_KEY_TOP_5_CITIES_IN_THE_WORLD", ()) + SAS_FONT_TAG_CLOSE
 		screen.setLabel(self.getNextWidgetName(), "", szHeaderText, CvUtil.FONT_CENTER_JUSTIFY,
 			self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE / 2, 
 			self.Y_TOP_CITIES_LEFT_PANE + 12, 
@@ -2902,8 +2902,8 @@ class CvInfoScreen:
 				self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
 			self.szCityNameWidgets.append(self.getNextWidgetName())
 #			szProjectDesc = u"<font=3b>" + pProjectInfo.getDescription().upper() + u"</font>"
-			szCityDesc = SAS_FONT_TAG_TITLE_BOLD + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + SAS_FONT_TAG_LABEL_BOLD + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
-			szCityDesc += SAS_FONT_TAG_LABEL + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
+			szCityDesc = sasFontTagTitleBold + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + sasFontTagLabelBold + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
+			szCityDesc += sasFontTagLabel + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
 			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc,
 				self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 #			screen.attachMultilineText( szTextPanel, self.szCityNameWidgets[iWidgetLoop], str(self.iCitySizes[iWidgetLoop]) + " - " + self.szCityNames[iWidgetLoop] + "\n" + self.szCityDescs[iWidgetLoop], WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -3131,7 +3131,7 @@ class CvInfoScreen:
 				sPj = self.BUGProject_On
 				sDesc = self.TEXT_PROJECTS
 
-			sDesc = SAS_FONT_TAG_TITLE + sDesc + SAS_FONT_TAG_CLOSE
+			sDesc = sasFontTagTitle + sDesc + SAS_FONT_TAG_CLOSE
 
 			screen.setImageButton(self.BUGWorldWonderWidget, sWW,  self.X_WONDERS_DROPDOWN +  0, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_WORLD_WONDERS, -1, -1)
 			screen.setImageButton(self.BUGNatWonderWidget, sNW,  self.X_WONDERS_DROPDOWN + 30, self.Y_WONDERS_DROPDOWN, 24, 24, WidgetTypes.WIDGET_INFO_NATIONAL_WONDERS, -1, -1)
@@ -3282,7 +3282,7 @@ class CvInfoScreen:
 				pProjectInfo = gc.getProjectInfo(self.iWonderID)
 
 				# Stats panel (cont'd) - Name
-				szProjectDesc = SAS_FONT_TAG_LABEL_BOLD + pProjectInfo.getDescription().upper() + SAS_FONT_TAG_CLOSE
+				szProjectDesc = sasFontTagLabelBold + pProjectInfo.getDescription().upper() + SAS_FONT_TAG_CLOSE
 				szStatsText = szProjectDesc + "\n\n"
 
 				# Say whether this project is built yet or not
@@ -3354,7 +3354,7 @@ class CvInfoScreen:
 				pWonderInfo = gc.getBuildingInfo(self.iWonderID)
 
 				# Stats panel (cont'd) - Name
-				szWonderDesc = SAS_FONT_TAG_LABEL_BOLD + gc.getBuildingInfo(self.iWonderID).getDescription().upper() + SAS_FONT_TAG_CLOSE
+				szWonderDesc = sasFontTagLabelBold + gc.getBuildingInfo(self.iWonderID).getDescription().upper() + SAS_FONT_TAG_CLOSE
 				szStatsText = szWonderDesc + "\n\n"
 
 				# Wonder built-in year
@@ -3768,7 +3768,7 @@ class CvInfoScreen:
 				iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING
 
 			szWonderName = pWonderInfo.getDescription()
-			szTurnYearBuilt = SAS_FONT_TAG_LABEL + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + SAS_FONT_TAG_CLOSE
+			szTurnYearBuilt = sasFontTagLabel + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()) + SAS_FONT_TAG_CLOSE
 
 			# Check to see if active player can see this city
 			# advc.001d: replaced gc.getGame().getActiveTeam with self.iActiveTeam. Check bRevealAll.
@@ -3930,7 +3930,7 @@ class CvInfoScreen:
 
 		# Leader Name
 		self.szLeaderNameWidget = self.getNextWidgetName()
-		szText = SAS_FONT_TAG_TITLE_BOLD + gc.getPlayer(self.iActivePlayer).getName() + SAS_FONT_TAG_CLOSE
+		szText = sasFontTagTitleBold + gc.getPlayer(self.iActivePlayer).getName() + SAS_FONT_TAG_CLOSE
 		screen.setText(self.szLeaderNameWidget, "", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEADER_NAME, self.Y_LEADER_NAME, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Create Table

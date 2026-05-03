@@ -167,7 +167,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 ### Python (Civ4)
 
 - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
-- For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`SAS_FONT_TAG_*` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText`.
+- For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`SAS_FONT_TAG_*` / `sasFontTag*` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText`.
+- Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
 - Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
 - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
 - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.

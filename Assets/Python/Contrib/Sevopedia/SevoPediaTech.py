@@ -24,7 +24,7 @@ import CvPediaScreen
 import ScreenInput
 import SevoScreenEnums
 import SASTextScale
-from SASFontUtils import SAS_FONT_TAG_LABEL
+from SASFontUtils import sasFontTagLabel
 
 from _sevopedia_helpers import *
 
@@ -953,16 +953,16 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.enableSort(tableName)
 
 		# Column headers: "Starting Tech" in first column (implicit panel title)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER", ()), colTechW, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER", ()), colTechW, sasFontTagLabel)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, sasFontTagLabel)
 		inchart_set_icon_column_headers(screen, tableName, 2, maxCivs, civColW)
 
 		for iTech, civCount, civIds in startingTechData:
 			iRow = screen.appendTableRow(tableName)
 			techInfo = gc.getTechInfo(iTech)
 
-			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, techInfo.getDescription(), techInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
-			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, techInfo.getDescription(), techInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_LEFT_JUSTIFY, sasFontTagLabel)
+			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, sasFontTagLabel)
 
 			inchart_set_icon_cells(screen, tableName, iRow, civIds, 2, maxCivs, INCHART_ICON_TYPE_CIV)
 
@@ -1006,9 +1006,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.enableSort(tableName)
 
 		# Column headers: "Untradeable" | "Count" | "All" | tech buttons...
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER", ()), colEraW, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_ALL", ()), colAllW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, localText.getText("TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER", ()), colEraW, sasFontTagLabel)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, localText.getText("TXT_KEY_PEDIA_SAS_COUNT", ()), colCountW, sasFontTagLabel)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_ALL", ()), colAllW, sasFontTagLabel)
 		inchart_set_icon_column_headers(screen, tableName, 3, maxTechs, techColW)
 
 		numEras = gc.getNumEraInfos()
@@ -1026,14 +1026,14 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# Navigation widgets only work with setImageButtonAt, not table cells.
 			# To make this clickable, would need to restructure from table to individual buttons. (Claude code Sonnet 4.5) -->
 			eraButtonPath = eraInfo.getButton()
-			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, eraInfo.getDescription(), eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, eraInfo.getDescription(), eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY, sasFontTagLabel)
 
 			# Untradeable tech count column
-			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % techCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % techCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, sasFontTagLabel)
 
 			# All techs in era column
 			totalInEra = totalTechsByEra.get(iEra, 0)
-			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, u"%d" % totalInEra, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, u"%d" % totalInEra, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, sasFontTagLabel)
 
 			# Tech button columns (starting at column 3)
 			inchart_set_icon_cells(screen, tableName, iRow, techIds, 3, maxTechs, INCHART_ICON_TYPE_TECH)
@@ -1076,10 +1076,10 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.addTableControlGFC(tableName, 4 + maxCivsRight, tableX, tableY, tableW, tableH, True, False, self.STATS_ROW_H, self.STATS_ROW_H, CHART_TABLE_STYLE)
 		screen.enableSort(tableName)
 
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, u"Tech 1", colTech1W, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, u"Tech 2", colTech2W, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, SAS_FONT_TAG_LABEL)
-		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 3, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW, SAS_FONT_TAG_LABEL)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 0, u"Tech 1", colTech1W, sasFontTagLabel)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 1, u"Tech 2", colTech2W, sasFontTagLabel)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_TOTAL_COUNT", ()), colCountW, sasFontTagLabel)
+		SASTextScale.setTableColumnHeaderScaled(screen, tableName, 3, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), colRankW, sasFontTagLabel)
 		inchart_set_icon_column_headers(screen, tableName, 4, maxCivsRight, TECH_STATS_RIGHT_ICON_COL_W)
 
 		minCount, maxCount = combosMinMax
@@ -1089,15 +1089,15 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			tech1Info = gc.getTechInfo(tech1)
 			tech2Info = gc.getTechInfo(tech2)
 
-			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, tech1Info.getDescription(), tech1Info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech1, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
-			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, tech2Info.getDescription(), tech2Info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech2, -1, CvUtil.FONT_LEFT_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, tech1Info.getDescription(), tech1Info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech1, -1, CvUtil.FONT_LEFT_JUSTIFY, sasFontTagLabel)
+			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, tech2Info.getDescription(), tech2Info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech2, -1, CvUtil.FONT_LEFT_JUSTIFY, sasFontTagLabel)
 
 			# Count
-			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 2, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, sasFontTagLabel)
 
 			# Ranking bar using centralized helper
 			rankingBar = inchart_calc_ranking_bar(civCount, minCount, maxCount)
-			SASTextScale.setTableTextScaled(screen, tableName, 3, iRow, rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SAS_FONT_TAG_LABEL)
+			SASTextScale.setTableTextScaled(screen, tableName, 3, iRow, rankingBar, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, sasFontTagLabel)
 
 			# Civ icons using centralized helper
 			inchart_set_icon_cells(screen, tableName, iRow, civIds, 4, maxCivsRight, INCHART_ICON_TYPE_CIV)

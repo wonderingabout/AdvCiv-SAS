@@ -4,11 +4,11 @@
 
 
 from SASFontUtils import (
-	SAS_FONT_TAG_BODY,
+	sasFontTagBody,
 	SAS_FONT_TAG_CLOSE,
-	SAS_FONT_TAG_LABEL,
-	SAS_FONT_TAG_TITLE,
-	SAS_FONT_TAG_TINY,
+	sasFontTagLabel,
+	sasFontTagTitle,
+	sasFontTagTiny,
 )
 import re
 
@@ -51,15 +51,15 @@ def stripFontTags(szText):
 
 
 def tinyText(szText):
-	return applyFontTag(szText, SAS_FONT_TAG_TINY)
+	return applyFontTag(szText, sasFontTagTiny)
 
 
 def bodyText(szText):
-	return applyFontTag(szText, SAS_FONT_TAG_BODY)
+	return applyFontTag(szText, sasFontTagBody)
 
 
 def labelText(szText):
-	return applyFontTag(szText, SAS_FONT_TAG_LABEL)
+	return applyFontTag(szText, sasFontTagLabel)
 
 
 def imageText(szButton, iSize, szText=None):
@@ -75,16 +75,16 @@ def labelImageText(szButton, iSize, szText=None):
 
 
 def titleText(szText):
-	return applyFontTag(szText, SAS_FONT_TAG_TITLE)
+	return applyFontTag(szText, sasFontTagTitle)
 
 
 def normalizeBodyText(szText):
 	# <!-- custom: fallback rule: normalize* is not default. Use only for proven problematic sources where simple bodyText/labelText fails because embedded <font=...> blocks SAS upscaling. (GPT-5.3-Codex) -->
-	return applyFontTag(stripFontTags(szText), SAS_FONT_TAG_BODY)
+	return applyFontTag(stripFontTags(szText), sasFontTagBody)
 
 
 def normalizeLabelText(szText):
-	return applyFontTag(stripFontTags(szText), SAS_FONT_TAG_LABEL)
+	return applyFontTag(stripFontTags(szText), sasFontTagLabel)
 
 
 def setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
@@ -108,21 +108,21 @@ def appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType,
 
 
 def setTableTextLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
-	setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+	setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
 
 
 def setTableIntLabel(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify):
 	# <!-- custom: use this for sortable numeric table cells, even when display strings include signs or color tags (e.g. +8, -2, raw signed years like -4000). Do not use it for formatted date text such as 4000 BC / 800 AD; those are intentionally textual. Civ4 table sorting treats setTableInt cells numerically, while setTableText sorts lexically. (GPT-5.5) -->
-	setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+	setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
 
 
 def setTableColumnHeaderLabel(screen, szTable, iCol, szText, iWidth):
-	setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, SAS_FONT_TAG_LABEL)
+	setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, sasFontTagLabel)
 
 
 def appendListBoxStringLabel(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
-	appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+	appendListBoxStringScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)
 
 
 def appendListBoxStringNoUpdateLabel(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify):
-	appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, SAS_FONT_TAG_LABEL)
+	appendListBoxStringNoUpdateScaled(screen, szWidgetName, szText, eWidgetType, iData1, iData2, eJustify, sasFontTagLabel)

@@ -872,7 +872,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
-		self.HEAD_TEXT = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
+		self.HEAD_TEXT = sasFontTagTitleBold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
 		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper())
 		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
 		self.SAS_CLEAR_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper())

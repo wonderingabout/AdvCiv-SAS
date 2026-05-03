@@ -150,12 +150,12 @@ class CvReplayScreen:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.PLAY_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_REPLAY_SCREEN_PLAY", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.FORWARD_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_REPLAY_SCREEN_NEXT", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.STOP_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_REPLAY_SCREEN_STOP", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.PLAY_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_REPLAY_SCREEN_PLAY", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.FORWARD_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_REPLAY_SCREEN_NEXT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.STOP_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_REPLAY_SCREEN_STOP", ()).upper() + SAS_FONT_TAG_CLOSE
 		# <!-- custom: Replay control labels (e.g., speed) should follow SAS UI scaling rather than fixed game-font size to stay readable at upscaled settings. (GPT-5.3-Codex) -->
-		self.SPEED_TEXT = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_REPLAY_SCREEN_SPEED", ()) + SAS_FONT_TAG_CLOSE
+		self.SPEED_TEXT = sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SPEED", ()) + SAS_FONT_TAG_CLOSE
 
 		self.bPlaying = False
 		self.fLastUpdate = 0.
@@ -194,7 +194,7 @@ class CvReplayScreen:
 		# Header...
 		self.szHeader = self.getNextWidgetName()
 		# advc.106m: X position was self.X_SCREEN; that doesn't work anymore.
-		screen.setLabel(self.szHeader, "Background", SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.szHeader, "Background", sasFontTagTitleBold + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Minimap initialization
 		self.H_MAP = (self.W_MAP * self.replayInfo.getMapHeight()) / self.replayInfo.getMapWidth()
@@ -260,7 +260,7 @@ class CvReplayScreen:
 		szTurnDate = CyGameTextMgr().getDateStr(self.iTurn, false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
 		screen.deleteWidget(self.szHeader)
 		# advc.106m: x was X_SCREEN; that doesn't work anymore.
-		screen.setLabel(self.szHeader, "Background", SAS_FONT_TAG_TITLE_BOLD + szTurnDate + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.szHeader, "Background", sasFontTagTitleBold + szTurnDate + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		events = []
 		bFound = False
@@ -290,7 +290,7 @@ class CvReplayScreen:
 				szTextNoColor = re.sub("<color=.*?>", "", szText)
 				szText = re.sub("</color>", "", szTextNoColor)
 
-				szText =  SAS_FONT_TAG_LABEL + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE
+				szText =  sasFontTagLabel + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE
 				szText =localText.changeTextColor(szText, eColor)
 				screen.prependListBoxString(self.szAreaId, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
@@ -363,11 +363,11 @@ class CvReplayScreen:
 		screen.setGraphLabelX(self.szGraph, u"")
 		screen.setGraphLabelY(self.szGraph, u"")
 		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background",
-				SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE,
+				sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 16,
 				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background",
-				SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE,
+				sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE,
 				CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH + 8, self.Y_GRAPH + 8,
 				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setGraphYDataRange(self.szGraph, 0.0, 1.0)

@@ -188,8 +188,8 @@ class CvTechChooser:
 			self.TEXT_WB_AS_ADD_TECH = localText.getText("TXT_KEY_WB_AS_ADD_TECH", ())
 			self.TEXT_TECH_CHOOSER_TITLE = localText.getText("TXT_KEY_TECH_CHOOSER_TITLE", ()).upper()
 			self.TEXT_PEDIA_SCREEN_EXIT = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
-			self.TEXT_TECH_CHOOSER_EXIT = SAS_FONT_TAG_TITLE + self.TEXT_PEDIA_SCREEN_EXIT + SAS_FONT_TAG_CLOSE
-			self.TEXT_TECH_CHOOSER_TITLE_FMT = SAS_FONT_TAG_TITLE_BOLD + self.TEXT_TECH_CHOOSER_TITLE + SAS_FONT_TAG_CLOSE
+			self.TEXT_TECH_CHOOSER_EXIT = sasFontTagTitle + self.TEXT_PEDIA_SCREEN_EXIT + SAS_FONT_TAG_CLOSE
+			self.TEXT_TECH_CHOOSER_TITLE_FMT = sasFontTagTitleBold + self.TEXT_TECH_CHOOSER_TITLE + SAS_FONT_TAG_CLOSE
 
 		if self.bTechChooserArtCached:
 			return
@@ -535,7 +535,7 @@ class CvTechChooser:
 
 			if bTechName:
 				szTechID = sPanelWidget + "TechID" + str(i)
-				szTechString = SAS_FONT_TAG_LABEL # advc.002b: was 1
+				szTechString = sasFontTagLabel # advc.002b: was 1
 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
 					szTechString = szTechString + str(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
 				szTechString += gc.getTechInfo(i).getDescription()
@@ -1137,7 +1137,7 @@ class CvTechChooser:
 				# Create and place a tech in its proper location
 				szTechRecord = "TechRecord" + str(i)
 				szTechID = "TechID" + str(i)
-				szTechString = SAS_FONT_TAG_LABEL # advc.002b: was 1
+				szTechString = sasFontTagLabel # advc.002b: was 1
 
 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
 					szTechString = szTechString + unicode(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
@@ -1538,12 +1538,12 @@ class CvTechChooser:
 			iCost = gc.getPlayer(CyGame().getActivePlayer()).getAdvancedStartTechCost(self.m_iSelectedTech, true)
 
 		if iCost > 0:
-			szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_WB_AS_SELECTED_TECH_COST", (iCost, pPlayer.getAdvancedStartPoints())) + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagTitle + localText.getText("TXT_KEY_WB_AS_SELECTED_TECH_COST", (iCost, pPlayer.getAdvancedStartPoints())) + SAS_FONT_TAG_CLOSE
 			screen.setLabel( "ASPointsLabel", "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_ADVANCED_START_TEXT, self.Y_ADD_TECH_BUTTON + 3, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		else:
 			screen.hide("ASPointsLabel")
 
-		szText = SAS_FONT_TAG_TITLE
+		szText = sasFontTagTitle
 		szText += localText.getText("TXT_KEY_WB_AS_SELECTED_TECH", (szName,))
 		szText += SAS_FONT_TAG_CLOSE
 		screen.setLabel( "SelectedTechLabel", "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_ADVANCED_START_TEXT + 250, self.Y_ADD_TECH_BUTTON + 3, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )

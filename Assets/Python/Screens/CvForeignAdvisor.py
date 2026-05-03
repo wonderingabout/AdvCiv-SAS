@@ -352,8 +352,8 @@ class CvForeignAdvisor:
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
 
 		# <!-- custom: precompute commonly used text strings to avoid repeated lookups (claude code sonnet 4.5) -->
-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.SCREEN_TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: precompute tab/column header texts (claude code sonnet 4.5) -->
 		self.TEXT_LEADER = localText.getText("TXT_KEY_FOREIGN_ADVISOR_LEADER", ())
@@ -407,12 +407,12 @@ class CvForeignAdvisor:
 		self.TEXT_PITBOSS_TEAM = localText.getText("TXT_KEY_PITBOSS_TEAM", ())
 		self.TEXT_MISC_VASSAL_SHORT = localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
 		self.TEXT_MISC_MASTER = localText.getText("TXT_KEY_MISC_MASTER", ())
-		self.LABEL_REL_CONTACT = SAS_FONT_TAG_LABEL + self.TEXT_REL_CONTACT + SAS_FONT_TAG_CLOSE
-		self.LABEL_CONCEPT_WAR = SAS_FONT_TAG_LABEL + self.TEXT_CONCEPT_WAR + SAS_FONT_TAG_CLOSE
-		self.LABEL_TRADE_DEFENSIVE_PACT = SAS_FONT_TAG_LABEL + self.TEXT_TRADE_DEFENSIVE_PACT + SAS_FONT_TAG_CLOSE
-		self.LABEL_TRADE_OPEN_BORDERS = SAS_FONT_TAG_LABEL + self.TEXT_TRADE_OPEN_BORDERS + SAS_FONT_TAG_CLOSE
-		self.LABEL_PITBOSS_TEAM = SAS_FONT_TAG_LABEL + self.TEXT_PITBOSS_TEAM + SAS_FONT_TAG_CLOSE
-		self.LABEL_MISC_VASSAL_SHORT = SAS_FONT_TAG_LABEL + self.TEXT_MISC_VASSAL_SHORT + SAS_FONT_TAG_CLOSE
+		self.LABEL_REL_CONTACT = sasFontTagLabel + self.TEXT_REL_CONTACT + SAS_FONT_TAG_CLOSE
+		self.LABEL_CONCEPT_WAR = sasFontTagLabel + self.TEXT_CONCEPT_WAR + SAS_FONT_TAG_CLOSE
+		self.LABEL_TRADE_DEFENSIVE_PACT = sasFontTagLabel + self.TEXT_TRADE_DEFENSIVE_PACT + SAS_FONT_TAG_CLOSE
+		self.LABEL_TRADE_OPEN_BORDERS = sasFontTagLabel + self.TEXT_TRADE_OPEN_BORDERS + SAS_FONT_TAG_CLOSE
+		self.LABEL_PITBOSS_TEAM = sasFontTagLabel + self.TEXT_PITBOSS_TEAM + SAS_FONT_TAG_CLOSE
+		self.LABEL_MISC_VASSAL_SHORT = sasFontTagLabel + self.TEXT_MISC_VASSAL_SHORT + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: precompute commonly used icon symbols (claude code sonnet 4.5) -->
 		self.iReligionIcon = CyGame().getSymbolID(FontSymbols.RELIGION_CHAR)
@@ -674,11 +674,11 @@ class CvForeignAdvisor:
 				continue #</advc.ctr>
 			szTextId = self.getNextWidgetName()
 			if (self.iScreen != self.SCREEN_DICT[szScreen]):
-				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getText (self.TXT_KEY_DICT[szScreen], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, self.SCREEN_DICT[szScreen], -1)
+				screen.setText (szTextId, "", sasFontTagTitle + localText.getText (self.TXT_KEY_DICT[szScreen], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, self.SCREEN_DICT[szScreen], -1)
 			else:
 				# <!-- custom: keep active tab labels non-routing; clicking an already-active tab should do nothing, not dispatch WIDGET_FOREIGN_ADVISOR with -1 (which can route to the other Foreign shell via CvScreensInterface).
 				# Without this, repeated clicks on the 2nd tab of Foreign Diplomacy Advisor (Glance) will jump to the 2nd tab of Foreign Trade Advisor (Bonuses), which is not consistent with how other links behave and is likely unnecessary nor desired for players. (GPT-5.3-Codex) -->
-				screen.setText (szTextId, "", SAS_FONT_TAG_TITLE + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLink += self.LABEL_WIDTH_LIST[i]
 	
 	def drawActive (self, bInitial):
@@ -955,7 +955,7 @@ class CvForeignAdvisor:
 		else:
 			screen.setState(szLeaderHead, False)
 		szName = self.getNextWidgetName()
-		szLeaderName = SAS_FONT_TAG_LABEL + playerActive.getName() + SAS_FONT_TAG_CLOSE
+		szLeaderName = sasFontTagLabel + playerActive.getName() + SAS_FONT_TAG_CLOSE
 		screen.setLabel(szName, "", szLeaderName, CvUtil.FONT_CENTER_JUSTIFY, self.X_LEADER_CIRCLE_TOP, fLeaderTop + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# K-Mod. vassal / master label
@@ -999,7 +999,7 @@ class CvForeignAdvisor:
 				screen.setState(szLeaderHead, False)
 
 			szName = self.getNextWidgetName()
-			szText = SAS_FONT_TAG_LABEL + player.getName() + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagLabel + player.getName() + SAS_FONT_TAG_CLOSE
 			screen.setLabel(szName, "", szText, CvUtil.FONT_CENTER_JUSTIFY, fX + iLeaderWidth/2, fY + iLeaderHeight + 5, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			# Leader attitude towards active player. (rewritten by K-Mod)
@@ -1369,7 +1369,7 @@ class CvForeignAdvisor:
 			# Attitude
 			itemName = self.getNextWidgetName()
 			if (not bIsActivePlayer):
-				szAttStr = SAS_FONT_TAG_LABEL + objAttitude.getText(True, True, False, False) + SAS_FONT_TAG_CLOSE
+				szAttStr = sasFontTagLabel + objAttitude.getText(True, True, False, False) + SAS_FONT_TAG_CLOSE
 			else:
 				szAttStr = ""
 			# advc.004: BULL widget help enabled
@@ -1401,7 +1401,7 @@ class CvForeignAdvisor:
 						else:
 							szColor = "COLOR_RED"
 						szPlayerReligion = localText.changeTextColor(szPlayerReligion + " [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor))
-				szPlayerReligion = SAS_FONT_TAG_LABEL + szPlayerReligion + SAS_FONT_TAG_CLOSE
+				szPlayerReligion = sasFontTagLabel + szPlayerReligion + SAS_FONT_TAG_CLOSE
 			else:
 				szPlayerReligion = ""
 			# advc.004: BULL widget help enabled
@@ -1474,7 +1474,7 @@ class CvForeignAdvisor:
 								szColor = "COLOR_GREEN"
 							else:
 								szColor = "COLOR_RED"
-							szDiplo = SAS_FONT_TAG_LABEL + localText.changeTextColor(" [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor)) + SAS_FONT_TAG_CLOSE
+							szDiplo = sasFontTagLabel + localText.changeTextColor(" [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor)) + SAS_FONT_TAG_CLOSE
 						else:
 							szDiplo = ""
 						itemName = self.getNextWidgetName()
@@ -1914,9 +1914,9 @@ class CvForeignAdvisor:
 				amount = amount - 1
 			
 			if (self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP):
-				amountStr = SAS_FONT_TAG_LABEL + localText.changeTextColor(str(amount), gc.getInfoTypeForString("COLOR_YELLOW")) + SAS_FONT_TAG_CLOSE
+				amountStr = sasFontTagLabel + localText.changeTextColor(str(amount), gc.getInfoTypeForString("COLOR_YELLOW")) + SAS_FONT_TAG_CLOSE
 			else:
-				amountStr = SAS_FONT_TAG_LABEL + str(amount) + SAS_FONT_TAG_CLOSE
+				amountStr = sasFontTagLabel + str(amount) + SAS_FONT_TAG_CLOSE
 			screen.setTableText( self.availableTable, iIndex, 0, amountStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
 		# <advc.073>
 		for iIndex in range(len(listNonSurplus)):
@@ -2549,7 +2549,7 @@ class CvForeignAdvisor:
 		##self.szMakingText = "MakingText"
 		##self.X_MAKING_TEXT = 490
 		##self.Y_MAKING_TEXT = 85
-		##szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_ESPIONAGE_SCREEN_TOTAL_NUM_EPS", (pActivePlayer.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE), )) + SAS_FONT_TAG_CLOSE
+		##szText = sasFontTagTitle + localText.getText("TXT_KEY_ESPIONAGE_SCREEN_TOTAL_NUM_EPS", (pActivePlayer.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE), )) + SAS_FONT_TAG_CLOSE
 		##screen.setLabel(self.szMakingText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_MAKING_TEXT, self.Y_MAKING_TEXT, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		## </advc.120c>
 
@@ -2564,24 +2564,24 @@ class CvForeignAdvisor:
 		if (self.ESP_iTargetPlayer != -1):
 
 			self.ESP_szCitiesTitleText = "CitiesTitle"
-			szText = SAS_FONT_TAG_TITLE + self.TEXT_CONCEPT_CITIES + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagTitle + self.TEXT_CONCEPT_CITIES + SAS_FONT_TAG_CLOSE
 			screen.setLabel(self.ESP_szCitiesTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_CITY_LIST, self.ESP_Y_CITY_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			self.ESP_szEffectsTitleText = "EffectsTitle"
-			szText = SAS_FONT_TAG_TITLE + self.TEXT_ESPIONAGE_PASSIVE_EFFECTS + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagTitle + self.TEXT_ESPIONAGE_PASSIVE_EFFECTS + SAS_FONT_TAG_CLOSE
 			screen.setLabel(self.ESP_szEffectsTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_EFFECTS_LIST, self.ESP_Y_EFFECTS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			self.ESP_szMissionsTitleText = "MissionsTitle"
-			szText = SAS_FONT_TAG_TITLE + self.TEXT_ESPIONAGE_MISSIONS + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagTitle + self.TEXT_ESPIONAGE_MISSIONS + SAS_FONT_TAG_CLOSE
 			screen.setLabel(self.ESP_szMissionsTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_MISSIONS_LIST, self.ESP_Y_MISSIONS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 			# advc.120d: was TXT_KEY_ESPIONAGE_SCREEN_COST
 			self.ESP_szEffectsCostTitleText = "EffectsCostTitle"
-			szText = SAS_FONT_TAG_TITLE + self.TEXT_MISC_THRESHOLD + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagTitle + self.TEXT_MISC_THRESHOLD + SAS_FONT_TAG_CLOSE
 			# advc.120d: Subtract 40 from horizontal position
 			screen.setLabel(self.ESP_szEffectsCostTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_EFFECTS_COSTS_LIST-40, self.ESP_Y_EFFECTS_COSTS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			self.ESP_szMissionsCostTitleText = "MissionsCostTitle"
-			szText = SAS_FONT_TAG_TITLE + self.TEXT_ESPIONAGE_COST + SAS_FONT_TAG_CLOSE
+			szText = sasFontTagTitle + self.TEXT_ESPIONAGE_COST + SAS_FONT_TAG_CLOSE
 			screen.setLabel(self.ESP_szMissionsCostTitleText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_X_MISSIONS_COSTS_LIST, self.ESP_Y_MISSIONS_COSTS_LIST - 40, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			############################
@@ -2623,29 +2623,29 @@ class CvForeignAdvisor:
 
 				szName = "NameText%d" %(iPlayerID)
 				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))
-				szText = SAS_FONT_TAG_LABEL + szTempBuffer + SAS_FONT_TAG_CLOSE
+				szText = sasFontTagLabel + szTempBuffer + SAS_FONT_TAG_CLOSE
 				screen.setLabelAt( szName, attach, szText, 0, iX + self.ESP_ROW_X_NAME, iY + self.ESP_ROW_Y_TOP, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "PointsText%d" %(iPlayerID)
-				szText = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS", (pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam), )) + SAS_FONT_TAG_CLOSE
+				szText = sasFontTagLabel + localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS", (pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam), )) + SAS_FONT_TAG_CLOSE
 				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_TOP + 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingText%d" %(iPlayerID)
-				szText = SAS_FONT_TAG_LABEL + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
+				szText = sasFontTagLabel + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
 				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "AmountText%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-					szText = SAS_FONT_TAG_LABEL + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+					szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 				else:
-					szText = SAS_FONT_TAG_LABEL + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+					szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 
 				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-					szText = SAS_FONT_TAG_LABEL + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+					szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
 				else:
 					szText = u""
 
@@ -2717,23 +2717,23 @@ class CvForeignAdvisor:
 				attach = "LeaderContainer%d" % (iPlayerID)
 
 				szName = "SpendingText%d" %(iPlayerID)
-				szText = SAS_FONT_TAG_LABEL + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
+				szText = sasFontTagLabel + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
 				screen.deleteWidget(szName)
 				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "AmountText%d" %(iPlayerID)
 
 				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-					szText = SAS_FONT_TAG_LABEL + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+					szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 				else:
-					szText = SAS_FONT_TAG_LABEL + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+					szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 				screen.deleteWidget(szName)
 				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-					szText = SAS_FONT_TAG_LABEL + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+					szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
 				else:
 					szText = u""
 
@@ -2993,14 +2993,14 @@ class CvForeignAdvisor:
 					# K-Mod end
 
 					if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-						szText = SAS_FONT_TAG_LABEL + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+						szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 					else:
-						szText = SAS_FONT_TAG_LABEL + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+						szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-						szText = SAS_FONT_TAG_LABEL + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
 					else:
 						szText = u""
 					attach = "LeaderContainer%d" % (iPlayerID)
@@ -3026,14 +3026,14 @@ class CvForeignAdvisor:
 						# K-Mod end
 
 						if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-							szText = SAS_FONT_TAG_LABEL + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+							szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 						else:
-							szText = SAS_FONT_TAG_LABEL + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+							szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
 						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-							szText = SAS_FONT_TAG_LABEL + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+							szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
 						else:
 							szText = u""
 						attach = "LeaderContainer%d" % (iPlayerID)
@@ -3058,25 +3058,25 @@ class CvForeignAdvisor:
 		y = self.ESP_Y_TOTAL_PANE
 		screen.setButtonGFC("plusButton", u"", "", x + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
 		screen.setButtonGFC("minusButton", u"", "", x + self.ESP_TEXT_MARGIN + 24, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
-		szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+		szText = sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
 		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		szRate = SAS_FONT_TAG_LABEL + unicode(pActivePlayer.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
+		szRate = sasFontTagLabel + unicode(pActivePlayer.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
 		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.ESP_PANE_WIDTH - self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# Update labels
 		screen.deleteWidget("espRateLabel")
 		screen.deleteWidget("espRate")
 		# Same code as above, except for the buttons
 		eCommerce = CommerceTypes.COMMERCE_ESPIONAGE
-		szText = SAS_FONT_TAG_LABEL + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+		szText = sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
 		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		szRate = SAS_FONT_TAG_LABEL + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getCommerceRate(CommerceTypes(eCommerce)), )))) + SAS_FONT_TAG_CLOSE
+		szRate = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getCommerceRate(CommerceTypes(eCommerce)), )))) + SAS_FONT_TAG_CLOSE
 		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.ESP_PANE_WIDTH + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 	# </advc.120c>
 
 
 
 def smallText(text):
-	return SAS_FONT_TAG_LABEL + text + SAS_FONT_TAG_CLOSE
+	return sasFontTagLabel + text + SAS_FONT_TAG_CLOSE
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))

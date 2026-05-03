@@ -69,13 +69,13 @@ class _DynamicFontTag:
 
 SAS_FONT_TAG_CLOSE = u"</font>"
 
-SAS_FONT_TAG_TINY = _DynamicFontTag("SAS_UI_FONT_TINY", False)
-SAS_FONT_TAG_BODY = _DynamicFontTag("SAS_UI_FONT_BODY", False)
-SAS_FONT_TAG_LABEL = _DynamicFontTag("SAS_UI_FONT_LABEL", False)
-SAS_FONT_TAG_TITLE = _DynamicFontTag("SAS_UI_FONT_TITLE", False)
-SAS_FONT_TAG_HOVER = _DynamicFontTag("SAS_UI_FONT_HOVER", False)
+sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY", False)
+sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY", False)
+sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL", False)
+sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE", False)
+sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER", False)
 
-SAS_FONT_TAG_TINY_BOLD = _DynamicFontTag("SAS_UI_FONT_TINY", True)
-SAS_FONT_TAG_BODY_BOLD = _DynamicFontTag("SAS_UI_FONT_BODY", True)
-SAS_FONT_TAG_LABEL_BOLD = _DynamicFontTag("SAS_UI_FONT_LABEL", True)
-SAS_FONT_TAG_TITLE_BOLD = _DynamicFontTag("SAS_UI_FONT_TITLE", True)
+sasFontTagTinyBold = _DynamicFontTag("SAS_UI_FONT_TINY", True)
+sasFontTagBodyBold = _DynamicFontTag("SAS_UI_FONT_BODY", True)
+sasFontTagLabelBold = _DynamicFontTag("SAS_UI_FONT_LABEL", True)
+sasFontTagTitleBold = _DynamicFontTag("SAS_UI_FONT_TITLE", True)

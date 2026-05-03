@@ -20,7 +20,7 @@ class CvForeignDiplomacyAdvisor(CvForeignAdvisor.CvForeignAdvisor):
 
 	def initText(self):
 		CvForeignAdvisor.CvForeignAdvisor.initText(self)
-		self.SCREEN_TITLE = CvForeignAdvisor.SAS_FONT_TAG_TITLE_BOLD + CvForeignAdvisor.localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + CvForeignAdvisor.SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = CvForeignAdvisor.sasFontTagTitleBold + CvForeignAdvisor.localText.getText("TXT_KEY_FOREIGN_ADVISOR_TITLE", ()).upper() + CvForeignAdvisor.SAS_FONT_TAG_CLOSE
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME + str(self.iScreen), CvScreenEnums.FOREIGN_DIPLOMACY_ADVISOR)

@@ -109,8 +109,8 @@ class CvMilitaryAdvisor:
 		if self.iLanguageLoaded == CyGame().getCurrentLanguage():
 			return
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_COMBAT_EXPERIENCE = localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ())
 		self.TEXT_ALL_UNITS = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
 		self.TEXT_UNIT_TOGGLE_ON = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ())
@@ -241,7 +241,7 @@ class CvMilitaryAdvisor:
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, self.COLOR_EMPTY)
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, self.COLOR_EMPTY)
 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(iGreatPeopleThreshold))
-			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SAS_FONT_TAG_LABEL + self.TEXT_COMBAT_EXPERIENCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", sasFontTagLabel + self.TEXT_COMBAT_EXPERIENCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
 					
 																									
 	# returns a unique ID for a widget in this screen
@@ -352,7 +352,7 @@ class CvMilitaryAdvisor:
 				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_PLUS
 				szButtonText = self.TEXT_UNIT_TOGGLE_ON
 			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
-			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", SAS_FONT_TAG_LABEL + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", sasFontTagLabel + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# self.unitsList[iUnit][0] is the UnitCombatGroup (e.g. Melee)
 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
@@ -395,7 +395,7 @@ class CvMilitaryAdvisor:
 		}
 
 		def formatListRowText(szText, szButton, iIndentLevel):
-			szLabelText = SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
+			szLabelText = sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE
 			if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS and szButton:
 				# <!-- custom: note: inline <img> icon paths are stricter than icon-slot rendering; avoid risky button filenames (spaces/parentheses) to prevent magenta icons. See KI#118. (GPT-5.3-Codex) -->
 				return u"%s<img=%s size=%d></img>%s%s" % (

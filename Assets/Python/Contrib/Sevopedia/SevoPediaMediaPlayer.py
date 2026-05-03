@@ -7,7 +7,7 @@
 from CvPythonExtensions import *
 import CvUtil
 import SASTextScale
-from SASFontUtils import SAS_FONT_TAG_LABEL_BOLD, SAS_FONT_TAG_CLOSE
+from SASFontUtils import sasFontTagLabelBold, SAS_FONT_TAG_CLOSE
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
@@ -258,7 +258,7 @@ class SevoPediaMediaPlayer:
 			if i == currentIndex:
 				# <!-- custom: keep selected queue row visually distinct (bold), not only prefixed by ">", so active media is easy to track while browsing groups. (GPT-5.3-Codex) -->
 				szLabel = u"> " + szLabel
-				szLabel = SAS_FONT_TAG_LABEL_BOLD + szLabel + SAS_FONT_TAG_CLOSE
+				szLabel = sasFontTagLabelBold + szLabel + SAS_FONT_TAG_CLOSE
 			else:
 				szLabel = SASTextScale.labelText(szLabel)
 			szButton = ""

@@ -230,7 +230,7 @@ class SevoPediaUnit:
 			if szName and szName not in aUniqueNames:
 				aUniqueNames.append(szName)
 		if len(aUniqueNames) > 0:
-			szText += SAS_FONT_TAG_TITLE + u"Unique Names" + SAS_FONT_TAG_CLOSE + u"\n\n"
+			szText += sasFontTagTitle + u"Unique Names" + SAS_FONT_TAG_CLOSE + u"\n\n"
 			for i in xrange(len(aUniqueNames)):
 				if i == 0:
 					szLine = localText.getText("[ICON_STAR]", ()) + aUniqueNames[i]
@@ -238,7 +238,7 @@ class SevoPediaUnit:
 					szLine = localText.getText("[ICON_BULLET]", ()) + aUniqueNames[i]
 				if i > 0:
 					szText += u"\n"
-				szText += SAS_FONT_TAG_LABEL + szLine + SAS_FONT_TAG_CLOSE
+				szText += sasFontTagLabel + szLine + SAS_FONT_TAG_CLOSE
 			szText += u"\n\n"
 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py, removing (hiding) the entry entirely from sevopedia. -->
 		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->

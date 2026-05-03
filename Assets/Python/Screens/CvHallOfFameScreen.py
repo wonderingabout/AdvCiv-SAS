@@ -144,7 +144,7 @@ class CvHallOfFameScreen:
 			self.iMultiplayerFilter = 0
 		self.iSortBy = SORT_BY_NORMALIZED_SCORE
 
-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		# <!-- custom: initialize TraitUtil here because doing it in __init__ broke Civ startup;
 		# by the time Hall of Fame opens, the game/font symbols are ready and trait icons render correctly. (GPT-5.5) -->
 		TraitUtil.init()
@@ -161,7 +161,7 @@ class CvHallOfFameScreen:
 		screen.setText(self.EXIT_ID, "", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Header...
-		screen.setLabel(self.HEADER_ID, "Background", SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.HEADER_ID, "Background", sasFontTagTitleBold + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 
 
