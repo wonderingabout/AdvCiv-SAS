@@ -1717,27 +1717,15 @@ Created as part of AdvCiv-SAS improvements
 
 	<TEXT>
 		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SETUP</Tag>
-		<English>WORLD SIZE (Base/48 civs DLL)</English>
+		<English>WORLD SIZE</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SIZE_TITLE</Tag>
-		<English>WORLD SIZE (Base/48 civs DLL)</English>
+		<English>WORLD SIZE</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_MENU_SIZE</Tag>
-		<English>Size (Base/48):</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_RECOMMENDED_DLL_FIELD</Tag>
-		<English>Recommended DLL</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_BASE_DLL</Tag>
-		<English>Base</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_48_CIVS_DLL</Tag>
-		<English>48 civs</English>
+		<English>Size:</English>
 	</TEXT>
 
 
@@ -1764,7 +1752,7 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ARENA_HELP</Tag>
-		<English>An extra-small World Size smaller than Base AdvCiv's Duel World Size. Requires the 48 civs DLL for default player counts.</English>
+		<English>An extra-small World Size smaller than Base AdvCiv's Duel World Size.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_SAS24_HELP</Tag>

@@ -332,7 +332,7 @@ class SevoPediaWorldSizeChart:
 			if iDefaultPlayers > 18:
 				parsed_data[world_type]["RecommendedDLL"] = "48 civs"
 			else:
-				parsed_data[world_type]["RecommendedDLL"] = "18 civs"
+				parsed_data[world_type]["RecommendedDLL"] = "Either"
 
 		header = []
 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:

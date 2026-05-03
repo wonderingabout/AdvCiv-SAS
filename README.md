@@ -663,19 +663,19 @@ The changes before/after with rationale tables are synthethized in .md tables in
 
 ### How to use
 
-A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_48_civs_dll.dll").
+48 Civs DLL is provided and is now the default in AdvCiv-SAS, because we ship world sizes (e.g., SAS24/SAS32/SAS40/SAS48) that support such higher player counts, but using the old 18 civs DLL would result in map never being populated. It is easier to have a uniform DLL as well
 
-To use it, rename old base 18 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
+For compatibility or performance or such, a 18 civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_18_civs_dll.dll").
 
-All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map.
+To use it, rename current base 48 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_48_civs_dll.dll", and rename the "CvGameCoreDLL_18_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 48 players DLL).
 
-Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source).
+Note: it seems that savegames are not compatible when switching from 48 civ DLL to 18 civ DLL (or vice versa i assume) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source).
 
-Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL.
+Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 18 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a glance), so i you want latest features in the development version, consider using the default (i.e. not 18 civs DLL) DLL.
 
 ### New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)
 
-This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) added in AdvCiv-SAS based on the XXL World mod's world sizes. For the larger than huge world sizes, as their Default Player number is higher than the 18 `MAX_CIV_PLAYERS` in the base DLL, it is recommended to use the 48 civs DLL to play them (else the Map may never get populated with too few players relative to world size).
+This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) added in AdvCiv-SAS based on the XXL World mod's world sizes. For the larger than huge world sizes, as their Default Player number is higher than the 18 `MAX_CIV_PLAYERS` in the old base 18 DLL, it is recommended to use the 48 civs DLL to play them (else the Map may never get populated with too few players relative to world size).
 
 The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes, and notes, by GPT-5.2-Codex as well.
 

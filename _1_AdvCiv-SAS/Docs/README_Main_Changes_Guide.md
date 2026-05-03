@@ -124,7 +124,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 ### 48 Civs DLL
 
-- **48 Civs DLL** is also provided and available for use in AdvCiv-SAS, **tested to run**. See the main [README.md → 48 Civs DLL](/README.md#48-civs-dll) for details.
+- (Requires AdvCiv-SAS 5743+) **48 Civs DLL** is  **48 civs DLL** is now the **default DLL** (since we ship world sizes such as SAS24/SAS32/SAS40/SAS48 and mapscripts that support them, making this DLL the default is easier, more consistent, and reduces tedium). A 18 civs DLL is provided for compatiblity or performance or such other purposes. See the main [README.md → 48 Civs DLL](/README.md#48-civs-dll) for details for how to switch from the 48 civs DLL to the 18 civs DLL or vice versa and for details.
 - (Requires AdvCiv-SAS 5742+) Add a **notification** at **game start** (once per session) if the max **number of players** of the current **DLL** is lower than the **default player** number of the **selected world size** (e.g., playing SAS48 world size (default players: 48) with the 18 civs DLL (max players: 18)) telling users to switch to a higher player number DLL (e.g., from the 18civsDLL to the 48civs DLL). Change in [CvEventManager.py](Assets/Python/CvEventManager.py). See [KI#127](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it).
 
 ## AI

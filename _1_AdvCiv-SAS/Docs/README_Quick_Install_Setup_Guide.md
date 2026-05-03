@@ -50,7 +50,7 @@ To download the development version, go to the [mod's github main page](https://
 
 <img src="../Images/misc_0.x/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
 
-Note: the 48 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the default 18 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
+Note: the 18 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the as of now default 48 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
 
 Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify AdvCiv-SAS (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-advciv-sas-its-development-version) for details.
 
