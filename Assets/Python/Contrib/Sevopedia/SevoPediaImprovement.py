@@ -382,7 +382,7 @@ class SevoPediaImprovement:
 			if iYieldChange != 0:
 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
 		if len(sText) > 0:
-			# <!-- custom: unlike in m-e mod or so it seems, we don't use WidgetTypes.WIDGET_PYTHON (for/in this placeMostYields method) and id 6783 neither, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather, is also thanks to gemini ai's help, and adjusted or not by me too hehe if i may say in this casefor advciv-sas -->
+			# <!-- custom: unlike in m-e mod or so it seems, we don't use WidgetTypes.WIDGET_PYTHON (in this placeMostYields method) and id 6783 neither, so go for a simpler implementation, that matches how we redirect using concepts in sevopedia unit as of now to the concept_cities for example, we now have a new concept_rivers to redirect to now in advciv-sas, use that rather; done with the help of gemini ai thanks -->
 			# This button now links to the Civilopedia concept for Rivers.
 			# Its tooltip and click behavior are handled by the built-in Civ4 widget system.
 			# Ensure 'CONCEPT_RIVERS' is defined in your Civilopedia XML.
