@@ -309,7 +309,18 @@ class CvEventManager:
 					popupInfo.addPopup(iPlayer)
 
 		CvAdvisorUtils.resetNoLiberateCities()
-																	
+
+		# <!-- custom: One-time notice when active DLL's max players < world size's recommended (e.g. SAS48 on 18-civ DLL). PyPopup was avoided here as it triggers in-game Python error popups; CyPopupInfo with BUTTONPOPUP_TEXT renders cleanly instead. See KI#127. (Claude code Opus 4.7) -->
+		if not getattr(self, '_sas_dll_capacity_warned', False):
+			iRecommended = gc.getWorldInfo(CyMap().getWorldSize()).getDefaultPlayers()
+			iMaxCivs = gc.getMAX_CIV_PLAYERS()
+			if iMaxCivs < iRecommended:
+				self._sas_dll_capacity_warned = True
+				popupInfo = CyPopupInfo()
+				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_TEXT)
+				popupInfo.setText(u"Notice: this map's world size recommends %d players but the active DLL only supports %d - the world map may never be fully populated given low player count.\n\nIt is recommended to switch to a higher player count DLL (e.g., from the 18civsDLL to the 48civsDLL) and play a new game instead (saves are NOT compatible with DLL type change).\n\nSee Sevopedia World Sizes for the recommended DLL depending on world size. This message is shown once per session only to avoid redundancy and tedium." % (iRecommended, iMaxCivs))
+				popupInfo.addPopup(gc.getGame().getActivePlayer())
+
 	def onGameEnd(self, argsList):
 		'Called at the End of the game'
 		print("Game is ending")

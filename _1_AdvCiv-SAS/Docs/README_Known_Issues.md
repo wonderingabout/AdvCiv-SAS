@@ -162,6 +162,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)  
 [125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit)  
 [126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
+[127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4710,7 +4711,7 @@ File changed:
 
 ## 126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1VRXC3ke-rHgnlevnY7BIazvHDCTcseU6?usp=sharing) (only after fix because any sevopedia screenshot would show the non-greyed former behaviour).
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I6QRzBWnLw9u0kduHIBBsXiQ7DTxBxqR?usp=sharing) (only after fix because any sevopedia screenshot would show the non-greyed former behaviour).
 
 Observed issue:
 
@@ -4725,3 +4726,15 @@ Fix:
 File changed:
 
 - [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
+
+## 127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sglSFxWnZ31_bl_Q5l8iVUmR-lVwUfUl?usp=sharing)
+
+If players start a game on larger world sizes (as of now SAS24 or higher) while using the 18civsDLL, player count is capped at 18 even if world size has a default player count of e.g., 24 on SAS24 world size.
+
+Also, players were not notified of this, so they may engage unawarely in a game where world size would never be fully populated most likely (extreme example as of now: 18 players on SAS48 worldsize).
+
+To work around this issue, added a popup at game start with the very nice help of Claude code Opus 4.7 thanks.
+
+Change in `onGameStart` in [CvEventManager.py](Assets/Python/CvEventManager.py).
