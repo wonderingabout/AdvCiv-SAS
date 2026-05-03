@@ -196,7 +196,7 @@ class CvPolicyAdvisorScreen:
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
 
 		self.TEXT_CANCEL = sasFontTagTitle + localText.getText("TXT_KEY_SCREEN_CANCEL", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.TEXT_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.TEXT_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_EXIT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_REVOLUTION = sasFontTagTitle + localText.getText("TXT_KEY_CONCEPT_REVOLUTION", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_NO_UPKEEP = localText.getText("TXT_KEY_CIVICS_SCREEN_NO_UPKEEP", ())
@@ -378,7 +378,7 @@ class CvPolicyAdvisorScreen:
 		for iPage in range(len(self.PAGE_NAME_LIST)):
 			szLabel = self.PAGE_NAME_LIST[iPage]
 			if iPage == self.iPage:
-				szText = sasFontTagTitleBold + szLabel + SAS_FONT_TAG_CLOSE
+				szText = sasFontTagTitle.bold + szLabel + SAS_FONT_TAG_CLOSE
 			else:
 				szText = sasFontTagTitle + szLabel + SAS_FONT_TAG_CLOSE
 			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)

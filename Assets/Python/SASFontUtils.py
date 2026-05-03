@@ -42,17 +42,24 @@ def getSASUIFontHover():
 
 
 class _DynamicFontTag:
-	def __init__(self, szDefineName, bBold):
+	def __init__(self, szDefineName, bBold=False):
 		self.szDefineName = szDefineName
-		self.bBold = bBold
+		self._isBold = bBold
+		self._cachedTag = None
+		if not bBold:
+			self.bold = _DynamicFontTag(szDefineName, True)
 
 	def _build(self):
+		if self._cachedTag is not None:
+			return self._cachedTag
 		iSize = _getSASUIFontSize(self.szDefineName)
 		if iSize is None:
-			return u""
-		if self.bBold:
-			return u"<font=%db>" % iSize
-		return u"<font=%d>" % iSize
+			self._cachedTag = u""
+		elif self._isBold:
+			self._cachedTag = u"<font=%db>" % iSize
+		else:
+			self._cachedTag = u"<font=%d>" % iSize
+		return self._cachedTag
 
 	def __unicode__(self):
 		return self._build()
@@ -69,13 +76,8 @@ class _DynamicFontTag:
 
 SAS_FONT_TAG_CLOSE = u"</font>"
 
-sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY", False)
-sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY", False)
-sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL", False)
-sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE", False)
-sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER", False)
-
-sasFontTagTinyBold = _DynamicFontTag("SAS_UI_FONT_TINY", True)
-sasFontTagBodyBold = _DynamicFontTag("SAS_UI_FONT_BODY", True)
-sasFontTagLabelBold = _DynamicFontTag("SAS_UI_FONT_LABEL", True)
-sasFontTagTitleBold = _DynamicFontTag("SAS_UI_FONT_TITLE", True)
+sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY")
+sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY")
+sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
+sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
+sasFontTagHover = _DynamicFontTag("SAS_UI_FONT_HOVER")

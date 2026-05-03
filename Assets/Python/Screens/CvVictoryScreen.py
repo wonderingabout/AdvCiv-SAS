@@ -244,15 +244,15 @@ class CvVictoryScreen:
 		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
 		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.HEADER_TEXT = sasFontTagTitleBold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.HEADER_TEXT = sasFontTagTitle.bold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TAB_VICTORIES = localText.getText("TXT_KEY_MAIN_MENU_VICTORIES", ()).upper()
 		self.TAB_SETTINGS = localText.getText("TXT_KEY_MAIN_MENU_SETTINGS", ()).upper()
 		self.TAB_VOTING = localText.getText("TXT_KEY_VOTING_TITLE", ()).upper()
 		self.TAB_MEMBERS = localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper()
 		self.TAB_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ()).upper()
 		self.TEXT_DIPLOMATIC = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
-		self.LABEL_SETTINGS_HEADER = sasFontTagLabelBold + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE
-		self.LABEL_OPTIONS_HEADER = sasFontTagLabelBold + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.LABEL_SETTINGS_HEADER = sasFontTagLabel.bold + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE
+		self.LABEL_OPTIONS_HEADER = sasFontTagLabel.bold + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TAB_VICTORIES_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_VICTORIES", (), self.COLOR_YELLOW).upper()
 		self.TAB_SETTINGS_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), self.COLOR_YELLOW).upper()
 		self.TAB_VOTING_ACTIVE = localText.getColorText("TXT_KEY_VOTING_TITLE", (), self.COLOR_YELLOW).upper()
@@ -514,7 +514,7 @@ class CvVictoryScreen:
 				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
 				iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
 				szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
-				szHeaderText = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+				szHeaderText = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
 				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				if (gc.getGame().getVoteSourceReligion(i) != -1):
 					# <!-- custom: add religion icon (claude opus 4.5) -->
@@ -673,7 +673,7 @@ class CvVictoryScreen:
 
 		# heading
 		kVoteSource = gc.getVoteSourceInfo(iActiveVote)
-		sTableHeader = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+		sTableHeader = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
 		if (gc.getGame().getVoteSourceReligion(iActiveVote) != -1):
 			sTableHeader += " (" + gc.getReligionInfo(gc.getGame().getVoteSourceReligion(iActiveVote)).getDescription() + ")"
 
@@ -864,7 +864,7 @@ class CvVictoryScreen:
 		iRow = screen.appendTableRow(szTable)
 		iVoteReq = self.getVoteReq(iActiveVote, self.VoteType)
 		sVoteReq = "%i" % (iVoteReq)
-		sString = sasFontTagLabelBold + localText.getText("TXT_KEY_BUG_VICTORY_VOTES_TOTAL", ()) + SAS_FONT_TAG_CLOSE + u" "
+		sString = sasFontTagLabel.bold + localText.getText("TXT_KEY_BUG_VICTORY_VOTES_TOTAL", ()) + SAS_FONT_TAG_CLOSE + u" "
 		if (iCand1Known != 0
 		and iCand2Known != 0):
 			sString +=  localText.getText("TXT_KEY_BUG_VICTORY_VOTES_REQUIRED", (sVoteReq,))
@@ -948,12 +948,12 @@ class CvVictoryScreen:
 				iRow = screen.appendTableRow(szTable)
 
 				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
-				szHeaderText = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+				szHeaderText = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
 				szBuildingButton = u""
 				for iBuilding in range(gc.getNumBuildingInfos()):
 					if gc.getBuildingInfo(iBuilding).getVoteSourceType() == i:
 						szBuildingButton = gc.getBuildingInfo(iBuilding).getButton()
-						szHeaderText = sasFontTagTitleBold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
+						szHeaderText = sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SAS_FONT_TAG_CLOSE
 						break
 				SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szHeaderText, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				if (gc.getGame().getVoteSourceReligion(i) != -1):
@@ -1037,7 +1037,7 @@ class CvVictoryScreen:
 		screen.appendTableRow(szTable)
 		iNumRows = screen.getTableNumRows(szTable)
 		iTitleRow = iNumRows - 1
-		szHeading = sasFontTagTitleBold + localText.getText("TXT_KEY_RF_CHAPTER_PLURAL", ()) + SAS_FONT_TAG_CLOSE
+		szHeading = sasFontTagTitle.bold + localText.getText("TXT_KEY_RF_CHAPTER_PLURAL", ()) + SAS_FONT_TAG_CLOSE
 		SASTextScale.setTableTextLabel(screen, szTable, 0, iTitleRow, szHeading, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		partialScore = 0
 		allScored = true
@@ -1131,14 +1131,14 @@ class CvVictoryScreen:
 			self.H_RF_AREA -= iHeightMinus
 		screen.addPanel(self.AREA1_ID, "", "", True, True, self.X_RF1_AREA, self.Y_RF_AREA, self.W_RF_AREA, self.H_RF_AREA, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.AREA2_ID, "", "", True, True, self.X_RF2_AREA, self.Y_RF_AREA, self.W_RF_AREA, self.H_RF_AREA, PanelStyles.PANEL_STYLE_BLUE50)
-		chapterScoreText = sasFontTagLabelBold
+		chapterScoreText = sasFontTagLabel.bold
 		chapterScoreText += localText.getText("TXT_KEY_RF_CHAPTER_BREAKDOWN_H", ())
 		chapterScoreText += u"</font>"
 		chapterScoreText += sasFontTagLabel + "\n\n"
 		if not extGame: # No breakdown after game end
 			chapterScoreText += gc.getGame().chapterScoreBreakdown()
 		chapterScoreText += u"</font>"
-		riseScoreText = sasFontTagLabelBold
+		riseScoreText = sasFontTagLabel.bold
 		if extGame >= 0:
 			riseScoreText += localText.getText("TXT_KEY_RF_RISE_FINAL_H", ())
 		else:
@@ -1152,7 +1152,7 @@ class CvVictoryScreen:
 		self.drawTabs()
 	
 	def highlight(self, s):
-		return sasFontTagLabelBold + s + SAS_FONT_TAG_CLOSE
+		return sasFontTagLabel.bold + s + SAS_FONT_TAG_CLOSE
 	# </advc.703>
 
 	def formatPercent(self, f):
@@ -1436,7 +1436,7 @@ class CvVictoryScreen:
 			szRivalsHeadingTag = "TXT_KEY_OTHER_PLAYERS" # </advc.190c>
 		screen.addPanel(szCivsPanel, "", "", True, True, self.SETTINGS_PANEL_X3, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
 		szCivsHeader = self.getNextWidgetName()
-		screen.setLabel(szCivsHeader, "Background", sasFontTagLabelBold + localText.getText(szRivalsHeadingTag, ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X3 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(szCivsHeader, "Background", sasFontTagLabel.bold + localText.getText(szRivalsHeadingTag, ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X3 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		szCivsTable = self.getNextWidgetName()
 		screen.addListBoxGFC(szCivsTable, "", self.SETTINGS_PANEL_X3 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
@@ -1650,7 +1650,7 @@ class CvVictoryScreen:
 			if gc.getGame().isVictoryValid(iLoopVC):
 
 				iNumRows = screen.getTableNumRows(szTable)
-				szVictoryType = sasFontTagTitleBold + victory.getDescription().upper() + SAS_FONT_TAG_CLOSE
+				szVictoryType = sasFontTagTitle.bold + victory.getDescription().upper() + SAS_FONT_TAG_CLOSE
 				if (victory.isEndScore() and (gc.getGame().getMaxTurns() > gc.getGame().getElapsedGameTurns())):
 					szTurnsLeft = localText.getText("TXT_KEY_MISC_TURNS_LEFT", (gc.getGame().getMaxTurns() - gc.getGame().getElapsedGameTurns(), ))
 					szVictoryType += u"    " + sasFontTagLabel + u"(" + szTurnsLeft + u")" + SAS_FONT_TAG_CLOSE

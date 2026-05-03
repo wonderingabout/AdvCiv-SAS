@@ -98,7 +98,7 @@ class SevoPediaMovie:
 		szTitleText = ""
 		if info:
 			szTitleText = info.getDescription()
-		szTitle = sasFontTagTitleBold + szTitleText.upper() + SAS_FONT_TAG_CLOSE
+		szTitle = sasFontTagTitle.bold + szTitleText.upper() + SAS_FONT_TAG_CLOSE
 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if self.hasMovie(iMovieType, iMovieId):

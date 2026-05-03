@@ -189,7 +189,7 @@ class CvTechChooser:
 			self.TEXT_TECH_CHOOSER_TITLE = localText.getText("TXT_KEY_TECH_CHOOSER_TITLE", ()).upper()
 			self.TEXT_PEDIA_SCREEN_EXIT = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
 			self.TEXT_TECH_CHOOSER_EXIT = sasFontTagTitle + self.TEXT_PEDIA_SCREEN_EXIT + SAS_FONT_TAG_CLOSE
-			self.TEXT_TECH_CHOOSER_TITLE_FMT = sasFontTagTitleBold + self.TEXT_TECH_CHOOSER_TITLE + SAS_FONT_TAG_CLOSE
+			self.TEXT_TECH_CHOOSER_TITLE_FMT = sasFontTagTitle.bold + self.TEXT_TECH_CHOOSER_TITLE + SAS_FONT_TAG_CLOSE
 
 		if self.bTechChooserArtCached:
 			return

@@ -306,7 +306,7 @@ class CvInfoScreen:
 		# K-Mod end
 
 		###### TEXT ######
-		self.SCREEN_TITLE = sasFontTagTitleBold + localText.getText("TXT_KEY_INFO_SCREEN", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.SCREEN_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_INFO_SCREEN", ()).upper() + SAS_FONT_TAG_CLOSE
 
 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 
@@ -462,7 +462,7 @@ class CvInfoScreen:
 		self.TEXT_WORLD_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS", ())
 		self.TEXT_NATIONAL_WONDERS = localText.getText("TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS", ())
 		self.TEXT_PROJECTS = localText.getText("TXT_KEY_PEDIA_CATEGORY_PROJECT", ())
-		self.szWondersSpecialTitle = sasFontTagLabelBold + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
+		self.szWondersSpecialTitle = sasFontTagLabel.bold + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + SAS_FONT_TAG_CLOSE
 
 		# <!-- custom: moved here from drawWondersList_BUG: performance optimimization: avoid redundant recomputation if i'm not mistaken. -->
 		self.sNameWonders = BugUtil.getPlainText("TXT_KEY_WONDER_NAME")
@@ -2902,7 +2902,7 @@ class CvInfoScreen:
 				self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
 			self.szCityNameWidgets.append(self.getNextWidgetName())
 #			szProjectDesc = u"<font=3b>" + pProjectInfo.getDescription().upper() + u"</font>"
-			szCityDesc = sasFontTagTitleBold + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + sasFontTagLabelBold + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
+			szCityDesc = sasFontTagTitle.bold + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + sasFontTagLabel.bold + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
 			szCityDesc += sasFontTagLabel + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
 			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc,
 				self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -3282,7 +3282,7 @@ class CvInfoScreen:
 				pProjectInfo = gc.getProjectInfo(self.iWonderID)
 
 				# Stats panel (cont'd) - Name
-				szProjectDesc = sasFontTagLabelBold + pProjectInfo.getDescription().upper() + SAS_FONT_TAG_CLOSE
+				szProjectDesc = sasFontTagLabel.bold + pProjectInfo.getDescription().upper() + SAS_FONT_TAG_CLOSE
 				szStatsText = szProjectDesc + "\n\n"
 
 				# Say whether this project is built yet or not
@@ -3354,7 +3354,7 @@ class CvInfoScreen:
 				pWonderInfo = gc.getBuildingInfo(self.iWonderID)
 
 				# Stats panel (cont'd) - Name
-				szWonderDesc = sasFontTagLabelBold + gc.getBuildingInfo(self.iWonderID).getDescription().upper() + SAS_FONT_TAG_CLOSE
+				szWonderDesc = sasFontTagLabel.bold + gc.getBuildingInfo(self.iWonderID).getDescription().upper() + SAS_FONT_TAG_CLOSE
 				szStatsText = szWonderDesc + "\n\n"
 
 				# Wonder built-in year
@@ -3930,7 +3930,7 @@ class CvInfoScreen:
 
 		# Leader Name
 		self.szLeaderNameWidget = self.getNextWidgetName()
-		szText = sasFontTagTitleBold + gc.getPlayer(self.iActivePlayer).getName() + SAS_FONT_TAG_CLOSE
+		szText = sasFontTagTitle.bold + gc.getPlayer(self.iActivePlayer).getName() + SAS_FONT_TAG_CLOSE
 		screen.setText(self.szLeaderNameWidget, "", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEADER_NAME, self.Y_LEADER_NAME, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Create Table
