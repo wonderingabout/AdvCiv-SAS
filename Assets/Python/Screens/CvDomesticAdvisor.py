@@ -53,20 +53,20 @@ class CvDomesticAdvisor:
 		self.nSpecTextOffsetY = 10
 		self.OVERVIEW3_SPECIALIST_ICON_SIZE = 24
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
-		self.PAGE_OVERVIEW = 0
+		self.PAGE_OVERVIEW1 = 0
 		self.PAGE_OVERVIEW2 = 1
 		self.PAGE_OVERVIEW3 = 2
 		self.PAGE_OVERVIEW4 = 3
 		self.PAGE_FINANCE = 4
 		# <!-- custom: add Overview 2/3/4 tabs for BUG-style per-city status, culture/GP progress, and people/organization data in the AdvCiv-SAS non-BUG Domestic Advisor. (Claude code Opus 4.7; cleaned/extended by GPT-5.5) -->
-		self.PAGE_IDS = [self.PAGE_OVERVIEW, self.PAGE_OVERVIEW2, self.PAGE_OVERVIEW3, self.PAGE_OVERVIEW4, self.PAGE_FINANCE]
-		self.OVERVIEW_PAGE_IDS = [self.PAGE_OVERVIEW, self.PAGE_OVERVIEW2, self.PAGE_OVERVIEW3, self.PAGE_OVERVIEW4]
-		self.iPage = self.PAGE_OVERVIEW
+		self.PAGE_IDS = [self.PAGE_OVERVIEW1, self.PAGE_OVERVIEW2, self.PAGE_OVERVIEW3, self.PAGE_OVERVIEW4, self.PAGE_FINANCE]
+		self.OVERVIEW_PAGE_IDS = [self.PAGE_OVERVIEW1, self.PAGE_OVERVIEW2, self.PAGE_OVERVIEW3, self.PAGE_OVERVIEW4]
+		self.iPage = self.PAGE_OVERVIEW1
 		self.PAGE_TAB_IDS = []
 		for iPage in self.PAGE_IDS:
 			self.PAGE_TAB_IDS.append("DomesticTabButton" + str(iPage))
 		self.PAGE_LINK_WIDTH = []
-		self.TABLE_OVERVIEW = "CityListBackground"
+		self.TABLE_OVERVIEW1 = "CityListBackground1"
 		self.TABLE_OVERVIEW2 = "CityListBackground2"
 		self.TABLE_OVERVIEW3 = "CityListBackground3"
 		self.TABLE_OVERVIEW4 = "CityListBackground4"
@@ -74,7 +74,7 @@ class CvDomesticAdvisor:
 		self.OVERVIEW_RELIGION_BASE_COL_WIDTH = 50
 		self.OVERVIEW_CORPORATION_BASE_COL_WIDTH = 50
 		self.OVERVIEW_PRODUCING_BASE_COL_WIDTH = 132
-		self.bOverviewTableCreated = False
+		self.bOverview1TableCreated = False
 		self.bOverview2TableCreated = False
 		self.bOverview3TableCreated = False
 		self.bOverview4TableCreated = False
@@ -89,7 +89,7 @@ class CvDomesticAdvisor:
 		self.FINANCE_Z_CONTROLS = -2.3
 		self.FINANCE_DZ = -0.2
 		# <!-- custom: tab labels that do not depend on runtime geometry stay in init/initText; only link widths are runtime-dependent. (GPT-5.3-Codex) -->
-		self.TEXT_TAB_OVERVIEW = "OVERVIEW"
+		self.TEXT_TAB_OVERVIEW1 = "OVERVIEW 1"
 		self.TEXT_TAB_OVERVIEW2 = "OVERVIEW 2"
 		self.TEXT_TAB_OVERVIEW3 = "OVERVIEW 3"
 		self.TEXT_TAB_OVERVIEW4 = "OVERVIEW 4"
@@ -149,7 +149,7 @@ class CvDomesticAdvisor:
 		self.SCREEN_TITLE = sasFontTagTitle.bold + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_EXIT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW, self.TEXT_TAB_OVERVIEW2, self.TEXT_TAB_OVERVIEW3, self.TEXT_TAB_OVERVIEW4, self.TEXT_TAB_FINANCE]
+		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW1, self.TEXT_TAB_OVERVIEW2, self.TEXT_TAB_OVERVIEW3, self.TEXT_TAB_OVERVIEW4, self.TEXT_TAB_FINANCE]
 		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
 		self.COLOR_POSITIVE_PREFIX = localText.getText("TXT_KEY_COLOR_POSITIVE", ())
 		self.COLOR_NEGATIVE_PREFIX = localText.getText("TXT_KEY_COLOR_NEGATIVE", ())
@@ -295,9 +295,9 @@ class CvDomesticAdvisor:
 
 	def clearOverviewWidgets(self):
 		screen = self.getScreen()
-		if self.bOverviewTableCreated:
-			screen.deleteWidget(self.TABLE_OVERVIEW)
-			self.bOverviewTableCreated = False
+		if self.bOverview1TableCreated:
+			screen.deleteWidget(self.TABLE_OVERVIEW1)
+			self.bOverview1TableCreated = False
 		if self.bOverview2TableCreated:
 			screen.deleteWidget(self.TABLE_OVERVIEW2)
 			self.bOverview2TableCreated = False
@@ -409,73 +409,73 @@ class CvDomesticAdvisor:
 		return szCorps
 		
 	# headers...
-	def drawHeaders( self ):
+	def drawHeaders1( self ):
 		self.initText()
 
 		# Get the screen and the player
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		
 		# Zoom to City
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 0, "", (24 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 0, "", (24 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Name Column (advc.193: Font size increased; was 2.)
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 1, self.getOverviewHeaderLabel(self.HEADER_NAME), (self.OVERVIEW_CITY_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 1, self.getOverviewHeaderLabel(self.HEADER_NAME), (self.OVERVIEW_CITY_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Population Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 2, self.getOverviewHeaderLabel(self.HEADER_POPULATION), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 2, self.getOverviewHeaderLabel(self.HEADER_POPULATION), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# <!-- custom: keep religions in a compact aligned column; appending glyphs to city names was harder to scan. Corporations stay on Overview 3 because they matter less often and would crowd Overview 1. (GPT-5.5) -->
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 3, self.getOverviewHeaderLabel(self.HEADER_RELIGIONS), (self.getOverviewReligionColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 3, self.getOverviewHeaderLabel(self.HEADER_RELIGIONS), (self.getOverviewReligionColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Happiness Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 4, self.getOverviewHeaderLabel(self.HEADER_HAPPINESS), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 4, self.getOverviewHeaderLabel(self.HEADER_HAPPINESS), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Health Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 5, self.getOverviewHeaderLabel(self.HEADER_HEALTH), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 5, self.getOverviewHeaderLabel(self.HEADER_HEALTH), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Food Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 6, self.getOverviewHeaderLabel(self.HEADER_FOOD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 6, self.getOverviewHeaderLabel(self.HEADER_FOOD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Production Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 7, self.getOverviewHeaderLabel(self.HEADER_PRODUCTION), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 7, self.getOverviewHeaderLabel(self.HEADER_PRODUCTION), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Gold Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 8, self.getOverviewHeaderLabel(self.HEADER_GOLD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 8, self.getOverviewHeaderLabel(self.HEADER_GOLD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Research Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 9, self.getOverviewHeaderLabel(self.HEADER_RESEARCH), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 9, self.getOverviewHeaderLabel(self.HEADER_RESEARCH), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Espionage Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 10, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 10, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		
 		# Culture Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 11, self.getOverviewHeaderLabel(self.HEADER_CULTURE), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 11, self.getOverviewHeaderLabel(self.HEADER_CULTURE), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Great Person Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 12, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 12, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Trade Column
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 13, self.getOverviewHeaderLabel(self.HEADER_TRADE), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 13, self.getOverviewHeaderLabel(self.HEADER_TRADE), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Maintenance Column  advc.ctr: width was 40
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 14, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 14, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 				
 		# Production Column (advc.193: Font size increased; was 2.)
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 15, self.getOverviewHeaderLabel(self.HEADER_PRODUCING), (self.getOverviewProducingColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 15, self.getOverviewHeaderLabel(self.HEADER_PRODUCING), (self.getOverviewProducingColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# <!-- custom: keep production turns in a short sortable column so long production names can clip without hiding the more important timer at the tail. (GPT-5.5) -->
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 16, self.getOverviewHeaderLabel(u"T"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 16, self.getOverviewHeaderLabel(u"T"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 17, self.getOverviewHeaderLabel(self.HEADER_DEFENSE + u"%"), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 17, self.getOverviewHeaderLabel(self.HEADER_DEFENSE + u"%"), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Garrison Column
 		# advc.004: Use STRENGTH_CHAR instead of DEFENSE_CHAR
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW, 18, self.getOverviewHeaderLabel(self.HEADER_GARRISON), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 18, self.getOverviewHeaderLabel(self.HEADER_GARRISON), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Liberate Column
-		#screen.setTableColumnHeader( self.TABLE_OVERVIEW, 19, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
+		#screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 19, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
 		# <advc.ctr> Liberation now shown on "Cities" tab. Instead show revolt probability.
-		screen.setTableColumnHeader(self.TABLE_OVERVIEW, 19, self.getOverviewHeaderLabel(self.HEADER_REVOLT + u"%"), (45 * self.nTableWidth) / self.nNormalizedTableWidth)
+		screen.setTableColumnHeader(self.TABLE_OVERVIEW1, 19, self.getOverviewHeaderLabel(self.HEADER_REVOLT + u"%"), (45 * self.nTableWidth) / self.nNormalizedTableWidth)
 
 	# Function to draw the contents of the cityList passed in
 	def drawContents (self):
@@ -492,9 +492,9 @@ class CvDomesticAdvisor:
 		if self.iPage == self.PAGE_OVERVIEW4:
 			self.drawOverview4Contents()
 			return
-		self.drawOverviewContents()
+		self.drawOverview1Contents()
 
-	def drawOverviewContents(self):
+	def drawOverview1Contents(self):
 		self.clearFinanceWidgets()
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		if self.bOverview2TableCreated:
@@ -509,25 +509,25 @@ class CvDomesticAdvisor:
 
 		# Get the screen and the player
 		player = gc.getPlayer(self.iActivePlayer)
-		if self.bOverviewTableCreated:
-			screen.deleteWidget(self.TABLE_OVERVIEW)
-			self.bOverviewTableCreated = False
+		if self.bOverview1TableCreated:
+			screen.deleteWidget(self.TABLE_OVERVIEW1)
+			self.bOverview1TableCreated = False
 
-		screen = self.setupOverviewTable(self.TABLE_OVERVIEW, 20)
-		self.bOverviewTableCreated = True
+		screen = self.setupOverviewTable(self.TABLE_OVERVIEW1, 20)
+		self.bOverview1TableCreated = True
 
 		# Loop through the cities
 		i = 0
 		(pLoopCity, iter) = player.firstCity(false)
 		while(pLoopCity):
-			screen.appendTableRow( self.TABLE_OVERVIEW )
+			screen.appendTableRow( self.TABLE_OVERVIEW1 )
 			if (pLoopCity.getName() in self.listSelectedCities):
-				screen.selectRow( self.TABLE_OVERVIEW, i, True )
-			self.updateTable(pLoopCity, i)
+				screen.selectRow( self.TABLE_OVERVIEW1, i, True )
+			self.updateTable1(pLoopCity, i)
 			i += 1
 			(pLoopCity, iter) = player.nextCity(iter, false)
 		
-		self.drawHeaders()
+		self.drawHeaders1()
 		
 		self.drawSpecialists()
 		
@@ -860,11 +860,11 @@ class CvDomesticAdvisor:
 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + self.TEXT_FIN_EXPENSES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(totalInflatedCosts) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iFinanceActiveLeader, 1 )
 
-	def updateTable(self, pLoopCity, i):
+	def updateTable1(self, pLoopCity, i):
 
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 
-		screen.setTableText( self.TABLE_OVERVIEW, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText( self.TABLE_OVERVIEW1, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <advc.193>
 		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update),
@@ -882,16 +882,16 @@ class CvDomesticAdvisor:
 			szName += (u"%c" % CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
 		
 		# City name...
-		screen.setTableText( self.TABLE_OVERVIEW, 1, i, szFontTagOpen + szName + szFontTagClose, "",
+		screen.setTableText( self.TABLE_OVERVIEW1, 1, i, szFontTagOpen + szName + szFontTagClose, "",
 				#WidgetTypes.WIDGET_GENERAL, -1, -1,
 				# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
 				WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(),
 				CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Population
-		screen.setTableInt( self.TABLE_OVERVIEW, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
-		screen.setTableText( self.TABLE_OVERVIEW, 3, i, szFontTagOpen + self.getCityReligionText(pLoopCity) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableText( self.TABLE_OVERVIEW1, 3, i, szFontTagOpen + self.getCityReligionText(pLoopCity) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Happiness...
 		iNetHappy = pLoopCity.happyLevel() - pLoopCity.unhappyLevel(0)
@@ -900,7 +900,7 @@ class CvDomesticAdvisor:
 			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
 		elif iNetHappy < 0:
 			szText = self.COLOR_NEGATIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
-		screen.setTableInt( self.TABLE_OVERVIEW, 4, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 4, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Health...
 		iNetHealth = pLoopCity.goodHealth() - pLoopCity.badHealth(0)
@@ -909,7 +909,7 @@ class CvDomesticAdvisor:
 			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
 		elif iNetHealth < 0:
 			szText = self.COLOR_NEGATIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
-		screen.setTableInt( self.TABLE_OVERVIEW, 5, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 5, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Food status...
 		iNetFood = pLoopCity.foodDifference(true)
@@ -921,19 +921,19 @@ class CvDomesticAdvisor:
 		elif pLoopCity.isFoodProduction():
 			# <!-- custom: leave food-to-production cities blank instead of showing 0 net food; they still sort with the zero-surplus group. (GPT-5.5) -->
 			szText = u""
-		screen.setTableInt( self.TABLE_OVERVIEW, 6, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 6, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		
 		# Production status...
-		screen.setTableInt( self.TABLE_OVERVIEW, 7, i, szFontTagOpen+ unicode(pLoopCity.getYieldRate(YieldTypes.YIELD_PRODUCTION)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 7, i, szFontTagOpen+ unicode(pLoopCity.getYieldRate(YieldTypes.YIELD_PRODUCTION)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Gold status...
-		screen.setTableInt( self.TABLE_OVERVIEW, 8, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_GOLD)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 8, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_GOLD)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Science rate...
-		screen.setTableInt( self.TABLE_OVERVIEW, 9, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_RESEARCH)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 9, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_RESEARCH)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Espionage rate...
-		screen.setTableInt( self.TABLE_OVERVIEW, 10, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 10, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Culture status...
 		szCulture = unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_CULTURE))
@@ -944,7 +944,7 @@ class CvDomesticAdvisor:
 			if iCultureLeftTimes100 > 0:
 				szCulture += u" (" + unicode((iCultureLeftTimes100  + iCultureRateTimes100 - 1) / iCultureRateTimes100) + u")"
 
-		screen.setTableInt( self.TABLE_OVERVIEW, 11, i, szFontTagOpen + szCulture + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 11, i, szFontTagOpen + szCulture + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Great Person
 		iGreatPersonRate = pLoopCity.getGreatPeopleRate()
@@ -957,16 +957,16 @@ class CvDomesticAdvisor:
 					iTurnsLeft += 1
 				szGreatPerson += u" (" + unicode(iTurnsLeft) + u")"
 		
-		screen.setTableInt( self.TABLE_OVERVIEW, 12, i, szFontTagOpen + szGreatPerson + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 12, i, szFontTagOpen + szGreatPerson + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Trade
-		screen.setTableInt( self.TABLE_OVERVIEW, 13, i, szFontTagOpen + unicode(pLoopCity.getTradeYield(YieldTypes.YIELD_COMMERCE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 13, i, szFontTagOpen + unicode(pLoopCity.getTradeYield(YieldTypes.YIELD_COMMERCE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Maintenance...
 		#iMaintenance = pLoopCity.getMaintenance()
 		# advc.004: Based on K-Mod code in CvMainInterface.py
 		iMaintenance = pLoopCity.getMaintenanceTimes100() * (100+gc.getPlayer(pLoopCity.getOwner()).calculateInflationRate()) // 10000
-		screen.setTableInt( self.TABLE_OVERVIEW, 14, i, szFontTagOpen + unicode(iMaintenance) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 14, i, szFontTagOpen + unicode(iMaintenance) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Producing
 		szProducing = pLoopCity.getProductionName()
@@ -1000,19 +1000,19 @@ class CvDomesticAdvisor:
 			szButton = gc.getProcessInfo(iProcess).getButton()
 
 		# Pass szButton as the 5th argument to display the icon next to the text
-		#screen.setTableText( self.TABLE_OVERVIEW, 15, i, szFontTagOpen + szProducing + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableText( self.TABLE_OVERVIEW, 15, i, szFontTagOpen + szProducing + szFontTagClose, szButton, iWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY )
+		#screen.setTableText( self.TABLE_OVERVIEW1, 15, i, szFontTagOpen + szProducing + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableText( self.TABLE_OVERVIEW1, 15, i, szFontTagOpen + szProducing + szFontTagClose, szButton, iWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY )
 		# End - add the button (icon) to the "Producing" column.
 
 		szProductionTurns = u""
 		if iProductionTurns > 0: # advc.004x
 			szProductionTurns = unicode(iProductionTurns)
-		screen.setTableInt( self.TABLE_OVERVIEW, 16, i, szFontTagOpen + szProductionTurns + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 16, i, szFontTagOpen + szProductionTurns + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
-		screen.setTableInt( self.TABLE_OVERVIEW, 17, i, szFontTagOpen + unicode(pLoopCity.getDefenseModifier(False)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 17, i, szFontTagOpen + unicode(pLoopCity.getDefenseModifier(False)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Garrison
-		screen.setTableInt( self.TABLE_OVERVIEW, 18, i, szFontTagOpen + unicode(pLoopCity.plot().getNumDefenders(pLoopCity.getOwner())) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 18, i, szFontTagOpen + unicode(pLoopCity.plot().getNumDefenders(pLoopCity.getOwner())) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Liberation
 		# advc.004: Mark potential independent colonies too (bCanSplit check added to the two conditions below)
@@ -1020,7 +1020,7 @@ class CvDomesticAdvisor:
 		#if bCanSplit or pLoopCity.getLiberationPlayer(false) != -1:
 			# UNOFFICIAL_PATCH begin
 		#	if bCanSplit or not gc.getTeam(gc.getPlayer(pLoopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
-		#		screen.setTableText( self.TABLE_OVERVIEW, 19, i, sasFontTagBody + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		#		screen.setTableText( self.TABLE_OVERVIEW1, 19, i, sasFontTagBody + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 			# UNOFFICIAL_PATCH end
 		# <advc.ctr> Replace this column with revolt probability
 		revoltPr = pLoopCity.revoltProbability()
@@ -1031,15 +1031,15 @@ class CvDomesticAdvisor:
 			if not pLoopCity.canCultureFlip():
 				szColorTag = "COLOR_YIELD_FOOD"
 			szRevoltPr = localText.changeTextColor(szRevoltPr, gc.getInfoTypeForString(szColorTag))
-			screen.setTableText(self.TABLE_OVERVIEW, 19, i, szFontTagOpen + szRevoltPr + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(self.TABLE_OVERVIEW1, 19, i, szFontTagOpen + szRevoltPr + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.ctr>
 		
 	def drawOverview2Contents(self):
 		self.clearFinanceWidgets()
 		screen = self.getScreen()
-		if self.bOverviewTableCreated:
-			screen.deleteWidget(self.TABLE_OVERVIEW)
-			self.bOverviewTableCreated = False
+		if self.bOverview1TableCreated:
+			screen.deleteWidget(self.TABLE_OVERVIEW1)
+			self.bOverview1TableCreated = False
 		self.hideSpecialists()
 		if self.bOverview3TableCreated:
 			screen.deleteWidget(self.TABLE_OVERVIEW3)
@@ -1167,9 +1167,9 @@ class CvDomesticAdvisor:
 	def drawOverview3Contents(self):
 		self.clearFinanceWidgets()
 		screen = self.getScreen()
-		if self.bOverviewTableCreated:
-			screen.deleteWidget(self.TABLE_OVERVIEW)
-			self.bOverviewTableCreated = False
+		if self.bOverview1TableCreated:
+			screen.deleteWidget(self.TABLE_OVERVIEW1)
+			self.bOverview1TableCreated = False
 		self.hideSpecialists()
 		if self.bOverview2TableCreated:
 			screen.deleteWidget(self.TABLE_OVERVIEW2)
@@ -1294,9 +1294,9 @@ class CvDomesticAdvisor:
 	def drawOverview4Contents(self):
 		self.clearFinanceWidgets()
 		screen = self.getScreen()
-		if self.bOverviewTableCreated:
-			screen.deleteWidget(self.TABLE_OVERVIEW)
-			self.bOverviewTableCreated = False
+		if self.bOverview1TableCreated:
+			screen.deleteWidget(self.TABLE_OVERVIEW1)
+			self.bOverview1TableCreated = False
 		self.hideSpecialists()
 		if self.bOverview2TableCreated:
 			screen.deleteWidget(self.TABLE_OVERVIEW2)
@@ -1483,24 +1483,24 @@ class CvDomesticAdvisor:
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
 				popupInfo.setText(u"showDomesticAdvisor")
 				popupInfo.addPopup(inputClass.getData1())
-			elif self.iPage == self.PAGE_OVERVIEW:
+			elif self.iPage == self.PAGE_OVERVIEW1:
 				self.updateAppropriateCitySelection()
 				self.updateSpecialists()
 		return 0
 	
 	def updateAppropriateCitySelection(self):
-		if self.iPage != self.PAGE_OVERVIEW:
+		if self.iPage != self.PAGE_OVERVIEW1:
 			return
 		if self.iActivePlayer != CyGame().getActivePlayer():
 			self.listSelectedCities = []
 			return
 		nCities = gc.getPlayer(self.iActivePlayer).getNumCities()
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
-		screen.updateAppropriateCitySelection( self.TABLE_OVERVIEW, nCities, 1 )
+		screen.updateAppropriateCitySelection( self.TABLE_OVERVIEW1, nCities, 1 )
 		self.listSelectedCities = []
 		for i in range(nCities):
-			if screen.isRowSelected(self.TABLE_OVERVIEW, i):
-				self.listSelectedCities.append(screen.getTableText(self.TABLE_OVERVIEW, 1, i))
+			if screen.isRowSelected(self.TABLE_OVERVIEW1, i):
+				self.listSelectedCities.append(screen.getTableText(self.TABLE_OVERVIEW1, 1, i))
 								
 	def update(self, fDelta):
 		if self.iPage == self.PAGE_FINANCE:
@@ -1521,7 +1521,7 @@ class CvDomesticAdvisor:
 			elif self.iPage == self.PAGE_OVERVIEW4:
 				updater = self.updateTable4
 			else:
-				updater = self.updateTable
+				updater = self.updateTable1
 
 			i = 0
 			(pLoopCity, iter) = player.firstCity(false)
@@ -1530,7 +1530,7 @@ class CvDomesticAdvisor:
 				i += 1
 				(pLoopCity, iter) = player.nextCity(iter, false)
 
-			if self.iPage == self.PAGE_OVERVIEW:
+			if self.iPage == self.PAGE_OVERVIEW1:
 				self.updateSpecialists()
 		
 		return
