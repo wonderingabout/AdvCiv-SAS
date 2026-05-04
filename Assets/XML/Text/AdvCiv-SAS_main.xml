@@ -32,6 +32,58 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
 		<English>Bonuses</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_UNITS_TAB</Tag>
+		<English>Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB</Tag>
+		<English>Battles</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_EMPTY</Tag>
+		<English>No recorded battles for this player yet.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_LOG_BUTTON</Tag>
+		<English>Log</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_WON</Tag>
+		<English>Won</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_LOST</Tag>
+		<English>Lost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN</Tag>
+		<English>Turn</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_YEAR</Tag>
+		<English>Year</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RESULT</Tag>
+		<English>Result</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ATTACKER</Tag>
+		<English>Attacker</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_DEFENDER</Tag>
+		<English>Defender</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID</Tag>
+		<English>PID</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT</Tag>
+		<English>Plot</English>
+	</TEXT>
 
 
 
@@ -3105,15 +3157,15 @@ Created as part of AdvCiv-SAS improvements
 		<English>Ashoka</English>
 	</TEXT>
 	<!-- 002b: Shortened leader names -->
-	<!-- custom: was Augustus (in Warlords Civ4GameTextObjects XML) -->
+	<!-- custom: increased to "Augustus Caesar" (in Warlords Civ4GameTextObjects XML), then reduced again to "Augustus" (see Willem) -->
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
-		<English>Augustus Caesar</English>
+		<English>Augustus</English>
 	</TEXT>
-	<!-- custom: was Willem -->
+	<!-- custom: increased it to "Willem van Oranje", then reduced back to "Willhem" as it was longest leader name and causing scoreboard to be too wide and overflow laterally to the left under our advisors -->
 	<TEXT>
 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
-		<English>Willem van Oranje</English>
+		<English>Willem</English>
 	</TEXT>
 	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
 	<TEXT>
@@ -3125,10 +3177,10 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
 		<English>Alexander III</English>
 	</TEXT>
-	<!-- custom: was Tokugawa -->
+	<!-- custom: increased it to "Tokugawa Ieyasu", then reduced it back to "Tokugawa" (see Willem) -->
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
-		<English>Tokugawa Ieyasu</English>
+		<English>Tokugawa</English>
 	</TEXT>
 	<!-- custom: was Genghis in some languages or some other version -->
 	<TEXT>

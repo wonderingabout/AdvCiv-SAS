@@ -216,6 +216,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES</DefineName>
 		<iDefineIntVal>32</iDefineIntVal>
 	</Define>
+	<!-- custom: max saved battle-history rows per player for Military Advisor Battles tab. 0 disables recording; -1 keeps all future entries. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLE_HISTORY_MAX_ENTRIES</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
 
 
 

@@ -24,6 +24,7 @@ import sys
 import CvWorldBuilderScreen
 import CvAdvisorUtils
 import CvTechChooser
+import SASBattleHistory
 
 gc = CyGlobalContext()
 localText = CyTranslator()
@@ -366,6 +367,8 @@ class CvEventManager:
 	def onCombatResult(self, argsList):
 		'Combat Result'
 		pWinner,pLoser = argsList
+		# <!-- custom: record battle rows at the event source so the Military Advisor can show a save-persistent battle timeline without DLL changes. (GPT-5.5) -->
+		SASBattleHistory.recordCombatResult(pWinner, pLoser)
 		playerX = PyPlayer(pWinner.getOwner())
 		unitX = PyInfo.UnitInfo(pWinner.getUnitType())
 		playerY = PyPlayer(pLoser.getOwner())
@@ -380,10 +383,11 @@ class CvEventManager:
 				playerY.getID(), playerY.getCivilizationName(), unitY.getDescription()))
 
 	def onCombatLogCalc(self, argsList):
-		'Combat Result'	
+		'Combat Result'
 		genericArgs = argsList[0][0]
 		cdAttacker = genericArgs[0]
 		cdDefender = genericArgs[1]
+		SASBattleHistory.noteCombatActors(cdAttacker, cdDefender)
 		iCombatOdds = genericArgs[2]
 		CvUtil.combatMessageBuilder(cdAttacker, cdDefender, iCombatOdds)
 		
