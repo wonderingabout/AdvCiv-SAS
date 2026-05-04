@@ -163,6 +163,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Avoid fluff like `================`, keep it nice and simple and clean.
 - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+- Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read. Empirically, it happened to [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) or [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and we could resolve it by adding a newline at end of file, saving, then deleting it (not undoing, so we preserve the change) or some other minor modifications (this is likely why VS Code shows no diff lines changed but the file is still not removed from changed files), then git staging this file only, committing it so the massive noisy diff normalizes, and then reapplying our proper file (note that you need to reapply it in same expected format, usually CRLF not LF, else you'd have every line to be a diff (git would assume we changed it all from CRLF to LF)).
 
 ### Python (Civ4)
 
