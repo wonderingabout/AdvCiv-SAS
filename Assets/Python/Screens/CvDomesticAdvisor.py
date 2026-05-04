@@ -72,6 +72,7 @@ class CvDomesticAdvisor:
 		self.TABLE_OVERVIEW4 = "CityListBackground4"
 		self.OVERVIEW_CITY_COL_WIDTH = 100
 		self.OVERVIEW_RELIGION_BASE_COL_WIDTH = 50
+		self.OVERVIEW_CORPORATION_BASE_COL_WIDTH = 50
 		self.OVERVIEW_PRODUCING_BASE_COL_WIDTH = 132
 		self.bOverviewTableCreated = False
 		self.bOverview2TableCreated = False
@@ -364,6 +365,21 @@ class CvDomesticAdvisor:
 
 	def getOverviewProducingColumnWidth(self):
 		return self.OVERVIEW_PRODUCING_BASE_COL_WIDTH - (self.getOverviewReligionColumnWidth() - self.OVERVIEW_RELIGION_BASE_COL_WIDTH)
+
+	def getOverviewCorporationColumnWidth(self):
+		iMaxCityCorporations = 0
+		player = gc.getPlayer(self.iActivePlayer)
+		(pLoopCity, iter) = player.firstCity(false)
+		while(pLoopCity):
+			iCityCorporations = 0
+			for iCorp in range(gc.getNumCorporationInfos()):
+				if pLoopCity.isHeadquartersByType(iCorp) or pLoopCity.isActiveCorporation(iCorp):
+					iCityCorporations += 1
+			iMaxCityCorporations = max(iMaxCityCorporations, iCityCorporations)
+			(pLoopCity, iter) = player.nextCity(iter, false)
+		# <!-- custom: mirror religion-column sizing for corporations; Overview 4 has spare width, so this does not need to borrow from another column. (GPT-5.5) -->
+		iCorporationGlyphs = min(gc.getNumCorporationInfos(), iMaxCityCorporations)
+		return max(self.OVERVIEW_CORPORATION_BASE_COL_WIDTH, (self.OVERVIEW_CORPORATION_BASE_COL_WIDTH * iCorporationGlyphs + 2) / 3)
 
 	def setupOverviewTable(self, szTable, iColumns):
 		screen = self.getScreen()
@@ -1167,7 +1183,7 @@ class CvDomesticAdvisor:
 
 		player = gc.getPlayer(self.iActivePlayer)
 
-		screen = self.setupOverviewTable(self.TABLE_OVERVIEW3, 24)
+		screen = self.setupOverviewTable(self.TABLE_OVERVIEW3, 25)
 		self.bOverview3TableCreated = True
 
 		i = 0
@@ -1186,29 +1202,30 @@ class CvDomesticAdvisor:
 		screen = self.getScreen()
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 0, "", (24 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 1, self.getOverviewHeaderLabel(self.HEADER_NAME), (self.OVERVIEW_CITY_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 2, self.getOverviewHeaderLabel(self.HEADER_CULTURE), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 3, self.getOverviewHeaderLabel(self.HEADER_CULTURE + u"thr"), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 4, self.getOverviewHeaderLabel(self.HEADER_CULTURE + u"R"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 5, self.getOverviewHeaderLabel(self.HEADER_CULTURE + u"T"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 6, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 7, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"thr"), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 8, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"base"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 9, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"R"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 10, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 11, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"T"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 12, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"#"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 2, self.getOverviewHeaderLabel(self.HEADER_POPULATION), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 3, self.getOverviewHeaderLabel(self.HEADER_CULTURE), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 4, self.getOverviewHeaderLabel(self.HEADER_CULTURE + u"thr"), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 5, self.getOverviewHeaderLabel(self.HEADER_CULTURE + u"R"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 6, self.getOverviewHeaderLabel(self.HEADER_CULTURE + u"T"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 7, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 8, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"thr"), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 9, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"base"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 10, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"R"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 11, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 12, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"T"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 13, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"#"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 		# <!-- custom: keep remaining city-level modifiers on Overview 3; Overview 2 already covers yield, commerce, and trade-route modifiers, and zero cells stay blank for scanning. (GPT-5.5) -->
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 13, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE + u"%"), (37 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 14, self.getOverviewHeaderLabel(u"WW%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 15, self.getOverviewHeaderLabel(u"HA%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 16, self.getOverviewHeaderLabel(self.HEADER_UNHEALTH + u"%"), (37 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 17, self.getOverviewHeaderLabel(u"Mil%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 18, self.getOverviewHeaderLabel(u"Space%"), (42 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 19, self.getOverviewHeaderLabel(u"Air%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 20, self.getOverviewHeaderLabel(u"Nuke%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 21, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE + u"D%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 22, self.getOverviewHeaderLabel(u"XP"), (30 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 23, self.getOverviewHeaderLabel(u"SXP"), (30 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 14, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE + u"%"), (37 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 15, self.getOverviewHeaderLabel(u"WW%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 16, self.getOverviewHeaderLabel(u"HA%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 17, self.getOverviewHeaderLabel(self.HEADER_UNHEALTH + u"%"), (37 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 18, self.getOverviewHeaderLabel(u"Mil%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 19, self.getOverviewHeaderLabel(u"Space%"), (42 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 20, self.getOverviewHeaderLabel(u"Air%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 21, self.getOverviewHeaderLabel(u"Nuke%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 22, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE + u"D%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 23, self.getOverviewHeaderLabel(u"XP"), (30 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 24, self.getOverviewHeaderLabel(u"SXP"), (30 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 	def updateTable3(self, pLoopCity, i):
 		screen = self.getScreen()
@@ -1223,15 +1240,16 @@ class CvDomesticAdvisor:
 		elif pLoopCity.isGovernmentCenter():
 			szName += (u"%c" % CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
 		screen.setTableText( self.TABLE_OVERVIEW3, 1, i, szFontTagOpen + szName + szFontTagClose, "", WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		iCultureTimes100 = pLoopCity.getCultureTimes100(self.iActivePlayer)
 		iCultureTotal = iCultureTimes100 / 100
 		iCultureThreshold = pLoopCity.getCultureThreshold()
-		screen.setTableInt( self.TABLE_OVERVIEW3, 2, i, szFontTagOpen + unicode(iCultureTotal) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 3, i, szFontTagOpen + unicode(iCultureThreshold) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 3, i, szFontTagOpen + unicode(iCultureTotal) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 4, i, szFontTagOpen + unicode(iCultureThreshold) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		iCultureRate = pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_CULTURE)
-		screen.setTableInt( self.TABLE_OVERVIEW3, 4, i, szFontTagOpen + unicode(iCultureRate) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 5, i, szFontTagOpen + unicode(iCultureRate) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		iCultureRateTimes100 = pLoopCity.getCommerceRateTimes100(CommerceTypes.COMMERCE_CULTURE)
 		szCultTurns = u"-"
@@ -1239,18 +1257,18 @@ class CvDomesticAdvisor:
 			iCultureLeftTimes100 = 100 * iCultureThreshold - iCultureTimes100
 			if iCultureLeftTimes100 > 0:
 				szCultTurns = unicode((iCultureLeftTimes100 + iCultureRateTimes100 - 1) / iCultureRateTimes100)
-		screen.setTableInt( self.TABLE_OVERVIEW3, 5, i, szFontTagOpen + szCultTurns + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 6, i, szFontTagOpen + szCultTurns + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		iGPProgress = pLoopCity.getGreatPeopleProgress()
 		iGPThreshold = gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(False)
 		iGPBaseRate = pLoopCity.getBaseGreatPeopleRate()
 		iGPR = pLoopCity.getGreatPeopleRate()
 		iGPModifier = pLoopCity.getTotalGreatPeopleRateModifier() - 100
-		screen.setTableInt( self.TABLE_OVERVIEW3, 6, i, szFontTagOpen + unicode(iGPProgress) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 7, i, szFontTagOpen + unicode(iGPThreshold) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 8, i, szFontTagOpen + unicode(iGPBaseRate) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 9, i, szFontTagOpen + unicode(iGPR) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 10, i, szFontTagOpen + self.getSignedModifierText(iGPModifier) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 7, i, szFontTagOpen + unicode(iGPProgress) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 8, i, szFontTagOpen + unicode(iGPThreshold) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 9, i, szFontTagOpen + unicode(iGPBaseRate) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 10, i, szFontTagOpen + unicode(iGPR) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 11, i, szFontTagOpen + self.getSignedModifierText(iGPModifier) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		szGPTurns = u"-"
 		if iGPR > 0:
 			iGPPLeft = iGPThreshold - iGPProgress
@@ -1259,19 +1277,19 @@ class CvDomesticAdvisor:
 				if iTurnsLeft * iGPR < iGPPLeft:
 					iTurnsLeft += 1
 				szGPTurns = unicode(iTurnsLeft)
-		screen.setTableInt( self.TABLE_OVERVIEW3, 11, i, szFontTagOpen + szGPTurns + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 12, i, szFontTagOpen + unicode(pLoopCity.getNumGreatPeople()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 13, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getMaintenanceModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 14, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getWarWearinessModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 15, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getHurryAngerModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 16, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getUnhealthyPopulationModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 17, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getMilitaryProductionModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 18, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getSpaceProductionModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 19, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getAirModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 20, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getNukeModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 21, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getEspionageDefenseModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 22, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 23, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getSpecialistFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 12, i, szFontTagOpen + szGPTurns + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 13, i, szFontTagOpen + unicode(pLoopCity.getNumGreatPeople()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 14, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getMaintenanceModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 15, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getWarWearinessModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 16, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getHurryAngerModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 17, i, szFontTagOpen + self.getInvertedSignedModifierText(pLoopCity.getUnhealthyPopulationModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 18, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getMilitaryProductionModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 19, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getSpaceProductionModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 20, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getAirModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 21, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getNukeModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 22, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getEspionageDefenseModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 23, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW3, 24, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getSpecialistFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 	def drawOverview4Contents(self):
 		self.clearFinanceWidgets()
@@ -1316,7 +1334,7 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 2, self.getOverviewHeaderLabel(self.HEADER_POPULATION), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 3, self.getOverviewHeaderLabel(self.HEADER_FOUNDED), (75 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 4, self.getOverviewHeaderLabel(self.HEADER_REAL_POPULATION), (80 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 5, self.getOverviewHeaderLabel(self.HEADER_CORPORATIONS), (75 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 5, self.getOverviewHeaderLabel(self.HEADER_CORPORATIONS), (self.getOverviewCorporationColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
 		iSpecColW = 33
 		for k in range(len(self.aOverview4Specialists)):
 			screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 6 + k, self.aOverview4SpecialistHeaders[k], (iSpecColW * self.nTableWidth) / self.nNormalizedTableWidth )
