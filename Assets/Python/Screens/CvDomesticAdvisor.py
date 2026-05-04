@@ -1,5 +1,9 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -11,13 +15,13 @@ from SASFontUtils import *
 from SASUtils import *
 import SASTextScale
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base domestic-advisor text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
-
+#
 #	IMPORTANT INFORMATION
 #	
 #	All widget names MUST be unique when creating screens.  If you create a widget named 'Hello', and then try to create another named 'Hello', it will modify the first hello.
 #
 #	Also, when attaching widgets, 'Background' is a reserve word meant for the background widget.  Do NOT use 'Background' to name any widget, but when attaching to the background, please use the 'Background' keyword.
-
+#
 #  Thanks to Lee Reeves, AKA Taelis on civfanatics.com
 #  Thanks to Solver
 
@@ -35,6 +39,10 @@ class CvDomesticAdvisor:
 		self.iLanguageLoaded = -1
 		self.iActivePlayer = CyGame().getActivePlayer()
 		self.DEBUG_DROPDOWN_ID = "DomesticAdvisorDropdownWidget"
+		# <!-- custom: minimal shared-advisor widget plumbing only for placeAdvisorLegendLink; Domestic otherwise uses fixed widget IDs and finance-only dynamic widgets. (GPT-5.5) -->
+		self.WIDGET_ID = "DomesticAdvisorWidget"
+		self.nWidgetCount = 0
+		self.Z_CONTROLS = -0.1
 		# <!-- custom: keep screen-independent advisor edge constants in init; runtime resolution-dependent geometry is computed in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
 		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
@@ -266,6 +274,7 @@ class CvDomesticAdvisor:
 
 	def drawTabs(self):
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+		self.nWidgetCount = 0
 		iX = 0
 		for iPage in range(len(self.PAGE_NAME_LIST)):
 			szLabel = self.PAGE_NAME_LIST[iPage]
@@ -274,9 +283,15 @@ class CvDomesticAdvisor:
 			szText = sasFontTagTitle + szLabel + SAS_FONT_TAG_CLOSE
 			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
 			iX += self.PAGE_LINK_WIDTH[iPage]
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND", self.nScreenWidth - 12, self.Y_TITLE)
 
 	def getScreen(self):
 		return CyGInterfaceScreen("DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR)
+
+	def getNextWidgetName(self):
+		szName = self.WIDGET_ID + str(self.nWidgetCount)
+		self.nWidgetCount += 1
+		return szName
 
 	def configureFinanceLayout(self):
 		iInnerMargin = self.FINANCE_INNER_MARGIN
