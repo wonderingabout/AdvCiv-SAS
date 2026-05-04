@@ -151,7 +151,7 @@ FAVORITE_LEADER_TYPE_CIVIC = 1
 
 
 
-# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude Code Opus 4.5) -->
+# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude code Opus 4.5) -->
 #
 # <!-- custom: Common constants for chart tables -->
 CHART_TABLE_MARGIN = 4

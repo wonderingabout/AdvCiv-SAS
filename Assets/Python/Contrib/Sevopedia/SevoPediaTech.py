@@ -357,7 +357,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
 		screen.attachLabel(panelName, "", "  ")
 
-		# <!-- custom: Music system uses packed keys (unlike Movies which use separate type+id). (Claude Code Sonnet 4.5) -->
+		# <!-- custom: Music system uses packed keys (unlike Movies which use separate type+id). (Claude code Sonnet 4.5) -->
 		iMusicType = self.top.SAS_PEDIA_MUSIC_TYPE_TECH
 		iPackedMusic = self.top.SAS_packMusicKey(iMusicType, self.iTech)
 
@@ -365,7 +365,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			buttonSize = 64
 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
 			# X: Standard centering works correctly.
-			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
 			buttonX = (self.W_MUSIC - buttonSize) / 2
 			buttonY = 10
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
@@ -777,7 +777,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		# Route movement change (faster roads)
 		# <!-- custom: use BUTTON_SIZE_46 for interface art buttons - this is the largest size the engine supports for attachImageButton;
-		# unintended but beneficial side effect: the smaller size helps visually distinguish these "ability" icons from the 64px game object buttons above (Claude Code Opus 4.5) -->
+		# unintended but beneficial side effect: the smaller size helps visually distinguish these "ability" icons from the 64px game object buttons above (Claude code Opus 4.5) -->
 		for iRoute in range(gc.getNumRouteInfos()):
 			if gc.getRouteInfo(iRoute).getTechMovementChange(self.iTech) != 0:
 				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MOVE_BONUS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MOVE_BONUS, self.iTech, -1, False)

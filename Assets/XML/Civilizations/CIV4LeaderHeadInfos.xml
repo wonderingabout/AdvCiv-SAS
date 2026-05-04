@@ -12602,7 +12602,7 @@ Created as part of AdvCiv-SAS improvements
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: Willhem_Van_Oranje -->
+		<LeaderHeadInfo> <!-- custom: Willem_Van_Oranje -->
 			<Type>LEADER_WILLEM_VAN_ORANJE</Type>
 			<Description>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Description>
 			<Civilopedia>TXT_KEY_LEADER_WILLEM_VAN_ORANJE_PEDIA</Civilopedia>

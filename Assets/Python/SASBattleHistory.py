@@ -106,7 +106,7 @@ def recordCombatResult(pWinner, pLoser):
 	)
 	if _PENDING_COMBAT_ACTORS is not None:
 		iAttacker, iDefender = _PENDING_COMBAT_ACTORS[:2]
-		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude Code Opus 4.7 review. (GPT-5.5) -->
+		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude code Opus 4.7 review. (GPT-5.5) -->
 		if (iAttacker == iWinner and iDefender == iLoser) or (iAttacker == iLoser and iDefender == iWinner):
 			entry += _PENDING_COMBAT_ACTORS
 	_PENDING_COMBAT_ACTORS = None

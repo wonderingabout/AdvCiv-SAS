@@ -793,7 +793,7 @@ class CvMainInterface:
 		# <!-- custom: lock emoji paths for the always-expand scoreboard toggle. (Claude code Sonnet 4.6 + Claude code Opus 4.7) -->
 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
 		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED").getPath()
-		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
+		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
 		self.szBuildFilterTooltipNational = "TXT_KEY_BUILDING_FILTER_NATIONAL"
@@ -8312,7 +8312,7 @@ class CvMainInterface:
 			return self.handleRawYieldsButtons(inputClass)
 # BUG - Raw Yields - end
 
-		# <!-- custom: building filter button hover tooltips (Claude Code Sonnet 4.5) -->
+		# <!-- custom: building filter button hover tooltips (Claude code Sonnet 4.5) -->
 		if (inputClass.getFunctionName().startswith("BuildFilter")):
 			return self.handleBuildingFilterButtons(inputClass)
 		# <!-- custom: end - building filter button hover tooltips -->

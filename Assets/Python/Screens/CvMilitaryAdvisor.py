@@ -48,6 +48,7 @@ class CvMilitaryAdvisor:
 		self.UNIT_ICON_ID = "MilitaryAdvisorUnitIcon"
 		self.GREAT_GENERAL_BAR_ID = "MilitaryAdvisorGreatGeneralBar"
 		self.GREAT_GENERAL_LABEL_ID = "MilitaryAdvisorGreatGeneralLabel"
+		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
 		self.BATTLE_PLOT_COL_ID = 15
@@ -224,10 +225,12 @@ class CvMilitaryAdvisor:
 		screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		self.drawTabs()
 
-		self.iActivePlayer = gc.getGame().getActivePlayer()
 		if self.iActivePage == self.PAGE_BATTLES:
+			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 			self.drawBattleHistory()
 			return
+
+		self.iActivePlayer = gc.getGame().getActivePlayer()
 
 		# Minimap initialization
 		self.H_MAP = (self.W_MAP * CyMap().getGridHeight()) / CyMap().getGridWidth()
@@ -346,6 +349,8 @@ class CvMilitaryAdvisor:
 
 	def drawBattleHistory(self):
 		screen = self.getScreen()
+		# <!-- custom: Units tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
+		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 		iX = self.SIDE_MARGIN
 		iY = 65
 		iW = self.W_SCREEN - 2 * self.SIDE_MARGIN
@@ -423,6 +428,7 @@ class CvMilitaryAdvisor:
 			print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_EMPTY")
 			return
 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
+		self.dbgLogBattleHistoryPlayers(aEntries)
 		print("Turn | Year | Result | AttackerPID | AttackerStrC | AttackerStrM | Attacker | DefenderPID | DefenderStrC | DefenderStrM | Defender | X | Y")
 		for entry in aEntries:
 			tColumns = self.getBattleEntryColumns(entry)
@@ -445,6 +451,27 @@ class CvMilitaryAdvisor:
 				iY,
 			))
 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_END")
+
+	def dbgLogBattleHistoryPlayers(self, aEntries):
+		# <!-- custom: Battles log uses PID columns because rows are relative to the inspected player; unlike the more or less universal Info-screen timeline, this needs a compact PID legend so copied logs identify duplicate leaders/civs clearly. (GPT-5.5) -->
+		aiPlayers = []
+		for entry in aEntries:
+			tColumns = self.getBattleEntryColumns(entry)
+			if tColumns is None:
+				continue
+			iAttacker = tColumns[3]
+			iDefender = tColumns[7]
+			if iAttacker not in aiPlayers:
+				aiPlayers.append(iAttacker)
+			if iDefender not in aiPlayers:
+				aiPlayers.append(iDefender)
+		aiPlayers.sort()
+		print("Players: PID | PlayerName | LeaderType | CivType")
+		for iPlayer in aiPlayers:
+			kPlayer = gc.getPlayer(iPlayer)
+			szLeaderType = gc.getLeaderHeadInfo(kPlayer.getLeaderType()).getType()
+			szCivType = gc.getCivilizationInfo(kPlayer.getCivilizationType()).getType()
+			print("Player: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
 		
 	def drawCombatExperience(self):
 		if self.iActivePage != self.PAGE_UNITS:
@@ -478,6 +505,9 @@ class CvMilitaryAdvisor:
 				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_MILITARY, iX, iY, -1, 0.6)
 
 	def getBattlePlotFromInput(self, inputClass):
+		# <!-- custom: prefer the row cache because table cell data1/data2 can empirically arrive as valid-looking default map-corner coordinates (e.g. 0,0), making the camera jump to a corner instead of the battle plot. (GPT-5.5) -->
+		if inputClass.getData() in self.BATTLE_ROW_PLOTS:
+			return self.BATTLE_ROW_PLOTS[inputClass.getData()]
 		iX = inputClass.getData1()
 		iY = inputClass.getData2()
 		if 0 <= iX < CyMap().getGridWidth() and 0 <= iY < CyMap().getGridHeight():
@@ -486,6 +516,11 @@ class CvMilitaryAdvisor:
 																				
 	# handle the input for this screen...
 	def handleInput (self, inputClass):
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
+			self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), self.DEBUG_DROPDOWN_ID)
+			self.hideScreen()
+			self.interfaceScreen()
+			return 1
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.BATTLE_LOG_BUTTON_ID:
 			self.dbgLogBattleHistory()
 			return 1

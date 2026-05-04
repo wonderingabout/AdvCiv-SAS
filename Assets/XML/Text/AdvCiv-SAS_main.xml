@@ -3162,7 +3162,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
 		<English>Augustus</English>
 	</TEXT>
-	<!-- custom: increased it to "Willem van Oranje", then reduced back to "Willhem" as it was longest leader name and causing scoreboard to be too wide and overflow laterally to the left under our advisors -->
+	<!-- custom: increased it to "Willem van Oranje", then reduced back to "Willem" as it was longest leader name and causing scoreboard to be too wide and overflow laterally to the left under our advisors -->
 	<TEXT>
 	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
 		<English>Willem</English>
