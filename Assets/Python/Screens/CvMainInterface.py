@@ -790,8 +790,9 @@ class CvMainInterface:
 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
-		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
+		# <!-- custom: lock emoji paths for the always-expand scoreboard toggle. (Claude code Sonnet 4.6 + Claude code Opus 4.7) -->
 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
@@ -7333,6 +7334,11 @@ class CvMainInterface:
 		# <!-- custom: always-expand toggle sits to the left of the scroll buttons with a small gap. (Claude code Sonnet 4.6) -->
 		screen.moveItem("ScoreExpandToggle", gPoint("ScoreTextLowerRight").x() - 3 * iSScrollBtnSz - HSPACE(6), iSScrollY, -0.3)
 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
+		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
+		if self.bScoreAlwaysExpand:
+			screen.changeImageButton("ScoreExpandToggle", self.szScoreExpandTogglePath)
+		else:
+			screen.changeImageButton("ScoreExpandToggle", self.szScoreExpandToggleOffPath)
 		screen.show("ScoreExpandToggle")
 # BUG - Align Icons - start
 		bAlignIcons = ScoreOpt.isAlignIcons()

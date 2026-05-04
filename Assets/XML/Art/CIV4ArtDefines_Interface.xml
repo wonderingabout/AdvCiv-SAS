@@ -1783,11 +1783,6 @@ Created as part of AdvCiv-SAS improvements
 			<Type>SAS_EMOJI_HERB</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Herb/1f33f_64px.dds</Path>
 		</InterfaceArtInfo>
-		<!-- 🔒 emoji from emojiterra -->
-		<InterfaceArtInfo>
-			<Type>SAS_EMOJI_LOCKED</Type>
-			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds</Path>
-		</InterfaceArtInfo>
 		<!-- ⚙️ emoji from emojiterra -->
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_GEAR</Type>
@@ -1882,6 +1877,16 @@ Created as part of AdvCiv-SAS improvements
 		<InterfaceArtInfo>
 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🔒 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_LOCKED</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🔓 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_UNLOCKED</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds</Path>
 		</InterfaceArtInfo>
 		<!-- custom: extracted from GameFont.tga with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf. We found the higher quality icons (21x20) in ri mod, and used them instead because base civ4 only had GameFont_75.tga (16x16) icons (see also KI#117). We added them as dds here because we couldn't insert them in sevopedia leader attitude buttons easily. Also reduced to 20x20 else the dds does not display ingame. -->
 		<InterfaceArtInfo>
