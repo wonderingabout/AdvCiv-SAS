@@ -361,10 +361,7 @@ class CvPolicyAdvisorScreen:
 
 		if (CyGame().isDebugMode()):
 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-			for j in range(gc.getMAX_PLAYERS()):
-				if (gc.getPlayer(j).isAlive()):
-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
+			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bSelectActive=False)
 
 		# Draw Contents
 		self.drawContents()
@@ -1340,20 +1337,17 @@ class CvPolicyAdvisorScreen:
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
 			screen = self.getScreen()
 			if self.iPage == self.PAGE_POLICY:
-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
-				self.setActivePlayer(screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex))
+				self.setActivePlayer(getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID))
 				self.drawContents()
 			elif self.iPage == self.PAGE_RELIGION:
 				szWidgetName = inputClass.getFunctionName()
 				if szWidgetName != self.RELIGION_TABLE_ID:
-					iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
-					self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
+					self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
 					self.drawReligionInfo()
 					self.drawHelpInfo()
 					self.drawCityInfo(self.iReligionSelected)
 			else:
-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
+				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
 				self.drawCorporationInfo()
 				self.drawCorporationCityInfo(self.iCorporationSelected)
 			return 1

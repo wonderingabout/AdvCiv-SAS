@@ -623,13 +623,7 @@ class CvForeignAdvisor:
 		
 		if (CyGame().isDebugMode()):
 			self.szDropdownName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: Exclude Barbarians
-				if (gc.getPlayer(j).isAlive()):
-					bSelected = False
-					if j == self.iActiveLeader:
-						bSelected = True
-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, bSelected )
+			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActiveLeader) # advc.007: Exclude Barbarians
 
 		CyInterface().setDirty(InterfaceDirtyBits.Foreign_Screen_DIRTY_BIT, False)
 		
@@ -2467,8 +2461,7 @@ class CvForeignAdvisor:
 			if (inputClass.getFunctionName() + str(inputClass.getID()) == self.getWidgetName(self.DEBUG_DROPDOWN_ID)):
 				print 'debug dropdown event'
 				szName = self.getWidgetName(self.DEBUG_DROPDOWN_ID)
-				iIndex = self.getScreen().getSelectedPullDownID(szName)
-				self.iActiveLeader = self.getScreen().getPullDownData(szName, iIndex)
+				self.iActiveLeader = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), szName)
 				self.drawContents(True)
 				return 1
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):

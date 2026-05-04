@@ -819,10 +819,7 @@ class CvInfoScreen:
 		if (CyGame().isDebugMode()):
 			self.DEBUG_DROPDOWN_ID = "InfoScreenDropdownWidget"
 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: was MAX_PLAYERS
-				if (gc.getPlayer(j).isAlive()):
-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False)
+			addAdvisorDebugDropdown(screen, self.szDropdownName, CyGame().getActivePlayer(), bSelectActive=False) # advc.007: was MAX_PLAYERS
 
 		self.iActivePlayer = CyGame().getActivePlayer()
 		self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
@@ -4222,8 +4219,7 @@ class CvInfoScreen:
 
 			# Debug dropdown
 			if (inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID):
-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
+				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
 				self.reset() # advc.001d
 				self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
 				self.iActiveTeam = self.pActivePlayer.getTeam()

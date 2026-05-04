@@ -2143,10 +2143,7 @@ class CvVictoryScreen:
 		# civ picker dropdown
 		if (CyGame().isDebugMode()):
 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
-			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-			for j in range(gc.getMAX_CIV_PLAYERS()): # advc.007: barbs excluded
-				if (gc.getPlayer(j).isAlive()):
-					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
+			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bSelectActive=False) # advc.007: barbs excluded
 		
 		self.drawTabs()
 
@@ -2377,8 +2374,7 @@ class CvVictoryScreen:
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
 			if (sWidget == self.DEBUG_DROPDOWN_ID):
 				szName = self.DEBUG_DROPDOWN_ID
-				iIndex = self.getScreen().getSelectedPullDownID(szName)
-				self.iActivePlayer = self.getScreen().getPullDownData(szName, iIndex)
+				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), szName)
 				self.iScreen = VICTORY_CONDITION_SCREEN
 				self.showVictoryConditionScreen()
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):

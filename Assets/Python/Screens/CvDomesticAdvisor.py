@@ -79,9 +79,9 @@ class CvDomesticAdvisor:
 		self.TABLE_OVERVIEW3 = "CityListBackground3"
 		self.TABLE_OVERVIEW4 = "CityListBackground4"
 		self.OVERVIEW_CITY_COL_WIDTH = 100
-		self.OVERVIEW_RELIGION_BASE_COL_WIDTH = 50
+		self.OVERVIEW_RELIGION_BASE_COL_WIDTH = 55
 		self.OVERVIEW_CORPORATION_BASE_COL_WIDTH = 50
-		self.OVERVIEW_PRODUCING_BASE_COL_WIDTH = 132
+		self.OVERVIEW_PRODUCING_BASE_COL_WIDTH = 127
 		# <!-- custom: 40px empirically fits upscaled signed modifiers like "+150" with some leeway; keep it modest because the overview tables are otherwise nearly full. (GPT-5.5) -->
 		self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH = 40
 		self.bOverview1TableCreated = False
@@ -263,14 +263,8 @@ class CvDomesticAdvisor:
 		self.drawContents()
 
 	def drawDebugDropdown(self):
-		if not CyGame().isDebugMode():
-			return
-		screen = self.getScreen()
 		# <!-- custom: add the debug player dropdown missing from the old Domestic Advisor layout; the reworked tabbed advisor now mirrors other advisors and can inspect another player's cities without changing the real active player. (GPT-5.5) -->
-		screen.addDropDownBoxGFC(self.DEBUG_DROPDOWN_ID, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-		for iPlayer in range(gc.getMAX_PLAYERS()):
-			if gc.getPlayer(iPlayer).isAlive():
-				screen.addPullDownString(self.DEBUG_DROPDOWN_ID, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == self.iActivePlayer)
+		addAdvisorDebugDropdown(self.getScreen(), self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True)
 
 	def drawTabs(self):
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
@@ -376,7 +370,7 @@ class CvDomesticAdvisor:
 					iCityReligions += 1
 			iMaxCityReligions = max(iMaxCityReligions, iCityReligions)
 			(pLoopCity, iter) = player.nextCity(iter, false)
-		# <!-- custom: 50px fits roughly three religion glyphs with the current upscaled Domestic Advisor font; size linearly from the inspected player's widest city, capped by XML religion count, and borrow only from Producing where clipped text is acceptable. (GPT-5.5) -->
+		# <!-- custom: ~55px fits roughly three religion glyphs with the current upscaled Domestic Advisor font; size linearly from the inspected player's widest city, capped by XML religion count, and borrow only from Producing where clipped text is acceptable. (GPT-5.5) -->
 		iReligionGlyphs = min(gc.getNumReligionInfos(), iMaxCityReligions)
 		return max(self.OVERVIEW_RELIGION_BASE_COL_WIDTH, (self.OVERVIEW_RELIGION_BASE_COL_WIDTH * iReligionGlyphs + 2) / 3)
 
@@ -1483,8 +1477,7 @@ class CvDomesticAdvisor:
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED ):
 			if inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
 				screen = self.getScreen()
-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
+				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
 				self.listSelectedCities = []
 				self.drawContents()
 				return 1

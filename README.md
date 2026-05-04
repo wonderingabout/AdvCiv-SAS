@@ -88,10 +88,10 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 
 Before going more in depth about/in the changes and how to play or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or bigger size)
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (1).JPG" alt="0.34_technology_advisor (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (2).JPG" alt="0.34_technology_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (3).JPG" alt="0.34_technology_advisor (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.34_technology_advisor (4).JPG" alt="0.34_technology_advisor (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (1).JPG" alt="0.516_technology_advisor (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (2).JPG" alt="0.516_technology_advisor (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (3).JPG" alt="0.516_technology_advisor (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (4).JPG" alt="0.516_technology_advisor (4).JPG" width="250"></img>
 
 For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
 
@@ -236,13 +236,13 @@ Added with the very nice help of GPT-5.3-Codex thanks.
 We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG" alt="0.510_foreign_advisor (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG" alt="0.510_foreign_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG" alt="0.510_foreign_advisor (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG" alt="0.510_foreign_advisor (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG" alt="0.510_foreign_advisor (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG" alt="0.510_foreign_advisor (6).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG" alt="0.510_foreign_advisor (7).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (1).JPG" alt="0.513_foreign_advisor (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (2).JPG" alt="0.513_foreign_advisor (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (3).JPG" alt="0.513_foreign_advisor (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG" alt="0.513_foreign_advisor (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (1).JPG" alt="0.518_info_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (4).JPG" alt="0.518_info_screen (4).JPG" width="250"></img>

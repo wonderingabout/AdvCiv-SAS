@@ -16,10 +16,10 @@ If any images below in this readme mention a google drive link, you can access i
 
 ## Current Tech Tree ingame
 
-<img src="../Images/advisors/0.34_technology_advisor (1).JPG" alt="0.34_technology_advisor (1).JPG" width="250"></img>
-<img src="../Images/advisors/0.34_technology_advisor (2).JPG" alt="0.34_technology_advisor (2).JPG" width="250"></img>
-<img src="../Images/advisors/0.34_technology_advisor (3).JPG" alt="0.34_technology_advisor (3).JPG" width="250"></img>
-<img src="../Images/advisors/0.34_technology_advisor (4).JPG" alt="0.34_technology_advisor (4).JPG" width="250"></img>
+<img src="../Images/advisors/0.516_technology_advisor (1).JPG" alt="0.516_technology_advisor (1).JPG" width="250"></img>
+<img src="../Images/advisors/0.516_technology_advisor (2).JPG" alt="0.516_technology_advisor (2).JPG" width="250"></img>
+<img src="../Images/advisors/0.516_technology_advisor (3).JPG" alt="0.516_technology_advisor (3).JPG" width="250"></img>
+<img src="../Images/advisors/0.516_technology_advisor (4).JPG" alt="0.516_technology_advisor (4).JPG" width="250"></img>
 
 ## Additional info about the tech tree
 

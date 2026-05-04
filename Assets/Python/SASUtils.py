@@ -66,6 +66,25 @@ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
 	return aiLinkWidths
 
 
+# <!-- custom: shared debug-player dropdown for advisors; callers keep control of barbarian inclusion (MAX_PLAYERS vs MAX_CIV_PLAYERS) and active-row preselection because legacy advisors differ in both details. (GPT-5.5) -->
+def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT):
+	if not CyGame().isDebugMode():
+		return False
+	screen.addDropDownBoxGFC(szDropdownName, iX, iY, iW, WidgetTypes.WIDGET_GENERAL, -1, -1, eFont)
+	iMaxPlayers = gc.getMAX_CIV_PLAYERS()
+	if bIncludeBarbarians:
+		iMaxPlayers = gc.getMAX_PLAYERS()
+	for iPlayer in range(iMaxPlayers):
+		if gc.getPlayer(iPlayer).isAlive():
+			screen.addPullDownString(szDropdownName, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, bSelectActive and iPlayer == iActivePlayer)
+	return True
+
+
+def getAdvisorDebugDropdownSelectedPlayer(screen, szDropdownName):
+	iIndex = screen.getSelectedPullDownID(szDropdownName)
+	return screen.getPullDownData(szDropdownName, iIndex)
+
+
 
 # <!-- custom: shared strict XML lookup helper for maps/screens; raise loudly instead of silently accepting missing tags. (GPT-5.3-Codex) -->
 # <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass; done with the help of chatgpt thanks -->

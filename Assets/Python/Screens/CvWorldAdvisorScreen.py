@@ -217,11 +217,7 @@ class CvWorldAdvisorScreen:
 
 		screen.setHelpTextArea(self.W_HELP_AREA, FontTypes.SMALL_FONT, self.X_SCREEN, self.Y_SCREEN, self.Z_HELP_AREA, 1, self.ART_POPUPS_BACKGROUND_TRANSPARENT, True, True, CvUtil.FONT_LEFT_JUSTIFY, 0)
 
-		if CyGame().isDebugMode():
-			screen.addDropDownBoxGFC(self.DEBUG_DROPDOWN_ID, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
-			for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
-				if gc.getPlayer(iPlayer).isAlive():
-					screen.addPullDownString(self.DEBUG_DROPDOWN_ID, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == self.iActivePlayer)
+		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer)
 
 		self.iNumPermanentWidgets = self.nWidgetCount
 		if self.iActiveTab < 0 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
@@ -848,8 +844,7 @@ class CvWorldAdvisorScreen:
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED:
 			if inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
 				screen = self.getScreen()
-				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
-				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
+				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(screen, self.DEBUG_DROPDOWN_ID)
 				self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
 				self.iActiveTeam = self.pActivePlayer.getTeam()
 				self.pActiveTeam = gc.getTeam(self.iActiveTeam)
