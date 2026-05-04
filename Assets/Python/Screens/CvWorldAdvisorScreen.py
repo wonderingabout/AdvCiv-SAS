@@ -72,7 +72,7 @@ class CvWorldAdvisorScreen:
 		self.pActiveTeam = None
 
 	def reset(self):
-		self.iActivePlayer = CyGame().getActivePlayer()
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
 		if self.iActivePlayer == -1:
 			return
 		self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
@@ -217,7 +217,7 @@ class CvWorldAdvisorScreen:
 
 		screen.setHelpTextArea(self.W_HELP_AREA, FontTypes.SMALL_FONT, self.X_SCREEN, self.Y_SCREEN, self.Z_HELP_AREA, 1, self.ART_POPUPS_BACKGROUND_TRANSPARENT, True, True, CvUtil.FONT_LEFT_JUSTIFY, 0)
 
-		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer)
+		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bAllowVassalPerspective=True)
 
 		self.iNumPermanentWidgets = self.nWidgetCount
 		if self.iActiveTab < 0 or self.iActiveTab >= len(self.PAGE_NAME_LIST):
@@ -851,6 +851,8 @@ class CvWorldAdvisorScreen:
 				self.redrawContents()
 				return 1
 			if (self.iActiveTab == self.iBFC1ID or self.iActiveTab == self.iBFC2ID) and inputClass.getMouseX() == 0:
+				if isAdvisorReadOnlyPerspective(self.iActivePlayer):
+					return 1
 				self.getScreen().hideScreen()
 				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), True)
 				popupInfo = CyPopupInfo()

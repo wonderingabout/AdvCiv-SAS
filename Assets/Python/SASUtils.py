@@ -20,6 +20,14 @@ def _isLegendLinkEnabled():
 	return _IS_SAS_SHOW_LEGEND_LINK
 
 
+_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = None
+def _isAdvisorVassalPerspectiveEnabled():
+	global _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
+	if _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE is None:
+		_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = (gc.getDefineINT("SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE") > 0)
+	return _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
+
+
 
 # <!-- custom: shared advisor layout constants that are screen-independent (safe to read in __init__); runtime screen-dependent geometry is derived per screen from current resolution in interfaceScreen. (GPT-5.3-Codex) -->
 # <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
@@ -66,18 +74,51 @@ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
 	return aiLinkWidths
 
 
-# <!-- custom: shared debug-player dropdown for advisors; callers keep control of barbarian inclusion (MAX_PLAYERS vs MAX_CIV_PLAYERS) and active-row preselection because legacy advisors differ in both details. (GPT-5.5) -->
-def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT):
-	if not CyGame().isDebugMode():
+# <!-- custom: shared debug/vassal player dropdown for advisors. Debug mode keeps each legacy advisor's MAX_PLAYERS vs MAX_CIV_PLAYERS and active-row preselection behavior. Outside debug, selected advisors may inspect only the current active player plus alive vassals of the active player's team, not a hardcoded human slot; vassals are subordinate enough to make their domestic/world/policy state relevant, but this remains perspective-only UI access and does not reveal unrelated players or hidden map data. (GPT-5.5) -->
+def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT, bAllowVassalPerspective=False):
+	aiPlayers = getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective)
+	if len(aiPlayers) <= 0:
 		return False
+	bDebug = CyGame().isDebugMode()
 	screen.addDropDownBoxGFC(szDropdownName, iX, iY, iW, WidgetTypes.WIDGET_GENERAL, -1, -1, eFont)
-	iMaxPlayers = gc.getMAX_CIV_PLAYERS()
-	if bIncludeBarbarians:
-		iMaxPlayers = gc.getMAX_PLAYERS()
-	for iPlayer in range(iMaxPlayers):
-		if gc.getPlayer(iPlayer).isAlive():
-			screen.addPullDownString(szDropdownName, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, bSelectActive and iPlayer == iActivePlayer)
+	for iPlayer in aiPlayers:
+		screen.addPullDownString(szDropdownName, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == iActivePlayer and (bSelectActive or not bDebug))
 	return True
+
+
+def getAdvisorPerspectivePlayerIDs(bIncludeBarbarians=False, bAllowVassalPerspective=False):
+	if CyGame().isDebugMode():
+		aiPlayers = []
+		iMaxPlayers = gc.getMAX_CIV_PLAYERS()
+		if bIncludeBarbarians:
+			iMaxPlayers = gc.getMAX_PLAYERS()
+		for iPlayer in range(iMaxPlayers):
+			if gc.getPlayer(iPlayer).isAlive():
+				aiPlayers.append(iPlayer)
+		return aiPlayers
+	if not bAllowVassalPerspective or not _isAdvisorVassalPerspectiveEnabled():
+		return []
+	iActivePlayer = CyGame().getActivePlayer()
+	if iActivePlayer < 0 or not gc.getPlayer(iActivePlayer).isAlive():
+		return []
+	iActiveTeam = gc.getPlayer(iActivePlayer).getTeam()
+	aiPlayers = [iActivePlayer]
+	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+		if iPlayer != iActivePlayer and gc.getPlayer(iPlayer).isAlive() and gc.getTeam(gc.getPlayer(iPlayer).getTeam()).isVassal(iActiveTeam):
+			aiPlayers.append(iPlayer)
+	if len(aiPlayers) <= 1:
+		return []
+	return aiPlayers
+
+
+def getAdvisorValidPerspectivePlayer(iPlayer, bIncludeBarbarians=False, bAllowVassalPerspective=False):
+	if iPlayer in getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective):
+		return iPlayer
+	return CyGame().getActivePlayer()
+
+
+def isAdvisorReadOnlyPerspective(iPlayer):
+	return not CyGame().isDebugMode() and iPlayer != CyGame().getActivePlayer()
 
 
 def getAdvisorDebugDropdownSelectedPlayer(screen, szDropdownName):

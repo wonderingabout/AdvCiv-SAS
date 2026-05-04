@@ -357,11 +357,10 @@ class CvPolicyAdvisorScreen:
 		# <!-- custom: use setLabel with X_TITLE/-0.1 to match Domestic/Foreign advisor title alignment exactly; setText/X_SCREEN rendered slightly off. (GPT-5.3-Codex) -->
 		screen.setLabel(self.TITLE_NAME, "Background", self.TEXT_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
-		self.setActivePlayer(gc.getGame().getActivePlayer())						
+		self.setActivePlayer(getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True))
 
-		if (CyGame().isDebugMode()):
-			self.szDropdownName = self.DEBUG_DROPDOWN_ID
-			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bSelectActive=False)
+		self.szDropdownName = self.DEBUG_DROPDOWN_ID
+		addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bSelectActive=False, bAllowVassalPerspective=True)
 
 		# Draw Contents
 		self.drawContents()
@@ -492,7 +491,7 @@ class CvPolicyAdvisorScreen:
 		self.drawCorporationCityInfo(self.iCorporationSelected)
 
 	def refreshReligionTabData(self):
-		self.iActivePlayer = gc.getGame().getActivePlayer()
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 		if self.NUM_RELIGIONS == -1:
 			self.NUM_RELIGIONS = ReligionUtil.getNumReligions()
 			self.COL_FIRST_UNIT = self.COL_FIRST_RELIGION + self.NUM_RELIGIONS
@@ -516,7 +515,7 @@ class CvPolicyAdvisorScreen:
 		self.iReligionOriginal = self.iReligionSelected
 
 	def refreshCorporationTabData(self):
-		self.iActivePlayer = gc.getGame().getActivePlayer()
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 		if self.iCorporationSelected >= gc.getNumCorporationInfos():
 			self.iCorporationSelected = -1
 
@@ -696,7 +695,7 @@ class CvPolicyAdvisorScreen:
 		
 		# Make the revolution button
 		screen.deleteWidget(self.EXIT_NAME)
-		if (activePlayer.canRevolution(0) and bChange):			
+		if (not isAdvisorReadOnlyPerspective(self.iActivePlayer) and activePlayer.canRevolution(0) and bChange):
 			screen.setText(self.EXIT_NAME, "Background", self.TEXT_REVOLUTION, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_REVOLUTION, 1, 0)
 			screen.show(self.CANCEL_NAME)
 		else:
@@ -1069,6 +1068,8 @@ class CvPolicyAdvisorScreen:
 		return self.RELIGION_NAME + str(iReligion)
 
 	def canConvert(self, iReligion):
+		if isAdvisorReadOnlyPerspective(self.iActivePlayer):
+			return False
 		iCurrentReligion = gc.getPlayer(self.iActivePlayer).getStateReligion()
 		if iReligion == gc.getNumReligionInfos():
 			iConvertReligion = -1
@@ -1360,6 +1361,8 @@ class CvPolicyAdvisorScreen:
 			if self.iPage == self.PAGE_RELIGION:
 				if szWidgetName == self.RELIGION_TABLE_ID:
 					if inputClass.getMouseX() == 0:
+						if isAdvisorReadOnlyPerspective(self.iActivePlayer):
+							return 1
 						screen = self.getScreen()
 						screen.hideScreen()
 						pPlayer = gc.getPlayer(inputClass.getData1())

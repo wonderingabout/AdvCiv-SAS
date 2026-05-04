@@ -224,8 +224,7 @@ class CvDomesticAdvisor:
 		
 	# Screen construction function
 	def interfaceScreen(self, argsList=None):
-		if not CyGame().isDebugMode() or not gc.getPlayer(self.iActivePlayer).isAlive():
-			self.iActivePlayer = CyGame().getActivePlayer()
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 		if argsList is not None:
 			if isinstance(argsList, (list, tuple)) and len(argsList) > 0:
 				if argsList[0] in self.PAGE_IDS:
@@ -264,7 +263,7 @@ class CvDomesticAdvisor:
 
 	def drawDebugDropdown(self):
 		# <!-- custom: add the debug player dropdown missing from the old Domestic Advisor layout; the reworked tabbed advisor now mirrors other advisors and can inspect another player's cities without changing the real active player. (GPT-5.5) -->
-		addAdvisorDebugDropdown(self.getScreen(), self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True)
+		addAdvisorDebugDropdown(self.getScreen(), self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 
 	def drawTabs(self):
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
@@ -540,9 +539,11 @@ class CvDomesticAdvisor:
 		
 		self.drawHeaders1()
 		
-		self.drawSpecialists()
-		
-		self.updateAppropriateCitySelection()
+		if isAdvisorReadOnlyPerspective(self.iActivePlayer):
+			self.hideSpecialists()
+		else:
+			self.drawSpecialists()
+			self.updateAppropriateCitySelection()
 		
 		CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, true)
 
@@ -1484,6 +1485,8 @@ class CvDomesticAdvisor:
 			if self.iPage not in self.OVERVIEW_PAGE_IDS:
 				return 0
 			if (inputClass.getMouseX() == 0):
+				if isAdvisorReadOnlyPerspective(self.iActivePlayer):
+					return 1
 				screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 				screen.hideScreen()
 
@@ -1494,12 +1497,14 @@ class CvDomesticAdvisor:
 				popupInfo.setText(u"showDomesticAdvisor")
 				popupInfo.addPopup(inputClass.getData1())
 			elif self.iPage == self.PAGE_OVERVIEW1:
+				if isAdvisorReadOnlyPerspective(self.iActivePlayer):
+					return 1
 				self.updateAppropriateCitySelection()
 				self.updateSpecialists()
 		return 0
 	
 	def updateAppropriateCitySelection(self):
-		if self.iPage != self.PAGE_OVERVIEW1:
+		if self.iPage != self.PAGE_OVERVIEW1 or isAdvisorReadOnlyPerspective(self.iActivePlayer):
 			return
 		if self.iActivePlayer != CyGame().getActivePlayer():
 			self.listSelectedCities = []

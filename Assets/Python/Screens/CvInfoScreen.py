@@ -814,14 +814,15 @@ class CvInfoScreen:
 		# Help area for tooltips
 		screen.setHelpTextArea(self.W_HELP_AREA, FontTypes.SMALL_FONT, self.X_SCREEN, self.Y_SCREEN, self.Z_HELP_AREA, 1, self.ART_POPUPS_BACKGROUND_TRANSPARENT, True, True, CvUtil.FONT_LEFT_JUSTIFY, 0 )
 
-		self.DEBUG_DROPDOWN_ID = ""
+		self.DEBUG_DROPDOWN_ID = "InfoScreenDropdownWidget"
+		self.szDropdownName = self.DEBUG_DROPDOWN_ID
+		if not hasattr(self, "iActivePlayer"):
+			self.iActivePlayer = CyGame().getActivePlayer()
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
+		if not addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bSelectActive=False, bAllowVassalPerspective=True): # advc.007: was MAX_PLAYERS
+			self.DEBUG_DROPDOWN_ID = ""
 
-		if (CyGame().isDebugMode()):
-			self.DEBUG_DROPDOWN_ID = "InfoScreenDropdownWidget"
-			self.szDropdownName = self.DEBUG_DROPDOWN_ID
-			addAdvisorDebugDropdown(screen, self.szDropdownName, CyGame().getActivePlayer(), bSelectActive=False) # advc.007: was MAX_PLAYERS
-
-		self.iActivePlayer = CyGame().getActivePlayer()
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
 		self.pActivePlayer = gc.getPlayer(self.iActivePlayer)
 		self.iActiveTeam = self.pActivePlayer.getTeam()
 		self.pActiveTeam = gc.getTeam(self.iActiveTeam)

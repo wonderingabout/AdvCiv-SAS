@@ -254,6 +254,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: enable selected advisors to inspect the current active player's alive vassals outside debug mode; see SASUtils.py for behavior details. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 
