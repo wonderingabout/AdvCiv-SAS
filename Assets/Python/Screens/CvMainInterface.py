@@ -1820,8 +1820,9 @@ class CvMainInterface:
 		# By adding self.cityScreenHeadingBackgrHeight() (which is the height of the gray bar you removed, ~30 pixels), you lift the entire specialist section up by that amount.
 		# Since you hid the Specialist Header but didn't expand the Bonus Panel (Step 2.3), there was a "gap" at the top. Moving the specialists up will fill that top gap and open up a new 30-pixel gap at the bottom, right above the Great Person Bar, which is perfect for your future breakdown widget.
 		# <!-- custom: add a bit more for beautification and nicer spacing -->
+		# <!-- custom: raise the city-screen specialist stack by about one and a half citizen rows so SAS upscaling and the two-stack rows stay above the specialist breakdown without drifting too high. (GPT-5.5) -->
 		iHeightRoomForSpecialistBreakdown = (self.cityScreenHeadingBackgrHeight() + 10 +
-				self.cityScreenBottomLift())
+				((3 * (iCitizenBtnSize + iSmallVSpace)) / 2) + self.cityScreenBottomLift())
 		iBarsStackHeight = gRect("CultureBars").height()
 		iNonAdjustablesOffset = (3 * iSmallVSpace + 2 * iCitizenBtnSize +
 				iBarsStackHeight + iHeightRoomForSpecialistBreakdown)
