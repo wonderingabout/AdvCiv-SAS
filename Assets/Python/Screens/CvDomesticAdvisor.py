@@ -74,6 +74,8 @@ class CvDomesticAdvisor:
 		self.OVERVIEW_RELIGION_BASE_COL_WIDTH = 50
 		self.OVERVIEW_CORPORATION_BASE_COL_WIDTH = 50
 		self.OVERVIEW_PRODUCING_BASE_COL_WIDTH = 132
+		# <!-- custom: 40px empirically fits upscaled signed modifiers like "+150" with some leeway; keep it modest because the overview tables are otherwise nearly full. (GPT-5.5) -->
+		self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH = 40
 		self.bOverview1TableCreated = False
 		self.bOverview2TableCreated = False
 		self.bOverview3TableCreated = False
@@ -1085,13 +1087,13 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 12, self.getOverviewHeaderLabel(self.HEADER_HEALTH), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 13, self.getOverviewHeaderLabel(self.HEADER_UNHEALTH), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 14, self.getOverviewHeaderLabel(self.HEADER_HEALTH + self.HEADER_DELTA), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 15, self.getOverviewHeaderLabel(self.HEADER_FOOD + u"%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 16, self.getOverviewHeaderLabel(self.HEADER_PRODUCTION + u"%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 17, self.getOverviewHeaderLabel(self.HEADER_COMMERCE_YIELD_MODIFIER), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 15, self.getOverviewHeaderLabel(self.HEADER_FOOD + u"%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 16, self.getOverviewHeaderLabel(self.HEADER_PRODUCTION + u"%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 17, self.getOverviewHeaderLabel(self.HEADER_COMMERCE_YIELD_MODIFIER), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
 		for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
-			screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 18 + eCommerce, self.getOverviewHeaderLabel(self.HEADER_COMMERCE_MODIFIERS[eCommerce]), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 18 + CommerceTypes.NUM_COMMERCE_TYPES, self.getOverviewHeaderLabel(self.HEADER_TRADE + u"R%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 19 + CommerceTypes.NUM_COMMERCE_TYPES, self.getOverviewHeaderLabel(self.HEADER_TRADE + u"FR%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+			screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 18 + eCommerce, self.getOverviewHeaderLabel(self.HEADER_COMMERCE_MODIFIERS[eCommerce]), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 18 + CommerceTypes.NUM_COMMERCE_TYPES, self.getOverviewHeaderLabel(self.HEADER_TRADE + u"R%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW2, 19 + CommerceTypes.NUM_COMMERCE_TYPES, self.getOverviewHeaderLabel(self.HEADER_TRADE + u"FR%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
 
 	def updateTable2(self, pLoopCity, i):
 		screen = self.getScreen()
@@ -1183,7 +1185,7 @@ class CvDomesticAdvisor:
 
 		player = gc.getPlayer(self.iActivePlayer)
 
-		screen = self.setupOverviewTable(self.TABLE_OVERVIEW3, 25)
+		screen = self.setupOverviewTable(self.TABLE_OVERVIEW3, 23)
 		self.bOverview3TableCreated = True
 
 		i = 0
@@ -1211,21 +1213,19 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 8, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"thr"), (45 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 9, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"base"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 10, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"R"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 11, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 11, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 12, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"T"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 13, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON + u"#"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 		# <!-- custom: keep remaining city-level modifiers on Overview 3; Overview 2 already covers yield, commerce, and trade-route modifiers, and zero cells stay blank for scanning. (GPT-5.5) -->
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 14, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE + u"%"), (37 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 15, self.getOverviewHeaderLabel(u"WW%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 16, self.getOverviewHeaderLabel(u"HA%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 17, self.getOverviewHeaderLabel(self.HEADER_UNHEALTH + u"%"), (37 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 18, self.getOverviewHeaderLabel(u"Mil%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 19, self.getOverviewHeaderLabel(u"Space%"), (42 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 20, self.getOverviewHeaderLabel(u"Air%"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 21, self.getOverviewHeaderLabel(u"Nuke%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 22, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE + u"D%"), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 23, self.getOverviewHeaderLabel(u"XP"), (30 * self.nTableWidth) / self.nNormalizedTableWidth )
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 24, self.getOverviewHeaderLabel(u"SXP"), (30 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 14, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE + u"%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 15, self.getOverviewHeaderLabel(u"WW%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 16, self.getOverviewHeaderLabel(u"HA%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 17, self.getOverviewHeaderLabel(self.HEADER_UNHEALTH + u"%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 18, self.getOverviewHeaderLabel(u"Mil%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 19, self.getOverviewHeaderLabel(u"Space%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 20, self.getOverviewHeaderLabel(u"Air%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 21, self.getOverviewHeaderLabel(u"Nuke%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW3, 22, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE + u"D%"), (self.OVERVIEW_SIGNED_MODIFIER_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
 
 	def updateTable3(self, pLoopCity, i):
 		screen = self.getScreen()
@@ -1288,8 +1288,6 @@ class CvDomesticAdvisor:
 		screen.setTableInt( self.TABLE_OVERVIEW3, 20, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getAirModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		screen.setTableInt( self.TABLE_OVERVIEW3, 21, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getNukeModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		screen.setTableInt( self.TABLE_OVERVIEW3, 22, i, szFontTagOpen + self.getSignedModifierText(pLoopCity.getEspionageDefenseModifier()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 23, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		screen.setTableInt( self.TABLE_OVERVIEW3, 24, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getSpecialistFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 	def drawOverview4Contents(self):
 		self.clearFinanceWidgets()
@@ -1309,7 +1307,7 @@ class CvDomesticAdvisor:
 			self.bOverview4TableCreated = False
 
 		player = gc.getPlayer(self.iActivePlayer)
-		iFixedCols = 7
+		iFixedCols = 9
 		iTotalCols = iFixedCols + len(self.aOverview4Specialists)
 
 		screen = self.setupOverviewTable(self.TABLE_OVERVIEW4, iTotalCols)
@@ -1335,11 +1333,13 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 3, self.getOverviewHeaderLabel(self.HEADER_FOUNDED), (75 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 4, self.getOverviewHeaderLabel(self.HEADER_REAL_POPULATION), (80 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 5, self.getOverviewHeaderLabel(self.HEADER_CORPORATIONS), (self.getOverviewCorporationColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 6, self.getOverviewHeaderLabel(u"XP"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 7, self.getOverviewHeaderLabel(u"SXP"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 		iSpecColW = 33
 		for k in range(len(self.aOverview4Specialists)):
-			screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 6 + k, self.aOverview4SpecialistHeaders[k], (iSpecColW * self.nTableWidth) / self.nNormalizedTableWidth )
+			screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 8 + k, self.aOverview4SpecialistHeaders[k], (iSpecColW * self.nTableWidth) / self.nNormalizedTableWidth )
 		# <!-- custom: mirror city-screen order by placing angry citizens after specialist and settled Great Specialist counts. (GPT-5.5) -->
-		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 6 + len(self.aOverview4Specialists), self.getOverviewHeaderLabel(self.HEADER_ANGRY_POPULATION), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 8 + len(self.aOverview4Specialists), self.getOverviewHeaderLabel(self.HEADER_ANGRY_POPULATION), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 	def updateTable4(self, pLoopCity, i):
 		screen = self.getScreen()
@@ -1361,6 +1361,8 @@ class CvDomesticAdvisor:
 		screen.setTableText( self.TABLE_OVERVIEW4, 3, i, szFontTagOpen + szFounded + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		screen.setTableInt( self.TABLE_OVERVIEW4, 4, i, szFontTagOpen + unicode(pLoopCity.getRealPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		screen.setTableText( self.TABLE_OVERVIEW4, 5, i, szFontTagOpen + szCorps + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW4, 6, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW4, 7, i, szFontTagOpen + self.getBlankZeroText(pLoopCity.getSpecialistFreeExperience()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		for k in range(len(self.aOverview4Specialists)):
 			eSpec = self.aOverview4Specialists[k]
@@ -1369,13 +1371,13 @@ class CvDomesticAdvisor:
 				szText = unicode(iCount)
 			else:
 				szText = u"-"
-			screen.setTableInt( self.TABLE_OVERVIEW4, 6 + k, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+			screen.setTableInt( self.TABLE_OVERVIEW4, 8 + k, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		iAngryPopulation = pLoopCity.angryPopulation(0)
 		if iAngryPopulation > 0:
 			szAngryPopulation = unicode(iAngryPopulation)
 		else:
 			szAngryPopulation = u""
-		screen.setTableInt( self.TABLE_OVERVIEW4, 6 + len(self.aOverview4Specialists), i, szFontTagOpen + szAngryPopulation + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW4, 8 + len(self.aOverview4Specialists), i, szFontTagOpen + szAngryPopulation + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 	# Draw the specialist and their increase and decrease buttons
 	def drawSpecialists(self):
