@@ -340,6 +340,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: enable the optional Sevopedia search clickable special-character ()_/*+-=[]'#&~;,:!?.@\|<> keyboard and a KEYS header link. Does not disable direct keyboard typing support. Disabled by default because punctuation is rarely useful in Civ4 item-name searches and the header link adds visual noise. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>

@@ -80,9 +80,10 @@ Note: this change causes the Sevopedia leader numerical keyboard controls to typ
 
 See individual Sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
 
+Update: since then, changes have been made that are not shown here such as a new CLEAR button, fixes or tweaks, or the support of special characters. See also the main changes guide or code.
+
 <img src="../Images/sevopedia/0.610_sevopedia_searchbar (1).JPG" alt="0.610_sevopedia_searchbar (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.610_sevopedia_searchbar (2).JPG" alt="0.610_sevopedia_searchbar (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.610_sevopedia_searchbar (3).JPG" alt="0.610_sevopedia_searchbar (3).JPG" width="250"></img>
 
 ### example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several Sevopedia pages
 

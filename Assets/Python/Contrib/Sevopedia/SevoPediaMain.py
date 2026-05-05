@@ -427,6 +427,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_CIVS_GROUP_BY_ARTSTYLE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVS_GROUP_BY_ARTSTYLE") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV") > 0)
+		self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE") > 0)
 		self.IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
 		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY") > 0)
 		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY") > 0)
@@ -510,6 +511,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iClearX = iX + iW + iClearGap
 			iClearY = self.Y_TOP_PANEL + 16
 			screen.setText(self.SAS_CLEAR_SEARCH_ID, "Background", self.SAS_CLEAR_TEXT, CvUtil.FONT_LEFT_JUSTIFY, iClearX, iClearY, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		if not self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE:
+			self.SAS_bSearchKeyboardVisible = False
+			return
 
 		iKeysToggleX = self.X_EXIT
 		iKeysToggleY = self.Y_TITLE
@@ -2573,8 +2578,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					self.SAS_refreshActiveListView()
 				return 1
 			if inputClass.getFunctionName() == self.SAS_SEARCH_KEYS_TOGGLE_ID:
-				self.SAS_bSearchKeyboardVisible = not self.SAS_bSearchKeyboardVisible
-				self.SAS_syncSearchPanel()
+				if self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE:
+					self.SAS_bSearchKeyboardVisible = not self.SAS_bSearchKeyboardVisible
+					self.SAS_syncSearchPanel()
 				return 1
 		# <!-- custom: keyboard input using InputTypes constants like other mod(s) do (chatgpt 5.2 + claude opus 4.5) -->
 		# <!-- custom: gate fires whenever a list-rendering page has registered itself as the active
@@ -2715,7 +2721,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# Empirically, Civ can strip numeric suffixes from generated names and trigger:
 			# ValueError: invalid literal for int(): in SevoPediaMain.handleInput. (GPT-5.5) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_SEARCH_KEY:
-				if iData2 >= 0 and iData2 < len(self.SAS_SEARCH_KEYBOARD_CHARS):
+				if self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE and iData2 >= 0 and iData2 < len(self.SAS_SEARCH_KEYBOARD_CHARS):
 					return self.SAS_appendSearchCharacter(self.SAS_SEARCH_KEYBOARD_CHARS[iData2])
 				return 1
 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
