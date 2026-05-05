@@ -13,6 +13,7 @@ _ENTRIES_KEY = "entries"
 _MAX_ENTRIES = None
 _PENDING_COMBAT_ACTORS = None
 _CAPTURE_DATA_START = 13
+_END_STRENGTH_DATA_START = 16
 
 # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
 
@@ -92,6 +93,12 @@ def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
 	return tuple(aEntry)
 
 
+def _getUnitEndCombatStr(pUnit, iMaxCombatStr):
+	if iMaxCombatStr <= 0 or pUnit.maxHitPoints() <= 0:
+		return 0
+	return (iMaxCombatStr * pUnit.currHitPoints()) / pUnit.maxHitPoints()
+
+
 def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iOldUnitType):
 	if len(entry) < 7:
 		return False
@@ -144,6 +151,16 @@ def recordCombatResult(pWinner, pLoser):
 		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude code Opus 4.7 review. (GPT-5.5) -->
 		if (iAttacker == iWinner and iDefender == iLoser) or (iAttacker == iLoser and iDefender == iWinner):
 			entry += _PENDING_COMBAT_ACTORS
+			iAttackerEndStr = 0
+			iDefenderEndStr = 0
+			# <!-- custom: combatResult fires after combat damage is applied, so store battle-end effective strength here; capture data still lives before this block for compatibility with the previous saved tuple layout. (GPT-5.5) -->
+			if iAttacker == iWinner:
+				iAttackerEndStr = _getUnitEndCombatStr(pWinner, _PENDING_COMBAT_ACTORS[3])
+			else:
+				iDefenderEndStr = _getUnitEndCombatStr(pWinner, _PENDING_COMBAT_ACTORS[5])
+			while len(entry) < _END_STRENGTH_DATA_START:
+				entry += (0,)
+			entry += (iAttackerEndStr, iDefenderEndStr)
 	_PENDING_COMBAT_ACTORS = None
 	entriesByPlayer = _getEntriesByPlayer()
 	_appendEntry(entriesByPlayer, iWinner, entry, iMaxEntries)

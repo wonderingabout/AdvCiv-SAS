@@ -1139,6 +1139,13 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 	getDefenderCombatValues(*pDefender, pPlot, iAttackerStrength, iAttackerFirepower,
 			iDefenderOdds, iDefenderStrength, iAttackerDamage, iDefenderDamage,
 			&cdDefenderDetails);
+	// <!-- custom: record attacker/defender combat details for every battle so the Military Advisor Battles tab has full strength/role data when selecting vassals or debug players. Keep this separate from combatLogCalc, which is player-facing and still only fires for active-player combat. (GPT-5.5) -->
+	{
+		CyArgsList pyArgsSASBattleDetails;
+		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdAttackerDetails));
+		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdDefenderDetails));
+		CvEventReporter::getInstance().genericEvent("sasBattleHistoryCombatDetails", pyArgsSASBattleDetails.makeFunctionArgs());
+	}
 	int iAttackerKillOdds = iDefenderOdds * (100 - withdrawalProbability()) / 100;
 	// advc.001: Replacing isHuman checks
 	if (isActiveOwned() || pDefender->isActiveOwned())
