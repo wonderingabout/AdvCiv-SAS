@@ -135,6 +135,7 @@ class CvMilitaryAdvisor:
 		self.TEXT_BATTLES_LOG_BUTTON = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_LOG_BUTTON", ())
 		self.TEXT_BATTLE_WON = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_WON", ())
 		self.TEXT_BATTLE_LOST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_LOST", ())
+		self.TEXT_BATTLE_RETREAT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RETREAT", ())
 		self.TEXT_BATTLE_TURN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN", ())
 		self.TEXT_BATTLE_YEAR = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_YEAR", ())
 		self.TEXT_BATTLE_RESULT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RESULT", ())
@@ -301,7 +302,10 @@ class CvMilitaryAdvisor:
 		iTurn, iWinner, iLoser, iWinnerUnit, iLoserUnit, iX, iY = entry[:7]
 		if iWinnerUnit < 0 or iWinnerUnit >= gc.getNumUnitInfos() or iLoserUnit < 0 or iLoserUnit >= gc.getNumUnitInfos():
 			return None
-		if iWinner == self.iActivePlayer:
+		if SASBattleHistory.isRetreatEntry(entry):
+			szResult = self.TEXT_BATTLE_RETREAT
+			iColor = self.COLOR_YELLOW
+		elif iWinner == self.iActivePlayer:
 			szResult = self.TEXT_BATTLE_WON
 			iColor = self.COLOR_GREEN
 		else:

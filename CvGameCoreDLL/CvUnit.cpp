@@ -1309,6 +1309,20 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 			gDLL->getEntityIFace()->AddMission(&kBattle);
 		}
 	}
+	// <!-- custom: record non-lethal combat as a retreat in the Military Advisor Battles tab; combatResult only fires on kills, so withdrawal/combat-limit fights otherwise disappear despite having useful start/end strength data. (GPT-5.5) -->
+	if (!isDead() && !pDefender->isDead())
+	{
+		CyArgsList pyArgsSASBattleRetreat;
+		pyArgsSASBattleRetreat.add(getOwner());
+		pyArgsSASBattleRetreat.add(pDefender->getOwner());
+		pyArgsSASBattleRetreat.add(getUnitType());
+		pyArgsSASBattleRetreat.add(pDefender->getUnitType());
+		pyArgsSASBattleRetreat.add(pPlot->getX());
+		pyArgsSASBattleRetreat.add(pPlot->getY());
+		pyArgsSASBattleRetreat.add((cdAttackerDetails.iMaxCombatStr * currHitPoints()) / maxHitPoints());
+		pyArgsSASBattleRetreat.add((cdDefenderDetails.iMaxCombatStr * pDefender->currHitPoints()) / pDefender->maxHitPoints());
+		CvEventReporter::getInstance().genericEvent("sasBattleHistoryCombatRetreat", pyArgsSASBattleRetreat.makeFunctionArgs());
+	}
 #ifdef LOG_COMBAT_OUTCOMES
 	// (don't log barb battles, because they have special rules.)
 	if (!isBarbarian() && !pDefender->isBarbarian())

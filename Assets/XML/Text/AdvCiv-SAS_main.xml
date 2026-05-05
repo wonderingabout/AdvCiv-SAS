@@ -57,6 +57,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Lost</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RETREAT</Tag>
+		<English>Ret.</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN</Tag>
 		<English>Turn</English>
 	</TEXT>

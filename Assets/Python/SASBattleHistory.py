@@ -14,6 +14,8 @@ _MAX_ENTRIES = None
 _PENDING_COMBAT_ACTORS = None
 _CAPTURE_DATA_START = 13
 _END_STRENGTH_DATA_START = 16
+_OUTCOME_DATA_START = 18
+_OUTCOME_RETREAT = 1
 
 # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
 
@@ -169,6 +171,41 @@ def recordCombatResult(pWinner, pLoser):
 	_saveEntriesByPlayer(entriesByPlayer)
 
 
+def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, iY, iAttackerEndStr, iDefenderEndStr):
+	global _PENDING_COMBAT_ACTORS
+	iMaxEntries = _getMaxEntries()
+	if iMaxEntries == 0:
+		return
+	iAttacker = int(iAttacker)
+	iDefender = int(iDefender)
+	if iAttacker < 0 or iDefender < 0:
+		return
+	entry = (
+		CyGame().getGameTurn(),
+		iAttacker,
+		iDefender,
+		int(iAttackerUnit),
+		int(iDefenderUnit),
+		int(iX),
+		int(iY),
+	)
+	if _PENDING_COMBAT_ACTORS is not None and _PENDING_COMBAT_ACTORS[0] == iAttacker and _PENDING_COMBAT_ACTORS[1] == iDefender:
+		entry += _PENDING_COMBAT_ACTORS
+	while len(entry) < _END_STRENGTH_DATA_START:
+		entry += (0,)
+	entry += (int(iAttackerEndStr), int(iDefenderEndStr))
+	# <!-- custom: retreat rows have no winner/loser, but older rows use entry[1]/entry[2] as winner/loser. Store attacker/defender there for role/unit perspective, and add the outcome flag after capture/end-strength fields so old saved rows keep their offsets. (GPT-5.5) -->
+	while len(entry) < _OUTCOME_DATA_START:
+		entry += (0,)
+	entry += (_OUTCOME_RETREAT,)
+	_PENDING_COMBAT_ACTORS = None
+	entriesByPlayer = _getEntriesByPlayer()
+	_appendEntry(entriesByPlayer, iAttacker, entry, iMaxEntries)
+	if iDefender != iAttacker:
+		_appendEntry(entriesByPlayer, iDefender, entry, iMaxEntries)
+	_saveEntriesByPlayer(entriesByPlayer)
+
+
 def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
 	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude Code Opus 4.7) -->
 	iOldOwner = int(iOldOwner)
@@ -193,3 +230,7 @@ def getEntriesForPlayer(iPlayer):
 	if isinstance(entries, list):
 		return entries
 	return []
+
+
+def isRetreatEntry(entry):
+	return (len(entry) > _OUTCOME_DATA_START and entry[_OUTCOME_DATA_START] == _OUTCOME_RETREAT)
