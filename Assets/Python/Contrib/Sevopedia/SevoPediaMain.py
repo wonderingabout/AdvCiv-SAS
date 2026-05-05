@@ -136,6 +136,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV = 6813
 		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT = 6814
 		self.SAS_PEDIA_PYTHON_SEARCH_KEY = 6815
+		# <!-- custom: dev playground for picking a panel style for other tabs/screens. iData2 carries the signed cycle delta (-1 / +1); see draw_expandable_text_panel and cycle_sas_pedia_panel_style in _sevopedia_helpers.py. See KI#128 for runtime-style/background stability notes. (Claude code Opus 4.7 + GPT-5.5) -->
+		self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE = 6816
+		# <!-- custom: companion widget id for cycling the underlying background DDS in the same playground; same iData2 convention. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
+		self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE = 6817
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -2757,6 +2761,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: reload expanded content panel (re-renders animation with potentially different color) without changing expanded state. (Claude code Sonnet 4.6) -->
 			if iData1 == self.SAS_PEDIA_PYTHON_CONTENT_RELOAD:
 				if self.iItem != -1:
+					self.pediaJump(self.iCategory, self.iItem, False, False)
+					return 1
+			# <!-- custom: dev playground: bump the cached panel style index by iData2 (signed delta) and re-jump to redraw the same item with the expanded overlay still open, so the new style is visible immediately without closing/reopening. Reuses pediaJump's existing "preserve expanded state" behavior. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE:
+				if self.iItem != -1:
+					cycle_sas_pedia_panel_style(iData2)
+					self.pediaJump(self.iCategory, self.iItem, False, False)
+					return 1
+			# <!-- custom: dev playground: same as the panel style cycle but for the underlying full-screen background DDS art key. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
+			if iData1 == self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE:
+				if self.iItem != -1:
+					cycle_sas_pedia_background(iData2)
 					self.pediaJump(self.iCategory, self.iItem, False, False)
 					return 1
 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->

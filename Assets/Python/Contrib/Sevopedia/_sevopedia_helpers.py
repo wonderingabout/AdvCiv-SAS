@@ -47,6 +47,87 @@ EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET = 4
 EXPANDED_LEADERHEAD_WIDTH_PCT = 80
 # <!-- custom: Y offset of the EXPAND button inside the collapsed leaderhead pane (placed inside the panel, not above it). (Claude code Sonnet 4.6) -->
 LEADERHEAD_EXPAND_BUTTON_Y_OFFSET = -16
+SAS_PEDIA_BG_NAME_PREFIXES = ("SCREEN_BG", "SCREEN_UN_BG", "MAINMENU_SLIDESHOW")
+SAS_PEDIA_PANEL_STYLE_NAMES = None
+SAS_PEDIA_PANEL_STYLE_VALUES = None
+SAS_PEDIA_BG_NAMES = None
+g_iSasPediaPanelStyleIdx = None
+g_iSasPediaBgIdx = None
+IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = None
+
+
+def _sas_pedia_collect_bg_names():
+    aNames = []
+    iCount = gc.getNumInterfaceArtInfos()
+    for iIdx in range(iCount):
+        pInfo = gc.getInterfaceArtInfo(iIdx)
+        if pInfo is None:
+            continue
+        # <!-- custom: keep this playground to DDS backgrounds only because draw_expandable_text_panel renders them with addDDSGFC. MAINMENU_SCENE* art points to NIF/KFM scene files; cycling those through addDDSGFC empirically correlated with native EXE critical-section corruption/crashes on shutdown after browsing Sevopedia/style options. See KI#128. (GPT-5.5) -->
+        sPath = pInfo.getPath().lower()
+        if not sPath.endswith(".dds"):
+            continue
+        # <!-- custom: use getTag() rather than getType() because the Python binding for CvArtInfoInterface (CyInfoInterface3.cpp:348) inherits only from CvAssetInfoBase, which is bound as a standalone Python class without CvInfoBase as a base — so getType() is not accessible from Python on art infos even though it exists in C++. getTag() and getType() return the same string per the C++ comment "'tag' is the same as 'type'" in CvInfo_Asset.h. (Claude code Opus 4.7) -->
+        sName = pInfo.getTag()
+        for sPrefix in SAS_PEDIA_BG_NAME_PREFIXES:
+            if sName.startswith(sPrefix):
+                aNames.append(sName)
+                break
+    aNames.sort()
+    # <!-- custom: prepend "(none)" sentinel — index 0 means "skip the addDDSGFC call entirely" so we can preview a panel style with no background art behind it. (Claude code Opus 4.7) -->
+    return tuple([u"(none)"] + aNames)
+
+
+def init_sas_pedia_playground_cache():
+    # <!-- custom: lazy-init the Sevopedia style/background playground instead of enumerating PanelStyles/interface art at module import time. This mirrors our safer advisor define-cache pattern: the playground is discovered once when first used, persists for the Civ4 session, and avoids import-time UI/DLL probing after an empirical native crash while cycling style/background options. Define changes still require a game restart. See KI#128. (GPT-5.5) -->
+    global SAS_PEDIA_PANEL_STYLE_NAMES, SAS_PEDIA_PANEL_STYLE_VALUES, SAS_PEDIA_BG_NAMES
+    global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx
+    global IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE
+    if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE is None:
+        IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = (gc.getDefineINT("SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE") > 0)
+    if not IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE:
+        if SAS_PEDIA_PANEL_STYLE_NAMES is None:
+            SAS_PEDIA_PANEL_STYLE_NAMES = ()
+            SAS_PEDIA_PANEL_STYLE_VALUES = ()
+            SAS_PEDIA_BG_NAMES = ()
+            g_iSasPediaPanelStyleIdx = 0
+            g_iSasPediaBgIdx = 0
+        return
+    if SAS_PEDIA_PANEL_STYLE_NAMES is None:
+        # <!-- custom: auto-discover all PanelStyles enum values exposed by the DLL via boost::python (CvEnums.h PanelStyles). The selected style is applied to the expanded overlay and shown in the header so it can be copied into target call sites. Python 2.4 tuples have no .index(), so default lookup is a manual scan. (Claude code Opus 4.7 + GPT-5.5) -->
+        SAS_PEDIA_PANEL_STYLE_NAMES = tuple(sorted(sName for sName in dir(PanelStyles) if sName.startswith("PANEL_STYLE_")))
+        SAS_PEDIA_PANEL_STYLE_VALUES = tuple(getattr(PanelStyles, sName) for sName in SAS_PEDIA_PANEL_STYLE_NAMES)
+        g_iSasPediaPanelStyleIdx = 0
+        for _iIdx in range(len(SAS_PEDIA_PANEL_STYLE_NAMES)):
+            if SAS_PEDIA_PANEL_STYLE_NAMES[_iIdx] == "PANEL_STYLE_MAIN":
+                g_iSasPediaPanelStyleIdx = _iIdx
+                break
+    if SAS_PEDIA_BG_NAMES is None:
+        # <!-- custom: companion playground for the underlying full-screen background DDS that an expanded overlay draws first. Keep only plausible DDS backgrounds so the cycle list stays short and safe; NIF/KFM scene assets are not valid for addDDSGFC. (Claude code Opus 4.7 + GPT-5.5) -->
+        SAS_PEDIA_BG_NAMES = _sas_pedia_collect_bg_names()
+        g_iSasPediaBgIdx = 0
+        for _iIdx in range(len(SAS_PEDIA_BG_NAMES)):
+            if SAS_PEDIA_BG_NAMES[_iIdx] == "SCREEN_BG_OPAQUE":
+                g_iSasPediaBgIdx = _iIdx
+                break
+
+
+def cycle_sas_pedia_panel_style(iDelta):
+    # <!-- custom: small setter so SevoPediaMain (which uses `from _sevopedia_helpers import *`) can mutate the module global without falling into Python 2's local-binding trap on rebinding. (Claude code Opus 4.7) -->
+    global g_iSasPediaPanelStyleIdx
+    init_sas_pedia_playground_cache()
+    iCount = len(SAS_PEDIA_PANEL_STYLE_VALUES)
+    if iCount > 0:
+        g_iSasPediaPanelStyleIdx = (g_iSasPediaPanelStyleIdx + iDelta) % iCount
+
+
+def cycle_sas_pedia_background(iDelta):
+    # <!-- custom: same Python-2-safe pattern as cycle_sas_pedia_panel_style. (Claude code Opus 4.7) -->
+    global g_iSasPediaBgIdx
+    init_sas_pedia_playground_cache()
+    iCount = len(SAS_PEDIA_BG_NAMES)
+    if iCount > 0:
+        g_iSasPediaBgIdx = (g_iSasPediaBgIdx + iDelta) % iCount
 # <!-- custom: some constants often used in sevopedia -->
 LARGE_MARGIN = 20
 MEDIUM_MARGIN = 15
@@ -382,16 +463,51 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 		iOverlayY = top.Y_PEDIA_PAGE
 		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
 		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
+		init_sas_pedia_playground_cache()
 
-		screen.addDDSGFC(top.getNextWidgetName(), ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), iOverlayX, iOverlayY, iOverlayW, iOverlayH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		# <!-- custom: pick the underlying full-screen background DDS from the playground cache; index 0 is the "(none)" sentinel which means "skip drawing a background entirely" so a transparent panel style reveals whatever is behind the pedia screen. When the playground is off, fall back to the previous hardcoded SCREEN_BG_OPAQUE so default behavior is identical to before this feature. (Claude code Opus 4.7) -->
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_BG_NAMES) > 0:
+			sBgArtKey = SAS_PEDIA_BG_NAMES[g_iSasPediaBgIdx]
+		else:
+			sBgArtKey = u"SCREEN_BG_OPAQUE"
+		if sBgArtKey != u"(none)":
+			screen.addDDSGFC(top.getNextWidgetName(), ArtFileMgr.getInterfaceArtInfo(sBgArtKey).getPath(), iOverlayX, iOverlayY, iOverlayW, iOverlayH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		# <!-- custom: when the caller passed no title, use "(Background)" so the expanded overlay always has a header bar for the CLOSE button to sit on. (Claude code Sonnet 4.6) -->
 		if panelTitle:
 			expandedTitle = panelTitle
 		else:
 			expandedTitle = u"(" + localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()) + u")"
 		panelName = top.getNextWidgetName()
-		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
+		# <!-- custom: read the current playground style from the module-level cache so the overlay reflects the user's last PREV/NEXT click; falls back to PANEL_STYLE_MAIN when the playground is disabled or the cache is somehow empty (defensive, not expected). (Claude code Opus 4.7) -->
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
+			ePanelStyle = SAS_PEDIA_PANEL_STYLE_VALUES[g_iSasPediaPanelStyleIdx]
+		else:
+			ePanelStyle = PanelStyles.PANEL_STYLE_MAIN
+		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, ePanelStyle)
 		screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"CLOSE"), "", iOverlayX + iOverlayW - (iCloseButtonW + 10), iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET, iCloseButtonW, 26, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0, ButtonStyles.BUTTON_STYLE_STANDARD)
+		# <!-- custom: panel style playground header strip: "[label] [PREV] [NEXT] [CLOSE]" sits on the same row as CLOSE inside the header bar. iData2 is the signed cycle delta (-1 / +1); a separate widget id (top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE) keeps the existing iData2 dispatch on HISTORY_EXPAND (0=close, 1=expand) untouched. The label uses RIGHT_JUSTIFY so it grows leftward without us having to measure the variable-length style name width. (Claude code Opus 4.7) -->
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
+			iCycleBtnW = 28
+			iCycleBtnSpacing = 6
+			iCycleY = iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET
+			iNextX = iOverlayX + iOverlayW - (iCloseButtonW + 10) - iCycleBtnSpacing - iCycleBtnW
+			iPrevX = iNextX - iCycleBtnSpacing - iCycleBtnW
+			iLabelRightX = iPrevX - iCycleBtnSpacing
+			# <!-- custom: align the label baseline with the buttons' inner text by sitting just inside the header bar's top edge; +4 puts it visually level with the CLOSE/-/+ button labels. (Claude code Opus 4.7); when upscaled, a small - 2 offset allows to see text entirely without overflowing vertically onto the top of the text panel -->
+			iLabelY = iCycleY - 2
+			szStyleLabel = SASTextScale.labelText(u"STYLE: %s (%d/%d)" % (SAS_PEDIA_PANEL_STYLE_NAMES[g_iSasPediaPanelStyleIdx], g_iSasPediaPanelStyleIdx + 1, len(SAS_PEDIA_PANEL_STYLE_NAMES)))
+			screen.setText(top.getNextWidgetName(), "Background", szStyleLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iLabelY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			# <!-- custom: use "-" / "+" rather than "<" / ">" because angle brackets are parsed as font/markup tag delimiters by the Civ4 text renderer (see agents.md), which breaks the button label rendering. (Claude code Opus 4.7) -->
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
+			# <!-- custom: background DDS playground row, sits one row ABOVE the style row (the user said "we have plenty room up" so it lives in the gutter above the panel header). Same x columns as the style row so the two stacked groups align visually. Routing uses a separate widget id (SAS_PEDIA_PYTHON_BACKGROUND_CYCLE) so the iData2 cycle delta does not collide with the style row's dispatch. (Claude code Opus 4.7) -->
+			if len(SAS_PEDIA_BG_NAMES) > 0:
+				iBgRowYBtn = iCycleY - 30
+				iBgRowYLabel = iLabelY - 30
+				szBgLabel = SASTextScale.labelText(u"BG: %s (%d/%d)" % ( SAS_PEDIA_BG_NAMES[g_iSasPediaBgIdx], g_iSasPediaBgIdx + 1, len(SAS_PEDIA_BG_NAMES)))
+				screen.setText(top.getNextWidgetName(), "Background", szBgLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iBgRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szText), iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		return 1
 

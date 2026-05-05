@@ -163,6 +163,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit)  
 [126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
 [127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it)  
+[128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4729,7 +4730,7 @@ File changed:
 
 ## 127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sglSFxWnZ31_bl_Q5l8iVUmR-lVwUfUl?usp=sharing)
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sglSFxWnZ31_bl_Q5l8iVUmR-lVwUfUl?usp=sharing).
 
 If players start a game on larger world sizes (as of now SAS24 or higher) while using the 18civsDLL, player count is capped at 18 even if world size has a default player count of e.g., 24 on SAS24 world size.
 
@@ -4738,3 +4739,32 @@ Also, players were not notified of this, so they may engage unawarely in a game 
 To work around this issue, added a popup at game start with the very nice help of Claude code Opus 4.7 thanks.
 
 Change in `onGameStart` in [CvEventManager.py](Assets/Python/CvEventManager.py).
+
+## 128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1AYFGqYFp___B0N1Sph-g1KfJEJMFBHuB?usp=sharing).
+
+Observed issue 1:
+
+- Military Advisor read some SAS XML UI defines directly in the constructor.
+- Changing those defines while Civ4 was running could produce crashy behavior similar to hot-changing Python code during runtime.
+- After changing the Military Advisor to a lazy/sentinel define cache initialized after screen setup starts, runtime XML define changes have no effect until the expected Civ4 restart, and the game keeps running normally.
+
+Observed issue 2:
+
+- While documenting/testing the Sevopedia expanded-text playground, Civ4 sometimes crashed when exiting through the Windows red X after a sequence like opening the Info Screen Score tab, loading a save, browsing Sevopedia, and changing playground styles/backgrounds.
+- The crash could not be reproduced reliably after the fixes below, so the exact root cause is not proven.
+- Crash dump signature from `crashdmp_styles.txt`: `INVALID_POINTER_WRITE_c0000005`, `ntdll!RtlpWaitOnCriticalSection`, with `Cannot read DebugInfo address ... Possible causes: The critical section is not initialized, deleted or corrupted`.
+
+Likely cause / workaround:
+
+- For issue 1, Military Advisor now uses lazy/sentinel define caching initialized after screen setup starts, following the safer Tech Chooser/Main Interface style. It checks each cached define sentinel, not only the first one, so partially initialized define state does not persist. Empirically this seems like a consistent and reliable fix.
+
+- For issue 2, Sevopedia playground initially cached style/background lists at module import time. It now lazy-inits them only when the expanded text playground first needs them, similar in spirit to the safer advisor define-cache pattern.
+- The background playground also initially included `MAINMENU_SCENE*` art keys, which point to `.nif` / `.kfm` scene assets. These are not valid for `addDDSGFC`, so the playground now only offers `.dds` background art keys.
+- This is considered a workaround / seeming fix because the native crash happened later at shutdown and the dump does not identify the exact Python call site. Empirically, this issue was harder to reproduce so this is likely to fix it but not as certain.
+
+Files changed:
+
+- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+- [Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)

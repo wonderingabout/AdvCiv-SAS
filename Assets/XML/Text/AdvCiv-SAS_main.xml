@@ -73,6 +73,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Result</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_EST_ODDS</Tag>
+		<English>E%</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE</Tag>
 		<English>Role</English>
 	</TEXT>

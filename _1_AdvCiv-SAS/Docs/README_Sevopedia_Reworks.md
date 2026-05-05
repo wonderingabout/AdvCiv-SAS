@@ -296,6 +296,8 @@ This was inspired by how c2c mod shows animations maximized for units for exampl
 
 Added with the very nice help of GPT-5.3-Codex and Claude code Sonnet 4.6 thanks.
 
+Also added optional Playground to experiment with background and panel styles with `+` and `-` button to change them and descriptions like `BG: MAINMENU_SLIDESHOW_LOAD (7/13)` and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`. Helps choosing or testing optimal art style without having to tediously manually testing them one by one.
+
 <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG" alt="0.840_sevopedia_expanded_text (3).JPG" width="250"></img>

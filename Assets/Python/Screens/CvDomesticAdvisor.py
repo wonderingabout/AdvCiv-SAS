@@ -201,21 +201,7 @@ class CvDomesticAdvisor:
 			self.H_BOTTOM_SPACE
 		)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
-		# <!-- custom: use the shared advisor shell layout (top/bottom bars + single content panel) so Domestic Advisor mirrors Victory/Info/Foreign structure instead of a floating table. (GPT-5.3-Codex) -->
-		# <!-- custom: remove outer advisor-content margins so Domestic can use the full area between top/bottom bars; keep spacing only as inner table margin. (GPT-5.3-Codex) -->
-		self.nMainPanelX = 0
-		# <!-- custom: panel styles can leave thin Y-axis seams at the shell boundaries; use a local vertical bleed and apply it symmetrically to top/bottom. (GPT-5.3-Codex) -->
-		iMainPanelYBleed = 10
-		self.nMainPanelY = 55 - iMainPanelYBleed
-		self.nMainPanelWidth = self.nScreenWidth - (2 * self.nMainPanelX)
-		self.nMainPanelHeight = (self.Y_BOTTOM_PANEL - self.nMainPanelY) + iMainPanelYBleed
-		self.nTableMargin = 8
-		# <!-- custom: TABLE_STYLE_STANDARD draws the header slightly above the anchor; add a tiny visual top offset so apparent top margin matches left/right/bottom. (GPT-5.3-Codex) -->
-		self.nTableTopVisualAdjust = 6
-		self.nTableX = self.nMainPanelX + self.nTableMargin
-		self.nTableY = self.nMainPanelY + self.nTableMargin + self.nTableTopVisualAdjust
-		self.nTableWidth = self.nMainPanelWidth - (2 * self.nTableMargin)
-		self.nTableHeight = self.nMainPanelHeight - (2 * self.nTableMargin) - self.nTableTopVisualAdjust
+		(self.nMainPanelX, self.nMainPanelY, self.nMainPanelWidth, self.nMainPanelHeight), (self.nTableX, self.nTableY, self.nTableWidth, self.nTableHeight) = getAdvisorMaximizedPanelLayout(self.nScreenWidth, self.Y_BOTTOM_PANEL)
 		# <!-- custom: keep specialist controls in the footer strip so the table can use symmetric margins inside the main panel. (GPT-5.3-Codex) -->
 		self.nSpecialistY = self.Y_BOTTOM_PANEL + 2
 

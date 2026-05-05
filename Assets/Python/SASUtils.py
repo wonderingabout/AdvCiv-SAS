@@ -62,6 +62,22 @@ def getAdvisorRuntimeAnchors(iWScreen, iHScreen):
 	return (iXTitle, iXExit, iYExit, iYLink, iYBottomPanel)
 
 
+# <!-- custom: shared "maximized" panel/table layout for advisor tabs that want to fill the area between top and bottom bars (Domestic Overview tabs, Military Advisor Battles tab). The Y bleed lets the panel slide a few pixels under the top/bottom bars to hide thin seams; the inner table margin and top visual adjust account for TABLE_STYLE_STANDARD drawing the header slightly above its anchor. Returns two (x, y, w, h) tuples so callers can unpack directly into addPanel / addTableControlGFC. (GPT-5.3-Codex + Claude code Opus 4.7) -->
+def getAdvisorMaximizedPanelLayout(iWScreen, iYBottomPanel):
+	iMainPanelYBleed = 10
+	iMainPanelX = 0
+	iMainPanelY = 55 - iMainPanelYBleed
+	iMainPanelW = iWScreen
+	iMainPanelH = (iYBottomPanel - iMainPanelY) + iMainPanelYBleed
+	iTableMargin = 8
+	iTableTopVisualAdjust = 6
+	iTableX = iMainPanelX + iTableMargin
+	iTableY = iMainPanelY + iTableMargin + iTableTopVisualAdjust
+	iTableW = iMainPanelW - 2 * iTableMargin
+	iTableH = iMainPanelH - 2 * iTableMargin - iTableTopVisualAdjust
+	return ((iMainPanelX, iMainPanelY, iMainPanelW, iMainPanelH), (iTableX, iTableY, iTableW, iTableH))
+
+
 # <!-- custom: shared weighted tab-link width helper used by advisor tab bars; weights by text width and scales to runtime X_EXIT. (GPT-5.3-Codex) -->
 def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
 	aiLabelWidths = []

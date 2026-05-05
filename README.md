@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
 
-Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Battles Tab, Score tab, and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
 A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
 
@@ -37,7 +37,9 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Home page](/README.md#home-page)  
 &emsp;[Simple Game rework](/README.md#simple-game-rework)  
 [UI (Ingame)](/README.md#ui-ingame)  
-&emsp;[Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#main-advisors-reworks-eg-overview-tabs-domestic-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
+&emsp;[Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#main-advisors-reworks)  
+&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-battles-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
+&emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
 &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
@@ -173,7 +175,7 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
 
 ## UI (Ingame)
 
-### Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))
+### Main Advisors reworks
 
 Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
 
@@ -181,7 +183,7 @@ Also, advisors are now excentered so overall more information is displayed, thus
 
 See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
 
-#### New Advisors
+#### New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))
 
 ##### Overview tabs (Domestic Advisor)
 
@@ -192,6 +194,21 @@ The domestic advisor now follows the usual advisor with tabs and debug mode layo
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (3).JPG" alt="0.511_domestic_advisor (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG" alt="0.511_domestic_advisor (4).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG" alt="0.511_domestic_advisor (5).JPG" width="250"></img>
+
+##### Battles tab (Military Advisor)
+
+Added a new Battles tab in the Military Advisor, showing as a sortable table the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode). Icons are hoverable to sevopedia (or have a camera effect). Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red).
+
+Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
+
+Examples of LOG:
+
+`Turn | Year | Result | Est| Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y`
+
+- `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | Camel Archer | Longbowman | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`
+- `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | Trireme | Galley | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`.
+
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
 
 ##### World Advisor
 
@@ -219,6 +236,10 @@ Note: a hybrid DLL compute + Python caching version was tried in [timeline-tab-d
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (3).JPG" alt="0.518_info_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (7).JPG" alt="0.518_info_screen (7).JPG" width="250"></img>
 
+Example of LOG output in `PythonDbg.log` (using the LOG button):
+
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.5180_info_screen_timeline_dbg_log.PNG" alt="0.5180_info_screen_timeline_dbg_log.PNG" width="250"></img>
+
 ##### Score Tab (in the Info Screen Advisor)
 
 A new advisor we added in the info screen is the score Tab, showing a sortable (default ordered by highest score) table with all relevant scoreboard fields, plus new fields like Player color, Player ID (to distinguish identical Name/Civ/Leader/Player Color), Traits (T1 and T2) as icon chars, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M, Tech (total techs).
@@ -231,7 +252,7 @@ Added with the very nice help of GPT-5.3-Codex thanks.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (2).JPG" alt="0.518_info_screen (2).JPG" width="250"></img>
 
-#### Advisor reworks
+#### Advisors adjustments
 
 We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
 
@@ -243,7 +264,7 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="/0.515_military_advisor (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (1).JPG" alt="0.518_info_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (4).JPG" alt="0.518_info_screen (4).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (5).JPG" alt="0.518_info_screen (5).JPG" width="250"></img>
@@ -267,7 +288,7 @@ We find some of the BUG advisor features valuable and not obvious to many player
 
 This means the default is now ON, and ticking the option toggles it to OFF. Applied as of now only to the Tech Advisor and Religion Advisor which we find most valuable. Updated the texts to match this new behaviour and sometimes clarify it (e.g. vague "GP Research" -> clearer "Hide bulbing indicators").
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5151_inverted_bug_advisors.JPG" alt="0.5151_inverted_bug_advisors.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.5200_inverted_bug_advisors.JPG" alt="0.5200_inverted_bug_advisors.JPG" width="250"></img>
 
 Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
 

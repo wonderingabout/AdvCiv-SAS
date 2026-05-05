@@ -492,6 +492,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: show the Military Advisor Battles tab "Log" button; click to write the current battle history rows to PythonDbg.log. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: dev playground: show "STYLE: <name> (i/n)" + PREV/NEXT buttons in the Sevopedia expanded text overlay header to live-cycle through every PanelStyles enum value. Lets us pick a style for other tabs/screens (e.g. battles tab, score tab) and visualize it ingame instead of editing-recompiling-screenshotting one style at a time. The selection persists for the whole Civ4 session and applies across all pedia categories that show an expanded text panel (history/background, unit strategy, leader bio, etc.). 0 = off (default; restores PANEL_STYLE_MAIN and hides the cycle UI). -->
+	<Define>
+		<DefineName>SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Timeline tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE</DefineName>

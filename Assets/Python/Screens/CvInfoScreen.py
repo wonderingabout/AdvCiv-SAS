@@ -1099,18 +1099,9 @@ class CvInfoScreen:
 				continue
 			visiblePlayers.append(ePlayer)
 
-		# <!-- custom: simple Score-tab table layout: fill the advisor content area (between top/bottom bars)
-		# with explicit tunable outer margins for X and Y. (GPT-5.3-Codex) -->
-		iTableBaseMarginPx = 6
-		# <!-- custom: for some reason despite simple layout margins are still asymetric (horizontal margins too short and shorter in comparison), manually add gap to empirically equalize it for score tab (as of now not done in domestic advisor's overview tab for example that served as inspiration/reference to do this) -->
-		iTableMarginXPx = iTableBaseMarginPx + 5
-		iTableMarginYPx = iTableBaseMarginPx
-		# <!-- custom: same layout formula on both axes: table size = available size - 2 * margin.
-		# Width available size is full screen width; height available size is content height (screen minus top/bottom bars). (GPT-5.3-Codex) -->
-		iTableX = iTableMarginXPx
-		iTableY = self.PANEL_HEIGHT + iTableMarginYPx
-		iTableW = self.W_SCREEN - (2 * iTableMarginXPx)
-		iTableH = self.H_SCREEN - (2 * self.PANEL_HEIGHT) - (2 * iTableMarginYPx)
+		# <!-- custom: wrap the dense Score table in a high-contrast panel so the slideshow background no longer bleeds through empty rows; this keeps the score matrix readable while still using the shared maximized advisor layout helper. Panel widget name MUST come from getNextWidgetName so it joins the per-tab deletion pool (deleteAllWidgets at the iNumPermanentWidgets snapshot in redrawContents); a hardcoded name persists across tab switches and bleeds the panel into other tabs. (Claude code Opus 4.7 + GPT-5.5) -->
+		(iPanelX, iPanelY, iPanelW, iPanelH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.H_SCREEN - self.PANEL_HEIGHT)
+		screen.addPanel(self.getNextWidgetName(), "", "", True, True, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_SOLID)
 
 		szTable = self.getNextWidgetName()
 		screen.addTableControlGFC(szTable, 29, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
