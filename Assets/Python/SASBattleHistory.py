@@ -18,6 +18,8 @@ _OUTCOME_DATA_START = 18
 _OUTCOME_RETREAT = 1
 _PLOT_CONTEXT_DATA_START = 19
 _PLOT_CONTEXT_HILL_PEAK_NONE = -1
+_TERRAIN_PEAK = None
+_TERRAIN_HILL = None
 
 # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
 
@@ -26,6 +28,20 @@ def _getMaxEntries():
 	if _MAX_ENTRIES is None:
 		_MAX_ENTRIES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_HISTORY_MAX_ENTRIES")
 	return _MAX_ENTRIES
+
+
+def _getPeakTerrain():
+	global _TERRAIN_PEAK
+	if _TERRAIN_PEAK is None:
+		_TERRAIN_PEAK = gc.getInfoTypeForString("TERRAIN_PEAK")
+	return _TERRAIN_PEAK
+
+
+def _getHillTerrain():
+	global _TERRAIN_HILL
+	if _TERRAIN_HILL is None:
+		_TERRAIN_HILL = gc.getInfoTypeForString("TERRAIN_HILL")
+	return _TERRAIN_HILL
 
 
 def _getEntriesByPlayer():
@@ -88,9 +104,9 @@ def _getEntryWithPlotContext(entry, iX, iY):
 	pPlot = CyMap().plot(iX, iY)
 	iHillPeakTerrain = _PLOT_CONTEXT_HILL_PEAK_NONE
 	if pPlot.isPeak():
-		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_PEAK")
+		iHillPeakTerrain = _getPeakTerrain()
 	elif pPlot.isHills():
-		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_HILL")
+		iHillPeakTerrain = _getHillTerrain()
 	aEntry.extend([pPlot.getTerrainType(), pPlot.getFeatureType(), iHillPeakTerrain])
 	return tuple(aEntry)
 

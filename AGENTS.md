@@ -152,6 +152,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
 - Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
 - Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
+- Prefer derived variables or an explicit `if/else` over assigning a value and then mutating it. Example problem: avoid setting `iPlotCol = iBaseCol` and later doing `iPlotCol += 3`, or setting a default like `iPlotCol = 19` and then overriding it later with `iPlotCol = 22`. Example solution: use `iContextColCount = 3` and `iPlotCol = iBaseCol + iContextColCount`, or set `iPlotCol` once in each branch when a SAS define changes the number of desired columns/parameters. An `if/else` is also good when the branches explain distinct layout or logic cases.
 - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
 - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
 - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.

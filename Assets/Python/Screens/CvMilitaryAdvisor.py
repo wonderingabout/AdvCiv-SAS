@@ -107,25 +107,42 @@ class CvMilitaryAdvisor:
 		self.H_GREAT_GENERAL_BAR = 30
 		self.X_GREAT_GENERAL_BAR = 20
 
-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it doesn't work in many ingame py file (tech chooser, main interface for those i tried), so use safer pattern reliably rather -->
-		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
-		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE")
-		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT")
-		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
-		# <!-- custom: read this XML UI define once when the advisor object is built, matching our other advisor defines. Changing it while Civ4 is running can leave existing table widgets with the wrong column layout, so restart after toggling it. (GPT-5.5) -->
-		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
-		self.BATTLE_HILL_PEAK_COL_ID = -1
-		self.BATTLE_TERRAIN_COL_ID = -1
-		self.BATTLE_FEATURE_COL_ID = -1
-		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
-			self.BATTLE_HILL_PEAK_COL_ID = 19
-			self.BATTLE_TERRAIN_COL_ID = 20
-			self.BATTLE_FEATURE_COL_ID = 21
-			self.BATTLE_PLOT_COL_ID = 22
-			self.BATTLE_NUM_COLS = 23
-		else:
-			self.BATTLE_PLOT_COL_ID = 19
-			self.BATTLE_NUM_COLS = 20
+		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = None
+		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = None
+		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = None
+		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = None
+		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = None
+		self.BATTLE_HILL_PEAK_COL_ID = None
+		self.BATTLE_TERRAIN_COL_ID = None
+		self.BATTLE_FEATURE_COL_ID = None
+		self.BATTLE_PLOT_COL_ID = None
+		self.BATTLE_NUM_COLS = None
+
+	def initDefines(self):
+		# <!-- custom: Military Advisor was the remaining advisor here that read SAS XML UI defines directly in the constructor. Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here. Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart. Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. (GPT-5.5) -->
+		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS is None:
+			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
+		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE is None:
+			self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE")
+		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT is None:
+			self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT")
+		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES is None:
+			self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
+		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE is None:
+			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
+		# <!-- custom: Battle column IDs depend on the plot-context define, so derive them beside the define cache; this keeps callers from needing to know whether initDefines has already expanded the table layout. (GPT-5.5) -->
+		if self.BATTLE_NUM_COLS is None:
+			self.BATTLE_HILL_PEAK_COL_ID = -1
+			self.BATTLE_TERRAIN_COL_ID = -1
+			self.BATTLE_FEATURE_COL_ID = -1
+			if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+				self.BATTLE_HILL_PEAK_COL_ID = 19
+				self.BATTLE_TERRAIN_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 1
+				self.BATTLE_FEATURE_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 2
+				self.BATTLE_PLOT_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 3
+			else:
+				self.BATTLE_PLOT_COL_ID = 19
+			self.BATTLE_NUM_COLS = self.BATTLE_PLOT_COL_ID + 1
 
 
 	def initText(self):
@@ -224,6 +241,7 @@ class CvMilitaryAdvisor:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
+		self.initDefines()
 		self.initText()
 		self.updateRuntimeLayout(screen)
 
