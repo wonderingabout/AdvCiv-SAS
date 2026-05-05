@@ -69,12 +69,16 @@ Created as part of AdvCiv-SAS improvements
 		<English>Result</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ATTACKER</Tag>
-		<English>Attacker</English>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE</Tag>
+		<English>Role</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_DEFENDER</Tag>
-		<English>Defender</English>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_OUR_UNIT</Tag>
+		<English>Our Unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT</Tag>
+		<English>Their Unit</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID</Tag>
