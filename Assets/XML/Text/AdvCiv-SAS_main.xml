@@ -93,8 +93,20 @@ Created as part of AdvCiv-SAS improvements
 		<English>PID</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_HILL_PEAK</Tag>
+		<English>H</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TERRAIN</Tag>
+		<English>T</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_FEATURE</Tag>
+		<English>F</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT</Tag>
-		<English>Plot</English>
+		<English>P</English>
 	</TEXT>
 
 

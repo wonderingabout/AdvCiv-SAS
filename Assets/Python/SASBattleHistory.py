@@ -16,6 +16,8 @@ _CAPTURE_DATA_START = 13
 _END_STRENGTH_DATA_START = 16
 _OUTCOME_DATA_START = 18
 _OUTCOME_RETREAT = 1
+_PLOT_CONTEXT_DATA_START = 19
+_PLOT_CONTEXT_HILL_PEAK_NONE = -1
 
 # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
 
@@ -76,6 +78,21 @@ def _appendEntry(entriesByPlayer, iPlayer, entry, iMaxEntries):
 	if iMaxEntries > 0 and len(entries) > iMaxEntries:
 		entries = entries[-iMaxEntries:]
 	entriesByPlayer[szPlayer] = entries
+
+
+def _getEntryWithPlotContext(entry, iX, iY):
+	# <!-- custom: snapshot terrain/feature/peak-or-hill at battle time instead of looking up the plot while drawing the advisor; forests, fallout, or terrain can change later, but the Battles tab should show the historical combat context. (GPT-5.5) -->
+	aEntry = list(entry)
+	while len(aEntry) < _PLOT_CONTEXT_DATA_START:
+		aEntry.append(0)
+	pPlot = CyMap().plot(iX, iY)
+	iHillPeakTerrain = _PLOT_CONTEXT_HILL_PEAK_NONE
+	if pPlot.isPeak():
+		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_PEAK")
+	elif pPlot.isHills():
+		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_HILL")
+	aEntry.extend([pPlot.getTerrainType(), pPlot.getFeatureType(), iHillPeakTerrain])
+	return tuple(aEntry)
 
 
 def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
@@ -164,6 +181,7 @@ def recordCombatResult(pWinner, pLoser):
 				entry += (0,)
 			entry += (iAttackerEndStr, iDefenderEndStr)
 	_PENDING_COMBAT_ACTORS = None
+	entry = _getEntryWithPlotContext(entry, pWinner.getX(), pWinner.getY())
 	entriesByPlayer = _getEntriesByPlayer()
 	_appendEntry(entriesByPlayer, iWinner, entry, iMaxEntries)
 	if iLoser != iWinner:
@@ -198,6 +216,7 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, 
 	while len(entry) < _OUTCOME_DATA_START:
 		entry += (0,)
 	entry += (_OUTCOME_RETREAT,)
+	entry = _getEntryWithPlotContext(entry, int(iX), int(iY))
 	_PENDING_COMBAT_ACTORS = None
 	entriesByPlayer = _getEntriesByPlayer()
 	_appendEntry(entriesByPlayer, iAttacker, entry, iMaxEntries)
@@ -234,3 +253,12 @@ def getEntriesForPlayer(iPlayer):
 
 def isRetreatEntry(entry):
 	return (len(entry) > _OUTCOME_DATA_START and entry[_OUTCOME_DATA_START] == _OUTCOME_RETREAT)
+
+
+def getPlotContext(entry):
+	if len(entry) < _PLOT_CONTEXT_DATA_START + 2:
+		return (-1, -1, -1)
+	iHillPeakTerrain = -1
+	if len(entry) >= _PLOT_CONTEXT_DATA_START + 3:
+		iHillPeakTerrain = entry[_PLOT_CONTEXT_DATA_START + 2]
+	return (entry[_PLOT_CONTEXT_DATA_START], entry[_PLOT_CONTEXT_DATA_START + 1], iHillPeakTerrain)

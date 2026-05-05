@@ -51,7 +51,6 @@ class CvMilitaryAdvisor:
 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
-		self.BATTLE_PLOT_COL_ID = 19
 		self.PAGE_UNITS = 0
 		self.PAGE_BATTLES = 1
 		self.iActivePage = self.PAGE_UNITS
@@ -113,6 +112,20 @@ class CvMilitaryAdvisor:
 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE")
 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT")
 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
+		# <!-- custom: read this XML UI define once when the advisor object is built, matching our other advisor defines. Changing it while Civ4 is running can leave existing table widgets with the wrong column layout, so restart after toggling it. (GPT-5.5) -->
+		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
+		self.BATTLE_HILL_PEAK_COL_ID = -1
+		self.BATTLE_TERRAIN_COL_ID = -1
+		self.BATTLE_FEATURE_COL_ID = -1
+		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+			self.BATTLE_HILL_PEAK_COL_ID = 19
+			self.BATTLE_TERRAIN_COL_ID = 20
+			self.BATTLE_FEATURE_COL_ID = 21
+			self.BATTLE_PLOT_COL_ID = 22
+			self.BATTLE_NUM_COLS = 23
+		else:
+			self.BATTLE_PLOT_COL_ID = 19
+			self.BATTLE_NUM_COLS = 20
 
 
 	def initText(self):
@@ -144,10 +157,15 @@ class CvMilitaryAdvisor:
 		self.TEXT_BATTLE_THEIR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT", ())
 		self.TEXT_BATTLE_CAPTURE_COUNT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_CAPTURE_COUNT", ())
 		self.TEXT_BATTLE_PID = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID", ())
+		self.TEXT_BATTLE_HILL_PEAK = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_HILL_PEAK", ())
+		self.TEXT_BATTLE_TERRAIN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TERRAIN", ())
+		self.TEXT_BATTLE_FEATURE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_FEATURE", ())
 		self.TEXT_BATTLE_PLOT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT", ())
 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
 		self.ART_BUTTON_HILITE_SQUARE = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
 		self.ART_CITY_SELECTION_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.iBattleTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
+		self.iBattleTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
 		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
 		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
 		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
@@ -361,12 +379,12 @@ class CvMilitaryAdvisor:
 			iOurRole = -1
 			if bRoleKnown:
 				iOurRole = 1
-			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
+			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry) + SASBattleHistory.getPlotContext(entry)
 		if iDefender == self.iActivePlayer:
 			iOurRole = -1
 			if bRoleKnown:
 				iOurRole = 0
-			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
+			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry) + SASBattleHistory.getPlotContext(entry)
 		return None
 
 	def getBattleCapturePerspective(self, entry):
@@ -398,6 +416,34 @@ class CvMilitaryAdvisor:
 		if iCapturedCount == 0 or iCapturedUnit < 0:
 			return ""
 		return gc.getUnitInfo(iCapturedUnit).getButton()
+
+	def setBattleTerrainFeatureCell(self, screen, iRow, iCol, iInfo, bTerrain):
+		if bTerrain:
+			if iInfo >= 0 and iInfo < gc.getNumTerrainInfos():
+				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getTerrainInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				return
+		else:
+			if iInfo >= 0 and iInfo < gc.getNumFeatureInfos():
+				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getFeatureInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				return
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+	def setBattleHillPeakCell(self, screen, iRow, iHillPeakTerrain):
+		# <!-- custom: show only peak/hill here: flat/water have no separate pedia redirects and are already visible through terrain, while peak/hill are separate combat-relevant map properties with Sevopedia entries/icons. (GPT-5.5) -->
+		if iHillPeakTerrain == self.iBattleTerrainPeak or iHillPeakTerrain == self.iBattleTerrainHill:
+			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", gc.getTerrainInfo(iHillPeakTerrain).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHillPeakTerrain, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			return
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+	def getBattleTerrainTypeText(self, iTerrain):
+		if iTerrain >= 0 and iTerrain < gc.getNumTerrainInfos():
+			return gc.getTerrainInfo(iTerrain).getType()
+		return ""
+
+	def getBattleFeatureTypeText(self, iFeature):
+		if iFeature >= 0 and iFeature < gc.getNumFeatureInfos():
+			return gc.getFeatureInfo(iFeature).getType()
+		return ""
 
 	def getBattleCurrentStrengthText(self, iCurrentStrength, iMaxStrength):
 		szText = self.getBattleStoredStrengthText(iCurrentStrength)
@@ -438,7 +484,7 @@ class CvMilitaryAdvisor:
 		iTableW = iW - 2 * self.MAP_MARGIN
 		iTableH = iH - 2 * self.MAP_MARGIN
 		self.BATTLE_ROW_PLOTS = {}
-		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 20, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(self.BATTLE_TABLE_ID, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(self.BATTLE_TABLE_ID)
 		screen.setStyle(self.BATTLE_TABLE_ID, "Table_StandardCiv_Style")
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, 55)
@@ -450,8 +496,15 @@ class CvMilitaryAdvisor:
 		iPIDColW = 38
 		iCaptureCountColW = iPIDColW
 		iCaptureUnitColW = 35
+		iTerrainColW = 0
+		iFeatureColW = 0
+		iHillPeakColW = 0
+		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+			iTerrainColW = 35
+			iFeatureColW = 35
+			iHillPeakColW = 35
 		iStrengthColW = 78
-		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iCaptureCountColW - iCaptureUnitColW - iPlotColW) / 2)
+		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left and their unit follows immediately, so each row reads as a direct matchup. Our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_ROLE, iRoleColW)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 4, self.STRENGTH_CHAR + u"b", iBaseColW)
@@ -470,6 +523,10 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 17, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
 		# <!-- custom: show captured unit type as a compact pedia icon rather than text. The stored row supports one captured unit type; if a future mod allows one combat to create multiple captured types, expand this column/model then. (GPT-5.5) -->
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 18, "", iCaptureUnitColW)
+		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, self.TEXT_BATTLE_HILL_PEAK, iHillPeakColW)
+			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_TERRAIN_COL_ID, self.TEXT_BATTLE_TERRAIN, iTerrainColW)
+			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_FEATURE_COL_ID, self.TEXT_BATTLE_FEATURE, iFeatureColW)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
 		screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
@@ -484,7 +541,7 @@ class CvMilitaryAdvisor:
 		tColumns = self.getBattlePerspectiveColumns(entry)
 		if tColumns is None:
 			return
-		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
+		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain = tColumns
 		iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
 		self.BATTLE_ROW_PLOTS[iRow] = (iX, iY)
 		kTheirPlayer = gc.getPlayer(iTheirPlayer)
@@ -512,6 +569,10 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
+			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
+			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def dbgLogBattleHistory(self):
@@ -522,13 +583,14 @@ class CvMilitaryAdvisor:
 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
 		self.dbgLogBattleHistoryPerspectivePlayer()
 		self.dbgLogBattleHistoryPlayers(aEntries)
-		print("Turn | Year | Result | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | X | Y")
+		# <!-- custom: keep stored hill/peak, terrain, and feature context in copied logs even when the optional UI columns are hidden; logs are allowed to be more complete than the visible table when data already exists. (GPT-5.5) -->
+		print("Turn | Year | Result | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y")
 		for entry in aEntries:
 			tColumns = self.getBattlePerspectiveColumns(entry)
 			if tColumns is None:
 				continue
-			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
-			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d | %s | %d | %d" % (
+			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain = tColumns
+			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (
 				iTurn,
 				self.getTurnDate(iTurn),
 				szResult,
@@ -546,6 +608,9 @@ class CvMilitaryAdvisor:
 				iTheirPlayer,
 				iCapturedCount,
 				self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit),
+				self.getBattleTerrainTypeText(iHillPeakTerrain),
+				self.getBattleTerrainTypeText(iTerrain),
+				self.getBattleFeatureTypeText(iFeature),
 				iX,
 				iY,
 			))

@@ -221,6 +221,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLE_HISTORY_MAX_ENTRIES</DefineName>
 		<iDefineIntVal>-1</iDefineIntVal>
 	</Define>
+	<!-- custom: show compact hill-or-peak/terrain/feature context columns in the Military Advisor Battles tab. Battle history always stores this snapshot so changing the define after a Civ4 restart can display already-recorded rows. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 
