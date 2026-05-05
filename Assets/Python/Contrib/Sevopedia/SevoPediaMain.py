@@ -106,8 +106,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEARCH_PANEL_ID = "PediaMainSearchPanel"
 		self.SAS_SEARCH_LABEL_ID = "PediaMainSearchLabel"
 		self.SAS_CLEAR_SEARCH_ID = "PediaMainSearchClear"
+		self.SAS_SEARCH_KEYS_TOGGLE_ID = "PediaMainSearchKeysToggle"
 		self.SAS_SEARCH_KEY_PREFIX = "PediaMainSearchKey"
 		self.SAS_SEARCH_DEFAULT_TEXT = u"Enter text"
+		self.SAS_SEARCH_KEYS_TEXT = u"KEYS"
 		self.SAS_SEARCH_H = 32
 		self.SAS_SEARCH_KEYBOARD_CHARS = (u"(", u")", u"_", u"/", u"*", u"+", u"-", u"=", u"[", u"]", u"'", u"#", u"&", u"~", u";", u",", u":", u"!", u"?", u".", u"@", u"\\", u"|", u"<", u">")
 		# <!-- custom: End - search bar for the left item list (initially based on how other mod(s) do) (chatgpt 5.2 + claude opus 4.5) -->
@@ -297,6 +299,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
 		self.SAS_keyDebounceByKey = {}
 		self.SAS_searchKeyboardIds = []
+		self.SAS_bSearchKeyboardVisible = False
 
 		# <!-- custom: map original list indices to displayed rows when filtering so selection/highlight stays correct (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_listIdxToRow = None
@@ -444,6 +447,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_PANEL_ID)
 		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_LABEL_ID)
 		self.SAS_safeDeleteWidget(screen, self.SAS_CLEAR_SEARCH_ID)
+		self.SAS_safeDeleteWidget(screen, self.SAS_SEARCH_KEYS_TOGGLE_ID)
 		for szWidget in self.SAS_searchKeyboardIds:
 			self.SAS_safeDeleteWidget(screen, szWidget)
 		self.SAS_searchKeyboardIds = []
@@ -507,7 +511,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iClearY = self.Y_TOP_PANEL + 16
 			screen.setText(self.SAS_CLEAR_SEARCH_ID, "Background", self.SAS_CLEAR_TEXT, CvUtil.FONT_LEFT_JUSTIFY, iClearX, iClearY, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		self.SAS_syncSearchKeyboard(screen)
+		iKeysToggleX = self.X_EXIT
+		iKeysToggleY = self.Y_TITLE
+		screen.setText(self.SAS_SEARCH_KEYS_TOGGLE_ID, "Background", SASTextScale.titleText(self.SAS_SEARCH_KEYS_TEXT), CvUtil.FONT_RIGHT_JUSTIFY, iKeysToggleX, iKeysToggleY, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+		if self.SAS_bSearchKeyboardVisible:
+			self.SAS_syncSearchKeyboard(screen)
 
 	# <!-- custom: compact click keyboard for punctuation that Civ4 keyboard events often fail to expose on non-US layouts. (GPT-5.5) -->
 	def SAS_syncSearchKeyboard(self, screen):
@@ -2562,6 +2571,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->
 					self.SAS_keyDebounceByKey = {}
 					self.SAS_refreshActiveListView()
+				return 1
+			if inputClass.getFunctionName() == self.SAS_SEARCH_KEYS_TOGGLE_ID:
+				self.SAS_bSearchKeyboardVisible = not self.SAS_bSearchKeyboardVisible
+				self.SAS_syncSearchPanel()
 				return 1
 		# <!-- custom: keyboard input using InputTypes constants like other mod(s) do (chatgpt 5.2 + claude opus 4.5) -->
 		# <!-- custom: gate fires whenever a list-rendering page has registered itself as the active
