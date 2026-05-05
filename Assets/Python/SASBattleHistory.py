@@ -12,6 +12,7 @@ _TABLE_ID = "AdvCivSASBattleHistory"
 _ENTRIES_KEY = "entries"
 _MAX_ENTRIES = None
 _PENDING_COMBAT_ACTORS = None
+_CAPTURE_DATA_START = 13
 
 # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
 
@@ -74,6 +75,40 @@ def _appendEntry(entriesByPlayer, iPlayer, entry, iMaxEntries):
 	entriesByPlayer[szPlayer] = entries
 
 
+def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
+	# <!-- custom: capture info is stored after the combat-log strength block; pad rare/no-strength rows so older tuple parsing keeps its fixed offsets. (GPT-5.5) -->
+	aEntry = list(entry)
+	while len(aEntry) < _CAPTURE_DATA_START:
+		aEntry.append(0)
+	if len(aEntry) >= _CAPTURE_DATA_START + 3:
+		if aEntry[_CAPTURE_DATA_START] == iCapturingPlayer and aEntry[_CAPTURE_DATA_START + 1] == iCapturedUnitType:
+			aEntry[_CAPTURE_DATA_START + 2] += 1
+		else:
+			aEntry[_CAPTURE_DATA_START] = iCapturingPlayer
+			aEntry[_CAPTURE_DATA_START + 1] = iCapturedUnitType
+			aEntry[_CAPTURE_DATA_START + 2] = 1
+	else:
+		aEntry.extend([iCapturingPlayer, iCapturedUnitType, 1])
+	return tuple(aEntry)
+
+
+def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iOldUnitType):
+	if len(entry) < 7:
+		return False
+	# <!-- custom: don't require plot equality here; combatResult may record the winner's pre-advance plot, while unitCaptured fires after the captured unit is created on the loser's plot. Scan newest-first within the same turn instead. (GPT-5.5) -->
+	return (entry[0] == CyGame().getGameTurn() and entry[1] == iCapturingPlayer and entry[2] == iOldOwner and entry[4] == iOldUnitType)
+
+
+def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCapturedUnitType):
+	iIndex = len(entries) - 1
+	while iIndex >= 0:
+		if _matchesCapturedBattle(entries[iIndex], iCapturingPlayer, iOldOwner, iOldUnitType):
+			entries[iIndex] = _getEntryWithCapture(entries[iIndex], iCapturingPlayer, iCapturedUnitType)
+			return True
+		iIndex -= 1
+	return False
+
+
 def noteCombatActors(cdAttacker, cdDefender):
 	global _PENDING_COMBAT_ACTORS
 	_PENDING_COMBAT_ACTORS = (
@@ -115,6 +150,24 @@ def recordCombatResult(pWinner, pLoser):
 	if iLoser != iWinner:
 		_appendEntry(entriesByPlayer, iLoser, entry, iMaxEntries)
 	_saveEntriesByPlayer(entriesByPlayer)
+
+
+def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
+	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude Code Opus 4.7) -->
+	iOldOwner = int(iOldOwner)
+	iOldUnitType = int(iOldUnitType)
+	iCapturingPlayer = int(pNewUnit.getOwner())
+	iCapturedUnitType = int(pNewUnit.getUnitType())
+	entriesByPlayer = _getEntriesByPlayer()
+	bChanged = False
+	for iPlayer in (iCapturingPlayer, iOldOwner):
+		szPlayer = str(iPlayer)
+		entries = entriesByPlayer.get(szPlayer, [])
+		if _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCapturedUnitType):
+			entriesByPlayer[szPlayer] = entries
+			bChanged = True
+	if bChanged:
+		_saveEntriesByPlayer(entriesByPlayer)
 
 
 def getEntriesForPlayer(iPlayer):

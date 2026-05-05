@@ -142,6 +142,7 @@ class CvEventManager:
 			'unitBuilt' 			: self.onUnitBuilt,
 			'unitKilled'			: self.onUnitKilled,
 			'unitLost'				: self.onUnitLost,
+			'unitCaptured'			: self.onUnitCaptured,
 			'unitPromoted'			: self.onUnitPromoted,
 			'unitSelected'			: self.onUnitSelected, 
 			'UnitRename'				: self.onUnitRename,
@@ -367,7 +368,7 @@ class CvEventManager:
 	def onCombatResult(self, argsList):
 		'Combat Result'
 		pWinner,pLoser = argsList
-		# <!-- custom: record battle rows at the event source so the Military Advisor can show a save-persistent battle timeline without DLL changes. (GPT-5.5) -->
+		# <!-- custom: record battle rows at the event source so the Military Advisor can show a save-persistent battle timeline; capture details are patched later by unitCaptured because combatResult fires before capture is decided. (GPT-5.5) -->
 		SASBattleHistory.recordCombatResult(pWinner, pLoser)
 		playerX = PyPlayer(pWinner.getOwner())
 		unitX = PyInfo.UnitInfo(pWinner.getUnitType())
@@ -378,9 +379,12 @@ class CvEventManager:
 		#if playerX and playerX and unitX and playerY:
 		# advc.001: The above looks like a copy-paste error
 		if playerX and playerY and unitX and unitY:
-			CvUtil.pyPrint('Player %d Civilization %s Unit %s has defeated Player %d Civilization %s Unit %s' 
-				%(playerX.getID(), playerX.getCivilizationName(), unitX.getDescription(), 
-				playerY.getID(), playerY.getCivilizationName(), unitY.getDescription()))
+			CvUtil.pyPrint('Player %d Civilization %s Unit %s has defeated Player %d Civilization %s Unit %s' % (playerX.getID(), playerX.getCivilizationName(), unitX.getDescription(), playerY.getID(), playerY.getCivilizationName(), unitY.getDescription()))
+
+	def onUnitCaptured(self, argsList):
+		# <!-- custom: added for SAS Military Advisor Battles tab capture counts; this parent handler is a fallback because the live BUG event manager shadows it and records the same data in BugEventManager.onUnitCaptured. (GPT-5.5) -->
+		iOldOwner, iOldUnitType, pNewUnit = argsList
+		SASBattleHistory.recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit)
 
 	def onCombatLogCalc(self, argsList):
 		'Combat Result'

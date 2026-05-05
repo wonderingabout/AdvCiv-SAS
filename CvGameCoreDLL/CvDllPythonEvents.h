@@ -62,6 +62,8 @@ public:
 	void reportUnitBuilt(CvCity *pCity, CvUnit *pUnit);
 	void reportUnitKilled(CvUnit *pUnit, PlayerTypes eAttacker);
 	void reportUnitLost(CvUnit *pUnit);
+	// <!-- custom: Python event for save-persistent Military Advisor battle-history capture counts. (GPT-5.5) -->
+	void reportUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit);
 	void reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromotion);
 	void reportUnitSelected(CvUnit *pUnit);
 	void reportUnitRename(CvUnit *pUnit);

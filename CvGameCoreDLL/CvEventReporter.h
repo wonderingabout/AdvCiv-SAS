@@ -91,6 +91,8 @@ public:
 	void unitBuilt(CvCity *pCity, CvUnit *pUnit);
 	void unitKilled(CvUnit *pUnit, PlayerTypes eAttacker);
 	void unitLost(CvUnit *pUnit);
+	// <!-- custom: expose actual unit-capture creation for the Military Advisor Battles tab; combatResult fires too early to know whether workers/civilians were captured or destroyed. (GPT-5.5) -->
+	void unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit);
 	void unitPromoted(CvUnit *pUnit, PromotionTypes ePromotion);
 	DllExport void unitSelected(CvUnit *pUnit);
 	void unitRename(CvUnit* pUnit);

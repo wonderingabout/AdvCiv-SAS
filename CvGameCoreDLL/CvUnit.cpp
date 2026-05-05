@@ -578,6 +578,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 	kOwner.uwai().getCache().reportUnitDestroyed(getUnitType());
 
 	kOwner.AI_changeNumAIUnits(AI_getUnitAIType(), -1);
+	PlayerTypes const eLostOwner = getOwner();
+	UnitTypes const eLostUnitType = getUnitType();
 	PlayerTypes const eCapturingPlayer = getCapturingPlayer();
 	UnitTypes const eCaptureUnitType = (eCapturingPlayer == NO_PLAYER ? NO_UNIT :
 			getCaptureUnitType(GET_PLAYER(eCapturingPlayer).getCivilizationType()));
@@ -603,6 +605,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 					eCaptureUnitType, kPlot.getX(), kPlot.getY());
 			if (pCapturedUnit != NULL)
 			{
+				// <!-- custom: combatResult fires before capture is decided, so report the actual captured unit here after initUnit succeeds; Python patches the matching Military Advisor battle row numerically instead of guessing from unit XML. (GPT-5.5) -->
+				CvEventReporter::getInstance().unitCaptured(eLostOwner, eLostUnitType, pCapturedUnit);
 				CvWString szBuffer;
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CAPTURED_UNIT",
 						GC.getInfo(eCaptureUnitType).getTextKeyWide());

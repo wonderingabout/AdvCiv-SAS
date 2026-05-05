@@ -81,6 +81,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Their Unit</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_CAPTURE_COUNT</Tag>
+		<English>Cap#</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID</Tag>
 		<English>PID</English>
 	</TEXT>

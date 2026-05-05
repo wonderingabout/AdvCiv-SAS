@@ -51,7 +51,7 @@ class CvMilitaryAdvisor:
 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
-		self.BATTLE_PLOT_COL_ID = 15
+		self.BATTLE_PLOT_COL_ID = 17
 		self.PAGE_UNITS = 0
 		self.PAGE_BATTLES = 1
 		self.iActivePage = self.PAGE_UNITS
@@ -141,6 +141,7 @@ class CvMilitaryAdvisor:
 		self.TEXT_BATTLE_ROLE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE", ())
 		self.TEXT_BATTLE_OUR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_OUR_UNIT", ())
 		self.TEXT_BATTLE_THEIR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT", ())
+		self.TEXT_BATTLE_CAPTURE_COUNT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_CAPTURE_COUNT", ())
 		self.TEXT_BATTLE_PID = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID", ())
 		self.TEXT_BATTLE_PLOT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT", ())
 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
@@ -351,13 +352,43 @@ class CvMilitaryAdvisor:
 			iOurRole = -1
 			if bRoleKnown:
 				iOurRole = 1
-			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iX, iY)
+			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
 		if iDefender == self.iActivePlayer:
 			iOurRole = -1
 			if bRoleKnown:
 				iOurRole = 0
-			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iX, iY)
+			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
 		return None
+
+	def getBattleCapturePerspective(self, entry):
+		if len(entry) < 16:
+			return (0, -1)
+		iCapturingPlayer = entry[13]
+		iCapturedUnit = entry[14]
+		iCapturedCount = entry[15]
+		if iCapturedCount <= 0 or iCapturedUnit < 0 or iCapturedUnit >= gc.getNumUnitInfos():
+			return (0, -1)
+		if iCapturingPlayer == self.iActivePlayer:
+			return (iCapturedCount, iCapturedUnit)
+		return (-iCapturedCount, iCapturedUnit)
+
+	def getBattleCaptureCountText(self, iCapturedCount):
+		if iCapturedCount == 0:
+			return u""
+		szText = unicode(abs(iCapturedCount))
+		if iCapturedCount > 0:
+			return localText.changeTextColor(szText, self.COLOR_GREEN)
+		return localText.changeTextColor(szText, self.COLOR_RED)
+
+	def getBattleCaptureUnitText(self, iCapturedCount, iCapturedUnit):
+		if iCapturedCount == 0 or iCapturedUnit < 0:
+			return u""
+		return gc.getUnitInfo(iCapturedUnit).getDescription()
+
+	def getBattleCaptureUnitButton(self, iCapturedCount, iCapturedUnit):
+		if iCapturedCount == 0 or iCapturedUnit < 0:
+			return ""
+		return gc.getUnitInfo(iCapturedUnit).getButton()
 
 	def getBattleCurrentStrengthText(self, iCurrentStrength, iMaxStrength):
 		szText = self.getBattleStoredStrengthText(iCurrentStrength)
@@ -398,18 +429,19 @@ class CvMilitaryAdvisor:
 		iTableW = iW - 2 * self.MAP_MARGIN
 		iTableH = iH - 2 * self.MAP_MARGIN
 		self.BATTLE_ROW_PLOTS = {}
-		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 16, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 18, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(self.BATTLE_TABLE_ID)
 		screen.setStyle(self.BATTLE_TABLE_ID, "Table_StandardCiv_Style")
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, 55)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 1, self.TEXT_BATTLE_YEAR, 105)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 2, self.TEXT_BATTLE_RESULT, 80)
 		iPlotColW = 35
-		iTableSlackW = 24
 		iRoleColW = 35
 		iBaseColW = 45
 		iPIDColW = 38
-		iUnitColW = max(128, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - 78 - 78 - 35 - 35 - iPIDColW - iBaseColW - 78 - 78 - iPlotColW - iTableSlackW) / 2)
+		iCaptureCountColW = iPIDColW
+		iCaptureUnitColW = 35
+		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - 78 - 78 - 35 - 35 - iPIDColW - iBaseColW - 78 - 78 - iCaptureCountColW - iCaptureUnitColW - iPlotColW) / 2)
 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left, opponent identity stays on the right, and our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_ROLE, iRoleColW)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 4, self.STRENGTH_CHAR + u"b", iBaseColW)
@@ -423,6 +455,9 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 12, self.STRENGTH_CHAR + u"c", 78)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 13, self.STRENGTH_CHAR + u"m", 78)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 14, self.TEXT_BATTLE_THEIR_UNIT, iUnitColW)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 15, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
+		# <!-- custom: show captured unit type as a compact pedia icon rather than text. The stored row supports one captured unit type; if a future mod allows one combat to create multiple captured types, expand this column/model then. (GPT-5.5) -->
+		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 16, "", iCaptureUnitColW)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
 		screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
@@ -437,12 +472,15 @@ class CvMilitaryAdvisor:
 		tColumns = self.getBattlePerspectiveColumns(entry)
 		if tColumns is None:
 			return
-		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY = tColumns
+		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
 		iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
 		self.BATTLE_ROW_PLOTS[iRow] = (iX, iY)
 		kTheirPlayer = gc.getPlayer(iTheirPlayer)
 		iTheirCiv = kTheirPlayer.getCivilizationType()
 		iTheirLeader = kTheirPlayer.getLeaderType()
+		eCapturedUnitWidget = WidgetTypes.WIDGET_GENERAL
+		if iCapturedUnit >= 0:
+			eCapturedUnitWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 0, iRow, str(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.getTurnDate(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, localText.changeTextColor(szResult, iColor), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
@@ -458,6 +496,8 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 12, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 13, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, gc.getUnitInfo(iTheirUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTheirUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def dbgLogBattleHistory(self):
@@ -468,13 +508,13 @@ class CvMilitaryAdvisor:
 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
 		self.dbgLogBattleHistoryPerspectivePlayer()
 		self.dbgLogBattleHistoryPlayers(aEntries)
-		print("Turn | Year | Result | Role | OurStrB | OurStrC | OurStrM | OurUnit | TheirPID | TheirStrB | TheirStrC | TheirStrM | TheirUnit | X | Y")
+		print("Turn | Year | Result | Role | OurStrB | OurStrC | OurStrM | OurUnit | TheirPID | TheirStrB | TheirStrC | TheirStrM | TheirUnit | Cap# | CapUnit | X | Y")
 		for entry in aEntries:
 			tColumns = self.getBattlePerspectiveColumns(entry)
 			if tColumns is None:
 				continue
-			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY = tColumns
-			print("%d | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %s | %d | %d" % (
+			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
+			print("%d | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %s | %d | %s | %d | %d" % (
 				iTurn,
 				self.getTurnDate(iTurn),
 				szResult,
@@ -488,6 +528,8 @@ class CvMilitaryAdvisor:
 				self.getBattleStoredStrengthText(iTheirCurrStr),
 				self.getBattleStoredStrengthText(iTheirMaxStr),
 				gc.getUnitInfo(iTheirUnit).getDescription(),
+				iCapturedCount,
+				self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit),
 				iX,
 				iY,
 			))
