@@ -184,7 +184,10 @@ class CvMilitaryAdvisor:
 		self.TEXT_BATTLE_PLOT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT", ())
 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
 		self.ART_BUTTON_HILITE_SQUARE = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
-		self.ART_CITY_SELECTION_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.ART_BATTLE_PLOT_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_MINIMAP_PING").getPath()
+		self.ART_BATTLE_CITY_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+		self.ART_BATTLE_CITY_CAPTURED_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath()
+		self.ART_BATTLE_ROLE_ATTACKER = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_CROSSED_SWORDS").getPath()
 		self.iBattleTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
 		self.iBattleTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
 		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
@@ -467,6 +470,13 @@ class CvMilitaryAdvisor:
 			return gc.getFeatureInfo(iFeature).getType()
 		return ""
 
+	def getBattlePlotButton(self, iCityContext):
+		if SASBattleHistory.isCityContextCaptured(iCityContext):
+			return self.ART_BATTLE_CITY_CAPTURED_BUTTON
+		if SASBattleHistory.isCityContextDefended(iCityContext):
+			return self.ART_BATTLE_CITY_BUTTON
+		return self.ART_BATTLE_PLOT_BUTTON
+
 	def getBattleCurrentStrengthText(self, iCurrentStrength, iMaxStrength):
 		szText = self.getBattleStoredStrengthText(iCurrentStrength)
 		if not szText or iMaxStrength <= 0:
@@ -493,8 +503,14 @@ class CvMilitaryAdvisor:
 			return u""
 		return unicode((100 * iOurStrength + (iTotalStrength / 2)) / iTotalStrength)
 
+	def getBattleRoleArt(self, iOurRole):
+		# <!-- custom: empty string (not unicode) because the szIcon arg of CyGInterfaceScreen.setTableText is bound as char const * (str); passing unicode triggers an ArgumentError. Credit: Claude code Opus 4.7. (GPT-5.5) -->
+		if iOurRole == 1:
+			return self.ART_BATTLE_ROLE_ATTACKER
+		return ""
+
 	def getBattleRoleText(self, iOurRole):
-		# <!-- custom: show only "A" when the inspected player attacked; defender rows stay blank so Role works as a sparse scan flag instead of forcing every row to carry a letter. (GPT-5.5) -->
+		# <!-- custom: text variant kept for the PythonDbg.log dump because stdout cannot render table art icons. (GPT-5.5) -->
 		if iOurRole == 1:
 			return u"A"
 		return u""
@@ -570,7 +586,7 @@ class CvMilitaryAdvisor:
 		tColumns = self.getBattlePerspectiveColumns(entry)
 		if tColumns is None:
 			return
-		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain = tColumns
+		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain, iCityContext = tColumns
 		iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
 		self.BATTLE_ROW_PLOTS[iRow] = (iX, iY)
 		kTheirPlayer = gc.getPlayer(iTheirPlayer)
@@ -583,7 +599,7 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.getTurnDate(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, localText.changeTextColor(szResult, iColor), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 3, iRow, self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, self.getBattleRoleText(iOurRole), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, "", self.getBattleRoleArt(iOurRole), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 5, iRow, self.getBattleBaseStrengthText(iOurUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 6, iRow, self.getBattleCurrentStrengthText(iOurCurrStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 7, iRow, self.getBattleCurrentStrengthText(iOurEndStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
@@ -603,7 +619,7 @@ class CvMilitaryAdvisor:
 			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.getBattlePlotButton(iCityContext), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def dbgLogBattleHistory(self):
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
@@ -619,7 +635,7 @@ class CvMilitaryAdvisor:
 			tColumns = self.getBattlePerspectiveColumns(entry)
 			if tColumns is None:
 				continue
-			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain = tColumns
+			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain, iCityContext = tColumns
 			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (
 				iTurn,
 				self.getTurnDate(iTurn),
@@ -1048,7 +1064,8 @@ class CvMilitaryAdvisor:
 
 			if (bReload):
 				if player.isBarbarian():
-					szButton = "Art/Interface/Buttons/Civilizations/Barbarian.dds"
+					# <!-- custom: read the Barbarian button path from CIV4ArtDefines_Civilization.xml instead of hardcoding "Art/Interface/Buttons/Civilizations/Barbarian.dds". (Claude code Opus 4.7) -->
+					szButton = gc.getCivilizationInfo(player.getCivilizationType()).getButton()
 				else:
 					szButton = gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton()
 				screen.addCheckBoxGFC(self.getLeaderButton(iLoopPlayer), szButton, self.ART_BUTTON_HILITE_SQUARE, x, y, iButtonSize, iButtonSize, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 2, iLoopPlayer, ButtonStyles.BUTTON_STYLE_LABEL)

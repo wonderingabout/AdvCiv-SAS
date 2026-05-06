@@ -18,6 +18,9 @@ _OUTCOME_DATA_START = 18
 _OUTCOME_RETREAT = 1
 _PLOT_CONTEXT_DATA_START = 19
 _PLOT_CONTEXT_HILL_PEAK_NONE = -1
+_PLOT_CONTEXT_CITY_NONE = 0
+_PLOT_CONTEXT_CITY_DEFENDED = 1
+_PLOT_CONTEXT_CITY_CAPTURED = 2
 _TERRAIN_PEAK = None
 _TERRAIN_HILL = None
 
@@ -98,7 +101,7 @@ def _appendEntry(entriesByPlayer, iPlayer, entry, iMaxEntries):
 
 def _getEntryWithPlotContext(entry, iX, iY):
 	# <!-- custom: snapshot terrain/feature/peak-or-hill at battle time instead of looking up the plot while drawing the advisor; forests, fallout, or terrain can change later, but the Battles tab should show the historical combat context. (GPT-5.5) -->
-	aEntry = list(entry)
+	aEntry = list(entry[:_PLOT_CONTEXT_DATA_START])
 	while len(aEntry) < _PLOT_CONTEXT_DATA_START:
 		aEntry.append(0)
 	pPlot = CyMap().plot(iX, iY)
@@ -107,7 +110,18 @@ def _getEntryWithPlotContext(entry, iX, iY):
 		iHillPeakTerrain = _getPeakTerrain()
 	elif pPlot.isHills():
 		iHillPeakTerrain = _getHillTerrain()
-	aEntry.extend([pPlot.getTerrainType(), pPlot.getFeatureType(), iHillPeakTerrain])
+	iCityContext = _PLOT_CONTEXT_CITY_NONE
+	if pPlot.isCity():
+		iCityContext = _PLOT_CONTEXT_CITY_DEFENDED
+	aEntry.extend([pPlot.getTerrainType(), pPlot.getFeatureType(), iHillPeakTerrain, iCityContext])
+	return tuple(aEntry)
+
+
+def _setEntryCityContext(entry, iX, iY, iCityContext):
+	aEntry = list(_getEntryWithPlotContext(entry, iX, iY))
+	aEntry[5] = int(iX)
+	aEntry[6] = int(iY)
+	aEntry[_PLOT_CONTEXT_DATA_START + 3] = int(iCityContext)
 	return tuple(aEntry)
 
 
@@ -151,6 +165,22 @@ def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCap
 	return False
 
 
+def _matchesCityCapturedBattle(entry, iPreviousOwner, iNewOwner):
+	if len(entry) < 7:
+		return False
+	return (entry[0] == CyGame().getGameTurn() and entry[1] == iNewOwner and entry[2] == iPreviousOwner)
+
+
+def _patchCityCapturedEntry(entries, iPreviousOwner, iNewOwner, iX, iY):
+	iIndex = len(entries) - 1
+	while iIndex >= 0:
+		if _matchesCityCapturedBattle(entries[iIndex], iPreviousOwner, iNewOwner):
+			entries[iIndex] = _setEntryCityContext(entries[iIndex], iX, iY, _PLOT_CONTEXT_CITY_CAPTURED)
+			return True
+		iIndex -= 1
+	return False
+
+
 def noteCombatActors(cdAttacker, cdDefender):
 	global _PENDING_COMBAT_ACTORS
 	_PENDING_COMBAT_ACTORS = (
@@ -172,14 +202,22 @@ def recordCombatResult(pWinner, pLoser):
 	iLoser = pLoser.getOwner()
 	if iWinner < 0 or iLoser < 0:
 		return
+	iBattleX = pWinner.getX()
+	iBattleY = pWinner.getY()
+	if _PENDING_COMBAT_ACTORS is not None:
+		iPendingAttacker = _PENDING_COMBAT_ACTORS[0]
+		iPendingDefender = _PENDING_COMBAT_ACTORS[1]
+		if iPendingAttacker == iWinner and iPendingDefender == iLoser:
+			iBattleX = pLoser.getX()
+			iBattleY = pLoser.getY()
 	entry = (
 		CyGame().getGameTurn(),
 		iWinner,
 		iLoser,
 		pWinner.getUnitType(),
 		pLoser.getUnitType(),
-		pWinner.getX(),
-		pWinner.getY(),
+		iBattleX,
+		iBattleY,
 	)
 	if _PENDING_COMBAT_ACTORS is not None:
 		iAttacker, iDefender = _PENDING_COMBAT_ACTORS[:2]
@@ -197,7 +235,7 @@ def recordCombatResult(pWinner, pLoser):
 				entry += (0,)
 			entry += (iAttackerEndStr, iDefenderEndStr)
 	_PENDING_COMBAT_ACTORS = None
-	entry = _getEntryWithPlotContext(entry, pWinner.getX(), pWinner.getY())
+	entry = _getEntryWithPlotContext(entry, iBattleX, iBattleY)
 	entriesByPlayer = _getEntriesByPlayer()
 	_appendEntry(entriesByPlayer, iWinner, entry, iMaxEntries)
 	if iLoser != iWinner:
@@ -259,6 +297,25 @@ def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
 		_saveEntriesByPlayer(entriesByPlayer)
 
 
+def recordCityCaptured(iPreviousOwner, iNewOwner, pCity, bConquest):
+	if not bConquest:
+		return
+	iPreviousOwner = int(iPreviousOwner)
+	iNewOwner = int(iNewOwner)
+	iX = int(pCity.getX())
+	iY = int(pCity.getY())
+	entriesByPlayer = _getEntriesByPlayer()
+	bChanged = False
+	for iPlayer in (iNewOwner, iPreviousOwner):
+		szPlayer = str(iPlayer)
+		entries = entriesByPlayer.get(szPlayer, [])
+		if _patchCityCapturedEntry(entries, iPreviousOwner, iNewOwner, iX, iY):
+			entriesByPlayer[szPlayer] = entries
+			bChanged = True
+	if bChanged:
+		_saveEntriesByPlayer(entriesByPlayer)
+
+
 def getEntriesForPlayer(iPlayer):
 	entriesByPlayer = _getEntriesByPlayer()
 	entries = entriesByPlayer.get(str(iPlayer), [])
@@ -273,8 +330,19 @@ def isRetreatEntry(entry):
 
 def getPlotContext(entry):
 	if len(entry) < _PLOT_CONTEXT_DATA_START + 2:
-		return (-1, -1, -1)
+		return (-1, -1, -1, _PLOT_CONTEXT_CITY_NONE)
 	iHillPeakTerrain = -1
 	if len(entry) >= _PLOT_CONTEXT_DATA_START + 3:
 		iHillPeakTerrain = entry[_PLOT_CONTEXT_DATA_START + 2]
-	return (entry[_PLOT_CONTEXT_DATA_START], entry[_PLOT_CONTEXT_DATA_START + 1], iHillPeakTerrain)
+	iCityContext = _PLOT_CONTEXT_CITY_NONE
+	if len(entry) >= _PLOT_CONTEXT_DATA_START + 4:
+		iCityContext = entry[_PLOT_CONTEXT_DATA_START + 3]
+	return (entry[_PLOT_CONTEXT_DATA_START], entry[_PLOT_CONTEXT_DATA_START + 1], iHillPeakTerrain, iCityContext)
+
+
+def isCityContextDefended(iCityContext):
+	return iCityContext == _PLOT_CONTEXT_CITY_DEFENDED
+
+
+def isCityContextCaptured(iCityContext):
+	return iCityContext == _PLOT_CONTEXT_CITY_CAPTURED

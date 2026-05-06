@@ -926,7 +926,8 @@ class CvMilitaryAdvisor:
 				y = self.Y_LEADERS + self.LEADER_MARGIN + (iIndex // iColumns) * (iButtonSize + self.LEADER_MARGIN)
 	
 				if player.isBarbarian():
-					szButton = "Art/Interface/Buttons/Civilizations/Barbarian.dds"
+					# <!-- custom: read the Barbarian button path from CIV4ArtDefines_Civilization.xml instead of hardcoding "Art/Interface/Buttons/Civilizations/Barbarian.dds". (Claude code Opus 4.7) -->
+					szButton = gc.getCivilizationInfo(player.getCivilizationType()).getButton()
 				else:
 					szButton = gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton()
 	

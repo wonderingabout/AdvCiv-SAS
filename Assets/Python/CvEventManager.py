@@ -844,6 +844,8 @@ class CvEventManager:
 	def onCityAcquired(self, argsList):
 		'City Acquired'
 		iPreviousOwner,iNewOwner,pCity,bConquest,bTrade = argsList
+		# <!-- custom: patch the matching Military Advisor Battles row when combat actually captures a city; combatResult fires before city acquisition, so city-fall plot art has to be attached from this later event. (GPT-5.5) -->
+		SASBattleHistory.recordCityCaptured(iPreviousOwner, iNewOwner, pCity, bConquest)
 		# <advc.007>
 		if (not self.__LOG_CITYACQUIRED):
 			return # </advc.007>
