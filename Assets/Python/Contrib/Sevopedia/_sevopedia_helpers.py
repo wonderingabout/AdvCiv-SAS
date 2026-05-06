@@ -1025,10 +1025,11 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount, 
 	# For leaders: extraData should contain "leaderToCiv" mapping iLeader -> iCiv
 	# For civs/techs: extraData is not required
 
+	# <!-- custom: In-category chart icon cells are standalone image columns, so give them the same invisible text sort key as full chart-category icon cells. (GPT-5.5) -->
 	for iCol in xrange(colCount):  # noqa: F821
 		if iCol >= len(itemIds):
 			# Empty cell
-			screen.setTableText(tableName, colStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(0, row), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			continue
 
 		itemId = itemIds[iCol]
@@ -1069,6 +1070,6 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount, 
 				widgetData2 = -1
 
 		if buttonPath:
-			screen.setTableText(tableName, colStart + iCol, row, "", buttonPath, widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(itemId + 1, row), buttonPath, widgetType, widgetData1, widgetData2, CvUtil.FONT_LEFT_JUSTIFY)
 		else:
-			screen.setTableText(tableName, colStart + iCol, row, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(0, row), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

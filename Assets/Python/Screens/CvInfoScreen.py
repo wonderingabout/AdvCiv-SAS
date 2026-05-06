@@ -1276,8 +1276,8 @@ class CvInfoScreen:
 
 			# <!-- custom: Score tab is a reference matrix, so leader/civ identity cells open Sevopedia
 			# instead of diplomacy; contact actions are already covered by the scoreboard and Foreign Advisor. (GPT-5.5) -->
-			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, getAdvisorIconSortKey(pPlayer.getLeaderType() + 1, iRow), gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, getAdvisorIconSortKey(pPlayer.getCivilizationType() + 1, iRow), gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 			szColor = self.SCORETAB_COLOR_MARKER
 			ePlayerColor = pPlayer.getPlayerColor()
 			if ePlayerColor > -1:
@@ -1429,17 +1429,19 @@ class CvInfoScreen:
 			szResearchButton = ""
 			szResearchPct = u""
 			iProgressPct = -1
+			iResearchSortGroup = 0
 			if bMet and (bDebugMode or (pActivePlayer.canSeeResearch(ePlayer) and (eTeam != eActiveTeam or bActiveTeamHasMultipleMembers))):
 				if eCurrentResearch != -1:
 					kTech = gc.getTechInfo(eCurrentResearch)
 					szResearchButton = kTech.getButton()
+					iResearchSortGroup = eCurrentResearch + 1
 					iResearchCost = pTeam.getResearchCost(eCurrentResearch)
 					if iResearchCost > 0:
 						iProgressPct = pTeam.getResearchProgress(eCurrentResearch) * 100 / iResearchCost
 						iProgressPct = max(0, min(99, iProgressPct))
 						szResearchPct = str(iProgressPct)
 			SASTextScale.setTableIntLabel(screen, szTable, iColTechs, iRow, str(teamTechCounts[eTeam]), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, u"", szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, iColResearch, iRow, getAdvisorIconSortKey(iResearchSortGroup, iRow), szResearchButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			if iProgressPct > -1:
 				SASTextScale.setTableIntLabel(screen, szTable, iColResearchPct, iRow, str(iProgressPct), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			else:

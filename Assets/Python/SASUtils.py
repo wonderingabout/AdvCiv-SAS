@@ -90,6 +90,21 @@ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
 	return aiLinkWidths
 
 
+# <!-- custom: invisible sort key for advisor icon-only table cells. GameFont chars (religion, attitude, trade icons, etc.) already sort as text; this is only for separate icon-button cells where the visible text is otherwise empty. Usually skip this when an icon button is immediately followed by matching text in the next column (e.g. Info Screen Wonders), because that text column already gives the useful sort path. Keep hardcoded font=1 unscaled so the sort key stays invisible and does not affect row height. Pattern based on Sevopedia chart icon sorting. (GPT-5.5) -->
+def getAdvisorIconSortKey(iGroup, iRow):
+	aDigits = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+	aParts = []
+	iValue = int(iGroup)
+	for _ in xrange(4):
+		aParts.insert(0, aDigits[iValue % 5])
+		iValue = iValue / 5
+	iValue = int(iRow)
+	for _ in xrange(6):
+		aParts.insert(4, aDigits[iValue % 5])
+		iValue = iValue / 5
+	return u"<font=1>" + u"".join(aParts) + u"</font>"
+
+
 # <!-- custom: shared debug/vassal player dropdown for advisors. Debug mode keeps each legacy advisor's MAX_PLAYERS vs MAX_CIV_PLAYERS and active-row preselection behavior. Outside debug, selected advisors may inspect only the current active player plus alive vassals of the active player's team, not a hardcoded human slot; vassals are subordinate enough to make their domestic/world/policy state relevant, but this remains perspective-only UI access and does not reveal unrelated players or hidden map data. (GPT-5.5) -->
 def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT, bAllowVassalPerspective=False):
 	aiPlayers = getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective)

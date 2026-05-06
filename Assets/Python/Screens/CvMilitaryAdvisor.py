@@ -459,22 +459,23 @@ class CvMilitaryAdvisor:
 		return szText
 
 	def setBattleTerrainFeatureCell(self, screen, iRow, iCol, iInfo, bTerrain):
+		szSortKey = getAdvisorIconSortKey(iInfo + 1, iRow)
 		if bTerrain:
 			if iInfo >= 0 and iInfo < gc.getNumTerrainInfos():
-				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getTerrainInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, szSortKey, gc.getTerrainInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				return
 		else:
 			if iInfo >= 0 and iInfo < gc.getNumFeatureInfos():
-				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getFeatureInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, szSortKey, gc.getFeatureInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				return
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, getAdvisorIconSortKey(0, iRow), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def setBattleHillPeakCell(self, screen, iRow, iHillPeakTerrain):
 		# <!-- custom: show only peak/hill here: flat/water have no separate pedia redirects and are already visible through terrain, while peak/hill are separate combat-relevant map properties with Sevopedia entries/icons. (GPT-5.5) -->
 		if iHillPeakTerrain == self.iBattleTerrainPeak or iHillPeakTerrain == self.iBattleTerrainHill:
-			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", gc.getTerrainInfo(iHillPeakTerrain).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHillPeakTerrain, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, getAdvisorIconSortKey(iHillPeakTerrain + 1, iRow), gc.getTerrainInfo(iHillPeakTerrain).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHillPeakTerrain, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			return
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, getAdvisorIconSortKey(0, iRow), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def getBattleTerrainTypeText(self, iTerrain):
 		if iTerrain >= 0 and iTerrain < gc.getNumTerrainInfos():
@@ -535,7 +536,7 @@ class CvMilitaryAdvisor:
 		return ""
 
 	def getBattleResultLogText(self, iResult):
-		# <!-- custom: dev-only PythonDbg log dump labels — hardcoded English (no localization round-trip via TXT_KEY) since logs are dev/diagnostic and never user-facing. (Claude code Opus 4.7) -->
+		# <!-- custom: dev-only PythonDbg log dump labels: hardcoded English (no localization round-trip via TXT_KEY) since logs are dev/diagnostic and never user-facing. Credit: Claude code Opus 4.7. (GPT-5.5) -->
 		if iResult == self.RESULT_WON:
 			return u"Won"
 		if iResult == self.RESULT_LOST:
@@ -639,9 +640,9 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 0, iRow, str(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.getTurnDate(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		# <!-- custom: show result as compact icon art in the table to save width and reduce colored-text overload; keep Won/Lost/Ret. text in the PythonDbg.log dump below. (GPT-5.5) -->
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, "", self.getBattleResultArt(iResult), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 2, iRow, getAdvisorIconSortKey((iResult + 1) * 10, iRow), self.getBattleResultArt(iResult), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 3, iRow, self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, "", self.getBattleRoleArt(iOurRole), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, getAdvisorIconSortKey(iOurRole + 1, iRow), self.getBattleRoleArt(iOurRole), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 5, iRow, self.getBattleBaseStrengthText(iOurUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 6, iRow, self.getBattleCurrentStrengthText(iOurCurrStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 7, iRow, self.getBattleCurrentStrengthText(iOurEndStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
@@ -660,16 +661,16 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, self.getBattleCurrentStrengthText(iTheirEndStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, "", gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, "", gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, getAdvisorIconSortKey(iTheirCiv + 1, iRow), gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, getAdvisorIconSortKey(iTheirLeader + 1, iRow), gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 19, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 20, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 21, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 21, iRow, getAdvisorIconSortKey(iCapturedUnit + 1, iRow), self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
 			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.getBattlePlotButton(iCityContext), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, getAdvisorIconSortKey(iCityContext + 1, iRow), self.getBattlePlotButton(iCityContext), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def dbgLogBattleHistory(self):
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
