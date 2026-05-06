@@ -49,18 +49,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>Log</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_WON</Tag>
-		<English>Won</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_LOST</Tag>
-		<English>Lost</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RETREAT</Tag>
-		<English>Ret.</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN</Tag>
 		<English>Turn</English>
 	</TEXT>
@@ -69,16 +57,16 @@ Created as part of AdvCiv-SAS improvements
 		<English>Year</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RESULT</Tag>
-		<English>Result</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_EST_ODDS</Tag>
 		<English>E%</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE</Tag>
 		<English>Role</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_XP</Tag>
+		<English>XP</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_OUR_UNIT</Tag>

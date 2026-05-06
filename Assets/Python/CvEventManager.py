@@ -400,7 +400,10 @@ class CvEventManager:
 	def onSASBattleHistoryCombatDetails(self, argsList):
 		# <!-- custom: fill Military Advisor battle history role/strength data for all combats, including AI-vs-AI rows visible through debug or active-player vassal selection, without running player-facing combatLogCalc messages for hidden battles. (GPT-5.5) -->
 		genericArgs = argsList[0][0]
-		SASBattleHistory.noteCombatActors(genericArgs[0], genericArgs[1])
+		if len(genericArgs) >= 6:
+			SASBattleHistory.noteCombatActors(genericArgs[0], genericArgs[1], genericArgs[2], genericArgs[3], genericArgs[4], genericArgs[5])
+		else:
+			SASBattleHistory.noteCombatActors(genericArgs[0], genericArgs[1])
 
 	def onSASBattleHistoryCombatRetreat(self, argsList):
 		# <!-- custom: record non-lethal withdrawal/combat-limit fights in the Military Advisor Battles tab; combatResult only fires when a unit dies, so retreats need their own battle-history event. (GPT-5.5) -->

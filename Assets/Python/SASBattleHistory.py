@@ -12,11 +12,14 @@ _TABLE_ID = "AdvCivSASBattleHistory"
 _ENTRIES_KEY = "entries"
 _MAX_ENTRIES = None
 _PENDING_COMBAT_ACTORS = None
+_PENDING_COMBAT_UNIT_CONTEXT = None
 _CAPTURE_DATA_START = 13
 _END_STRENGTH_DATA_START = 16
 _OUTCOME_DATA_START = 18
 _OUTCOME_RETREAT = 1
 _PLOT_CONTEXT_DATA_START = 19
+_PLOT_CONTEXT_DATA_COUNT = 4
+_UNIT_CONTEXT_DATA_START = _PLOT_CONTEXT_DATA_START + _PLOT_CONTEXT_DATA_COUNT
 _PLOT_CONTEXT_HILL_PEAK_NONE = -1
 _PLOT_CONTEXT_CITY_NONE = 0
 _PLOT_CONTEXT_CITY_DEFENDED = 1
@@ -104,6 +107,9 @@ def _getEntryWithPlotContext(entry, iX, iY):
 	aEntry = list(entry[:_PLOT_CONTEXT_DATA_START])
 	while len(aEntry) < _PLOT_CONTEXT_DATA_START:
 		aEntry.append(0)
+	aTail = []
+	if len(entry) > _UNIT_CONTEXT_DATA_START:
+		aTail = list(entry[_UNIT_CONTEXT_DATA_START:])
 	pPlot = CyMap().plot(iX, iY)
 	iHillPeakTerrain = _PLOT_CONTEXT_HILL_PEAK_NONE
 	if pPlot.isPeak():
@@ -114,6 +120,7 @@ def _getEntryWithPlotContext(entry, iX, iY):
 	if pPlot.isCity():
 		iCityContext = _PLOT_CONTEXT_CITY_DEFENDED
 	aEntry.extend([pPlot.getTerrainType(), pPlot.getFeatureType(), iHillPeakTerrain, iCityContext])
+	aEntry.extend(aTail)
 	return tuple(aEntry)
 
 
@@ -122,6 +129,15 @@ def _setEntryCityContext(entry, iX, iY, iCityContext):
 	aEntry[5] = int(iX)
 	aEntry[6] = int(iY)
 	aEntry[_PLOT_CONTEXT_DATA_START + 3] = int(iCityContext)
+	return tuple(aEntry)
+
+
+def _getEntryWithUnitContext(entry):
+	aEntry = list(entry)
+	while len(aEntry) < _UNIT_CONTEXT_DATA_START:
+		aEntry.append(0)
+	if _PENDING_COMBAT_UNIT_CONTEXT is not None:
+		aEntry.extend(_PENDING_COMBAT_UNIT_CONTEXT)
 	return tuple(aEntry)
 
 
@@ -181,8 +197,10 @@ def _patchCityCapturedEntry(entries, iPreviousOwner, iNewOwner, iX, iY):
 	return False
 
 
-def noteCombatActors(cdAttacker, cdDefender):
+def noteCombatActors(cdAttacker, cdDefender, iAttackerXP=None, iDefenderXP=None, bAttackerGG=None, bDefenderGG=None):
 	global _PENDING_COMBAT_ACTORS
+	global _PENDING_COMBAT_UNIT_CONTEXT
+	bKeepUnitContext = (_PENDING_COMBAT_ACTORS is not None and _PENDING_COMBAT_UNIT_CONTEXT is not None and iAttackerXP is None and iDefenderXP is None and _PENDING_COMBAT_ACTORS[0] == int(cdAttacker.eOwner) and _PENDING_COMBAT_ACTORS[1] == int(cdDefender.eOwner))
 	_PENDING_COMBAT_ACTORS = (
 		int(cdAttacker.eOwner),
 		int(cdDefender.eOwner),
@@ -191,10 +209,16 @@ def noteCombatActors(cdAttacker, cdDefender):
 		int(cdDefender.iCurrCombatStr),
 		int(cdDefender.iMaxCombatStr),
 	)
+	if bKeepUnitContext:
+		return
+	_PENDING_COMBAT_UNIT_CONTEXT = None
+	if iAttackerXP is not None and iDefenderXP is not None and bAttackerGG is not None and bDefenderGG is not None:
+		_PENDING_COMBAT_UNIT_CONTEXT = (int(iAttackerXP), int(bAttackerGG), int(iDefenderXP), int(bDefenderGG))
 
 
 def recordCombatResult(pWinner, pLoser):
 	global _PENDING_COMBAT_ACTORS
+	global _PENDING_COMBAT_UNIT_CONTEXT
 	iMaxEntries = _getMaxEntries()
 	if iMaxEntries == 0:
 		return
@@ -236,6 +260,8 @@ def recordCombatResult(pWinner, pLoser):
 			entry += (iAttackerEndStr, iDefenderEndStr)
 	_PENDING_COMBAT_ACTORS = None
 	entry = _getEntryWithPlotContext(entry, iBattleX, iBattleY)
+	entry = _getEntryWithUnitContext(entry)
+	_PENDING_COMBAT_UNIT_CONTEXT = None
 	entriesByPlayer = _getEntriesByPlayer()
 	_appendEntry(entriesByPlayer, iWinner, entry, iMaxEntries)
 	if iLoser != iWinner:
@@ -245,6 +271,7 @@ def recordCombatResult(pWinner, pLoser):
 
 def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, iY, iAttackerEndStr, iDefenderEndStr):
 	global _PENDING_COMBAT_ACTORS
+	global _PENDING_COMBAT_UNIT_CONTEXT
 	iMaxEntries = _getMaxEntries()
 	if iMaxEntries == 0:
 		return
@@ -271,7 +298,9 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, 
 		entry += (0,)
 	entry += (_OUTCOME_RETREAT,)
 	entry = _getEntryWithPlotContext(entry, int(iX), int(iY))
+	entry = _getEntryWithUnitContext(entry)
 	_PENDING_COMBAT_ACTORS = None
+	_PENDING_COMBAT_UNIT_CONTEXT = None
 	entriesByPlayer = _getEntriesByPlayer()
 	_appendEntry(entriesByPlayer, iAttacker, entry, iMaxEntries)
 	if iDefender != iAttacker:
@@ -338,6 +367,12 @@ def getPlotContext(entry):
 	if len(entry) >= _PLOT_CONTEXT_DATA_START + 4:
 		iCityContext = entry[_PLOT_CONTEXT_DATA_START + 3]
 	return (entry[_PLOT_CONTEXT_DATA_START], entry[_PLOT_CONTEXT_DATA_START + 1], iHillPeakTerrain, iCityContext)
+
+
+def getUnitContext(entry):
+	if len(entry) < _UNIT_CONTEXT_DATA_START + 4:
+		return (-1, 0, -1, 0)
+	return (entry[_UNIT_CONTEXT_DATA_START], entry[_UNIT_CONTEXT_DATA_START + 1], entry[_UNIT_CONTEXT_DATA_START + 2], entry[_UNIT_CONTEXT_DATA_START + 3])
 
 
 def isCityContextDefended(iCityContext):

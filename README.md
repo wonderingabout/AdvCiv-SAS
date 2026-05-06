@@ -201,13 +201,6 @@ Added a new Battles tab in the Military Advisor, showing as a sortable table the
 
 Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
 
-Examples of LOG:
-
-`Turn | Year | Result | Est| Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y`
-
-- `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | Camel Archer | Longbowman | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`
-- `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | Trireme | Galley | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`.
-
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
 
 ##### World Advisor

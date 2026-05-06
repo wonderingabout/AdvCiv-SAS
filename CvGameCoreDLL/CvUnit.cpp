@@ -1144,6 +1144,11 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 		CyArgsList pyArgsSASBattleDetails;
 		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdAttackerDetails));
 		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdDefenderDetails));
+		// <!-- custom: also pass pre-fight XP and Great-General attachment for Military Advisor Battles; Python CombatDetails exposes strength data but not unit XP/leader state, and reading it after combat would be too late for the winner. (GPT-5.5) -->
+		pyArgsSASBattleDetails.add(getExperience());
+		pyArgsSASBattleDetails.add(pDefender->getExperience());
+		pyArgsSASBattleDetails.add(getLeaderUnitType() != NO_UNIT ? 1 : 0);
+		pyArgsSASBattleDetails.add(pDefender->getLeaderUnitType() != NO_UNIT ? 1 : 0);
 		CvEventReporter::getInstance().genericEvent("sasBattleHistoryCombatDetails", pyArgsSASBattleDetails.makeFunctionArgs());
 	}
 	int iAttackerKillOdds = iDefenderOdds * (100 - withdrawalProbability()) / 100;
