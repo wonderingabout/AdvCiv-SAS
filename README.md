@@ -201,7 +201,10 @@ Added a new Battles tab in the Military Advisor, showing as a sortable table the
 
 Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
 
+Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Promotions, and Unit Combats.
+
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="/0.515_military_advisor (3).JPG" width="250"></img>
 
 ##### World Advisor
 

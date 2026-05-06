@@ -53,10 +53,14 @@ class CvMilitaryAdvisor:
 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
 		self.PAGE_UNITS = 0
 		self.PAGE_BATTLES = 1
+		self.PAGE_COMPOSITION = 2
 		self.iActivePage = self.PAGE_UNITS
-		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1"]
-		self.PAGE_IDS = [self.PAGE_UNITS, self.PAGE_BATTLES]
-		self.PAGE_LINK_WIDTH = [0, 0]
+		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2"]
+		self.PAGE_IDS = [self.PAGE_UNITS, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
+		self.PAGE_LINK_WIDTH = [0, 0, 0]
+		self.COMPOSITION_UNITS_TABLE_ID = "MilitaryAdvisorCompositionUnitsTable"
+		self.COMPOSITION_PROMOTIONS_TABLE_ID = "MilitaryAdvisorCompositionPromotionsTable"
+		self.COMPOSITION_COMBATS_TABLE_ID = "MilitaryAdvisorCompositionCombatsTable"
 		self.BATTLE_ROW_PLOTS = {}
 
 		self.Z_BACKGROUND = -2.1
@@ -163,7 +167,12 @@ class CvMilitaryAdvisor:
 		self.TEXT_UNIT_TOGGLE_OFF = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ())
 		self.TEXT_TAB_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_UNITS_TAB", ()).upper()
 		self.TEXT_TAB_BATTLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_UNITS, self.TEXT_TAB_BATTLES]
+		self.TEXT_TAB_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", ()).upper()
+		self.PAGE_NAME_LIST = [self.TEXT_TAB_UNITS, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
+		self.TEXT_COMPOSITION_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS", ())
+		self.TEXT_COMPOSITION_PROMOTIONS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS", ())
+		self.TEXT_COMPOSITION_COMBATS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS", ())
+		self.TEXT_COMPOSITION_COUNT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COUNT", ())
 		self.TEXT_BATTLES_EMPTY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_EMPTY", ())
 		self.TEXT_BATTLES_LOG_BUTTON = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_LOG_BUTTON", ())
 		self.TEXT_BATTLE_TURN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN", ())
@@ -280,6 +289,11 @@ class CvMilitaryAdvisor:
 		if self.iActivePage == self.PAGE_BATTLES:
 			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 			self.drawBattleHistory()
+			return
+
+		if self.iActivePage == self.PAGE_COMPOSITION:
+			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+			self.drawComposition()
 			return
 
 		self.iActivePlayer = gc.getGame().getActivePlayer()
@@ -741,7 +755,63 @@ class CvMilitaryAdvisor:
 			szLeaderType = gc.getLeaderHeadInfo(kPlayer.getLeaderType()).getType()
 			szCivType = gc.getCivilizationInfo(kPlayer.getCivilizationType()).getType()
 			print("OpponentPlayer: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
-		
+
+
+	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Units tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current and "Current" stays free for a future detailed-units tab. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Units tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
+	def collectCompositionData(self):
+		dUnits = {}
+		dPromotions = {}
+		dCombats = {}
+		pPlayer = gc.getPlayer(self.iActivePlayer)
+		(pUnit, iter) = pPlayer.firstUnit(False)
+		iNumPromotionInfos = gc.getNumPromotionInfos()
+		while pUnit and not pUnit.isNone():
+			if pUnit.canFight():
+				iUnitType = pUnit.getUnitType()
+				dUnits[iUnitType] = dUnits.get(iUnitType, 0) + 1
+				iCombatType = pUnit.getUnitCombatType()
+				if iCombatType >= 0:
+					dCombats[iCombatType] = dCombats.get(iCombatType, 0) + 1
+				for iPromo in range(iNumPromotionInfos):
+					if pUnit.isHasPromotion(iPromo):
+						dPromotions[iPromo] = dPromotions.get(iPromo, 0) + 1
+			(pUnit, iter) = pPlayer.nextUnit(iter, False)
+		return dUnits, dPromotions, dCombats
+
+	def drawCompositionCountTable(self, szTable, szTitle, dCounts, getInfoFn, ePediaWidget, iX, iY, iW, iH):
+		screen = self.getScreen()
+		# <!-- custom: build (description, button, infoIdx, count) rows then sort by count desc so the heaviest entries land at the top before the user touches a column header. (Claude code Opus 4.7) -->
+		aRows = []
+		for iIdx, iCount in dCounts.items():
+			info = getInfoFn(iIdx)
+			aRows.append((info.getDescription(), info.getButton(), iIdx, iCount))
+		aRows.sort(key=lambda r: (-r[3], r[0]))
+		screen.addTableControlGFC(szTable, 2, iX, iY, iW, iH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(szTable)
+		screen.setStyle(szTable, "Table_StandardCiv_Style")
+		iCountColW = 80
+		iNameColW = iW - iCountColW - 14
+		screen.setTableColumnHeader(szTable, 0, sasFontTagLabel + szTitle + SAS_FONT_TAG_CLOSE, iNameColW)
+		screen.setTableColumnHeader(szTable, 1, sasFontTagLabel + self.TEXT_COMPOSITION_COUNT + SAS_FONT_TAG_CLOSE, iCountColW)
+		for iRow, (szName, szButton, iIdx, iCount) in enumerate(aRows):
+			screen.appendTableRow(szTable)
+			screen.setTableText(szTable, 0, iRow, sasFontTagLabel + szName + SAS_FONT_TAG_CLOSE, szButton, ePediaWidget, iIdx, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.setTableInt(szTable, 1, iRow, sasFontTagLabel + str(iCount) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+	def drawComposition(self):
+		screen = self.getScreen()
+		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+		# <!-- custom: counts + tight row height compress vertical space well, so an outer-margin layout would already fit all rows. But we use the maxed advisor layout because Promotion or Unit type lists can grow unexpectedly; e.g., in mod-mods (although we don't support them). (Claude code Opus 4.7) -->
+		(iX, iY, iW, iH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
+		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
+		iTableGap = 14
+		iColW = (iTableW - 2 * iTableGap) / 3
+		dUnits, dPromotions, dCombats = self.collectCompositionData()
+		self.drawCompositionCountTable(self.COMPOSITION_UNITS_TABLE_ID, self.TEXT_COMPOSITION_UNITS, dUnits, gc.getUnitInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTableX, iTableY, iColW, iTableH)
+		self.drawCompositionCountTable(self.COMPOSITION_PROMOTIONS_TABLE_ID, self.TEXT_COMPOSITION_PROMOTIONS, dPromotions, gc.getPromotionInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iTableX + iColW + iTableGap, iTableY, iColW, iTableH)
+		self.drawCompositionCountTable(self.COMPOSITION_COMBATS_TABLE_ID, self.TEXT_COMPOSITION_COMBATS, dCombats, gc.getUnitCombatInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iTableX + 2 * (iColW + iTableGap), iTableY, iColW, iTableH)
+
+
 	def drawCombatExperience(self):
 		if self.iActivePage != self.PAGE_UNITS:
 			return

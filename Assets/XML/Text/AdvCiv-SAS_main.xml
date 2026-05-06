@@ -41,6 +41,26 @@ Created as part of AdvCiv-SAS improvements
 		<English>Battles</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB</Tag>
+		<English>Composition</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS</Tag>
+		<English>Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS</Tag>
+		<English>Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS</Tag>
+		<English>Combats</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COUNT</Tag>
+		<English>Current</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_EMPTY</Tag>
 		<English>No recorded battles for this player yet.</English>
 	</TEXT>
