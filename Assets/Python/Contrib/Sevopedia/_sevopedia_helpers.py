@@ -54,6 +54,10 @@ SAS_PEDIA_BG_NAMES = None
 g_iSasPediaPanelStyleIdx = None
 g_iSasPediaBgIdx = None
 IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = None
+# <!-- custom: index 0 is reserved as a "(default)" sentinel with RGB None so draw_expandable_text_panel can skip the <color=...> wrap and leave any inline color tags inside szText intact. See KI#128 for the deferred-discovery rationale. (Claude code Opus 4.7) -->
+SAS_PEDIA_TEXT_COLOR_NAMES = None
+SAS_PEDIA_TEXT_COLOR_RGBS = None
+g_iSasPediaTextColorIdx = None
 
 
 def _sas_pedia_collect_bg_names():
@@ -78,10 +82,33 @@ def _sas_pedia_collect_bg_names():
     return tuple([u"(none)"] + aNames)
 
 
+def _sas_pedia_collect_text_colors():
+    # <!-- custom: no Python getNumColorInfos() binding exists, but CyGlobalContext::getColorInfo returns NULL once i is out of range, so we stop on the first None. (Claude code Opus 4.7) -->
+    aNames = [u"(default)"]
+    aRgbs = [None]
+    iIdx = 0
+    while True:
+        pInfo = gc.getColorInfo(iIdx)
+        if pInfo is None:
+            break
+        sType = pInfo.getType()
+        if sType.startswith(u"COLOR_"):
+            sLabel = sType[len(u"COLOR_"):]
+        else:
+            sLabel = sType
+        # <!-- custom: NiColorA channels are floats in [0, 1] but the <color=...> tag expects 0..255. (Claude code Opus 4.7) -->
+        kRgba = pInfo.getColor()
+        aRgbs.append((int(kRgba.r * 255), int(kRgba.g * 255), int(kRgba.b * 255), int(kRgba.a * 255)))
+        aNames.append(sLabel)
+        iIdx += 1
+    return (tuple(aNames), tuple(aRgbs))
+
+
 def init_sas_pedia_playground_cache():
-    # <!-- custom: lazy-init the Sevopedia style/background playground instead of enumerating PanelStyles/interface art at module import time. This mirrors our safer advisor define-cache pattern: the playground is discovered once when first used, persists for the Civ4 session, and avoids import-time UI/DLL probing after an empirical native crash while cycling style/background options. Define changes still require a game restart. See KI#128. (GPT-5.5) -->
+    # <!-- custom: lazy-init avoids import-time UI/DLL probing after an empirical native crash while cycling style/background options. Define changes still require a game restart. See KI#128. (GPT-5.5 + Claude code Opus 4.7) -->
     global SAS_PEDIA_PANEL_STYLE_NAMES, SAS_PEDIA_PANEL_STYLE_VALUES, SAS_PEDIA_BG_NAMES
-    global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx
+    global SAS_PEDIA_TEXT_COLOR_NAMES, SAS_PEDIA_TEXT_COLOR_RGBS
+    global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx, g_iSasPediaTextColorIdx
     global IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE
     if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE is None:
         IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = (gc.getDefineINT("SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE") > 0)
@@ -90,8 +117,11 @@ def init_sas_pedia_playground_cache():
             SAS_PEDIA_PANEL_STYLE_NAMES = ()
             SAS_PEDIA_PANEL_STYLE_VALUES = ()
             SAS_PEDIA_BG_NAMES = ()
+            SAS_PEDIA_TEXT_COLOR_NAMES = ()
+            SAS_PEDIA_TEXT_COLOR_RGBS = ()
             g_iSasPediaPanelStyleIdx = 0
             g_iSasPediaBgIdx = 0
+            g_iSasPediaTextColorIdx = 0
         return
     if SAS_PEDIA_PANEL_STYLE_NAMES is None:
         # <!-- custom: auto-discover all PanelStyles enum values exposed by the DLL via boost::python (CvEnums.h PanelStyles). The selected style is applied to the expanded overlay and shown in the header so it can be copied into target call sites. Python 2.4 tuples have no .index(), so default lookup is a manual scan. (Claude code Opus 4.7 + GPT-5.5) -->
@@ -110,6 +140,9 @@ def init_sas_pedia_playground_cache():
             if SAS_PEDIA_BG_NAMES[_iIdx] == "SCREEN_BG_OPAQUE":
                 g_iSasPediaBgIdx = _iIdx
                 break
+    if SAS_PEDIA_TEXT_COLOR_NAMES is None:
+        SAS_PEDIA_TEXT_COLOR_NAMES, SAS_PEDIA_TEXT_COLOR_RGBS = _sas_pedia_collect_text_colors()
+        g_iSasPediaTextColorIdx = 0
 
 
 def cycle_sas_pedia_panel_style(iDelta):
@@ -128,6 +161,14 @@ def cycle_sas_pedia_background(iDelta):
     iCount = len(SAS_PEDIA_BG_NAMES)
     if iCount > 0:
         g_iSasPediaBgIdx = (g_iSasPediaBgIdx + iDelta) % iCount
+
+
+def cycle_sas_pedia_text_color(iDelta):
+    global g_iSasPediaTextColorIdx
+    init_sas_pedia_playground_cache()
+    iCount = len(SAS_PEDIA_TEXT_COLOR_NAMES)
+    if iCount > 0:
+        g_iSasPediaTextColorIdx = (g_iSasPediaTextColorIdx + iDelta) % iCount
 # <!-- custom: some constants often used in sevopedia -->
 LARGE_MARGIN = 20
 MEDIUM_MARGIN = 15
@@ -508,7 +549,24 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 				screen.setText(top.getNextWidgetName(), "Background", szBgLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iBgRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
-		screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szText), iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			iTextRowYBtn = iCycleY - 60
+			iTextRowYLabel = iLabelY - 60
+			tColorPreview = SAS_PEDIA_TEXT_COLOR_RGBS[g_iSasPediaTextColorIdx]
+			if tColorPreview is None:
+				szColorCode = u"-"
+			else:
+				szColorCode = u"%d,%d,%d,%d" % tColorPreview
+			szTextColorLabel = SASTextScale.labelText(u"TEXT: %s (%s) (%d/%d)" % (SAS_PEDIA_TEXT_COLOR_NAMES[g_iSasPediaTextColorIdx], szColorCode, g_iSasPediaTextColorIdx + 1, len(SAS_PEDIA_TEXT_COLOR_NAMES)))
+			screen.setText(top.getNextWidgetName(), "Background", szTextColorLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iTextRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		# <!-- custom: <color=R,G,B,A> wrap syntax matches BUG/RawYields.py:246. (Claude code Opus 4.7) -->
+		szTextForOverlay = szText
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_TEXT_COLOR_RGBS) > 0:
+			tColor = SAS_PEDIA_TEXT_COLOR_RGBS[g_iSasPediaTextColorIdx]
+			if tColor is not None:
+				szTextForOverlay = u"<color=%d,%d,%d,%d>%s</color>" % (tColor[0], tColor[1], tColor[2], tColor[3], szText)
+		screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szTextForOverlay), iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		return 1
 
 	panelName = top.getNextWidgetName()

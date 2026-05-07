@@ -140,6 +140,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE = 6816
 		# <!-- custom: companion widget id for cycling the underlying background DDS in the same playground; same iData2 convention. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
 		self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE = 6817
+		self.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE = 6818
 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
@@ -2773,6 +2774,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iData1 == self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE:
 				if self.iItem != -1:
 					cycle_sas_pedia_background(iData2)
+					self.pediaJump(self.iCategory, self.iItem, False, False)
+					return 1
+			if iData1 == self.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE:
+				if self.iItem != -1:
+					cycle_sas_pedia_text_color(iData2)
 					self.pediaJump(self.iCategory, self.iItem, False, False)
 					return 1
 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
