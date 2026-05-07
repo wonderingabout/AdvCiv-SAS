@@ -94,7 +94,8 @@ class CvMilitaryAdvisor:
 		# --- A. Leaders Panel (Top - Full Width) ---
 		self.X_LEADERS = 20
 		self.Y_LEADERS = 80
-		self.H_LEADERS = 90
+		# <!-- custom: doubled to fit 2 rows of full-size leader icons. (Claude code Opus 4.7) -->
+		self.H_LEADERS = 170
 		self.LEADER_BUTTON_SIZE = 64
 		self.LEADER_MARGIN = 12
 
@@ -199,8 +200,8 @@ class CvMilitaryAdvisor:
 		# <!-- custom: tried a military medal emoji but it reads as 2 half emoji with highly clashing colors; hard to read in a data-rich small column width table. Prefer the star emoji with darker variant that renders very well. Trophy seems more suited to races or competitions so not used in military context here. -->
 		self.ART_BATTLE_RESULT_WON = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_WHITE_MEDIUM_STAR_2").getPath()
 		self.ART_BATTLE_RESULT_LOST = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_SKULL").getPath()
-		# <!-- custom: left arrow has good contrast and is clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat. Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
-		self.ART_BATTLE_RESULT_RETREAT = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LEFT_ARROW").getPath()
+		# <!-- custom: this left arrow variant has a good contrast and is clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat. Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
+		self.ART_BATTLE_RESULT_RETREAT = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LEFT_ARROW_3").getPath()
 		# <!-- custom: int enum codes for battle result. Replaces previous string-compare on localized "Won"/"Lost"/"Ret." text; the text variants are not displayed in the UI (icon-only), and only the dev-only PythonDbg log dump needs human-readable strings, so localization round-trip via TXT_KEY was wasted work. Credit: Claude code Opus 4.7. (GPT-5.5) -->
 		self.RESULT_WON = 0
 		self.RESULT_LOST = 1
@@ -228,18 +229,33 @@ class CvMilitaryAdvisor:
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LINK = self.Y_EXIT
 
-		self.W_LEADERS = self.W_SCREEN - self.SIDE_MARGIN
-		self.LEADER_COLUMNS = max(1, int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
+		# <!-- custom: units panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the now-2-row leader bar keeps full icon size despite the narrower width. Leader-to-map vertical gap kept small because every pixel cut from H_MAP_MAX shrinks W_MAP via the world aspect ratio, which costs leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the map X / W to stay flush with it. (Claude code Opus 4.7) -->
+		iAdvisorMargin = 20
+		iLeaderToMapGap = 10
+		self.X_TEXT = self.W_SCREEN - iAdvisorMargin - self.W_TEXT
+		self.Y_TEXT = self.Y_LEADERS
+		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - iAdvisorMargin
 
-		self.X_TEXT = self.W_SCREEN - 20 - self.W_TEXT
-		self.Y_TEXT = self.Y_LEADERS + self.H_LEADERS + 15
-		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - 15
+		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + iLeaderToMapGap
+		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - iAdvisorMargin
+		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - iLeaderToMapGap - self.Y_MAP
 
-		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + 15
-		self.W_MAP = self.X_TEXT - self.X_MAP - 14
+		iGridW = CyMap().getGridWidth()
+		iGridH = CyMap().getGridHeight()
+		iMaxColW = self.W_SCREEN - 3 * iAdvisorMargin - self.W_TEXT
+		self.W_MAP = (self.H_MAP_MAX * iGridW) / iGridH
+		self.H_MAP = self.H_MAP_MAX
+		if self.W_MAP > iMaxColW:
+			self.W_MAP = iMaxColW
+			self.H_MAP = (self.W_MAP * iGridH) / iGridW
+		iGap = (self.W_SCREEN - self.W_MAP - self.W_TEXT) / 3
+		self.X_LEADERS = iGap
+		self.X_MAP = iGap
+		self.X_GREAT_GENERAL_BAR = iGap
+		self.X_TEXT = self.X_LEADERS + self.W_MAP + iGap
+		self.W_LEADERS = self.W_MAP
 		self.W_GREAT_GENERAL_BAR = self.W_MAP
-		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - 15
-		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - 10 - self.Y_MAP
+		self.LEADER_COLUMNS = max(1, int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
 
 		# <!-- custom: inline icon size is resolution-dependent (vertical room), so compute once in runtime layout and reuse during row rendering. (GPT-5.3-Codex) -->
 		self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
@@ -339,11 +355,6 @@ class CvMilitaryAdvisor:
 		self.iActivePlayer = gc.getGame().getActivePlayer()
 
 		# Minimap initialization
-		self.H_MAP = (self.W_MAP * CyMap().getGridHeight()) / CyMap().getGridWidth()
-		if (self.H_MAP > self.H_MAP_MAX):
-			self.W_MAP = (self.H_MAP_MAX * CyMap().getGridWidth()) / CyMap().getGridHeight()
-			self.H_MAP = self.H_MAP_MAX
-		self.W_GREAT_GENERAL_BAR = self.W_MAP
 		# <!-- custom: Redraw Military Advisor tab contents in-place instead of hideScreen()+interfaceScreen() on tab switches; otherwise the Units-tab minimap would stop rendering after returning from Battles/Composition. Initialize the map frame/minimap once per real advisor opening, then refresh/re-front it when returning to Units. See KI#129. (GPT-5.5) -->
 		if not self.bMinimapInitDone:
 			screen.addPanel(self.MAP_PANEL_ID, u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
@@ -1212,7 +1223,8 @@ class CvMilitaryAdvisor:
 				listLeaders.append(iLoopPlayer)
 				
 		iNumLeaders = len(listLeaders)
-		if iNumLeaders >= self.LEADER_COLUMNS:
+		# <!-- custom: at 1080p a row fits ~12 leaders at full size and ~22 at half size, so 2 full-size rows cover up to ~24 leaders before this kicks in. (Claude code Opus 4.7); note: does not scroll vertically: reaching 3rd row without icon reduction causes it to overflow under the leader icons panel (a 3rd row, half size or full size, but no vertical scroll). Having 2 full sized icon rows rather than one suits better our larger world sizes (we can now keep full size icons almost up to SAS24 worldsize player count (minus 1 player, because 24 players + barbarian = 25 > 24)) -->
+		if iNumLeaders > 2 * self.LEADER_COLUMNS:
 			iButtonSize = self.LEADER_BUTTON_SIZE / 2
 		else:
 			iButtonSize = self.LEADER_BUTTON_SIZE
