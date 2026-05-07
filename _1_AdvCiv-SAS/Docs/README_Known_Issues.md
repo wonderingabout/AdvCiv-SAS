@@ -164,6 +164,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
 [127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it)  
 [128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior)  
+[129 - (Fixed) Military Advisor Units-tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-units-tab-minimap-disappeared-after-switching-tabs)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4768,3 +4769,30 @@ Files changed:
 
 - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
 - [Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)
+
+## 129 - (Fixed) Military Advisor Units-tab minimap disappeared after switching tabs
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GKzU-m50WLj0CUBHCJPxTPbHfrJ33izg?usp=sharing).
+
+Observed issue:
+
+- In the (base) Military Advisor, after we added new tabs (Battles and Composition, and named "Units" (tab) the original advisor screen view), the Units tab minimap initially displayed correctly when opening the advisor.
+- After switching from Units to another Military Advisor tab (Battles or Composition) and then back to Units, the minimap area no longer rendered correctly.
+- Earlier attempts changed the symptom but did not fully fix it: `bringMinimapToFront()` alone did not restore the minimap; deleting/recreating several widgets could still leave a blank/blue map area; trying to reuse the minimap after `hideScreen()`/`interfaceScreen()` avoided some covering but could show the advisor background instead of the minimap.
+- Exiting the Military Advisor and reopening it restored the minimap.
+- The BUG Military Advisor variant did not show this issue when switching between its tabs.
+
+Fix:
+
+- Military Advisor tab switches now redraw the advisor contents in place instead of calling `hideScreen()` and then `interfaceScreen()` again.
+- The redraw deletes page-owned widgets only, while leaving the screen shell and minimap frame alive.
+- The Units tab initializes the minimap once per real advisor opening, then refreshes/re-fronts it when returning to Units.
+
+Notes:
+
+- The exact native/root cause was hard to pinpoint, so this entry describes the observed behavior and the empirically fixed redraw pattern rather than claiming a precise engine cause.
+- The fix follows the practical shape of the BUG Military Advisor, which keeps its screen alive during tab changes and rebuilds tab contents in place.
+
+File changed:
+
+- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)

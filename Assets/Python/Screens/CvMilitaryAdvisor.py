@@ -41,6 +41,7 @@ class CvMilitaryAdvisor:
 		self.ATTACHED_WIDGET_ID = "MilitaryAdvisorAttachedWidget" # no need to explicitly delete these
 		self.LEADER_BUTTON_ID = "MilitaryAdvisorLeaderButton"
 		self.UNIT_PANEL_ID = "MilitaryAdvisorUnitPanel"
+		self.MAP_PANEL_ID = "MilitaryAdvisorMapPanel"
 		self.UNIT_BUTTON_ID = "MilitaryAdvisorUnitButton"
 		self.UNIT_BUTTON_LABEL_ID = "MilitaryAdvisorUnitButtonLabel"
 		self.LEADER_PANEL_ID = "MilitaryAdvisorLeaderPanel"
@@ -84,6 +85,7 @@ class CvMilitaryAdvisor:
 		self.selectedPlayerList = []
 		self.selectedGroupList = []
 		self.selectedUnitList = []
+		self.bMinimapInitDone = False
 		self.iLanguageLoaded = -1
 
 		# <!-- custom: expand/layout elements (e.g., great general bar) to use the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
@@ -252,6 +254,33 @@ class CvMilitaryAdvisor:
 	def hideScreen(self):
 		screen = self.getScreen()
 		screen.hideScreen()
+
+	def deleteAllWidgets(self):
+		screen = self.getScreen()
+		iCount = self.nWidgetCount
+		self.nWidgetCount = 0
+		while self.nWidgetCount < iCount:
+			screen.deleteWidget(self.getNextWidgetName())
+		self.nWidgetCount = 0
+		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Units-tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
+		for szWidget in (
+			self.UNIT_PANEL_ID,
+			self.UNIT_BUTTON_ID,
+			self.UNIT_BUTTON_LABEL_ID,
+			self.LEADER_PANEL_ID,
+			self.UNIT_LIST_ID,
+			self.GREAT_GENERAL_BAR_ID,
+			self.GREAT_GENERAL_LABEL_ID,
+			self.DEBUG_DROPDOWN_ID,
+			self.BATTLE_TABLE_ID,
+			self.BATTLE_LOG_BUTTON_ID,
+			self.COMPOSITION_UNITS_TABLE_ID,
+			self.COMPOSITION_PROMOTIONS_TABLE_ID,
+			self.COMPOSITION_COMBATS_TABLE_ID,
+		):
+			screen.deleteWidget(szWidget)
+		for iPlayer in range(gc.getMAX_PLAYERS()):
+			screen.deleteWidget(self.getLeaderButton(iPlayer))
 										
 	# Screen construction function
 	def interfaceScreen(self):
@@ -266,6 +295,7 @@ class CvMilitaryAdvisor:
 		self.initDefines()
 		self.initText()
 		self.updateRuntimeLayout(screen)
+		self.bMinimapInitDone = False
 
 		self.nWidgetCount = 0
 
@@ -284,6 +314,16 @@ class CvMilitaryAdvisor:
 		# Header...
 		self.szHeader = self.getNextWidgetName()
 		screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		self.drawActivePage()
+
+	def redrawContents(self):
+		self.deleteAllWidgets()
+		self.szHeader = self.getNextWidgetName()
+		self.getScreen().setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		self.drawActivePage()
+
+	def drawActivePage(self):
+		screen = self.getScreen()
 		self.drawTabs()
 
 		if self.iActivePage == self.PAGE_BATTLES:
@@ -304,18 +344,20 @@ class CvMilitaryAdvisor:
 			self.W_MAP = (self.H_MAP_MAX * CyMap().getGridWidth()) / CyMap().getGridHeight()
 			self.H_MAP = self.H_MAP_MAX
 		self.W_GREAT_GENERAL_BAR = self.W_MAP
-		screen.addPanel("", u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
-		screen.initMinimap(self.X_MAP + self.MAP_MARGIN, self.X_MAP + self.W_MAP - self.MAP_MARGIN, self.Y_MAP + self.MAP_MARGIN, self.Y_MAP + self.H_MAP - self.MAP_MARGIN, self.Z_CONTROLS)
+		# <!-- custom: Redraw Military Advisor tab contents in-place instead of hideScreen()+interfaceScreen() on tab switches; otherwise the Units-tab minimap would stop rendering after returning from Battles/Composition. Initialize the map frame/minimap once per real advisor opening, then refresh/re-front it when returning to Units. See KI#129. (GPT-5.5) -->
+		if not self.bMinimapInitDone:
+			screen.addPanel(self.MAP_PANEL_ID, u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
+			screen.initMinimap(self.X_MAP + self.MAP_MARGIN, self.X_MAP + self.W_MAP - self.MAP_MARGIN, self.Y_MAP + self.MAP_MARGIN, self.Y_MAP + self.H_MAP - self.MAP_MARGIN, self.Z_CONTROLS)
+			self.bMinimapInitDone = True
 		screen.updateMinimapSection(False, False)
-
 		screen.updateMinimapColorFromMap(MinimapModeTypes.MINIMAPMODE_TERRITORY, 0.6)
-
 		screen.setMinimapMode(MinimapModeTypes.MINIMAPMODE_MILITARY)
 		
 		iOldMode = CyInterface().getShowInterface()
 		CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_MINIMAP_ONLY)
 		screen.updateMinimapVisibility()
 		CyInterface().setShowInterface(iOldMode)
+		screen.bringMinimapToFront()
 	
 		self.unitsList = [(0, 0, [], 0)] * gc.getNumUnitInfos()
 		self.selectedUnitList = []
@@ -857,8 +899,7 @@ class CvMilitaryAdvisor:
 	def handleInput (self, inputClass):
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
 			self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), self.DEBUG_DROPDOWN_ID)
-			self.hideScreen()
-			self.interfaceScreen()
+			self.redrawContents()
 			return 1
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.BATTLE_LOG_BUTTON_ID:
 			self.dbgLogBattleHistory()
@@ -873,8 +914,7 @@ class CvMilitaryAdvisor:
 			iPage = inputClass.getData1()
 			if iPage in self.PAGE_IDS and iPage != self.iActivePage:
 				self.iActivePage = iPage
-				self.hideScreen()
-				self.interfaceScreen()
+				self.redrawContents()
 				return 1
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.UNIT_BUTTON_ID) :
 			self.bUnitDetails = not self.bUnitDetails
