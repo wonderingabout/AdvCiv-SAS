@@ -41,7 +41,7 @@ class CvMilitaryAdvisor:
 		self.ATTACHED_WIDGET_ID = "MilitaryAdvisorAttachedWidget" # no need to explicitly delete these
 		self.LEADER_BUTTON_ID = "MilitaryAdvisorLeaderButton"
 		self.UNIT_PANEL_ID = "MilitaryAdvisorUnitPanel"
-		self.MAP_PANEL_ID = "MilitaryAdvisorMapPanel"
+		self.MAP_MINIMAP_PANEL_ID = "MilitaryAdvisorMapMinimapPanel"
 		self.UNIT_BUTTON_ID = "MilitaryAdvisorUnitButton"
 		self.UNIT_BUTTON_LABEL_ID = "MilitaryAdvisorUnitButtonLabel"
 		self.LEADER_PANEL_ID = "MilitaryAdvisorLeaderPanel"
@@ -52,12 +52,12 @@ class CvMilitaryAdvisor:
 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
-		self.PAGE_UNITS = 0
+		self.PAGE_MAP = 0
 		self.PAGE_BATTLES = 1
 		self.PAGE_COMPOSITION = 2
-		self.iActivePage = self.PAGE_UNITS
+		self.iActivePage = self.PAGE_MAP
 		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2"]
-		self.PAGE_IDS = [self.PAGE_UNITS, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
+		self.PAGE_IDS = [self.PAGE_MAP, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
 		self.PAGE_LINK_WIDTH = [0, 0, 0]
 		self.COMPOSITION_UNITS_TABLE_ID = "MilitaryAdvisorCompositionUnitsTable"
 		self.COMPOSITION_PROMOTIONS_TABLE_ID = "MilitaryAdvisorCompositionPromotionsTable"
@@ -85,7 +85,7 @@ class CvMilitaryAdvisor:
 		self.selectedPlayerList = []
 		self.selectedGroupList = []
 		self.selectedUnitList = []
-		self.bMinimapInitDone = False
+		self.bMapMinimapInitDone = False
 		self.iLanguageLoaded = -1
 
 		# <!-- custom: expand/layout elements (e.g., great general bar) to use the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
@@ -105,10 +105,10 @@ class CvMilitaryAdvisor:
 		# --- B. Unit List (Right Side - Fixed Width) ---
 		self.W_TEXT = 430
 
-		# --- C. Map Panel (Left Side - Fills Remaining Space) ---
-		self.X_MAP = 20
-		# <!-- custom: MAP_MARGIN refers to the panel border wrap, not an empty margin. (GPT-5.2-Codex (summarized)) -->
-		self.MAP_MARGIN = 20
+		# --- C. Minimap Panel (Left Side - Fills Remaining Space) ---
+		self.X_MAP_MINIMAP = 20
+		# <!-- custom: PANEL_MARGIN refers to the panel border wrap, not an empty margin. (GPT-5.2-Codex (summarized)) -->
+		self.PANEL_MARGIN = 20
 
 		# --- D. Great General Bar (Moved to Bottom Left)
 		self.H_GREAT_GENERAL_BAR = 30
@@ -168,10 +168,10 @@ class CvMilitaryAdvisor:
 		self.TEXT_ALL_UNITS = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
 		self.TEXT_UNIT_TOGGLE_ON = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ())
 		self.TEXT_UNIT_TOGGLE_OFF = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ())
-		self.TEXT_TAB_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_UNITS_TAB", ()).upper()
+		self.TEXT_TAB_MAP = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB", ()).upper()
 		self.TEXT_TAB_BATTLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB", ()).upper()
 		self.TEXT_TAB_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_UNITS, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
+		self.PAGE_NAME_LIST = [self.TEXT_TAB_MAP, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
 		self.TEXT_COMPOSITION_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS", ())
 		self.TEXT_COMPOSITION_PROMOTIONS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS", ())
 		self.TEXT_COMPOSITION_COMBATS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS", ())
@@ -219,42 +219,36 @@ class CvMilitaryAdvisor:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute runtime shell bounds/anchors through shared helpers so Military Advisor follows the same runtime layout flow as Foreign/Info/Domestic. (GPT-5.3-Codex) -->
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
-			screen,
-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
-			self.H_TOP_SPACE_FOR_TECH_BAR,
-			self.H_BOTTOM_SPACE
-		)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LINK = self.Y_EXIT
 
-		# <!-- custom: units panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the now-2-row leader bar keeps full icon size despite the narrower width. Leader-to-map vertical gap kept small because every pixel cut from H_MAP_MAX shrinks W_MAP via the world aspect ratio, which costs leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the map X / W to stay flush with it. (Claude code Opus 4.7) -->
+		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the now-2-row leader bar keeps full icon size despite the narrower width. Leader-to-map-minimap vertical gap kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which costs leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7) -->
 		iAdvisorMargin = 20
-		iLeaderToMapGap = 10
+		iLeaderToMapMinimapGap = 10
 		self.X_TEXT = self.W_SCREEN - iAdvisorMargin - self.W_TEXT
 		self.Y_TEXT = self.Y_LEADERS
 		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - iAdvisorMargin
 
-		self.Y_MAP = self.Y_LEADERS + self.H_LEADERS + iLeaderToMapGap
+		self.Y_MAP_MINIMAP = self.Y_LEADERS + self.H_LEADERS + iLeaderToMapMinimapGap
 		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - iAdvisorMargin
-		self.H_MAP_MAX = self.Y_GREAT_GENERAL_BAR - iLeaderToMapGap - self.Y_MAP
+		self.H_MAP_MINIMAP_MAX = self.Y_GREAT_GENERAL_BAR - iLeaderToMapMinimapGap - self.Y_MAP_MINIMAP
 
 		iGridW = CyMap().getGridWidth()
 		iGridH = CyMap().getGridHeight()
 		iMaxColW = self.W_SCREEN - 3 * iAdvisorMargin - self.W_TEXT
-		self.W_MAP = (self.H_MAP_MAX * iGridW) / iGridH
-		self.H_MAP = self.H_MAP_MAX
-		if self.W_MAP > iMaxColW:
-			self.W_MAP = iMaxColW
-			self.H_MAP = (self.W_MAP * iGridH) / iGridW
-		iGap = (self.W_SCREEN - self.W_MAP - self.W_TEXT) / 3
+		self.W_MAP_MINIMAP = (self.H_MAP_MINIMAP_MAX * iGridW) / iGridH
+		self.H_MAP_MINIMAP = self.H_MAP_MINIMAP_MAX
+		if self.W_MAP_MINIMAP > iMaxColW:
+			self.W_MAP_MINIMAP = iMaxColW
+			self.H_MAP_MINIMAP = (self.W_MAP_MINIMAP * iGridH) / iGridW
+		iGap = (self.W_SCREEN - self.W_MAP_MINIMAP - self.W_TEXT) / 3
 		self.X_LEADERS = iGap
-		self.X_MAP = iGap
+		self.X_MAP_MINIMAP = iGap
 		self.X_GREAT_GENERAL_BAR = iGap
-		self.X_TEXT = self.X_LEADERS + self.W_MAP + iGap
-		self.W_LEADERS = self.W_MAP
-		self.W_GREAT_GENERAL_BAR = self.W_MAP
+		self.X_TEXT = self.X_LEADERS + self.W_MAP_MINIMAP + iGap
+		self.W_LEADERS = self.W_MAP_MINIMAP
+		self.W_GREAT_GENERAL_BAR = self.W_MAP_MINIMAP
 		self.LEADER_COLUMNS = max(1, int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
 
 		# <!-- custom: inline icon size is resolution-dependent (vertical room), so compute once in runtime layout and reuse during row rendering. (GPT-5.3-Codex) -->
@@ -278,7 +272,7 @@ class CvMilitaryAdvisor:
 		while self.nWidgetCount < iCount:
 			screen.deleteWidget(self.getNextWidgetName())
 		self.nWidgetCount = 0
-		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Units-tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
+		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Map tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
 		for szWidget in (
 			self.UNIT_PANEL_ID,
 			self.UNIT_BUTTON_ID,
@@ -311,7 +305,7 @@ class CvMilitaryAdvisor:
 		self.initDefines()
 		self.initText()
 		self.updateRuntimeLayout(screen)
-		self.bMinimapInitDone = False
+		self.bMapMinimapInitDone = False
 
 		self.nWidgetCount = 0
 
@@ -355,11 +349,11 @@ class CvMilitaryAdvisor:
 		self.iActivePlayer = gc.getGame().getActivePlayer()
 
 		# Minimap initialization
-		# <!-- custom: Redraw Military Advisor tab contents in-place instead of hideScreen()+interfaceScreen() on tab switches; otherwise the Units-tab minimap would stop rendering after returning from Battles/Composition. Initialize the map frame/minimap once per real advisor opening, then refresh/re-front it when returning to Units. See KI#129. (GPT-5.5) -->
-		if not self.bMinimapInitDone:
-			screen.addPanel(self.MAP_PANEL_ID, u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
-			screen.initMinimap(self.X_MAP + self.MAP_MARGIN, self.X_MAP + self.W_MAP - self.MAP_MARGIN, self.Y_MAP + self.MAP_MARGIN, self.Y_MAP + self.H_MAP - self.MAP_MARGIN, self.Z_CONTROLS)
-			self.bMinimapInitDone = True
+		# <!-- custom: Redraw Military Advisor tab contents in-place instead of hideScreen()+interfaceScreen() on tab switches; otherwise the Map tab minimap would stop rendering after returning from Battles/Composition. Initialize the minimap frame once per real advisor opening, then refresh/re-front it when returning to Map. See KI#129. (GPT-5.5) -->
+		if not self.bMapMinimapInitDone:
+			screen.addPanel(self.MAP_MINIMAP_PANEL_ID, u"", "", False, False, self.X_MAP_MINIMAP, self.Y_MAP_MINIMAP, self.W_MAP_MINIMAP, self.H_MAP_MINIMAP, PanelStyles.PANEL_STYLE_MAIN)
+			screen.initMinimap(self.X_MAP_MINIMAP + self.PANEL_MARGIN, self.X_MAP_MINIMAP + self.W_MAP_MINIMAP - self.PANEL_MARGIN, self.Y_MAP_MINIMAP + self.PANEL_MARGIN, self.Y_MAP_MINIMAP + self.H_MAP_MINIMAP - self.PANEL_MARGIN, self.Z_CONTROLS)
+			self.bMapMinimapInitDone = True
 		screen.updateMinimapSection(False, False)
 		screen.updateMinimapColorFromMap(MinimapModeTypes.MINIMAPMODE_TERRITORY, 0.6)
 		screen.setMinimapMode(MinimapModeTypes.MINIMAPMODE_MILITARY)
@@ -620,7 +614,7 @@ class CvMilitaryAdvisor:
 
 	def drawBattleHistory(self):
 		screen = self.getScreen()
-		# <!-- custom: Units tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
+		# <!-- custom: Map tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
 		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 		(iX, iY, iW, iH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
 		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
@@ -810,7 +804,7 @@ class CvMilitaryAdvisor:
 			print("OpponentPlayer: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
 
 
-	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Units tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current and "Current" stays free for a future detailed-units tab. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Units tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
+	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Map tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Map tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
 	def collectCompositionData(self):
 		dUnits = {}
 		dPromotions = {}
@@ -866,7 +860,7 @@ class CvMilitaryAdvisor:
 
 
 	def drawCombatExperience(self):
-		if self.iActivePage != self.PAGE_UNITS:
+		if self.iActivePage != self.PAGE_MAP:
 			return
 		# <!-- custom: hoist repeated active-player/threshold lookups to locals for this draw pass (same behavior, fewer repeated engine calls). (GPT-5.3-Codex) -->
 		kActivePlayer = gc.getPlayer(self.iActivePlayer)
@@ -937,7 +931,7 @@ class CvMilitaryAdvisor:
 		return 0
 
 	def update(self, fDelta):
-		if self.iActivePage != self.PAGE_UNITS:
+		if self.iActivePage != self.PAGE_MAP:
 			return
 		screen = self.getScreen()
 		screen.updateMinimap(fDelta)
@@ -973,7 +967,7 @@ class CvMilitaryAdvisor:
 		return ((iPlayer, iUnitId) in self.selectedUnitList)
 		
 	def refreshSelectedLeader(self, iPlayer):
-		if self.iActivePage != self.PAGE_UNITS:
+		if self.iActivePage != self.PAGE_MAP:
 			return
 		if self.iShiftKeyDown == 1:
 			if (iPlayer in self.selectedPlayerList):
@@ -991,7 +985,7 @@ class CvMilitaryAdvisor:
 		return szName
 
 	def refreshSelectedGroup(self, iSelected):
-		if self.iActivePage != self.PAGE_UNITS:
+		if self.iActivePage != self.PAGE_MAP:
 			return
 		if (iSelected in self.selectedGroupList):
 			self.selectedGroupList.remove(iSelected)
@@ -1000,7 +994,7 @@ class CvMilitaryAdvisor:
 		self.refreshUnitSelection(false)
 			
 	def refreshSelectedUnit(self, iPlayer, iUnitId):
-		if self.iActivePage != self.PAGE_UNITS:
+		if self.iActivePage != self.PAGE_MAP:
 			return
 		selectedUnit = (iPlayer, iUnitId)
 		if (selectedUnit in self.selectedUnitList):
@@ -1028,8 +1022,8 @@ class CvMilitaryAdvisor:
 			else:
 				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_PLUS
 				szButtonText = self.TEXT_UNIT_TOGGLE_ON
-			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
-			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", sasFontTagLabel + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.PANEL_MARGIN, self.Y_TEXT + self.PANEL_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
+			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", sasFontTagLabel + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.PANEL_MARGIN + 22, self.Y_TEXT + self.PANEL_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# self.unitsList[iUnit][0] is the UnitCombatGroup (e.g. Melee)
 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
@@ -1043,10 +1037,10 @@ class CvMilitaryAdvisor:
 		iFont = CvUtil.FONT_LEFT_JUSTIFY
 
 		# <!-- custom: render icons inline in list rows so icon/text stay aligned while scrolling; this replaces the old overlay-button workaround that did not scroll with rows. (GPT-5.3-Codex) -->
-		iListX = self.X_TEXT + self.MAP_MARGIN
-		iListY = self.Y_TEXT + self.MAP_MARGIN + 15
-		iListW = self.W_TEXT - 2*self.MAP_MARGIN
-		iListH = self.H_TEXT - 2*self.MAP_MARGIN - 15
+		iListX = self.X_TEXT + self.PANEL_MARGIN
+		iListY = self.Y_TEXT + self.PANEL_MARGIN + 15
+		iListW = self.W_TEXT - 2*self.PANEL_MARGIN
+		iListH = self.H_TEXT - 2*self.PANEL_MARGIN - 15
 		# Extra text-indent is only needed when icons are disabled.
 		szUnitIndentSpace = u"  "  # <!-- custom: level 1: unit-type rows (e.g. Warrior (3)) (GPT-5.3-Codex) -->
 		szDetailIndentSpace = u"      "  # <!-- custom: level 2: individual unit detail rows (expanded view) (GPT-5.3-Codex) -->

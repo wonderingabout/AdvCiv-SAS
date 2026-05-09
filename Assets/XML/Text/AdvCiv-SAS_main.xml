@@ -33,8 +33,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Bonuses</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_UNITS_TAB</Tag>
-		<English>Units</English>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB</Tag>
+		<English>Map</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB</Tag>

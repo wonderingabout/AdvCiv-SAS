@@ -158,13 +158,7 @@ class CvVictoryScreen:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: runtime-only geometry (X/Y/W/H anchors and content areas) is computed here from actual resolution; we intentionally avoid init-time placeholders for these screen-dependent values. (GPT-5.3-Codex) -->
-		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
-			screen,
-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
-			self.H_TOP_SPACE_FOR_TECH_BAR,
-			self.H_BOTTOM_SPACE
-		)
+		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_SCREEN, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.W_AREA = self.W_SCREEN - 14
 		self.H_AREA = self.H_SCREEN - 118

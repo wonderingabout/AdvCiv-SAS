@@ -249,13 +249,7 @@ class CvPolicyAdvisorScreen:
 		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
 
 	def updateRuntimeLayout(self, screen):
-		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
-			screen,
-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
-			self.H_TOP_SPACE_FOR_TECH_BAR,
-			self.H_BOTTOM_SPACE
-		)
+		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.X_CANCEL = self.W_SCREEN / 2
 		self.X_SCREEN = self.W_SCREEN / 2

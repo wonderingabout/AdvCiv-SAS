@@ -193,13 +193,7 @@ class CvDomesticAdvisor:
 		self.TEXT_FIN_EXPENSES = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES", ())
 
 	def updateRuntimeLayout(self, screen):
-		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
-			screen,
-			self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
-			self.W_RIGHT_SPACE_FOR_SCOREBOARD,
-			self.H_TOP_SPACE_FOR_TECH_BAR,
-			self.H_BOTTOM_SPACE
-		)
+		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.nScreenWidth, self.nScreenHeight)
 		(self.nMainPanelX, self.nMainPanelY, self.nMainPanelWidth, self.nMainPanelHeight), (self.nTableX, self.nTableY, self.nTableWidth, self.nTableHeight) = getAdvisorMaximizedPanelLayout(self.nScreenWidth, self.Y_BOTTOM_PANEL)
 		# <!-- custom: keep specialist controls in the footer strip so the table can use symmetric margins inside the main panel. (GPT-5.3-Codex) -->

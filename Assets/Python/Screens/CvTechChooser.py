@@ -265,13 +265,7 @@ class CvTechChooser:
 			iRightSpaceForScoreboard = 0
 		if iTopSpaceForTechBar < 0:
 			iTopSpaceForTechBar = 0
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
-			screen,
-			SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS,
-			iRightSpaceForScoreboard,
-			iTopSpaceForTechBar,
-			SAS_ADVISOR_BOTTOM_SPACE
-		)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS, iRightSpaceForScoreboard, iTopSpaceForTechBar, SAS_ADVISOR_BOTTOM_SPACE)
 		self.iX_LEFT_START = 30
 		self.iX_LEFT_START_OR_PREREQS = 24
 		# <!-- custom: keep GP prefs aligned with the tech grid and Exit/footer anchors at any resolution. (GPT-5.3-Codex) -->
