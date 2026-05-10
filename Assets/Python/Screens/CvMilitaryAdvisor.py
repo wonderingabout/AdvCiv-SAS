@@ -94,8 +94,8 @@ class CvMilitaryAdvisor:
 		# --- A. Leaders Panel (Top - Full Width) ---
 		self.X_LEADERS = 20
 		self.Y_LEADERS = 80
-		# <!-- custom: doubled to fit 2 rows of full-size leader icons. (Claude code Opus 4.7) -->
-		self.H_LEADERS = 170
+		# <!-- custom: keep the Map tab as the single spatial unit browser. A separate Map 2 tab with different minimap geometry had several tab-switch issues: stale dimensions, blank minimaps, or minimap bleed into other tabs depending on the attempted fix. The stable compromise is to widen the existing unit list and preserve the individual-units toggle. (GPT-5.5) -->
+		self.H_LEADERS = 314
 		self.LEADER_BUTTON_SIZE = 64
 		self.LEADER_MARGIN = 12
 
@@ -103,7 +103,7 @@ class CvMilitaryAdvisor:
 		self.iShiftKeyDown = 0
 
 		# --- B. Unit List (Right Side - Fixed Width) ---
-		self.W_TEXT = 430
+		self.W_TEXT = 700
 
 		# --- C. Minimap Panel (Left Side - Fills Remaining Space) ---
 		self.X_MAP_MINIMAP = 20
@@ -265,6 +265,16 @@ class CvMilitaryAdvisor:
 		screen = self.getScreen()
 		screen.hideScreen()
 
+	def setMapMinimapVisibility(self, screen, bVisible):
+		# <!-- custom: refactor the existing minimap visibility toggle into a helper after Map 2 experiments; the separate Map 2 tab was dropped due to tab-switch minimap issues, but this helper keeps the remaining Map visibility call explicit and localized. (GPT-5.5) -->
+		iOldMode = CyInterface().getShowInterface()
+		if bVisible:
+			CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_MINIMAP_ONLY)
+		else:
+			CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_HIDE)
+		screen.updateMinimapVisibility()
+		CyInterface().setShowInterface(iOldMode)
+
 	def deleteAllWidgets(self):
 		screen = self.getScreen()
 		iCount = self.nWidgetCount
@@ -357,11 +367,8 @@ class CvMilitaryAdvisor:
 		screen.updateMinimapSection(False, False)
 		screen.updateMinimapColorFromMap(MinimapModeTypes.MINIMAPMODE_TERRITORY, 0.6)
 		screen.setMinimapMode(MinimapModeTypes.MINIMAPMODE_MILITARY)
-		
-		iOldMode = CyInterface().getShowInterface()
-		CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_MINIMAP_ONLY)
-		screen.updateMinimapVisibility()
-		CyInterface().setShowInterface(iOldMode)
+				
+		self.setMapMinimapVisibility(screen, True)
 		screen.bringMinimapToFront()
 	
 		self.unitsList = [(0, 0, [], 0)] * gc.getNumUnitInfos()
@@ -921,7 +928,7 @@ class CvMilitaryAdvisor:
 				self.iActivePage = iPage
 				self.redrawContents()
 				return 1
-		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.UNIT_BUTTON_ID) :
+		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() in (self.UNIT_BUTTON_ID, self.UNIT_BUTTON_LABEL_ID)) :
 			self.bUnitDetails = not self.bUnitDetails
 			self.refreshUnitSelection(True)
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
@@ -1023,7 +1030,8 @@ class CvMilitaryAdvisor:
 				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_PLUS
 				szButtonText = self.TEXT_UNIT_TOGGLE_ON
 			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.PANEL_MARGIN, self.Y_TEXT + self.PANEL_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
-			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", sasFontTagLabel + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.PANEL_MARGIN + 22, self.Y_TEXT + self.PANEL_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			# <!-- custom: keep the quiet original +/- toggle placement, but make the descriptive text clickable too; a top-right action button was easier to click but visually distracting for this map/list view. (GPT-5.5) -->
+			screen.setText(self.UNIT_BUTTON_LABEL_ID, "", sasFontTagLabel + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.PANEL_MARGIN + 22, self.Y_TEXT + self.PANEL_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# self.unitsList[iUnit][0] is the UnitCombatGroup (e.g. Melee)
 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
@@ -1217,8 +1225,9 @@ class CvMilitaryAdvisor:
 				listLeaders.append(iLoopPlayer)
 				
 		iNumLeaders = len(listLeaders)
-		# <!-- custom: at 1080p a row fits ~12 leaders at full size and ~22 at half size, so 2 full-size rows cover up to ~24 leaders before this kicks in. (Claude code Opus 4.7); note: does not scroll vertically: reaching 3rd row without icon reduction causes it to overflow under the leader icons panel (a 3rd row, half size or full size, but no vertical scroll). Having 2 full sized icon rows rather than one suits better our larger world sizes (we can now keep full size icons almost up to SAS24 worldsize player count (minus 1 player, because 24 players + barbarian = 25 > 24)) -->
-		if iNumLeaders > 2 * self.LEADER_COLUMNS:
+		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; the old hardcoded 2-row threshold wasted the extra height now used to widen the unit list while keeping the map stable. (GPT-5.5) -->
+		iFullLeaderRows = max(1, int(self.H_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
+		if iNumLeaders > iFullLeaderRows * self.LEADER_COLUMNS:
 			iButtonSize = self.LEADER_BUTTON_SIZE / 2
 		else:
 			iButtonSize = self.LEADER_BUTTON_SIZE
