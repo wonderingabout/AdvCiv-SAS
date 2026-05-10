@@ -407,7 +407,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 	bool bOneLine, bool bShort,
 	bool bColorAllegiance, // advc.048
 	bool bOmitOwner, // advc.061
-	bool bIndicator) // advc.007
+	bool bIndicator, // advc.007
+	// <!-- custom: Promotion icon size was formerly hardcoded as 16; pass it through so external UI wrappers can control the generated image markup cleanly. (GPT-5.5) -->
+	int iPromotionIconSize)
 {
 	PROFILE_FUNC();
 
@@ -594,8 +596,8 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 			if (pUnit->isHasPromotion(eLoopPromotion))
 			{
 				CvWString szTempBuffer;
-				szTempBuffer.Format(L"<img=%S size=16 />",
-						GC.getInfo(eLoopPromotion).getButton());
+				szTempBuffer.Format(L"<img=%S size=%d />",
+						GC.getInfo(eLoopPromotion).getButton(), iPromotionIconSize);
 				// <advc.004>
 				if (bFirst)
 				{

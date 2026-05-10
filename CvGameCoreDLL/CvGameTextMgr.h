@@ -44,7 +44,9 @@ public:
 			bool bOneLine = false, bool bShort = false,
 			bool bColorAllegiance = false, // advc.048
 			bool bOmitOwner = false, // advc.061
-			bool bIndicator = false); // advc.007
+			bool bIndicator = false, // advc.007
+			// <!-- custom: Promotion icon size was hardcoded inside setUnitHelp; expose it as a parameter so Python UI callers can request a clean advisor-specific size instead of rewriting emitted image markup. (GPT-5.5) -->
+			int iPromotionIconSize = 16);
 	// advc.004 (Exposed to Python, replacing redundant code in CyMainInterface.py)
 	void setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit,
 			int iHP = -1); // advc.048c

@@ -97,6 +97,7 @@ class CvMilitaryAdvisor:
 		# <!-- custom: keep the Map tab as the single spatial unit browser. A separate Map 2 tab with different minimap geometry had several tab-switch issues: stale dimensions, blank minimaps, or minimap bleed into other tabs depending on the attempted fix. The stable compromise is to widen the existing unit list and preserve the individual-units toggle. (GPT-5.5) -->
 		self.H_LEADERS = 380
 		self.LEADER_BUTTON_SIZE = 64
+		self.LEADER_BUTTON_SIZE_OVERFLOW = self.LEADER_BUTTON_SIZE - 8
 		self.LEADER_MARGIN = 12
 
 		self.bUnitDetails = False
@@ -257,6 +258,8 @@ class CvMilitaryAdvisor:
 		self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
 		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT > 0 and screen.getYResolution() >= self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT:
 			self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES
+		# <!-- custom: Increase expanded-row promotion icons from the old DLL-hardcoded size 16 to our new Military Advisor row unit-icon size. The row already has this height, so promotion icons become more readable without increasing row height. (GPT-5.5) -->
+		self.iPromotionInlineIconSize = self.iInlineIconSize
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.EXIT_TEXT, self.X_EXIT)
 
 
@@ -1170,7 +1173,7 @@ class CvMilitaryAdvisor:
 				
 					if (self.bUnitDetails):
 						# <!-- custom: Expanded Map-tab unit rows already belong to the selected player; use the DLL omit-owner wrapper to avoid repeated owner suffixes like "PC", which also corrupted worker build rows such as "Build a Cottage" into "Build a PC". See KI#130. (GPT-5.5); note: this also fixes stray leader name in unit rows, which was unneeded since selected leader is already visible. -->
-						szDescription = CyGameTextMgr().getSpecificUnitHelpOmitOwner(loopUnit, true, false)
+						szDescription = CyGameTextMgr().getSpecificUnitHelpOmitOwner(loopUnit, true, false, self.iPromotionInlineIconSize)
 
 						listMatches = re.findall("<.*?color.*?>", szDescription)	
 						for szMatch in listMatches:
@@ -1228,10 +1231,10 @@ class CvMilitaryAdvisor:
 				listLeaders.append(iLoopPlayer)
 				
 		iNumLeaders = len(listLeaders)
-		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; the old hardcoded 2-row threshold wasted the extra height now used to widen the unit list while keeping the map stable. (GPT-5.5) -->
+		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; at 1080p with 5 rows, SAS48 needs only a mild size reduction (roughly 10 columns x 5 rows) rather than the old half-size icon. (GPT-5.5) -->
 		iFullLeaderRows = max(1, int(self.H_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
 		if iNumLeaders > iFullLeaderRows * self.LEADER_COLUMNS:
-			iButtonSize = self.LEADER_BUTTON_SIZE / 2
+			iButtonSize = self.LEADER_BUTTON_SIZE_OVERFLOW
 		else:
 			iButtonSize = self.LEADER_BUTTON_SIZE
 
