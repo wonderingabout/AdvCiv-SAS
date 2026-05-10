@@ -1167,7 +1167,8 @@ class CvMilitaryAdvisor:
 				for loopUnit in self.unitsList[iUnit][2]:
 				
 					if (self.bUnitDetails):
-						szDescription = CyGameTextMgr().getSpecificUnitHelp(loopUnit, true, false)
+						# <!-- custom: Expanded Map-tab unit rows already belong to the selected player; use the DLL omit-owner wrapper to avoid repeated owner suffixes like "PC", which also corrupted worker build rows such as "Build a Cottage" into "Build a PC". See KI#130. (GPT-5.5); note: this also fixes stray leader name in unit rows, which was unneeded since selected leader is already visible. -->
+						szDescription = CyGameTextMgr().getSpecificUnitHelpOmitOwner(loopUnit, true, false)
 
 						listMatches = re.findall("<.*?color.*?>", szDescription)	
 						for szMatch in listMatches:

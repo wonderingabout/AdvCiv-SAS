@@ -165,6 +165,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it)  
 [128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior)  
 [129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs)  
+[130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4796,3 +4797,32 @@ Notes:
 File changed:
 
 - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+
+## 130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JlEvBQFzfi190KXv8fGHIm_84MK8yuHZ?usp=sharing).
+
+Observed issue:
+
+- In the Military Advisor Map tab's expanded individual-unit list, worker rows could display bad text such as `Build a PC` or just `PC` where the worker build/improvement text should be clear.
+- Other unit rows could also show the selected player's owner name suffix (`PC`) at the end, which was redundant because the list already belongs to the selected player.
+
+Cause:
+
+- Python called `CyGameTextMgr().getSpecificUnitHelp(loopUnit, true, false)`, which exposed only the default `setUnitHelp` path.
+- The underlying DLL `setUnitHelp` already had a `bOmitOwner` parameter, but Python could not request it, so owner text was always appended.
+- Trying to patch the formatted Python string after the fact was fragile because the row text is already markup-heavy and listbox-rendered.
+
+Fix:
+
+- Added `CyGameTextMgr::getSpecificUnitHelpOmitOwner` and exposed it to Python.
+- The Military Advisor Map tab now uses that wrapper for expanded individual-unit rows, preserving DLL-generated build/improvement text while omitting the redundant owner suffix.
+
+Note: this also fixes stray leader name in unit rows, which was unneeded since selected leader is already visible
+
+Files changed:
+
+- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+- [CvGameCoreDLL/CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp)
+- [CvGameCoreDLL/CyGameTextMgr.h](/CvGameCoreDLL/CyGameTextMgr.h)
+- [CvGameCoreDLL/CyGameTextMgrInterface.cpp](/CvGameCoreDLL/CyGameTextMgrInterface.cpp)
