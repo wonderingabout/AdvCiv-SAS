@@ -166,6 +166,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior)  
 [129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs)  
 [130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab)  
+[131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4826,3 +4827,24 @@ Files changed:
 - [CvGameCoreDLL/CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp)
 - [CvGameCoreDLL/CyGameTextMgr.h](/CvGameCoreDLL/CyGameTextMgr.h)
 - [CvGameCoreDLL/CyGameTextMgrInterface.cpp](/CvGameCoreDLL/CyGameTextMgrInterface.cpp)
+
+## 131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1xDeaoGO7bKYsx7E4qDUkWAmstu43QnCF?usp=sharing).
+
+Observed issue:
+
+- Live worker unit help displayed build action and timer without a separating space, e.g. `Build a Road(3)` instead of `Build a Road (3)`.
+- This was visible in the Military Advisor Map tab's expanded individual-unit rows and also in map-view unit hover help.
+
+Cause:
+
+- `CvGameTextMgr::setUnitHelp` appended `GC.getInfo(eBuild).getDescription()` and then immediately appended the formatted timer string `(%d)` or `(%d+1)`.
+
+Fix:
+
+- Added the leading space to the formatted build timer strings in `CvGameTextMgr::setUnitHelp`, so all live-unit help contexts using this path show the same clearer spacing.
+
+File changed:
+
+- [CvGameCoreDLL/CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp)

@@ -537,13 +537,14 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 			}
 		}
 		CvWString szTempBuffer;
+		// <!-- custom: Separate worker build action text from its turn timer, e.g. "Build a Road (3)" instead of "Build a Road(3)"; this live-unit help is also used by map hover and Military Advisor rows. See KI#131. (GPT-5.5) -->
 		if(bSuspend)
 		{
-			szTempBuffer.Format(L"(%d+" SETCOLR L"%d" ENDCOLR L")", iTurns - 1,
+			szTempBuffer.Format(L" (%d+" SETCOLR L"%d" ENDCOLR L")", iTurns - 1,
 					TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), 1);
 		}
 		else // </advc.011b>
-			szTempBuffer.Format(L"(%d)", iTurns);
+			szTempBuffer.Format(L" (%d)", iTurns);
 		szString.append(szTempBuffer);
 	}
 
