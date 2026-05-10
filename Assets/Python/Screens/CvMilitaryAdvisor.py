@@ -93,9 +93,9 @@ class CvMilitaryAdvisor:
 
 		# --- A. Leaders Panel (Top - Full Width) ---
 		self.X_LEADERS = 20
-		self.Y_LEADERS = 80
+		self.Y_LEADERS = 70
 		# <!-- custom: keep the Map tab as the single spatial unit browser. A separate Map 2 tab with different minimap geometry had several tab-switch issues: stale dimensions, blank minimaps, or minimap bleed into other tabs depending on the attempted fix. The stable compromise is to widen the existing unit list and preserve the individual-units toggle. (GPT-5.5) -->
-		self.H_LEADERS = 314
+		self.H_LEADERS = 380
 		self.LEADER_BUTTON_SIZE = 64
 		self.LEADER_MARGIN = 12
 
@@ -103,7 +103,8 @@ class CvMilitaryAdvisor:
 		self.iShiftKeyDown = 0
 
 		# --- B. Unit List (Right Side - Fixed Width) ---
-		self.W_TEXT = 700
+		# <!-- custom: at 1080p, this allows 9 leader icons per row on the left; tune the unit panel width manually because it controls the remaining left-column width. A long unit panel width gives budget for long unit names, many promotions, larger promotion icons, etc. (GPT-5.5) -->
+		self.W_TEXT = 745
 
 		# --- C. Minimap Panel (Left Side - Fills Remaining Space) ---
 		self.X_MAP_MINIMAP = 20
@@ -197,12 +198,12 @@ class CvMilitaryAdvisor:
 		self.ART_BATTLE_CITY_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.ART_BATTLE_CITY_CAPTURED_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath()
 		self.ART_BATTLE_ROLE_ATTACKER = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_CROSSED_SWORDS").getPath()
-		# <!-- custom: tried a military medal emoji but it reads as 2 half emoji with highly clashing colors; hard to read in a data-rich small column width table. Prefer the star emoji with darker variant that renders very well. Trophy seems more suited to races or competitions so not used in military context here. -->
+		# <!-- custom: tried a military medal emoji but it reads as 2 half emoji with highly clashing colors; hard to read in a data-rich small column width table. Prefer the star emoji with darker variant that renders very well. Trophy seems more suited to races or competitions so not used in military context here -->
 		self.ART_BATTLE_RESULT_WON = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_WHITE_MEDIUM_STAR_2").getPath()
-		self.ART_BATTLE_RESULT_LOST = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_SKULL").getPath()
-		# <!-- custom: this left arrow variant has a good contrast and is clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat. Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
-		self.ART_BATTLE_RESULT_RETREAT = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LEFT_ARROW_3").getPath()
-		# <!-- custom: int enum codes for battle result. Replaces previous string-compare on localized "Won"/"Lost"/"Ret." text; the text variants are not displayed in the UI (icon-only), and only the dev-only PythonDbg log dump needs human-readable strings, so localization round-trip via TXT_KEY was wasted work. Credit: Claude code Opus 4.7. (GPT-5.5) -->
+		# <!-- custom: a red plain fairly uniform emoji like this one conveys very well visually the idea of lost/death and scans very fast -->
+		self.ART_BATTLE_RESULT_LOST = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_BROKEN_HEART").getPath()
+		# <!-- custom: this left arrow variant is fairly clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat. Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
+		self.ART_BATTLE_RESULT_RETREAT = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LEFT_ARROW_2").getPath()
 		self.RESULT_WON = 0
 		self.RESULT_LOST = 1
 		self.RESULT_RETREAT = 2
@@ -223,15 +224,16 @@ class CvMilitaryAdvisor:
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LINK = self.Y_EXIT
 
-		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the now-2-row leader bar keeps full icon size despite the narrower width. Leader-to-map-minimap vertical gap kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which costs leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7) -->
+		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the taller multi-row leader bar keeps full icon size longer despite the narrower width. Leader-to-map-minimap vertical gap and bottom reserve are kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which can reduce leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7 + GPT-5.5) -->
 		iAdvisorMargin = 20
-		iLeaderToMapMinimapGap = 10
+		iLeaderToMapMinimapGap = 5
+		iBottomReserve = 15
 		self.X_TEXT = self.W_SCREEN - iAdvisorMargin - self.W_TEXT
 		self.Y_TEXT = self.Y_LEADERS
 		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - iAdvisorMargin
 
 		self.Y_MAP_MINIMAP = self.Y_LEADERS + self.H_LEADERS + iLeaderToMapMinimapGap
-		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - iAdvisorMargin
+		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - iBottomReserve
 		self.H_MAP_MINIMAP_MAX = self.Y_GREAT_GENERAL_BAR - iLeaderToMapMinimapGap - self.Y_MAP_MINIMAP
 
 		iGridW = CyMap().getGridWidth()
