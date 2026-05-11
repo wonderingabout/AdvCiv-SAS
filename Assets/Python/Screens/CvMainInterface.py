@@ -267,11 +267,9 @@ class CvMainInterface:
 			eStyle = PanelStyles.PANEL_STYLE_EXTERNAL
 		lRect = gRect(szName)
 		self.screen.addScrollPanel(szName, u"", lRect.x(), lRect.y(), lRect.width(), lRect.height(), eStyle)
-	def addDDS(self, szName,
-			# Can be either an interface art info string
-			# or a CvInfo object with a getButton method
-			textureInfo,
-			eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None):
+	# Can be either an interface art info string
+	# or a CvInfo object with a getButton method
+	def addDDS(self, szName, textureInfo, eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None):
 		if eWidgetType is None:
 			eWidgetType = WidgetTypes.WIDGET_GENERAL
 		lRect = gRect(szName)
@@ -309,29 +307,26 @@ class CvMainInterface:
 					self.screen.setStyle(szName, szStyle)
 		if szStyle:
 			self.screen.setStyle(szName, szStyle)
-	def setStyledButton(self, szName, style, # Style can be a key string or ID
-			eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None,
-			szText = ""): # Text label; rarely needed.
+	# Style can be a key string or ID
+	# Text label; rarely needed.
+	def setStyledButton(self, szName, style, eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None, szText = ""):
 		self._setStyledImageButton(szName, szAttachTo, "", style, eWidgetType, iData1, iData2, szText)
 	def setStyledButtonAt(self, szName, szAttachTo, szStyle, eWidgetType = None, iData1 = -1, iData2 = -1):
 		self.setStyledButton(szName, szStyle, eWidgetType, iData1, iData2, szAttachTo)
 	@staticmethod
 	def _isInterfaceArtKey(s):
-		return (s.startswith("INTERFACE_") or s.startswith("BUTTON_") or
-				s.startswith("RAW_YIELDS_") or # for BUG - Raw Yields
-				s.startswith("PLE_")) # for BUG - PLE
-	def setImageButton(self, szName,
-			szTexture, # Path or InterfaceArtInfo key
-			eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None):
+		# for BUG - Raw Yields
+		# for BUG - PLE
+		return (s.startswith("INTERFACE_") or s.startswith("BUTTON_") or s.startswith("RAW_YIELDS_") or s.startswith("PLE_"))
+	# Path or InterfaceArtInfo key
+	def setImageButton(self, szName, szTexture, eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None):
 		if CvMainInterface._isInterfaceArtKey(szTexture):
 			szTexture = ArtFileMgr.getInterfaceArtInfo(szTexture).getPath()
 		self._setStyledImageButton(szName, szAttachTo, szTexture, None, eWidgetType, iData1, iData2)
 	def setImageButtonAt(self, szName, szAttachTo, szTexture, eWidgetType = None, iData1 = -1, iData2 = -1):
 		self.setImageButton(szName, szTexture, eWidgetType, iData1, iData2, szAttachTo)
-	def addCheckBox(self, szName,
-			szTexture, szHLTexture,  # Paths or InterfaceArtInfo keys
-			eStyle,
-			eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None):
+	# Paths or InterfaceArtInfo keys
+	def addCheckBox(self, szName, szTexture, szHLTexture, eStyle, eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None):
 		if eWidgetType is None:
 			eWidgetType = WidgetTypes.WIDGET_GENERAL
 		lRect = gRect(szName)
@@ -413,10 +408,8 @@ class CvMainInterface:
 			self.screen.addStackedBarGFC(szName, lRect.x(), lRect.y(), lRect.width(), lRect.height(), InfoBarTypes.NUM_INFOBAR_TYPES, eWidgetType, iData1, iData2)
 	def addStackedBarAt(self, szName, szAttachTo, eWidgetType = None, iData1 = -1, iData2 = -1):
 		self.addStackedBar(szName, eWidgetType, iData1, iData2, szAttachTo)
-	def _addEntityGraphic(self, szName, iEntity,
-			eWidgetType, iData1, iData2,
-			# NB: I've moved the scale param toward the front
-			fScale, fxRotation, fzRotation, bUnit = True):
+	# NB: I've moved the scale param toward the front
+	def _addEntityGraphic(self, szName, iEntity, eWidgetType, iData1, iData2, fScale, fxRotation, fzRotation, bUnit = True):
 		if eWidgetType is None:
 			eWidgetType = WidgetTypes.WIDGET_GENERAL
 		lRect = gRect(szName)
@@ -425,18 +418,16 @@ class CvMainInterface:
 		else:
 			addEntityGraphicGFC = self.screen.addBuildingGraphicGFC
 		addEntityGraphicGFC(szName, iEntity, lRect.x(), lRect.y(), lRect.width(), lRect.height(), eWidgetType, iData1, iData2, fxRotation, fzRotation, fScale, False)
-	def addUnitGraphic(self, szName, iUnit, # (UnitTypes id),
-			eWidgetType = None, iData1 = -1, iData2 = 1,
-			fScale = None, fxRotation = -20, fzRotation = 30):
+	# (UnitTypes id),
+	def addUnitGraphic(self, szName, iUnit, eWidgetType = None, iData1 = -1, iData2 = 1, fScale = None, fxRotation = -20, fzRotation = 30):
 		if fScale is None:
 			fScale = 1.0
 			# <advc.002j>
 			if gc.getUnitInfo(iUnit).getDomainType() == DomainTypes.DOMAIN_LAND:
 				fScale *= 0.9 # </advc.002j>
 		self._addEntityGraphic(szName, iUnit, eWidgetType, iData1, iData2, fScale, fxRotation, fzRotation)
-	def addBuildingGraphic(self, szName, iBuilding, # (BuildingTypes id),
-			eWidgetType = None, iData1 = -1, iData2 = 1,
-			fScale = 0.8, fxRotation = -20, fzRotation = 30):
+	# (BuildingTypes id),
+	def addBuildingGraphic(self, szName, iBuilding, eWidgetType = None, iData1 = -1, iData2 = 1, fScale = 0.8, fxRotation = -20, fzRotation = 30):
 		self._addEntityGraphic(szName, iBuilding, eWidgetType, iData1, iData2, fScale, fxRotation, fzRotation, False)
 	def setDefaultHelpTextArea(self, bMinMargin = False):
 		if bMinMargin:
@@ -707,13 +698,11 @@ class CvMainInterface:
 				# More is gained imo by vertical scaling; in part, due to change advc.137, which changes the minimap aspect ratio, but the original HUD also seems quite stretched horizontally. Apart from the main map height, vertical scaling happens at the expense of the sidebar height on the city screen.
 				fVerticalScaleFactor = max(yRatio, min(fHorizontalScaleFactor * 1.05, max(xRatio, yRatio)))
 				fSquareButtonScaleFactor = ((2 * min(fHorizontalScaleFactor, fVerticalScaleFactor) + 1) / 3)
-				fSpaceScaleFactor = (
-						# Space should not be expanded quite as much as button sizes.
-						((2 * fSquareButtonScaleFactor + 1) / 3) /
-						# Space is also subject to vertical or horizontal scaling.
-						# This division should ensure that space doesn't get expanded
-						# too much overall.
-						min(fHorizontalScaleFactor, fVerticalScaleFactor))
+				# Space should not be expanded quite as much as button sizes.
+				# Space is also subject to vertical or horizontal scaling.
+				# This division should ensure that space doesn't get expanded
+				# too much overall.
+				fSpaceScaleFactor = (((2 * fSquareButtonScaleFactor + 1) / 3) / min(fHorizontalScaleFactor, fVerticalScaleFactor))
 				# Already imported through import *, but need to call this setter
 				# on the LayoutDict module so that its state actually changes.
 				import LayoutDict
@@ -777,10 +766,8 @@ class CvMainInterface:
 		# also ensure CenterBottomPanel starts to the right of CityLeftPanel (needs +8 because LowerLeftCorner trims -8).
 		iEstimatedBottomPanelsExtraWidth = 8
 		iEstimatedBottomPanelsWidth = self.SIDE_PANELS_WIDTH + iEstimatedBottomPanelsExtraWidth
-		gSetRect("LowerLeftCornerPanel", "Top",
-				RectLayout.LEFT, RectLayout.BOTTOM,
-				# HLEN(304), gRect("MiniMapPanel").height() + 17)
-				HLEN(iEstimatedBottomPanelsWidth), gRect("MiniMapPanel").height() + 17)
+		# HLEN(304), gRect("MiniMapPanel").height() + 17)
+		gSetRect("LowerLeftCornerPanel", "Top", RectLayout.LEFT, RectLayout.BOTTOM, HLEN(iEstimatedBottomPanelsWidth), gRect("MiniMapPanel").height() + 17)
 		gSetRect("LowerRightCornerPanel", "Top", RectLayout.RIGHT, RectLayout.BOTTOM, gRect("LowerLeftCornerPanel").width(), gRect("LowerLeftCornerPanel").height())
 
 		gSetRect("LowerLeftCornerBackgr", "LowerLeftCornerPanel", 0, 4, RectLayout.MAX, RectLayout.MAX)
@@ -788,21 +775,17 @@ class CvMainInterface:
 		# based on the undecorated size, so let's define ...
 		gSetRect("LowerLeftCorner", "LowerLeftCornerPanel", 0, 19, -8, RectLayout.MAX)
 		# <!-- custom: reduce left margin to minimize gap between draft bar and minimap (matching C2C-style tight layout) (Claude code Opus 4.5) -->
-		gSetRect("LowerRightCorner", "LowerRightCornerPanel",
-				0, 19, RectLayout.MAX, RectLayout.MAX)  # was 8 - set to 0 to eliminate gap completely
-		gSetRect("CenterBottomPanel", "Top",
-				gRect("LowerLeftCorner").xRight(), RectLayout.BOTTOM,
-				# <!-- custom: add some HSPACE to fix the weird ugly empty gap until we reach the right side panel's left edge with the help of GPT-5.2-Codex thanks -->
-				-gRect("LowerRightCornerPanel").width() + HSPACE(10),
-				HLEN(133, 0.5)) # Hardly gain anything from scaling this up
+		# was 8 - set to 0 to eliminate gap completely
+		gSetRect("LowerRightCorner", "LowerRightCornerPanel", 0, 19, RectLayout.MAX, RectLayout.MAX)
+		# <!-- custom: add some HSPACE to fix the weird ugly empty gap until we reach the right side panel's left edge with the help of GPT-5.2-Codex thanks -->
+		# Hardly gain anything from scaling this up
+		gSetRect("CenterBottomPanel", "Top", gRect("LowerLeftCorner").xRight(), RectLayout.BOTTOM, -gRect("LowerRightCornerPanel").width() + HSPACE(10), HLEN(133, 0.5))
 		# Sans the decoration on top
 		gSetRect("CenterBottom", "CenterBottomPanel", 0, 17, RectLayout.MAX, RectLayout.MAX)
 
-		gSetRect("CityLeftPanel", "Top",
-				0, 0,
-				# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks -->
-				# HLEN(258), -gRect("LowerLeftCorner").height())
-				HLEN(self.SIDE_PANELS_WIDTH), -gRect("LowerLeftCorner").height())
+		# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks -->
+		# HLEN(258), -gRect("LowerLeftCorner").height())
+		gSetRect("CityLeftPanel", "Top", 0, 0, HLEN(self.SIDE_PANELS_WIDTH), -gRect("LowerLeftCorner").height())
 		gSetRect("CityRightPanel", "Top", RectLayout.RIGHT, 0, gRect("CityLeftPanel").width(), -gRect("LowerRightCorner").height())
 		self.setTopBarRects()
 		gSetRect("CityCenterColumn", "Top", gRect("CityLeftPanel").xRight(), 0, -gRect("CityRightPanel").width(), RectLayout.MAX)
@@ -876,10 +859,8 @@ class CvMainInterface:
 		self.setCommerceAdjustRects()
 		self.bSASLastCommerceRectsCityScreen = CyInterface().isCityScreenUp()
 
-		gSetPoint("EndTurnText", PointLayout(0, # (gets centered through text alignment)
-				max(
-				gRect("LowerLeftCornerPanel").y(),
-				gRect("LowerRightCornerPanel").y()) - VSPACE(25)))
+		# (gets centered through text alignment)
+		gSetPoint("EndTurnText", PointLayout(0, max(gRect("LowerLeftCornerPanel").y(), gRect("LowerRightCornerPanel").y()) - VSPACE(25)))
 		# Gets moved to a lower position when interface is minimized
 		gSetPoint("EndTurnTextMin", PointLayout(0, gRect("Top").yBottom() - VSPACE(86)))
 		iEndTurnBtnSz = BTNSZ(32)
@@ -1044,29 +1025,20 @@ class CvMainInterface:
 			else:
 				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = 0
 		# (Also used for the PLE Info Pane)
-		gSetRect("DefaultHelpArea", "Top",
-				HSPACE(7),
-				# (The center bottom panel doesn't fully scale up, so we shouldn't
-				# use that as our point of reference.)
-				#-(VSPACE(5) + gRect("CenterBottomPanel").height() + self.plotListUnitButtonSize())
-				# BtS leaves some space here, but we want the text area as low as possible
-				# to maximize the amount of text we can display (while also having tall corners
-				# for the sake of a large minimap).
-				gRect("LowerLeftCornerBackgr").y(),
-				# The subtrahend should account for decorations on the corner panel;
-				# for visual alignment.
-				#gRect("LowerLeftCornerPanel").width() - 21,
-				max(280,
-				# The help text really doesn't use that much width; it's been kept short
-				# with the original width in mind. So ...
-				gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width()))
-				+ self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT,
-				0)
-		gSetRect("DefaultHelpAreaMin", "Top",
-				HSPACE(7),
-				# As in BtS; pretty arbitrary and overlaps the unit pane.
-				-VSPACE(50),
-				gRect("DefaultHelpArea").width(), 0)
+		# (The center bottom panel doesn't fully scale up, so we shouldn't
+		# use that as our point of reference.)
+		#-(VSPACE(5) + gRect("CenterBottomPanel").height() + self.plotListUnitButtonSize())
+		# BtS leaves some space here, but we want the text area as low as possible
+		# to maximize the amount of text we can display (while also having tall corners
+		# for the sake of a large minimap).
+		# The subtrahend should account for decorations on the corner panel;
+		# for visual alignment.
+		#gRect("LowerLeftCornerPanel").width() - 21,
+		# The help text really doesn't use that much width; it's been kept short
+		# with the original width in mind. So ...
+		gSetRect("DefaultHelpArea", "Top", HSPACE(7), gRect("LowerLeftCornerBackgr").y(), max(280, gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width())) + self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT, 0)
+		# As in BtS; pretty arbitrary and overlaps the unit pane.
+		gSetRect("DefaultHelpAreaMin", "Top", HSPACE(7), -VSPACE(50), gRect("DefaultHelpArea").width(), 0)
 		# advc.092: Moved down so that PLE can access the above
 		self.PLE.PLE_CalcConstants(screen) # BUG - PLE
 		self.setPromoButtonRects()
@@ -1140,19 +1112,15 @@ class CvMainInterface:
 			iMiniMapPanelWidth = max(iMiniMapPanelWidth, 204)
 		# </advc.137>
 		iMiniMapVMargin = HSPACE(3)
-		gSetRect("MiniMapPanel",
-				# Ideally should be placed inside the LowerRightCorner rect,
-				# but it's more intuitive to me to set the LowerRightCorner size
-				# based on the mini map (panel) size than vice versa, so I'm
-				# setting the mini map rects first.
-				"Top",
-				RectLayout.RIGHT, RectLayout.BOTTOM,  # Flush to right edge
-				iMiniMapPanelWidth,
-				iMiniMapHeight + gRect("MiniMapButton").size() / 2 + 3 + 2 * iMiniMapVMargin)
-		gSetRect("MiniMap", "MiniMapPanel",
-				4, # As in BtS - and 3 indeed looks too thin on the left.
-				-5, # advc.137: was 9
-				-3, iMiniMapHeight)
+		# Ideally should be placed inside the LowerRightCorner rect,
+		# but it's more intuitive to me to set the LowerRightCorner size
+		# based on the mini map (panel) size than vice versa, so I'm
+		# setting the mini map rects first.
+		# Flush to right edge
+		gSetRect("MiniMapPanel", "Top", RectLayout.RIGHT, RectLayout.BOTTOM, iMiniMapPanelWidth, iMiniMapHeight + gRect("MiniMapButton").size() / 2 + 3 + 2 * iMiniMapVMargin)
+		# As in BtS - and 3 indeed looks too thin on the left.
+		# advc.137: was 9
+		gSetRect("MiniMap", "MiniMapPanel", 4, -5, -3, iMiniMapHeight)
 
 # BUG - Great Person Bar - start
 # Also BUG - Great General Bar,
@@ -1296,9 +1264,8 @@ class CvMainInterface:
 			iEstimatedLeftSideSize = 152
 			# iCommercePanelHorizontalSpacingToTheRight = 70
 			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceRightMargin
-			gSetPoint("CityPercentText" + str(i), PointLayout(
-					# (The horizontal spacing here seems pretty arbitrary)
-					gRect("CommerceSliderBtns3").xRight() + HSPACE(iCommercePanelHorizontalSpacingToTheRight, 3), iY))
+			# (The horizontal spacing here seems pretty arbitrary)
+			gSetPoint("CityPercentText" + str(i), PointLayout(gRect("CommerceSliderBtns3").xRight() + HSPACE(iCommercePanelHorizontalSpacingToTheRight, 3), iY))
 
 		# <advc.002b> Placing the buttons at just the same y coord as the labels
 		# doesn't quite work out
@@ -1328,12 +1295,9 @@ class CvMainInterface:
 		# <!-- custom: remove the 3 gray bars ("Trade Routes", "Buildings", "Specialists") as they take a lot of room and are uneeded, and we don't have a "Bonuses" bar for example so no reason to have these as well either. Change with the help of gemini 3 pro thanks -->
 		# Step 2: Move the Tables Up (Reclaim Space)
 		# 1. Trade Routes List Search for def setTradeRouteRects. Find the line defining TradeRouteTable. We will change .yBottom() to .y() so it starts at the top of the (now hidden) header space.
-		gSetRect("TradeRouteTable", "CityLeftPanelContents",
-				RectLayout.CENTER,
-				# 1 + gRect("TradeRouteListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
-				1 + gRect("TradeRouteListBackground").y() - gRect("CityLeftPanelContents").y(),
-				-1, 2 + iHeightForRows
-				- iHeightForRows % iRowH) # No point in making space for only half a row
+		# 1 + gRect("TradeRouteListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
+		# No point in making space for only half a row
+		gSetRect("TradeRouteTable", "CityLeftPanelContents", RectLayout.CENTER, 1 + gRect("TradeRouteListBackground").y() - gRect("CityLeftPanelContents").y(), -1, 2 + iHeightForRows - iHeightForRows % iRowH)
 
 # BUG - Raw Yields - start
 		# Can't really scale these up b/c the background doesn't scale
@@ -1449,24 +1413,18 @@ class CvMainInterface:
 			gSetSquare("SelectedUnitInfoButton", "SelectedUnitPanel", HSPACE(2), VSPACE(2), iUnitInfoBtnSize)
 		else:
 			iUnitInfoBtnSize = 0
-		gSetRect("SelectedUnitText", "SelectedUnitPanel",
-				HSPACE(2), VLEN(30, 0.7),
-				(gRect("SelectedUnitPanel").width() * 183) / 280,
-				# Not going to add a fifth row, not going to increase the font size,
-				# so nothing is gained by making the table higher.
-				102)
+		# Not going to add a fifth row, not going to increase the font size,
+		# so nothing is gained by making the table higher.
+		gSetRect("SelectedUnitText", "SelectedUnitPanel", HSPACE(2), VLEN(30, 0.7), (gRect("SelectedUnitPanel").width() * 183) / 280, 102)
 		gOffSetPoint("SelectedUnitLabel", "SelectedUnitPanel", HSPACE(8) + iUnitInfoBtnSize, VSPACE(2))
 		gSetRect("SelectedCityText", "SelectedUnitPanel", HSPACE(2), RectLayout.CENTER, gRect("SelectedUnitText").width(), -1)
-		gSetRect("InterfaceUnitModel", "SelectedUnitPanel",
-				gRect("SelectedUnitText").width() - HLEN(8),
-				VLEN(2),
-				# Use available height, maintain the BtS aspect ratio.
-				# Well, BtS had used 123x132. Mounted units and ships tend
-				# to be wider than tall, and there's no real harm in overlapping,
-				# with the table to the left, so I'll actually make it wider
-				# than high. These dimensions only affect the 3D space in which
-				# the model is shown; won't distort the model itself.
-				0, -HLEN(6))
+		# Use available height, maintain the BtS aspect ratio.
+		# Well, BtS had used 123x132. Mounted units and ships tend
+		# to be wider than tall, and there's no real harm in overlapping,
+		# with the table to the left, so I'll actually make it wider
+		# than high. These dimensions only affect the 3D space in which
+		# the model is shown; won't distort the model itself.
+		gSetRect("InterfaceUnitModel", "SelectedUnitPanel", gRect("SelectedUnitText").width() - HLEN(8), VLEN(2), 0, -HLEN(6))
 		gRect("InterfaceUnitModel").adjustSize((gRect("InterfaceUnitModel").height() * 150) / 132, 0)
 		# Align right if protruding too much
 		gRect("InterfaceUnitModel").move(min(0, gRect("LowerLeftCorner").xRight() + HLEN(2) - gRect("InterfaceUnitModel").xRight()), 0)
@@ -1573,53 +1531,34 @@ class CvMainInterface:
 		# <!-- custom: make it even between the 3 bonus columns, since we have more room and cleaner as such and in case the strategy bonuses use some effects or such, they'd need some room to show them. Done with the help of gemini 3 pro, check if accurate. Also use a variable so it dynamically adjusts to total side width in case we want to change it later. Also account for the margins, the total width seems to be effectively quite a bit less than max, empirically reduce it a bit to adjust for that. Note: i tried 15 instead of 2 * 8 but it seems to give same result than 2 * 7 (i.e. 14 and 15 are not different somehow if i'm not mistaken, only 14 or 16 show a difference visually ingame) so went with 2 * 8 rather than 2 * 7 as it seems prettier to me as such even though a bit too wide but the other is too tight -->
 		iBonusTableTableWidth = self.SIDE_PANELS_WIDTH - (2 * 8)
 		iBonusTableColumnWidth = iBonusTableTableWidth / 3
-		gSetRect("BonusPane0", "CityRightPanelContents",
-				0, 0,
-				# advc.004: Was 57; don't need quite this much space.
-				# HLEN(53),
-				HLEN(iBonusTableColumnWidth),
-				-(gRect("CityRightPanelContents").yBottom() -
-				(gRect("SpecialistLabelBackground").yBottom() -
-				iBonusBackrOverhang)))
-		gSetRect("BonusBack0", "CityRightPanelContents",
-				0, 0,
-				# Width was 157 in BtS. Perhaps the idea was to get all the scrollbars
-				# to appear on top of each other at the right edge. If so, then that's
-				# a pretty poor kludge. I'm going to push all scrollbars off-screen.
-				# That will still allow scrolling via mouse wheel - though the player
-				# may not even realize that not all resources are shown.
-				# Scrolling is only relevant when the height is insufficient for the
-				# list of bonus resources. That should never be the case with the
-				# BtS/AdvCiv rules, even at the lowest resolution.
-				iMaxRMargin,
-				gRect("BonusPane0").height() + iBonusBackrOverhang)
-		gSetRect("BonusPane1", "CityRightPanelContents",
-				gRect("BonusPane0").width(), 0,
-				# advc.002b: Was 68 in BtS; need less space in the third col now
-				# b/c the plus signs are gone.
-				# HLEN(78),
-				HLEN(iBonusTableColumnWidth),
-				gRect("BonusPane0").height())
-		gSetRect("BonusBack1", "CityRightPanelContents",
-				gRect("BonusPane1").x() - gRect("CityRightPanelContents").x(), 0,
-				# width was 184
-				iMaxRMargin, gRect("BonusBack0").height())
-		gSetRect("BonusPane2", "CityRightPanelContents",
-				gRect("BonusPane0").width() + gRect("BonusPane1").width(), 0,
-				# RectLayout.MAX,
-				HLEN(iBonusTableColumnWidth),
-				gRect("BonusPane0").height())
-		gSetRect("BonusBack2", "CityRightPanelContents",
-				gRect("BonusPane2").x() - gRect("CityRightPanelContents").x(), 0,
-				# width was 205
-				iMaxRMargin, gRect("BonusBack0").height())
+		# advc.004: Was 57; don't need quite this much space.
+		# HLEN(53),
+		gSetRect("BonusPane0", "CityRightPanelContents", 0, 0, HLEN(iBonusTableColumnWidth), -(gRect("CityRightPanelContents").yBottom() - (gRect("SpecialistLabelBackground").yBottom() - iBonusBackrOverhang)))
+		# Width was 157 in BtS. Perhaps the idea was to get all the scrollbars
+		# to appear on top of each other at the right edge. If so, then that's
+		# a pretty poor kludge. I'm going to push all scrollbars off-screen.
+		# That will still allow scrolling via mouse wheel - though the player
+		# may not even realize that not all resources are shown.
+		# Scrolling is only relevant when the height is insufficient for the
+		# list of bonus resources. That should never be the case with the
+		# BtS/AdvCiv rules, even at the lowest resolution.
+		gSetRect("BonusBack0", "CityRightPanelContents", 0, 0, iMaxRMargin, gRect("BonusPane0").height() + iBonusBackrOverhang)
+		# advc.002b: Was 68 in BtS; need less space in the third col now
+		# b/c the plus signs are gone.
+		# HLEN(78),
+		gSetRect("BonusPane1", "CityRightPanelContents", gRect("BonusPane0").width(), 0, HLEN(iBonusTableColumnWidth), gRect("BonusPane0").height())
+		# width was 184
+		gSetRect("BonusBack1", "CityRightPanelContents", gRect("BonusPane1").x() - gRect("CityRightPanelContents").x(), 0, iMaxRMargin, gRect("BonusBack0").height())
+		# RectLayout.MAX,
+		gSetRect("BonusPane2", "CityRightPanelContents", gRect("BonusPane0").width() + gRect("BonusPane1").width(), 0, HLEN(iBonusTableColumnWidth), gRect("BonusPane0").height())
+		# width was 205
+		gSetRect("BonusBack2", "CityRightPanelContents", gRect("BonusPane2").x() - gRect("CityRightPanelContents").x(), 0, iMaxRMargin, gRect("BonusBack0").height())
 
 		self.bCityBonusButtons = True
 		for i in range(3):
-			iBtnSize = iround(32 *
-					# Vertical space on the right is especially scarce on wide resolutions
-					# (though this really depends on our gHorizontal/VerticalScaleFactor ...)
-					(0.8 + gRect("Top").height() / float(gRect("Top").width())) / 1.43)
+			# Vertical space on the right is especially scarce on wide resolutions
+			# (though this really depends on our gHorizontal/VerticalScaleFactor ...)
+			iBtnSize = iround(32 * (0.8 + gRect("Top").height() / float(gRect("Top").width())) / 1.43)
 			lRows = ColumnLayout(gRect("BonusBack" + str(i)), 0, VSPACE(2), RectLayout.MAX, 1, RectLayout.MAX, iBtnSize)
 			if lRows.numWidgets() * 2.35 < gc.getNumBonusInfos():
 				# Not enough space for buttons
@@ -1635,10 +1574,8 @@ class CvMainInterface:
 				gSetRectangle("CityBonusCell" + szIndex, lRow)
 				lBtn = SquareLayout(lRow, 0, 0, iBtnSize)
 				gSetRectangle("CityBonusBtn" + szIndex, lBtn)
-				gSetRectangle("CityBonusCircle" + szIndex,
-						SquareLayout(lBtn,
-						# Not scaling the size b/c the text label won't scale either
-						RectLayout.RIGHT, RectLayout.BOTTOM, 16))
+				# Not scaling the size b/c the text label won't scale either
+				gSetRectangle("CityBonusCircle" + szIndex, SquareLayout(lBtn, RectLayout.RIGHT, RectLayout.BOTTOM, 16))
 				gOffSetPoint("CityBonusAmount" + szIndex, "CityBonusCircle" + szIndex, RectLayout.CENTER, -2)
 				if i != 0:
 					gOffSetPoint("CityBonusEffect" + szIndex, lRow, gRect("BonusPane" + str(i)).width() - HSPACE(4, 4), iBtnSize / 4)
@@ -1838,11 +1775,10 @@ class CvMainInterface:
 		self.createPlotListFrames() # advc: Moved into subroutine
 # BUG - unit plot draw method - start (advc.092: Moved from initState method)
 		from BugUnitPlot import BupPanel
-		self.BupPanel = BupPanel(screen,
-				# advc.092: BupPanel will access some global rectangles instead
-				#gRect("Top").width(), gRect("Top").height(),
-				#gRect("BottomButtonMaxSpace").width(),
-				self.numPlotListButtonsPerRow(), self.numPlotListRows())
+		# advc.092: BupPanel will access some global rectangles instead
+		#gRect("Top").width(), gRect("Top").height(),
+		#gRect("BottomButtonMaxSpace").width(),
+		self.BupPanel = BupPanel(screen, self.numPlotListButtonsPerRow(), self.numPlotListRows())
 # BUG - unit plot draw method - end
 
 		self.setLabel("EndTurnText", "Background", u"", CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.1)
@@ -1928,9 +1864,8 @@ class CvMainInterface:
 # BUG - Great Person Bar - end
 # BUG - Bars on single line for higher resolution screens - start
 		self.addStackedBar("OneLineGGBar", WidgetTypes.WIDGET_HELP_GREAT_GENERAL)
-		screen.setStackedBarColors("OneLineGGBar", InfoBarTypes.INFOBAR_STORED,
-				#self.colorGreatPeopleStored)
-				self.colorNegativeRate)
+		#self.colorGreatPeopleStored)
+		screen.setStackedBarColors("OneLineGGBar", InfoBarTypes.INFOBAR_STORED, self.colorNegativeRate)
 		screen.setStackedBarColors("OneLineGGBar", InfoBarTypes.INFOBAR_RATE, self.colorEmpty)
 		screen.setStackedBarColors("OneLineGGBar", InfoBarTypes.INFOBAR_RATE_EXTRA, self.colorEmpty)
 		screen.setStackedBarColors("OneLineGGBar", InfoBarTypes.INFOBAR_EMPTY, self.colorEmpty)
@@ -2046,8 +1981,8 @@ class CvMainInterface:
 		#		ArtFileMgr.getInterfaceArtInfo("BUG_OPTIONS_SCREEN_BUTTON").getPath(),
 		#		WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
 		# <K-Mod>
-		self.setStyledButton("BUGOptionsScreenWidget", "Button_HUDAdvisorCorporation_Style",
-				WidgetTypes.WIDGET_BUG_OPTION_SCREEN) # </K-Mod>
+		# </K-Mod>
+		self.setStyledButton("BUGOptionsScreenWidget", "Button_HUDAdvisorCorporation_Style", WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
 		screen.hide("BUGOptionsScreenWidget")
 # BUG - BUG Option Button - End
 
@@ -2088,11 +2023,8 @@ class CvMainInterface:
 
 		for i in range(gc.getMAX_CIV_PLAYERS()):
 			szName = "ScoreText" + str(i)
-			screen.setText(szName, "Background",
-					u"", CvUtil.FONT_RIGHT_JUSTIFY,
-					# advc.092 (note): I think these coordinates are only preliminary
-					996, 622, -0.3, FontTypes.SMALL_FONT,
-					WidgetTypes.WIDGET_CONTACT_CIV, i, -1)
+			# advc.092 (note): I think these coordinates are only preliminary
+			screen.setText(szName, "Background", u"", CvUtil.FONT_RIGHT_JUSTIFY, 996, 622, -0.3, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_CONTACT_CIV, i, -1)
 			screen.hide(szName)
 
 		# This should be a forced redraw screen
@@ -2173,8 +2105,8 @@ class CvMainInterface:
 		# I think they should be multiples of the button size. That was
 		# almost exactly the case for the three button sizes above 33.
 		iMaxHeight = gRect("CenterBottom").height() - 2 * VSPACE(1)
-		iHeight = max(iButtonSize, iMaxHeight - (iMaxHeight % iButtonSize)
-				+ 4) # A little extra to avoid a vertical slider
+		# A little extra to avoid a vertical slider
+		iHeight = max(iButtonSize, iMaxHeight - (iMaxHeight % iButtonSize) + 4)
 		# <!-- custom: optional city-screen build-bar height tweak; raw pixel add so the last row can fit (e.g. 3.9 -> 4.0 rows) without growing the decorative ribbon. Safe because CenterBottom (and thus iMaxHeight) no longer varies with the ribbon-extra-lift knob. (GPT-5.3-Codex + Claude code Opus 4.7) -->
 		if CyInterface().isCityScreenUp() and self.iBarExtraHeightExtraManualAdjust != 0:
 			iHeight += self.iBarExtraHeightExtraManualAdjust
@@ -2203,10 +2135,8 @@ class CvMainInterface:
 # BUG - Build/Action Icon Size - end
 		lRect = RectLayout(gRect("BottomButtonMaxSpace"), 0, iTMargin, RectLayout.MAX, -iBMargin)
 		gSetRectangle("BottomButtonList", lRect)
-		self.screen.addMultiListControlGFC("BottomButtonList", u"",
-				lRect.x(), lRect.y(), lRect.width(), lRect.height(),
-				4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
-				TableStyles.TABLE_STYLE_STANDARD)
+		# numLists, defaultWidth, defaultHeight
+		self.screen.addMultiListControlGFC("BottomButtonList", u"", lRect.x(), lRect.y(), lRect.width(), lRect.height(), 4, iButtonSize, iButtonSize, TableStyles.TABLE_STYLE_STANDARD)
 
 	def createPlotListFrames(self): # advc: Cut from interfaceScreen
 		screen = self.screen
@@ -2337,9 +2267,8 @@ class CvMainInterface:
 				#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
 				screen.setEndTurnState("EndTurnText", acOutput)
 				bShow = True
-			elif (messageControl.GetFirstBadConnection() != -1 and
-					# advc.706: Side effect of switching active player
-					not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL)):
+			# advc.706: Side effect of switching active player
+			elif (messageControl.GetFirstBadConnection() != -1 and not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL)):
 				# Waiting on a bad connection to resolve
 				if (messageControl.GetConnState(messageControl.GetFirstBadConnection()) == 1):
 					if (gc.getGame().isMPOption(MultiplayerOptionTypes.MPOPTION_ANONYMOUS)):
@@ -2365,9 +2294,8 @@ class CvMainInterface:
 					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
 					screen.setEndTurnState("EndTurnText", acOutput)
 					bShow = True
-				elif (CyInterface().shouldDisplayWaitingOthers() and
-						# advc.127: No "Waiting" message during Auto Play
-						not gc.getPlayer(gc.getGame().getActivePlayer()).isHumanDisabled()):
+				# advc.127: No "Waiting" message during Auto Play
+				elif (CyInterface().shouldDisplayWaitingOthers() and not gc.getPlayer(gc.getGame().getActivePlayer()).isHumanDisabled()):
 					acOutput = self.szTextWaiting
 					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
 					screen.setEndTurnState("EndTurnText", acOutput)
@@ -3174,8 +3102,8 @@ class CvMainInterface:
 				pLoopUnit = CyInterface().getCachedInterfacePlotUnit(i)
 				if (pLoopUnit):
 					# advc.004n: Allow going back down to a single row on the city screen
-					if (#iCount == 0 and
-							CyInterface().getPlotListColumn() > 0):
+					#iCount == 0 and
+					if (CyInterface().getPlotListColumn() > 0):
 						bLeftArrow = True
 					#elif
 					if ((iCount == (self.numPlotListRows() * self.numPlotListButtonsPerRow() - 1)) and ((iVisibleUnits - iCount - CyInterface().getPlotListColumn() + iSkipped) > 1)):
@@ -3183,10 +3111,8 @@ class CvMainInterface:
 
 					if ((iCount >= 0) and (iCount < self.numPlotListButtonsPerRow() * self.numPlotListRows())):
 						# <advc.069>
-						bShowMoveOverlay = (bSimultaneousTurns or
-								pLoopUnit.getOwner() == gc.getGame().getActivePlayer() or
-								(bWoundedIndicator and pLoopUnit.isHurt()) or
-								(bGGIndicator and pLoopUnit.getLeaderUnitType() >= 0)) # </advc.069>
+						# </advc.069>
+						bShowMoveOverlay = (bSimultaneousTurns or pLoopUnit.getOwner() == gc.getGame().getActivePlayer() or (bWoundedIndicator and pLoopUnit.isHurt()) or (bGGIndicator and pLoopUnit.getLeaderUnitType() >= 0))
 						if ((pLoopUnit.getTeam() != gc.getGame().getActiveTeam()) or pLoopUnit.isWaiting()):
 							szFileName = self.overlayFortifyPath
 						elif (pLoopUnit.canMove()):
@@ -3245,14 +3171,12 @@ class CvMainInterface:
 								return 0
 							x = lPlotListBtn.x()
 							y = lPlotListBtn.y()
-							self.PLE._displayUnitPlotList_Dot(screen, pLoopUnit, szString, iCount,
-									x, y +
-									(4 * iPlotListFrameSize) / 32) # advc.092
+							# advc.092
+							self.PLE._displayUnitPlotList_Dot(screen, pLoopUnit, szString, iCount, x, y + (4 * iPlotListFrameSize) / 32)
 							self.PLE._displayUnitPlotList_Promo(screen, pLoopUnit, szString)
 							self.PLE._displayUnitPlotList_Upgrade(screen, pLoopUnit, szString, iCount, x, y)
-							self.PLE._displayUnitPlotList_Mission(screen, pLoopUnit, szString, iCount,
-									x, y -
-									(22 * iPlotListFrameSize) / 32, self.unitButtonOverlaySize()) # advc.092
+							# advc.092
+							self.PLE._displayUnitPlotList_Mission(screen, pLoopUnit, szString, iCount, x, y - (22 * iPlotListFrameSize) / 32, self.unitButtonOverlaySize())
 
 					iCount += 1
 #			BugUtil.debug("updatePlotListButtons_Orig - vis units(%i), buttons per row(%i), max rows(%i)", iVisibleUnits, self.numPlotListButtonsPerRow(), iMaxRows)
@@ -3630,9 +3554,8 @@ class CvMainInterface:
 				if (pHeadSelectedUnit and pHeadSelectedUnit.getOwner() == gc.getGame().getActivePlayer() and bHeadSelectionChanged):
 					# <advc.004k>
 					bGroupButtonsDone = False
-					iMaxCols = int((gRect("BottomButtonList").width()
-							# (Safety margin - seems that MultiListControl can't use its entire width.)
-							-10) / self.bottomListBtnSize())
+					# (Safety margin - seems that MultiListControl can't use its entire width.)
+					iMaxCols = int((gRect("BottomButtonList").width() -10) / self.bottomListBtnSize())
 					# Can display any number of them, but we don't want a scrollbar.
 					iMaxRows = int(gRect("BottomButtonList").height() / self.bottomListBtnSize())
 					iRow0Count = 0
@@ -3657,13 +3580,10 @@ class CvMainInterface:
 						# Put promotions, upgrades on a separate row -
 						# if we haven't exceeded a full row already and can
 						# fit all promos and upgrades in the 2nd row.
-						if (bGroupButtonsDone and iMaxRows >= 2 and
-								iRow0Count <= iMaxCols and
-								len(actions) - iRow0Count <= iMaxCols and
-								# When space is very limited, then there's a danger
-								# of about half of the units using a single (wrapped)
-								# row and half using separate rows, which is awkward.
-								iMaxCols >= 8):
+						# When space is very limited, then there's a danger
+						# of about half of the units using a single (wrapped)
+						# row and half using separate rows, which is awkward.
+						if (bGroupButtonsDone and iMaxRows >= 2 and iRow0Count <= iMaxCols and len(actions) - iRow0Count <= iMaxCols and iMaxCols >= 8):
 							iRow = 1
 							iCount = iRow1Count
 						else:
@@ -3675,9 +3595,8 @@ class CvMainInterface:
 						screen.show("BottomButtonList")
 						if not CyInterface().canHandleAction(i, False):
 							screen.disableMultiListButton("BottomButtonList", iRow, iCount, gc.getActionInfo(i).getButton())
-						if (pHeadSelectedUnit.isActionRecommended(i)
-								#or gc.getActionInfo(i).getCommandType() == CommandTypes.COMMAND_PROMOTION
-								):
+						#or gc.getActionInfo(i).getCommandType() == CommandTypes.COMMAND_PROMOTION
+						if (pHeadSelectedUnit.isActionRecommended(i)):
 							screen.enableMultiListPulse("BottomButtonList", True, iRow, iCount)
 						else:
 							screen.enableMultiListPulse("BottomButtonList", False, iRow, iCount)
@@ -4171,10 +4090,9 @@ class CvMainInterface:
 				szString = "PercentText" + str(iCount)
 				self.setLabel(szString, "Background", szOutText, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
 				screen.show(szString)
-				if (not CyInterface().isCityScreenUp()
-						# <advc.004p>
-						and (eCommerce != CommerceTypes.COMMERCE_CULTURE or
-						MainOpt.isShowTotalCultureRate())): # </advc.004p>
+				# <advc.004p>
+				# </advc.004p>
+				if (not CyInterface().isCityScreenUp() and (eCommerce != CommerceTypes.COMMERCE_CULTURE or MainOpt.isShowTotalCultureRate())):
 					szOutText = sasFontTagLabel + localText.getText("TXT_KEY_MISC_POS_GOLD_PER_TURN", (gc.getPlayer(ePlayer).getCommerceRate(CommerceTypes(eCommerce)),))
 					szOutText += SAS_FONT_TAG_CLOSE
 					szString = "RateText" + str(iCount)
@@ -4298,9 +4216,8 @@ class CvMainInterface:
 				iResearchIconYOffset = (gRect(szResearchBar).height() - iImgSize) / 2 - iResearchTextOffset + iResearchIconYDownlift
 				self.setSASCenteredImageButtonAtLeftOfTextRow("ResearchText", "ResearchIconText", "Background", szText, szTechBtn, iImgSize, None, gPoint("ResearchText").y(), HSPACE(2), szResearchBar, 0, iResearchIconYOffset, FontTypes.GAME_FONT, -0.4, WidgetTypes.WIDGET_RESEARCH, iTech)
 			else:
-				self.setText("ResearchText", "Background", szText,
-						CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
-						WidgetTypes.WIDGET_RESEARCH, iTech) # advc.001: Pass along tech id
+				# advc.001: Pass along tech id
+				self.setText("ResearchText", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4, WidgetTypes.WIDGET_RESEARCH, iTech)
 			# advc.004x: Always show ResearchText (i.e. anarchy turns)
 			#if not bAnarchy:
 			screen.show("ResearchText")
@@ -4432,10 +4349,8 @@ class CvMainInterface:
 	# </advc.078>
 	# advc.092:
 	def isShowTopBarsOnSingleLine(self):
-		return (gRect("TopBarsMaxSpace").encloses(gRect("TopBarsOneLineContainer")) and
-				(self.isShowGGProgressBar() or self.isShowGPProgressBar()) and
-				# Show the potentially longer non-single-line research bar on the city screen
-				not CyInterface().isCityScreenUp())
+		# Show the potentially longer non-single-line research bar on the city screen
+		return (gRect("TopBarsMaxSpace").encloses(gRect("TopBarsOneLineContainer")) and (self.isShowGGProgressBar() or self.isShowGPProgressBar()) and not CyInterface().isCityScreenUp())
 
 	# advc.092: Don't show that frame when the bars take up two lines
 	def isShowTopBarsFrame(self):
@@ -4928,13 +4843,12 @@ class CvMainInterface:
 			else:
 				szBuffer = localText.getText("INTERFACE_CITY_HAPPY_NO_UNHAPPY", (pHeadSelectedCity.happyLevel(),))
 # BUG - Anger Display - start
-			if (CityScreenOpt.isShowAngerCounter() and
-					(pHeadSelectedCity.getTeam() == gc.getGame().getActiveTeam()
-					or gc.getGame().isDebugMode())): # K-Mod
+			# K-Mod
+			if (CityScreenOpt.isShowAngerCounter() and (pHeadSelectedCity.getTeam() == gc.getGame().getActiveTeam() or gc.getGame().isDebugMode())):
 				iAngerTimer = max(pHeadSelectedCity.getHurryAngerTimer(), pHeadSelectedCity.getConscriptAngerTimer())
 				# <advc.188> Cover all temporary unhappiness (but not getHappinessTimer)
-				iAngerTimer = max(iAngerTimer,
-						pHeadSelectedCity.getDefyResolutionAngerTimer()) # </advc.188>
+				# </advc.188>
+				iAngerTimer = max(iAngerTimer, pHeadSelectedCity.getDefyResolutionAngerTimer())
 				if iAngerTimer > 0:
 					szBuffer += u" (%i)" % iAngerTimer
 # BUG - Anger Display - end
@@ -4970,13 +4884,12 @@ class CvMainInterface:
 			if MainOpt.isShowBarTickMarks():
 				self.pBarProductionBar.drawTickMarks(screen, pHeadSelectedCity.getProduction(), pHeadSelectedCity.getProductionNeeded(), iFirst, iRate, False)
 			# advc.064: Now optional and independent from ShowBarTick
-			if (CityScreenOpt.isShowHurryTickMarks() and
-					# K-Mod, changed from False to True
-					pHeadSelectedCity.canHurry(HURRY_WHIP, True)):
+			# K-Mod, changed from False to True
+			if (CityScreenOpt.isShowHurryTickMarks() and pHeadSelectedCity.canHurry(HURRY_WHIP, True)):
 				iRate = (pHeadSelectedCity.hurryProduction(HURRY_WHIP) / pHeadSelectedCity.hurryPopulation(HURRY_WHIP))
 				# <advc.064b> Subtract guaranteed production
-				iMinProduction = (pHeadSelectedCity.minPlotProduction() +
-						pHeadSelectedCity.getFeatureProduction()) # </advc.064b>
+				# </advc.064b>
+				iMinProduction = (pHeadSelectedCity.minPlotProduction() + pHeadSelectedCity.getFeatureProduction())
 				self.pBarProductionBar_Whip.drawTickMarks(screen, pHeadSelectedCity.getProduction(), pHeadSelectedCity.getProductionNeeded() - iMinProduction, iFirst, iRate, True)
 # BUG - Progress Bar - Tick Marks - end
 		iCount = 0
@@ -5279,16 +5192,11 @@ class CvMainInterface:
 		aCityBonuses = []
 		for iBonus in range(gc.getNumBonusInfos()):
 			aCityBonuses.append(iBonus)
-		aCityBonuses = sorted(aCityBonuses, key=lambda iBonus:
-				- 10000 * pHeadSelectedCity.getBonusHappiness(iBonus)
-				- 9000 * pHeadSelectedCity.getBonusHealth(iBonus)
-				- 1000 * pHeadSelectedCity.getNumBonuses(iBonus)
-				+ iBonus) # </advc.004>
+		# </advc.004>
+		aCityBonuses = sorted(aCityBonuses, key=lambda iBonus: - 10000 * pHeadSelectedCity.getBonusHappiness(iBonus) - 9000 * pHeadSelectedCity.getBonusHealth(iBonus) - 1000 * pHeadSelectedCity.getNumBonuses(iBonus) + iBonus)
 		# <advc.092>
-		if (self.bCityBonusButtons or
-				gRect("Top").height() > 900
-				# Quick adjustment for mod-mods that add resources
-				+ max(0, gc.getNumBonusInfos() - 35) * 12):
+		# Quick adjustment for mod-mods that add resources
+		if (self.bCityBonusButtons or gRect("Top").height() > 900 + max(0, gc.getNumBonusInfos() - 35) * 12):
 			iFontSize = getSASUIFontLabel()
 		else:
 			iFontSize = getSASUIFontTiny() # (2 doesn't really increase the size of icons)
@@ -6059,9 +5967,8 @@ class CvMainInterface:
 							screen.appendTableRow("SelectedUnitText")
 							szLeftText = sasFontTagLabel + szLeftBuffer + SAS_FONT_TAG_CLOSE
 							szRightText = sasFontTagLabel + szRightBuffer + SAS_FONT_TAG_CLOSE
-							screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, szButton,
 							# <!-- custom: End - add buttons to unit selection panel in the main map view (Claude code Sonnet 4.5) -->
-									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
+							screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, szButton, WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
 							screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "", WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 							screen.show("SelectedUnitText")
 							screen.show("SelectedUnitPanel")
@@ -6155,8 +6062,8 @@ class CvMainInterface:
 				screen.show("SelectedUnitText")
 				screen.show("SelectedUnitPanel")
 				iRow += 1
-				if (pHeadSelectedUnit.getLevel() > 0 and
-						pHeadSelectedUnit.getExperience() > 0): # advc.004w
+				# advc.004w
+				if (pHeadSelectedUnit.getLevel() > 0 and pHeadSelectedUnit.getExperience() > 0):
 					szLeftBuffer = self.szTextLevel
 					szRightBuffer = u"%d" %(pHeadSelectedUnit.getLevel())
 					szBuffer = szLeftBuffer + "  " + szRightBuffer
@@ -6249,10 +6156,9 @@ class CvMainInterface:
 		eUIVis = CyInterface().getShowInterface()
 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or not CyInterface().isScoresVisible() or CyInterface().isCityScreenUp()):
 			return
-		if (CyEngine().isGlobeviewUp() and
-				# <advc.004z>
-				(not MainOpt.isScoresInGlobeView() or
-				eUIVis == InterfaceVisibility.INTERFACE_HIDE)): # </advc.004z>
+		# <advc.004z>
+		# </advc.004z>
+		if (CyEngine().isGlobeviewUp() and (not MainOpt.isScoresInGlobeView() or eUIVis == InterfaceVisibility.INTERFACE_HIDE)):
 			return
 		# <advc.004z>
 		screen.show("ScoreBackground") # Moved up
@@ -6269,9 +6175,8 @@ class CvMainInterface:
 		iSScrollBtnSz = gRect("ScoreScrollUp").width()
 		iSScrollY = gRect("GlobeToggle").y() - iSScrollBtnSz  # buttons flush above GlobeToggle
 		iScoreBottom = iSScrollY - VSPACE(2) - VSPACE(9)  # 2px gap + 9px panel bottom margin
-		gSetPoint("ScoreTextLowerRight", PointLayout(
-				gRect("MiniMap").xRight(),
-				iScoreBottom)) # </advc.092>
+		# </advc.092>
+		gSetPoint("ScoreTextLowerRight", PointLayout(gRect("MiniMap").xRight(), iScoreBottom))
 		iScoreTopMin = gRect("AdvisorButtons").yBottom()
 		iAvailH = iScoreBottom - iScoreTopMin
 		iMaxRows = max(1, iAvailH // iBtnHeight)
@@ -6583,11 +6488,8 @@ class CvMainInterface:
 # BUG - Dead Civs - end
 # BUG - Power Rating - start
 			# if on, show according to espionage "see demographics" mission
-			if (ScoreOpt.isShowPower() and
-					# K-Mod (original BUG condition deleted)
-					eActivePlayer != ePlayer and
-					(g.isDebugMode() or
-					pActivePlayer.canSeeDemographics(ePlayer))):
+			# K-Mod (original BUG condition deleted)
+			if (ScoreOpt.isShowPower() and eActivePlayer != ePlayer and (g.isDebugMode() or pActivePlayer.canSeeDemographics(ePlayer))):
 				iPlayerPower = pActivePlayer.getPower()
 				iPowerColor = ScoreOpt.getPowerColor()
 				iHighPowerColor = ScoreOpt.getHighPowerColor()
@@ -6674,8 +6576,8 @@ class CvMainInterface:
 			if bAlignIcons:
 				scores.setNetStats(szTempBuffer)
 		if pPlayer.isHuman() and CyInterface().isOOSVisible():
-			szTempBuffer = u" <color=255,0,0>* %s *</color> (%d)" %(
-					CyGameTextMgr().getOOSSeeds(ePlayer), g.getTurnSlice()%8) # K-Mod, added TurnSlice
+			# K-Mod, added TurnSlice
+			szTempBuffer = u" <color=255,0,0>* %s *</color> (%d)" %(CyGameTextMgr().getOOSSeeds(ePlayer), g.getTurnSlice()%8)
 			szBuffer = szBuffer + szTempBuffer
 			if bAlignIcons:
 				scores.setNetStats(szTempBuffer)
@@ -6794,12 +6696,10 @@ class CvMainInterface:
 		# <advc.004z>
 		bUnitLayer = (eCurrentLayerType == GlobeLayerTypes.GLOBE_LAYER_UNIT)
 		bResourceLayer = (eCurrentLayerType == GlobeLayerTypes.GLOBE_LAYER_RESOURCE)
-		if (iCurrentLayerID >= 0 and
-				kGLM.getLayer(iCurrentLayerID).getNumOptions() > 0 and
-				# Could instead set NumOptions to 0 in CvGame::getGlobeLayers
-				# but then the resource layer wouldn't update properly
-				# when ResourceIconOptions is toggled on the BUG menu.
-				(not bResourceLayer or MainOpt.isResourceIconOptions())):
+		# Could instead set NumOptions to 0 in CvGame::getGlobeLayers
+		# but then the resource layer wouldn't update properly
+		# when ResourceIconOptions is toggled on the BUG menu.
+		if (iCurrentLayerID >= 0 and kGLM.getLayer(iCurrentLayerID).getNumOptions() > 0 and (not bResourceLayer or MainOpt.isResourceIconOptions())):
 			# </advc.004z>
 			bHasOptions = True
 		else:
@@ -6837,12 +6737,8 @@ class CvMainInterface:
 			else:
 				szBuffer = "  %s  " % (szCaption)
 			iCurY -= iGlobeLayerOptionHeight
-			screen.setText(szName, "Background",
-					szBuffer, CvUtil.FONT_RIGHT_JUSTIFY,
-					gRect("Top").xRight() - iHMargin,
-					iCurY - iGlobeLayerOptionHeight / 3, # advc.092: was iCurY-10
-					-0.3, FontTypes.SMALL_FONT,
-					WidgetTypes.WIDGET_GLOBELAYER_OPTION, iOption, -1)
+			# advc.092: was iCurY-10
+			screen.setText(szName, "Background", szBuffer, CvUtil.FONT_RIGHT_JUSTIFY, gRect("Top").xRight() - iHMargin, iCurY - iGlobeLayerOptionHeight / 3, -0.3, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GLOBELAYER_OPTION, iOption, -1)
 			screen.show(szName)
 
 			iTextWidth = CyInterface().determineWidth(szBuffer)
@@ -6853,10 +6749,8 @@ class CvMainInterface:
 		iPanelWidth = iMaxTextWidth + iHMargin # advc.092: was ...+32
 		# (advc.092: Not a good idea after all I think)
 		#iPanelWidth = max(iPanelWidth, gRect("Top").xRight() - gRect("MiniMapPanel").x() - iHMargin)
-		screen.setPanelSize("ScoreBackground",
-				gRect("Top").xRight() - iPanelWidth - iHMargin, # advc.092: was ...-14
-				iCurY,
-				iPanelWidth, gRect("GlobeToggle").y() - iCurY)
+		# advc.092: was ...-14
+		screen.setPanelSize("ScoreBackground", gRect("Top").xRight() - iPanelWidth - iHMargin, iCurY, iPanelWidth, gRect("GlobeToggle").y() - iCurY)
 		screen.show("ScoreBackground")
 		return True
 
@@ -6945,12 +6839,8 @@ class CvMainInterface:
 				screen.addCheckBoxGFC(btn.szName, "", "", lRect.x(), lRect.y(), lRect.size(), lRect.size(), WIDGET_ANNOTATIONS_TOGGLE, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 				screen.setStyle(btn.szName, btn.szStyle)
 			else:
-				screen.addCheckBoxGFC(btn.szName, "", "",
-						# advc (note): Same preliminary position for all of them
-						lRect.x(), lRect.y(), lRect.size(), lRect.size(),
-						WidgetTypes.WIDGET_ACTION,
-						gc.getControlInfo(btn.eControl).getActionInfoIndex(), -1,
-						ButtonStyles.BUTTON_STYLE_LABEL)
+				# advc (note): Same preliminary position for all of them
+				screen.addCheckBoxGFC(btn.szName, "", "", lRect.x(), lRect.y(), lRect.size(), lRect.size(), WidgetTypes.WIDGET_ACTION, gc.getControlInfo(btn.eControl).getActionInfoIndex(), -1, ButtonStyles.BUTTON_STYLE_LABEL)
 				screen.setStyle(btn.szName, btn.szStyle)
 			screen.setState(btn.szName, False)
 			screen.hide(btn.szName)
@@ -7268,11 +7158,8 @@ class CvMainInterface:
 		try: # advc.009b
 			# K-Mod
 			#if bDefault or not MainOpt.isShowFieldOfView():
-			if (bDefault or
-					(not MainOpt.isShowFieldOfView() and
-					not MainOpt.isRememberFieldOfView()) or
-					# advc.004m: Only remember sensible values
-					int(MainOpt.getFieldOfView()) < 10):
+			# advc.004m: Only remember sensible values
+			if (bDefault or (not MainOpt.isShowFieldOfView() and not MainOpt.isRememberFieldOfView()) or int(MainOpt.getFieldOfView()) < 10):
 				self._setFieldofView(screen, self.DEFAULT_FIELD_OF_VIEW)
 			else:
 				self._setFieldofView(screen, self.iField_View)
@@ -7286,9 +7173,8 @@ class CvMainInterface:
 			self.iField_View_Prev = iFoV
 
 	def setFieldofView_Text(self, screen):
-		zsFieldOfView_Text = "%s [%i]" % (
-				self.sFieldOfView_Text,
-				self.FoVToPercent(self.iField_View)) # advc.090: was self.iField_View
+		# advc.090: was self.iField_View
+		zsFieldOfView_Text = "%s [%i]" % (self.sFieldOfView_Text, self.FoVToPercent(self.iField_View))
 		self.setLabel("FoVSliderText", "", zsFieldOfView_Text, CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT)
 # BUG - field of view slider - end
 
