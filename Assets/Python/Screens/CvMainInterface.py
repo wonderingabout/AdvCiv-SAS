@@ -5008,7 +5008,7 @@ class CvMainInterface:
 				szTechName = gc.getTechInfo(iTech).getDescription()
 				iTurns = gc.getPlayer(ePlayer).getResearchTurnsLeft(iTech, True)
 				szTechBtn = gc.getTechInfo(iTech).getButton()
-				iImgSize = BTNSZ(20)
+				iImgSize = BTNSZ(25)
 				szIconText = "<img=%s size=%d/>" % (szTechBtn, iImgSize)
 				szText = "%s: %d / %d (%d)" % (szTechName, researchProgress + overflowResearch, researchCost, iTurns)
 			else:
@@ -5017,10 +5017,14 @@ class CvMainInterface:
 			szText = sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE
 			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
 					and not bAnarchy and iTech != -1 and szTechBtn):
+				# <!-- custom: setImageButton pins its top-left to the given Y, unlike <img> tags which the engine centers automatically. Offset so the icon's center matches the bar's center rather than sitting pinned near the bar's top edge. (Claude code Sonnet 4.6) -->
+				iResearchIconYDownlift = VSPACE(1)
+				iResearchIconYOffset = (gRect(szResearchBar).height() - iImgSize) / 2 - iResearchTextOffset + iResearchIconYDownlift
 				self.setSASCenteredImageButtonAtLeftOfTextRow("ResearchText", "ResearchIconText",
 						"Background", szText, szTechBtn, iImgSize, None,
 						gPoint("ResearchText").y(), HSPACE(2), szResearchBar,
-						0, 0, FontTypes.GAME_FONT, -0.4,
+						0, iResearchIconYOffset,
+						FontTypes.GAME_FONT, -0.4,
 						WidgetTypes.WIDGET_RESEARCH, iTech)
 			else:
 				self.setText("ResearchText", "Background", szText,
@@ -5692,13 +5696,16 @@ class CvMainInterface:
 					szProdBtn = gc.getProcessInfo(iOrderData).getButton()
 			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS
 					and szProdBtn):
-				iImgSize = BTNSZ(20)
+				iImgSize = BTNSZ(25)
+				iProductionTextOffset = self.stackBarDefaultTextOffset()
+				iProductionIconYDownlift = VSPACE(1)
+				iProductionIconYOffset = (gRect("ProductionBar").height() - iImgSize) / 2 - iProductionTextOffset + iProductionIconYDownlift
 				szProdText = sasFontTagLabel + szBuffer + SAS_FONT_TAG_CLOSE
 				self.setSASCenteredImageButtonAtLeftOfTextRow("ProductionText", "ProductionIconText",
-						"Background", szProdText,
-						"<img=%s size=%d/>" % (szProdBtn, iImgSize),
+						"Background", szProdText, szProdBtn,
 						iImgSize, None, gPoint("ProductionText").y(),
-						HSPACE(2), "ProductionBar", 0, 0,
+						HSPACE(2), "ProductionBar",
+						0, iProductionIconYOffset,
 						FontTypes.GAME_FONT, -1.3, WidgetTypes.WIDGET_GENERAL)
 				screen.show("ProductionIconText")
 			else:
