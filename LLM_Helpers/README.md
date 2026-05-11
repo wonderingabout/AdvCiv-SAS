@@ -1,71 +1,139 @@
-﻿# External helper tools
+# External helper tools
 
-This folder contains external Python 3 helper scripts for tasks outside Civ4's embedded Python 2.4 runtime — balancing workflows, code refactoring, report generation, tuning experiments, etc.
+This folder contains external helper scripts, mostly Python 3, for tasks outside Civ4's embedded Python runtime. These scripts are meant for LLM-assisted workflows, balancing workflows, code review, refactoring support, report generation, and other tooling.
 
-General note for LLM/code-agent helpers:
+Important distinction:
 
-- These scripts are external tools. They may use modern Python 3 even when the mod itself must still run in Civ4's old Python 2.4 runtime.
-- Only worry about Python 2.4-safe **output** when the script rewrites a Python file that Civ4 will actually load, such as files under `Assets\Python`.
-- Report outputs, tuning summaries, `.txt` review files, generated diagnostics, and other helper artifacts do **not** need to be Civ4-loadable. Make them clear for humans and LLMs.
-- When a helper rewrites source code, preserve behavior first: do not silently delete comments, do not rewrite strings, and review the diff before committing.
-- Paths created by ChatGPT in `/mnt/data/...` are sandbox paths, not repo paths. Codex/Claude/local agents should replace them with repo-relative paths such as `Assets\Python\Screens\CvMainInterface.py`.
+- Helper scripts may use modern Python 3.
+- Output files do not automatically need to be Civ4 Python 2.4-compatible.
+- Only source-rewrite helpers that modify Python files loaded by Civ4 must preserve Python 2.4-compatible target code.
+- Text reports, tuning reports, XML summaries, and other external artifacts only need to be useful and accurate for their workflow.
 
-- `collapse_multiline_brackets.py`
-  - Legacy/simple character-based collapser for multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file.
-  - Use to make boilerplate Civ4 API calls and helper invocations greppable on one line.
-  - Preserves line endings (CRLF or LF), string literals, and comments outside collapsed ranges.
-  - Strips line comments and indentation **inside** collapsed ranges, so be careful on comment-heavy files.
-  - **Run on ONE file at a time** and eyeball the diff before committing — a whole-directory sweep was tried once and reverted.
+Always review diffs before committing generated source changes.
 
-- `singleline_pass3_comments_and_long.py` / future `collapse_multiline_python.py`
-  - ChatGPT-generated safer basis for LLM-first multiline-to-single-line cleanup.
-  - Intended goal: one logical API/layout operation per physical line, so grep and LLM context snippets show the whole operation.
-  - Better than `collapse_multiline_brackets.py` for comment-heavy files because it moves inline comments above collapsed statements instead of deleting them.
-  - Can also collapse clearly code-like commented-out multiline blocks.
-  - The ChatGPT-generated pass scripts were made in a sandbox and may contain hardcoded `/mnt/data/...` paths. Before adding one to the repo, convert it to a normal CLI tool that accepts a target path and optional `--in-place`/review-copy mode.
-  - For source-rewrite helpers, useful checks are: unchanged meaningful code-token sequence, preserved comment text, reviewed diff, and an in-game smoke test for UI files.
+## Source-rewrite helpers
 
-- `compare_speed_summaries.py`
-  - Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
-  - Compares `Normal` vs one selected speed across summary rows.
-  - Also compares flattened increment sequences (Years and Months) index by index.
-  - Can focus summaries to one index (`--summary`), while still printing increment comparison.
-  - Automatically writes a timestamped `.txt` file.
-  - Output filename is short and sortable: `<UTC-ISO>_<speed>[_sXX].txt` (e.g. `20260217T110501Z_slow_s06.txt`).
+### `collapse_multiline_brackets.py`
 
-- `autotune_speed_from_xml.py`
-  - Computes Summary rows directly from `Assets/XML/GameInfo/CIV4GameSpeedInfo.xml` (no `PythonDbg.log` needed).
-  - Can print XML-based `Normal` vs selected speed comparison.
-  - Optional draft autoloop mode for `GAMESPEED_SLOW`: iterates candidate timeline tweaks and reports best-scoring result.
-  - Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
+Legacy/reference helper.
 
-Examples (PowerShell from mod root):
+- Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
+- Useful idea: make boilerplate Civ4 API calls and helper invocations greppable on one line.
+- Preserves line endings, string literals, and comments outside collapsed ranges.
+- Important caution: this script strips line comments and indentation inside collapsed ranges.
+- Because many AdvCiv-SAS UI files contain important inline/manual-layout comments, do not use this blindly on comment-heavy files.
+- Run on ONE file at a time and eyeball the diff before committing. A whole-directory sweep was tried once and reverted.
+
+Example:
 
 ```powershell
 python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
 ```
 
-Safer LLM-first single-line cleanup, once the ChatGPT pass script is cleaned into a repo tool:
+### ChatGPT single-line cleanup scripts
 
-```powershell
-python LLM_Helpers\collapse_multiline_python.py Assets\Python\Screens\CvMainInterface.py --in-place --move-comments --collapse-commented-code
+These were generated during a ChatGPT-5.5 Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
+
+The generated scripts were staged working scripts, not polished repo utilities:
+
+- `singleline_pass.py`
+  - First conservative pass.
+  - Collapsed uncommented multiline logical statements.
+  - Skipped statements containing comments.
+- `singleline_pass_comments.py`
+  - Second staged pass.
+  - Collapsed more multiline statements.
+  - Preserved comments by moving them above the collapsed statement instead of deleting them.
+- `singleline_pass3_comments_and_long.py`
+  - Third staged pass and best reference for the final single-line statement approach.
+  - Allowed more long-line/comment-aware collapses.
+  - Also handled some commented-out multiline code groups.
+  - This was run after earlier passes, on an already-modified file.
+- `comment_cleanup_pass_v2.py`
+  - Fourth staged/reference pass, focused on comments rather than statements.
+  - Condensed simple wrapped prose comments.
+  - Fixed minor comment typos and wording issues.
+  - Intentionally left structured notes, custom XML-style comments, and commented-out code mostly alone.
+  - This is separate from the single-line statement passes and should be reviewed as a comment-only cleanup.
+
+Important: `singleline_pass3_comments_and_long.py` should not be treated as guaranteed to include all behavior from pass 1 and pass 2 when run directly on a raw original file. It is the best reference implementation from the final single-line statement pass, not a clean all-in-one tool. Likewise, `comment_cleanup_pass_v2.py` is a later comment-cleanup reference pass, not part of the statement-collapsing logic.
+
+Future LLM/code agents should either:
+
+- reuse the staged scripts only in the same order and review each diff, or
+- preferably consolidate the useful logic into one or two clean repo-ready utilities, for example:
+
+```text
+collapse_multiline_python.py
+condense_python_comments.py
 ```
 
-After source-rewrite cleanup:
+A cleaned source-rewrite utility should support:
 
-```powershell
-git diff -- Assets\Python\Screens\CvMainInterface.py
+- command-line input path instead of hardcoded sandbox paths;
+- optional `--in-place`;
+- optional `--output`;
+- optional `--move-comments`;
+- optional `--collapse-commented-code` for statement tools;
+- optional typo/comment-normalization rules for comment tools;
+- line-ending preservation;
+- string literal preservation;
+- comment preservation;
+- summary stats;
+- dry-run or diff output if practical.
+
+#### ChatGPT sandbox path note
+
+Some generated scripts may contain paths such as:
+
+```text
+/mnt/data/CvMainInterface.singleline2.py
+/mnt/data/CvMainInterface.singleline3.py
 ```
 
-Review checklist for source-rewrite helpers:
+Those were ChatGPT sandbox paths, not repo paths. Codex, Claude Code, local PowerShell, or other agents should replace them with actual repository paths such as:
 
-- No comment text was silently deleted.
-- Moved comments still describe the collapsed statement accurately.
-- The tool reports unchanged meaningful code tokens when possible.
-- Python 3 syntax checks are only sanity checks, not proof of Civ4 Python 2.4 compatibility.
-- For UI files such as `CvMainInterface.py`, prefer a real in-game smoke test.
+```text
+Assets\Python\Screens\CvMainInterface.py
+```
 
-Speed summary comparison:
+or accept a path from the command line.
+
+#### Safety rule for source-rewrite helpers
+
+For helpers that rewrite Python source files, especially files loaded by Civ4:
+
+- preserve meaningful code tokens;
+- preserve strings exactly;
+- preserve comments or move them deliberately;
+- never silently delete explanatory comments;
+- do not rely on Python 3 `ast.parse` as proof of Civ4 Python 2.4 compatibility;
+- review the git diff manually;
+- smoke-test in game when the file is UI/runtime-sensitive.
+
+The goal is not general Python formatting. The goal is to make large, LLM-maintained files easier to search, patch, and review.
+
+Good target style for LLM-facing UI files:
+
+```text
+one semantic UI operation = one searchable line
+manual layout decision = keep local and visible
+large table/list = one item per line when that is clearer
+commented-out code = preserve intent; do not auto-destroy it
+```
+
+## Game speed helper scripts
+
+### `compare_speed_summaries.py`
+
+- Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
+- Compares `Normal` vs one selected speed across summary rows.
+- Also compares flattened increment sequences (Years and Months) index by index.
+- Can focus summaries to one index (`--summary`), while still printing increment comparison.
+- Automatically writes a timestamped `.txt` file.
+- Output filename is short and sortable: `<UTC-ISO>_<speed>[_sXX].txt` (e.g. `20260217T110501Z_slow_s06.txt`).
+
+Examples:
 
 ```powershell
 python LLM_Helpers\compare_speed_summaries.py --speed slow
@@ -81,6 +149,15 @@ python LLM_Helpers\compare_speed_summaries.py --speed slow --summary 6
 python LLM_Helpers\compare_speed_summaries.py --speed slow --output-dir LLM_Helpers\outputs
 ```
 
+### `autotune_speed_from_xml.py`
+
+- Computes Summary rows directly from `Assets/XML/GameInfo/CIV4GameSpeedInfo.xml`.
+- Does not require `PythonDbg.log`.
+- Can print XML-based `Normal` vs selected speed comparison.
+- Optional draft autoloop mode for `GAMESPEED_SLOW`.
+- Iterates candidate timeline tweaks and reports the best-scoring result.
+- Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
+
 XML-native comparison and draft autoloop:
 
 ```powershell
@@ -90,11 +167,24 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 -
 python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
 ```
 
-Workflow rule for timeline tuning:
+## Workflow rule for timeline tuning
 
 - Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
 - Do not rely only on focused slices (`--focus-start-pct/--focus-end-pct`) when evaluating a candidate.
 - After each local tweak, re-check the full 5% table to catch late drift and endpoint issues early.
 - After each accepted candidate edit, generate a fresh human-readable review file with:
-  - `python LLM_Helpers\compare_speed_summaries.py --speed <speed>`
-  - Use this `slow_*.txt`/`marathon_*.txt` style output as the primary review artifact for discussion.
+
+```powershell
+python LLM_Helpers\compare_speed_summaries.py --speed <speed>
+```
+
+Use this `slow_*.txt` / `marathon_*.txt` style output as the primary review artifact for discussion.
+
+## General notes for future LLM helpers
+
+- Prefer small, reviewable, single-purpose scripts.
+- Keep generated output in `LLM_Helpers\outputs` when possible.
+- Do not claim a helper is safe for broad directory sweeps unless it was tested that way.
+- Explain whether a script edits files, prints reports, or only suggests changes.
+- When editing source files, always preserve behavior first and readability second.
+- When output is only a report, optimize for clarity and usefulness rather than runtime compatibility.
