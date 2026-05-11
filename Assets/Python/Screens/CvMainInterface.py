@@ -468,9 +468,7 @@ class CvMainInterface:
 		self.DRAW_METHOD_VAN = "DRAW_METHOD_VAN"
 		self.DRAW_METHOD_BUG = "DRAW_METHOD_BUG"
 		# advc.069: No longer used
-		#self.DRAW_METHODS = (self.DRAW_METHOD_PLE,
-		#					 self.DRAW_METHOD_VAN,
-		#					 self.DRAW_METHOD_BUG)
+		#self.DRAW_METHODS = (self.DRAW_METHOD_PLE, self.DRAW_METHOD_VAN, self.DRAW_METHOD_BUG)
 #		self.sDrawMethod = self.DRAW_METHOD_PLE
 # BUG - draw method
 
@@ -949,10 +947,7 @@ class CvMainInterface:
 		self.DEFAULT_FIELD_OF_VIEW = 37.0
 		#aspectFactor = pow((0.8 * self.xResolution) / self.yResolution, 0.72)
 		if ((not MainOpt.isRememberFieldOfView() and not MainOpt.isShowFieldOfView()) or int(MainOpt.getFieldOfView())) < 0:
-		#	self.DEFAULT_FIELD_OF_VIEW = int(max(self.DEFAULT_FIELD_OF_VIEW,
-		#			min(2 * self.DEFAULT_FIELD_OF_VIEW,
-		#			(aspectFactor * self.xResolution) /
-		#			max(70 - self.DEFAULT_FIELD_OF_VIEW, 10))))
+			# self.DEFAULT_FIELD_OF_VIEW = int(max(self.DEFAULT_FIELD_OF_VIEW, min(2 * self.DEFAULT_FIELD_OF_VIEW, (aspectFactor * self.xResolution) / max(70 - self.DEFAULT_FIELD_OF_VIEW, 10))))
 			# Better to adjust only to the smaller aspect.
 			# Bigger screen also tends to mean that the player sits farther away.
 			if self.yResolution > 1024:
@@ -1977,9 +1972,7 @@ class CvMainInterface:
 		screen.hide("RawYieldsOwnedTiles6")
 # BUG - Raw Yields - end
 # BUG - BUG Option Button - Start
-		#self.setImageButton("BUGOptionsScreenWidget",
-		#		ArtFileMgr.getInterfaceArtInfo("BUG_OPTIONS_SCREEN_BUTTON").getPath(),
-		#		WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
+		#self.setImageButton("BUGOptionsScreenWidget", ArtFileMgr.getInterfaceArtInfo("BUG_OPTIONS_SCREEN_BUTTON").getPath(), WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
 		# <K-Mod>
 		# </K-Mod>
 		self.setStyledButton("BUGOptionsScreenWidget", "Button_HUDAdvisorCorporation_Style", WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
@@ -2165,15 +2158,8 @@ class CvMainInterface:
 			szPanelName = "PlotListPanel" + str(j)
 			# <!-- custom: move unit bar ("PlotListPanel") more to the left so it is as of now aligned with where production chooser buttons start. Done with the help of GPT-5.2-Codex thanks a lot, was 6 -->
 			plotListPanelWGap = 0
-			gSetRect(szPanelName, "Top",
-					# (Don't want these margins to scale fully)
-					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap
-					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET,
-					gRect("CenterBottomPanel").y() - VSPACE(2) - 4
-					+ (j - iRows) * iBtnSize
-					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET,
-					iCols * iBtnSize + HSPACE(3),
-					iBtnSize + VSPACE(1))
+			# (Don't want these margins to scale fully)
+			gSetRect(szPanelName, "Top", gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap + self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET, gRect("CenterBottomPanel").y() - VSPACE(2) - 4 + (j - iRows) * iBtnSize + self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET, iCols * iBtnSize + HSPACE(3), iBtnSize + VSPACE(1))
 			self.addPanel(szPanelName, PanelStyles.PANEL_STYLE_EMPTY)
 			for i in range(iCols):
 				k = j * iCols + i
@@ -2241,8 +2227,7 @@ class CvMainInterface:
 		except KeyError:
 			return # </advc.009b>
 
-#		BugUtil.debug("update - Turn %d, Player %d, Interface %d, End Turn Button %d ===",
-#				gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
+#		BugUtil.debug("update - Turn %d, Player %d, Interface %d, End Turn Button %d ===", gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
 
 # BUG - Options - start
 		BugOptions.write()
@@ -2322,11 +2307,9 @@ class CvMainInterface:
 				# advc.004: Option disabled
 				# elif MainOpt.isShowOptionsKeyReminder()
 				# 	if BugPath.isMac():
-				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC",
-				# 				(BugPath.getModName(),))
+				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC", (BugPath.getModName(),))
 				# 	else:
-				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER",
-				# 				(BugPath.getModName(),))
+				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER", (BugPath.getModName(),))
 				# 	#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
 				# 	screen.setEndTurnState("EndTurnText", acOutput)
 				# 	bShow = True
@@ -2397,8 +2380,7 @@ class CvMainInterface:
 		# <advc.706> Freeze main interface during interlude
 		if gc.getGame().isRFInterlude():
 			return 0 # </advc.706>
-#		BugUtil.debug("redraw - Turn %d, Player %d, Interface %d, End Turn Button %d",
-#				gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
+		# BugUtil.debug("redraw - Turn %d, Player %d, Interface %d, End Turn Button %d", gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
 		# advc.009b: Set screen attribute after reloading scripts
 		screen = self.screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
 
@@ -2529,11 +2511,8 @@ class CvMainInterface:
 			return False
 		if player.getCommercePercent(eCommerce) > 0:
 			return True
-		if (eCommerce == CommerceTypes.COMMERCE_ESPIONAGE and
-				(gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or
-				gc.getTeam(player.getTeam()).getHasMetCivCount(True) == 0 or
-				(gc.getPlayer(ePlayer).getCommercePercent(eCommerce) == 0 and # advc.120c
-				not CyInterface().isCityScreenUp() and MainOpt.isHideEspSlider()))):
+		# advc.120c
+		if (eCommerce == CommerceTypes.COMMERCE_ESPIONAGE and (gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or gc.getTeam(player.getTeam()).getHasMetCivCount(True) == 0 or (gc.getPlayer(ePlayer).getCommercePercent(eCommerce) == 0 and not CyInterface().isCityScreenUp() and MainOpt.isHideEspSlider()))):
 			return False
 		return player.isCommerceFlexible(eCommerce)
 
@@ -3214,9 +3193,7 @@ class CvMainInterface:
 #		BugUtil.debug("updatePlotListButtons_BUG - A")
 #		if (pPlot and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyEngine().isGlobeviewUp() == False):
 		# skip this if we don't need to display any units
-#		if not (pPlot
-#		and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL
-#		and CyEngine().isGlobeviewUp() == False):
+#		if not (pPlot and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyEngine().isGlobeviewUp() == False):
 		if (not pPlot or CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL or (CyEngine().isGlobeviewUp())):
 			self.BupPanel.clearUnits()
 			self.BupPanel.Hide()
@@ -3566,11 +3543,9 @@ class CvMainInterface:
 						# <advc.004k>
 						# (I don't think these options are needed after all)
 						#
-						# if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and
-						# 		not MainOpt.isShowSeaPatrol()):
+						# if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and not MainOpt.isShowSeaPatrol()):
 						# 	continue
-						# if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and
-						# 		not MainOpt.isShowAutoExplore()):
+						# if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and not MainOpt.isShowAutoExplore()):
 						# 	continue
 						#
 						# Show grouping commands before promotions, upgrades
@@ -3806,10 +3781,7 @@ class CvMainInterface:
 				szName = "CitizenButton" + szIndex
 				# advc: Redundant I think
 				#
-				# self.addCheckBox(szName,
-				# 			gc.getSpecialistInfo(iSpecialist).getTexture(), "",
-				# 			ButtonStyles.BUTTON_STYLE_LABEL,
-				# 			WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
+				# self.addCheckBox(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
 				#
 				screen.show(szName)
 				szName = "CitizenButtonHighlight" + szIndex
@@ -6624,8 +6596,7 @@ class CvMainInterface:
 	# 		yCoord = yResolution - 180
 	# 	else:
 	# 		yCoord = yResolution - 88
-	# 	screen.moveItem(szButtonID,
-	# 			996, yCoord - (iWhichLine * 18), -0.3)
+	# 	screen.moveItem(szButtonID, 996, yCoord - (iWhichLine * 18), -0.3)
 	#
 
 	# Will build the globeview UI

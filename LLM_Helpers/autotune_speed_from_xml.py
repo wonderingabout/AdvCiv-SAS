@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 import argparse
 import io
 import os
