@@ -16,6 +16,28 @@ PyPlayer = PyHelpers.PyPlayer
 g_iAdvisorNags = 0
 g_listNoLiberateCities = []
 
+# <!-- custom: lazy define caches; avoids repeated getDefineINT calls across many feat-popup conditions. (Claude code Sonnet 4.6) -->
+_iStartYear = None
+def _startYear():
+	global _iStartYear
+	if _iStartYear is None:
+		_iStartYear = gc.getDefineINT("START_YEAR")
+	return _iStartYear
+
+_iNumBuildingAndTechPrereqs = None
+def _numBuildingAndTechPrereqs():
+	global _iNumBuildingAndTechPrereqs
+	if _iNumBuildingAndTechPrereqs is None:
+		_iNumBuildingAndTechPrereqs = gc.getDefineINT("NUM_BUILDING_AND_TECH_PREREQS")
+	return _iNumBuildingAndTechPrereqs
+
+_iNumCorporationPrereqBonuses = None
+def _numCorporationPrereqBonuses():
+	global _iNumCorporationPrereqBonuses
+	if _iNumCorporationPrereqBonuses is None:
+		_iNumCorporationPrereqBonuses = gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")
+	return _iNumCorporationPrereqBonuses
+
 
 def resetAdvisorNags():
 	global g_iAdvisorNags
@@ -69,7 +91,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
@@ -87,7 +109,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG)
@@ -105,7 +127,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW)
@@ -123,7 +145,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE)
@@ -141,7 +163,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED)
@@ -159,7 +181,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)
@@ -177,7 +199,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)
@@ -195,7 +217,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_SIEGE, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_SIEGE)
@@ -213,7 +235,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_GUN, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_GUN)
@@ -231,7 +253,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARMOR, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARMOR)
@@ -249,7 +271,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER)
@@ -267,7 +289,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_NAVAL, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_NAVAL)
@@ -285,7 +307,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_PRIVATEER, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNIT_PRIVATEER)
@@ -303,7 +325,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_SPY, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_UNIT_SPY)
@@ -323,7 +345,7 @@ def buildingBuiltFeats(pCity, iBuildingType):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_NATIONAL_WONDER, True)
 			
-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 				popupInfo.setData1(FeatTypes.FEAT_NATIONAL_WONDER)
@@ -372,7 +394,7 @@ def endTurnFeats(iPlayer):
 				if (pCity.isConnectedToCapital(iPlayer)):
 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_TRADE_ROUTE, True)
 					
-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
 						popupInfo = CyPopupInfo()
 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 						popupInfo.setData1(FeatTypes.FEAT_TRADE_ROUTE)
@@ -397,7 +419,7 @@ def endTurnFeats(iPlayer):
 				if (pCapitalCity.hasBonus(iBonus)):
 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_COPPER_CONNECTED, True)
 					
-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
 						popupInfo = CyPopupInfo()
 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 						popupInfo.setData1(FeatTypes.FEAT_COPPER_CONNECTED)
@@ -416,7 +438,7 @@ def endTurnFeats(iPlayer):
 				if (pCapitalCity.hasBonus(iBonus)):
 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_HORSE_CONNECTED, True)
 					
-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
 						popupInfo = CyPopupInfo()
 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 						popupInfo.setData1(FeatTypes.FEAT_HORSE_CONNECTED)
@@ -435,7 +457,7 @@ def endTurnFeats(iPlayer):
 				if (pCapitalCity.hasBonus(iBonus)):
 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_IRON_CONNECTED, True)
 					
-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
 						popupInfo = CyPopupInfo()
 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 						popupInfo.setData1(FeatTypes.FEAT_IRON_CONNECTED)
@@ -454,7 +476,7 @@ def endTurnFeats(iPlayer):
 					if (pCapitalCity.hasBonus(iI)):
 						gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_LUXURY_CONNECTED, True)
 						
-						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
 							popupInfo = CyPopupInfo()
 							popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 							popupInfo.setData1(FeatTypes.FEAT_LUXURY_CONNECTED)
@@ -475,7 +497,7 @@ def endTurnFeats(iPlayer):
 					if (pCapitalCity.hasBonus(iI)):
 						gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_FOOD_CONNECTED, True)
 						
-						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
 							popupInfo = CyPopupInfo()
 							popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 							popupInfo.setData1(FeatTypes.FEAT_FOOD_CONNECTED)
@@ -499,7 +521,7 @@ def endTurnFeats(iPlayer):
 					if not gc.getTeam(eTeam).isHasTech(gc.getBuildingInfo(iI).getPrereqAndTech()):
 						bValid = false
 					if bValid:
-						for iPrereq in range(gc.getDefineINT("NUM_BUILDING_AND_TECH_PREREQS")):
+						for iPrereq in range(_numBuildingAndTechPrereqs()):
 							if not gc.getTeam(eTeam).isHasTech(gc.getBuildingInfo(iI).getPrereqAndTechs(iPrereq)):
 								bValid = false
 								break
@@ -508,7 +530,7 @@ def endTurnFeats(iPlayer):
 						
 						szBonusList = u""
 						bFirst = true
-						for iPrereq in range(gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")):
+						for iPrereq in range(_numCorporationPrereqBonuses()):
 							eBonus = gc.getCorporationInfo(eCorporation).getPrereqBonus(iPrereq)
 							if eBonus != -1:
 								if bFirst:
@@ -524,7 +546,7 @@ def endTurnFeats(iPlayer):
 								szFounder = gc.getUnitInfo(iUnit).getTextKey()
 								break
 						
-						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
 							popupInfo = CyPopupInfo()
 							popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
 							popupInfo.setData1(FeatTypes.FEAT_CORPORATION_ENABLED)

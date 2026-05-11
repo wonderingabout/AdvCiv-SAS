@@ -1645,8 +1645,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		#gc.getInfoTypeForString("CIVILIZATION_MINOR")
 		r = []
 		for descr,i in civList:
-			# <!-- custom: reveal minor nation, i want all information available in the sevopedia. May also be useful for other
-			# mods. -->
+			# <!-- custom: reveal minor nation, i want all information available in the sevopedia. This information may be useful. -->
 			#info = gc.getCivilizationInfo(i)
 			#if not info.isPlayable():
 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
@@ -1665,11 +1664,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.list = self.getLeaderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, gc.getLeaderHeadInfo)
 
-		# <!-- custom: prebuild the sevopedia leader cache only when=after we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think. After asking chatgpt, it advised me to do this here; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe -->
+		# <!-- custom: prebuild the sevopedia leader cache only after we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is needlessly expensive. After asking chatgpt, it advised me to do this here; note: place it after the list is computed so it doesn't appear to hang before user click on an item. Update: no longer relevant now that we render the first item right away (no blank item page anymore), but kept as such because works fine as such as well -->
 		if self.IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE and (not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT):
 			# <!-- custom: when AI personality is disabled by define, skip cache precompute entirely to avoid needless work. (GPT-5.3-Codex) -->
 			SevoPediaLeader.LEADERS_INFO_CACHED = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
-			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected  -->
+			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected -->
 			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
 			print("Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
 	

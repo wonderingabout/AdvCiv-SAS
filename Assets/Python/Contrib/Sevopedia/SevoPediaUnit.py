@@ -178,6 +178,10 @@ class SevoPediaUnit:
 		self.W_HISTORY = self.W_UNIT_ANIMATION
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
+		# <!-- custom: cached vanilla defines used in stats and prereqs drawing methods. (Claude code Sonnet 4.6) -->
+		self.iUNIT_PRODUCTION_PERCENT = None
+		self.iNUM_UNIT_AND_TECH_PREREQS = None
+
 
 
 	def interfaceScreen(self, iUnit):
@@ -320,7 +324,9 @@ class SevoPediaUnit:
 			szRangeText = u"R    " + szRange
 			screen.appendListBoxStringNoUpdate(panelName, SASTextScale.titleText(szRangeText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
-			unitCost = (gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100
+			if self.iUNIT_PRODUCTION_PERCENT is None:
+				self.iUNIT_PRODUCTION_PERCENT = gc.getDefineINT("UNIT_PRODUCTION_PERCENT")
+			unitCost = (gc.getUnitInfo(self.iUnit).getProductionCost() * self.iUNIT_PRODUCTION_PERCENT)/100
 			if self.top.iActivePlayer != -1:
 				unitCost = gc.getActivePlayer().getUnitProductionNeeded(self.iUnit)
 
@@ -342,7 +348,9 @@ class SevoPediaUnit:
 		if iPrereq >= 0:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False)
 			isButtonFound = True
-		for j in range(gc.getDefineINT("NUM_UNIT_AND_TECH_PREREQS")):
+		if self.iNUM_UNIT_AND_TECH_PREREQS is None:
+			self.iNUM_UNIT_AND_TECH_PREREQS = gc.getDefineINT("NUM_UNIT_AND_TECH_PREREQS")
+		for j in range(self.iNUM_UNIT_AND_TECH_PREREQS):
 			iPrereq = gc.getUnitInfo(self.iUnit).getPrereqAndTechs(j)
 			if iPrereq >= 0:
 				screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, -1, False)

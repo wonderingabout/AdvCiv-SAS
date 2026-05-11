@@ -566,7 +566,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 		BugUtil.debug("%s %s captured as %s by %s",
 				gc.getPlayer(eOwner).getName(), gc.getUnitInfo(eUnitType).getDescription(),
 				pNewUnit.getName(), gc.getPlayer(pNewUnit.getOwner()).getName())
-		# <!-- custom: Fix Military Advisor capture columns staying blank: BugEventManager shadows CvEventManager.onUnitCaptured, so CvEventManager.__init__ binds the unitCaptured event to this override on the live BUG manager. Record SAS battle-history capture data here rather than only in the parent handler. Credit: Claude Code Opus 4.7 investigation. (GPT-5.5) -->
+		# <!-- custom: Fix Military Advisor capture columns staying blank: BugEventManager shadows CvEventManager.onUnitCaptured, so CvEventManager.__init__ binds the unitCaptured event to this override on the live BUG manager. Record SAS battle-history capture data here rather than only in the parent handler. Credit: Claude code Opus 4.7 investigation. (GPT-5.5) -->
 		SASBattleHistory.recordUnitCaptured(eOwner, eUnitType, pNewUnit)
 	
 	def onCombatWithdrawal(self, argsList):

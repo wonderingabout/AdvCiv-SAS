@@ -323,7 +323,7 @@ class SevoPediaGameSpeedChart:
 			parsed_data[speed_type] = speed_dict
 
 		# Derived summary rows: NumTurnIncrements / TotalTurns; plus Calendar rows (Calendar_01 .. Calendar_NN).
-		start_year = gc.getDefineINT("START_YEAR")
+		start_year = gc.getDefineINT("START_YEAR")  # not cached: read once only
 		max_increments = 0
 		total_turns_by_speed = {}
 

@@ -309,7 +309,7 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, 
 
 
 def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
-	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude Code Opus 4.7) -->
+	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude code Opus 4.7) -->
 	iOldOwner = int(iOldOwner)
 	iOldUnitType = int(iOldUnitType)
 	iCapturingPlayer = int(pNewUnit.getOwner())

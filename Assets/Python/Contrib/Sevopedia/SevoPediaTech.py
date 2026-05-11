@@ -301,6 +301,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.H_SPECIAL
 
+		# <!-- custom: cached terrain define for trade-route icon selection. (Claude code Sonnet 4.6) -->
+		self.iDEEP_WATER_TERRAIN = None
+
 
 
 	def interfaceScreen(self, iTech):
@@ -811,10 +814,12 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				bButtonFound = True
 
 		# Terrain trade routes (coastal/ocean trade)
+		if self.iDEEP_WATER_TERRAIN is None:
+			self.iDEEP_WATER_TERRAIN = gc.getDefineINT("DEEP_WATER_TERRAIN")
 		for iTerrain in range(gc.getNumTerrainInfos()):
 			if techInfo.isTerrainTrade(iTerrain):
 				szArtInfoType = "INTERFACE_TECH_WATERTRADE"
-				if iTerrain == gc.getDefineINT("DEEP_WATER_TERRAIN"):
+				if iTerrain == self.iDEEP_WATER_TERRAIN:
 					szArtInfoType = "INTERFACE_TECH_DEEPWATERTRADE"
 				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, self.iTech, iTerrain, False)
 				bButtonFound = True

@@ -137,6 +137,9 @@ class SevoPediaBuilding:
 		self.W_HISTORY = self.W_BUILDING_ANIMATION
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
+		# <!-- custom: cached vanilla define for cost display in stats panel. (Claude code Sonnet 4.6) -->
+		self.iBUILDING_PRODUCTION_PERCENT = None
+
 
 
 	def interfaceScreen(self, iBuilding):
@@ -228,7 +231,9 @@ class SevoPediaBuilding:
 
 		# <!-- custom: 1: Cost -->
 		if buildingInfo.getProductionCost() > 0:
-			buildingCost = (buildingInfo.getProductionCost() * gc.getDefineINT("BUILDING_PRODUCTION_PERCENT"))/100
+			if self.iBUILDING_PRODUCTION_PERCENT is None:
+				self.iBUILDING_PRODUCTION_PERCENT = gc.getDefineINT("BUILDING_PRODUCTION_PERCENT")
+			buildingCost = (buildingInfo.getProductionCost() * self.iBUILDING_PRODUCTION_PERCENT)/100
 			if self.top.iActivePlayer != -1:
 				buildingCost = gc.getPlayer(self.top.iActivePlayer).getBuildingProductionNeeded(self.iBuilding)
 

@@ -83,6 +83,8 @@ class CvDanQuayle:
 						"TXT_KEY_DQ_LEADER_NAME_20"]
 
 		self.nWidgetCount = 0
+		# <!-- custom: cached max-score denominator; five defines combined into one formula that never changes. (Claude code Sonnet 4.6) -->
+		self.iMaxScore = None
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.DAN_QUAYLE_SCREEN)
@@ -153,7 +155,9 @@ class CvDanQuayle:
 		screen.addLeaderheadGFC(self.LEADERHEAD_ID, replayInfo.getLeader(replayInfo.getActivePlayer()), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 	
 		iScore = replayInfo.getNormalizedScore()
-		iMaxScore = ((100 + gc.getDefineINT("SCORE_VICTORY_PERCENT")) * (gc.getDefineINT("SCORE_POPULATION_FACTOR") + gc.getDefineINT("SCORE_LAND_FACTOR") + gc.getDefineINT("SCORE_WONDER_FACTOR") + gc.getDefineINT("SCORE_TECH_FACTOR"))) / 100
+		if self.iMaxScore is None:
+			self.iMaxScore = ((100 + gc.getDefineINT("SCORE_VICTORY_PERCENT")) * (gc.getDefineINT("SCORE_POPULATION_FACTOR") + gc.getDefineINT("SCORE_LAND_FACTOR") + gc.getDefineINT("SCORE_WONDER_FACTOR") + gc.getDefineINT("SCORE_TECH_FACTOR"))) / 100
+		iMaxScore = self.iMaxScore
 		if iMaxScore > 0:
 			iNormalScore = iScore/float(iMaxScore)
 		else:

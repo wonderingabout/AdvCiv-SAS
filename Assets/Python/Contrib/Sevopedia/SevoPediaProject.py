@@ -71,6 +71,9 @@ class SevoPediaProject:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_PROJECT_PANE
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
+		# <!-- custom: cached vanilla define for cost display in stats panel. (Claude code Sonnet 4.6) -->
+		self.iPROJECT_PRODUCTION_PERCENT = None
+
 
 
 	def interfaceScreen(self, iProject):
@@ -122,7 +125,9 @@ class SevoPediaProject:
 		if (projectInfo.getProductionCost() > 0):
 			# <!-- custom: simplify textual info for hammer yield to minimum, remove the "COST:" ugly part -->
 			if self.top.iActivePlayer == -1:
-				szCost = (projectInfo.getProductionCost() * gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")) / 100
+				if self.iPROJECT_PRODUCTION_PERCENT is None:
+					self.iPROJECT_PRODUCTION_PERCENT = gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")
+				szCost = (projectInfo.getProductionCost() * self.iPROJECT_PRODUCTION_PERCENT) / 100
 			else:
 				szCost = gc.getActivePlayer().getProjectProductionNeeded(self.iProject)
 			szTextHammerYield = u"%c %d" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)

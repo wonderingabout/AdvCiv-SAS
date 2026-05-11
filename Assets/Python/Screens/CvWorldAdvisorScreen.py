@@ -70,6 +70,9 @@ class CvWorldAdvisorScreen:
 		self.pActivePlayer = None
 		self.iActiveTeam = -1
 		self.pActiveTeam = None
+		# <!-- custom: cached global warming defines. (Claude code Sonnet 4.6) -->
+		self.iGLOBAL_WARMING_RESTORATION_RATE = None
+		self.iGLOBAL_WARMING_PROB = None
 
 	def reset(self):
 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
@@ -774,7 +777,10 @@ class CvWorldAdvisorScreen:
 		iGlobalPollution = game.calculateGlobalPollution()
 		iGlobalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
 		iThreshold = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
-		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE") / 100
+		if self.iGLOBAL_WARMING_RESTORATION_RATE is None:
+			self.iGLOBAL_WARMING_RESTORATION_RATE = gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE")
+			self.iGLOBAL_WARMING_PROB = gc.getDefineINT("GLOBAL_WARMING_PROB")
+		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * self.iGLOBAL_WARMING_RESTORATION_RATE / 100
 
 		yLocation += 1.5 * Y_SPACING
 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + self.TEXT_ENV_TOTAL_POLLUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
@@ -804,7 +810,7 @@ class CvWorldAdvisorScreen:
 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + self.TEXT_ENV_GW_INDEX + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + unicode(iGlobalWarmingIndex) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
 		yLocation += 1.5 * Y_SPACING
-		fExpectedEvents = 1.0 * iGlobalWarmingChances * gc.getDefineINT("GLOBAL_WARMING_PROB") / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+		fExpectedEvents = 1.0 * iGlobalWarmingChances * self.iGLOBAL_WARMING_PROB / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + self.TEXT_ENV_EXPECTED_EVENTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + u"%0.1f" % fExpectedEvents + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		if iGwEventTally >= 0:

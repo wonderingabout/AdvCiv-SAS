@@ -177,6 +177,8 @@ class CvTechChooser:
 		self.PREF_ICON_BOTTOM = 0
 		self.iLanguageLoaded = -1
 		self.bTechChooserArtCached = False
+		# <!-- custom: cached vanilla engine define; looked up techs x terrains times during tech tree draw. (Claude code Sonnet 4.6) -->
+		self.iDEEP_WATER_TERRAIN = None
 
 	def initText(self):
 		# <!-- custom: this file had no shared text/art cache before; add one-time language/art caching and reuse it in hot tech-tree loops to avoid repeated lookup work on redraw. (GPT-5.3-Codex) -->
@@ -966,6 +968,8 @@ class CvTechChooser:
 		# K-Mod end.
 
 		# Terrain opens up as a trade route
+		if self.iDEEP_WATER_TERRAIN is None:
+			self.iDEEP_WATER_TERRAIN = gc.getDefineINT("DEEP_WATER_TERRAIN")
 		for j in range( gc.getNumTerrainInfos() ):
 			if gc.getTechInfo(i).isTerrainTrade(j):
 				# advc.124: This hides the icon in the tech tree once the
@@ -974,7 +978,7 @@ class CvTechChooser:
 				szTerrainTradeButton = self.getNextWidgetName("TerrainTradeButton")
 				# <advc.002d> Use the ocean trade icon for Ocean. For all other terrains, keep using the coastal trade icon.
 				szArtInfoType = "INTERFACE_TECH_WATERTRADE"
-				if j == gc.getDefineINT("DEEP_WATER_TERRAIN"):
+				if j == self.iDEEP_WATER_TERRAIN:
 					szArtInfoType = "INTERFACE_TECH_DEEPWATERTRADE"
 				# </advc.002d>
 				screen.addDDSGFCAt( szTerrainTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, i, j, False )

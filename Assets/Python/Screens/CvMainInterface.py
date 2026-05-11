@@ -703,6 +703,18 @@ class CvMainInterface:
 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
 		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
 		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
+		# <!-- custom: cached commerce block position and alignment defines for city-screen and map views. (Claude code Sonnet 4.6) -->
+		self.iSAS_COMMERCE_CITY_X_OFFSET = None
+		self.iSAS_COMMERCE_CITY_Y_OFFSET = None
+		self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = None
+		self.iSAS_COMMERCE_MAP_X_OFFSET = None
+		self.iSAS_COMMERCE_MAP_Y_OFFSET = None
+		self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = None
+		# <!-- custom: cached vanilla engine defines used across city-screen update methods. (Claude code Sonnet 4.6) -->
+		self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = None
+		self.iDEFAULT_SPECIALIST = None
+		self.iMAX_TRADE_ROUTES = None
+		self.IS_USE_KMOD_TRADE_CULTURE = None
 		self.bSASLastCommerceRectsCityScreen = None
 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
 		self.iScoreScrollOffset = 0
@@ -1502,13 +1514,21 @@ class CvMainInterface:
 		iRowH = iBtnSize + iVSpacing
 		iColumnW = iBtnSize + iHSpacing
 		if CyInterface().isCityScreenUp():
-			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
-			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET")
-			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT") > 0)
+			if self.iSAS_COMMERCE_CITY_X_OFFSET is None:
+				self.iSAS_COMMERCE_CITY_X_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
+				self.iSAS_COMMERCE_CITY_Y_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET")
+				self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT") > 0)
+			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_CITY_X_OFFSET
+			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_CITY_Y_OFFSET
+			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT
 		else:
-			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
-			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET")
-			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT") > 0)
+			if self.iSAS_COMMERCE_MAP_X_OFFSET is None:
+				self.iSAS_COMMERCE_MAP_X_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
+				self.iSAS_COMMERCE_MAP_Y_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET")
+				self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT") > 0)
+			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_MAP_X_OFFSET
+			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_MAP_Y_OFFSET
+			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT
 		if bCommerceBlockAnchorRight:
 			iPercentTextBaseX = gRect("InterfaceTopRight").x()
 		else:
@@ -3136,6 +3156,8 @@ class CvMainInterface:
 				CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or
 				CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_ADVANCED_START):
 			return
+		if self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS is None:
+			self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
 		# <advc.092>
 		for i in range(4):
 			gRect("CommerceSliderBtns" + str(i)).resetIter() # </advc.092>
@@ -3167,14 +3189,14 @@ class CvMainInterface:
 			gSetRectangle(szString, gRect("CommerceSliderBtns" + str(iCol)).next())
 			self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_PLUS,
 					WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce,
-					gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"))
+					self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS)
 			screen.show(szString)
 			screen.enable(szString, bEnable)
 			szString = "DecreasePercent" + str(eCommerce)
 			gSetRectangle(szString, gRect("CommerceSliderBtns" + str(iCol + 1)).next())
 			self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_MINUS,
 					WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce,
-					-gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"))
+					-self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS)
 			screen.show(szString)
 			screen.enable(szString, bEnable)
 			# moved enabling above
@@ -4727,7 +4749,9 @@ class CvMainInterface:
 			screen.show(szName)
 
 		iVisibleSpecialists = 0
-		iDefaultSpecialist = gc.getDefineINT("DEFAULT_SPECIALIST")
+		if self.iDEFAULT_SPECIALIST is None:
+			self.iDEFAULT_SPECIALIST = gc.getDefineINT("DEFAULT_SPECIALIST")
+		iDefaultSpecialist = self.iDEFAULT_SPECIALIST
 		for iSpecialist in range(gc.getNumSpecialistInfos()):
 			SPECIALIST_ROWS = 3
 			if iVisibleSpecialists > SPECIALIST_ROWS:
@@ -6077,7 +6101,10 @@ class CvMainInterface:
 		#if (iNumBuildings > g_iNumBuildings):
 		#	g_iNumBuildings = iNumBuildings
 		iNumTradeRoutes = 0
-		for i in range(gc.getDefineINT("MAX_TRADE_ROUTES")):
+		if self.iMAX_TRADE_ROUTES is None:
+			self.iMAX_TRADE_ROUTES = gc.getDefineINT("MAX_TRADE_ROUTES")
+			self.IS_USE_KMOD_TRADE_CULTURE = (gc.getDefineINT("USE_KMOD_TRADE_CULTURE") != 0)
+		for i in range(self.iMAX_TRADE_ROUTES):
 			pLoopCity = pHeadSelectedCity.getTradeCity(i)
 			if (pLoopCity and pLoopCity.getOwner() >= 0):
 				player = gc.getPlayer(pLoopCity.getOwner())
@@ -6125,7 +6152,7 @@ class CvMainInterface:
 						pHeadSelectedCity.getCultureLevel())
 				# advc.125:
 				if (iTradeCultureTimes100 >= 20 and
-						gc.getDefineINT("USE_KMOD_TRADE_CULTURE") != 0):
+						self.IS_USE_KMOD_TRADE_CULTURE):
 					szTradeCultureBuffer = u"%s%.1f%c" %(
 							"+", iTradeCultureTimes100/100.0,
 							gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar())

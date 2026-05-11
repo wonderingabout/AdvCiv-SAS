@@ -270,7 +270,7 @@ class SevoPediaHandicapChart:
 					goody_types.append(gt)
 		goody_groups = tuple(goody_groups_list)
 
-		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")
+		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")  # not cached: read once only (table is cached via _cachedTable)
 		if not anchor_field:
 			raise ValueError("[FATAL] Missing SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD define.")
 
