@@ -167,6 +167,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs)  
 [130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab)  
 [131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer)  
+[132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4848,3 +4849,15 @@ Fix:
 File changed:
 
 - [CvGameCoreDLL/CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp)
+
+## 132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BfRysfE4onN1RS3xczU_jKsf2UMmEdID?usp=sharing).
+
+Base AdvCiv hides a rival's gold-per-turn on the Bonuses tab when not connected to their trade network (GPT is still gated on `isGoldTrading()`, i.e. the Currency tech). The info is already available in Diplomacy, so we just keep it visible here too to avoid opening Diplomacy each turn (also matches the Techs tab, where flat gold via `AI_maxGoldTrade` stays visible regardless of trade-tech state, as long as `isGoldTrading()` is true).
+
+For some unknown AdvCiv-SAS-specific reason the pre-existing "Not Connected to Trade Network" row-overlay label then overlaps the now-shown GPT number. Worked around by prepending tabs to the message so it renders past the GPT column.
+
+File changed:
+
+- [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)

@@ -111,7 +111,7 @@ class SevoPediaLeader:
 		self.ERA_BUTTON_WIDGET_BY_ERA = {}
 		for iEra in xrange(gc.getNumEraInfos()):
 			self.ERA_BUTTON_WIDGET_BY_ERA[iEra] = "SevoPediaLeaderEraBtn%d" % iEra
-		self.eraDefaultIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+		self.eraDefaultIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED_2").getPath()
 		self.eraIconPathByEra = {}
 		for iEra in xrange(gc.getNumEraInfos()):
 			self.eraIconPathByEra[iEra] = gc.getEraInfo(iEra).getButton()

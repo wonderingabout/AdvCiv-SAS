@@ -401,72 +401,68 @@ See below in the main table after changes as it includes the before values as we
 
 #### new traits total count
 
-| Trait | Count |
-| --- | ---: |
-| Spiritual | 12 |
-| Aggressive | 13 |
-| Imperialist | 12 |
-| Charismatic | 11 |
-| Industrious | 11 |
-| Organized | 12 |
-| Financial | 11 |
-| Protective | 10 |
-| Philosophical | 10 |
-| Creative | 8 |
-
-Sanity: 55 leaders x 2 = 110 total assignments.
+| Trait         | Count |
+| ------------- | ----: |
+| Aggressive    |    13 |
+| Spiritual     |    12 |
+| Imperialist   |    12 |
+| Organized     |    12 |
+| Industrious   |    11 |
+| Charismatic   |    11 |
+| Financial     |    11 |
+| Philosophical |    10 |
+| Protective    |    10 |
+| Creative      |     8 |
 
 #### new pairs total count
 
-| Pair | Count |
-| --- | --- |
-| Aggressive + Imperialist | 3 |
-| Organized + Protective | 3 |
-| Aggressive + Organized | 2 |
-| Aggressive + Spiritual | 2 |
-| Charismatic + Imperialist | 2 |
-| Charismatic + Protective | 2 |
-| Charismatic + Spiritual | 2 |
-| Creative + Financial | 2 |
-| Creative + Industrious | 2 |
-| Creative + Philosophical | 2 |
-| Financial + Charismatic | 2 |
-| Imperialist + Charismatic | 2 |
-| Imperialist + Creative | 2 |
-| Imperialist + Financial | 2 |
-| Imperialist + Organized | 2 |
-| Industrious + Charismatic | 2 |
-| Industrious + Creative | 2 |
-| Industrious + Imperialist | 2 |
-| Industrious + Organized | 2 |
-| Industrious + Spiritual | 2 |
-| Philosophical + Aggressive | 2 |
-| Philosophical + Charismatic | 2 |
-| Philosophical + Creative | 2 |
-| Philosophical + Imperialist | 2 |
-| Philosophical + Industrious | 2 |
-| Philosophical + Protective | 2 |
-| Protective + Charismatic | 2 |
-| Protective + Creative | 2 |
-| Protective + Industrious | 2 |
-| Protective + Spiritual | 2 |
-| Aggressive + Charismatic | 1 |
-| Aggressive + Creative | 1 |
-| Aggressive + Financial | 1 |
-| Aggressive + Protective | 1 |
-| Charismatic + Organized | 1 |
-| Creative + Imperialist | 1 |
-| Creative + Protective | 1 |
-| Financial + Industrious | 1 |
-| Financial + Organized | 1 |
-| Imperialist + Industrious | 1 |
-| Imperialist + Organized | 1 |
-| Industrious + Organized | 1 |
-| Industrious + Philosophical | 1 |
-| Industrious + Protective | 1 |
-| Philosophical + Protective | 1 |
-| Philosophical + Spiritual | 1 |
-| Protective + Spiritual | 1 |
+| Pair                        | Count |
+| --------------------------- | ----: |
+| Aggressive + Imperialist    |     3 |
+| Organized + Protective      |     3 |
+| Aggressive + Financial      |     2 |
+| Aggressive + Organized      |     2 |
+| Aggressive + Spiritual      |     2 |
+| Charismatic + Imperialist   |     2 |
+| Charismatic + Protective    |     2 |
+| Charismatic + Spiritual     |     2 |
+| Creative + Financial        |     2 |
+| Creative + Industrious      |     2 |
+| Creative + Philosophical    |     2 |
+| Financial + Imperialist     |     2 |
+| Financial + Spiritual       |     2 |
+| Imperialist + Philosophical |     2 |
+| Industrious + Spiritual     |     2 |
+| Organized + Spiritual       |     2 |
+| Aggressive + Charismatic    |     1 |
+| Aggressive + Industrious    |     1 |
+| Aggressive + Philosophical  |     1 |
+| Aggressive + Protective     |     1 |
+| Charismatic + Financial     |     1 |
+| Charismatic + Industrious   |     1 |
+| Charismatic + Organized     |     1 |
+| Charismatic + Philosophical |     1 |
+| Creative + Imperialist      |     1 |
+| Creative + Protective       |     1 |
+| Financial + Industrious     |     1 |
+| Financial + Organized       |     1 |
+| Imperialist + Industrious   |     1 |
+| Imperialist + Organized     |     1 |
+| Industrious + Organized     |     1 |
+| Industrious + Philosophical |     1 |
+| Industrious + Protective    |     1 |
+| Organized + Philosophical   |     1 |
+| Philosophical + Protective  |     1 |
+| Philosophical + Spiritual   |     1 |
+| Protective + Spiritual      |     1 |
+| Aggressive + Creative       |     0 |
+| Charismatic + Creative      |     0 |
+| Creative + Organized        |     0 |
+| Creative + Spiritual        |     0 |
+| Financial + Philosophical   |     0 |
+| Financial + Protective      |     0 |
+| Imperialist + Protective    |     0 |
+| Imperialist + Spiritual     |     0 |
 
 ## Leaders' favourite civics rework
 

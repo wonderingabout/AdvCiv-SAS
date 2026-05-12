@@ -1952,8 +1952,9 @@ class CvForeignAdvisor:
 			if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian() and not currentPlayer.isMinorCiv() and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) and iLoopPlayer != self.iActiveLeader ):
 				message = ""
 				if ( not activePlayer.canTradeNetworkWith(iLoopPlayer) ):
-					message = self.TEXT_NOT_CONNECTED
-				
+					# <!-- custom: unlike base AdvCiv, keep showing GPT here even when not connected to trade network (still gated on isGoldTrading / Currency tech), to avoid opening Diplomacy each turn just to see it. Side effect: the pre-existing "Not Connected" overlay then collides with the GPT number, so prepend tabs to push it past the GPT column. See KI#132. (claude code opus 4.7) -->
+					message = "\t\t" + self.TEXT_NOT_CONNECTED
+
 				self.resIconGrid.appendRow(labelText(currentPlayer.getName()), labelText(message))
 				self.resIconGrid.addIcon( currentRow, self.leaderCol
 										, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton()
