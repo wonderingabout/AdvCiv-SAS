@@ -2455,7 +2455,7 @@ Created as part of AdvCiv-SAS improvements
 			<!-- Charlemagne — was TRAIT_IMPERIALIST and TRAIT_PROTECTIVE -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+					<TraitType>TRAIT_IMPERIALIST</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -5142,14 +5142,13 @@ Created as part of AdvCiv-SAS improvements
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
-			<!-- Hammurabi — was TRAIT_ORGANIZED and TRAIT_AGGRESSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_PROTECTIVE</TraitType>
+					<TraitType>TRAIT_AGGRESSIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -6014,7 +6013,7 @@ Created as part of AdvCiv-SAS improvements
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+					<TraitType>TRAIT_IMPERIALIST</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -6879,10 +6878,9 @@ Created as part of AdvCiv-SAS improvements
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
-			<!-- Kublai Khan — was TRAIT_AGGRESSIVE and TRAIT_CREATIVE -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_IMPERIALIST</TraitType>
+					<TraitType>TRAIT_AGGRESSIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -7986,7 +7984,7 @@ Created as part of AdvCiv-SAS improvements
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -9314,7 +9312,7 @@ Created as part of AdvCiv-SAS improvements
 			<!-- Peter — was TRAIT_PHILOSOPHICAL and TRAIT_EXPANSIVE -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_IMPERIALIST</TraitType>
+					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -12222,14 +12220,13 @@ Created as part of AdvCiv-SAS improvements
 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
 			<!-- custom: no confucianism anymore, leaning closer to buddhism it seems, so changed to it, read notes for details -->
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
-			<!-- Wang Kon — was TRAIT_FINANCIAL and TRAIT_PROTECTIVE -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_ORGANIZED</TraitType>
+					<TraitType>TRAIT_FINANCIAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_SPIRITUAL</TraitType>
+					<TraitType>TRAIT_PROTECTIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>

@@ -255,7 +255,9 @@ While doing/considering the holy roman empire civ-specific unit's rework or repl
 
 It is also limiting when we want as now to assign a new unit e.g. to the holy roman empire or possibly building, so i thought this was a good time to rework leader traits for balance, accuracy, and overall synergy with the civ's profile, as well as its civ-specific units and buildings, and also to match ingame behaviour +/- more(/most?) importantly xml or and such if / as much as possible or relevant i mean.
 
-Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too or adjustments or thoughts or formatting or such, check if accurate.
+Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too or adjustments or thoughts or formatting or such, check if accurate. Also, since then, reviewed and adjusted with the help of several other LLMs.
+
+Note: asking GPT-5.5-Thinking (i.e. ChatGPT) in a temporary chat additionally to the usual history-aware chat gives/yields surprisingly good results.
 
 ### previous state
 
@@ -350,38 +352,38 @@ See below in the main table after changes as it includes the before values as we
 | Boudica | Charismatic, Aggressive | **Keep** | War leader rallying tribes; morale + offense. |
 | Brennus | Spiritual, Charismatic | **Keep** | Druidic authority + chieftain charisma. |
 | Catherine | Creative, Imperialist | **Philosophical, Imperialist** | Enlightened despot: corresponded with Voltaire/Diderot, issued the Nakaz, pushed legal/educational reform-more thinker-ruler than pure arts patron. Philosophical = ideas shaping policy. Catherine is the poster child for Enlightened absolutism: the Nakaz (Instruction), legal/education reforms, heavy engagement with Voltaire/Diderot, commissions on law and schooling. Her brand is "rules by ideas.". Creative = culture output/patronage. She absolutely patronized the arts (Hermitage, theatre), but that was a means to an ideological/modernizing end, not her core identity. If you want to signal culture yields in gameplay, Creative is fine; historically, it's secondary to her policymaking. |
-| Charlemagne | Imperialist, Protective | **Aggressive, Organized** | Empire via conquest and capitularies/marches/missi dominici. Less settler/colonial growth; more "fight + administer." Dropping Imperialist narrows the tag to true expansion engines. `<!-- custom: note: this is more controversial/debatable according to chatgpt 5, but i hope it is accurate enough. As for ingame behaviour, he seems to perform nice in some games so i hope this helps mesh better with his more aggressive overall civ4 profile -->` |
+| Charlemagne | Imperialist, Protective | **Imperialist, Organized** | For Charlemagne — Charles the Great, king of the Franks and later crowned emperor in 800 — I’d describe him as ambitious, energetic, commanding, religious, reform-minded, and often ruthless. He was not just a ceremonial ruler. He spent much of his reign campaigning, especially against the Saxons, whose conquest took more than 30 years, and he built a huge Frankish empire by force. At the same time, he cared a lot about administration, law, education, the church, and royal control; Britannica describes him as focused on making inherited political institutions more effective. So, in plain terms, Charlemagne’s personality was something like: warrior-king, empire-builder, Christian reformer, strict ruler, and organizer of a huge realm. He could be visionary and culturally important, but also brutal, especially in the forced Christianization of conquered peoples. Imperialistic: excellent fit; probably the best trait for him. He expanded Frankish power enormously through conquest, creating one of the largest Western European empires since Rome. Organized: excellent alternate; he cared about administration, law, education, church reform, royal agents, and governing a large empire. Historically, this may fit better than Protective. |
 | Churchill | Charismatic, Protective | **Keep** | Wartime morale + defensive strategy. |
 | Cyrus | Charismatic, Imperialist | **Keep** | Founder of vast empire; tolerant unifier. |
 | Darius | Organized, Financial | **Keep** | Satrapies/roads/taxation; efficient and wealthy. |
 | De Gaulle | Industrious, Charismatic | **Charismatic, Organized** | Resistance icon and founder of the Fifth Republic's institutions. Post-war modernization happened, but his identity is leadership + constitutional/administrative redesign more than building programs. |
-| Elizabeth | Philosophical, Financial | **Creative, Financial** | Her era is literally shorthand for a cultural bloom: Shakespeare/Marlowe, theatres, court masques, music, letters. She wasn't a "philosopher-queen" so much as a savvy ruler who presided over (and patronized) an artistic boom. Keeping Financial also tracks (privateering, merchant ventures, early global trade). |
+| Elizabeth | Philosophical, Financial | **Creative, Financial** | Her era is literally shorthand for a cultural bloom: Shakespeare/Marlowe, theatres, court masques, music, letters. She wasn't a "philosopher-queen" so much as a savvy ruler who presided over (and patronized) an artistic boom. Keeping Financial also tracks (privateering, merchant ventures, early global trade). `<!-- custom: plus her being creative gives a very varied English civ with our current English leader other pairs -->` |
 | Ewuare | Imperialist, Spiritual | **Spiritual, Industrious** | Benin's strong court/ritual religion. Benin's strength = urban works (walls/ditches), craft guilds, and court art; expansion via hegemony/tribute more than settler-style growth. Industrious captures that better than Imperialist. |
 | Frederick | Philosophical, Organized | **Philosophical, Creative** | Enlightenment/arts over bureaucracy. |
 | Gandhi | Spiritual, Philosophical | **Keep** | Canonical fit. |
 | Grace O'Malley | Financial, Aggressive | **Keep** | Maritime raider profile and commerce fit; keep as-is. |
 | Genghis Khan | Aggressive, Imperialist | **Keep** | Archetypal conqueror. |
 | Gilgamesh | Protective, Creative | **Keep** | Walls/city defense + epic/civic culture. |
-| Hammurabi | Organized, Aggressive | **Organized, Protective** | Lawgiver/city-builder; warfare largely pragmatic/defensive. |
+| Hammurabi | Organized, Aggressive | **Keep** | Hammurabi seems to have been disciplined, pragmatic, ambitious, legalistic, and highly concerned with royal authority. We do not know his “personality” in a modern psychological sense, because most surviving evidence is royal, administrative, or legal, but his actions suggest a ruler who wanted to impose order on a complicated kingdom. He ruled Babylon roughly 1792–1750 BCE, expanded it from a smaller city-state into a major territorial kingdom, and conquered much of southern Babylonia. He is most famous for the Code of Hammurabi, a large collection of legal decisions covering trade, family law, crime, slavery, debt, and civil disputes. So, in plain terms, I would describe him as: orderly, authoritarian, calculating, justice-focused, pious, and strategically aggressive. Not “nice,” exactly. His law code could be harsh, and punishments depended heavily on social class. But he clearly wanted to present himself as a king of law, stability, punishment, and social order. Organized: perfect fit; this is the best trait for him. Hammurabi is remembered above all as a lawgiver and administrator. The Code of Hammurabi, royal building projects, canals, temples, walls, and central authority all fit “Organized.” Aggressive: Good fit; he was not just a lawgiver; he was also a conqueror. Babylon became a major Mesopotamian power under him through military expansion. `<!-- custom: as of now, the Bowman (civ-specific Babylonian unit) does not synergize with the Aggressive trait, but this allows Babylon to stay relevant as a military/aggressive playstyle civ well into later eras (knights, alternative swordsmen play, guns, etc.). Plus, as of now the bowman is very strong so seems balanced as such. -->` |
 | Hannibal | Financial, Charismatic | **Keep** | Hallmark = operational genius + multi-ethnic army cohesion and Italian defections after Cannae. More "inspire & outmaneuver" than brute-force brutality. Charismatic still supports a war playstyle (cheaper promos) without the raw smash of Aggressive; Financial keeps Carthaginian commerce. |
 | Hatshepsut | Spiritual, Creative | **Spiritual, Financial** | Iconic Punt expedition + trade-focused reign; commerce funded temples/works. Her identity reads more "trade & temple economy" than "arts output." `<!-- custom: also will most likely buff her if i'm not mistaken, which is nice i think -->` |
 | Huayna Capac | Industrious, Financial | **Industrious, Organized** | Inca economy was state-planned and labor-tax (mit'a), not money/market-driven. "Organized" fits roads, storehouses, and redistribution much better than "Financial." |
-| Isabella | Spiritual, Expansive | **Spiritual, Aggressive** | Militant piety + ruthless campaigns; reads truer than "Imperialist." |
+| Isabella | Spiritual, Expansive | **Spiritual, Imperialistic** | Isabella seems to have been deeply religious, disciplined, politically clever, personally austere, determined, and very hard-edged. She was not just a passive queen beside Ferdinand; she made major decisions, defended her claim in a succession war, took an active interest in the Granada campaign, and backed Columbus. She also had a strong sense of order and moral certainty. That could look like justice, seriousness, and administrative discipline to supporters, but also like rigidity, intolerance, and ruthlessness by modern standards, especially because of the Inquisition and the expulsion/conversion policies. Spiritual: Perfect fit; religion was central to her rule: “the Catholic” title, church strengthening, the Inquisition, the Granada crusading spirit, and religious unity as state policy. Imperialistic: very strong fit; She helped finish the Reconquista, supported overseas expansion through Columbus, and her reign began Spain’s New World empire. |
 | Joao | Imperialist, Expansive | **Imperialist, Financial** | Maritime commerce + colonial charters; cleaner than Expansive overlap. |
 | Julius Caesar | Organized, Imperialist | **Aggressive, Imperialist** | Primary identity = conqueror (Gaul, Civil War). Keep Imperialist for expansion; swap in Aggressive to reflect operational boldness. `<!-- custom: plus matches with xml profile of aggression and thematic epicness -->` |
 | Justinian | Spiritual, Imperialist | **Philosophical, Industrious** | Big reconquests (Africa, Italy, S. Hispania) + colossal building + Corpus Juris Civilis are uncontested. Critics say the reconquest wars/taxation left the state overextended and then the Justinianic Plague hit hard; newer work debates how devastating the plague really was. Net: "restorer & codifier," but also "overstretched the empire.". Less "Spiritual," more "Legal/Scholar + Empire-builder.". Reconquests != colonization. His lasting mark is legal/intellectual codification + mega building (Hagia Sophia, fortifications), not founding/settler-driven growth. |
-| Kublai Khan | Aggressive, Creative | **Imperialist, Creative** | Completed the Song conquest and pursued large overseas campaigns (Japan, ??i Vi?t/Champa, Burma, Java). Emphasize empire-building/expansion over personal ferocity; keep Creative for patronage/tolerance. |
+| Kublai Khan | Aggressive, Creative | **Keep** | For Kublai Khan, I’d describe his personality as: ambitious, pragmatic, cultured, commanding, imperial, administratively minded, and less purely destructive than Genghis Khan. Kublai was Genghis Khan’s grandson, became Great Khan in 1260, founded the Yuan dynasty, and completed the Mongol conquest of China in 1279. That made him the first Yuan ruler of all China. The big difference between Genghis and Kublai is that Genghis feels like the archetypal steppe conqueror, while Kublai feels more like a conqueror-emperor. He still used Mongol military power, but he also adopted Chinese-style administration, moved the capital to Dadu/Beijing, used centralized bureaucracy, supported roads, postal stations, canal repair, trade, and cultural life. So in plain terms: Kublai was a Mongol conqueror who wanted to rule like a Chinese emperor. Aggressive: Strong fit; He was still a Mongol war leader and completed the conquest of China. It fits, though not as perfectly as it does for Genghis. Creative: Surprisingly strong fit; This captures his courtly, cultural, capital-building side: Yuan China had major cultural development, foreign exchange, roads, postal systems, and a new imperial capital. `<!-- custom: plus from a gameplay stance not sharing imperialistic with genghis khan allows to have a more varied mongol civ (although both are as of now still aggressive, seems thematically and strategicall more varied as such for this civ, and reduces imperialistic overall footprint among all civs). -->` |
 | Lincoln | Philosophical, Charismatic | **Keep** | Moral/philosophical leadership + national unity. |
 | Louis XIV | Industrious, Creative | **Keep** | Palace/works + arts and culture. |
 | Mansa Musa | Spiritual, Financial | **Keep** | Pilgrimage/religion + trans-Saharan wealth. He was devout (Hajj, mosques), *and* a patron of learning (Timbuktu/Sankore). |
 | Michael Collins | Philosophical, Organized | **Keep** | Administrative/intelligence-state profile; keep as-is. |
 | Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more "Aggressive" than "cheap administration." Protective still captures internal security/defense posture. `<!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him -->` |
-| Mehmed | Expansive, Organized | **Imperialist, Aggressive** | Siege monster and serial conqueror (Constantinople, Balkans, Anatolia); "The Conqueror" leans warlike more than "efficient administration." |
+| Mehmed | Expansive, Organized | **Imperialist, Organized** | For Mehmed II “the Conqueror”, I’d describe his personality as: ambitious, severe, intelligent, autocratic, cultured, strategic, and intensely empire-minded. He was not just a battlefield ruler. He captured Constantinople in 1453, expanded Ottoman power through the Balkans and Anatolia, and helped turn the Ottoman state into a more centralized imperial system. Britannica describes him as a great military leader and notes that he reorganized Ottoman government, codified laws, and became a model of the autocratic Ottoman emperor. At the same time, Mehmed was not simply a crude conqueror. He was interested in scholarship, law, architecture, theology, and classical/Renaissance learning. After taking Constantinople, he tried to restore the city as an imperial capital, invited scholars and artists to court, and patronized major building projects. So, in plain terms, his “personality” was something like: a ruthless intellectual conqueror who wanted to be both an Islamic sultan and a new Roman emperor. Organized: Excellent fit; Probably his best trait. Mehmed centralized government, codified law, rebuilt Constantinople, and strengthened the imperial structure. Imperialistic: Perfect alternate; Honestly, this may fit better than Expansive. He was literally “the Conqueror,” aimed at imperial restoration, and saw himself as heir to Rome. |
 | Moctezuma | Aggressive, Spiritual | **Keep** | Militarism + ritual/faith. |
 | Napoleon | Organized, Charismatic | **Imperialist, Charismatic** | Signature is conquest + continental empire (client states, annexations). He *did* codify/administer, but his core identity isn't "low-upkeep governance"-it's expansion + leadership aura. |
 | Pacal | Financial, Expansive | **Financial, Industrious** | Monumental architecture/engineering + trade. |
 | Pericles | Philosophical, Creative | **Keep** | Golden Age of philosophy and arts. |
-| Peter | Philosophical, Expansive | **Imperialist, Organized** | lean warmonger/reformer, not "arts guy." -> Switch to Imperialist, Organized (state-driven expansion + Table of Ranks/navy/army reform) |
+| Peter | Philosophical, Expansive | **Philosophical, Organized** | For Peter the Great, I’d describe his personality as: curious, energetic, forceful, practical, reformist, impatient, authoritarian, and often brutal. Peter was obsessed with making Russia stronger by learning from Western Europe. He modernized the army and government, promoted technology, education, trade, and naval power, and founded St. Petersburg as a new western-facing capital. He also expanded Russian power through wars against Sweden, the Ottoman Empire, and Persia. But he was not a gentle reformer. He increased the monarchy’s power over nobles and the Orthodox Church, and some reforms were imposed harshly. Britannica notes that his reforms could be brutal and costly, and that he even had his own son Alexis tortured after suspecting him of conspiracy. So, in plain terms, Peter was: a restless modernizer who wanted to drag Russia into great-power status, whether people liked it or not. Not “philosopher” in the calm academic sense, but he was curious, technical, experimental, and obsessed with learning from foreign experts. He modernized administration, strengthened bureaucracy, reformed the army and state, and centralized authority. This may fit him even better than Philosophical. |
 | Qin Shi Huang | Industrious, Protective | **Keep** | Great Wall/standardization + legalist control. |
 | Ragnar | Financial, Aggressive | **Keep** | Raiding/commerce + martial ferocity. |
 | Ramesses | Spiritual, Industrious | **Keep** | Temple/monument builder with priestly legitimation. |
@@ -394,7 +396,7 @@ See below in the main table after changes as it includes the before values as we
 | Suryavarman | Expansive, Creative | **Industrious, Creative** | Builder of Angkor; monumental works + culture. |
 | Tokugawa | Protective, Aggressive | **Protective, Organized** | After unification, policy emphasized internal order, class discipline, and isolation over external aggression; governance beats battlefield ferocity. `<!-- custom: from a very quick search and my intuition/memory of what i read about him, he was very cautious and cunning/scheming rather so maybe aggressive doesn't fit as well; also from a balance standpoint, if he is isolated, he would benefit much more from tax/costs reduction to run smoothly his empire than aggressive right? If i may say i mean -->` |
 | Victoria | Imperialist, Financial | **Keep** | Global empire + finance/trade. |
-| Wang Kon | Financial, Protective | **Organized, Spiritual** | this is the softest OP fit. He's the founder/administrator (Organized, yes), but the "Protective" piece is less uniquely his (many big defensive moments come under successors). Organized + Spiritual: his Ten Injunctions stress protecting Buddhism, geomancy/ritual legitimacy - reads as statecraft grounded in religion. Bottom line: If you want to trim OP without losing accuracy, flip Wang Kon -> Organized, Spiritual (history-first, no change to rare Financial) |
+| Wang Kon | Financial, Protective | **Keep** | For Wang Kon, better romanized today as Wang Geon, I’d describe his personality as: pragmatic, patient, diplomatic, conciliatory, strategic, religious, and quietly ambitious. He founded the Goryeo dynasty in 918 and completed the unification of the Later Three Kingdoms by receiving Silla’s surrender in 935 and defeating Later Baekje in 936. Unlike someone like Shaka or Genghis, Wang Geon’s image is less “destroy everything” and more absorb, reconcile, and stabilize. Britannica notes that he went to great lengths to absorb people from defeated states, which fits the picture of a coalition-building founder rather than a purely destructive conqueror. So in plain terms: Wang Kon was a unifier-king: military enough to win, diplomatic enough to keep the peace afterward. Financial: Strong fit; Goryeo became a durable kingdom with aristocratic, administrative, and economic foundations. Wang Kon’s strength was consolidation, not reckless expansion. Protective: Good fit; He unified Korea and then focused on stabilizing and securing the realm. Protective fits a ruler who builds a defensible state rather than constantly expanding outward. `<!-- custom: in terms of gameplay, protective (and financial to a lesser extent) also fits the more defensive korean gameplay with the as of now library-based civ-specific building and overall defensive unit, and thematically, this maybe also fits the broader theme of the protective trait (stability, conciliation, etc.). It also gives Korea more ancient power with (financial immediate scaling + protective immediate def) which may better align with the Ancient Korea history stressing change of the civ-specific building too. -->` |
 | Washington | Expansive, Charismatic | **Protective, Charismatic** | Preservation-first Fabian strategy in the Revolution + 1777 army-wide smallpox inoculation (public-health safeguarding). Still inspirational. |
 | Willem van Oranje | Creative, Financial | **Keep** | Tolerance/trade + arts/commerce. |
 | Zara Yaqob | Creative, Organized | **Spiritual, Organized** | Strong doctrinal/religious policy + centralized rule - deeply doctrinal, centralizing, sometimes harsh. Spiritual, Organized > Creative. (He wrote and enforced doctrine more than fostering open culture.) |
@@ -403,14 +405,14 @@ See below in the main table after changes as it includes the before values as we
 
 | Trait         | Count |
 | ------------- | ----: |
-| Aggressive    |    13 |
-| Spiritual     |    12 |
+| Aggressive    |    12 |
 | Imperialist   |    12 |
 | Organized     |    12 |
+| Financial     |    12 |
+| Philosophical |    11 |
+| Spiritual     |    11 |
 | Industrious   |    11 |
 | Charismatic   |    11 |
-| Financial     |    11 |
-| Philosophical |    10 |
 | Protective    |    10 |
 | Creative      |     8 |
 
@@ -418,11 +420,9 @@ See below in the main table after changes as it includes the before values as we
 
 | Pair                        | Count |
 | --------------------------- | ----: |
-| Aggressive + Imperialist    |     3 |
-| Organized + Protective      |     3 |
 | Aggressive + Financial      |     2 |
+| Aggressive + Imperialist    |     2 |
 | Aggressive + Organized      |     2 |
-| Aggressive + Spiritual      |     2 |
 | Charismatic + Imperialist   |     2 |
 | Charismatic + Protective    |     2 |
 | Charismatic + Spiritual     |     2 |
@@ -431,38 +431,40 @@ See below in the main table after changes as it includes the before values as we
 | Creative + Philosophical    |     2 |
 | Financial + Imperialist     |     2 |
 | Financial + Spiritual       |     2 |
+| Imperialist + Organized     |     2 |
 | Imperialist + Philosophical |     2 |
 | Industrious + Spiritual     |     2 |
-| Organized + Spiritual       |     2 |
+| Organized + Philosophical   |     2 |
+| Organized + Protective      |     2 |
 | Aggressive + Charismatic    |     1 |
+| Aggressive + Creative       |     1 |
 | Aggressive + Industrious    |     1 |
 | Aggressive + Philosophical  |     1 |
 | Aggressive + Protective     |     1 |
+| Aggressive + Spiritual      |     1 |
 | Charismatic + Financial     |     1 |
 | Charismatic + Industrious   |     1 |
 | Charismatic + Organized     |     1 |
 | Charismatic + Philosophical |     1 |
-| Creative + Imperialist      |     1 |
 | Creative + Protective       |     1 |
 | Financial + Industrious     |     1 |
 | Financial + Organized       |     1 |
+| Financial + Protective      |     1 |
 | Imperialist + Industrious   |     1 |
-| Imperialist + Organized     |     1 |
+| Imperialist + Spiritual     |     1 |
 | Industrious + Organized     |     1 |
 | Industrious + Philosophical |     1 |
 | Industrious + Protective    |     1 |
-| Organized + Philosophical   |     1 |
+| Organized + Spiritual       |     1 |
 | Philosophical + Protective  |     1 |
 | Philosophical + Spiritual   |     1 |
 | Protective + Spiritual      |     1 |
-| Aggressive + Creative       |     0 |
 | Charismatic + Creative      |     0 |
+| Creative + Imperialist      |     0 |
 | Creative + Organized        |     0 |
 | Creative + Spiritual        |     0 |
 | Financial + Philosophical   |     0 |
-| Financial + Protective      |     0 |
 | Imperialist + Protective    |     0 |
-| Imperialist + Spiritual     |     0 |
 
 ## Leaders' favourite civics rework
 
