@@ -598,10 +598,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 		if iKey == int(InputTypes.KB_UP) or iKey == int(InputTypes.KB_DOWN):
 			return True
-		# <!-- custom: Manually positioning the mouse on footer Back/Next for each pedia link is tedious. After we added Up/Down item-list navigation, map Left/Right arrows to Sevopedia Back/Next history as the natural keyboard counterpart. (GPT-5.5) -->
-		if iKey == int(InputTypes.KB_LEFT) or iKey == int(InputTypes.KB_RIGHT):
-			return True
 		# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+		# <!-- custom: Left/Right are handled earlier in handleInput with SAS_navigationKeyDebounceByKey, so they stay separate from the search/list debounce state that category redraws reset. (Claude code Opus 4.7 + GPT-5.5) -->
 
 		return False
 
@@ -2611,55 +2609,50 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: gate fires whenever a list-rendering page has registered itself as the active
 		# refresher, regardless of which tab/mode hosts it. (Claude code Opus 4.7) -->
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
-			if self.getScreen().isActive():
-				if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
-					iKey = inputClass.getData()
-					if iKey == int(InputTypes.KB_LEFT) or iKey == int(InputTypes.KB_RIGHT):
-						# <!-- custom: Left/Right Back/Next worked one item at a time within the same category, but crossing back to another category jumped twice from one keypress. Category redraws reset search debounce state; keeping navigation debounce separate fixed this. (GPT-5.5) -->
-						if self.SAS_shouldIgnoreDebouncedNavigationKey(iKey):
+			screen = self.getScreen()
+			if screen.isActive() and (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
+				iKey = inputClass.getData()
+				if iKey == int(InputTypes.KB_LEFT) or iKey == int(InputTypes.KB_RIGHT):
+					# <!-- custom: Left/Right Back/Next worked one item at a time within the same category, but crossing back to another category jumped twice from one keypress. Category redraws reset search debounce state; keeping navigation debounce separate fixed this. (GPT-5.5) -->
+					if self.SAS_shouldIgnoreDebouncedNavigationKey(iKey):
+						return 1
+					if iKey == int(InputTypes.KB_LEFT):
+						return self.back()
+					return self.forward()
+				if (self.isContentsShowing() or self.isIndexShowing()) and self.SAS_activeListRefresher is not None:
+					# <!-- custom: debounce per key so fast typing does not produce interleaved duplicates like 'gr' -> 'grgr' (chatgpt 5.2 + claude opus 4.5) -->
+					if self.SAS_shouldIgnoreDebouncedKey(iKey):
+						return 1
+
+					szChar = self.SAS_getVisibleCharacter(inputClass)
+					if len(szChar) > 0:
+						return self.SAS_appendSearchCharacter(szChar)
+
+					# Handle backspace to delete last character
+					if iKey == int(InputTypes.KB_BACKSPACE):
+						if len(self.SAS_szSearchString) > 0:
+							self.SAS_szSearchString = self.SAS_szSearchString[:-1]
+							self.SAS_refreshActiveListView()
 							return 1
-						if iKey == int(InputTypes.KB_LEFT):
-							return self.back()
-						return self.forward()
-			if (self.isContentsShowing() or self.isIndexShowing()) and self.SAS_activeListRefresher is not None:
-				screen = self.getScreen()
-				if screen.isActive():
-					if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
-						iKey = inputClass.getData()
-
-						# <!-- custom: debounce per key so fast typing does not produce interleaved duplicates like 'gr' -> 'grgr' (chatgpt 5.2 + claude opus 4.5) -->
-						if self.SAS_shouldIgnoreDebouncedKey(iKey):
+					# Handle escape to clear search
+					elif iKey == int(InputTypes.KB_ESCAPE):
+						if self.SAS_isSearchActive():
+							self.SAS_szSearchString = u""
+							# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->
+							self.SAS_keyDebounceByKey = {}
+							self.SAS_refreshActiveListView()
 							return 1
-
-						szChar = self.SAS_getVisibleCharacter(inputClass)
-						if len(szChar) > 0:
-							return self.SAS_appendSearchCharacter(szChar)
-
-						# Handle backspace to delete last character
-						if iKey == int(InputTypes.KB_BACKSPACE):
-							if len(self.SAS_szSearchString) > 0:
-								self.SAS_szSearchString = self.SAS_szSearchString[:-1]
-								self.SAS_refreshActiveListView()
-								return 1
-						# Handle escape to clear search
-						elif iKey == int(InputTypes.KB_ESCAPE):
-							if self.SAS_isSearchActive():
-								self.SAS_szSearchString = u""
-								# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->
-								self.SAS_keyDebounceByKey = {}
-								self.SAS_refreshActiveListView()
-								return 1
-						# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
-						# <!-- custom: arrow key navigation for item list (chatgpt 5.2 + claude opus 4.5) -->
-						# Handle UP arrow to navigate to previous item
-						elif iKey == int(InputTypes.KB_UP):
-							if self.SAS_navigateItemList(-1):
-								return 1
-						# Handle DOWN arrow to navigate to next item
-						elif iKey == int(InputTypes.KB_DOWN):
-							if self.SAS_navigateItemList(1):
-								return 1
-						# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+					# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+					# <!-- custom: arrow key navigation for item list (chatgpt 5.2 + claude opus 4.5) -->
+					# Handle UP arrow to navigate to previous item
+					elif iKey == int(InputTypes.KB_UP):
+						if self.SAS_navigateItemList(-1):
+							return 1
+					# Handle DOWN arrow to navigate to next item
+					elif iKey == int(InputTypes.KB_DOWN):
+						if self.SAS_navigateItemList(1):
+							return 1
+					# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
 			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_BUILDS:
