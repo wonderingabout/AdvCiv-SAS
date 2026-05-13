@@ -187,6 +187,10 @@ class SevoPediaIndex:
 		# without needing any category-specific branching. (Claude code Opus 4.7) -->
 		self.top.SAS_syncSearchPanel()
 		self.top.SAS_activeListRefresher = self.placeIndex
+		# <!-- custom: register Index's own arrow-key navigator and reset the cell list / cursor. UP/DOWN steps cell-by-cell in reading order (left->right, top->bottom) by re-rendering the previous and current cells with text highlight; the widget has no per-cell focus API. (Claude code Opus 4.7 + GPT-5.5) -->
+		self.top.SAS_activeKeyNavigator = self.SAS_navigateIndexTable
+		self.SAS_indexCells = []
+		self.SAS_indexCursorPos = -1
 
 		nColumns = 3
 		self.tableName = self.top.getNextWidgetName()
@@ -251,61 +255,102 @@ class SevoPediaIndex:
 			sText = sasFontTagLabel + item[0] + SAS_FONT_TAG_CLOSE
 			iData1 = item[1]
 			iData2 = 1
+			# <!-- custom: setTableText calls now go through _SAS_indexPlaceCell so cell args are also recorded for arrow-key cursor re-render. (Claude code Opus 4.7) -->
 			if (type == "Tech"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTechInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTechInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iData1, iData2)
 			elif (type == "Unit"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getUnitInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getUnitInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iData1, iData2)
 			elif (type == "UnitCombat"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getUnitCombatInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getUnitCombatInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iData1, iData2)
 			elif (type == "Promo"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getPromotionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
-			
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getPromotionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iData1, iData2)
+
 			elif (type == "Building"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2)
 			elif (type == "Wonder"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildingInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iData1, iData2)
 			elif (type == "Project"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getProjectInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getProjectInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iData1, iData2)
 			elif (type == "Specialist"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getSpecialistInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
-			
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getSpecialistInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iData1, iData2)
+
 			elif (type == "Terrain"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTerrainInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTerrainInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iData1, iData2)
 			elif (type == "Feature"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getFeatureInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getFeatureInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iData1, iData2)
 			elif (type == "Bonus"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2)
 			elif (type == "Improv"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2)
 			# <!-- custom: Build rows use the normal table cell (icon + text) and rely on table selection to trigger pediaJump.
 			# This avoids overlay widgets that don't scroll with the table. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
 			elif (type == "Build"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iData1).getTechPrereq(), iData1, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iData1).getTechPrereq(), iData1)
 				self.SAS_rowToBuild[iRow] = iData1
-			
+
 			elif (type == "Civ"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2)
 			elif (type == "Leader"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getLeaderHeadInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getLeaderHeadInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iData1, iData2)
 			# <!-- custom: Trait rows use WIDGET_GENERAL and row-to-trait mapping like Builds. (Claude Opus 4.5) -->
 			elif (type == "Trait"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1)
 				self.SAS_rowToTrait[iRow] = iData1
-			
+
 			elif (type == "Civic"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2)
 			elif (type == "Religion"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getReligionInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iData1, iData2)
 			# <!-- custom: base AdvCiv bugfix GPT-5.2-Codex found thanks, was gc.getReligionInfo(iData1).getButton() -->
 			elif (type == "Corporation"):
-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCorporationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
-			
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCorporationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iData1, iData2)
+
 			elif (type == "Concept"):
-				screen.setTableText(self.tableName, iColumn, iRow, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1)
 			elif (type == "NewConcept"):
-				screen.setTableText(self.tableName, iColumn, iRow, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1, CvUtil.FONT_LEFT_JUSTIFY)
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1)
 		
 		self.iLastRow = iRow
+
+	# <!-- custom: helper used during placeIndex so every cell's args are remembered for arrow-key re-render. Keeps the placement loop one-line-per-type while ensuring SAS_indexCells stays in sync with what's actually drawn. (Claude code Opus 4.7) -->
+	def _SAS_indexPlaceCell(self, screen, iRow, iColumn, sText, sButton, eWidget, iData1, iData2):
+		screen.setTableText(self.tableName, iColumn, iRow, sText, sButton, eWidget, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+		self.SAS_indexCells.append((iRow, iColumn, sText, sButton, eWidget, iData1, iData2))
+
+	# <!-- custom: cell-by-cell UP/DOWN navigation in reading order across the 3-column table. The widget has no per-cell highlight API, so the "cursor" is drawn by re-rendering the previous and current cells via setTableText with COLOR_HIGHLIGHT_TEXT (the same color the items list uses elsewhere). selectRow is called too, and the table is refocused first so its built-in row-selection visual can paint if the search bar had stolen focus. (Claude code Opus 4.7) -->
+	def SAS_navigateIndexTable(self, iDirection):
+		if not self.SAS_indexCells:
+			return False
+		iLast = len(self.SAS_indexCells) - 1
+		if self.SAS_indexCursorPos < 0:
+			if iDirection > 0:
+				iNewPos = 0
+			else:
+				iNewPos = iLast
+		else:
+			iNewPos = self.SAS_indexCursorPos + iDirection
+			if iNewPos < 0:
+				iNewPos = 0
+			elif iNewPos > iLast:
+				iNewPos = iLast
+		if iNewPos == self.SAS_indexCursorPos:
+			return False
+		screen = self.top.getScreen()
+		new = self.SAS_indexCells[iNewPos]
+		# <!-- custom: row-level visual = native blue via selectRow (deselect-prev-then-select-new, same call pattern SevoPediaMain.placeItems uses; this is the only call sequence that empirically paints addTableControlGFC selections in this widget). Cell-level visual = re-render previous cell with its original text and current cell wrapped in COLOR_HIGHLIGHT_TEXT, since selectRow has no per-cell granularity. Refocus the table first because the search bar steals focus on typing. (Claude code Opus 4.7 + GPT-5.5) -->
+		screen.setFocus(self.tableName)
+		screen.enableSelect(self.tableName, True)
+		if self.SAS_indexCursorPos >= 0:
+			prev = self.SAS_indexCells[self.SAS_indexCursorPos]
+			screen.selectRow(self.tableName, prev[0], False)
+			# Re-render the previous cell with its original (uncolored) text.
+			screen.setTableText(self.tableName, prev[1], prev[0], prev[2], prev[3], prev[4], prev[5], prev[6], CvUtil.FONT_LEFT_JUSTIFY)
+		screen.selectRow(self.tableName, new[0], True)
+		# Re-render the new cell wrapped in COLOR_HIGHLIGHT_TEXT to mark which of the row's cells is "current".
+		sHighlighted = localText.changeTextColor(new[2], self.top.COLOR_HIGHLIGHT_TEXT)
+		screen.setTableText(self.tableName, new[1], new[0], sHighlighted, new[3], new[4], new[5], new[6], CvUtil.FONT_LEFT_JUSTIFY)
+		self.SAS_indexCursorPos = iNewPos
+		return True
 
 	def handleInput (self, inputClass):
 		BugUtil.debugInput(inputClass)

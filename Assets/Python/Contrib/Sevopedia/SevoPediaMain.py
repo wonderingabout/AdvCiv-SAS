@@ -299,6 +299,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# placeItems for regular listbox categories, SevoPediaIndex.placeIndex for the Index 3-column
 		# table. Search handlers just invoke whichever is registered, no per-category branching. (Claude code Opus 4.7) -->
 		self.SAS_activeListRefresher = None
+		# <!-- custom: each searchable page also registers its UP/DOWN arrow navigator here. Normal one-column pages register SAS_navigateItemList; Index registers its own table-aware navigator. Avoids special-casing isIndexShowing() in handleInput. (Claude code Opus 4.7) -->
+		self.SAS_activeKeyNavigator = None
 
 		# <!-- custom: debounce for search bar to prevent double keypress even when key-up events are interleaved (chatgpt 5.2 + claude opus 4.5) -->
 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
@@ -979,6 +981,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.SAS_lastItemsWidget = None
 			self.SAS_lastItemsInfo = None
 			self.SAS_activeListRefresher = None
+			self.SAS_activeKeyNavigator = None
 			if (not self.isContentsShowing()) or (self.iCategory != iCategory):
 				self.SAS_szSearchString = u""
 				# <!-- custom: reset debounce state when search is reset (chatgpt 5.2 + claude opus 4.5) -->
@@ -1027,6 +1030,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_lastItemsWidget = None
 		self.SAS_lastItemsInfo = None
 		self.SAS_activeListRefresher = None
+		self.SAS_activeKeyNavigator = None
 		self.SAS_szSearchString = u""
 		self.SAS_keyDebounceByKey = {}
 		self.SAS_deleteSearchWidgets(screen)
@@ -2285,6 +2289,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_lastItemsInfo = info
 		# <!-- custom: register self as the active refresher; see SAS_activeListRefresher comment. (Claude code Opus 4.7) -->
 		self.SAS_activeListRefresher = self._SAS_refreshLastItems
+		self.SAS_activeKeyNavigator = self.SAS_navigateItemList
 
 		# <!-- custom: search bar (top of item list) (chatgpt 5.2 + claude opus 4.5) -->
 		self.SAS_syncSearchPanel()
@@ -2647,13 +2652,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 							return 1
 					# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 					# <!-- custom: arrow key navigation for item list (chatgpt 5.2 + claude opus 4.5) -->
-					# Handle UP arrow to navigate to previous item
+					# <!-- custom: later refactored from a direct SAS_navigateItemList call into a dispatcher that invokes whichever navigator the active page registered (SAS_navigateItemList for normal pages, SAS_navigateIndexTable for Index). (Claude code Opus 4.7) -->
 					elif iKey == int(InputTypes.KB_UP):
-						if self.SAS_navigateItemList(-1):
+						nav = self.SAS_activeKeyNavigator
+						if nav is not None and nav(-1):
 							return 1
-					# Handle DOWN arrow to navigate to next item
 					elif iKey == int(InputTypes.KB_DOWN):
-						if self.SAS_navigateItemList(1):
+						nav = self.SAS_activeKeyNavigator
+						if nav is not None and nav(1):
 							return 1
 					# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
