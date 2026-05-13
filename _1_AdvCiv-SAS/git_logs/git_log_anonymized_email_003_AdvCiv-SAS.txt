@@ -2015,7 +2015,7 @@ Author: wonderingabout <hidden>
 Date:   2025-12-24 21:39:38 +0100
 
 add keyboard UP/DOWN navigation in Sevopedia based on C2C mod's code and with the help of claude opus 4.5 and chatgpt 5.2 to adjust it for AdvCiv-SAS
-- **Keyboard Navigation**: allows to **browse Sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN) navigation](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+- **Keyboard Navigation**: allows to **browse Sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See Sevopedia_reworks: keyboard (UP/DOWN) navigation.
 
 commit e30d02cf8e49c5ec3c3ac0070cb30d7199dfe949
 Author: wonderingabout <hidden>

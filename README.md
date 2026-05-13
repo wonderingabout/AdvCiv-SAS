@@ -48,7 +48,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
 &emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)  
 [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
-&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)  
+&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN (category items) and LEFT/RIGHT (BACK/NEXT page visited) navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-category-items-and-leftright-backnext-page-visited-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)  
 &emsp;[Other new categories](/README.md#other-new-categories)  
 &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
 &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
@@ -349,7 +349,7 @@ A new toggle button to show or hide map annotations (Alt + S captions or Alt + X
 
 Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
 
-### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead panel
+### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN (category items) and LEFT/RIGHT (BACK/NEXT page visited) navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel
 
 #### Items grouping
 
@@ -370,7 +370,11 @@ See also [example 0.1: added a search bar. Used in several Sevopedia pages](/_1_
 
 #### Keyboard Navigation with the UP/DOWN arrows
 
-Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several Sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN and LEFT/RIGHT) navigation support](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-and-leftright-navigation-support-used-in-several-sevopedia-pages).
+
+Update: since then, with the very nice help of GPT-5.5, added support for the LEFT/RIGHT keyboard arrows to do BACK/NEXT Sevopedia page visited action: manually moving the mouse to BACK and NEXT footer links each time is tedious, and the LEFT/RIGHT arrows were not used anyway, so use them for this.
+
+Note: as of now, as a side effect UP/DOWN scrolling is lost in tree pages (Promotions Tree and Units Tree) (due to as of now changing `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)` to `screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS)`) but this is a minor drawback in comparison to being able to have a smooth BACK/NEXT history instead.
 
 #### Index As Category
 

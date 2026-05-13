@@ -303,6 +303,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: debounce for search bar to prevent double keypress even when key-up events are interleaved (chatgpt 5.2 + claude opus 4.5) -->
 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
 		self.SAS_keyDebounceByKey = {}
+		self.SAS_navigationKeyDebounceByKey = {}
 		self.SAS_searchKeyboardIds = []
 		self.SAS_bSearchKeyboardVisible = False
 
@@ -597,8 +598,26 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 		if iKey == int(InputTypes.KB_UP) or iKey == int(InputTypes.KB_DOWN):
 			return True
+		# <!-- custom: Manually positioning the mouse on footer Back/Next for each pedia link is tedious. After we added Up/Down item-list navigation, map Left/Right arrows to Sevopedia Back/Next history as the natural keyboard counterpart. (GPT-5.5) -->
+		if iKey == int(InputTypes.KB_LEFT) or iKey == int(InputTypes.KB_RIGHT):
+			return True
 		# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
+		return False
+
+	def SAS_shouldIgnoreDebouncedKey(self, iKey):
+		if self.SAS_shouldDebounceKey(iKey):
+			if self.SAS_keyDebounceByKey.get(iKey, 0):
+				self.SAS_keyDebounceByKey[iKey] = 0
+				return True
+			self.SAS_keyDebounceByKey[iKey] = 1
+		return False
+
+	def SAS_shouldIgnoreDebouncedNavigationKey(self, iKey):
+		if self.SAS_navigationKeyDebounceByKey.get(iKey, 0):
+			self.SAS_navigationKeyDebounceByKey[iKey] = 0
+			return True
+		self.SAS_navigationKeyDebounceByKey[iKey] = 1
 		return False
 
 	def SAS_getVisibleCharacter(self, inputClass):
@@ -1312,7 +1331,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
-		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
+		# <!-- custom: Unit Upgrade graph used ACTIVATE_NORMAL so Up/Down could scroll it, but that swallowed Left/Right before Sevopedia Back/Next handling. ACTIVATE_MIMICPARENTFOCUS fixes Left/Right Back/Next; losing arrow-key graph scrolling is acceptable because smooth pedia Back/Next navigation is more important. (GPT-5.5) -->
+		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS)
 
 		# <!-- custom: focus the graph so arrow scrolling works without clicking (chatgpt 5.2 + claude opus 4.5) -->
 		try:
@@ -1366,7 +1386,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_prepareSpecialPageDeletingItemList(screen)
 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
-		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
+		# <!-- custom: Promotion Tree graph used ACTIVATE_NORMAL so Up/Down could scroll it, but that swallowed Left/Right before Sevopedia Back/Next handling. ACTIVATE_MIMICPARENTFOCUS fixes Left/Right Back/Next; losing arrow-key graph scrolling is acceptable because smooth pedia Back/Next navigation is more important. (GPT-5.5) -->
+		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS)
 
 		# <!-- custom: focus the graph so arrow scrolling works without clicking (chatgpt 5.2 + claude opus 4.5) -->
 		try:
@@ -2590,6 +2611,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: gate fires whenever a list-rendering page has registered itself as the active
 		# refresher, regardless of which tab/mode hosts it. (Claude code Opus 4.7) -->
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
+			if self.getScreen().isActive():
+				if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
+					iKey = inputClass.getData()
+					if iKey == int(InputTypes.KB_LEFT) or iKey == int(InputTypes.KB_RIGHT):
+						# <!-- custom: Left/Right Back/Next worked one item at a time within the same category, but crossing back to another category jumped twice from one keypress. Category redraws reset search debounce state; keeping navigation debounce separate fixed this. (GPT-5.5) -->
+						if self.SAS_shouldIgnoreDebouncedNavigationKey(iKey):
+							return 1
+						if iKey == int(InputTypes.KB_LEFT):
+							return self.back()
+						return self.forward()
 			if (self.isContentsShowing() or self.isIndexShowing()) and self.SAS_activeListRefresher is not None:
 				screen = self.getScreen()
 				if screen.isActive():
@@ -2597,11 +2628,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						iKey = inputClass.getData()
 
 						# <!-- custom: debounce per key so fast typing does not produce interleaved duplicates like 'gr' -> 'grgr' (chatgpt 5.2 + claude opus 4.5) -->
-						if self.SAS_shouldDebounceKey(iKey):
-							if self.SAS_keyDebounceByKey.get(iKey, 0):
-								self.SAS_keyDebounceByKey[iKey] = 0
-								return 1
-							self.SAS_keyDebounceByKey[iKey] = 1
+						if self.SAS_shouldIgnoreDebouncedKey(iKey):
+							return 1
 
 						szChar = self.SAS_getVisibleCharacter(inputClass)
 						if len(szChar) > 0:
