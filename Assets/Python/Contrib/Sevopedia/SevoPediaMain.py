@@ -719,6 +719,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_navigateItemList(self, iDirection):
 		if not self.isContentsShowing():
 			return False
+		# <!-- custom: Index uses the shared search refresher but not the normal one-column item list; UP/DOWN item-list navigation applies only to pages drawn by placeItems. (GPT-5.5 + Claude code Opus 4.7) -->
+		if self.SAS_activeListRefresher != self._SAS_refreshLastItems:
+			return False
 		if not self.list or len(self.list) == 0:
 			return False
 		
