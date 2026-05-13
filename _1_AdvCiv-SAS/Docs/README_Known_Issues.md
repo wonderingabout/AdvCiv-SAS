@@ -168,6 +168,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab)  
 [131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer)  
 [132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network)  
+[133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#133---fixed-base-advciv-issue-of-sevopedia-indexs-legacy-sort-key-cleanup-txt_key_-prefix-strip--the-x-comma-flip-scattering-untranslated-entries-instead-of-clustering-them-hurts-diagnosis-of-missing-translations-sorting-items-differently-than-the-type-specific-pedia-pages-and-than-natural-alphabetical-order-and-incurring-needless-per-entry-build-time-cost-especially-wasteful-in-non-english-locales)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4861,3 +4862,70 @@ For some unknown AdvCiv-SAS-specific reason the pre-existing "Not Connected to T
 File changed:
 
 - [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
+
+## 133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)
+
+Concrete shape of the change (one representative loop per pattern):
+
+```python
+# Before - "The X" comma-flip on techs
+for item in techList:
+    if (item[0][0:4]=="The "):
+        list.append([item[0][4:]+","+item[0][0:3],"Tech",item])
+    else:
+        list.append([item[0],"Tech",item])
+
+# After
+for item in techList:
+    list.append([item[0],"Tech",item])
+```
+
+```python
+# Before - TXT_KEY_UNIT_ prefix strip on units
+for item in unitList:
+    if (item[0][:13]=="TXT_KEY_UNIT_"):
+        list.append([item[0][13:].capitalize(),"Unit",item])
+    else:
+        list.append([item[0],"Unit",item])
+
+# After
+for item in unitList:
+    list.append([item[0],"Unit",item])
+```
+
+Same shape applied to the other types that had similar branches (`promotionList`, `buildingList`, `nationalWonderList`, `worldWonderList`, `projectList`, `specialistList`, `civicList`). `traitList`'s `item[0][2:]` strip was kept — it's a different pattern (trims a 2-char leading prefix unrelated to TXT_KEY or "The X") and a sibling code comment flags that explicitly.
+
+Earlier revisions of `SevoPediaIndex.buildIndex()` normalized the alphabetical sort key for two patterns:
+
+- **`TXT_KEY_*` prefix strip + capitalize.** Entries whose translation was missing fell back to the raw XML key (e.g. `TXT_KEY_UNIT_WARRIOR`). The code stripped the `TXT_KEY_UNIT_` prefix and capitalized the remainder so the entry sorted under "W" (like the intended "Warrior") instead of "T".
+- **`"The X"` comma-flip.** Items like `"The Wheel"` or `"The Pyramids"` were rewritten as `"Wheel,The"` so they sorted under W/P, library-card style.
+
+Both were dropped in favour of using the raw name directly. Reasoning:
+
+1. **Cross-page inconsistency *within* Sevopedia.** Only Index ran this cleanup; the type-specific pedia pages (Techs, Units, Buildings, ...) show raw names sorted naturally via `getSortedList()`. So the *same* item appeared under different letters depending on the page — `"The Wheel"` was under **W** in Index but **T** in Techs; an untranslated `TXT_KEY_UNIT_WARRIOR` was under **W** in Index but **T** in Units. Two contradictory sort orders side by side, confusing anyone flipping between Index and a type-specific page.
+2. **Lost diagnostic signal — and Index is the natural place for that signal.** The strip scattered untranslated entries across the alphabet (sorted under their cleaned-up first letter) while still showing the raw `TXT_KEY_X` in the cell, so broken keys looked like isolated glitches instead of a single visible cluster under "T" — harder for both mod authors *and* players to notice, report, or batch-fix. This matters especially for Index, because it's the *only* pedia page that flattens every content type into one alphabetical view; auditing missing translations elsewhere means opening Techs, then Units, then Buildings, etc., one type at a time. Bonus: with the strip gone, the search bar can now filter every broken entry at once by typing `txt`, since search compares against the same sort key.
+3. **Code complexity for no functional benefit.** Each loop had 2-3 conditional branches doing per-entry slice-and-compare. List-building is now one direct `list.append(...)` per type — easier to read and maintain.
+4. **Needless per-entry cost, especially harsh for any future non-English locale.** The work is one-shot (gated by `if self.index: return`) so the English runtime cost was small, but still paid across hundreds of items on nearly-always-false checks. The `"The X"` comma-flip is *literally* English: in German (`"Das Rad"`), French (`"La Roue"`), etc. the `item[0][0:4] == "The "` check would never match, but the slice-and-compare would still run across the whole catalog with a 100% miss rate. Tiny future-proofing for any eventual localization. (The `TXT_KEY_*` strip is locale-neutral in detection, so this critique applies cleanly only to the `"The X"` flip.)
+
+Side-effect: also fixes incorrect alphabetical ordering. `"The Pyramids"` (starts with T) was sorted under P; `"The Wheel"` (starts with T) was sorted under W. The comma-flip was a library-card stylistic convention layered on top — the rest of the pedia categories never applied it — so Index is now both correct *and* consistent with them.
+
+Summary:
+
+Earlier `SevoPediaIndex.buildIndex()` built separate sort keys for some entries:
+
+- `TXT_KEY_UNIT_WARRIOR` was sorted like `Warrior`.
+- `"The Wheel"` was sorted like `Wheel,The`.
+
+We removed that cleanup and now use the displayed item name directly, matching the type-specific Sevopedia pages.
+
+Why:
+
+- Index and category pages should not sort the same item under different letters.
+- Broken translations are easier to spot when raw `TXT_KEY_*` entries cluster under `T`; the Index is the best whole-catalog page for that.
+- The old branches added code and per-entry checks for little benefit, including an English-only `"The "` rule.
+
+`traitList` keeps its `item[0][2:]` trim because traits intentionally prepend an icon plus space before the name; that is a different case.
+
+File changed:
+
+- [Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py](/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py)

@@ -85,55 +85,29 @@ class SevoPediaIndex:
 		# <!-- custom: add Builds to index, inspired by Middle-earth mod's PlatyPedia approach (Claude Opus 4.5) -->
 		buildList = self.top.getBuildList()
 		
+		# <!-- custom: Note: keep Index list/cell handling local and direct instead of sharing Main's per-category widget metadata. Index is one flattened table while Main drives many independent pedia pages, so sharing would push Index-only rules into Main code for no real reuse win. (GPT-5.5) -->
+		# <!-- custom: Dropped the legacy TXT_KEY_* prefix-strip and "The X" comma-flip sort-key cleanup here (sorted the same items differently in Index vs the type-specific pedia pages, hurt diagnosis of missing translations, needless per-entry build-time cost in any locale - and especially wasteful in non-English ones where "The X" never matches anyway, and needless code complexity). See KI#133 for full rationale. (Claude code Opus 4.7) -->
 		list=[]
 		for item in techList:
-			if (item[0][0:4]=="The "):
-				list.append([item[0][4:]+","+item[0][0:3],"Tech",item])
-			else:
-				list.append([item[0],"Tech",item])
+			list.append([item[0],"Tech",item])
 		for item in unitList:
-			if (item[0][:13]=="TXT_KEY_UNIT_"):
-				list.append([item[0][13:].capitalize(),"Unit",item])
-			else:
-				list.append([item[0],"Unit",item])
+			list.append([item[0],"Unit",item])
 		for item in unitCombatList:
 			list.append([item[0],"UnitCombat",item])
 		for item in promotionList:
-			if (item[0][:18]=="TXT_KEY_PROMOTION_"):
-				list.append([item[0][18:].capitalize(),"Promo",item])
-			else:
-				list.append([item[0],"Promo",item])
-		
+			list.append([item[0],"Promo",item])
+
 		for item in buildingList:
-			if (item[0][:17]=="TXT_KEY_BUILDING_"):
-				list.append([item[0][17:].capitalize(),"Building",item])
-			else:
-				list.append([item[0],"Building",item])
+			list.append([item[0],"Building",item])
 		for item in nationalWonderList:
-			if (item[0][0:4]=="The "):
-				list.append([item[0][4:]+","+item[0][0:3],"Wonder",item])
-			elif (item[0][:17]=="TXT_KEY_BUILDING_"):
-				list.append([item[0][17:].capitalize(),"Wonder",item])
-			else:
-				list.append([item[0],"Wonder",item])
+			list.append([item[0],"Wonder",item])
 		for item in worldWonderList:
-			if (item[0][0:4]=="The "):
-				list.append([item[0][4:]+","+item[0][0:3],"Wonder",item])
-			elif (item[0][:17]=="TXT_KEY_BUILDING_"):
-				list.append([item[0][17:].capitalize(),"Wonder",item])
-			else:
-				list.append([item[0],"Wonder",item])
+			list.append([item[0],"Wonder",item])
 		for item in projectList:
-			if (item[0][0:4]=="The "):
-				list.append([item[0][4:]+","+item[0][0:3],"Project",item])
-			else:
-				list.append([item[0],"Project",item])
+			list.append([item[0],"Project",item])
 		for item in specialistList:
-			if (item[0][:19]=="TXT_KEY_SPECIALIST_"):
-				list.append([item[0][19:].capitalize(),"Specialist",item])
-			else:
-				list.append([item[0],"Specialist",item])
-		
+			list.append([item[0],"Specialist",item])
+
 		for item in terrainList:
 			list.append([item[0],"Terrain",item])
 		for item in featureList:
@@ -142,22 +116,20 @@ class SevoPediaIndex:
 			list.append([item[0],"Bonus",item])
 		for item in improvementList:
 			list.append([item[0],"Improv",item])
-		
+
 		for item in civList:
 			list.append([item[0],"Civ",item])
 		for item in leaderList:
 			list.append([item[0],"Leader",item])
+		# <!-- custom: traitList entries have a 2-char leading icon prefix unrelated to TXT_KEY/"The"; keep this strip. (Claude code Opus 4.7 + GPT-5.5) -->
 		for item in traitList:
 			list.append([item[0][2:],"Trait",item])
-		
+
 		for item in religionList:
 			list.append([item[0],"Religion",item])
 		for item in civicList:
-			if (item[0][:14]=="TXT_KEY_CIVIC_"):
-				list.append([item[0][14:].capitalize(),"Civic",item])
-			else:
-				list.append([item[0],"Civic",item])
-		
+			list.append([item[0],"Civic",item])
+
 		for item in conceptList:
 			list.append([item[0],"Concept",item])
 		for item in newConceptList:
@@ -250,8 +222,8 @@ class SevoPediaIndex:
 					screen.appendTableRow(self.tableName)
 					iRow += 1
 					iColumn = 0
-			
-			# <!-- custom: refactor, since sText was defined in existing code, reuse it instead of hardcoding it again at each call if i may say and am not mistaken, this also fixes ruff warning and according to chatgpt this is unused as well and safe to remove as well so adding it again; similarly removed unused lines `sButton = ""` and `eWidget = None` and as for lines `iData1 = item[1]` and `iData2 = 1` also using them as variables similarly instead of hardcoding them each time -->
+
+			# <!-- custom: refactor, since sText was defined in existing code, it seems we can reuse it instead of hardcoding it again at each call; this also fixes ruff warning and according to chatgpt; similarly removed unused lines `sButton = ""` and `eWidget = None` and as for lines `iData1 = item[1]` and `iData2 = 1` also using them as variables similarly instead of hardcoding them each time (assuming they are not actually useful/executed instructions) -->
 			sText = sasFontTagLabel + item[0] + SAS_FONT_TAG_CLOSE
 			iData1 = item[1]
 			iData2 = 1
