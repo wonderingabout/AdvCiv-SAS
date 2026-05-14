@@ -33,6 +33,10 @@ Created as part of AdvCiv-SAS improvements
 		<English>Bonuses</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TAB</Tag>
+		<English>Summary</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB</Tag>
 		<English>Map</English>
 	</TEXT>
@@ -43,6 +47,126 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB</Tag>
 		<English>Composition</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SUPPORT</Tag>
+		<English>Support</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COMPOSITION</Tag>
+		<English>Composition</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEPLOYMENT</Tag>
+		<English>Deployment</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_UNITS</Tag>
+		<English>Total Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_COST</Tag>
+		<English>U Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_SUPPLY</Tag>
+		<English>U Supply</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_GOLD</Tag>
+		<English>Total Cost + Supply</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_OUTSIDE_UNITS</Tag>
+		<English>Outside Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_SHORT</Tag>
+		<English>Free Used</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_CAP_SHORT</Tag>
+		<English>Free Used/Cap</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_PAID_SHORT</Tag>
+		<English>Paid</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MILITARY_SHORT</Tag>
+		<English>Mil. Cost Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COSTLESS_SHORT</Tag>
+		<English>No Mil. Cost Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_UNIT</Tag>
+		<English>P x R x M</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_MIL_UNIT</Tag>
+		<English>P x R</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_EXTRA_COST</Tag>
+		<English>Extra Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_OUTSIDE</Tag>
+		<English>P x R</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INFLATION_SHORT</Tag>
+		<English>I</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MILITARY_UNITS</Tag>
+		<English>Military Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_CIVILIAN_UNITS</Tag>
+		<English>Civilian Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_LAND_UNITS</Tag>
+		<English>Land</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SEA_UNITS</Tag>
+		<English>Sea</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AIR_UNITS</Tag>
+		<English>Air</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADEABLE</Tag>
+		<English>Upgradeable</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_COST</Tag>
+		<English>Upgrade Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_WOUNDED</Tag>
+		<English>Wounded</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_CITIES</Tag>
+		<English>In Own Cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_OWN_TERRITORY</Tag>
+		<English>In Own Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_FOREIGN</Tag>
+		<English>In Foreign Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AT_SEA</Tag>
+		<English>At Sea</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS</Tag>

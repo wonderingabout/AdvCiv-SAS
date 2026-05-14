@@ -52,13 +52,16 @@ class CvMilitaryAdvisor:
 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
-		self.PAGE_MAP = 0
-		self.PAGE_BATTLES = 1
-		self.PAGE_COMPOSITION = 2
-		self.iActivePage = self.PAGE_MAP
-		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2"]
-		self.PAGE_IDS = [self.PAGE_MAP, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
-		self.PAGE_LINK_WIDTH = [0, 0, 0]
+		# <!-- custom: Civ3-style Summary tab. The same support/composition/deployment numbers live elsewhere in Civ4 (Finance hover, Composition tab) but are scattered and discoverable only by hover; this tab consolidates them for diagnosis at a glance. Each numeric label still binds the matching WIDGET_HELP_FINANCE_* widget where applicable so the engine's per-line breakdown hover stays available. Named "Summary" rather than "Overview" to avoid confusion with the Domestic Advisor's OVERVIEW 1-4 tabs. (Claude code Opus 4.7) -->
+		self.PAGE_SUMMARY = 0
+		self.PAGE_MAP = 1
+		self.PAGE_BATTLES = 2
+		self.PAGE_COMPOSITION = 3
+		self.iActivePage = self.PAGE_SUMMARY
+		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2", "MilitaryAdvisorTabButton3"]
+		self.PAGE_IDS = [self.PAGE_SUMMARY, self.PAGE_MAP, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
+		self.PAGE_LINK_WIDTH = [0, 0, 0, 0]
+		self.SUMMARY_PANEL_ID = "MilitaryAdvisorSummaryPanel"
 		self.COMPOSITION_UNITS_TABLE_ID = "MilitaryAdvisorCompositionUnitsTable"
 		self.COMPOSITION_PROMOTIONS_TABLE_ID = "MilitaryAdvisorCompositionPromotionsTable"
 		self.COMPOSITION_COMBATS_TABLE_ID = "MilitaryAdvisorCompositionCombatsTable"
@@ -122,6 +125,7 @@ class CvMilitaryAdvisor:
 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = None
 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = None
 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = None
+		self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = None
 		self.BATTLE_HILL_PEAK_COL_ID = None
 		self.BATTLE_TERRAIN_COL_ID = None
 		self.BATTLE_FEATURE_COL_ID = None
@@ -142,6 +146,8 @@ class CvMilitaryAdvisor:
 			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE is None:
 			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE") > 0)
+		if self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT is None:
+			self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = gc.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT")
 		# <!-- custom: Battle column IDs depend on the plot-context define, so derive them beside the define cache; this keeps callers from needing to know whether initDefines has already expanded the table layout. (GPT-5.5) -->
 		if self.BATTLE_NUM_COLS is None:
 			self.BATTLE_HILL_PEAK_COL_ID = -1
@@ -170,10 +176,41 @@ class CvMilitaryAdvisor:
 		self.TEXT_ALL_UNITS = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
 		self.TEXT_UNIT_TOGGLE_ON = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ())
 		self.TEXT_UNIT_TOGGLE_OFF = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ())
+		self.TEXT_TAB_SUMMARY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TAB", ()).upper()
 		self.TEXT_TAB_MAP = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB", ()).upper()
 		self.TEXT_TAB_BATTLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB", ()).upper()
 		self.TEXT_TAB_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_MAP, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
+		self.PAGE_NAME_LIST = [self.TEXT_TAB_SUMMARY, self.TEXT_TAB_MAP, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
+		self.TEXT_SUMMARY_SUPPORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SUPPORT", ())
+		self.TEXT_SUMMARY_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COMPOSITION", ())
+		self.TEXT_SUMMARY_DEPLOYMENT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEPLOYMENT", ())
+		self.TEXT_SUMMARY_TOTAL_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_UNITS", ())
+		self.TEXT_SUMMARY_UNIT_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_COST", ())
+		self.TEXT_SUMMARY_UNIT_SUPPLY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_SUPPLY", ())
+		self.TEXT_SUMMARY_TOTAL_GOLD = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_GOLD", ())
+		self.TEXT_SUMMARY_OUTSIDE_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_OUTSIDE_UNITS", ())
+		self.TEXT_SUMMARY_FREE_USED_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_SHORT", ())
+		self.TEXT_SUMMARY_FREE_USED_CAP_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_CAP_SHORT", ())
+		self.TEXT_SUMMARY_PAID_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_PAID_SHORT", ())
+		self.TEXT_SUMMARY_MILITARY_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MILITARY_SHORT", ())
+		self.TEXT_SUMMARY_COSTLESS_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COSTLESS_SHORT", ())
+		self.TEXT_SUMMARY_GOLD_PER_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_UNIT", ())
+		self.TEXT_SUMMARY_GOLD_PER_MIL_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_MIL_UNIT", ())
+		self.TEXT_SUMMARY_EXTRA_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_EXTRA_COST", ())
+		self.TEXT_SUMMARY_GOLD_PER_OUTSIDE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_OUTSIDE", ())
+		self.TEXT_SUMMARY_INFLATION_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INFLATION_SHORT", ())
+		self.TEXT_SUMMARY_MILITARY_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MILITARY_UNITS", ())
+		self.TEXT_SUMMARY_CIVILIAN_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_CIVILIAN_UNITS", ())
+		self.TEXT_SUMMARY_LAND_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_LAND_UNITS", ())
+		self.TEXT_SUMMARY_SEA_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SEA_UNITS", ())
+		self.TEXT_SUMMARY_AIR_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AIR_UNITS", ())
+		self.TEXT_SUMMARY_UPGRADEABLE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADEABLE", ())
+		self.TEXT_SUMMARY_UPGRADE_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_COST", ())
+		self.TEXT_SUMMARY_WOUNDED = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_WOUNDED", ())
+		self.TEXT_SUMMARY_IN_CITIES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_CITIES", ())
+		self.TEXT_SUMMARY_IN_OWN_TERRITORY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_OWN_TERRITORY", ())
+		self.TEXT_SUMMARY_IN_FOREIGN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_FOREIGN", ())
+		self.TEXT_SUMMARY_AT_SEA = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AT_SEA", ())
 		self.TEXT_COMPOSITION_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS", ())
 		self.TEXT_COMPOSITION_PROMOTIONS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS", ())
 		self.TEXT_COMPOSITION_COMBATS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS", ())
@@ -302,6 +339,7 @@ class CvMilitaryAdvisor:
 			self.COMPOSITION_UNITS_TABLE_ID,
 			self.COMPOSITION_PROMOTIONS_TABLE_ID,
 			self.COMPOSITION_COMBATS_TABLE_ID,
+			self.SUMMARY_PANEL_ID,
 		):
 			screen.deleteWidget(szWidget)
 		for iPlayer in range(gc.getMAX_PLAYERS()):
@@ -350,6 +388,11 @@ class CvMilitaryAdvisor:
 	def drawActivePage(self):
 		screen = self.getScreen()
 		self.drawTabs()
+
+		if self.iActivePage == self.PAGE_SUMMARY:
+			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+			self.drawSummary()
+			return
 
 		if self.iActivePage == self.PAGE_BATTLES:
 			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
@@ -856,6 +899,296 @@ class CvMilitaryAdvisor:
 			screen.appendTableRow(szTable)
 			screen.setTableText(szTable, 0, iRow, sasFontTagLabel + szName + SAS_FONT_TAG_CLOSE, szButton, ePediaWidget, iIdx, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			screen.setTableInt(szTable, 1, iRow, sasFontTagLabel + str(iCount) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+	def collectSummaryData(self):
+		# <!-- custom: single unit-iteration pass collects everything the Summary tab needs (domain split, military/civilian split, deployment, wounded count, upgrade gold). canFight() is the established military filter for this advisor (see collectCompositionData). Upgrade options are walked per unit class because per-unit upgrade availability depends on the player's tech, not the unit info alone. (Claude code Opus 4.7) -->
+		pPlayer = gc.getPlayer(self.iActivePlayer)
+		iCiv = pPlayer.getCivilizationType()
+		pCivInfo = gc.getCivilizationInfo(iCiv)
+		iNumUnitClasses = gc.getNumUnitClassInfos()
+		dUpgradeTargets = {}
+
+		def getUpgradeTargets(iUnitType):
+			if iUnitType in dUpgradeTargets:
+				return dUpgradeTargets[iUnitType]
+			pUnitInfo = gc.getUnitInfo(iUnitType)
+			aTargets = []
+			for iClass in range(iNumUnitClasses):
+				if pUnitInfo.getUpgradeUnitClass(iClass):
+					iToUnit = pCivInfo.getCivilizationUnits(iClass)
+					if iToUnit >= 0 and pPlayer.canTrain(iToUnit, False, False):
+						aTargets.append(iToUnit)
+			dUpgradeTargets[iUnitType] = aTargets
+			return aTargets
+
+		iTotal = 0
+		iMilitary = 0
+		iCivilian = 0
+		iLand = 0
+		iSea = 0
+		iAir = 0
+		iWounded = 0
+		iInCities = 0
+		iInOwnTerritory = 0
+		iInForeign = 0
+		iAtSea = 0
+		iUpgradeable = 0
+		iUpgradeCost = 0
+		iNoMilSupportUnits = 0
+
+		(pUnit, iter) = pPlayer.firstUnit(False)
+		while pUnit and not pUnit.isNone():
+			iTotal += 1
+			# <!-- custom: count units flagged bMilitarySupport=0 in CIV4UnitInfos.xml (e.g. Robotic Infantry, "No military support cost" in Sevopedia). CvUnit::changeMilitarySupportUnits skips changeNumMilitaryUnits() for these, so they pay regular unit cost but bypass the military-cost portion of CvPlayer::calculateUnitCost. (Claude code Opus 4.7) -->
+			if not gc.getUnitInfo(pUnit.getUnitType()).isMilitarySupport():
+				iNoMilSupportUnits += 1
+			bMilitary = pUnit.canFight()
+			if bMilitary:
+				iMilitary += 1
+				iDomain = pUnit.getDomainType()
+				if iDomain == DomainTypes.DOMAIN_LAND:
+					iLand += 1
+				elif iDomain == DomainTypes.DOMAIN_SEA:
+					iSea += 1
+				elif iDomain == DomainTypes.DOMAIN_AIR:
+					iAir += 1
+				if pUnit.getDamage() > 0:
+					iWounded += 1
+			else:
+				iCivilian += 1
+
+			pPlot = pUnit.plot()
+			if pPlot and not pPlot.isNone():
+				iPlotOwner = pPlot.getOwner()
+				if iPlotOwner == self.iActivePlayer:
+					if pPlot.isCity():
+						iInCities += 1
+					else:
+						iInOwnTerritory += 1
+				elif iPlotOwner == -1 and pPlot.isWater():
+					iAtSea += 1
+				else:
+					iInForeign += 1
+
+			aTargets = getUpgradeTargets(pUnit.getUnitType())
+			if aTargets:
+				iUpgradeable += 1
+				iCheapest = -1
+				for iToUnit in aTargets:
+					iPrice = pUnit.upgradePrice(iToUnit)
+					if iPrice > 0 and (iCheapest < 0 or iPrice < iCheapest):
+						iCheapest = iPrice
+				if iCheapest > 0:
+					iUpgradeCost += iCheapest
+
+			(pUnit, iter) = pPlayer.nextUnit(iter, False)
+
+		iInflationFactor = 100 + pPlayer.calculateInflationRate()
+		# <!-- custom: Use exact DLL support-cost breakdown tuples exposed for this Summary tab. Reconstructing the math in Python hid K-Mod/AdvCiv multipliers and produced misleading rows like "1 x 100% = 0"; these tuples let the UI show the same intermediate values as CvPlayer::calculateUnitCost/calculateUnitSupply. (GPT-5.5) -->
+		iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iUnitCostMultiplier, iRegularUnitCost, iMilitaryUnitCost, iExtraUnitCost, iRawUnitCost = pPlayer.calculateUnitCostBreakdown()
+		iPaidOutside, iBaseSupplyCost, iRawUnitSupply = pPlayer.calculateUnitSupplyBreakdown()
+		iUnitCost = (iRawUnitCost * iInflationFactor + 50) / 100
+		iUnitSupply = (iRawUnitSupply * iInflationFactor + 50) / 100
+		iTotalGold = iUnitCost + iUnitSupply
+		iGoldPerUnit = pPlayer.getGoldPerUnit()
+		iGoldPerMilitaryUnit = pPlayer.getGoldPerMilitaryUnit()
+		iGoldPerOutsideUnit = self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT
+		iNumMilitaryUnits = pPlayer.getNumMilitaryUnits()
+		iOutsideUnits = pPlayer.getNumOutsideUnits()
+		iFreeOutside = iOutsideUnits - iPaidOutside
+
+		return {
+			"total": iTotal,
+			"military": iMilitary,
+			"civilian": iCivilian,
+			"land": iLand,
+			"sea": iSea,
+			"air": iAir,
+			"wounded": iWounded,
+			"in_cities": iInCities,
+			"in_own_territory": iInOwnTerritory,
+			"in_foreign": iInForeign,
+			"at_sea": iAtSea,
+			"upgradeable": iUpgradeable,
+			"upgrade_cost": iUpgradeCost,
+			"raw_unit_cost": iRawUnitCost,
+			"raw_unit_supply": iRawUnitSupply,
+			"regular_unit_cost": iRegularUnitCost,
+			"military_unit_cost": iMilitaryUnitCost,
+			"unit_cost": iUnitCost,
+			"unit_supply": iUnitSupply,
+			"total_gold": iTotalGold,
+			"base_supply_cost": iBaseSupplyCost,
+			"free_units": iFreeUnits,
+			"free_used_units": iTotal - iPaidUnits,
+			"paid_units": iPaidUnits,
+			"num_military": iNumMilitaryUnits,
+			"free_military_units": iFreeMilitaryUnits,
+			"free_used_military_units": iNumMilitaryUnits - iPaidMilitaryUnits,
+			"paid_military_units": iPaidMilitaryUnits,
+			"outside_units": iOutsideUnits,
+			"free_outside": iFreeOutside,
+			"paid_outside": iPaidOutside,
+			"no_mil_support": iNoMilSupportUnits,
+			"gold_per_unit": iGoldPerUnit,
+			"unit_cost_multiplier": iUnitCostMultiplier,
+			"gold_per_military_unit": iGoldPerMilitaryUnit,
+			"extra_unit_cost": iExtraUnitCost,
+			"gold_per_outside_unit": iGoldPerOutsideUnit,
+			"inflation_percent": iInflationFactor - 100,
+		}
+
+	def drawSummaryColumn(self, screen, iColX, iColY, iColW, iColH, szTitle, aRows):
+		# <!-- custom: rows are (szLabel, szValue, eHelpWidget, iData1, iData2, iIndent, iValueColor). iIndent=0 is a main row, iIndent=1 is a sub-row (e.g. "Free Used/Cap" under "Total Units") that nudges the label right to reveal the formula breakdown. iValueColor=-1 leaves the value text default; passing a real COLOR_* tints just the right-aligned value so a "Total Cost + Supply" of 0 reads green at a glance. eHelpWidget=WIDGET_GENERAL means no hover, otherwise the engine's own per-line Finance breakdown surfaces on mouseover. (Claude code Opus 4.7, GPT-5.5) -->
+		iTitleMargin = 12
+		iRowMargin = 14
+		iIndentStep = 22
+		iRowSpacing = 26
+		iZ = self.Z_CONTROLS + self.DZ
+		screen.addPanel(self.getNextWidgetName(), u"", u"", True, True, iColX, iColY, iColW, iColH, PanelStyles.PANEL_STYLE_MAIN)
+		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagTitle + szTitle.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iColX + iColW / 2, iColY + iTitleMargin, iZ, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		iRowY = iColY + iTitleMargin + 30
+		for tRow in aRows:
+			if tRow[0] is None:
+				iRowY += iRowSpacing / 2
+				continue
+			szLabel, szValue, eHelpWidget, iData1, iData2 = tRow[0], tRow[1], tRow[2], tRow[3], tRow[4]
+			# <!-- custom: Civ4 ships Python 2.4 which lacks ternary expressions; use explicit if/else assigns rather than `x if y else z`. (Claude code Opus 4.7) -->
+			iIndent = 0
+			if len(tRow) > 5:
+				iIndent = tRow[5]
+			iValueColor = -1
+			if len(tRow) > 6:
+				iValueColor = tRow[6]
+			iLabelX = iColX + iRowMargin + iIndent * iIndentStep
+			# <!-- custom: step the right-aligned value inward at deeper indent so child numbers don't right-stack flush with their parent's total (e.g. "Outside 9 / Free 4 / Paid 5" read as three peers when all aligned at the column edge). Mirroring the label stairstep on the value side restores the "9 = 4 + 5" reading at a glance. (Claude code Opus 4.7) -->
+			iValueX = iColX + iColW - iRowMargin - iIndent * iIndentStep
+			szValueText = szValue
+			if iValueColor >= 0:
+				szValueText = localText.changeTextColor(szValueText, iValueColor)
+			screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + szLabel + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, iLabelX, iRowY, iZ, FontTypes.GAME_FONT, eHelpWidget, iData1, iData2)
+			screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + szValueText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, iValueX, iRowY, iZ, FontTypes.GAME_FONT, eHelpWidget, iData1, iData2)
+			iRowY += iRowSpacing
+
+	def getSummaryCostResultText(self, szFormula, iResult, iColor):
+		return szFormula + u" = " + localText.changeTextColor(unicode(iResult), iColor)
+
+	def drawSummary(self):
+		screen = self.getScreen()
+		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+		(iX, iY, iW, iH), (_, _, _, _) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
+		screen.addPanel(self.SUMMARY_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
+		dStats = self.collectSummaryData()
+
+		iColGap = 20
+		iSideMargin = 40
+		iColW = (iW - 2 * iSideMargin - 2 * iColGap) / 3
+		iColH = iH - 60
+		iColY = iY + 30
+		iColXSupport = iX + iSideMargin
+		iColXComposition = iColXSupport + iColW + iColGap
+		iColXDeployment = iColXComposition + iColW + iColGap
+
+		eNone = WidgetTypes.WIDGET_GENERAL
+		eHelpNumUnits = WidgetTypes.WIDGET_HELP_FINANCE_NUM_UNITS
+		eHelpUnitCost = WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST
+		eHelpAwaySupply = WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY
+		eHelpInflated = WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS
+
+		# <!-- custom: row tuple is (label, value, helpWidget, data1, data2, indent, valueColor). Support column treats Total Units as the parent of all unit-support detail: Free Used/Cap and Paid for regular unit support, then No Mil. Cost Units/Mil. Cost Units for the military surcharge, then Outside Units for supply. Blank lines separate breakdowns that use different splitting logic, while one-level indentation shows they still depend on the Total Units set. Total Cost + Supply stays top-level because it combines unit cost and unit supply. Mil. Cost Units has its own Free Used/Cap and Paid threshold because paid military units are computed against getNumMilitaryUnits(), not against paid total units. No Mil. Cost includes any unit with bMilitarySupport=0, including civilians and special combat units; those units still count toward regular unit support. Keep count rows neutral; color only actual gold-cost rows. (Claude code Opus 4.7, GPT-5.5) -->
+		# <!-- custom: Paid count rows are left default (white) rather than red, since "paid" just means "beyond the free threshold", not "unaffordable"; red is reserved for actual positive gold costs in the formulas and subtotals. (Claude code Opus 4.7, GPT-5.5) -->
+		# <!-- custom: Use simple burden coloring for the support math: green = 0 cost, red = positive cost. The earlier affordability coloring (yellow if the player still had nonnegative net gold/turn) made rows like `(84 x 100 x 82) / 10000 = 68` look merely cautionary even though this panel is explaining where the unit-support burden comes from. (GPT-5.5) -->
+		def _supportColor(iCost):
+			if iCost <= 0:
+				return self.COLOR_GREEN
+			return self.COLOR_RED
+		iUnitCostColor = _supportColor(dStats["unit_cost"])
+		iUnitSupplyColor = _supportColor(dStats["unit_supply"])
+		iTotalGold = dStats["total_gold"]
+		iTotalGoldColor = _supportColor(iTotalGold)
+		szUnitCostLabel = self.TEXT_SUMMARY_UNIT_COST
+		szUnitSupplyLabel = self.TEXT_SUMMARY_UNIT_SUPPLY
+		szUnitCostText = self.getSummaryCostResultText(u"%d + %d + %d" % (dStats["regular_unit_cost"], dStats["military_unit_cost"], dStats["extra_unit_cost"]), dStats["raw_unit_cost"], iUnitCostColor)
+		szUnitSupplyText = unicode(dStats["raw_unit_supply"])
+		szFreeUsedCapText = u"%d/%d" % (dStats["free_used_units"], dStats["free_units"])
+		szFreeUsedMilitaryCapText = u"%d/%d" % (dStats["free_used_military_units"], dStats["free_military_units"])
+		if dStats["inflation_percent"] > 0:
+			szUnitCostLabel = u"%s x %s" % (self.TEXT_SUMMARY_UNIT_COST, self.TEXT_SUMMARY_INFLATION_SHORT)
+			szUnitSupplyLabel = u"%s x %s" % (self.TEXT_SUMMARY_UNIT_SUPPLY, self.TEXT_SUMMARY_INFLATION_SHORT)
+			szInflationFactor = u"%d%%" % (100 + dStats["inflation_percent"])
+			szUnitCostText = self.getSummaryCostResultText(u"(%d + %d + %d = %d) x %s" % (dStats["regular_unit_cost"], dStats["military_unit_cost"], dStats["extra_unit_cost"], dStats["raw_unit_cost"], szInflationFactor), dStats["unit_cost"], iUnitCostColor)
+			szUnitSupplyText = self.getSummaryCostResultText(u"%d x %s" % (dStats["raw_unit_supply"], szInflationFactor), dStats["unit_supply"], iUnitSupplyColor)
+		szTotalGoldText = self.getSummaryCostResultText(u"%d + %d" % (dStats["unit_cost"], dStats["unit_supply"]), iTotalGold, iTotalGoldColor)
+		szOutsideRateText = self.getSummaryCostResultText(u"(%d x %d) / 100" % (dStats["paid_outside"], dStats["gold_per_outside_unit"]), dStats["base_supply_cost"], iUnitSupplyColor)
+		if dStats["base_supply_cost"] != dStats["raw_unit_supply"]:
+			szOutsideRateText = u"(%d x %d) / 100 = %d -> %s" % (dStats["paid_outside"], dStats["gold_per_outside_unit"], dStats["base_supply_cost"], localText.changeTextColor(unicode(dStats["raw_unit_supply"]), iUnitSupplyColor))
+		# <!-- custom: rendered support tree:
+		# Total Units
+		#   Free Used/Cap / Paid / P x R x M
+		#   [blank line: military-surcharge breakdown of the same Total Units set]
+		#   No Mil. Cost Units
+		#   Mil. Cost Units
+		#     Free Used/Cap / Paid / P x R / Extra Cost
+		#   [blank line: subtotal after regular support and military surcharge]
+		#   U Cost x I
+		#   [blank line: outside-supply breakdown of the same Total Units set]
+		#   Outside Units
+		#     Free / Paid / P x R
+		#   U Supply x I
+		# [blank line]
+		# Total Cost + Supply = U Cost + U Supply. Keep this comment close to aSupport because the row tuples only show numeric indent levels, not the intended rendered hierarchy. (GPT-5.5) -->
+		aSupport = [
+			(self.TEXT_SUMMARY_TOTAL_UNITS, unicode(dStats["total"]), eHelpNumUnits, self.iActivePlayer, 1, 0, -1),
+			(self.TEXT_SUMMARY_FREE_USED_CAP_SHORT, szFreeUsedCapText, eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_PAID_SHORT, unicode(dStats["paid_units"]), eNone, -1, -1, 1, -1),
+			# <!-- custom: support formulas are width-constrained; XML abbreviates only formula-row labels: P = Paid, U = Unit, R = Rate, M = Modifier, I = Inflation. The adjacent full-word rows and formulas show the actual operands explicitly. (GPT-5.5) -->
+			# <!-- custom: Keep the CvPlayer.cpp integer formula explicit here. K-Mod stores getGoldPerUnit/getUnitCostMultiplier as percent-like ints but computes `paid * rate * multiplier / 10000`, so e.g. 1 x 100 x 82 floors to 0; showing "1 x 100% x 82%" would read like normal decimal math and look wrong. (GPT-5.5) -->
+			(self.TEXT_SUMMARY_GOLD_PER_UNIT, self.getSummaryCostResultText(u"(%d x %d x %d) / 10000" % (dStats["paid_units"], dStats["gold_per_unit"], dStats["unit_cost_multiplier"]), dStats["regular_unit_cost"], iUnitCostColor), eHelpUnitCost, self.iActivePlayer, 1, 1, -1),
+			(None, None, eNone, -1, -1, 0, -1),
+			# <!-- custom: No Mil. Cost Units and Mil. Cost Units are sibling subsets of Total Units for the military-surcharge breakdown; neither is nested inside the other because bMilitarySupport=0 includes civilians and special combat units. (GPT-5.5) -->
+			(self.TEXT_SUMMARY_COSTLESS_SHORT, unicode(dStats["no_mil_support"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_MILITARY_SHORT, unicode(dStats["num_military"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_FREE_USED_CAP_SHORT, szFreeUsedMilitaryCapText, eNone, -1, -1, 2, -1),
+			(self.TEXT_SUMMARY_PAID_SHORT, unicode(dStats["paid_military_units"]), eNone, -1, -1, 2, -1),
+			(self.TEXT_SUMMARY_GOLD_PER_MIL_UNIT, self.getSummaryCostResultText(u"(%d x %d) / 100" % (dStats["paid_military_units"], dStats["gold_per_military_unit"]), dStats["military_unit_cost"], iUnitCostColor), eHelpUnitCost, self.iActivePlayer, 1, 2, -1),
+			(self.TEXT_SUMMARY_EXTRA_COST, unicode(dStats["extra_unit_cost"]), eHelpUnitCost, self.iActivePlayer, 1, 2, iUnitCostColor),
+			(None, None, eNone, -1, -1, 0, -1),
+			(szUnitCostLabel, szUnitCostText, eHelpUnitCost, self.iActivePlayer, 1, 1, -1),
+			(None, None, eNone, -1, -1, 0, -1),
+			(self.TEXT_SUMMARY_OUTSIDE_UNITS, unicode(dStats["outside_units"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_FREE_USED_SHORT, unicode(dStats["free_outside"]), eNone, -1, -1, 2, -1),
+			(self.TEXT_SUMMARY_PAID_SHORT, unicode(dStats["paid_outside"]), eNone, -1, -1, 2, -1),
+			(self.TEXT_SUMMARY_GOLD_PER_OUTSIDE, szOutsideRateText, eHelpAwaySupply, self.iActivePlayer, 1, 2, -1),
+			(szUnitSupplyLabel, szUnitSupplyText, eHelpAwaySupply, self.iActivePlayer, 1, 1, -1),
+			(None, None, eNone, -1, -1, 0, -1),
+			(self.TEXT_SUMMARY_TOTAL_GOLD, szTotalGoldText, eHelpInflated, self.iActivePlayer, 1, 0, -1),
+		]
+
+		aComposition = [
+			(self.TEXT_SUMMARY_MILITARY_UNITS, unicode(dStats["military"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_CIVILIAN_UNITS, unicode(dStats["civilian"]), eNone, -1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_LAND_UNITS, unicode(dStats["land"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_SEA_UNITS, unicode(dStats["sea"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_AIR_UNITS, unicode(dStats["air"]), eNone, -1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_UPGRADEABLE, unicode(dStats["upgradeable"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_UPGRADE_COST, unicode(dStats["upgrade_cost"]), eNone, -1, -1),
+		]
+
+		aDeployment = [
+			(self.TEXT_SUMMARY_IN_CITIES, unicode(dStats["in_cities"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_IN_OWN_TERRITORY, unicode(dStats["in_own_territory"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_IN_FOREIGN, unicode(dStats["in_foreign"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_AT_SEA, unicode(dStats["at_sea"]), eNone, -1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_WOUNDED, unicode(dStats["wounded"]), eNone, -1, -1),
+		]
+
+		self.drawSummaryColumn(screen, iColXSupport, iColY, iColW, iColH, self.TEXT_SUMMARY_SUPPORT, aSupport)
+		self.drawSummaryColumn(screen, iColXComposition, iColY, iColW, iColH, self.TEXT_SUMMARY_COMPOSITION, aComposition)
+		self.drawSummaryColumn(screen, iColXDeployment, iColY, iColW, iColH, self.TEXT_SUMMARY_DEPLOYMENT, aDeployment)
+
 
 	def drawComposition(self):
 		screen = self.getScreen()

@@ -126,7 +126,11 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
 		.def("calculateTotalCityUnhealthiness", &CyPlayer::calculateTotalCityUnhealthiness, "int () - Returns the total sum of all city Unhealthiness values")
 
 		.def("calculateUnitCost", &CyPlayer::calculateUnitCost, "int ()")
+		// <!-- custom: Expose exact DLL-side unit-cost breakdown for the Military Advisor Summary tab; Python should not reconstruct hidden K-Mod/AdvCiv support multipliers when the engine already has the intermediate values. (GPT-5.5) -->
+		.def("calculateUnitCostBreakdown", &CyPlayer::calculateUnitCostBreakdown, "tuple ()")
 		.def("calculateUnitSupply", &CyPlayer::calculateUnitSupply, "int ()")
+		// <!-- custom: Expose exact DLL-side outside-supply breakdown for the Military Advisor Summary tab; Python needs the paid outside-unit count and pre-inflation subtotal. (GPT-5.5) -->
+		.def("calculateUnitSupplyBreakdown", &CyPlayer::calculateUnitSupplyBreakdown, "tuple ()")
 		.def("calculatePreInflatedCosts", &CyPlayer::calculatePreInflatedCosts, "int ()")
 		.def("calculateInflationRate", &CyPlayer::calculateInflationRate, "int ()")
 		.def("calculateInflatedCosts", &CyPlayer::calculateInflatedCosts, "int ()")
