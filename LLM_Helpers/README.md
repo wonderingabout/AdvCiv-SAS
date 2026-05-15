@@ -1,5 +1,7 @@
 # External helper tools
 
+Primary audience: coding agents (Claude Code, Codex, etc.) invoking these scripts on the user's behalf. Prefer agent-spec bullets over prose; show example output where it clarifies the contract.
+
 This folder contains external helper scripts, mostly Python 3, for tasks outside Civ4's embedded Python runtime. These scripts are meant for LLM-assisted workflows, balancing workflows, code review, refactoring support, report generation, and other tooling.
 
 Important distinction:
@@ -165,6 +167,77 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow
 python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 50
 python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 --focus-start-pct 20 --focus-end-pct 80
 python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
+```
+
+## Static audit helpers
+
+### `audit_define_keys.py`
+
+- Report-only. Does not modify source.
+- Audits literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` across both Python and DLL source:
+  - `Assets/Python/**/*.py`
+  - `CvGameCoreDLL/**/*.{cpp,h}` (skip with `--no-dll`)
+- Checks each used key against `<DefineName>` declarations from:
+  - mod `Assets/XML/*.xml`
+  - base BTS `*.xml` (auto: `<mod-root>/../../Assets/XML/`, override `--bts-xml-dir`)
+  - vanilla Civ4 `*.xml` (auto: `<mod-root>/../../../Assets/XML/`, override `--vanilla-xml-dir`)
+  - any `--extra-xml <file-or-dir>` (repeatable)
+- Variable-arg calls (`gc.getDefineINT(szVar)`, `GC.getDefineINT(SOME_MACRO)`) counted only, not audited.
+- Use this instead of a runtime `getDefineINTOrFail` wrapper: no clean missing sentinel (returns `0`/`""` for both missing and legit zero/empty). `SASDefineGuard.verify_or_raise()` handles the wholesale "defines didn't load" case; this script handles per-key drift.
+- Exit 1 on drift, 0 otherwise. Writes timestamped report to `LLM_Helpers/outputs/` by default.
+
+```powershell
+python LLM_Helpers\audit_define_keys.py
+python LLM_Helpers\audit_define_keys.py --show-callsites
+python LLM_Helpers\audit_define_keys.py --no-dll
+python LLM_Helpers\audit_define_keys.py --no-output-file
+python LLM_Helpers\audit_define_keys.py --extra-xml <path>
+```
+
+Each XML scope is scanned recursively (`rglob *.xml`), but the report only lists files that actually contributed at least one `<DefineName>`. This keeps the audit boundary auditable without dumping hundreds of unrelated entity XMLs (Buildings, Units, etc.).
+
+Example output (clean run, exit 0):
+
+```text
+mod XML files (scanned 155, contributed): 9
+  - Assets\XML\AI_Variables_GlobalDefines.xml
+  - Assets\XML\BBAI_Game_Options_GlobalDefines.xml
+  - Assets\XML\GlobalDefines_advc.xml
+  - Assets\XML\GlobalDefines_advciv_sas.xml
+  - Assets\XML\GlobalDefines_devel.xml
+  - Assets\XML\GlobalDefinesAlt.xml
+  - Assets\XML\LeadFromBehind_GlobalDefines.xml
+  - Assets\XML\PythonCallbackDefines.xml
+  - Assets\XML\TechDiffusion_GlobalDefines.xml
+BTS XML files (scanned 121, contributed): 2
+  - <bts>\Assets\XML\GlobalDefines.xml
+  - <bts>\Assets\XML\PythonCallbackDefines.xml
+vanilla XML files (scanned 129, contributed): 2
+  - <civ4>\Assets\XML\GlobalDefines.xml
+  - <civ4>\Assets\XML\GlobalDefinesAlt.xml
+extra XML files (scanned 0, contributed): 0
+mod XML defines:               697
+BTS XML defines:               430
+vanilla XML defines:           295
+extra XML defines:             0
+distinct literal keys (py):    134
+distinct literal keys (dll):   658
+variable-arg calls (skipped):  491
+
+OK: every literal getDefine{BOOL,FLOAT,INT,STRING} key is declared somewhere.
+wrote LLM_Helpers\outputs\20260515T201121Z_audit_define_keys_ok.txt
+```
+
+Drift output (exit 1) groups undeclared keys by source, optionally with `--show-callsites`:
+
+```text
+DRIFT: 2 key(s) used but not declared in any scanned XML:
+  [python]
+    SAS_RENAMED_KEY
+      - Assets\Python\Screens\CvFoo.py
+  [dll_cpp]
+    SAS_REMOVED_KEY
+      - CvGameCoreDLL\CvBar.cpp
 ```
 
 ## Workflow rule for timeline tuning
