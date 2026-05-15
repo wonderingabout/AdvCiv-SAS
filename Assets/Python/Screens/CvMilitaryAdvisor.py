@@ -126,6 +126,26 @@ class CvMilitaryAdvisor:
 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = None
 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = None
 		self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = None
+		# <!-- custom: lazy-init cache for required Summary tab XML IDs. getInfoTypeOrFail makes missing tags loud; this already showed that BUILDINGCLASS_WEST_POINT is not in current AdvCiv-SAS, whereas a silent lookup would have skipped it without a clear error. Class IDs are stored so civ-specific building replacements resolve through CvCivilizationInfo at use site. (Claude code Opus 4.7, GPT-5.5) -->
+		self.iBldClassBarracks = None
+		self.iBldClassStable = None
+		self.iBldClassDrydock = None
+		self.iBldClassWalls = None
+		self.iBldClassCastle = None
+		self.iBldClassHeroicEpic = None
+		self.iBldClassMilAcademy = None
+		self.iUnitCombatMountedMelee = None
+		self.iUnitCombatMountedRanged = None
+		self.iBattleTerrainPeak = None
+		self.iBattleTerrainHill = None
+		self.COLOR_YELLOW = None
+		self.COLOR_RED = None
+		self.COLOR_GREEN = None
+		self.COLOR_WHITE = None
+		self.COLOR_GREAT_PEOPLE_STORED = None
+		self.COLOR_GREAT_PEOPLE_RATE = None
+		self.COLOR_EMPTY = None
+		self.iPromoLeader = None
 		self.BATTLE_HILL_PEAK_COL_ID = None
 		self.BATTLE_TERRAIN_COL_ID = None
 		self.BATTLE_FEATURE_COL_ID = None
@@ -148,6 +168,46 @@ class CvMilitaryAdvisor:
 			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE") > 0)
 		if self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT is None:
 			self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = gc.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT")
+		# <!-- custom: resolve required XML IDs strictly and check each sentinel separately for exhaustive lazy-init safety; silent zero rows would be worse than a clear missing-tag failure. (Claude code Opus 4.7, GPT-5.5) -->
+		if self.iBldClassBarracks is None:
+			self.iBldClassBarracks = getInfoTypeOrFail("BUILDINGCLASS_BARRACKS")
+		if self.iBldClassStable is None:
+			self.iBldClassStable = getInfoTypeOrFail("BUILDINGCLASS_STABLE")
+		if self.iBldClassDrydock is None:
+			self.iBldClassDrydock = getInfoTypeOrFail("BUILDINGCLASS_DRYDOCK")
+		if self.iBldClassWalls is None:
+			self.iBldClassWalls = getInfoTypeOrFail("BUILDINGCLASS_WALLS")
+		if self.iBldClassCastle is None:
+			self.iBldClassCastle = getInfoTypeOrFail("BUILDINGCLASS_CASTLE")
+		if self.iBldClassHeroicEpic is None:
+			self.iBldClassHeroicEpic = getInfoTypeOrFail("BUILDINGCLASS_HEROIC_EPIC")
+		if self.iBldClassMilAcademy is None:
+			self.iBldClassMilAcademy = getInfoTypeOrFail("BUILDINGCLASS_MILITARY_ACADEMY")
+		if self.iUnitCombatMountedMelee is None:
+			self.iUnitCombatMountedMelee = getInfoTypeOrFail("UNITCOMBAT_MOUNTED_MELEE")
+		if self.iUnitCombatMountedRanged is None:
+			self.iUnitCombatMountedRanged = getInfoTypeOrFail("UNITCOMBAT_MOUNTED_RANGED")
+		if self.iBattleTerrainPeak is None:
+			self.iBattleTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
+		if self.iBattleTerrainHill is None:
+			self.iBattleTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
+		if self.COLOR_YELLOW is None:
+			self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+		if self.COLOR_RED is None:
+			self.COLOR_RED = getInfoTypeOrFail("COLOR_RED")
+		if self.COLOR_GREEN is None:
+			self.COLOR_GREEN = getInfoTypeOrFail("COLOR_GREEN")
+		if self.COLOR_WHITE is None:
+			self.COLOR_WHITE = getInfoTypeOrFail("COLOR_WHITE")
+		if self.COLOR_GREAT_PEOPLE_STORED is None:
+			self.COLOR_GREAT_PEOPLE_STORED = getInfoTypeOrFail("COLOR_GREAT_PEOPLE_STORED")
+		if self.COLOR_GREAT_PEOPLE_RATE is None:
+			self.COLOR_GREAT_PEOPLE_RATE = getInfoTypeOrFail("COLOR_GREAT_PEOPLE_RATE")
+		if self.COLOR_EMPTY is None:
+			self.COLOR_EMPTY = getInfoTypeOrFail("COLOR_EMPTY")
+		# <!-- custom: PROMOTION_LEADER is required for the Summary tab's GG-led units row; fail loudly like other AdvCiv-SAS XML contracts instead of silently showing misleading 0 data. (Claude code Opus 4.7, GPT-5.5) -->
+		if self.iPromoLeader is None:
+			self.iPromoLeader = getInfoTypeOrFail("PROMOTION_LEADER")
 		# <!-- custom: Battle column IDs depend on the plot-context define, so derive them beside the define cache; this keeps callers from needing to know whether initDefines has already expanded the table layout. (GPT-5.5) -->
 		if self.BATTLE_NUM_COLS is None:
 			self.BATTLE_HILL_PEAK_COL_ID = -1
@@ -164,7 +224,7 @@ class CvMilitaryAdvisor:
 
 
 	def initText(self):
-		# <!-- custom: cache Military Advisor language-dependent text and deterministic art/color lookups once to avoid repeated calls on refresh paths. (GPT-5.3-Codex) -->
+		# <!-- custom: cache Military Advisor language-dependent text and deterministic art/symbol lookups once to avoid repeated calls on refresh paths. Required info/color IDs are lazy strict caches in initDefines. (GPT-5.3-Codex, GPT-5.5) -->
 		if not CyGame().isFinalInitialized():
 			return
 		if self.iLanguageLoaded == CyGame().getCurrentLanguage():
@@ -182,12 +242,29 @@ class CvMilitaryAdvisor:
 		self.TEXT_TAB_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", ()).upper()
 		self.PAGE_NAME_LIST = [self.TEXT_TAB_SUMMARY, self.TEXT_TAB_MAP, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
 		self.TEXT_SUMMARY_SUPPORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SUPPORT", ())
-		self.TEXT_SUMMARY_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COMPOSITION", ())
+		self.TEXT_SUMMARY_ARMY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ARMY", ())
 		self.TEXT_SUMMARY_DEPLOYMENT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEPLOYMENT", ())
 		self.TEXT_SUMMARY_TOTAL_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_UNITS", ())
 		self.TEXT_SUMMARY_UNIT_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_COST", ())
 		self.TEXT_SUMMARY_UNIT_SUPPLY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_SUPPLY", ())
 		self.TEXT_SUMMARY_TOTAL_GOLD = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_GOLD", ())
+		self.TEXT_SUMMARY_MIL_BUILDINGS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIL_BUILDINGS", ())
+		self.TEXT_SUMMARY_BLDG_BARRACKS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_BARRACKS", ())
+		self.TEXT_SUMMARY_BLDG_STABLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_STABLES", ())
+		self.TEXT_SUMMARY_BLDG_DRYDOCKS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_DRYDOCKS", ())
+		self.TEXT_SUMMARY_BLDG_HEROIC_EPIC = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_HEROIC_EPIC", ())
+		self.TEXT_SUMMARY_BLDG_MIL_ACADEMY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_MIL_ACADEMY", ())
+		self.TEXT_SUMMARY_UNIT_PRODUCTION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_PRODUCTION", ())
+		self.TEXT_SUMMARY_AVG_MODIFIER = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_MODIFIER", ())
+		self.TEXT_SUMMARY_BEST_CITY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_CITY", ())
+		self.TEXT_SUMMARY_AVG_NEW_XP = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_NEW_XP", ())
+		self.TEXT_SUMMARY_BEST_NEW_XP = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_NEW_XP", ())
+		self.TEXT_SUMMARY_DEFENSES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEFENSES", ())
+		self.TEXT_SUMMARY_BLDG_WALLS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_WALLS", ())
+		self.TEXT_SUMMARY_BLDG_CASTLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_CASTLES", ())
+		self.TEXT_SUMMARY_BEST_DEFENDED = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_DEFENDED", ())
+		self.TEXT_SUMMARY_AVG_DEFENSE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_DEFENSE", ())
+		self.TEXT_SUMMARY_ALLIED_HAMMERS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ALLIED_HAMMERS", ())
 		self.TEXT_SUMMARY_OUTSIDE_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_OUTSIDE_UNITS", ())
 		self.TEXT_SUMMARY_FREE_USED_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_SHORT", ())
 		self.TEXT_SUMMARY_FREE_USED_CAP_SHORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_CAP_SHORT", ())
@@ -204,12 +281,47 @@ class CvMilitaryAdvisor:
 		self.TEXT_SUMMARY_LAND_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_LAND_UNITS", ())
 		self.TEXT_SUMMARY_SEA_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SEA_UNITS", ())
 		self.TEXT_SUMMARY_AIR_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AIR_UNITS", ())
+		self.TEXT_SUMMARY_STRONGEST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_STRONGEST", ())
+		self.TEXT_SUMMARY_HIGHEST_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HIGHEST_COST", ())
+		self.TEXT_SUMMARY_TOTAL_HAMMERS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_HAMMERS", ())
+		self.TEXT_SUMMARY_AVG_XP = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_XP", ())
+		self.TEXT_SUMMARY_AVG_LEVEL = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_LEVEL", ())
+		self.TEXT_SUMMARY_AVG_HAMMERS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_HAMMERS", ())
+		self.TEXT_SUMMARY_POWER_RANK_KNOWN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_POWER_RANK_KNOWN", ())
+		self.TEXT_SUMMARY_GENERALS_FREE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALS_FREE", ())
+		self.TEXT_SUMMARY_GENERALED = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALED", ())
+		self.TEXT_SUMMARY_MAX_HEALTH = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MAX_HEALTH", ())
+		self.TEXT_SUMMARY_AVG_HEALTH = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_HEALTH", ())
+		self.TEXT_SUMMARY_MIN_HEALTH = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIN_HEALTH", ())
+		self.TEXT_SUMMARY_FAVORITE_PROMOS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FAVORITE_PROMOS", ())
+		self.TEXT_SUMMARY_SPECIAL_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPECIAL_UNITS", ())
+		self.TEXT_SUMMARY_INVISIBLE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INVISIBLE", ())
+		self.TEXT_SUMMARY_SPIES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPIES", ())
+		self.TEXT_SUMMARY_HIDDEN_NAT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HIDDEN_NAT", ())
+		self.TEXT_SUMMARY_HEALTH_FULL = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_FULL", ())
+		self.TEXT_SUMMARY_HEALTH_HIGH = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_HIGH", ())
+		self.TEXT_SUMMARY_HEALTH_MEDIUM = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_MEDIUM", ())
+		self.TEXT_SUMMARY_HEALTH_LOW = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_LOW", ())
+		self.TEXT_SUMMARY_BATTLES_TOTAL = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_TOTAL", ())
+		self.TEXT_SUMMARY_BATTLES_WON = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_WON", ())
+		self.TEXT_SUMMARY_BATTLES_RETREATED = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_RETREATED", ())
+		self.TEXT_SUMMARY_BATTLES_LOST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_LOST", ())
+		self.TEXT_SUMMARY_GOOD_LUCK = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOOD_LUCK", ())
+		self.TEXT_SUMMARY_BAD_LUCK = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BAD_LUCK", ())
+		self.TEXT_SUMMARY_LUCKIEST_WIN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_LUCKIEST_WIN", ())
+		self.TEXT_SUMMARY_UNLUCKIEST_LOSS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNLUCKIEST_LOSS", ())
 		self.TEXT_SUMMARY_UPGRADEABLE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADEABLE", ())
-		self.TEXT_SUMMARY_UPGRADE_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_COST", ())
+		self.TEXT_SUMMARY_UPGRADE_MIN_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_MIN_COST", ())
+		self.TEXT_SUMMARY_UPGRADE_AVG_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_AVG_COST", ())
+		self.TEXT_SUMMARY_UPGRADE_MAX_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_MAX_COST", ())
+		self.TEXT_SUMMARY_UPGRADE_TOTAL_COST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_TOTAL_COST", ())
 		self.TEXT_SUMMARY_WOUNDED = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_WOUNDED", ())
 		self.TEXT_SUMMARY_IN_CITIES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_CITIES", ())
 		self.TEXT_SUMMARY_IN_OWN_TERRITORY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_OWN_TERRITORY", ())
-		self.TEXT_SUMMARY_IN_FOREIGN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_FOREIGN", ())
+		self.TEXT_SUMMARY_IN_ALLIED = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_ALLIED", ())
+		self.TEXT_SUMMARY_IN_NEUTRAL = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_NEUTRAL", ())
+		self.TEXT_SUMMARY_IN_ENEMY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_ENEMY", ())
+		self.TEXT_SUMMARY_IN_WILD = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_WILD", ())
 		self.TEXT_SUMMARY_AT_SEA = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AT_SEA", ())
 		self.TEXT_COMPOSITION_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS", ())
 		self.TEXT_COMPOSITION_PROMOTIONS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS", ())
@@ -245,16 +357,12 @@ class CvMilitaryAdvisor:
 		self.RESULT_WON = 0
 		self.RESULT_LOST = 1
 		self.RESULT_RETREAT = 2
-		self.iBattleTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
-		self.iBattleTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
-		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
-		self.COLOR_WHITE = gc.getInfoTypeForString("COLOR_WHITE")
-		self.COLOR_GREAT_PEOPLE_STORED = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED")
-		self.COLOR_GREAT_PEOPLE_RATE = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE")
-		self.COLOR_EMPTY = gc.getInfoTypeForString("COLOR_EMPTY")
 		self.STRENGTH_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
+		# <!-- custom: regular gold coin via CommerceInfo.getChar() (matches Domestic Advisor gold headers). Earlier we used FontSymbols.BAD_GOLD_CHAR, the red maintenance-coin variant, which was visually wrong for normal cost subtotals. Hammer comes from YIELD_PRODUCTION. (Claude code Opus 4.7, GPT-5.5) -->
+		self.GOLD_CHAR = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
+		self.HAMMER_CHAR = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
+		self.GREAT_GENERAL_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_GENERAL_CHAR)
+		self.STAR_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR)
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute runtime shell bounds/anchors through shared helpers so Military Advisor follows the same runtime layout flow as Foreign/Info/Domestic. (GPT-5.3-Codex) -->
@@ -930,18 +1038,62 @@ class CvMilitaryAdvisor:
 		iWounded = 0
 		iInCities = 0
 		iInOwnTerritory = 0
-		iInForeign = 0
+		iInAllied = 0
+		iInNeutral = 0
+		iInEnemy = 0
+		iInWild = 0
 		iAtSea = 0
 		iUpgradeable = 0
-		iUpgradeCost = 0
 		iNoMilSupportUnits = 0
+		# <!-- custom: army-quality counters use base XML strength/cost plus current unit XP/level; combat-only averages exclude workers/settlers so civilian units do not dilute army stats. (Claude code Opus 4.7, GPT-5.5) -->
+		iStrongestStr = -1
+		iStrongestUnitType = -1
+		iHighestCost = -1
+		iHighestCostUnitType = -1
+		iTotalHammers = 0
+		iXpSum = 0
+		iLevelSum = 0
+		# <!-- custom: separate unspent Great General units from combat units already carrying PROMOTION_LEADER; they answer "do I have a GG to attach?" vs "how many units are already GG-led?". (Claude code Opus 4.7, GPT-5.5) -->
+		iStandaloneGenerals = 0
+		iLedByGeneral = 0
+		# <!-- custom: army health stats. iMaxHealth tracks the highest hp (typically 100 for any uninjured unit), iMinHealth the most-wounded. iHealthSum / count gives the average. Health = 100 - (damage / max-hp * 100); CvUnit.currHitPoints() and maxHitPoints() return the engine's numbers, but for percentages we use (1 - getDamage()/100) since Civ4 stores damage as a 0..100 integer. (Claude code Opus 4.7) -->
+		iMaxHealth = -1
+		iMinHealth = -1
+		iHealthSum = 0
+		# <!-- custom: health-band buckets mirror the Battles tab's color tiers (=100 full, >66 high, >33 medium, else low) so distribution rows under Wounded read with the same mental model as combat-row tinting. Edge case: 0-hp units can't really exist in normal play (they'd die first) but if one shows up it counts in Low. (Claude code Opus 4.7) -->
+		iHealthFull = 0
+		iHealthHigh = 0
+		iHealthMedium = 0
+		iHealthLow = 0
+		# <!-- custom: special-unit categories: invisible (subs and similar - UnitInfo.getInvisibleType() != -1 declares an invisibility class), spies (isSpy flag), hidden-nationality (privateers and similar - pirate flag). A single unit can be more than one of these (e.g. a stealth spy in some mods); we count independently rather than partitioning. (Claude code Opus 4.7) -->
+		iInvisibleUnits = 0
+		iSpyUnits = 0
+		iHiddenNatUnits = 0
+		# <!-- custom: dPromotionCounts -> {promotionID: occurrences across military units}, used to surface the army's top promotions. Counted only on canFight() units; civilians can technically carry promotions in some mods but they distort the "what's my army built around?" signal. (Claude code Opus 4.7) -->
+		dPromotionCounts = {}
+		iNumPromotionInfos = gc.getNumPromotionInfos()
+		# <!-- custom: build the upgrade-cost list rather than just the running total so we can compute min/avg/max afterwards. (Claude code Opus 4.7) -->
+		aUpgradeCosts = []
+		# <!-- custom: do NOT track an "average strength gained per upgrade" stat. CvUnitInfo::getCombat() returns base XML strength only and excludes combat modifiers (collateral, city attack, withdraw, first strikes). E.g. Trebuchet upgrades from Catapult are a real strategic upgrade through their city-attack/collateral modifiers, but the visible base-strength delta would read as flat or negative on some configurations. A delta number without those modifiers would mislead more than inform. (Claude code Opus 4.7) -->
 
+		# <!-- custom: cache team relations once instead of re-fetching per unit; team lookups in Civ4 Python are cheap but iterate fast enough to be worth hoisting on large empires. The "ally" predicate is intentionally broad: same team OR mutual vassalage (us->them or them->us). Defensive pacts and open borders are deliberately NOT counted as ally here because they don't grant the same trust level for stationing armies. (Claude code Opus 4.7) -->
+		eMyTeam = pPlayer.getTeam()
+		kMyTeam = gc.getTeam(eMyTeam)
 		(pUnit, iter) = pPlayer.firstUnit(False)
 		while pUnit and not pUnit.isNone():
 			iTotal += 1
+			iUnitType = pUnit.getUnitType()
+			pUnitInfo = gc.getUnitInfo(iUnitType)
 			# <!-- custom: count units flagged bMilitarySupport=0 in CIV4UnitInfos.xml (e.g. Robotic Infantry, "No military support cost" in Sevopedia). CvUnit::changeMilitarySupportUnits skips changeNumMilitaryUnits() for these, so they pay regular unit cost but bypass the military-cost portion of CvPlayer::calculateUnitCost. (Claude code Opus 4.7) -->
-			if not gc.getUnitInfo(pUnit.getUnitType()).isMilitarySupport():
+			if not pUnitInfo.isMilitarySupport():
 				iNoMilSupportUnits += 1
+			# <!-- custom: special-unit predicates checked on every owned unit (not just canFight) so spies count. Independent flags can co-occur. (Claude code Opus 4.7) -->
+			if pUnitInfo.getInvisibleType() != -1:
+				iInvisibleUnits += 1
+			if pUnitInfo.isSpy():
+				iSpyUnits += 1
+			if pUnitInfo.isHiddenNationality():
+				iHiddenNatUnits += 1
 			bMilitary = pUnit.canFight()
 			if bMilitary:
 				iMilitary += 1
@@ -954,9 +1106,53 @@ class CvMilitaryAdvisor:
 					iAir += 1
 				if pUnit.getDamage() > 0:
 					iWounded += 1
+				# <!-- custom: getCombat() is land/sea base strength, getAirCombat() is air; take the larger of the two so an Air-domain unit isn't compared on its 0 land combat. (Claude code Opus 4.7) -->
+				iBaseStr = pUnitInfo.getCombat()
+				iAirStr = pUnitInfo.getAirCombat()
+				if iAirStr > iBaseStr:
+					iBaseStr = iAirStr
+				if iBaseStr > iStrongestStr:
+					iStrongestStr = iBaseStr
+					iStrongestUnitType = iUnitType
+				iCost = pUnitInfo.getProductionCost()
+				if iCost > 0:
+					iTotalHammers += iCost
+					if iCost > iHighestCost:
+						iHighestCost = iCost
+						iHighestCostUnitType = iUnitType
+				iXpSum += pUnit.getExperience()
+				iLevelSum += pUnit.getLevel()
+				# <!-- custom: getLeaderPromotion() >= 0 means this UnitInfo is a Great General template (it carries a leader promotion to grant on attach), so the unit ITSELF is a standalone GG. Otherwise check whether the unit has previously received PROMOTION_LEADER (i.e. a regular combat unit that absorbed a GG). The two cases are exclusive. (Claude code Opus 4.7) -->
+				if pUnitInfo.getLeaderPromotion() >= 0:
+					iStandaloneGenerals += 1
+				elif pUnit.isHasPromotion(self.iPromoLeader):
+					iLedByGeneral += 1
+				# <!-- custom: hit-points-based health % (uses currHitPoints/maxHitPoints rather than 100-getDamage so promotion/building max-HP overrides are reflected). iMinHealth=-1 sentinel because 0 is a valid (dying) value. (Claude code Opus 4.7) -->
+				iMaxHp = pUnit.maxHitPoints()
+				if iMaxHp > 0:
+					iHealthPct = (100 * pUnit.currHitPoints()) / iMaxHp
+					iHealthSum += iHealthPct
+					if iHealthPct > iMaxHealth:
+						iMaxHealth = iHealthPct
+					if iMinHealth < 0 or iHealthPct < iMinHealth:
+						iMinHealth = iHealthPct
+					# <!-- custom: band thresholds match getSummaryHealthColor (= 100 / >66 / >33 / else); keep them aligned so a Medium band always means "yellow-tinted health" elsewhere. (Claude code Opus 4.7) -->
+					if iHealthPct >= 100:
+						iHealthFull += 1
+					elif iHealthPct > 66:
+						iHealthHigh += 1
+					elif iHealthPct > 33:
+						iHealthMedium += 1
+					else:
+						iHealthLow += 1
+				# <!-- custom: count each carried promotion. Loop bound is iNumPromotionInfos rather than a fixed list; mod-mods can add promotions and we want them all to compete for the top-promotion slots. (Claude code Opus 4.7, GPT-5.5) -->
+				for iPromo in range(iNumPromotionInfos):
+					if pUnit.isHasPromotion(iPromo):
+						dPromotionCounts[iPromo] = dPromotionCounts.get(iPromo, 0) + 1
 			else:
 				iCivilian += 1
 
+			# <!-- custom: refined deployment buckets. Own/Allied/Enemy/Neutral civ territory + unowned Wild (land) + Open Water (sea). Allied = our team or mutual vassalage; Enemy = our team at war with the plot owner's team; Neutral = any other met civ. Wild = no owner AND not water; At Sea = no owner AND water. Wounded is a cross-cutting flag (already counted above). (Claude code Opus 4.7) -->
 			pPlot = pUnit.plot()
 			if pPlot and not pPlot.isNone():
 				iPlotOwner = pPlot.getOwner()
@@ -965,12 +1161,21 @@ class CvMilitaryAdvisor:
 						iInCities += 1
 					else:
 						iInOwnTerritory += 1
-				elif iPlotOwner == -1 and pPlot.isWater():
-					iAtSea += 1
+				elif iPlotOwner == -1:
+					if pPlot.isWater():
+						iAtSea += 1
+					else:
+						iInWild += 1
 				else:
-					iInForeign += 1
+					eOwnerTeam = gc.getPlayer(iPlotOwner).getTeam()
+					if eOwnerTeam == eMyTeam or kMyTeam.isVassal(eOwnerTeam) or gc.getTeam(eOwnerTeam).isVassal(eMyTeam):
+						iInAllied += 1
+					elif kMyTeam.isAtWar(eOwnerTeam):
+						iInEnemy += 1
+					else:
+						iInNeutral += 1
 
-			aTargets = getUpgradeTargets(pUnit.getUnitType())
+			aTargets = getUpgradeTargets(iUnitType)
 			if aTargets:
 				iUpgradeable += 1
 				iCheapest = -1
@@ -979,9 +1184,168 @@ class CvMilitaryAdvisor:
 					if iPrice > 0 and (iCheapest < 0 or iPrice < iCheapest):
 						iCheapest = iPrice
 				if iCheapest > 0:
-					iUpgradeCost += iCheapest
+					aUpgradeCosts.append(iCheapest)
 
 			(pUnit, iter) = pPlayer.nextUnit(iter, False)
+
+		# <!-- custom: derive upgrade-cost aggregates after the loop so we can show min/avg/max alongside the existing total. Avg is integer-rounded since the engine only deals in whole gold. (Claude code Opus 4.7) -->
+		iUpgradeMin = 0
+		iUpgradeAvg = 0
+		iUpgradeMax = 0
+		iUpgradeTotal = 0
+		if aUpgradeCosts:
+			iUpgradeMin = min(aUpgradeCosts)
+			iUpgradeMax = max(aUpgradeCosts)
+			iUpgradeTotal = sum(aUpgradeCosts)
+			iUpgradeAvg = iUpgradeTotal / len(aUpgradeCosts)
+
+		# <!-- custom: army averages need the military unit count (canFight()) as denominator, not getNumMilitaryUnits() - the latter is the surcharge-paying subset and would skew the average. Default to 0.0 to avoid divide-by-zero on civ-only perspectives or pre-game-start views. Floats (1 decimal place) because integer truncation hid useful gradations: an army averaging "2.7" XP reads very differently from "2.0", and the display row format string uses %.1f to surface that. (Claude code Opus 4.7) -->
+		fAvgXp = 0.0
+		fAvgLevel = 0.0
+		fAvgHammers = 0.0
+		fAvgHealth = 0.0
+		if iMilitary > 0:
+			fAvgXp = float(iXpSum) / iMilitary
+			fAvgLevel = float(iLevelSum) / iMilitary
+			fAvgHammers = float(iTotalHammers) / iMilitary
+			fAvgHealth = float(iHealthSum) / iMilitary
+		# <!-- custom: max/min health default to 100/100 when there are no military units; means "no problem to report" reads cleaner than the -1 sentinels. (Claude code Opus 4.7) -->
+		if iMaxHealth < 0:
+			iMaxHealth = 100
+		if iMinHealth < 0:
+			iMinHealth = 100
+
+		szStrongestName = u""
+		szStrongestButton = u""
+		if iStrongestUnitType >= 0:
+			pStrongestInfo = gc.getUnitInfo(iStrongestUnitType)
+			szStrongestName = pStrongestInfo.getDescription()
+			szStrongestButton = pStrongestInfo.getButton()
+		szHighestCostName = u""
+		szHighestCostButton = u""
+		if iHighestCostUnitType >= 0:
+			pHighestCostInfo = gc.getUnitInfo(iHighestCostUnitType)
+			szHighestCostName = pHighestCostInfo.getDescription()
+			szHighestCostButton = pHighestCostInfo.getButton()
+
+		# <!-- custom: one city pass collects building, military-production, generic new-XP, and building-defense stats for the Summary tab. Idea credit and section design from GPT-5.5-Thinking. (Claude code Opus 4.7 + GPT-5.5) -->
+		# <!-- custom: resolve BuildingClass -> civ-specific Building once per civ (cities owned by the active player all share the same civ). This handles civ-unique replacements correctly (a future modded UB that replaces Barracks would still be counted via its BuildingClass), and avoids re-doing the lookup per city. Returns -1 only if this civ has no building for the class (e.g. modder removed it for one civ). pCivInfo already exists above for getUpgradeTargets. (Claude code Opus 4.7) -->
+		iBldBarracks = pCivInfo.getCivilizationBuildings(self.iBldClassBarracks)
+		iBldStable = pCivInfo.getCivilizationBuildings(self.iBldClassStable)
+		iBldDrydock = pCivInfo.getCivilizationBuildings(self.iBldClassDrydock)
+		iBldWalls = pCivInfo.getCivilizationBuildings(self.iBldClassWalls)
+		iBldCastle = pCivInfo.getCivilizationBuildings(self.iBldClassCastle)
+		iBldHeroicEpic = pCivInfo.getCivilizationBuildings(self.iBldClassHeroicEpic)
+		iBldMilAcademy = pCivInfo.getCivilizationBuildings(self.iBldClassMilAcademy)
+		iNumCities = 0
+		iNumCoastalCities = 0
+		iCountBarracks = 0
+		iCountStables = 0
+		iCountDrydocks = 0
+		iCountWalls = 0
+		iCountCastles = 0
+		szHeroicEpicCity = u""
+		szMilAcademyCity = u""
+		iProdModSum = 0
+		iBestProdMod = -1000000
+		szBestProdCity = u""
+		iXpSumCity = 0
+		iBestXp = -1
+		szBestXpCity = u""
+		iBestDefense = -1
+		szBestDefenseCity = u""
+		iDefenseSum = 0
+		(pCity, iCityIter) = pPlayer.firstCity(False)
+		while pCity and not pCity.isNone():
+			szCityName = pCity.getName()
+			iNumCities += 1
+			# <!-- custom: coastal check uses minWaterSize=10 (the standard "ocean tile" threshold the engine uses for naval-build prerequisites); lakes don't count. Drydock denominator. (GPT-5.5) -->
+			if pCity.isCoastal(10):
+				iNumCoastalCities += 1
+			if iBldBarracks >= 0 and pCity.getNumBuilding(iBldBarracks) > 0:
+				iCountBarracks += 1
+			if iBldStable >= 0 and pCity.getNumBuilding(iBldStable) > 0:
+				iCountStables += 1
+			if iBldDrydock >= 0 and pCity.getNumBuilding(iBldDrydock) > 0:
+				iCountDrydocks += 1
+			if iBldWalls >= 0 and pCity.getNumBuilding(iBldWalls) > 0:
+				iCountWalls += 1
+			if iBldCastle >= 0 and pCity.getNumBuilding(iBldCastle) > 0:
+				iCountCastles += 1
+			# <!-- custom: National wonders are unique per civ; first city found owns them. Empty string left as sentinel for "not built yet" so the display layer can show a dash. (GPT-5.5) -->
+			if iBldHeroicEpic >= 0 and pCity.getNumBuilding(iBldHeroicEpic) > 0:
+				szHeroicEpicCity = szCityName
+			if iBldMilAcademy >= 0 and pCity.getNumBuilding(iBldMilAcademy) > 0:
+				szMilAcademyCity = szCityName
+			# <!-- custom: getMilitaryProductionModifier is the aggregate %-bonus this city gives to military-unit production (Barracks, Heroic Epic, West Point, Pentagon, Theocracy, etc. all roll into it). Sum + best-city tracking gives the "where do I train?" answer at a glance. (GPT-5.5) -->
+			iProdMod = pCity.getMilitaryProductionModifier()
+			iProdModSum += iProdMod
+			if iProdMod > iBestProdMod:
+				iBestProdMod = iProdMod
+				szBestProdCity = szCityName
+			# <!-- custom: use generic city free XP here, not getProductionExperience(unit), so "New XP (All)" stays unit-agnostic. Barracks/Stables/Drydocks domain/unit-combat XP is shown on the building rows instead; folding it into this headline made the average hard to interpret. (GPT-5.5) -->
+			iXp = pCity.getFreeExperience()
+			iXpSumCity += iXp
+			if iXp > iBestXp:
+				iBestXp = iXp
+				szBestXpCity = szCityName
+			# <!-- custom: getBuildingDefense is the city's defense-modifier contribution from buildings alone (excludes plot/cultural defense). Direct comparator for "best fortified" since plot defense varies by terrain. (GPT-5.5) -->
+			iDef = pCity.getBuildingDefense()
+			iDefenseSum += iDef
+			if iDef > iBestDefense:
+				iBestDefense = iDef
+				szBestDefenseCity = szCityName
+			(pCity, iCityIter) = pPlayer.nextCity(iCityIter, False)
+
+		# <!-- custom: allied hammers sum combat-unit production cost for teammates and mutual vassals only; defensive pacts/open borders do not make the army effectively ours. Keep this separate from the active player's own army loop. (Claude code Opus 4.7, GPT-5.5) -->
+		iAlliedHammers = 0
+		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+			if iLoopPlayer == self.iActivePlayer:
+				continue
+			pLoopPlayer = gc.getPlayer(iLoopPlayer)
+			if not pLoopPlayer.isAlive() or pLoopPlayer.isBarbarian() or pLoopPlayer.isMinorCiv():
+				continue
+			eLoopTeam = pLoopPlayer.getTeam()
+			if eLoopTeam == eMyTeam or kMyTeam.isVassal(eLoopTeam) or gc.getTeam(eLoopTeam).isVassal(eMyTeam):
+				(pAllyUnit, iAllyIter) = pLoopPlayer.firstUnit(False)
+				while pAllyUnit and not pAllyUnit.isNone():
+					if pAllyUnit.canFight():
+						iAllyCost = gc.getUnitInfo(pAllyUnit.getUnitType()).getProductionCost()
+						if iAllyCost > 0:
+							iAlliedHammers += iAllyCost
+					(pAllyUnit, iAllyIter) = pLoopPlayer.nextUnit(iAllyIter, False)
+		iKnownPowerRank = 1
+		iKnownPowerPlayers = 0
+		iOurPower = pPlayer.getPower()
+		bDebugMode = gc.getGame().isDebugMode()
+		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
+			pLoopPlayer = gc.getPlayer(iLoopPlayer)
+			if not pLoopPlayer.isAlive() or pLoopPlayer.isBarbarian() or pLoopPlayer.isMinorCiv():
+				continue
+			if iLoopPlayer != self.iActivePlayer and not bDebugMode and not pPlayer.canSeeDemographics(iLoopPlayer):
+				continue
+			iKnownPowerPlayers += 1
+			if pLoopPlayer.getPower() > iOurPower:
+				iKnownPowerRank += 1
+		# <!-- custom: average modifier rounds to int; preserving sign via "+%d%%" / "%d%%" so positive bonuses are obvious. avg XP keeps a decimal. (GPT-5.5) -->
+		iAvgProdMod = 0
+		fAvgFreeXp = 0.0
+		iAvgDefense = 0
+		if iNumCities > 0:
+			iAvgProdMod = iProdModSum / iNumCities
+			fAvgFreeXp = float(iXpSumCity) / iNumCities
+			# <!-- custom: integer-rounded average of getBuildingDefense across own cities; pairs with Best Defended in Deployment so the user sees "where's my strongest fortress + how protected is the empire on average" together. (Claude code Opus 4.7) -->
+			iAvgDefense = iDefenseSum / iNumCities
+
+		# <!-- custom: top 5 promotions across the army, descending by occurrence and tiebroken by description; full distribution remains in the Composition tab. (Claude code Opus 4.7, GPT-5.5) -->
+		aFavoritePromoRows = []
+		aPromoList = []
+		for iPromo, iCount in dPromotionCounts.items():
+			pPromoInfo = gc.getPromotionInfo(iPromo)
+			aPromoList.append((iCount, pPromoInfo.getDescription(), pPromoInfo.getButton()))
+		aPromoList.sort(key=lambda r: (-r[0], r[1]))
+		for iCount, szName, szButton in aPromoList[:5]:
+			aFavoritePromoRows.append((szName, iCount, szButton))
 
 		iInflationFactor = 100 + pPlayer.calculateInflationRate()
 		# <!-- custom: Use exact DLL support-cost breakdown tuples exposed for this Summary tab. Reconstructing the math in Python hid K-Mod/AdvCiv multipliers and produced misleading rows like "1 x 100% = 0"; these tuples let the UI show the same intermediate values as CvPlayer::calculateUnitCost/calculateUnitSupply. (GPT-5.5) -->
@@ -1007,10 +1371,63 @@ class CvMilitaryAdvisor:
 			"wounded": iWounded,
 			"in_cities": iInCities,
 			"in_own_territory": iInOwnTerritory,
-			"in_foreign": iInForeign,
+			"in_allied": iInAllied,
+			"in_neutral": iInNeutral,
+			"in_enemy": iInEnemy,
+			"in_wild": iInWild,
 			"at_sea": iAtSea,
+			"strongest_str": iStrongestStr,
+			"strongest_name": szStrongestName,
+			"highest_cost": iHighestCost,
+			"highest_cost_name": szHighestCostName,
+			"total_hammers": iTotalHammers,
+			"avg_xp": fAvgXp,
+			"avg_level": fAvgLevel,
+			"avg_hammers": fAvgHammers,
+			"known_power_rank": iKnownPowerRank,
+			"known_power_players": iKnownPowerPlayers,
+			"standalone_generals": iStandaloneGenerals,
+			"led_by_general": iLedByGeneral,
+			"strongest_button": szStrongestButton,
+			"highest_cost_button": szHighestCostButton,
+			"max_health": iMaxHealth,
+			"min_health": iMinHealth,
+			"avg_health": fAvgHealth,
+			"num_cities": iNumCities,
+			"num_coastal_cities": iNumCoastalCities,
+			"count_barracks": iCountBarracks,
+			"count_stables": iCountStables,
+			"count_drydocks": iCountDrydocks,
+			"label_barracks": self.getSummaryBuildingXpLabel(self.TEXT_SUMMARY_BLDG_BARRACKS, iBldBarracks),
+			"label_stables": self.getSummaryBuildingXpLabel(self.TEXT_SUMMARY_BLDG_STABLES, iBldStable),
+			"label_drydocks": self.getSummaryBuildingXpLabel(self.TEXT_SUMMARY_BLDG_DRYDOCKS, iBldDrydock),
+			"count_walls": iCountWalls,
+			"count_castles": iCountCastles,
+			"city_heroic_epic": szHeroicEpicCity,
+			"city_mil_academy": szMilAcademyCity,
+			"avg_prod_mod": iAvgProdMod,
+			"best_prod_mod": iBestProdMod,
+			"best_prod_city": szBestProdCity,
+			"avg_free_xp": fAvgFreeXp,
+			"best_free_xp": max(0, iBestXp),
+			"best_xp_city": szBestXpCity,
+			"best_defense": max(0, iBestDefense),
+			"best_defense_city": szBestDefenseCity,
+			"avg_defense": iAvgDefense,
+			"allied_hammers": iAlliedHammers,
+			"favorite_promotions": aFavoritePromoRows,
+			"health_full": iHealthFull,
+			"health_high": iHealthHigh,
+			"health_medium": iHealthMedium,
+			"health_low": iHealthLow,
+			"invisible_units": iInvisibleUnits,
+			"spy_units": iSpyUnits,
+			"hidden_nat_units": iHiddenNatUnits,
 			"upgradeable": iUpgradeable,
-			"upgrade_cost": iUpgradeCost,
+			"upgrade_min": iUpgradeMin,
+			"upgrade_avg": iUpgradeAvg,
+			"upgrade_max": iUpgradeMax,
+			"upgrade_total": iUpgradeTotal,
 			"raw_unit_cost": iRawUnitCost,
 			"raw_unit_supply": iRawUnitSupply,
 			"regular_unit_cost": iRegularUnitCost,
@@ -1060,18 +1477,151 @@ class CvMilitaryAdvisor:
 			iValueColor = -1
 			if len(tRow) > 6:
 				iValueColor = tRow[6]
+			# <!-- custom: optional 8th tuple element is an icon path (typically gc.getUnitInfo(...).getButton()); when present we draw a small DDS sized to the row so it doesn't grow row height, then shift the value text left of the icon. Empty/None path means no icon (default). Optional 9th tuple element is a SECOND icon path used by lucky/unlucky combat-callout rows that pair "our unit" with "their unit"; the two icons render side-by-side immediately left of the value text. Civ4 setLabel widgets can't host inline images, so we render image and text as separate widgets positioned manually. (Claude code Opus 4.7) -->
+			szIconPath = u""
+			if len(tRow) > 7:
+				szIconPath = tRow[7]
+			szIconPath2 = u""
+			if len(tRow) > 8:
+				szIconPath2 = tRow[8]
 			iLabelX = iColX + iRowMargin + iIndent * iIndentStep
 			# <!-- custom: step the right-aligned value inward at deeper indent so child numbers don't right-stack flush with their parent's total (e.g. "Outside 9 / Free 4 / Paid 5" read as three peers when all aligned at the column edge). Mirroring the label stairstep on the value side restores the "9 = 4 + 5" reading at a glance. (Claude code Opus 4.7) -->
 			iValueX = iColX + iColW - iRowMargin - iIndent * iIndentStep
+			# <!-- custom: icon dims stay smaller than row spacing so Summary row icons do not push text-only rows taller. (Claude code Opus 4.7, GPT-5.5) -->
+			iIconSize = 22
+			iIconRightGap = 4
+			iValueTextX = iValueX
+			# <!-- custom: two-icon layout sits both icons at the row's right edge with the value text right-aligned to their left. Order on screen, left-to-right: label ... value-text [icon1][icon2]. Previous attempt put icons immediately after the label, where the right-aligned value text would overrun them when long (the "Luckiest Win" rows). Anchoring both icons to the right edge means value text always wraps cleanly to their left, regardless of text length. Single-icon path unchanged (icon at right edge, text just left of it). (Claude code Opus 4.7) -->
+			if szIconPath and szIconPath2:
+				iIconYOffset = self.getSummaryRowIconY(iRowY)
+				iIcon2Left = iValueX - iIconSize
+				iIcon1Left = iIcon2Left - iIconSize
+				iValueTextX = iIcon1Left - iIconRightGap
+				screen.addDDSGFC(self.getNextWidgetName(), szIconPath, iIcon1Left, iIconYOffset, iIconSize, iIconSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.addDDSGFC(self.getNextWidgetName(), szIconPath2, iIcon2Left, iIconYOffset, iIconSize, iIconSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			elif szIconPath:
+				iValueTextX = iValueX - iIconSize - iIconRightGap
+				screen.addDDSGFC(self.getNextWidgetName(), szIconPath, iValueX - iIconSize, self.getSummaryRowIconY(iRowY), iIconSize, iIconSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			szValueText = szValue
 			if iValueColor >= 0:
 				szValueText = localText.changeTextColor(szValueText, iValueColor)
 			screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + szLabel + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, iLabelX, iRowY, iZ, FontTypes.GAME_FONT, eHelpWidget, iData1, iData2)
-			screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + szValueText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, iValueX, iRowY, iZ, FontTypes.GAME_FONT, eHelpWidget, iData1, iData2)
+			screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + szValueText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, iValueTextX, iRowY, iZ, FontTypes.GAME_FONT, eHelpWidget, iData1, iData2)
 			iRowY += iRowSpacing
 
+	def getSummaryRowIconY(self, iRowY):
+		# <!-- custom: local Summary-row icon Y nudge for DDS icons placed beside text values; keep this Military Advisor-specific because the exact offset is empirical and tied to this row height/font. (Claude code Opus 4.7, GPT-5.5) -->
+		return iRowY + 1
+
 	def getSummaryCostResultText(self, szFormula, iResult, iColor):
-		return szFormula + u" = " + localText.changeTextColor(unicode(iResult), iColor)
+		# <!-- custom: every caller of this helper produces a Support-column gold amount, so suffix the result with the normal gold coin; formula operands remain unitless counts, rates, and multipliers. (Claude code Opus 4.7, GPT-5.5) -->
+		return szFormula + u" = " + localText.changeTextColor(unicode(iResult) + self.GOLD_CHAR, iColor)
+
+	def getSummaryBuildingXpLabel(self, szBaseLabel, iBuilding):
+		if iBuilding < 0:
+			return szBaseLabel
+		pBuildingInfo = gc.getBuildingInfo(iBuilding)
+		aParts = []
+		iFreeExperience = pBuildingInfo.getFreeExperience()
+		if iFreeExperience > 0:
+			aParts.append(u"+%d XP All" % iFreeExperience)
+		for eDomain, szDomain in ((DomainTypes.DOMAIN_LAND, u"Land"), (DomainTypes.DOMAIN_SEA, u"Sea"), (DomainTypes.DOMAIN_AIR, u"Air")):
+			iExperience = pBuildingInfo.getDomainFreeExperience(eDomain)
+			if iExperience > 0:
+				aParts.append(u"+%d XP %s" % (iExperience, szDomain))
+		iMountedMeleeExperience = pBuildingInfo.getUnitCombatFreeExperience(self.iUnitCombatMountedMelee)
+		iMountedRangedExperience = pBuildingInfo.getUnitCombatFreeExperience(self.iUnitCombatMountedRanged)
+		if iMountedMeleeExperience > 0 and iMountedMeleeExperience == iMountedRangedExperience:
+			aParts.append(u"+%d XP Mounts" % iMountedMeleeExperience)
+		for iUnitCombat in range(gc.getNumUnitCombatInfos()):
+			if iUnitCombat == self.iUnitCombatMountedMelee or iUnitCombat == self.iUnitCombatMountedRanged:
+				continue
+			iExperience = pBuildingInfo.getUnitCombatFreeExperience(iUnitCombat)
+			if iExperience > 0:
+				aParts.append(u"+%d XP %s" % (iExperience, gc.getUnitCombatInfo(iUnitCombat).getDescription()))
+		if not aParts:
+			return szBaseLabel
+		return u"%s (%s)" % (szBaseLabel, u", ".join(aParts))
+
+	def collectBattleStats(self):
+		# <!-- custom: reuse the Battles tab's recorded combat log (SASBattleHistory) to surface aggregate prowess on the Deployment column: totals, win/loss/retreat split, "good luck" wins (we beat odds < 50%) and "bad luck" losses (we lost despite odds > 50%), and the single luckiest win / unluckiest loss as one-liner callouts. Retreats are not classed as luck cases because the engine retreats are dictated by promotions (Combat I/II/III withdrawal chance) rather than dice odds; counting them would muddle the signal. Luckiest = win with the lowest pre-battle odds; Unluckiest = loss with the highest pre-battle odds. The thresholds at 50% are intentionally hard-edged so a 50%-odds win/loss is "expected" rather than lucky. (Claude code Opus 4.7) -->
+		iTotal = 0
+		iWins = 0
+		iLosses = 0
+		iRetreats = 0
+		iGoodLuckWins = 0
+		iBadLuckLosses = 0
+		iLuckiestOdds = 101
+		szLuckiestWinText = u""
+		szLuckiestWinOurIcon = u""
+		szLuckiestWinTheirIcon = u""
+		iUnluckiestOdds = -1
+		szUnluckiestLossText = u""
+		szUnluckiestLossOurIcon = u""
+		szUnluckiestLossTheirIcon = u""
+		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+		for entry in aEntries:
+			tCols = self.getBattlePerspectiveColumns(entry)
+			if tCols is None:
+				continue
+			iTurn = tCols[0]
+			iResult = tCols[1]
+			iOurUnit = tCols[4]
+			iOurCurrStr = tCols[5]
+			iOtherUnit = tCols[11]
+			iOtherCurrStr = tCols[12]
+			iTotal += 1
+			# <!-- custom: odds = our share of summed starting strengths; same formula as the Battles tab's getBattleEstimatedOddsText. Skip entries with zero/missing strengths (older saves before strength logging) - they don't contribute to luck stats but still count in totals. (Claude code Opus 4.7) -->
+			iOdds = -1
+			if iOurCurrStr > 0 and iOtherCurrStr > 0:
+				iOdds = (100 * iOurCurrStr + (iOurCurrStr + iOtherCurrStr) / 2) / (iOurCurrStr + iOtherCurrStr)
+			# <!-- custom: assemble the lucky-row text once per candidate so we keep the icons paired with the same battle's strengths/odds/year. Strengths divided by 100 to match the Battles tab's stored-strength display; .1f gives enough precision without bloating the row. Unit names are intentionally omitted from the text - the two icons already identify the units, and dropping the names is what unblocks fitting the year + strengths in the same row width. (Claude code Opus 4.7) -->
+			def _luckText():
+				return u"%.1f vs %.1f %s (%d%%)" % (iOurCurrStr / 100.0, iOtherCurrStr / 100.0, self.getTurnDate(iTurn), iOdds)
+			if iResult == self.RESULT_WON:
+				iWins += 1
+				if iOdds >= 0 and iOdds < 50:
+					iGoodLuckWins += 1
+				if iOdds >= 0 and iOdds < iLuckiestOdds:
+					iLuckiestOdds = iOdds
+					szLuckiestWinText = _luckText()
+					szLuckiestWinOurIcon = gc.getUnitInfo(iOurUnit).getButton()
+					szLuckiestWinTheirIcon = gc.getUnitInfo(iOtherUnit).getButton()
+			elif iResult == self.RESULT_LOST:
+				iLosses += 1
+				if iOdds >= 0 and iOdds > 50:
+					iBadLuckLosses += 1
+				if iOdds >= 0 and iOdds > iUnluckiestOdds:
+					iUnluckiestOdds = iOdds
+					szUnluckiestLossText = _luckText()
+					szUnluckiestLossOurIcon = gc.getUnitInfo(iOurUnit).getButton()
+					szUnluckiestLossTheirIcon = gc.getUnitInfo(iOtherUnit).getButton()
+			elif iResult == self.RESULT_RETREAT:
+				iRetreats += 1
+		return {
+			"total": iTotal,
+			"wins": iWins,
+			"losses": iLosses,
+			"retreats": iRetreats,
+			"good_luck_wins": iGoodLuckWins,
+			"bad_luck_losses": iBadLuckLosses,
+			"luckiest_win_text": szLuckiestWinText,
+			"luckiest_win_our_icon": szLuckiestWinOurIcon,
+			"luckiest_win_their_icon": szLuckiestWinTheirIcon,
+			"unluckiest_loss_text": szUnluckiestLossText,
+			"unluckiest_loss_our_icon": szUnluckiestLossOurIcon,
+			"unluckiest_loss_their_icon": szUnluckiestLossTheirIcon,
+		}
+
+	def getSummaryHealthColor(self, fHealthPct):
+		# <!-- custom: tier colors for health% match the Battles tab's current-strength coloring (getBattleCurrentStrengthText) for consistency: 100% = default (no tint, reads "full"), >66% = green, >33% = yellow, else red. Float threshold so Avg Health = 99.4% still tints green rather than reading as "perfect". (Claude code Opus 4.7) -->
+		if fHealthPct >= 100:
+			return -1
+		if fHealthPct > 66:
+			return self.COLOR_GREEN
+		if fHealthPct > 33:
+			return self.COLOR_YELLOW
+		return self.COLOR_RED
 
 	def drawSummary(self):
 		screen = self.getScreen()
@@ -1109,7 +1659,7 @@ class CvMilitaryAdvisor:
 		szUnitCostLabel = self.TEXT_SUMMARY_UNIT_COST
 		szUnitSupplyLabel = self.TEXT_SUMMARY_UNIT_SUPPLY
 		szUnitCostText = self.getSummaryCostResultText(u"%d + %d + %d" % (dStats["regular_unit_cost"], dStats["military_unit_cost"], dStats["extra_unit_cost"]), dStats["raw_unit_cost"], iUnitCostColor)
-		szUnitSupplyText = unicode(dStats["raw_unit_supply"])
+		szUnitSupplyText = unicode(dStats["raw_unit_supply"]) + self.GOLD_CHAR
 		szFreeUsedCapText = u"%d/%d" % (dStats["free_used_units"], dStats["free_units"])
 		szFreeUsedMilitaryCapText = u"%d/%d" % (dStats["free_used_military_units"], dStats["free_military_units"])
 		if dStats["inflation_percent"] > 0:
@@ -1121,7 +1671,8 @@ class CvMilitaryAdvisor:
 		szTotalGoldText = self.getSummaryCostResultText(u"%d + %d" % (dStats["unit_cost"], dStats["unit_supply"]), iTotalGold, iTotalGoldColor)
 		szOutsideRateText = self.getSummaryCostResultText(u"(%d x %d) / 100" % (dStats["paid_outside"], dStats["gold_per_outside_unit"]), dStats["base_supply_cost"], iUnitSupplyColor)
 		if dStats["base_supply_cost"] != dStats["raw_unit_supply"]:
-			szOutsideRateText = u"(%d x %d) / 100 = %d -> %s" % (dStats["paid_outside"], dStats["gold_per_outside_unit"], dStats["base_supply_cost"], localText.changeTextColor(unicode(dStats["raw_unit_supply"]), iUnitSupplyColor))
+			# <!-- custom: AI handicap multiplies the base supply cost (CvPlayer.cpp:6301-6308). When the post-handicap value differs we show both: pre-handicap subtotal -> handicap-adjusted final, both as gold. (Claude code Opus 4.7) -->
+			szOutsideRateText = u"(%d x %d) / 100 = %d%s -> %s" % (dStats["paid_outside"], dStats["gold_per_outside_unit"], dStats["base_supply_cost"], self.GOLD_CHAR, localText.changeTextColor(unicode(dStats["raw_unit_supply"]) + self.GOLD_CHAR, iUnitSupplyColor))
 		# <!-- custom: rendered support tree:
 		# Total Units
 		#   Free Used/Cap / Paid / P x R x M
@@ -1151,7 +1702,7 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_FREE_USED_CAP_SHORT, szFreeUsedMilitaryCapText, eNone, -1, -1, 2, -1),
 			(self.TEXT_SUMMARY_PAID_SHORT, unicode(dStats["paid_military_units"]), eNone, -1, -1, 2, -1),
 			(self.TEXT_SUMMARY_GOLD_PER_MIL_UNIT, self.getSummaryCostResultText(u"(%d x %d) / 100" % (dStats["paid_military_units"], dStats["gold_per_military_unit"]), dStats["military_unit_cost"], iUnitCostColor), eHelpUnitCost, self.iActivePlayer, 1, 2, -1),
-			(self.TEXT_SUMMARY_EXTRA_COST, unicode(dStats["extra_unit_cost"]), eHelpUnitCost, self.iActivePlayer, 1, 2, iUnitCostColor),
+			(self.TEXT_SUMMARY_EXTRA_COST, unicode(dStats["extra_unit_cost"]) + self.GOLD_CHAR, eHelpUnitCost, self.iActivePlayer, 1, 2, iUnitCostColor),
 			(None, None, eNone, -1, -1, 0, -1),
 			(szUnitCostLabel, szUnitCostText, eHelpUnitCost, self.iActivePlayer, 1, 1, -1),
 			(None, None, eNone, -1, -1, 0, -1),
@@ -1163,30 +1714,181 @@ class CvMilitaryAdvisor:
 			(None, None, eNone, -1, -1, 0, -1),
 			(self.TEXT_SUMMARY_TOTAL_GOLD, szTotalGoldText, eHelpInflated, self.iActivePlayer, 1, 0, -1),
 		]
+		# <!-- custom: Support appends city-level military infrastructure: building coverage, military-production modifier/new all-unit XP, and allied combat-unit hammers. Drydocks use coastal cities as denominator; national wonders show owning city or "-". (Claude code Opus 4.7 + GPT-5.5) -->
+		def _cityNameOrDash(szName):
+			if szName:
+				return szName
+			return u"-"
+		def _signedPct(iValue):
+			if iValue > 0:
+				return u"+%d%%" % iValue
+			return u"%d%%" % iValue
+		szBestProdValue = u"-"
+		if dStats["best_prod_city"]:
+			szBestProdValue = u"%s %s" % (dStats["best_prod_city"], _signedPct(dStats["best_prod_mod"]))
+		szBestXpValue = u"-"
+		if dStats["best_xp_city"]:
+			szBestXpValue = u"%s (%d)" % (dStats["best_xp_city"], dStats["best_free_xp"])
+		szCityFraction = u"/ %d" % dStats["num_cities"]
+		szCoastalFraction = u"/ %d" % dStats["num_coastal_cities"]
+		szDrydockValue = u"-"
+		if dStats["num_coastal_cities"] > 0:
+			szDrydockValue = u"%d %s" % (dStats["count_drydocks"], szCoastalFraction)
+		aSupport.extend([
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_MIL_BUILDINGS, u"", eNone, -1, -1, 0, -1),
+			(dStats["label_barracks"], u"%d %s" % (dStats["count_barracks"], szCityFraction), eNone, -1, -1, 1, -1),
+			(dStats["label_stables"], u"%d %s" % (dStats["count_stables"], szCityFraction), eNone, -1, -1, 1, -1),
+			(dStats["label_drydocks"], szDrydockValue, eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_BLDG_HEROIC_EPIC, _cityNameOrDash(dStats["city_heroic_epic"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_BLDG_MIL_ACADEMY, _cityNameOrDash(dStats["city_mil_academy"]), eNone, -1, -1, 1, -1),
+		])
+		aSupport.extend([
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_UNIT_PRODUCTION, u"", eNone, -1, -1, 0, -1),
+			(self.TEXT_SUMMARY_AVG_MODIFIER, _signedPct(dStats["avg_prod_mod"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_BEST_CITY, szBestProdValue, eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_AVG_NEW_XP, u"%.1f" % dStats["avg_free_xp"], eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_BEST_NEW_XP, szBestXpValue, eNone, -1, -1, 1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_ALLIED_HAMMERS, unicode(dStats["allied_hammers"]) + self.HAMMER_CHAR, eNone, -1, -1, 0, -1),
+		])
+		# <!-- custom: Defenses moved from Support to Deployment because city protection reads closer to "where my forces/cities are" than to support cost. (Claude code Opus 4.7, GPT-5.5) -->
 
-		aComposition = [
-			(self.TEXT_SUMMARY_MILITARY_UNITS, unicode(dStats["military"]), eNone, -1, -1),
-			(self.TEXT_SUMMARY_CIVILIAN_UNITS, unicode(dStats["civilian"]), eNone, -1, -1),
+
+		# <!-- custom: Army column summarizes the active player's own forces: composition, strongest/costliest/power-rank callouts, quality means, Great General state, promotions, special-unit flags, and upgrade costs. (Claude code Opus 4.7, GPT-5.5) -->
+		szStrongest = u""
+		szStrongestIcon = u""
+		if dStats["strongest_str"] >= 0:
+			szStrongest = u"%s %d%s" % (dStats["strongest_name"], dStats["strongest_str"], self.STRENGTH_CHAR)
+			szStrongestIcon = dStats["strongest_button"]
+		szHighestCost = u""
+		szHighestCostIcon = u""
+		if dStats["highest_cost"] >= 0:
+			szHighestCost = u"%s %d%s" % (dStats["highest_cost_name"], dStats["highest_cost"], self.HAMMER_CHAR)
+			szHighestCostIcon = dStats["highest_cost_button"]
+		# <!-- custom: count-and-percent helper. "Foo (12%)" reads better than two separate columns and keeps row count down. Denominator-zero returns just the count so we don't show "0 (NaN%)". (Claude code Opus 4.7) -->
+		def _withPct(iCount, iWhole):
+			if iWhole <= 0:
+				return unicode(iCount)
+			return u"%d (%d%%)" % (iCount, (100 * iCount) / iWhole)
+		iMilCivTotal = dStats["military"] + dStats["civilian"]
+		iMilCount = dStats["military"]
+		szTotalHammers = unicode(dStats["total_hammers"]) + self.HAMMER_CHAR
+		szAvgHammers = (u"%.1f" % dStats["avg_hammers"]) + self.HAMMER_CHAR
+		szAvgXp = u"%.1f" % dStats["avg_xp"]
+		szAvgLevel = u"%.1f" % dStats["avg_level"]
+		szGeneralsFree = u"%d%s" % (dStats["standalone_generals"], self.GREAT_GENERAL_CHAR)
+		szLedByGeneral = u"%d%s" % (dStats["led_by_general"], self.STAR_CHAR)
+		szPowerRankKnown = u"%d / %d" % (dStats["known_power_rank"], dStats["known_power_players"])
+		# <!-- custom: keep total/average hammer investment near strongest/costliest and power rank; these rows frame army size/value before quality rows. (Claude code Opus 4.7, GPT-5.5) -->
+		aArmy = [
+			(self.TEXT_SUMMARY_MILITARY_UNITS, _withPct(iMilCount, iMilCivTotal), eNone, -1, -1),
+			(self.TEXT_SUMMARY_CIVILIAN_UNITS, _withPct(dStats["civilian"], iMilCivTotal), eNone, -1, -1),
 			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_LAND_UNITS, unicode(dStats["land"]), eNone, -1, -1),
-			(self.TEXT_SUMMARY_SEA_UNITS, unicode(dStats["sea"]), eNone, -1, -1),
-			(self.TEXT_SUMMARY_AIR_UNITS, unicode(dStats["air"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_LAND_UNITS, _withPct(dStats["land"], iMilCount), eNone, -1, -1),
+			(self.TEXT_SUMMARY_SEA_UNITS, _withPct(dStats["sea"], iMilCount), eNone, -1, -1),
+			(self.TEXT_SUMMARY_AIR_UNITS, _withPct(dStats["air"], iMilCount), eNone, -1, -1),
 			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_UPGRADEABLE, unicode(dStats["upgradeable"]), eNone, -1, -1),
-			(self.TEXT_SUMMARY_UPGRADE_COST, unicode(dStats["upgrade_cost"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_STRONGEST, szStrongest, eNone, -1, -1, 0, -1, szStrongestIcon),
+			(self.TEXT_SUMMARY_HIGHEST_COST, szHighestCost, eNone, -1, -1, 0, -1, szHighestCostIcon),
+			(self.TEXT_SUMMARY_TOTAL_HAMMERS, szTotalHammers, eNone, -1, -1),
+			(self.TEXT_SUMMARY_AVG_HAMMERS, szAvgHammers, eNone, -1, -1),
+			(self.TEXT_SUMMARY_POWER_RANK_KNOWN, szPowerRankKnown, eNone, -1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_AVG_XP, szAvgXp, eNone, -1, -1),
+			(self.TEXT_SUMMARY_AVG_LEVEL, szAvgLevel, eNone, -1, -1),
+			(self.TEXT_SUMMARY_GENERALS_FREE, szGeneralsFree, eNone, -1, -1),
+			(self.TEXT_SUMMARY_GENERALED, szLedByGeneral, eNone, -1, -1),
+			(None, None, eNone, -1, -1),
+			# <!-- custom: top promotion rows carry promotion buttons so army lean is visible at a glance; cap is applied in collectSummaryData to keep this column compact. (Claude code Opus 4.7, GPT-5.5) -->
+			(self.TEXT_SUMMARY_FAVORITE_PROMOS, u"", eNone, -1, -1, 0, -1),
 		]
+		for szPromoName, iPromoCount, szPromoButton in dStats["favorite_promotions"]:
+			# <!-- custom: promotion rows show count + %-of-military so a "Combat I 8 (62%)" reads as "most of my army has this" without further math. (Claude code Opus 4.7) -->
+			aArmy.append((szPromoName, _withPct(iPromoCount, iMilCount), eNone, -1, -1, 1, -1, szPromoButton))
+		# <!-- custom: special-units block always emitted (even when all three categories are zero) so the section's existence and exhaustive coverage are discoverable. Previously suppressed-when-empty, which led to "I have no stealth section, is the feature broken?" confusion. The block is short (parent + 3 rows) and its zero state is informative - it confirms there's no stealth coverage in the current army. (Claude code Opus 4.7) -->
+		aArmy.extend([
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_SPECIAL_UNITS, u"", eNone, -1, -1, 0, -1),
+			(self.TEXT_SUMMARY_INVISIBLE, _withPct(dStats["invisible_units"], dStats["total"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_SPIES, _withPct(dStats["spy_units"], dStats["total"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HIDDEN_NAT, _withPct(dStats["hidden_nat_units"], dStats["total"]), eNone, -1, -1, 1, -1),
+		])
+		aArmy.extend([
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_UPGRADEABLE, unicode(dStats["upgradeable"]), eNone, -1, -1, 0, -1),
+			(self.TEXT_SUMMARY_UPGRADE_MIN_COST, unicode(dStats["upgrade_min"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_UPGRADE_AVG_COST, unicode(dStats["upgrade_avg"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_UPGRADE_MAX_COST, unicode(dStats["upgrade_max"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_UPGRADE_TOTAL_COST, unicode(dStats["upgrade_total"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
+		])
 
+		# <!-- custom: Deployment groups unit locations by strategic relation, then city defenses, health distribution, and recent battle-history summary. Wounded + health % rows reuse Battles-tab health colors for consistency. (Claude code Opus 4.7, GPT-5.5) -->
+		iWoundedColor = self.getSummaryHealthColor(100 - (100 * dStats["wounded"]) / max(1, iMilCount))
+		iMaxHealthColor = self.getSummaryHealthColor(dStats["max_health"])
+		iAvgHealthColor = self.getSummaryHealthColor(dStats["avg_health"])
+		iMinHealthColor = self.getSummaryHealthColor(dStats["min_health"])
+		szWoundedValue = _withPct(dStats["wounded"], iMilCount)
+		# <!-- custom: show one best-defended city instead of enumerating city garrisons; detailed per-city coverage belongs in Domestic Advisor, while this Summary tab stays at-a-glance. (Claude code Opus 4.7, GPT-5.5) -->
+		szBestDefendedRow = u"-"
+		if dStats["best_defense_city"]:
+			szBestDefendedRow = u"%s (+%d%%)" % (dStats["best_defense_city"], dStats["best_defense"])
 		aDeployment = [
 			(self.TEXT_SUMMARY_IN_CITIES, unicode(dStats["in_cities"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_BEST_DEFENDED, szBestDefendedRow, eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_AVG_DEFENSE, u"+%d%%" % dStats["avg_defense"], eNone, -1, -1, 1, -1),
+		]
+		# <!-- custom: Allied / Neutral / Enemy collapsed into one tight block (no blank lines between them) because they're three states of the same concept - "this plot belongs to a foreign civ, and our diplomatic relation with them is X". Treating them as separate groups was visually misleading. In Own Territory keeps its own blank separator above as it's a different category (our own land, no diplomatic relation involved). Wild + At Sea also stay paired but get a separator from the diplomatic block since they're unowned plots, not "foreign". (Claude code Opus 4.7) -->
+		aDeployment.extend([
 			(self.TEXT_SUMMARY_IN_OWN_TERRITORY, unicode(dStats["in_own_territory"]), eNone, -1, -1),
-			(self.TEXT_SUMMARY_IN_FOREIGN, unicode(dStats["in_foreign"]), eNone, -1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_IN_ALLIED, unicode(dStats["in_allied"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_IN_NEUTRAL, unicode(dStats["in_neutral"]), eNone, -1, -1),
+			(self.TEXT_SUMMARY_IN_ENEMY, unicode(dStats["in_enemy"]), eNone, -1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_IN_WILD, unicode(dStats["in_wild"]), eNone, -1, -1),
 			(self.TEXT_SUMMARY_AT_SEA, unicode(dStats["at_sea"]), eNone, -1, -1),
 			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_WOUNDED, unicode(dStats["wounded"]), eNone, -1, -1),
-		]
+			# <!-- custom: Defenses live in Deployment beside best-defended city rather than Support cost math. (Claude code Opus 4.7, GPT-5.5) -->
+			(self.TEXT_SUMMARY_DEFENSES, u"", eNone, -1, -1, 0, -1),
+			(self.TEXT_SUMMARY_BLDG_WALLS, u"%d %s" % (dStats["count_walls"], u"/ %d" % dStats["num_cities"]), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_BLDG_CASTLES, u"%d %s" % (dStats["count_castles"], u"/ %d" % dStats["num_cities"]), eNone, -1, -1, 1, -1),
+			(None, None, eNone, -1, -1),
+			(self.TEXT_SUMMARY_WOUNDED, szWoundedValue, eNone, -1, -1, 0, iWoundedColor),
+			(self.TEXT_SUMMARY_MAX_HEALTH, u"%d%%" % dStats["max_health"], eNone, -1, -1, 1, iMaxHealthColor),
+			(self.TEXT_SUMMARY_AVG_HEALTH, u"%.1f%%" % dStats["avg_health"], eNone, -1, -1, 1, iAvgHealthColor),
+			(self.TEXT_SUMMARY_MIN_HEALTH, u"%d%%" % dStats["min_health"], eNone, -1, -1, 1, iMinHealthColor),
+			(None, None, eNone, -1, -1),
+			# <!-- custom: distribution by health band complements the Max/Avg/Min range rows above: range shows the spread, bands show the shape ("most of my army at full, 1 critical" vs "half medium-health"). Band rows are intentionally LEFT NEUTRAL (no color) - the value here is a count of units, not a health percentage, so the green/yellow/red tier rules from getSummaryHealthColor don't apply. Coloring "Low Health: 0 (0%)" red would falsely imply something is wrong. The Max/Avg/Min rows above already carry the colored health verdict; the band rows just show the distribution shape. (Claude code Opus 4.7) -->
+			(self.TEXT_SUMMARY_HEALTH_FULL, _withPct(dStats["health_full"], iMilCount), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HEALTH_HIGH, _withPct(dStats["health_high"], iMilCount), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HEALTH_MEDIUM, _withPct(dStats["health_medium"], iMilCount), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HEALTH_LOW, _withPct(dStats["health_low"], iMilCount), eNone, -1, -1, 1, -1),
+		])
+
+		# <!-- custom: battle-record block at the bottom of Deployment, sourced from the persisted SASBattleHistory log (same data feeding the Battles tab). Three sub-groups separated by blank rows: (1) outcome counts Won/Retreated/Lost (retreat in the middle because it's an intermediate outcome between win and loss); (2) luck against estimated odds - Good-Luck Wins / Bad-Luck Losses, "dice-overruled" outcomes; (3) the standout examples - Luckiest Win and Unluckiest Loss, rendered with the two-icon row layout (our unit + their unit + strengths + year + final odds). Unit names are dropped from those text rows because the icons identify the units and the freed width is what lets the year + strengths fit. Whole block suppressed when no battles have been recorded yet. (Claude code Opus 4.7) -->
+		dBattle = self.collectBattleStats()
+		if dBattle["total"] > 0:
+			aDeployment.append((None, None, eNone, -1, -1))
+			aDeployment.append((self.TEXT_SUMMARY_BATTLES_TOTAL, unicode(dBattle["total"]), eNone, -1, -1))
+			aDeployment.append((self.TEXT_SUMMARY_BATTLES_WON, _withPct(dBattle["wins"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_GREEN))
+			aDeployment.append((self.TEXT_SUMMARY_BATTLES_RETREATED, _withPct(dBattle["retreats"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_YELLOW))
+			aDeployment.append((self.TEXT_SUMMARY_BATTLES_LOST, _withPct(dBattle["losses"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_RED))
+			aDeployment.append((None, None, eNone, -1, -1))
+			if dBattle["wins"] > 0:
+				aDeployment.append((self.TEXT_SUMMARY_GOOD_LUCK, _withPct(dBattle["good_luck_wins"], dBattle["wins"]), eNone, -1, -1, 1, self.COLOR_GREEN))
+			if dBattle["losses"] > 0:
+				aDeployment.append((self.TEXT_SUMMARY_BAD_LUCK, _withPct(dBattle["bad_luck_losses"], dBattle["losses"]), eNone, -1, -1, 1, self.COLOR_RED))
+			if dBattle["luckiest_win_text"] or dBattle["unluckiest_loss_text"]:
+				aDeployment.append((None, None, eNone, -1, -1))
+			if dBattle["luckiest_win_text"]:
+				aDeployment.append((self.TEXT_SUMMARY_LUCKIEST_WIN, dBattle["luckiest_win_text"], eNone, -1, -1, 1, self.COLOR_GREEN, dBattle["luckiest_win_our_icon"], dBattle["luckiest_win_their_icon"]))
+			if dBattle["unluckiest_loss_text"]:
+				aDeployment.append((self.TEXT_SUMMARY_UNLUCKIEST_LOSS, dBattle["unluckiest_loss_text"], eNone, -1, -1, 1, self.COLOR_RED, dBattle["unluckiest_loss_our_icon"], dBattle["unluckiest_loss_their_icon"]))
 
 		self.drawSummaryColumn(screen, iColXSupport, iColY, iColW, iColH, self.TEXT_SUMMARY_SUPPORT, aSupport)
-		self.drawSummaryColumn(screen, iColXComposition, iColY, iColW, iColH, self.TEXT_SUMMARY_COMPOSITION, aComposition)
+		self.drawSummaryColumn(screen, iColXComposition, iColY, iColW, iColH, self.TEXT_SUMMARY_ARMY, aArmy)
 		self.drawSummaryColumn(screen, iColXDeployment, iColY, iColW, iColH, self.TEXT_SUMMARY_DEPLOYMENT, aDeployment)
 
 

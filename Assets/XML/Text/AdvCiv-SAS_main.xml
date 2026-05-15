@@ -53,8 +53,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Support</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COMPOSITION</Tag>
-		<English>Composition</English>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ARMY</Tag>
+		<English>Army</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEPLOYMENT</Tag>
@@ -75,6 +75,74 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_GOLD</Tag>
 		<English>Total Cost + Supply</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIL_BUILDINGS</Tag>
+		<English>Military Buildings</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_BARRACKS</Tag>
+		<English>Barracks</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_STABLES</Tag>
+		<English>Stables</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_DRYDOCKS</Tag>
+		<English>Drydocks</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_HEROIC_EPIC</Tag>
+		<English>Heroic Epic</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_MIL_ACADEMY</Tag>
+		<English>Military Academy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_PRODUCTION</Tag>
+		<English>Military Production</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_MODIFIER</Tag>
+		<English>Avg Modifier</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_CITY</Tag>
+		<English>Best City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_NEW_XP</Tag>
+		<English>Avg New XP (All)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_NEW_XP</Tag>
+		<English>Best New XP (All)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEFENSES</Tag>
+		<English>Defenses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_WALLS</Tag>
+		<English>Walls</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_CASTLES</Tag>
+		<English>Castles</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_DEFENDED</Tag>
+		<English>Best Defended</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_DEFENSE</Tag>
+		<English>Avg Defense</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ALLIED_HAMMERS</Tag>
+		<English>Allied Hammers</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_OUTSIDE_UNITS</Tag>
@@ -141,12 +209,140 @@ Created as part of AdvCiv-SAS improvements
 		<English>Air</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_STRONGEST</Tag>
+		<English>Strongest</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HIGHEST_COST</Tag>
+		<English>Costliest</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_HAMMERS</Tag>
+		<English>Total Hammers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_XP</Tag>
+		<English>Avg XP</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_LEVEL</Tag>
+		<English>Avg Level</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_HAMMERS</Tag>
+		<English>Avg Hammers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_POWER_RANK_KNOWN</Tag>
+		<English>Power Rank (Known)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALS_FREE</Tag>
+		<English>Great Generals</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALED</Tag>
+		<English>GG-Led Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MAX_HEALTH</Tag>
+		<English>Max Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_HEALTH</Tag>
+		<English>Avg Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIN_HEALTH</Tag>
+		<English>Min Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FAVORITE_PROMOS</Tag>
+		<English>Top Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPECIAL_UNITS</Tag>
+		<English>Special Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INVISIBLE</Tag>
+		<English>Invisible</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPIES</Tag>
+		<English>Spies</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HIDDEN_NAT</Tag>
+		<English>Hidden Nationality</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_FULL</Tag>
+		<English>Full Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_HIGH</Tag>
+		<English>High Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_MEDIUM</Tag>
+		<English>Medium Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_LOW</Tag>
+		<English>Low Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_TOTAL</Tag>
+		<English>Battles</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_WON</Tag>
+		<English>Won</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_RETREATED</Tag>
+		<English>Retreated</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_LOST</Tag>
+		<English>Lost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOOD_LUCK</Tag>
+		<English>Good-Luck Wins</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BAD_LUCK</Tag>
+		<English>Bad-Luck Losses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_LUCKIEST_WIN</Tag>
+		<English>Best</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNLUCKIEST_LOSS</Tag>
+		<English>Worst</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADEABLE</Tag>
 		<English>Upgradeable</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_COST</Tag>
-		<English>Upgrade Cost</English>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_MIN_COST</Tag>
+		<English>Min Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_AVG_COST</Tag>
+		<English>Avg Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_MAX_COST</Tag>
+		<English>Max Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_TOTAL_COST</Tag>
+		<English>Total Cost</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_WOUNDED</Tag>
@@ -161,12 +357,24 @@ Created as part of AdvCiv-SAS improvements
 		<English>In Own Territory</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_FOREIGN</Tag>
-		<English>In Foreign Territory</English>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_ALLIED</Tag>
+		<English>In Allied Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_NEUTRAL</Tag>
+		<English>In Neutral Civ Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_ENEMY</Tag>
+		<English>In Enemy Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_WILD</Tag>
+		<English>Roaming (Unowned Land)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AT_SEA</Tag>
-		<English>At Sea</English>
+		<English>At Sea (Open Water)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS</Tag>
