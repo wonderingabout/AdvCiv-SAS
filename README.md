@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
 
-Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Battles Tab, Score tab, and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
 A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
 
@@ -37,8 +37,8 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[Home page](/README.md#home-page)  
 &emsp;[Simple Game rework](/README.md#simple-game-rework)  
 [UI (Ingame)](/README.md#ui-ingame)  
-&emsp;[Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#main-advisors-reworks)  
-&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-battles-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
+&emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
+&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor); Summary Tab, Battles Tab, Composition Tab (Military Advisor); new World Advisor; Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-summary-tab-battles-tab-composition-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
 &emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)  
 &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
 &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
@@ -183,7 +183,7 @@ Also, advisors are now excentered so overall more information is displayed, thus
 
 See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
 
-#### New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))
+#### New Advisors (e.g., Overview tabs (Domestic Advisor); Summary Tab, Battles Tab, Composition Tab (Military Advisor); new World Advisor; Score Tab and Timeline Tab (Info Screen))
 
 ##### Overview tabs (Domestic Advisor)
 
@@ -195,16 +195,27 @@ The domestic advisor now follows the usual advisor with tabs and debug mode layo
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG" alt="0.511_domestic_advisor (4).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG" alt="0.511_domestic_advisor (5).JPG" width="250"></img>
 
+##### Summary tab (Military Advisor)
+
+Added a new Summary tab in the Military Advisor, showing a synthetic view of our Military's **Support** (detailed Cost and Supply, and Unit Cap numerical breakdown (e.g., `P x R x M    (1 x 100 x 82) / 10000 = 0 gold icon char`), etc.), **Army** (detailed numerical overview for military/civilian units, Domain repartition (Land/Sea/Air), Strongest, Costliest, etc.), and **Deployment** (Allied/Neutral/Enemy Cities/Territory/Roaming information with Avg Defense and Best defense of our cities, defensive buildings (as of now Walls and Castles (e.g., `1 / 2`)), Wounded information (Max/Avg/Min and Full/High/Medium/Low Health (e.g, `15 (100%)`)), and Battles reusing the [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py) added with the new Battles Tab (Won/Retreated/Lost (e.g., `35 (33%)`)), Good-Luck Wins and Bad-Luck Losses counts (`e.g., 11 (31%)`), Best/Worst (e.g., `6.3 vs 10.0 1300 AD (39%)`)).
+
+Also added a **legend link**. Implementation details in the Main Changes guide.
+
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="/0.515_military_advisor (1).JPG" width="250"></img>
+
 ##### Battles tab (Military Advisor)
 
-Added a new Battles tab in the Military Advisor, showing as a sortable table the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode). Icons are hoverable to sevopedia (or have a camera effect). Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red).
+Added a new Battles tab in the Military Advisor, showing as a sortable table the detailed **record of each battle** (see [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py)) for the selected player in debug dropdown (or the active player or its vassals outside debug mode). Icons are hoverable to sevopedia (or have a camera effect). Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red).
 
 Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
 
-Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Promotions, and Unit Combats.
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG" alt="/0.515_military_advisor (4).JPG" width="250"></img>
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="/0.515_military_advisor (3).JPG" width="250"></img>
+##### Compostion tab (Military Advisor)
+
+Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Current Unit, Promotion, and Unit Combat counts.
+
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG" alt="/0.515_military_advisor (5).JPG" width="250"></img>
 
 ##### World Advisor
 
@@ -260,7 +271,8 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="/0.515_military_advisor (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="/0.515_military_advisor (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (1).JPG" alt="0.518_info_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (4).JPG" alt="0.518_info_screen (4).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (5).JPG" alt="0.518_info_screen (5).JPG" width="250"></img>

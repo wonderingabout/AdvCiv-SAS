@@ -261,8 +261,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Top Promotions</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPECIAL_UNITS</Tag>
-		<English>Special Units</English>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COVERT_UNITS</Tag>
+		<English>Covert Units</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INVISIBLE</Tag>
