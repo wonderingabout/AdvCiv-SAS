@@ -59,9 +59,16 @@
 ## Copyright (c) 2009 The BUG Mod.
 ##
 ## Author: Ruff_Hi
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 #import BugUtil
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 #from PyHelpers import PyPlayer
 import CvUtil
 #import ScreenInput
@@ -108,9 +115,9 @@ class BugTab:
 			szText += localText.getText(self.txt_key, ())
 		szText += u"</font>"
 		if not self.enabled:
-			szText = localText.changeTextColor(szText, gc.getInfoTypeForString("COLOR_GREY"))
+			szText = localText.changeTextColor(szText, getInfoTypeOrFail("COLOR_GREY"))
 		elif self.active:
-			szText = localText.changeTextColor(szText, gc.getInfoTypeForString("COLOR_YELLOW"))
+			szText = localText.changeTextColor(szText, getInfoTypeOrFail("COLOR_YELLOW"))
 		return szText
 
 

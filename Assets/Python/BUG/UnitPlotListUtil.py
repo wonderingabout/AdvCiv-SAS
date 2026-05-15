@@ -5,8 +5,15 @@
 ## Copyright (c) 2007-2009 The BUG Mod.
 ##
 ## Author: Ruff_Hi
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import MonkeyTools as mt
 import BugUtil
 
@@ -15,7 +22,7 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
+iLeaderPromo = getInfoTypeOrFail("PROMOTION_LEADER")
 sFileNamePromo = ArtFileMgr.getInterfaceArtInfo("OVERLAY_PROMOTION_FRAME").getPath()
 #screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
 

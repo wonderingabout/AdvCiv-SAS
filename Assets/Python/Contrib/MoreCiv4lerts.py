@@ -1,8 +1,15 @@
 ## MoreCiv4lerts
 ## From HOF MOD V1.61.001
 ## Based upon Gillmer J. Derge's Civ4lerts.py
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party MoreCiv4lerts file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import PyHelpers
 import BugCore
 import PlayerUtil
@@ -220,7 +227,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 				if (bRevealed or PlayerUtil.canSeeCityList(iPlayer)):
 					player = gc.getPlayer(iPlayer)
 					#iColor = gc.getPlayerColorInfo(player.getPlayerColor()).getColorTypePrimary()
-					iColor = gc.getInfoTypeForString("COLOR_MAGENTA")
+					iColor = getInfoTypeOrFail("COLOR_MAGENTA")
 					if (bRevealed):
 						message = localText.getText("TXT_KEY_MORECIV4LERTS_CITY_FOUNDED", (player.getName(), city.getName()))
 						self._addMessageAtCity(self.iOwner, message, "Art/Interface/Buttons/Actions/foundcity.dds", city, iColor)

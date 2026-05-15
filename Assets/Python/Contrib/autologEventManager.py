@@ -7,8 +7,15 @@
 ##
 ## TODO:
 ## - Use onPlayerChangeStateReligion event
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party autolog file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import CvUtil
 import Popup as PyPopup
 import PyHelpers
@@ -899,7 +906,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		'Improvement Built'
 		iImprovement, iX, iY = argsList
 
-		if iImprovement in (-1, gc.getInfoTypeForString("IMPROVEMENT_GOODY_HUT"), gc.getInfoTypeForString("IMPROVEMENT_CITY_RUINS")):  
+		if iImprovement in (-1, getInfoTypeOrFail("IMPROVEMENT_GOODY_HUT"), getInfoTypeOrFail("IMPROVEMENT_CITY_RUINS")):  
 			return
 
 		pPlot = CyMap().plot(iX,iY)
@@ -922,7 +929,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		'Improvement Destroyed'
 		iImprovement, iOwner, iX, iY = argsList
 
-		if iImprovement in (-1, gc.getInfoTypeForString("IMPROVEMENT_GOODY_HUT"), gc.getInfoTypeForString("IMPROVEMENT_CITY_RUINS")):  
+		if iImprovement in (-1, getInfoTypeOrFail("IMPROVEMENT_GOODY_HUT"), getInfoTypeOrFail("IMPROVEMENT_CITY_RUINS")):  
 			return
 
 		pPlot = CyMap().plot(iX,iY)

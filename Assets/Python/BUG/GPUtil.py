@@ -19,8 +19,15 @@
 ## Copyright (c) 2007-2009 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import BugUtil
 import FontUtil
 import PlayerUtil
@@ -77,15 +84,15 @@ def init():
 	
 	global g_gpColors
 	g_gpColors = [None] * NUM_GP
-	g_gpColors[GP_GREAT_SPY] = gc.getInfoTypeForString("COLOR_WHITE")
+	g_gpColors[GP_GREAT_SPY] = getInfoTypeOrFail("COLOR_WHITE")
 	g_gpColors[GP_GREAT_ENGINEER] = gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getColorType()
-	g_gpColors[GP_GREAT_MERCHANT] = gc.getInfoTypeForString("COLOR_YELLOW")
-	g_gpColors[GP_GREAT_SCIENTIST] = gc.getInfoTypeForString("COLOR_RESEARCH_STORED")
-	g_gpColors[GP_GREAT_ARTIST] = gc.getInfoTypeForString("COLOR_CULTURE_STORED")
-	g_gpColors[GP_GREAT_PROPHET] = gc.getInfoTypeForString("COLOR_BLUE")
-	g_gpColors[GP_GREAT_GENERAL] = gc.getInfoTypeForString("COLOR_RED")
+	g_gpColors[GP_GREAT_MERCHANT] = getInfoTypeOrFail("COLOR_YELLOW")
+	g_gpColors[GP_GREAT_SCIENTIST] = getInfoTypeOrFail("COLOR_RESEARCH_STORED")
+	g_gpColors[GP_GREAT_ARTIST] = getInfoTypeOrFail("COLOR_CULTURE_STORED")
+	g_gpColors[GP_GREAT_PROPHET] = getInfoTypeOrFail("COLOR_BLUE")
+	g_gpColors[GP_GREAT_GENERAL] = getInfoTypeOrFail("COLOR_RED")
 	# MOD: specify color for each new great person (3)
-	#g_gpColors[GP_DOCTOR] = gc.getInfoTypeForString("COLOR_WHITE")
+	#g_gpColors[GP_DOCTOR] = getInfoTypeOrFail("COLOR_WHITE")
 	
 	global g_unitIcons
 	g_unitIcons = {}

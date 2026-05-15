@@ -6,6 +6,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import CvUtil
 import random
 from math import sqrt
@@ -1262,11 +1263,11 @@ class TerrainGenerator:
 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount,
 				self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 
-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
+		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 
 	def getLatitudeAtPlot(self, iX, iY):
 		# given a point (iX,iY) such that (0,0) is in the NW,
@@ -1408,10 +1409,10 @@ class FeatureGenerator:
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 		
 	def __initFeatureTypes(self):
-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
+		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
+		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
+		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
 
 	def addFeatures(self):
 		# adds features to all plots as appropriate

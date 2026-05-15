@@ -66,9 +66,15 @@ __version__ = "$Revision: 1.2 $"
 ## 
 ## Other:
 ## City is under cultural pressure
-
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG/Civ4lerts file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import AttitudeUtil
 import BugCore
 import BugUtil
@@ -778,10 +784,10 @@ class CanHurryPopulation(AbstractCanHurry):
 		#	iOverflow = iOverflow + city.getCurrentProductionDifference(True, False)
 		#iMaxOverflow = min(city.getProductionNeeded(), iOverflow)
 		#iOverflowGold = max(0, iOverflow - iMaxOverflow) * gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100
-		#iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(gc.getInfoTypeForString("YIELD_PRODUCTION"), city.getProductionModifier())
+		#iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(getInfoTypeOrFail("YIELD_PRODUCTION"), city.getProductionModifier())
 		# <advc.064> Replacing the above (same code as in CvMainInterface.py)
-		HURRY_WHIP = gc.getInfoTypeForString("HURRY_POPULATION")
-		HURRY_BUY = gc.getInfoTypeForString("HURRY_GOLD")
+		HURRY_WHIP = getInfoTypeOrFail("HURRY_POPULATION")
+		HURRY_BUY = getInfoTypeOrFail("HURRY_GOLD")
 		
 		bCountCurrentOverflow = BugCore.game.CityScreen.isWhipAssistOverflowCountCurrentProduction()
 		iOverflow = city.getHurryOverflow(HURRY_WHIP, True, bCountCurrentOverflow)

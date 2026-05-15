@@ -1,10 +1,15 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
-## 
+##
 ## CvAdvisorUtils
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import PyHelpers
 
 
@@ -87,7 +92,7 @@ def unitBuiltFeats(pCity, pUnit):
 	# so. -->
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_SHORT")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARCHER_BOW_SHORT")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT, True)
 			
@@ -105,7 +110,7 @@ def unitBuiltFeats(pCity, pUnit):
 
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_BOW_LONG")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARCHER_BOW_LONG")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG, True)
 			
@@ -123,7 +128,7 @@ def unitBuiltFeats(pCity, pUnit):
 
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARCHER_CROSSBOW")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARCHER_CROSSBOW")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW, True)
 			
@@ -141,7 +146,7 @@ def unitBuiltFeats(pCity, pUnit):
 	
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MOUNTED_MELEE")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE, True)
 			
@@ -159,7 +164,7 @@ def unitBuiltFeats(pCity, pUnit):
 
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MOUNTED_RANGED")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED, True)
 			
@@ -177,7 +182,7 @@ def unitBuiltFeats(pCity, pUnit):
 		
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_POLEARM")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MELEE_POLEARM")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM, True)
 			
@@ -195,7 +200,7 @@ def unitBuiltFeats(pCity, pUnit):
 
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_SHOCK")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_MELEE_SHOCK")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK, True)
 			
@@ -213,7 +218,7 @@ def unitBuiltFeats(pCity, pUnit):
 
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_SIEGE)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_SIEGE")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_SIEGE")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_SIEGE, True)
 			
@@ -231,7 +236,7 @@ def unitBuiltFeats(pCity, pUnit):
 	
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_GUN)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_GUN")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_GUN")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_GUN, True)
 			
@@ -249,7 +254,7 @@ def unitBuiltFeats(pCity, pUnit):
 	
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARMOR)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_ARMOR")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_ARMOR")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARMOR, True)
 			
@@ -267,7 +272,7 @@ def unitBuiltFeats(pCity, pUnit):
 	
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_HELICOPTER")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_HELICOPTER")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER, True)
 			
@@ -285,7 +290,7 @@ def unitBuiltFeats(pCity, pUnit):
 	
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_NAVAL)):
 
-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_NAVAL")):
+		if (pUnit.getUnitCombatType() == getInfoTypeOrFail("UNITCOMBAT_NAVAL")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_NAVAL, True)
 			
@@ -303,7 +308,7 @@ def unitBuiltFeats(pCity, pUnit):
 
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNIT_PRIVATEER)):
 
-		if (pUnit.getUnitType() == gc.getInfoTypeForString("UNIT_PRIVATEER")):
+		if (pUnit.getUnitType() == getInfoTypeOrFail("UNIT_PRIVATEER")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_PRIVATEER, True)
 			
@@ -321,7 +326,7 @@ def unitBuiltFeats(pCity, pUnit):
 
 	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNIT_SPY)):
 
-		if (pUnit.getUnitType() == gc.getInfoTypeForString("UNIT_SPY")):
+		if (pUnit.getUnitType() == getInfoTypeOrFail("UNIT_SPY")):
 		
 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_SPY, True)
 			
@@ -414,7 +419,7 @@ def endTurnFeats(iPlayer):
 
 		if (not gc.getPlayer(iPlayer).isFeatAccomplished(FeatTypes.FEAT_COPPER_CONNECTED)):
 		
-			iBonus = gc.getInfoTypeForString("BONUS_COPPER")
+			iBonus = getInfoTypeOrFail("BONUS_COPPER")
 			if (iBonus != BonusTypes.NO_BONUS):
 				if (pCapitalCity.hasBonus(iBonus)):
 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_COPPER_CONNECTED, True)
@@ -433,7 +438,7 @@ def endTurnFeats(iPlayer):
 
 		if (not gc.getPlayer(iPlayer).isFeatAccomplished(FeatTypes.FEAT_HORSE_CONNECTED)):
 		
-			iBonus = gc.getInfoTypeForString("BONUS_HORSE")
+			iBonus = getInfoTypeOrFail("BONUS_HORSE")
 			if (iBonus != BonusTypes.NO_BONUS):
 				if (pCapitalCity.hasBonus(iBonus)):
 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_HORSE_CONNECTED, True)
@@ -452,7 +457,7 @@ def endTurnFeats(iPlayer):
 
 		if (not gc.getPlayer(iPlayer).isFeatAccomplished(FeatTypes.FEAT_IRON_CONNECTED)):
 		
-			iBonus = gc.getInfoTypeForString("BONUS_IRON")
+			iBonus = getInfoTypeOrFail("BONUS_IRON")
 			if (iBonus != BonusTypes.NO_BONUS):
 				if (pCapitalCity.hasBonus(iBonus)):
 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_IRON_CONNECTED, True)
