@@ -80,7 +80,7 @@ def init():
 	global g_gpUnitTypes
 	g_gpUnitTypes = [None] * NUM_GP
 	for i, s in enumerate(g_gpBarList):
-		g_gpUnitTypes[i] = gc.getInfoTypeForString(s)
+		g_gpUnitTypes[i] = getInfoTypeOrFail(s)
 	
 	global g_gpColors
 	g_gpColors = [None] * NUM_GP

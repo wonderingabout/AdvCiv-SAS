@@ -6,8 +6,15 @@
 #
 # Created:     09/01/2009
 #-------------------------------------------------------------------------------
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party screen. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import BugUtil
 import CvStrategyOverlay
 import CvUtil
@@ -165,13 +172,13 @@ class CvDotMapOverlayScreen:
 			y = self.PANEL_Y + self.PANEL_MARGIN + row * self.COLOR_WIDGET_ACTUAL_H
 			szBar = self.COLOR_WIDGET_IDS[index]
 			screen.addStackedBarGFC(szBar, x, y, self.COLOR_WIDGET_W, self.COLOR_WIDGET_H, 1, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setStackedBarColors(szBar, 0, gc.getInfoTypeForString(color))
+			screen.setStackedBarColors(szBar, 0, getInfoTypeOrFail(color))
 			screen.setBarPercentage(szBar, 0, 100.0)
 
 	def selectColor(self, index):
 		# Updates the selected color and layer given the button index.
 		#
-		self.currentColor = gc.getInfoTypeForString(CvStrategyOverlay.COLOR_KEYS[index])  # index
+		self.currentColor = getInfoTypeOrFail(CvStrategyOverlay.COLOR_KEYS[index])  # index
 		self.currentLayer = index + self.FIRST_CROSS_LAYER
 
 	#-------------------------------------------------------------------------------

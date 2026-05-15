@@ -8,8 +8,15 @@
 ## Copyright (c) 2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 
 GENERIC_ICON = "*"
 TRAIT_ICONS = {}
@@ -41,7 +48,7 @@ def init():
 	addTrait("SPIRITUAL", game.getSymbolID(FontSymbols.RELIGION_CHAR), "Art/Interface/Buttons/TechTree/Meditation.dds")
 
 def addTrait(trait, icon, button):
-	eTrait = gc.getInfoTypeForString("TRAIT_" + trait)
+	eTrait = getInfoTypeOrFail("TRAIT_" + trait)
 	if eTrait != -1:
 		if icon is not None:
 			TRAIT_ICONS[eTrait] = u"%c" % icon

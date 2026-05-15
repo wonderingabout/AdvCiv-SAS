@@ -1,4 +1,12 @@
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -464,7 +472,7 @@ class IconGrid_BUG:
 							if stackedbarData.value > 0:
 								self.screen.addStackedBarGFC(szBar_ID, currentX + 6, textY + iSBarOffset_Y, width, 25, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 								self.screen.setBarPercentage(szBar_ID, InfoBarTypes.INFOBAR_STORED, float(stackedbarData.value) / float(100))
-								self.screen.setStackedBarColors(szBar_ID, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString(stackedbarData.color))
+								self.screen.setStackedBarColors(szBar_ID, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail(stackedbarData.color))
 							else:
 								self.screen.deleteWidget(szBar_ID)
 
@@ -555,7 +563,7 @@ class IconGrid_BUG:
 							szBar_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "SB"
 							self.screen.addStackedBarGFC(szBar_ID, currentX + 6, textY + iSBarOffset_Y, width, 25, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 							self.screen.setBarPercentage(szBar_ID, InfoBarTypes.INFOBAR_STORED, float(stackedbarData.value) / float(100))
-							self.screen.setStackedBarColors(szBar_ID, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString(stackedbarData.color))
+							self.screen.setStackedBarColors(szBar_ID, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail(stackedbarData.color))
 						else:
 							self.screen.deleteWidget(szBar_ID)
 

@@ -1399,7 +1399,7 @@ class CvForeignAdvisor:
 							szColor = "COLOR_GREEN"
 						else:
 							szColor = "COLOR_RED"
-						szPlayerReligion = localText.changeTextColor(szPlayerReligion + " [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor))
+						szPlayerReligion = localText.changeTextColor(szPlayerReligion + " [%+d]" % (iDiploModifier), getInfoTypeOrFail(szColor))
 				szPlayerReligion = sasFontTagLabel + szPlayerReligion + SAS_FONT_TAG_CLOSE
 			else:
 				szPlayerReligion = ""
@@ -1473,7 +1473,7 @@ class CvForeignAdvisor:
 								szColor = "COLOR_GREEN"
 							else:
 								szColor = "COLOR_RED"
-							szDiplo = sasFontTagLabel + localText.changeTextColor(" [%+d]" % (iDiploModifier), gc.getInfoTypeForString(szColor)) + SAS_FONT_TAG_CLOSE
+							szDiplo = sasFontTagLabel + localText.changeTextColor(" [%+d]" % (iDiploModifier), getInfoTypeOrFail(szColor)) + SAS_FONT_TAG_CLOSE
 						else:
 							szDiplo = ""
 						itemName = self.getNextWidgetName()

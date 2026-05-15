@@ -8,8 +8,15 @@
 ## Copyright (c) 2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import BugUtil
 
 gc = CyGlobalContext()
@@ -99,14 +106,14 @@ def keyToType(key):
 	if key in COLORS_BY_KEY:
 		type = COLORS_BY_KEY[key][COLOR_TYPE_IDX]
 	else:
-		type = gc.getInfoTypeForString(key)
+		type = getInfoTypeOrFail(key)
 	TYPES_BY_KEY[key] = type
 	return type
 
 
 def createColors(argsList=None):
 	for key in COLOR_KEYS:
-		type = gc.getInfoTypeForString(key)
+		type = getInfoTypeOrFail(key)
 		if (type >= 0):
 			info = gc.getColorInfo(type)
 			if (info):

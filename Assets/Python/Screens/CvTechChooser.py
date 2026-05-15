@@ -81,7 +81,7 @@ def getAllTechPrefsHover(widgetType, iData1, iData2, bOption):
 	#return buildTechPrefsHover("TXT_KEY_BUG_TECH_PREFS_ALL", CvScreensInterface.techChooser.pPrefs.getAllFlavorTechs(iData1))
 	# <advc.004a> Use slightly different text and name the GP
 	msg = BugUtil.getPlainText("TXT_KEY_ADVC_TECH_PREFS_ALL")
-	iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[iData1])
+	iUnitClass = getInfoTypeOrFail(UNIT_CLASSES[iData1])
 	pUnitInfo = gc.getUnitInfo(gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex())
 	msg += " (" + pUnitInfo.getDescription() + ")" # </advc.004a>
 	return buildTechPrefsHover(msg, CvScreensInterface.techChooser.pPrefs.getRemainingFlavorTechs(FLAVORS[iData1])) # K-Mod
@@ -1328,7 +1328,7 @@ class CvTechChooser:
 		# advc.004a: Merged into the code below
 		#for i, f in enumerate(FLAVORS):
 		#	# GP icon
-		#	iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[i])
+		#	iUnitClass = getInfoTypeOrFail(UNIT_CLASSES[i])
 		#	iUnitType = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
 		#	pUnitInfo = gc.getUnitInfo(iUnitType)
 		#	iX = self.PREF_ICON_LEFT
@@ -1350,7 +1350,7 @@ class CvTechChooser:
 		
 		# advc.004a: This loop is based on the placeGreatPeople function of the RFC:DoC mod
 		for i, f in enumerate(FLAVORS):
-			iUnitClass = gc.getInfoTypeForString(UNIT_CLASSES[i])
+			iUnitClass = getInfoTypeOrFail(UNIT_CLASSES[i])
 			iUnitType = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
 			pUnitInfo = gc.getUnitInfo(iUnitType)
 			screen.addDDSGFC( "GreatPerson" + str(f), pUnitInfo.getButton(), iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_ALL, i, -1 ) # advc.004a: pass i instead of f

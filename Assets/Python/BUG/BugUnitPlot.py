@@ -501,7 +501,7 @@ class BupPanel:
 
 			szStringHealth = szCell + "Health"
 			self.screen.setBarPercentage(szStringHealth, InfoBarTypes.INFOBAR_STORED, float(BupUnit.currHitPoints) / float(BupUnit.maxHitPoints))
-			self.screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString(sColor))
+			self.screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail(sColor))
 			self.screen.show(szStringHealth)
 
 

@@ -1028,7 +1028,7 @@ class CvDomesticAdvisor:
 			szColorTag = "COLOR_NEGATIVE_TEXT"
 			if not pLoopCity.canCultureFlip():
 				szColorTag = "COLOR_YIELD_FOOD"
-			szRevoltPr = localText.changeTextColor(szRevoltPr, gc.getInfoTypeForString(szColorTag))
+			szRevoltPr = localText.changeTextColor(szRevoltPr, getInfoTypeOrFail(szColorTag))
 			screen.setTableText(self.TABLE_OVERVIEW1, 19, i, szFontTagOpen + szRevoltPr + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.ctr>
 		

@@ -1899,7 +1899,7 @@ def numUnitsUprising(playerId):
 
 # Based (loosely) on BtS code deleted from the five canTriggerThe... functions
 def hasAnyCivTeamTech(techTag):
-	techId = gc.getInfoTypeForString(techTag)
+	techId = getInfoTypeOrFail(techTag)
 	if techId < 0:
 		return False
 	for i in range(gc.getMAX_CIV_TEAMS()):
@@ -1947,7 +1947,7 @@ def canTriggerUprising(playerId, techReqTag1, techReqTag2, counterUnitClassTag):
 	if (techReqTag1 and not hasAnyCivTeamTech(techReqTag1)) or (techReqTag2 and not hasAnyCivTeamTech(techReqTag2)):
 		return False
 	if counterUnitClassTag:
-		counterClassId = gc.getInfoTypeForString(counterUnitClassTag)
+		counterClassId = getInfoTypeOrFail(counterUnitClassTag)
 		if counterClassId < 0:
 			return False
 		counterUnitId = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationUnits(counterClassId)

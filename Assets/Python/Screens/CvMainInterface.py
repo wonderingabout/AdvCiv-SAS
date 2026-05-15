@@ -392,7 +392,7 @@ class CvMainInterface:
 	def createProgressBar(self, szName, color, uiMarks, bForward):
 		lRect = gRect(szName)
 		if isinstance(color, basestring):
-			eColor = gc.getInfoTypeForString(color)
+			eColor = getInfoTypeOrFail(color)
 		else:
 			eColor = color
 		return ProgressBarUtil.ProgressBar(szName + "-Canvas", lRect.x(), lRect.y(), lRect.width(), lRect.height(), eColor, uiMarks, bForward)

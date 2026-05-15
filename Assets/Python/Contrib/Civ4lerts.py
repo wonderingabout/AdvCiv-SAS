@@ -712,7 +712,7 @@ class AbstractCanHurry(AbstractCityTestAlert):
 	
 	def init(self, szHurryType):
 		AbstractCityAlert.init(self)
-		self.keHurryType = gc.getInfoTypeForString(szHurryType)
+		self.keHurryType = getInfoTypeOrFail(szHurryType)
 
 	def onCityBuildingUnit(self, argsList):
 		if isSilent():

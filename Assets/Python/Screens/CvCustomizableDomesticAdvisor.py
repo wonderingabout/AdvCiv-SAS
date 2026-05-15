@@ -1356,7 +1356,7 @@ class CvCustomizableDomesticAdvisor:
 		# arg: specialist type string (excluding "SPECIALIST_") e.g. use "ARTIST" to count artist specialists
 		#
 		szSpecialistType = "SPECIALIST_" + arg
-		nCount = city.getSpecialistCount(gc.getInfoTypeForString(szSpecialistType))
+		nCount = city.getSpecialistCount(getInfoTypeOrFail(szSpecialistType))
 		if nCount > 0:
 			return unicode(nCount)
 		else:
@@ -1366,7 +1366,7 @@ class CvCustomizableDomesticAdvisor:
 		# arg: specialist type string (excluding "SPECIALIST_") e.g. use "ARTIST" to count artist specialists
 		#
 		szSpecialistType = "SPECIALIST_" + arg
-		nCount = city.getFreeSpecialistCount(gc.getInfoTypeForString(szSpecialistType))
+		nCount = city.getFreeSpecialistCount(getInfoTypeOrFail(szSpecialistType))
 		if nCount > 0:
 			return unicode(nCount)
 		else:
