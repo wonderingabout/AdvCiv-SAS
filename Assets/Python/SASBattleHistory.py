@@ -3,6 +3,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import BugData
 
 
@@ -39,14 +40,14 @@ def _getMaxEntries():
 def _getPeakTerrain():
 	global _TERRAIN_PEAK
 	if _TERRAIN_PEAK is None:
-		_TERRAIN_PEAK = gc.getInfoTypeForString("TERRAIN_PEAK")
+		_TERRAIN_PEAK = getInfoTypeOrFail("TERRAIN_PEAK")
 	return _TERRAIN_PEAK
 
 
 def _getHillTerrain():
 	global _TERRAIN_HILL
 	if _TERRAIN_HILL is None:
-		_TERRAIN_HILL = gc.getInfoTypeForString("TERRAIN_HILL")
+		_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 	return _TERRAIN_HILL
 
 
@@ -201,14 +202,7 @@ def noteCombatActors(cdAttacker, cdDefender, iAttackerXP=None, iDefenderXP=None,
 	global _PENDING_COMBAT_ACTORS
 	global _PENDING_COMBAT_UNIT_CONTEXT
 	bKeepUnitContext = (_PENDING_COMBAT_ACTORS is not None and _PENDING_COMBAT_UNIT_CONTEXT is not None and iAttackerXP is None and iDefenderXP is None and _PENDING_COMBAT_ACTORS[0] == int(cdAttacker.eOwner) and _PENDING_COMBAT_ACTORS[1] == int(cdDefender.eOwner))
-	_PENDING_COMBAT_ACTORS = (
-		int(cdAttacker.eOwner),
-		int(cdDefender.eOwner),
-		int(cdAttacker.iCurrCombatStr),
-		int(cdAttacker.iMaxCombatStr),
-		int(cdDefender.iCurrCombatStr),
-		int(cdDefender.iMaxCombatStr),
-	)
+	_PENDING_COMBAT_ACTORS = (int(cdAttacker.eOwner), int(cdDefender.eOwner), int(cdAttacker.iCurrCombatStr), int(cdAttacker.iMaxCombatStr), int(cdDefender.iCurrCombatStr), int(cdDefender.iMaxCombatStr))
 	if bKeepUnitContext:
 		return
 	_PENDING_COMBAT_UNIT_CONTEXT = None
@@ -234,15 +228,7 @@ def recordCombatResult(pWinner, pLoser):
 		if iPendingAttacker == iWinner and iPendingDefender == iLoser:
 			iBattleX = pLoser.getX()
 			iBattleY = pLoser.getY()
-	entry = (
-		CyGame().getGameTurn(),
-		iWinner,
-		iLoser,
-		pWinner.getUnitType(),
-		pLoser.getUnitType(),
-		iBattleX,
-		iBattleY,
-	)
+	entry = (CyGame().getGameTurn(), iWinner, iLoser, pWinner.getUnitType(), pLoser.getUnitType(), iBattleX, iBattleY)
 	if _PENDING_COMBAT_ACTORS is not None:
 		iAttacker, iDefender = _PENDING_COMBAT_ACTORS[:2]
 		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude code Opus 4.7 review. (GPT-5.5) -->
@@ -279,15 +265,7 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, 
 	iDefender = int(iDefender)
 	if iAttacker < 0 or iDefender < 0:
 		return
-	entry = (
-		CyGame().getGameTurn(),
-		iAttacker,
-		iDefender,
-		int(iAttackerUnit),
-		int(iDefenderUnit),
-		int(iX),
-		int(iY),
-	)
+	entry = (CyGame().getGameTurn(), iAttacker, iDefender, int(iAttackerUnit), int(iDefenderUnit), int(iX), int(iY))
 	if _PENDING_COMBAT_ACTORS is not None and _PENDING_COMBAT_ACTORS[0] == iAttacker and _PENDING_COMBAT_ACTORS[1] == iDefender:
 		entry += _PENDING_COMBAT_ACTORS
 	while len(entry) < _END_STRENGTH_DATA_START:

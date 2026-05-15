@@ -19,8 +19,15 @@
 ## Author: Ruff_Hi (Situation Report tab)
 ##         EmperorFool (Deployment and Strategic Advantages tabs)
 ##         Karadoc (General changes and reformating to better match the style of the other advisors)
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this BUG screen; the custom Military Advisor lives in CvMilitaryAdvisor.py. Minor edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import CvUtil
 import PyHelpers
 import time
@@ -251,7 +258,7 @@ class CvMilitaryAdvisor:
 		if (self.iScreen != UNIT_LOCATION_SCREEN):
 			szText = u"<font=4>" + localText.getText("TXT_KEY_MILITARY_UNIT_LOCATION", ()).upper() + "</font>"
 		else:
-			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_UNIT_LOCATION", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + "</font>"
+			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_UNIT_LOCATION", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + "</font>"
 		screen.setText(self.UNIT_LOC_TAB_ID, "", szText, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		#xLink += CyInterface().determineWidth(szText) + self.SPACING
 		xLink += self.DX_LINK #K-Mod
@@ -259,7 +266,7 @@ class CvMilitaryAdvisor:
 		if (self.iScreen != SITUATION_REPORT_SCREEN):
 			szText = u"<font=4>" + localText.getText("TXT_KEY_MILITARY_SITUATION_REPORT", ()).upper() + "</font>"
 		else:
-			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_SITUATION_REPORT", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + "</font>"
+			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_SITUATION_REPORT", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + "</font>"
 		screen.setText(self.SIT_REP_TAB_ID, "", szText, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		#xLink += CyInterface().determineWidth(szText) + self.SPACING
 		xLink += self.DX_LINK #K-Mod
@@ -267,7 +274,7 @@ class CvMilitaryAdvisor:
 		if (self.iScreen != STRATEGIC_ADVANTAGES_SCREEN):
 			szText = u"<font=4>" + localText.getText("TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES", ()).upper() + "</font>"
 		else:
-			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + "</font>"
+			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + "</font>"
 		screen.setText(self.STRAT_ADV_TAB_ID, "", szText, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 #### Situation Report Tab ####
@@ -976,7 +983,7 @@ class CvMilitaryAdvisor:
 		szText = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
 		bAllSelected = iGroupID in self.selectedGroups
 		if (bAllSelected):
-			szText = localText.changeTextColor(u"<u>" + szText + u"</u>", gc.getInfoTypeForString("COLOR_YELLOW"))
+			szText = localText.changeTextColor(u"<u>" + szText + u"</u>", getInfoTypeOrFail("COLOR_YELLOW"))
 		if (bRedraw):
 			screen.addListBoxGFC(self.UNIT_LIST_ID, "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN + 15, self.W_TEXT - 2 * self.MAP_MARGIN, self.H_TEXT - 2 * self.MAP_MARGIN - 15, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSelect(self.UNIT_LIST_ID, False)
@@ -989,9 +996,9 @@ class CvMilitaryAdvisor:
 #			for group in grouping.itergroups():
 #				BugUtil.debug("%s / %s : %d (%d)" % (grouping.grouping.title, group.group.title, group.size(), group.isEmpty()))
 		
-		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
-		eRed = gc.getInfoTypeForString("COLOR_RED")
-		eWhite = gc.getInfoTypeForString("COLOR_WHITE")
+		eYellow = getInfoTypeOrFail("COLOR_YELLOW")
+		eRed = getInfoTypeOrFail("COLOR_RED")
+		eWhite = getInfoTypeOrFail("COLOR_WHITE")
 		grouping1 = self.stats.getGrouping(self.groupingKeys[0])
 		grouping2 = self.stats.getGrouping(self.groupingKeys[1])
 		BugUtil.debug("Grouping 1 is %s" % grouping1.grouping.title)
@@ -1130,10 +1137,10 @@ class CvMilitaryAdvisor:
 			szGGTxt_ID = self.getNextWidgetName()
 
 			screen.addStackedBarGFC(szGGBar_ID, self.X_GREAT_GENERAL_BAR, self.Y_GREAT_GENERAL_BAR, self.W_GREAT_GENERAL_BAR, self.H_GREAT_GENERAL_BAR, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE, gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, gc.getInfoTypeForString("COLOR_EMPTY"))
-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_EMPTY, gc.getInfoTypeForString("COLOR_EMPTY"))
+			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_GREAT_PEOPLE_STORED"))
+			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE, getInfoTypeOrFail("COLOR_GREAT_PEOPLE_RATE"))
+			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, getInfoTypeOrFail("COLOR_EMPTY"))
+			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_EMPTY, getInfoTypeOrFail("COLOR_EMPTY"))
 			screen.setBarPercentage(szGGBar_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(true)))
 
 			screen.setLabel(szGGTxt_ID, "", localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ()), CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)

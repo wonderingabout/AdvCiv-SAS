@@ -314,7 +314,7 @@ class CvInfoScreen:
 		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
 
 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
-		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
+		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), getInfoTypeOrFail("COLOR_PLAYER_GRAY")).upper()
 		
 		self.TEXT_ENTIRE_TIMELINE = localText.getText("TXT_KEY_SAS_INFO_ENTIRE_TIMELINE", ())
 		self.TEXT_TIMELINE_EMPTY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_EMPTY", ())
@@ -327,8 +327,10 @@ class CvInfoScreen:
 		self.TEXT_ESPIONAGE = localText.getObjectText("TXT_KEY_ESPIONAGE_CULTURE", 0)
 
 		# <!-- custom: Score tab shared UI constants cached once per language load. (GPT-5.3-Codex) -->
-		self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
-		self.SCORETAB_COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+		self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT = getInfoTypeOrFail("COLOR_ALT_HIGHLIGHT_TEXT")
+		self.SCORETAB_COLOR_RED = getInfoTypeOrFail("COLOR_RED")
+		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+		self.COLOR_GREY = getInfoTypeOrFail("COLOR_GREY")
 		self.SCORETAB_WAR_CHAR = FontUtil.getChar(FontSymbols.WAR_CHAR)
 		self.SCORETAB_PEACE_CHAR = FontUtil.getChar(FontSymbols.PEACE_CHAR)
 		self.SCORETAB_TRADE_CHAR = FontUtil.getChar(FontSymbols.TRADE_CHAR)
@@ -872,7 +874,7 @@ class CvInfoScreen:
 			if (self.iActiveTab != i):
 				screen.setText (szTextId, "", sasFontTagTitle + localText.getText (self.PAGE_NAME_LIST[i], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, i, -1)
 			else:
-				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.PAGE_NAME_LIST[i], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.PAGE_NAME_LIST[i], (), self.COLOR_YELLOW).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLink += self.PAGE_LINK_WIDTH[i]
 
 		if (self.iActiveTab >= 0 and self.iActiveTab < len(self.PAGE_NAME_LIST)):
@@ -1768,15 +1770,12 @@ class CvInfoScreen:
 	def drawGraphLines(self, sGRAPH_CANVAS_ID):
 		screen = self.getScreen()
 
-		# <!-- custom: performance optimimization: avoid redundant reuse if i'm not mistaken. -->
-		color_grey = gc.getInfoTypeForString("COLOR_GREY")
-
 		if (self.xSelPt != 0 or self.ySelPt != 0):
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, 0, self.ySelPt, self.W_GRAPH, self.ySelPt, color_grey)
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, self.xSelPt, 0, self.xSelPt, self.H_GRAPH, color_grey)
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, 0, self.ySelPt, self.W_GRAPH, self.ySelPt, self.COLOR_GREY)
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, self.xSelPt, 0, self.xSelPt, self.H_GRAPH, self.COLOR_GREY)
 		else:
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, -1, -1, -1, -1, color_grey)
-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, -1, -1, -1, -1, color_grey)
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, -1, -1, -1, -1, self.COLOR_GREY)
+			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, -1, -1, -1, -1, self.COLOR_GREY)
 
 
 	def drawXLabel(self, screen, turn, x, just = CvUtil.FONT_CENTER_JUSTIFY):
@@ -2082,7 +2081,7 @@ class CvInfoScreen:
 				screen.moveToFront(self.szGraphDropdownWidget_3in1[vGraphID_Locn])
 			else:
 				screen.addPanel(self.sGraphPanelWidget[vGraphID_Locn], "", "", true, true, iX_GRAPH + 5, iY_GRAPH_TITLE, self.W_LEGEND, 25, PanelStyles.PANEL_STYLE_IN)
-				zsText = self.sGraphText[0][iGraphID]   #u"<font=3>" + localText.getColorText("TXT_KEY_INFO_GRAPH", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>"
+				zsText = self.sGraphText[0][iGraphID]   #u"<font=3>" + localText.getColorText("TXT_KEY_INFO_GRAPH", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + u"</font>"
 				screen.setText(self.sGraphTextHeadingWidget[iGraphID], "", zsText, CvUtil.FONT_LEFT_JUSTIFY, iX_GRAPH + 10, iY_GRAPH_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 #BUG: Change Graphs - start
 

@@ -12,6 +12,7 @@ import CvUtil
 import CvGameUtils
 import CvScreensInterface
 from SASFontUtils import *
+from SASUtils import getInfoTypeOrFail
 import SASTextScale
 
 # globals
@@ -213,10 +214,12 @@ class CvDanQuayle:
 		
 		screen.addListBoxGFC(self.LIST_ID, "", self.X_LIST, self.Y_LIST, self.W_LIST, self.H_LIST, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(self.LIST_ID, False)
+		# <!-- custom: hoist out of per-leader loop. (Claude code Opus 4.7) -->
+		eColorYellow = getInfoTypeOrFail("COLOR_YELLOW")
 		for i in range(len(self.leaders)):
 			szText = self.leaders[i]
 			if (szLeaderText == szText):
-				szText = localText.getColorText(szText, (), gc.getInfoTypeForString("COLOR_YELLOW"))
+				szText = localText.getColorText(szText, (), eColorYellow)
 			else:
 				szText = localText.getText(szText, ())
 

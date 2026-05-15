@@ -54,9 +54,14 @@
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this BUG screen. Edits here are limited to repo-wide
+# consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups) and small hoists/caches. (Claude code Opus 4.7) -->
+
 
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 
 import PyHelpers
 import CvUtil
@@ -401,8 +406,13 @@ class CvCustomizableDomesticAdvisor:
 		if(self.runtimeInitDone):
 			return
 		
-		self.HURRY_TYPE_POP = gc.getInfoTypeForString("HURRY_POPULATION")
-		self.HURRY_TYPE_GOLD = gc.getInfoTypeForString("HURRY_GOLD")
+		self.HURRY_TYPE_POP = getInfoTypeOrFail("HURRY_POPULATION")
+		self.HURRY_TYPE_GOLD = getInfoTypeOrFail("HURRY_GOLD")
+		# <!-- custom: cache process IDs used per-city in getColumnProduction. (Claude code Opus 4.7) -->
+		self.PROCESS_WEALTH = getInfoTypeOrFail("PROCESS_WEALTH")
+		self.PROCESS_RESEARCH = getInfoTypeOrFail("PROCESS_RESEARCH")
+		self.PROCESS_CULTURE = getInfoTypeOrFail("PROCESS_CULTURE")
+		self.YIELD_PRODUCTION = getInfoTypeOrFail("YIELD_PRODUCTION")
 		
 		self.angryIcon = u"%c" % CyGame().getSymbolID(FontSymbols.ANGRY_POP_CHAR)
 		self.commerceIcon = u"%c" %(gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
@@ -455,12 +465,12 @@ class CvCustomizableDomesticAdvisor:
 		self.objectUnderConstruction = self.hammerIcon
 		
 		# add the colors dependant on the statuses
-		self.objectHave = localText.changeTextColor (self.objectIsPresent, gc.getInfoTypeForString("COLOR_GREEN")) #"x"
-		self.objectNotPossible = localText.changeTextColor (self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_RED")) #"-"
-		self.objectPossible = localText.changeTextColor (self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_BLUE")) #"o"
-		self.objectHaveObsolete = localText.changeTextColor (self.objectIsPresent, gc.getInfoTypeForString("COLOR_WHITE")) #"x"
-		self.objectNotPossibleConcurrent = localText.changeTextColor (self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_YELLOW")) #"-"
-		self.objectPossibleConcurrent = localText.changeTextColor (self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_YELLOW")) #"o"		
+		self.objectHave = localText.changeTextColor (self.objectIsPresent, getInfoTypeOrFail("COLOR_GREEN")) #"x"
+		self.objectNotPossible = localText.changeTextColor (self.objectIsNotPresent, getInfoTypeOrFail("COLOR_RED")) #"-"
+		self.objectPossible = localText.changeTextColor (self.objectCanBeBuild, getInfoTypeOrFail("COLOR_BLUE")) #"o"
+		self.objectHaveObsolete = localText.changeTextColor (self.objectIsPresent, getInfoTypeOrFail("COLOR_WHITE")) #"x"
+		self.objectNotPossibleConcurrent = localText.changeTextColor (self.objectIsNotPresent, getInfoTypeOrFail("COLOR_YELLOW")) #"-"
+		self.objectPossibleConcurrent = localText.changeTextColor (self.objectCanBeBuild, getInfoTypeOrFail("COLOR_YELLOW")) #"o"		
 		
 		# Corporation Yield and Commerce values by Bonus
 		# Maps are { bonus -> { yield/commerce -> { corporation -> value } } }
@@ -677,9 +687,9 @@ class CvCustomizableDomesticAdvisor:
 			# Colors to highlight with for each type of number (Must be here,
 			#  because C++ functions aren't available upon startup of CIV)
 			self.COLOR_DICT = {
-				"PROBLEM": gc.getInfoTypeForString("COLOR_RED"),
-				"NEUTRAL": gc.getInfoTypeForString("COLOR_YELLOW"),
-				"GREAT": gc.getInfoTypeForString("COLOR_GREEN"),
+				"PROBLEM": getInfoTypeOrFail("COLOR_RED"),
+				"NEUTRAL": getInfoTypeOrFail("COLOR_YELLOW"),
+				"GREAT": getInfoTypeOrFail("COLOR_GREEN"),
 				}
 
 # BUG - Production Grouping - start
@@ -687,15 +697,15 @@ class CvCustomizableDomesticAdvisor:
 			# Colors to use for color-coding of production items.
 			# ["DEFAULT"] is used if color-coding is off.
 			self.PROD_COLOR_DICT = {
-				"DEFAULT": gc.getInfoTypeForString("COLOR_WHITE"),
-				"NOTHING": gc.getInfoTypeForString("COLOR_RED"),
-				"BUILDING": gc.getInfoTypeForString("COLOR_WHITE"),
-				"WONDER": gc.getInfoTypeForString("COLOR_CYAN"), 
-				"WEALTH": gc.getInfoTypeForString("COLOR_YELLOW"),
-				"RESEARCH": gc.getInfoTypeForString("COLOR_GREEN"),
-				"CULTURE": gc.getInfoTypeForString("COLOR_MAGENTA"), 
-				"PROJECT": gc.getInfoTypeForString("COLOR_CYAN"),
-				"UNIT": gc.getInfoTypeForString("COLOR_YIELD_FOOD"),
+				"DEFAULT": getInfoTypeOrFail("COLOR_WHITE"),
+				"NOTHING": getInfoTypeOrFail("COLOR_RED"),
+				"BUILDING": getInfoTypeOrFail("COLOR_WHITE"),
+				"WONDER": getInfoTypeOrFail("COLOR_CYAN"),
+				"WEALTH": getInfoTypeOrFail("COLOR_YELLOW"),
+				"RESEARCH": getInfoTypeOrFail("COLOR_GREEN"),
+				"CULTURE": getInfoTypeOrFail("COLOR_MAGENTA"),
+				"PROJECT": getInfoTypeOrFail("COLOR_CYAN"),
+				"UNIT": getInfoTypeOrFail("COLOR_YIELD_FOOD"),
 				}
 # BUG - Production Grouping - end
 
@@ -917,7 +927,7 @@ class CvCustomizableDomesticAdvisor:
 		x += self.nControlSize + 2
 		screen.setImageButton( self.RENAME_PAGE_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BTN_EVENT_LOG").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_RENAME_PAGE, -1, -1 )
 		x += self.nControlSize + 2
-		info = gc.getSpecialistInfo(gc.getInfoTypeForString("SPECIALIST_CITIZEN"))
+		info = gc.getSpecialistInfo(getInfoTypeOrFail("SPECIALIST_CITIZEN"))
 		screen.addCheckBoxGFC(self.TOGGLE_SPECS_NAME, info.getTexture(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_TOGGLE_SPECIALISTS, -1, -1, ButtonStyles.BUTTON_STYLE_IMAGE )
 		x += self.nControlSize + 2
 		screen.setImageButton( self.ADD_PAGE_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_ADD_PAGE, -1, -1 )
@@ -1404,13 +1414,13 @@ class CvCustomizableDomesticAdvisor:
 						szColorKey = "BUILDING"
 				elif city.isProductionProcess():
 					iType = city.getProductionProcess()
-					if iType == gc.getInfoTypeForString("PROCESS_WEALTH"):
+					if iType == self.PROCESS_WEALTH:
 						szColorKey = "WEALTH"
 						szIcon = self.goldIcon
-					elif iType == gc.getInfoTypeForString("PROCESS_RESEARCH"):
+					elif iType == self.PROCESS_RESEARCH:
 						szColorKey = "RESEARCH"
 						szIcon = self.researchIcon
-					elif iType == gc.getInfoTypeForString("PROCESS_CULTURE"):
+					elif iType == self.PROCESS_CULTURE:
 						szColorKey = "CULTURE"
 						szIcon = self.cultureIcon
 				elif city.isProductionProject():
@@ -1490,7 +1500,7 @@ class CvCustomizableDomesticAdvisor:
 				iOverflow = iOverflow + city.getCurrentProductionDifference(True, False)
 			iMaxOverflow = min(city.getProductionNeeded(), iOverflow)
 			iOverflowGold = max(0, iOverflow - iMaxOverflow) * gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100
-			iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(gc.getInfoTypeForString("YIELD_PRODUCTION"), city.getProductionModifier())
+			iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(self.YIELD_PRODUCTION, city.getProductionModifier())
 			return unicode(iOverflow), unicode(iOverflowGold)
 		else:
 			return self.objectNotPossible, self.objectNotPossible
@@ -2106,7 +2116,7 @@ class CvCustomizableDomesticAdvisor:
 			# If we don't have a plain integer
 			if (re.search ("[-+]", nValue)):
 				# Color it red and return it
-				return localText.changeTextColor (nValue, gc.getInfoTypeForString("COLOR_RED"))
+				return localText.changeTextColor (nValue, getInfoTypeOrFail("COLOR_RED"))
 			# For each type of comparison
 			for szCompareType, clDict in self.COLOR_DICT_DICT.iteritems():
 				# Get the color we will use.

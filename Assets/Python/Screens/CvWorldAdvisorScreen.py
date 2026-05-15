@@ -152,9 +152,9 @@ class CvWorldAdvisorScreen:
 		self.TEXT_RIVER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_RIVER", ())
 		self.TEXT_LAKE = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAKE", ())
 		self.TEXT_COASTAL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_COASTAL", ())
-		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+		self.COLOR_GREEN = getInfoTypeOrFail("COLOR_GREEN")
+		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+		self.COLOR_RED = getInfoTypeOrFail("COLOR_RED")
 
 		# BFC 1
 		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_POP", ())

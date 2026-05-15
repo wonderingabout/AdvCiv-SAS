@@ -542,16 +542,9 @@ class CvPolicyAdvisorScreen:
 			
 			szAreaID = self.AREA_NAME + str(i)
 			screen = self.getScreen()
-			screen.addPanel(szAreaID, "", "", True, True,
-					fX, fY, self.HEADINGS_WIDTH, self.HEADINGS_BOTTOM - self.HEADINGS_TOP,
-					PanelStyles.PANEL_STYLE_MAIN)
+			screen.addPanel(szAreaID, "", "", True, True, fX, fY, self.HEADINGS_WIDTH, self.HEADINGS_BOTTOM - self.HEADINGS_TOP, PanelStyles.PANEL_STYLE_MAIN)
 
-			screen.setLabel(self.POLICY_OPTION_HEADER_NAME + str(i), "Background",
-					sasFontTagLabel + gc.getCivicOptionInfo(i).getDescription().upper() + SAS_FONT_TAG_CLOSE,
-					CvUtil.FONT_CENTER_JUSTIFY,
-					fX + self.HEADINGS_WIDTH / 2, self.HEADINGS_TOP + self.TEXT_MARGIN, 0,
-					FontTypes.GAME_FONT,
-					WidgetTypes.WIDGET_GENERAL, -1, -1 )
+			screen.setLabel(self.POLICY_OPTION_HEADER_NAME + str(i), "Background", sasFontTagLabel + gc.getCivicOptionInfo(i).getDescription().upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH / 2, self.HEADINGS_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			fY += self.TEXT_MARGIN
 			

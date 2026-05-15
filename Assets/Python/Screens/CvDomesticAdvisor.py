@@ -163,7 +163,8 @@ class CvDomesticAdvisor:
 		self.TEXT_EXIT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
 		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW1, self.TEXT_TAB_OVERVIEW2, self.TEXT_TAB_OVERVIEW3, self.TEXT_TAB_OVERVIEW4, self.TEXT_TAB_FINANCE]
-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+		self.PROCESS_WEALTH = getInfoTypeOrFail("PROCESS_WEALTH")
 		self.COLOR_POSITIVE_PREFIX = localText.getText("TXT_KEY_COLOR_POSITIVE", ())
 		self.COLOR_NEGATIVE_PREFIX = localText.getText("TXT_KEY_COLOR_NEGATIVE", ())
 		self.COLOR_REVERT_SUFFIX = localText.getText("TXT_KEY_COLOR_REVERT", ())
@@ -732,7 +733,7 @@ class CvDomesticAdvisor:
 		fSpecialists = 0.0
 		iWealthCount = 0
 		fWealth = 0.0
-		eWealth = gc.getInfoTypeForString("PROCESS_WEALTH")
+		eWealth = self.PROCESS_WEALTH
 		for city in PlayerUtil.playerCities(player):
 			if not city.isDisorder():
 				fCityTaxes = city.getYieldRate(YieldTypes.YIELD_COMMERCE) * iTaxRate / 100.0

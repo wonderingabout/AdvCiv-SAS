@@ -3,6 +3,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import CvUtil
 import ScreenInput
 import CvScreenEnums
@@ -2200,7 +2201,7 @@ class PLE:
 						PanelStyles.PANEL_STYLE_HUD_HELP)
 		
 		# create shadow text
-		szTextBlack = localText.changeTextColor(mt.removeColor(szText), gc.getInfoTypeForString("COLOR_BLACK"))
+		szTextBlack = localText.changeTextColor(mt.removeColor(szText), getInfoTypeOrFail("COLOR_BLACK"))
 		
 		# display shadow text
 		screen.addMultilineText( self.UNIT_INFO_TEXT_SHADOW, szTextBlack,
@@ -2284,7 +2285,7 @@ class PLE:
 		# Units led by a GG will get a star instead of a dot.
 		if (self.bShowGreatGeneralIndicator):
 			# is unit led by a GG?
-			#iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
+			#iLeaderPromo = getInfoTypeOrFail("PROMOTION_LEADER")
 			#if (iLeaderPromo != -1 and pLoopUnit.isHasPromotion(iLeaderPromo)):
 			# advc: Replacing the above
 			if pLoopUnit.getLeaderUnitType() >= 0:
@@ -2348,11 +2349,11 @@ class PLE:
 
 			# EF: Colors are set by user instead
 			#if (pLoopUnit.getDamage() >= ((pLoopUnit.maxHitPoints() * 2) / 3)):
-			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_RED"))
+			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_RED"))
 			#elif (pLoopUnit.getDamage() >= (pLoopUnit.maxHitPoints() / 3)):
-			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_YELLOW"))
+			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_YELLOW"))
 			#else:
-			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_GREEN"))	
+			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_GREEN"))	
 
 			screen.show( szStringHealthBar )
 

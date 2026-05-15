@@ -15,6 +15,7 @@ import CvUtil
 import ScreenInput
 import CvScreenEnums
 from SASFontUtils import *
+from SASUtils import getInfoTypeOrFail
 # <!-- custom: in main interface, use LABEL as the base text font instead of BODY because it is more readable. (GPT-5.3-Codex) -->
 import CvEventInterface
 import time
@@ -625,22 +626,22 @@ class CvMainInterface:
 		self.yResolution = screen.getYResolution()
 
 		# <!-- custom: cache for perf opt with the help of ChatGPT-5.2 Thinking thanks. Note: putting them in init function causes python errors, putting them here in initState seemingly solves them. -->
-		self.colorResearchStored = gc.getInfoTypeForString("COLOR_RESEARCH_STORED")
-		self.colorResearchRate = gc.getInfoTypeForString("COLOR_RESEARCH_RATE")
-		self.colorEmpty = gc.getInfoTypeForString("COLOR_EMPTY")
-		self.colorNegativeRate = gc.getInfoTypeForString("COLOR_NEGATIVE_RATE")
-		self.colorGreatPeopleStored = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED")
-		self.colorGreatPeopleRate = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE")
-		self.colorGreatCultureStored = gc.getInfoTypeForString("COLOR_CULTURE_STORED")
-		self.colorGreatCultureRate = gc.getInfoTypeForString("COLOR_CULTURE_RATE")
-		self.colorRed = gc.getInfoTypeForString("COLOR_RED")
-		self.colorYellow = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.colorGreen = gc.getInfoTypeForString("COLOR_GREEN")
-		self.colorAltHighlightText = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
-		self.colorBuildingText = gc.getInfoTypeForString("COLOR_BUILDING_TEXT")
+		self.colorResearchStored = getInfoTypeOrFail("COLOR_RESEARCH_STORED")
+		self.colorResearchRate = getInfoTypeOrFail("COLOR_RESEARCH_RATE")
+		self.colorEmpty = getInfoTypeOrFail("COLOR_EMPTY")
+		self.colorNegativeRate = getInfoTypeOrFail("COLOR_NEGATIVE_RATE")
+		self.colorGreatPeopleStored = getInfoTypeOrFail("COLOR_GREAT_PEOPLE_STORED")
+		self.colorGreatPeopleRate = getInfoTypeOrFail("COLOR_GREAT_PEOPLE_RATE")
+		self.colorGreatCultureStored = getInfoTypeOrFail("COLOR_CULTURE_STORED")
+		self.colorGreatCultureRate = getInfoTypeOrFail("COLOR_CULTURE_RATE")
+		self.colorRed = getInfoTypeOrFail("COLOR_RED")
+		self.colorYellow = getInfoTypeOrFail("COLOR_YELLOW")
+		self.colorGreen = getInfoTypeOrFail("COLOR_GREEN")
+		self.colorAltHighlightText = getInfoTypeOrFail("COLOR_ALT_HIGHLIGHT_TEXT")
+		self.colorBuildingText = getInfoTypeOrFail("COLOR_BUILDING_TEXT")
 		#
-		self.hurryPopulation = gc.getInfoTypeForString("HURRY_POPULATION")
-		self.hurryGold = gc.getInfoTypeForString("HURRY_GOLD")
+		self.hurryPopulation = getInfoTypeOrFail("HURRY_POPULATION")
+		self.hurryGold = getInfoTypeOrFail("HURRY_GOLD")
 		#
 		self.overlayFortifyPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_FORTIFY").getPath()
 		self.overlayHasmovedPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_HASMOVED").getPath()

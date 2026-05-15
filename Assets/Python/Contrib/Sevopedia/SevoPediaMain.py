@@ -413,7 +413,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
 
 		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
-		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")
+		self.COLOR_HIGHLIGHT_TEXT = getInfoTypeOrFail("COLOR_HIGHLIGHT_TEXT")
 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
@@ -1046,7 +1046,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
 		# <!-- custom: build grey labels for global footer controls that stay visible but may be inactive. Page-specific
 		# Legend links still appear only when applicable: no Legend means no page legend, not an inactive global command. See KI#126. (GPT-5.5) -->
-		eLightGrey = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
+		eLightGrey = getInfoTypeOrFail("COLOR_LIGHT_GREY")
 		self.SAS_eFooterDisabledColor = eLightGrey
 		self.BACK_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK", ()).upper(), eLightGrey))
 		self.NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper(), eLightGrey))
@@ -1058,7 +1058,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		
 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
 		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
-		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
+		eYellow = getInfoTypeOrFail("COLOR_YELLOW")
 		self.TOC_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper())
 		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper())
 
@@ -1668,7 +1668,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <advc.004y> Filter out minor civ, but not Barbarians (which do have
 		# sensible strategy text). Distinguish b/w them by checking for
 		# free Palace. Not sure if that's really better than using
-		#gc.getInfoTypeForString("CIVILIZATION_MINOR")
+		#getInfoTypeOrFail("CIVILIZATION_MINOR")
 		r = []
 		for descr,i in civList:
 			# <!-- custom: reveal minor nation, i want all information available in the sevopedia. This information may be useful. -->

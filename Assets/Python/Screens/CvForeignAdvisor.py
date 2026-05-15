@@ -386,14 +386,14 @@ class CvForeignAdvisor:
 		self.TEXT_ESPIONAGE_NO_SPY = localText.getText("TXT_KEY_ESPIONAGE_NO_SPY", ())
 		self.TEXT_MISC_THRESHOLD = localText.getText("TXT_KEY_MISC_THRESHOLD", ())
 		self.TEXT_CONCEPT_CITIES = localText.getText("TXT_KEY_CONCEPT_CITIES", ())
-		self.COLOR_WHITE = gc.getInfoTypeForString("COLOR_WHITE")
-		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
-		self.COLOR_BLUE = gc.getInfoTypeForString("COLOR_BLUE")
-		self.COLOR_CITY_GREEN = gc.getInfoTypeForString("COLOR_CITY_GREEN")
-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
-		self.COLOR_CYAN = gc.getInfoTypeForString("COLOR_CYAN")
-		self.COLOR_LIGHT_GREY = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
-		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
+		self.COLOR_WHITE = getInfoTypeOrFail("COLOR_WHITE")
+		self.COLOR_RED = getInfoTypeOrFail("COLOR_RED")
+		self.COLOR_BLUE = getInfoTypeOrFail("COLOR_BLUE")
+		self.COLOR_CITY_GREEN = getInfoTypeOrFail("COLOR_CITY_GREEN")
+		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+		self.COLOR_CYAN = getInfoTypeOrFail("COLOR_CYAN")
+		self.COLOR_LIGHT_GREY = getInfoTypeOrFail("COLOR_LIGHT_GREY")
+		self.COLOR_GREEN = getInfoTypeOrFail("COLOR_GREEN")
 
 		eDenialColor = self.COLOR_WHITE
 		self.TEXT_REJECTS = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)
@@ -675,7 +675,7 @@ class CvForeignAdvisor:
 			else:
 				# <!-- custom: keep active tab labels non-routing; clicking an already-active tab should do nothing, not dispatch WIDGET_FOREIGN_ADVISOR with -1 (which can route to the other Foreign shell via CvScreensInterface).
 				# Without this, repeated clicks on the 2nd tab of Foreign Diplomacy Advisor (Glance) will jump to the 2nd tab of Foreign Trade Advisor (Bonuses), which is not consistent with how other links behave and is likely unnecessary nor desired for players. (GPT-5.3-Codex) -->
-				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), self.COLOR_YELLOW).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			xLink += self.LABEL_WIDTH_LIST[i]
 	
 	def drawActive (self, bInitial):
@@ -1913,7 +1913,7 @@ class CvForeignAdvisor:
 				amount = amount - 1
 			
 			if (self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP):
-				amountStr = sasFontTagLabel + localText.changeTextColor(str(amount), gc.getInfoTypeForString("COLOR_YELLOW")) + SAS_FONT_TAG_CLOSE
+				amountStr = sasFontTagLabel + localText.changeTextColor(str(amount), self.COLOR_YELLOW) + SAS_FONT_TAG_CLOSE
 			else:
 				amountStr = sasFontTagLabel + str(amount) + SAS_FONT_TAG_CLOSE
 			screen.setTableText( self.availableTable, iIndex, 0, amountStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
@@ -2279,7 +2279,7 @@ class CvForeignAdvisor:
 		iconGrid.setTextColWidth(iCityColWontCede, iCityColWidth)
 
 		iconGrid.setHeader(iCityColWants, labelText(self.TEXT_WANTS))
-		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
+		eDenialColor = self.COLOR_WHITE
 		iconGrid.setHeader(iCityColRejects, labelText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)))
 		iconGrid.setHeader(iCityColWillCede, labelText(self.TEXT_WILL_CEDE))
 		iconGrid.setHeader(iCityColWontCede, labelText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)))

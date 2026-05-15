@@ -10,6 +10,7 @@ import time
 import re
 import CvScreensInterface
 from SASFontUtils import *
+from SASUtils import getInfoTypeOrFail
 
 # globals
 gc = CyGlobalContext()
@@ -275,6 +276,9 @@ class CvReplayScreen:
 					bDone = True
 			i += 1
 
+		# <!-- custom: hoist out of per-event loop. (Claude code Opus 4.7) -->
+		eColorClear = getInfoTypeOrFail("COLOR_CLEAR")
+		eColorWhite = getInfoTypeOrFail("COLOR_WHITE")
 		for iLoopEvent in events:
 
 			szEventDate = CyGameTextMgr().getDateStr(self.replayInfo.getReplayMessageTurn(iLoopEvent), false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
@@ -299,10 +303,10 @@ class CvReplayScreen:
 				if iPlayer != -1:
 					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, self.replayInfo.getColor(iPlayer), 0.6)
 				else:
-					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, gc.getInfoTypeForString("COLOR_CLEAR"), 0.6)
+					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, eColorClear, 0.6)
 			else:
 				if (iX > -1 and iY > -1 and not bSilent):
-					screen.minimapFlashPlot(iX, iY, gc.getInfoTypeForString("COLOR_WHITE"), 10)
+					screen.minimapFlashPlot(iX, iY, eColorWhite, 10)
 		if (self.yMessage > self.H_TEXT):
 			screen.scrollableAreaScrollToBottom(self.szAreaId)
 
@@ -340,9 +344,11 @@ class CvReplayScreen:
 
 	def resetMinimapColor(self):
 		screen = self.getScreen()
+		# <!-- custom: hoist out of nested xy loop. (Claude code Opus 4.7) -->
+		eColorClear = getInfoTypeOrFail("COLOR_CLEAR")
 		for iX in range(self.replayInfo.getMapWidth()):
 			for iY in range(self.replayInfo.getMapHeight()):
-				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, gc.getInfoTypeForString("COLOR_CLEAR"), 0.6)
+				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, eColorClear, 0.6)
 
 	def resetData(self):
 		screen = self.getScreen()
@@ -362,14 +368,8 @@ class CvReplayScreen:
 		# so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
 		screen.setGraphLabelX(self.szGraph, u"")
 		screen.setGraphLabelY(self.szGraph, u"")
-		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background",
-				sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE,
-				CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 16,
-				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background",
-				sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE,
-				CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH + 8, self.Y_GRAPH + 8,
-				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 16, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH + 8, self.Y_GRAPH + 8, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setGraphYDataRange(self.szGraph, 0.0, 1.0)
 
 	def setPlaying(self, bPlaying):

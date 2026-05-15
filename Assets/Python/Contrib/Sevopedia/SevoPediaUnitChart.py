@@ -100,7 +100,7 @@ class SevoPediaUnitChart:
 		szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
 
 		# <!-- custom: display more potentially useful information, useful in AdvCiv-SAS or maybe other mods as well, also so that i don't have to maintain it everytime i make a micro (or big) change, more versatile and flexible this way too. -->
-		#if self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_AIR") or self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_NAVAL") or self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_SIEGE"):
+		#if self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR") or self.iGroup == getInfoTypeOrFail("UNITCOMBAT_NAVAL") or self.iGroup == getInfoTypeOrFail("UNITCOMBAT_SIEGE"):
 			# <!-- custom: imported and modified from base advciv in a similar way -->
 			#szSpecial = "Bombard"
 		#else:

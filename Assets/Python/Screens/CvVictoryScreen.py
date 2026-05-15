@@ -93,14 +93,7 @@ class CvVictoryScreen:
 
 		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
 		someWRoomForCulturePercentages = 27
-		self.TABLE_WIDTH_BASE = [
-			350 - (2 * someWRoomForCulturePercentages),
-			80,
-			180,
-			100 + someWRoomForCulturePercentages,
-			180,
-			100 + someWRoomForCulturePercentages
-		]
+		self.TABLE_WIDTH_BASE = [350 - (2 * someWRoomForCulturePercentages), 80, 180, 100 + someWRoomForCulturePercentages, 180, 100 + someWRoomForCulturePercentages]
 		self.TABLE2_WIDTH_BASE = [740, 265]
 		# <advc.703>
 		self.RF_TABLEW_BASE = [125, 150, 250, 260, 205]
@@ -236,7 +229,7 @@ class CvVictoryScreen:
 		self.TEXT_VOTE_SOURCE_NOT_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE", ())
 		self.TEXT_MEMBERS_NO_VOTING_YET = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET", ())
 		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.HEADER_TEXT = sasFontTagTitle.bold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.TAB_VICTORIES = localText.getText("TXT_KEY_MAIN_MENU_VICTORIES", ()).upper()
@@ -1283,12 +1276,8 @@ class CvVictoryScreen:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <advc.708>
 		elif g.isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
-			szBuffer = localText.getText("TXT_KEY_RF_HANDICAP_SETTINGS",
-					(gc.getHandicapInfo(g.getHandicapType()).getTextKey(),
-					gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(),
-					gc.getHandicapInfo(g.getAIHandicap()).getTextKey(), ))
-			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer,
-					WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			szBuffer = localText.getText("TXT_KEY_RF_HANDICAP_SETTINGS", (gc.getHandicapInfo(g.getHandicapType()).getTextKey(), gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), gc.getHandicapInfo(g.getAIHandicap()).getTextKey(), ))
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.708>
 		else:
 			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (
