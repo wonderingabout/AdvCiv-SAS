@@ -132,6 +132,13 @@ class CvForeignAdvisor:
 		self.GLANCE_BUTTON_SIZE = 46
 		self.PLUS_MINUS_SIZE = 25
 		self.bGlancePlus = True
+		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). Page size 16 fits worldsize Huge and displays fine at 1080p, and suits worldsize SAS48 with 3 pages at 1080p. See KI#134. (Claude Code Sonnet 4.6) -->
+		self.iGlancePage = 0
+		self.iGlanceNumPages = 1
+		self.ltGlanceColumns = []
+		self.glanceLeftArrowID = ""
+		self.glanceRightArrowID = ""
+		self.GLANCE_PAGE_SIZE = 16
 
 		self.INFO_BORDER = 10
 
@@ -1543,9 +1550,16 @@ class CvForeignAdvisor:
 
 				# Player panel
 				self.nCount += 1
+		# <!-- custom: build ordered column list for pagination (Claude Code Sonnet 4.6) -->
+		self.ltGlanceColumns = [i for i in range(gc.getMAX_PLAYERS()) if self.ltPlayerMet[i] and i != self.iActiveLeader]
+		nPageCols = min(len(self.ltGlanceColumns), self.GLANCE_PAGE_SIZE)
+		self.iGlanceNumPages = max(1, (len(self.ltGlanceColumns) + self.GLANCE_PAGE_SIZE - 1) / self.GLANCE_PAGE_SIZE)
+		# <!-- custom: preserve last page across reopens; clamp in case player count changed. (Claude Code Sonnet 4.6) -->
+		self.iGlancePage = min(self.iGlancePage, self.iGlanceNumPages - 1)
 		# advc.066: Was (self.W_SCREEN - 20) /... I don't think there are margins to account for here.
-		self.X_Spread = self.W_SCREEN / self.nCount
-		if self.X_Spread < 57:
+		# <!-- custom: use nPageCols+1 as denominator; the +1 reserves a left slot matching the original nCount which included the active player who has no column icon. (Claude Code Sonnet 4.6) -->
+		self.X_Spread = self.W_SCREEN / max(nPageCols + 1, 1)
+		if self.X_Spread < 57 and 57 * (nPageCols + 1) <= self.W_SCREEN:
 			self.X_Spread = 57 # advc.066: Lower bound was 58
 		# advc.066: Was (self.H_SCREEN - 50) /...
 		self.Y_Spread = (self.mainPanelHeight + 105) / (self.nCount + 2)
@@ -1554,23 +1568,41 @@ class CvForeignAdvisor:
 			self.Y_Text_Offset = 0
 
 	def drawGlanceHeader (self, screen, panelName):
+		# <!-- custom: page-aware column drawing with arrow navigation (Claude Code Sonnet 4.6) -->
+		iPageStart = self.iGlancePage * self.GLANCE_PAGE_SIZE
+		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_PAGE_SIZE])
+
 		nCount = 1
 		for iLoopPlayer in range (gc.getMAX_PLAYERS()):
+			if iLoopPlayer not in pageColumnSet:
+				continue
 			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
 			currentPlayer = gc.getPlayer(iLoopPlayer)
+			szName = self.getNextWidgetName()
+			screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
+			if (self.iSelectedLeader == iLoopPlayer):
+				screen.setState(szName, True)
+			else:
+				screen.setState(szName, False)
+			nCount += 1
 
-			if self.ltPlayerMet[iLoopPlayer]:
-				if (iLoopPlayer != self.iActiveLeader):
-					szName = self.getNextWidgetName()
-					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
-					if (self.iSelectedLeader == iLoopPlayer):
-						screen.setState(szName, True)
-					else:
-						screen.setState(szName, False)
-					nCount += 1
+		self.glanceLeftArrowID = ""
+		self.glanceRightArrowID = ""
+		if self.iGlanceNumPages > 1:
+			iArrowSize = 24
+			iArrowY = 50 + (60 - iArrowSize) / 2
+			self.glanceLeftArrowID = self.getNextWidgetName()
+			screen.setButtonGFC(self.glanceLeftArrowID, u"", "", 5, iArrowY, iArrowSize, iArrowSize, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_ARROW_LEFT)
+			screen.enable(self.glanceLeftArrowID, self.iGlancePage > 0)
+			self.glanceRightArrowID = self.getNextWidgetName()
+			screen.setButtonGFC(self.glanceRightArrowID, u"", "", self.W_SCREEN - iArrowSize - 5, iArrowY, iArrowSize, iArrowSize, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_ARROW_RIGHT)
+			screen.enable(self.glanceRightArrowID, self.iGlancePage < self.iGlanceNumPages - 1)
 		
 	def drawGlanceRows (self, screen, mainPanelName, bSorted = False, nPlayer = 1):
 		# ForeignAdvisorPrint ("MAX Players = %d" % gc.getMAX_PLAYERS())
+		# <!-- custom: restrict columns to current page (Claude Code Sonnet 4.6) -->
+		iPageStart = self.iGlancePage * self.GLANCE_PAGE_SIZE
+		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_PAGE_SIZE])
 		ltSortedRelations = [(None,-1)] * gc.getMAX_PLAYERS()
 		self.loadColIntoList (self.ltPlayerRelations, ltSortedRelations, nPlayer)
 		if bSorted:
@@ -1611,9 +1643,10 @@ class CvForeignAdvisor:
 			# j           = The Column Leader (The Rival)
 
 			for j in range (gc.getMAX_PLAYERS()):
-				if self.ltPlayerMet[j]:
+				if self.ltPlayerMet[j] and j in pageColumnSet:
 					# <!-- custom: This is extra info by gemini 3 pro; check if accurate -->
 					# This line HIDES the column for the Human Player (You), which matches your screenshot.
+					# <!-- custom: pageColumnSet already excludes the active player so j != self.iActiveLeader is always true here; kept for clarity. (Claude Code Sonnet 4.6) -->
 					if j != self.iActiveLeader:
 						szName = self.getNextWidgetName()
 						nAttitude = self.ltPlayerRelations[iLoopPlayer][j]
@@ -2431,6 +2464,15 @@ class CvForeignAdvisor:
 						return 1
 			elif (inputClass.getFunctionName() == self.GLANCE_BUTTON):
 				self.handlePlusMinusToggle()
+				return 1
+			# <!-- custom: glance tab column pagination arrows (Claude Code Sonnet 4.6) -->
+			elif self.glanceLeftArrowID and inputClass.getFunctionName() + str(inputClass.getID()) == self.glanceLeftArrowID:
+				self.iGlancePage = max(0, self.iGlancePage - 1)
+				self.drawContents(False)
+				return 1
+			elif self.glanceRightArrowID and inputClass.getFunctionName() + str(inputClass.getID()) == self.glanceRightArrowID:
+				self.iGlancePage = min(self.iGlanceNumPages - 1, self.iGlancePage + 1)
+				self.drawContents(False)
 				return 1
 	############################################
 	### BEGIN CHANGES ENHANCED INTERFACE MOD ###

@@ -169,6 +169,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer)  
 [132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network)  
 [133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#133---fixed-base-advciv-issue-of-sevopedia-indexs-legacy-sort-key-cleanup-txt_key_-prefix-strip--the-x-comma-flip-scattering-untranslated-entries-instead-of-clustering-them-hurts-diagnosis-of-missing-translations-sorting-items-differently-than-the-type-specific-pedia-pages-and-than-natural-alphabetical-order-and-incurring-needless-per-entry-build-time-cost-especially-wasteful-in-non-english-locales)  
+[134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#134---fixed-base-advciv-issue-foreign-diplomacy-advisor-glance-tab-column-icons-overflow-horizontally-with-24-rival-players)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4929,3 +4930,25 @@ Why:
 File changed:
 
 - [Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py](/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py)
+
+## 134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pkm3MTTVMVBuVA1uiW1r70Z1_T8I5q-G?usp=sharing).
+
+Observed issue:
+
+- In Foreign Diplomacy Advisor, Glance tab, the column header icons (one per rival player) overflowed the screen width when there were 24+ rival players (e.g., for worldsize SAS48).
+- Vertical scrolling worked fine; only the horizontal axis was affected.
+- Root cause is Base AdvCiv's `initializeGlance` formula: `X_Spread = W_SCREEN / nCount` with a hard minimum of 57 px (originally 58). With many players, `nCount` grows while `W_SCREEN` stays fixed, so `X_Spread` hits the floor and the total content width (`57 × nCount`) exceeds the panel width. The panel is created at exactly `W_SCREEN` wide, so icons past that boundary are clipped.
+- Switching to a table widget was considered but rejected because it would lose the per-cell widget type interactions (attitude popups, war-trade clicks, leaderhead hover). Horizontal scrolling was also considered but the header and row panels are separate, so they cannot scroll in sync.
+
+Fix applied:
+
+- Added column pagination to the Glance tab: columns are split into pages of as of now 16 players, navigated with standard left/right arrow buttons (same `BUTTON_STYLE_ARROW_LEFT/RIGHT` style used by `CvInfoScreen`'s graph).
+- `X_Spread` now uses `GLANCE_PAGE_SIZE + 1` as denominator (the `+1` preserves the original left-slot convention, which reserved one slot for the active player who has no column icon), so 16 columns fit the advisor width at 1080p with the 57 px floor comfortably satisfied.
+- Page size 16 fits worldsize Huge well and displays cleanly at 1080p; for SAS48 player counts it yields around 3 pages which also displays fine at 1080p.
+- Arrows are only drawn when `iGlanceNumPages > 1` (i.e. more than 16 rivals), so small games are unaffected.
+
+Files changed:
+
+- [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
