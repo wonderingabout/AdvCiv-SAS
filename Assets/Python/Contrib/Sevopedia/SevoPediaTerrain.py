@@ -419,11 +419,7 @@ class SevoPediaTerrain:
 				# <!-- custom: also handle water units that can move through all terrains but only on water; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
 				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc-->
 				# Peak — Relevant Units (includes "boat with legs"; All-Terrain short-circuits)
-				can_walk_on_peak = (
-					unitInfo.isCanMoveAllTerrain() or
-					(unitInfoDomain == DomainTypes.DOMAIN_LAND and
-					(unitInfo.isCanMoveImpassable() or passTech))
-				)
+				can_walk_on_peak = (unitInfo.isCanMoveAllTerrain() or (unitInfoDomain == DomainTypes.DOMAIN_LAND and (unitInfo.isCanMoveImpassable() or passTech)))
 
 				if can_walk_on_peak:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
@@ -560,13 +556,8 @@ class SevoPediaTerrain:
 
 				# <!-- custom: "boat with legs" edge case handled in as of now relevant units as chatgpt 5 says as well, if no boat unit at all has legs, as is as of now in advciv-sas, then they would instead be displayed in this units impassable panel for exhaustiveness and notsimply omitted if i understood it correctly, check if accurate-->
 				# Peak — Units Impassable (show land w/out bypass; all sea unless All-Terrain)
-				blocked = (
-					(not unitInfo.isCanMoveAllTerrain()) and (
-						(unitInfoDomain == DomainTypes.DOMAIN_LAND and
-						not (unitInfo.isCanMoveImpassable() or passTech)) or
-						(unitInfoDomain == DomainTypes.DOMAIN_SEA)  # regular ships blocked
-					)
-				)
+				# regular ships (DOMAIN_SEA) are blocked on peak
+				blocked = ((not unitInfo.isCanMoveAllTerrain()) and ((unitInfoDomain == DomainTypes.DOMAIN_LAND and not (unitInfo.isCanMoveImpassable() or passTech)) or (unitInfoDomain == DomainTypes.DOMAIN_SEA)))
 
 				if blocked:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
@@ -594,12 +585,7 @@ class SevoPediaTerrain:
 					continue
 
 				# Right now you include units if they have a passable tech (inverted logic). To show units that are truly blocked (no bypass), use the same pattern you used for features:
-				blocked = (
-					(info.isImpassable() or unitInfo.getTerrainImpassable(self.iTerrain)) and
-					not unitInfo.isCanMoveImpassable() and
-					unitInfo.getTerrainPassableTech(self.iTerrain) == -1 and
-					not unitInfo.isCanMoveAllTerrain()
-				)
+				blocked = ((info.isImpassable() or unitInfo.getTerrainImpassable(self.iTerrain)) and not unitInfo.isCanMoveImpassable() and unitInfo.getTerrainPassableTech(self.iTerrain) == -1 and not unitInfo.isCanMoveAllTerrain())
 				if blocked:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 

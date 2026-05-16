@@ -27,6 +27,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugDll
 import PlayerUtil
@@ -96,39 +103,18 @@ def findDealsByPlayerAndType(ePlayer, types):
 ## TradeableItem Functions
 
 def isAnnual(eItem):
-	return eItem in (
-		TradeableItems.TRADE_RESOURCES, 
-		TradeableItems.TRADE_GOLD_PER_TURN, 
-		TradeableItems.TRADE_VASSAL, 
-		TradeableItems.TRADE_SURRENDER, 
-		TradeableItems.TRADE_OPEN_BORDERS,
-		TradeableItems.TRADE_DISENGAGE, # advc.034
-		TradeableItems.TRADE_DEFENSIVE_PACT, 
-		TradeableItems.TRADE_PERMANENT_ALLIANCE, 
-	)
+	# advc.034: TRADE_DISENGAGE included in this set
+	return eItem in (TradeableItems.TRADE_RESOURCES, TradeableItems.TRADE_GOLD_PER_TURN, TradeableItems.TRADE_VASSAL, TradeableItems.TRADE_SURRENDER, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DISENGAGE, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE)
 
 def isDual(eItem, bExcludePeace=False):
 	if bExcludePeace and eItem == TradeableItems.TRADE_PEACE_TREATY:
 		return False
-	return eItem in (
-		TradeableItems.TRADE_OPEN_BORDERS,
-		TradeableItems.TRADE_DISENGAGE, # advc.034
-		TradeableItems.TRADE_DEFENSIVE_PACT, 
-		TradeableItems.TRADE_PERMANENT_ALLIANCE, 
-		TradeableItems.TRADE_PEACE_TREATY, 
-	)
+	# advc.034: TRADE_DISENGAGE included in this set
+	return eItem in (TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DISENGAGE, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE, TradeableItems.TRADE_PEACE_TREATY)
 
 def hasData(eItem):
-	return eItem not in (
-		TradeableItems.TRADE_MAPS, 
-		TradeableItems.TRADE_VASSAL, 
-		TradeableItems.TRADE_SURRENDER, 
-		TradeableItems.TRADE_OPEN_BORDERS,
-		TradeableItems.TRADE_DISENGAGE, # advc.034
-		TradeableItems.TRADE_DEFENSIVE_PACT, 
-		TradeableItems.TRADE_PERMANENT_ALLIANCE, 
-		TradeableItems.TRADE_PEACE_TREATY, 
-	)
+	# advc.034: TRADE_DISENGAGE included in this set
+	return eItem not in (TradeableItems.TRADE_MAPS, TradeableItems.TRADE_VASSAL, TradeableItems.TRADE_SURRENDER, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DISENGAGE, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE, TradeableItems.TRADE_PEACE_TREATY)
 
 def isGold(eItem):
 	return eItem in GOLD_TRADE_ITEMS
@@ -289,14 +275,7 @@ class ReversedDeal(Deal):
 ## Testing
 
 def test():
-	allDeals = findDealsByPlayerAndType(0, 
-			(
-				TradeableItems.TRADE_PEACE_TREATY,
-				TradeableItems.TRADE_OPEN_BORDERS,
-				TradeableItems.TRADE_DEFENSIVE_PACT,
-				TradeableItems.TRADE_RESOURCES,
-				TradeableItems.TRADE_GOLD_PER_TURN,
-			))
+	allDeals = findDealsByPlayerAndType(0, (TradeableItems.TRADE_PEACE_TREATY, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_RESOURCES, TradeableItems.TRADE_GOLD_PER_TURN))
 	for player, deals in allDeals.iteritems():
 		print PlayerUtil.getPlayer(player).getName()
 		for type, deal in deals.iteritems():

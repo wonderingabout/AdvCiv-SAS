@@ -6,6 +6,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugUtil
 import PlayerUtil
@@ -545,29 +552,8 @@ def getCanTrainUnits(playerOrID, askingPlayerOrID=None, military=None):
 	else:
 		return units
 
-(
-	ORDER_NONE,
-	
-	ORDER_SKIP,
-	ORDER_SLEEP,
-	ORDER_FORTIFY,
-	ORDER_HEAL,
-	
-	ORDER_SENTRY,
-	ORDER_INTERCEPT,
-	ORDER_PATROL,
-	ORDER_PLUNDER,
-	
-	ORDER_BUILD,  # improvement
-	ORDER_CONSTRUCT,  # building
-	ORDER_GOTO,
-	ORDER_EXPLORE,
-	
-	ORDER_AUTO_BUILD,
-	ORDER_AUTO_NETWORK,
-	ORDER_AUTO_CITY,
-	ORDER_AUTO_RELIGION,
-) = range(17)
+# ORDER_BUILD = improvement, ORDER_CONSTRUCT = building
+(ORDER_NONE, ORDER_SKIP, ORDER_SLEEP, ORDER_FORTIFY, ORDER_HEAL, ORDER_SENTRY, ORDER_INTERCEPT, ORDER_PATROL, ORDER_PLUNDER, ORDER_BUILD, ORDER_CONSTRUCT, ORDER_GOTO, ORDER_EXPLORE, ORDER_AUTO_BUILD, ORDER_AUTO_NETWORK, ORDER_AUTO_CITY, ORDER_AUTO_RELIGION) = range(17)
 
 ORDERS_BY_ACTIVITY = {
 	ActivityTypes.ACTIVITY_AWAKE: ORDER_NONE,

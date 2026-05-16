@@ -233,12 +233,7 @@ def _compute_leader_cache_internal():
 				value_1_rand_raw = loopLeaderHeadInfo.getContactRand(i)
 				value_1_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
 
-				adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(
-					value_1_rand_raw,
-					value_1_delay_raw,
-					IS_DEBUG_LEADER,
-					contact_types[i]
-				)
+				adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, IS_DEBUG_LEADER, contact_types[i])
 
 				leader_rows[i] = (adjusted_rand, adjusted_delay, b_force_zero)
 
@@ -261,12 +256,7 @@ def _compute_leader_cache_internal():
 			temp_by_leader[iLeader] = leader_rows
 
 		if IS_DEBUG_LEADER:
-			print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (
-				str(min_adj_rand),
-				str(max_adj_rand),
-				str(min_adj_delay),
-				str(max_adj_delay)
-			))
+			print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (str(min_adj_rand), str(max_adj_rand), str(min_adj_delay), str(max_adj_delay)))
 
 		# Pass 2: normalize and compute final aggregated raw score per contact type.
 		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
@@ -280,29 +270,11 @@ def _compute_leader_cache_internal():
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				adjusted_rand, adjusted_delay, b_force_zero = leader_rows[i]
 
-				adjusted_rand_norm_score = normalize_to_100(
-					adjusted_rand,
-					min_adj_rand[i],
-					max_adj_rand[i],
-					B_WARN,
-					b_invert_contact_rands,
-					parsed_adjusted_rand_names[i]
-				)
+				adjusted_rand_norm_score = normalize_to_100(adjusted_rand, min_adj_rand[i], max_adj_rand[i], B_WARN, b_invert_contact_rands, parsed_adjusted_rand_names[i])
 
-				adjusted_delay_norm_score = normalize_to_100(
-					adjusted_delay,
-					min_adj_delay[i],
-					max_adj_delay[i],
-					B_WARN,
-					b_invert_contact_delays,
-					parsed_adjusted_delay_names[i]
-				)
+				adjusted_delay_norm_score = normalize_to_100(adjusted_delay, min_adj_delay[i], max_adj_delay[i], B_WARN, b_invert_contact_delays, parsed_adjusted_delay_names[i])
 
-				aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(
-					adjusted_rand_norm_score,
-					adjusted_delay_norm_score,
-					b_force_zero
-				)
+				aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_rand_norm_score, adjusted_delay_norm_score, b_force_zero)
 
 				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_aggregated_raw_names[i]] = aggregated_value
 
@@ -336,11 +308,7 @@ def _compute_leader_cache_internal():
 
 
 
-	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(
-		leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments,
-		is_positive,
-		is_affection
-	):
+	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection):
 		# leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_memory_key] = aggregated_raw_score
 		# parsed_memory_key is e.g. "iAggregatedRawPositiveMemoryDeclaredWarAffection" (0-100)
 		#
@@ -382,13 +350,7 @@ def _compute_leader_cache_internal():
 				attitude_percent_raw = loopLeaderHeadInfo.getMemoryAttitudePercent(iMemoryIndex)
 				decay_rand_raw = loopLeaderHeadInfo.getMemoryDecayRand(iMemoryIndex)
 
-				adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(
-					attitude_percent_raw,
-					decay_rand_raw,
-					is_affection,
-					IS_DEBUG_LEADER,
-					memory_type
-				)
+				adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(attitude_percent_raw, decay_rand_raw, is_affection, IS_DEBUG_LEADER, memory_type)
 
 				leader_rows[j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
 
@@ -426,38 +388,16 @@ def _compute_leader_cache_internal():
 			for j in xrange(count):
 				adjusted_attitude_percent, adjusted_decay, b_force_zero = leader_rows[j]
 
-				adjusted_attitude_norm_score = normalize_to_100(
-					adjusted_attitude_percent,
-					min_adj_attitude[j],
-					max_adj_attitude[j],
-					B_WARN,
-					b_invert_attitude_percent,
-					parsed_adjusted_attitude_names[j]
-				)
+				adjusted_attitude_norm_score = normalize_to_100(adjusted_attitude_percent, min_adj_attitude[j], max_adj_attitude[j], B_WARN, b_invert_attitude_percent, parsed_adjusted_attitude_names[j])
 
-				adjusted_decay_norm_score = normalize_to_100(
-					adjusted_decay,
-					min_adj_decay[j],
-					max_adj_decay[j],
-					B_WARN,
-					b_invert_decay,
-					parsed_adjusted_decay_names[j]
-				)
+				adjusted_decay_norm_score = normalize_to_100(adjusted_decay, min_adj_decay[j], max_adj_decay[j], B_WARN, b_invert_decay, parsed_adjusted_decay_names[j])
 
-				aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(
-					adjusted_attitude_norm_score,
-					adjusted_decay_norm_score,
-					b_force_zero
-				)
+				aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_attitude_norm_score, adjusted_decay_norm_score, b_force_zero)
 
 				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_aggregated_raw_names[j]] = aggregated_value
 
 		if IS_DEBUG_LEADER:
-			print("[DEBUG] leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments after pass 2 for %s/%s: %s" % (
-				positive_negative,
-				affection_resentment,
-				str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
-			))
+			print("[DEBUG] leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments after pass 2 for %s/%s: %s" % (positive_negative, affection_resentment, str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)))
 
 		# Cleanup
 		del temp_by_leader
@@ -1085,10 +1025,5 @@ def _compute_leader_cache_internal():
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Wrapper that either loads pre-dumped cache or computes it
-	return get_leader_cache_predumped_or_compute(
-		compute_func = _compute_leader_cache_internal,
-		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA,
-		is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0),
-		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
-	)
+	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA, is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
 

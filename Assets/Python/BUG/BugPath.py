@@ -636,10 +636,7 @@ def initSearchPaths():
 		return
 	BugUtil.debug("BugPath - initializing asset search paths")
 	
-	assetDirs = [
-		join(getModDir(), ASSETS_FOLDER),
-		join(getAppDir(), ASSETS_FOLDER),
-	]
+	assetDirs = [join(getModDir(), ASSETS_FOLDER), join(getAppDir(), ASSETS_FOLDER)]
 	# EF: Mod's no longer access CustomAssets folder; too many issues
 	if not isNoCustomAssets() and not isMod():
 		assetDirs.insert(0, join(getRootDir(), CUSTOM_ASSETS_FOLDER))

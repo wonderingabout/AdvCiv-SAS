@@ -291,15 +291,7 @@ class SevoPediaMovie:
 
 
 	def SAS_setupPlayableMovies(self, iMovieType, iMovieId):
-		(
-			self.SAS_playableMovies,
-			self.SAS_playableMovieLabels,
-			self.SAS_playableMovieIcons,
-			self.SAS_playableMovieGroupByIndex,
-			self.SAS_playableMovieGroupLabels,
-			self.SAS_movieGroupFirstIndex,
-			self.SAS_movieGroupLastIndex
-		) = self.SAS_buildPlayableMoviesAndLabels()
+		(self.SAS_playableMovies, self.SAS_playableMovieLabels, self.SAS_playableMovieIcons, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels, self.SAS_movieGroupFirstIndex, self.SAS_movieGroupLastIndex) = self.SAS_buildPlayableMoviesAndLabels()
 		iPacked = self.top.SAS_packMovieKey(iMovieType, iMovieId)
 		self.SAS_playableMovieIndex = -1
 		try:

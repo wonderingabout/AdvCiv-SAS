@@ -567,13 +567,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: convert InputTypes keyboard code to visible character, based on how other mod(s) use ScreenInput.getVisibleCharacter (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_getSearchCharacterKeys(self):
-		return (
-			int(InputTypes.KB_MINUS), int(InputTypes.KB_EQUALS), int(InputTypes.KB_LBRACKET), int(InputTypes.KB_RBRACKET),
-			int(InputTypes.KB_SEMICOLON), int(InputTypes.KB_APOSTROPHE), int(InputTypes.KB_GRAVE), int(InputTypes.KB_BACKSLASH),
-			int(InputTypes.KB_COMMA), int(InputTypes.KB_PERIOD), int(InputTypes.KB_SLASH), int(InputTypes.KB_NUMPADSTAR),
-			int(InputTypes.KB_NUMPADMINUS), int(InputTypes.KB_NUMPADPLUS), int(InputTypes.KB_NUMPADPERIOD), int(InputTypes.KB_NUMPADEQUALS),
-			int(InputTypes.KB_AT), int(InputTypes.KB_UNDERLINE), int(InputTypes.KB_COLON), int(InputTypes.KB_NUMPADCOMMA), int(InputTypes.KB_NUMPADSLASH)
-		)
+		return (int(InputTypes.KB_MINUS), int(InputTypes.KB_EQUALS), int(InputTypes.KB_LBRACKET), int(InputTypes.KB_RBRACKET), int(InputTypes.KB_SEMICOLON), int(InputTypes.KB_APOSTROPHE), int(InputTypes.KB_GRAVE), int(InputTypes.KB_BACKSLASH), int(InputTypes.KB_COMMA), int(InputTypes.KB_PERIOD), int(InputTypes.KB_SLASH), int(InputTypes.KB_NUMPADSTAR), int(InputTypes.KB_NUMPADMINUS), int(InputTypes.KB_NUMPADPLUS), int(InputTypes.KB_NUMPADPERIOD), int(InputTypes.KB_NUMPADEQUALS), int(InputTypes.KB_AT), int(InputTypes.KB_UNDERLINE), int(InputTypes.KB_COLON), int(InputTypes.KB_NUMPADCOMMA), int(InputTypes.KB_NUMPADSLASH))
 
 	# <!-- custom: identify keys that need debounce in the search (chatgpt 5.2 + claude opus 4.5) -->
 	# <!-- custom: debounce alnum and editing/navigation keys for search because BtS can fire duplicate NOTIFY_CHARACTER
@@ -1966,16 +1960,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getMovieList(self):
 		# <!-- custom: build base list in groupings module, then add headers there. (ChatGPT-5.2 Thinking) -->
 		if self.SAS_cacheMoviesTuple is None:
-			listEntries = SAS_MainGroupings.SAS_getMoviesListGroupedByType(
-				self.isSortLists(),
-				self.SAS_packMovieKey, self.SAS_unpackMovieKey,
-				self.SAS_PEDIA_MOVIE_TYPE_VICTORY,
-				self.SAS_PEDIA_MOVIE_TYPE_WONDER,
-				self.SAS_PEDIA_MOVIE_TYPE_PROJECT,
-				self.SAS_PEDIA_MOVIE_TYPE_RELIGION,
-				self.SAS_PEDIA_MOVIE_TYPE_ERA,
-				self.SAS_PEDIA_MOVIE_TYPE_CORPORATION
-			)
+			listEntries = SAS_MainGroupings.SAS_getMoviesListGroupedByType(self.isSortLists(), self.SAS_packMovieKey, self.SAS_unpackMovieKey, self.SAS_PEDIA_MOVIE_TYPE_VICTORY, self.SAS_PEDIA_MOVIE_TYPE_WONDER, self.SAS_PEDIA_MOVIE_TYPE_PROJECT, self.SAS_PEDIA_MOVIE_TYPE_RELIGION, self.SAS_PEDIA_MOVIE_TYPE_ERA, self.SAS_PEDIA_MOVIE_TYPE_CORPORATION)
 			self.SAS_cacheMoviesTuple = tuple(listEntries)
 		return self.SAS_cacheMoviesTuple
 
@@ -1983,28 +1968,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getMusicList(self):
 		# <!-- custom: build music base lists + section headers in groupings module to keep this file clean. (ChatGPT-5.2 Thinking) -->
 		if self.SAS_cacheMusicTuple is None:
-			(
-				listEntries,
-				self.SAS_musicEraTracks,
-				self.SAS_musicLeaderTracks,
-				self.SAS_musicCivTracks,
-				self.SAS_musicScriptTracks,
-				self.SAS_musicScript3DTracks,
-				self.SAS_firstCivScript3DMusicKey
-			) = SAS_MainGroupings.SAS_getMusicListAndTables(
-				self.isSortLists(),
-				self.SAS_packMusicKey, self.SAS_unpackMusicKey,
-				self.SAS_PEDIA_MUSIC_TYPE_TECH,
-				self.SAS_PEDIA_MUSIC_TYPE_ERA,
-				self.SAS_PEDIA_MUSIC_TYPE_LEADER,
-				self.SAS_PEDIA_MUSIC_TYPE_CIV,
-				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT,
-				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D,
-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY,
-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY,
-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY,
-				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY
-			)
+			(listEntries, self.SAS_musicEraTracks, self.SAS_musicLeaderTracks, self.SAS_musicCivTracks, self.SAS_musicScriptTracks, self.SAS_musicScript3DTracks, self.SAS_firstCivScript3DMusicKey) = SAS_MainGroupings.SAS_getMusicListAndTables(self.isSortLists(), self.SAS_packMusicKey, self.SAS_unpackMusicKey, self.SAS_PEDIA_MUSIC_TYPE_TECH, self.SAS_PEDIA_MUSIC_TYPE_ERA, self.SAS_PEDIA_MUSIC_TYPE_LEADER, self.SAS_PEDIA_MUSIC_TYPE_CIV, self.SAS_PEDIA_MUSIC_TYPE_SCRIPT, self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY)
 			self.SAS_cacheMusicTuple = tuple(listEntries)
 		return self.SAS_cacheMusicTuple
 

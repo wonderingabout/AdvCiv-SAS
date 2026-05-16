@@ -6,6 +6,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugUtil
 import UnitUtil
@@ -173,17 +180,7 @@ class LocationGrouping(Grouping):
 	#
 	def __init__(self):
 		Grouping.__init__(self, "loc", "TXT_KEY_UNIT_GROUPER_LOCATION_GROUPING")
-		(
-			self.DOMESTIC_CITY,
-			self.DOMESTIC_TERRITORY,
-			self.TEAM_CITY,
-			self.TEAM_TERRITORY,
-			self.FRIENDLY_CITY,
-			self.FRIENDLY_TERRITORY,
-			self.NEUTRAL_TERRITORY,
-			self.ENEMY_TERRITORY,
-			self.BARBARIAN_TERRITORY
-		) = range(9)
+		(self.DOMESTIC_CITY, self.DOMESTIC_TERRITORY, self.TEAM_CITY, self.TEAM_TERRITORY, self.FRIENDLY_CITY, self.FRIENDLY_TERRITORY, self.NEUTRAL_TERRITORY, self.ENEMY_TERRITORY, self.BARBARIAN_TERRITORY) = range(9)
 		
 		self._addGroup(Group(self, self.DOMESTIC_CITY, "TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_CITY"))
 		self._addGroup(Group(self, self.DOMESTIC_TERRITORY, "TXT_KEY_UNIT_GROUPER_LOCATION_GROUP_DOMESTIC_TERRITORY"))
@@ -232,26 +229,7 @@ class OrderGrouping(Grouping):
 	#
 	def __init__(self):
 		Grouping.__init__(self, "order", "TXT_KEY_UNIT_GROUPER_ORDER_GROUPING")
-		(
-			self.ORDER_NONE,
-			self.ORDER_SKIP,
-			self.ORDER_SLEEP,
-			self.ORDER_FORTIFY,
-			self.ORDER_HEAL,
-			self.ORDER_SENTRY,
-			self.ORDER_INTERCEPT,
-			self.ORDER_PATROL,
-			self.ORDER_PLUNDER,
-			self.ORDER_BUILD,
-			self.ORDER_CONSTRUCT,
-			self.ORDER_GOTO,
-			self.ORDER_EXPLORE,
-			self.ORDER_AUTO_BUILD,
-			self.ORDER_AUTO_NETWORK,
-			self.ORDER_AUTO_CITY,
-			self.ORDER_AUTO_RELIGION,
-			self.ORDER_OTHER,
-		) = range(18)
+		(self.ORDER_NONE, self.ORDER_SKIP, self.ORDER_SLEEP, self.ORDER_FORTIFY, self.ORDER_HEAL, self.ORDER_SENTRY, self.ORDER_INTERCEPT, self.ORDER_PATROL, self.ORDER_PLUNDER, self.ORDER_BUILD, self.ORDER_CONSTRUCT, self.ORDER_GOTO, self.ORDER_EXPLORE, self.ORDER_AUTO_BUILD, self.ORDER_AUTO_NETWORK, self.ORDER_AUTO_CITY, self.ORDER_AUTO_RELIGION, self.ORDER_OTHER) = range(18)
 		
 		self._addGroup(Group(self, self.ORDER_NONE, "TXT_KEY_UNIT_GROUPER_ORDER_GROUP_NONE"))
 		self._addGroup(Group(self, self.ORDER_SKIP, "TXT_KEY_UNIT_GROUPER_ORDER_GROUP_SKIP"))

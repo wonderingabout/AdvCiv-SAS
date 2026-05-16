@@ -98,6 +98,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import CvEventManager
 import BugData
@@ -123,9 +130,7 @@ BugUtil.fixSets(globals())
 # BUG - Mac Support - end
 
 DEFAULT_LOGGING = False
-DEFAULT_NOLOG_EVENTS = set((
-	"gameUpdate",
-))
+DEFAULT_NOLOG_EVENTS = set(("gameUpdate",))
 
 gc = CyGlobalContext()
 g_eventManager = None

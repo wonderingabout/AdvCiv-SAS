@@ -89,11 +89,7 @@ def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size_with_calibrated_sas(
-		eWorldSize,
-		base_grid_sizes,
-		SAS_HUGE_CUSTOM_MAX_PLAYERS
-	)
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
 
 # Subclass FractalWorld to alter min/max Sea Level.
 class IceAgeFractalWorld(CvMapGeneratorUtil.FractalWorld):

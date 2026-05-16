@@ -26,10 +26,7 @@ SAS_LAUNCH_GUARD_EXPECTED_STRING = "AdvCiv-SAS defines test string"
 
 
 def _raise_guard_error(szContext, szDetail):
-	raise RuntimeError("Missing or incorrect SAS defines. This could indicate a mod configuration error. Make sure you start this mod from a Windows shortcut. See the Quick Install Guide documentation. Context: %s. %s" % (
-		szContext,
-		szDetail,
-	))
+	raise RuntimeError("Missing or incorrect SAS defines. This could indicate a mod configuration error. Make sure you start this mod from a Windows shortcut. See the Quick Install Guide documentation. Context: %s. %s" % (szContext, szDetail))
 
 
 
@@ -39,15 +36,7 @@ def verify_or_raise(szContext):
 	szValue = gc.getDefineSTRING(SAS_LAUNCH_GUARD_TEST_STRING_DEFINE)
 
 	if iValue != SAS_LAUNCH_GUARD_EXPECTED_INT:
-		_raise_guard_error(szContext, "%s actual=%d expected=%d" % (
-			SAS_LAUNCH_GUARD_TEST_INT_DEFINE,
-			iValue,
-			SAS_LAUNCH_GUARD_EXPECTED_INT,
-		))
+		_raise_guard_error(szContext, "%s actual=%d expected=%d" % (SAS_LAUNCH_GUARD_TEST_INT_DEFINE, iValue, SAS_LAUNCH_GUARD_EXPECTED_INT))
 
 	if szValue != SAS_LAUNCH_GUARD_EXPECTED_STRING:
-		_raise_guard_error(szContext, "%s actual='%s' expected='%s'" % (
-			SAS_LAUNCH_GUARD_TEST_STRING_DEFINE,
-			szValue,
-			SAS_LAUNCH_GUARD_EXPECTED_STRING,
-		))
+		_raise_guard_error(szContext, "%s actual='%s' expected='%s'" % (SAS_LAUNCH_GUARD_TEST_STRING_DEFINE, szValue, SAS_LAUNCH_GUARD_EXPECTED_STRING))

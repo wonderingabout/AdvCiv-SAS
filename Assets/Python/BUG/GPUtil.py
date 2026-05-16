@@ -38,32 +38,14 @@ gc = CyGlobalContext()
 g_gpIcon = None
 
 # Unit Type of each great person that can gain GP points
-g_gpBarList = (
-	"UNIT_GREAT_SPY",
-	"UNIT_GREAT_ENGINEER",
-	"UNIT_GREAT_MERCHANT",
-	"UNIT_GREAT_SCIENTIST",
-	"UNIT_GREAT_ARTIST",
-	"UNIT_GREAT_PROPHET",
-	"UNIT_GREAT_GENERAL",
-# MOD: specify the unit type (XML key) for each new great person (1)
-	#"UNIT_DOCTOR",
-)
+# MOD: specify the unit type (XML key) for each new great person (1) - e.g. add "UNIT_DOCTOR" to this tuple, keeping order in sync with the GP_* constants below
+g_gpBarList = ("UNIT_GREAT_SPY", "UNIT_GREAT_ENGINEER", "UNIT_GREAT_MERCHANT", "UNIT_GREAT_SCIENTIST", "UNIT_GREAT_ARTIST", "UNIT_GREAT_PROPHET", "UNIT_GREAT_GENERAL")
 
 # Named constants for each great person and total number of GP types
 # These must be in the exact same order as the list above
 NUM_GP = len(g_gpBarList)
-(
-	GP_GREAT_SPY,
-	GP_GREAT_ENGINEER,
-	GP_GREAT_MERCHANT,
-	GP_GREAT_SCIENTIST,
-	GP_GREAT_ARTIST,
-	GP_GREAT_PROPHET,
-	GP_GREAT_GENERAL,
-# MOD: define a constant for each new great person in same order as above (2)
-	#GP_DOCTOR,
-) = range(NUM_GP)
+# MOD: define a constant for each new great person in same order as above (2) - e.g. add GP_DOCTOR to this unpack
+(GP_GREAT_SPY, GP_GREAT_ENGINEER, GP_GREAT_MERCHANT, GP_GREAT_SCIENTIST, GP_GREAT_ARTIST, GP_GREAT_PROPHET, GP_GREAT_GENERAL) = range(NUM_GP)
 
 # Map each GP type to unit ID, color, and icon to show in GP Bar
 g_gpUnitTypes = None

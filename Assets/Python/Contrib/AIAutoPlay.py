@@ -3,6 +3,13 @@
 # by jdog5000
 # version 2.0
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import CvScreenEnums
 import CvTopCivs
@@ -247,10 +254,8 @@ class AIAutoPlay :
 		'keypress handler'
 		eventType,key,mx,my,px,py = argsList
 		# <advc.001>
-		if not self.customEM.isCheatsEnabled() or (
-				game.getActivePlayer() != PlayerTypes.NO_PLAYER and
-				# Enabling AI Auto Play during Advanced Start isn't supported
-				gc.getPlayer(game.getActivePlayer()).getAdvancedStartPoints() > 0):
+		# Enabling AI Auto Play during Advanced Start isn't supported (getAdvancedStartPoints() > 0)
+		if not self.customEM.isCheatsEnabled() or (game.getActivePlayer() != PlayerTypes.NO_PLAYER and gc.getPlayer(game.getActivePlayer()).getAdvancedStartPoints() > 0):
 			return # </advc.001>
 		# Get it?  Shift ... control ... to the AI
 		if eventType != 6 or not self.customEM.bShift or not self.customEM.bCtrl:

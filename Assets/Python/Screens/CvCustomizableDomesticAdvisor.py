@@ -2770,11 +2770,9 @@ class CvCustomizableDomesticAdvisor:
 				"showSpecControls" : False,
 				"showCultureLegend" : False,
 				"showGPLegend" : False,
-				"columns" : [
-					("NAME", 95, "text")
-				]
+				"columns" : [("NAME", 95, "text")]
 			}
-			)
+		)
 		self.switchPage(name)
 		self.drawScreen(self.currentPage)
 

@@ -25,15 +25,7 @@ gc = CyGlobalContext()
 
 # Base AdvCiv CITYBILLBOARD_SCALE values (font-body 2 / 100%).
 # Each tuple is (camera_distance, scale_value).
-_BASE_BILLBOARD_KEYS = [
-	(500,   1.72),
-	(2500,  1.18),
-	(3800,  1.06),
-	(6000,  0.81),
-	(8500,  0.75),
-	(11500, 0.70),
-	(13500, 0.67),
-]
+_BASE_BILLBOARD_KEYS = [(500, 1.72), (2500, 1.18), (3800, 1.06), (6000, 0.81), (8500, 0.75), (11500, 0.70), (13500, 0.67)]
 
 _DETAIL_MANAGER_REL_PATH = os.path.join("Assets", "XML", "Misc", "CIV4DetailManager.xml")
 
@@ -120,5 +112,4 @@ def apply():
 	scaledKeyLines = _buildScaledKeys(iPercent)
 
 	if _rewriteDetailManagerXML(szPath, scaledKeyLines):
-		BugUtil.info("SASBillboardScale: applied %d%% scale (font body %d) to %s",
-			iPercent, iFontBody, szPath)
+		BugUtil.info("SASBillboardScale: applied %d%% scale (font body %d) to %s", iPercent, iFontBody, szPath)

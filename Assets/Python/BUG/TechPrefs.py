@@ -6,6 +6,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 
 # BUG - Mac Support - start
@@ -18,19 +25,8 @@ gc = CyGlobalContext()
 # see gc.getNumFlavorTypes() and gc.getFlavorTypes()
 # not available via gc.getInfoTypeForString(), thus the hard-coding here :(
 NUM_FLAVORS = 8
-FLAVORS = [ "Military", "Religion", "Production",
-			"Gold", "Science", "Culture",
-			"Growth", "Espionage" ]
-(
-	FLAVOR_MILITARY,
-	FLAVOR_RELIGION,
-	FLAVOR_PRODUCTION,
-	FLAVOR_GOLD,
-	FLAVOR_SCIENCE,
-	FLAVOR_CULTURE,
-	FLAVOR_GROWTH,
-	FLAVOR_ESPIONAGE,
-) = range(NUM_FLAVORS)
+FLAVORS = [ "Military", "Religion", "Production", "Gold", "Science", "Culture", "Growth", "Espionage" ]
+(FLAVOR_MILITARY, FLAVOR_RELIGION, FLAVOR_PRODUCTION, FLAVOR_GOLD, FLAVOR_SCIENCE, FLAVOR_CULTURE, FLAVOR_GROWTH, FLAVOR_ESPIONAGE) = range(NUM_FLAVORS)
 
 class TechPrefs:
 

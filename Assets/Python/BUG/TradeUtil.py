@@ -98,6 +98,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugUtil
 import DiplomacyUtil
@@ -649,23 +656,9 @@ def testAll():
 		test(2, i, 1)
 
 def testList():
-	print format(2, [
-		makeTrade(TradeableItems.TRADE_GOLD, 53),
-		makeTrade(TradeableItems.TRADE_MAPS),
-		makeTrade(TradeableItems.TRADE_PEACE, 1),
-		makeTrade(TradeableItems.TRADE_CITY, 1),
-		makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6),
-	])
+	print format(2, [makeTrade(TradeableItems.TRADE_GOLD, 53), makeTrade(TradeableItems.TRADE_MAPS), makeTrade(TradeableItems.TRADE_PEACE, 1), makeTrade(TradeableItems.TRADE_CITY, 1), makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6)])
 
-STATUS_TRADE_ITEMS = (
-	(TradeableItems.TRADE_MAPS, "Map"),
-	(TradeableItems.TRADE_VASSAL, "Vassal"),
-	(TradeableItems.TRADE_SURRENDER, "Surrender"),
-	(TradeableItems.TRADE_OPEN_BORDERS, "Borders"),
-	(TradeableItems.TRADE_DEFENSIVE_PACT, "Pact"),
-	(TradeableItems.TRADE_PERMANENT_ALLIANCE, "Alliance"),
-	(TradeableItems.TRADE_PEACE_TREATY, "Peace"),
-)
+STATUS_TRADE_ITEMS = ((TradeableItems.TRADE_MAPS, "Map"), (TradeableItems.TRADE_VASSAL, "Vassal"), (TradeableItems.TRADE_SURRENDER, "Surrender"), (TradeableItems.TRADE_OPEN_BORDERS, "Borders"), (TradeableItems.TRADE_DEFENSIVE_PACT, "Pact"), (TradeableItems.TRADE_PERMANENT_ALLIANCE, "Alliance"), (TradeableItems.TRADE_PEACE_TREATY, "Peace"))
 DENIALS = {
 	DenialTypes.NO_DENIAL : "None",
 	DenialTypes.DENIAL_UNKNOWN : "Unknown",

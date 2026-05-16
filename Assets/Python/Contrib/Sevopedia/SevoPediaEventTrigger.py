@@ -25,12 +25,7 @@ class SevoPediaEventTrigger:
 		# Cache translated labels once per page object so rendering requirements does not
 		# repeat translator lookups, while keeping the rare enum-order audit point obvious.
 		# (GPT-5.5) -->
-		self.PLOT_TYPE_LABELS = (
-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()),
-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()),
-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()),
-			localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()),
-		)
+		self.PLOT_TYPE_LABELS = (localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()))
 		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch
 		# in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this
 		# page the expandable panel is actually Texts, not a Civilopedia/History panel —

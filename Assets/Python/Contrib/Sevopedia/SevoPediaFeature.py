@@ -406,12 +406,7 @@ class SevoPediaFeature:
 
 				# <!-- custom: note: ingame it seems that bCanMoveImpassable is not enough to move on ice cap (feature ice) that is only allowed on water terrains it seems, so not displaying all units here-->
 				# inside: if self.iFeature == iIce:
-				can_cross_ice = (
-					unitInfo.isCanMoveAllTerrain() or
-					(unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA and
-					(unitInfo.isCanMoveImpassable() or
-					unitInfo.getFeaturePassableTech(iIce) != -1))
-				)
+				can_cross_ice = (unitInfo.isCanMoveAllTerrain() or (unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA and (unitInfo.isCanMoveImpassable() or unitInfo.getFeaturePassableTech(iIce) != -1)))
 				if can_cross_ice:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
@@ -539,12 +534,7 @@ class SevoPediaFeature:
 				land_or_air_blocked = (unitInfoDomain != DomainTypes.DOMAIN_SEA) and (not unitInfo.isCanMoveAllTerrain())
 
 				# Sea: blocked if no bypass (or explicitly flagged impassable on ICE)
-				sea_blocked = (unitInfoDomain == DomainTypes.DOMAIN_SEA) and (
-					unitInfo.getFeatureImpassable(iIce) or
-					not (unitInfo.isCanMoveImpassable() or
-						unitInfo.getFeaturePassableTech(iIce) != -1 or
-						unitInfo.isCanMoveAllTerrain())
-				)
+				sea_blocked = (unitInfoDomain == DomainTypes.DOMAIN_SEA) and (unitInfo.getFeatureImpassable(iIce) or not (unitInfo.isCanMoveImpassable() or unitInfo.getFeaturePassableTech(iIce) != -1 or unitInfo.isCanMoveAllTerrain()))
 
 				if land_or_air_blocked or sea_blocked:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
@@ -559,12 +549,7 @@ class SevoPediaFeature:
 					continue
 
 				# <!-- custom: below condition/code by chatgpt 5, check if accurate -->
-				blocked = (
-					(info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and
-					not unitInfo.isCanMoveImpassable() and
-					unitInfo.getFeaturePassableTech(self.iFeature) == -1 and
-					not unitInfo.isCanMoveAllTerrain()
-				)
+				blocked = ((info.isImpassable() or unitInfo.getFeatureImpassable(self.iFeature)) and not unitInfo.isCanMoveImpassable() and unitInfo.getFeaturePassableTech(self.iFeature) == -1 and not unitInfo.isCanMoveAllTerrain())
 				if blocked:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 

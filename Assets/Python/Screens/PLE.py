@@ -79,13 +79,8 @@ class PLE:
 		self.PLE_MODE_MULTILINE		= "PLE_MODE_MULTILINE1"
 		self.PLE_MODE_STACK_VERT	= "PLE_MODE_STACK_VERT1"
 		self.PLE_MODE_STACK_HORIZ	= "PLE_MODE_STACK_HORIZ1"
-		self.PLE_VIEW_MODES = (
-			self.PLE_MODE_STANDARD, 
-			self.PLE_MODE_MULTILINE,
-			# advc.069: Switched the order of the last two
-			self.PLE_MODE_STACK_HORIZ,
-			self.PLE_MODE_STACK_VERT
-		)
+		# advc.069: order is STANDARD, MULTILINE, then STACK_HORIZ, STACK_VERT (last two switched)
+		self.PLE_VIEW_MODES = (self.PLE_MODE_STANDARD, self.PLE_MODE_MULTILINE, self.PLE_MODE_STACK_HORIZ, self.PLE_MODE_STACK_VERT)
 		# advc.069: Switched the order as above
 		self.PLE_VIEW_MODE_CYCLE = {
 			self.PLE_MODE_STANDARD :self.PLE_MODE_MULTILINE,
@@ -120,12 +115,7 @@ class PLE:
 		self.PLE_GRP_GROUPS			= "PLE_GRP_GROUPS1"
 		self.PLE_GRP_PROMO			= "PLE_GRP_PROMO1"
 		self.PLE_GRP_UPGRADE		= "PLE_GRP_UPGRADE1"
-		self.PLE_GROUP_MODES = (
-			self.PLE_GRP_UNITTYPE, 
-			self.PLE_GRP_GROUPS,
-			self.PLE_GRP_PROMO,
-			self.PLE_GRP_UPGRADE
-		)
+		self.PLE_GROUP_MODES = (self.PLE_GRP_UNITTYPE, self.PLE_GRP_GROUPS, self.PLE_GRP_PROMO, self.PLE_GRP_UPGRADE)
 
 		self.UNIT_INFO_PANE			= "PLE_UNIT_INFO_PANE_ID"
 		self.UNIT_INFO_TEXT			= "PLE_UNIT_INFO_TEXT_ID"

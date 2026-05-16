@@ -50,12 +50,7 @@ class CvWorldAdvisorScreen:
 		self.ENV_TEXT_MARGIN = 15
 
 		# <!-- custom: Environment tab is last because its global-warming readouts are less important. (Claude code Opus 4.7) -->
-		self.PAGE_NAME_LIST = [
-			"TXT_KEY_WORLD_ADVISOR_BFC1_TAB",
-			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
-			"TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB",
-			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
-			]
+		self.PAGE_NAME_LIST = ["TXT_KEY_WORLD_ADVISOR_BFC1_TAB", "TXT_KEY_WORLD_ADVISOR_BFC2_TAB", "TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB", "TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB"]
 		self.PAGE_LINK_WIDTH = []
 		self.iBFC1ID = 0
 		self.iBFC2ID = 1
@@ -416,10 +411,7 @@ class CvWorldAdvisorScreen:
 				aiBonusColumns.append(iBonus)
 		aszRows, aaiBonusCounts, aaiImprovementCounts, aaiRouteCounts = self.collectBFC2Data()
 		self.drawBFC2IconTable(aszRows, [(aiBonusColumns, gc.getBonusInfo, aaiBonusCounts)], self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
-		self.drawBFC2IconTable(aszRows, [
-			(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts),
-			(range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts),
-			], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
+		self.drawBFC2IconTable(aszRows, [(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts), (range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts)], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
 
 	def collectBFC2Data(self):
 		player = gc.getPlayer(self.iActivePlayer)

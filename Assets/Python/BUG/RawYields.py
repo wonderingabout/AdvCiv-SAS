@@ -7,6 +7,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import CvUtil
 import BugUtil
@@ -16,23 +23,8 @@ gc = CyGlobalContext()
 
 # Types
 NUM_TYPES = 11
-(
-	WORKED_TILES,
-	CITY_TILES,
-	OWNED_TILES,
-	ALL_TILES,
-	
-	DOMESTIC_TRADE,
-	FOREIGN_TRADE, # excludes overseas trade
-	
-	BUILDINGS,
-	CORPORATIONS,
-	SPECIALISTS,
-	
-	# Hold the percents, not the actual yield values
-	BASE_MODIFIER,
-	PRODUCTION_MODIFIER,
-) = range(NUM_TYPES)
+# FOREIGN_TRADE excludes overseas trade. BASE_MODIFIER and PRODUCTION_MODIFIER hold the percents, not the actual yield values.
+(WORKED_TILES, CITY_TILES, OWNED_TILES, ALL_TILES, DOMESTIC_TRADE, FOREIGN_TRADE, BUILDINGS, CORPORATIONS, SPECIALISTS, BASE_MODIFIER, PRODUCTION_MODIFIER) = range(NUM_TYPES)
 
 # Leave these for later when we have icons for each
 #DOMAIN_MODIFIER
@@ -45,19 +37,7 @@ NUM_TYPES = 11
 #...
 
 # Labels
-LABEL_KEYS = (
-	"TXT_KEY_CONCEPT_WORKED_TILES",
-	"TXT_KEY_CONCEPT_CITY_TILES",
-	"TXT_KEY_CONCEPT_OWNED_TILES",
-	"TXT_KEY_CONCEPT_ALL_TILES",
-	"TXT_KEY_CONCEPT_DOMESTIC_TRADE",
-	"TXT_KEY_CONCEPT_FOREIGN_TRADE",
-	"TXT_KEY_CONCEPT_BUILDINGS",
-	"TXT_KEY_CONCEPT_CORPORATIONS",
-	"TXT_KEY_CONCEPT_SPECIALISTS",
-	"TXT_KEY_CONCEPT_BASE_MODIFIER",
-	"TXT_KEY_CONCEPT_PRODUCTION_MODIFIER"
-)
+LABEL_KEYS = ("TXT_KEY_CONCEPT_WORKED_TILES", "TXT_KEY_CONCEPT_CITY_TILES", "TXT_KEY_CONCEPT_OWNED_TILES", "TXT_KEY_CONCEPT_ALL_TILES", "TXT_KEY_CONCEPT_DOMESTIC_TRADE", "TXT_KEY_CONCEPT_FOREIGN_TRADE", "TXT_KEY_CONCEPT_BUILDINGS", "TXT_KEY_CONCEPT_CORPORATIONS", "TXT_KEY_CONCEPT_SPECIALISTS", "TXT_KEY_CONCEPT_BASE_MODIFIER", "TXT_KEY_CONCEPT_PRODUCTION_MODIFIER")
 
 # Yields
 YIELDS = (YieldTypes.YIELD_FOOD, YieldTypes.YIELD_PRODUCTION, YieldTypes.YIELD_COMMERCE)

@@ -1059,17 +1059,7 @@ class MultilayeredFractal:
 		regiononeWater = 70
 
 		# With all of your parameters set, pass them in to the plot generator.
-		self.generatePlotsInRegion(
-			regiononeWater,
-			regiononeWidth, regiononeHeight,
-			regiononeWestX, regiononeSouthY,
-			regiononeGrain, iGrainOne,
-			self.iFlags, self.iTerrainFlags,
-			-1, -1,
-			True, 15,
-			2, False,
-			False
-		)
+		self.generatePlotsInRegion(regiononeWater, regiononeWidth, regiononeHeight, regiononeWestX, regiononeSouthY, regiononeGrain, iGrainOne, self.iFlags, self.iTerrainFlags, -1, -1, True, 15, 2, False, False)
 
 		# Define additional regions.
 		# Regions can overlap or add on to other existing regions.
@@ -1100,17 +1090,7 @@ class MultilayeredFractal:
 
 		# Each regional fractal needs its own uniquely defined parameters.
 		# With proper settings, there's almost no limit to what can be done.
-		self.generatePlotsInRegion(
-			scWater,
-			scLargeWidth, scLargeHeight,
-			scWestX, scSouthY,
-			scGrain, iGrainOne,
-			self.iRoundFlags, self.iTerrainFlags, 
-			6, 6,
-			False, 9,
-			scRift, False,
-			False
-		)
+		self.generatePlotsInRegion(scWater, scLargeWidth, scLargeHeight, scWestX, scSouthY, scGrain, iGrainOne, self.iRoundFlags, self.iTerrainFlags, 6, 6, False, 9, scRift, False, False)
 
 		# Once all your of your fractal regions (and other regions! You do not have
 		# to make every region a fractal-based region) have been processed, and

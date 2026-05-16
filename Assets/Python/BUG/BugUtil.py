@@ -133,6 +133,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import ColorUtil
 import sys
@@ -219,12 +226,7 @@ INFO = 1
 WARN = 2
 ERROR = 3
 
-LEVEL_PREFIXES = (
-	"DEBUG: ",
-	"INFO : ",
-	"WARN : ",
-	"ERROR: ",
-)
+LEVEL_PREFIXES = ("DEBUG: ", "INFO : ", "WARN : ", "ERROR: ")
 
 #screenLogLevel = WARN
 #fileLogLevel = DEBUG

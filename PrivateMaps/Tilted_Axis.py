@@ -121,10 +121,7 @@ def getGridSize(argsList):
 		return []
 	[eWorldSize] = argsList
 	# <!-- custom: Tilted Axis keeps its visual identity better when SAS sizes reuse the Huge square profile instead of further scaling. (GPT-5.3-Codex) -->
-	return sas_lookup_world_size(
-		eWorldSize,
-		grid_sizes
-	)
+	return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 def getWrapX():
 	return False
@@ -145,10 +142,7 @@ class TiltedAxisFractalWorld(CvMapGeneratorUtil.FractalWorld):
 			5: (7,7), # LARGE
 			6: (7,7)  # HUGE
 			}
-		(fracXExp, fracYExp) = sas_lookup_world_size(
-			self.map.getWorldSize(),
-			worldsizes
-		)
+		(fracXExp, fracYExp) = sas_lookup_world_size(self.map.getWorldSize(), worldsizes)
 
 		if rift_grain >= 0:
 			self.riftsFrac = CyFractal()

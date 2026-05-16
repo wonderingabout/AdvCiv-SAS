@@ -39,6 +39,13 @@
 ## Used with Permission
 ##
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 from SAS_WorldSizes import *
 import CvUtil
@@ -1820,13 +1827,9 @@ class ElevationMap2(FloatMap):
 				seedY = PRand.randint(0, mc.hmHeight + 1)
 				# <advc>
 				if mc.plateSeedRerollExp > 0:
-					if mc.WrapX and PRand.random() < pow(
-							1.0 - min(mc.hmWidth + 1 - seedX, seedX) / (mc.hmWidth + 1.0),
-							mc.plateSeedRerollExp):
+					if mc.WrapX and PRand.random() < pow(1.0 - min(mc.hmWidth + 1 - seedX, seedX) / (mc.hmWidth + 1.0), mc.plateSeedRerollExp):
 						continue
-					elif mc.WrapY and PRand.random() < pow(
-							1.0 - min(mc.hmHeight + 1 - seedY, seedY) / (mc.hmHeight + 1.0),
-							mc.plateSeedRerollExp):
+					elif mc.WrapY and PRand.random() < pow(1.0 - min(mc.hmHeight + 1 - seedY, seedY) / (mc.hmHeight + 1.0), mc.plateSeedRerollExp):
 						continue # </advc>
 				n = GetHmIndex(seedX, seedY)
 				if not self.isSeedBlocked(plateList, seedX, seedY):

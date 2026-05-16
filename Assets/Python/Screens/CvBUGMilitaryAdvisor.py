@@ -346,9 +346,7 @@ class CvMilitaryAdvisor:
 				self.iconGrid.appendRow(pPlayer.getName(), "", 3)
 
 				# add leaderhead icon
-				self.iconGrid.addIcon(iRow, self.Col_Leader,
-										gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), 64, 
-										WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActivePlayer)
+				self.iconGrid.addIcon(iRow, self.Col_Leader, gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActivePlayer)
 
 				# add worst enemy
 				self.Grid_WorstEnemy(iRow, iLoopPlayer)
@@ -384,14 +382,9 @@ class CvMilitaryAdvisor:
 					# sWHEOOH = ""
 				# K-Mod
 				if bWHEOOH and not bCurrentWar:
-					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars,
-											ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), # which symbol to use...
-											#"Art/Interface/Buttons/Civilizations/Barbarian.dds",
-											#ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath(),
-											32, WidgetTypes.WIDGET_GENERAL, -1)
-					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn,
-											ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(),
-											32, WidgetTypes.WIDGET_GENERAL, -1)
+					# which symbol for Col_Curr_Wars? using QUESTION_MARK; alternatives tried: "Art/Interface/Buttons/Civilizations/Barbarian.dds" or ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath()
+					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars, ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), 32, WidgetTypes.WIDGET_GENERAL, -1)
+					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn, ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), 32, WidgetTypes.WIDGET_GENERAL, -1)
 				# K-Mod end
 				
 				# show possible trade embargos
@@ -413,17 +406,8 @@ class CvMilitaryAdvisor:
 
 	def initIconGrid(self, screen, bVassals, bDefPacts):
 		
-		(
-			self.Col_Leader,
-			#self.Col_WHEOOH,
-			self.Col_WEnemy,
-			self.Col_Threat,
-			self.Col_Curr_Wars,
-			self.Col_WillDeclareOn,
-			self.Col_WillEmbargo,
-			self.Col_Vassals,
-			self.Col_DefPacts,
-		) = range(8) # was 9
+		# was range(9); Col_WHEOOH removed from this unpack
+		(self.Col_Leader, self.Col_WEnemy, self.Col_Threat, self.Col_Curr_Wars, self.Col_WillDeclareOn, self.Col_WillEmbargo, self.Col_Vassals, self.Col_DefPacts) = range(8)
 		if (not bVassals):
 			# shift over 1 to make room for vassals column
 			self.Col_DefPacts -= 1
@@ -638,33 +622,15 @@ class CvMilitaryAdvisor:
 		self.timer.log("StratAdv")
 
 	def initStratAdvGrid(self, screen):
-		(
-			self.SA_Col_Leader,
-			self.SA_Col_Bonus_Us,
-			self.SA_Col_Bonus_Them,
-			self.SA_Col_Unit_Us_Yes,
-			self.SA_Col_Unit_Us_Maybe,
-			self.SA_Col_Unit_Them_Yes,
-			self.SA_Col_Unit_Them_Maybe,
-		) = range(7)
+		(self.SA_Col_Leader, self.SA_Col_Bonus_Us, self.SA_Col_Bonus_Them, self.SA_Col_Unit_Us_Yes, self.SA_Col_Unit_Us_Maybe, self.SA_Col_Unit_Them_Yes, self.SA_Col_Unit_Them_Maybe) = range(7)
 		
-		columns = (
-			IconGrid_BUG.GRID_ICON_COLUMN,
-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-			IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-		)
+		columns = (IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
 		
 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
 		gridY = self.MIN_TOP_BOTTOM_SPACE + self.SITREP_PANEL_SPACE + self.TABLE_CONTROL_HEIGHT + self.TITLE_HEIGHT + 8
 		gridWidth = self.W_SCREEN - 10 - self.MIN_LEFT_RIGHT_SPACE * 2# - 20
 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - self.SITREP_PANEL_SPACE - self.TITLE_HEIGHT - 16
-		self.iconGrid = IconGrid_BUG.IconGrid_BUG(
-				self.getNextWidgetName(), screen, gridX, gridY, gridWidth, gridHeight,
-				columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
+		self.iconGrid = IconGrid_BUG.IconGrid_BUG(self.getNextWidgetName(), screen, gridX, gridY, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
 		
 		# set constants
 		self.iconGrid.setGroupBorder(self.GROUP_BORDER)
@@ -716,9 +682,7 @@ class CvMilitaryAdvisor:
 				self.iconGrid.appendRow(player.getName(), "", 3)
 				
 				# add leaderhead icon
-				self.iconGrid.addIcon(iRow, self.SA_Col_Leader,
-						gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), 64, 
-						WidgetTypes.WIDGET_LEADERHEAD, player.getID(), self.iActivePlayer)
+				self.iconGrid.addIcon(iRow, self.SA_Col_Leader, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, player.getID(), self.iActivePlayer)
 				
 				# add bonus and unit icons
 				self.addStratAdvBonuses(activePlayer, player, iRow)

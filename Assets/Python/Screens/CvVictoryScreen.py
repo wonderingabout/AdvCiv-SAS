@@ -1280,14 +1280,8 @@ class CvVictoryScreen:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.708>
 		else:
-			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (
-					localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()),
-					gc.getHandicapInfo(activePlayer.getHandicapType()).getText(),
-					localText.getText("TXT_KEY_MAIN_MENU_PLAYER", ()),
-					gc.getHandicapInfo(g.getHandicapType()).getText(),
-					# advc.076: Was TXT_KEY_OPTIONS_GAME - which no longer just says "Game".
-					# But this BUG text key does.
-					localText.getText("TXT_KEY_SHORTCUTS_GAME", ()))
+			# advc.076: last arg uses TXT_KEY_SHORTCUTS_GAME (not TXT_KEY_OPTIONS_GAME, which no longer just says "Game" - this BUG text key does)
+			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), gc.getHandicapInfo(activePlayer.getHandicapType()).getText(), localText.getText("TXT_KEY_MAIN_MENU_PLAYER", ()), gc.getHandicapInfo(g.getHandicapType()).getText(), localText.getText("TXT_KEY_SHORTCUTS_GAME", ()))
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# K-Mod end
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )

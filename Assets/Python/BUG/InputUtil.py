@@ -6,6 +6,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugConfig
 import BugDll
@@ -47,20 +54,7 @@ MODIFIER_MAP = {
 	"SHIFT": SHIFT,
 }
 
-MODIFIER_KEYS = (
-	InputTypes.KB_LALT, 
-	InputTypes.KB_LCONTROL, 
-	InputTypes.KB_LSHIFT, 
-	InputTypes.KB_RALT, 
-	InputTypes.KB_RCONTROL, 
-	InputTypes.KB_RSHIFT,
-	int(InputTypes.KB_LALT), 
-	int(InputTypes.KB_LCONTROL), 
-	int(InputTypes.KB_LSHIFT), 
-	int(InputTypes.KB_RALT), 
-	int(InputTypes.KB_RCONTROL), 
-	int(InputTypes.KB_RSHIFT),
-)
+MODIFIER_KEYS = (InputTypes.KB_LALT, InputTypes.KB_LCONTROL, InputTypes.KB_LSHIFT, InputTypes.KB_RALT, InputTypes.KB_RCONTROL, InputTypes.KB_RSHIFT, int(InputTypes.KB_LALT), int(InputTypes.KB_LCONTROL), int(InputTypes.KB_LSHIFT), int(InputTypes.KB_RALT), int(InputTypes.KB_RCONTROL), int(InputTypes.KB_RSHIFT))
 
 KEYS_BY_CODE = {}
 CODES_BY_KEY = {}

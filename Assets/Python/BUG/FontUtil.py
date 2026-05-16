@@ -31,6 +31,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugConfig
 import BugDll
@@ -78,10 +85,7 @@ def init():
 #	for symbol, name in symbolNames:
 #		addBuiltinSymbol()
 	
-	for count, getInfo in (
-		(YieldTypes.NUM_YIELD_TYPES, gc.getYieldInfo),
-		(CommerceTypes.NUM_COMMERCE_TYPES, gc.getCommerceInfo),
-	):
+	for count, getInfo in ((YieldTypes.NUM_YIELD_TYPES, gc.getYieldInfo), (CommerceTypes.NUM_COMMERCE_TYPES, gc.getCommerceInfo)):
 		for enum in range(count):
 			info = getInfo(enum)
 			addSymbol(info.getType().lower().replace("_", " "), 

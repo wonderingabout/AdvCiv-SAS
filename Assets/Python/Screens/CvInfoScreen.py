@@ -99,22 +99,8 @@ class CvInfoScreen:
 		self.iLanguageLoaded = -1
 
 		# <!-- custom: Score tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
-		self.PAGE_NAME_LIST = [
-			"TXT_KEY_INFO_GRAPH",
-			"TXT_KEY_GAME_SCORE",
-			"TXT_KEY_SAS_INFO_TIMELINE",
-			"TXT_KEY_DEMO_SCREEN_TITLE",
-			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
-			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
-			]
-		self.PAGE_DRAW_LIST = [
-			self.drawGraphTab,
-			self.drawScoreTab,
-			self.drawTimelineTab,
-			self.drawDemographicsTab,
-			self.drawTopCitiesTab,
-			self.drawStatsTab,
-			]
+		self.PAGE_NAME_LIST = ["TXT_KEY_INFO_GRAPH", "TXT_KEY_GAME_SCORE", "TXT_KEY_SAS_INFO_TIMELINE", "TXT_KEY_DEMO_SCREEN_TITLE", "TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", "TXT_KEY_INFO_SCREEN_STATISTICS_TITLE"]
+		self.PAGE_DRAW_LIST = [self.drawGraphTab, self.drawScoreTab, self.drawTimelineTab, self.drawDemographicsTab, self.drawTopCitiesTab, self.drawStatsTab]
 
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
 		# K-Mod end
@@ -2166,9 +2152,7 @@ class CvInfoScreen:
 #BUG: Change Graphs - start
 
 #		self.LEGEND_PANEL_ID = self.getNextWidgetName()
-		screen.addPanel(self.getNextWidgetName(), "", "", true, true, 
-						self.X_LEGEND, self.Y_LEGEND, iW_LEGEND, self.H_LEGEND,
-						PanelStyles.PANEL_STYLE_IN)
+		screen.addPanel(self.getNextWidgetName(), "", "", true, true, self.X_LEGEND, self.Y_LEGEND, iW_LEGEND, self.H_LEGEND, PanelStyles.PANEL_STYLE_IN)
 
 #		self.LEGEND_CANVAS_ID = self.getNextWidgetName()
 		sLEGEND_CANVAS_ID = self.getNextWidgetName()
@@ -2861,15 +2845,11 @@ class CvInfoScreen:
 
 		# Background Panes
 		self.szLeftPaneWidget = self.getNextWidgetName()
-		screen.addPanel( self.szLeftPaneWidget, "", "", true, true,
-			self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
+		screen.addPanel( self.szLeftPaneWidget, "", "", true, true, self.X_TOP_CITIES_LEFT_PANE, self.Y_TOP_CITIES_LEFT_PANE, self.W_TOP_CITIES_LEFT_PANE, self.H_TOP_CITIES_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
 
 		# <!-- custom: add "Top 5 Cities in the World" header (Civ3 vibe!), removed bold, added with claude opus 4.5's help thanks. -->
 		szHeaderText = sasFontTagTitle + localText.getText("TXT_KEY_TOP_5_CITIES_IN_THE_WORLD", ()) + SAS_FONT_TAG_CLOSE
-		screen.setLabel(self.getNextWidgetName(), "", szHeaderText, CvUtil.FONT_CENTER_JUSTIFY,
-			self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE / 2, 
-			self.Y_TOP_CITIES_LEFT_PANE + 12, 
-			0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.getNextWidgetName(), "", szHeaderText, CvUtil.FONT_CENTER_JUSTIFY, self.X_TOP_CITIES_LEFT_PANE + self.W_TOP_CITIES_LEFT_PANE / 2, self.Y_TOP_CITIES_LEFT_PANE + 12, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		self.drawTopCities()
 		self.drawWondersTab()
@@ -2888,14 +2868,12 @@ class CvInfoScreen:
 		for iWidgetLoop in range(self.iNumCities):
 
 			szTextPanel = self.getNextWidgetName()
-			screen.addPanel( szTextPanel, "", "", false, true,
-				self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
+			screen.addPanel( szTextPanel, "", "", false, true, self.X_COL_1_CITIES_DESC, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER, self.W_CITIES_DESC, self.H_CITIES_DESC, PanelStyles.PANEL_STYLE_DAWNTOP )
 			self.szCityNameWidgets.append(self.getNextWidgetName())
 #			szProjectDesc = u"<font=3b>" + pProjectInfo.getDescription().upper() + u"</font>"
 			szCityDesc = sasFontTagTitle.bold + str(self.iCitySizes[iWidgetLoop]) + SAS_FONT_TAG_CLOSE + " - " + sasFontTagLabel.bold + self.szCityNames[iWidgetLoop] + SAS_FONT_TAG_CLOSE + "\n"
 			szCityDesc += sasFontTagLabel + self.szCityDescs[iWidgetLoop] + SAS_FONT_TAG_CLOSE
-			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc,
-				self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.addMultilineText(self.szCityNameWidgets[iWidgetLoop], szCityDesc, self.X_COL_1_CITIES_DESC + 6, self.Y_ROWS_CITIES[iWidgetLoop] + self.Y_CITIES_DESC_BUFFER + 3, self.W_CITIES_DESC - 6, self.H_CITIES_DESC - 6, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 #			screen.attachMultilineText( szTextPanel, self.szCityNameWidgets[iWidgetLoop], str(self.iCitySizes[iWidgetLoop]) + " - " + self.szCityNames[iWidgetLoop] + "\n" + self.szCityDescs[iWidgetLoop], WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			iCityX = self.aaCitiesXY[iWidgetLoop][0]
@@ -2969,27 +2947,17 @@ class CvInfoScreen:
 			iMultiListH = self.H_CITIES_WONDER_PANEL
 			
 			# Create panel first
-			screen.addPanel(szIconPanel, "", "", False, True,
-				iMultiListX, iMultiListY, iMultiListW, iMultiListH, PanelStyles.PANEL_STYLE_DAWNTOP)
+			screen.addPanel(szIconPanel, "", "", False, True, iMultiListX, iMultiListY, iMultiListW, iMultiListH, PanelStyles.PANEL_STYLE_DAWNTOP)
 			
 			# <!-- custom: use no-header offsets since wonder panel has no title text, added with claude opus 4.5's help thanks. -->
 			# Create multilist control for multiple rows of wonder buttons
 			szMultiListName = self.getNextWidgetName()
-			screen.addMultiListControlGFC(szMultiListName, "",
-				iMultiListX + self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER,
-				iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER,
-				iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER),
-				iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER),
-				self.iTopCitiesWonderNumListsAutoCalculate,
-				self.iTopCitiesWonderButtonSize,
-				self.iTopCitiesWonderButtonSize,
-				TableStyles.TABLE_STYLE_STANDARD)
+			screen.addMultiListControlGFC(szMultiListName, "", iMultiListX + self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER, iMultiListY + self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER, iMultiListW - (2 * self.MULTI_LIST_PANEL_OFFSET_X_NO_HEADER), iMultiListH - (2 * self.MULTI_LIST_PANEL_OFFSET_Y_NO_HEADER), self.iTopCitiesWonderNumListsAutoCalculate, self.iTopCitiesWonderButtonSize, self.iTopCitiesWonderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
 
 			# Now place the wonder buttons
 			for iWonderLoop in range(aiTopCitiesNumWonders[iCityLoop]):
 				iBuildingID = aaiTopCitiesWonders[iCityLoop][iWonderLoop]
-				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(),
-					self.iTopCitiesWonderColumnIndexAuto, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
+				screen.appendMultiListButton(szMultiListName, gc.getBuildingInfo(iBuildingID).getButton(), self.iTopCitiesWonderColumnIndexAuto, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingID, -1, False)
 
 	def calculateTopCities(self):
 
@@ -3085,8 +3053,7 @@ class CvInfoScreen:
 		screen = self.getScreen()
 
 		self.szRightPaneWidget = self.getNextWidgetName()
-		screen.addPanel( self.szRightPaneWidget, "", "", true, true,
-			self.X_WONDERS_RIGHT_PANE, self.Y_WONDERS_RIGHT_PANE, self.W_WONDERS_RIGHT_PANE, self.H_WONDERS_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
+		screen.addPanel( self.szRightPaneWidget, "", "", true, true, self.X_WONDERS_RIGHT_PANE, self.Y_WONDERS_RIGHT_PANE, self.W_WONDERS_RIGHT_PANE, self.H_WONDERS_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )#PanelStyles.PANEL_STYLE_DAWNTOP )
 
 		self.drawWondersDropdownBox()
 
@@ -3129,8 +3096,7 @@ class CvInfoScreen:
 
 			screen.setLabel(self.getNextWidgetName(), "Background", sDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_WONDERS_DROPDOWN + 100, self.Y_WONDERS_DROPDOWN + 3, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		else:
-			screen.addDropDownBoxGFC(self.szWondersDropdownWidget,
-				self.X_WONDERS_DROPDOWN, self.Y_WONDERS_DROPDOWN, self.W_WONDERS_DROPDOWN, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+			screen.addDropDownBoxGFC(self.szWondersDropdownWidget, self.X_WONDERS_DROPDOWN, self.Y_WONDERS_DROPDOWN, self.W_WONDERS_DROPDOWN, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
 
 			if (self.szWonderDisplayMode == self.szWDM_WorldWonder):
 				bDefault = true
@@ -3242,8 +3208,7 @@ class CvInfoScreen:
 
 			# Wonders List ListBox
 			self.szWondersListBox = self.getNextWidgetName()
-			screen.addListBoxGFC(self.szWondersListBox, "",
-				self.X_WONDER_LIST, self.Y_WONDER_LIST, self.W_WONDER_LIST, self.H_WONDER_LIST, TableStyles.TABLE_STYLE_STANDARD )
+			screen.addListBoxGFC(self.szWondersListBox, "", self.X_WONDER_LIST, self.Y_WONDER_LIST, self.W_WONDER_LIST, self.H_WONDER_LIST, TableStyles.TABLE_STYLE_STANDARD )
 			screen.setStyle(self.szWondersListBox, "Table_StandardCiv_Style")
 
 			self.determineListBoxContents()
@@ -3414,9 +3379,7 @@ class CvInfoScreen:
 				screen.addMultilineText(self.getNextWidgetName(), szStatsText, self.X_WONDERS_STATS_PANE + 5, self.Y_WONDERS_STATS_PANE + 15, self.W_WONDERS_STATS_PANE - 10, self.H_WONDERS_STATS_PANE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# Add Graphic
-				screen.addBuildingGraphicGFC(self.getNextWidgetName(), self.iWonderID,
-					self.X_WONDER_GRAPHIC, self.Y_WONDER_GRAPHIC, self.W_WONDER_GRAPHIC, self.H_WONDER_GRAPHIC,
-					WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_WONDER_ANIMATION, self.Z_ROTATION_WONDER_ANIMATION, self.WONDERS_SCALE_ANIMATION, True)
+				screen.addBuildingGraphicGFC(self.getNextWidgetName(), self.iWonderID, self.X_WONDER_GRAPHIC, self.Y_WONDER_GRAPHIC, self.W_WONDER_GRAPHIC, self.H_WONDER_GRAPHIC, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_WONDER_ANIMATION, self.Z_ROTATION_WONDER_ANIMATION, self.WONDERS_SCALE_ANIMATION, True)
 
 				# Special Abilities ListBox
 
@@ -3915,8 +3878,7 @@ class CvInfoScreen:
 		#player = gc.getPlayer(gc.getGame().getActivePlayer())
 		player = gc.getPlayer(self.iActivePlayer) # K-Mod
 		szLeaderWidget = self.getNextWidgetName()
-		screen.addLeaderheadGFC(szLeaderWidget, player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED,
-			self.X_LEADER_ICON, self.Y_LEADER_ICON, self.W_LEADER_ICON, self.H_LEADER_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addLeaderheadGFC(szLeaderWidget, player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADER_ICON, self.Y_LEADER_ICON, self.W_LEADER_ICON, self.H_LEADER_ICON, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Leader Name
 		self.szLeaderNameWidget = self.getNextWidgetName()
@@ -4062,8 +4024,7 @@ class CvInfoScreen:
 					and aiUnitsCurrent[iUnitLoop] == 0 and aiUnitsBuilt[iUnitLoop] == 0
 					and aiUnitsKilled[iUnitLoop] == 0 and aiUnitsLost[iUnitLoop] == 0):
 				continue # K-Mod end
-			unitIDsByBuiltDesc.append((-aiUnitsBuilt[iUnitLoop],
-					gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
+			unitIDsByBuiltDesc.append((-aiUnitsBuilt[iUnitLoop], gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
 		unitIDsByBuiltDesc.sort()
 		for i in range(len(unitIDsByBuiltDesc)):
 			(iNegBuilt, szUnitName, iUnitLoop) = unitIDsByBuiltDesc[i]
@@ -4101,8 +4062,7 @@ class CvInfoScreen:
 			# K-Mod. Hide-rows option.
 			if aiBuildingsBuilt[iBuildingLoop] == 0: #and AdvisorOpt.isNonZeroStatsOnly(): # advc: No longer optional
 				continue # K-Mod end
-			buildingIDsByBuiltDesc.append((-aiBuildingsBuilt[iBuildingLoop],
-					gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
+			buildingIDsByBuiltDesc.append((-aiBuildingsBuilt[iBuildingLoop], gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
 		buildingIDsByBuiltDesc.sort()
 		for i in range(len(buildingIDsByBuiltDesc)):
 			(iNegBuilt, szBuildingName, iBuildingLoop) = buildingIDsByBuiltDesc[i]

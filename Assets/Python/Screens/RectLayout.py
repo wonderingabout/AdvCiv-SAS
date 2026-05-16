@@ -1,5 +1,11 @@
 # advc.092: New module to help specify positions of rectangular widgets
 # relative to each other.
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
 
 # (Not naming this "Point2D" to avoid potential clashes with other modules)
 class PointLayout:
@@ -36,35 +42,13 @@ class RectLayout(object):
 	RIGHT = _ALIGN_OPPOSITE
 	BOTTOM = _ALIGN_OPPOSITE
 	MAX = _MAX_LENGTH
-	def __init__(self,
-			# ('None' is allowed only for the RectLayout representing the screen itself.
-			# In that case, fX and fY need to be absolute screen coordinates.)
-			lParent,
-			# Distance from lParent's left edge if positive,
-			# from lParent's right edge if negative.
-			# CENTER centers this widget horizontally.
-			# RIGHT aligns this widget horizontally to the right edge of lParent.
-			# LEFT is equivalent to fX=0.
-			fX,
-			# Distance from lParent's top edge if positive,
-			# from lParent's bottom edge if negative.
-			# CENTER centers this widget vertically.
-			# BOTTOM aligns this widget vertically to the bottom edge of lParent.
-			# TOP is equivalent to 0.
-			fY,
-			# Our width in pixels if positive.
-			# If negative, then fWidth is the distance from lParent's right edge
-			# and, when fX is set to CENTER, then negative fWidth is also the 
-			# distance from lParent's left edge. Negative fWidth can't be combined
-			# with RIGHT alignment.
-			fWidth,
-			# Our height in pixels if positive.
-			# If negative, then fHeight is the distance from lParent's bottom edge
-			# and, when fY is set to CENTER, then negative fHeight is also the 
-			# distance from lParent's top edge. Negative fHeight can't be combined
-			# with BOTTOM alignment.
-			fHeight,
-			bOffScreen = False):
+	# __init__ params:
+	# lParent: 'None' allowed only for the RectLayout representing the screen itself; then fX and fY need to be absolute screen coordinates.
+	# fX: distance from lParent's left edge if positive, from right edge if negative. CENTER centers horizontally; RIGHT aligns to lParent's right edge; LEFT is equivalent to fX=0.
+	# fY: distance from lParent's top edge if positive, from bottom edge if negative. CENTER centers vertically; BOTTOM aligns to lParent's bottom edge; TOP is equivalent to 0.
+	# fWidth: width in pixels if positive. If negative, fWidth is the distance from lParent's right edge; when fX is CENTER, negative fWidth is also the distance from the left edge. Negative fWidth can't be combined with RIGHT alignment.
+	# fHeight: height in pixels if positive. If negative, fHeight is the distance from lParent's bottom edge; when fY is CENTER, negative fHeight is also the distance from the top edge. Negative fHeight can't be combined with BOTTOM alignment.
+	def __init__(self, lParent, fX, fY, fWidth, fHeight, bOffScreen = False):
 		if not lParent:
 			self.fX = fX
 			self.fY = fY
@@ -73,10 +57,8 @@ class RectLayout(object):
 		else:
 			fPrelimWidth = RectLayout._calcSideLenPrelim(lParent.width(), fWidth)
 			fPrelimHeight = RectLayout._calcSideLenPrelim(lParent.height(), fHeight)
-			self.fX = RectLayout._calcCoord(lParent.x(), lParent.width(),
-					fX, fPrelimWidth, bOffScreen)
-			self.fY = RectLayout._calcCoord(lParent.y(), lParent.height(),
-					fY, fPrelimHeight, bOffScreen)
+			self.fX = RectLayout._calcCoord(lParent.x(), lParent.width(), fX, fPrelimWidth, bOffScreen)
+			self.fY = RectLayout._calcCoord(lParent.y(), lParent.height(), fY, fPrelimHeight, bOffScreen)
 		self.fWidth = fPrelimWidth
 		if fWidth == RectLayout.MAX:
 			self.fWidth = min(self.fWidth, lParent.xRight() - self.fX)
@@ -173,9 +155,7 @@ class RectLayout(object):
 		return (self.x() <= lOther.x() and self.xRight() >= lOther.xRight() and
 				self.y() <= lOther.y() and self.yBottom() >= lOther.yBottom())
 	def __str__(self):
-		return ( "Rect(" +
-				str(self.fX) + ", " + str(self.fY) + ", " +
-				str(self.fWidth) + ", " + str(self.fHeight) + ")" )
+		return ( "Rect(" + str(self.fX) + ", " + str(self.fY) + ", " + str(self.fWidth) + ", " + str(self.fHeight) + ")" )
 	@staticmethod
 	def offsetPoint(lRect, fDeltaX, fDeltaY = 0):
 		if fDeltaX == RectLayout.CENTER:
@@ -201,20 +181,8 @@ class SquareLayout(RectLayout):
 class _SingleFileLayout(RectLayout):
 	HORIZONTAL = True
 	VERTICAL = False
-	def __init__(self, lParent,
-			# Whether the widgets are layed out horizontally (HORIZONTAL)
-			# or vertically (VERTICAL)
-			orientation,
-			fX, fY, # See super class ctor
-			# (Positive) number of widgets in the group.
-			# RectLayout.MAX for the highest number that will (fully) fit
-			# into lParent (but at least 1).
-			iWidgets,
-			# Space in between two adjacent widgets.
-			# Negative space means that they overlap.
-			iSpacing,
-			# (Positive) widget size. By default, square dimensions are assumed.
-			fWidth, fHeight = None):
+	# __init__ params: orientation = widgets layed out horizontally (HORIZONTAL) or vertically (VERTICAL); fX, fY = see super class ctor; iWidgets = (positive) number of widgets in the group, RectLayout.MAX for the highest number that will (fully) fit into lParent (but at least 1); iSpacing = space between two adjacent widgets (negative = overlap); fWidth, fHeight = (positive) widget size, square dimensions assumed by default
+	def __init__(self, lParent, orientation, fX, fY, iWidgets, iSpacing, fWidth, fHeight = None):
 		if fHeight is None:
 			fHeight = fWidth
 		bHorizontal = orientation
@@ -232,8 +200,9 @@ class _SingleFileLayout(RectLayout):
 			# (Not going to check the non-expanding dimension.
 			# I think it would be rather puzzling for the caller to end up with
 			# just a single widget on account of the parent being too "narrow".)
-			iWidgets = (1 + (iParentLen - iExpandingLen) // # no space before first widget
-					(iExpandingLen + iSpacing))
+			#
+			# no space before first widget
+			iWidgets = (1 + (iParentLen - iExpandingLen) // (iExpandingLen + iSpacing))
 		assert iWidgets < RectLayout._RESERVED_CONST
 		iTotalExpandingLen = iWidgets * iExpandingLen + (iWidgets - 1) * iSpacing
 		if bHorizontal:
@@ -272,9 +241,7 @@ class _SingleFileLayout(RectLayout):
 
 class ColumnLayout(_SingleFileLayout):
 	def __init__(self, lParent, fX, fY, iWidgets, iSpacing, fWidth, fHeight = None):
-		super(ColumnLayout, self).__init__(
-				lParent, _SingleFileLayout.VERTICAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)
+		super(ColumnLayout, self).__init__(lParent, _SingleFileLayout.VERTICAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)
 class RowLayout(_SingleFileLayout):
 	def __init__(self, lParent, fX, fY, iWidgets, iSpacing, fWidth, fHeight = None):
-		super(RowLayout, self).__init__(
-				lParent, _SingleFileLayout.HORIZONTAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)
+		super(RowLayout, self).__init__(lParent, _SingleFileLayout.HORIZONTAL, fX, fY, iWidgets, iSpacing, fWidth, fHeight)

@@ -52,11 +52,7 @@ def sas_compact_almost_all_land_grid_sizes():
 
 
 def sas_get_compact_almost_all_land_grid_size(eWorldSize):
-	return sas_lookup_world_size_with_calibrated_sas(
-		eWorldSize,
-		sas_compact_almost_all_land_grid_sizes(),
-		SAS_HUGE_CUSTOM_MAX_PLAYERS
-	)
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, sas_compact_almost_all_land_grid_sizes(), SAS_HUGE_CUSTOM_MAX_PLAYERS)
 
 
 
@@ -118,12 +114,7 @@ def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnch
 		(iAnchorWidth, iAnchorHeight) = base_grid_sizes[iAnchorWorldSize]
 		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize, iAnchorMaxPlayers)
 		iTargetPlayers = sas_world_default_players(iWorldSize, 0)
-		return sas_calibrate_grid_from_anchor(
-			iAnchorWidth,
-			iAnchorHeight,
-			iAnchorPlayers,
-			iTargetPlayers
-		)
+		return sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorPlayers, iTargetPlayers)
 	return base_grid_sizes[max(base_grid_sizes.keys())]
 
 

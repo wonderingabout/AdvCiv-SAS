@@ -378,15 +378,7 @@ class SevoPediaMusic:
 
 
 	def SAS_setupPlayableMusic(self, iMusic):
-		(
-			self.SAS_playableMusic,
-			self.SAS_playableMusicLabels,
-			self.SAS_playableMusicIcons,
-			self.SAS_playableMusicGroupByIndex,
-			self.SAS_playableMusicGroupLabels,
-			self.SAS_musicGroupFirstIndex,
-			self.SAS_musicGroupLastIndex
-		) = self.SAS_buildPlayableMusicAndLabels()
+		(self.SAS_playableMusic, self.SAS_playableMusicLabels, self.SAS_playableMusicIcons, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_musicGroupFirstIndex, self.SAS_musicGroupLastIndex) = self.SAS_buildPlayableMusicAndLabels()
 		self.SAS_playableMusicIndex = -1
 		try:
 			self.SAS_playableMusicIndex = self.SAS_playableMusic.index(iMusic)

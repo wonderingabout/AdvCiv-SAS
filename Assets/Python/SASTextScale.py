@@ -3,13 +3,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
 
 
-from SASFontUtils import (
-	sasFontTagBody,
-	SAS_FONT_TAG_CLOSE,
-	sasFontTagLabel,
-	sasFontTagTitle,
-	sasFontTagTiny,
-)
+from SASFontUtils import sasFontTagBody, SAS_FONT_TAG_CLOSE, sasFontTagLabel, sasFontTagTitle, sasFontTagTiny
 import re
 
 SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)

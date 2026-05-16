@@ -438,21 +438,8 @@ class CvForeignAdvisor:
 		#fcHeaderText = BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
 
 		# <!-- custom: perf opt: looks like this can be moved to init entirely if i'm not mistaken. -->
-		self.headerTexts = (
-			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"),
-			BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"),
-			# <!-- custom: use cached icon values for performance (claude code sonnet 4.5) -->
-			self.szReligionIconStr, 
-			self.szTradeIconStr,
-			self.szTradeCommerceIconStr,
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"),
-			BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"),
-			"",
-			BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
-		)
+		# <!-- custom: szReligionIconStr/szTradeIconStr/szTradeCommerceIconStr are cached icon values for performance (claude code sonnet 4.5) -->
+		self.headerTexts = (BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER"), BugUtil.getPlainText("TXT_KEY_FOREIGN_ADVISOR_ABBR_ATTITUDE"), self.szReligionIconStr, self.szTradeIconStr, self.szTradeCommerceIconStr, BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_GOVERNMENT"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LEGAL"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_LABOR"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_ECONOMY"), BugUtil.getPlainText("TXT_KEY_CIVICOPTION_ABBR_RELIGION"), "", BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES"))
 
 		# <!-- custom: cache treaty icon paths once. (GPT-5.3-Codex) -->
 		self.SAS_TRADE_ICON_OPEN_BORDERS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath()
@@ -2192,15 +2179,7 @@ class CvForeignAdvisor:
 			willTradeColumnType = IconGrid_BUG.GRID_TEXT_COLUMN
 		# </advc.550i>
 
-		columns = ( IconGrid_BUG.GRID_ICON_COLUMN,
-					IconGrid_BUG.GRID_TEXT_COLUMN,
-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-					IconGrid_BUG.GRID_TEXT_COLUMN,
-					willTradeColumnType,
-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN,
-					IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
+		columns = (IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, willTradeColumnType, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
 
 		self.techIconGridName = self.getNextWidgetName()
 		self.techIconGrid = IconGrid_BUG.IconGrid_BUG( self.techIconGridName, screen, gridX, gridY, gridWidth, gridHeight, columns, self.TECH_USE_SMALL_ICONS, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
@@ -2502,16 +2481,13 @@ class CvForeignAdvisor:
 		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
 
 		self.ESP_szMainPaneWidget = "EspionageMainPane"
-		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true,
-			self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true, self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
 
 		self.ESP_szLeftPaneWidget = "LeftPane"
-		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true,
-			self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true, self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
 
 		self.ESP_szScrollPanel = "ScrollPanel"
-		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true,
-			self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true, self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
 
 		self.ESP_aiKnownPlayers = []
 		self.ESP_aiUnknownPlayers = []
@@ -2557,8 +2533,7 @@ class CvForeignAdvisor:
 		############################
 
 		self.ESP_szRightPaneWidget = "RightPane"
-		screen.addPanel( self.ESP_szRightPaneWidget, "", "", true, true,
-			self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+		screen.addPanel( self.ESP_szRightPaneWidget, "", "", true, true, self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
 
 		if (self.ESP_iTargetPlayer != -1):
 
@@ -2611,14 +2586,12 @@ class CvForeignAdvisor:
 				self.ESP_iLeaderImagesID = 456
 				szName = "LeaderImage%d" %(iPlayerID)
 
-				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE,
-					iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
 				if (self.ESP_iTargetPlayer == iPlayerID):
 					screen.setState(szName, true)
 
 				szName = "LeaderNamePanel%d" %(iPlayerID)
-				screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN,
-					iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN, iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "NameText%d" %(iPlayerID)
 				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))

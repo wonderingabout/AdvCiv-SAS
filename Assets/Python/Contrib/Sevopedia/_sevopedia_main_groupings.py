@@ -2164,21 +2164,11 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 						szGroup = _SCRIPT_2D_UNITS
 					elif szScript.startswith("AS2D_IF"):
 						szGroup = _SCRIPT_2D_INTERFACE
-					elif (
-						szSound.startswith("SND_AMB") or szSound.startswith("SND_OCEAN") or
-						szSound.startswith("SND_CROWD") or szSound.startswith("SND_MARCH") or
-						szSound.startswith("SND_TOWNMUSIC")
-					):
+					elif (szSound.startswith("SND_AMB") or szSound.startswith("SND_OCEAN") or szSound.startswith("SND_CROWD") or szSound.startswith("SND_MARCH") or szSound.startswith("SND_TOWNMUSIC")):
 						szGroup = _SCRIPT_2D_AMBIENT
 					elif szSound.startswith("SND_GOODY"):
 						szGroup = _SCRIPT_2D_GOODY
-					elif (
-						szSound.startswith("SND_VICTORY") or szSound.startswith("SND_LOSS") or
-						szSound.startswith("SND_WONDER") or szSound.startswith("SND_CITY") or
-						szSound.startswith("SND_CULTURE") or szSound.startswith("SND_NUKE") or
-						szSound.startswith("SND_GOLDAGEEND") or szSound.startswith("SND_MELTDOWN") or
-						szSound.startswith("SND_ALARM") or szSound.startswith("SND_CONTACT")
-					):
+					elif (szSound.startswith("SND_VICTORY") or szSound.startswith("SND_LOSS") or szSound.startswith("SND_WONDER") or szSound.startswith("SND_CITY") or szSound.startswith("SND_CULTURE") or szSound.startswith("SND_NUKE") or szSound.startswith("SND_GOLDAGEEND") or szSound.startswith("SND_MELTDOWN") or szSound.startswith("SND_ALARM") or szSound.startswith("SND_CONTACT")):
 						szGroup = _SCRIPT_2D_EVENTS
 					elif szSound.startswith("SND_"):
 						szGroup = _SCRIPT_2D_SFX
@@ -2211,12 +2201,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 			print("SAS_SEVO_MUSIC_2D_PARSE_FAILED path=%s") % (szAudio2DPath,)
 		scriptGroups = {}
 
-	for szHeader in (
-		_SCRIPT_2D_OPENING, _SCRIPT_2D_SONGS, _SCRIPT_2D_DIPLO, _SCRIPT_2D_TECH,
-		_SCRIPT_2D_TUTORIAL, _SCRIPT_2D_BUILDS, _SCRIPT_2D_UNITS, _SCRIPT_2D_INTERFACE,
-		_SCRIPT_2D_AMBIENT, _SCRIPT_2D_GOODY, _SCRIPT_2D_EVENTS, _SCRIPT_2D_SFX,
-		_SCRIPT_2D_OTHER
-	):
+	for szHeader in (_SCRIPT_2D_OPENING, _SCRIPT_2D_SONGS, _SCRIPT_2D_DIPLO, _SCRIPT_2D_TECH, _SCRIPT_2D_TUTORIAL, _SCRIPT_2D_BUILDS, _SCRIPT_2D_UNITS, _SCRIPT_2D_INTERFACE, _SCRIPT_2D_AMBIENT, _SCRIPT_2D_GOODY, _SCRIPT_2D_EVENTS, _SCRIPT_2D_SFX, _SCRIPT_2D_OTHER):
 		items = scriptGroups.get(szHeader, [])
 		if bSortLists and szHeader != _SCRIPT_2D_OTHER:
 			items.sort()

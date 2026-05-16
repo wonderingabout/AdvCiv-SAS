@@ -1756,10 +1756,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		global lStartingPlotAreas
 		lStartingPlotAreas.append(SquareContinentMapArea)
 
-		self.generatePlotsInMapAreaPolygon(
-			iBaseSeaLevel - 15, SquareContinentMapArea, iSquareContinentGrain, iSquareContinentHillsGrain, self.iRoundFlags,
-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-		)
+		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, SquareContinentMapArea, iSquareContinentGrain, iSquareContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 		return
 
@@ -1790,10 +1787,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		global lStartingPlotAreas
 		lStartingPlotAreas.append(RectContinentMapArea)
 
-		self.generatePlotsInMapAreaPolygon(
-			iBaseSeaLevel - 15, RectContinentMapArea, iRectContinentGrain, iRectContinentHillsGrain, self.iRoundFlags,
-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-		)
+		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, RectContinentMapArea, iRectContinentGrain, iRectContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 		return
 
@@ -1825,10 +1819,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		global lStartingPlotAreas
 		lStartingPlotAreas.append(ParallelContinentMapArea)
 
-		self.generatePlotsInMapAreaPolygon(
-			iBaseSeaLevel - 15, ParallelContinentMapArea, iParallelContinentGrain, iParallelContinentHillsGrain, self.iRoundFlags,
-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-		)
+		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, ParallelContinentMapArea, iParallelContinentGrain, iParallelContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 		return
 
@@ -1851,10 +1842,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		global lStartingPlotAreas
 		lStartingPlotAreas.append(Poly4ContinentMapArea)
 
-		self.generatePlotsInMapAreaPolygon(
-			iBaseSeaLevel - 15, Poly4ContinentMapArea, iPoly4ContinentGrain, iPoly4ContinentHillsGrain, self.iRoundFlags,
-			self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-		)
+		self.generatePlotsInMapAreaPolygon(iBaseSeaLevel - 15, Poly4ContinentMapArea, iPoly4ContinentGrain, iPoly4ContinentHillsGrain, self.iRoundFlags, self.iTerrainFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 		return
 
@@ -2017,16 +2005,10 @@ class MapAreaPolygon:
 
 		# Perfect polygons are boring. These fractals are used to distort the shape of the resulting landmass slightly.
 		self.__horizontalDisplacementFrac = CyFractal()
-		self.__horizontalDisplacementFrac.fracInit(
-			self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(),
-			CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-		)
+		self.__horizontalDisplacementFrac.fracInit(self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(), CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 		self.__verticalDisplacementFrac = CyFractal()
-		self.__verticalDisplacementFrac.fracInit(
-			self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(),
-			CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-		)
+		self.__verticalDisplacementFrac.fracInit(self.__iRegionWidth, self.__iRegionHeight, self.__DISPLACEMENT_FRACTAL_GRAIN, game.getMapRand(), CyFractal.FracVals.FRAC_POLAR, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 		# Since all points need to be accessed at least once, they can be calculated on init.
 		self.__bInsideMatrix = [[False for iY in range(self.__iRegionHeight)] for iX in range(self.__iRegionWidth)]
@@ -2078,9 +2060,7 @@ class MapAreaPolygon:
 	def __getRandomDisplacement(self):
 		# Allows to apply a random displacement to one of the coordinates of one of the points of the polygon.
 		# :return: Calculated displacement.
-		return self.__iRandomDisplacement / 2 - game.getMapRand().get(
-			self.__iRandomDisplacement,
-			"[Peirce] - Randomization of the points of one of the areas.")
+		return self.__iRandomDisplacement / 2 - game.getMapRand().get(self.__iRandomDisplacement, "[Peirce] - Randomization of the points of one of the areas.")
 
 
 	@property
@@ -2124,11 +2104,8 @@ def getVariationFractal(iGrain):
 	varFractal = CyFractal()
 	iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
 
-	varFractal.fracInit(
-		map.getGridWidth(), map.getGridHeight(), iGrain, game.getMapRand(), iFlags,
-		# The Peirce map has the same width and height.
-		CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-	)
+	# The Peirce map has the same width and height, so both frac Y-exp args use DEFAULT_FRAC_Y_EXP
+	varFractal.fracInit(map.getGridWidth(), map.getGridHeight(), iGrain, game.getMapRand(), iFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 	return varFractal
 

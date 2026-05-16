@@ -319,8 +319,7 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 		# Sanity check: weights must sum to exactly 1.0
 		weight_sum = MAIN_WEIGHT + SECONDARY_WEIGHT
 		if not abs(weight_sum - 1.0) < 1e-6:
-			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"
-				% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
+			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)" % (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
 
 		# Aggregate score: round for consistency, since we later normalize as int 0–100 anyway
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score

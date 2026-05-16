@@ -465,15 +465,11 @@ class CityPendingGrowth(AbstractCityAlert):
 		if (Civ4lertsOpt.isShowCityPendingGrowthAlert()):
 			if (CityUtil.willGrowThisTurn(city)):
 				if Civ4lertsOpt.isShowPendingPositive(): # advc.106d
-					message = localText.getText(
-							"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH",
-							(city.getName(), city.getPopulation() + 1))
+					message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_GROWTH", (city.getName(), city.getPopulation() + 1))
 					icon = "Art/Interface/Symbols/Food/food05.dds"
 					addMessageAtCity(iPlayer, message, icon, city)
 			elif (CityUtil.willShrinkThisTurn(city)):
-				message = localText.getText(
-						"TXT_KEY_CIV4LERTS_ON_CITY_PENDING_SHRINKAGE",
-						(city.getName(), city.getPopulation() - 1))
+				message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_SHRINKAGE", (city.getName(), city.getPopulation() - 1))
 				icon = "Art/Interface/Symbols/Food/food05.dds"
 				addMessageAtCity(iPlayer, message, icon, city)
 
@@ -502,15 +498,11 @@ class CityGrowth(AbstractCityAlert):
 			
 			if (Civ4lertsOpt.isShowCityGrowthAlert()):
 				if (iPop > iOldPop):
-					message = localText.getText(
-							"TXT_KEY_CIV4LERTS_ON_CITY_GROWTH",
-							(city.getName(), iPop))
+					message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_GROWTH", (city.getName(), iPop))
 					icon = "Art/Interface/Symbols/Food/food05.dds"
 					addMessageAtCity(iPlayer, message, icon, city)
 				elif iPop < iOldPop and not bWhipOrDraft:
-					message = localText.getText(
-							"TXT_KEY_CIV4LERTS_ON_CITY_SHRINKAGE",
-							(city.getName(), iPop))
+					message = localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_SHRINKAGE", (city.getName(), iPop))
 					icon = "Art/Interface/Symbols/Food/food05.dds"
 					addMessageAtCity(iPlayer, message, icon, city)
 

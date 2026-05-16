@@ -433,22 +433,7 @@ class CvMilitaryAdvisor:
 			screen.deleteWidget(self.getNextWidgetName())
 		self.nWidgetCount = 0
 		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Map tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
-		for szWidget in (
-			self.UNIT_PANEL_ID,
-			self.UNIT_BUTTON_ID,
-			self.UNIT_BUTTON_LABEL_ID,
-			self.LEADER_PANEL_ID,
-			self.UNIT_LIST_ID,
-			self.GREAT_GENERAL_BAR_ID,
-			self.GREAT_GENERAL_LABEL_ID,
-			self.DEBUG_DROPDOWN_ID,
-			self.BATTLE_TABLE_ID,
-			self.BATTLE_LOG_BUTTON_ID,
-			self.COMPOSITION_UNITS_TABLE_ID,
-			self.COMPOSITION_PROMOTIONS_TABLE_ID,
-			self.COMPOSITION_COMBATS_TABLE_ID,
-			self.SUMMARY_PANEL_ID,
-		):
+		for szWidget in (self.UNIT_PANEL_ID, self.UNIT_BUTTON_ID, self.UNIT_BUTTON_LABEL_ID, self.LEADER_PANEL_ID, self.UNIT_LIST_ID, self.GREAT_GENERAL_BAR_ID, self.GREAT_GENERAL_LABEL_ID, self.DEBUG_DROPDOWN_ID, self.BATTLE_TABLE_ID, self.BATTLE_LOG_BUTTON_ID, self.COMPOSITION_UNITS_TABLE_ID, self.COMPOSITION_PROMOTIONS_TABLE_ID, self.COMPOSITION_COMBATS_TABLE_ID, self.SUMMARY_PANEL_ID):
 			screen.deleteWidget(szWidget)
 		for iPlayer in range(gc.getMAX_PLAYERS()):
 			screen.deleteWidget(self.getLeaderButton(iPlayer))
@@ -911,35 +896,7 @@ class CvMilitaryAdvisor:
 			if tColumns is None:
 				continue
 			iTurn, iResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iOurXP, bOurGG, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iTheirXP, bTheirGG, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain, iCityContext = tColumns
-			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %d | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (
-				iTurn,
-				self.getTurnDate(iTurn),
-				self.getBattleResultLogText(iResult),
-				self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr),
-				self.getBattleRoleText(iOurRole),
-				self.getBattleBaseStrengthText(iOurUnit),
-				self.getBattleStoredStrengthText(iOurCurrStr),
-				self.getBattleStoredStrengthText(iOurEndStr),
-				self.getBattleStoredStrengthText(iOurMaxStr),
-				self.getBattleXPText(iOurXP, False),
-				bOurGG,
-				gc.getUnitInfo(iOurUnit).getDescription(),
-				gc.getUnitInfo(iTheirUnit).getDescription(),
-				self.getBattleXPText(iTheirXP, False),
-				bTheirGG,
-				self.getBattleBaseStrengthText(iTheirUnit),
-				self.getBattleStoredStrengthText(iTheirCurrStr),
-				self.getBattleStoredStrengthText(iTheirEndStr),
-				self.getBattleStoredStrengthText(iTheirMaxStr),
-				iTheirPlayer,
-				iCapturedCount,
-				self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit),
-				self.getBattleTerrainTypeText(iHillPeakTerrain),
-				self.getBattleTerrainTypeText(iTerrain),
-				self.getBattleFeatureTypeText(iFeature),
-				iX,
-				iY,
-			))
+			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %d | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (iTurn, self.getTurnDate(iTurn), self.getBattleResultLogText(iResult), self.getBattleEstimatedOddsText(iOurCurrStr, iTheirCurrStr), self.getBattleRoleText(iOurRole), self.getBattleBaseStrengthText(iOurUnit), self.getBattleStoredStrengthText(iOurCurrStr), self.getBattleStoredStrengthText(iOurEndStr), self.getBattleStoredStrengthText(iOurMaxStr), self.getBattleXPText(iOurXP, False), bOurGG, gc.getUnitInfo(iOurUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getDescription(), self.getBattleXPText(iTheirXP, False), bTheirGG, self.getBattleBaseStrengthText(iTheirUnit), self.getBattleStoredStrengthText(iTheirCurrStr), self.getBattleStoredStrengthText(iTheirEndStr), self.getBattleStoredStrengthText(iTheirMaxStr), iTheirPlayer, iCapturedCount, self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit), self.getBattleTerrainTypeText(iHillPeakTerrain), self.getBattleTerrainTypeText(iTerrain), self.getBattleFeatureTypeText(iFeature), iX, iY))
 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_END")
 
 	def dbgLogBattleHistoryPerspectivePlayer(self):
