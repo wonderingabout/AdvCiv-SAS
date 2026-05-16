@@ -5,7 +5,7 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
+# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
 
 # (Not naming this "Point2D" to avoid potential clashes with other modules)
 class PointLayout:

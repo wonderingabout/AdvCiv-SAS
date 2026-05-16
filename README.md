@@ -10,7 +10,7 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 
 
 Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
-A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
+A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up and scroll down buttons, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
 
 New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
@@ -344,7 +344,7 @@ Besides these and other changes in the main changes guide or code only, a notabl
 
 ##### Scoreboard
 
-New scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button features have been added.
+The new scroll up, scroll fast up, and scroll fastest buttons (same for scroll down), the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button features have been added.
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
@@ -709,11 +709,11 @@ The changes before/after with rationale tables are synthethized in .md tables in
 
 ### How to use
 
-48 Civs DLL is provided and is now the default in AdvCiv-SAS, because we ship world sizes (e.g., SAS24/SAS32/SAS40/SAS48) that support such higher player counts, but using the old 18 civs DLL would result in map never being populated. It is easier to have a uniform DLL as well
+48 Civs DLL is provided and is now the default DLL in AdvCiv-SAS, because we it allows to support the new larger SAS world sizes (e.g., SAS24/SAS32/SAS40/SAS48) that use such higher player counts, and using the old 18 civs DLL would result in map never being populated due to player count being capped at 18. It is also easier to maintain than pivotting between 18 and 48 civs DLLs during testing or playing.
 
-For compatibility or performance or such, a 18 civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_18_civs_dll.dll").
+For compatibility or performance or such, a 18 civs DLL is also available and provided in this mod. ([CvGameCoreDLL_18_civs_DLL.dll](/Assets/CvGameCoreDLL_18_civs_DLL.dll)).
 
-To use it, rename current base 48 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_48_civs_dll.dll", and rename the "CvGameCoreDLL_18_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 48 players DLL).
+To use it, rename current base 48 `MAX_CIV_PLAYERS` DLL file named `CvGameCoreDLL.dll` to any name as long as it's another name, for example to `CvGameCoreDLL_48_civs_dll.dll`, and rename the `CvGameCoreDLL_18_civs_dll.dll` to `CvGameCoreDLL.dll` (vice versa to revert to old 48 players DLL).
 
 Note: it seems that savegames are not compatible when switching from 48 civ DLL to 18 civ DLL (or vice versa i assume) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source).
 

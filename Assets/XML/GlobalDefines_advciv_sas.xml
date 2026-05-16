@@ -171,6 +171,19 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: scoreboard fast-scroll step. This tier moves this many rows per click. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FAST</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: scoreboard fastest-scroll step. Rows per click for the outermost scroll buttons; offset is clamped so a value at or above the player cap behaves as jump-to-end. 50 covers the 48-player cap in one click. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
 	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
 	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
