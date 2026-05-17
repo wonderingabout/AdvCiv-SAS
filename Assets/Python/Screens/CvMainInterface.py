@@ -1220,7 +1220,7 @@ class CvMainInterface:
 		else:
 			iPercentTextBaseX = gRect("InterfaceTopLeft").x()
 		iPercentTextX = iPercentTextBaseX + HSPACE(iRightCommerceBlockXOffset)
-		# <!-- custom: always reserve 2 button columns of space for the optional second (Min/Max) +/- pair by shifting the whole slider cluster (PercentText labels and buttons, since iX derives from iPercentTextX) left by 2 columns. City screen kept out: it has its own commerce layout and the pair is map-only. (Claude code Opus 4.7) -->
+		# <!-- custom: reserve 2 button columns for the optional Min/Max +/- pair (shift slider cluster left; iX derives from iPercentTextX so labels and buttons move together). Map view only: the city screen fits the pair fine as-is, and shifting it there overflows the commerce slider off the left with parts missing. (Claude code Opus 4.7) -->
 		if not CyInterface().isCityScreenUp():
 			iPercentTextX -= 2 * iColumnW
 		iCommerceRowsTopOffset = VSPACE(iRightCommerceBlockYOffset)
@@ -2514,7 +2514,8 @@ class CvMainInterface:
 # BUG - Min/Max Sliders - start
 			bEnable = gc.getActivePlayer().isCommerceFlexible(eCommerce)
 			iCol = 0 # advc.092
-			if (MainOpt.isShowMinMaxCommerceButtons() and not CyInterface().isCityScreenUp()):
+			# <!-- custom: Added Min/Max +/- pair on the city screen (because map-view commerce sliders are hidden there). Not added to the Finance/Espionage advisor tabs: those are windowed so the right-side map-view sliders stay reachable. (Claude code Opus 4.7) -->
+			if MainOpt.isShowMinMaxCommerceButtons():
 				szString = "MaxPercent" + str(eCommerce)
 				gSetRectangle(szString, gRect("CommerceSliderBtns0").next())
 				self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_PLUS, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, self.iSAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT)
