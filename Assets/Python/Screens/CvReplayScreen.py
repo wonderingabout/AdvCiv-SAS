@@ -229,7 +229,6 @@ class CvReplayScreen:
 		# Play
 		screen.setText(self.szPlayId, "Background", self.PLAY_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_PLAY, self.Y_PLAY, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, -1 )
 
-
 		# Speed Slider
 		self.szSliderTextId = self.getNextWidgetName()
 		screen.setLabel(self.szSliderTextId, "Background", self.SPEED_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_SPEED, self.Y_SPEED, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -256,7 +255,6 @@ class CvReplayScreen:
 			self.resetData()
 			self.showEvents(self.iTurn, False)
 			return
-
 
 		szTurnDate = CyGameTextMgr().getDateStr(self.iTurn, false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
 		screen.deleteWidget(self.szHeader)
@@ -288,7 +286,6 @@ class CvReplayScreen:
 			iY = self.replayInfo.getReplayMessagePlotY(iLoopEvent)
 			eMessageType = self.replayInfo.getReplayMessageType(iLoopEvent)
 			eColor = self.replayInfo.getReplayMessageColor(iLoopEvent)
-
 
 			if (szText != "" and not bSilent):
 				szTextNoColor = re.sub("<color=.*?>", "", szText)
@@ -357,7 +354,6 @@ class CvReplayScreen:
 			screen.clearGraphData(self.szGraph, iPlayer)
 		self.initGraph()
 		screen.clearListBoxGFC(self.szAreaId)
-
 
 	def initGraph(self):
 		screen = self.getScreen()

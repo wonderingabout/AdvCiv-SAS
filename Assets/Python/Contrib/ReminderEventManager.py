@@ -243,7 +243,6 @@ class ReminderEventManager:
 		else:
 			SdToolKit.sdSetGlobal(SD_MOD_ID, SD_QUEUES_ID, self.reminders)
 
-
 class Reminder(object):
 	def __init__(self, turn, message):
 		self.turn = turn

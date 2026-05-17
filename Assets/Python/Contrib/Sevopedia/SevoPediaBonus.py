@@ -13,7 +13,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -29,8 +28,6 @@ localText = CyTranslator()
 
 # <!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
 IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVOPEDIA_BONUS_SHOW_AI_INFORMATION") > 0)
-
-
 
 class SevoPediaBonus:
 
@@ -131,8 +128,6 @@ class SevoPediaBonus:
 		self.W_HISTORY = self.W_BONUS_ANIMATION
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-
-
 	def interfaceScreen(self, iBonus):
 		if self.iBonus != iBonus:
 			self.bHistoryExpanded = False
@@ -162,16 +157,12 @@ class SevoPediaBonus:
 		self.placeObsoleteWith()
 		self.placeHistory()
 
-
-
 	def placeBonusPane(self):
 		screen = self.top.getScreen()
 		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_BONUS_PANE, self.Y_BONUS_PANE, self.W_BONUS_PANE, self.H_BONUS_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getBonusInfo(self.iBonus).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-
-
 
 	def placeStats(self):
 		screen = self.top.getScreen()
@@ -197,8 +188,6 @@ class SevoPediaBonus:
 				szText1 = (u"%c  " % gc.getYieldInfo(k).getChar()) + szYield
 				szText2 = SASTextScale.titleText(szText1 + u"\n")
 				screen.appendListBoxString(panelName, szText2, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-
-
 
 	# <!-- custom: switch to an horizontal panel version provided by claude ai at my request thanks. -->
 	# <!-- custom: note: this needs to be debugged (simplify code, add left side padding before first button) -->
@@ -272,8 +261,6 @@ class SevoPediaBonus:
 		if not bAnyFound:
 			draw_none_text(screen, self.top, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
 
-
-
 	def placeUnits(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -314,8 +301,6 @@ class SevoPediaBonus:
 
 		if not bAnyFound:
 			draw_none_text(screen, self.top, self.X_UNITS, self.Y_UNITS, self.W_UNITS, self.H_UNITS)
-
-
 
 	def placeBuildingsAndProjects(self):
 		screen = self.top.getScreen()
@@ -369,8 +354,6 @@ class SevoPediaBonus:
 		if not bAnyDisplayed:
 			draw_none_text(screen, self.top, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS)
 
-
-
 	# <!-- custom: add some terrains (as of now minus some plot types), and features information, code based on multilist code in sevopedia religion that we also use in several places. -->
 	def placeTerrains(self):
 		xPanel = self.X_TERRAINS
@@ -412,8 +395,6 @@ class SevoPediaBonus:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def placeFeatures(self):
 		xPanel = self.X_FEATURES
 		yPanel = self.Y_FEATURES
@@ -453,8 +434,6 @@ class SevoPediaBonus:
 
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
-
-
 
 	# <!-- custom: also show Bonuses available through FeatureTerrainBooleans, such as as of now bonus_gemstones being available in grassland forest, but not in TerrainBooleans (no grassland entry there), so show this info here as well; code provided with the help of chatgpt thanks and such etc-->
 	def placeFeatureTerrainBooleans(self):
@@ -496,8 +475,6 @@ class SevoPediaBonus:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -533,8 +510,6 @@ class SevoPediaBonus:
 
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def placeRevealedBy(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -552,8 +527,6 @@ class SevoPediaBonus:
 		else:
 			draw_none_text(screen, self.top, self.X_REVEALED_BY, self.Y_REVEALED_BY, self.W_REVEALED_BY, self.H_REVEALED_BY, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS")
 
-
-
 	def placeTradeableSince(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -568,8 +541,6 @@ class SevoPediaBonus:
 			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
 		else:
 			draw_none_text(screen, self.top, self.X_TRADEABLE_SINCE, self.Y_TRADEABLE_SINCE, self.W_TRADEABLE_SINCE, self.H_TRADEABLE_SINCE, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS")
-
-
 
 	# Places the tech that obsoletes this bonus resource in the Sevopedia.
 	def placeObsoleteWith(self):
@@ -593,24 +564,16 @@ class SevoPediaBonus:
 		else:
 			draw_none_text(screen, self.top, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER")
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
 
-
-
 	def setContentExpanded(self, bExpanded):
 		self.bContentExpanded = bExpanded
-
-
 
 	def placeBonusAnimation(self):
 		screen = self.top.getScreen()
 		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_BONUS_ANIMATION, self.Y_BONUS_ANIMATION, self.W_BONUS_ANIMATION, self.H_BONUS_ANIMATION, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND, self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD)
 		screen.addBonusGraphicGFC(self.top.getNextWidgetName(), self.iBonus, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()

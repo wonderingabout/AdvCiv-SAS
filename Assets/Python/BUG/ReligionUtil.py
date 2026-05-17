@@ -98,7 +98,6 @@ from CvPythonExtensions import *
 import BugUtil
 import FontUtil
 
-
 ## Globals
 
 gc = CyGlobalContext()
@@ -121,7 +120,6 @@ BUILDING_CATHEDRAL = -1
 BUILDING_MONASTERY = -1
 BUILDING_SHRINE = -1
 UNIT_MISSIONARY = -1
-
 
 ## Religions
 
@@ -149,7 +147,6 @@ def getFoundedReligions():
 		if game.getReligionGameTurnFounded(iReligion) >= 0:
 			religions.append(iReligion)
 	return religions
-
 
 ## Buildings
 
@@ -190,7 +187,6 @@ def getBuilding(iReligion, index):
 		BugUtil.error("ReligionUtil - invalid religion %i or building type %i", iReligion, index)
 		return -1
 
-
 def getBuildingReligion(info):
 	# Returns the religion <info> is tied to.
 	#
@@ -227,7 +223,6 @@ def isShrine(info, iReligion):
 #	Returns True if <info> is the Inquisition Office for <iReligion>.
 #	#
 #	return info.isInquisitionOffice()
-
 
 ## Units
 
@@ -268,7 +263,6 @@ def getUnit(iReligion, index):
 		BugUtil.error("ReligionUtil - invalid religion %i or unit type %i", iReligion, index)
 		return -1
 
-
 def getUnitReligion(info):
 	# Returns the religion <info> is tied to.
 	#
@@ -288,7 +282,6 @@ def isMissionary(info, iReligion):
 #	Returns True if <info> is the Inquisitor for <iReligion>.
 #	#
 #	return info.getReligionRemoves(iReligion)
-
 
 ## Cities
 
@@ -310,7 +303,6 @@ def getCityHolyReligions(city):
 			religions.append(eReligion)
 	return religions
 
-
 ## Players
 
 def getPlayerReligions(player):
@@ -330,7 +322,6 @@ def getPlayerHolyReligions(player):
 		if player.hasHolyCity(eReligion):
 			religions.append(eReligion)
 	return religions
-
 
 ## Initialization
 
@@ -374,7 +365,6 @@ def init():
 					BugUtil.debug("ReligionUtil.init - %s %s is %i: %s", 
 								gc.getReligionInfo(iReligion).getDescription(), type.description, iUnit, unit.getDescription())
 					break
-
 
 ## Building and Unit Types
 

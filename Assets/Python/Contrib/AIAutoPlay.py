@@ -78,7 +78,6 @@ class AIAutoPlay :
 				print "Failed to remove 'onBeginGameTurn', perhaps not registered"
 				self.customEM.setEventHandler( "BeginGameTurn", self.onBeginGameTurn )
 
-
 	def removeEventHandlers( self ) :
 		print "Removing event handlers from AIAutoPlay"
 		
@@ -249,7 +248,6 @@ class AIAutoPlay :
 		#for idx in range(0,gc.getMAX_CIV_TEAMS()) :
 		#	pPlayer.setEspionageSpendingWeightAgainstTeam(idx, pPlayer.getEspionageSpendingWeightAgainstTeam(idx)/10)
 
-
 	def onKbdEvent( self, argsList ) :
 		'keypress handler'
 		eventType,key,mx,my,px,py = argsList
@@ -283,7 +281,6 @@ class AIAutoPlay :
 		if theKey == int(InputTypes.KB_O):
 			doRefortify( game.getActivePlayer() )
 
-
 	def onBeginGameTurn( self, argsList):
 		'Called at the beginning of the end of each turn'
 		iGameTurn = argsList[0]
@@ -306,7 +303,6 @@ class AIAutoPlay :
 				CvUtil.pyPrint('City Built Event: %s' %(city.getName()))
 			except :
 				CvUtil.pyPrint('City Built Event: Error processing city name' )
-
 
 	def toAIChooser( self ) :
 		'Chooser window for when user switches to AI auto play'

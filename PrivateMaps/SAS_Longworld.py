@@ -8,34 +8,27 @@
 # AUTHORS: wonderingabout & GPT-5.3-Codex
 # <!-- custom: inspired by the Ringworld3 v1.02 map -->
 
-
 from CvPythonExtensions import *
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
 
-
 def getVersion():
 	return "1.00"
 
-
 def getDescription():
 	return "A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified."
-
 
 def isAdvancedMap():
 	"This map should show up in Simple Game."
 	# <!-- custom: Keep visible in Simple Game; option set is compact and stale-option safe. (GPT-5.3-Codex) -->
 	return 0
 
-
 def getNumCustomMapOptions():
 	return 3
 
-
 def getNumHiddenCustomMapOptions():
 	return 0
-
 
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
@@ -49,7 +42,6 @@ def getCustomMapOptionName(argsList):
 		return u"LongWorld Height"
 	return option_names[iOption]
 
-
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -61,7 +53,6 @@ def getNumCustomMapOptionValues(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return 3
 	return option_values[iOption]
-
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
@@ -94,7 +85,6 @@ def getCustomMapOptionDescAt(argsList):
 		return selection_names[iOption][0]
 	return selection_names[iOption][iSelection]
 
-
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -107,7 +97,6 @@ def getCustomMapOptionDefault(argsList):
 		return 2
 	return option_defaults[iOption]
 
-
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
@@ -119,7 +108,6 @@ def isRandomCustomMapOption(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return false
 	return option_random[iOption]
-
 
 def _get_option_value(iOption, iDefault, iNumValues):
 	map_obj = CyMap()
@@ -135,40 +123,32 @@ def _get_option_value(iOption, iDefault, iNumValues):
 		return iDefault
 	return iValue
 
-
 def _strip_height():
 	iSelection = _get_option_value(0, 2, 6)
 	heights = [2, 3, 4, 5, 6, 7]
 	return heights[iSelection]
-
 
 def _width_per_player():
 	iSelection = _get_option_value(1, 2, 6)
 	widths = [10, 11, 12, 13, 14, 15]
 	return widths[iSelection]
 
-
 def getWrapX():
 	iWrapMode = _get_option_value(2, 0, 2)
 	return (iWrapMode == 0)
 
-
 def getWrapY():
 	return False
-
 
 def getTopLatitude():
 	return 70
 
-
 def getBottomLatitude():
 	return -70
-
 
 def minStartingDistanceModifier():
 	# <!-- custom: Tight long-strip maps need very low min start distance so high player-count games don't fail start assignment. (GPT-5.3-Codex) -->
 	return -95
-
 
 def getStripBounds(iH):
 	# <!-- custom: Use explicit strip heights for clarity in map options; clamp by map height for very small worlds. (GPT-5.3-Codex) -->
@@ -182,7 +162,6 @@ def getStripBounds(iH):
 		iBottomRow = iH - 2
 		iTopRow = max(1, iBottomRow - iBandHeight + 1)
 	return (iTopRow, iBottomRow)
-
 
 def findStartingPlot(argsList):
 	# <!-- custom: Force starts onto the long central strip with even horizontal spacing so high player-count games always get valid starts. (GPT-5.3-Codex) -->
@@ -231,7 +210,6 @@ def findStartingPlot(argsList):
 
 	return map_obj.plotNum(iX, iY)
 
-
 def getGridSize(argsList):
 	if argsList[0] == -1:
 		return []
@@ -267,7 +245,6 @@ def getGridSize(argsList):
 
 	(iFallbackWidth, iFallbackHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
 	return (_scaled_width(iFallbackWidth), iFallbackHeight)
-
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python SAS_Longworld) ...")
@@ -330,12 +307,10 @@ def generatePlotTypes():
 
 	return plot_types
 
-
 def generateTerrainTypes():
 	NiTextOut("Generating Terrain (Python SAS_Longworld) ...")
 	terrain_gen = TerrainGenerator()
 	return terrain_gen.generateTerrain()
-
 
 def addFeatures():
 	NiTextOut("Adding Features (Python SAS_Longworld) ...")

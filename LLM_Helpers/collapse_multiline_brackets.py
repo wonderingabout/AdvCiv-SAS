@@ -20,7 +20,6 @@
 #   python -c "import ast; ast.parse(open(r'<path>', 'r', encoding='utf-8').read())"
 import sys
 
-
 def collapse_inner(inner):
     # Strip line comments, replace newlines + leading whitespace with single space.
     # String literals (incl. triple-quoted) are preserved verbatim.
@@ -72,7 +71,6 @@ def collapse_inner(inner):
     while out and out[-1] in " \t":
         out.pop()
     return "".join(out)
-
 
 def collapse_brackets(src):
     out = []
@@ -166,7 +164,6 @@ def collapse_brackets(src):
         i += 1
     return "".join(out)
 
-
 def main():
     if len(sys.argv) < 2:
         print("usage: _collapse_one_tmp.py <file>")
@@ -186,7 +183,6 @@ def main():
     with open(f, "wb") as fh:
         fh.write(new_s.encode("utf-8"))
     print("collapsed", f)
-
 
 if __name__ == "__main__":
     main()

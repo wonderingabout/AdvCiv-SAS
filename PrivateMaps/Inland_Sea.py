@@ -23,7 +23,6 @@ from CvMapGeneratorUtil import BonusBalancer
 
 balancer = BonusBalancer()
 
-
 hinted_world = None
 
 def getDescription():

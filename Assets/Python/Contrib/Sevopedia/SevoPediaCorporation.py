@@ -13,8 +13,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -25,8 +23,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaCorporation:
 
@@ -84,8 +80,6 @@ class SevoPediaCorporation:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-
-
 	def interfaceScreen(self, iCorporation):
 		if self.iCorporation != iCorporation:
 			self.bHistoryExpanded = False
@@ -100,15 +94,11 @@ class SevoPediaCorporation:
 		self.placeSpecial()
 		self.placeHistory()
 
-
-
 	def placeCorporationPane(self):
 		screen = self.top.getScreen()
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_CORPORATION_PANE, self.Y_CORPORATION_PANE, self.W_CORPORATION_PANE, self.H_CORPORATION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCorporationInfo(self.iCorporation).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	def placeRequires(self):
 		screen = self.top.getScreen()
@@ -132,8 +122,6 @@ class SevoPediaCorporation:
 			if bRequired:
 				screen.attachImageButton(panelName, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
-
-
 	def _getPrereqBonuses(self):
 		prereqs = []
 		info = gc.getCorporationInfo(self.iCorporation)
@@ -142,8 +130,6 @@ class SevoPediaCorporation:
 			if iBonus > -1 and iBonus not in prereqs:
 				prereqs.append(iBonus)
 		return prereqs
-
-
 
 	def placeCompetesWith(self):
 		screen = self.top.getScreen()
@@ -170,8 +156,6 @@ class SevoPediaCorporation:
 		if not bFound:
 			draw_none_text(screen, self.top, self.X_COMPETES, self.Y_COMPETES, self.W_COMPETES, self.H_COMPETES)
 
-
-
 	def placeBonusesConsumed(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -185,8 +169,6 @@ class SevoPediaCorporation:
 		if len(prereqs) == 0:
 			draw_none_text(screen, self.top, self.X_BONUSES_CONSUMED, self.Y_BONUSES_CONSUMED, self.W_BONUSES_CONSUMED, self.H_BONUSES_CONSUMED)
 
-
-
 	def placeBonusesGenerated(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -199,8 +181,6 @@ class SevoPediaCorporation:
 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iBonusProduced).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonusProduced, 1, False)
 		else:
 			draw_none_text(screen, self.top, self.X_BONUSES_GENERATED, self.Y_BONUSES_GENERATED, self.W_BONUSES_GENERATED, self.H_BONUSES_GENERATED)
-
-
 
 	def placeMovie(self):
 		screen = self.top.getScreen()
@@ -217,8 +197,6 @@ class SevoPediaCorporation:
 		else:
 			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
-
-
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -227,12 +205,8 @@ class SevoPediaCorporation:
 		szSpecialText = CyGameTextMgr().parseCorporationInfo(self.iCorporation, True)[1:]
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+10, self.Y_SPECIAL+30, self.W_SPECIAL-20, self.H_SPECIAL-40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()

@@ -13,8 +13,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -26,8 +24,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaReligion:
 
@@ -90,8 +86,6 @@ class SevoPediaReligion:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_FAVORITES - MEDIUM_MARGIN
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-
-
 	def interfaceScreen(self, iReligion):
 		if self.iReligion != iReligion:
 			self.bHistoryExpanded = False
@@ -107,8 +101,6 @@ class SevoPediaReligion:
 		# (UN/AP-level) and not specific to one religion entry, so showing them per-religion would be misleading. (GPT-5.3-Codex) -->
 		self.placeSpecial()
 		self.placeHistory()
-
-
 
 	# <!-- custom: in https://civ4bug.sourceforge.net/PythonAPI/AllClasses.html i have found this:
 	# VOID addMultiListControlGFC (STRING szName, STRING helpText, INT iX, INT iY, INT iWidth, INT iHeight, INT numLists, INT defaultWidth, INT defaultHeight, TableStyle eStyle)
@@ -158,8 +150,6 @@ class SevoPediaReligion:
 				leaderInfo = gc.getLeaderHeadInfo(iLeader)
 				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
 
-
-
 	def placeReligionPane(self):
 		screen = self.top.getScreen()
 
@@ -168,8 +158,6 @@ class SevoPediaReligion:
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	# <!-- custom: part of the code here (placeBuilding and placeUnit in particular is imported from Rise of Mankind (291) mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\ which may be modified or not for AdvCiv-SAS -->
 	# Rise of Mankind 2.9
@@ -189,8 +177,6 @@ class SevoPediaReligion:
 			# <!-- custom: adjusted indentation of code comment so it is properly indented at same level of indentation than at this part of the code -->
 			#elif (iPrereq == self.iReligion and iPrereq4 > 0):
 			#	screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
-
-
 
 	def placeMovie(self):
 		screen = self.top.getScreen()
@@ -214,7 +200,6 @@ class SevoPediaReligion:
 		else:
 			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
-
 	def placeUnit(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -227,8 +212,6 @@ class SevoPediaReligion:
 			if (iPrereq == self.iReligion or iPrereq2 == self.iReligion or iPrereq3 == self.iReligion):
 				screen.attachImageButton(panelName, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
 
-
-
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -237,8 +220,6 @@ class SevoPediaReligion:
 		iTech = gc.getReligionInfo(self.iReligion).getTechPrereq()
 		if iTech > -1:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
-
-
 
 	def placeSpecial(self):
 		screen = self.top.getScreen()
@@ -251,12 +232,8 @@ class SevoPediaReligion:
 		# <!-- custom: use text formatting that allows for the top to have some room before we show text, based on sevopedia terrain's placeSpecial rework -->
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()

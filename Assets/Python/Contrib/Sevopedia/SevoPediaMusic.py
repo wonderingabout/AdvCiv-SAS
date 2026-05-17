@@ -3,8 +3,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import SevoScreenEnums
@@ -17,8 +15,6 @@ from SevoPediaMediaPlayer import SevoPediaMediaPlayer
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaMusic:
 
@@ -68,15 +64,11 @@ class SevoPediaMusic:
 		self.W_HISTORY = self.top.W_PEDIA_PAGE - iExtraWidth
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-
-
 	def interfaceScreen(self, iMusic):
 		self.iMusic = iMusic
 
 		self.placeHeader()
 		self.placeHistory()
-
-
 
 	def placeHeader(self):
 		screen = self.top.getScreen()
@@ -115,8 +107,6 @@ class SevoPediaMusic:
 
 		if self.hasMusic(self.iMusic):
 			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_PLAY, self.iMusic)
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
@@ -211,8 +201,6 @@ class SevoPediaMusic:
 		textName = self.top.getNextWidgetName()
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 10, self.Y_HISTORY + 10, self.W_HISTORY - 20, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def playMusic(self, iMusic):
 		game = CyGame()
 		if game.isNetworkMultiPlayer() or game.isPitbossHost():
@@ -221,8 +209,6 @@ class SevoPediaMusic:
 		if not self.hasMusic(iMusic):
 			return
 		self.showMusicPlayer(iMusic)
-
-
 
 	def showMusicPlayer(self, iMusic):
 		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(iMusic)
@@ -285,8 +271,6 @@ class SevoPediaMusic:
 		self.SAS_setupPlayableMusic(iMusic)
 		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_playableMusicIcons)
 
-
-
 	def closeMusicPlayer(self):
 		if not self.mediaPlayer.isOpen:
 			return
@@ -296,17 +280,11 @@ class SevoPediaMusic:
 
 		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, self.iMusic, False, False)
 
-
-
 	def isMusicPlayerOpen(self):
 		return self.mediaPlayer.isOpen
 
-
-
 	def handleOverlayInput(self, inputClass):
 		return self.mediaPlayer.handleInput(inputClass, self.closeMusicPlayer, False)
-
-
 
 	def replayMusic(self):
 		if self.SAS_lastMusicSound is None:
@@ -322,20 +300,14 @@ class SevoPediaMusic:
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
 
-
-
 	def updateTimer(self, fDelta):
 		self.mediaPlayer.updateTimer(fDelta)
-
-
 
 	def playPrevMusic(self):
 		if (self.SAS_playableMusic is None) or (self.SAS_playableMusicIndex <= 0):
 			return
 		self.SAS_playableMusicIndex = self.SAS_playableMusicIndex - 1
 		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
-
-
 
 	def playNextMusic(self):
 		if (self.SAS_playableMusic is None) or (self.SAS_playableMusicIndex < 0):
@@ -344,8 +316,6 @@ class SevoPediaMusic:
 			return
 		self.SAS_playableMusicIndex = self.SAS_playableMusicIndex + 1
 		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
-
-
 
 	def playPrevMusicGroup(self):
 		if (self.SAS_playableMusicGroupByIndex is None) or (self.SAS_playableMusicIndex < 0):
@@ -358,8 +328,6 @@ class SevoPediaMusic:
 			return
 		self.SAS_playableMusicIndex = iTarget
 		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
-
-
 
 	def playNextMusicGroup(self):
 		if (self.SAS_playableMusicGroupByIndex is None) or (self.SAS_playableMusicIndex < 0):
@@ -375,8 +343,6 @@ class SevoPediaMusic:
 		self.SAS_playableMusicIndex = iTarget
 		self.SAS_playMusicByIndex(self.SAS_playableMusicIndex)
 
-
-
 	def SAS_setupPlayableMusic(self, iMusic):
 		(self.SAS_playableMusic, self.SAS_playableMusicLabels, self.SAS_playableMusicIcons, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_musicGroupFirstIndex, self.SAS_musicGroupLastIndex) = self.SAS_buildPlayableMusicAndLabels()
 		self.SAS_playableMusicIndex = -1
@@ -384,8 +350,6 @@ class SevoPediaMusic:
 			self.SAS_playableMusicIndex = self.SAS_playableMusic.index(iMusic)
 		except:
 			self.SAS_playableMusicIndex = -1
-
-
 
 	def SAS_buildPlayableMusicAndLabels(self):
 		r = []
@@ -425,8 +389,6 @@ class SevoPediaMusic:
 					groupLast[iGroup] = len(r) - 1
 		return (r, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast)
 
-
-
 	def SAS_playMusicByIndex(self, iIndex):
 		if (self.SAS_playableMusic is None) or (iIndex < 0) or (iIndex >= len(self.SAS_playableMusic)):
 			return
@@ -436,15 +398,11 @@ class SevoPediaMusic:
 		self.mediaPlayer.closeScreen()
 		self.showMusicPlayer(iPacked)
 
-
-
 	def SAS_getFirstPlayableMusic(self):
 		playable, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
 		if not playable:
 			return -1
 		return playable[0]
-
-
 
 	def switchToMovies(self):
 		iFirstMovie = self.top.pediaMovies.SAS_getFirstPlayableMovie()
@@ -455,20 +413,14 @@ class SevoPediaMusic:
 		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, iFirstMovie, True, False)
 		self.top.pediaMovies.playMovie(iFirstMovie)
 
-
-
 	def getMusicInfo(self, iPacked):
 		return self.top.getMusicInfo(iPacked)
-
-
 
 	def hasMusic(self, iPacked):
 		szSound = self.top.SAS_getMusicSoundScript(iPacked)
 		if szSound and (szSound != "NONE"):
 			return True
 		return self.top.SAS_getMusicSoundId(iPacked) != -1
-
-
 
 	def getTextForMusic(self, iPacked):
 		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(iPacked)
@@ -490,8 +442,6 @@ class SevoPediaMusic:
 				return szNote
 
 		return ""
-
-
 
 	def placeCivDisplay(self, screen, iMusic, iImageX, iImageY, iImageW, iImageH):
 		iCivId = self.top.SAS_getMusicCivId(iMusic)
@@ -577,8 +527,6 @@ class SevoPediaMusic:
 				if szLeaderButton:
 					screen.setImageButton(szButtonName, szLeaderButton, iX, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
 
-
-
 	def placeTechDisplay(self, screen, iMusic, iImageX, iImageY, iImageW, iImageH):
 		iMusicType, iTechId = self.top.SAS_unpackMusicKey(iMusic)
 		if iTechId == -1:
@@ -620,8 +568,6 @@ class SevoPediaMusic:
 			iTechButtonY = iImageY + (iImageH - iTechButtonSize) / 2
 			screen.setImageButton("MusicPlayerTechButton", szTechButton, iTechButtonX, iTechButtonY, iTechButtonSize, iTechButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTechId, 1)
 
-
-
 	def placeScriptDisplay(self, screen, iMusic, iImageX, iImageY, iImageW, iImageH):
 		# Find the current music's group and get the first item in that group
 		playable, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
@@ -662,8 +608,6 @@ class SevoPediaMusic:
 			else:
 				# Otherwise just show the icon without action
 				screen.addDDSGFC("MusicPlayerScriptButton", szGroupIcon, iButtonX, iButtonY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	def handleInput(self, inputClass):
 		return 0

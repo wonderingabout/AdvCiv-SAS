@@ -18,27 +18,21 @@ gc = CyGlobalContext()
 _sas_layout_cache = None
 _sas_start_assignments = {}
 
-
 def getVersion():
 	return "1.00"
 
-
 def getDescription():
 	return "Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines."
-
 
 def isAdvancedMap():
 	# <!-- custom: keep visible in Simple Game; options are minimal and practical. (GPT-5.3-Codex) -->
 	return 0
 
-
 def getNumCustomMapOptions():
 	return 5
 
-
 def getNumHiddenCustomMapOptions():
 	return 0
-
 
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
@@ -54,7 +48,6 @@ def getCustomMapOptionName(argsList):
 		return u"Players Per Line"
 	return option_names[iOption]
 
-
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -68,7 +61,6 @@ def getNumCustomMapOptionValues(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return 2
 	return option_values[iOption]
-
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
@@ -114,7 +106,6 @@ def getCustomMapOptionDescAt(argsList):
 		return selection_names[iOption][0]
 	return selection_names[iOption][iSelection]
 
-
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -128,7 +119,6 @@ def getCustomMapOptionDefault(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return 0
 	return option_defaults[iOption]
-
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
@@ -144,11 +134,9 @@ def isRandomCustomMapOption(argsList):
 		return false
 	return option_random[iOption]
 
-
 def getWrapX():
 	iWrapMode = _get_option_value(4, 0, 4)
 	return (iWrapMode == 0 or iWrapMode == 1)
-
 
 def getWrapY():
 	iWrapMode = _get_option_value(4, 0, 4)
@@ -157,15 +145,12 @@ def getWrapY():
 def getTopLatitude():
 	return 50
 
-
 def getBottomLatitude():
 	return -50
-
 
 def minStartingDistanceModifier():
 	# <!-- custom: dense high-player symmetric lines need a low floor to avoid start failures. (GPT-5.3-Codex) -->
 	return -95
-
 
 def _get_option_value(iOption, iDefault, iNumValues):
 	map_obj = CyMap()
@@ -181,35 +166,29 @@ def _get_option_value(iOption, iDefault, iNumValues):
 		return iDefault
 	return iValue
 
-
 def _players_per_line():
 	iSelection = _get_option_value(0, 0, 2)
 	if iSelection == 1:
 		return 4
 	return 3
 
-
 def _band_mode():
 	# 0 = coast, 1 = ocean
 	return _get_option_value(2, 0, 2)
-
 
 def _line_thickness():
 	iSelection = _get_option_value(3, 2, 5)
 	line_thicknesses = [3, 4, 5, 6, 7]
 	return line_thicknesses[iSelection]
 
-
 def _height_per_player():
 	iSelection = _get_option_value(1, 3, 9)
 	heights = [7, 8, 9, 10, 11, 12, 13, 14, 15]
 	return heights[iSelection]
 
-
 def _interline_gap():
 	# <!-- custom: Keep line-to-line spacing equal to SAS_Large_Facing_Islands center gap for consistent tactical travel times. (GPT-5.3-Codex) -->
 	return 8
-
 
 def _effective_line_and_gap(iLines):
 	iLinePlots = _line_thickness()
@@ -226,7 +205,6 @@ def _effective_line_and_gap(iLines):
 			iBandPlots = iMaxBand
 	return (iLinePlots, iBandPlots)
 
-
 def _default_players_for_world():
 	map_obj = CyMap()
 	iWorld = map_obj.getWorldSize()
@@ -234,12 +212,10 @@ def _default_players_for_world():
 		return max(1, gc.getWorldInfo(iWorld).getDefaultPlayers())
 	return 11
 
-
 def _line_count():
 	iPPL = max(1, _players_per_line())
 	iPlayers = _default_players_for_world()
 	return max(1, (iPlayers + iPPL - 1) / iPPL)
-
 
 def getGridSize(argsList):
 	if argsList[0] == -1:
@@ -256,7 +232,6 @@ def getGridSize(argsList):
 	(iLinePlots, iBandPlots) = _effective_line_and_gap(iLines)
 	iWidthPlots = iLines * (iLinePlots + iBandPlots)
 	return ((iWidthPlots + 3) / 4, (iHeightPlots + 3) / 4)
-
 
 def _build_layout():
 	global _sas_layout_cache
@@ -302,13 +277,11 @@ def _build_layout():
 	}
 	return _sas_layout_cache
 
-
 def beforeGeneration():
 	global _sas_layout_cache, _sas_start_assignments
 	_sas_layout_cache = None
 	_sas_start_assignments = {}
 	_build_layout()
-
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python SAS_Parallel_Lines) ...")
@@ -348,10 +321,8 @@ def generatePlotTypes():
 
 	return plot_types
 
-
 def _is_valid_start_plot(pPlot):
 	return pPlot is not None and not pPlot.isWater() and not pPlot.isImpassable()
-
 
 def findStartingPlot(argsList):
 	global _sas_start_assignments
@@ -418,14 +389,12 @@ def findStartingPlot(argsList):
 	CyPythonMgr().allowDefaultImpl()
 	return
 
-
 def generateTerrainTypes():
 	NiTextOut("Generating Terrain (Python SAS_Parallel_Lines) ...")
 	terrain_gen = TerrainGenerator()
 	terrain_types = terrain_gen.generateTerrain()
 	_apply_interline_bands(terrain_types)
 	return terrain_types
-
 
 def _apply_interline_bands(terrain_types):
 	if _band_mode() == 1:
@@ -455,7 +424,6 @@ def _apply_interline_bands(terrain_types):
 				pPlot = map_obj.plotByIndex(i)
 				if pPlot.isWater():
 					terrain_types[i] = eCoast
-
 
 def addFeatures():
 	NiTextOut("Adding Features (Python SAS_Parallel_Lines) ...")

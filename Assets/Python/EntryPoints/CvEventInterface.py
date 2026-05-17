@@ -9,7 +9,6 @@
 #
 # No other modules should import this
 
-
 # **********************************
 # GJD modifications start here
 # **********************************

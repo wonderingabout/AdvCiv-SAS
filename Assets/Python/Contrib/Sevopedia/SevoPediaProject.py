@@ -13,8 +13,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -26,8 +24,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaProject:
 	
@@ -74,8 +70,6 @@ class SevoPediaProject:
 		# <!-- custom: cached vanilla define for cost display in stats panel. (Claude code Sonnet 4.6) -->
 		self.iPROJECT_PRODUCTION_PERCENT = None
 
-
-
 	def interfaceScreen(self, iProject):
 		if self.iProject != iProject:
 			self.bHistoryExpanded = False
@@ -88,8 +82,6 @@ class SevoPediaProject:
 		self.placeSpecial()
 		self.placeHistory()
 
-
-
 	def placeProjectPane(self):
 		screen = self.top.getScreen()
 
@@ -98,8 +90,6 @@ class SevoPediaProject:
 		# screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	def placeStats(self):
 		screen = self.top.getScreen()
@@ -133,8 +123,6 @@ class SevoPediaProject:
 			szTextHammerYield = u"%c %d" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
 			screen.appendListBoxString(panelName, SASTextScale.titleText(szTextHammerYield), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -166,8 +154,6 @@ class SevoPediaProject:
 		else:
 			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
-
-
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -176,12 +162,8 @@ class SevoPediaProject:
 		szSpecialText = CyGameTextMgr().getProjectHelp(self.iProject, True, None)[1:]
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
@@ -194,8 +176,6 @@ class SevoPediaProject:
 		if (isTeamProject(iProject)):
 			return (2)
 		return (1)
-
-
 
 	def getProjectSortedList(self):
 		listOfAllTypes = []
@@ -215,8 +195,6 @@ class SevoPediaProject:
 			for i in range(len(listSorted)):
 				listOfAllTypes.append(listSorted[i])
 		return listOfAllTypes
-
-
 
 	def handleInput (self, inputClass):
 		return 0

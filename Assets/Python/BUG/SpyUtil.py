@@ -13,7 +13,6 @@ import BugData
 
 gc = CyGlobalContext()
 
-
 ## Tracking Values for Previous and Current Turns
 
 g_iTurn = None
@@ -72,7 +71,6 @@ def getCurrentValuesByTeam():
 			values.append(team.getEspionagePointsAgainstTeam(targetTeam.getID()))
 	return valuesByTeam
 
-
 ## Storing Values for Previous Turn
 
 STORAGE_VERSION = 1
@@ -115,7 +113,6 @@ def store():
 	}
 	BugData.getTable(SD_MOD_ID).setData(data)
 	BugUtil.debug("SpyUtil - stored: %s", data)
-
 
 ## Event Handlers
 

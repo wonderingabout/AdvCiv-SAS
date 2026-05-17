@@ -14,7 +14,6 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
-
 from CvPythonExtensions import *
 import CvMapGeneratorUtil
 import math
@@ -236,7 +235,6 @@ def generatePlotTypes():
 				if iPeirceType == 4: # E-W (ensure ocean at equator)
 					if isEquatorialBand(iX, iY):
 						plotTypes[iY * map.getGridWidth() + iX] = PlotTypes.PLOT_OCEAN
-
 
 	return plotTypes
 
@@ -471,7 +469,6 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# Get user input.
 		iPeirceType = map.getCustomMapOption(0)
 
-
 		map = CyGlobalContext().getMap()
 		iPeirceWrap = map.getCustomMapOption(1)
 
@@ -555,8 +552,6 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 					iRefX2 = iTRCentreX + (iQuadW/4)
 					iRefY2 = iTRCentreY + (iQuadW/4) + 1
 
-
-
 					self.generatePlotsSquareContinent(iBaseSeaLevel, iRefX2,iRefY2,iWidth2)
 
 	# Bottom Left
@@ -620,7 +615,6 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 					iX4 = 2
 					iY4 = iTRCentreY - iQuadW/2 - 2
 					self.generatePlotsPoly4Continent(iBaseSeaLevel, iX1,iY1, iX2,iY2, iX3,iY3, iX4,iY4)
-
 
 					iWidth2 = (iQuadW/2)
 					iRefX2 = iTRCentreX - (3* iQuadW/4) -1
@@ -1922,7 +1916,6 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# This region is done.
 		return
 
-
 class PeirceTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	# Terrain generator customized for Peirce map. This means creating terrain with latitude based on equator on diagonal linking midpoints of sides and poles in centre and in corners.
 
@@ -1937,7 +1930,6 @@ class PeirceTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 
 class PeirceFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	# Feature generator customized for Peirce. This means placing features with latitude based on equator on diagonal linking midpoints of sides and poles in centre and in corners.
-
 
 	def getLatitudeAtPlot(self, iX, iY):
 		# Given a plot (iX,iY), returns a value between 0.0 (tropical) and 1.0 (polar). In
@@ -1956,7 +1948,6 @@ class MapAreaPolygon:
 
 	__DISPLACEMENT_FRACTAL_GRAIN = 2
 	# Grain used for the displacement fractals.
-
 
 	def __init__(self, sRegionName, lOriginalPolygonPoints, fAngle):
 		# Initializes the polygonal map area.
@@ -2056,32 +2047,26 @@ class MapAreaPolygon:
 		# sLine += " "
 		# print sLine
 
-
 	def __getRandomDisplacement(self):
 		# Allows to apply a random displacement to one of the coordinates of one of the points of the polygon.
 		# :return: Calculated displacement.
 		return self.__iRandomDisplacement / 2 - game.getMapRand().get(self.__iRandomDisplacement, "[Peirce] - Randomization of the points of one of the areas.")
 
-
 	@property
 	def iRegionWidth(self):
 		return self.__iRegionWidth
-
 
 	@property
 	def iRegionHeight(self):
 		return self.__iRegionHeight
 
-
 	@property
 	def fMinX(self):
 		return self.__fMinX
 
-
 	@property
 	def fMinY(self):
 		return self.__fMinY
-
 
 	def isInside(self, fX, fY):
 		# Checks if the point (fX, fY) is inside of the polygon.
@@ -2129,7 +2114,6 @@ def getPeirceLatitude(iX, iY, varFractal=None):
 	#	iPeircePoles = map.getCustomMapOption(1)
 	#	if iPeircePoles == 1:
 	#		iLatitudeAdjust = 130
-
 
 	#lat = abs((self.iWidth / 2) - iX)/float(self.iWidth/2)
 	# line used in Tilted Axis

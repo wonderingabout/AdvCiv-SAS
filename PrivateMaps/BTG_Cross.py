@@ -56,7 +56,6 @@ def getDescriptionScenario():#Scenario : (at the bottom)"
 def getDescriptionBalance():#Balance : (at the bottom)"
 	return "If teamers don't improve land of empty hub too much (positioning too good), but definitely do for CTON to maximise appetite"		
 
-
 def isAdvancedMap():
 	"This map should not show up in simple mode"
 	# <!-- custom: keep this at 0 so BTG_Cross appears in Simple Game mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->

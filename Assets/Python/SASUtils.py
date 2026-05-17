@@ -2,14 +2,11 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
-
 from CvPythonExtensions import *
 import CvUtil
 from SASFontUtils import sasFontTagLabel, SAS_FONT_TAG_CLOSE
 
-
 gc = CyGlobalContext()
-
 
 # <!-- custom: lazy-init cache for SAS_SHOW_LEGEND_LINK GlobalDefine. Cannot be resolved at module import time because SASUtils is imported before CyGlobalContext finishes loading XML defines (eager init returns False and the legend link silently disappears). Resolved on first use via _isLegendLinkEnabled, matching the lazy-init-to-None approach used by other AdvCiv-SAS advisors. (Claude code Opus 4.7) -->
 _IS_SAS_SHOW_LEGEND_LINK = None
@@ -19,15 +16,12 @@ def _isLegendLinkEnabled():
 		_IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 	return _IS_SAS_SHOW_LEGEND_LINK
 
-
 _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = None
 def _isAdvisorVassalPerspectiveEnabled():
 	global _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
 	if _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE is None:
 		_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = (gc.getDefineINT("SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE") > 0)
 	return _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
-
-
 
 # <!-- custom: shared advisor layout constants that are screen-independent (safe to read in __init__); runtime screen-dependent geometry is derived per screen from current resolution in interfaceScreen. (GPT-5.3-Codex) -->
 # <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
@@ -52,7 +46,6 @@ def getAdvisorRuntimeBounds(screen, iLeftSpace, iRightSpace, iTopSpace, iBottomS
 	iHScreen = screen.getYResolution() - iTopSpace - iBottomSpace
 	return (iXScreen, iYScreen, iWScreen, iHScreen)
 
-
 def getAdvisorRuntimeAnchors(iWScreen, iHScreen):
 	iXTitle = iWScreen / SAS_ADVISOR_TITLE_X_DIVISOR
 	iXExit = iWScreen - SAS_ADVISOR_EXIT_X_OFFSET
@@ -60,7 +53,6 @@ def getAdvisorRuntimeAnchors(iWScreen, iHScreen):
 	iYLink = iYExit
 	iYBottomPanel = iHScreen - SAS_ADVISOR_BOTTOM_PANEL_Y_OFFSET
 	return (iXTitle, iXExit, iYExit, iYLink, iYBottomPanel)
-
 
 # <!-- custom: shared "maximized" panel/table layout for advisor tabs that want to fill the area between top and bottom bars (Domestic Overview tabs, Military Advisor Battles tab). The Y bleed lets the panel slide a few pixels under the top/bottom bars to hide thin seams; the inner table margin and top visual adjust account for TABLE_STYLE_STANDARD drawing the header slightly above its anchor. Returns two (x, y, w, h) tuples so callers can unpack directly into addPanel / addTableControlGFC. (GPT-5.3-Codex + Claude code Opus 4.7) -->
 def getAdvisorMaximizedPanelLayout(iWScreen, iYBottomPanel):
@@ -77,7 +69,6 @@ def getAdvisorMaximizedPanelLayout(iWScreen, iYBottomPanel):
 	iTableH = iMainPanelH - 2 * iTableMargin - iTableTopVisualAdjust
 	return ((iMainPanelX, iMainPanelY, iMainPanelW, iMainPanelH), (iTableX, iTableY, iTableW, iTableH))
 
-
 # <!-- custom: shared weighted tab-link width helper used by advisor tab bars; weights by text width and scales to runtime X_EXIT. (GPT-5.3-Codex) -->
 def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
 	aiLabelWidths = []
@@ -88,7 +79,6 @@ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
 	for iWidth in aiLabelWidths:
 		aiLinkWidths.append((iXExit * iWidth + iTotalWidth/2) / iTotalWidth)
 	return aiLinkWidths
-
 
 # <!-- custom: invisible sort key for advisor icon-only table cells. GameFont chars (religion, attitude, trade icons, etc.) already sort as text; this is only for separate icon-button cells where the visible text is otherwise empty. Usually skip this when an icon button is immediately followed by matching text in the next column (e.g. Info Screen Wonders), because that text column already gives the useful sort path. Keep hardcoded font=1 unscaled so the sort key stays invisible and does not affect row height. Pattern based on Sevopedia chart icon sorting. (GPT-5.5) -->
 def getAdvisorIconSortKey(iGroup, iRow):
@@ -104,7 +94,6 @@ def getAdvisorIconSortKey(iGroup, iRow):
 		iValue = iValue / 5
 	return u"<font=1>" + u"".join(aParts) + u"</font>"
 
-
 # <!-- custom: shared debug/vassal player dropdown for advisors. Debug mode keeps each legacy advisor's MAX_PLAYERS vs MAX_CIV_PLAYERS and active-row preselection behavior. Outside debug, selected advisors may inspect only the current active player plus alive vassals of the active player's team, not a hardcoded human slot; vassals are subordinate enough to make their domestic/world/policy state relevant, but this remains perspective-only UI access and does not reveal unrelated players or hidden map data. (GPT-5.5) -->
 def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarbarians=False, bSelectActive=True, iX=22, iY=12, iW=300, eFont=FontTypes.GAME_FONT, bAllowVassalPerspective=False):
 	aiPlayers = getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective)
@@ -115,7 +104,6 @@ def addAdvisorDebugDropdown(screen, szDropdownName, iActivePlayer, bIncludeBarba
 	for iPlayer in aiPlayers:
 		screen.addPullDownString(szDropdownName, gc.getPlayer(iPlayer).getName(), iPlayer, iPlayer, iPlayer == iActivePlayer and (bSelectActive or not bDebug))
 	return True
-
 
 def getAdvisorPerspectivePlayerIDs(bIncludeBarbarians=False, bAllowVassalPerspective=False):
 	if CyGame().isDebugMode():
@@ -141,22 +129,17 @@ def getAdvisorPerspectivePlayerIDs(bIncludeBarbarians=False, bAllowVassalPerspec
 		return []
 	return aiPlayers
 
-
 def getAdvisorValidPerspectivePlayer(iPlayer, bIncludeBarbarians=False, bAllowVassalPerspective=False):
 	if iPlayer in getAdvisorPerspectivePlayerIDs(bIncludeBarbarians, bAllowVassalPerspective):
 		return iPlayer
 	return CyGame().getActivePlayer()
 
-
 def isAdvisorReadOnlyPerspective(iPlayer):
 	return not CyGame().isDebugMode() and iPlayer != CyGame().getActivePlayer()
-
 
 def getAdvisorDebugDropdownSelectedPlayer(screen, szDropdownName):
 	iIndex = screen.getSelectedPullDownID(szDropdownName)
 	return screen.getPullDownData(szDropdownName, iIndex)
-
-
 
 # <!-- custom: shared strict XML lookup helper for maps/screens; raise loudly instead of silently accepting missing tags. (GPT-5.3-Codex) -->
 # <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass; done with the help of chatgpt thanks -->
@@ -166,15 +149,12 @@ def getInfoTypeOrFail(tag):
 		raise ValueError("Missing XML tag: '%s'" % tag)
 	return iType
 
-
-
 # <!-- custom: shared helper to resolve NewConcept IDs by XML type (e.g. "CONCEPT_SAS_SCORE_TAB_COLUMNS" for the Score-tab Legend clickable Sevopedia/NewConcept entry). Returns -1 when missing so callers can skip optional links safely. (GPT-5.3-Codex) -->
 def getNewConceptID(szConceptType):
 	for i in range(gc.getNumNewConceptInfos()):
 		if gc.getNewConceptInfo(i).getType() == szConceptType:
 			return i
 	return -1
-
 
 # <!-- custom: shared advisor "Legend" link helper, factored from CvInfoScreen's Score-tab pattern so any AdvCiv-SAS advisor can drop a Sevopedia legend link with one call. Caller passes the screen object (must expose getScreen, getNextWidgetName, Z_CONTROLS), the NewConcept XML type, and the (X,Y) anchor in screen coords. Skips silently when the SAS_SHOW_LEGEND_LINK GlobalDefine is off or the concept is missing. setText params mirror the Score-tab call exactly: WIDGET_PEDIA_DESCRIPTION + CIVILOPEDIA_PAGE_CONCEPT_NEW + concept ID is the pedia jump that actually resolves through SevoPediaMain.pediaJump. (Claude code Opus 4.7) -->
 def placeAdvisorLegendLink(top, szConceptType, iX, iY, eJustify=None):

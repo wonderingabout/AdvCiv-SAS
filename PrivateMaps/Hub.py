@@ -27,7 +27,6 @@ balancer = BonusBalancer()
 bSuccessFlag = True
 bUseDefaultStartPlacement = False
 
-
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_HUB_DESCR"
 

@@ -61,11 +61,9 @@
 
 from CvPythonExtensions import *
 
-
 ## Globals
 
 gc = CyGlobalContext()
-
 
 ## Versions
 
@@ -89,7 +87,6 @@ def isVersionBetween(min, max):
 	#
 	return isVersion(min) and not isVersion(max)
 
-
 def getSaveVersion():
 	# Returns the save version as an integer times 100 (e.g. 301).
 	#
@@ -110,7 +107,6 @@ def isSaveVersionBetween(min, max):
 	#
 	return isSaveVersion(min) and not isSaveVersion(max)
 
-
 ## Game Values
 
 def getCultureThreshold(level):
@@ -118,7 +114,6 @@ def getCultureThreshold(level):
 		return gc.getGame().getCultureThreshold(level)
 	else:
 		return gc.getCultureLevelInfo(level).getSpeedThreshold(gc.getGame().getGameSpeedType())
-
 
 ## Game Options
 

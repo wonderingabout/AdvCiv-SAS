@@ -4,21 +4,15 @@
 #
 # <!-- custom: Long_Comments_py.txt #3 -->
 
-
-
 from CvPythonExtensions import *
 import sys
 
 from ai_utils_shared_with_civ4 import *
 from _sevopedia_helpers import *
 
-
-
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
 
@@ -43,8 +37,6 @@ IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_C
 IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG") > 0)
 # Name of the pre-dumped module (without .py extension)
 PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
-
-
 
 def dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
 	# Dumps the leader cache to PythonDbg.log in a format that can be copy-pasted into a .py module file.
@@ -84,8 +76,6 @@ def dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, i
 
 	emit("AI Personality Panel cache dumped to PythonDbg.log successfully.")
 
-
-
 def try_load_predumped_cache():
 	# Attempts to load the pre-dumped cache module.
 	if not IS_USE_PREDUMPED_CACHE:
@@ -102,8 +92,6 @@ def try_load_predumped_cache():
 	
 	except:
 		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
-
-
 
 def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
 	# Main entry point. Either loads pre-dumped cache or computes it.
@@ -124,8 +112,6 @@ def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, i
 	
 	return leaders_info_cached
 
-
-
 # <!-- custom: note: collapse this below function with the VS Code UI option or similar to see the line after function definition directly (i.e. as of now around line 1530, right after function definition line e.g. around line 100) for easier reading if desired. -->
 # <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main -->
 def _compute_leader_cache_internal():
@@ -133,8 +119,6 @@ def _compute_leader_cache_internal():
 	# Build once <!-- custom: at this function's scope as we don't need it outside of it but need it many times here -->
 	NUM_LEADERS = gc.getNumLeaderHeadInfos()
 	NON_EXCLUDED_LEADERS = tuple(i for i in xrange(NUM_LEADERS) if i not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)
-
-
 
 	def check_required_newly_exposed_python_getters_gc_leader_exist(required_getters):
 		# <!-- custom: verify all getters used by the leader display config are exposed in the DLL. (GPT-5.2-Codex) -->
@@ -156,20 +140,15 @@ def _compute_leader_cache_internal():
 				print("[DEBUG] Getter check passed for iLeader=%d. All required Python getters are present." % iLeader)
 			break  # ?. success: no need to check further
 
-
-
 	# <!-- custom: modified from claude ai's code sample, see sevopedia helpers py also for details; note: NUM_MEMORY_TYPES_ASSESSED are not here in sevopedia leader since we use a different looping emthod as in methodology, see positive_or_negative_memory_indexes and its related code comments -->
 	NUM_CONTACT_TYPES_ASSESSED = 14
 	NUM_ATTITUDE_TYPES_ASSESSED = 5
-
-
 
 	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it. -->
 	test_expected_shifting_pre_normalize_to_100()
 
 	if IS_DEBUG_LEADER:
 		print("[DEBUG] test_expected_shifting_pre_normalize_to_100 passed.")
-
 
 	def computeAndStoreMinMaxOfOneKey(key, value, leader_info_minimums, leader_info_maximums):
 		if key not in leader_info_minimums:
@@ -191,16 +170,12 @@ def _compute_leader_cache_internal():
 				if IS_DEBUG_LEADER:
 					print("[DEBUG] New max for %s: %d → %d" % (key, prev_max, value))
 
-
-
 	# <!-- custom: store raw aggregated contact probs (iAggregatedRaw...) separately from normalized aggregated probs (iAggregated...).
 	# Only the normalized values are displayed; raw values are kept for later normalization/min-max. The raw-to-normalized parsing
 	# and label composition happens later in compute_and_store_leaders_info_cached. Do the same for raw aggregated positive/negative
 	# memory affections/resentments. (GPT-5.2-Codex (summarized)) -->
 	leaders_info_aggregated_raw_contact_probs = {}
 	leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments = {}
-
-
 
 	def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_aggregated_raw_contact_probs):
 		# leaders_info_aggregated_raw_contact_probs[iLeader][parsed_contact_key] = aggregated_raw_score
@@ -289,8 +264,6 @@ def _compute_leader_cache_internal():
 	MEM_POS_IDX = tuple(get_positive_memory_indexes_to_types().keys())
 	MEM_NEG_IDX = tuple(get_negative_memory_indexes_to_types().keys())
 
-
-
 	def get_positive_or_negative_memory_indexes(is_positive):
 		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs (see the related python docs for details). -->
 		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them. -->
@@ -305,8 +278,6 @@ def _compute_leader_cache_internal():
 			raise ValueError("[VALUE ERROR] memory_indexes=%s check is false; memory_indexes cannot be empty or missing or some other kind of related or similar error, please check memory types (positive or negative) are fetched/imported correctly" % str(positive_or_negative_memory_indexes))
 		
 		return positive_or_negative_memory_indexes
-
-
 
 	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection):
 		# leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_memory_key] = aggregated_raw_score
@@ -410,8 +381,6 @@ def _compute_leader_cache_internal():
 		for is_affection in (True, False):
 			compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection)
 
-
-
 	def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name):
 		leaders_dict_keys = leaders_dict.keys()
 
@@ -420,8 +389,6 @@ def _compute_leader_cache_internal():
 				excluded_leader_type = get_leader_type_from_leader_index(excluded_leader_index)
 				raise KeyError("[FATAL] During sanity checks testing, excluded_leader_index=%d (excluded_leader_type=%s), was assessed to not be properly excluded from the calculations and its corresponding leader_index is still part of the leaders_dict_keys=%s, please make sure this excluded leader is not part of the leaders_dict_name=%s." % (excluded_leader_index, excluded_leader_type, str(leaders_dict_keys), leaders_dict_name))
 
-
-
 	def check_leaders_dict_only_has_leader_index_keys(leaders_dict, leaders_dict_name):
 		for key in leaders_dict.keys():
 			if not isinstance(key, int):
@@ -429,15 +396,11 @@ def _compute_leader_cache_internal():
 				key_type_name = str(type(key))
 				raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
 
-
-
 	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
 	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
 
 	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
 	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
-
-
 
 	def get_fields_directly_parsed():
 		# <!-- custom: dict of getter_name: (label, b_invert) -->
@@ -549,8 +512,6 @@ def _compute_leader_cache_internal():
 		# - <ImprovementWeightModifier> by ImprovementType (GPT-5.2-Codex) -->
 		return fields_with_direct_getters, fields_attitude_thresholds
 
-
-
 	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia debuggers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details -->
 	fields_with_direct_getters, fields_attitude_thresholds = get_fields_directly_parsed()
 	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
@@ -657,19 +618,13 @@ def _compute_leader_cache_internal():
 
 		return (leader_info_minimums, leader_info_maximums)
 
-
-
 	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
 
 	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not, we have enough sanity checks overall everywhere to not need to resanity check this xd even though may help maybe but is bit tedious since dbug also helps, so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums. -->
 
-
-
 	# Store per-leader <!-- custom: cached info for all keys/attributes -->
 	# LEADERS_INFO_CACHED: dict of leaderName → dict of attributeName → <!-- custom: tuple of (label, raw_value, norm_value, scale) for later display at UI code -->
 	LEADERS_INFO_CACHED = {}
-
-
 
 	def get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
 		# <!-- custom: for example for "SameReligionAttitudeChangeLimit" (note: "get" front already stripped), "ACL", "(39)", 15: -->
@@ -761,8 +716,6 @@ def _compute_leader_cache_internal():
 		leader_info_cached[cache_key] = leader_info_cached_tuple
 		if IS_DEBUG_LEADER:
 			print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
-
-
 
 	def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums):
 		# Loops over all leaders and normalizes each attribute to a 0-100 scale, using previously computed min/max per attribute and inversion flags.
@@ -932,7 +885,6 @@ def _compute_leader_cache_internal():
 			b_invert_4_positive_and_negative_memory_affections_and_resentments = False
 			symbol_aggregated_positive_and_negative_memory_affections_and_resentments = all_symbols["AGGREGATED_SCALE_SYMBOL"]
 
-
 			for is_positive in (True, False):
 				for is_affection in (True, False):
 					# <!-- custom: skip positive memory resentments and negative memory affections as said in top code comment before, uncomment or remove this/these checks to export them as well -->
@@ -955,7 +907,6 @@ def _compute_leader_cache_internal():
 
 						# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching -->
 						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = "iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
-
 
 						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
 						raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
@@ -1007,12 +958,8 @@ def _compute_leader_cache_internal():
 	del leader_info_minimums
 	del leader_info_maximums
 
-
-
 	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
 	check_leaders_dict_only_has_leader_index_keys(LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
-
-
 
 	# <!-- custom: category definitions are now owned by SevoPediaLeader.py (UI layer); this cache module remains data-only for predump/runtime cache values. (GPT-5.3-Codex) -->
 	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players. -->
@@ -1020,8 +967,6 @@ def _compute_leader_cache_internal():
 	print("Sevopedia Leader cache prebuilt cache prebuilt. This should appear only once per gaming session.")
 
 	return LEADERS_INFO_CACHED
-
-
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Wrapper that either loads pre-dumped cache or computes it

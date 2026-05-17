@@ -84,14 +84,12 @@ import BugUtil
 import CvGameUtils
 import types
 
-
 ## Constants and Globals
 
 LISTENER_SUFFIX = "Listener"
 DEFAULT_LOGGING = False
 
 g_dispatcher = None
-
 
 ## Configuration
 
@@ -100,7 +98,6 @@ def addModuleUtils(utils, override=False, log=None):
 
 def addClassUtils(utils, override=False, log=None):
 	getDispatcher()._addClassUtils(utils, log)
-
 
 def addHandler(func, override=False, log=None):
 	addNamedHandler(func.__name__, func, override, log)
@@ -113,7 +110,6 @@ def addBoundHandler(utils, func, override=False, log=None):
 
 def addNamedBoundHandler(name, utils, func, override=False, log=None):
 	getDispatcher()._addBoundHandler(name, func, override, log)
-
 
 def addListener(func, log=None):
 	name = func.__name__
@@ -133,17 +129,14 @@ def addBoundListener(utils, func, log=None):
 def addNamedBoundListener(name, utils, func, log=None):
 	getDispatcher()._addBoundListener(name, utils, func, log)
 
-
 def createCallback(name, func, default=None, log=None):
 	getDispatcher()._createCallback(name, func, default, log)
 
 def setDefault(name, default):
 	getDispatcher()._setDefault(name, default)
 
-
 def getDispatcher():
 	return g_dispatcher
-
 
 ## Dispatcher
 
@@ -296,7 +289,6 @@ class Dispatcher:
 		bound.__module__ = func.__module__
 		return bound
 
-
 ## Callback
 
 class Callback:
@@ -376,7 +368,6 @@ class Callback:
 		else:
 			BugUtil.error("BugGameUtils - %s - no handler returned a value", self.name)
 		return result
-
 
 ## Config Parser Handler
 
@@ -475,7 +466,6 @@ class CallbackHandler(BugConfig.Handler):
 				addNamedListener(name, listenerFunc, log)
 		else:
 			BugUtil.info("BugGameUtils - ignoring <%s> %s, requires dll version %s", element.tag, name, self.resolveDll(element, dll))
-
 
 ## Initialization
 

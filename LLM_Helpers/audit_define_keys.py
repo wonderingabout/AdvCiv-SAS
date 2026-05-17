@@ -43,7 +43,6 @@ DEFINE_NAME_RE = re.compile(r"<DefineName>([A-Z0-9_]+)</DefineName>")
 LITERAL_CALL_RE = re.compile(r'getDefine(?:BOOL|FLOAT|INT|STRING)\(\s*"([A-Z0-9_]+)"\s*\)')
 VARIABLE_CALL_RE = re.compile(r'getDefine(?:BOOL|FLOAT|INT|STRING)\(\s*[^"\s]')
 
-
 def extract_defined_keys(xml_paths):
     """Return (set of declared keys, list of files that contributed at least one)."""
     keys = set()
@@ -63,7 +62,6 @@ def extract_defined_keys(xml_paths):
             contributing.append(path)
     return keys, contributing
 
-
 def collect_xml_files(path):
     """Accept a file or a dir; return list of *.xml files found."""
     if path is None:
@@ -74,7 +72,6 @@ def collect_xml_files(path):
     if p.is_file():
         return [p]
     return sorted(p.rglob("*.xml"))
-
 
 def scan_sources(roots_and_patterns):
     """roots_and_patterns: list of (root_path, glob_pattern) tuples.
@@ -94,13 +91,11 @@ def scan_sources(roots_and_patterns):
             variable_calls += len(VARIABLE_CALL_RE.findall(text))
     return usage, variable_calls
 
-
 def _rel(path, anchor):
     try:
         return str(Path(path).relative_to(anchor))
     except ValueError:
         return str(path)
-
 
 def build_report(stats, xml_groups, missing_by_source, usage, mod_root, show_callsites):
     """xml_groups: list of (label, count, [Path, ...]) tuples."""
@@ -131,7 +126,6 @@ def build_report(stats, xml_groups, missing_by_source, usage, mod_root, show_cal
                         rel = p
                     lines.append(f"      - {rel}")
     return "\n".join(lines) + "\n"
-
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
@@ -241,7 +235,6 @@ def main():
         print(f"wrote {rel}")
 
     return 1 if missing_by_source else 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

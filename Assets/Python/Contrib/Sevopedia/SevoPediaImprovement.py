@@ -13,8 +13,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -30,8 +28,6 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 IMPROVEMENT_LEADER_CACHE = None
-
-
 
 def precomputeImprovementLeaderCache():
 	global IMPROVEMENT_LEADER_CACHE
@@ -71,8 +67,6 @@ def precomputeImprovementLeaderCache():
 
 	print("Sevopedia Improvement leader cache prebuilt. This should appear only once per gaming session.")
 	return IMPROVEMENT_LEADER_CACHE
-
-
 
 class SevoPediaImprovement:
 
@@ -182,8 +176,6 @@ class SevoPediaImprovement:
 		# IMPROVEMENT_LEADER_ICON_SIZE, IMPROVEMENT_LEADER_BUTTON_SPACING, IMPROVEMENT_LEADER_ROW_H replaced by
 		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
 
-
-
 	def interfaceScreen(self, iImprovement):
 		if self.iImprovement != iImprovement:
 			self.bHistoryExpanded = False
@@ -206,8 +198,6 @@ class SevoPediaImprovement:
 		self.placeTerrainMakesValids()
 		self.placeFeatureMakesValids()
 		self.placeHistory()
-
-
 
 	def placeImprovementPane(self):
 		screen = self.top.getScreen()
@@ -252,8 +242,6 @@ class SevoPediaImprovement:
 			
 			screen.addMultilineText(self.top.getNextWidgetName(), szYield, self.X_IMPROVEMENT_PANE + xCenteringPositioning + xCenteringAdjust +5, self.Y_IMPROVEMENT_PANE - 13 + yBottomPositioning, self.W_IMPROVEMENT_PANE-10, self.H_IMPROVEMENT_PANE-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -267,8 +255,6 @@ class SevoPediaImprovement:
 		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
 
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
 
 	def placeBonusYields(self):
 		screen = self.top.getScreen()
@@ -302,14 +288,10 @@ class SevoPediaImprovement:
 				screen.attachImageButton( childPanelName, "", gc.getBonusInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, j, 1, False )
 				screen.attachLabel(childPanelName, "", SASTextScale.titleText(szYield))
 
-
-
 	def placeImprovementAnimation(self):
 		screen = self.top.getScreen()
 		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_IMPROVEMENT_ANIMATION, self.Y_IMPROVEMENT_ANIMATION, self.W_IMPROVEMENT_ANIMATION, self.H_IMPROVEMENT_ANIMATION, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND, self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD)
 		screen.addImprovementGraphicGFC(self.top.getNextWidgetName(), self.iImprovement, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
-
-
 
 	def placeBuilds(self):
 		screen = self.top.getScreen()
@@ -328,8 +310,6 @@ class SevoPediaImprovement:
 		if not bButtonFound:
 			draw_none_text(screen, self.top, self.X_BUILD_PANEL, self.Y_BUILD_PANEL, self.W_BUILD_PANEL, self.H_BUILD_PANEL)
 
-
-
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -345,8 +325,6 @@ class SevoPediaImprovement:
 
 		if not bButtonFound:
 			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
-
-
 
 	# <!-- custom: use the bonus-yields row template for consistency with placeBonusYields above. (Claude code Opus 4.7) -->
 	def placeMostYields(self):
@@ -431,7 +409,6 @@ class SevoPediaImprovement:
 
 				attach_button_label_row(screen, self.top, panelName, routeInfo.getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild, sText)
 
-
 	def placeImprovementLeaderTable(self):
 		screen = self.top.getScreen()
 		xPanel = self.X_IMPROVEMENT_LEADERS
@@ -483,7 +460,6 @@ class SevoPediaImprovement:
 			screen.setTableText(tableName, 1, iRow, SASTextScale.labelText(u"%d" % leaderCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			inchart_set_icon_cells(screen, tableName, iRow, weightToLeaders[weight], 2, maxLeaders, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
 
-
 	# <!-- custom: _setLeaderIconCells removed - now uses centralized inchart_set_icon_cells from _sevopedia_helpers -->
 
 	# <!-- custom: new addition thanks to chatgpt; as for logic this is how it works-functions based on chatgpt's explanation as well as my own research/findings in (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4improvementinfos/#terrainmakesvalids: if some terrains are specified then the improvement is only allowed on these terrains, else improvement is allowed on all terrains; not sure i got it all right (in particular in the case of irrigation or such conditions seemingly allowing the improvement on a terrain even if not listed here), so i am not sure it is all accurate but maybe is, check to be sure, and adjust this if needed; i implemented it as such and also added an explicative text that maybe the restriction could be elsewhere if not in improvementinfos. -->
@@ -509,8 +485,6 @@ class SevoPediaImprovement:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION"
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def placeFeatureMakesValids(self):
 		xPanel = self.X_FEATURE_MAKES_VALIDS
 		yPanel = self.Y_FEATURE_MAKES_VALIDS
@@ -533,17 +507,11 @@ class SevoPediaImprovement:
 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION"
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
 
-
-
 	def setContentExpanded(self, bExpanded):
 		self.bContentExpanded = bExpanded
-
-
 
 	# <!-- custom: addition based on our existing mod's code in some other class, as for pedia entries, imported from m-e mod (see main readme for mod abbreviation details in as of now credits section) (but i also found them later in c2c mod and they are seemingly the same but the file is sadly/unfortunately way too bloated so going for the m-e mod one(s if talking about the assets themselves in thinking/saying so)) -->
 	def placeHistory(self):

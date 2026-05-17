@@ -8,27 +8,17 @@
 # If that file is not loaded (wrong mod/DLL/load path), these keys resolve to defaults/missing values
 # instead of our sentinels, so this guard fails fast and surfaces the launch/config issue. (GPT-5.3-Codex) -->
 
-
-
 from CvPythonExtensions import CyGlobalContext
 
-
-
 gc = CyGlobalContext()
-
-
 
 SAS_LAUNCH_GUARD_TEST_INT_DEFINE = "SAS_LAUNCH_GUARD_TEST_INT"
 SAS_LAUNCH_GUARD_TEST_STRING_DEFINE = "SAS_LAUNCH_GUARD_TEST_STRING"
 SAS_LAUNCH_GUARD_EXPECTED_INT = 137531
 SAS_LAUNCH_GUARD_EXPECTED_STRING = "AdvCiv-SAS defines test string"
 
-
-
 def _raise_guard_error(szContext, szDetail):
 	raise RuntimeError("Missing or incorrect SAS defines. This could indicate a mod configuration error. Make sure you start this mod from a Windows shortcut. See the Quick Install Guide documentation. Context: %s. %s" % (szContext, szDetail))
-
-
 
 def verify_or_raise(szContext):
 	# <!-- custom: launch guard to detect unexpected define state (e.g., missing defines) and fail fast with explicit context. (GPT-5.3-Codex) -->

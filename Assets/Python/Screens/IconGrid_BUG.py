@@ -13,12 +13,10 @@ import CvScreenEnums
 import BugUtil
 import math
 
-
 # globals
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
 
 class IconData:
 	def __init__(self, sImage, iSize, widgetType, iData1, iData2=-1, bEnabled=True):
@@ -98,8 +96,6 @@ class RowData:
 
 	def addStackedBar(self, iColumnIndex, fValue, sColor, sText, iFont):
 		self.cells[iColumnIndex].addStackedBar(fValue, sColor, sText, iFont)
-
-
 
 class ColumnGroup:
 
@@ -273,7 +269,6 @@ class IconGrid_BUG:
 	def hideGrid(self):
 		self.widgetCount = 0
 		self.hideControls()
-
 
 	def appendRow(self, sRowHeader, sMessage, iFont=3):
 		self.data.append(RowData(sRowHeader, sMessage, iFont, len(self.columns)))

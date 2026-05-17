@@ -5,8 +5,6 @@
 # Mirrors the handicap chart layout, but for WorldInfo.
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 from _sevopedia_helpers import *
@@ -14,8 +12,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaWorldSizeChart:
 	def __init__(self, main):
@@ -216,7 +212,6 @@ class SevoPediaWorldSizeChart:
 		for name, glyph in _glyph_defs:
 			glyph_by_name[name] = glyph
 
-
 		icon_token_by_key = {}
 		for field_name, _display_label, _getter_name, icon_token in row_specs:
 			if icon_token:
@@ -251,7 +246,6 @@ class SevoPediaWorldSizeChart:
 				return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
 			return (chart_sort_key(0, iRowIndex), "")
 
-
 		world_types = []
 		world_labels = []
 		parsed_data = {}
@@ -274,7 +268,6 @@ class SevoPediaWorldSizeChart:
 			world_dict["GridTiles"] = str(grid_w * grid_h)
 
 			parsed_data[world_type] = world_dict
-
 
 		# Derived rows (AdvCiv-SAS: XXL-inspired extra world sizes, adjusted for SAS; e.g. SAS24/SAS32/SAS40/SAS48)
 		# Computed fields are marked in the UI with a trailing \"*\".

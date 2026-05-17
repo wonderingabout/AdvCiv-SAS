@@ -2,8 +2,6 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
-
-
 # <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
 # <!-- custom: 11 entries total -->
 def get_positive_memory_indexes_to_types():
@@ -20,8 +18,6 @@ def get_positive_memory_indexes_to_types():
 		34: "MEMORY_LIBERATED_CITIES",
 		35: "MEMORY_INDEPENDENCE",
 	}
-
-
 
 def get_negative_memory_indexes_to_types():
 	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any ; Long_Comments_py.txt #7 -->
@@ -53,8 +49,6 @@ def get_negative_memory_indexes_to_types():
 		33: "MEMORY_EVENT_BAD_TO_US",
 		36: "MEMORY_DECLARED_WAR_RECENT",
 	}
-
-
 
 def get_shifted_values(min_val, value, max_val):
 	# <!-- custom:
@@ -107,8 +101,6 @@ def get_shifted_values(min_val, value, max_val):
 
 	return shifted_min, shifted_value, shifted_max
 
-
-
 def test_expected_shifting_pre_normalize_to_100():
 	# <!-- custom: examples taken from get_shifted_values's code comments -->
 	vals_to_test = (
@@ -128,8 +120,6 @@ def test_expected_shifting_pre_normalize_to_100():
 		assert(shifted_min == expected_shifted_min)
 		assert(shifted_value == expected_shifted_value)
 		assert(shifted_max == expected_shifted_max)
-
-
 
 # Attribute normalization
 def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
@@ -205,23 +195,17 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 
 	return final_score
 
-
-
 def get_positive_negative(is_positive):
 	if (is_positive):
 		return "Positive"
 	else:
 		return "Negative"
 
-
-
 def get_affection_resentment(is_affection):
 	if (is_affection):
 		return "Affection"
 	else:
 		return "Resentment"
-
-
 
 def get_pascal_case_suffix(enumType):
 	# Converts an enum constant like 'MEMORY_DECLARED_WAR' or 'CONTACT_STOP_TRADING' into a PascalCase suffix like 'DeclaredWar' or 'StopTrading'.
@@ -239,8 +223,6 @@ def get_pascal_case_suffix(enumType):
 	# Convert to lowercase, split on underscores, then capitalize each part
 	parts = suffix.lower().split("_")
 	return "".join([part.capitalize() for part in parts])
-
-
 
 def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, contact_type):
 	# Adjusts contact rand and contact delay values according to standard rules.
@@ -295,16 +277,12 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
-
-
 def get_contact_rand_and_delay_invert_flags():
 	# <!-- custom: the higher the contact rand (say 200 > 50), the lower the 1/n = 1/200 vs 1/50 chance of contact event / prob from my memory of the terminology if i may say or words used in kujira about memory fields or such, so we invert -->
 	b_invert_contact_rands = True
 	# <!-- custom: also, the higher the delay (say 100 > 5 (turns? )), the longer until next contact, so the lower the contact event / prob, so we invert delays too if i may say or not or yes or etc -->
 	b_invert_contact_delays = True
 	return b_invert_contact_rands, b_invert_contact_delays
-
-
 
 def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_norm_score, adjusted_value_delay_norm_score, force_zero_adjusted_values):
 	if force_zero_adjusted_values:
@@ -325,8 +303,6 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score
 		# <!-- custom: no reason to strictly round the raw values since they will be normalized later anyways which would/should be an int and as of now the raw aggregated contact prob is only stored before that at min max storage stage (before their normalization as said before in this sentence), but no reason not to, since most if not indeed all fields are int, and it is an approximation (aggregation) to begin with, values close enough like 78.123456 vs 78.234567 could be considered to be the same 78 for example in my understanding, so round them now even though makes data a bit more inaccurate. -->
 		return int(round(raw_aggregated))
-
-
 
 # <!-- custom: the adjust formula for memory fields is different than the contact adjust system we use in advciv-sas too for contacts, because memory fields use a positive/negative memory field while there are no positive/negative contacts (all contacts are handled the same way computationally (only displayed as offers or demands but the values are computationally treated the same between all contact types, unlike memory types that are aggregated differently based on whether they fit in positive or in negative memory types, so the adjust formula is different read after bracket(s) for rest of the explanation)), so we don't hardcode aggregated values to extremes like 0 or 999 in contact fields, and use instead a different kind of adjustment, of raw memory attitude percents and memory decays, -->
 def get_adjusted_memory_values(raw_attitude_percent, raw_decay, is_affection, is_debug, mem_type):
@@ -353,8 +329,6 @@ def get_adjusted_memory_values(raw_attitude_percent, raw_decay, is_affection, is
 
 	return adjusted_attitude_percent, adjusted_decay, force_zero_adjusted_values
 
-
-
 def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection):
 	if is_positive:
 		if is_affection:
@@ -375,8 +349,6 @@ def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection
 		else:
 			# # <!-- custom: similarly but in negative memories, lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI but this time in an (seemingly) expected way if (conventionally) harm(ful behaviour or other thing or similar thing) is done to it), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization), so we invert.. -->
 			return True, False
-
-
 
 def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_value_attitude_percent_norm_score, adjusted_value_decay_norm_score, force_zero_adjusted_values):
 	if force_zero_adjusted_values:

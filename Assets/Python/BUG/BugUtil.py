@@ -151,7 +151,6 @@ gc = CyGlobalContext()
 localText = CyTranslator()
 interface = CyInterface()
 
-
 ## Display Year
 
 def getDisplayYear(vYear):
@@ -159,7 +158,6 @@ def getDisplayYear(vYear):
 		return str(-vYear) + getPlainText("TXT_KEY_AUTOLOG_BC")
 	else:
 		return str(vYear) + getPlainText("TXT_KEY_AUTOLOG_AD")
-
 
 ## Text Formatting and Processing
 
@@ -217,7 +215,6 @@ def escapeXml(obj):
 	# Performs XML escape processing, replacing <, >, and & with their XML entities.
 	#
 	return str(obj).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
 
 ## Logging to the Screen and Debug File
 
@@ -310,7 +307,6 @@ def readLoggingOptions(option=None, value=None):
 	fileLogLevel = CoreOpt.getFileLogLevel()
 	minimumLogLevel = min(screenLogLevel, fileLogLevel)
 	logTime = CoreOpt.isLogTime()
-
 
 ## Event Tracking and Output
 
@@ -442,7 +438,6 @@ def logInputFlags(fxn, inputClass):
 		if flagList:
 			fxn("Flags - %s", ", ".join(flagList))
 
-
 ## Timing Code Execution
 
 class Timer:
@@ -560,7 +555,6 @@ class Timer:
 			debug("Timer - %s [%s] took %d ms" % (self._item, str(extra), 1000 * runtime))
 		return self
 
-
 ## Binding and Calling Functions Dynamically
 ##
 ## (looking up module and function/class by name rather than directly in Python
@@ -640,7 +634,6 @@ def callFunction(module, functionOrClass, *args, **kwargs):
 	func = lookupFunction(module, functionOrClass)
 	return func(*args, **kwargs)
 
-
 ## Exporting Functions to Other Modules
 ##
 ## Copying function definitions from one module to another, mostly to EntryPoint modules,
@@ -715,7 +708,6 @@ def extendAfterFunction(module, name, toModule, asName=None, log=True):
 def extendInsteadFunction(module, name, toModule, asName=None, log=True):
 	extendFunction(module, name, toModule, asName, EXTEND_INSTEAD, log)
 
-
 ## Python
 
 def fixSets(namespace):
@@ -730,7 +722,6 @@ def fixSets(namespace):
 		import sets
 		namespace["set"] = sets.Set
 		namespace["frozenset"] = sets.ImmutableSet
-
 
 ## Deferred Calls
 
@@ -775,7 +766,6 @@ def doDeferredCalls(argsList=None):
 			debug("doDeferredCalls - calling %s", func)
 			func()
 
-
 ## Exception Classes
 
 class BugError(Exception):
@@ -795,7 +785,6 @@ class ConfigError(BugError):
 	#
 	def __init__(self, message, *args):
 		BugError.__init__(self, message, *args)
-
 
 ## Civ4 Helpers
 

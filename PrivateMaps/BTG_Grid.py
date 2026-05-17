@@ -1412,8 +1412,6 @@ def normalizeAddExtras():
 	# BTG Resources option removed: no sulphur-on-capital mode.
 	
 
-
-
 	
 	CyMap().recalculateAreas()#2.21zz Mirror looks weird				
 							
@@ -1569,8 +1567,6 @@ def normalizeStartingPlotLocations():#2.21z
 
 	# BTG Start Position option removed: keep default normalization flow.
 	CyPythonMgr().allowDefaultImpl()#this is the bit that puts team together and is normal case			
-
-
 
 ''' 11 - BTG local/map Redclaration of MapGeneratorUtil functions for logic '''
 def BTPTopBottomTwoTeams(isBTG):							

@@ -4,7 +4,6 @@
 #
 # <!-- custom: The page treats the trigger as the dominant entity (matches player's mental model: the trigger is "what happens", events are "the choices when it fires"). (Claude code Opus 4.7) -->
 
-
 from CvPythonExtensions import *
 import CvUtil
 import SevoScreenEnums
@@ -105,7 +104,6 @@ class SevoPediaEventTrigger:
 		self.GOLDEN_AGE_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.GOLDEN_AGE_CHAR)
 		self.STAR_CHAR = u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR)
 
-
 	def interfaceScreen(self, iTrigger):
 		bTriggerChanged = (self.iTrigger != iTrigger)
 		if bTriggerChanged:
@@ -122,12 +120,10 @@ class SevoPediaEventTrigger:
 		self.placeTexts()
 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND")
 
-
 	def _getTriggerInfo(self):
 		if self.iTrigger < 0:
 			return None
 		return gc.getEventTriggerInfo(self.iTrigger)
-
 
 	def _getTriggerDisplayName(self):
 		info = self._getTriggerInfo()
@@ -143,7 +139,6 @@ class SevoPediaEventTrigger:
 			return szType.replace("_", " ").title()
 		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
 
-
 	def placeName(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -158,7 +153,6 @@ class SevoPediaEventTrigger:
 		if szType:
 			szLine = szLine + u"  (" + szType + u")"
 		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szLine), self.X_NAME + 14, self.Y_NAME + 30, self.W_NAME - 28, self.H_NAME - 36, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
 
 	def placeSummary(self):
 		screen = self.top.getScreen()
@@ -190,7 +184,6 @@ class SevoPediaEventTrigger:
 		else:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_SUMMARY + 14, self.Y_SUMMARY + 34, self.W_SUMMARY - 28, self.H_SUMMARY - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
 
 	def placeRequiresText(self):
 		screen = self.top.getScreen()
@@ -316,7 +309,6 @@ class SevoPediaEventTrigger:
 		else:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_TEXT + 14, self.Y_REQUIRES_TEXT + 34, self.W_REQUIRES_TEXT - 28, self.H_REQUIRES_TEXT - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
 
 	# <!-- custom: compose a per-event "what actually happens" bullet list. Covers the
 	# common numeric/flag fields on CvEventInfo and inlines Civ4 commerce/yield/happy
@@ -695,7 +687,6 @@ class SevoPediaEventTrigger:
 			return self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_NO_DIRECT", ())
 		return u"\n".join([self.BULLET_PREFIX + p for p in parts])
 
-
 	def _getEventDisplayName(self, iEvent):
 		eventInfo = gc.getEventInfo(iEvent)
 		if not eventInfo:
@@ -710,13 +701,11 @@ class SevoPediaEventTrigger:
 			return szType.replace("_", " ").title()
 		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
 
-
 	def setHistoryExpanded(self, bExpanded):
 		# Renamed from bTextsExpanded at the method level only — the dispatch layer in
 		# SevoPediaMain always calls setHistoryExpanded (it's the shared hook), and on
 		# this page the expandable panel happens to be Texts.
 		self.bHistoryExpanded = bExpanded
-
 
 	# <!-- custom: render the trigger's narrator text variants (from getNumTexts() /
 	# getText(i), matching the XML <Texts><Text>...</Text></Texts> block). These are
@@ -848,7 +837,6 @@ class SevoPediaEventTrigger:
 			if summaryTextH < 20:
 				summaryTextH = 20
 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szSummary), summaryPanelX + textMarginX, summaryPanelY + summaryTextTop, summaryPanelW - (textMarginX * 2), summaryTextH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
 
 	def placeRequiresButtons(self):
 		screen = self.top.getScreen()
@@ -1073,7 +1061,6 @@ class SevoPediaEventTrigger:
 			yCenter = self.Y_REQUIRES_BUTTONS + (self.H_REQUIRES_BUTTONS / 2)
 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_BUTTONS + 7, yCenter, self.W_REQUIRES_BUTTONS - 14, self.H_REQUIRES_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
 	def placeObsoleteButtons(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -1118,7 +1105,6 @@ class SevoPediaEventTrigger:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 			yCenter = self.Y_OBSOLETE_BUTTONS + (self.H_OBSOLETE_BUTTONS / 2)
 			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_OBSOLETE_BUTTONS + 7, yCenter, self.W_OBSOLETE_BUTTONS - 14, self.H_OBSOLETE_BUTTONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
 
 	def handleInput(self, inputClass):
 		return 0

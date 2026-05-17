@@ -47,7 +47,6 @@ COLOR_DISPLAY_NAMES = []
 # Maps key to color type
 TYPES_BY_KEY = {}
 
-
 def getColorKeys():
 	return COLOR_KEYS
 
@@ -57,7 +56,6 @@ def getColorTypes():
 def getColorDisplayNames():
 	# Returns a tuple of the color display names from the color names above.
 	return COLOR_DISPLAY_NAMES
-
 
 def typeToIndex(type):
 	# Returns the index of the color from its info type, None if not found.
@@ -69,7 +67,6 @@ def typeToIndex(type):
 def indexToType(index):
 	# Returns the info type of the color from its index, None if not found.
 	return COLORS[index][COLOR_TYPE_IDX]
-
 
 def keyToIndex(key):
 	# Returns the index of the color from its key, None if not found.
@@ -84,7 +81,6 @@ def indexToKey(index):
 	#
 	return COLORS[index][COLOR_KEY_IDX]
 
-
 def keyToType(key):
 	# Returns the info type of the color from its key, -1 if not found.
 	# This works for any valid color -- not just those in the list.
@@ -97,7 +93,6 @@ def keyToType(key):
 		type = getInfoTypeOrFail(key)
 	TYPES_BY_KEY[key] = type
 	return type
-
 
 def createColors(argsList=None):
 	for key in COLOR_KEYS:

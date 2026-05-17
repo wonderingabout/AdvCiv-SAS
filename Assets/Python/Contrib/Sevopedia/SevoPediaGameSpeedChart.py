@@ -5,8 +5,6 @@
 # Mirrors the handicap chart layout, but for GameSpeedInfo.
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 from _sevopedia_helpers import *
@@ -14,8 +12,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaGameSpeedChart:
 	def __init__(self, main):

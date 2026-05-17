@@ -223,7 +223,6 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iHeight = iNorthY - iSouthY + 1
 		print("Cont South: ", iSouthY, "Cont North: ", iNorthY, "Cont Height: ", iHeight)
 
-
 		self.generatePlotsInRegion(iWater,
 		                           iWidth, iHeight,
 		                           iWestX, iSouthY,
@@ -312,7 +311,6 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iNorthY -= northShift
 			iHeight = iNorthY - iSouthY + 1
 		print("Cont South: ", iSouthY, "Cont North: ", iNorthY, "Cont Height: ", iHeight)
-
 
 		self.generatePlotsInRegion(iWater,
 		                           iWidth, iHeight,

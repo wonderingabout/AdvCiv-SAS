@@ -11,16 +11,13 @@ import re
 from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
 
-
 START_YEAR = -50000
 SUMMARY_STEPS = 20
 PREFERRED_LADDER = [3000, 2400, 1800, 1500, 1200, 900, 720, 600, 480, 360, 300, 240, 180, 144, 120, 108, 96, 84, 72, 60, 48, 36, 24, 12]
 INVALID_SCORE = 10 ** 12
 
-
 def _local_name(tag):
     return tag.split("}", 1)[-1]
-
 
 def _normalize_speed_name(name):
     s = name.strip().lower()
@@ -29,35 +26,29 @@ def _normalize_speed_name(name):
     s = s.replace(" ", "")
     return s
 
-
 def _display_speed_name(speed_type):
     raw = re.sub(r"^GAMESPEED_", "", speed_type)
     raw = raw.replace("_", " ").strip().title()
     return raw
-
 
 def _make_slug(name):
     s = _normalize_speed_name(name)
     s = re.sub(r"[^a-z0-9_]+", "_", s)
     return s.strip("_") or "speed"
 
-
 def _year_month_to_total_months(year, month):
     return year * 12 + (month - 1)
-
 
 def _format_delta_months(delta_months):
     sign = "+" if delta_months >= 0 else "-"
     v = abs(delta_months)
     return "%s%dy%dm" % (sign, v // 12, v % 12)
 
-
 def _format_delta_vs_increment(delta_months, increment_months):
     if increment_months <= 0:
         return "n/a", "n/a"
     ratio = float(delta_months) / float(increment_months)
     return "%+.2f" % ratio, "%+.1f%%" % (ratio * 100.0)
-
 
 def parse_xml_speeds(xml_path):
     root = ET.parse(xml_path).getroot()
@@ -99,7 +90,6 @@ def parse_xml_speeds(xml_path):
 
     return speeds
 
-
 def resolve_speed_type(speeds, requested_name):
     want = _normalize_speed_name(requested_name)
     items = []
@@ -122,7 +112,6 @@ def resolve_speed_type(speeds, requested_name):
 
     return None
 
-
 def get_date_at_turn(rows, turn, start_year=START_YEAR):
     elapsed_turns = 0
     elapsed_months = 0
@@ -141,7 +130,6 @@ def get_date_at_turn(rows, turn, start_year=START_YEAR):
     month = (total_months % 12) + 1
     return {"turn": turn, "year": year, "month": month, "inc": current_increment, "total_months": total_months}
 
-
 def build_summary_rows(speed_data, summary_steps=SUMMARY_STEPS):
     out = []
     num_turns = speed_data["num_turns"]
@@ -152,7 +140,6 @@ def build_summary_rows(speed_data, summary_steps=SUMMARY_STEPS):
         pct = int(round((100.0 * i) / float(summary_steps)))
         out.append((i, pct, get_date_at_turn(rows, turn)))
     return out
-
 
 def compare_from_xml(xml_path, normal_speed_name, target_speed_name, summary_steps=SUMMARY_STEPS):
     speeds = parse_xml_speeds(xml_path)
@@ -182,7 +169,6 @@ def compare_from_xml(xml_path, normal_speed_name, target_speed_name, summary_ste
         "parsed": parsed,
     }
 
-
 def score_alignment(parsed):
     # Weight the difficult early-mid zone where we tune the most.
     weights = {1: 1.0, 2: 1.5, 3: 2.5, 4: 5.0, 5: 5.0, 6: 5.0, 7: 4.0, 8: 4.5, 9: 3.0, 10: 2.0, 11: 2.0, 12: 2.0}
@@ -192,7 +178,6 @@ def score_alignment(parsed):
         years = delta_months / 12.0
         score += w * (years * years)
     return score
-
 
 def score_alignment_slow(parsed):
     # Style-first: keep close enough to Normal, but prioritize smooth shape over exactness.
@@ -245,7 +230,6 @@ def score_alignment_slow(parsed):
 
     return score
 
-
 def _style_penalty_rows(rows):
     penalty = 0.0
     prev = None
@@ -262,13 +246,11 @@ def _style_penalty_rows(rows):
         prev = inc
     return penalty
 
-
 def _nearest_ladder_value(value, max_allowed):
     candidates = [v for v in PREFERRED_LADDER if v <= max_allowed]
     if not candidates:
         return min(max_allowed, value)
     return min(candidates, key=lambda v: abs(v - value))
-
 
 def _has_non_increasing_increments(rows):
     prev = None
@@ -277,7 +259,6 @@ def _has_non_increasing_increments(rows):
             return False
         prev = inc
     return True
-
 
 def _emit_report(compare_result, title, meta_lines=None):
     parsed = compare_result["parsed"]
@@ -312,7 +293,6 @@ def _emit_report(compare_result, title, meta_lines=None):
     lines.append("")
     lines.append("Score: %f" % score_alignment(parsed))
     return "\n".join(lines)
-
 
 def _slow_autoloop_candidate_rows(base_rows, rng):
     # Row indices are 0-based in GameTurnInfos list for GAMESPEED_SLOW.
@@ -398,7 +378,6 @@ def _slow_autoloop_candidate_rows(base_rows, rng):
         return None
     return [(m, n) for (m, n) in rows]
 
-
 def run_autoloop(xml_path, target_speed, normal_speed, iterations, seed):
     speeds = parse_xml_speeds(xml_path)
     target_type = resolve_speed_type(speeds, target_speed)
@@ -479,7 +458,6 @@ def run_autoloop(xml_path, target_speed, normal_speed, iterations, seed):
         "found_valid": best_score < INVALID_SCORE,
     }
 
-
 def main():
     parser = argparse.ArgumentParser(description="XML-based summary compare and draft autoloop tuner.")
     parser.add_argument("--xml", default=os.path.join("Assets", "XML", "GameInfo", "CIV4GameSpeedInfo.xml"))
@@ -539,7 +517,6 @@ def main():
         f.write("\n")
     print("")
     print("Saved: %s" % out_path)
-
 
 if __name__ == "__main__":
     main()

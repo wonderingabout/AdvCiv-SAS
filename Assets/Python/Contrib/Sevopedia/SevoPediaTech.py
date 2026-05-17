@@ -16,8 +16,6 @@
 # <!-- custom: uses new buildBTradeString function in CvGameTextMgr.cpp to display in placeSpecial the this technology "Cannot be traded" bullet point, see modding ressources readme at /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md (or whichever path it may be if changed path or modifications i did or may have done additionally or kept as is).
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import CvPediaScreen
@@ -40,8 +38,6 @@ TECH_STATS_RIGHT_SCROLLBAR_TAIL_W = 18
 TECH_STATS_MOVE_LEFT_TO_RIGHT_W = 60
 TECH_STATS_MOVE_TOPLEFT_TO_BOTTOMLEFT_H = 2
 
-
-
 # <!-- custom: Module-level cache for tech statistics. Computed once on first Techs category click.
 # Similar pattern to SevoPediaTrait's TRAIT_STATISTICS_CACHE. (Claude Opus 4.5) -->
 # startingTechData: list of (techId, civCount, [civIds]) - all starting techs sorted by civ count
@@ -49,7 +45,6 @@ TECH_STATS_MOVE_TOPLEFT_TO_BOTTOMLEFT_H = 2
 # untradeableTechsByEra: dict of eraId -> (techCount, [techIds]) - untradeable techs grouped by era
 # totalTechsByEra: dict of eraId -> totalTechCount - all techs per era (for "All" column)
 TECH_STATISTICS_CACHE = None
-
 
 def precomputeTechStatisticsCache():
 	# Precompute and cache tech statistics data. Called once from SevoPediaMain.placeTechs()
@@ -179,8 +174,6 @@ def precomputeTechStatisticsCache():
 	print("Sevopedia Tech statistics cache prebuilt. This should appear only once per gaming session.")
 	return TECH_STATISTICS_CACHE
 
-
-
 class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 	def __init__(self, main):
@@ -304,8 +297,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: cached terrain define for trade-route icon selection. (Claude code Sonnet 4.6) -->
 		self.iDEEP_WATER_TERRAIN = None
 
-
-
 	def interfaceScreen(self, iTech):
 		if self.iTech != iTech:
 			self.bHistoryExpanded = False
@@ -323,8 +314,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		self.placeSpecial()
 		self.placeHistory()
-
-
 
 	def placeTechPane(self):
 		screen = self.top.getScreen()
@@ -350,8 +339,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.appendListBoxString(listBoxName, SASTextScale.labelText(u" " + szEra), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, SASTextScale.titleText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def placeMusic(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -375,8 +362,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		else:
 			draw_none_text(screen, self.top, self.X_MUSIC, self.Y_MUSIC, self.W_MUSIC, self.H_MUSIC)
 
-
-
 	def placeCivilizationsThatStartWithThisTech(self):
 		# <advc.004y> Show the box only for starting techs
 		civs = []
@@ -396,8 +381,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			civ = gc.getCivilizationInfo(iCiv)
 			#if civ.isCivilizationFreeTechs(self.iTech):
 			screen.attachImageButton(panelName, "", civ.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1, False)
-
-
 
 	# <!-- custom: First to Discover panel showing religions, corporations, great people, and free techs that can be gained by being first to discover this tech (Claude code Opus 4.5 + GPT-5.2-Codex) -->
 	def placeFirstToDiscover(self):
@@ -445,8 +428,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# No first-to-discover effects - display "None" text
 			draw_none_text(screen, self.top, self.X_FIRST_TO_DISCOVER, self.Y_FIRST_TO_DISCOVER, self.W_FIRST_TO_DISCOVER, self.H_FIRST_TO_DISCOVER)
 
-
-
 	# <!-- custom: Tradeable panel showing if this tech can be traded. Shows "Yes" if tradeable,
 	# or No Entry emoji icon if not tradeable. (Claude Opus 4.5) -->
 	def placeTradeable(self):
@@ -469,8 +450,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			buttonX = (self.W_TRADEABLE - buttonSize) / 2
 			buttonY = 10
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.noEntryButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	# <!-- custom: new obsoletes panel showing buildings, bonuses, special buildings, and units obsoleted by this tech with red X overlay (Claude code Sonnet 4.5) -->
 	def placeObsoletes(self):
@@ -620,8 +599,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# No obsolete items - display "None" text
 			draw_none_text(screen, self.top, self.X_OBSOLETES, self.Y_OBSOLETES, self.W_OBSOLETES, self.H_OBSOLETES)
 
-
-
 	def placeLeadsTo(self):
 		screen = self.top.getScreen()
 		szLeadsTo = localText.getText("TXT_KEY_PEDIA_LEADS_TO", ())
@@ -644,8 +621,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		if not bButtonFound:
 			draw_none_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
-
-
 
 	def placePrereqs(self):
 		screen = self.top.getScreen()
@@ -693,8 +668,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		if not bButtonFound:
 			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
-
-
 
 	# <!-- custom: merged placeUnits and placeBuildings into single placeEnables, expanded to include all tech advisor items (Claude code Opus 4.5 + GPT-5.2-Codex) -->
 	def placeEnables(self):
@@ -894,8 +867,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		if not bButtonFound:
 			draw_none_text(screen, self.top, self.X_ENABLES, self.Y_ENABLES, self.W_ENABLES, self.H_ENABLES)
 
-
-
 	# <!-- custom: Statistics panel with three tables wrapped in outer blue panel:
 	# Top-Left: All starting techs with civ count and civ buttons
 	# Bottom-Left: Untradeable techs grouped by era (era name, tech count, tech buttons)
@@ -920,7 +891,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 
 		# === RIGHT TABLE: All starting tech combinations ===
 		self._placeStartingTechCombosTable(screen, cache)
-
 
 	def _placeStartingTechsTable(self, screen, cache):
 		# Top-left table: shows ALL starting techs with civ count and civ buttons
@@ -970,7 +940,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % civCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, sasFontTagLabel)
 
 			inchart_set_icon_cells(screen, tableName, iRow, civIds, 2, maxCivs, INCHART_ICON_TYPE_CIV)
-
 
 	def _placeUntradeableTechsByEraTable(self, screen, cache):
 		# Bottom-left table: untradeable techs grouped by era
@@ -1043,7 +1012,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# Tech button columns (starting at column 3)
 			inchart_set_icon_cells(screen, tableName, iRow, techIds, 3, maxTechs, INCHART_ICON_TYPE_TECH)
 
-
 	def _placeStartingTechCombosTable(self, screen, cache):
 		# Right table: all starting tech combinations globally
 		# Blue panel without header, table inside
@@ -1107,7 +1075,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# Civ icons using centralized helper
 			inchart_set_icon_cells(screen, tableName, iRow, civIds, 4, maxCivsRight, INCHART_ICON_TYPE_CIV)
 
-
 	# <!-- custom: _setCivIconCells and _setTechIconCells removed - now use centralized inchart_set_icon_cells from _sevopedia_helpers -->
 
 	def placeSpecial(self):
@@ -1119,12 +1086,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
 		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()

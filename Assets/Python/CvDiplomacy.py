@@ -665,7 +665,6 @@ class CvDiplomacy:
 				self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_DECLARE_WAR"))
 				diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_DEMAND_WAR, -1, -1)
 
-
 		# if we are demanding something from our teammate
 		# advc.155: Commented out
 		#elif (self.isComment(eComment, "USER_DIPLOCOMMENT_DEMAND_TEAM")):

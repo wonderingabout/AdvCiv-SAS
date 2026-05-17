@@ -8,11 +8,9 @@
 
 from CvPythonExtensions import *
 
-
 ## Globals
 
 gc = CyGlobalContext()
-
 
 ## Growth and Starvation
 

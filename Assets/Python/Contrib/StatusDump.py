@@ -14,7 +14,6 @@ BugAutolog = BugCore.game.Autolog
 
 class statusdumpInstance:
 
-
 	def __init__(self):
 		self.MsgStore = []
 		self.FileName = "StatusDump.txt"  #BugAutolog.getFileName()

@@ -11,8 +11,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import CvMapGeneratorUtil
@@ -21,8 +19,6 @@ from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizes import *
 from SASUtils import getInfoTypeOrFail
-
-
 
 # MULTILAYERED FRACTAL NOTES
 #
@@ -50,8 +46,6 @@ from SASUtils import getInfoTypeOrFail
 # This is based purely on the Terra script, albeit with a lot more similarity
 # to Earth in terms of landmasses. Rocky Climate and Normal Sea Levels strongly
 # recommended for maximum earthiness.
-
-
 
 def getDescription():
     return "TXT_KEY_MAP_SCRIPT_EARTH2_DESCR"
@@ -1143,7 +1137,6 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         # All regions have been processed. Plot Type generation completed.
         return self.wholeworldPlotTypes
-
 
 '''
 Regional Variables Key:

@@ -203,7 +203,6 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iWidth = iEastX - iWestX + 1
 		print("Island West: ", iWestX, "Island East: ", iEastX, "Isl Width: ", iWidth)
 
-
 		self.generatePlotsInRegion(iWater,
 		                           iWidth, iHeight,
 		                           iWestX, iSouthY,

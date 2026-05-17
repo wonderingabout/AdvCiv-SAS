@@ -51,7 +51,6 @@ class BugOptionsTab:
 		"Marks this tab so that it will be translated again the next time it is accessed"
 		self.translated = False
 
-
 	def setOptions (self, options):
 		self.options = options
 
@@ -60,7 +59,6 @@ class BugOptionsTab:
 			return g_options.getOption(name)
 		except BugUtil.ConfigError:
 			return None
-
 
 	def create (self, screen):
 		"Creates the full options screen"
@@ -187,7 +185,6 @@ class BugOptionsTab:
 			columns.append(column)
 		
 		return columns
-
 
 	def addLabel (self, screen, panel, name, title=None, tooltip=None, spacer=False):
 		key = "TXT_KEY_BUG_OPTLABEL_" + name.upper()
@@ -472,7 +469,6 @@ class BugOptionsTab:
 			return control
 		else:
 			self.addMissingOption(screen, controlPanel, name)
-
 
 	def addMissingOption (self, screen, panel, name):
 		screen.attachLabel(panel, name + "Missing", "Missing: " + name)

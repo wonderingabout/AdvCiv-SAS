@@ -78,7 +78,6 @@ import BugConfigTracker
 import BugUtil
 import shutil
 
-
 ## Constants
 
 DATA_FOLDER = "Data"
@@ -96,12 +95,10 @@ MY_DOCUMENTS_FOLDER_REG_KEYS = (
 )
 MY_GAMES_FOLDER = "My Games"
 
-
 def isMac():
 	# Returns True if running on a Mac operating system.
 	#
 	return sys.platform == 'darwin'
-
 
 ## Mod Info, Folder and Path Accessors
 
@@ -187,7 +184,6 @@ def getAppFolder():
 	initAppFolder()
 	return _appFolder
 
-
 ## Finding and Creating Files and Directories
 
 def findAssetFile(name, subdir=None):
@@ -256,7 +252,6 @@ def createInfoFile(name, subdir=None):
 	#
 	return createFile(getInfoDir(), name, subdir)
 
-
 def findDir(name):
 	# Locates the named directory in dataDir.
 	#
@@ -283,7 +278,6 @@ def findOrMakeDir(name):
 	#
 	return findDir(name) or makeDir(name)
 
-
 ## Initialization
 
 def init():
@@ -297,7 +291,6 @@ def init():
 	initRootFolder()
 	initDataFolder()
 	initSearchPaths()
-
 
 ## Application Directory
 
@@ -328,7 +321,6 @@ def initAppFolder():
 	else:
 		BugUtil.warn("BugPath - no executable found")
 	_appFolderInitDone = True
-
 
 ## Mod Display Name
 
@@ -409,7 +401,6 @@ def setModDir(dir):
 		return True
 	return False
 
-
 ## NoCustomAssets Setting
 
 _noCustomAssets = False
@@ -437,7 +428,6 @@ def initNoCustomAssetsSetting():
 				BugUtil.trace("BugPath - failed to parse mod INI file for NoCustomAssets")
 		BugUtil.info("BugPath - NoCustomAssets is %s", _noCustomAssets)
 	_noCustomAssetsSettingInitDone = True
-
 
 ## User and Root Directories
 
@@ -541,7 +531,6 @@ def setUserDir(dir):
 		return True
 	return False
 
-
 ## Data Directory
 
 _dataDir = None
@@ -623,7 +612,6 @@ def setDataDir(dir):
 			return True
 	return False
 
-
 ## Asset Directories
 
 _assetFileSearchPaths = []
@@ -654,7 +642,6 @@ def addAssetFileSearchPath(path):
 	#
 	if isdir(path):
 		_assetFileSearchPaths.append(path)
-
 
 ## None-Safe Path/Directory/File Functions
 
@@ -710,7 +697,6 @@ def isfile(path):
 	if path is None:
 		return False
 	return os.path.isfile(path)
-
 
 ## Non-English-Safe Logging
 

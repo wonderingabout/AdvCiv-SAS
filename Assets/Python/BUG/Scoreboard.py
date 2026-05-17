@@ -130,12 +130,10 @@ def smallText(text):
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
 
-
 def onDealCanceled(argsList):
 	# Sets the scoreboard dirty bit so it will redraw.
 	#
 	CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
-
 
 class Column:
 	
@@ -163,7 +161,6 @@ class Column:
 	
 	def isSpecial(self):
 		return self.type == SPECIAL
-
 
 class Scoreboard:
 	# Holds and builds the ScoreCards.
@@ -689,7 +686,6 @@ class Scoreboard:
 		#screen.show( "ScoreBackground" ) # advc.004z: Handled by caller now
 		timer.log()
 
-
 class TeamScores:
 	def __init__(self, scoreboard, team, rank):
 		self._scoreboard = scoreboard
@@ -740,7 +736,6 @@ class TeamScores:
 			if self._master is None:
 				self._isVassal = False
 			# K-Mod end
-
 
 class PlayerScore:
 	def __init__(self, teamScore, player, rank):

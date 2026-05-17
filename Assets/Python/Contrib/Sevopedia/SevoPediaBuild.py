@@ -6,8 +6,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 from SASFontUtils import *
@@ -19,8 +17,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaBuild:
 
@@ -84,7 +80,6 @@ class SevoPediaBuild:
 		self.FEATURE_STRUCT_PANEL_HEADER_H = 28
 		self.FEATURE_STRUCT_BUTTON_TOP_REL = self.H_FEATURE_STRUCTS - self.FEATURE_STRUCT_PANEL_HEADER_H - self.FEATURE_STRUCT_BUTTON_ROW_H - self.FEATURE_STRUCT_BUTTON_BOTTOM_MARGIN
 
-
 	def _getBuildFeatureProductionModifierTechs(self):
 		buildInfo = gc.getBuildInfo(self.iBuild)
 		bHasRemovalProduction = False
@@ -95,7 +90,6 @@ class SevoPediaBuild:
 		if not bHasRemovalProduction:
 			return []
 		return get_feature_production_modifier_techs()
-
 
 	def interfaceScreen(self, iBuild):
 		if self.iBuild != iBuild:
@@ -111,7 +105,6 @@ class SevoPediaBuild:
 		self.placeSpecial()
 		self.placeHistory()
 
-
 	def placeBuildPane(self):
 		screen = self.top.getScreen()
 		buildInfo = gc.getBuildInfo(self.iBuild)
@@ -124,7 +117,6 @@ class SevoPediaBuild:
 		screen.enableSelect(panel, False)
 		screen.appendListBoxString(panel, SASTextScale.titleText(buildInfo.getDescription()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(panel, SASTextScale.labelText(localText.getText("TXT_KEY_PEDIA_BUILD", ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-
 
 	def placeRequires(self):
 		screen = self.top.getScreen()
@@ -142,7 +134,6 @@ class SevoPediaBuild:
 
 		if not bFound:
 			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
-
 
 	def placeImprovements(self):
 		screen = self.top.getScreen()
@@ -175,7 +166,6 @@ class SevoPediaBuild:
 		if not bFound:
 			draw_none_text(screen, self.top, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
 
-
 	def placeFeatureProduction(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -189,7 +179,6 @@ class SevoPediaBuild:
 
 		for iTech, unused_iModifier in techModifiers:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
-
 
 	def placeUnitsBuild(self):
 		screen = self.top.getScreen()
@@ -213,7 +202,6 @@ class SevoPediaBuild:
 
 		if not bUnitFound:
 			draw_none_text(screen, self.top, self.X_UNITS_BUILD, self.Y_UNITS_BUILD, self.W_UNITS_BUILD, self.H_UNITS_BUILD)
-
 
 	def placeFeatureStructs(self):
 		screen = self.top.getScreen()
@@ -287,7 +275,6 @@ class SevoPediaBuild:
 					else:
 						screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, buttonId, 1)
 
-
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -326,11 +313,8 @@ class SevoPediaBuild:
 		listName = self.top.getNextWidgetName()
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()

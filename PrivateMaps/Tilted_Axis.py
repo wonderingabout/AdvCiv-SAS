@@ -104,7 +104,6 @@ def addBonusType(argsList):
 		
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
-
 def getGridSize(argsList):
 	"Override Grid Size function to make the maps square."
 	grid_sizes = {

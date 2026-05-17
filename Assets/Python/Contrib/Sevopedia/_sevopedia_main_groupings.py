@@ -16,19 +16,14 @@
 # <!-- custom: For grouping helpers that accept a prebuilt baseList, SevoPediaMain already applies BUG 'Sort Lists' ordering once via getSortedList()/getUnfilteredSortedList().
 # These helpers therefore preserve the incoming order and do not re-sort, avoiding redundant work when list grouping is enabled. (ChatGPT-5.2 Thinking) -->
 
-
-
 from CvPythonExtensions import *
 from _sevopedia_helpers import *
 import os
-
-
 
 gc = CyGlobalContext()
 localText = CyTranslator()
 # <!-- custom: toggle verbose Sevopedia music path/count debug prints in PythonDbg.log; keep disabled by default to avoid log clutter, but retain for future diagnosis of mod-vs-base audio XML resolution issues. (GPT-5.3-Codex) -->
 SAS_SEVO_MUSIC_DEBUG_ENABLE = False
-
 
 def _SAS_findAssetXmlPath(szFileName, szSubDir):
 	# <!-- custom: build absolute candidate paths and prefer the mod copy; for Audio2DScripts specifically, pick the candidate that contains AS2D_OPENING_MENU_01 so Sevopedia grouping uses AdvCiv-SAS variants instead of base BTS opening entries.
@@ -78,8 +73,6 @@ def _SAS_findAssetXmlPath(szFileName, szSubDir):
 	if len(candidates) > 0:
 		return candidates[0]
 	return os.path.join("Assets", szSubDir, szFileName)
-
-
 
 def SAS_isFoodYieldImprovement(iImprovement):
 	# Check if improvement provides food yields from any bonus.
@@ -197,7 +190,6 @@ def SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList, bSortLists, highIds
 		else:
 			landFlat.append((szName, iTerrain))
 
-
 	# Emit headers + items in alphabetical order by header name
 	if graphicalOnlyHigh:
 		r.append(("GraphicalOnly (High)", -1))
@@ -266,7 +258,6 @@ def SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, bSortLists, graphic
 			else:
 				landOther.append((szName, iFeature))
 
-
 	# Emit headers + items in alphabetical order by header name
 	if landOther:
 		r.append(("Land (Other)", -1))
@@ -316,7 +307,6 @@ def SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, bSortLists):
 			tmp = []
 			groups[key] = tmp
 		tmp.append((szName, iBonus))
-
 
 	# Order headers:
 	#  - primarily by first improvement id (so this generally follows ImprovementInfos XML order),
@@ -505,7 +495,6 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
 
 	waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
 	waterOther = [(item[1], item[2]) for item in waterOther]
-
 
 	# Emit headers + items in alphabetical order by header name
 	if graphicalOnly:
@@ -702,7 +691,6 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, bSortLists):
 	waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
 	waterOther = [(item[1], item[2]) for item in waterOther]
 
-
 	# Emit headers + items in alphabetical order by header name
 	if landBonusCapable:
 		r.append(("Land (Bonus-capable)", -1))
@@ -759,15 +747,11 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, bSortLists):
 
 	return r
 
-
-
 # <!-- custom: Era / category grouping helpers (Techs, Units, Buildings, Projects, Religions, Corporations, Specialists, Civics)
 #
 # Notes:
 # - For era-tiered lists that depend on "availability era" logic, callers pass a callback:
 #     getEraFn(itemId, *extraCounts) -> iEra (>=0), -1 for "no tech prereq", or None to skip. (ChatGPT-5.2 Thinking) -->
-
-
 
 # # <!-- custom: Availability-era helpers (used by era groupings). These were previously methods on SevoPediaMain; moved here to keep groupings self-contained. (ChatGPT-5.2 Thinking) -->
 _SAS_cacheCorporationHQBuildingByCorp = None
@@ -896,8 +880,6 @@ def SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs):
 
 	return iEra  # -1 means "No Tech Prerequisite" bucket
 
-
-
 def SAS_getTechsGroupedByEra(bSortLists):
 	techsList = []
 
@@ -917,7 +899,6 @@ def SAS_getTechsGroupedByEra(bSortLists):
 		if iEra not in groups:
 			groups[iEra] = []
 		groups[iEra].append((szName, iTech))
-
 
 	# Emit era groups in order
 	for iEra in range(iNumEras):
@@ -964,7 +945,6 @@ def SAS_getUnitsGroupedByEra_fromBaseList(baseList, bSortLists, getUnitAvailabil
 			if iEra not in groups:
 				groups[iEra] = []
 			groups[iEra].append((szName, iUnit))
-
 
 	# "No Tech Prerequisite" group first
 	if noTech:
@@ -1017,7 +997,6 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, bSortLists, getBuildingA
 				groups[iEra] = []
 			groups[iEra].append((szName, iBuilding))
 
-
 	# "No Tech Prereq" group first
 	if noTech:
 		buildingsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
@@ -1062,7 +1041,6 @@ def SAS_getProjectsGroupedByEra_fromBaseList(baseList, bSortLists, getProjectAva
 			if iEra not in groups:
 				groups[iEra] = []
 			groups[iEra].append((szName, iProject))
-
 
 	# "No Tech Prereq" group first
 	if noTech:
@@ -1109,7 +1087,6 @@ def SAS_getReligionsGroupedByEra_fromBaseList(baseList, bSortLists, getReligionA
 			if not groups.has_key(iEra):
 				groups[iEra] = []
 			groups[iEra].append((szName, iReligion))
-
 
 	# "No Tech Prerequisite" group first
 	if noTech:
@@ -1161,7 +1138,6 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, bSortLists, getCorpor
 			if iEra not in groups:
 				groups[iEra] = []
 			groups[iEra].append((szName, iCorporation))
-
 
 	if noTech:
 		corpsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
@@ -1361,7 +1337,6 @@ def _SAS_addSection(listEntries, szHeader, items):
 	for x in items:
 		listEntries.append(x)
 
-
 # <!-- custom: shorten vote labels in the left list so they fit in the item bar without
 # changing global list width. We strip source prefixes (already shown by section headers),
 # then abbreviate Election -> E: and Resolution # -> R#. Full vote names remain visible on
@@ -1386,7 +1361,6 @@ def _SAS_shortenVoteListLabel(szLabel):
 		return "R#"
 	return szOut
 
-
 # <!-- custom: sort vote sources from oldest to newest using the hosting building's
 # prerequisite AND tech progression (era, then grid X). This places Apostolic Palace
 # before United Nations in default XML. Fallback keeps deterministic order by source id.
@@ -1402,7 +1376,6 @@ def _SAS_getVoteSourceOldestFirstSortKey(iVoteSource):
 					return (ti.getEra(), ti.getGridX(), iVoteSource)
 			return (999, 999, iVoteSource)
 	return (999, 999, iVoteSource)
-
 
 # <!-- custom: Sevopedia Votes grouped by vote source. Each vote in current
 # CIV4VoteInfo.xml has exactly one source (isVoteSourceType true for one iVoteSource),
@@ -1433,7 +1406,6 @@ def SAS_getVotesGroupedByVoteSource(bSortLists):
 		_SAS_addSection(listEntries, srcInfo.getDescription(), items)
 	return listEntries
 
-
 # <!-- custom: earliest era at which an event trigger can fire. The trigger's direct
 # <OrPreReqs>/<AndPreReqs> tech lists are only one of several era-gating fields — we also
 # check <OtherPlayerHasTech>, <CivicPrereq> (single civic), and <UnitsRequired> /
@@ -1455,7 +1427,6 @@ def _SAS_getTechEra(iTech):
 		return -1
 	return techInfo.getEra()
 
-
 def _SAS_getBuildingClassEra(iBuildingClass):
 	if iBuildingClass < 0:
 		return -1
@@ -1469,7 +1440,6 @@ def _SAS_getBuildingClassEra(iBuildingClass):
 	if not buildingInfo:
 		return -1
 	return _SAS_getTechEra(buildingInfo.getPrereqAndTech())
-
 
 def _SAS_getUnitClassEra(iUnitClass):
 	if iUnitClass < 0:
@@ -1485,7 +1455,6 @@ def _SAS_getUnitClassEra(iUnitClass):
 		return -1
 	return _SAS_getTechEra(unitInfo.getPrereqAndTech())
 
-
 def _SAS_getEventTriggerForEvent(iEvent):
 	if iEvent < 0:
 		return -1
@@ -1497,7 +1466,6 @@ def _SAS_getEventTriggerForEvent(iEvent):
 			if info.getEvent(i) == iEvent:
 				return iTrigger
 	return -1
-
 
 def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 	# <!-- custom: returns (iEra, bDirect). bDirect is True when the trigger declares
@@ -1607,7 +1575,6 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 		return (iDirectEra, True)
 	return (iIndirectMax, bHasDirectOr or bHasDirectAnd)
 
-
 def _SAS_getEventTriggerRowLabel(iTrigger):
 	info = gc.getEventTriggerInfo(iTrigger)
 	if not info:
@@ -1622,7 +1589,6 @@ def _SAS_getEventTriggerRowLabel(iTrigger):
 		else:
 			szLabel = "Trigger %d" % iTrigger
 	return szLabel
-
 
 # <!-- custom: Sevopedia Event Triggers grouped by the earliest era at which they can fire.
 # - "Any era (no tech requirement)" bucket is placed FIRST because these triggers are
@@ -1688,14 +1654,12 @@ def SAS_getEventTriggersGroupedByEra(bSortLists):
 
 	return listEntries
 
-
 def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
 	if szSoundScript:
 		return szLabel + " - " + szSoundScript
 	if iSoundId != -1:
 		return szLabel + " - Sound ID %d" % iSoundId
 	return szLabel
-
 
 def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTypeVictory, iTypeWonder, iTypeProject, iTypeReligion, iTypeEra, iTypeCorporation):
 	# Return the Movies left-list entries with section headers (Victory/Wonder/Project/Religion/Era/Corporation).
@@ -1816,7 +1780,6 @@ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTy
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_CORPORATION", ()), corporationItems)
 	return listEntries
 
-
 def _SAS_extractTagValue(line, tagName):
 	# Very lightweight tag extraction (kept compatible with the existing "one-line tag" script xml style).
 	openTag = "<" + tagName + ">"
@@ -1829,7 +1792,6 @@ def _SAS_extractTagValue(line, tagName):
 	if end == -1:
 		return ""
 	return line[start:end].strip()
-
 
 def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeCiv, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
 	# Return:

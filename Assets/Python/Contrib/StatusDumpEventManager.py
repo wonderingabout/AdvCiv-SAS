@@ -93,10 +93,6 @@ class StatusDumpEvent(AbstractStatusDumpEvent):
 
 		self.StatusDump_CloseFile()
 
-
-
-
-
 	def StatusDump_OpenFile(self):
 
 		BugUtil.debug("StatusDump - openfile")
@@ -112,9 +108,6 @@ class StatusDumpEvent(AbstractStatusDumpEvent):
 
 		sDump.closeFile(bForce=True)
 		return
-
-
-
 
 	def StatusDump_Basic(self):
 
@@ -142,10 +135,6 @@ class StatusDumpEvent(AbstractStatusDumpEvent):
 		sMsg = BugUtil.getText("TXT_KEY_STATUS_DUMP_LEADER_CIV", (gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getDescription(), pPlayer.getCivilizationShortDescription(0)))
 		self._writeMsg(sMsg, vColor="Black", vBold=False, vUnderline=False, vOpenSpoiler="", vCloseSpoiler=False)
 
-
-
-
-
 	def StatusDump_Spinners(self):
 		# dump spinner stuff
 		# - current slider settings (beakes, culture, espionage, gold)
@@ -171,31 +160,6 @@ class StatusDumpEvent(AbstractStatusDumpEvent):
 		sMsg = "AIs stuff here"
 		self._writeMsg(sMsg, vColor="Black", vBold=False, vUnderline=False, vOpenSpoiler=sMsg, vCloseSpoiler=False)
 		self._writeMsg(" ", vColor="Black", vBold=False, vUnderline=False, vOpenSpoiler="", vCloseSpoiler=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	def _getGameYear(self):
 		zturn = gc.getGame().getGameTurn() + 1

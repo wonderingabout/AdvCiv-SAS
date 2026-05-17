@@ -5,8 +5,6 @@
 # Mirrors the handicap chart layout, but for EraInfo.
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import SevoScreenEnums
@@ -15,8 +13,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaEraChart:
 	def __init__(self, main):

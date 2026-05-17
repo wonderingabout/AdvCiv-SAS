@@ -1014,7 +1014,6 @@ def forceScreenRedraw (argsList):
 	elif ( argsList[0] == TECH_CHOOSER ):
 		techChooser.updateTechRecords(true)
 
-
 def minimapClicked (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().minimapClicked(argsList)):
@@ -1187,7 +1186,6 @@ def featAccomplishedOnFocusCallback(argsList):
 	if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
 		CyInterface().lookAtCityOffset(iData2)
 	return 0
-
 
 #######################################################################################
 ## Handle Close Map

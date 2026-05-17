@@ -33,7 +33,6 @@ sFileNamePromo = ArtFileMgr.getInterfaceArtInfo("OVERLAY_PROMOTION_FRAME").getPa
  sUpdateNothing,
 ) = range(4)
 
-
 sBupStringBase = "BUGUnitPlotString"
 cUplSize = 34
 cUplSpacing = 3
@@ -87,7 +86,6 @@ class UnitList:
 	def _getIndex(self, x, y):
 		return (iRows - y) * iCols + x - 1
 
-
 #	def getMaxCol(self):
 #		return ((self.xResolution - (iMultiListXL+iMultiListXR) - 68) / 34)
 #		
@@ -109,15 +107,8 @@ class UnitList:
 #	def getI(self, nRow, nCol):
 #		return ( nRow * self.getMaxCol() ) + ( nCol % self.getMaxCol() )
 
-
-
-
-
-
 ## - xPixel is the number of horizontal pixels from the top left of the BUG unit plot list panel
 ## - yPixel is the number of vertically pixels from the top left of the BUG unit plot list panel
-
-
 
 class UnitPlot:
 	def __init__(self, vBupPanel, iIndex, x, y):
@@ -129,7 +120,6 @@ class UnitPlot:
 		screen.addDDSGFCAt(_getPromoString(), vBupPanel, sFileNamePromo, xPixel + 2, yPixel + 2, 32, 32, WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1, False )
 		screen.hide(_getPromoString())
 
-
 	def _getxPixel(self, x):
 		return x * cUplSize + cUplSpacing
 
@@ -140,17 +130,7 @@ class UnitPlot:
 #cUplSize = 34
 #cUplSpacing = 3
 
-
-
 #				szStringPromoFrame  = szString + "PromoFrame"
-
-
-
-
-
-
-
-
 
 #		for i in range( self.iMaxPlotListIcons ):
 #			szString = self.PLOT_LIST_BUTTON_NAME + str(i)
@@ -161,8 +141,6 @@ class UnitPlot:
 #			screen.hide( szString + "PromoFrame" )
 #			screen.hide( szString + "ActionIcon" )
 #			screen.hide( szString + "Upgrade" )
-
-
 
 	def reset(self):
 		pCurrUnit = None
@@ -186,15 +164,6 @@ class UnitPlot:
 			else:
 				# current unit is not blank, previous unit was blank
 				_drawPromo()
-
-
-
-
-
-
-
-
-
 
 	def _updatePromo():
 		if not self.pPrevUnit.bPromo:
@@ -230,16 +199,8 @@ class UnitPlot:
 		# just show the stupid thing
 		self.screen.show(_getPromoString())
 
-
-
-
-
 	def _getPromoString():
 		return self.sBupString + "PromoFrame"
-
-
-
-
 
 class UnitDisplay:
 	def __init__(self, pUnit):

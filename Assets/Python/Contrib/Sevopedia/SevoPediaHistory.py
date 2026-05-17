@@ -11,8 +11,6 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -24,8 +22,6 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-
-
 class SevoPediaHistory:
 
 	def __init__(self, main):
@@ -36,12 +32,8 @@ class SevoPediaHistory:
 		self.H_HISTORY = self.top.H_PEDIA_PAGE
 		self.W_HISTORY = self.top.W_PEDIA_PAGE
 
-
-
 	def interfaceScreen(self, iEntry):
 		self.placeHistory(iEntry)
-
-
 
 	def placeHistory(self, iEntry):
 		screen = self.top.getScreen()
@@ -53,16 +45,12 @@ class SevoPediaHistory:
 		textName = self.top.getNextWidgetName()
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 10, self.Y_HISTORY + 10, self.W_HISTORY - 20, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def getCivilopedia(self, iEntry):
 		if (self.top.iCategory == SevoScreenEnums.PEDIA_CONCEPTS):
 			info = gc.getConceptInfo(iEntry)
 		else:
 			info = gc.getNewConceptInfo(iEntry)
 		return info.getCivilopedia()
-
-
 
 	def handleInput (self, inputClass):
 		return 0

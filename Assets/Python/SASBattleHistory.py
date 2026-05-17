@@ -6,7 +6,6 @@ from CvPythonExtensions import *
 from SASUtils import getInfoTypeOrFail
 import BugData
 
-
 gc = CyGlobalContext()
 
 _TABLE_ID = "AdvCivSASBattleHistory"
@@ -36,20 +35,17 @@ def _getMaxEntries():
 		_MAX_ENTRIES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_HISTORY_MAX_ENTRIES")
 	return _MAX_ENTRIES
 
-
 def _getPeakTerrain():
 	global _TERRAIN_PEAK
 	if _TERRAIN_PEAK is None:
 		_TERRAIN_PEAK = getInfoTypeOrFail("TERRAIN_PEAK")
 	return _TERRAIN_PEAK
 
-
 def _getHillTerrain():
 	global _TERRAIN_HILL
 	if _TERRAIN_HILL is None:
 		_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 	return _TERRAIN_HILL
-
 
 def _getEntriesByPlayer():
 	table = BugData.getTable(_TABLE_ID)
@@ -59,10 +55,8 @@ def _getEntriesByPlayer():
 			return _sanitizeEntriesByPlayer(entries)
 	return {}
 
-
 def _saveEntriesByPlayer(entriesByPlayer):
 	BugData.getTable(_TABLE_ID).setValue(_ENTRIES_KEY, _sanitizeEntriesByPlayer(entriesByPlayer))
-
 
 def _sanitizeEntry(entry):
 	# <!-- custom: BugData pickles this table; Civ4 enum objects such as PlayerTypes are not pickle-safe, so force stored rows to plain Python ints. (GPT-5.5) -->
@@ -82,7 +76,6 @@ def _sanitizeEntry(entry):
 		aValues.append(int(value))
 	return tuple(aValues)
 
-
 def _sanitizeEntriesByPlayer(entriesByPlayer):
 	safeEntriesByPlayer = {}
 	for szPlayer, entries in entriesByPlayer.items():
@@ -93,7 +86,6 @@ def _sanitizeEntriesByPlayer(entriesByPlayer):
 			safeEntriesByPlayer[str(szPlayer)] = safeEntries
 	return safeEntriesByPlayer
 
-
 def _appendEntry(entriesByPlayer, iPlayer, entry, iMaxEntries):
 	szPlayer = str(iPlayer)
 	entries = entriesByPlayer.get(szPlayer, [])
@@ -101,7 +93,6 @@ def _appendEntry(entriesByPlayer, iPlayer, entry, iMaxEntries):
 	if iMaxEntries > 0 and len(entries) > iMaxEntries:
 		entries = entries[-iMaxEntries:]
 	entriesByPlayer[szPlayer] = entries
-
 
 def _getEntryWithPlotContext(entry, iX, iY):
 	# <!-- custom: snapshot terrain/feature/peak-or-hill at battle time instead of looking up the plot while drawing the advisor; forests, fallout, or terrain can change later, but the Battles tab should show the historical combat context. (GPT-5.5) -->
@@ -124,14 +115,12 @@ def _getEntryWithPlotContext(entry, iX, iY):
 	aEntry.extend(aTail)
 	return tuple(aEntry)
 
-
 def _setEntryCityContext(entry, iX, iY, iCityContext):
 	aEntry = list(_getEntryWithPlotContext(entry, iX, iY))
 	aEntry[5] = int(iX)
 	aEntry[6] = int(iY)
 	aEntry[_PLOT_CONTEXT_DATA_START + 3] = int(iCityContext)
 	return tuple(aEntry)
-
 
 def _getEntryWithUnitContext(entry):
 	aEntry = list(entry)
@@ -140,7 +129,6 @@ def _getEntryWithUnitContext(entry):
 	if _PENDING_COMBAT_UNIT_CONTEXT is not None:
 		aEntry.extend(_PENDING_COMBAT_UNIT_CONTEXT)
 	return tuple(aEntry)
-
 
 def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
 	# <!-- custom: capture info is stored after the combat-log strength block; pad rare/no-strength rows so older tuple parsing keeps its fixed offsets. (GPT-5.5) -->
@@ -158,19 +146,16 @@ def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
 		aEntry.extend([iCapturingPlayer, iCapturedUnitType, 1])
 	return tuple(aEntry)
 
-
 def _getUnitEndCombatStr(pUnit, iMaxCombatStr):
 	if iMaxCombatStr <= 0 or pUnit.maxHitPoints() <= 0:
 		return 0
 	return (iMaxCombatStr * pUnit.currHitPoints()) / pUnit.maxHitPoints()
-
 
 def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iOldUnitType):
 	if len(entry) < 7:
 		return False
 	# <!-- custom: don't require plot equality here; combatResult may record the winner's pre-advance plot, while unitCaptured fires after the captured unit is created on the loser's plot. Scan newest-first within the same turn instead. (GPT-5.5) -->
 	return (entry[0] == CyGame().getGameTurn() and entry[1] == iCapturingPlayer and entry[2] == iOldOwner and entry[4] == iOldUnitType)
-
 
 def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCapturedUnitType):
 	iIndex = len(entries) - 1
@@ -181,12 +166,10 @@ def _patchCapturedEntry(entries, iCapturingPlayer, iOldOwner, iOldUnitType, iCap
 		iIndex -= 1
 	return False
 
-
 def _matchesCityCapturedBattle(entry, iPreviousOwner, iNewOwner):
 	if len(entry) < 7:
 		return False
 	return (entry[0] == CyGame().getGameTurn() and entry[1] == iNewOwner and entry[2] == iPreviousOwner)
-
 
 def _patchCityCapturedEntry(entries, iPreviousOwner, iNewOwner, iX, iY):
 	iIndex = len(entries) - 1
@@ -196,7 +179,6 @@ def _patchCityCapturedEntry(entries, iPreviousOwner, iNewOwner, iX, iY):
 			return True
 		iIndex -= 1
 	return False
-
 
 def noteCombatActors(cdAttacker, cdDefender, iAttackerXP=None, iDefenderXP=None, bAttackerGG=None, bDefenderGG=None):
 	global _PENDING_COMBAT_ACTORS
@@ -208,7 +190,6 @@ def noteCombatActors(cdAttacker, cdDefender, iAttackerXP=None, iDefenderXP=None,
 	_PENDING_COMBAT_UNIT_CONTEXT = None
 	if iAttackerXP is not None and iDefenderXP is not None and bAttackerGG is not None and bDefenderGG is not None:
 		_PENDING_COMBAT_UNIT_CONTEXT = (int(iAttackerXP), int(bAttackerGG), int(iDefenderXP), int(bDefenderGG))
-
 
 def recordCombatResult(pWinner, pLoser):
 	global _PENDING_COMBAT_ACTORS
@@ -254,7 +235,6 @@ def recordCombatResult(pWinner, pLoser):
 		_appendEntry(entriesByPlayer, iLoser, entry, iMaxEntries)
 	_saveEntriesByPlayer(entriesByPlayer)
 
-
 def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, iY, iAttackerEndStr, iDefenderEndStr):
 	global _PENDING_COMBAT_ACTORS
 	global _PENDING_COMBAT_UNIT_CONTEXT
@@ -285,7 +265,6 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, 
 		_appendEntry(entriesByPlayer, iDefender, entry, iMaxEntries)
 	_saveEntriesByPlayer(entriesByPlayer)
 
-
 def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
 	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude code Opus 4.7) -->
 	iOldOwner = int(iOldOwner)
@@ -302,7 +281,6 @@ def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
 			bChanged = True
 	if bChanged:
 		_saveEntriesByPlayer(entriesByPlayer)
-
 
 def recordCityCaptured(iPreviousOwner, iNewOwner, pCity, bConquest):
 	if not bConquest:
@@ -322,7 +300,6 @@ def recordCityCaptured(iPreviousOwner, iNewOwner, pCity, bConquest):
 	if bChanged:
 		_saveEntriesByPlayer(entriesByPlayer)
 
-
 def getEntriesForPlayer(iPlayer):
 	entriesByPlayer = _getEntriesByPlayer()
 	entries = entriesByPlayer.get(str(iPlayer), [])
@@ -330,10 +307,8 @@ def getEntriesForPlayer(iPlayer):
 		return entries
 	return []
 
-
 def isRetreatEntry(entry):
 	return (len(entry) > _OUTCOME_DATA_START and entry[_OUTCOME_DATA_START] == _OUTCOME_RETREAT)
-
 
 def getPlotContext(entry):
 	if len(entry) < _PLOT_CONTEXT_DATA_START + 2:
@@ -346,16 +321,13 @@ def getPlotContext(entry):
 		iCityContext = entry[_PLOT_CONTEXT_DATA_START + 3]
 	return (entry[_PLOT_CONTEXT_DATA_START], entry[_PLOT_CONTEXT_DATA_START + 1], iHillPeakTerrain, iCityContext)
 
-
 def getUnitContext(entry):
 	if len(entry) < _UNIT_CONTEXT_DATA_START + 4:
 		return (-1, 0, -1, 0)
 	return (entry[_UNIT_CONTEXT_DATA_START], entry[_UNIT_CONTEXT_DATA_START + 1], entry[_UNIT_CONTEXT_DATA_START + 2], entry[_UNIT_CONTEXT_DATA_START + 3])
 
-
 def isCityContextDefended(iCityContext):
 	return iCityContext == _PLOT_CONTEXT_CITY_DEFENDED
-
 
 def isCityContextCaptured(iCityContext):
 	return iCityContext == _PLOT_CONTEXT_CITY_CAPTURED

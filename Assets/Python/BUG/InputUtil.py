@@ -72,7 +72,6 @@ def codeToKey(code):
 def keyToCode(key):
 	return CODES_BY_KEY[key]
 
-
 def stringToKeystroke(key):
 	# Returns a Keystroke created from the given string.
 	#
@@ -119,7 +118,6 @@ def stringToKeystrokes(keys):
 	for key in keys.split("|"):
 		result.append(stringToKeystroke(key))
 	return result
-
 
 class Keystroke:
 	#
@@ -174,7 +172,6 @@ class Keystroke:
 		return (self.code != other.code or self.alt != other.alt or
 			    self.control != other.control or self.shift != other.shift)
 
-
 def init():
 	for k, c in InputTypes.__dict__.iteritems():
 		if k.startswith("KB_"):
@@ -186,7 +183,6 @@ def init():
 
 # initialize when the module is loaded
 init()
-
 
 ## configuration handler
 
@@ -208,7 +204,6 @@ class ShortcutHandler(BugConfig.HandlerWithArgs):
 			CvEventInterface.getEventManager().addShortcutHandler(keys, BugUtil.getFunction(module, function, *element.args, **element.kwargs))
 		else:
 			BugUtil.info("InputUtil - ignoring <%s> %s, requires dll version %s", element.tag, keys, self.resolveDll(element, dll))
-
 
 # advc: I've added three keyboard shortcuts and need to put the handlers somewhere. Don't want to create a new BUG module just for this. Tbd.: Nicer to do this through Civ4ControlInfos.xml and the DLL. As I've already done it with CONTROL_UNSELECT_ALL (advc.088).
 

@@ -43,7 +43,6 @@ import BugConfig
 import BugUtil
 import BugGameUtils # kmodx
 
-
 ## Widget Types
 
 g_nextWidget = WidgetTypes.NUM_WIDGET_TYPES
@@ -64,7 +63,6 @@ def createWidget(name):
 		setattr(WidgetTypes, name, widget)
 		g_nextWidget += 1
 		return widget
-
 
 ## Hover Help Text
 
@@ -121,7 +119,6 @@ def getWidgetHelp(argsList):
 		return BugGameUtils.getDispatcher()._baseUtils.getWidgetHelp(argsList)
 	# </kmodx>
 	return u""
-
 
 ## Configuration Handler
 

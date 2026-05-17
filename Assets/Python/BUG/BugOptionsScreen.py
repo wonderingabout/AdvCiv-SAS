@@ -20,14 +20,12 @@ import BugHelp
 import BugOptions
 import BugUtil
 
-
 ## Globals
 
 g_optionsScreen = None
 
 CoreOpt = BugCore.game.Core
 MainOpt = BugCore.game.MainInterface
-
 
 ## Using and Showing
 
@@ -41,12 +39,10 @@ def showOptionsScreen(argsList=None):
 		MainOpt.setShowOptionsKeyReminder(False)
 	getOptionsScreen().interfaceScreen()
 
-
 ## Event Handlers
 
 def clearAllTranslations(argsList=None):
 	g_optionsScreen.clearAllTranslations()
-
 
 ## Control Callback Handlers
 
@@ -106,7 +102,6 @@ def handleResolutionDropdownInput(argsList):
 	value, name = argsList
 	CvEventInterface.getEventManager().fireEvent("ResolutionChanged", value)
 	return 1
-
 
 ## Class
 
@@ -172,7 +167,6 @@ class BugOptionsScreen:
 		if (option is not None):
 			option.setIndex(index)
 
-
 ## Configuration
 
 class ScreenConfig:
@@ -218,7 +212,6 @@ class TabHandler(BugConfig.Handler):
 		screen.addTab(id)
 		tab = BugUtil.callFunction(module, clazz, g_optionsScreen)
 		g_optionsScreen.addTab(tab)
-
 
 ## Initialization
 

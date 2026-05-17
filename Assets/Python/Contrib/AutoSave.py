@@ -28,7 +28,6 @@ import BugUtil
 #import MapFinder # advc.009c: Map finder removed
 import PlayerUtil
 
-
 ## Constants
 
 # Save Types
@@ -45,12 +44,10 @@ WORLDBUILDER = "WorldBuilder"
 AUTO = "auto"
 QUICK = "quick"
 
-
 ## Globals
 
 gc = CyGlobalContext()
 options = BugCore.game.AutoSave
-
 
 ## Save Game
 
@@ -121,7 +118,6 @@ def getSaveFileName(pathName):
 
 		return (fileName, baseFileName)
 
-
 ## AutoSave Callbacks
 
 #def saveGameStart():
@@ -148,7 +144,6 @@ def saveGameExit():
 	#
 	if not CyGame().isGameMultiPlayer() and options.isCreateExitSave():# and not MapFinder.isActive(): # advc.009c
 		saveGame()
-
 
 ## Initialization
 

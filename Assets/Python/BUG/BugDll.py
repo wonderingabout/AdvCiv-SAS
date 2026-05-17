@@ -46,7 +46,6 @@ gc = CyGlobalContext()
 IS_PRESENT = False
 VERSION = -1
 
-
 ## General and Versions
 
 def isBug():
@@ -80,7 +79,6 @@ def decode(value, noneIsZero=False):
 		return 0
 	else:
 		return None
-
 
 ## Widgets
 
@@ -145,7 +143,6 @@ def widgetVersion(version, bugWidget, bugData1=None, bugData2=None, *args):
 		realArgs.extend(args)
 	return realArgs
 
-
 def isWidget(widget, bugWidget):
 	return isWidgetVersion(VERSION, widget, bugWidget)
 
@@ -160,7 +157,6 @@ def isWidgetVersion(version, widget, bugWidget):
 		except:
 			pass
 	return False
-
 
 ## Accessing Options
 

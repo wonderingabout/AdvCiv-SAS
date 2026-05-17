@@ -319,4 +319,3 @@ class CvPediaBonus:
 	def handleInput (self, inputClass):
 		return 0
 
-

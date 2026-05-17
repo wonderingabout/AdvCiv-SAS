@@ -18,7 +18,6 @@ from CvMapGeneratorUtil import BonusBalancer
 
 balancer = BonusBalancer()
 
-
 #
 # MULTILAYERED FRACTAL NOTES
 #

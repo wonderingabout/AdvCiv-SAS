@@ -72,14 +72,12 @@ MOD_GLOBS = (
 )
 EXTERNAL_GLOBS = ("Python/**/*.py", "XML/**/*.xml")
 
-
 def read(path):
 	try:
 		return path.read_text(encoding="utf-8", errors="replace")
 	except OSError as exc:
 		print("warn: cannot read %s: %s" % (path, exc), file=sys.stderr)
 		return ""
-
 
 def iter_glob(root, globs):
 	seen = set()
@@ -91,7 +89,6 @@ def iter_glob(root, globs):
 					seen.add(rp)
 					yield p
 
-
 def collect_definitions(text_paths):
 	"""tag -> sorted list of relative files that define it (in <TEXT> blocks)."""
 	defined = {}
@@ -101,7 +98,6 @@ def collect_definitions(text_paths):
 			for tag in TAG_DEF_RE.findall(block):
 				defined.setdefault(tag, set()).add(rel)
 	return dict((t, sorted(f)) for t, f in defined.items())
-
 
 def collect_mod_references():
 	"""Tokens used in the mod, with <Tag> definition spans scrubbed in XML."""
@@ -113,7 +109,6 @@ def collect_mod_references():
 		referenced.update(TOKEN_RE.findall(text))
 	return referenced
 
-
 def collect_external_tokens(root):
 	"""Any TXT_KEY_* token in base/vanilla Python+XML (no scrub: a vanilla
 	GameText <Tag> means the base game/EXE uses that key)."""
@@ -124,7 +119,6 @@ def collect_external_tokens(root):
 	for path in iter_glob(root, EXTERNAL_GLOBS):
 		tokens.update(TOKEN_RE.findall(read(path)))
 	return tokens
-
 
 def main():
 	ap = argparse.ArgumentParser(description="Flag unused mod GameText TXT_KEY_* entries.")
@@ -228,7 +222,6 @@ def main():
 		print("\nreport written: %s" % out_path)
 
 	return 1 if n_likely else 0
-
 
 if __name__ == "__main__":
 	sys.exit(main())

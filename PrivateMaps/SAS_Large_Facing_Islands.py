@@ -17,27 +17,21 @@ gc = CyGlobalContext()
 _sas_layout_cache = None
 _sas_start_assignments = {}
 
-
 def getVersion():
 	return "1.00"
 
-
 def getDescription():
 	return "Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map."
-
 
 def isAdvancedMap():
 	# <!-- custom: Show this map in Simple Game; it has one practical option and stable generation path. (GPT-5.3-Codex) -->
 	return 0
 
-
 def getNumCustomMapOptions():
 	return 3
 
-
 def getNumHiddenCustomMapOptions():
 	return 0
-
 
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
@@ -51,7 +45,6 @@ def getCustomMapOptionName(argsList):
 		return u"North-South Bands"
 	return option_names[iOption]
 
-
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -63,7 +56,6 @@ def getNumCustomMapOptionValues(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return 2
 	return option_values[iOption]
-
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
@@ -90,7 +82,6 @@ def getCustomMapOptionDescAt(argsList):
 		return u"N-S Ocean Bands (Recommended)"
 	return selection_names[iOption][iSelection]
 
-
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -102,7 +93,6 @@ def getCustomMapOptionDefault(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return 0
 	return option_defaults[iOption]
-
 
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
@@ -116,27 +106,21 @@ def isRandomCustomMapOption(argsList):
 		return false
 	return option_random[iOption]
 
-
 def getWrapX():
 	return _get_wrap_mode() == 0
-
 
 def getWrapY():
 	return False
 
-
 def getTopLatitude():
 	return 70
-
 
 def getBottomLatitude():
 	return -70
 
-
 def minStartingDistanceModifier():
 	# <!-- custom: Dense high-player island layouts need a very low floor to avoid start-placement failures on SAS sizes. (GPT-5.3-Codex) -->
 	return -95
-
 
 def _world_profile(eWorldSize):
 	# <!-- custom: world-size-only scaling: island footprint stays identical; only island count increases with world size. (GPT-5.3-Codex) -->
@@ -158,21 +142,17 @@ def _world_profile(eWorldSize):
 		return profiles[iWorld]
 	return profiles[10]
 
-
 def _get_ew_connector_mode():
 	# 0 = Coast bands, 1 = Ocean bands
 	return _get_option_value(1, 0, 2)
-
 
 def _get_ns_connector_mode():
 	# 0 = Coast bands, 1 = Ocean bands
 	return _get_option_value(0, 1, 2)
 
-
 def _get_wrap_mode():
 	# 0 = WrapX, 1 = None
 	return _get_option_value(2, 0, 2)
-
 
 def _get_option_value(iOption, iDefault, iNumValues):
 	map_obj = CyMap()
@@ -188,7 +168,6 @@ def _get_option_value(iOption, iDefault, iNumValues):
 		return iDefault
 	return iValue
 
-
 def _shape_constants():
 	# <!-- custom: Fixed island footprint for all world sizes; tuned larger so each start island can host roughly 5 cities instead of 2-3. (GPT-5.3-Codex) -->
 	iIslandWidth = 10
@@ -199,7 +178,6 @@ def _shape_constants():
 	iEdgeMarginX = 3
 	iEdgeMarginY = 1
 	return (iIslandWidth, iIslandHeight, iSideGap, iEdgeMarginX, iEdgeMarginY)
-
 
 def getGridSize(argsList):
 	if argsList[0] == -1:
@@ -216,7 +194,6 @@ def getGridSize(argsList):
 	iHeight = iRows * iIslandHeight + (iRows - 1) * iCenterGap + 2 * iEdgeMarginY
 	# <!-- custom: Civ4 expects grid cells here; the EXE expands by 4x into actual plot dimensions. (GPT-5.3-Codex) -->
 	return ((iWidth + 3) / 4, (iHeight + 3) / 4)
-
 
 def _build_layout():
 	global _sas_layout_cache
@@ -270,13 +247,11 @@ def _build_layout():
 	}
 	return _sas_layout_cache
 
-
 def beforeGeneration():
 	global _sas_layout_cache, _sas_start_assignments
 	_sas_layout_cache = None
 	_sas_start_assignments = {}
 	_build_layout()
-
 
 def _is_island_land(iLX, iLY, iW, iH):
 	fCX = (iW - 1) / 2.0
@@ -284,7 +259,6 @@ def _is_island_land(iLX, iLY, iW, iH):
 	fDX = (float(iLX) - fCX) / max(1.0, fCX)
 	fDY = (float(iLY) - fCY) / max(1.0, fCY)
 	return (fDX * fDX + fDY * fDY) <= 1.05
-
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python SAS_Large_Facing_Islands) ...")
@@ -313,10 +287,8 @@ def generatePlotTypes():
 
 	return plot_types
 
-
 def _is_valid_start_plot(pPlot):
 	return pPlot is not None and not pPlot.isWater() and not pPlot.isImpassable()
-
 
 def findStartingPlot(argsList):
 	global _sas_start_assignments
@@ -365,7 +337,6 @@ def findStartingPlot(argsList):
 	CyPythonMgr().allowDefaultImpl()
 	return
 
-
 def generateTerrainTypes():
 	NiTextOut("Generating Terrain (Python SAS_Large_Facing_Islands) ...")
 	terrain_gen = TerrainGenerator()
@@ -374,13 +345,11 @@ def generateTerrainTypes():
 	_apply_vertical_coast_lanes(terrain_types)
 	return terrain_types
 
-
 def addFeatures():
 	NiTextOut("Adding Features (Python SAS_Large_Facing_Islands) ...")
 	feature_gen = FeatureGenerator()
 	feature_gen.addFeatures()
 	return 0
-
 
 def _apply_horizontal_coast_lanes(terrain_types):
 	layout = _build_layout()
@@ -442,7 +411,6 @@ def _apply_horizontal_coast_lanes(terrain_types):
 					pPlot = map_obj.plotByIndex(iPlot)
 					if pPlot.isWater():
 						terrain_types[iPlot] = eCoast
-
 
 def _apply_vertical_coast_lanes(terrain_types):
 	layout = _build_layout()

@@ -164,4 +164,3 @@ class CvPediaCorporation:
 	def handleInput (self, inputClass):
 		return 0
 
-

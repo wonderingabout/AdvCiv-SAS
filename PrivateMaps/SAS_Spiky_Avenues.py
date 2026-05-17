@@ -38,28 +38,22 @@ sas_spiky_layout = None
 sas_slot_assignments = {}
 sas_used_start_plots = set()
 
-
 def getVersion():
 	return "1.00"
 
-
 def getDescription():
 	return "Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts. Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map."
-
 
 def isAdvancedMap():
 	"This map should show up in Simple Game."
 	# <!-- custom: Keep visible in Simple Game; options are practical and stale-option safe. (GPT-5.3-Codex) -->
 	return 0
 
-
 def getNumCustomMapOptions():
 	return 2
 
-
 def getNumHiddenCustomMapOptions():
 	return 0
-
 
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
@@ -72,7 +66,6 @@ def getCustomMapOptionName(argsList):
 		return u"Ribbon Width"
 	return option_names[iOption]
 
-
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -83,7 +76,6 @@ def getNumCustomMapOptionValues(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return 2
 	return option_values[iOption]
-
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
@@ -111,7 +103,6 @@ def getCustomMapOptionDescAt(argsList):
 		return selection_names[iOption][0]
 	return selection_names[iOption][iSelection]
 
-
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -123,7 +114,6 @@ def getCustomMapOptionDefault(argsList):
 		return 0
 	return option_defaults[iOption]
 
-
 def isRandomCustomMapOption(argsList):
 	[iOption] = argsList
 	option_random = {
@@ -134,7 +124,6 @@ def isRandomCustomMapOption(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		return false
 	return option_random[iOption]
-
 
 def _get_option_value(iOption, iDefault, iNumValues):
 	map_obj = CyMap()
@@ -150,39 +139,31 @@ def _get_option_value(iOption, iDefault, iNumValues):
 		return iDefault
 	return iValue
 
-
 def _ribbon_width():
 	iSelection = _get_option_value(0, 2, 5)
 	widths = [2, 3, 4, 5, 6]
 	return widths[iSelection]
-
 
 def _house_size():
 	iSelection = _get_option_value(1, 2, 6)
 	sizes = [3, 4, 5, 6, 7, 8]
 	return sizes[iSelection]
 
-
 def getWrapX():
 	return True
-
 
 def getWrapY():
 	return False
 
-
 def getTopLatitude():
 	return 70
-
 
 def getBottomLatitude():
 	return -70
 
-
 def minStartingDistanceModifier():
 	# <!-- custom: Dense tactical layouts need a low start-distance floor to avoid turn-0 defeats at high player counts. (GPT-5.3-Codex) -->
 	return -95
-
 
 def getGridSize(argsList):
 	if argsList[0] == -1:
@@ -215,7 +196,6 @@ def getGridSize(argsList):
 	# Return grid cells so actual map is tight around the content. (Claude code Opus 4.6) -->
 	return ((iWidth + 3) / 4, (iHeight + 3) / 4)
 
-
 def _profile_for_world_size(eWorldSize):
 	# # <!-- custom:  Use integer indices (matching AdvCiv's 0-6 vanilla + 7-10 SAS world sizes)
 	# instead of WorldSizeTypes enums, which are offset by 1 due to ARENA at index 0. (Claude code Opus 4.6) -->
@@ -236,7 +216,6 @@ def _profile_for_world_size(eWorldSize):
 	if iWorldSize in profiles:
 		return profiles[iWorldSize]
 	return profiles[max(profiles.keys())]
-
 
 def _build_layout():
 	global sas_spiky_layout
@@ -307,7 +286,6 @@ def _build_layout():
 	}
 	return sas_spiky_layout
 
-
 def beforeGeneration():
 	global sas_spiky_layout, sas_slot_assignments, sas_used_start_plots
 	sas_spiky_layout = None
@@ -315,10 +293,8 @@ def beforeGeneration():
 	sas_used_start_plots = set()
 	_build_layout()
 
-
 def _is_valid_start_plot(pPlot):
 	return pPlot is not None and not pPlot.isWater() and not pPlot.isImpassable()
-
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python SAS_Spiky_Avenues) ...")
@@ -390,7 +366,6 @@ def generatePlotTypes():
 
 	return plot_types
 
-
 def findStartingPlot(argsList):
 	global sas_slot_assignments, sas_used_start_plots
 	[playerID] = argsList
@@ -453,12 +428,10 @@ def findStartingPlot(argsList):
 	CyPythonMgr().allowDefaultImpl()
 	return
 
-
 def generateTerrainTypes():
 	NiTextOut("Generating Terrain (Python SAS_Spiky_Avenues) ...")
 	terrain_gen = TerrainGenerator()
 	return terrain_gen.generateTerrain()
-
 
 def addFeatures():
 	NiTextOut("Adding Features (Python SAS_Spiky_Avenues) ...")

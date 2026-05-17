@@ -614,7 +614,6 @@ class BugEventManager(CvEventManager.CvEventManager):
 		# advc.127: Replacing the above. ChtLvl is always 0 in multiplayer.
 		return (getChtLvl() or (CyGame().isGameMultiPlayer() and gc.getDefineINT("ENABLE_AUTOPLAY_MULTIPLAYER") > 0))
 
-
 EVENT_FUNCTION_MAP = {
 	"kbdEvent": BugEventManager._handleConsumableEvent,
 	"mouseEvent": BugEventManager._handleConsumableEvent,
@@ -625,7 +624,6 @@ EVENT_FUNCTION_MAP = {
 	#"GameStart": BugEventManager._handleInitBugEvent,
 	#"windowActivation": BugEventManager._handleInitBugEvent,
 }
-
 
 ## Initialization
 

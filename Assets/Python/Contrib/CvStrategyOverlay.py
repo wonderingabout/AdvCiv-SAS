@@ -63,7 +63,6 @@ def callEachLayer(func, *args):
 	for layer in g_layers.itervalues():
 		func(layer, *args)
 
-
 ## Event Handlers
 
 def onGameStart(argsList):
@@ -144,7 +143,6 @@ def onModNetMessage(args):
 def onEnabledOptionChanged(option, value):
 	pass
 
-
 ## Base Strategy Layer Class
 
 class StrategyLayer(object):
@@ -222,7 +220,6 @@ class StrategyLayer(object):
 	
 	def onSwitchHotSeatPlayer(self, ePlayer):
 		pass
-
 
 ## ----------------------------------------------------------------------
 ## DOT MAP

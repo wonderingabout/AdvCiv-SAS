@@ -14,8 +14,6 @@
 #
 # <!-- custom: Long_Comments_py.txt #3 -->
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -29,13 +27,9 @@ import TraitUtil
 # <!-- custom: AI personality cache/value computation moved to a dedicated module to keep this file lean. (ChatGPT-5.2 Thinking) -->
 import SevoPediaLeaderAIPValues as _SAS_LeaderAIPValues
 
-
-
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 # <!-- custom: Leader page display toggle (not part of AI cache module). -->
 IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
@@ -63,7 +57,6 @@ LEADERS_INFO_CACHED = {}
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Called once (from SevoPediaMain) to prebuild the AI Personality Panel cache.
 	return _SAS_LeaderAIPValues.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
-
 
 class SevoPediaLeader:
 
@@ -221,8 +214,6 @@ class SevoPediaLeader:
 		# <!-- custom: quite high as compared to favourites panel's lowest point -->
 		self.Y_CIV = self.Y_FAVORITES + self.CIV_DISELEVATION
 
-
-
 	def interfaceScreen(self, iLeader):
 		if self.iLeader != iLeader:
 			self.bHistoryExpanded = False
@@ -256,8 +247,6 @@ class SevoPediaLeader:
 		# <!-- custom: normal-mode panels are drawn first; placeHistory() is called last so its expandable overlay remains top-most. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 		self.placeHistory()
 
-
-
 	# <!-- custom: wrap leader placement in a specific function for clarity or flexibility or not anyways, -->
 	def placeLeaderHeadPane(self):
 		screen = self.top.getScreen()
@@ -267,8 +256,6 @@ class SevoPediaLeader:
 		screen.addLeaderheadGFC(self.leaderWidget, iRenderLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		if self.bContentExpanded:
 			self._drawAttitudeRowAt(screen, iAttX, iAttY, iAttW, iAttH)
-
-
 
 	# <!-- custom: imported from RFC DOC (C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py) and modified or not for AdvCiv-SAS. -->
 	def placeFavorites(self):
@@ -288,8 +275,6 @@ class SevoPediaLeader:
 		if iReligion > -1:
 			screen.attachImageButton(panel, "", gc.getReligionInfo(iReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1, False)
 
-
-
 	def placeMusic(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -307,7 +292,6 @@ class SevoPediaLeader:
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
 		else:
 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
-
 
 	def placeAttitudes(self):
 		if self.W_ATTITUDES <= 0:
@@ -392,7 +376,6 @@ class SevoPediaLeader:
 		if leaderEraArts:
 			self._placeEraRowAt(screen, self.X_ATTITUDES, iActionY + iButtonH + iRowGap, self.W_ATTITUDES, iButtonH, leaderEraArts, named=True)
 
-
 	def deleteAttitudeWidgets(self, screen):
 		screen.deleteWidget(self.ATTITUDES_PANEL_ID)
 		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
@@ -403,13 +386,11 @@ class SevoPediaLeader:
 		for iEra in xrange(gc.getNumEraInfos()):
 			screen.deleteWidget(self.ERA_BUTTON_WIDGET_BY_ERA[iEra])
 
-
 	def getAttitudeButtonLabel(self, iAttitude):
 		szLabelLower, szLabelUpper = self.attitudeButtonLabelCache[iAttitude]
 		if iAttitude == self.iSelectedAttitude:
 			return szLabelUpper
 		return szLabelLower
-
 
 	# <!-- custom: era art helpers. (Claude code Sonnet 4.6) -->
 
@@ -482,7 +463,6 @@ class SevoPediaLeader:
 		self.placeAttitudes()
 		return 1
 
-
 	def refreshLeaderheadWidget(self):
 		if self.iLeader < 0:
 			return 0
@@ -492,17 +472,11 @@ class SevoPediaLeader:
 		screen.addLeaderheadGFC(self.leaderWidget, iRenderLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		return 1
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
 
-
-
 	def setContentExpanded(self, bExpanded):
 		self.bContentExpanded = bExpanded
-
-
 
 	def _drawAttitudeRowAt(self, screen, iX, iY, iW, iH):
 		# <!-- custom: draws attitude+action (+ optional era) buttons in the expanded overlay right column. iW and iH are fixed by the helper (191x100), so no need for the dynamic fallback resizing that placeAttitudes uses for variable screen widths. (Claude code Sonnet 4.6) -->
@@ -544,8 +518,6 @@ class SevoPediaLeader:
 		if leaderEraArts:
 			self._placeEraRowAt(screen, iX, iActionY + iButtonH + 4, iW, iButtonH, leaderEraArts, named=False)
 
-
-
 	def placeHistory(self):
 		screen = self.top.getScreen()
 		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
@@ -560,8 +532,6 @@ class SevoPediaLeader:
 			if civ.isLeaders(self.iLeader):
 				screen.setImageButton(self.top.getNextWidgetName(), civ.getButton(), self.X_CIV, self.Y_CIV, self.W_CIV, self.H_CIV, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, 1)
 
-
-
 	# advc.001 (from Taurus): Static for use by SevoPediaMain; body cut from placeTraits.
 	@staticmethod
 	def getCiv(iLeader):
@@ -574,8 +544,6 @@ class SevoPediaLeader:
 		if iNumCivs != 1:
 			return -1
 		return iLeaderCiv # </advc.001>
-
-
 
 	def placeTraits(self):
 		screen = self.top.getScreen()
@@ -606,18 +574,12 @@ class SevoPediaLeader:
 		headerExtraHeight = 10
 		screen.addMultilineText(listName, SASTextScale.normalizeLabelText(szSpecialText), self.X_TRAITS + 5, self.Y_TRAITS + headerExtraHeight, self.W_TRAITS - 10, self.H_TRAITS - headerExtraHeight - 5, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def getXAIPanelCoordinate(self, tableId):
 		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * LARGE_MARGIN
-
-
 
 	def setupAIPanel(self, screen, txtKey, xPanel):
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText(txtKey, ()),"", True, True, xPanel, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY, self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
-
-
 
 	def fillAITableRow(self, screen, label, value, scale, xLabel, xValue, xScale, y):
 		labelText = SASTextScale.labelText(label)
@@ -627,8 +589,6 @@ class SevoPediaLeader:
 		screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setText(self.top.getNextWidgetName(), "", valueText, CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setText(self.top.getNextWidgetName(), "", scaleText, CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	def renderAICategories(self, screen, ai_categories, xPanel, yPanel, leader_info_cached):
 		xLabel = xPanel + self.W_AI_LEFT_SIDE_PADDING
@@ -741,8 +701,6 @@ class SevoPediaLeader:
 		self.renderAICategories(screen, self.aiMiddleCategories, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
 		self.renderAICategories(screen, self.aiLeftCategories, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
 
-
-
 	def handleInput (self, inputClass):
 		if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
 			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
@@ -775,7 +733,6 @@ class SevoPediaLeader:
 				self.top.getScreen().leaderheadKeyInput(self.leaderWidget, inputClass.getData())
 		return 0
 
-
 	def applyLeaderAttitude(self, iAttitude):
 		if iAttitude not in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
 			return 0
@@ -788,7 +745,6 @@ class SevoPediaLeader:
 		self.refreshLeaderheadWidget()
 		self.placeAttitudes()
 		return 1
-
 
 	def applyLeaderAction(self, iAction):
 		self.top.getScreen().performLeaderheadAction(self.leaderWidget, iAction)

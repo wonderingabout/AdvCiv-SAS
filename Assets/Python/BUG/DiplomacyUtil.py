@@ -45,7 +45,6 @@ diplo = CyDiplomacy()
 g_eventsByCommentType = {}
 g_eventManager = None
 
-
 ## Contacting Rivals
 
 def canContact(playerOrID, toPlayerOrID):
@@ -154,7 +153,6 @@ def addEvents(eventManager):
 	DiploEvent("USER_DIPLOCOMMENT_STOP_TRADING", "EmbargoAccepted", onEmbargoAccepted, sendData=True)
 	DiploEvent("USER_DIPLOCOMMENT_NO_STOP_TRADING", "EmbargoRejected", onEmbargoRejected, sendData=True)
 
-
 class DiploEvent:
 	def __init__(self, comment, event, handler=None, sendFromPlayer=True, sendToPlayer=True, sendData=False, sendArgs=False, argFunc=None, sendTrade=False, tradeType=None):
 		self.comment = comment
@@ -215,7 +213,6 @@ class DiploEvent:
 				BugUtil.debug("DiplomacyUtil - firing %s", self.event)
 		g_eventManager.fireEvent(self.event, *argList)
 
-
 ## Event Dispatching
 
 def handleAIComment(argsList):
@@ -246,7 +243,6 @@ def dispatchEvent(eComment, eFromPlayer, eToPlayer, args):
 		key = gc.getDiplomacyInfo(eComment).getType()
 		BugUtil.debug("DiplomacyUtil - ignoring %s from %d to %d with %r", 
 				key, eFromPlayer, eToPlayer, args)
-
 
 ## Event Handlers
 
@@ -313,7 +309,6 @@ def onDealRejected(argsList):
 			PlayerUtil.getPlayer(eOfferPlayer).getName(), 
 			pTrade)
 
-
 def onHelpDemanded(argsList):
 	#BugUtil.debug("DiplomacyUtil::onHelpDemanded %s" %(str(argsList)))
 	eDemandPlayer, eTargetPlayer, pTrade = argsList
@@ -346,7 +341,6 @@ def onHelpRejected(argsList):
 			PlayerUtil.getPlayer(eTargetPlayer).getName(), 
 			szItems,
 			PlayerUtil.getPlayer(eDemandPlayer).getName())
-
 
 def onTributeDemanded(argsList):
 	#BugUtil.debug("DiplomacyUtil::onTributeDemanded %s" %(str(argsList)))
@@ -405,7 +399,6 @@ def onReligionRejected(argsList):
 			PlayerUtil.getPlayer(eDemandPlayer).getName(), 
 			gc.getReligionInfo(eReligion).getDescription())
 
-
 def onCivicDemanded(argsList):
 	#BugUtil.debug("DiplomacyUtil::onCivicDemanded %s" %(str(argsList)))
 	eDemandPlayer, eTargetPlayer, eCivic = argsList
@@ -429,7 +422,6 @@ def onCivicRejected(argsList):
 			PlayerUtil.getPlayer(eTargetPlayer).getName(), 
 			PlayerUtil.getPlayer(eDemandPlayer).getName(), 
 			gc.getCivicInfo(eCivic).getDescription())
-
 
 def onWarDemanded(argsList):
 	#BugUtil.debug("DiplomacyUtil::onWarDemanded %s" %(str(argsList)))
@@ -455,7 +447,6 @@ def onWarRejected(argsList):
 			PlayerUtil.getPlayer(eDemandPlayer).getName(), 
 			PlayerUtil.getPlayer(eVictim).getName())
 
-
 def onEmbargoDemanded(argsList):
 	#BugUtil.debug("DiplomacyUtil::onEmbargoDemanded %s" %(str(argsList)))
 	eDemandPlayer, eTargetPlayer, eVictim = argsList
@@ -479,7 +470,6 @@ def onEmbargoRejected(argsList):
 			PlayerUtil.getPlayer(eTargetPlayer).getName(), 
 			PlayerUtil.getPlayer(eDemandPlayer).getName(), 
 			PlayerUtil.getPlayer(eVictim).getName())
-
 
 ## Proposed Trade Functions
 

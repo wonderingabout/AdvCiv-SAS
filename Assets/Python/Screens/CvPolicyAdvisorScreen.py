@@ -664,7 +664,6 @@ class CvPolicyAdvisorScreen:
 
 			self.drawHelpText(i)
 
-
 	# Will Update the maintenance/anarchy/etc
 	def updateAnarchy(self):
 
@@ -716,7 +715,6 @@ class CvPolicyAdvisorScreen:
 				messageControl.sendUpdateCivics(self.m_paeDisplayPolicies)			
 			screen = self.getScreen()
 			screen.hideScreen()
-
 
 	def Cancel(self, inputClass):
 		screen = self.getScreen()

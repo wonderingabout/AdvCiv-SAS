@@ -31,7 +31,6 @@
 #-----------------------------------------------------------------------------
 #
 
-
 from CvPythonExtensions import *
 from SAS_WorldSizes import *
 import CvUtil
@@ -75,7 +74,6 @@ def isAdvancedMap():
 def getNumCustomMapOptions():
 	return 5 # advc.mxc
 
-
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
@@ -97,7 +95,6 @@ def getCustomMapOptionName(argsList):
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 
-
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -111,7 +108,6 @@ def getNumCustomMapOptionValues(argsList):
 		#7:	6
 		}
 	return option_values[iOption]
-
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
@@ -178,7 +174,6 @@ def getCustomMapOptionDescAt(argsList):
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 
-
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -193,11 +188,9 @@ def getCustomMapOptionDefault(argsList):
 		}
 	return option_defaults[iOption]
 
-
 # <advc.mxc>
 def getWrapX():
 	return (CyMap().getCustomMapOption(3) >= 1)
-
 
 def getWrapY():
 	return (CyMap().getCustomMapOption(3) == 2)
@@ -214,7 +207,6 @@ def beforeGeneration():
 	# Binary shift roll (for horizontal shifting if Island Region Separate).
 	xShiftRoll = dice.get(2, "Region Shift, Horizontal - Big and Small PYTHON")
 	print("xShiftRoll", xShiftRoll)
-
 
 class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generatePlotsByRegion(self):
@@ -330,7 +322,6 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		#print "Done"
 		return self.wholeworldPlotTypes
 
-
 #
 # Regional Variables Key:   (params of generatePlotsInRegion)
 #
@@ -350,7 +341,6 @@ def generatePlotTypes():
 	fractal_world = BnSMultilayeredFractal()
 	plotTypes = fractal_world.generatePlotsByRegion()
 	return plotTypes
-
 
 def generateTerrainTypes():
 
@@ -398,7 +388,6 @@ def generateTerrainTypes():
 
 	terrainTypes = terraingen.generateTerrain()
 	return terrainTypes
-
 
 def addFeatures():
 	NiTextOut("Adding Features (Python Custom Continents) ...")

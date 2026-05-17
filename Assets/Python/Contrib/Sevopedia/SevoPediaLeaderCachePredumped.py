@@ -3,8 +3,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 # === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===
 # Generated from in-game dump to PythonDbg.log
 # Copy this entire block (from BEGIN to END) into: SevoPediaLeaderCachePredumped.py

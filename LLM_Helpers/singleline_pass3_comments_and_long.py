@@ -38,14 +38,11 @@ NL = '\r\n' if newline == b'\r\n' else '\n'
 text = raw.decode('utf-8', errors='replace')
 lines = text.splitlines(True)
 
-
 def leading_indent(s):
     return s[:len(s) - len(s.lstrip(' \t'))]
 
-
 def strip_line_ending(s):
     return s.rstrip('\r\n')
-
 
 def join_parts(parts):
     body = ''
@@ -58,7 +55,6 @@ def join_parts(parts):
         else:
             body += ' ' + part
     return body
-
 
 def significant_code_tokens(path):
     result = []
@@ -172,13 +168,11 @@ text_after_real = ''.join(out)
 
 comment_line_re = re.compile(r'^(?P<prefix>[ \t]*#)(?P<body>.*?)(?P<eol>\r?\n?)$')
 
-
 def split_comment_line(line):
     m = comment_line_re.match(line)
     if not m:
         return None
     return m.group('prefix'), m.group('body'), m.group('eol')
-
 
 def bracket_delta(s):
     """Return net bracket delta for one code-ish line, ignoring strings and trailing # comments."""
@@ -222,7 +216,6 @@ def bracket_delta(s):
         i += 1
     return delta
 
-
 def looks_like_commented_code_start(body):
     s = body.lstrip()
     # Allow one extra comment marker for blocks written like '# #foo(...)'.
@@ -243,7 +236,6 @@ def looks_like_commented_code_start(body):
     if s2.startswith(('self.', 'gc.', 'Cy', 'screen.', 'BugUtil.', 'MainOpt.', 'gRect(', 'gSet', 'localText.')):
         return True
     return False
-
 
 def collapse_commented_body(first_prefix, first_body, bodies):
     # Preserve the leading whitespace after '#' from the first line.

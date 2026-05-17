@@ -106,7 +106,6 @@ class TechPrefs:
 			if (pTeam.isHasTech(iTech)):
 				self.removeTech(iTech)
 
-
 	def getResearchableTechs(self):
 		# Returns a set of all techs that can be researched now.
 		#
@@ -124,7 +123,6 @@ class TechPrefs:
 			if (pTech not in sTechs and pTech.canResearchWith(sTechs)):
 				sCan.add(pTech)
 		return sCan
-
 
 	def getNextFlavorTech(self, iFlavor):
 		# Returns the next tech in the flavor's list or None.
@@ -194,7 +192,6 @@ class TechPrefs:
 				lTechs.append(pTech)
 		return lTechs
 
-
 	def printFlavorTechs(self, iFlavor):
 		# Prints the techs in the flavor's list.
 		#
@@ -214,7 +211,6 @@ class TechPrefs:
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if pTech.canResearchWith(sTechs):
 				print pTech
-
 
 class Tech:
 	
@@ -246,7 +242,6 @@ class Tech:
 	def __cmp__(self, other):
 		return self.iTech - other.iTech
 
-
 	def setFlavorValue(self, iFlavor, iValue):
 		self.lFlavorValues[iFlavor] = iValue
 
@@ -258,7 +253,6 @@ class Tech:
 
 	def getFlavorPref(self, iFlavor):
 		return self.lFlavorPref[iFlavor]
-
 
 	def addAndPrereq(self, pTech):
 		if pTech not in self.sAndPrereqs:
@@ -275,7 +269,6 @@ class Tech:
 	def removePrereq(self, pTech):
 		self.sAndPrereqs.discard(pTech)
 		self.sOrPrereqs.discard(pTech)
-
 
 	def getNumTechsNeeded(self):
 		# Returns the minimum number of techs that must be researched to be able to research this tech.
@@ -316,7 +309,6 @@ class Tech:
 		sOrs = self.sOrPrereqs.difference(sTechs)
 		return (len(sOrs) == 0 or len(sOrs) < self.iNumOrPrereqs) and len(sAnds) == 0
 
-
 	def addLeadsTo(self, pTech):
 		self.sLeadsTo.add(pTech)
 
@@ -332,7 +324,6 @@ class Tech:
 			pTech.removeLeadsTo(self)
 		for pTech in self.sLeadsTo:
 			pTech.removePrereq(self)
-
 
 	def __str__(self):
 		str = self.getName()

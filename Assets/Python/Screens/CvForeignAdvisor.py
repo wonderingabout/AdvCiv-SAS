@@ -819,7 +819,6 @@ class CvForeignAdvisor:
 		self.drawEspionageContents()
 		self.refreshEspionageScreen()
 
-
 	#	RJG Start
 	def drawRelations (self, bInitial):
 		screen = self.getScreen()
@@ -1255,8 +1254,6 @@ class CvForeignAdvisor:
 						objReligionInfo = gc.getReligionInfo(nFavoriteReligion)
 						if objReligionInfo:
 							screen.attachImageButton(infoPanelName, "", objReligionInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, nFavoriteReligion, 1, False)
-
-
 
 	def drawInfoImproved (self, bInitial):
 		screen = self.getScreen()
@@ -1842,8 +1839,6 @@ class CvForeignAdvisor:
 		self.resIconGrid.setPosition(gridX, gridY)
 		self.resIconGrid.setSize(gridWidth, gridHeight)
 
-
-
 	def calculateSurplusPanelLayout(self):
 		self.SURPLUS_X = self.RES_LEFT_RIGHT_SPACE
 		self.SURPLUS_Y = self.RES_TOP_BOTTOM_SPACE
@@ -1865,8 +1860,6 @@ class CvForeignAdvisor:
 		self.SURPLUS_CIRCLE_X_START = self.SURPLUS_TABLE_X + 4
 		# advc.073: Renamed from SURPLUS_CIRCLE_Y
 		self.SURPLUS_CIRCLE_Y_START = self.SURPLUS_TABLE_Y + 5
-
-
 
 	def drawResourceDeals(self, bInitial):
 		screen = self.getScreen()
@@ -2187,7 +2180,6 @@ class CvForeignAdvisor:
 								self.techIconGrid.addIcon( currentRow, iTechColCantThem, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
 				currentRow += 1
 		self.techIconGrid.refresh()
-
 
 	def initTechTable(self):
 		screen = self.getScreen()
@@ -2513,7 +2505,6 @@ class CvForeignAdvisor:
 
 	# <!-- custom: Espionage tab logic integrated directly into CvForeignAdvisor (no helper class/wrapper object). Kept existing Espionage comments unless obsolete. (GPT-5.3-Codex) -->
 
-
 	def drawEspionageContents(self):
 
 		self.deleteAllEspionageWidgets()
@@ -2656,7 +2647,6 @@ class CvForeignAdvisor:
 				else:
 					szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
 
-
 				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
@@ -2674,7 +2664,6 @@ class CvForeignAdvisor:
 				self.ESP_iDecreaseButtonID = 556
 				szName = "DecreaseButton%d" %(iPlayerID)
 				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
-
 
 				iPlayerLoop += 1
 
@@ -2756,7 +2745,6 @@ class CvForeignAdvisor:
 				screen.deleteWidget(szName)
 				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-
 				iPlayerLoop += 1
 
 			# Is there any other players which have been met?
@@ -2817,7 +2805,6 @@ class CvForeignAdvisor:
 				screen.setTableColumnHeader(szMissionsTable, 2, "", wTable2)
 				screen.setTableColumnHeader(szMissionsTable, 3, "", wTable3)
 
-
 				# Loop through all Missions
 				for iPass in range(3): # advc.120d
 					for iMissionLoop in range(gc.getNumEspionageMissionInfos()):
@@ -2844,7 +2831,6 @@ class CvForeignAdvisor:
 
 							if (self.ESP_iActiveCityID != -1 and pMission.isTargetsCity()):
 								pPlot = pActiveCity.plot()
-
 
 							if (self.ESP_iActiveCityID != -1 or not pMission.isTargetsCity()):
 
@@ -2984,7 +2970,6 @@ class CvForeignAdvisor:
 
 				CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
 
-
 			##### City Listbox #####
 			if ("%s%d" %(inputClass.getFunctionName(), inputClass.getID()) == self.ESP_szCityListBox):
 				iCityID = inputClass.getData1()
@@ -3091,12 +3076,9 @@ class CvForeignAdvisor:
 		screen.setLabel("espRate", "Background", szRate, CvUtil.FONT_RIGHT_JUSTIFY, x + self.ESP_PANE_WIDTH + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 	# </advc.120c>
 
-
-
 def smallText(text):
 	return sasFontTagLabel + text + SAS_FONT_TAG_CLOSE
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
-
 

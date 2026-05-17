@@ -1058,7 +1058,6 @@ class CvOptionsScreen:
 		tab.setLayoutFlag("ProfilePanelVBox", "LAYOUT_SIZE_HPREFERREDEXPANDING")
 		tab.setLayoutFlag("ProfilePanelVBox", "LAYOUT_SIZE_VPREFERREDEXPANDING")
 
-
 		# Profiles Dropdown
 		
 		tab.attachLabel("ProfilePanelVBox", "ProfileComboLabel", localText.getText("TXT_KEY_OPTIONS_SCREEN_PROFILES", ()))
@@ -1136,7 +1135,6 @@ class CvOptionsScreen:
 		#szWidgetName = "ModemSelection"
 		#szWidgetLbl = localText.getText("TXT_KEY_OPTIONS_MODEM_LBL", ())
 		#tab.attachRadioButton("NetPanelVBox", szWidgetName, szWidgetLbl, self.callbackIFace, szCallbackFunction, str(szWidgetName), bIsModem)
-
 
 		########## EXIT
 

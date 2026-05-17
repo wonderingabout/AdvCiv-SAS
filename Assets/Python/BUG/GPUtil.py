@@ -52,7 +52,6 @@ g_gpUnitTypes = None
 g_gpColors = None
 g_unitIcons = None
 
-
 # Information
 
 def init():
@@ -100,7 +99,6 @@ def getUnitIcon(iUnit):
 	except:
 		BugUtil.warn("no GP icon for unit %d", iUnit)
 		return u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)
-
 
 # Getting Progress
 
@@ -186,7 +184,6 @@ def calcPercentages(city):
 		#if (iLeftover > 0):
 		#	percents[0] = (percents[0][0] + iLeftover, percents[0][1])
 	return percents
-
 
 # Displaying Progress
 

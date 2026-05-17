@@ -4,22 +4,14 @@
 #
 # <!-- custom: moved some functions that are not used in games (outside of debugging code or such, not use in a "normal" game if i may say), especially the very nice i mean debug leaderheadinfo one but not only, (another) other functions(function) as well, moving them here as it would be heavy and unclean in this case and would also clutter needlessly the other helpers. -->
 
-
-
 # <!-- custom: modified from Claude AI's solution. -->
 # <!-- custom: be careful/make sure to launch this at interfaceScreen level or later, else at __init__ this/the output is still empty, so run this later to have the actual tech info output; but also be careful to not launch/run/call this later than your error line if you have any, else the code execution would stop before you reach your debugger's call and you won't see any debug (e.g. if you have a code error at line 200, call debugger method at line 199 or sooner, not at line 201+ as it would never be reached before execution stops and you don't see debug content), a good place may be the top of interfaceScreen generally i would say but check to be sure -->
 # Get all attributes of the object
 
-
-
 from CvPythonExtensions import *
-
-
 
 gc = CyGlobalContext()
 localText = CyTranslator()
-
-
 
 def printObjAttrs(obj):
 	print ("[DEBUG] Beginning of show obj inner fields.")
@@ -38,8 +30,6 @@ def printObjAttrs(obj):
 			print(u"%s - Error accessing\n" % attr)
 	
 	print ("[DEBUG] End of show show obj inner fields.")
-
-
 
 def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	# <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive:

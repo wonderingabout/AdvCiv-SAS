@@ -106,7 +106,6 @@ def clearCurrentSigns ():
 	global gCurrentSigns
 	gCurrentSigns = None
 
-
 def clearSignsAndLandmarks(pPlot):
 	# Removes any current landmarks or signs from a plot.
 	#
@@ -191,7 +190,6 @@ def applyLandmarkFromEvent(argsList):
 		placeLandmark(pPlot, event.getType(), iFood, iProd, iComm, True, -1)
 
 	return True
-
 
 class MapSigns:
 	# A collection of PlotSigns, organized by plot.
@@ -391,7 +389,6 @@ class MapSigns:
 			thisKey = (pPlot.getX(), pPlot.getY())
 		return thisKey
 
-
 class PlotSigns:
 	# Sign information for all players for a given plot.
 	#
@@ -464,7 +461,6 @@ class PlotSigns:
 		#
 		return "PlotSigns { iX = %d, iY = %d, signDict = %s }" % (self.iX, self.iY, str(self.signDict))
 
-
 class PlotCaptions:
 	# Fake class needed to load games made with first development version.
 	#
@@ -472,7 +468,6 @@ class PlotCaptions:
 		self.iX = None
 		self.iY = None
 		self.teamDict = None
-
 
 class EventSignsEventHandler:
 	# Event Handler for this module.
@@ -539,7 +534,6 @@ class EventSignsEventHandler:
 		if g_bForceUpdate:
 			gSavedSigns.processSigns(g_bShowSigns)
 			g_bForceUpdate = False
-
 
 ## Random Event Callbacks
 

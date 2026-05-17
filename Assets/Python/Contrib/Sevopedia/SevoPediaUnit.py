@@ -14,8 +14,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -32,8 +30,6 @@ localText = CyTranslator()
 
 # <!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
 IS_SHOW_AI_INFO = (gc.getDefineINT("SAS_SEVOPEDIA_UNIT_SHOW_AI_INFORMATION") > 0)
-
-
 
 class SevoPediaUnit:
 
@@ -182,8 +178,6 @@ class SevoPediaUnit:
 		self.iUNIT_PRODUCTION_PERCENT = None
 		self.iNUM_UNIT_AND_TECH_PREREQS = None
 
-
-
 	def interfaceScreen(self, iUnit):
 		if self.iUnit != iUnit:
 			self.bHistoryExpanded = False
@@ -222,8 +216,6 @@ class SevoPediaUnit:
 		self.placeHistory()
 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
 
-
-
 	def _getHistoryText(self):
 		szText = u""
 		unitInfo = gc.getUnitInfo(self.iUnit)
@@ -250,17 +242,11 @@ class SevoPediaUnit:
 		szText += SASTextScale.normalizeLabelText(unitInfo.getCivilopedia())
 		return szText
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
 
-
-
 	def setContentExpanded(self, bExpanded):
 		self.bContentExpanded = bExpanded
-
-
 
 	def placeUnitPane(self):
 		screen = self.top.getScreen()
@@ -275,8 +261,6 @@ class SevoPediaUnit:
 			szButton = gc.getPlayer(iActivePlayer).getUnitButton(self.iUnit)
 		# </advc.003l>
 		screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	def placeStats(self):
 		screen = self.top.getScreen()
@@ -334,8 +318,6 @@ class SevoPediaUnit:
 			szCostText = u"%c  " % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + szCost
 			screen.appendListBoxStringNoUpdate(panelName, SASTextScale.titleText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.updateListBox(panelName)
-
-
 
 	def placeRequires(self):
 		screen = self.top.getScreen()
@@ -434,8 +416,6 @@ class SevoPediaUnit:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
 
-
-
 	def placeUpgradesTo(self):
 		xPanel = self.X_UPGRADES_TO
 		yPanel = self.Y_UPGRADES_TO
@@ -470,12 +450,8 @@ class SevoPediaUnit:
 				isButtonFound = True
 				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
 
-
-
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
-
-
 
 	def placeFreePromotions(self):
 		xPanel = self.X_FREE_PROMOTIONS
@@ -507,8 +483,6 @@ class SevoPediaUnit:
 
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
-
-
 
 	def placeModifiersOfThisUnitAgainstOtherUnitClassesCombatTypes(self):
 		xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
@@ -585,8 +559,6 @@ class SevoPediaUnit:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit(self):
 		xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
 		yPanel = self.Y_OF_OTHER_UNITS_MODIFIERS
@@ -657,8 +629,6 @@ class SevoPediaUnit:
 
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
-
-
 
 	def placePeakHillCityTerrainsFeaturesModifiers(self):
 		xPanel = self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS
@@ -766,8 +736,6 @@ class SevoPediaUnit:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -841,14 +809,10 @@ class SevoPediaUnit:
 
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def placeUnitAnimation(self):
 		screen = self.top.getScreen()
 		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_UNIT_ANIMATION, self.Y_UNIT_ANIMATION, self.W_UNIT_ANIMATION, self.H_UNIT_ANIMATION, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND, self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD)
 		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
-
-
 
 	# <!-- custom: placeReplace (renamed from placeReplacements) in particular is imported from RFC DOC mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py and adjusted or not for AdvCiv-SAS -->
 	def placeReplace(self):
@@ -896,8 +860,6 @@ class SevoPediaUnit:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
 
-
-
 	# <!-- custom: note: this sevopediaunit's below placeCivilizations function/method can handle several civs, see sevopedia building's placeCivilizations's code comment for details -->
 	def placeCivilizations(self):
 		screen = self.top.getScreen()
@@ -933,8 +895,6 @@ class SevoPediaUnit:
 			yCenterPanel = self.Y_CIVILIZATIONS + (self.H_CIVILIZATIONS / 2)
 			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_CIVILIZATIONS + 7, yCenterPanel, self.W_CIVILIZATIONS - 14, self.H_CIVILIZATIONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	# <!-- custom: placeObsoleteWith - mirrors SevoPediaBuilding's obsolete with panel (Claude code Opus 4.5) -->
 	def placeObsoleteWith(self):
 		screen = self.top.getScreen()
@@ -958,8 +918,6 @@ class SevoPediaUnit:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
 			yCenterPanel = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
 			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_OBSOLETE_WITH + 7, yCenterPanel, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
@@ -985,8 +943,6 @@ class SevoPediaUnit:
 			#if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
 			if gc.getPromotionInfo(k).getUnitCombat(eUnitCombat) > 0 and not gc.getPromotionInfo(k).isGraphicalOnly():
 				screen.appendMultiListButton(rowListName, gc.getPromotionInfo(k).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, k, -1, False)
-
-
 
 	def handleInput (self, inputClass):
 		return 0

@@ -16,11 +16,9 @@ SOLID_MARKS = 0
 TICK_MARKS = 1
 CENTER_MARKS = 2
 
-
 # Globals
 
 ArtFileMgr = CyArtFileMgr()
-
 
 # ProgressBar Class
 
@@ -85,7 +83,6 @@ class ProgressBar:
 			self._resetLineCount()
 			self._setVisible(False)
 
-
 	def hide(self, screen):
 		screen.hide(self.id)
 
@@ -106,8 +103,6 @@ class ProgressBar:
 		for item in self.barItems:
 			screen.moveToFront(item)
 
-
-
 	def _drawTickMarks_Forward(self, screen, iCurr, iTotal, iFirst, iRate, bDouble):
 		i = 1
 		iXPrev = self.w * (iCurr + iFirst) / iTotal
@@ -123,7 +118,6 @@ class ProgressBar:
 
 			i += 1
 			iXPrev = iX
-
 
 	def _drawTickMarks_Backward(self, screen, iCurr, iTotal, iFirst, iRate, bDouble):
 		i = 1

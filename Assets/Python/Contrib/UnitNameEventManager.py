@@ -79,7 +79,6 @@ import random
 import Popup as PyPopup
 import BugData
 
-
 SD_MOD_ID = "UnitCnt"
 RENAME_EVENT_ID = CvUtil.getNewEventID("UnitNaming.Rename")
 
@@ -171,10 +170,6 @@ class UnitNameEventManager:
 
 		self.eventMgr.beginEvent(RENAME_EVENT_ID)
 		return
-
-
-
-
 
 class AbstractBuildUnitName(object):
 
@@ -298,8 +293,6 @@ class BuildUnitName(AbstractBuildUnitName):
 							if zsUnitName:
 								pUnit.setName(zsUnitName)
 
-
-
 class UnitReName(object):
 
 	def getUnitName(self, sUnitNameConv, pUnit, pCity, bIncrementCounter):
@@ -338,7 +331,6 @@ class UnitReName(object):
 		if not (zsName.find("^rd^") == -1):
 			zsRandomName = RandomNameUtils.getRandomName()
 			zsName = zsName.replace("^rd^", zsRandomName)
-
 
 		#BUGPrint("UnitNameEM-B")
 
@@ -455,7 +447,6 @@ class UnitReName(object):
 		zsUnitNameConv = UnitNamingOpt.getDefault()
 		return zsUnitNameConv
 
-
 	def getUnitCombat(self, pUnit):
 
 # Return immediately if the unit passed in is invalid
@@ -469,7 +460,6 @@ class UnitReName(object):
 			return "UNITCOMBAT_None"
 
 		return infoUnitCombat.getType()
-
 
 	def getCounter(self, conv):
 ##  - ^cnt[f][r]^ - counting code, if the code isn't there - return 'ALL'
@@ -538,7 +528,6 @@ class UnitReName(object):
 #		return the value
 		return random.randint(ziLow, ziHigh)
 
-
 	def getTotal2(self, conv):
 ##  - ^tt2[f][x]^ - total count (starts at x, incremented by 1 each time ^tt is reset to 1)
 
@@ -557,7 +546,6 @@ class UnitReName(object):
 			ziValue = 1
 		return ziValue
 
-
 	def getNumberFormat(self, conv, searchStr):
 #		return 'not found' indicator
 		ziStart = conv.find(searchStr)
@@ -567,7 +555,6 @@ class UnitReName(object):
 		else:
 			return conv[ziStart + 1:ziStart + 2]
 
-
 	def getCountCode(self, conv, searchStr):
 #		return 'not found' indicator
 		ziStart = conv.find(searchStr)
@@ -576,7 +563,6 @@ class UnitReName(object):
 		else:
 			ziEnd = conv.find("^", ziStart + 1)
 			return conv[ziStart:ziEnd + 1]
-
 
 	def swapCountCode(self, conv, searchStr, iCnt):
 
@@ -606,7 +592,6 @@ class UnitReName(object):
 		else:
 			return conv.replace(zsCntCode, zsCnt)
 
-
 	def FormatNumber(self, fmt, i):
 		if (i < 1):
 			# ensure i is not under lower bound; each format enforces its own upper bound when necessary
@@ -629,7 +614,6 @@ class UnitReName(object):
 			return Roman.toRoman(i)
 		else:
 			return str(i)
-
 
 	def getOrdinal(self, i):
 		if i % 100 in (11, 12, 13): #special case

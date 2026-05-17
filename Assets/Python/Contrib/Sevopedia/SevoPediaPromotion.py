@@ -13,8 +13,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -26,8 +24,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaPromotion:
 
@@ -75,8 +71,6 @@ class SevoPediaPromotion:
 		self.W_UNIT_COMBATS = self.W_SPECIAL
 		self.H_UNIT_COMBATS = self.H_SPECIAL
 
-
-
 	def interfaceScreen(self, iPromotion):
 		self.iPromotion = iPromotion
 
@@ -88,8 +82,6 @@ class SevoPediaPromotion:
 		self.placeSpecial()
 		self.placeUnitCombats()
 
-
-
 	def placePromotionPane(self):
 		screen = self.top.getScreen()
 
@@ -98,8 +90,6 @@ class SevoPediaPromotion:
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getPromotionInfo(self.iPromotion).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	def placeRequires(self):
 		screen = self.top.getScreen()
@@ -136,8 +126,6 @@ class SevoPediaPromotion:
 		if (eReligion > -1):
 			screen.attachImageButton(panelName, "", gc.getReligionInfo(eReligion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, eReligion, 1, False)
 
-
-
 	def placeLeadsTo(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -154,8 +142,6 @@ class SevoPediaPromotion:
 				isButtonFound = True
 		if not isButtonFound:
 			draw_none_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
-
-
 
 	def placeFreePromotionsUnits(self):
 		xPanel = self.X_FREE_PROMOTIONS_UNITS
@@ -200,8 +186,6 @@ class SevoPediaPromotion:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def placeFreePromotionBuilding(self):
 		xPanel = self.X_FREE_PROMOTION_BUILDINGS
 		yPanel = self.Y_FREE_PROMOTION_BUILDINGS
@@ -245,8 +229,6 @@ class SevoPediaPromotion:
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
-
-
 	def placeSpecial(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -255,8 +237,6 @@ class SevoPediaPromotion:
 		szSpecialText = CyGameTextMgr().getPromotionHelp(self.iPromotion, True)[1:]
 		szSpecialText = SASTextScale.normalizeLabelText(szSpecialText)
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
 
 	def placeUnitCombats(self):
 		screen = self.top.getScreen()
@@ -272,8 +252,6 @@ class SevoPediaPromotion:
 				screen.appendTableRow(szTable)
 				screen.setTableText(szTable, 0, i, SASTextScale.labelText(gc.getUnitCombatInfo(iI).getDescription()), gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				i += 1
-
-
 
 	def handleInput (self, inputClass):
 		return 0

@@ -42,11 +42,9 @@ import types
 BugUtil.fixSets(globals())
 # BUG - Mac Support - end
 
-
 # Constants
 
 BLOCK_SIZE = 512
-
 
 ## Parsing Dispatcher
 
@@ -58,7 +56,6 @@ try:
 	import xmllib
 finally:
 	sys.stderr = stderr
-
 
 class ConfigParser(xmllib.XMLParser):
 	
@@ -128,7 +125,6 @@ class ConfigParser(xmllib.XMLParser):
 			xml += " " + key + "=\"" + value + "\""
 		xml += ">"
 		return xml
-
 
 ## Element State Tracking
 
@@ -212,7 +208,6 @@ class ElementWithArgs(Element):
 		self.args = []
 		self.kwargs = {}
 
-
 ## Handler Registration
 
 g_handlers = {}
@@ -229,7 +224,6 @@ def getHandler(tag):
 		return g_handlers[tag]
 	except KeyError:
 		raise BugUtil.ConfigError("unknown configuration element %s", tag)
-
 
 ## Handler Base Classes
 
@@ -371,7 +365,6 @@ class HandlerWithArgs(Handler):
 		Handler.__init__(self, tag, validAttrs, validChildren, ElementWithArgs)
 		self.addAccumulatedChild(ArgHandler.TAG)
 
-
 ## Core Handlers
 
 class RootHandler(Handler):
@@ -505,7 +498,6 @@ class ModHandler(Handler):
 		mod._initDone()
 		BugCore.game._addMod(mod)
 
-
 ## Standard Handlers
 
 class InitHandler(HandlerWithArgs):
@@ -605,7 +597,6 @@ class ExtendHandler(Handler):
 			BugUtil.extendFunction(module, function, toModule, asName, how)
 		else:
 			BugUtil.info("BugConfig - ignoring <%s> %s.%s, requires dll version %s", element.tag, module, function, self.resolveDll(element, dll))
-
 
 ## Initialization
 

@@ -13,8 +13,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
@@ -26,8 +24,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaCivic:
 
@@ -87,8 +83,6 @@ class SevoPediaCivic:
 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_FAVORITES + MEDIUM_MARGIN)
 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-
-
 	def interfaceScreen(self, iCivic):
 		if self.iCivic != iCivic:
 			self.bHistoryExpanded = False
@@ -102,8 +96,6 @@ class SevoPediaCivic:
 		self.placeVoteSource()
 		self.placeVotes()
 		self.placeHistory()
-
-
 
 	# <!-- custom: in https://civ4bug.sourceforge.net/PythonAPI/AllClasses.html i have found this:
 	# VOID addMultiListControlGFC (STRING szName, STRING helpText, INT iX, INT iY, INT iWidth, INT iHeight, INT numLists, INT defaultWidth, INT defaultHeight, TableStyle eStyle)
@@ -148,8 +140,6 @@ class SevoPediaCivic:
 				leaderInfo = gc.getLeaderHeadInfo(iLeader)
 				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
 
-
-
 	def placeCivicPane(self):
 		screen = self.top.getScreen()
 
@@ -158,8 +148,6 @@ class SevoPediaCivic:
 		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
 		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getCivicInfo(self.iCivic).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
-
 
 	def placeStats(self):
 		screen = self.top.getScreen()
@@ -172,8 +160,6 @@ class SevoPediaCivic:
 		pUpkeepInfo = gc.getUpkeepInfo(gc.getCivicInfo(self.iCivic).getUpkeep())
 		if (pUpkeepInfo):
 			screen.appendListBoxString(panelName, SASTextScale.titleText(pUpkeepInfo.getDescription().upper()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-
-
 
 	def placeSpecial(self):
 		screen = self.top.getScreen()
@@ -193,8 +179,6 @@ class SevoPediaCivic:
 		#screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+5, self.W_SPECIAL-10, self.H_SPECIAL-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+10, self.W_SPECIAL-10, self.H_SPECIAL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
-
 	def placeRequires(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -206,8 +190,6 @@ class SevoPediaCivic:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
 		else:
 			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
-
-
 
 	def placeVotes(self):
 		screen = self.top.getScreen()
@@ -236,8 +218,6 @@ class SevoPediaCivic:
 		if not bFound:
 			draw_none_text(screen, self.top, self.X_VOTES, self.Y_VOTES, self.W_VOTES, self.H_VOTES)
 
-
-
 	def placeVoteSource(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -260,12 +240,8 @@ class SevoPediaCivic:
 		if not bFound:
 			draw_none_text(screen, self.top, self.X_VOTE_SOURCE, self.Y_VOTE_SOURCE, self.W_VOTE_SOURCE, self.H_VOTE_SOURCE)
 
-
-
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded
-
-
 
 	def placeHistory(self):
 		screen = self.top.getScreen()

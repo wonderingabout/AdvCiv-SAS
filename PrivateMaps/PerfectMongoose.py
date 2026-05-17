@@ -59,7 +59,6 @@ import time
 import os
 from SASUtils import getInfoTypeOrFail
 
-
 ##############################################################################
 ## GLOBAL CONTROL CONSTANTS: Change these to customize the map
 ##############################################################################
@@ -67,7 +66,6 @@ from SASUtils import getInfoTypeOrFail
 class MapConstants:
 	def __init__(self):
 		return
-
 
 	def initialize(self):
 		#This variable sets how much land the map will have, and thus how large its oceans will be.
@@ -317,7 +315,6 @@ class MapConstants:
 
 		self.minimumLandInChoke = 0.5
 
-
 		##############################################################################
 		## PW3 Settings
 		##############################################################################
@@ -390,7 +387,6 @@ class MapConstants:
 		#A lower value creates more rivers over the entire map.
 		# advc: Was 0.05, but is now on a different scale. Also, I want the script to place only a few rivers and let the DLL do most of the work.
 		self.RiverThreshold3 = 0.95
-
 
 		##############################################################################
 		## PW2 Settings
@@ -535,7 +531,6 @@ class MapConstants:
 		#A lower value creates more rivers over the entire map.
 		self.RiverThreshold2 = 0.33 # advc: Was 0.25; see RiverThreshold3.
 
-
 		##############################################################################
 		## Mongoose Settings
 		##############################################################################
@@ -547,7 +542,6 @@ class MapConstants:
 		#self.SeaLevelFactor4 = 0.5
 		# advc:
 		self.SeaLevelFactor = 1 # advc: Set this properly in initInGameOptions
-
 
 		##############################################################################
 		## Fuyu Settings
@@ -568,7 +562,6 @@ class MapConstants:
 		#Randomly allows bonuses with continent limiter to be used to sweeting starting positions.
 		#(Chance per attempt to place an area-restricted resource in the wrong area)
 		self.ignoreAreaRestrictionChance = 0.0
-
 
 	def initInGameOptions(self):
 		gc = CyGlobalContext()
@@ -667,9 +660,7 @@ class MapConstants:
 		# advc: Deleted; can be looked up in-game in AdvCiv. And it's tedious to keep it up to date here.
 		#self.optionsString = 
 
-
 mc = MapConstants()
-
 
 ##############################################################################
 ## PW2/PW3 Random
@@ -678,7 +669,6 @@ mc = MapConstants()
 class PythonRandom:
 	def __init__(self):
 		return
-
 
 	def seed(self):
 		#Python randoms are not usable in network games.
@@ -706,7 +696,6 @@ class PythonRandom:
 			self.mapRand.init(seedValue)
 			self.seedString = "Random seed (Using getMapRand) for this map is %(s)20d" % {"s" :seedValue}
 
-
 	def random(self):
 		if mc.UsePythonRandom:
 			return random()
@@ -715,7 +704,6 @@ class PythonRandom:
 			#is not exposed to Python so I have to recreate it.
 			fResult = float(self.mapRand.get(65535, "Getting float -PerfectMongoose.py")) / float(65535)
 			return fResult
-
 
 	def randint(self, rMin, rMax):
 		#if rMin and rMax are the same, then return the only option
@@ -728,9 +716,7 @@ class PythonRandom:
 			#mapRand.get() is not inclusive, so we must make it so
 			return rMin + self.mapRand.get(rMax + 1 - rMin, "Getting a randint - PerfectMongoose.py")
 
-
 PRand = PythonRandom()
-
 
 ##############################################################################
 ## PW2/PW3 AreaMap
@@ -747,7 +733,6 @@ class AreaMap:
 		self.b8connected = b8connected
 		self.bSwitch4Or8OnFalseMatch = bSwitch4Or8OnFalseMatch
 
-
 	def defineAreas(self, matchFunction):
 		self.areaList = list()
 		areaID = 0
@@ -761,13 +746,11 @@ class AreaMap:
 				area = Area(areaID, areaSize, avgX, avgY, bWater)
 				self.areaList.append(area)
 
-
 	def getAreaByID(self, areaID):
 		for i in range(len(self.areaList)):
 			if self.areaList[i].ID == areaID:
 				return self.areaList[i]
 		return None
-
 
 	def getOceanID(self):
 		self.areaList.sort(lambda x, y:cmp(x.size, y.size))
@@ -775,7 +758,6 @@ class AreaMap:
 		for a in self.areaList:
 			if a.water:
 				return a.ID
-
 
 	def getIndex(self, x, y):
 		if mc.WrapX:
@@ -791,7 +773,6 @@ class AreaMap:
 		else:
 			yy = y
 		return yy * self.width + xx
-
 
 	def fillArea(self, index, areaID, matchFunction):
 		#first divide index into x and y
@@ -825,7 +806,6 @@ class AreaMap:
 		elif avgY >= self.height:
 			avgY -= self.height
 		return self.size, avgX, avgY, bWater
-
 
 	def scanAndFillLine(self, seg, areaID, bWater, matchFunction):
 		#check for y + dy being off map
@@ -919,7 +899,6 @@ class AreaMap:
 				newSeg = LineSegment(seg.y + seg.dy, xLeftExtreme, xRightExtreme - 1, -seg.dy)
 				self.segStack.append(newSeg)
 
-
 class LineSegment:
 	def __init__(self, y, xLeft, xRight, dy):
 		self.y  = y
@@ -927,11 +906,9 @@ class LineSegment:
 		self.xLeft  = xLeft
 		self.xRight = xRight
 
-
 	def __str__ (self):
 		string = "y = %(y)3d, xLeft = %(xl)3d, xRight = %(xr)3d, dy = %(dy)2d" % {'y':self.y, 'xl':self.xLeft, 'xr':self.xRight, 'dy':self.dy}
 		return string
-
 
 class Area:
 	def __init__(self, iD, size, avgX, avgY, water):
@@ -950,18 +927,15 @@ class Area:
 			em = e3
 		return self.size * max(0.18, 1 - 0.0135 * max(0, abs(mc.horseLatitude - abs(em.GetLatitudeForY(self.avgY))) - 10))
 
-
 	def __str__(self):
 		string = "{ID = %(i)4d, size = %(s)4d, water = %(w)1d}" % {'i':self.ID, 's':self.size, 'w':self.water}
 		return string
-
 
 class AreaPlot:
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
 		self.avgDistance = -1
-
 
 ##############################################################################
 ## PW3 FloatMap
@@ -975,7 +949,6 @@ class AreaPlot:
 class FloatMap:
 	def __init__(self):
 		return
-
 
 	def initialize(self, width, height, wrapX, wrapY):
 		self.wrapX  = wrapX
@@ -995,7 +968,6 @@ class FloatMap:
 		for i in range(self.length):
 			self.data.append(0.0)
 
-
 	def GetIndex(self, x, y):
 		if self.wrapX:
 			xx = x % self.width
@@ -1011,12 +983,10 @@ class FloatMap:
 			yy = y
 		return yy * self.width + xx
 
-
 	def GetXYFromIndex(self, i):
 		x = i % self.width
 		y = (i - x) / self.width
 		return x, y
-
 
 	##quadrants are labeled
 	##A B
@@ -1033,7 +1003,6 @@ class FloatMap:
 			else:
 				return "C"
 
-
 	##Gets an index for x and y based on the current
 	##rect settings. x and y are local to the defined rect.
 	##Wrapping is assumed in both directions
@@ -1043,7 +1012,6 @@ class FloatMap:
 		xx = self.rectX + xx
 		yy = self.rectY + yy
 		return self.GetIndex(xx, yy)
-
 
 	def Normalize(self):
 		##find highest and lowest values
@@ -1069,16 +1037,13 @@ class FloatMap:
 		for i in range(self.length):
 			self.data[i] = self.data[i] * scaler
 
-
 	def GenerateNoise(self):
 		for i in range(self.length):
 			self.data[i] = PRand.random()
 
-
 	def GenerateBinaryNoise(self):
 		for i in range(self.length):
 			self.data[i] = PRand.randint(0, 1)
-
 
 	def GetLatitudeForY(self, y):
 		if mc.LandmassGenerator == 2:
@@ -1091,7 +1056,6 @@ class FloatMap:
 		else:
 			#AIAndy Bugfix - float division
 			return mc.bottomLatitude + ((float(mc.topLatitude - mc.bottomLatitude) * float(y)) / float(self.height))
-
 
 	def GetZone(self, y):
 		if y < 0 or y >= self.height:
@@ -1110,7 +1074,6 @@ class FloatMap:
 		else:
 			return mc.SPOLAR
 
-
 	def GetYFromZone(self, zone, bTop):
 		if bTop:
 			y = self.height - 1
@@ -1123,7 +1086,6 @@ class FloatMap:
 				if zone == self.GetZone(y):
 					return y
 		return -1
-
 
 	def GetGeostrophicWindDirections(self, zone):
 		if zone == mc.NPOLAR:
@@ -1139,7 +1101,6 @@ class FloatMap:
 		else:
 			return mc.NW, mc.W
 		return -1, -1
-
 
 	def GetGeostrophicPressure(self, lat):
 		if lat > mc.polarFrontLatitude:
@@ -1168,11 +1129,9 @@ class FloatMap:
 			pressure   = latPercent
 		return pressure
 
-
 	def ApplyFunction(self, func):
 		for i in range(self.length):
 			self.data[i] = func(self.data[i])
-
 
 	def GetAverageInHex(self, x, y, radius):
 		list = pb.getCirclePoints(x, y, radius)
@@ -1183,7 +1142,6 @@ class FloatMap:
 			avg = avg + self.data[i]
 		avg = avg / len(list)
 		return avg
-
 
 	def GetStdDevInHex(self, x, y, radius):
 		list = pb.getCirclePoints(x, y, radius)
@@ -1202,7 +1160,6 @@ class FloatMap:
 		deviation = math.sqrt(deviation / len(list))
 		return deviation
 
-
 	def Smooth(self, radius):
 		dataCopy = {}
 		for y in range(self.height):
@@ -1210,7 +1167,6 @@ class FloatMap:
 				i = self.GetIndex(x, y)
 				dataCopy[i] = self.GetAverageInHex(x, y, radius)
 		self.data = dataCopy
-
 
 	def Deviate(self, radius):
 		dataCopy = {}
@@ -1220,13 +1176,11 @@ class FloatMap:
 				dataCopy[i] = self.GetStdDevInHex(x, y, radius)
 		self.data = dataCopy
 
-
 	def IsOnMap(self, x, y):
 		i = self.GetIndex(x, y)
 		if i == -1:
 			return False
 		return True
-
 
 ##############################################################################
 ## PW3 Interpolation and Perlin
@@ -1240,14 +1194,12 @@ def CubicInterpolate(v0, v1, v2, v3, mu):
 	a3 = v1
 	return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3)
 
-
 def BicubicInterpolate(v, muX, muY):
 	a0 = CubicInterpolate(v[1],  v[2],  v[3],  v[4],  muX)
 	a1 = CubicInterpolate(v[5],  v[6],  v[7],  v[8],  muX)
 	a2 = CubicInterpolate(v[9],  v[10], v[11], v[12], muX)
 	a3 = CubicInterpolate(v[13], v[14], v[15], v[16], muX)
 	return CubicInterpolate(a0, a1, a2, a3, muY)
-
 
 def CubicDerivative(v0, v1, v2, v3, mu):
 	mu2 = mu * mu
@@ -1256,14 +1208,12 @@ def CubicDerivative(v0, v1, v2, v3, mu):
 	a2 = v2 - v0
 	return ((3 * a0 * mu2) + (2 * a1 * mu + a2))
 
-
 def BicubicDerivative(v, muX, muY):
 	a0 = CubicInterpolate(v[1],  v[2],  v[3],  v[4],  muX)
 	a1 = CubicInterpolate(v[5],  v[6],  v[7],  v[8],  muX)
 	a2 = CubicInterpolate(v[9],  v[10], v[11], v[12], muX)
 	a3 = CubicInterpolate(v[13], v[14], v[15], v[16], muX)
 	return CubicDerivative(a0, a1, a2, a3, muY)
-
 
 ##This function gets a smoothly interpolated value from srcMap.
 ##x and y are non-integer coordinates of where the value is to
@@ -1286,7 +1236,6 @@ def GetInterpolatedValue(X, Y, srcMap):
 	finalValue = BicubicInterpolate(points, fractionX, fractionY)
 	return finalValue
 
-
 def GetDerivativeValue(X, Y, srcMap):
 	points = {}
 	fractionX = X - math.floor(X)
@@ -1303,7 +1252,6 @@ def GetDerivativeValue(X, Y, srcMap):
 			points[(pY * 4) + pX + 1] = srcMap.data[int(srcIndex)]
 	finalValue = BicubicDerivative(points, fractionX, fractionY)
 	return finalValue
-
 
 ##This function gets Perlin noise for the destination coordinates. Note
 ##that in order for the noise to wrap, the area sampled on the noise map
@@ -1336,7 +1284,6 @@ def GetPerlinNoise(x, y, destMapWidth, destMapHeight, initialFrequency, initialA
 	finalValue = finalValue / octaves
 	return finalValue
 
-
 def GetPerlinDerivative(x, y, destMapWidth, destMapHeight, initialFrequency, initialAmplitude, amplitudeChange, octaves, noiseMap):
 	finalValue = 0.0
 	frequency = initialFrequency
@@ -1364,7 +1311,6 @@ def GetPerlinDerivative(x, y, destMapWidth, destMapHeight, initialFrequency, ini
 		amplitude = amplitude * amplitudeChange
 	finalValue = finalValue / octaves
 	return finalValue
-
 
 def GenerateTwistedPerlinMap(width, height, wrapX, wrapY, minFreq, maxFreq, varFreq):
 	inputNoise = FloatMap()
@@ -1401,7 +1347,6 @@ def GenerateTwistedPerlinMap(width, height, wrapX, wrapY, minFreq, maxFreq, varF
 				twistMap.data[i] = GetPerlinNoise(xx + offset, y + offset, twistMap.width, twistMap.height, mid, 1.0, ampChange, 8, inputNoise)
 	twistMap.Normalize()
 	return twistMap
-
 
 def GenerateMountainMap(width, height, wrapX, wrapY, initFreq):
 	inputNoise1 = FloatMap()
@@ -1468,7 +1413,6 @@ def GenerateMountainMap(width, height, wrapX, wrapY, initFreq):
 	mountainMap.Normalize()
 	return mountainMap
 
-
 def GetAttenuationFactor(map, x, y):
 	southY     = map.height * mc.southAttenuationRange
 	southRange = map.height * mc.southAttenuationRange
@@ -1490,7 +1434,6 @@ def GetAttenuationFactor(map, x, y):
 		xAttenuation = mc.westAttenuationFactor + (x / westRange) * (1.0 - mc.westAttenuationFactor)
 	return yAttenuation * xAttenuation
 
-
 ##############################################################################
 ## PW3 Landmass Generator
 ##############################################################################
@@ -1498,7 +1441,6 @@ def GetAttenuationFactor(map, x, y):
 class ElevationMap3(FloatMap):
 	def __init__(self):
 		return
-
 
 	def GenerateElevationMap(self):
 		# <advc> Increased in MapConstants.initialize for larger landmasses. Not sure if it has that effect, but, if so, that'll make it more difficult to prevent a pangaea, so:
@@ -1527,7 +1469,6 @@ class ElevationMap3(FloatMap):
 		# <advc> Moved into new method (like it was already done for ElevationMap2)
 		self.CalculateSeaLevel()
 
-
 	def CalculateSeaLevel(self):
 		land = mc.landPercent * mc.SeaLevelFactor
 		self.seaLevelThreshold = FindThresholdFromPercent(self.data, self.length, land, True)
@@ -1539,7 +1480,6 @@ class ElevationMap3(FloatMap):
 			return True
 		return False
 
-
 	def GetAltitudeAboveSeaLevel(self, x, y):
 		i = self.GetIndex(x, y)
 		if i == -1:
@@ -1549,7 +1489,6 @@ class ElevationMap3(FloatMap):
 			return 0.0
 		altitude = (altitude - self.seaLevelThreshold) / (1.0 - self.seaLevelThreshold)
 		return altitude
-
 
 	def FillInLakes(self):
 		am = AreaMap(self.width, self.height, True, True)
@@ -1564,7 +1503,6 @@ class ElevationMap3(FloatMap):
 						for a in am.areaList:
 							if a.ID == am.data[i] and a.size < mc.minOceanSize:
 								self.data[i] = self.seaLevelThreshold
-
 
 e3 = ElevationMap3()
 
@@ -1594,7 +1532,6 @@ def centerMap(heightMap, width, height, indexfunc):
 		for x in range(width):
 			heightMap[indexfunc(x,y)] = tempRow[((x + minX) % width)]
 
-
 ##############################################################################
 ## PW2 Landmass Generator
 ##############################################################################
@@ -1603,14 +1540,12 @@ class ElevationMap2(FloatMap):
 	def __init__(self):
 		return
 
-
 	def GenerateElevationMap(self):
 		self.length = mc.hmWidth * mc.hmHeight
 		self.data   = array('d')
 		for i in range(self.length):
 			self.data.append(0.0)
 		self.GenerateMidpointDisplacement()
-
 
 	def checkMaxGrain(self):
 		#hm map dimensions (minus 1 if no wrapping) must be evenly divisible by max grain
@@ -1627,7 +1562,6 @@ class ElevationMap2(FloatMap):
 			ok = False
 		if not ok:
 			raise ValueError, "height map dimesions not divisible by mc.hmMaxGrain. also check wrapping options"
-
 
 	def isPlotOnMargin(self, x, y):
 		marginSize = mc.hmMaxGrain * mc.hmGrainMargin
@@ -1658,7 +1592,6 @@ class ElevationMap2(FloatMap):
 			if dimension > middle - marginSize and dimension < middle + marginSize:
 				return True
 		return False
-
 
 	def GenerateMidpointDisplacement(self):
 		self.checkMaxGrain()
@@ -1781,7 +1714,6 @@ class ElevationMap2(FloatMap):
 						self.data[middle] = average + displacement
 			currentGrain = currentGrain / 2.0
 		NormalizeMap(self.data, mc.hmWidth, mc.hmHeight)
-
 
 	def PerformTectonics(self):
 		self.plateMap  = list()
@@ -1958,7 +1890,6 @@ class ElevationMap2(FloatMap):
 			self.plateHeightMap[i] += avgRipple - (avgRipple * PRand.random() * mc.plateNoiseFactor)
 		NormalizeMap(self.plateHeightMap, mc.hmWidth, mc.hmHeight)
 
-
 	def CombineMaps(self):
 		#Now add plateHeightMap to HeightMap
 		for i in range(self.length):
@@ -1990,7 +1921,6 @@ class ElevationMap2(FloatMap):
 						self.data[i] *= (float(difference) / float(marginSize)) * (1.0 - mc.hmMarginDepth) + mc.hmMarginDepth
 		NormalizeMap(self.data, mc.hmWidth, mc.hmHeight)
 
-
 	def AddWaterBands(self):
 		#validate water bands. Maps that wrap cannot have one in that direction
 		if mc.WrapX and (mc.eastWaterBand  != 0 or mc.westWaterBand  != 0):
@@ -2011,18 +1941,15 @@ class ElevationMap2(FloatMap):
 		mc.hmHeight = newHeight
 		self.data = newHeightMap
 
-
 	def CalculateSeaLevel(self):
 		land = mc.landPercent * mc.SeaLevelFactor # advc: simplified
 		self.seaLevelThreshold = FindValueFromPercent(self.data, self.length, land, True)
-
 
 	def IsBelowSeaLevel(self, x, y):
 		i = GetHmIndex(x, y)
 		if self.data[i] < self.seaLevelThreshold:
 			return True
 		return False
-
 
 	## This function returns altitude in relation to sea level with
 	## 0.0 being seaLevel and 1.0 being highest altitude
@@ -2036,13 +1963,11 @@ class ElevationMap2(FloatMap):
 		altitude = (altitude - self.seaLevelThreshold) / (1.0 - self.seaLevelThreshold)
 		return altitude
 
-
 	def setAltitudeAboveSeaLevel(self, x, y, altitude):
 		i = GetHmIndex(x, y)
 		if i == -1:
 			return
 		self.data[i] = ((1.0 - self.seaLevelThreshold) * altitude) + self.seaLevelThreshold
-
 
 	def isSeedBlocked(self, plateList, seedX, seedY):
 		for plate in plateList:
@@ -2056,14 +1981,12 @@ class ElevationMap2(FloatMap):
 			return True
 		return False
 
-
 	def GetInfluFromDistance(self, sinkValue, peakValue, searchRadius, distance):
 		influence = peakValue
 		maxDistance = math.sqrt(pow(float(searchRadius), 2) + pow(float(searchRadius), 2))
 		#minDistance = 1.0
 		influence -= ((peakValue - sinkValue) * (distance - 1.0)) / (maxDistance - 1.0)
 		return influence
-
 
 	def FindDistanceToPlateBoundary(self, x, y, searchRadius):
 		minDistance = 10.0
@@ -2078,7 +2001,6 @@ class ElevationMap2(FloatMap):
 		if minDistance == 10.0:
 			return 0.0
 		return minDistance
-
 
 	def FillInLakes(self):
 		#smaller lakes need to be filled in for now. The river system will
@@ -2097,7 +2019,6 @@ class ElevationMap2(FloatMap):
 						if a.ID == am.data[i] and a.size < mc.minInlandSeaSize:
 							self.data[i] = self.seaLevelThreshold
 
-
 class Plate:
 	def __init__(self, ID, seedX, seedY):
 		self.ID    = ID
@@ -2111,7 +2032,6 @@ class Plate:
 		self.SE = 2
 		self.SW = 3
 
-
 	def GetQuadrant(self):
 		if self.seedY < mc.hmHeight / 2:
 			if self.seedX < mc.hmWidth / 2:
@@ -2124,7 +2044,6 @@ class Plate:
 			else:
 				return self.NE
 
-
 class PlatePlot:
 	def __init__(self, plateID, maxDistance):
 		self.plateID = plateID
@@ -2132,9 +2051,7 @@ class PlatePlot:
 		for i in range(mc.hmNumberOfPlates + 1):
 			self.distanceList.append(maxDistance)
 
-
 e2 = ElevationMap2()
-
 
 ##############################################################################
 ## PW3 Climate System
@@ -2143,7 +2060,6 @@ e2 = ElevationMap2()
 class ClimateMap3:
 	def __init__(self):
 		return
-
 
 	def GenerateTemperatureMap(self):
 		if mc.LandmassGenerator == 2:
@@ -2201,7 +2117,6 @@ class ClimateMap3:
 				# </advc>
 		self.TemperatureMap.Normalize()
 
-
 	# advc: Cut from GenerateTemperatureMap
 	def fillLatitudeMap(self, tempMap, waterTempMap, bottomTempLat, latRange):
 		if mc.LandmassGenerator == 2:
@@ -2223,7 +2138,6 @@ class ClimateMap3:
 					tempMap.data[i] = latTemp
 		tempMap.Smooth(int(math.floor(em.width / 8.0)))
 		tempMap.Normalize()
-
 
 	def GenerateRainfallMap(self):
 		if mc.LandmassGenerator == 2:
@@ -2342,7 +2256,6 @@ class ClimateMap3:
 					self.RainfallMap.data[i] = numerator / math.sqrt(self.distToSea[i])
 				# </advc>
 
-
 	def DistributeRain(self, x, y, pressureMap, RainfallMap, moistureMap, boolGeostrophic):
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -2400,7 +2313,6 @@ class ClimateMap3:
 			##pass to neighbor.
 			moistureMap.data[ii] = moistureMap.data[ii] + moisturePerNeighbor - (cost * moisturePerNeighbor)
 
-
 	def GetRainCost(self, upLiftSource, upLiftDest):
 		cost = mc.minimumRainCost
 		cost = max(mc.minimumRainCost, cost + upLiftDest - upLiftSource)
@@ -2408,9 +2320,7 @@ class ClimateMap3:
 			cost = 0.0
 		return cost
 
-
 c3 = ClimateMap3()
-
 
 ##############################################################################
 ## PW2 Climate System
@@ -2419,7 +2329,6 @@ c3 = ClimateMap3()
 class ClimateMap2:
 	def __init__(self):
 		return
-
 
 	def CreateClimateMaps(self):
 		if mc.LandmassGenerator == 2:
@@ -2533,7 +2442,6 @@ class ClimateMap2:
 		self.dropRain(orderList, self.TemperatureMap.data, True, wz)
 		NormalizeMap(self.RainfallMap.data, em.width, em.height)
 
-
 	def dropRain(self, plotList, tempMap, bGeostrophic, windZones):
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -2587,7 +2495,6 @@ class ClimateMap2:
 					self.moistureMap[ii] += moisturePerNeighbor - (cost * moisturePerNeighbor)
 			countRemaining -= 1
 
-
 	def getRainCost(self, x1, y1, x2, y2, distanceToUplift):
 		cost = mc.minimumRainCost
 		cRange = 1.0 - cost #We don't want to go over 1.0 so the range is reduced
@@ -2597,7 +2504,6 @@ class ClimateMap2:
 		cost += max((self.TemperatureMap.data[ii] - self.TemperatureMap.data[i]) * 2.0 * cRange, upliftCost)
 		return cost
 
-
 	def initializeTempMap(self, tempMap, tropic):
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -2606,7 +2512,6 @@ class ClimateMap2:
 		for y in range(em.height):
 			for x in range(em.width):
 				tempMap.append(self.getInitialTemp(x, y, tropic))
-
 
 	def getInitialTemp(self, x, y, tropic):
 		if mc.LandmassGenerator == 2:
@@ -2625,14 +2530,12 @@ class ClimateMap2:
 			temp = 1.0 - mc.oceanTempClamp - (tempPerLatChange * latDifference)
 		return temp
 
-
 class RainPlot:
 	def __init__(self, x, y, order, uplift):
 		self.x = x
 		self.y = y
 		self.order  = order
 		self.uplift = uplift
-
 
 class WindZones:
 	def __init__(self, height, topLat, botLat):
@@ -2646,7 +2549,6 @@ class WindZones:
 		self.height = height
 		self.topLat = topLat
 		self.botLat = botLat
-
 
 	def GetZone(self, y):
 		if y < 0 or y >= self.height:
@@ -2669,7 +2571,6 @@ class WindZones:
 		else:
 			return self.SPOLAR
 
-
 	def GetZoneName(self, zone):
 		if zone == self.NPOLAR:
 			return "NPOLAR"
@@ -2684,7 +2585,6 @@ class WindZones:
 		else:
 			return "SPOLAR"
 
-
 	def GetYFromZone(self, zone, bTop):
 		if bTop:
 			for y in range(self.height - 1, -1, -1):
@@ -2696,18 +2596,15 @@ class WindZones:
 					return y
 		return -1
 
-
 	def GetZoneSize(self):
 		latitudeRange = self.topLat - self.botLat
 		degreesPerDY = float(latitudeRange) / float(self.height)
 		size = 30.0 / degreesPerDY
 		return size
 
-
 	def GetWindDirections(self, y):
 		z = self.GetZone(y)
 		return self.GetWindDirectionsInZone(z)
-
 
 	def GetWindDirectionsInZone(self, z):
 		#get x,y directions
@@ -2725,9 +2622,7 @@ class WindZones:
 			return (-1, 1)
 		return (0, 0)
 
-
 c2 = ClimateMap2()
-
 
 ################################################################################
 ## PW2/PW3 Global Functions
@@ -2752,7 +2647,6 @@ def errorPopUp(message):
 				popupInfo.addPythonButton("Ok", "")
 				popupInfo.addPopup(iPlayer)
 
-
 def GetIndex(x, y):
 	if mc.WrapX:
 		xx = x % mc.width
@@ -2774,7 +2668,6 @@ def CoordsFromIndex(i, width):
 	y = i / width
 	return i - y * width, y
 
-
 def GetHmIndex(x, y):
 	if mc.LandmassGenerator == 2:
 		em = e2
@@ -2794,7 +2687,6 @@ def GetHmIndex(x, y):
 		yy = y
 	return yy * em.width + xx
 
-
 def GetIndexGeneral(x, y, width, height):
 	if mc.WrapX:
 		xx = x % width
@@ -2809,7 +2701,6 @@ def GetIndexGeneral(x, y, width, height):
 	else:
 		yy = y
 	return yy * width + xx
-
 
 def NormalizeMap(fMap, width, height):
 	maxAlt = 0.0
@@ -2831,7 +2722,6 @@ def NormalizeMap(fMap, width, height):
 		for x in range(width):
 			fMap[GetIndexGeneral(x, y, width, height)] = fMap[GetIndexGeneral(x, y, width, height)] * scaler
 
-
 def GetWeight(x, y, xx, yy, xScale, yScale):
 	xWeight = 1.0
 	if float(xx) < x * xScale:
@@ -2844,7 +2734,6 @@ def GetWeight(x, y, xx, yy, xScale, yScale):
 	elif float(yy + 1) > (y + 1) * yScale:
 		yWeight = ((y + 1) * yScale) - float(yy)
 	return xWeight * yWeight
-
 
 def ShrinkMaps():
 	if mc.LandmassGenerator == 2:
@@ -2906,7 +2795,6 @@ def ShrinkMaps():
 					if a.ID == am.data[i] and a.size < mc.minInlandSeaSize:
 						em.data[i] = em.seaLevelThreshold
 
-
 def CropMap(theMap):
 	newMap = array('d')
 	for y in range(mc.hmHeight):
@@ -2918,7 +2806,6 @@ def CropMap(theMap):
 			i = GetHmIndex(x, y)
 			newMap.append(theMap[i])
 	return newMap
-
 
 def ShrinkMap(largeMap, lWidth, lHeight, sWidth, sHeight):
 	smallMap = array('d')
@@ -2947,7 +2834,6 @@ def ShrinkMap(largeMap, lWidth, lHeight, sWidth, sHeight):
 			smallMap.append(contributors / weights)
 	return smallMap
 
-
 def AngleDifference(a1, a2):
 	diff = a1 - a2
 	while(diff < -180.0):
@@ -2956,11 +2842,9 @@ def AngleDifference(a1, a2):
 		diff -= 360.0
 	return diff
 
-
 def AppendUnique(theList, newItem):
 	if not IsInList(theList,newItem):
 		theList.append(newItem)
-
 
 def IsInList(theList, newItem):
 	itemFound = False
@@ -2970,13 +2854,11 @@ def IsInList(theList, newItem):
 			break
 	return itemFound
 
-
 def DeleteFromList(theList, oldItem):
 	for n in range(len(theList)):
 		if theList[n] == oldItem:
 			del theList[n]
 			break
-
 
 def ShuffleList(theList):
 	if mc.UsePythonRandom:
@@ -2995,16 +2877,13 @@ def ShuffleList(theList):
 				del preshuffle[n]
 		return shuffled
 
-
 def GetInfoType(string):
 	cgc = CyGlobalContext()
 	return getInfoTypeOrFail(string)
 
-
 def GetDistance(x, y, dx, dy):
 	distance = math.sqrt(abs((float(x - dx) * float(x - dx)) + (float(y - dy) * float(y - dy))))
 	return distance
-
 
 def GetOppositeDirection(direction):
 	opposite = mc.L
@@ -3048,7 +2927,6 @@ def GetNeighbor(x, y, direction):
 		return x - 1, y - 1
 	return -1, -1
 
-
 def FindThresholdFromPercent(map, length, percent, greaterThan):
 	percentage = percent * 100.0
 	if greaterThan:
@@ -3063,7 +2941,6 @@ def FindThresholdFromPercent(map, length, percent, greaterThan):
 	mapList.sort(lambda a, b: cmp(a, b))
 	threshIndex = math.floor(((len(mapList) - 1.0) * percentage) / 100.0)
 	return mapList[int(threshIndex)]
-
 
 ##This function is a general purpose value tuner. It finds a value that will be greater
 ##than or less than the desired percent of a whole map within a given tolerance. Map values
@@ -3148,14 +3025,12 @@ def FindValueFromPercent(map, length, percent, greaterThan):
 	#at this point value should be in tolerance or close to it
 	return threshold
 
-
 def isWaterMatch(x, y):
 	if mc.LandmassGenerator == 2:
 		em = e2
 	else:
 		em = e3
 	return em.IsBelowSeaLevel(x, y)
-
 
 def isDeepWaterMatch(x, y):
 	if mc.LandmassGenerator == 2:
@@ -3179,14 +3054,12 @@ def isDeepWaterMatch(x, y):
 			return False
 	return True
 
-
 def isPeakWaterMatch(x, y): # advc.030 (note): disused
 	if mc.LandmassGenerator == 2:
 		em = e2
 	else:
 		em = e3
 	return em.IsBelowSeaLevel(x, y) or (tm.pData[GetIndex(x, y)] == mc.PEAK)
-
 
 def isHmWaterMatch(x, y):
 	i = GetHmIndex(x, y)
@@ -3269,11 +3142,9 @@ def canHaveOasis(x, y, tData, fOasis):
 	# </advc>
 	return True
 
-
 class TerrainMap:
 	def __init__(self):
 		return
-
 
 	def initialize(self):
 		if mc.LandmassGenerator == 2:
@@ -3293,7 +3164,6 @@ class TerrainMap:
 			self.peakData.append(0.0) # </advc>
 			self.pData.append(mc.WATER)
 			self.tData.append(mc.OCEAN)
-
 
 	def GeneratePlotMap(self):
 		print "-------------------"
@@ -3588,14 +3458,11 @@ class TerrainMap:
 					jungleLength += 1
 		self.jungleTemp = FindValueFromPercent(jungleTiles, jungleLength, mc.JunglePercent, True)
 
-
 tm = TerrainMap()
-
 
 class PangaeaBreaker:
 	def __init__(self):
 		return
-
 
 	def breakPangaeas(self):
 		if mc.AllowPangaeas:
@@ -3639,7 +3506,6 @@ class PangaeaBreaker:
 			if self.isPangaea():
 				print "Pangaea still exists" # </advc>
 
-
 	def isPangaea(self):
 		continentList = list()
 		for a in self.areaMap.areaList:
@@ -3657,7 +3523,6 @@ class PangaeaBreaker:
 			return True
 		return False
 
-
 	def getMeteorStrike(self):
 		continentList = list()
 		for a in self.areaMap.areaList:
@@ -3669,7 +3534,6 @@ class PangaeaBreaker:
 		biggestContinentID = continentList[0].ID
 		x, y = self.getHighestCentrality(biggestContinentID)
 		return x, y
-
 
 	def isChokePoint(self, x, y, biggestContinentID):
 		circlePoints = self.getCirclePoints(x, y, mc.minimumMeteorSize)
@@ -3694,7 +3558,6 @@ class PangaeaBreaker:
 				return True
 		return False
 
-
 	def getLandPercentInCircle(self, circlePoints, biggestContinentID):
 		land  = 0
 		water = 0
@@ -3713,7 +3576,6 @@ class PangaeaBreaker:
 		percent = float(land) / float(land + water)
 		return percent
 
-
 	def countCraterLine(self, x1, x2, y, biggestContinentID):
 		land  = 0
 		water = 0
@@ -3724,7 +3586,6 @@ class PangaeaBreaker:
 			else:
 				water += 1
 		return land, water
-
 
 	def getContinentCenter(self, ID):
 		if mc.LandmassGenerator == 2:
@@ -3746,7 +3607,6 @@ class PangaeaBreaker:
 		center = xCenter, yCenter
 		return center
 
-
 	def getDistance(self,x, y, dx, dy):
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -3757,7 +3617,6 @@ class PangaeaBreaker:
 			xx = em.width - abs(xx)
 		distance = max(abs(xx), abs(y - dy))
 		return distance
-
 
 	def castMeteorUponTheEarth(self, x, y):
 		if mc.LandmassGenerator == 2:
@@ -3780,7 +3639,6 @@ class PangaeaBreaker:
 			# <advc> params centerX, centerY added
 			self.drawCraterLine(x1, x2, cy, x, y)
 
-
 	def drawCraterLine(self, x1, x2, y, centerX, centerY): # </advc>
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -3793,7 +3651,6 @@ class PangaeaBreaker:
 			#em.data[i] = 0.0
 			# advc: 0 elevation leads to coastal peaks when using the lowest-neighbor slope option.
 			em.data[i] *= min(0.88, 0.37 + math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)) / 7.0)
-
 
 	def getCirclePoints(self, xCenter, yCenter, radius):
 		circlePointList = list()
@@ -3811,7 +3668,6 @@ class PangaeaBreaker:
 			self.addCirclePoints(xCenter, yCenter, x, y, circlePointList)
 		return circlePointList
 
-
 	def addCirclePoints(self, xCenter, yCenter, x, y, circlePointList):
 		circlePointList.append(CirclePoint(xCenter + x, yCenter + y))
 		circlePointList.append(CirclePoint(xCenter - x, yCenter + y))
@@ -3822,11 +3678,9 @@ class PangaeaBreaker:
 		circlePointList.append(CirclePoint(xCenter + y, yCenter - x))
 		circlePointList.append(CirclePoint(xCenter - y, yCenter - x))
 
-
 	def createDistanceMap(self):
 		# advc: Moved into global function
 		self.distanceMap = createDistanceMap(True)
-
 
 	def getHighestCentrality(self, ID):
 		C = self.createCentralityList(ID)
@@ -3838,7 +3692,6 @@ class PangaeaBreaker:
 			if not centralPlot is None and centralPlot.getX() >= 0 and centralPlot.getY() >= 0 and not centralPlot.isWater():
 				return C[i].x, C[i].y # </advc>
 		return C[0].x, C[0].y
-
 
 	def createContinentList(self, ID):
 		if mc.LandmassGenerator == 2:
@@ -3888,7 +3741,6 @@ class PangaeaBreaker:
 			n += 1
 		return C
 
-
 	def createCentralityList(self,ID):
 		C = self.createContinentList(ID)
 		for s in range(len(C)):
@@ -3924,7 +3776,6 @@ class PangaeaBreaker:
 						C[w].centrality = C[w].centrality + delta[w]
 		return C
 
-
 	def isNeighbor(self, x, y, xx, yy):
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -3949,12 +3800,10 @@ class PangaeaBreaker:
 				return True
 		return False
 
-
 class CirclePoint:
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
-
 
 class CentralityScore:
 	def __init__(self, x, y):
@@ -3963,21 +3812,17 @@ class CentralityScore:
 		self.centrality = 0
 		self.neighborList = []
 
-
 def isNonCoastWaterMatch(x, y):
 	i = GetIndex(x, y)
 	if tm.tData[i] == mc.OCEAN:
 		return True
 	return False
 
-
 pb = PangaeaBreaker()
-
 
 class ContinentMap:
 	def __init__(self):
 		return
-
 
 	def GenerateContinentMap(self):
 		print "------------------------"
@@ -3990,13 +3835,11 @@ class ContinentMap:
 		self.newWorldAreaID = 0
 		self.newWorldRegionID = 0
 
-
 	def designateNewWorld(self):
 		# Want the New World to be separated from the Old World by deep water.
 		self.regionMap = AreaMap(mc.width, mc.height, True, True)
 		self.regionMap.defineAreas(isDeepWaterMatch)
 		self.newWorldAreaID, self.newWorldRegionID = self._getNewWorldID() # </advc>
-
 
 	def _getNewWorldID(self):
 		if mc.LandmassGenerator == 2:
@@ -4106,9 +3949,7 @@ class ContinentMap:
 			return 0, nID
 		return nID, 0 # </advc>
 
-
 km = ContinentMap()
-
 
 #OK! now that directions N,S,E,W are important, we have to keep in mind that
 #the map plots are ordered from 0,0 in the SOUTH west corner! NOT the northwest
@@ -4118,7 +3959,6 @@ class RiverMap:
 		#To provide global access without allocating alot of resources for
 		#nothing, object initializer must be empty
 		return
-
 
 	def GenerateRiverMap(self):
 		print "--------------------"
@@ -4298,7 +4138,6 @@ class RiverMap:
 		#at this point river should be in tolerance or close to it
 		#riverMap is ready for use
 
-
 	def siltifyLakes(self):
 		lakeList = []
 		onQueueMap = array('i')
@@ -4334,7 +4173,6 @@ class RiverMap:
 					lakeList.append((xx, yy, lakeSize))
 					onQueueMap[ii] = 1
 
-
 	def isLake(self, x, y):
 		i = GetIndex(x, y)
 		alt = self.averageHeightMap[i]
@@ -4347,7 +4185,6 @@ class RiverMap:
 				return False
 		return True
 
-
 	def getLowestNeighborAltitude(self, x, y):
 		lowest = 1.0
 		for direction in range(1, 5):
@@ -4356,7 +4193,6 @@ class RiverMap:
 			if ii >= 0 and self.averageHeightMap[ii] < lowest:
 				lowest = self.averageHeightMap[ii]
 		return lowest
-
 
 	def createLakeDepressions(self):
 		if mc.LandmassGenerator == 2:
@@ -4381,14 +4217,11 @@ class RiverMap:
 			if lowestAlt >= 0.0:
 				self.averageHeightMap[i] = lowestAlt - 0.001
 
-
 rm = RiverMap()
-
 
 class BonusPlacer: # advc (note): Disused; see addBonuses.
 	def __init__(self):
 		return
-
 
 	def AddBonuses(self):
 		if mc.LandmassGenerator == 2:
@@ -4443,7 +4276,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 			if bonus.currentBonusCount == 0 and bonus.desiredBonusCount > 0:
 				print "No room at all found for %(bt)s!!!" % {"bt":bonusInfo.getType()}
 			print "Placed %(cb)d, desired %(db)d for %(bt)s" % {"cb":bonus.currentBonusCount, "db":bonus.desiredBonusCount, "bt":bonusInfo.getType()}
-
 
 	#AIAndy - Changed to start at the end of the last run in the plot list
 	def AddBonusType(self, eBonus, plotIndexList, startAtIndex):
@@ -4505,7 +4337,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		lastI = (lastI + 1) % plotListLength
 		return lastI
 
-
 	#AIAndy - Changed to start at the end of the last run in the plot list and not shuffle an extra plot list
 	def AddEmergencyBonus(self, bonus, ignoreClass, plotIndexList, startAtIndex):
 		gc = CyGlobalContext()
@@ -4543,7 +4374,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		lastI = (lastI + 1) % plotListLength
 		return lastI
 
-
 	def plotXY(self, x, y, dx, dy):
 		#The one that civ uses will return junk so I have to make one that will not
 		x = (x + dx) % mc.width
@@ -4551,7 +4381,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		if y < 0 or y > mc.height - 1:
 			return None
 		return CyMap().plot(x, y)
-
 
 	def AssignBonusAreas(self):
 		gc = CyGlobalContext()
@@ -4600,7 +4429,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 				if areaSuitabilityList[n].suitability > 0.3:
 					self.bonusList[i].areaList.append(areaSuitabilityList[n].areaID)
 
-
 	def CanPlaceBonusAt(self, plot, eBonus, bIgnoreLatitude, bIgnoreArea):
 		gc = CyGlobalContext()
 		x = plot.getX()
@@ -4648,7 +4476,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 								if eOtherBonus == eBonus:
 									return False
 		return True
-
 
 	def PlotCanHaveBonus(self, plot, eBonus, bIgnoreLatitude, bIgnoreArea):
 		#This function is like CvPlot::canHaveBonus but will ignore blocking features and checks for a valid area.
@@ -4710,7 +4537,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 				return False
 		return True
 
-
 	def CalculateNumBonusesToAdd(self, eBonus):
 		#This is like the function in CvMapGenerator except it uses
 		#self.PlotCanHaveBonus instead of CvPlot::canHaveBonus
@@ -4742,7 +4568,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		bonusCount = max(1, int(bonusCount * mc.BonusBonus))
 		return bonusCount
 
-
 	def GetUniqueBonusTypeCountInArea(self, area):
 		gc = CyGlobalContext()
 		areaID = area.getID()
@@ -4757,7 +4582,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 					uniqueBonusCount += 1
 					break
 		return uniqueBonusCount
-
 
 	def GetSameClassTypeCountInArea(self, area, eBonus):
 		gc = CyGlobalContext()
@@ -4791,7 +4615,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		#sometimes it might be necessary.
 		return uniqueBonusCount * uRange * uRange
 
-
 	def CalculateAreaSuitability(self, area, eBonus):
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -4812,7 +4635,6 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		suitability = float(numPossible) / float(area.getNumTiles())
 		return suitability, numPossible
 
-
 class BonusArea:
 	def __init__(self):
 		self.eBonus = -1
@@ -4820,21 +4642,17 @@ class BonusArea:
 		self.currentBonusCount = 0
 		self.areaList = list()
 
-
 class AreaSuitability:
 	def __init__(self, areaID):
 		self.areaID = areaID
 		self.suitability = 0
 		self.numPossible = 0
 
-
 bp = BonusPlacer()
-
 
 class StartingPlotFinder:
 	def __init__(self):
 		return
-
 
 	def CachePlotValue(self):
 		self.inlandValueList  = []
@@ -4849,7 +4667,6 @@ class StartingPlotFinder:
 				food, value = self.getPlotPotentialValueUncached(x, y, True)
 				self.coastalValueList.append(value)
 				self.coastalFoodList.append(food)
-
 
 	def SetStartingPlots(self):
 		try:
@@ -5077,7 +4894,6 @@ class StartingPlotFinder:
 			errorPopUp("PerfectWorld's starting plot finder has failed; this map likely has unfair starting locations. You may wish to quit this game and generate a new map." + "\n\nAn exception of type " + e.__class__.__name__ + " occurred. Arguments:\n" + str(e.args))
 			raise Exception, e
 
-
 	def setupOldWorldAreaList(self):
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -5111,7 +4927,6 @@ class StartingPlotFinder:
 						areaOldWorld.append(False)
 					break
 		return areaOldWorld
-
 
 	def getCityPotentialValue(self, x, y):
 		gc = CyGlobalContext()
@@ -5206,7 +5021,6 @@ class StartingPlotFinder:
 			totalValue /= 2 # </advc>
 		return totalFood, totalValue
 
-
 	def getPlotPotentialValue(self, x, y, coastalCity):
 		i = GetIndex(x, y)
 		#LM - This included an extension of the "ignore lakes" TRAIN WRECK below.
@@ -5218,7 +5032,6 @@ class StartingPlotFinder:
 			value = self.inlandValueList[i]
 			food  = self.inlandFoodList[i]
 		return food, value
-
 
 	def getPlotPotentialValueUncached(self, x, y, coastalCity):
 		plot = CyMap().plot(x, y)
@@ -5418,7 +5231,6 @@ class StartingPlotFinder:
 			value = max(0, value) # advc (from Civ 4 Reimagined)
 		return food, value
 
-
 	#LM - We need a whole new version of the function specifically for city plots, because they have different rules for calculating yields (and no tile improvements either).
 	def getCityPlotPotentialValueUncached(self, x, y, coastalCity):
 		plot = CyMap().plot(x, y)
@@ -5495,7 +5307,6 @@ class StartingPlotFinder:
 		elif food + (production + bonusProduction) + ((commerce + bonusCommerce) / 2) < 3:
 			value = 0
 		return food, value
-
 
 	def boostCityPlotValue(self, x, y, bonuses, isCoastalCity):
 		mapGen = CyMapGenerator()
@@ -5579,7 +5390,6 @@ class StartingPlotFinder:
 					bonusInfo = gc.getBonusInfo(plot.getBonusType(TeamTypes.NO_TEAM))
 					if bonusInfo == None or bonusInfo.isFeature(featureEnum):
 						plot.setFeatureType(featureEnum, featureVariety)
-
 
 	def ensureMinimumHills(self, x, y):
 		gc = CyGlobalContext()
@@ -5687,7 +5497,6 @@ class StartingPlotFinder:
 						badFeaturesToRemove -= 1
 						plot.setFeatureType(FeatureTypes.NO_FEATURE, -1)
 
-
 	def addHandicapBonus(self):
 		gc = CyGlobalContext()
 		for ePlayer in range(gc.getMAX_CIV_PLAYERS()):
@@ -5733,12 +5542,10 @@ class StartingPlotFinder:
 						print "Human player at Deity Difficulty, adding %d resources" % mc.DeityBonus
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.DeityBonus, sPlot.isCoast())
 
-
 class CityPlot:
 	def __init__(self, food, value):
 		self.food  = food
 		self.value = value
-
 
 class Improvement:
 	def __init__(self, e, food, production, commerce, value):
@@ -5747,7 +5554,6 @@ class Improvement:
 		self.production = production
 		self.commerce   = commerce
 		self.value      = value
-
 
 class StartingArea:
 	def __init__(self, areaID):
@@ -5759,7 +5565,6 @@ class StartingArea:
 		self.rawValue = 0
 		self.CalculatePlotList()
 		self.idealNumberOfPlayers = 0
-
 
 	def CalculatePlotList(self):
 		gc = CyGlobalContext()
@@ -5871,7 +5676,6 @@ class StartingArea:
 		print("%d/%d sites eliminated at dist=%d" % (numPlots-len(self.plotList),numPlots,radius))
 		# </advc>
 
-
 	# advc: Cut from CalculatePlotList
 	def FillDistanceTable(self):
 		gc = CyGlobalContext()
@@ -5928,7 +5732,6 @@ class StartingArea:
 				avgDistance += distance
 			# </advc>
 			self.plotList[n].avgDistance = avgDistance
-
 
 	def FindStartingPlots(self):
 		gc = CyGlobalContext()
@@ -6005,7 +5808,6 @@ class StartingArea:
 				print("%d/%d assigned as starting plot" % (sPlot.getX(),sPlot.getY()))
 				n += 1
 
-
 	def CalculateStartingPlotValues(self):
 		numPlots = len(self.plotList)
 		for n in range(numPlots):
@@ -6037,14 +5839,12 @@ class StartingArea:
 					self.plotList[m].owner = self.plotList[n]
 					self.plotList[m].distanceToOwner = nDistance
 
-
 	def getDistance(self, x, y, dx, dy):
 		xx = x - dx
 		if abs(xx) > mc.width / 2:
 			xx = mc.width - abs(xx)
 		distance = max(abs(xx), abs(y - dy))
 		return distance
-
 
 class StartPlot:
 	def __init__(self, x, y, localValue):
@@ -6059,7 +5859,6 @@ class StartPlot:
 		self.owner = None
 		self.avgDistance = 0
 
-
 	def isCoast(self):
 		plot = CyMap().plot(self.x, self.y)
 		waterArea = plot.waterArea()
@@ -6067,15 +5866,12 @@ class StartPlot:
 			return False
 		return True
 
-
 	def isRiverSide(self):
 		plot = CyMap().plot(self.x, self.y)
 		return plot.isRiverSide()
 
-
 	def plot(self):
 		return CyMap().plot(self.x, self.y)
-
 
 	def copy(self):
 		cp = StartPlot(self.x, self.y, self.localValue)
@@ -6088,15 +5884,12 @@ class StartPlot:
 		cp.avgDistance         = self.avgDistance
 		return cp
 
-
 	def __str__(self):
 		linestring = "x=%(x)3d,y=%(y)3d,localValue=%(lv)6d,totalValue =%(tv)6d, nearestStart=%(ad)6d, coastalCity=%(cc)d" % \
 		{"x":self.x,"y":self.y,"lv":self.localValue,"tv":self.totalValue,"ad":self.nearestStart,"cc":self.isCoast()}
 		return linestring
 
-
 sf = StartingPlotFinder()
-
 
 ###############################################################################
 ## Required DLL Tie-in Functions (Mapscript Template)
@@ -6106,19 +5899,15 @@ def getDescription():
 	# advc: First sentence taken from Perfect World 2. The description imo isn't the place for recounting the history of the map script.
 	return "Random map that simulates earth-like plate tectonics, geostrophic and monsoon winds and rainfall. Customized for the AdvCiv mod."
 
-
 def getWrapX():
 	return mc.WrapX
-
 
 def getWrapY():
 	return mc.WrapY
 
-
 def getNumCustomMapOptions():
 	mc.initialize()
 	return 3 # advc: was 8
-
 
 def getCustomMapOptionName(argsList):
 	optionID = argsList[0]
@@ -6148,7 +5937,6 @@ def getCustomMapOptionName(argsList):
 		2:	"TXT_KEY_MAP_WORLD_WRAP"
 		}
 	return unicode(CyTranslator().getText(option_names[optionID], ())) # </advc>
-
 
 def getNumCustomMapOptionValues(argsList):
 	optionID = argsList[0]
@@ -6274,10 +6062,8 @@ def getCustomMapOptionDefault(argsList):
 		}
 	return option_defaults[iOption] # </advc>
 
-
 def isRandomCustomMapOption(argsList):
 	return False
-
 
 # # advc: Re-enable all the normalization functions in the DLL. Extra rivers and lakes had already been re-enabled by v3.3.
 # #This doesn't work with my river system so it is disabled. Some civs
@@ -6310,7 +6096,6 @@ def isClimateMap():
 #def isSeaLevelMap():
 #	return False
 
-
 def getTopLatitude():
 	return mc.topLatitude # advc.001: was 90
 
@@ -6332,7 +6117,6 @@ def getBottomLatitude():
 # 	[eWorldSize] = argsList
 # 	return grid_sizes[eWorldSize]
 #
-
 
 def generatePlotTypes():
 	print ""
@@ -6432,7 +6216,6 @@ def scaleMinMeteorSize():
 	# advc: When using the PW 2 climate system, the PangaeaBreaker has to work with a map of dimensions hmWidth x hmHeight. Therefore, counterintuitively, the meteor size needs to be increased on small maps. That part is OK in the original code above. But we shouldn't discard the meteor size set previously.
 	mc.minimumMeteorSize = int(math.ceil((mc.minimumMeteorSize * mc.hmWidth) / float(mc.width)))
 
-
 def generateTerrainTypes():
 	print "========================"
 	print "Generating Terrain Types"
@@ -6467,7 +6250,6 @@ def generateTerrainTypes():
 			terrainTypes[i] = iDesert
 	return terrainTypes
 
-
 def placeRiversInPlot(x, y):
 	gc = CyGlobalContext()
 	pmap = gc.getMap()
@@ -6486,8 +6268,6 @@ def placeRiversInPlot(x, y):
 		plot.setWOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 	elif rm.riverMap[ii] == mc.W:
 		plot.setNOfRiver(True, CardinalDirectionTypes.CARDINALDIRECTION_WEST)
-
-
 
 # This function examines a lake area and removes ugly surrounding rivers. Any
 # river that is flowing away from the lake, or alongside the lake will be
@@ -6552,8 +6332,6 @@ def cleanUpLake(x, y):
 	#Southeast plot is not relevant
 	return riversIntoLake
 
-
-
 # This function replaces rivers to update the river crossings after a lake or
 # channel is placed at X,Y. There had been a long standing problem where water tiles
 # added after a river were causing graphical glitches and incorrect river rules
@@ -6604,8 +6382,6 @@ def replaceRivers(x, y):
 			plot.setWOfRiver(False, CardinalDirectionTypes.NO_CARDINALDIRECTION)
 			plot.setWOfRiver(True,  CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 	#Southeast plot is not relevant
-
-
 
 # It looks bad to have a lake, fed by a river, sitting right next to the coast.
 # This function tries to minimize that occurance by replacing it with a
@@ -6680,7 +6456,6 @@ def makeHarbor(x, y, oceanMap):
 		oceanMap.defineAreas(isWaterMatch)
 		oceanID = oceanMap.getOceanID()
 
-
 def makeChannel(x, y):
 	gc = CyGlobalContext()
 	mmap = gc.getMap()
@@ -6694,7 +6469,6 @@ def makeChannel(x, y):
 	i = GetIndex(x, y)
 	tm.pData[i] = mc.WATER
 	tm.tData[i] = mc.COAST
-
 
 def expandLake(x, y, riversIntoLake, oceanMap):
 	class LakePlot:
@@ -6769,7 +6543,6 @@ def addRivers():
 		for x in range(mc.width):
 			placeRiversInPlot(x, y) # </advc>
 
-
 def addLakes():
 	gc = CyGlobalContext()
 	mmap = gc.getMap()
@@ -6796,7 +6569,6 @@ def addLakes():
 			i = GetIndex(x, y)
 			makeHarbor(x, y, oceanMap)
 	mmap.recalculateAreas(); # advc.opt: No longer done in makeChannel
-
 
 def addFeatures():
 	print "========================"
@@ -6929,7 +6701,6 @@ def addFeatures():
 						if setFeature(plot, fOasis, 0):
 							set = True
 
-
 # advc: Make sure that the placement rules are consistent with the DLL.
 # setFeatureType calls above redirected here.
 def setFeature(plot, feature, variety):
@@ -6937,7 +6708,6 @@ def setFeature(plot, feature, variety):
 		return False
 	plot.setFeatureType(feature, variety)
 	return True
-
 
 def createIce():
 	gc = CyGlobalContext()
@@ -7002,14 +6772,12 @@ def createIce():
 #def addBonuses():
 #	bp.AddBonuses()
 
-
 def assignStartingPlots():
 	# <advc.027> Handle starting sites in findStartingArea - unless SPI is disabled.
 	if CyGlobalContext().getDefineINT("ENABLE_STARTING_POSITION_ITERATION") <= 0:
 		sf.SetStartingPlots()
 	else:
 		CyPythonMgr().allowDefaultImpl()
-
 
 def findStartingArea(argsList):
 	[playerID] = argsList
@@ -7036,7 +6804,6 @@ def findStartingArea(argsList):
 def beforeInit():
 	PRand.seed() # advc: Moved from generatePlotTypes
 	mc.initInGameOptions()
-
 
 ##############################################################################
 ## Version History (LunarMongoose)

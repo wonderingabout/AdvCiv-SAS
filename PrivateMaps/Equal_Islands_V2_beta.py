@@ -29,7 +29,6 @@ balancer.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COPPER", "BONUS_HORSE", 
 balancer.resourcesToEliminate = ("", )
 _balancerBonusTypeIDs = None
 
-
 def _buildDynamicRegionTemplate(iNumRegions):
 	template = {}
 	fSouthMin = 0.1

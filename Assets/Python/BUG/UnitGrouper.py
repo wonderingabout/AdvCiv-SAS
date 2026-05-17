@@ -100,7 +100,6 @@ class Group:
 	def getTitle(self):
 		return self.title
 
-
 # Grouping definitions
 
 class UnitTypeGrouping(Grouping):
@@ -267,7 +266,6 @@ class StandardGrouper(Grouper):
 		self._addGrouping(PromotionGrouping())
 		self._addGrouping(LocationGrouping())
 		self._addGrouping(OrderGrouping())
-
 
 # Classes for tracking stats about groups and units
 

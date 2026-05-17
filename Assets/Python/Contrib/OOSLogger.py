@@ -249,7 +249,6 @@ def writeLog():
 					pLoopCityTuple = pPlayer.nextCity(pLoopCityTuple[1], False)
 					pFile.write("\n")
 
-
 			# Space at end of player's info
 			pFile.write("\n\n")
 

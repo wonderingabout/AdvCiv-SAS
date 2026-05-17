@@ -1656,7 +1656,6 @@ class CvInfoScreen:
 
 		self.iNumPreDemoChartWidgets = self.nWidgetCount
 
-
 	def updateGraphButtons(self):
 		screen = self.getScreen()
 		screen.enable(self.graphLeftButtonID, self.graphEnd - self.graphZoom > CyGame().getStartTurn())
@@ -1762,7 +1761,6 @@ class CvInfoScreen:
 		else:
 			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, -1, -1, -1, -1, self.COLOR_GREY)
 			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, -1, -1, -1, -1, self.COLOR_GREY)
-
 
 	def drawXLabel(self, screen, turn, x, just = CvUtil.FONT_CENTER_JUSTIFY):
 #BUG: Change Graphs - start
@@ -3802,7 +3800,6 @@ class CvInfoScreen:
 			else:
 				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-
 	# STATISTICS
 
 	def drawStatsTab(self):
@@ -4216,8 +4213,6 @@ class CvInfoScreen:
 						pPlayer = gc.getPlayer(inputClass.getData1())
 						pCity = pPlayer.getCity(inputClass.getData2())
 						CyCamera().JustLookAtPlot(pCity.plot())
-
-
 
 			# GRAPH TAB
 

@@ -9,7 +9,6 @@ from CvPythonExtensions import *
 import CvScreenEnums
 import CvForeignAdvisor
 
-
 class CvForeignDiplomacyAdvisor(CvForeignAdvisor.CvForeignAdvisor):
 	# <!-- custom: diplomacy/intel shell over canonical Foreign advisor codebase so F3 stays the "derived split" while F4 keeps the base trade cluster. (GPT-5.3-Codex) -->
 	def __init__(self):

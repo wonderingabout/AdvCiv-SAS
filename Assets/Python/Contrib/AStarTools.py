@@ -10,7 +10,6 @@
 ##
 ## Modified for The BUG Mod by EmperorFool
 
-
 from CvPythonExtensions import *
 
 import BugCore

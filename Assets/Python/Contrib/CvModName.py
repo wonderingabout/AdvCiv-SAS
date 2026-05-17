@@ -23,7 +23,6 @@ def getNameAndVersion():
 def getDisplayNameAndVersion():
 	return displayName + " " + modVersion
 
-
 def getCivName():
 	return civName
 

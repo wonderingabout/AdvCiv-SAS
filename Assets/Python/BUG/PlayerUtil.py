@@ -87,7 +87,6 @@ def getPlayerAndID(playerOrID):
 		return playerOrID, gc.getPlayer(playerOrID)
 	return playerOrID.getID(), playerOrID
 
-
 def getTeam(teamOrID):
 	# Returns the CyTeam for the given team.
 	if teamOrID is None or teamOrID == -1:
@@ -112,7 +111,6 @@ def getTeamAndID(teamOrID):
 		return teamOrID, gc.getTeam(teamOrID)
 	return teamOrID.getID(), teamOrID
 
-
 def getPlayerTeam(playerOrID):
 	# Returns the CyTeam for the given player.
 	player = getPlayer(playerOrID)
@@ -134,7 +132,6 @@ def getPlayerTeamAndID(playerOrID):
 		eTeam = player.getTeam()
 		return eTeam, gc.getTeam(eTeam)
 	return -1, None
-
 
 def getPlayerAndTeam(playerOrID):
 	# Returns the CyPlayer and CyTeam for the given player.
@@ -158,7 +155,6 @@ def getPlayerAndTeamAndIDs(playerOrID):
 		return ePlayer, player, eTeam, gc.getTeam(eTeam)
 	return -1, None, -1, None
 
-
 def getActivePlayer():
 	# Returns the CyPlayer for the active player.
 	return gc.getActivePlayer()
@@ -170,7 +166,6 @@ def getActivePlayerID():
 def getActivePlayerAndID():
 	# Returns the Player ID and CyPlayer for the active player.
 	return gc.getGame().getActivePlayer(), gc.getActivePlayer()
-
 
 def getActiveTeam():
 	# Returns the CyTeam for the active player.
@@ -184,7 +179,6 @@ def getActiveTeamAndID():
 	# Returns the Team ID and CyTeam for the active player.
 	return getActiveTeamID(), getActiveTeam()
 
-
 def getActivePlayerAndTeam():
 	# Returns the CyPlayer and CyTeam for the active player.
 	return getActivePlayer(), getActiveTeam()
@@ -196,7 +190,6 @@ def getActivePlayerAndTeamIDs():
 def getActivePlayerAndTeamAndIDs():
 	# Returns the Player ID, CyPlayer, Team ID and CyTeam for the active player.
 	return getActivePlayerAndID() + getActiveTeamAndID()
-
 
 ## Players and Teams - Iteration
 
@@ -281,7 +274,6 @@ def isEverActive(teamOrPlayer):
 			or (isinstance(teamOrPlayer, CyPlayer) and teamOrPlayer.getID() == getActivePlayerID())
 			or (isinstance(teamOrPlayer, CyTeam) and teamOrPlayer.getID() == getActiveTeamID()))
 
-
 ## Player Information
 
 def getStateReligion(playerOrID):
@@ -321,7 +313,6 @@ def getWorstEnemy(playerOrID, askingPlayerOrID=None):
 					return None
 				return player
 	return None
-
 
 ## Vassalage and other Diplomatic Agreements
 
@@ -379,7 +370,6 @@ def getPossibleEmbargos(playerOrID, askingPlayerOrID):
 		if askedPlayer.canTradeItem(askingPlayer.getID(), tradeData, True):
 			embargos.append(player)
 	return embargos
-
 
 ## Wars and WHEOOH
 
@@ -480,7 +470,6 @@ def isGivingFavoriteCivicDenial(playerOrID, askingPlayerOrID):
 					return True
 	return False
 
-
 ## Cities
 
 def canSeeCityList(playerOrID):
@@ -560,7 +549,6 @@ def isSaltWaterPort(city, askingTeamOrID=None):
 			if plot.isWater() and not plot.isLake():
 				return True
 	return False
-
 
 ## Units
 

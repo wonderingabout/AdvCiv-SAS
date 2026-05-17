@@ -7,8 +7,6 @@
 #
 # <!-- custom: note: pending issue of img being left-aligned but couldn't fix it for now, i believe the advantage of being able to sort by emoji i.e. theme outweighs this downside so left as such for now. -->
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import re
@@ -17,8 +15,6 @@ from _sevopedia_helpers import *
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-
-
 
 class SevoPediaHandicapChart:
 	def __init__(self, main):
@@ -466,7 +462,6 @@ class SevoPediaHandicapChart:
 					# Preserve the visible glyph, but add an invisible tie-breaker.
 					return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
 				return (chart_sort_key(0, iRowIndex), "")
-
 
 		# Build header (pre-fonted)
 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:

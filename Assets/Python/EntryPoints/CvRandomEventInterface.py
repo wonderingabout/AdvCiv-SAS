@@ -22,7 +22,6 @@ from operator import itemgetter # K-Mod (used to avoid OOS when sorting)
 gc = CyGlobalContext()
 localText = CyTranslator()
 
-
 # advc.137: All event preconditions that use DefaultPlayers in BtS are going to
 # use this function instead. Using default player counts was a bad idea
 # to begin with, and, now that I've increased the default player count on Huge maps,
@@ -31,7 +30,6 @@ def worldSizeTarget():
 	#return gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() # BtS behavior
 	# 5 adjusted by building class prereq modifier, rounded to nearest.
 	return ((5 * (100 + gc.getWorldInfo(gc.getMap().getWorldSize()).getBuildingClassPrereqModifier())) + 50) // 100
-
 
 ######## BLESSED SEA ###########
 
@@ -163,7 +161,6 @@ def canApplyBlessedSea2(argsList):
 
 	return bFound
 
-
 ######## HOLY MOUNTAIN ###########
 
 def getHelpHolyMountain1(argsList):
@@ -182,7 +179,6 @@ def getHelpHolyMountain1(argsList):
 				if (gc.getBuildingInfo(i).getReligionType() == iReligion):
 					iBuilding = i
 					break
-
 
 		szHelp = localText.getText("TXT_KEY_EVENT_HOLY_MOUNTAIN_HELP", ( gc.getBuildingInfo(iBuilding).getTextKey(), gc.getBuildingInfo(iBuilding).getTextKey(), iMinPoints))
 
@@ -336,7 +332,6 @@ def canDoWeddingFeud3(argsList):
 				
 	return true
 
-
 def doWeddingFeud3(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -367,7 +362,6 @@ def doWeddingFeud3(argsList):
 			gc.getTeam(destPlayer.getTeam()).declareWarEvent(player.getTeam(), false, WarPlanTypes.WARPLAN_LIMITED)
 			
 	return 1
-
 
 def weddingFeud3Callback(argsList):
 	iButton = argsList[0]
@@ -1205,7 +1199,6 @@ def getHelpInfluenza2(argsList):
 
 ######## SOLO FLIGHT ###########
 
-
 def canTriggerSoloFlight(argsList):	
 	kTriggeredData = argsList[0]
 
@@ -1326,7 +1319,6 @@ def canTriggerWhaleOfAThing(argsList):
 		
 	return true
 
-
 ######## HIYOSILVER ###########
 
 def canTriggerHiyoSilver(argsList):
@@ -1366,7 +1358,6 @@ def canTriggerWiningMonks(argsList):
 				
 	return true
 
-
 def doWiningMonks2(argsList):
 #	Need this because wineries are not normally allowed unless there is already wine.
 	iEvent = argsList[0]
@@ -1387,7 +1378,6 @@ def getHelpWiningMonks2(argsList):
 	szHelp = localText.getText("TXT_KEY_EVENT_IMPROVEMENT_GROWTH", ( gc.getImprovementInfo(iImp).getTextKey(), ))
 
 	return szHelp
-
 
 ######## INDEPENDENTFILMS ###########
 
@@ -1442,7 +1432,6 @@ def getHelpAncientOlympics2(argsList):
 	szHelp = localText.getText("TXT_KEY_EVENT_ANCIENTOLYMPICS_HELP_2", ( 1, ))
 
 	return szHelp
-
 
 ######## MODERN OLYMPICS ###########
 
@@ -1834,7 +1823,6 @@ def getHelpAncientTexts2(argsList):
 
 	return szHelp
 
-
 ######## IMPACT_CRATER ###########
 
 def canTriggerImpactCrater(argsList):
@@ -1871,7 +1859,6 @@ def getHelpImpactCrater2(argsList):
 	szHelp = localText.getText("TXT_KEY_EVENT_IMPROVEMENT_GROWTH", ( gc.getImprovementInfo(iMine).getTextKey(), ))
 
 	return szHelp
-
 
 # <advc.311>
 def numUnitsUprising(playerId):
@@ -1968,7 +1955,6 @@ def canTriggerUprising(playerId, techReqTag1, techReqTag2, counterUnitClassTag):
 			return True
 	return False
 # </advc.311>
-
 
 ######## THE_HUNS ###########
 
@@ -2135,7 +2121,6 @@ def canTriggerSecurityTax(argsList):
 	
 	return true
 
-
 ######## LITERACY ###########
 
 def canTriggerLiteracy(argsList):
@@ -2244,7 +2229,6 @@ def getHelpHarbormaster1(argsList):
 
 	return szHelp
 
-
 def canTriggerHarbormaster(argsList):
 	kTriggeredData = argsList[0]
 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
@@ -2304,7 +2288,6 @@ def getHelpClassicLiterature1(argsList):
 	szHelp = localText.getText("TXT_KEY_EVENT_CLASSIC_LITERATURE_HELP_1", (iLibrariesRequired, ))
 
 	return szHelp
-
 
 def canTriggerClassicLiteratureDone(argsList):
 	kTriggeredData = argsList[0]
@@ -2838,7 +2821,6 @@ def canTriggerEsteemedPlaywright(argsList):
 
 	return true
 
-
 ######## SECRET_KNOWLEDGE ###########
 	
 def getHelpSecretKnowledge2(argsList):
@@ -2869,7 +2851,6 @@ def canTriggerHighWarlord(argsList):
 		return false
 
 	return true
-
 
 ######## EXPERIENCED_CAPTAIN ###########
 
@@ -3138,7 +3119,6 @@ def applyGreedDone1(argsList):
 		for i in range(iNumUnits):
 			player.initUnit(iUnitType, plot.getX(), plot.getY(), UnitAITypes.UNITAI_ATTACK, DirectionTypes.DIRECTION_SOUTH)
 
-
 ######## WAR CHARIOTS ###########
 
 def canTriggerWarChariots(argsList):
@@ -3197,7 +3177,6 @@ def canTriggerEliteSwordsDone(argsList):
 			
 	return true
 
-
 def canApplyEliteSwordsDone2(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -3251,7 +3230,6 @@ def canTriggerWarshipsDone(argsList):
 			
 	return true
 
-
 def canApplyWarshipsDone2(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -3287,7 +3265,6 @@ def canTriggerGunsButterDone(argsList):
 		return false
 			
 	return true
-
 
 def canApplyGunsButterDone2(argsList):
 	iEvent = argsList[0]
@@ -3749,7 +3726,6 @@ def canTriggerControversialPhilosopherCity(argsList):
 
 ####### Spy Discovered #######
 
-
 def canDoSpyDiscovered3(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -3814,7 +3790,6 @@ def doNuclearProtest1(argsList):
 def getHelpNuclearProtest1(argsList):
 	szHelp = localText.getText("TXT_KEY_EVENT_NUCLEAR_PROTEST_1_HELP", ())
 	return szHelp
-
 
 ######## Preaching Researcher #######
 

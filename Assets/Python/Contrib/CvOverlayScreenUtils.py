@@ -33,7 +33,6 @@ def hideOverlayScreen():
 	#
 	overlayScreen.hideScreen()
 
-
 #def beginAddSignEvent(argsList):
 #	Starts the popup for the OverlayAddSign Event
 #
@@ -64,8 +63,6 @@ def hideOverlayScreen():
 #		overlayScreen.saveSign(x, y, signText, player)
 #	else:
 #		BugUtil.debug("Invalid sign x,y")
-
-
 
 class CvOverlayScreenUtils:
 	# Derived CvScreenUtils class for custom handling of mod screens

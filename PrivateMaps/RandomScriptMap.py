@@ -116,7 +116,6 @@ STA_COASTAL = 1
 STA_OLDWORLD = 2
 STA_OLDCOAST = 3
 
-
 def _sas_world_size_base_index(eWorldSize):
 	size_index_values = {
 		WorldSizeTypes.WORLDSIZE_DUEL: 0,
@@ -563,7 +562,6 @@ def findStartingPlot(argsList):
 	# Personal Note. Keep forgeting it.
 	# CyPythonMgr().allowDefaultImpl()
 	# CyMap().getWorldSize()
-
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

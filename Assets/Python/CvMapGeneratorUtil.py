@@ -12,7 +12,6 @@ import random
 from math import sqrt
 import sys
 
-
 # NOTES ABOUT THE MAP UTILITIES
 #
 # generatePlotTypes(), generateTerrainTypes(), and addFeatures() are mandatory functions for all map scripts.
@@ -24,7 +23,6 @@ import sys
 # The minor functions at the end are either children of HintedWorld or, in the case of findStartingPlot, an alternative method to the default process for placing the starting units for each civ.
 #
 # - Bob Thomas	September 23, 2005
-
 
 # advc.129c: Master switch for turning off all my terrain changes (they're not extensive enough to justify new subclasses)
 bEarthlike = True
@@ -79,7 +77,6 @@ class ExplicitFractal:
 				equatorDist = abs(coord * 2 - dim) / float(dim)
 				fMult = 1 - fMaxDecrease + fMaxDecrease * equatorDist
 				self.multiplyBy(x, y, fMult)
-
 
 class FractalWorld:
 	def __init__(self,
@@ -1527,7 +1524,6 @@ def pointInRect(point, rect):
 		if recty <= y < recty + recth:
 			return True
 	return False
-
 
 class BonusBalancer:
 	def __init__(self):

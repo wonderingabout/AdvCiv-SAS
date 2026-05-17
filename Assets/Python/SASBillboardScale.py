@@ -9,7 +9,6 @@
 # file is rewritten on game load so the engine picks up the new values on the
 # fly (the engine re-reads DetailManager without restart). (Claude code Opus 4.6) -->
 
-
 import os
 import re
 
@@ -19,16 +18,13 @@ import BugPath
 import BugUtil
 from SASFontUtils import getSASUIFontBody
 
-
 gc = CyGlobalContext()
-
 
 # Base AdvCiv CITYBILLBOARD_SCALE values (font-body 2 / 100%).
 # Each tuple is (camera_distance, scale_value).
 _BASE_BILLBOARD_KEYS = [(500, 1.72), (2500, 1.18), (3800, 1.06), (6000, 0.81), (8500, 0.75), (11500, 0.70), (13500, 0.67)]
 
 _DETAIL_MANAGER_REL_PATH = os.path.join("Assets", "XML", "Misc", "CIV4DetailManager.xml")
-
 
 def _getMultiplierPercent(iFontBody):
 	# read SAS_BILLBOARD_SCALE_PERCENT_FONT_<N> for the given font level.
@@ -41,7 +37,6 @@ def _getMultiplierPercent(iFontBody):
 		return 100
 	return iPercent
 
-
 def _buildScaledKeys(iPercent):
 	# return formatted CITYBILLBOARD_SCALE <Key> lines using the given percent multiplier.
 	fMult = iPercent / 100.0
@@ -50,7 +45,6 @@ def _buildScaledKeys(iPercent):
 		fScaled = fBase * fMult
 		lines.append("\t\t<Key>%d,    %.2f</Key>" % (iDist, fScaled))
 	return lines
-
 
 def _rewriteDetailManagerXML(szPath, scaledKeyLines):
 	# replace CITYBILLBOARD_SCALE key lines in CIV4DetailManager.xml; skip file write when unchanged.
@@ -92,7 +86,6 @@ def _rewriteDetailManagerXML(szPath, scaledKeyLines):
 		return False
 
 	return True
-
 
 def apply():
 	# apply define-driven CITYBILLBOARD_SCALE keys for the active SAS_UI_FONT_BODY.

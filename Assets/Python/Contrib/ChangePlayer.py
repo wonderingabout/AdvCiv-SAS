@@ -3,7 +3,6 @@
 # by jdog5000
 # Version 0.71
 
-
 from CvPythonExtensions import *
 import CvUtil
 import PyHelpers
@@ -53,7 +52,6 @@ class ChangePlayer :
 	def blankHandler( self, playerID, netUserData, popupReturn ) :
 		# Dummy handler to take the second event for popup
 		return
-
 
 	def onKbdEvent(self, argsList ):
 		'keypress handler'
@@ -236,7 +234,6 @@ def changeHumanHandler( playerID, netUserData, popupReturn ) :
 			CvUtil.pyPrint( "   CP : You have selected the same civ, no change")
 		CyInterface().addImmediateMessage("You retain control of the %s"%(oldPlayer.getCivilizationDescription(0)),"")
 		return
-
 
 	if (LOG_DEBUG):
 		CvUtil.pyPrint( "   CP : You have selected player %d, the %s"%(newHumanIdx, newPlayer.getCivilizationDescription(0)) )

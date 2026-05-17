@@ -29,19 +29,16 @@ CELL_RE = re.compile(r"^T(?P<turn>\d+)=(?P<year>[+-]?\d+)(?:m(?P<month>\d+))?\s*
 SUMMARY_RE = re.compile(r"^Summary\s+(?P<idx>\d+)\s*\((?P<pct>\d+)\)")
 INCREMENTS_RE = re.compile(r"^Increments\s+(?P<kind>Years|Months)\s+(?P<idx>\d+)")
 
-
 def normalize_speed_name(name):
     base = name.split("(", 1)[0]
     base = base.strip().lower()
     return re.sub(r"\s+", "", base)
-
 
 def parse_csv_line(line):
     try:
         return next(csv.reader(io.StringIO(line), skipinitialspace=True))
     except Exception:
         return None
-
 
 def parse_summary_cell(cell):
     m = CELL_RE.match(cell.strip())
@@ -54,20 +51,17 @@ def parse_summary_cell(cell):
     total_months = year * 12 + (month - 1)
     return {"turn": turn, "year": year, "month": month, "inc": inc, "total_months": total_months}
 
-
 def parse_summary_label(label):
     m = SUMMARY_RE.match(label.strip())
     if not m:
         return None
     return int(m.group("idx")), int(m.group("pct"))
 
-
 def parse_increments_label(label):
     m = INCREMENTS_RE.match(label.strip())
     if not m:
         return None
     return m.group("kind"), int(m.group("idx"))
-
 
 def _finalize_block(rows):
     if not rows:
@@ -105,7 +99,6 @@ def _finalize_block(rows):
         return None
     return {"headers": header, "summaries": summaries, "increments": increments}
 
-
 def extract_latest_summary_block(log_path):
     latest = None
     current_rows = []
@@ -132,7 +125,6 @@ def extract_latest_summary_block(log_path):
             latest = block
     return latest
 
-
 def resolve_speed_column(headers, requested_name):
     requested = normalize_speed_name(requested_name)
     candidates = []
@@ -155,12 +147,10 @@ def resolve_speed_column(headers, requested_name):
 
     return None, None
 
-
 def format_delta_months(delta_months):
     sign = "+" if delta_months >= 0 else "-"
     v = abs(delta_months)
     return "%s%dy%dm" % (sign, v // 12, v % 12)
-
 
 def format_delta_vs_increment(delta_months, increment_months):
     if increment_months <= 0:
@@ -168,14 +158,12 @@ def format_delta_vs_increment(delta_months, increment_months):
     ratio = float(delta_months) / float(increment_months)
     return "%+.2f" % ratio, "%+.1f%%" % (ratio * 100.0)
 
-
 def split_tokens(cell):
     text = cell.strip()
     if not text:
         return []
     parts = [p.strip() for p in text.split(",")]
     return [p for p in parts if p]
-
 
 def flatten_increments(rows, col, kind):
     picked = []
@@ -196,12 +184,10 @@ def flatten_increments(rows, col, kind):
         out.extend(tokens)
     return out
 
-
 def make_slug(name):
     s = normalize_speed_name(name)
     s = re.sub(r"[^a-z0-9_]+", "_", s)
     return s.strip("_") or "speed"
-
 
 def run(args):
     if not os.path.isfile(args.log):
@@ -309,7 +295,6 @@ def run(args):
     print("")
     print("Saved: %s" % out_path)
 
-
 def main():
     default_log = os.path.join(
         os.path.expanduser("~"),
@@ -332,7 +317,6 @@ def main():
     )
 
     run(parser.parse_args())
-
 
 if __name__ == "__main__":
     main()

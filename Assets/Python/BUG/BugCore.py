@@ -12,7 +12,6 @@
 import BugOptions
 import BugUtil
 
-
 ## Game and Mods
 
 class Game(object):
@@ -90,7 +89,6 @@ class Game(object):
 	def _addScreen(self, screen):
 		self._screens[screen.id] = screen
 
-
 class Mod(object):
 	# Provides Option accessors.
 	
@@ -159,7 +157,6 @@ class Mod(object):
 				option = self._getOption(id % args)
 				option.setValue(value)
 			setattr(self, setter, set)
-
 
 game = Game()
 

@@ -39,7 +39,6 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-
 ## Initialization
 
 def init (colors=DEFAULT_COLORS, modifiers=None):
@@ -69,7 +68,6 @@ def init (colors=DEFAULT_COLORS, modifiers=None):
 		global ATTITUDE_MODIFIERS
 		ATTITUDE_MODIFIERS = tuple(modifiers)
 	initModifiers()
-
 
 ## Attitude
 
@@ -117,7 +115,6 @@ def getAttitudeCount (nPlayer, nTarget):
 	for i in range (len (ltPlusAndMinuses)):
 		nAtt += int (ltPlusAndMinuses[i][:-2])
 	return nAtt
-
 
 def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, bWarTrades): # advc.152: bWarTrades added
 	# Returns a string describing the attitude nPlayer has toward nTarget.

@@ -54,8 +54,6 @@ class GameFontDisplay:
 						screen.setTableText(szTableName, 3, iLine, "", szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableInt(szTableName, 4, iLine, "<font=2>" + infoPointer.getType() + "<font/>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
-
-
 	def getInfoPointerFromGameFont(self, iIndex):
 		for iLoopIndex in range(gc.getNumReligionInfos()):
 			infoPointer = gc.getReligionInfo(iLoopIndex)

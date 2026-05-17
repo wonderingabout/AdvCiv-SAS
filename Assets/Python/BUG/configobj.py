@@ -109,7 +109,6 @@ try:
 except NameError:
     True, False = 1, 0
 
-
 __version__ = '4.2.0'
 
 __revision__ = '$Id: configobj.py 156 2006-01-31 14:57:08Z fuzzyman $'
@@ -427,7 +426,6 @@ class Section(dict):
         #
         for entry in indict:
             self[entry] = indict[entry]
-
 
     def pop(self, key, *args):
         # """ """
@@ -2711,7 +2709,6 @@ def flatten_errors(cfg, res, levels=None, results=None):
         levels.pop()
     #
     return results
-
 
 # FIXME: test error code for badly built multiline values
 # FIXME: test handling of StringIO

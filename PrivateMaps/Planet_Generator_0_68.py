@@ -1750,7 +1750,6 @@ def generatePlotTypes():
 			contData[index2] += contData[index]
 			contData.pop(index)
 
-
 		#position calculation moved to other function
 		contPositions = getStartPositions(world, contData)
 

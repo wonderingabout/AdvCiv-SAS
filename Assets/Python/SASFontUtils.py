@@ -2,12 +2,10 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
 
-
 from CvPythonExtensions import *
 
 gc = CyGlobalContext()
 _SAS_UI_FONT_SIZE_CACHE = {}
-
 
 def _getSASUIFontSize(szDefineName):
 	if szDefineName in _SAS_UI_FONT_SIZE_CACHE:
@@ -20,26 +18,20 @@ def _getSASUIFontSize(szDefineName):
 	print("SASFontUtils: initialized %s = %d" % (szDefineName, iSize))
 	return iSize
 
-
 def getSASUIFontTiny():
 	return _getSASUIFontSize("SAS_UI_FONT_TINY")
-
 
 def getSASUIFontBody():
 	return _getSASUIFontSize("SAS_UI_FONT_BODY")
 
-
 def getSASUIFontLabel():
 	return _getSASUIFontSize("SAS_UI_FONT_LABEL")
-
 
 def getSASUIFontTitle():
 	return _getSASUIFontSize("SAS_UI_FONT_TITLE")
 
-
 def getSASUIFontHover():
 	return _getSASUIFontSize("SAS_UI_FONT_HOVER")
-
 
 class _DynamicFontTag:
 	def __init__(self, szDefineName, bBold=False):
@@ -72,7 +64,6 @@ class _DynamicFontTag:
 
 	def __radd__(self, szOther):
 		return szOther + self._build()
-
 
 SAS_FONT_TAG_CLOSE = u"</font>"
 

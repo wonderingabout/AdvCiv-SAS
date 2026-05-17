@@ -221,7 +221,6 @@ class PLE:
 
 		self.listPLEButtons = [(0,0,0)] * self.iMaxPlotListIcons
 
-
 	def updatePlotListButtons_PLE(self, screen):
 		self.iLoopCnt += 1
 		self.pActPlot = CyInterface().getSelectionPlot()
@@ -465,10 +464,6 @@ class PLE:
 
 		return 0
 
-
-
-
-
 	# PLE Mode Switcher functions
 	def onClickPLEResetFilters(self, inputClass):
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED ):
@@ -486,7 +481,6 @@ class PLE:
 			return 1
 		return 0
 
-
 	# PLE Movement Filters
 	def onClickPLEFilterCanMove(self, inputClass):
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED ):
@@ -502,7 +496,6 @@ class PLE:
 		else:
 			return self.handleHoverPLEFilter(inputClass, "CANTMOVE", self.nPLEFilterModeCantMove)
 
-
 	# PLE Health Filters
 	def onClickPLEFilterNotWound(self, inputClass):
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED ):
@@ -517,7 +510,6 @@ class PLE:
 			return 1
 		else:
 			return self.handleHoverPLEFilter(inputClass, "WOUNDED", self.nPLEFilterModeWound)
-
 
 	# PLE Domain Filters
 	def onClickPLEFilterLand(self, inputClass):
@@ -540,7 +532,6 @@ class PLE:
 			return 1
 		else:
 			return self.handleHoverPLEFilter(inputClass, "AIR", self.nPLEFilterModeAir)
-
 
 	# PLE Domain Filters
 	def onClickPLEFilterMil(self, inputClass):
@@ -572,7 +563,6 @@ class PLE:
 			return 1
 		else:
 			return self.handleHoverPLEFilter(inputClass, "FOREIGN", self.nPLEFilterModeForeign)
-
 
 	# PLE Grouping Modes
 	def onClickPLEGrpUnittype(self, inputClass):
@@ -615,7 +605,6 @@ class PLE:
 			return 1
 		else:
 			return self.handleHoverPLEGrpMode(inputClass, "UPGRADE", self.PLE_GRP_UPGRADE)
-
 
 	# PLE View Modes
 	def onClickPLEViewMode(self, inputClass):
@@ -661,10 +650,6 @@ class PLE:
 			return 1
 		else:
 			return self.handleHoverPLEViewMode(inputClass, "STACK_HORIZ", self.PLE_MODE_STACK_HORIZ)
-
-
-
-
 
 	def resetPLEFilters(self):
 		self.nPLEFilter = self.nPLEAllFilters
@@ -774,14 +759,11 @@ class PLE:
 			return 1
 		return 0
 
-
-
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED ):
 			self.setPLEViewMode(self.PLE_MODE_STACK_VERT)
 			return 1
 		else:
 			return self.handleHoverPLEViewMode(inputClass, "STACK_VERT", self.PLE_MODE_STACK_VERT)
-
 
 	# handles the unit promotion button inputs
 	def unitPromotion(self, inputClass):
@@ -1008,7 +990,6 @@ class PLE:
 			screen.show(self.PLE_GRP_UPGRADE)
 
 			self.bPLEShowing = True
-
 
 	# hides all plot list switches (views, filters, groupings) and all the other objects
 	def hidePlotListButtonPLEObjects(self, screen):
@@ -2218,7 +2199,6 @@ class PLE:
 				if self.bUnitPromoButtonsActive:
 					self.hideUnitInfoPromoButtons()
 
-
 	#################### functions for a units move area #######################
 		
 	# highlights the move area
@@ -2239,13 +2219,6 @@ class PLE:
 
 	def getPLEUnitList(self):
 		return self.bUpdatePLEUnitList
-
-
-
-
-
-
-
 
 	def _displayUnitPlotList_Dot( self, screen, pLoopUnit, szString, iCount, x, y ):
 		# this if statement and everything inside, handles the display of the colored buttons in the upper left corner of each unit icon.

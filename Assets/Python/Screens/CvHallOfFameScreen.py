@@ -163,8 +163,6 @@ class CvHallOfFameScreen:
 		# Header...
 		screen.setLabel(self.HEADER_ID, "Background", sasFontTagTitle.bold + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-
-
 		xDropDown, yDropDown = self.getDropdownPos(0)
 		iNumDropDowns = 0
 
@@ -313,7 +311,6 @@ class CvHallOfFameScreen:
 						szTrait2 = TraitUtil.getIcon(iTrait)
 						break
 		return szTrait1, szTrait2
-
 
 	def drawContents(self):
 				
@@ -620,6 +617,4 @@ class CvHallOfFameScreen:
 
 	def update(self, fDelta):
 		return					
-
-
 

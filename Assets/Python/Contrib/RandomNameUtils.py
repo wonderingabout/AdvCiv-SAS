@@ -13,7 +13,6 @@ import math
 
 gc = CyGlobalContext()	
 
-
 # Lists of names have been generated using
 # NameMage
 # Version 1.02
@@ -192,8 +191,6 @@ civilizationNameHash =	{
 							},
 						}	
 
-
-
 def getRandomCivilizationName(iCivilizationType):
 	unitName = ""
 
@@ -208,7 +205,6 @@ def getRandomCivilizationName(iCivilizationType):
 		
 
 	return unitName
-
 
 def generateCivilizationName(iCivilizationType):
 	strCivilizationType = "DEFAULT"

@@ -58,14 +58,11 @@ changed = 0
 removed_lines = 0
 moved_comments = 0
 
-
 def leading_indent(s):
     return s[:len(s) - len(s.lstrip(' \t'))]
 
-
 def strip_line_ending(s):
     return s.rstrip('\r\n')
-
 
 def join_parts(parts):
     body = ''
@@ -79,7 +76,6 @@ def join_parts(parts):
         else:
             body += ' ' + part
     return body
-
 
 for start, end, toks in groups:
     if end <= start:
@@ -160,7 +156,6 @@ def significant_code_tokens(path):
             # INDENT/DEDENT are semantic; keep them.
             result.append((tok.type, tok.string))
     return result
-
 
 def comment_tokens(path):
     result = []

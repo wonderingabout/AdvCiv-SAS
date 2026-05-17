@@ -222,7 +222,6 @@ class CvMilitaryAdvisor:
 				self.BATTLE_PLOT_COL_ID = 22
 			self.BATTLE_NUM_COLS = self.BATTLE_PLOT_COL_ID + 1
 
-
 	def initText(self):
 		# <!-- custom: cache Military Advisor language-dependent text and deterministic art/symbol lookups once to avoid repeated calls on refresh paths. Required info/color IDs are lazy strict caches in initDefines. (GPT-5.3-Codex, GPT-5.5) -->
 		if not CyGame().isFinalInitialized():
@@ -406,7 +405,6 @@ class CvMilitaryAdvisor:
 		# <!-- custom: Increase expanded-row promotion icons from the old DLL-hardcoded size 16 to our new Military Advisor row unit-icon size. The row already has this height, so promotion icons become more readable without increasing row height. (GPT-5.5) -->
 		self.iPromotionInlineIconSize = self.iInlineIconSize
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.EXIT_TEXT, self.X_EXIT)
-
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.MILITARY_SCREEN_NAME, self.screenId)
@@ -922,7 +920,6 @@ class CvMilitaryAdvisor:
 			szLeaderType = gc.getLeaderHeadInfo(kPlayer.getLeaderType()).getType()
 			szCivType = gc.getCivilizationInfo(kPlayer.getCivilizationType()).getType()
 			print("OpponentPlayer: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
-
 
 	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Map tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Map tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
 	def collectCompositionData(self):
@@ -1722,7 +1719,6 @@ class CvMilitaryAdvisor:
 		])
 		# <!-- custom: Defenses moved from Support to Deployment because city protection reads closer to "where my forces/cities are" than to support cost. (Claude code Opus 4.7, GPT-5.5) -->
 
-
 		# <!-- custom: Army column summarizes the active player's own forces: composition, strongest/costliest/power-rank callouts, quality means, Great General state, promotions, covert-unit flags, and upgrade costs. (Claude code Opus 4.7, GPT-5.5) -->
 		szStrongest = u""
 		szStrongestIcon = u""
@@ -1884,7 +1880,6 @@ class CvMilitaryAdvisor:
 		self.drawSummaryColumn(screen, iColXComposition, iColY, iColW, iColH, self.TEXT_SUMMARY_ARMY, aArmy)
 		self.drawSummaryColumn(screen, iColXDeployment, iColY, iColW, iColH, self.TEXT_SUMMARY_DEPLOYMENT, aDeployment)
 
-
 	def drawComposition(self):
 		screen = self.getScreen()
 		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
@@ -1897,7 +1892,6 @@ class CvMilitaryAdvisor:
 		self.drawCompositionCountTable(self.COMPOSITION_UNITS_TABLE_ID, self.TEXT_COMPOSITION_UNITS, dUnits, gc.getUnitInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTableX, iTableY, iColW, iTableH)
 		self.drawCompositionCountTable(self.COMPOSITION_PROMOTIONS_TABLE_ID, self.TEXT_COMPOSITION_PROMOTIONS, dPromotions, gc.getPromotionInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iTableX + iColW + iTableGap, iTableY, iColW, iTableH)
 		self.drawCompositionCountTable(self.COMPOSITION_COMBATS_TABLE_ID, self.TEXT_COMPOSITION_COMBATS, dCombats, gc.getUnitCombatInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iTableX + 2 * (iColW + iTableGap), iTableY, iColW, iTableH)
-
 
 	def drawCombatExperience(self):
 		if self.iActivePage != self.PAGE_MAP:

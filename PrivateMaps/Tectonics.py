@@ -445,7 +445,6 @@ class voronoiMap:
 				if (hasHillNeighbour):
 					self.heightMap[i] = self.heightMap[i] - 1
 
-
 	def min( height, left, right, top, bottom ):
 		minHeight = height
 		if ( minHeight > left ):
@@ -1601,7 +1600,6 @@ class riversFromSea:
 			if (self.map.plot(x+1,y+1).isWater()):
 				return true
 		return false
-
 
 	def addRiverFrom(self,x,y,flow,riverID):
 		plot = self.map.plot(x,y)

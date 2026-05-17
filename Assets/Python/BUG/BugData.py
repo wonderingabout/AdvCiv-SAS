@@ -38,7 +38,6 @@ from CvPythonExtensions import CyGame
 import BugUtil
 import cPickle as pickle
 
-
 ## Data Access
 
 def hasTable(*keys):
@@ -65,7 +64,6 @@ def deleteTable(*keys):
 	#
 	return getGameData().delTable(*keys)
 
-
 ## Event Handlers and Internal Access
 
 def getGameData():
@@ -79,7 +77,6 @@ def initGameData():
 	g_data = RootTable()
 	return g_data
 
-
 ## Event Handlers
 
 def onGameStart(argsList):
@@ -91,11 +88,9 @@ def onGameLoad(argsList):
 def save():
 	getGameData().save()
 
-
 ## Globals
 
 g_data = None
-
 
 ## Table Classes
 
@@ -223,7 +218,6 @@ class Table(object):
 			table.discard()
 			del self.children[key]
 
-
 class RootTable(Table):
 	def __init__(self):
 		super(RootTable, self).__init__("root", dict())
@@ -236,7 +230,6 @@ class RootTable(Table):
 			BugUtil.debug("BugData - loaded %r", self.data)
 	def _save(self):
 		self.game.setScriptData(pickle.dumps(self.data))
-
 
 class ChildTable(Table):
 	def __init__(self, parent, key, data):

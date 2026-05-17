@@ -595,7 +595,6 @@ def addFeatures():
 	featuregen.addFeatures()
 	return 0
 
-
 # Sahara Regional Bonus Placement system designed by Sirian.
 '''
 Sahara Desert was the first specially tailored "regional" map script. This
@@ -629,7 +628,6 @@ you want to force terrain types in addition to defaults, do not add the bonus to
 the list of bonuses to Force. This gives you flexibility of "and" or "or" w/ forcing.
 
 - Sirian, June 22, 2005
-
 
 Sahara was found to be a bit too realistic in playtesting, so we decided to adapt 
 it in to a more stylized map, capable of supporting more life in the desert region. 
@@ -818,7 +816,6 @@ may find more advanced versions tucked in to other scripts if I go on to
 adapt the concept to more advanced uses at a later date.
 
 - Bob Thomas   July 18, 2005
-
 
 Additional Note:
 

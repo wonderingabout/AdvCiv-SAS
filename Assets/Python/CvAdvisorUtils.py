@@ -7,16 +7,13 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
-
 from CvPythonExtensions import *
 from SASUtils import getInfoTypeOrFail
 import PyHelpers
 
-
 gc = CyGlobalContext()
 localText = CyTranslator()
 PyPlayer = PyHelpers.PyPlayer
-
 
 g_iAdvisorNags = 0
 g_listNoLiberateCities = []
@@ -43,7 +40,6 @@ def _numCorporationPrereqBonuses():
 		_iNumCorporationPrereqBonuses = gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")
 	return _iNumCorporationPrereqBonuses
 
-
 def resetAdvisorNags():
 	global g_iAdvisorNags
 	g_iAdvisorNags = 0
@@ -62,7 +58,6 @@ def featPopup(iPlayer):
 	if (gc.getGame().getElapsedGameTurns() == 0):
 		return False
 	return True
-
 
 def populationFeat(iPlayer, eFeat, szText):
 

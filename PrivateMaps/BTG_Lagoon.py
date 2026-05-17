@@ -3,8 +3,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 # <!-- custom: Adapted from Beyond the Game mod map script, version 2.43. (GPT-5.3-Codex) -->
 
-
-
 from CvPythonExtensions import *
 import CvUtil
 import CvMapGeneratorUtil
@@ -17,8 +15,6 @@ from SASUtils import getInfoTypeOrFail
 from SAS_WorldSizes import *
 
 import random #2.25
-
-
 
 balancer = BonusBalancer()
 
@@ -178,14 +174,12 @@ def normalizeAddExtras():
 		
 	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
 
-
 def doUUCenter():
 	iExtraTile = 0
 	
 	#Center Unique
 	# <!-- custom: AdvCiv-SAS has no BONUS_SALT/BONUS_TEA/BONUS_OLIVES; use supported luxuries instead. (GPT-5.3-Codex) -->
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
-
 
 			
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_MARBLE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
@@ -210,9 +204,6 @@ def doUUCenter():
 
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_DEER"),getInfoTypeOrFail("TERRAIN_TUNDRA"))				
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_FUR"),getInfoTypeOrFail("TERRAIN_TUNDRA"))						
-
-
-
 
 def addBonusType(argsList):
 
@@ -704,14 +695,8 @@ def startHumansOnSameTile():
 	#we do this after because default implement does add forest
 	CyPythonMgr().allowDefaultImpl()
 
-
 def BTGSong():
 	return 0
-
-
-
-
-
 
 			
 def BTPTopBottomTwoTeams(isBTG):							
@@ -977,8 +962,6 @@ def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,i
 							p.setBonusType(iResourceType)
 							p.setFeatureType(-1, -1)#2.25 -- Need remove floodplains, and forest then	
 							break		
-
-
 
 def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType):
 

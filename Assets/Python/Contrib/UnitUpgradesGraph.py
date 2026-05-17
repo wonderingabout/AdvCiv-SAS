@@ -63,7 +63,6 @@ promotionsVerticalMargin = 20
 promotionsHorizontalSpacing = 75
 promotionsVerticalSpacing = 5
 
-
 ################################### BEGIN CLASS DEFINITIONS ###########################################
 #Don't change below unless you know what you're doing
 
@@ -594,7 +593,6 @@ class PromotionsGraph(UnitUpgradesGraph):
 		
 	def unitToString(self, unit):
 		return gc.getPromotionInfo(unit).getDescription() + ":%d"%(unit, )
-
 
 	def placeOnScreen(self, screen, unit, xPos, yPos):
 		screen.setImageButtonAt(self.pediaScreen.getNextWidgetName(), self.upgradesList, gc.getPromotionInfo(unit).getButton(), xPos, yPos, self.buttonSize, self.buttonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, unit, 1)
