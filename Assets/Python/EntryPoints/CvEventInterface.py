@@ -43,9 +43,7 @@ def beginEvent(context, argsList = -1):
 def initAfterReload():
 	# Initialize BUG and fires PythonReloaded event after reloading Python modules while game is still running.
 	#
-	# The first time this module is loaded after the game launches, the global context is not yet ready,
-	# and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however,
-	# this will reinitialize BUG and the main interface.
+	# The first time this module is loaded after the game launches, the global context is not yet ready, and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however, this will reinitialize BUG and the main interface.
 	#
 	import BugInit
 	import BugPath

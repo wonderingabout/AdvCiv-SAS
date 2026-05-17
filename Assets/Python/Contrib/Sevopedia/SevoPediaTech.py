@@ -428,8 +428,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# No first-to-discover effects - display "None" text
 			draw_none_text(screen, self.top, self.X_FIRST_TO_DISCOVER, self.Y_FIRST_TO_DISCOVER, self.W_FIRST_TO_DISCOVER, self.H_FIRST_TO_DISCOVER)
 
-	# <!-- custom: Tradeable panel showing if this tech can be traded. Shows "Yes" if tradeable,
-	# or No Entry emoji icon if not tradeable. (Claude Opus 4.5) -->
+	# <!-- custom: Tradeable panel showing if this tech can be traded. Shows "Yes" if tradeable, or No Entry emoji icon if not tradeable. (Claude Opus 4.5) -->
 	def placeTradeable(self):
 		screen = self.top.getScreen()
 		techInfo = gc.getTechInfo(self.iTech)

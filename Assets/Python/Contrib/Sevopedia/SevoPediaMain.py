@@ -467,8 +467,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Recreate each time: simple + safe (mirrors the approach used in other mod(s)).
 		self.SAS_deleteSearchWidgets(screen)
 
-		# <!-- custom: search bar sits in the top header, X aligned with the items column. Right edge stops `iSafetyToTitle` pixels short of the central "Sevopedia" title to leave room for the
-		# CLEAR button and avoid visually colliding with the title. CLEAR is rendered OUTSIDE the panel as a screen-level setText widget; a setLabel inside the search panel parent does not reach handleInput in this engine, so the click never fires. (Claude code Opus 4.7) -->
+		# <!-- custom: search bar sits in the top header, X aligned with the items column. Right edge stops `iSafetyToTitle` pixels short of the central "Sevopedia" title to leave room for the CLEAR button and avoid visually colliding with the title. CLEAR is rendered OUTSIDE the panel as a screen-level setText widget; a setLabel inside the search panel parent does not reach handleInput in this engine, so the click never fires. (Claude code Opus 4.7) -->
 		iSafetyToTitle = 200
 		iClearGap = 8
 		iX = self.X_ITEMS
@@ -1188,7 +1187,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <advc.002b> Prepend graphic only if there is room
 			szHeading = category[1]
 			# For English, 16 happens to be OK.
-			# <!-- custom: allow room to fit more characters; our text "Concepts (Outdated)" doesn't fit otherwise. Not increasing this further to accomodate the -1 for other languages, as they are unlikely to use such long texts anyway, and i really need or want the extra space (that is not so useful in categories headers i think, but anyways), was 16 --> 
+			# <!-- custom: allow room to fit more characters; our text "Concepts (Outdated)" doesn't fit otherwise. Not increasing this further to accomodate the -1 for other languages, as they are unlikely to use such long texts anyway, and i really need or want the extra space (that is not so useful in categories headers i think), was 16 --> 
 			iThresh = 19
 			if gc.getGame().getCurrentLanguage() != 0:
 				# <!-- custom: was 15 -->
@@ -1724,8 +1723,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				break
 		return ""
 
-	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the "Any era (no tech requirement)" bucket placed FIRST since those events fire from
-	# turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON + SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7) -->
+	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the "Any era (no tech requirement)" bucket placed FIRST since those events fire from turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON + SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7) -->
 	def placeEventTriggers(self):
 		self.list = self.getEventTriggerList()
 		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getEventTriggerInfoForList)

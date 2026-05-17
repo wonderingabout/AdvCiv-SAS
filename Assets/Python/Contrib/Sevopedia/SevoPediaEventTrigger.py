@@ -20,16 +20,9 @@ class SevoPediaEventTrigger:
 	def __init__(self, main):
 		self.iTrigger = -1
 		self.top = main
-		# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order.
-		# Cache translated labels once per page object so rendering requirements does not
-		# repeat translator lookups, while keeping the rare enum-order audit point obvious.
-		# (GPT-5.5) -->
+		# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order. Cache translated labels once per page object so rendering requirements does not repeat translator lookups, while keeping the rare enum-order audit point obvious. (GPT-5.5) -->
 		self.PLOT_TYPE_LABELS = (localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()))
-		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch
-		# in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this
-		# page the expandable panel is actually Texts, not a Civilopedia/History panel —
-		# but reusing the shared mechanism avoids adding a new python widget id just for
-		# one page. (Claude code Opus 4.7) -->
+		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this page the expandable panel is actually Texts, not a Civilopedia/History panel — but reusing the shared mechanism avoids adding a new python widget id just for one page. (Claude code Opus 4.7) -->
 		self.bHistoryExpanded = False
 
 		self.X_NAME = self.top.X_PEDIA_PAGE
@@ -38,10 +31,7 @@ class SevoPediaEventTrigger:
 		self.H_NAME = NON_MULTILIST_PANEL_STANDARD_HEIGHT
 
 		iColGap = MEDIUM_MARGIN
-		# <!-- custom: Obsolete-with shares the top row with Name and stays sized for 8
-		# buttons because War Chariots is the longest current event trigger obsolete list,
-		# with enough room for "or" connector numTxt. Requires Buttons gets the full row
-		# below because it usually has more elements and is more likely to scroll. (GPT-5.5) -->
+		# <!-- custom: Obsolete-with shares the top row with Name and stays sized for 8 buttons because War Chariots is the longest current event trigger obsolete list, with enough room for "or" connector numTxt. Requires Buttons gets the full row below because it usually has more elements and is more likely to scroll. (GPT-5.5) -->
 		iObsoleteButtonW = get_multilist_panel_width_for_buttons(8, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
 		self.W_NAME = self.W_PAGE - iColGap - iObsoleteButtonW
 
@@ -77,11 +67,7 @@ class SevoPediaEventTrigger:
 		self.W_TEXTS = self.W_PAGE
 		self.H_TEXTS = 130
 
-		# <!-- custom: no Civilopedia/History panel here — event triggers rarely set
-		# <Civilopedia> in XML, so the bottom panel would nearly always show "None" and
-		# just steals space from the Texts variants. The freed space is given to Texts
-		# instead, and Events fills the remainder down to the page bottom.
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: no Civilopedia/History panel here — event triggers rarely set <Civilopedia> in XML, so the bottom panel would nearly always show "None" and just steals space from the Texts variants. The freed space is given to Texts instead, and Events fills the remainder down to the page bottom. (Claude code Opus 4.7) -->
 		self.X_EVENTS = self.X_NAME
 		self.Y_EVENTS = self.Y_TEXTS + self.H_TEXTS + SMALL_MARGIN
 		self.W_EVENTS = self.W_PAGE
@@ -193,11 +179,7 @@ class SevoPediaEventTrigger:
 		info = self._getTriggerInfo()
 		lines = []
 		if info:
-			# <!-- custom: only non-linkable numeric thresholds live here as text. All
-			# linkable prereqs (direct techs, civic, obsolete techs, OtherPlayerHasTech,
-			# required buildings/units/religions/corporations) are icon buttons in the
-			# Requires-Buttons panel below, which avoids duplicating every asset name
-			# as both an icon and a text line. (Claude code Opus 4.7) -->
+			# <!-- custom: only non-linkable numeric thresholds live here as text. All linkable prereqs (direct techs, civic, obsolete techs, OtherPlayerHasTech, required buildings/units/religions/corporations) are icon buttons in the Requires-Buttons panel below, which avoids duplicating every asset name as both an icon and a text line. (Claude code Opus 4.7) -->
 			if info.getMinPopulation() > 0:
 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP", ()) + u": %d" % info.getMinPopulation())
 			if info.getMaxPopulation() > 0:
@@ -310,13 +292,7 @@ class SevoPediaEventTrigger:
 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_TEXT + 14, self.Y_REQUIRES_TEXT + 34, self.W_REQUIRES_TEXT - 28, self.H_REQUIRES_TEXT - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-	# <!-- custom: compose a per-event "what actually happens" bullet list. Covers the
-	# common numeric/flag fields on CvEventInfo and inlines Civ4 commerce/yield/happy
-	# icons so effect values read at a glance. If no known fields are populated we fall
-	# back to probing for a Python callback (getPythonCallback) — only in that case do
-	# we label the event "Scripted (Python callback)". Otherwise events that truly do
-	# nothing directly get a plain "No direct effect" to avoid false "scripted" labels.
-	# (Claude code Opus 4.7) -->
+	# <!-- custom: compose a per-event "what actually happens" bullet list. Covers the common numeric/flag fields on CvEventInfo and inlines Civ4 commerce/yield/happy icons so effect values read at a glance. If no known fields are populated we fall back to probing for a Python callback (getPythonCallback) — only in that case do we label the event "Scripted (Python callback)". Otherwise events that truly do nothing directly get a plain "No direct effect" to avoid false "scripted" labels. (Claude code Opus 4.7) -->
 	def _formatEventEffectSummary(self, iEvent):
 		eventInfo = gc.getEventInfo(iEvent)
 		if not eventInfo:
@@ -325,10 +301,7 @@ class SevoPediaEventTrigger:
 		parts = []
 		# Commerce-ish numeric rewards/penalties with their icons.
 		if eventInfo.getGold() != 0:
-			# <!-- custom: isGoldToPlayer flips the direction — if true, the gold is
-			# gifted TO the other player (subtracted from you and handed over) rather
-			# than just added to your treasury. Used by "bribe"/"gift" events.
-			# (Claude code Opus 4.7) -->
+			# <!-- custom: isGoldToPlayer flips the direction — if true, the gold is gifted TO the other player (subtracted from you and handed over) rather than just added to your treasury. Used by "bribe"/"gift" events. (Claude code Opus 4.7) -->
 			if eventInfo.isGoldToPlayer():
 				szGoldKey = "TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD_TO_PLAYER"
 			else:
@@ -347,8 +320,7 @@ class SevoPediaEventTrigger:
 		if eventInfo.getHappyTurns() != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS", ()) + u": %d %s" % (eventInfo.getHappyTurns(), self.HAPPY_CHAR))
 		if eventInfo.getHealth() != 0:
-			# Health can be negative (unhealthy) or positive — use the sign of the value
-			# to pick the appropriate Civ4 icon rather than having two separate fields.
+			# Health can be negative (unhealthy) or positive — use the sign of the value to pick the appropriate Civ4 icon rather than having two separate fields.
 			if eventInfo.getHealth() > 0:
 				szHealthChar = self.HEALTHY_CHAR
 			else:
@@ -405,9 +377,7 @@ class SevoPediaEventTrigger:
 			iFlavorValue = eventInfo.getTechFlavorValue(iFlavor)
 			if iFlavorValue != 0:
 				szFlavor = gc.getFlavorTypes(iFlavor)
-				# <!-- custom: trim the repeated "FLAVOR_" prefix because tech flavor lists
-				# can contain many entries; saving horizontal space reduces wrapping/scrolling
-				# and makes the event-effect bullet easier to scan. (GPT-5.5) -->
+				# <!-- custom: trim the repeated "FLAVOR_" prefix because tech flavor lists can contain many entries; saving horizontal space reduces wrapping/scrolling and makes the event-effect bullet easier to scan. (GPT-5.5) -->
 				if szFlavor.startswith("FLAVOR_"):
 					szFlavor = szFlavor[len("FLAVOR_"):]
 				listTechFlavors.append(szFlavor + u" %+d" % iFlavorValue)
@@ -441,10 +411,7 @@ class SevoPediaEventTrigger:
 		if iFreeBuildingClass >= 0:
 			buildingClassInfo = gc.getBuildingClassInfo(iFreeBuildingClass)
 			if buildingClassInfo:
-				# <!-- custom: getBuildingChange > 0 grants the building, < 0 destroys
-				# it. Same field on CvEventInfo drives both directions — surface them
-				# distinctly so destroyed buildings don't show up as "Free Building".
-				# (Claude code Opus 4.7) -->
+				# <!-- custom: getBuildingChange > 0 grants the building, < 0 destroys it. Same field on CvEventInfo drives both directions — surface them distinctly so destroyed buildings don't show up as "Free Building". (Claude code Opus 4.7) -->
 				iBuildingChange = eventInfo.getBuildingChange()
 				szLinkedBC = make_pedia_link(buildingClassInfo.getDescription())
 				if iBuildingChange > 0:
@@ -471,11 +438,7 @@ class SevoPediaEventTrigger:
 			if improvementInfo and eventInfo.getImprovementChange() != 0:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + make_pedia_link(improvementInfo.getDescription()))
 		elif eventInfo.getImprovementChange() != 0:
-			# <!-- custom: Some events set iImprovementChange while ImprovementType is NONE.
-			# Negative values remove whatever improvement is on the target plot; positive values
-			# are surfaced as a raw flag because the DLL only applies them when a concrete
-			# ImprovementType is provided. Showing this avoids false "No direct effect" cards.
-			# (GPT-5.5) -->
+			# <!-- custom: Some events set iImprovementChange while ImprovementType is NONE. Negative values remove whatever improvement is on the target plot; positive values are surfaced as a raw flag because the DLL only applies them when a concrete ImprovementType is provided. Showing this avoids false "No direct effect" cards. (GPT-5.5) -->
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_IMPROVEMENT_CHANGE", ()) + u": %+d" % eventInfo.getImprovementChange())
 		iBonus = eventInfo.getBonus()
 		if iBonus >= 0:
@@ -485,17 +448,14 @@ class SevoPediaEventTrigger:
 			if bonusInfo and eventInfo.getBonusChange() != 0:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE", ()) + u": %+d " % eventInfo.getBonusChange() + make_pedia_link(bonusInfo.getDescription()))
 
-		# <!-- custom: <BonusGift> — gifts a bonus resource to the other player in the
-		# popup chain. Core effect for events like Brothers In Need (the "help with
-		# Copper/Iron/Horses/..." choices). (Claude code Opus 4.7) -->
+		# <!-- custom: <BonusGift> — gifts a bonus resource to the other player in the popup chain. Core effect for events like Brothers In Need (the "help with Copper/Iron/Horses/..." choices). (Claude code Opus 4.7) -->
 		iBonusGift = eventInfo.getBonusGift()
 		if iBonusGift >= 0:
 			bonusGiftInfo = gc.getBonusInfo(iBonusGift)
 			if bonusGiftInfo:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT", ()) + u": " + make_pedia_link(bonusGiftInfo.getDescription()))
 
-		# <!-- custom: <RouteType> + <iRouteChange> — add/remove a road/railroad on the
-		# target plot. (Claude code Opus 4.7) -->
+		# <!-- custom: <RouteType> + <iRouteChange> — add/remove a road/railroad on the target plot. (Claude code Opus 4.7) -->
 		iRoute = eventInfo.getRoute()
 		if iRoute >= 0 and eventInfo.getRouteChange() != 0:
 			routeInfo = gc.getRouteInfo(iRoute)
@@ -504,23 +464,12 @@ class SevoPediaEventTrigger:
 		elif eventInfo.getRouteChange() != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_ROUTE_CHANGE", ()) + u": %+d" % eventInfo.getRouteChange())
 
-		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain
-		# gets their own popup with response choices — the real consequences of this
-		# branch are applied by whichever response they pick. Surfacing this so readers
-		# know the choice has downstream effects even if no XML effect fires on this side.
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain gets their own popup with response choices — the real consequences of this branch are applied by whichever response they pick. Surfacing this so readers know the choice has downstream effects even if no XML effect fires on this side. (Claude code Opus 4.7) -->
 		szOtherPopup = eventInfo.getOtherPlayerPopup()
 		if szOtherPopup and len(str(szOtherPopup).strip()) > 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_RESPONDS", ()))
 
-		# <!-- custom: per-BuildingClass extras — <BuildingExtraHappies>, <...Healths>,
-		# <BuildingExtraCommerces>, <BuildingExtraYields>. These are list-structs in XML
-		# and are queried via scalar accessors that take a BuildingClass index (plus a
-		# Commerce/Yield index for those two). Scanning all classes is the only way to
-		# surface them since there's no getNum... method. This is what finally makes
-		# events like Antimonarchists (Palace +3 happy, Cathedrals +2 gold each) show
-		# their actual effect instead of falling through to "No direct effect".
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: per-BuildingClass extras — <BuildingExtraHappies>, <...Healths>, <BuildingExtraCommerces>, <BuildingExtraYields>. These are list-structs in XML and are queried via scalar accessors that take a BuildingClass index (plus a Commerce/Yield index for those two). Scanning all classes is the only way to surface them since there's no getNum... method. This is what finally makes events like Antimonarchists (Palace +3 happy, Cathedrals +2 gold each) show their actual effect instead of falling through to "No direct effect". (Claude code Opus 4.7) -->
 		iNumBuildingClass = gc.getNumBuildingClassInfos()
 		iNumCommerce = CommerceTypes.NUM_COMMERCE_TYPES
 		iNumYield = YieldTypes.NUM_YIELD_TYPES
@@ -555,12 +504,7 @@ class SevoPediaEventTrigger:
 				if iVal != 0:
 					parts.append(szLinkedBCName + u": %+d %c" % (iVal, self.YIELD_CHARS[iY]))
 
-		# <!-- custom: per-UnitClass and per-UnitCombat promotion grants. Same list-struct
-		# pattern as the per-BuildingClass extras: the XML tags <UnitClassPromotions> and
-		# <UnitCombatPromotions> are probed via scalar accessors that take the class/combat
-		# index and return -1 for "no promotion". Catches events like Noble Knights Done_1
-		# that grant PROMOTION_RETREAT1 to Knight and Camel Knight classes.
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: per-UnitClass and per-UnitCombat promotion grants. Same list-struct pattern as the per-BuildingClass extras: the XML tags <UnitClassPromotions> and <UnitCombatPromotions> are probed via scalar accessors that take the class/combat index and return -1 for "no promotion". Catches events like Noble Knights Done_1 that grant PROMOTION_RETREAT1 to Knight and Camel Knight classes. (Claude code Opus 4.7) -->
 		for iUC in range(gc.getNumUnitClassInfos()):
 			iPromo = eventInfo.getUnitClassPromotion(iUC)
 			if iPromo >= 0:
@@ -576,9 +520,7 @@ class SevoPediaEventTrigger:
 				if combatInfo and promoInfo:
 					parts.append(self.STAR_CHAR + u" " + make_pedia_link(combatInfo.getDescription()) + u": " + make_pedia_link(promoInfo.getDescription()))
 
-		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type
-		# in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per
-		# Specialist index, same pattern as UnitClass above. (Claude code Opus 4.7) -->
+		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per Specialist index, same pattern as UnitClass above. (Claude code Opus 4.7) -->
 		for iSp in range(gc.getNumSpecialistInfos()):
 			iCount = eventInfo.getFreeSpecialistCount(iSp)
 			if iCount != 0:
@@ -618,27 +560,19 @@ class SevoPediaEventTrigger:
 		if iMaxReligions >= 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_MAX_RELIGIONS", ()) + u": %d" % iMaxReligions)
 
-		# <!-- custom: pillage gold range — from raided caravans / pillaged improvements.
-		# Both fields populate together; show as a single range line.
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: pillage gold range — from raided caravans / pillaged improvements. Both fields populate together; show as a single range line. (Claude code Opus 4.7) -->
 		iMinPillage = eventInfo.getMinPillage()
 		iMaxPillage = eventInfo.getMaxPillage()
 		if iMinPillage != 0 or iMaxPillage != 0:
 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD", ()) + u": %d-%d %c" % (iMinPillage, iMaxPillage, self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
 
-		# <!-- custom: <PlotExtraYields> — permanent yield bonus on the target plot,
-		# indexed by Yield type. Same list-struct probe pattern as the per-BuildingClass
-		# extras. Useful for events like "The Volcano has fertilized this plot: +2 food".
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: <PlotExtraYields> — permanent yield bonus on the target plot, indexed by Yield type. Same list-struct probe pattern as the per-BuildingClass extras. Useful for events like "The Volcano has fertilized this plot: +2 food". (Claude code Opus 4.7) -->
 		for iY in range(YieldTypes.NUM_YIELD_TYPES):
 			iExtra = eventInfo.getPlotExtraYield(iY)
 			if iExtra != 0:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD", ()) + u": %+d %c" % (iExtra, self.YIELD_CHARS[iY]))
 
-		# <!-- custom: <AdditionalEvents> — follow-up events that may fire after this one,
-		# each with a %chance and a turn delay. Probed per event index (same pattern as
-		# the BuildingClass scan). Surfaces event chains like "This opens a quest that
-		# will resolve in N turns". (Claude code Opus 4.7) -->
+		# <!-- custom: <AdditionalEvents> — follow-up events that may fire after this one, each with a %chance and a turn delay. Probed per event index (same pattern as the BuildingClass scan). Surfaces event chains like "This opens a quest that will resolve in N turns". (Claude code Opus 4.7) -->
 		for iOtherEvent in range(gc.getNumEventInfos()):
 			iChance = eventInfo.getAdditionalEventChance(iOtherEvent)
 			if iChance <= 0:
@@ -655,11 +589,7 @@ class SevoPediaEventTrigger:
 			else:
 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ()) + u": %s (%d%%)" % (szOtherName, iChance))
 
-		# <!-- custom: Surface event-chain cleanup and presentation/script text hooks too.
-		# These are not always direct mechanical rewards, but they are populated CvEventInfo
-		# effects/metadata and otherwise some cards misleadingly fall through to
-		# "No direct effect". Keep labels explicit so readers know what kind of field it is.
-		# (GPT-5.5) -->
+		# <!-- custom: Surface event-chain cleanup and presentation/script text hooks too. These are not always direct mechanical rewards, but they are populated CvEventInfo effects/metadata and otherwise some cards misleadingly fall through to "No direct effect". Keep labels explicit so readers know what kind of field it is. (GPT-5.5) -->
 		for iOtherEvent in range(gc.getNumEventInfos()):
 			iChance = eventInfo.getClearEventChance(iOtherEvent)
 			if iChance <= 0:
@@ -702,28 +632,14 @@ class SevoPediaEventTrigger:
 		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
 
 	def setHistoryExpanded(self, bExpanded):
-		# Renamed from bTextsExpanded at the method level only — the dispatch layer in
-		# SevoPediaMain always calls setHistoryExpanded (it's the shared hook), and on
-		# this page the expandable panel happens to be Texts.
+		# Renamed from bTextsExpanded at the method level only — the dispatch layer in SevoPediaMain always calls setHistoryExpanded (it's the shared hook), and on this page the expandable panel happens to be Texts.
 		self.bHistoryExpanded = bExpanded
 
-	# <!-- custom: render the trigger's narrator text variants (from getNumTexts() /
-	# getText(i), matching the XML <Texts><Text>...</Text></Texts> block). These are
-	# the variants the engine picks from at runtime to introduce the event popup —
-	# surfacing them here so Sevopedia readers see the same flavor context a player
-	# gets when the trigger actually fires. Rendered through draw_expandable_text_panel
-	# so very long / multi-variant Texts stay readable when they overflow the panel.
-	# (Claude code Opus 4.7) -->
+	# <!-- custom: render the trigger's narrator text variants (from getNumTexts() / getText(i), matching the XML <Texts><Text>...</Text></Texts> block). These are the variants the engine picks from at runtime to introduce the event popup — surfacing them here so Sevopedia readers see the same flavor context a player gets when the trigger actually fires. Rendered through draw_expandable_text_panel so very long / multi-variant Texts stay readable when they overflow the panel. (Claude code Opus 4.7) -->
 	def placeTexts(self):
 		screen = self.top.getScreen()
 		info = self._getTriggerInfo()
-		# <!-- custom: dedupe identical resolved text variants and append a "(xN)"
-		# multiplier to each repeated entry. Many vanilla BtS triggers list the same
-		# flavor string several times to weight the random roll (e.g. Joyous Wedding
-		# repeats "A ??? industrial heiress..." 3 times); showing them as separate
-		# bullets just wastes vertical space without telling the reader anything new.
-		# First-seen insertion order is preserved so the bullet sequence still matches
-		# the XML declaration order. (Claude code Opus 4.7) -->
+		# <!-- custom: dedupe identical resolved text variants and append a "(xN)" multiplier to each repeated entry. Many vanilla BtS triggers list the same flavor string several times to weight the random roll (e.g. Joyous Wedding repeats "A ??? industrial heiress..." 3 times); showing them as separate bullets just wastes vertical space without telling the reader anything new. First-seen insertion order is preserved so the bullet sequence still matches the XML declaration order. (Claude code Opus 4.7) -->
 		order = []
 		counts = {}
 		if info:
@@ -793,8 +709,7 @@ class SevoPediaEventTrigger:
 		cardH = innerH
 
 		availableInnerH = cardH - (2 * cardInnerMargin) - panelGap
-		# Summary panel needs enough room for a few bullet lines of effects — ~60 px
-		# floor keeps it readable when the event name is long and pushes the split down.
+		# Summary panel needs enough room for a few bullet lines of effects — ~60 px floor keeps it readable when the event name is long and pushes the split down.
 		minSummaryPanelH = 60
 		namePanelH = 120
 		maxNamePanelH = availableInnerH - minSummaryPanelH
@@ -848,14 +763,7 @@ class SevoPediaEventTrigger:
 		if not info:
 			return
 
-		# <!-- custom: multilist layout (a la SevoPediaUnit.placeRequires) so each button
-		# gets a consistent grid slot and we can place a numTxt under the ones that need
-		# disambiguating. Only the OtherPlayerHasTech button carries a "Oth.P." numTxt —
-		# direct AND-tech / OR-tech / civic / required-building/unit/religion/corporation
-		# icons are self-identifying by art and don't need extra text. AND/OR separator
-		# labels are dropped vs the previous inline flow; the distinction is rare in
-		# vanilla triggers and keeping multilist discipline is worth the small loss.
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: multilist layout (a la SevoPediaUnit.placeRequires) so each button gets a consistent grid slot and we can place a numTxt under the ones that need disambiguating. Only the OtherPlayerHasTech button carries a "Oth.P." numTxt — direct AND-tech / OR-tech / civic / required-building/unit/religion/corporation icons are self-identifying by art and don't need extra text. AND/OR separator labels are dropped vs the previous inline flow; the distinction is rare in vanilla triggers and keeping multilist discipline is worth the small loss. (Claude code Opus 4.7) -->
 		rowListName = self.top.getNextWidgetName()
 		multiListX = self.X_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
 		multiListY = self.Y_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
@@ -867,11 +775,7 @@ class SevoPediaEventTrigger:
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 		szOrLabel = localText.getText("TXT_KEY_OR", ())
 
-		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands
-		# in the earliest grid slot. numTxt is placed at absolute coordinates (no grid
-		# scroll support), so keeping the labeled button on the first row guarantees the
-		# label stays visible even if later buttons wrap past the panel height.
-		# (Claude code Opus 4.7) -->
+		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands in the earliest grid slot. numTxt is placed at absolute coordinates (no grid scroll support), so keeping the labeled button on the first row guarantees the label stays visible even if later buttons wrap past the panel height. (Claude code Opus 4.7) -->
 		iOtherTech = info.getOtherPlayerHasTech()
 		if iOtherTech >= 0:
 			otherTechInfo = gc.getTechInfo(iOtherTech)
@@ -880,10 +784,7 @@ class SevoPediaEventTrigger:
 				add_multilist_numTxt_under_button(multiListX, multiListY, -3, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, u"Oth.P.", screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 				iButtonIndex += 1
 
-		# <!-- custom: direct AND prereqs are intentionally shown as adjacent unlabeled
-		# icons. Rendering "and" between every required icon makes dense panels noisy;
-		# in Sevopedia icon rows, plain adjacency means all are required, while explicit
-		# connector numTxt is reserved for real alternatives such as "A or B". (GPT-5.5) -->
+		# <!-- custom: direct AND prereqs are intentionally shown as adjacent unlabeled icons. Rendering "and" between every required icon makes dense panels noisy; in Sevopedia icon rows, plain adjacency means all are required, while explicit connector numTxt is reserved for real alternatives such as "A or B". (GPT-5.5) -->
 		seenAnd = {}
 		for i in range(info.getNumPrereqAndTechs()):
 			iTech = info.getPrereqAndTechs(i)
@@ -895,9 +796,7 @@ class SevoPediaEventTrigger:
 				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
 				iButtonIndex += 1
 
-		# <!-- custom: direct OR prereq techs use connector numTxt between buttons, so
-		# they read as "A or B" instead of labeling either icon as "or". Single OR
-		# entries do not need a connector. (GPT-5.5) -->
+		# <!-- custom: direct OR prereq techs use connector numTxt between buttons, so they read as "A or B" instead of labeling either icon as "or". Single OR entries do not need a connector. (GPT-5.5) -->
 		seenOr = {}
 		orTechList = []
 		for i in range(info.getNumPrereqOrTechs()):
@@ -1078,10 +977,7 @@ class SevoPediaEventTrigger:
 		multiListH = self.H_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		# <!-- custom: obsolete techs are alternatives: any listed tech blocks the
-		# trigger. Use connector numTxt between buttons instead of labeling each icon
-		# as "or", so this reads as "A or B" and matches Requires OR prereqs.
-		# (GPT-5.5) -->
+		# <!-- custom: obsolete techs are alternatives: any listed tech blocks the trigger. Use connector numTxt between buttons instead of labeling each icon as "or", so this reads as "A or B" and matches Requires OR prereqs. (GPT-5.5) -->
 		iButtonIndex = 0
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 		szOrLabel = localText.getText("TXT_KEY_OR", ())

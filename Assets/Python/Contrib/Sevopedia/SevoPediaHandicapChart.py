@@ -222,9 +222,7 @@ class SevoPediaHandicapChart:
 		# Goody huts: define the DISPLAYED grouped rows ONCE, then derive:
 		#   - which GOODY_* types we need to count
 		#   - which grouped rows we show in the chart
-		#
-		# Each group can contain any number of goody types (1, 2, 3+). Today we
-		# mostly use pairs, but this structure keeps it flexible for future tweaks.
+		# Each group can contain any number of goody types (1, 2, 3+). Today we mostly use pairs, but this structure keeps it flexible for future tweaks.
 		goody_group_specs = (
 			# (label, goody_types_tuple, icon_token)
 			("Goody Gold (Low / High)", ("GOODY_LOW_GOLD", "GOODY_HIGH_GOLD"), "glyph:gold"),

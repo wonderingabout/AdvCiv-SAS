@@ -97,14 +97,6 @@ class SevoPediaCivic:
 		self.placeVotes()
 		self.placeHistory()
 
-	# <!-- custom: in https://civ4bug.sourceforge.net/PythonAPI/AllClasses.html i have found this:
-	# VOID addMultiListControlGFC (STRING szName, STRING helpText, INT iX, INT iY, INT iWidth, INT iHeight, INT numLists, INT defaultWidth, INT defaultHeight, TableStyle eStyle)
-	# and in https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Screens/CvMainInterface.py#L2050C1-L2053C38 i have found this:
-	# 		self.screen.addMultiListControlGFC("BottomButtonList", u"",
-	#			lRect.x(), lRect.y(), lRect.width(), lRect.height(),
-	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
-	#			TableStyles.TABLE_STYLE_STANDARD)
-	# if it helps us adapt/use the addMultiListControlGFC method -->
 	def placeFavorites(self):
 		xPanel = self.X_FAVORITES
 		yPanel = self.Y_FAVORITES

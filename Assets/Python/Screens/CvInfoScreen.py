@@ -1126,8 +1126,7 @@ class CvInfoScreen:
 		iColResearch = 27
 		iColResearchPct = 28
 
-		# <!-- custom: reserve right-side width for table scrollbar gutter in this always-expanded layout,
-		# so text does not clip/overflow under it; this budget is absorbed by V/M width balancing. (GPT-5.3-Codex) -->
+		# <!-- custom: reserve right-side width for table scrollbar gutter in this always-expanded layout, so text does not clip/overflow under it; this budget is absorbed by V/M width balancing. (GPT-5.3-Codex) -->
 		iMaxRenderWidthReservePx = 14
 		iW = iTableW - iMaxRenderWidthReservePx
 		iIconW = 28
@@ -1304,8 +1303,7 @@ class CvInfoScreen:
 			if ePlayer == eActivePlayer:
 				eScoreWidget = WidgetTypes.WIDGET_SCORE_BREAKDOWN
 			# <!-- custom: Score-tab sort fix: Civ4 table sorting is type-aware, and values inserted with setTableText sort lexicographically
-			# (e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric,
-			# while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
+			# (e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric, while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
 			SASTextScale.setTableIntLabel(screen, szTable, iColScore, iRow, str(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			iGameTurn = iActiveGameTurn

@@ -33,8 +33,7 @@ class SevoPediaVote:
 
 		self.W_SOURCE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
-		# <!-- custom: top row order is V.Source/Civic -> Vote Source Info -> Free.Sp,
-		# while F.Civics is shown on the mid row to reflect vote-level scope. (GPT-5.4?) -->
+		# <!-- custom: top row order is V.Source/Civic -> Vote Source Info -> Free.Sp, while F.Civics is shown on the mid row to reflect vote-level scope. (GPT-5.4?) -->
 		self.X_SOURCE = self.X_RIGHT
 		self.Y_SOURCE = self.Y_VOTE_PANE
 		self.H_SOURCE = (self.H_VOTE_PANE - SMALL_MARGIN) / 2

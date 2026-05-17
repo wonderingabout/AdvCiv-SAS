@@ -181,8 +181,7 @@ class SevoPediaSpecialist:
 				for iBuilding in xrange(gc.getNumBuildingInfos()):
 					buildingInfo = gc.getBuildingInfo(iBuilding)
 					if buildingInfo.getVoteSourceType() == iVoteSource:
-						# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo,
-						# while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
+						# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo, while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
 						if iVoteTarget > -1:
 							attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVoteTarget, "+1 Free (V.Sources)")
 						else:

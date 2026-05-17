@@ -27,9 +27,7 @@ class CvDawnOfMan:
 		self.W_TECH = 425
 		self.H_TECH = 80
 
-		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts,
-		# then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing
-		# the lower blue panel. Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
+		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts, then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing the lower blue panel. Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
 		self.W_MAIN_PANEL = 800 # Was 550
 		
 		self.H_MAIN_PANEL = 590
@@ -102,8 +100,7 @@ class CvDawnOfMan:
 		
 		# Main
 		szMainPanel = "DawnOfManMainPanel"
-		screen.addPanel( szMainPanel, "", "", true, true,
-			self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( szMainPanel, "", "", true, true, self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
 		
 		# <advc.704>
 		riseFall = gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL)
@@ -118,29 +115,24 @@ class CvDawnOfMan:
 		isLaterEraStart = (gc.getGame().getStartEra() > 0 or gc.getGame().getCurrentEra() > 0 or rfChapter > 0)
 		if not isLaterEraStart:
 			szHeaderPanel = "DawnOfManHeaderPanel"
-			screen.addPanel( szHeaderPanel, "", "", true, false,
-				self.X_HEADER_PANEL, self.Y_HEADER_PANEL, self.W_HEADER_PANEL, self.H_HEADER_PANEL, PanelStyles.PANEL_STYLE_DAWNTOP )
+			screen.addPanel( szHeaderPanel, "", "", true, false, self.X_HEADER_PANEL, self.Y_HEADER_PANEL, self.W_HEADER_PANEL, self.H_HEADER_PANEL, PanelStyles.PANEL_STYLE_DAWNTOP )
 		
 		# Bottom
 		szTextPanel = "DawnOfManTextPanel"
-		screen.addPanel( szTextPanel, "", "", true, true,
-			self.X_TEXT_PANEL, self.Y_TEXT_PANEL, self.W_TEXT_PANEL, self.H_TEXT_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
+		screen.addPanel( szTextPanel, "", "", true, true, self.X_TEXT_PANEL, self.Y_TEXT_PANEL, self.W_TEXT_PANEL, self.H_TEXT_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
 		
 		# Add contents
 		
 		# Leaderhead graphic
 		szLeaderPanel = "DawnOfManLeaderPanel"
-		screen.addPanel( szLeaderPanel, "", "", true, false,
-			self.X_LEADER_ICON - 3, self.Y_LEADER_ICON - 5, self.W_LEADER_ICON + 6, self.H_LEADER_ICON + 8, PanelStyles.PANEL_STYLE_DAWNTOP )
-		screen.addLeaderheadGFC("LeaderHead", self.player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED,
-			self.X_LEADER_ICON + 5, self.Y_LEADER_ICON + 5, self.W_LEADER_ICON - 10, self.H_LEADER_ICON - 10, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.addPanel( szLeaderPanel, "", "", true, false, self.X_LEADER_ICON - 3, self.Y_LEADER_ICON - 5, self.W_LEADER_ICON + 6, self.H_LEADER_ICON + 8, PanelStyles.PANEL_STYLE_DAWNTOP )
+		screen.addLeaderheadGFC("LeaderHead", self.player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADER_ICON + 5, self.Y_LEADER_ICON + 5, self.W_LEADER_ICON - 10, self.H_LEADER_ICON - 10, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		
 		# Info/"Stats" text
 		
 		szNameText = "<color=255,255,0,255>" + sasFontTagTitle.bold + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
 		szNameText += u"\n" + sasFontTagLabel + u"- " + self.player.getCivilizationDescription(0) + u" -" + SAS_FONT_TAG_CLOSE + u"\n"
-		# <!-- custom: prepend each trait name with its TraitUtil font-symbol icon (e.g. happy char for Charismatic,
-		# defense char for Protective) so the traits line in the Dawn of Man header reads without requiring pedia-jump wiring. Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6) -->
+		# <!-- custom: prepend each trait name with its TraitUtil font-symbol icon (e.g. happy char for Charismatic, defense char for Protective) so the traits line in the Dawn of Man header reads without requiring pedia-jump wiring. Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6) -->
 		szTraits = CyGameTextMgr().parseLeaderTraits(self.player.getLeaderType(), self.player.getCivilizationType(), True, False)
 		leaderInfo = gc.getLeaderHeadInfo(self.player.getLeaderType())
 		for iTrait in range(gc.getNumTraitInfos()):

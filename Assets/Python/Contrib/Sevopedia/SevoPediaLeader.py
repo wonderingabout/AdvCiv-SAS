@@ -336,9 +336,7 @@ class SevoPediaLeader:
 		iSelectedEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
 		iUnselectedEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
 
-		# <!-- custom: We tested the city-screen filter-style GFC checkbox DDS route here (similar to CvMainInterface building filter buttons),
-		# but icon sizing could not be controlled independently enough in this attitude row. Keeping inline <img> gives reliable per-button size
-		# control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
+		# <!-- custom: We tested the city-screen filter-style GFC checkbox DDS route here (similar to CvMainInterface building filter buttons), but icon sizing could not be controlled independently enough in this attitude row. Keeping inline <img> gives reliable per-button size control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
 		for iAttitude in attitudeOrder:
 			szWidget = self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude]
 			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
@@ -710,8 +708,7 @@ class SevoPediaLeader:
 			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ERA:
 				return self.applyLeaderEra(inputClass.getData2())
 
-		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search,
-		# consider removing or remapping here. (GPT-5.2-Codex) -->
+		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search, consider removing or remapping here. (GPT-5.2-Codex) -->
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
 			if (inputClass.getData() == int(InputTypes.KB_0)):
 				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.LEADERANIM_GREETING)

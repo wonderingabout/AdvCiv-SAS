@@ -864,8 +864,7 @@ class CvDomesticAdvisor:
 		screen.setTableText( self.TABLE_OVERVIEW1, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <advc.193>
-		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update),
-		# but source size from LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
+		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update), but source size from LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
 		iCellFontSize = getSASUIFontLabel()
 		# (Uses of these tags in the code below aren't tagged w/ comments)
 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
@@ -879,11 +878,9 @@ class CvDomesticAdvisor:
 			szName += (u"%c" % CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
 		
 		# City name...
-		screen.setTableText( self.TABLE_OVERVIEW1, 1, i, szFontTagOpen + szName + szFontTagClose, "",
-				#WidgetTypes.WIDGET_GENERAL, -1, -1,
-				# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
-				WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(),
-				CvUtil.FONT_LEFT_JUSTIFY )
+		#WidgetTypes.WIDGET_GENERAL, -1, -1,
+		# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
+		screen.setTableText( self.TABLE_OVERVIEW1, 1, i, szFontTagOpen + szName + szFontTagClose, "", WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Population
 		screen.setTableInt( self.TABLE_OVERVIEW1, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )

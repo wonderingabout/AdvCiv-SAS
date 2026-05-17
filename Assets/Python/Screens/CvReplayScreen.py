@@ -360,8 +360,7 @@ class CvReplayScreen:
 		for iPlayer in range(self.replayInfo.getNumPlayers()):
 			screen.addGraphLayer(self.szGraph, iPlayer, self.replayInfo.getColor(iPlayer))
 
-		# <!-- custom: Graph widget axis labels render raw text and do not parse <font=...> tags,
-		# so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
+		# <!-- custom: Graph widget axis labels render raw text and do not parse <font=...> tags, so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
 		screen.setGraphLabelX(self.szGraph, u"")
 		screen.setGraphLabelY(self.szGraph, u"")
 		# <!-- custom: nudge Turns label lower and Score label higher and left for better visual separation from the graph edges. (Claude Code Sonnet 4.6) -->

@@ -62,26 +62,7 @@ class CvDanQuayle:
 		self.W_TEXT = 390
 		self.H_TEXT = 100
 		
-		self.leaders = ["TXT_KEY_DQ_LEADER_NAME_1", 
-						"TXT_KEY_DQ_LEADER_NAME_2",
-						"TXT_KEY_DQ_LEADER_NAME_3",
-						"TXT_KEY_DQ_LEADER_NAME_4",
-						"TXT_KEY_DQ_LEADER_NAME_5",
-						"TXT_KEY_DQ_LEADER_NAME_6",
-						"TXT_KEY_DQ_LEADER_NAME_7",
-						"TXT_KEY_DQ_LEADER_NAME_8",
-						"TXT_KEY_DQ_LEADER_NAME_9",
-						"TXT_KEY_DQ_LEADER_NAME_10",
-						"TXT_KEY_DQ_LEADER_NAME_11",
-						"TXT_KEY_DQ_LEADER_NAME_12",
-						"TXT_KEY_DQ_LEADER_NAME_13",
-						"TXT_KEY_DQ_LEADER_NAME_14",
-						"TXT_KEY_DQ_LEADER_NAME_15",
-						"TXT_KEY_DQ_LEADER_NAME_16",
-						"TXT_KEY_DQ_LEADER_NAME_17",
-						"TXT_KEY_DQ_LEADER_NAME_18",
-						"TXT_KEY_DQ_LEADER_NAME_19",
-						"TXT_KEY_DQ_LEADER_NAME_20"]
+		self.leaders = ["TXT_KEY_DQ_LEADER_NAME_1", "TXT_KEY_DQ_LEADER_NAME_2", "TXT_KEY_DQ_LEADER_NAME_3", "TXT_KEY_DQ_LEADER_NAME_4", "TXT_KEY_DQ_LEADER_NAME_5", "TXT_KEY_DQ_LEADER_NAME_6", "TXT_KEY_DQ_LEADER_NAME_7", "TXT_KEY_DQ_LEADER_NAME_8", "TXT_KEY_DQ_LEADER_NAME_9", "TXT_KEY_DQ_LEADER_NAME_10", "TXT_KEY_DQ_LEADER_NAME_11", "TXT_KEY_DQ_LEADER_NAME_12", "TXT_KEY_DQ_LEADER_NAME_13", "TXT_KEY_DQ_LEADER_NAME_14", "TXT_KEY_DQ_LEADER_NAME_15", "TXT_KEY_DQ_LEADER_NAME_16", "TXT_KEY_DQ_LEADER_NAME_17", "TXT_KEY_DQ_LEADER_NAME_18", "TXT_KEY_DQ_LEADER_NAME_19", "TXT_KEY_DQ_LEADER_NAME_20"]
 
 		self.nWidgetCount = 0
 		# <!-- custom: cached max-score denominator; five defines combined into one formula that never changes. (Claude code Sonnet 4.6) -->
@@ -106,10 +87,7 @@ class CvDanQuayle:
 		self.X_EXIT = self.W_SCREEN - 30
 		self.Y_EXIT = self.H_SCREEN - 42
 
-		# <!-- custom: Your Place in History layout pass:
-		# use fullscreen bounds, keep right score/ranking column anchored, maximize left leaderhead vertically,
-		# and place the "during this game ..." panel in the center gap. This avoids ranking-list scroll while
-		# giving the NIF more lateral room and keeps text upscaling support from SAS font tags/helpers. (GPT-5.3-Codex) -->
+		# <!-- custom: Your Place in History layout pass: use fullscreen bounds, keep right score/ranking column anchored, maximize left leaderhead vertically, and place the "during this game ..." panel in the center gap. This avoids ranking-list scroll while giving the NIF more lateral room and keeps text upscaling support from SAS font tags/helpers. (GPT-5.3-Codex) -->
 		iLeftMargin = 45
 		iRightMargin = 45
 		iColumnGap = 25

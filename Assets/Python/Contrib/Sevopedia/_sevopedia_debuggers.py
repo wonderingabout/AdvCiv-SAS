@@ -162,11 +162,9 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	print("iFreedomAppreciation: %d" % info.getFreedomAppreciation())
 
 	# <!-- custom: then we skip these (for example in/from LEADER_DEFAULTS):
-	#
 	# 		<FavoriteCivic>NONE</FavoriteCivic>
 	# 		<FavoriteReligion>NONE</FavoriteReligion>
 	# 		<Traits/>
-	#
 	# as we don't need them/display them in ai personality panel; then resume at fields below: -->
 
 	print("\n\n==== FLAVORS ====")

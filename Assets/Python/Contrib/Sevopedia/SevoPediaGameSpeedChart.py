@@ -149,16 +149,13 @@ class SevoPediaGameSpeedChart:
 
 	def _buildTableFromGameData(self):
 		# Central configuration (single source of truth)
-
 		#
 		# row_specs drives:
 		# - which XML fields we display (and in what order)
 		# - which getter to call for each field (DLL GameSpeedInfo getters)
 		# - which icon (glyph/button) is shown in the left icon column
 		#
-		# This intentionally replaces the older split setup:
-		#   field_getters + field_order + icon_token_by_key + glyph_sort_code
-		# so future edits only need to touch ONE list.
+		# This intentionally replaces the older split setup: field_getters + field_order + icon_token_by_key + glyph_sort_code so future edits only need to touch ONE list.
 		#
 		# Each entry:
 		#   (field_key, getter_name_or_None, icon_spec)
@@ -204,24 +201,20 @@ class SevoPediaGameSpeedChart:
 			("TotalTurns",                  None,                            ("btn",   "hourglass")),
 		)
 
-		# Derived rows have no getter (getter_name is None): values are computed from per-increment data,
-		# not read from a single XML field. Mark them with '*' in the display label.
+		# Derived rows have no getter (getter_name is None): values are computed from per-increment data, not read from a single XML field. Mark them with '*' in the display label.
 		derived_field_keys = {}
 		for (k, getter_name, _icon_spec) in row_specs:
 			if getter_name is None:
 				derived_field_keys[k] = True
 
 		# Icon libraries
-		# Each icon definition includes a "sort group" so sorting by the icon column is meaningful.
-		# (The group is also embedded into an invisible tie-breaker so ordering is fully deterministic.)
+		# Each icon definition includes a "sort group" so sorting by the icon column is meaningful. (The group is also embedded into an invisible tie-breaker so ordering is fully deterministic.)
 		game = CyGame()
 
 		# Keep icon libraries lean: define only icons we actually use in this chart.
 		# If you add new row_specs icons later, extend the *_defs tuples below.
 		#
-		# Sorting note: each icon gets a "sort group" used only when sorting by the icon column.
-		# Groups are spaced by 10 so you can insert new icons between existing groups without
-		# renumbering everything; only relative order matters.
+		# Sorting note: each icon gets a "sort group" used only when sorting by the icon column. Groups are spaced by 10 so you can insert new icons between existing groups without renumbering everything; only relative order matters.
 
 		btn_by_name = {}
 
@@ -567,15 +560,11 @@ class SevoPediaGameSpeedChart:
 	def _format_calendar_segment(self, end_year, end_month, turns, month_inc, bEraFlip):
 		# Calendar cell format is intentionally compact:
 		#   "+<turns>*<rate><sep><endDate>"
-		# We omit the segment start date entirely to save horizontal space.
-		# (The start date is implied by the previous segment; for the first segment,
-		#  players already know START_YEAR / can look it up in XML.)
+		# We omit the segment start date entirely to save horizontal space. (The start date is implied by the previous segment; for the first segment, players already know START_YEAR / can look it up in XML.)
 		#
 		# Era handling:
 		# - We omit "BC"/"AD" text entirely (BC is implied before the transition, AD after).
-		# - We mark the *first* segment that reaches AD with "->" (instead of "=") so the
-		#   BC->AD boundary is obvious without repeating era text in every cell.
-		#   (This is also where years are shortest, so the marker doesn't bloat the row.)
+		# - We mark the *first* segment that reaches AD with "->" (instead of "=") so the BC->AD boundary is obvious without repeating era text in every cell. (This is also where years are shortest, so the marker doesn't bloat the row.)
 		#
 		# Month handling:
 		# - Month suffix is shown for m2..m12; m1 is hidden so January matches in-game year display.

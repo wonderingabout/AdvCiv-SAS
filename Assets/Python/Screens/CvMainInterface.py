@@ -158,8 +158,7 @@ class CvMainInterface:
 			gRect("LowerRightCornerPanel").adjustSize(iPanelW - gRect("LowerRightCornerPanel").width(), 0)
 			gRect("LowerRightCorner").moveTo(iPanelX, gRect("LowerRightCorner").y())
 			gRect("LowerRightCorner").adjustSize(iPanelW - gRect("LowerRightCorner").width(), 0)
-		# <!-- custom: center bottom panel should stop before right panel in city screen,
-		# and extend slightly in map view to avoid a gap. (GPT-5.2-Codex) -->
+		# <!-- custom: center bottom panel should stop before right panel in city screen, and extend slightly in map view to avoid a gap. (GPT-5.2-Codex) -->
 		# <!-- custom: controls the city screen as intended (e.g. 150 successfully reduces it only in the city screen) -->
 		if bCityScreen:
 			iCenterMargin = 10
@@ -593,7 +592,7 @@ class CvMainInterface:
 		self.iScoreScrollOffset = 0
 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
 		self.bScoreAlwaysExpand = False
-		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent). Discrete PanelStyle levels in cycle order: 0 HUD_HELP (vanilla look), 1 SOLID (most opaque / darkest), 2 MAIN (plain panel), 3 MAIN_BLACK50 (dark translucent), 4 MAIN_BLACK25 (light translucent), 5 EMPTY (no visible bg, text over map). Reorder/extend freely; if you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync. Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define, resolved lazily (None until first use). Changes the panel background only. (Claude code Opus 4.7) -->
+		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent). Discrete PanelStyle levels in cycle order. 0 HUD_HELP is vanilla look. If you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync. Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define. (Claude code Opus 4.7) -->
 		self.iScoreBgStyleLevel = None
 		self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = None
 		self.aScoreBgStyleLevels = [PanelStyles.PANEL_STYLE_HUD_HELP, PanelStyles.PANEL_STYLE_SOLID, PanelStyles.PANEL_STYLE_MAIN, PanelStyles.PANEL_STYLE_MAIN_BLACK50, PanelStyles.PANEL_STYLE_MAIN_BLACK25, PanelStyles.PANEL_STYLE_EMPTY]
@@ -738,8 +737,7 @@ class CvMainInterface:
 		g_NumProcessInfos = gc.getNumProcessInfos()
 		g_NumActionInfos = gc.getNumActionInfos()
 
-		# advc.004z: Moved ResourceIcons from last position to second and swapped BareMap and Yields.
-		# And moved this whole thing out of setMiniMapButtonVisibility, and storing some associated data too.
+		# advc.004z: Moved ResourceIcons from last position to second and swapped BareMap and Yields. And moved this whole thing out of setMiniMapButtonVisibility, and storing some associated data too.
 		self.aMiniMapMainButtons = [
 			MiniMapButton("UnitIcons", ControlTypes.CONTROL_UNIT_ICONS, "Button_HUDGlobeUnit_Style"),
 			MiniMapButton("ResourceIcons", ControlTypes.CONTROL_RESOURCE_ALL, "Button_HUDBtnResources_Style"),
@@ -1675,17 +1673,15 @@ class CvMainInterface:
 		# <!-- custom: use the corporation-advisor icon for foreign diplomacy after moving the diplomatic-advisor icon to the turn log; thematically close enough for relationship/network management. (GPT-5.5) -->
 		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorCorporation_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_DIPLOMACY_SCREEN).getActionInfoIndex())
 		screen.hide("ForeignDiplomacyAdvisorButton")
-		# <!-- custom: F4 (Foreign Trade slot) uses the HUD Globe Trade style: more directly evocative of "foreign trade" than the generic Finance icon. GlobeTrade was unused in CvMainInterface (only GlobeUnit is bound), and the Finance icon would otherwise read as plain treasury rather than international trade. (Claude code Opus 4.7) -->
+		# <!-- custom: F4 (Foreign Trade slot) uses the HUD Globe Trade style: more directly evocative of "foreign trade" than the generic Finance icon. The Finance icon would otherwise read as plain treasury rather than international trade. (Claude code Opus 4.7) -->
 		self.setStyledButton("ForeignAdvisorButton", "Button_HUDGlobeTrade_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_SCREEN).getActionInfoIndex())
 		screen.hide("ForeignAdvisorButton")
 		self.setStyledButton("MilitaryAdvisorButton", "Button_HUDAdvisorMilitary_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_MILITARY_SCREEN).getActionInfoIndex())
 		screen.hide("MilitaryAdvisorButton")
 		self.setStyledButton("TechAdvisorButton", "Button_HUDAdvisorTechnology_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex())
 		screen.hide("TechAdvisorButton")
-		# <!-- custom: World Advisor F7 button uses the HUD Globe Strategy style. Among the 11 HUDAdvisor styles every one is taken (Espionage by the legacy EspionageAdvisorButton, Corporation by the BUG options widget, etc.). The HUD theme also defines 5 Globe styles for minimap-layer toggles, of which only GlobeUnit is actually used in CvMainInterface — the other four (Strategy/Religion/Culture/Trade) are free. Strategy is picked because the art fits "world overview". (Claude code Opus 4.7) -->
 		self.setStyledButton("WorldAdvisorButton", "Button_HUDGlobeStrategy_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_WORLD_ADVISOR_SCREEN).getActionInfoIndex())
 		screen.hide("WorldAdvisorButton")
-		# <!-- custom: Religion/Corporation advisor HUD buttons removed; those screens are planned to be merged as Policy tabs. (GPT-5.3-Codex) -->
 		self.setStyledButton("VictoryAdvisorButton", "Button_HUDAdvisorVictory_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_VICTORY_SCREEN).getActionInfoIndex())
 		screen.hide("VictoryAdvisorButton")
 		self.setStyledButton("InfoAdvisorButton", "Button_HUDAdvisorRecord_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_INFO).getActionInfoIndex())
@@ -4046,8 +4042,7 @@ class CvMainInterface:
 		pPlayer = gc.getPlayer(ePlayer)
 		iGold = pPlayer.getGold()
 		iGoldRate = pPlayer.calculateGoldRate()
-		# advc.070 (comment): Only relevant for mod-mods I think,
-		# so I'm not changing anything here.
+		# advc.070 (comment): Only relevant for mod-mods I think, so I'm not changing anything here.
 		if iGold < 0:
 			szText = BugUtil.getText("TXT_KEY_MISC_NEG_GOLD", iGold)
 			if iGoldRate != 0:
@@ -5521,9 +5516,7 @@ class CvMainInterface:
 			# The discrepancy happens because pCity.getGreatPeopleRateModifier() in the Python API often only returns the building modifiers (like the National Epic), but ignores Traits (Philosophical) or Golden Ages. The C++ tooltip adds those up separately.
 			# Instead of trying to hunt down every single bonus source in Python (which is complex and prone to errors), we can reverse-engineer the correct modifier by comparing the Final Total (which the game gives us) against the Raw Base (which we calculated).
 			# If the game says you have 10 Total Points, and you counted 8 Raw Points, the modifier must be +25%. This method is 100% accurate because it is derived from the final result.
-			# The Fix: "Reverse Engineering" the Modifier
-			# Instead of asking the API for the modifier (which misses Golden Ages/Traits),
-			# we calculate it: (Final / Raw) - 100%
+			# The Fix: "Reverse Engineering" the Modifier. Instead of asking the API for the modifier (which misses Golden Ages/Traits), we calculate it: (Final / Raw) - 100%
 			iModPercent = 0
 			if iTotalRaw > 0 and iTotalRate > iTotalRaw:
 				# We use integer math: (10 * 100) / 8 = 125. 125 - 100 = 25%
@@ -5716,8 +5709,7 @@ class CvMainInterface:
 							szRightBuffer = BugUtil.colorText(szRightBuffer, "COLOR_CYAN")
 # BUG - Production Started - end
 # BUG - Production Decay - start
-					# advc.094: BugDll.isPresent check removed; active player check added
-					# (replacing a is-human check in the DLL).
+					# advc.094: BugDll.isPresent check removed; active player check added (replacing a is-human check in the DLL).
 					if (CityScreenOpt.isShowProductionDecayQueue() and pHeadSelectedCity.getOwner() == gc.getGame().getActivePlayer()):
 						eUnit = CyInterface().getOrderNodeData1(i)
 						if pHeadSelectedCity.getUnitProduction(eUnit) > 0:
@@ -6066,8 +6058,7 @@ class CvMainInterface:
 			pass
 		screen.addPanel("ScoreBackground", u"", u"", True, False, 0, 0, 0, 0, eStyle)
 		self._eScoreBgStyleApplied = eStyle
-	# advc.092: Reconciling redundant BtS code from updateScoreStrings
-	# with BUG code from Scoreboard.draw.
+	# advc.092: Reconciling redundant BtS code from updateScoreStrings with BUG code from Scoreboard.draw.
 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
 		iRMargin = gRect("Top").xRight() - gPoint("ScoreTextLowerRight").x()
 		# <!-- custom: fixed symmetric panel margin matching original (3*iBMargin/2 with iBMargin=VSPACE(6)) so text is always centered; no longer derived from iBMargin which blows up when iScoreBottom moves. (Claude code Sonnet 4.6) -->
@@ -6746,10 +6737,11 @@ class CvMainInterface:
 		gSetSquare("GlobeToggle", "Top", iGlobeX, iGlobeY, gRect("GlobeToggle").size())
 		screen.moveItem("GlobeToggle", iGlobeX, iGlobeY, 0.0)
 
-		iStep = gRect("MiniMapButton").size() + HSPACE(0)
+		# <!-- custom: adding the map-annotation button made the strip one wider, so its last button collided with the Globe toggle. There was a lot of unused dead space between buttons, so step by less than the full cell to tighten the strip enough to fit the extra button without colliding. (Claude code Opus 4.7); was HSPACE(0). Note: -HSPACE(5) is enough for pangea, but for some squarish maps like as of now BTG_Cross, minimap is horizontally shorter and toggle scoreboard button still collides with globe view button. However this is rare, and increasing the button horizontal inter-spacing reduction would make toggle scoreboard and globe view buttons too spaced in Pangea, plus they don't fully prevent colliding in BTG_Cross, even in BTG_Cross, globe view remains fairly accessible, so not increased further. -->
+		iStripButtonOverlapX = -HSPACE(5)
+		iStep = gRect("MiniMapButton").size() + iStripButtonOverlapX
 		#iBtnX = iGlobeX - len(aShow) * iStep - HSPACE(10)
-		# advc.092: Better align left and leave any remaining space between the
-		# Globe Toggle and the smaller minimap buttons
+		# advc.092: Better align left and leave any remaining space between the Globe Toggle and the smaller minimap buttons
 		iX = gRect("MiniMapPanel").x()
 		i = 0
 		for szButton in aShow:
