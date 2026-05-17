@@ -713,20 +713,12 @@ Created as part of AdvCiv-SAS improvements
 		<English>%d1_Player]</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_PLAY_MOVIE</Tag>
-		<English>Play Movie</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MOVIE_PANEL</Tag>
 		<English>Movie</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_PANEL</Tag>
 		<English>Music</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY</Tag>
-		<English>Open Pedia</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY</Tag>
@@ -755,10 +747,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES</Tag>
 		<English>Tech Quotes</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_DIPLO</Tag>
-		<English>Leaders Diplo</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_PEACE</Tag>
@@ -791,10 +779,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_VARIANT_NOTE</Tag>
 		<English>Note: Civ selection/action sounds can include several variants. Replay to hear different samples.</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING</Tag>
-		<English>Menus (Opening)</English>
 	</TEXT>
 	<!-- custom: script headers for music category (Claude code Sonnet 4.5) -->
 	<TEXT>
@@ -1399,10 +1383,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>Remove</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES</Tag>
-		<English>Removes Features</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BUILD_INFO</Tag>
 		<English>Build Info</English>
 	</TEXT>
@@ -1419,16 +1399,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Consumes Unit</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BUILD_IMPROVEMENT</Tag>
-		<English>Improvement</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BUILD_ROUTE</Tag>
 		<English>Route</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT</Tag>
-		<English>Feature Struct</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO</Tag>
@@ -1441,10 +1413,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE</Tag>
 		<English>Removes feature</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE</Tag>
-		<English>Remove</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_TIME</Tag>
@@ -1473,10 +1441,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_UNITS_BUILD</Tag>
 		<English>Units (Build)</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT</Tag>
-		<English>Impr.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_RESULTS_SHORT</Tag>
@@ -1990,10 +1954,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
 		<English>[ICON_BULLET]Cannot be traded.</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER</Tag>
-		<English>As a reminder, the following technologies cannot be traded:</English>
 	</TEXT>
 	<!-- custom: adds the <bRepeat> info similarly, see also similarly buildBRepeatString -->
 	<TEXT>
@@ -4298,10 +4258,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES</Tag>
 		<English>Active in Games</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT</Tag>
-		<English>Outcomes</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAGS</Tag>

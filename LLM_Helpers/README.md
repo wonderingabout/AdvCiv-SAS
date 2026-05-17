@@ -240,6 +240,110 @@ DRIFT: 2 key(s) used but not declared in any scanned XML:
       - CvGameCoreDLL\CvBar.cpp
 ```
 
+### `audit_unused_text_keys.py`
+
+- Report-only. Does not modify source.
+- Flags mod GameText `<Tag>TXT_KEY_*` entries that are defined but referenced nowhere.
+- DEFINITION: `<Tag>TXT_KEY_FOO</Tag>` inside a `<TEXT>...</TEXT>` block, in files matched by `--text-glob` (default `Assets/XML/Text/*.xml`).
+- REFERENCED if the exact token appears in:
+  - mod `Assets/Python/**/*.py`, `CvGameCoreDLL/**/*.{cpp,h}`, `Assets/XML/**/*.xml` (`<Tag>` spans scrubbed so a definition is not its own reference)
+  - base BTS `Python/**/*.py` + `XML/**/*.xml` (auto: `<mod-root>/../../Assets`, override `--base-assets`)
+  - vanilla Civ4 `Python/**/*.py` + `XML/**/*.xml` (auto: `<mod-root>/../../../Assets`, override `--vanilla-assets`)
+  - skip the external scan with `--no-external` (mod-only; expect engine/front-end false positives)
+- Scanning base+vanilla is the authoritative source for inherited engine/front-end keys (main menu, setup, Civilopedia, sealevel/worldsize Info XML) the mod does not override — confirmed used by evidence, not whitelist.
+- Buckets: **LIKELY-UNUSED** (candidates); **REVIEW** (name under a known dynamic-construction prefix, e.g. `TXT_KEY_BUG_OPT_*` built via `"..."+id`); engine-derived suffixes (`_PEDIA/_STRATEGY/_HELP/...`) treated used if the base key is referenced. Output is candidates, not proof — a small pure-EXE-internal residue can remain; verify before deleting.
+- `--prefix TXT_KEY_SAS` to focus on mod-custom keys. Exit 1 if any LIKELY-UNUSED, 0 otherwise. Timestamped report to `LLM_Helpers/outputs/` unless `--no-output-file`.
+
+```powershell
+python LLM_Helpers\audit_unused_text_keys.py
+python LLM_Helpers\audit_unused_text_keys.py --text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"
+python LLM_Helpers\audit_unused_text_keys.py --prefix TXT_KEY_SAS
+python LLM_Helpers\audit_unused_text_keys.py --no-external --no-output-file
+```
+
+Example output (real run, `--text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"`; exit 1 because candidates were found):
+
+(from LLM_Helpers\outputs\unused_text_keys_20260517T162642Z.txt)
+
+```text
+AdvCiv-SAS unused GameText key audit
+mod root : C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+text glob: Assets/XML/Text/AdvCiv-SAS_*.xml
+external : C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets | C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets
+defined  : 1283 tags in 3 files | referenced tokens: 10510 | rescued by base/vanilla: 11
+LIKELY-UNUSED: 16 | REVIEW (maybe dynamic): 28 | duplicate-defined: 0
+
+=== LIKELY UNUSED (no reference in mod, base BTS, or vanilla; verify before deleting) ===
+
+[Assets/XML/Text/AdvCiv-SAS_main.xml]
+  TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR
+  TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT
+  TXT_KEY_PEDIA_BUILD_IMPROVEMENT
+  TXT_KEY_PEDIA_BUILD_REMOVE
+  TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES
+  TXT_KEY_PEDIA_CHANGES
+  TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT
+  TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT
+  TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_DIPLO
+  TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING
+  TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY
+  TXT_KEY_PEDIA_SAS_PLAY_MOVIE
+  TXT_KEY_PEDIA_TECH_OBSOLETE_UNITS_TREE_NOTE
+  TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER
+  TXT_KEY_SEALEVEL_HIGH_RECOMMEND
+  TXT_KEY_SEALEVEL_LOW_RECOMMEND
+
+=== REVIEW: matches a known dynamic-construction prefix (likely used via string concat) ===
+
+[Assets/XML/Text/AdvCiv-SAS_main.xml]
+  TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR
+  TXT_KEY_BUG_OPTLABEL_FOREIGN_DIPLOMACY_ADVISOR
+  TXT_KEY_BUG_OPTLABEL_INFO_SCREENS
+  TXT_KEY_BUG_OPTLABEL_RELIGIOUS_ADVISOR
+  TXT_KEY_BUG_OPTLABEL_SEVOPEDIA
+  TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS
+  TXT_KEY_BUG_OPT_ACO__IGNOREBARBFREEWINS_HOVER
+  TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_HOVER
+  TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_TEXT
+  TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER
+  TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_HOVER
+  TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_TEXT
+  TXT_KEY_BUG_OPT_AUTOSAVE__USEPLAYERNAME_HOVER
+  TXT_KEY_BUG_OPT_MAININTERFACE__MODNAMEINREPLAYS_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_BOMBER_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_BOMBER_TEXT
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_FIGHTER_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_FIGHTER_TEXT
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_LONG_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_LONG_TEXT
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_SHORT_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_SHORT_TEXT
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_CROSSBOW_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_CROSSBOW_TEXT
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_MELEE_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_MELEE_TEXT
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_HOVER
+  TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_TEXT
+```
+
+`rescued by base/vanilla` counts tags a mod-only scan would have wrongly flagged that the inherited base/vanilla scan proved are used (e.g. `TXT_KEY_MAIN_MENU_*`, `TXT_KEY_PEDIA_SCREEN_TOP`).
+
+This run helped identify (after review) the following as unused and safe to remove from `Assets/XML/Text/AdvCiv-SAS_main.xml`:
+
+```log
+TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT
+TXT_KEY_PEDIA_BUILD_IMPROVEMENT
+TXT_KEY_PEDIA_BUILD_REMOVE
+TXT_KEY_PEDIA_BUILD_REMOVES_FEATURES
+TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT
+TXT_KEY_PEDIA_SAS_IMPROVEMENTS_SHORT
+TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_DIPLO
+TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING
+TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY
+TXT_KEY_PEDIA_SAS_PLAY_MOVIE
+TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER
+```
+
 ## Workflow rule for timeline tuning
 
 - Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
