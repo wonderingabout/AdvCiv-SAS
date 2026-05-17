@@ -1734,13 +1734,37 @@ class CvMilitaryAdvisor:
 		if dStats["highest_cost"] >= 0:
 			szHighestCost = u"%s %d%s" % (dStats["highest_cost_name"], dStats["highest_cost"], self.HAMMER_CHAR)
 			szHighestCostIcon = dStats["highest_cost_button"]
-		# <!-- custom: count-and-percent helper. "Foo (12%)" reads better than two separate columns and keeps row count down. Denominator-zero returns just the count so we don't show "0 (NaN%)". (Claude code Opus 4.7) -->
+		# <!-- custom: integer pct; a nonzero count never shows 0% (bumped to 1) so present-but-small categories are not misread as absent. (Claude code Opus 4.7) -->
+		def _pctOf(iCount, iWhole):
+			iP = (100 * iCount) / iWhole
+			if iP == 0 and iCount > 0:
+				iP = 1
+			return iP
+		# <!-- custom: count-and-percent helper. Denominator-zero returns just the count so we do not show "0 (NaN%)". (Claude code Opus 4.7) -->
 		def _withPct(iCount, iWhole):
 			if iWhole <= 0:
 				return unicode(iCount)
-			return u"%d (%d%%)" % (iCount, (100 * iCount) / iWhole)
+			return u"%d (%d%%)" % (iCount, _pctOf(iCount, iWhole))
+		# <!-- custom: exhaustive-partition formatter so the group totals 100%. Per-item floor alone undershoots, and the obvious "last = 100 - others" then wrongly tags an empty bucket: domain 20/1/0 of 21 was 95/4/0 (=99, Air shown "0 (1%)") -> 96/4/0; mil/civ 21/5 of 26 was 80/19 (=99) -> 81/19. Fix: floor each, give the remainder to the largest NONZERO bucket; zero-count buckets stay 0%. Partition buckets only, not overlapping/independent. (Claude code Opus 4.7) -->
+		def _partPct(aCounts, iWhole):
+			if iWhole <= 0:
+				return [unicode(c) for c in aCounts]
+			aP = [_pctOf(aCounts[i], iWhole) for i in range(len(aCounts))]
+			iDiff = 100 - sum(aP)
+			if iDiff != 0:
+				iMaxIdx = 0
+				for i in range(len(aCounts)):
+					if aCounts[i] > aCounts[iMaxIdx]:
+						iMaxIdx = i
+				if aCounts[iMaxIdx] > 0:
+					aP[iMaxIdx] += iDiff
+			return [u"%d (%d%%)" % (aCounts[i], aP[i]) for i in range(len(aCounts))]
 		iMilCivTotal = dStats["military"] + dStats["civilian"]
 		iMilCount = dStats["military"]
+		# <!-- custom: harmonized partitions (each sums to 100%). (Claude code Opus 4.7) -->
+		aMilCiv = _partPct([iMilCount, dStats["civilian"]], iMilCivTotal)
+		aDomain = _partPct([dStats["land"], dStats["sea"], dStats["air"]], iMilCount)
+		aHealthBands = _partPct([dStats["health_full"], dStats["health_high"], dStats["health_medium"], dStats["health_low"]], iMilCount)
 		szTotalHammers = unicode(dStats["total_hammers"]) + self.HAMMER_CHAR
 		szAvgHammers = (u"%.1f" % dStats["avg_hammers"]) + self.HAMMER_CHAR
 		szAvgXp = u"%.1f" % dStats["avg_xp"]
@@ -1750,12 +1774,12 @@ class CvMilitaryAdvisor:
 		szPowerRankKnown = u"%d / %d" % (dStats["known_power_rank"], dStats["known_power_players"])
 		# <!-- custom: keep total/average hammer investment near strongest/costliest and power rank; these rows frame army size/value before quality rows. (Claude code Opus 4.7, GPT-5.5) -->
 		aArmy = [
-			(self.TEXT_SUMMARY_MILITARY_UNITS, _withPct(iMilCount, iMilCivTotal), eNone, -1, -1),
-			(self.TEXT_SUMMARY_CIVILIAN_UNITS, _withPct(dStats["civilian"], iMilCivTotal), eNone, -1, -1),
+			(self.TEXT_SUMMARY_MILITARY_UNITS, aMilCiv[0], eNone, -1, -1),
+			(self.TEXT_SUMMARY_CIVILIAN_UNITS, aMilCiv[1], eNone, -1, -1),
 			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_LAND_UNITS, _withPct(dStats["land"], iMilCount), eNone, -1, -1),
-			(self.TEXT_SUMMARY_SEA_UNITS, _withPct(dStats["sea"], iMilCount), eNone, -1, -1),
-			(self.TEXT_SUMMARY_AIR_UNITS, _withPct(dStats["air"], iMilCount), eNone, -1, -1),
+			(self.TEXT_SUMMARY_LAND_UNITS, aDomain[0], eNone, -1, -1),
+			(self.TEXT_SUMMARY_SEA_UNITS, aDomain[1], eNone, -1, -1),
+			(self.TEXT_SUMMARY_AIR_UNITS, aDomain[2], eNone, -1, -1),
 			(None, None, eNone, -1, -1),
 			(self.TEXT_SUMMARY_STRONGEST, szStrongest, eNone, -1, -1, 0, -1, szStrongestIcon),
 			(self.TEXT_SUMMARY_HIGHEST_COST, szHighestCost, eNone, -1, -1, 0, -1, szHighestCostIcon),
@@ -1828,10 +1852,10 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_MIN_HEALTH, u"%d%%" % dStats["min_health"], eNone, -1, -1, 1, iMinHealthColor),
 			(None, None, eNone, -1, -1),
 			# <!-- custom: distribution by health band complements the Max/Avg/Min range rows above: range shows the spread, bands show the shape ("most of my army at full, 1 critical" vs "half medium-health"). Band rows are intentionally LEFT NEUTRAL (no color) - the value here is a count of units, not a health percentage, so the green/yellow/red tier rules from getSummaryHealthColor don't apply. Coloring "Low Health: 0 (0%)" red would falsely imply something is wrong. The Max/Avg/Min rows above already carry the colored health verdict; the band rows just show the distribution shape. (Claude code Opus 4.7) -->
-			(self.TEXT_SUMMARY_HEALTH_FULL, _withPct(dStats["health_full"], iMilCount), eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_HEALTH_HIGH, _withPct(dStats["health_high"], iMilCount), eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_HEALTH_MEDIUM, _withPct(dStats["health_medium"], iMilCount), eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_HEALTH_LOW, _withPct(dStats["health_low"], iMilCount), eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HEALTH_FULL, aHealthBands[0], eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HEALTH_HIGH, aHealthBands[1], eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HEALTH_MEDIUM, aHealthBands[2], eNone, -1, -1, 1, -1),
+			(self.TEXT_SUMMARY_HEALTH_LOW, aHealthBands[3], eNone, -1, -1, 1, -1),
 		])
 
 		# <!-- custom: battle-record block at the bottom of Deployment, sourced from the persisted SASBattleHistory log (same data feeding the Battles tab). Three sub-groups separated by blank rows: (1) outcome counts Won/Retreated/Lost (retreat in the middle because it's an intermediate outcome between win and loss); (2) luck against estimated odds - Good-Luck Wins / Bad-Luck Losses, "dice-overruled" outcomes; (3) the standout examples - Luckiest Win and Unluckiest Loss, rendered with the two-icon row layout (our unit + their unit + strengths + year + final odds). Unit names are dropped from those text rows because the icons identify the units and the freed width is what lets the year + strengths fit. Whole block suppressed when no battles have been recorded yet. (Claude code Opus 4.7) -->
@@ -1839,10 +1863,11 @@ class CvMilitaryAdvisor:
 		if dBattle["total"] > 0:
 			aDeployment.append((None, None, eNone, -1, -1))
 			aDeployment.append((self.TEXT_SUMMARY_BATTLES_TOTAL, unicode(dBattle["total"]), eNone, -1, -1))
-			# <!-- custom: reuse the Battles tab's outcome glyphs. (Claude code Opus 4.7) -->
-			aDeployment.append((self.TEXT_SUMMARY_BATTLES_WON, _withPct(dBattle["wins"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_GREEN, self.ART_BATTLE_RESULT_WON))
-			aDeployment.append((self.TEXT_SUMMARY_BATTLES_RETREATED, _withPct(dBattle["retreats"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_YELLOW, self.ART_BATTLE_RESULT_RETREAT))
-			aDeployment.append((self.TEXT_SUMMARY_BATTLES_LOST, _withPct(dBattle["losses"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_RED, self.ART_BATTLE_RESULT_LOST))
+			# <!-- custom: reuse the Battles tab's outcome glyphs; harmonized so Won+Retreated+Lost = 100%. (Claude code Opus 4.7) -->
+			aBattleOutcome = _partPct([dBattle["wins"], dBattle["retreats"], dBattle["losses"]], dBattle["total"])
+			aDeployment.append((self.TEXT_SUMMARY_BATTLES_WON, aBattleOutcome[0], eNone, -1, -1, 1, self.COLOR_GREEN, self.ART_BATTLE_RESULT_WON))
+			aDeployment.append((self.TEXT_SUMMARY_BATTLES_RETREATED, aBattleOutcome[1], eNone, -1, -1, 1, self.COLOR_YELLOW, self.ART_BATTLE_RESULT_RETREAT))
+			aDeployment.append((self.TEXT_SUMMARY_BATTLES_LOST, aBattleOutcome[2], eNone, -1, -1, 1, self.COLOR_RED, self.ART_BATTLE_RESULT_LOST))
 			aDeployment.append((None, None, eNone, -1, -1))
 			if dBattle["wins"] > 0:
 				aDeployment.append((self.TEXT_SUMMARY_GOOD_LUCK, _withPct(dBattle["good_luck_wins"], dBattle["wins"]), eNone, -1, -1, 1, self.COLOR_GREEN))

@@ -861,7 +861,9 @@ class CvMainInterface:
 		self.bSASLastCommerceRectsCityScreen = CyInterface().isCityScreenUp()
 
 		# (gets centered through text alignment)
-		gSetPoint("EndTurnText", PointLayout(0, max(gRect("LowerLeftCornerPanel").y(), gRect("LowerRightCornerPanel").y()) - VSPACE(25)))
+		# <!-- custom: collided with the diplo screen and was rendered under it (z-order); moved it lower visually, under it (y) instead. See KI#135. (Claude code Opus 4.7); was -VSPACE(25). -->
+		iEndTurnTextYAdjustment = VSPACE(25)
+		gSetPoint("EndTurnText", PointLayout(0, max(gRect("LowerLeftCornerPanel").y(), gRect("LowerRightCornerPanel").y()) + iEndTurnTextYAdjustment))
 		# Gets moved to a lower position when interface is minimized
 		gSetPoint("EndTurnTextMin", PointLayout(0, gRect("Top").yBottom() - VSPACE(86)))
 		iEndTurnBtnSz = BTNSZ(32)

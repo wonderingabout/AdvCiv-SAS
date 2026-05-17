@@ -170,6 +170,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network)  
 [133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#133---fixed-base-advciv-issue-of-sevopedia-indexs-legacy-sort-key-cleanup-txt_key_-prefix-strip--the-x-comma-flip-scattering-untranslated-entries-instead-of-clustering-them-hurts-diagnosis-of-missing-translations-sorting-items-differently-than-the-type-specific-pedia-pages-and-than-natural-alphabetical-order-and-incurring-needless-per-entry-build-time-cost-especially-wasteful-in-non-english-locales)  
 [134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#134---fixed-base-advciv-issue-foreign-diplomacy-advisor-glance-tab-column-icons-overflow-horizontally-with-24-rival-players)  
+[135 - (Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#135---fixed-likely-base-advciv-issue-turn-status-text-collided-with-the-diplomacy-screen)  
+[136 - (Open - likely Base AdvCiv lineage or maybe bad local installation/configuration, deprioritized) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#136---open---likely-base-advciv-lineage-or-maybe-bad-local-installationconfiguration-deprioritized-choose-production-popup-does-not-re-fire-when-a-city-finishes-production-city-then-sits-idle-for-many-turns)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4952,3 +4954,40 @@ Fix applied:
 Files changed:
 
 - [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
+
+## 135 - (Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1kSSAaxUo26z95-Hmh8LJBZlMeRNq2v0w?usp=sharing).
+
+Observed issue:
+
+- The shared turn-status label `EndTurnText` (e.g. "Waiting for other Civilizations...", the end-of-turn prompt) is placed just above the bottom HUD panels (Base AdvCiv: `... - VSPACE(25)`). With the diplomacy (leaderhead) screen open, it falls within the dialog's lower area and is drawn behind it in z-order, so it is partly hidden and visually collides.
+- Not verified in unmodified Base AdvCiv, but the positioning is Base AdvCiv code, so this is likely a base issue rather than AdvCiv-SAS introduced.
+
+Fix applied:
+
+- Positioned `EndTurnText` below the diplo dialog instead of raised above the bottom HUD (a positive `iEndTurnTextRaise` offset below the bottom-corner-panel top), so it renders in the clear gap between the dialog and the bottom HUD. Tunable local constant.
+
+Files changed:
+
+- [Assets/Python/Screens/CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py)
+
+## 136 - (Open - likely Base AdvCiv lineage or maybe bad local installation/configuration, deprioritized) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Ho_cqJnuF1ICE5hJSiGKfswa6UrHza4G?usp=sharing).
+
+Observed issue:
+
+- The "What would you like X to work on?" popup fires correctly when a city is founded, but does NOT re-fire when an existing city finishes its current production. The city then sits at empty production for many turns, wasting hammers. Manually opening the city screen still lets the player pick production normally.
+- Reproduced across savegames and versions: AdvCiv-SAS 5814 (current) and 5500 (last stable) show the "empty production" form. 5400 (previous stable) and unmodified Base AdvCiv show a sibling form ("no production when production finishes"). So this is NOT a recent AdvCiv-SAS regression: it predates 5500 and a related behavior exists in Base AdvCiv (or could it be a local installation/configuration issue?).
+
+Investigation (with the help of Claude code Opus 4.7 thanks) (no fix applied):
+
+- Full popup path traced: DLL -> Python (`CvGameInterface.skipProductionPopup` / `AI_chooseProduction`) -> BUG gameUtils dispatch -> popup queue. The committed decision path is correct end to end: both hooks default to `False` (show popup, do not auto-pick), no AdvCiv-SAS gameutils handler overrides them, and BUG isolates per-turn handler exceptions so they cannot block the native popup.
+- No Python traceback in PythonErr.log on tested turns; the `getInfoTypeOrFail` refactor is largely ruled out (no ValueError logged, and BUG would isolate it anyway).
+- Leading hypothesis: popup-queue starvation. AdvCiv adds the choose-production popup with `bForce=false`, which BtS silently drops if another popup is already up / perpetually re-queued. Matches the symptom (popup never surfaces, but manual city entry bypasses the queue).
+
+Status / next steps:
+
+- Deprioritized: longstanding, partly Base AdvCiv lineage, intricate popup-queue area, not a recent regression. Acceptable to live with for now.
+- If revisited: bisect the 5400 <-> 5500 stable range to localize the flavor change, check Base AdvCiv on-completion popup path, and capture PythonErr.log / PythonDbg.log on a turn where a city goes idle (look for a stuck/looping custom popup or a BUTTONPOPUP_PYTHON whose callback raises).
