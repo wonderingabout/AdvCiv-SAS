@@ -186,6 +186,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SCOREBOARD_BG_DEFAULT_STYLE</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -). Keep in [1,100]. Base AdvCiv value: 100. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
 
 
 

@@ -582,6 +582,8 @@ class CvMainInterface:
 		self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = None
 		# <!-- custom: cached vanilla engine defines used across city-screen update methods. (Claude code Sonnet 4.6) -->
 		self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = None
+		# <!-- custom: the optional second (Min/Max) pair now does a fast +/- step from a SAS define instead of snapping to 0/100; lazily cached. (Claude code Opus 4.7) -->
+		self.iSAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT = None
 		# <!-- custom: cached SAS scoreboard fast-scroll tier defines; lazily fetched on first use like iCOMMERCE_PERCENT_CHANGE_INCREMENTS. (Claude code Opus 4.7) -->
 		self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = None
 		self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST = None
@@ -1218,6 +1220,9 @@ class CvMainInterface:
 		else:
 			iPercentTextBaseX = gRect("InterfaceTopLeft").x()
 		iPercentTextX = iPercentTextBaseX + HSPACE(iRightCommerceBlockXOffset)
+		# <!-- custom: always reserve 2 button columns of space for the optional second (Min/Max) +/- pair by shifting the whole slider cluster (PercentText labels and buttons, since iX derives from iPercentTextX) left by 2 columns. City screen kept out: it has its own commerce layout and the pair is map-only. (Claude code Opus 4.7) -->
+		if not CyInterface().isCityScreenUp():
+			iPercentTextX -= 2 * iColumnW
 		iCommerceRowsTopOffset = VSPACE(iRightCommerceBlockYOffset)
 		for i in range(iMaxRows):
 			gSetPoint("PercentText" + str(i), PointLayout(iPercentTextX, gRect("InterfaceTopLeft").yBottom() + VSPACE(-8) + i * iRowH + iCommerceRowsTopOffset))
@@ -2495,6 +2500,8 @@ class CvMainInterface:
 			return
 		if self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS is None:
 			self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+		if self.iSAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT is None:
+			self.iSAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT")
 		# <advc.092>
 		for i in range(4):
 			gRect("CommerceSliderBtns" + str(i)).resetIter() # </advc.092>
@@ -2510,12 +2517,12 @@ class CvMainInterface:
 			if (MainOpt.isShowMinMaxCommerceButtons() and not CyInterface().isCityScreenUp()):
 				szString = "MaxPercent" + str(eCommerce)
 				gSetRectangle(szString, gRect("CommerceSliderBtns0").next())
-				self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_PLUS, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, 100)
+				self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_PLUS, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, self.iSAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT)
 				screen.show(szString)
 				screen.enable(szString, bEnable)
 				szString = "MinPercent" + str(eCommerce)
 				gSetRectangle(szString, gRect("CommerceSliderBtns3").next())
-				self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_MINUS, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -100)
+				self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_MINUS, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -self.iSAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT)
 				screen.show(szString)
 				screen.enable(szString, bEnable)
 				iCol = 1
