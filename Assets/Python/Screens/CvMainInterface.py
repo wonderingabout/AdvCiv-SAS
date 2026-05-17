@@ -537,9 +537,10 @@ class CvMainInterface:
 # BUG - field of view slider - end
 
 		# <!-- custom: use more side space for side panels rather than city plots we do not need to show beyond BFC. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-		# <!-- custom: extend past the current inner edge of the bottom panels so the bonus panels fit; even columns were overlapping text. Ideally also widen that panel, but start here. (GPT-5.2-Codex (summarized)) -->
-		# self.SIDE_PANELS_WIDTH = 297
+		# <!-- custom: extend past the current inner edge of the bottom panels so the bonus panels fit; even columns were overlapping text. Ideally also widen that panel, but start here. (GPT-5.2-Codex (summarized)); was 297 -->
 		self.SIDE_PANELS_WIDTH = 341
+		# <!-- custom: extra width added rightward to the city-screen trade-route and building-list tables so their right-justified yield columns reach toward the commerce value column. The tables intentionally overflow CityLeftPanelContents (fine: unused room before the map, and text overflows when upscaled anyway). (Claude code Opus 4.7); was 0 -->
+		self.iCityScreenYieldTableRightExtra = 10
 
 		# <!-- custom: initialize cheaply once. -->
 		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here. (GPT-5.2-Codex (summarized)) -->
@@ -1242,11 +1243,10 @@ class CvMainInterface:
 			# for BUG - Min/Max Sliders
 			gSetPoint(szPrefix + "BUG", PointLayout(gRect("CommerceSliderBtns3").xRight() + HSPACE(3), iY))
 
-			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui. thanks) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically -->
-			# iEstimatedCommerceRightMargin = 16
-			iEstimatedCommerceRightMargin = 20
+			# <!-- custom: after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui. thanks) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically -->
+			iEstimatedCommerceRightMargin = 28
 			iEstimatedLeftSideSize = 152
-			# iCommercePanelHorizontalSpacingToTheRight = 70
+			# <!-- custom: was 70 -->
 			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceRightMargin
 			# (The horizontal spacing here seems pretty arbitrary)
 			gSetPoint("CityPercentText" + str(i), PointLayout(gRect("CommerceSliderBtns3").xRight() + HSPACE(iCommercePanelHorizontalSpacingToTheRight, 3), iY))
@@ -1279,6 +1279,7 @@ class CvMainInterface:
 		# 1 + gRect("TradeRouteListBackground").yBottom() - gRect("CityLeftPanelContents").y(),
 		# No point in making space for only half a row
 		gSetRect("TradeRouteTable", "CityLeftPanelContents", RectLayout.CENTER, 1 + gRect("TradeRouteListBackground").y() - gRect("CityLeftPanelContents").y(), -1, 2 + iHeightForRows - iHeightForRows % iRowH)
+		gRect("TradeRouteTable").adjustSize(HSPACE(self.iCityScreenYieldTableRightExtra), 0)
 
 # BUG - Raw Yields - start
 		# Can't really scale these up because the background doesn't scale
@@ -1314,6 +1315,7 @@ class CvMainInterface:
 		iAvailH = max(0, iBottomAbs - iTopAbs)
 		iTableH = iAvailH - (iAvailH % iRowH) - VSPACE(3)
 		gSetRect("BuildingListTable", "CityLeftPanelContents", RectLayout.CENTER, iTopAbs - gRect("CityLeftPanelContents").y(), -1, iTableH)
+		gRect("BuildingListTable").adjustSize(HSPACE(self.iCityScreenYieldTableRightExtra), 0)
 
 	def setCityTabRects(self):
 		iButtons = 3

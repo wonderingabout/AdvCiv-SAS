@@ -210,6 +210,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES</DefineName>
 		<iDefineIntVal>52</iDefineIntVal>
 	</Define>
+	<!-- custom: Foreign Advisor Glance tab: number of rival columns shown per page. Page size 16 fits worldsize Huge and displays fine at 1080p, and suits worldsize SAS48 with 3 pages at 1080p. See KI#134. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_CV_FOREIGN_ADVISOR_GLANCE_MAX_PLAYERS_PER_PAGE</DefineName>
+		<iDefineIntVal>16</iDefineIntVal>
+	</Define>
 
 
 

@@ -132,13 +132,13 @@ class CvForeignAdvisor:
 		self.GLANCE_BUTTON_SIZE = 46
 		self.PLUS_MINUS_SIZE = 25
 		self.bGlancePlus = True
-		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). Page size 16 fits worldsize Huge and displays fine at 1080p, and suits worldsize SAS48 with 3 pages at 1080p. See KI#134. (Claude Code Sonnet 4.6) -->
+		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). See KI#134. (Claude Code Sonnet 4.6+ Claude code Opus 4.7) -->
 		self.iGlancePage = 0
 		self.iGlanceNumPages = 1
 		self.ltGlanceColumns = []
 		self.glanceLeftArrowID = ""
 		self.glanceRightArrowID = ""
-		self.GLANCE_PAGE_SIZE = 16
+		self.GLANCE_MAX_PLAYERS_PER_PAGE = None
 
 		self.INFO_BORDER = 10
 
@@ -1552,8 +1552,10 @@ class CvForeignAdvisor:
 				self.nCount += 1
 		# <!-- custom: build ordered column list for pagination (Claude Code Sonnet 4.6) -->
 		self.ltGlanceColumns = [i for i in range(gc.getMAX_PLAYERS()) if self.ltPlayerMet[i] and i != self.iActiveLeader]
-		nPageCols = min(len(self.ltGlanceColumns), self.GLANCE_PAGE_SIZE)
-		self.iGlanceNumPages = max(1, (len(self.ltGlanceColumns) + self.GLANCE_PAGE_SIZE - 1) / self.GLANCE_PAGE_SIZE)
+		if self.GLANCE_MAX_PLAYERS_PER_PAGE is None:
+			self.GLANCE_MAX_PLAYERS_PER_PAGE = gc.getDefineINT("SAS_CV_FOREIGN_ADVISOR_GLANCE_MAX_PLAYERS_PER_PAGE")
+		nPageCols = min(len(self.ltGlanceColumns), self.GLANCE_MAX_PLAYERS_PER_PAGE)
+		self.iGlanceNumPages = max(1, (len(self.ltGlanceColumns) + self.GLANCE_MAX_PLAYERS_PER_PAGE - 1) / self.GLANCE_MAX_PLAYERS_PER_PAGE)
 		# <!-- custom: preserve last page across reopens; clamp in case player count changed. (Claude Code Sonnet 4.6) -->
 		self.iGlancePage = min(self.iGlancePage, self.iGlanceNumPages - 1)
 		# advc.066: Was (self.W_SCREEN - 20) /... I don't think there are margins to account for here.
@@ -1569,8 +1571,8 @@ class CvForeignAdvisor:
 
 	def drawGlanceHeader (self, screen, panelName):
 		# <!-- custom: page-aware column drawing with arrow navigation (Claude Code Sonnet 4.6) -->
-		iPageStart = self.iGlancePage * self.GLANCE_PAGE_SIZE
-		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_PAGE_SIZE])
+		iPageStart = self.iGlancePage * self.GLANCE_MAX_PLAYERS_PER_PAGE
+		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_MAX_PLAYERS_PER_PAGE])
 
 		nCount = 1
 		for iLoopPlayer in range (gc.getMAX_PLAYERS()):
@@ -1601,8 +1603,8 @@ class CvForeignAdvisor:
 	def drawGlanceRows (self, screen, mainPanelName, bSorted = False, nPlayer = 1):
 		# ForeignAdvisorPrint ("MAX Players = %d" % gc.getMAX_PLAYERS())
 		# <!-- custom: restrict columns to current page (Claude Code Sonnet 4.6) -->
-		iPageStart = self.iGlancePage * self.GLANCE_PAGE_SIZE
-		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_PAGE_SIZE])
+		iPageStart = self.iGlancePage * self.GLANCE_MAX_PLAYERS_PER_PAGE
+		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_MAX_PLAYERS_PER_PAGE])
 		ltSortedRelations = [(None,-1)] * gc.getMAX_PLAYERS()
 		self.loadColIntoList (self.ltPlayerRelations, ltSortedRelations, nPlayer)
 		if bSorted:
