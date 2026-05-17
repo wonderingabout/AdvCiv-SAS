@@ -181,22 +181,21 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: scoreboard background default style; this sets the default background at each save load / new game: 0 = HUD_HELP (vanilla scoreboard panel, the shipped default), 1 = SOLID (most opaque, darkest), 2 = MAIN (plain panel), 3 = MAIN_BLACK50 (dark translucent), 4 = MAIN_BLACK25 (light translucent), 5 = EMPTY (no visible background, text drawn over the map). These indices mirror the aScoreBgStyleLevels list in CvMainInterface.py; keep both in sync if styles are added or reordered. Keep at 0 to preserve the vanilla look. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_BG_DEFAULT_STYLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 
 
 
-	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
-	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
-	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
-	(GPT-5.3-Codex) -->
+	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels). <= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
+	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)). (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH</DefineName>
 		<iDefineIntVal>2560</iDefineIntVal>
 	</Define>
-	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active.
-	Lower value => wider tech tree and more chance to fit one extra column at low resolution.
-	Higher value => preserves more scoreboard/map area.
-	This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible.
-	Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
+	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active. Lower value => wider tech tree and more chance to fit one extra column at low resolution. Higher value => preserves more scoreboard/map area. This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible. Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
 	<Define>
 		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
 		<iDefineIntVal>206</iDefineIntVal>
@@ -1389,8 +1388,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: obsolete-unit scrap hard-gates by era and domain, based on iXMLCost. If obsolete and iXMLCost <= cap, scrapping is allowed; if above cap, unit is kept. iXMLCost is game-speed invariant, and these caps are compared as raw XML-cost gates (no game-speed scaling). DOMAIN_LAND is for land combat units; DOMAIN_SEA is for ships (cargo transports are hard-protected in DLL regardless of cap). (GPT-5.3-Codex) -->
-	<!-- custom: do not scrap units so early -->
+	<!-- custom: obsolete-unit scrap hard-gates by era and domain, based on iXMLCost. If obsolete and iXMLCost <= cap, scrapping is allowed; if above cap, unit is kept. iXMLCost is game-speed invariant, and these caps are compared as raw XML-cost gates (no game-speed scaling). DOMAIN_LAND is for land combat units; DOMAIN_SEA is for ships (cargo transports are hard-protected in DLL regardless of cap). (GPT-5.3-Codex); do not scrap units so early -->
 	<Define>
 		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1489,8 +1487,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- AI upgrade cost check: maximum gold per 10% strength gain.
-	     Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game). -->
+	<!-- AI upgrade cost check: maximum gold per 10% strength gain. Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game). -->
 	<!-- custom: Long_Comments_XML.txt #105 -->
 	<Define>
 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH</DefineName>
@@ -1507,15 +1504,13 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- AI upgrade cost check: maximum gold per +1 flat strength gain (flat strength gain gate).
-	     Purpose: an extra safety gate so upgrades are not expensive even when percent strength gain is large (common for very weak units). -->
+	<!-- AI upgrade cost check: maximum gold per +1 flat strength gain (flat strength gain gate). Purpose: an extra safety gate so upgrades are not expensive even when percent strength gain is large (common for very weak units). -->
 	<!-- custom: Long_Comments_XML.txt #104 -->
 	<Define>
 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
-	<!-- Extra allowance based on unit EXP.
-	     Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain; Long_Comments_XML.txt #176 -->
+	<!-- Extra allowance based on unit EXP. Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain; Long_Comments_XML.txt #176 -->
 	<Define>
 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1732,29 +1727,29 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
 	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
 	<!-- custom: Long_Comments_XML.txt #112 -->
-    <Define>
-        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
-        <iDefineIntVal>1</iDefineIntVal>
-    </Define>
-    <!-- When in danger, scale the trade value of such techs by this percentage. -->
-    <!-- e.g. 130 = +30%, 150 = +50%. -->
-    <Define>
-        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
-        <iDefineIntVal>130</iDefineIntVal>
-    </Define>
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- When in danger, scale the trade value of such techs by this percentage. -->
+	<!-- e.g. 130 = +30%, 150 = +50%. -->
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
+		<iDefineIntVal>130</iDefineIntVal>
+	</Define>
 
 
 
 	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); Long_Comments_XML.txt #201 -->
-    <Define>
-        <DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
-        <iDefineIntVal>1</iDefineIntVal>
-    </Define>
-    <!-- If any team in our master–vassal locus already knows the tech and the offering team is outside that locus, multiply tech trade value by this; Long_Comments_XML.txt #175 -->
-    <Define>
-        <DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT</DefineName>
-        <iDefineIntVal>70</iDefineIntVal>
-    </Define>
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- If any team in our master–vassal locus already knows the tech and the offering team is outside that locus, multiply tech trade value by this; Long_Comments_XML.txt #175 -->
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT</DefineName>
+		<iDefineIntVal>70</iDefineIntVal>
+	</Define>
 
 
 

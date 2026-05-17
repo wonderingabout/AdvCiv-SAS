@@ -56,25 +56,27 @@ import MinimapOptions # advc.002a
 import RawYields # BUG - Raw Yields
 import WidgetUtil
 # <!-- custom: custom widget types for scoreboard scroll/expand buttons; registered once at module load so hover text works. (Claude code Sonnet 4.6) -->
-WIDGET_SCORE_SCROLL_UP     = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
-WIDGET_SCORE_SCROLL_DOWN   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
+WIDGET_SCORE_SCROLL_UP = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
+WIDGET_SCORE_SCROLL_DOWN = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
 # <!-- custom: fast-scroll tiers; step sizes come from SAS defines (FAST / FASTEST). Names must stay digit-free: the engine strips trailing numeric suffixes from control names, so "...Fastest" collapsed onto "...Fast" and both tiers ran the same step (see AGENTS.md XML/UID notes). Hover text stays generic so it stays correct if the defines change. (Claude code Opus 4.7) -->
-WIDGET_SCORE_SCROLL_UP_FAST    = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
-WIDGET_SCORE_SCROLL_UP_FASTEST   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FASTEST")
-WIDGET_SCORE_SCROLL_DOWN_FAST  = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FAST")
+WIDGET_SCORE_SCROLL_UP_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
+WIDGET_SCORE_SCROLL_UP_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FASTEST")
+WIDGET_SCORE_SCROLL_DOWN_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FAST")
 WIDGET_SCORE_SCROLL_DOWN_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FASTEST")
+WIDGET_SCORE_BG_STYLE = WidgetUtil.createWidget("WIDGET_SCORE_BG_STYLE")
 WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
-WIDGET_ANNOTATIONS_TOGGLE  = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
+WIDGET_ANNOTATIONS_TOGGLE = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
 def _scoreHelp(szText):
 	return lambda *_: sasFontTagHover + szText + SAS_FONT_TAG_CLOSE
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP,     _scoreHelp(u"Scroll scoreboard up"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN,   _scoreHelp(u"Scroll scoreboard down"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST,    _scoreHelp(u"Scroll scoreboard up (fast)"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FASTEST,   _scoreHelp(u"Scroll scoreboard up (fastest)"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST,  _scoreHelp(u"Scroll scoreboard down (fast)"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST, _scoreHelp(u"Scroll scoreboard up (fast)"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FASTEST, _scoreHelp(u"Scroll scoreboard up (fastest)"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST, _scoreHelp(u"Scroll scoreboard down (fast)"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FASTEST, _scoreHelp(u"Scroll scoreboard down (fastest)"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_BG_STYLE, _scoreHelp(u"Cycle scoreboard background style"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE,  _scoreHelp(u"Toggle show map annotations"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE, _scoreHelp(u"Toggle show map annotations"))
 # <advc.090>
 import math
 def floor(f):
@@ -591,6 +593,11 @@ class CvMainInterface:
 		self.iScoreScrollOffset = 0
 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
 		self.bScoreAlwaysExpand = False
+		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent). Discrete PanelStyle levels in cycle order: 0 HUD_HELP (vanilla look), 1 SOLID (most opaque / darkest), 2 MAIN (plain panel), 3 MAIN_BLACK50 (dark translucent), 4 MAIN_BLACK25 (light translucent), 5 EMPTY (no visible bg, text over map). Reorder/extend freely; if you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync. Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define, resolved lazily (None until first use). Changes the panel background only. (Claude code Opus 4.7) -->
+		self.iScoreBgStyleLevel = None
+		self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = None
+		self.aScoreBgStyleLevels = [PanelStyles.PANEL_STYLE_HUD_HELP, PanelStyles.PANEL_STYLE_SOLID, PanelStyles.PANEL_STYLE_MAIN, PanelStyles.PANEL_STYLE_MAIN_BLACK50, PanelStyles.PANEL_STYLE_MAIN_BLACK25, PanelStyles.PANEL_STYLE_EMPTY]
+		self._eScoreBgStyleApplied = PanelStyles.PANEL_STYLE_HUD_HELP
 		# <!-- custom: main-map annotation visibility toggle; signs/landmarks have no Python visibility flag, so hide caches them and removes engine billboards until restored. (GPT-5.5) -->
 		self.bAnnotationsVisible = True
 		self.aHiddenAnnotationSigns = []
@@ -829,6 +836,7 @@ class CvMainInterface:
 		gSetRect("ScoreScrollUpFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreScrollDownFast", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreScrollDownFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+		gSetRect("ScoreBgStyle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreExpandToggle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		if self.bScaleHUD:
 			# To make room for the Turn Log, whose (default) position I can't change.
@@ -1884,6 +1892,9 @@ class CvMainInterface:
 		screen.hide("ScoreScrollDownFast")
 		self.setStyledButton("ScoreScrollDownFastest", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN_FASTEST, -1, -1)
 		screen.hide("ScoreScrollDownFastest")
+		# <!-- custom: scoreboard bg style cycle button; plain styled button, hover explains it. (Claude code Opus 4.7) -->
+		self.setStyledButton("ScoreBgStyle", ButtonStyles.BUTTON_STYLE_STANDARD, WIDGET_SCORE_BG_STYLE, -1, -1)
+		screen.hide("ScoreBgStyle")
 		# <!-- custom: always-expand toggle; resolve SAS emoji path explicitly (addCheckBox only auto-resolves INTERFACE_/BUTTON_/RAW_YIELDS_/PLE_ prefixes). (Claude code Sonnet 4.6) -->
 		self.addCheckBox("ScoreExpandToggle", self.szScoreExpandTogglePath, self.szScoreExpandTogglePath, ButtonStyles.BUTTON_STYLE_IMAGE, WIDGET_SCORE_EXPAND_TOGGLE)
 		screen.setState("ScoreExpandToggle", False)
@@ -6034,6 +6045,22 @@ class CvMainInterface:
 			for i in range(Scoreboard.NUM_PARTS):
 				screen.hide("ScoreText%d-%d" %(iPlayer, i))
 # BUG - Align Icons - end
+	# <!-- custom: recreate ScoreBackground with the selected PanelStyle; only on change to avoid per-refresh churn. No runtime setPanelStyle in Civ4, hence delete+addPanel (same pattern as _rebuildCityScreenBottomBars). PANEL_STYLE_EMPTY level reads as no background. (Claude code Opus 4.7) -->
+	def _applyScoreBackgroundStyle(self):
+		if self.iScoreBgStyleLevel is None:
+			if self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE is None:
+				self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = gc.getDefineINT("SAS_SCOREBOARD_BG_DEFAULT_STYLE")
+			self.iScoreBgStyleLevel = self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE
+		eStyle = self.aScoreBgStyleLevels[self.iScoreBgStyleLevel]
+		if eStyle == self._eScoreBgStyleApplied:
+			return
+		screen = self.screen
+		try:
+			screen.deleteWidget("ScoreBackground")
+		except:
+			pass
+		screen.addPanel("ScoreBackground", u"", u"", True, False, 0, 0, 0, 0, eStyle)
+		self._eScoreBgStyleApplied = eStyle
 	# advc.092: Reconciling redundant BtS code from updateScoreStrings
 	# with BUG code from Scoreboard.draw.
 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
@@ -6056,6 +6083,7 @@ class CvMainInterface:
 		screen.hide("ScoreScrollUpFastest")
 		screen.hide("ScoreScrollDownFast")
 		screen.hide("ScoreScrollDownFastest")
+		screen.hide("ScoreBgStyle")
 		screen.hide("ScoreExpandToggle")
 		eUIVis = CyInterface().getShowInterface()
 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or not CyInterface().isScoresVisible() or CyInterface().isCityScreenUp()):
@@ -6065,6 +6093,8 @@ class CvMainInterface:
 		if (CyEngine().isGlobeviewUp() and (not MainOpt.isScoresInGlobeView() or eUIVis == InterfaceVisibility.INTERFACE_HIDE)):
 			return
 		# <advc.004z>
+		# <!-- custom: ensure ScoreBackground uses the currently selected PanelStyle (recreated only on change). (Claude code Opus 4.7) -->
+		self._applyScoreBackgroundStyle()
 		screen.show("ScoreBackground") # Moved up
 		if bOnlyBackgr:
 			return # </advc.004z>
@@ -6088,13 +6118,15 @@ class CvMainInterface:
 		# <!-- custom: row layout right->left is [Lock] [-50][-10][-1] [+1][+10][+50]. Lock/unlock is now the rightmost, fixed slot so it stays anchored to the panel edge even when the scroll tiers are hidden (player count <= capacity); previously it floated mid-row. Speed increases outward from the central +/-1 pair. (Claude code Opus 4.7) -->
 		iSRight = gPoint("ScoreTextLowerRight").x()
 		iSGap = HSPACE(6)  # gap separating the Lock toggle from the scroll cluster
-		screen.moveItem("ScoreExpandToggle",     iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollDownFastest",  iSRight - 2 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollDownFast",   iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollDown",       iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUp",         iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUpFast",     iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUpFastest",    iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		# <!-- custom: row right->left: [BgStyle][Lock] | gap | [-50][-10][-1] [+1][+10][+50]. Lock is intentionally kept left of the rightmost background-style button: when the player count fits and the scroll +/- buttons are hidden, the lock stays in a consistent, easy-to-reach spot, while the narrower right screen edge suits the rarer, less important, shorter style toggle. (Claude code Opus 4.7) -->
+		screen.moveItem("ScoreBgStyle", iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
+		screen.moveItem("ScoreExpandToggle", iSRight - 2 * iSScrollBtnSz, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollDownFastest", iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollDownFast", iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollDown", iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUp", iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUpFast", iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUpFastest", iSRight - 8 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
 		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
 		if self.bScoreAlwaysExpand:
@@ -6102,6 +6134,7 @@ class CvMainInterface:
 		else:
 			screen.changeImageButton("ScoreExpandToggle", self.szScoreExpandToggleOffPath)
 		screen.show("ScoreExpandToggle")
+		screen.show("ScoreBgStyle")
 # BUG - Align Icons - start
 		bAlignIcons = ScoreOpt.isAlignIcons()
 		if bAlignIcons:
@@ -6981,6 +7014,11 @@ class CvMainInterface:
 					else:
 						iStep = self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST
 					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - iStep)
+					self.updateScoreStrings()
+					return 1
+				# <!-- custom: scoreboard bg style cycle; advances PanelStyle level (lazily seeded from SAS_SCOREBOARD_BG_DEFAULT_STYLE on first use), redraw recreates the panel. (Claude code Opus 4.7) -->
+				elif fn == "ScoreBgStyle":
+					self.iScoreBgStyleLevel = (self.iScoreBgStyleLevel + 1) % len(self.aScoreBgStyleLevels)
 					self.updateScoreStrings()
 					return 1
 				# <!-- custom: always-expand toggle; flips bScoreAlwaysExpand so expanded columns are shown permanently. (Claude code Sonnet 4.6) -->
