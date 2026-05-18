@@ -679,6 +679,7 @@ class CvMainInterface:
 		# <!-- custom: lock emoji paths for the always-expand scoreboard toggle. (Claude code Sonnet 4.6 + Claude code Opus 4.7) -->
 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED_2").getPath()
 		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED_2").getPath()
+		self.szGlobeTogglePath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_MINIMAP_GLOBEVIEW").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
@@ -756,7 +757,8 @@ class CvMainInterface:
 		# Will first need a template for the minimap buttons (their size affects the thickness of the frame around the minimap).
 		gSetSquare("MiniMapButton", "Top", 0, 0, BTNSZ(28))
 		# While we're at it; this one gets treated similarly.
-		gSetSquare("GlobeToggle", "Top", 0, 0, BTNSZ(36))
+		# <!-- custom: 36->28 to match the minimap strip buttons; the globe is now a flat dds image button (no chunky medallion), so the small size reads cleanly. Also drives the right-align anchor. (Claude code Opus 4.7) -->
+		gSetSquare("GlobeToggle", "Top", 0, 0, BTNSZ(26))
 		self.setMiniMapRects()
 
 		# <!-- custom: enlarge the bottom panels now that we increased self.SIDE_PANELS_WIDTH to fit more info, so that the bottom panel is aligned with the enlarged side panels (that have bonuses, etc.), as chatgpt 5.2 confirmed thanks a lot. Note: somehow width is slightly too low and not enough with just self.SIDE_PANELS_WIDTH, so adding some extra manual adjustment. Doing it this way i could confirm chatgpt 5.2's explanation seems correct (check if accurate) -->
@@ -1664,7 +1666,7 @@ class CvMainInterface:
 		screen.setStyle("InterfaceTopRight", "Panel_Game_HudTR_Style")
 		screen.hide("InterfaceTopRight")
 
-		# <!-- custom: give the turn log the diplomatic-advisor icon so the log notebook/pencil icon can represent map annotations in the minimap row. (GPT-5.5) -->
+		# <!-- custom: give the log notebook/pencil icon to map annotations in the minimap row. (GPT-5.5) -->
 		self.setStyledButton("TurnLogButton", "Button_HUDAdvisorForeign_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_TURN_LOG).getActionInfoIndex())
 		screen.hide("TurnLogButton")
 		# Advisor Buttons...
@@ -1672,10 +1674,9 @@ class CvMainInterface:
 		screen.hide("DomesticAdvisorButton")
 		self.setStyledButton("PolicyAdvisorButton", "Button_HUDAdvisorCivics_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_CIVICS_SCREEN).getActionInfoIndex())
 		screen.hide("PolicyAdvisorButton")
-		# <!-- custom: use the corporation-advisor icon for foreign diplomacy after moving the diplomatic-advisor icon to the turn log; thematically close enough for relationship/network management. (GPT-5.5) -->
 		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorCorporation_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_DIPLOMACY_SCREEN).getActionInfoIndex())
 		screen.hide("ForeignDiplomacyAdvisorButton")
-		# <!-- custom: F4 (Foreign Trade slot) uses the HUD Globe Trade style: more directly evocative of "foreign trade" than the generic Finance icon. GlobeTrade was unused in CvMainInterface (only GlobeUnit is bound), and the Finance icon would otherwise read as plain treasury rather than international trade. (Claude code Opus 4.7) -->
+		# <!-- custom: F4 (Foreign Trade slot) uses the HUD Globe Trade style: more directly evocative of "foreign trade" than the generic Finance icon. (Claude code Opus 4.7) -->
 		self.setStyledButton("ForeignAdvisorButton", "Button_HUDGlobeTrade_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_SCREEN).getActionInfoIndex())
 		screen.hide("ForeignAdvisorButton")
 		self.setStyledButton("MilitaryAdvisorButton", "Button_HUDAdvisorMilitary_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_MILITARY_SCREEN).getActionInfoIndex())
@@ -6122,6 +6123,9 @@ class CvMainInterface:
 		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
 		# <!-- custom: row layout right->left is [Lock] [-50][-10][-1] [+1][+10][+50]. Lock/unlock is now the rightmost, fixed slot so it stays anchored to the panel edge even when the scroll tiers are hidden (player count <= capacity); previously it floated mid-row. Speed increases outward from the central +/-1 pair. (Claude code Opus 4.7) -->
 		iSRight = gPoint("ScoreTextLowerRight").x()
+		# <!-- custom: shift the scoreboard button cluster left so it clears the raised Globe toggle, and some extra amount to match the globe move to the left (so globe is aligned vertically with toggle scoreboard button below it). (Claude code Opus 4.7) -->
+		iScoreBtnShiftLeftX = gRect("GlobeToggle").size() + 2
+		iSRight -= iScoreBtnShiftLeftX
 		iSGap = HSPACE(6)  # gap separating the Lock toggle from the scroll cluster
 		# <!-- custom: row right->left: [BgStyle][Lock] | gap | [-50][-10][-1] [+1][+10][+50]. Lock is intentionally kept left of the rightmost background-style button: when the player count fits and the scroll +/- buttons are hidden, the lock stays in a consistent, easy-to-reach spot, while the narrower right screen edge suits the rarer, less important, shorter style toggle. (Claude code Opus 4.7) -->
 		screen.moveItem("ScoreBgStyle", iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
@@ -6741,10 +6745,14 @@ class CvMainInterface:
 		else:
 			iGlobeY = gRect("LowerRightCornerPanel").y()
 			iY = iGlobeY + gRect("GlobeToggle").size() - gRect("MiniMapButton").size()
-		iGlobeX = gRect("MiniMapPanel").xRight() + 1 - gRect("GlobeToggle").size()
+		# <!-- custom: shift the lifted Globe left to sit in the same vertical column as the scoreboard button cluster above it. (Claude code Opus 4.7) -->
+		iGlobeShiftLeftX = 3
+		iGlobeX = gRect("MiniMapPanel").xRight() + 1 - gRect("GlobeToggle").size() - iGlobeShiftLeftX
+		# <!-- custom: draw-only lift of the Globe toggle one minimap-button row up so the wider main-button strip (7 buttons after the annotations toggle) no longer collides with it. Stored rect stays at the original Y so the scoreboard panel/buttons are unaffected. (Claude code Opus 4.7); was 0. -->
+		iGlobeLiftY = gRect("MiniMapButton").size() - 5
 		# Update the layout data so that we can refer to it elsewhere
 		gSetSquare("GlobeToggle", "Top", iGlobeX, iGlobeY, gRect("GlobeToggle").size())
-		screen.moveItem("GlobeToggle", iGlobeX, iGlobeY, 0.0)
+		screen.moveItem("GlobeToggle", iGlobeX, iGlobeY - iGlobeLiftY, 0.0)
 
 		iStep = gRect("MiniMapButton").size() + HSPACE(0)
 		#iBtnX = iGlobeX - len(aShow) * iStep - HSPACE(10)
@@ -6792,10 +6800,13 @@ class CvMainInterface:
 			screen.setState(btn.szName, False)
 			screen.hide(btn.szName)
 
-		lToggle = gRect("GlobeToggle")
-		screen.addCheckBoxGFC("GlobeToggle", "", "", lToggle.x(), lToggle.y(), lToggle.size(), lToggle.size(), WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_GLOBELAYER).getActionInfoIndex(), -1, ButtonStyles.BUTTON_STYLE_LABEL)
-		screen.setStyle("GlobeToggle", "Button_HUDZoom_Style")
-		screen.setState("GlobeToggle", False)
+		# <!-- custom: after lifting up globe button due to having added toggle map annotations button (was too crowded see related comments), globe was too big relative to nearby scoreboard new buttons (bg, scroll, etc.), so tried reducing them but the base globe art seemingly cannot use a small style button, so moved to a civ4 dds globe, but it had dark edges, then tried using a globe sas emoji but it was visdually too bright and distracting, so using the civ4 dds one instead. -->
+		# lToggle = gRect("GlobeToggle")
+		# screen.addCheckBoxGFC("GlobeToggle", "", "", lToggle.x(), lToggle.y(), lToggle.size(), lToggle.size(), WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_GLOBELAYER).getActionInfoIndex(), -1, ButtonStyles.BUTTON_STYLE_LABEL)
+		# screen.setStyle("GlobeToggle", "Button_HUDZoom_Style")
+		# screen.setState("GlobeToggle", False)
+		# <!-- custom: GlobeToggle built like the scoreboard lock (line ~1902): addCheckBox + BUTTON_STYLE_IMAGE renders the dds with its alpha (no square), hilite = same texture (not BUTTON_HILITE_SQUARE). (Claude code Opus 4.7) -->
+		self.addCheckBox("GlobeToggle", self.szGlobeTogglePath, self.szGlobeTogglePath, ButtonStyles.BUTTON_STYLE_IMAGE, WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_GLOBELAYER).getActionInfoIndex(), -1)
 		screen.hide("GlobeToggle")
 	# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
 
