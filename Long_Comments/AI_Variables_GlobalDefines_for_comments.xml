@@ -202,8 +202,8 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Discourages early war against humans; not fair when the AI has a
-			 head start. -->
+		<!-- Discourages dogpiling and early war against humans; not fair
+			 when the AI has a head start. -->
 		<!-- custom: give a bit more time for the human player to catch up, but
 		not too much. Hopefully this also helps prevent suicidal war declarations
 		that are done too soon and do not profit the player that declared war vs
