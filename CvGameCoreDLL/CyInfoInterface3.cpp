@@ -636,6 +636,7 @@ void CyInfoPythonInterface3()
 		// <!-- custom: fix Python binding bug: getReligionRequired was incorrectly bound to getBonusRequired; bind to getReligionRequired so EventTrigger debug/API matches XML fields. (GPT-5.3-Codex). See also KI#122. -->
 		.def("getReligionRequired", &CvEventTriggerInfo::getReligionRequired, "int (int)")
 		// <!-- custom: end - fix Python binding bug: getReligionRequired was incorrectly bound to getBonusRequired; bind to getReligionRequired so EventTrigger debug/API matches XML fields. (GPT-5.3-Codex). See also KI#122. -->
+		// advc.sas (bugfix): 2nd arg was getBonusRequired
 		.def("getNumReligionsRequired", &CvEventTriggerInfo::getNumReligionsRequired, "int ()")
 		.def("getCorporationRequired", &CvEventTriggerInfo::getCorporationRequired, "int (int)")
 		.def("getNumCorporationsRequired", &CvEventTriggerInfo::getNumCorporationsRequired, "int ()")
@@ -669,6 +670,7 @@ void CyInfoPythonInterface3()
 		// <!-- custom: add getters for sevopedia eventtrigger -->
 		.def("isShowPlot", &CvEventTriggerInfo::isShowPlot, "bool ()")
 		// <!-- custom: end - add getters for sevopedia eventtrigger -->
+		// advc.sas (bugfix): 2nd arg was isPickCity
 		.def("isUnitsOnPlot", &CvEventTriggerInfo::isUnitsOnPlot, "bool ()")
 		.def("isOwnPlot", &CvEventTriggerInfo::isOwnPlot, "bool ()")
 		.def("isPickReligion", &CvEventTriggerInfo::isPickReligion, "bool ()")
@@ -709,6 +711,7 @@ void CyInfoPythonInterface3()
 		// <!-- custom: fix Python binding bug: CvEventInfo.getNumUnits was incorrectly bound to CvEventTriggerInfo::getNumUnits. (GPT-5.3-Codex). See also KI#122. -->
 		.def("getNumUnits", &CvEventInfo::getNumUnits, "int ()")
 		// <!-- custom: end - fix Python binding bug: CvEventInfo.getNumUnits was incorrectly bound to CvEventTriggerInfo::getNumUnits. (GPT-5.3-Codex). See also KI#122. -->
+		// advc.sas (bugfix): was CvEventTriggerInfo
 		.def("getBuildingClass", &CvEventInfo::getBuildingClass, "int ()")
 		.def("getBuildingChange", &CvEventInfo::getBuildingChange, "int ()")
 		.def("getHappy", &CvEventInfo::getHappy, "int ()")

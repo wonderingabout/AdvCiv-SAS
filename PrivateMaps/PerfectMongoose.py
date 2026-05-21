@@ -2,8 +2,9 @@
 ## advc.021b: Latest changes to PerfectWorld in MongooseMod (v3.3) ported back
 ## to the latest standalone version of the script (v3.2) and enhanced and
 ## customized for the AdvCiv mod. The AdvCiv changes are marked with
-## "advc" comments, "advc.001" for bugfixes, "advc.027" for the integration of
-## AdvCiv's starting position algorithm.
+## "advc" comments, "advc.001" for bugfixes, "advc.oxi" for getCirclePoints
+## bugfixes adopted from CFC user Oxidized, "advc.027" for the integration of
+## AdvCiv's starting position algorithm. 
 ## Also corrected some debug output that used "FairWeather" as the map name.
 ## Version history up to v3.3 moved to the end of the file.
 ##
@@ -38,7 +39,6 @@
 ## Copyright 2010 Rich Marinaccio aka Cephalo
 ## Used with Permission
 ##
-
 #
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
@@ -1134,30 +1134,49 @@ class FloatMap:
 			self.data[i] = func(self.data[i])
 
 	def GetAverageInHex(self, x, y, radius):
-		list = pb.getCirclePoints(x, y, radius)
+		# advc.oxi: Was getCirclePoints
+		list = pb.getFilledCirclePoints(x, y, radius)
 		avg = 0.0
+		count = 0 # advc.oxi
 		for n in range(len(list)):
 			hex = list[n]
 			i = self.GetIndex(hex.x, hex.y)
-			avg = avg + self.data[i]
-		avg = avg / len(list)
+			# <advc.oxi>
+			if i == -1:
+				continue
+			count += 1 # </advc.oxi>
+			avg += self.data[i]
+		# <advc.oxi>
+		if count == 0:
+			return 0.0
+		#avg = avg / len(list)
+		avg /= count # </advc.oxi>
 		return avg
 
+	# advc.oxi: Similar changes as in GetAverageInHex
 	def GetStdDevInHex(self, x, y, radius):
-		list = pb.getCirclePoints(x, y, radius)
+		list = pb.getFilledCirclePoints(x, y, radius)
 		avg = 0.0
+		count = 0
 		for n in range(len(list)):
 			hex = list[n]
 			i = self.GetIndex(hex.x, hex.y)
-			avg = avg + self.data[i]
-		avg = avg / len(list)
+			if i == -1:
+				continue
+			count += 1
+			avg += self.data[i]
+		if count == 0:
+			return 0.0
+		avg /= count
 		deviation = 0.0
 		for n in range(len(list)):
 			hex = list[n]
 			i = self.GetIndex(hex.x, hex.y)
+			if i == -1:
+				continue
 			sqr = self.data[i] - avg
-			deviation = deviation + (sqr * sqr)
-		deviation = math.sqrt(deviation / len(list))
+			deviation += sqr * sqr
+		deviation = math.sqrt(deviation / count)
 		return deviation
 
 	def Smooth(self, radius):
@@ -1165,6 +1184,8 @@ class FloatMap:
 		for y in range(self.height):
 			for x in range(self.width):
 				i = self.GetIndex(x, y)
+				if i == -1:
+					continue # advc.oxi
 				dataCopy[i] = self.GetAverageInHex(x, y, radius)
 		self.data = dataCopy
 
@@ -1173,6 +1194,8 @@ class FloatMap:
 		for y in range(self.height):
 			for x in range(self.width):
 				i = self.GetIndex(x, y)
+				if i == -1:
+					continue # advc.oxi
 				dataCopy[i] = self.GetStdDevInHex(x, y, radius)
 		self.data = dataCopy
 
@@ -1741,7 +1764,7 @@ class ElevationMap2(FloatMap):
 		#initialize maps
 		for y in range(mc.hmHeight):
 			for x in range(mc.hmWidth):
-				i = GetHmIndex(x, y)
+				#i = GetHmIndex(x, y) # advc: unused
 				self.plateMap.append(PlatePlot(0, maxDistance))
 				borderMap.append(False)
 				self.plateHeightMap.append(0.0)
@@ -3535,6 +3558,7 @@ class PangaeaBreaker:
 		x, y = self.getHighestCentrality(biggestContinentID)
 		return x, y
 
+	# advc (note): All three unused. Unclear if circle points past map edges handled correctly.
 	def isChokePoint(self, x, y, biggestContinentID):
 		circlePoints = self.getCirclePoints(x, y, mc.minimumMeteorSize)
 		waterOpposite = False
@@ -3648,16 +3672,20 @@ class PangaeaBreaker:
 			return
 		for x in range(x1, x2 + 1):
 			i = GetHmIndex(x, y)
+			# advc.001: Though this might not be an issue.
+			# Or maybe the map edges should be addressed by castMeteorUponTheEarth.
+			if i == -1:
+				continue
 			#em.data[i] = 0.0
 			# advc: 0 elevation leads to coastal peaks when using the lowest-neighbor slope option.
 			em.data[i] *= min(0.88, 0.37 + math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)) / 7.0)
 
 	def getCirclePoints(self, xCenter, yCenter, radius):
-		circlePointList = list()
+		circlePoints = set() # advc.oxi: was list
 		x = 0
 		y = radius
 		p = 1 - radius
-		self.addCirclePoints(xCenter, yCenter, x, y, circlePointList)
+		self.addCirclePoints(xCenter, yCenter, x, y, circlePoints)
 		while (x < y):
 			x += 1
 			if p < 0:
@@ -3665,18 +3693,28 @@ class PangaeaBreaker:
 			else:
 				y -= 1
 				p += 2 * (x - y) + 1
-			self.addCirclePoints(xCenter, yCenter, x, y, circlePointList)
-		return circlePointList
+			self.addCirclePoints(xCenter, yCenter, x, y, circlePoints)
+		return list(circlePoints) # advc.oxi
 
-	def addCirclePoints(self, xCenter, yCenter, x, y, circlePointList):
-		circlePointList.append(CirclePoint(xCenter + x, yCenter + y))
-		circlePointList.append(CirclePoint(xCenter - x, yCenter + y))
-		circlePointList.append(CirclePoint(xCenter + x, yCenter - y))
-		circlePointList.append(CirclePoint(xCenter - x, yCenter - y))
-		circlePointList.append(CirclePoint(xCenter + y, yCenter + x))
-		circlePointList.append(CirclePoint(xCenter - y, yCenter + x))
-		circlePointList.append(CirclePoint(xCenter + y, yCenter - x))
-		circlePointList.append(CirclePoint(xCenter - y, yCenter - x))
+	# advc.oxi: Had been circlePointsList.append, leading to duplicates.
+	def addCirclePoints(self, xCenter, yCenter, x, y, circlePoints):
+		circlePoints.add(CirclePoint(xCenter + x, yCenter + y))
+		circlePoints.add(CirclePoint(xCenter - x, yCenter + y))
+		circlePoints.add(CirclePoint(xCenter + x, yCenter - y))
+		circlePoints.add(CirclePoint(xCenter - x, yCenter - y))
+		circlePoints.add(CirclePoint(xCenter + y, yCenter + x))
+		circlePoints.add(CirclePoint(xCenter - y, yCenter + x))
+		circlePoints.add(CirclePoint(xCenter + y, yCenter - x))
+		circlePoints.add(CirclePoint(xCenter - y, yCenter - x))
+
+	# advc.oxi: New method to replace some erroneous uses of getCirclePoints
+	def getFilledCirclePoints(self, xCenter, yCenter, radius):
+		points = []
+		for dy in range(-radius, radius + 1):
+			dx = int(math.sqrt(radius * radius - dy * dy))
+			for x in range(xCenter - dx, xCenter + dx + 1):
+				points.append(CirclePoint(x, yCenter + dy))
+		return points
 
 	def createDistanceMap(self):
 		# advc: Moved into global function
@@ -5621,7 +5659,7 @@ class StartingArea:
 		# advc: Moved into subroutine
 		self.ClearVicinity(3)
 		print "Number of final plots in areaID = %(a)3d is %(p)5d" % {"a":self.areaID, "p":len(self.plotList)}
-		# advc.021b: Moved up:
+		# advc: Moved up:
 		for n in range(len(self.plotList)):
 			self.rawValue += self.plotList[n].localValue
 		# Moved the last third of this function's body into a new function FillDistanceTable

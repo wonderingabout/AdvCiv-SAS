@@ -1646,7 +1646,7 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
 
 	std::vector<PlayerTypes> aeStartingLocs(MAX_CIV_PLAYERS);
 	// each player starting in own location
-	std11::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
+	sequtil::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
 
 	int iBestScore = getTeamClosenessScore(aaiDistances, aeStartingLocs);
 	bool bFoundSwap = true;

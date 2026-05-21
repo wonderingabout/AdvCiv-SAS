@@ -608,7 +608,8 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 			{
 				//if (pLoopUnit->canFight()) // BtS
 				// K-Mod - bug fix for the rare case of a barb city spawning on top of an animal
-				if (pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT)
+				if (pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT &&
+					!pLoopUnit->isFound()) // advc: Future-proof; from DoC.
 				{
 					int iExp = pLoopUnit->getExperience();
 					CvCityAI const* pPlotCity = pLoopUnit->getPlot().AI_getPlotCity();
@@ -4962,25 +4963,28 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 	}
 
 	// K-Mod. Extra specialist commerce. (Based on my civic evaluation code)
-	bool bSpecialistCommerce = false;
+	bool bSpecialistCommerce = false; // (advc: Just for saving time)
 	int iTotalBonusSpecialists = -1;
 	int iTotalCurrentSpecialists = -1;
 	FOR_EACH_ENUM(Commerce)
 	{
-		bSpecialistCommerce = kTech.getSpecialistExtraCommerce(eLoopCommerce) != 0;
+		//bSpecialistCommerce = kTechInfo.getSpecialistExtraCommerce(i) != 0;
+		// <advc.001>
+		if (kTech.getSpecialistExtraCommerce(eLoopCommerce) != 0)
+		{
+			bSpecialistCommerce = true;
+			break;
+		} // </advc.001>
 	}
-
 	if (bSpecialistCommerce)
 	{
-		// If there are any bonuses, we need to count our specialists.
- 		// (The value from the bonuses will be applied later.)
+		/*	If there are any bonuses, we need to count our specialists.
+			(The value from the bonuses will be applied later.) */
 		iTotalBonusSpecialists = iTotalCurrentSpecialists = 0;
-
 		FOR_EACH_CITY(pLoopCity, *this)
 		{
 			iTotalBonusSpecialists += pLoopCity->getNumGreatPeople();
 			iTotalBonusSpecialists += pLoopCity->totalFreeSpecialists();
-
 			iTotalCurrentSpecialists += pLoopCity->getNumGreatPeople();
 			iTotalCurrentSpecialists += pLoopCity->getSpecialistPopulation();
 		}
@@ -4994,9 +4998,6 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
  		// Commerce for specialists
  		if (bSpecialistCommerce)
  		{
-			// If there are any bonuses, we need to count our specialists.
- 			// (The value from the bonuses will be applied later.)
-			iTotalBonusSpecialists = iTotalCurrentSpecialists = 0;
  			iCommerceValue += 4*AI_averageCommerceMultiplier(eLoopCommerce)*
 					(kTech.getSpecialistExtraCommerce(eLoopCommerce) *
 					std::max((getTotalPopulation()+12*iTotalBonusSpecialists) /
@@ -14121,8 +14122,8 @@ uint CvPlayerAI::AI_unitImpassables(UnitTypes eUnit) const
 	if (!GC.getInfo(eUnit).isAnyTerrainImpassable() &&
 		!GC.getInfo(eUnit).isAnyFeatureImpassable())
 	{
-		return 0; // </advc.003t>
-	}
+		return 0;
+	} // </advc.003t>
 	uint uiCount = 0;
 	// <advc.057>
 	uint const uiCountBits = 3;
@@ -27320,7 +27321,8 @@ void CvPlayerAI::AI_updateStrategyHash()
 			}
 			else if (kVictory.getCityCulture() > 0)
 			{
-				if (m_eStrategyHash & AI_VICTORY_CULTURE1)
+				//if (m_iStrategyHash & AI_VICTORY_CULTURE1) // BBAI
+				if (AI_atVictoryStage(AI_VICTORY_CULTURE1)) // advc.001
 					iAchieveVictories++;
 			}
 			else if (kVictory.getMinLandPercent() > 0 || kVictory.getLandPercent() > 0)

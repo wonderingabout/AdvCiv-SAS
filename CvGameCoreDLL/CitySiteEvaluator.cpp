@@ -420,7 +420,7 @@ int AIFoundValue::evaluate()
 	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
 	static const FeatureTypes eFeatureIce = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE");
 
-	bool bFirstColony = isPrioritizeAsFirstColony();
+	bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
 	// Scope for countBadTiles return parameters
 	{

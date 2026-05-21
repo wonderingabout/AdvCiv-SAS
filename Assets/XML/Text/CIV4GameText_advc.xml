@@ -862,7 +862,7 @@
 	<TEXT>
 		<Tag>TXT_KEY_HOME_TILE_YIELD</Tag>
 		<English>Tile yield: </English>
-		<French>Produit du case: </French>
+		<French>Produit du case : </French>
 		<German>Gel&#228;ndeertrag: </German>
 		<Italian>Prodotti della casella: </Italian>
 		<Spanish>Rendim. de la casilla: </Spanish>
@@ -3641,11 +3641,11 @@
 	<!-- advc.106b -->
 	<TEXT>
 		<Tag>TXT_KEY_END_TURN_MSG</Tag>
-		<English>[COLOR_LIGHT_GREY]----- Older messages:[COLOR_REVERT]</English>
-		<French>[COLOR_LIGHT_GREY]----- Messages plus anciens:[COLOR_REVERT]</French>
-		<German>[COLOR_LIGHT_GREY]----- Ältere Nachrichten:[COLOR_REVERT]</German>
-		<Italian>[COLOR_LIGHT_GREY]----- Messaggi meno recenti:[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_LIGHT_GREY]----- Mensajes más antiguos:[COLOR_REVERT]</Spanish>
+		<English>----- Older messages:</English>
+		<French>----- Messages plus anciens :</French>
+		<German>----- Ältere Nachrichten:</German>
+		<Italian>----- Messaggi meno recenti:</Italian>
+		<Spanish>----- Mensajes más antiguos:</Spanish>
 	</TEXT>
 	
 	<!-- advc.104v -->

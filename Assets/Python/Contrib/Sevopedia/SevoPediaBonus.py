@@ -182,7 +182,8 @@ class SevoPediaBonus:
 				else:
 					sign = ""
 				# <!-- custom: beautify, no need to mention "FOOD: +1", just "+1" is enough especially with the food icon -->
-				#szYield = (u"%s: %s%i " % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
+				# advc.003y: Remove an awkward space
+				#szYield = (u"%s: %s%i" % (gc.getYieldInfo(k).getDescription(), sign, iYieldChange))
 				szYield = (u"%s%i" % (sign, iYieldChange))
 				# <!-- custom: add information about the precise type of yield it is, which can be otherwise very confusing -->
 				szText1 = (u"%c  " % gc.getYieldInfo(k).getChar()) + szYield

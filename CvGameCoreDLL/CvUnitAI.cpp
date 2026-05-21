@@ -11689,8 +11689,8 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 					can't rely on head having the most impassable types. */
 				if (kHeadUnit.AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
 				{
-					for (pUnitNode = getGroup()->nextUnitNode(pUnitNode);
-						pUnitNode != NULL; pUnitNode = getGroup()->nextUnitNode(pUnitNode))
+					for (pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
+						pUnitNode != NULL; pUnitNode = pLoopGroup->nextUnitNode(pUnitNode))
 					{
 						CvUnit const& kUnit = *::getUnit(pUnitNode->m_data);
 						uiTheirMaxImpassables = std::max(uiTheirMaxImpassables,

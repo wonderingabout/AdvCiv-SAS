@@ -63,6 +63,8 @@ CvCityAI::~CvCityAI()
 	SAFE_DELETE_ARRAY(m_aiEmphasizeCommerceCount);
 	SAFE_DELETE_ARRAY(m_aiSpecialYieldMultiplier);
 	SAFE_DELETE_ARRAY(m_aiPlayerCloseness);
+	SAFE_DELETE_ARRAY(m_aiCachePlayerClosenessTurn);
+	SAFE_DELETE_ARRAY(m_aiCachePlayerClosenessDistance);
 
 	SAFE_DELETE_ARRAY(m_aiBestBuildValue);
 	SAFE_DELETE_ARRAY(m_aeBestBuild);
@@ -2697,11 +2699,17 @@ void CvCityAI::AI_chooseProduction()
 			SyncRandNum(1200) < std::min(400, iNukeWeight)) &&
 			(!bAssault || SyncRandNum(400) < std::min(200, 50 + iNukeWeight/2)))
 		{
-			int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
-			int iNukesWanted = 1 + 2 * std::min(iNumCities,
+			int const iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
+			int const iNukesWanted = 1 + 2 * std::min(iNumCities,
 					kGame.getNumCities() - iNumCities);
 			if (iTotalNukes < iNukesWanted &&
-				SyncRandNum(100) * iNukesWanted < 90 - (80 * iTotalNukes))
+				/*	advc.650: Reduced in favor of a second, higher-priority rule.
+					Weights were 90 and 80. Now 60% initially, 10% (as before)
+					when target reached, decreasing further from there.
+					The odds effectively a weighted delta divided by the target.
+					Multiple rolls may need to succeed b/c the AI may re-consider
+					the production order on later turns (fixme?).) */
+				SyncRandNum(100) * iNukesWanted < 60 * iNukesWanted - (50 * iTotalNukes))
 			{
 				if (pWaterArea != NULL &&
 					kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA) * 2 < iTotalNukes &&
@@ -2714,8 +2722,7 @@ void CvCityAI::AI_chooseProduction()
 					return;
 			}
 		}
-	}
-	// K-Mod end
+	} // K-Mod end
 
 	// Assault case now completely handled above
 	if (!bAssault && (!bCultureCity || bDefenseWar) && iUnitSpending < iMaxUnitSpending)
@@ -7258,7 +7265,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					if(kRival.AI_atVictoryStage(AI_VICTORY_DIPLOMACY1))
 						iRivalStage++;
 					if(!kBuilding.isStateReligion() &&
-						kOwner.AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
+						kRival.AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
 					{
 						iRivalStage++;
 					}
@@ -7284,7 +7291,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 					FOR_EACH_ENUM(Building)
 					{
 						if (GC.getInfo(eLoopBuilding).getReligionType() == eStateReligion)
-							aeReligionBuildings.push_back(eBuilding);
+							aeReligionBuildings.push_back(eLoopBuilding);
 					}
 					scaled rOurBuildings = AI_estimateReligionBuildings(
 							kOwner.getID(), eStateReligion, aeReligionBuildings);
@@ -15612,7 +15619,7 @@ void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildType
 					eBestBuild == NO_BUILD) // advc.001 (restored)
 				{	// <advc.121> Akin to the boost for RouteYieldChanges below
 					if (eBestBuild == NO_BUILD && kPlot.isBeingWorked())
-						iBestValue *= 2; // </advc.121>
+						iValue *= 2; // </advc.121>
 					iBestValue = iValue;
 					eBestBuild = eLoopBuild;
 				}
