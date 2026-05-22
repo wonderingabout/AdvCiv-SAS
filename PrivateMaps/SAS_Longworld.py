@@ -214,14 +214,15 @@ def getGridSize(argsList):
 	if argsList[0] == -1:
 		return []
 
+	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
 	grid_sizes = {
-		0:									( 7, 4),  # ARENA
-		WorldSizeTypes.WORLDSIZE_DUEL:		(10, 4),
-		WorldSizeTypes.WORLDSIZE_TINY:		(15, 5),
-		WorldSizeTypes.WORLDSIZE_SMALL:		(23, 6),
-		WorldSizeTypes.WORLDSIZE_STANDARD:	(29, 6),
-		WorldSizeTypes.WORLDSIZE_LARGE:		(34, 6),
-		WorldSizeTypes.WORLDSIZE_HUGE:		(44, 6),
+		0: (9, 4),   # ARENA
+		1: (12, 4),  # DUEL
+		2: (18, 5),  # TINY
+		3: (27, 6),  # SMALL
+		4: (34, 6),  # STANDARD
+		5: (41, 6),  # LARGE
+		SAS_WORLDSIZE_HUGE: (54, 6), # HUGE
 	}
 
 	[eWorldSize] = argsList
@@ -235,15 +236,15 @@ def getGridSize(argsList):
 
 	# <!-- custom: For post-Huge SAS sizes, keep long-map height and scale width by default player ratio from Huge anchor. (GPT-5.3-Codex) -->
 	gc = CyGlobalContext()
-	if eWorldSize > WorldSizeTypes.WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
-		(iAnchorWidth, iAnchorHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
+	if eWorldSize > SAS_WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
+		(iAnchorWidth, iAnchorHeight) = grid_sizes[SAS_WORLDSIZE_HUGE]
 		iAnchorWidth = _scaled_width(iAnchorWidth)
-		iAnchorPlayers = max(1, gc.getWorldInfo(WorldSizeTypes.WORLDSIZE_HUGE).getDefaultPlayers())
+		iAnchorPlayers = max(1, gc.getWorldInfo(SAS_WORLDSIZE_HUGE).getDefaultPlayers())
 		iTargetPlayers = max(1, gc.getWorldInfo(eWorldSize).getDefaultPlayers())
 		iTargetWidth = max(iAnchorWidth + 1, int((float(iAnchorWidth) * float(iTargetPlayers)) / float(iAnchorPlayers) + 0.5))
 		return (iTargetWidth, iAnchorHeight)
 
-	(iFallbackWidth, iFallbackHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
+	(iFallbackWidth, iFallbackHeight) = grid_sizes[SAS_WORLDSIZE_HUGE]
 	return (_scaled_width(iFallbackWidth), iFallbackHeight)
 
 def generatePlotTypes():

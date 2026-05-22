@@ -12,6 +12,9 @@ import random
 from math import sqrt
 import sys
 
+# <!-- custom: Mirror PrivateMaps/SAS_WorldSizes.py's runtime Huge index instead of importing it because this generic utility is loaded by many map scripts, while SAS_WorldSizes.py is a PrivateMaps helper and adding that dependency here would be needless coupling/load-order risk. AdvCiv-SAS ARENA shifts runtime Huge to 6. (GPT-5.5) -->
+SAS_WORLDSIZE_HUGE = 6
+
 # NOTES ABOUT THE MAP UTILITIES
 #
 # generatePlotTypes(), generateTerrainTypes(), and addFeatures() are mandatory functions for all map scripts.
@@ -978,13 +981,15 @@ class MultilayeredFractal:
 		#
 		# Here is an example of obtaining grain sizes to fit with map sizes.
 		sizekey = self.map.getWorldSize()
+		# <!-- custom: Use runtime world-size indices here; see SAS_WorldSizes.SAS_WORLDSIZE_HUGE rationale. This base method is mostly a template overridden by maps, but keep it correct for copied code. Grain only, not dimensions. (Claude code Opus 4.7; GPT-5.5) -->
 		sizevalues = {
-			WorldSizeTypes.WORLDSIZE_DUEL:	  (3,2,1,2),
-			WorldSizeTypes.WORLDSIZE_TINY:	  (3,2,1,2),
-			WorldSizeTypes.WORLDSIZE_SMALL:	 (3,2,1,2),
-			WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
-			WorldSizeTypes.WORLDSIZE_LARGE:	 (4,2,1,2),
-			WorldSizeTypes.WORLDSIZE_HUGE:	  (5,2,1,2)
+			0: (3,2,1,2),  # ARENA
+			1: (3,2,1,2),  # DUEL
+			2: (3,2,1,2),  # TINY
+			3: (3,2,1,2),  # SMALL
+			4: (4,2,1,2),  # STANDARD
+			5: (4,2,1,2),  # LARGE
+			SAS_WORLDSIZE_HUGE: (5,2,1,2),  # HUGE
 			}
 		# You can add as many grain entries as you like.
 		# Seed them all from the matrix using the following type of line:
@@ -999,7 +1004,7 @@ class MultilayeredFractal:
 			try:
 				wi = gc.getWorldInfo(sizekey)
 				iTiles = wi.getGridWidth() * wi.getGridHeight()
-				bestKey = WorldSizeTypes.WORLDSIZE_HUGE
+				bestKey = SAS_WORLDSIZE_HUGE
 				bestDiff = 1 << 30
 				for k in sizevalues.keys():
 					wiK = gc.getWorldInfo(k)
@@ -1009,7 +1014,7 @@ class MultilayeredFractal:
 						bestKey = k
 				values = sizevalues[bestKey]
 			except:
-				values = sizevalues[WorldSizeTypes.WORLDSIZE_HUGE]
+				values = sizevalues[SAS_WORLDSIZE_HUGE]
 		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = values
 
 		# The example is for four grain values. You may not need that many.

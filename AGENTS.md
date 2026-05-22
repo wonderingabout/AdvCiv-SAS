@@ -81,7 +81,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 ## Comment Editing Rules
 
-- Always preserve the `<!-- custom` prefix - never remove it when summarizing comments. At the end of your comment, append a `-->` if not already done.
+- When adding new comments, use the format `<!-- custom: ... (model name) -->` (with `//` or `#` prefix as appropriate), and model name in the suffix with a `-->` at the end if not already done (e.g., `(GPT-5.3-Codex) -->`, `(Claude code Sonnet 4.5 (summarized)) -->`). Do not use other tags like `advc.` (which we do not use, as they do not belong to us: e.g., base advciv uses `advc.sas` to reference our AdvCiv-SAS changes).
+- If model name is missing in the suffix, it is likely a user comment (not from an LLM) and if so it is not something that needs to be fixed.
 - Simplify verbose comments without changing meaning or technical details.
 - Focus on rewording/rephrasing - the goal is to remove prose and conversational filler while preserving all technical information. Don't over-summarize to the point of losing important technical context.
 - Do not requalify subjective wording (e.g., keep "nicer display" instead of rephrasing as "tighter look") to avoid misinterpreting meaning.
@@ -101,10 +102,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 - Generally comment from the old/base AdvCiv perspective to explain what we changed. Some code we change is already AdvCiv-SAS custom code; when that is clear, try to convey it briefly so the comment stays accurate and shows the logic behind the change (e.g., `# <!-- custom: Manually positioning the mouse on footer Back/Next for each pedia link is tedious. After we added Up/Down item-list navigation, map Left/Right arrows to Sevopedia Back/Next history as the natural keyboard counterpart. (GPT-5.5) -->`). Tracing code origin is hard though and not critical, so do not overthink it; leave it to the user if in doubt.
 - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
 - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
-- When adding new comments, use the format `<!-- custom: ... (GPT-5.3-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like `advc.sas` (which we do not use, but base advciv uses it to reference our AdvCiv-SAS changes).
 - Do not use `/*` or `"""` or `'''` or such docstrings or variants. Prefer `//` or `#` or similar so they are easier to manage/uncomment and less costly computationally. Keep existing ones as they are, as some `"""` docstrings seem functionally used in tests (do not modify these, only the new ones we create).
-- Add a suffix with your model name to your code comments; e.g., `(GPT-5.3-Codex (summarized)) -->`, `(Claude code Sonnet 4.5 (summarized)) -->`. If such a suffix is missing, it is likely a user comment (not from an LLM) and if so it is not something that needs to be fixed.
-- When writing new code, do not use other credentials than our custom ones, e.g. no `// advc.`, as they do not belong to us. Use `<!-- custom:` instead.
 - Do NOT commit changes without explicit user approval - wait for review at the end.
 - Preserve problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
 - Pattern: Keep technical details and "why" verbose, remove conversational filler

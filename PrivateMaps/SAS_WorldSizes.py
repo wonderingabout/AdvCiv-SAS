@@ -10,8 +10,9 @@ from CvPythonExtensions import CyGlobalContext
 SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
 SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
 
-# <!-- custom: Runtime world-size indices include AdvCiv-SAS ARENA at index 0, so Huge is 6 here even though the old WorldSizeTypes.WORLDSIZE_HUGE enum is 5. Map scripts that index dictionaries with runtime eWorldSize need these SAS indices; scripts that scale XML world sizes with getNumPlotsPercent, such as Pangaea, can still behave plausibly because XML provides the base dimensions first. (GPT-5.5) -->
+# <!-- custom: AdvCiv-SAS added ARENA before Duel in CIV4WorldInfo, so runtime world-size indices are ARENA=0..Huge=6 while the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5. Direct getGridSize dictionaries keyed by argsList[0] / CyMap().getWorldSize() must use these runtime indices, or sizes shift by one and ARENA collides with Duel. We fixed empirical cases such as Water.py and PerfectMongoose.py, and use the same pattern preventively for imported/direct grid-size tables while leaving percentage-scaling scripts such as Pangaea for separate behavior-based review. (GPT-5.5) -->
 SAS_WORLDSIZE_HUGE = 6
+
 SAS_WORLDSIZE_LARGEST = 10
 
 def sas_huge_custom_max_players():

@@ -214,93 +214,103 @@ def getGridSize(argsList):
 
 	#Traditional way
 	# <!-- custom: Land Size option removed; keep default size mode only. (GPT-5.3-Codex) -->
+	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. (Claude code Opus 4.7; GPT-5.5) -->
 	if True:
 		# Section 1 - if  default option "16 tiles" is clicked
 		if (CyMap().getCustomMapOption(5) == 0):
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(8,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(12,4),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(16,4),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(21,4),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(23,4),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(26,4)
+					0:		(6,4),  # ARENA
+					1:		(8,4),
+					2:		(12,4),
+					3:		(16,4),
+					4:		(21,4),
+					5:		(23,4),
+					SAS_WORLDSIZE_HUGE:		(26,4)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(8,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(8,8),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(12,8),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(16,8),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(21,8),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(23,8) 
+					0:		(6,4),  # ARENA
+					1:		(8,4),
+					2:		(8,8),
+					3:		(12,8),
+					4:		(16,8),
+					5:		(21,8),
+					SAS_WORLDSIZE_HUGE:		(23,8) 
 				}	
 			else:
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(4,8),
-					WorldSizeTypes.WORLDSIZE_TINY:		(4,12),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(8,12),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(12,12),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(16,12),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(21,12)# not set up
+					0:		(4,6),  # ARENA
+					1:		(4,8),
+					2:		(4,12),
+					3:		(8,12),
+					4:		(12,12),
+					5:		(16,12),
+					SAS_WORLDSIZE_HUGE:		(21,12)# not set up
 				}
 				
 		elif (CyMap().getCustomMapOption(7) == 1): # Section 2 - if the map is clicked for larger (20)
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,5),
-					WorldSizeTypes.WORLDSIZE_TINY:		(15,5),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(20,5),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(26,5),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(29,5),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(32,5)
+					0:		(8,5),  # ARENA
+					1:		(10,5),
+					2:		(15,5),
+					3:		(20,5),
+					4:		(26,5),
+					5:		(29,5),
+					SAS_WORLDSIZE_HUGE:		(32,5)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,5),
-					WorldSizeTypes.WORLDSIZE_TINY:		(10,10),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(15,10),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(20,10),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(26,10),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(29,10)
+					0:		(8,5),  # ARENA
+					1:		(10,5),
+					2:		(10,10),
+					3:		(15,10),
+					4:		(20,10),
+					5:		(26,10),
+					SAS_WORLDSIZE_HUGE:		(29,10)
 				}	
 			else:
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(5,10),
-					WorldSizeTypes.WORLDSIZE_TINY:		(5,15),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(10,15),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(15,15),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(20,15),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(26,15)
+					0:		(5,8),  # ARENA
+					1:		(5,10),
+					2:		(5,15),
+					3:		(10,15),
+					4:		(15,15),
+					5:		(20,15),
+					SAS_WORLDSIZE_HUGE:		(26,15)
 				}
 				
 		else : # Section 3 - if 20x16
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(15,4),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(20,4),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(26,4),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(29,4),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(32,4)
+					0:		(8,4),  # ARENA
+					1:		(10,4),
+					2:		(15,4),
+					3:		(20,4),
+					4:		(26,4),
+					5:		(29,4),
+					SAS_WORLDSIZE_HUGE:		(32,4)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(10,4),
-					WorldSizeTypes.WORLDSIZE_TINY:		(10,8),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(15,8),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(20,8),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(26,8),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(29,8)
+					0:		(8,4),  # ARENA
+					1:		(10,4),
+					2:		(10,8),
+					3:		(15,8),
+					4:		(20,8),
+					5:		(26,8),
+					SAS_WORLDSIZE_HUGE:		(29,8)
 				}	
 			else:
 				grid_sizes = {
-					WorldSizeTypes.WORLDSIZE_DUEL:		(4,10),
-					WorldSizeTypes.WORLDSIZE_TINY:		(4,15),
-					WorldSizeTypes.WORLDSIZE_SMALL:		(10,12),
-					WorldSizeTypes.WORLDSIZE_STANDARD:	(15,12),
-					WorldSizeTypes.WORLDSIZE_LARGE:		(20,12),
-					WorldSizeTypes.WORLDSIZE_HUGE:		(26,12)
+					0:		(4,8),  # ARENA
+					1:		(4,10),
+					2:		(4,15),
+					3:		(10,12),
+					4:		(15,12),
+					5:		(20,12),
+					SAS_WORLDSIZE_HUGE:		(26,12)
 				}			
 		
 		[eWorldSize] = argsList
