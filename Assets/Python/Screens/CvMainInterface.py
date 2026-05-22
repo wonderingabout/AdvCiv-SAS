@@ -5206,7 +5206,8 @@ class CvMainInterface:
 			iReligionCorpsMargin = 0
 		# </advc.092>
 # BUG - Limit/Extra Religions - start
-		iOrgIconSize = BTNSZ(24)
+		# <!-- custom: religion art is clipped at top and bottom edges for some reason, but reducing icon size does not improve it; corporation icons seem unaffected because they are square. Keep the larger icon size for readability even though it makes religion clipping more visible. (GPT-5.5) -->
+		iOrgIconSize = BTNSZ(25)
 		iOrgSpacing = HSPACE(2)
 		iOrgMargin = HSPACE(6)
 		if CityScreenOpt.isShowOnlyPresentReligions():
@@ -5230,6 +5231,8 @@ class CvMainInterface:
 					szName = "ReligionHolyCityDDS" + str(iReligion)
 					gSetRectangle(szName, lReligion)
 					self.addDDS(szName, "INTERFACE_HOLYCITY_OVERLAY", WidgetTypes.WIDGET_HELP_RELIGION_CITY, iReligion)
+					# <!-- custom: make holy-city overlay visual-only so it does not block left-click Sevopedia routing on the underlying religion icon; before this, right-click worked on yellow icons but left-click did not, and in-game testing confirmed this fixes left-click. (GPT-5.5) -->
+					screen.setHitTest(szName, HitTestTypes.HITTEST_NOHIT)
 					screen.show(szName)
 		else: # (show all religions)
 			iReligions = gc.getNumReligionInfos()
@@ -5284,6 +5287,8 @@ class CvMainInterface:
 					szName = "ReligionHolyCityDDS" + str(iReligion)
 					gSetRectangle(szName, lReligion)
 					self.addDDS(szName, "INTERFACE_HOLYCITY_OVERLAY", WidgetTypes.WIDGET_HELP_RELIGION_CITY, iReligion)
+					# <!-- custom: make holy-city overlay visual-only so it does not block left-click Sevopedia routing on the underlying religion icon; before this, right-click worked on yellow icons but left-click did not, and in-game testing confirmed this fixes left-click. (GPT-5.5) -->
+					screen.setHitTest(szName, HitTestTypes.HITTEST_NOHIT)
 					screen.show(szName)
 # BUG - Limit/Extra Religions - end
 # BUG - Limit/Extra Corporations - start
@@ -5343,6 +5348,8 @@ class CvMainInterface:
 					szName = "CorporationHeadquarterDDS" + str(iCorp)
 					gSetRectangle(szName, lCorp)
 					self.addDDS(szName, "INTERFACE_HOLYCITY_OVERLAY", WidgetTypes.WIDGET_HELP_CORPORATION_CITY, iCorp)
+					# <!-- custom: make headquarters overlay visual-only so it does not block left-click Sevopedia routing on the underlying corporation icon; before this, right-click worked on yellow icons but left-click did not, and in-game testing confirmed this fixes left-click. (GPT-5.5) -->
+					screen.setHitTest(szName, HitTestTypes.HITTEST_NOHIT)
 					screen.show(szName)
 		else: # (show all corps)
 			iCorporations = gc.getNumCorporationInfos()
@@ -5398,6 +5405,8 @@ class CvMainInterface:
 					szName = "CorporationHeadquarterDDS" + str(iCorp)
 					gSetRectangle(szName, lCorp)
 					self.addDDS(szName, "INTERFACE_HOLYCITY_OVERLAY", WidgetTypes.WIDGET_HELP_CORPORATION_CITY, iCorp)
+					# <!-- custom: make headquarters overlay visual-only so it does not block left-click Sevopedia routing on the underlying corporation icon; before this, right-click worked on yellow icons but left-click did not, and in-game testing confirmed this fixes left-click. (GPT-5.5) -->
+					screen.setHitTest(szName, HitTestTypes.HITTEST_NOHIT)
 					screen.show(szName)
 # BUG - Limit/Extra Corporations - end
 		szBuffer = u"%d%% %s" %(pHeadSelectedCity.plot().calculateCulturePercent(pHeadSelectedCity.getOwner()), gc.getPlayer(pHeadSelectedCity.getOwner()).getCivilizationAdjective(0))
@@ -5634,7 +5643,7 @@ class CvMainInterface:
 
 	def fillCityBonusRow(self, iColumn, iRow, iBonus, iAmount, szEffect = None):
 		szIndex = str(iColumn) + "_" + str(iRow)
-		# <!-- custom: bonus-icon click-to-Sevopedia is NOT done: this image button doesn't jump even with WIDGET_PEDIA_JUMP_TO_BONUS (DLL swallows the PEDIA_JUMP click but the button still ignores it), and the help-widget + Python-handleInput route that works for religion/corporation icons isn't available for bonuses. If revisited, also test obsolete-bonus redirects (see the iData2 obsolete-bonus fix in CvDLLWidgetData.cpp). (Claude code Opus 4.7) -->
+		# <!-- custom: bonus-icon click-to-Sevopedia is NOT done: this image button doesn't jump even with WIDGET_PEDIA_JUMP_TO_BONUS (DLL swallows the PEDIA_JUMP click but the button still ignores it), and the Python-handleInput route that works for religion/corporation icons was tested and did not work for bonuses. If revisited, also test obsolete-bonus redirects (see the iData2 obsolete-bonus fix in CvDLLWidgetData.cpp). (Claude code Opus 4.7; GPT-5.5) -->
 		self.setImageButton("CityBonusBtn" + szIndex, gc.getBonusInfo(iBonus).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iBonus)
 		if iAmount > 1:
 			self.addDDS("CityBonusCircle" + szIndex, "WHITE_CIRCLE_40", WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus)
@@ -7031,17 +7040,17 @@ class CvMainInterface:
 						self.iBuildingFilter = iNewFilter
 						CyInterface().setDirty(InterfaceDirtyBits.CityScreen_DIRTY_BIT, True)
 					return 1
-				elif fn.startswith("ReligionDDS"):
+				elif fn.startswith("ReligionDDS") or fn.startswith("ReligionHolyCityDDS"):
 					iReligion = inputClass.getData1()
 					if iReligion >= 0:
-						# <!-- custom: keep WIDGET_HELP_RELIGION_CITY for city-specific hover, then route clicks to Sevopedia in Python. Import CvScreensInterface locally because it imports CvMainInterface during startup; top-level import here would be a needless circular-load risk. (Claude code Opus 4.7; GPT-5.5) -->
+						# <!-- custom: keep WIDGET_HELP_RELIGION_CITY for city-specific hover, then route clicks to Sevopedia in Python. Catch the holy-city overlay too because it sits over the base icon and otherwise only hover works. Import CvScreensInterface locally because it imports CvMainInterface during startup; top-level import here would be a needless circular-load risk. (Claude code Opus 4.7; GPT-5.5) -->
 						import CvScreensInterface
 						CvScreensInterface.pediaJumpToReligion([iReligion])
 					return 1
-				elif fn.startswith("CorporationDDS"):
+				elif fn.startswith("CorporationDDS") or fn.startswith("CorporationHeadquarterDDS"):
 					iCorp = inputClass.getData1()
 					if iCorp >= 0:
-						# <!-- custom: same pattern as religions: preserve city-specific corporation hover while making the icon clickable to Sevopedia. (Claude code Opus 4.7; GPT-5.5) -->
+						# <!-- custom: same pattern as religions: preserve city-specific corporation hover while making the icon/headquarters overlay clickable to Sevopedia. (Claude code Opus 4.7; GPT-5.5) -->
 						import CvScreensInterface
 						CvScreensInterface.pediaJumpToCorporation([iCorp])
 					return 1

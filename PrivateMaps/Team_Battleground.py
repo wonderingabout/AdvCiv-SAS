@@ -187,9 +187,9 @@ def getGridSize(argsList):
 	if grid_choice == 0:
 		return sas_get_compact_almost_all_land_grid_size(eWorldSize)
 
-	# <!-- custom: Team Battleground round/top-bottom modes need square maps; keep them compact and SAS-safe with calibrated sizes above Huge. (GPT-5.3-Codex) -->
+	# <!-- custom: Team Battleground round/top-bottom modes need square maps; keep them compact and SAS-safe with calibrated sizes above Huge. (GPT-5.3-Codex; GPT-5.5) -->
 	square_compact_grid_sizes = {
-		SAS_WORLDSIZE_ARENA: (4,4),
+		SAS_WORLDSIZE_ARENA: (3,3),
 		SAS_WORLDSIZE_DUEL: (4,4),
 		SAS_WORLDSIZE_TINY: (5,5),
 		SAS_WORLDSIZE_SMALL: (6,6),
