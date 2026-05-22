@@ -10,39 +10,48 @@ from CvPythonExtensions import CyGlobalContext
 SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
 SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
 
-# <!-- custom: AdvCiv-SAS added ARENA before Duel in CIV4WorldInfo, so runtime world-size indices are ARENA=0..Huge=6 while the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5. Direct getGridSize dictionaries keyed by argsList[0] / CyMap().getWorldSize() must use these runtime indices, or sizes shift by one and ARENA collides with Duel. We fixed empirical cases such as Water.py and PerfectMongoose.py, and use the same pattern preventively for imported/direct grid-size tables while leaving percentage-scaling scripts such as Pangaea for separate behavior-based review. (GPT-5.5) -->
+# <!-- custom: AdvCiv-SAS added ARENA before Duel in CIV4WorldInfo, so runtime world-size indices are ARENA=0..Huge=6 while the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5. Direct runtime dictionaries keyed by argsList[0] / CyMap().getWorldSize() must use these indices, or sizes shift by one and ARENA collides with Duel. We fixed empirical grid-size cases such as Water.py and PerfectMongoose.py, and use the same pattern preventively for direct grid/grain/start-variance tables while leaving percentage-scaling scripts such as Pangaea for separate behavior-based review. CvMapGeneratorUtil.py mirrors these values with a local MAPGEN_SAS_WORLDSIZE_* prefix because it should not import this PrivateMaps helper and the prefix is easy to grep. (GPT-5.5) -->
+SAS_WORLDSIZE_ARENA = 0
+SAS_WORLDSIZE_DUEL = 1
+SAS_WORLDSIZE_TINY = 2
+SAS_WORLDSIZE_SMALL = 3
+SAS_WORLDSIZE_STANDARD = 4
+SAS_WORLDSIZE_LARGE = 5
 SAS_WORLDSIZE_HUGE = 6
-
-SAS_WORLDSIZE_LARGEST = 10
+SAS_WORLDSIZE_SAS24 = 7
+SAS_WORLDSIZE_SAS32 = 8
+SAS_WORLDSIZE_SAS40 = 9
+SAS_WORLDSIZE_SAS48 = 10
+SAS_WORLDSIZE_LARGEST = SAS_WORLDSIZE_SAS48
 
 def sas_huge_custom_max_players():
 	return SAS_HUGE_CUSTOM_MAX_PLAYERS
 
 def sas_default_sizevalues():
 	return {
-		0:  1,   # ARENA
-		1:  1,   # DUEL
-		2:  1,   # TINY
-		3:  1,   # SMALL
-		4:  2,   # STANDARD
-		5:  2,   # LARGE
-		SAS_WORLDSIZE_HUGE:  3,   # HUGE
-		7:  4,   # SAS24
-		8:  5,   # SAS32
-		9:  6,   # SAS40
-		10: 7,   # SAS48
+		SAS_WORLDSIZE_ARENA:  1,
+		SAS_WORLDSIZE_DUEL:  1,
+		SAS_WORLDSIZE_TINY:  1,
+		SAS_WORLDSIZE_SMALL:  1,
+		SAS_WORLDSIZE_STANDARD:  2,
+		SAS_WORLDSIZE_LARGE:  2,
+		SAS_WORLDSIZE_HUGE:  3,
+		SAS_WORLDSIZE_SAS24:  4,
+		SAS_WORLDSIZE_SAS32:  5,
+		SAS_WORLDSIZE_SAS40:  6,
+		SAS_WORLDSIZE_SAS48: 7,
 	}
 
 # <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
 def sas_compact_almost_all_land_grid_sizes():
 	return {
-		0:  (2, 2),    # ARENA
-		1:  (3, 2),    # DUEL
-		2:  (4, 3),    # TINY
-		3:  (6, 4),    # SMALL
-		4:  (8, 6),    # STANDARD
-		5:  (11, 8),   # LARGE
-		SAS_WORLDSIZE_HUGE:  (15, 11),  # HUGE
+		SAS_WORLDSIZE_ARENA:  (2, 2),
+		SAS_WORLDSIZE_DUEL:  (3, 2),
+		SAS_WORLDSIZE_TINY:  (4, 3),
+		SAS_WORLDSIZE_SMALL:  (6, 4),
+		SAS_WORLDSIZE_STANDARD:  (8, 6),
+		SAS_WORLDSIZE_LARGE:  (11, 8),
+		SAS_WORLDSIZE_HUGE:  (15, 11),
 	}
 
 def sas_get_compact_almost_all_land_grid_size(eWorldSize):

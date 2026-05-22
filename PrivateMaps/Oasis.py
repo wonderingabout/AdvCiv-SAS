@@ -271,13 +271,13 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# The following grain matrix is specific to Oasis.py
 		sizekey = self.map.getWorldSize()
 		sizevalues = {
-			0: 2, # ARENA
-			1: 3, # DUEL
-			2: 3, # TINY
-			3: 3, # SMALL
-			4: 4, # STANDARD
-			5: 4, # LARGE
-			6: 5  # HUGE
+			SAS_WORLDSIZE_ARENA: 2,
+			SAS_WORLDSIZE_DUEL: 3,
+			SAS_WORLDSIZE_TINY: 3,
+			SAS_WORLDSIZE_SMALL: 3,
+			SAS_WORLDSIZE_STANDARD: 4,
+			SAS_WORLDSIZE_LARGE: 4,
+			SAS_WORLDSIZE_HUGE: 5
 			}
 		grain = sas_lookup_world_size(sizekey, sizevalues)
 
@@ -717,13 +717,13 @@ def addBonusType(argsList):
 		# size modifier is a fixed component based on world size
 		sizekey = map.getWorldSize()
 		sizevalues = {
-			0: 1, # ARENA
-			1: 1, # DUEL
-			2: 1, # TINY
-			3: 1, # SMALL
-			4: 2, # STANDARD
-			5: 2, # LARGE
-			6: 3  # HUGE
+			SAS_WORLDSIZE_ARENA: 1,
+			SAS_WORLDSIZE_DUEL: 1,
+			SAS_WORLDSIZE_TINY: 1,
+			SAS_WORLDSIZE_SMALL: 1,
+			SAS_WORLDSIZE_STANDARD: 2,
+			SAS_WORLDSIZE_LARGE: 2,
+			SAS_WORLDSIZE_HUGE: 3
 			}
 		sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
 		# playermodifier involves two layers of randomnity.
@@ -932,13 +932,13 @@ def addRivers():
 	# Set maxshift, numbers of rivers for Oasis according to grid size.
 	sizekey = map.getWorldSize()
 	shiftvalues = {
-		0: 1, # ARENA
-		1: 1, # DUEL
-		2: 2, # TINY
-		3: 3, # SMALL
-		4: 5, # STANDARD
-		5: 7, # LARGE
-		6: 9  # HUGE
+		SAS_WORLDSIZE_ARENA: 1,
+		SAS_WORLDSIZE_DUEL: 1,
+		SAS_WORLDSIZE_TINY: 2,
+		SAS_WORLDSIZE_SMALL: 3,
+		SAS_WORLDSIZE_STANDARD: 5,
+		SAS_WORLDSIZE_LARGE: 7,
+		SAS_WORLDSIZE_HUGE: 9
 		}
 	maxshift = sas_lookup_world_size(sizekey, shiftvalues)
 

@@ -100,19 +100,19 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 
 		# Varying grains for reducing "clumping" of hills/peaks on larger maps.
 		sizekey = map.getWorldSize()
-		# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices with fallback for compatibility. (GPT-5.2-Codex) -->
+		# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices with fallback for compatibility. (GPT-5.2-Codex; GPT-5.5) -->
 		grainvalues = {
-			0:  3,   # ARENA
-			1:  3,   # DUEL
-			2:  3,   # TINY
-			3:  3,   # SMALL
-			4:  4,   # STANDARD
-			5:  5,   # LARGE
-			6:  6,   # HUGE
-			7:  7,   # SAS24
-			8:  8,   # SAS32
-			9:  9,   # SAS40
-			10: 10,  # SAS48
+			SAS_WORLDSIZE_ARENA: 3,
+			SAS_WORLDSIZE_DUEL: 3,
+			SAS_WORLDSIZE_TINY: 3,
+			SAS_WORLDSIZE_SMALL: 3,
+			SAS_WORLDSIZE_STANDARD: 4,
+			SAS_WORLDSIZE_LARGE: 5,
+			SAS_WORLDSIZE_HUGE: 6,
+			SAS_WORLDSIZE_SAS24: 7,
+			SAS_WORLDSIZE_SAS32: 8,
+			SAS_WORLDSIZE_SAS40: 9,
+			SAS_WORLDSIZE_SAS48: 10,
 			}
 		grain_amount = sas_lookup_world_size(sizekey, grainvalues)
 
@@ -944,19 +944,19 @@ def addRivers():
 
 	# Set maxshift according to grid size.
 	sizekey = map.getWorldSize()
-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices with fallback for compatibility. (GPT-5.2-Codex) -->
+	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices with fallback for compatibility. (GPT-5.2-Codex; GPT-5.5) -->
 	shiftvalues = {
-		0:  1,   # ARENA
-		1:  1,   # DUEL
-		2:  2,   # TINY
-		3:  2,   # SMALL
-		4:  3,   # STANDARD
-		5:  3,   # LARGE
-		6:  4,   # HUGE
-		7:  5,   # SAS24
-		8:  6,   # SAS32
-		9:  7,   # SAS40
-		10: 8,   # SAS48
+		SAS_WORLDSIZE_ARENA: 1,
+		SAS_WORLDSIZE_DUEL: 1,
+		SAS_WORLDSIZE_TINY: 2,
+		SAS_WORLDSIZE_SMALL: 2,
+		SAS_WORLDSIZE_STANDARD: 3,
+		SAS_WORLDSIZE_LARGE: 3,
+		SAS_WORLDSIZE_HUGE: 4,
+		SAS_WORLDSIZE_SAS24: 5,
+		SAS_WORLDSIZE_SAS32: 6,
+		SAS_WORLDSIZE_SAS40: 7,
+		SAS_WORLDSIZE_SAS48: 8,
 		}
 	maxshift = sas_lookup_world_size(sizekey, shiftvalues)
 

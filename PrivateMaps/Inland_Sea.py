@@ -141,17 +141,17 @@ def beforeGeneration():
 	map_size = CyMap().getWorldSize()
 	# <!-- custom: Use integer world-size indices with SAS fallback so Inland Sea supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
 	sizevalues = {
-		0:  (2, 3),   # ARENA
-		1:  (2, 3),   # DUEL
-		2:  (2, 3),   # TINY
-		3:  (3, 4),   # SMALL
-		4:  (4, 7),   # STANDARD
-		5:  (5, 10),  # LARGE
-		6:  (6, 15),  # HUGE
-		7:  (7, 18),  # SAS24
-		8:  (8, 22),  # SAS32
-		9:  (9, 26),  # SAS40
-		10: (10, 30), # SAS48
+		SAS_WORLDSIZE_ARENA: (2, 3),
+		SAS_WORLDSIZE_DUEL: (2, 3),
+		SAS_WORLDSIZE_TINY: (2, 3),
+		SAS_WORLDSIZE_SMALL: (3, 4),
+		SAS_WORLDSIZE_STANDARD: (4, 7),
+		SAS_WORLDSIZE_LARGE: (5, 10),
+		SAS_WORLDSIZE_HUGE: (6, 15),
+		SAS_WORLDSIZE_SAS24: (7, 18),
+		SAS_WORLDSIZE_SAS32: (8, 22),
+		SAS_WORLDSIZE_SAS40: (9, 26),
+		SAS_WORLDSIZE_SAS48: (10, 30),
 		}
 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
 	if iPlayers <= threeVar:
@@ -613,13 +613,13 @@ def getGridSize(argsList):
 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
 	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex) -->
 	grid_sizes = {
-		0:  (5, 3),    # ARENA
-		1:  (6, 4),    # DUEL
-		2:  (8, 5),    # TINY
-		3:  (10, 6),   # SMALL
-		4:  (13, 8),   # STANDARD
-		5:  (16, 10),  # LARGE
-		6:  (21, 13),  # HUGE
+		SAS_WORLDSIZE_ARENA: (5, 3),
+		SAS_WORLDSIZE_DUEL: (6, 4),
+		SAS_WORLDSIZE_TINY: (8, 5),
+		SAS_WORLDSIZE_SMALL: (10, 6),
+		SAS_WORLDSIZE_STANDARD: (13, 8),
+		SAS_WORLDSIZE_LARGE: (16, 10),
+		SAS_WORLDSIZE_HUGE: (21, 13),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

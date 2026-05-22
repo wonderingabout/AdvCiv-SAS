@@ -197,20 +197,19 @@ def getGridSize(argsList):
 	return ((iWidth + 3) / 4, (iHeight + 3) / 4)
 
 def _profile_for_world_size(eWorldSize):
-	# # <!-- custom:  Use integer indices (matching AdvCiv's 0-6 vanilla + 7-10 SAS world sizes)
-	# instead of WorldSizeTypes enums, which are offset by 1 due to ARENA at index 0. (Claude code Opus 4.6) -->
+	# <!-- custom: Use runtime world-size indices because AdvCiv-SAS ARENA shifts Huge to 6; keep the player-capacity rationale beside the profile entries where it matters. (Claude code Opus 4.6; GPT-5.5) -->
 	profiles = {
-		0:  (1, 1),  # ARENA
-		1:  (1, 1),  # DUEL
-		2:  (1, 1),  # TINY
-		3:  (1, 2),  # SMALL
-		4:  (2, 2),  # STANDARD
-		5:  (2, 3),  # LARGE      (11 players -> 3 spikes * 2 streets = 12 houses)
-		6:  (2, 4),  # HUGE       (16 players -> 4 spikes * 2 streets = 16 houses)
-		7:  (3, 4),  # SAS24      (24 players -> 4 spikes * 3 streets = 24 houses)
-		8:  (4, 4),  # SAS32      (32 players -> 4 spikes * 4 streets = 32 houses)
-		9:  (4, 5),  # SAS40      (40 players -> 5 spikes * 4 streets = 40 houses)
-		10: (4, 6),  # SAS48      (48 players -> 6 spikes * 4 streets = 48 houses)
+		SAS_WORLDSIZE_ARENA: (1, 1),
+		SAS_WORLDSIZE_DUEL: (1, 1),
+		SAS_WORLDSIZE_TINY: (1, 1),
+		SAS_WORLDSIZE_SMALL: (1, 2),
+		SAS_WORLDSIZE_STANDARD: (2, 2),
+		SAS_WORLDSIZE_LARGE: (2, 3), # 11 players -> 3 spikes * 2 streets = 12 houses
+		SAS_WORLDSIZE_HUGE: (2, 4), # 16 players -> 4 spikes * 2 streets = 16 houses
+		SAS_WORLDSIZE_SAS24: (3, 4), # 24 players -> 4 spikes * 3 streets = 24 houses
+		SAS_WORLDSIZE_SAS32: (4, 4), # 32 players -> 4 spikes * 4 streets = 32 houses
+		SAS_WORLDSIZE_SAS40: (4, 5), # 40 players -> 5 spikes * 4 streets = 40 houses
+		SAS_WORLDSIZE_SAS48: (4, 6), # 48 players -> 6 spikes * 4 streets = 48 houses
 	}
 	iWorldSize = int(eWorldSize)
 	if iWorldSize in profiles:

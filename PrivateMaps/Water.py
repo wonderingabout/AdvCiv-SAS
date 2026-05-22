@@ -30,13 +30,13 @@ def getGridSize(argsList):
 	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, NOT WorldSizeTypes.WORLDSIZE_* (unshifted: HUGE==5), which mis-keyed every size by one and collided ARENA with DUEL. Same fix/reason as PerfectMongoose/SAS_Longworld getGridSize. (Claude code Opus 4.7) -->
 	# <!-- custom: before the fix, arena world size was "0:", but duel to huge were using "WorldSizeTypes.WORLDSIZE_DUEL:" format. Ingame worldsize huge was 72 x 44 and large was 60 x 36 before the fix which was empirically way too big, and now after the fix worldsize huge is now 60 x 36 (large before fix) and large is now 48 x 32, which empirically seems to fit well. -->
 	grid_sizes = {
-		0: (3,3),    # ARENA
-		1: (4,3),    # DUEL
-		2: (6,3),    # TINY
-		3: (8,4),    # SMALL
-		4: (9,6),    # STANDARD
-		5: (12,8),   # LARGE
-		SAS_WORLDSIZE_HUGE: (15,9),   # HUGE
+		SAS_WORLDSIZE_ARENA: (3,3),
+		SAS_WORLDSIZE_DUEL: (4,3),
+		SAS_WORLDSIZE_TINY: (6,3),
+		SAS_WORLDSIZE_SMALL: (8,4),
+		SAS_WORLDSIZE_STANDARD: (9,6),
+		SAS_WORLDSIZE_LARGE: (12,8),
+		SAS_WORLDSIZE_HUGE: (15,9),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

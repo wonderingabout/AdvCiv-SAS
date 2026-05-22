@@ -142,13 +142,13 @@ def isSeaLevelMap():
 def getGridSize(argsList):
 	"Override Grid Size function to make the maps square."
 	grid_sizes = {
-		0: (5,5),    # ARENA
-		1: (6,6),    # DUEL
-		2: (8,8),    # TINY
-		3: (10,10),  # SMALL
-		4: (13,13),  # STANDARD
-		5: (16,16),  # LARGE
-		6: (20,20)   # HUGE
+		SAS_WORLDSIZE_ARENA: (5,5),
+		SAS_WORLDSIZE_DUEL: (6,6),
+		SAS_WORLDSIZE_TINY: (8,8),
+		SAS_WORLDSIZE_SMALL: (10,10),
+		SAS_WORLDSIZE_STANDARD: (13,13),
+		SAS_WORLDSIZE_LARGE: (16,16),
+		SAS_WORLDSIZE_HUGE: (20,20)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

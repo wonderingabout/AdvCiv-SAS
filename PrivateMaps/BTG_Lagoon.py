@@ -231,15 +231,15 @@ def isSeaLevelMap():
 def getGridSize(argsList):
 	"Override Grid Size function to make the maps square."
 	
-	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. (Claude code Opus 4.7; GPT-5.5) -->
+	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
 	grid_sizes = {
-		0: (5,5),    # ARENA
-		1: (6,6),    # DUEL
-		2: (7,7),    # TINY
-		3: (8,8),    # SMALL
-		4: (9,9),    # STANDARD
-		5: (10,10),  # LARGE
-		SAS_WORLDSIZE_HUGE: (11,11)	 # HUGE
+		SAS_WORLDSIZE_ARENA: (5,5),
+		SAS_WORLDSIZE_DUEL: (6,6),
+		SAS_WORLDSIZE_TINY: (7,7),
+		SAS_WORLDSIZE_SMALL: (8,8),
+		SAS_WORLDSIZE_STANDARD: (9,9),
+		SAS_WORLDSIZE_LARGE: (10,10),
+		SAS_WORLDSIZE_HUGE: (11,11)
 	}			
 		
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

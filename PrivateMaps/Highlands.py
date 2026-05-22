@@ -205,19 +205,19 @@ def generatePlotTypes():
 
 	# Varying grains for hills/peaks per map size and Mountain Ranges setting.
 	# [clustered_grain, ridgelines_grain, scattered_grain]
-	# # <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) (Claude code Opus 4.5) -->
+	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices. (Claude code Opus 4.5; GPT-5.5) -->
 	worldsizes = {
-		0:  [3, 4, 5],  # ARENA
-		1:  [3, 4, 5],  # DUEL
-		2:  [3, 4, 5],  # TINY
-		3:  [4, 5, 6],  # SMALL
-		4:  [4, 5, 6],  # STANDARD
-		5:  [4, 5, 6],  # LARGE
-		6:  [4, 5, 6],  # HUGE
-		7:  [5, 6, 7],  # SAS24
-		8:  [5, 6, 7],  # SAS32
-		9:  [5, 6, 7],  # SAS40
-		10: [5, 6, 7],  # SAS48
+		SAS_WORLDSIZE_ARENA: [3, 4, 5],
+		SAS_WORLDSIZE_DUEL: [3, 4, 5],
+		SAS_WORLDSIZE_TINY: [3, 4, 5],
+		SAS_WORLDSIZE_SMALL: [4, 5, 6],
+		SAS_WORLDSIZE_STANDARD: [4, 5, 6],
+		SAS_WORLDSIZE_LARGE: [4, 5, 6],
+		SAS_WORLDSIZE_HUGE: [4, 5, 6],
+		SAS_WORLDSIZE_SAS24: [5, 6, 7],
+		SAS_WORLDSIZE_SAS32: [5, 6, 7],
+		SAS_WORLDSIZE_SAS40: [5, 6, 7],
+		SAS_WORLDSIZE_SAS48: [5, 6, 7],
 	}
 
 	# Convert WorldSizeTypes enum to int for lookup

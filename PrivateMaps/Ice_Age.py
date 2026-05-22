@@ -77,13 +77,13 @@ def getGridSize(argsList):
 	# Map widths unchanged. Height reduced (lands lost to polar ice)
 	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; keep Ice Age short-height profile while deriving SAS tiers from the script's Huge anchor. (GPT-5.3-Codex) -->
 	base_grid_sizes = {
-		0:  (8, 3),    # ARENA
-		1:  (10, 4),   # DUEL
-		2:  (13, 5),   # TINY
-		3:  (16, 7),   # SMALL
-		4:  (21, 9),   # STANDARD
-		5:  (26, 11),  # LARGE
-		6:  (32, 13),  # HUGE
+		SAS_WORLDSIZE_ARENA: (8, 3),
+		SAS_WORLDSIZE_DUEL: (10, 4),
+		SAS_WORLDSIZE_TINY: (13, 5),
+		SAS_WORLDSIZE_SMALL: (16, 7),
+		SAS_WORLDSIZE_STANDARD: (21, 9),
+		SAS_WORLDSIZE_LARGE: (26, 11),
+		SAS_WORLDSIZE_HUGE: (32, 13),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

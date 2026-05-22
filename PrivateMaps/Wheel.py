@@ -166,13 +166,13 @@ def isBonusIgnoreLatitude():
 def getGridSize(argsList):
 	# Reduce grid sizes by one level.
 	grid_sizes = {
-		0: (7,4),    # ARENA
-		1: (8,5),    # DUEL
-		2: (10,6),   # TINY
-		3: (13,8),   # SMALL
-		4: (16,10),  # STANDARD
-		5: (21,13),  # LARGE
-		6: (26,16)   # HUGE
+		SAS_WORLDSIZE_ARENA: (7,4),
+		SAS_WORLDSIZE_DUEL: (8,5),
+		SAS_WORLDSIZE_TINY: (10,6),
+		SAS_WORLDSIZE_SMALL: (13,8),
+		SAS_WORLDSIZE_STANDARD: (16,10),
+		SAS_WORLDSIZE_LARGE: (21,13),
+		SAS_WORLDSIZE_HUGE: (26,16)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -1298,13 +1298,13 @@ def assignStartingPlots():
 	# Set variance for start plots according to map size vs number of players.
 	map_size = map.getWorldSize()
 	sizevalues = {
-		0: (2, 2),    # ARENA
-		1: (2, 3),    # DUEL
-		2: (2, 4),    # TINY
-		3: (3, 6),    # SMALL
-		4: (4, 10),   # STANDARD
-		5: (6, 12),   # LARGE
-		6: (6, 18)    # HUGE
+		SAS_WORLDSIZE_ARENA: (2, 2),
+		SAS_WORLDSIZE_DUEL: (2, 3),
+		SAS_WORLDSIZE_TINY: (2, 4),
+		SAS_WORLDSIZE_SMALL: (3, 6),
+		SAS_WORLDSIZE_STANDARD: (4, 10),
+		SAS_WORLDSIZE_LARGE: (6, 12),
+		SAS_WORLDSIZE_HUGE: (6, 18)
 		}
 	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues, sas_huge_custom_max_players())
 	if iPlayers <= threeVar:

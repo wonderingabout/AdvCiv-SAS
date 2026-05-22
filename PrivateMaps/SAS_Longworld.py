@@ -214,15 +214,15 @@ def getGridSize(argsList):
 	if argsList[0] == -1:
 		return []
 
-	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_HUGE rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
+	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
 	grid_sizes = {
-		0: (9, 4),   # ARENA
-		1: (12, 4),  # DUEL
-		2: (18, 5),  # TINY
-		3: (27, 6),  # SMALL
-		4: (34, 6),  # STANDARD
-		5: (41, 6),  # LARGE
-		SAS_WORLDSIZE_HUGE: (54, 6), # HUGE
+		SAS_WORLDSIZE_ARENA: (9, 4),
+		SAS_WORLDSIZE_DUEL: (12, 4),
+		SAS_WORLDSIZE_TINY: (18, 5),
+		SAS_WORLDSIZE_SMALL: (27, 6),
+		SAS_WORLDSIZE_STANDARD: (34, 6),
+		SAS_WORLDSIZE_LARGE: (41, 6),
+		SAS_WORLDSIZE_HUGE: (54, 6),
 	}
 
 	[eWorldSize] = argsList

@@ -166,13 +166,13 @@ def isBonusIgnoreLatitude():
 def getGridSize(argsList):
 	# <!-- custom: Keep Ring's original compact base profile and calibrate only sizes above Huge with shared SAS helpers so ARENA/SAS sizes avoid KeyError. (GPT-5.3-Codex) -->
 	grid_sizes = {
-		0:	(6,4),    # ARENA
-		1:	(8,5),    # DUEL
-		2:	(10,6),   # TINY
-		3:	(13,8),   # SMALL
-		4:	(16,10),  # STANDARD
-		5:	(21,13),  # LARGE
-		6:	(26,16)   # HUGE
+		SAS_WORLDSIZE_ARENA: (6,4),
+		SAS_WORLDSIZE_DUEL: (8,5),
+		SAS_WORLDSIZE_TINY: (10,6),
+		SAS_WORLDSIZE_SMALL: (13,8),
+		SAS_WORLDSIZE_STANDARD: (16,10),
+		SAS_WORLDSIZE_LARGE: (21,13),
+		SAS_WORLDSIZE_HUGE: (26,16)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -1105,17 +1105,17 @@ def assignStartingPlots():
 	map_size = map.getWorldSize()
 	# <!-- custom: Use integer world-size indices with SAS fallback so Ring supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
 	sizevalues = {
-		0:	(2, 3),   # ARENA
-		1:	(2, 3),   # DUEL
-		2:	(2, 4),   # TINY
-		3:	(3, 6),   # SMALL
-		4:	(4, 10),  # STANDARD
-		5:	(6, 12),  # LARGE
-		6:	(6, 18),  # HUGE
-		7:	(7, 20),  # SAS24
-		8:	(8, 24),  # SAS32
-		9:	(9, 28),  # SAS40
-		10:	(10, 32)  # SAS48
+		SAS_WORLDSIZE_ARENA: (2, 3),
+		SAS_WORLDSIZE_DUEL: (2, 3),
+		SAS_WORLDSIZE_TINY: (2, 4),
+		SAS_WORLDSIZE_SMALL: (3, 6),
+		SAS_WORLDSIZE_STANDARD: (4, 10),
+		SAS_WORLDSIZE_LARGE: (6, 12),
+		SAS_WORLDSIZE_HUGE: (6, 18),
+		SAS_WORLDSIZE_SAS24: (7, 20),
+		SAS_WORLDSIZE_SAS32: (8, 24),
+		SAS_WORLDSIZE_SAS40: (9, 28),
+		SAS_WORLDSIZE_SAS48: (10, 32)
 		}
 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
 	if iPlayers <= threeVar:

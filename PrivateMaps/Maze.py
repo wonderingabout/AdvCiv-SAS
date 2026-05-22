@@ -131,13 +131,13 @@ def startHumansOnSameTile():
 def getGridSize(argsList):
 	# <!-- custom: Keep original base tiers and calibrate only sizes above Huge with shared SAS helper to avoid KeyError on ARENA/SAS24/SAS32/SAS40/SAS48. (GPT-5.3-Codex) -->
 	grid_sizes = {
-		0:	(4,3),    # ARENA
-		1:	(6,4),    # DUEL
-		2:	(9,4),    # TINY
-		3:	(10,6),   # SMALL
-		4:	(14,8),   # STANDARD
-		5:	(18,10),  # LARGE
-		6:	(24,14)   # HUGE
+		SAS_WORLDSIZE_ARENA: (4,3),
+		SAS_WORLDSIZE_DUEL: (6,4),
+		SAS_WORLDSIZE_TINY: (9,4),
+		SAS_WORLDSIZE_SMALL: (10,6),
+		SAS_WORLDSIZE_STANDARD: (14,8),
+		SAS_WORLDSIZE_LARGE: (18,10),
+		SAS_WORLDSIZE_HUGE: (24,14)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -166,15 +166,15 @@ def generatePlotTypes():
 	# Varying grains for reducing "clumping" of hills/peaks on larger maps.
 	sizekey = map.getWorldSize()
 	grainvalues = {
-		0:	2, # ARENA
-		1:	3, # DUEL
-		2:	3, # TINY
-		3:	4, # SMALL
-		4:	4, # STANDARD
-		5:	5, # LARGE
-		6:	6  # HUGE
+		SAS_WORLDSIZE_ARENA: 2,
+		SAS_WORLDSIZE_DUEL: 3,
+		SAS_WORLDSIZE_TINY: 3,
+		SAS_WORLDSIZE_SMALL: 4,
+		SAS_WORLDSIZE_STANDARD: 4,
+		SAS_WORLDSIZE_LARGE: 5,
+		SAS_WORLDSIZE_HUGE: 6
 		}
-	grain_amount = grainvalues.get(int(sizekey), grainvalues[6])
+	grain_amount = grainvalues.get(int(sizekey), grainvalues[SAS_WORLDSIZE_HUGE])
 
 	# Init fractal for distribution of Hills plots.
 	hillsFrac = CyFractal()
