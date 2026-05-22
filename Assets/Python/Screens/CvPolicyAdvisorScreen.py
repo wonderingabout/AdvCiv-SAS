@@ -354,7 +354,8 @@ class CvPolicyAdvisorScreen:
 		self.setActivePlayer(getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True))
 
 		self.szDropdownName = self.DEBUG_DROPDOWN_ID
-		addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bSelectActive=False, bAllowVassalPerspective=True)
+		# <!-- custom: preserve the selected debug/vassal perspective when reopening the advisor; bSelectActive=False rebuilt the dropdown with no selected row in debug mode. (GPT-5.5) -->
+		addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 
 		# Draw Contents
 		self.drawContents()

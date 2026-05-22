@@ -132,7 +132,7 @@ class CvTechChooser:
 
 	def __init__(self):
 		self.nWidgetCount = 0
-		self.iCivSelected = 0
+		self.iCivSelected = -1
 		self.aiCurrentState = []
 
 		# Advanced Start
@@ -283,17 +283,18 @@ class CvTechChooser:
 		screen.hide("SelectedTechLabel")
 		self.initText()
 
+		self.iCivSelected = getAdvisorValidPerspectivePlayer(self.iCivSelected)
 		if ( CyGame().isDebugMode() ):
 			screen.addDropDownBoxGFC( "CivDropDown", 22, 12, 192, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.SMALL_FONT )
 			screen.setActivation( "CivDropDown", ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
 			for j in range(gc.getMAX_PLAYERS()):
 				if (gc.getPlayer(j).isAlive()):
-					screen.addPullDownString( "CivDropDown", gc.getPlayer(j).getName(), j, j, False )
+					screen.addPullDownString( "CivDropDown", gc.getPlayer(j).getName(), j, j, j == self.iCivSelected )
 		else:
 			screen.hide( "CivDropDown" )
 
 		# advc.068: Dirty-bit check added
-		if screen.isPersistent() and self.iCivSelected == gc.getGame().getActivePlayer() and not CyInterface().isDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT):
+		if screen.isPersistent() and not CyInterface().isDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT):
 			self.updateTechRecords(false)
 			return
 		# advc.068: Dirty no more
@@ -302,7 +303,8 @@ class CvTechChooser:
 		self.nWidgetCount = 0
 		self.sWidgets = []
 
-		self.iCivSelected = gc.getGame().getActivePlayer()
+		# <!-- custom: preserve the selected debug perspective when reopening Tech Chooser; base code reset to the active player during full rebuild, unlike the persistent shortcut path. (GPT-5.5) -->
+		self.iCivSelected = getAdvisorValidPerspectivePlayer(self.iCivSelected)
 		self.aiCurrentState = []
 		screen.setPersistent( True )
 

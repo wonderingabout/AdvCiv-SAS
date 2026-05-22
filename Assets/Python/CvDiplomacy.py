@@ -268,10 +268,7 @@ class CvDiplomacy:
 
 			#if (gc.getTeam(gc.getGame().getActiveTeam()).AI_shareWar(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam())):
 			# K-Mod. The AI should not just accept target requests from anyone...
-			if (gc.getTeam(gc.getGame().getActiveTeam()).AI_shareWar(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()) and
-				(gc.getPlayer(self.diploScreen.getWhoTradingWith()).AI_getAttitude(gc.getGame().getActivePlayer()) >= AttitudeTypes.ATTITUDE_PLEASED or
-				gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() == gc.getGame().getActiveTeam() or
-				gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isVassal(gc.getGame().getActiveTeam()))):
+			if (gc.getTeam(gc.getGame().getActiveTeam()).AI_shareWar(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()) and (gc.getPlayer(self.diploScreen.getWhoTradingWith()).AI_getAttitude(gc.getGame().getActivePlayer()) >= AttitudeTypes.ATTITUDE_PLEASED or gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() == gc.getGame().getActiveTeam() or gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isVassal(gc.getGame().getActiveTeam()))):
 			# K-Mod end
 				self.addUserComment("USER_DIPLOCOMMENT_TARGET", -1, -1)
 
@@ -523,13 +520,11 @@ class CvDiplomacy:
 					continue
 			
 			# check civ type
-			if (self.isUsed(diploInfo.getCivilizationTypes, i, gc.getNumCivilizationInfos()) and
-				not diploInfo.getCivilizationTypes(i, theirPlayer.getCivilizationType())):
+			if (self.isUsed(diploInfo.getCivilizationTypes, i, gc.getNumCivilizationInfos()) and not diploInfo.getCivilizationTypes(i, theirPlayer.getCivilizationType())):
 				continue
 				
 			# check leader type
-			if (self.isUsed(diploInfo.getLeaderHeadTypes, i, gc.getNumLeaderHeadInfos()) and
-				not diploInfo.getLeaderHeadTypes(i, theirPlayer.getLeaderType())):
+			if (self.isUsed(diploInfo.getLeaderHeadTypes, i, gc.getNumLeaderHeadInfos()) and not diploInfo.getLeaderHeadTypes(i, theirPlayer.getLeaderType())):
 				continue
 
 			# check power type
@@ -846,8 +841,7 @@ class CvDiplomacy:
 			eItem = self.diploScreen.getTheirTradeOffer(0).ItemType
 		except:
 			return False
-		if (eItem != TradeableItems.TRADE_VASSAL and
-			eItem != TradeableItems.TRADE_SURRENDER):
+		if (eItem != TradeableItems.TRADE_VASSAL and eItem != TradeableItems.TRADE_SURRENDER):
 			return False
 		try:
 			eSecondItem = self.diploScreen.getTheirTradeOffer(1).ItemType

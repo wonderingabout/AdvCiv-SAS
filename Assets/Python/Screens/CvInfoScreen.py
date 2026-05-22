@@ -258,6 +258,9 @@ class CvInfoScreen:
 		self.timelineCacheActivePlayer = -1
 		self.timelineCacheBRevealAll = False
 		self.timelineCacheNumMessages = 0
+		self.timelineCacheGameTurn = -1
+		self.TIMELINE_TABLE_ID = "InfoScreenTimelineTable"
+		self.TIMELINE_TABLE_CACHE_KEY = None
 
 		self.GRAPH_H_LINE = "GraphHLine"
 		self.GRAPH_V_LINE = "GraphVLine"
@@ -580,7 +583,7 @@ class CvInfoScreen:
 			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
 			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
 		else:
-			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
+			self.W_TIMELINE_TABLE_LOG_BUTTON = 50
 			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
 
 		# LOG button - positioned in top header bar (0-55px height)
@@ -773,6 +776,8 @@ class CvInfoScreen:
 		# Create a new screen
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+		# <!-- custom: Match Tech Chooser/Military Advisor persistent-screen pattern so heavy widgets such as the Timeline table can survive Info Screen close/reopen. (GPT-5.5) -->
+		screen.setPersistent(True)
 
 		self.reset()
 
@@ -807,7 +812,8 @@ class CvInfoScreen:
 		if not hasattr(self, "iActivePlayer"):
 			self.iActivePlayer = CyGame().getActivePlayer()
 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
-		if not addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bSelectActive=False, bAllowVassalPerspective=True): # advc.007: was MAX_PLAYERS
+		# <!-- custom: preserve the selected debug/vassal perspective when reopening the advisor; bSelectActive=False rebuilt the dropdown with no selected row in debug mode. (GPT-5.5) -->
+		if not addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bAllowVassalPerspective=True): # advc.007: was MAX_PLAYERS
 			self.DEBUG_DROPDOWN_ID = ""
 
 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
@@ -892,14 +898,12 @@ class CvInfoScreen:
 			replayInfo.createInfo(self.iActivePlayer)
 
 		iNumMessages = replayInfo.getNumReplayMessages()
+		iGameTurn = CyGame().getGameTurn()
 
 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
 			# Check if cache is still valid
-			if (not bForceRebuild and
-				self.timelineCacheEntries is not None and
-				self.timelineCacheActivePlayer == self.iActivePlayer and
-				self.timelineCacheBRevealAll == self.bRevealAll and
-				self.timelineCacheNumMessages == iNumMessages):
+			# <!-- custom: Include game turn so spoiler-filtered Timeline entries can refresh later even when replay-message count is unchanged; tested from turn 0, where "founded in an unknown city" later updated to a known city name, while same-turn reuse remains intact. (GPT-5.5) -->
+			if not bForceRebuild and self.timelineCacheEntries is not None and self.timelineCacheActivePlayer == self.iActivePlayer and self.timelineCacheBRevealAll == self.bRevealAll and self.timelineCacheNumMessages == iNumMessages and self.timelineCacheGameTurn == iGameTurn:
 				# Cache is valid, no rebuild needed
 				return self.timelineCacheEntries
 
@@ -912,6 +916,7 @@ class CvInfoScreen:
 				self.timelineCacheActivePlayer = self.iActivePlayer
 				self.timelineCacheBRevealAll = self.bRevealAll
 				self.timelineCacheNumMessages = iNumMessages
+				self.timelineCacheGameTurn = iGameTurn
 			return entries
 
 		# Build unknown colors dict once
@@ -963,9 +968,7 @@ class CvInfoScreen:
 					if iRevealedOwner != iPlayer:
 						bHideCityFounded = True
 			# <!-- custom: hide "city founded" unless revealed owner matches the replay message player; this avoids barbarian spoilers when the plot is revealed but ownership is not. Finding a reliable barbarian hide required checking revealed owner rather than plot visibility alone; optional debug line left for future verification, not tested with this exact code path. (GPT-5.2-Codex); Long_Comments_py.txt #13 -->
-			if (not bAllowHiddenPlotMessage and
-				not self.bRevealAll and
-				(bPlotHidden or eColor in dUnknownColors)):
+			if (not bAllowHiddenPlotMessage and not self.bRevealAll and (bPlotHidden or eColor in dUnknownColors)):
 				szText = replayInfo.getReplayMessageText(iMessage)
 				if szText:
 					szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
@@ -1035,33 +1038,63 @@ class CvInfoScreen:
 			self.timelineCacheActivePlayer = self.iActivePlayer
 			self.timelineCacheBRevealAll = self.bRevealAll
 			self.timelineCacheNumMessages = iNumMessages
+			self.timelineCacheGameTurn = iGameTurn
 		return entries
 
 	def drawTimelineTab(self):
 		screen = self.getScreen()
-		self.szTimelineList = self.getNextWidgetName()
-		screen.addListBoxGFC(self.szTimelineList, "", self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, TableStyles.TABLE_STYLE_STANDARD)
-		screen.enableSelect(self.szTimelineList, False)
+		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
+		timelineTableCacheKey = self.getTimelineTableCacheKey(aEntries)
 
 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
 			self.szTimelineDbgLogPrettySummaryButton = self.getNextWidgetName()
 			szLabel = sasFontTagLabel + self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
 			screen.setButtonGFC(self.szTimelineDbgLogPrettySummaryButton, szLabel, "", self.X_TIMELINE_TABLE_LOG_BUTTON, self.Y_TIMELINE_TABLE_LOG_BUTTON, self.W_TIMELINE_TABLE_LOG_BUTTON, self.H_TIMELINE_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 
-		# Build or reuse cache
-		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
+		# <!-- custom: Timeline entry caching avoids replay parsing, but rebuilding hundreds of rows was still slow. Preserving the old ListBox helped tab switches, but not Info Screen close/reopen; convert it to a one-column table so we can verify/reuse it with getTableNumRows like Military Advisor's Battles table. Rebuild when player/reveal/turn/language/layout/history signature changes so spoiler filtering can refresh at turn boundaries. (GPT-5.5) -->
+		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE and self.TIMELINE_TABLE_CACHE_KEY == timelineTableCacheKey and self.canReuseTimelineTableWidget(screen, aEntries):
+			screen.show(self.TIMELINE_TABLE_ID)
+			screen.moveToFront(self.TIMELINE_TABLE_ID)
+			return
+		screen.deleteWidget(self.TIMELINE_TABLE_ID)
+		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+			self.TIMELINE_TABLE_CACHE_KEY = timelineTableCacheKey
+		else:
+			self.TIMELINE_TABLE_CACHE_KEY = None
+		self.szTimelineList = self.TIMELINE_TABLE_ID
+		screen.addTableControlGFC(self.szTimelineList, 1, self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, False, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		screen.setTableColumnHeader(self.szTimelineList, 0, u"", self.W_TIMELINE_TABLE)
 
 		if not aEntries:
 			szText = sasFontTagLabel + self.TEXT_TIMELINE_EMPTY + SAS_FONT_TAG_CLOSE
-			SASTextScale.appendListBoxStringLabel(screen, self.szTimelineList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			iRow = screen.appendTableRow(self.szTimelineList)
+			SASTextScale.setTableTextLabel(screen, self.szTimelineList, 0, iRow, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			return
 
-		# Cache is already in display order (newest first) - use append which is O(1)
-		# Local reference to method avoids repeated attribute lookup
-		fnAppend = screen.appendListBoxString
+		# Cache is already in display order (newest first).
+		fnAppendRow = screen.appendTableRow
+		fnSetText = SASTextScale.setTableTextLabel
 		szWidget = self.szTimelineList
 		for szFormattedText in aEntries:
-			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			iRow = fnAppendRow(szWidget)
+			fnSetText(screen, szWidget, 0, iRow, szFormattedText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+	def canReuseTimelineTableWidget(self, screen, aEntries):
+		iExpectedRows = len(aEntries)
+		if iExpectedRows < 1:
+			iExpectedRows = 1
+		try:
+			return screen.getTableNumRows(self.TIMELINE_TABLE_ID) >= iExpectedRows
+		except:
+			return False
+
+	def getTimelineTableCacheKey(self, aEntries):
+		szFirstEntry = None
+		szLastEntry = None
+		if aEntries:
+			szFirstEntry = aEntries[0]
+			szLastEntry = aEntries[-1]
+		return (self.iActivePlayer, self.bRevealAll, CyGame().getGameTurn(), CyGame().getCurrentLanguage(), self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, len(aEntries), szFirstEntry, szLastEntry)
 
 	# <!-- custom: Score tab renderer (scoreboard-style sortable matrix for all visible players). (GPT-5.3-Codex) -->
 	def drawScoreTab(self):
@@ -4121,6 +4154,10 @@ class CvInfoScreen:
 	def deleteAllWidgets(self, iNumPermanentWidgets = 0):
 		self.deleteAllLines()
 		screen = self.getScreen()
+		if self.TIMELINE_TABLE_CACHE_KEY is None:
+			screen.deleteWidget(self.TIMELINE_TABLE_ID)
+		else:
+			screen.hide(self.TIMELINE_TABLE_ID)
 		i = self.nWidgetCount - 1
 		while (i >= iNumPermanentWidgets):
 			self.nWidgetCount = i

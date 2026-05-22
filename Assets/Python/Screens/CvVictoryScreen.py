@@ -319,7 +319,8 @@ class CvVictoryScreen:
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 		self.updateRuntimeLayout(screen)
 
-		self.iActivePlayer = CyGame().getActivePlayer()
+		# <!-- custom: preserve the selected debug/vassal perspective when reopening Victory screen; base code reset to the active player every open. (GPT-5.5) -->
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
 		if self.iScreen == -1:
 			self.iScreen = VICTORY_CONDITION_SCREEN
 
@@ -346,6 +347,18 @@ class CvVictoryScreen:
 		elif self.iScreen == RF_SCORE_SCREEN:
 			self.showRiseFall()
 		# </advc.703>
+
+	def redrawActiveTab(self):
+		if self.iScreen == VICTORY_CONDITION_SCREEN:
+			self.showVictoryConditionScreen()
+		elif self.iScreen == GAME_SETTINGS_SCREEN:
+			self.showGameSettingsScreen()
+		elif self.iScreen == UN_RESOLUTION_SCREEN:
+			self.showVotingScreen()
+		elif self.iScreen == UN_MEMBERS_SCREEN:
+			self.showMembersScreen()
+		elif self.iScreen == RF_SCORE_SCREEN:
+			self.showRiseFall()
 
 	def drawTabs(self):
 		screen = self.getScreen()
@@ -1207,7 +1220,9 @@ class CvVictoryScreen:
 		self.deleteAllWidgets()	
 		screen = self.getScreen()
 
-		activePlayer = gc.getPlayer(self.iActivePlayer)
+		# <!-- custom: Victory-condition tabs support debug/vassal perspective, but Game Settings describe the actual player's game setup; keep this tab anchored to the real active player. (GPT-5.5) -->
+		iSettingsPlayer = gc.getGame().getActivePlayer()
+		activePlayer = gc.getPlayer(iSettingsPlayer)
 
 		szSettingsPanel = self.getNextWidgetName()
 		screen.addPanel(szSettingsPanel, "", "", True, True, self.SETTINGS_PANEL_X1, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
@@ -1224,11 +1239,11 @@ class CvVictoryScreen:
 
 #			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <!-- custom: add leader icon to active player name -->
-		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(self.iActivePlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
+		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(iSettingsPlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
-		szTraitIcons = self.getTraitIconsString(self.iActivePlayer)
+		szTraitIcons = self.getTraitIconsString(iSettingsPlayer)
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		g = gc.getGame() # advc
@@ -2118,7 +2133,7 @@ class CvVictoryScreen:
 		# civ picker dropdown
 		if (CyGame().isDebugMode()):
 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
-			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bSelectActive=False) # advc.007: barbs excluded
+			addAdvisorDebugDropdown(screen, self.szDropdownName, self.iActivePlayer, bAllowVassalPerspective=True) # advc.007: barbs excluded
 		
 		self.drawTabs()
 
@@ -2350,8 +2365,8 @@ class CvVictoryScreen:
 			if (sWidget == self.DEBUG_DROPDOWN_ID):
 				szName = self.DEBUG_DROPDOWN_ID
 				self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), szName)
-				self.iScreen = VICTORY_CONDITION_SCREEN
-				self.showVictoryConditionScreen()
+				# <!-- custom: preserve the current Victory sub-tab when changing debug/vassal perspective; old code forced the first Victories tab. (GPT-5.5) -->
+				self.redrawActiveTab()
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
 			if (sWidget == self.VC_TAB_ID):
 				self.iScreen = VICTORY_CONDITION_SCREEN

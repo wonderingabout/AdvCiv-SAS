@@ -418,7 +418,7 @@ def place_new_concept_legend_link(top, new_concept_type):
 	if iConcept < 0:
 		return
 	screen = top.getScreen()
-	# <!-- custom: sasFontTagTitle is fine for the legend link here: Sevopedia pages are roomy and it matches the footer text, so it reads as page chrome rather than shouting. In an in-game HUD context (e.g. an advisor's score tab), currently prefer a smaller sasFontTagLabel instead, so a legend link doesn't distract from the data. (Claude code Opus 4.7) -->
+	# <!-- custom: sasFontTagTitle is fine for the legend link here: Sevopedia pages are roomy and the link sits with other footer/header page chrome. (Claude code Opus 4.7) -->
 	szLegendText = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
 	screen.setText(top.getNextWidgetName(), "Background", szLegendText, CvUtil.FONT_LEFT_JUSTIFY, top.X_TOC - 10, top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
 

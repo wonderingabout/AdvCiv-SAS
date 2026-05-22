@@ -411,8 +411,7 @@ class Scoreboard:
 	@staticmethod
 	def isShowPlayerScore(iPlayer):
 		p = gc.getPlayer(iPlayer)
-		if (CyInterface().isScoresMinimized() and
-				gc.getGame().getActivePlayer() != iPlayer):
+		if (CyInterface().isScoresMinimized() and gc.getGame().getActivePlayer() != iPlayer):
 			return False
 		# BUG - Dead Civs:
 		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())

@@ -66,6 +66,7 @@ class CvMilitaryAdvisor:
 		self.COMPOSITION_PROMOTIONS_TABLE_ID = "MilitaryAdvisorCompositionPromotionsTable"
 		self.COMPOSITION_COMBATS_TABLE_ID = "MilitaryAdvisorCompositionCombatsTable"
 		self.BATTLE_ROW_PLOTS = {}
+		self.BATTLE_TABLE_CACHE_KEY = None
 
 		self.Z_BACKGROUND = -2.1
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
@@ -85,6 +86,7 @@ class CvMilitaryAdvisor:
 		self.nRefreshWidgetCount = 0
 		self.nAttachedWidgetCount = 0
 		self.iActivePlayer = -1
+		self.iAdvisorPerspectivePlayer = -1
 		self.selectedPlayerList = []
 		self.selectedGroupList = []
 		self.selectedUnitList = []
@@ -434,8 +436,12 @@ class CvMilitaryAdvisor:
 			screen.deleteWidget(self.getNextWidgetName())
 		self.nWidgetCount = 0
 		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Map tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
-		for szWidget in (self.UNIT_PANEL_ID, self.UNIT_BUTTON_ID, self.UNIT_BUTTON_LABEL_ID, self.LEADER_PANEL_ID, self.UNIT_LIST_ID, self.GREAT_GENERAL_BAR_ID, self.GREAT_GENERAL_LABEL_ID, self.DEBUG_DROPDOWN_ID, self.BATTLE_TABLE_ID, self.BATTLE_LOG_BUTTON_ID, self.COMPOSITION_UNITS_TABLE_ID, self.COMPOSITION_PROMOTIONS_TABLE_ID, self.COMPOSITION_COMBATS_TABLE_ID, self.SUMMARY_PANEL_ID):
+		for szWidget in (self.UNIT_PANEL_ID, self.UNIT_BUTTON_ID, self.UNIT_BUTTON_LABEL_ID, self.LEADER_PANEL_ID, self.UNIT_LIST_ID, self.GREAT_GENERAL_BAR_ID, self.GREAT_GENERAL_LABEL_ID, self.DEBUG_DROPDOWN_ID, self.BATTLE_LOG_BUTTON_ID, self.COMPOSITION_UNITS_TABLE_ID, self.COMPOSITION_PROMOTIONS_TABLE_ID, self.COMPOSITION_COMBATS_TABLE_ID, self.SUMMARY_PANEL_ID):
 			screen.deleteWidget(szWidget)
+		if self.BATTLE_TABLE_CACHE_KEY is None:
+			screen.deleteWidget(self.BATTLE_TABLE_ID)
+		else:
+			screen.hide(self.BATTLE_TABLE_ID)
 		for iPlayer in range(gc.getMAX_PLAYERS()):
 			screen.deleteWidget(self.getLeaderButton(iPlayer))
 										
@@ -448,6 +454,8 @@ class CvMilitaryAdvisor:
 			return
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+		# <!-- custom: Match Tech Chooser's persistent-screen pattern so heavy widgets such as the Battles table can survive advisor close/reopen instead of only same-screen tab switches. (GPT-5.5) -->
+		screen.setPersistent(True)
 
 		self.initDefines()
 		self.initText()
@@ -479,25 +487,34 @@ class CvMilitaryAdvisor:
 		self.getScreen().setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		self.drawActivePage()
 
+	def restoreAdvisorPerspectivePlayer(self):
+		# <!-- custom: Map tab uses iActivePlayer for its unit-map/minimap perspective and resets it to the real active player. Keep the dropdown perspective for Summary/Battles/Composition separately so selecting an AI or vassal is not lost after visiting Map or reopening this persistent advisor. (GPT-5.5) -->
+		if self.iAdvisorPerspectivePlayer >= 0:
+			self.iActivePlayer = self.iAdvisorPerspectivePlayer
+		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+		self.iAdvisorPerspectivePlayer = self.iActivePlayer
+
 	def drawActivePage(self):
 		screen = self.getScreen()
 		self.drawTabs()
 
 		if self.iActivePage == self.PAGE_SUMMARY:
-			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+			self.restoreAdvisorPerspectivePlayer()
 			self.drawSummary()
 			return
 
 		if self.iActivePage == self.PAGE_BATTLES:
-			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+			self.restoreAdvisorPerspectivePlayer()
 			self.drawBattleHistory()
 			return
 
 		if self.iActivePage == self.PAGE_COMPOSITION:
-			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+			self.restoreAdvisorPerspectivePlayer()
 			self.drawComposition()
 			return
 
+		if self.iAdvisorPerspectivePlayer < 0:
+			self.restoreAdvisorPerspectivePlayer()
 		self.iActivePlayer = gc.getGame().getActivePlayer()
 
 		# Minimap initialization
@@ -761,12 +778,42 @@ class CvMilitaryAdvisor:
 			return u"A"
 		return u""
 
+	def getBattleTableCacheKey(self, aEntries, iTableX, iTableY, iTableW, iTableH):
+		entryFirst = None
+		entryLast = None
+		if aEntries:
+			entryFirst = aEntries[0]
+			entryLast = aEntries[-1]
+		return (self.iActivePlayer, CyGame().getCurrentLanguage(), self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, len(aEntries), entryFirst, entryLast)
+
+	def canReuseBattleTableWidget(self, screen, aEntries):
+		# <!-- custom: Cache keys can survive Military Advisor close/reopen even when the table widget is gone; verify the preserved table still has enough rows before using the fast show/moveToFront path. (GPT-5.5) -->
+		iExpectedRows = len(aEntries)
+		if iExpectedRows < 1:
+			iExpectedRows = 1
+		try:
+			return screen.getTableNumRows(self.BATTLE_TABLE_ID) >= iExpectedRows
+		except:
+			return False
+
 	def drawBattleHistory(self):
 		screen = self.getScreen()
 		# <!-- custom: Map tab has its own leader buttons, but Battles has no player selector without this shared debug/vassal dropdown; include Barbarians because battle history can involve barbarian/animal units. (GPT-5.5) -->
 		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 		(iX, iY, iW, iH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
 		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
+		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+		battleTableCacheKey = self.getBattleTableCacheKey(aEntries, iTableX, iTableY, iTableW, iTableH)
+		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE:
+			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
+		# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget made same-advisor tab switches almost instant, and making the screen persistent preserves it across close/reopen too. Rebuild when player/history/layout signature changes. (GPT-5.5) -->
+		if self.BATTLE_TABLE_CACHE_KEY == battleTableCacheKey and self.canReuseBattleTableWidget(screen, aEntries):
+			screen.show(self.BATTLE_TABLE_ID)
+			screen.moveToFront(self.BATTLE_TABLE_ID)
+			return
+		screen.deleteWidget(self.BATTLE_TABLE_ID)
+		self.BATTLE_TABLE_CACHE_KEY = battleTableCacheKey
 		self.BATTLE_ROW_PLOTS = {}
 		screen.addTableControlGFC(self.BATTLE_TABLE_ID, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(self.BATTLE_TABLE_ID)
@@ -823,10 +870,6 @@ class CvMilitaryAdvisor:
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_TERRAIN_COL_ID, self.TEXT_BATTLE_TERRAIN, iTerrainColW)
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_FEATURE_COL_ID, self.TEXT_BATTLE_FEATURE, iFeatureColW)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
-		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE:
-			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
-		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
 		if not aEntries:
 			iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
 			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 1, iRow, self.TEXT_BATTLES_EMPTY, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -913,7 +956,8 @@ class CvMilitaryAdvisor:
 			tColumns = self.getBattlePerspectiveColumns(entry)
 			if tColumns is None:
 				continue
-			iTheirPlayer = tColumns[8]
+			# <!-- custom: Opponent PID is column 10 in getBattlePerspectiveColumns; using column 8 (our XP) made the LOG button call gc.getPlayer(XP), causing a None player and Python error on high-XP rows. (GPT-5.5) -->
+			iTheirPlayer = tColumns[10]
 			if iTheirPlayer not in aiPlayers:
 				aiPlayers.append(iTheirPlayer)
 		aiPlayers.sort()
@@ -1972,6 +2016,7 @@ class CvMilitaryAdvisor:
 	def handleInput (self, inputClass):
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
 			self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), self.DEBUG_DROPDOWN_ID)
+			self.iAdvisorPerspectivePlayer = self.iActivePlayer
 			self.redrawContents()
 			return 1
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.BATTLE_LOG_BUTTON_ID:

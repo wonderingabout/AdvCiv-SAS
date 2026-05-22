@@ -367,8 +367,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		civs = []
 		for iCiv in range(gc.getNumCivilizationInfos()):
 			civ = gc.getCivilizationInfo(iCiv)
-			if (civ.isCivilizationFreeTechs(self.iTech) and
-					(civ.isPlayable() or civ.isAIPlayable())): # Exclude Minor civ
+			if (civ.isCivilizationFreeTechs(self.iTech) and (civ.isPlayable() or civ.isAIPlayable())): # Exclude Minor civ
 				civs.append(iCiv)
 		if len(civs) <= 0:
 			return

@@ -163,14 +163,12 @@ class Keystroke:
 	def __eq__(self, other):
 		if not isinstance(other, Keystroke):
 			return NotImplemented
-		return (self.code == other.code and self.alt == other.alt and
-			    self.control == other.control and self.shift == other.shift)
+		return (self.code == other.code and self.alt == other.alt and self.control == other.control and self.shift == other.shift)
 	
 	def __ne__(self, other):
 		if not isinstance(other, Keystroke):
 			return NotImplemented
-		return (self.code != other.code or self.alt != other.alt or
-			    self.control != other.control or self.shift != other.shift)
+		return (self.code != other.code or self.alt != other.alt or self.control != other.control or self.shift != other.shift)
 
 def init():
 	for k, c in InputTypes.__dict__.iteritems():

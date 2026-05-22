@@ -562,7 +562,8 @@ class CvForeignAdvisor:
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
 	
-		self.iActiveLeader = CyGame().getActivePlayer()
+		# <!-- custom: preserve the selected debug perspective when reopening Foreign Advisor; base code reset to the active player every open. (GPT-5.5) -->
+		self.iActiveLeader = getAdvisorValidPerspectivePlayer(self.iActiveLeader)
 		self.iSelectedLeader = self.iActiveLeader
 		self.listSelectedLeaders = []
 		#self.listSelectedLeaders.append(self.iSelectedLeader)
@@ -3081,4 +3082,3 @@ def smallText(text):
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
-

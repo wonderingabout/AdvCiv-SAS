@@ -152,8 +152,7 @@ class RectLayout(object):
 	def height(self):
 		return int(round(self.fHeight))
 	def encloses(self, lOther):
-		return (self.x() <= lOther.x() and self.xRight() >= lOther.xRight() and
-				self.y() <= lOther.y() and self.yBottom() >= lOther.yBottom())
+		return (self.x() <= lOther.x() and self.xRight() >= lOther.xRight() and self.y() <= lOther.y() and self.yBottom() >= lOther.yBottom())
 	def __str__(self):
 		return ( "Rect(" + str(self.fX) + ", " + str(self.fY) + ", " + str(self.fWidth) + ", " + str(self.fHeight) + ")" )
 	@staticmethod

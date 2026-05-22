@@ -156,8 +156,8 @@ class SevoPediaCivilization:
 			iUniqueBuilding = gc.getCivilizationInfo(self.iCivilization).getCivilizationBuildings(iBuilding)
 			iDefaultBuilding = gc.getBuildingClassInfo(iBuilding).getDefaultBuildingIndex()
 			# advc.003l: Allow uniques w/o a default unit. Based on a change by Toffer90 in Inthegrave's mod.
-			if (#iDefaultBuilding > -1 and
-				iUniqueBuilding > -1 and iDefaultBuilding != iUniqueBuilding):
+			#iDefaultBuilding > -1 and
+			if (iUniqueBuilding > -1 and iDefaultBuilding != iUniqueBuilding):
 				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iUniqueBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iUniqueBuilding, 1, False)
 
 	def placeUnit(self):

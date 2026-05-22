@@ -1552,8 +1552,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			#info = gc.getCivilizationInfo(i)
 			#if not info.isPlayable():
 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
-			#	if (iCapitalBuildingClass >= 0 and
-			#	info.isCivilizationFreeBuildingClass(iCapitalBuildingClass)):
+			#	if (iCapitalBuildingClass >= 0 and info.isCivilizationFreeBuildingClass(iCapitalBuildingClass)):
 			#		continue
 			r.append((descr,i))
 
