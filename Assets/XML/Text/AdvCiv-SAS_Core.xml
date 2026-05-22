@@ -211,6 +211,14 @@ Created as part of AdvCiv-SAS improvements
 		<English>[H1]Sevopedia Categories Legend[\H1][PARAGRAPH:2]This page explains shortened category labels used in the left Sevopedia category list.[PARAGRAPH:2]- Corporat.: Corporations.[PARAGRAPH:2]- Event Tri.: Event Triggers.[PARAGRAPH:2]- Improv.: Improvements.[PARAGRAPH:2]- Mods Info: custom AdvCiv-SAS concept pages and legends.[PARAGRAPH:2]- N. Wond.: National Wonders.[PARAGRAPH:2]- Outdated: legacy/reference pages kept for compatibility/history.[PARAGRAPH:2]- Pr. List: Promotion List.[PARAGRAPH:2]- Pr. Tree: Promotion Tree.[PARAGRAPH:2]- Un. Chart: Unit Chart[PARAGRAPH:2]- Un. Tree: Unit Upgrade Tree.[PARAGRAPH:2]- W. Sizes: World Sizes.[PARAGRAPH:2]- W. Wond.: World Wonders.[PARAGRAPH:2]Labels are shortened mainly to fit sidebar width cleanly at different resolutions and UI scales.</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_WORLD_SIZE_CHART_LEGEND</Tag>
+		<English>Sevopedia World Sizes Legend</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_WORLD_SIZE_CHART_LEGEND_PEDIA</Tag>
+		<English>[H1]Sevopedia World Sizes Legend[\H1][PARAGRAPH:2]The "WorldInfo (usual) Size (W x H)" row shows each world size's default CIV4WorldInfo grid. It is indicative only - the size you actually get in-game depends on the map script.[PARAGRAPH:2]- A map script may define its own getGridSize, so its map can differ from this default (e.g. Longworld stretches into a long, thin world).[PARAGRAPH:2]- Scripts return grid units that the engine multiplies (~x4 to plots), and they often adjust the size for their layout: to add land on water-heavy maps, or to fit an unusual world shape.[PARAGRAPH:2]- So effective sizes vary by script. At Large, for example, Pangaea (mostly land) is ~74x52, while PerfectMongoose is ~80x56: a more watery map needs a larger grid to end up with about as many land plots as a land-heavy map like Pangaea gets from a smaller grid. Otherwise there would be too little land for the number of players this world size expects, leaving starts cramped and cities crowded. Conversely, an inhabitable land-heavy map should use a smaller grid.[PARAGRAPH:2]- For your current game's actual grid, open the Victory Screen (F8) then the Settings tab; the world-size line shows it, e.g. "Large World Size (80x56)".</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND</Tag>
 		<English>Sevopedia Speed Chart Legend</English>
 	</TEXT>

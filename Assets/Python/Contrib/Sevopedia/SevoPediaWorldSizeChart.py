@@ -31,6 +31,7 @@ class SevoPediaWorldSizeChart:
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
 		self._drawTable(screen)
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_WORLD_SIZE_CHART_LEGEND")
 
 	def _drawTable(self, screen):
 		x = self.top.X_ITEMS
@@ -135,9 +136,9 @@ class SevoPediaWorldSizeChart:
 		row_specs = (
 			# NOTE: Some rows are direct XML fields, others are convenience composites.
 			# Use a trailing '*' in the *display label* when the displayed value is not a single XML tag.
-			# Example: "Grid Tiles*" is computed as GridWidth * GridHeight, while "Grid Size (W x H)" just formats the XML GridWidth/GridHeight.
+			# Example: "Grid Tiles*" is computed as GridWidth * GridHeight, while the "(W x H)" row just formats the XML GridWidth/GridHeight.
 			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
-			("GridSize",                       "Grid Size (W x H)",         None,                               "glyph:map"),
+			("GridSize",                       "WorldInfo (usual) Size (W x H)", None,                          "glyph:map"),
 			("GridRatio",                      "W/H Ratio*",                 None,                               "glyph:map"),
 			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
 			("RatioToLargest",                 "Ratio to Largest*",         None,                               "glyph:map"),

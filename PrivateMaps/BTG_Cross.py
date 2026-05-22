@@ -222,6 +222,15 @@ def getWrapX():
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
+
+def getBTGCrossBaseGridSizes(iHugeW, iHugeH):
+	iAnchorPlayers = sas_huge_custom_max_players()
+	grid_sizes = {}
+	for iWorldSize in range(SAS_WORLDSIZE_HUGE + 1):
+		iTargetPlayers = sas_world_default_players(iWorldSize, sas_huge_custom_max_players())
+		grid_sizes[iWorldSize] = sas_calibrate_grid_from_anchor(iHugeW, iHugeH, iAnchorPlayers, iTargetPlayers)
+	grid_sizes[SAS_WORLDSIZE_HUGE] = (iHugeW, iHugeH)
+	return grid_sizes
 	
 def getGridSize(argsList):
 	# 2.23 - Simplified, enhanced
@@ -239,8 +248,10 @@ def getGridSize(argsList):
 		(iHugeW, iHugeH) = (10, 10)
 
 	iWorld = int(eWorldSize)
-	if iWorld <= 6:
-		return (iHugeW, iHugeH)
+	# <!-- custom: BTG Cross used the Huge grid for every world size of Huge and below, including our SAS ARENA size, so they collapsed to one effective map size such as 60x60 plots. Scale them from the Huge anchor and keep the existing SAS24+ formula below. See KI#137. (GPT-5.5) -->
+	if iWorld <= SAS_WORLDSIZE_HUGE:
+		grid_sizes = getBTGCrossBaseGridSizes(iHugeW, iHugeH)
+		return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 	iDefaultPlayers = sas_world_default_players(iWorld, sas_huge_custom_max_players())
 	iTargetPlayers = int(math.ceil(float(iDefaultPlayers) * 1.5))
@@ -1473,4 +1484,3 @@ def mirrorizeMap():
 	
 def startHumansOnSameTile():
 	return False
-

@@ -6150,11 +6150,22 @@ def getBottomLatitude():
 # 		WorldSizeTypes.WORLDSIZE_LARGE:					(30, 20),
 # 		WorldSizeTypes.WORLDSIZE_HUGE:					(36, 24)
 # 	}
-# 	if (argsList[0] == -1): # (-1,) is passed to function on loads
-# 			return []
-# 	[eWorldSize] = argsList
-# 	return grid_sizes[eWorldSize]
-#
+# <!-- custom: define getGridSize like the other SAS maps (base grid-unit profile -> calibrated helper) to shadow the compact almost-all-land one leaked by "from SAS_WorldSizes import *". The engine multiplies these grid units ~x4 to plots, so LARGE (20,14) -> ~80x56 effective (bumped up a bit since PerfectMongoose is water-heavy and needs more land; cf. Pangaea ~74x52); returning the full WorldInfo grid (47,34) blew up to 188x136. SAS24-48 calibrate from the Huge anchor. Verify/tune base values via the Victory Screen size readout. (Claude code Opus 4.7) -->
+def getGridSize(argsList):
+	if (argsList[0] == -1): # (-1,) is passed to function on loads
+		return []
+	[eWorldSize] = argsList
+	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, like sas_compact_almost_all_land_grid_sizes. Do NOT key by WorldSizeTypes.WORLDSIZE_* here: that enum isn't ARENA-shifted (HUGE==5), so direct getGridSize dictionaries mis-key Large/Huge after adding ARENA; map scripts like Pangaea.py scale XML dimensions through getNumPlotsPercent, so they can still behave plausibly because XML provides the base size first. (Claude code Opus 4.7; GPT-5.5) -->
+	grid_sizes = {
+		0: (6, 4),   # ARENA
+		1: (8, 6),   # DUEL
+		2: (11, 8),  # TINY
+		3: (14, 10), # SMALL
+		4: (17, 12), # STANDARD
+		5: (20, 14), # LARGE
+		SAS_WORLDSIZE_HUGE: (24, 17), # HUGE
+	}
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
 
 def generatePlotTypes():
 	print ""

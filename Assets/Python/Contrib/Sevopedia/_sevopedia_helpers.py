@@ -418,16 +418,12 @@ def place_new_concept_legend_link(top, new_concept_type):
 	if iConcept < 0:
 		return
 	screen = top.getScreen()
-	szLabel = sasFontTagLabel + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
-	screen.setText(top.getNextWidgetName(), "Background", szLabel, CvUtil.FONT_LEFT_JUSTIFY, top.X_TOC - 10, top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
+	# <!-- custom: sasFontTagTitle is fine for the legend link here: Sevopedia pages are roomy and it matches the footer text, so it reads as page chrome rather than shouting. In an in-game HUD context (e.g. an advisor's score tab), currently prefer a smaller sasFontTagLabel instead, so a legend link doesn't distract from the data. (Claude code Opus 4.7) -->
+	szLegendText = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
+	screen.setText(top.getNextWidgetName(), "Background", szLegendText, CvUtil.FONT_LEFT_JUSTIFY, top.X_TOC - 10, top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
 
 def draw_none_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
-	# <!-- custom: place a centered "None" (or custom-keyed) message inside a panel that has no buttons/content
-	# to show. Replaces the ~5-line addMultilineText boilerplate scattered across pedia files. (Claude code Opus 4.7) -->
-	# screen: CyGInterfaceScreen
-	# selfTop: reference to main pedia class (for getNextWidgetName)
-	# panelX, panelY, panelW, panelH: panel dimensions
-	# txtKey: optional custom text key (defaults to TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE)
+	# <!-- custom: place a centered "None" (or custom-keyed) message inside a panel that has no buttons/content to show. Replaces the ~5-line addMultilineText boilerplate scattered across pedia files. (Claude code Opus 4.7) -->
 	if txtKey is None:
 		txtKey = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
 
@@ -823,7 +819,7 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
 		chart_log_button_w = 66
 		chart_log_button_h = 32
 	else:
-		chart_log_button_w = 48
+		chart_log_button_w = 52
 		chart_log_button_h = 28
 	chart_log_button_margin_x = 10
 	chart_log_button_margin_y = 8

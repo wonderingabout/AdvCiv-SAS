@@ -7,9 +7,12 @@ from CvPythonExtensions import CyGlobalContext
 #
 # <!-- custom: Shared helpers for ARENA/SAS world sizes in map scripts. (GPT-5.2-Codex) -->
 
-SAS_WORLDSIZE_LARGEST = 10
 SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
 SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
+
+# <!-- custom: Runtime world-size indices include AdvCiv-SAS ARENA at index 0, so Huge is 6 here even though the old WorldSizeTypes.WORLDSIZE_HUGE enum is 5. Map scripts that index dictionaries with runtime eWorldSize need these SAS indices; scripts that scale XML world sizes with getNumPlotsPercent, such as Pangaea, can still behave plausibly because XML provides the base dimensions first. (GPT-5.5) -->
+SAS_WORLDSIZE_HUGE = 6
+SAS_WORLDSIZE_LARGEST = 10
 
 def sas_huge_custom_max_players():
 	return SAS_HUGE_CUSTOM_MAX_PLAYERS
@@ -22,7 +25,7 @@ def sas_default_sizevalues():
 		3:  1,   # SMALL
 		4:  2,   # STANDARD
 		5:  2,   # LARGE
-		6:  3,   # HUGE
+		SAS_WORLDSIZE_HUGE:  3,   # HUGE
 		7:  4,   # SAS24
 		8:  5,   # SAS32
 		9:  6,   # SAS40
@@ -38,7 +41,7 @@ def sas_compact_almost_all_land_grid_sizes():
 		3:  (6, 4),    # SMALL
 		4:  (8, 6),    # STANDARD
 		5:  (11, 8),   # LARGE
-		6:  (15, 11),  # HUGE
+		SAS_WORLDSIZE_HUGE:  (15, 11),  # HUGE
 	}
 
 def sas_get_compact_almost_all_land_grid_size(eWorldSize):

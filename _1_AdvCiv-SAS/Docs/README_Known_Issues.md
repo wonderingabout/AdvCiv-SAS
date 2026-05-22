@@ -172,6 +172,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#134---fixed-base-advciv-issue-foreign-diplomacy-advisor-glance-tab-column-icons-overflow-horizontally-with-24-rival-players)  
 [135 - (Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#135---fixed-likely-base-advciv-issue-turn-status-text-collided-with-the-diplomacy-screen)  
 [136 - (Open - likely Base AdvCiv lineage or maybe bad local installation/configuration, deprioritized) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#136---open---likely-base-advciv-lineage-or-maybe-bad-local-installationconfiguration-deprioritized-choose-production-popup-does-not-re-fire-when-a-city-finishes-production-city-then-sits-idle-for-many-turns)  
+[137 - (Fixed) Beyond the Game mod issue: BTG Cross reused Huge grid size for every world size of Huge and below](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#137---fixed-beyond-the-game-mod-issue-btg-cross-reused-huge-grid-size-for-every-world-size-of-huge-and-below)  
+[138 - (Fixed) Base AdvCiv issue: Global Highlands map sizes were too large](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#138---fixed-base-advciv-issue-global-highlands-map-sizes-were-too-large)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4991,3 +4993,41 @@ Status / next steps:
 
 - Deprioritized: longstanding, partly Base AdvCiv lineage, intricate popup-queue area, not a recent regression. Acceptable to live with for now.
 - If revisited: bisect the 5400 <-> 5500 stable range to localize the flavor change, check Base AdvCiv on-completion popup path, and capture PythonErr.log / PythonDbg.log on a turn where a city goes idle (look for a stuck/looping custom popup or a BUTTONPOPUP_PYTHON whose callback raises).
+
+## 137 - (Fixed) Beyond the Game mod issue: BTG Cross reused Huge grid size for every world size of Huge and below
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1KDHuNYPShhNg9V_guuIc-4SrRQ8cPk-l?usp=sharing).
+
+Observed issue:
+
+- `BTG_Cross.py` returned the same Huge anchor grid for every world size of Huge and below, including our SAS ARENA size, so several selected options produced the same effective map dimensions at all those sizes (e.g. 60x60 plots).
+- SAS24 and larger still scaled because they used the separate extrapolation path.
+- User testing confirmed the same behavior in the original Beyond the Game mod map script that BTG Cross came from, so this was inherited rather than introduced by AdvCiv-SAS.
+
+Fix applied:
+
+- World sizes of Huge and below now scale from the selected Huge anchor instead of returning it directly.
+- The existing SAS24+ extrapolation path was kept unchanged.
+
+File changed:
+
+- [PrivateMaps/BTG_Cross.py](/PrivateMaps/BTG_Cross.py)
+
+## 138 - (Fixed) Base AdvCiv issue: Global Highlands map sizes were too large
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1EdJwj7SOhV0lvtPBZjVNMC4I_uZ6U3UW?usp=sharing).
+
+Observed issue:
+
+- `Global_Highlands.py` needs larger-than-normal grids because many plots become peaks, but its old size table was still empirically too large.
+- User testing confirmed the same oversized-map issue in Base AdvCiv, so this was inherited rather than introduced by AdvCiv-SAS.
+- The important indexing detail is the same map-script pitfall as elsewhere: `argsList[0]` / `CyMap().getWorldSize()` are runtime XML world-size indices with ARENA at 0 and Huge at 6, not the old `WorldSizeTypes.WORLDSIZE_*` enum where Huge is 5.
+
+Fix applied:
+
+- Retuned Global Highlands down by one old-size step while keeping the peak-heavy map larger than ordinary scripts; e.g. Huge now uses old Large's `(32,20)` instead of old Huge's `(38,24)`.
+- SAS24+ and larger still calibrate from the Huge anchor through the shared SAS world-size helper.
+
+File changed:
+
+- [PrivateMaps/Global_Highlands.py](/PrivateMaps/Global_Highlands.py)

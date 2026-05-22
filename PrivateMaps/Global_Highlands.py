@@ -144,19 +144,21 @@ def addBonusType(argsList):
 
 def getGridSize(argsList):
 	"Enlarge the grids! Need extra land to cover that 'wasted' by all the peaks!"
+	# <!-- custom: in this mapscript, even accounting for the many peaks, empirically map is still way too large (accounts for using the sas world size integer fix to account for world size arena shift), so reduce them by one world size as compared to old values (e.g., World size HUGE (38,24) -> (32,20) (old LARGE)). Same issue in Base AdvCiv empirically. See KI#138. -->
 	grid_sizes = {
-		WorldSizeTypes.WORLDSIZE_DUEL:		(13,8),
-		WorldSizeTypes.WORLDSIZE_TINY:		(16,10),
-		WorldSizeTypes.WORLDSIZE_SMALL:		(21,13),
-		WorldSizeTypes.WORLDSIZE_STANDARD:	(26,16),
-		WorldSizeTypes.WORLDSIZE_LARGE:		(32,20),
-		WorldSizeTypes.WORLDSIZE_HUGE:		(38,24)
+		0: (8,5),    # ARENA
+		1: (10,6),   # DUEL
+		2: (13,8),   # TINY
+		3: (16,10),  # SMALL
+		4: (21,13),  # STANDARD
+		5: (26,16),  # LARGE
+		SAS_WORLDSIZE_HUGE: (32,20),  # HUGE
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size(eWorldSize, grid_sizes)
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
 
 def minStartingDistanceModifier():
 	return -25
