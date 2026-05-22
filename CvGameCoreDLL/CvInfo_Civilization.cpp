@@ -951,7 +951,7 @@ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
 	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag",
 			// advc.xmldefault:
 			m_szArtDefineTag.empty() ? NULL : m_szArtDefineTag.c_str());
-	// <!-- custom: optional per-era leader art tags. Format: <EraArtDefineTags><EraArtDefineTag><EraType>ERA_X</EraType><ArtDefineTag>ART_DEF_LEADER_X_ERA_X</ArtDefineTag></EraArtDefineTag>...</EraArtDefineTags>. Gated by SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS: when disabled the whole parser is skipped, m_paszEraArtDefineTags stays NULL, and getArtInfo() early-outs to the base ArtDefineTag. The define check is a cached static since SAS defines require a Civ4 restart to change. (Claude code Opus 4.7) -->
+	// <!-- custom: optional per-era leader art tags. Format: <EraArtDefineTags><EraArtDefineTag><EraType>ERA_X</EraType><ArtDefineTag>ART_DEF_LEADER_X_ERA_X</ArtDefineTag></EraArtDefineTag>...</EraArtDefineTags>. Gated by a SAS define: when disabled the whole parser is skipped, m_paszEraArtDefineTags stays NULL, and getArtInfo() early-outs to the base ArtDefineTag. The define check is a cached static since SAS defines require a Civ4 restart to change. (Claude code Opus 4.7) -->
 	static const bool bSAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS = GC.getDefineBOOL("SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS");
 	if (bSAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS &&
 		gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "EraArtDefineTags"))

@@ -126,6 +126,7 @@ class CvMilitaryAdvisor:
 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = None
 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = None
 		self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = None
+		self.iNUM_BUILDING_AND_TECH_PREREQS = None
 		# <!-- custom: lazy-init cache for required Summary tab XML IDs. getInfoTypeOrFail makes missing tags loud; this already showed that BUILDINGCLASS_WEST_POINT is not in current AdvCiv-SAS, whereas a silent lookup would have skipped it without a clear error. Class IDs are stored so civ-specific building replacements resolve through CvCivilizationInfo at use site. (Claude code Opus 4.7, GPT-5.5) -->
 		self.iBldClassBarracks = None
 		self.iBldClassStable = None
@@ -168,6 +169,8 @@ class CvMilitaryAdvisor:
 			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE") > 0)
 		if self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT is None:
 			self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = gc.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT")
+		if self.iNUM_BUILDING_AND_TECH_PREREQS is None:
+			self.iNUM_BUILDING_AND_TECH_PREREQS = gc.getDefineINT("NUM_BUILDING_AND_TECH_PREREQS")
 		# <!-- custom: resolve required XML IDs strictly and check each sentinel separately for exhaustive lazy-init safety; silent zero rows would be worse than a clear missing-tag failure. (Claude code Opus 4.7, GPT-5.5) -->
 		if self.iBldClassBarracks is None:
 			self.iBldClassBarracks = getInfoTypeOrFail("BUILDINGCLASS_BARRACKS")
@@ -1231,7 +1234,7 @@ class CvMilitaryAdvisor:
 				szHeroicEpicCity = szCityName
 			if iBldMilAcademy >= 0 and pCity.getNumBuilding(iBldMilAcademy) > 0:
 				szMilAcademyCity = szCityName
-			# <!-- custom: getMilitaryProductionModifier is the aggregate %-bonus this city gives to military-unit production (Barracks, Heroic Epic, West Point, Pentagon, Theocracy, etc. all roll into it). Sum + best-city tracking gives the "where do I train?" answer at a glance. (GPT-5.5) -->
+			# <!-- custom: getMilitaryProductionModifier is the aggregate %-bonus this city gives to military-unit production (Barracks, Heroic Epic, West Point, Pentagon, Theocracy, etc. all roll into it). Sum + best-city tracking gives the "where do I train?" answer at a glance. Individual iMilitaryProductionModifier sources above 0 (including civics) are not enumerated because the Summary tab is already full; the aggregate keeps this concise, though less ideal than a full source breakdown. (GPT-5.5) -->
 			iProdMod = pCity.getMilitaryProductionModifier()
 			iProdModSum += iProdMod
 			if iProdMod > iBestProdMod:
@@ -1359,6 +1362,12 @@ class CvMilitaryAdvisor:
 			"count_castles": iCountCastles,
 			"city_heroic_epic": szHeroicEpicCity,
 			"city_mil_academy": szMilAcademyCity,
+			# <!-- custom: per-building tech-availability flags so the render side can show "-" until the prereq tech is in (kMyTeam from this same city pass). (Claude code Opus 4.7) -->
+			"tech_barracks": self.summaryBuildingHasTech(kMyTeam, iBldBarracks),
+			"tech_stables": self.summaryBuildingHasTech(kMyTeam, iBldStable),
+			"tech_drydocks": self.summaryBuildingHasTech(kMyTeam, iBldDrydock),
+			"tech_heroic_epic": self.summaryBuildingHasTech(kMyTeam, iBldHeroicEpic),
+			"tech_mil_academy": self.summaryBuildingHasTech(kMyTeam, iBldMilAcademy),
 			# <!-- custom: building button paths read directly via gc.getBuildingInfo(iBld).getButton(). No -1 fallback: the iBldClass* resolutions in initDefines already passed getInfoTypeOrFail, and pCivInfo.getCivilizationBuildings(class) returning -1 here would mean the modder disabled one of these for the active civ. Letting that crash loudly is the same contract as the strict class lookups above - silent fallback to empty icon would hide a real data issue. (Claude code Opus 4.7); not cached because these buildings vary by civ and there would be many or it would be unclean, and would increase maintenance if these civ-specific variants change -->
 			"icon_barracks": gc.getBuildingInfo(iBldBarracks).getButton(),
 			"icon_stables": gc.getBuildingInfo(iBldStable).getButton(),
@@ -1504,6 +1513,18 @@ class CvMilitaryAdvisor:
 		if not aParts:
 			return szBaseLabel
 		return u"%s (%s)" % (szBaseLabel, u", ".join(aParts))
+
+	def summaryBuildingHasTech(self, kTeam, iBuilding):
+		# <!-- custom: True only if the active team has every AND-tech prereq, so Military Buildings rows show "-" for not-yet-researchable buildings instead of a misleading "0 / N"; same prereq scan as CvAdvisorUtils, and isHasTech(NO_TECH) is True so tech-less buildings pass. (Claude code Opus 4.7) -->
+		if iBuilding < 0:
+			return False
+		kInfo = gc.getBuildingInfo(iBuilding)
+		if not kTeam.isHasTech(kInfo.getPrereqAndTech()):
+			return False
+		for iPrereq in range(self.iNUM_BUILDING_AND_TECH_PREREQS):
+			if not kTeam.isHasTech(kInfo.getPrereqAndTechs(iPrereq)):
+				return False
+		return True
 
 	def collectBattleStats(self):
 		# <!-- custom: reuse the Battles tab's recorded combat log (SASBattleHistory) to surface aggregate prowess on the Deployment column: totals, win/loss/retreat split, "good luck" wins (we beat odds < 50%) and "bad luck" losses (we lost despite odds > 50%), and the single luckiest win / unluckiest loss as one-liner callouts. Retreats are not classed as luck cases because the engine retreats are dictated by promotions (Combat I/II/III withdrawal chance) rather than dice odds; counting them would muddle the signal. Luckiest = win with the lowest pre-battle odds; Unluckiest = loss with the highest pre-battle odds. The thresholds at 50% are intentionally hard-edged so a 50%-odds win/loss is "expected" rather than lucky. (Claude code Opus 4.7) -->
@@ -1678,10 +1699,13 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_TOTAL_GOLD, szTotalGoldText, eHelpInflated, self.iActivePlayer, 1, 0, -1),
 		]
 		# <!-- custom: Support appends city-level military infrastructure: building coverage, military-production modifier/new all-unit XP, and allied combat-unit hammers. Drydocks use coastal cities as denominator; national wonders show owning city or "-". (Claude code Opus 4.7 + GPT-5.5) -->
-		def _cityNameOrDash(szName):
-			if szName:
-				return szName
-			return u"-"
+		# <!-- custom: national-wonder cell: "-" until teched, then the owning city when built, else "0 / 1" (cap is 1 regardless of city count). (Claude code Opus 4.7) -->
+		def _nationalWonderValue(bHasTech, szCity):
+			if not bHasTech:
+				return u"-"
+			if szCity:
+				return szCity
+			return u"0 / 1"
 		def _signedPct(iValue):
 			if iValue > 0:
 				return u"+%d%%" % iValue
@@ -1695,17 +1719,24 @@ class CvMilitaryAdvisor:
 			szBestXpValue = u"%s (%d)" % (dStats["best_xp_city"], dStats["best_free_xp"])
 		szCityFraction = u"/ %d" % dStats["num_cities"]
 		szCoastalFraction = u"/ %d" % dStats["num_coastal_cities"]
+		# <!-- custom: each row reads "-" until its prereq tech is in, then "built / max" (cities, or coastal cities for Drydocks). National wonders go through _nationalWonderValue. (Claude code Opus 4.7) -->
+		szBarracksValue = u"-"
+		if dStats["tech_barracks"]:
+			szBarracksValue = u"%d %s" % (dStats["count_barracks"], szCityFraction)
+		szStablesValue = u"-"
+		if dStats["tech_stables"]:
+			szStablesValue = u"%d %s" % (dStats["count_stables"], szCityFraction)
 		szDrydockValue = u"-"
-		if dStats["num_coastal_cities"] > 0:
+		if dStats["tech_drydocks"] and dStats["num_coastal_cities"] > 0:
 			szDrydockValue = u"%d %s" % (dStats["count_drydocks"], szCoastalFraction)
 		aSupport.extend([
 			(None, None, eNone, -1, -1),
 			(self.TEXT_SUMMARY_MIL_BUILDINGS, u"", eNone, -1, -1, 0, -1),
-			(dStats["label_barracks"], u"%d %s" % (dStats["count_barracks"], szCityFraction), eNone, -1, -1, 1, -1, dStats["icon_barracks"]),
-			(dStats["label_stables"], u"%d %s" % (dStats["count_stables"], szCityFraction), eNone, -1, -1, 1, -1, dStats["icon_stables"]),
+			(dStats["label_barracks"], szBarracksValue, eNone, -1, -1, 1, -1, dStats["icon_barracks"]),
+			(dStats["label_stables"], szStablesValue, eNone, -1, -1, 1, -1, dStats["icon_stables"]),
 			(dStats["label_drydocks"], szDrydockValue, eNone, -1, -1, 1, -1, dStats["icon_drydocks"]),
-			(self.TEXT_SUMMARY_BLDG_HEROIC_EPIC, _cityNameOrDash(dStats["city_heroic_epic"]), eNone, -1, -1, 1, -1, dStats["icon_heroic_epic"]),
-			(self.TEXT_SUMMARY_BLDG_MIL_ACADEMY, _cityNameOrDash(dStats["city_mil_academy"]), eNone, -1, -1, 1, -1, dStats["icon_mil_academy"]),
+			(self.TEXT_SUMMARY_BLDG_HEROIC_EPIC, _nationalWonderValue(dStats["tech_heroic_epic"], dStats["city_heroic_epic"]), eNone, -1, -1, 1, -1, dStats["icon_heroic_epic"]),
+			(self.TEXT_SUMMARY_BLDG_MIL_ACADEMY, _nationalWonderValue(dStats["tech_mil_academy"], dStats["city_mil_academy"]), eNone, -1, -1, 1, -1, dStats["icon_mil_academy"]),
 		])
 		aSupport.extend([
 			(None, None, eNone, -1, -1),
@@ -1865,16 +1896,19 @@ class CvMilitaryAdvisor:
 			aDeployment.append((self.TEXT_SUMMARY_BATTLES_RETREATED, aBattleOutcome[1], eNone, -1, -1, 1, self.COLOR_YELLOW, self.ART_BATTLE_RESULT_RETREAT))
 			aDeployment.append((self.TEXT_SUMMARY_BATTLES_LOST, aBattleOutcome[2], eNone, -1, -1, 1, self.COLOR_RED, self.ART_BATTLE_RESULT_LOST))
 			aDeployment.append((None, None, eNone, -1, -1))
-			if dBattle["wins"] > 0:
-				aDeployment.append((self.TEXT_SUMMARY_GOOD_LUCK, _withPct(dBattle["good_luck_wins"], dBattle["wins"]), eNone, -1, -1, 1, self.COLOR_GREEN))
-			if dBattle["losses"] > 0:
-				aDeployment.append((self.TEXT_SUMMARY_BAD_LUCK, _withPct(dBattle["bad_luck_losses"], dBattle["losses"]), eNone, -1, -1, 1, self.COLOR_RED))
-			if dBattle["luckiest_win_text"] or dBattle["unluckiest_loss_text"]:
-				aDeployment.append((None, None, eNone, -1, -1))
+			# <!-- custom: always show both luck rows (counts are naturally 0) so Deployment keeps a stable row set, instead of dropping Bad-Luck Losses with no losses yet. (Claude code Opus 4.7) -->
+			aDeployment.append((self.TEXT_SUMMARY_GOOD_LUCK, _withPct(dBattle["good_luck_wins"], dBattle["wins"]), eNone, -1, -1, 1, self.COLOR_GREEN))
+			aDeployment.append((self.TEXT_SUMMARY_BAD_LUCK, _withPct(dBattle["bad_luck_losses"], dBattle["losses"]), eNone, -1, -1, 1, self.COLOR_RED))
+			aDeployment.append((None, None, eNone, -1, -1))
+			# <!-- custom: always show Luckiest/Unluckiest too; "-" placeholder (no icons) when no qualifying battle yet, like Best Defended. (Claude code Opus 4.7) -->
 			if dBattle["luckiest_win_text"]:
 				aDeployment.append((self.TEXT_SUMMARY_LUCKIEST_WIN, dBattle["luckiest_win_text"], eNone, -1, -1, 1, self.COLOR_GREEN, dBattle["luckiest_win_our_icon"], dBattle["luckiest_win_their_icon"]))
+			else:
+				aDeployment.append((self.TEXT_SUMMARY_LUCKIEST_WIN, u"-", eNone, -1, -1, 1, -1))
 			if dBattle["unluckiest_loss_text"]:
 				aDeployment.append((self.TEXT_SUMMARY_UNLUCKIEST_LOSS, dBattle["unluckiest_loss_text"], eNone, -1, -1, 1, self.COLOR_RED, dBattle["unluckiest_loss_our_icon"], dBattle["unluckiest_loss_their_icon"]))
+			else:
+				aDeployment.append((self.TEXT_SUMMARY_UNLUCKIEST_LOSS, u"-", eNone, -1, -1, 1, -1))
 
 		self.drawSummaryColumn(screen, iColXSupport, iColY, iColW, iColH, self.TEXT_SUMMARY_SUPPORT, aSupport)
 		self.drawSummaryColumn(screen, iColXComposition, iColY, iColW, iColH, self.TEXT_SUMMARY_ARMY, aArmy)

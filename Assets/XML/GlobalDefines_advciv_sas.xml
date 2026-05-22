@@ -276,7 +276,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: some players may prefer that all leaders keep a single fixed leaderhead art across the whole game. When enabled, leaders with EraArtDefineTags entries in CIV4LeaderHeadInfos.xml show different art for their current era; when disabled the parser is skipped at XML load and every leader always shows the base ArtDefineTag. (Claude code Opus 4.7) -->
 	<Define>
 		<DefineName>SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 

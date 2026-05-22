@@ -4579,7 +4579,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 Observed issue:
 
-- The per-era leader art feature (gated by `SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS`) picks the era from the first alive player using a given leader. In the common case (unique leaders per game) this is correct.
+- The per-era leader art feature (gated by a SAS define) picks the era from the first alive player using a given leader. In the common case (unique leaders per game) this is correct.
 - When the same leader is assigned to multiple players (unrestricted leaders, or custom scenarios placing e.g. De Gaulle on 3 civs), all duplicates render with the lowest-index player's era art — even if player A is in Classical while player B is in Industrial. This is acceptable because a leader used several times by diffetrent players is a rare occurence that happens outside of normal play.
 
 Why not fixed:
