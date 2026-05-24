@@ -165,8 +165,8 @@ To create a git log based on past commits using a comand line, plus also anonymi
 
 ```shell
 # 1. Set your commit hashes here
-start=24cfc0803db7251f521f0b9b6df1c620109ae3a8 # old (excluded): e.g. AdCiv-SAS 5400.
-end=b421b9e33ff43349b4983398279c4f33dcfa94f3   # new (included), e.g.: AdCiv-SAS 5500.
+start=b421b9e33ff43349b4983398279c4f33dcfa94f3 # old (excluded): e.g. AdCiv-SAS 5500.
+end=dd8a672712beb770d73c510766067a484464fad2   # new (included), e.g.: AdCiv-SAS 5860.
 
 # 2. Run the command (uses the variables above)
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
@@ -249,10 +249,10 @@ git fetch origin
 
 # choose names
 # new tag
-TAG=5500
-SHA=b421b9e33ff43349b4983398279c4f33dcfa94f3  # <- the TAG commit
-OLDNAME="AdvCiv-SAS 5400"                     # quote because of spaces
-BASE=24cfc0803db7251f521f0b9b6df1c620109ae3a8 # <- the OLDNAME commit
+TAG=5860
+SHA=e4258f6c012121e4916ed105071014d348423db5  # <- the TAG commit
+OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
+BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
 
 # replace the tag locally with correct date + message
@@ -791,7 +791,7 @@ In this example the nif was in a .fpk, but i assume it would work similarly if f
 
 Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful.
 
-Note: be careful, in some mods/cases the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, see screenshots in the drive link above for details/example), in such cases, i would recommend rather to use PakBuild, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details; note 2 about this: in some mods like c2c for example, unpacking in a fodler where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph
+Note: be careful, in some mods/cases the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered across RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, see screenshots in the drive link above for details/example), in such cases, i would recommend rather to use PakBuild, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details; note 2 about this: in some mods like c2c for example, unpacking in a fodler where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph
 
 note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer so can't find it in the ri mod, a hint to that may be if a ctrl+f of the filename for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists in base civ4), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 one so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hopefully i found the trick before ditching the ri mod files i had already downloaded, so all works.
 

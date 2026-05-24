@@ -14,8 +14,7 @@ class CvForeignDiplomacyAdvisor(CvForeignAdvisor.CvForeignAdvisor):
 	def __init__(self):
 		CvForeignAdvisor.CvForeignAdvisor.__init__(self)
 		self.SCREEN_NAME = "ForeignAdvisor"
-		self.ORDER_LIST = ["RELATIONS", "GLANCE", "INFO", "ESPIONAGE"]
-		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
+		self.FOREIGN_TAB_KEYS = self.DIPLOMACY_TAB_KEYS
 
 	def initText(self):
 		CvForeignAdvisor.CvForeignAdvisor.initText(self)

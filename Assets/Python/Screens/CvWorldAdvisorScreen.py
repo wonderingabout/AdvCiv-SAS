@@ -226,16 +226,12 @@ class CvWorldAdvisorScreen:
 		screen = self.getScreen()
 		self.deleteAllWidgets(self.iNumPermanentWidgets)
 
-		xLink = self.X_MARGIN
+		aszTabLabels = []
+		aszTabWidgetIDs = []
 		for iPage in range(len(self.PAGE_NAME_LIST)):
-			szTextId = "WorldAdvisorTabButton" + str(iPage)
-			szText = localText.getText(self.PAGE_NAME_LIST[iPage], ()).upper()
-			if self.iActiveTab == iPage:
-				szText = localText.changeTextColor(szText, self.COLOR_YELLOW)
-				screen.setText(szTextId, "", sasFontTagTitle + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			else:
-				screen.setText(szTextId, "", sasFontTagTitle + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
-			xLink += self.PAGE_LINK_WIDTH[iPage]
+			aszTabLabels.append(localText.getText(self.PAGE_NAME_LIST[iPage], ()).upper())
+			aszTabWidgetIDs.append("WorldAdvisorTabButton" + str(iPage))
+		drawAdvisorFooterTabs(screen, aszTabWidgetIDs, aszTabLabels, self.PAGE_LINK_WIDTH, self.iActiveTab, self.Y_LINK, 0, self.COLOR_YELLOW, iXStart=self.X_MARGIN)
 
 		if self.iActiveTab == self.iBFC1ID:
 			self.drawBFC1Tab()

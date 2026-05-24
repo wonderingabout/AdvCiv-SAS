@@ -575,6 +575,9 @@ class SevoPediaLeader:
 	def getXAIPanelCoordinate(self, tableId):
 		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * LARGE_MARGIN
 
+	def getAIPersonalityLeftX(self):
+		return self.getXAIPanelCoordinate(self.N_AI_TABLE_NUM - 1)
+
 	def setupAIPanel(self, screen, txtKey, xPanel):
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText(txtKey, ()),"", True, True, xPanel, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY, self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)

@@ -25,14 +25,14 @@ from SASFontUtils import *
 import SASTextScale
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base info-screen text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
-# <!-- custom: Begin - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
+# <!-- custom: Begin - Score Tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
 import Scoreboard
 import DiplomacyUtil
 import AttitudeUtil
 import PlayerUtil
 import FontUtil
 import TraitUtil
-# <!-- custom: End - Score tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
+# <!-- custom: End - Score Tab dependencies (scoreboard visibility filters + diplomacy/attitude/player helpers). (GPT-5.3-Codex) -->
 
 # BUG - 3.17 No Espionage - start
 import GameUtil
@@ -98,7 +98,7 @@ class CvInfoScreen:
 		# K-Mod
 		self.iLanguageLoaded = -1
 
-		# <!-- custom: Score tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
+		# <!-- custom: Score Tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
 		self.PAGE_NAME_LIST = ["TXT_KEY_INFO_GRAPH", "TXT_KEY_GAME_SCORE", "TXT_KEY_SAS_INFO_TIMELINE", "TXT_KEY_DEMO_SCREEN_TITLE", "TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", "TXT_KEY_INFO_SCREEN_STATISTICS_TITLE"]
 		self.PAGE_DRAW_LIST = [self.drawGraphTab, self.drawScoreTab, self.drawTimelineTab, self.drawDemographicsTab, self.drawTopCitiesTab, self.drawStatsTab]
 
@@ -113,7 +113,7 @@ class CvInfoScreen:
 		# This is used to allow the wonders screen to refresh without redrawing everything
 		self.iNumWondersPermanentWidgets = 0
 
-		# <!-- custom: Score tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
+		# <!-- custom: Score Tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
 		self.iGraphID			= 0
 		self.iScoreID			= 1
 		self.iTimelineID		= 2
@@ -315,7 +315,7 @@ class CvInfoScreen:
 		self.TEXT_CULTURE = localText.getObjectText("TXT_KEY_COMMERCE_CULTURE", 0)
 		self.TEXT_ESPIONAGE = localText.getObjectText("TXT_KEY_ESPIONAGE_CULTURE", 0)
 
-		# <!-- custom: Score tab shared UI constants cached once per language load. (GPT-5.3-Codex) -->
+		# <!-- custom: Score Tab shared UI constants cached once per language load. (GPT-5.3-Codex) -->
 		self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT = getInfoTypeOrFail("COLOR_ALT_HIGHLIGHT_TEXT")
 		self.SCORETAB_COLOR_RED = getInfoTypeOrFail("COLOR_RED")
 		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
@@ -860,14 +860,12 @@ class CvInfoScreen:
 		self.iNumWondersPermanentWidgets = 0
 
 		# Draw Tab buttons and tabs. (rewriten for K-Mod)
-		xLink = 0
-		for i in range (len(self.PAGE_NAME_LIST)):
-			szTextId = "InfoTabButton"+str(i)
-			if (self.iActiveTab != i):
-				screen.setText (szTextId, "", sasFontTagTitle + localText.getText (self.PAGE_NAME_LIST[i], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, i, -1)
-			else:
-				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.PAGE_NAME_LIST[i], (), self.COLOR_YELLOW).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			xLink += self.PAGE_LINK_WIDTH[i]
+		aszTabLabels = []
+		aszTabWidgetIDs = []
+		for i in range(len(self.PAGE_NAME_LIST)):
+			aszTabLabels.append(localText.getText(self.PAGE_NAME_LIST[i], ()).upper())
+			aszTabWidgetIDs.append("InfoTabButton" + str(i))
+		drawAdvisorFooterTabs(screen, aszTabWidgetIDs, aszTabLabels, self.PAGE_LINK_WIDTH, self.iActiveTab, self.Y_LINK, 0, self.COLOR_YELLOW)
 
 		if (self.iActiveTab >= 0 and self.iActiveTab < len(self.PAGE_NAME_LIST)):
 			self.PAGE_DRAW_LIST[self.iActiveTab]()
@@ -1096,7 +1094,7 @@ class CvInfoScreen:
 			szLastEntry = aEntries[-1]
 		return (self.iActivePlayer, self.bRevealAll, CyGame().getGameTurn(), CyGame().getCurrentLanguage(), self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, len(aEntries), szFirstEntry, szLastEntry)
 
-	# <!-- custom: Score tab renderer (scoreboard-style sortable matrix for all visible players). (GPT-5.3-Codex) -->
+	# <!-- custom: Score Tab renderer (scoreboard-style sortable matrix for all visible players). (GPT-5.3-Codex) -->
 	def drawScoreTab(self):
 		screen = self.getScreen()
 		game = gc.getGame()
@@ -1120,7 +1118,7 @@ class CvInfoScreen:
 				continue
 			visiblePlayers.append(ePlayer)
 
-		# <!-- custom: wrap the dense Score table in a high-contrast panel so the slideshow background no longer bleeds through empty rows; this keeps the score matrix readable while still using the shared maximized advisor layout helper. Panel widget name MUST come from getNextWidgetName so it joins the per-tab deletion pool (deleteAllWidgets at the iNumPermanentWidgets snapshot in redrawContents); a hardcoded name persists across tab switches and bleeds the panel into other tabs. (Claude code Opus 4.7 + GPT-5.5) -->
+		# <!-- custom: wrap the dense Score Table in a high-contrast panel so the slideshow background no longer bleeds through empty rows; this keeps the score matrix readable while still using the shared maximized advisor layout helper. Panel widget name MUST come from getNextWidgetName so it joins the per-tab deletion pool (deleteAllWidgets at the iNumPermanentWidgets snapshot in redrawContents); a hardcoded name persists across tab switches and bleeds the panel into other tabs. (Claude code Opus 4.7 + GPT-5.5) -->
 		(iPanelX, iPanelY, iPanelW, iPanelH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.H_SCREEN - self.PANEL_HEIGHT)
 		screen.addPanel(self.getNextWidgetName(), "", "", True, True, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_SOLID)
 
@@ -1128,7 +1126,7 @@ class CvInfoScreen:
 		screen.addTableControlGFC(szTable, 29, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(szTable)
 
-		# <!-- custom: Score tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
+		# <!-- custom: Score Tab mirrors scoreboard semantics in a sortable table: one civ per row, columns for high-value scoreboard signals. (GPT-5.3-Codex) -->
 		iColLeader = 0
 		iColCiv = 1
 		iColColor = 2
@@ -1294,7 +1292,7 @@ class CvInfoScreen:
 			screen.appendTableRow(szTable)
 			iRow = screen.getTableNumRows(szTable) - 1
 
-			# <!-- custom: Score tab is a reference matrix, so leader/civ identity cells open Sevopedia
+			# <!-- custom: Score Tab is a reference matrix, so leader/civ identity cells open Sevopedia
 			# instead of diplomacy; contact actions are already covered by the scoreboard and Foreign Advisor. (GPT-5.5) -->
 			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, getAdvisorIconSortKey(pPlayer.getLeaderType() + 1, iRow), gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, getAdvisorIconSortKey(pPlayer.getCivilizationType() + 1, iRow), gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1311,7 +1309,7 @@ class CvInfoScreen:
 			if not bMet:
 				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
 			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
-			# <!-- custom: Score tab trait columns (T1/T2): trait icon chars for compact readability next to leader identity data. (GPT-5.3-Codex) -->
+			# <!-- custom: Score Tab trait columns (T1/T2): trait icon chars for compact readability next to leader identity data. (GPT-5.3-Codex) -->
 			iTrait1 = -1
 			iTrait2 = -1
 			kLeaderInfo = gc.getLeaderHeadInfo(pPlayer.getLeaderType())

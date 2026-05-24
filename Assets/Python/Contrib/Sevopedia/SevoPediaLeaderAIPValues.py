@@ -644,7 +644,7 @@ def _compute_leader_cache_internal():
 		room_for_first = max_length - total_tail_length
 		if room_for_first <= 0:
 			raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
-		# <!-- custom: minimum 1 to accomodate for the " " space character -->
+		# <!-- custom: minimum 1 to accommodate for the " " space character -->
 		key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
 
 		# <!-- custom: finally append ' ' + the abbreviated tail as intended, for example "SameRel" → "SameRelACL (39)" -->

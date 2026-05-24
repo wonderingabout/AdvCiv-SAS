@@ -348,7 +348,7 @@ More recently, added optional grouping by civilization with a civilization icon,
 
 More recently, added leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
 
-Since then, increased ai personality panel default font size from body (default 2) to label (default 3), and made item bar shorter with a per font size tunable value to accomodate the AI Personality panel larger rows.
+Since then, increased ai personality panel default font size from body (default 2) to label (default 3), and made item bar shorter with a per font size tunable value to accommodate the AI Personality panel larger rows.
 
 Since then, we also added era attitude buttons with the very nice help of Claude code Sonnet 4.6 thanks.
 

@@ -320,7 +320,7 @@ class CvEventManager:
 				self._sas_dll_capacity_warned = True
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_TEXT)
-				popupInfo.setText(u"Notice: this map's world size recommends %d players but the active DLL only supports %d - the world map may never be fully populated given low player count.\n\nIt is recommended to switch to a higher player count DLL (e.g., from the 18civsDLL to the 48civsDLL) and play a new game instead (saves are NOT compatible with DLL type change).\n\nSee Sevopedia World Sizes for the recommended DLL depending on world size. This message is shown once per session only to avoid redundancy and tedium." % (iRecommended, iMaxCivs))
+				popupInfo.setText(u"Notice: this map's world size recommends %d players but the active DLL only supports %d - the world map may never be fully populated given low player count.\n\nIt is recommended to switch to a higher player count DLL (e.g., from the 18 civs DLL to the 48 civs DLL) and play a new game instead (saves are NOT compatible with DLL type change).\n\nSee Sevopedia World Sizes for the recommended DLL depending on world size. This message is shown once per session only to avoid redundancy and tedium." % (iRecommended, iMaxCivs))
 				popupInfo.addPopup(gc.getGame().getActivePlayer())
 
 	def onGameEnd(self, argsList):

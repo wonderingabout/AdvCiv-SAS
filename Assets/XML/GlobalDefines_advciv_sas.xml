@@ -116,7 +116,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: disable the Sevopedia Leader custom item-list width when screen width is above this threshold (strictly >). Set to <=0 to keep custom width always enabled. (GPT-5.3-Codex). This is because at higher resolutions we have enough width to accomodate an enlarged AI Personality Panel, so we don't need to reduce width of the item bar anymore. Note: AI Personality panel is still expanded when text is upscaled (so it is not cramped) regardless of this item bar setting -->
+	<!-- custom: disable the Sevopedia Leader custom item-list width when screen width is above this threshold (strictly >). Set to <=0 to keep custom width always enabled. (GPT-5.3-Codex). This is because at higher resolutions we have enough width to accommodate an enlarged AI Personality Panel, so we don't need to reduce width of the item bar anymore. Note: AI Personality panel is still expanded when text is upscaled (so it is not cramped) regardless of this item bar setting -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH</DefineName>
 		<iDefineIntVal>2560</iDefineIntVal>
@@ -281,7 +281,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: show/hide score-related legend links (Info Screen Score tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
+	<!-- custom: show/hide score-related legend links (Info Screen Score Tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -468,7 +468,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
 		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
 	</Define>
-	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accomodate font size 4 (was 65). -->
+	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accommodate font size 4 (was 65). -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
 		<iDefineIntVal>80</iDefineIntVal>
@@ -529,7 +529,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: widen the Info Screen Score tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
+	<!-- custom: widen the Info Screen Score Tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD</DefineName>
 		<iDefineIntVal>36</iDefineIntVal>
@@ -561,6 +561,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: city-screen bonus rendering mode: 0 = old AdvCiv-SAS text glyphs, 1 = base AdvCiv-style framed image buttons, 2 = new AdvCiv-SAS frameless DDS icons (addDDS removes distracting button-frame edges). Text glyphs are kept for legacy/debug mode and forced overflow fallback, but testing showed they stay much smaller than image buttons even when font is increased, so use mode 1 or 2 for large bonus icons. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: city-screen camera recenter north-bias percent (integer percent of one-plot north delta). With current camera orientation, increasing this value moves the city view lower; decrease it to lift the city higher and free bottom-space for city UI rows. (GPT-5.3-Codex); Base AdvCiv value: 23. -->
 	<Define>
@@ -612,10 +617,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex) -->
+	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex); currently commerce slider row's left commerce icons are a bit too close to the tech chooser, but this is so when upscaled 4 to 5 digit commerce rate (e.g., 1024/Turn) may fit without overflowing to the right, also Technlogy Advisor is as of now the only overflowing to the right into scoreboard, so prefer always having room for high commerce rate numbers in all other views outside Technology Advisor rather -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET</DefineName>
-		<iDefineIntVal>120</iDefineIntVal>
+		<iDefineIntVal>178</iDefineIntVal>
 	</Define>
 	<!-- custom: vertical offset for the same map-view commerce block anchor; negative moves up, positive moves down. (GPT-5.3-Codex) -->
 	<Define>
@@ -652,7 +657,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
 		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Parallel_Lines,SAS_Spiky_Avenues,Tectonics,Terra,Water,Wheel</DefineTextVal>
 	</Define>
-	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
+	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accommodate for no water that causes too wide city spacing if not corrected for it) -->
 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>

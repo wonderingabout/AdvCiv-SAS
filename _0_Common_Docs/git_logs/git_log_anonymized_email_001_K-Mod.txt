@@ -6970,7 +6970,7 @@ Author: karadoc <hidden>
 Date:   2012-03-25 14:36:13 +1100
 
 Costs returned by getGoldPerMilitaryUnit and getGoldPerUnit are now in units of 1/100 gold.
-Changed the xml, and supporting code in the dll and save format, and game text, to accomodate the new factor of 100 in the support costs.
+Changed the xml, and supporting code in the dll and save format, and game text, to accommodate the new factor of 100 in the support costs.
 Military Unit cost (from pacifism) is no longer multiplied by the handicap modifier for unit cost. Neither is "extra cost" for units (currently unused).
 The "handicap cost" is no longer shown on the unit cost mouse-over text. Instead, it is included in the unit cost.
 Changed the pacifism cost from +1 gold per military unit to +0.5 gold per military unit. (Note, the new cost is independant of difficulty level, whereas the previous cost was actually between 0.2 $/unit and 1 $/unit depending on difficulty. 0.5 gold / unit matches the previous cost on Nobel.)

@@ -152,11 +152,10 @@ class CvTechChooser:
 		self.BOX_INCREMENT_X_SPACING = 9 #Should be a multiple of 3...
 
 		# <!-- custom: parametrize properly the X starting position of the first column; value was hardcoded repeatedly. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
-		# To set the initial horizontal starting position (left margin) of the tech tree grid, you need to find the hardcoded offset values used in the coordinate calculations. In your current code, this value is 30.
-		self.iX_LEFT_START = 30
-		self.SAS_PEDIA_PYTHON_BUILD = 6798
-		# For OR Prerequisites: Note: This one is currently 24 (30 minus 6). If you increase your main offset by 10, increase this by 10 as well.
-		self.iX_LEFT_START_OR_PREREQS = 24
+		# <!-- custom: at 1080p, the old first tech-grid column padding 30 partially clipped the last Ancient-era column to the right on the default opening view; 0 keeps all current rows fully and symmetrically visible without having to tediously nudge the horizontal scrollbar at game start, so prefer it. Also replace the old manual 30 / 24 pair with one start value and a derived start - 6 OR-prereq value so they cannot drift. (GPT-5.5) -->
+		self.iSAS_TECH_GRID_LEFT_START = 0
+		self.iX_LEFT_START = self.iSAS_TECH_GRID_LEFT_START
+		self.iX_LEFT_START_OR_PREREQS = self.iX_LEFT_START - 6
 
 		self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = None
 		self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = None
@@ -167,6 +166,8 @@ class CvTechChooser:
 		self.bTechChooserArtCached = False
 		# <!-- custom: cached vanilla engine define; looked up techs x terrains times during tech tree draw. (Claude code Sonnet 4.6) -->
 		self.iDEEP_WATER_TERRAIN = None
+
+		self.SAS_PEDIA_PYTHON_BUILD = 6798
 
 	def initText(self):
 		# <!-- custom: this file had no shared text/art cache before; add one-time language/art caching and reuse it in hot tech-tree loops to avoid repeated lookup work on redraw. (GPT-5.3-Codex) -->
@@ -256,8 +257,8 @@ class CvTechChooser:
 		if iTopSpaceForTechBar < 0:
 			iTopSpaceForTechBar = 0
 		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS, iRightSpaceForScoreboard, iTopSpaceForTechBar, SAS_ADVISOR_BOTTOM_SPACE)
-		self.iX_LEFT_START = 30
-		self.iX_LEFT_START_OR_PREREQS = 24
+		self.iX_LEFT_START = self.iSAS_TECH_GRID_LEFT_START
+		self.iX_LEFT_START_OR_PREREQS = self.iX_LEFT_START - 6
 		# <!-- custom: keep GP prefs aligned with the tech grid and Exit/footer anchors at any resolution. (GPT-5.3-Codex) -->
 		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
 		self.PREF_ICON_BOTTOM = self.H_SCREEN - SAS_ADVISOR_EXIT_Y_OFFSET + PREF_ICON_BOTTOM_FROM_EXIT_OFFSET

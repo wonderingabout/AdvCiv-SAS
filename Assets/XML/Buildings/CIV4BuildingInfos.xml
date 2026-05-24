@@ -30713,7 +30713,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: note: Executives now require tech(s) to be built. See code comment at BUILDINGCLASS_CORPORATION_1 -->
-			<!-- custom: changed to another tech to accomodate reworked tech tree changes, was the now removed TECH_RAILROAD -->
+			<!-- custom: changed to another tech to accommodate reworked tech tree changes, was the now removed TECH_RAILROAD -->
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>

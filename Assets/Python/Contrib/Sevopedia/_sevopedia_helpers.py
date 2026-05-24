@@ -418,9 +418,9 @@ def place_new_concept_legend_link(top, new_concept_type):
 	if iConcept < 0:
 		return
 	screen = top.getScreen()
-	# <!-- custom: sasFontTagTitle is fine for the legend link here: Sevopedia pages are roomy and the link sits with other footer/header page chrome. (Claude code Opus 4.7) -->
+	# <!-- custom: sasFontTagTitle is fine for the legend link here: Sevopedia pages are roomy and the link sits with other footer/header page chrome. (Claude code Opus 4.7; GPT-5.5) -->
 	szLegendText = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
-	screen.setText(top.getNextWidgetName(), "Background", szLegendText, CvUtil.FONT_LEFT_JUSTIFY, top.X_TOC - 10, top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
+	screen.setText(top.getNextWidgetName(), "Background", szLegendText, CvUtil.FONT_LEFT_JUSTIFY, top.SAS_getFooterLegendX(), top.Y_BOT_PANEL + 16, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
 
 def draw_none_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
 	# <!-- custom: place a centered "None" (or custom-keyed) message inside a panel that has no buttons/content to show. Replaces the ~5-line addMultilineText boilerplate scattered across pedia files. (Claude code Opus 4.7) -->

@@ -235,10 +235,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_X_GAME_PLAYER_ID_NEXT = self.SAS_X_GAME_PLAYER_ID_PREV + 65
 		self.X_EXIT = self.W_SCREEN - 30 # advc.004y: was 994
 		self.Y_EXIT = Y_FOOTER_CONTROLS
-		# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; keep BACK/NEXT/EXIT in the left footer zone. Leave room after Clear for current-game leader/civ arrows, then push EXIT right into the blank footer space before the AIP columns. (GPT-5.5) -->
-		self.SAS_X_BACK_LEADERS = self.SAS_X_GAME_PLAYER_ID_NEXT + 75
-		self.SAS_X_NEXT_LEADERS = self.SAS_X_BACK_LEADERS + 140
-		self.SAS_X_EXIT_LEADERS = self.SAS_X_NEXT_LEADERS + 140
 
 		self.tab = None
 		self.iActivePlayer = -1
@@ -1054,6 +1050,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
 		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->
 
+	def SAS_getFooterLegendX(self):
+		return self.X_TOC - 10
+
 	def SAS_setFooterNavigationTexts(self, screen, iCategory):
 		bCanBack = (len(self.pediaHistory) > 1)
 		bCanForward = (len(self.pediaFuture) > 0)
@@ -1070,19 +1069,34 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			szClearText = self.SAS_CLEAR_TEXT
 		else:
 			szClearText = self.SAS_CLEAR_TEXT_DISABLED
+		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
+			iClearX, iPrevPlayerX, iNextPlayerX, iBackX, iNextX, iExitX = self.SAS_getLeaderFooterNavigationPositions()
+			screen.setText(self.SAS_CLEAR_ID, "Background", szClearText, CvUtil.FONT_CENTER_JUSTIFY, iClearX, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			self.SAS_setGamePlayerIdNavigationTexts(screen, iCategory, iPrevPlayerX, iNextPlayerX, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_CENTER_JUSTIFY, iBackX, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+			screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_CENTER_JUSTIFY, iNextX, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_CENTER_JUSTIFY, iExitX, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+			return
 		# <!-- custom: keep footer controls stable but grey Back/Next/Clear when they have no effect. (GPT-5.5) -->
 		screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
 		screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
 		screen.setText(self.SAS_CLEAR_ID, "Background", szClearText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_CLEAR, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
 		self.SAS_setGamePlayerIdNavigationTexts(screen, iCategory)
-		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
-			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.5) -->
-			screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
-			screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
-			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
 
-	def SAS_setGamePlayerIdNavigationTexts(self, screen, iCategory):
+	def SAS_getLeaderFooterNavigationPositions(self):
+		# <!-- custom: Leader AIP columns take the full page height and their width shifts with font/upscale settings, so fixed footer links could overlap the AIP text zone. Keep Legend in its normal footer spot and treat it as the first slot, then center Clear/player arrows/Back/Next/Exit in the following slots up to the real AIP left edge. (GPT-5.5) -->
+		iStartX = self.SAS_getFooterLegendX()
+		iEndX = self.pediaLeader.getAIPersonalityLeftX()
+		# Slot 0 is the fixed Legend area; slots 1-6 are Clear, player prev, player next, Back, Next, Exit.
+		iSlotsCount = 7
+		iSlotW = (iEndX - iStartX) / iSlotsCount
+		aiSlotCenterXCoords = []
+		for i in range(1, iSlotsCount):
+			aiSlotCenterXCoords.append(iStartX + iSlotW * i + iSlotW / 2)
+		return aiSlotCenterXCoords
+
+	def SAS_setGamePlayerIdNavigationTexts(self, screen, iCategory, iPrevX=None, iNextX=None, eJustify=CvUtil.FONT_LEFT_JUSTIFY):
 		targets = self.SAS_getGamePlayerIdTargets(iCategory)
 		iPrevItem = -1
 		iNextItem = -1
@@ -1112,14 +1126,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			else:
 				szNextText = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT", (nextTarget[0],)), self.SAS_eFooterDisabledColor))
 		if iCategory == SevoScreenEnums.PEDIA_LEADERS or iCategory == SevoScreenEnums.PEDIA_CIVS:
+			if iPrevX is None:
+				iPrevX = self.SAS_X_GAME_PLAYER_ID_PREV
+			if iNextX is None:
+				iNextX = self.SAS_X_GAME_PLAYER_ID_NEXT
 			if iPrevItem >= 0:
-				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_PREV, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV, iPrevItem)
+				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, eJustify, iPrevX, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV, iPrevItem)
 			else:
-				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_PREV, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, eJustify, iPrevX, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			if iNextItem >= 0:
-				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT, iNextItem)
+				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, eJustify, iNextX, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT, iNextItem)
 			else:
-				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, eJustify, iNextX, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		else:
 			screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_PREV, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_GAME_PLAYER_ID_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -1187,7 +1205,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <advc.002b> Prepend graphic only if there is room
 			szHeading = category[1]
 			# For English, 16 happens to be OK.
-			# <!-- custom: allow room to fit more characters; our text "Concepts (Outdated)" doesn't fit otherwise. Not increasing this further to accomodate the -1 for other languages, as they are unlikely to use such long texts anyway, and i really need or want the extra space (that is not so useful in categories headers i think), was 16 --> 
+			# <!-- custom: allow room to fit more characters; our text "Concepts (Outdated)" doesn't fit otherwise. Not increasing this further to accommodate the -1 for other languages, as they are unlikely to use such long texts anyway, and i really need or want the extra space (that is not so useful in categories headers i think), was 16 --> 
 			iThresh = 19
 			if gc.getGame().getCurrentLanguage() != 0:
 				# <!-- custom: was 15 -->

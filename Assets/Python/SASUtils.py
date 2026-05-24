@@ -4,9 +4,10 @@
 
 from CvPythonExtensions import *
 import CvUtil
-from SASFontUtils import sasFontTagLabel, SAS_FONT_TAG_CLOSE
+from SASFontUtils import sasFontTagLabel, sasFontTagTitle, SAS_FONT_TAG_CLOSE
 
 gc = CyGlobalContext()
+localText = CyTranslator()
 
 # <!-- custom: lazy-init cache for SAS_SHOW_LEGEND_LINK GlobalDefine. Cannot be resolved at module import time because SASUtils is imported before CyGlobalContext finishes loading XML defines (eager init returns False and the legend link silently disappears). Resolved on first use via _isLegendLinkEnabled, matching the lazy-init-to-None approach used by other AdvCiv-SAS advisors. (Claude code Opus 4.7) -->
 _IS_SAS_SHOW_LEGEND_LINK = None
@@ -79,6 +80,30 @@ def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):
 	for iWidth in aiLabelWidths:
 		aiLinkWidths.append((iXExit * iWidth + iTotalWidth/2) / iTotalWidth)
 	return aiLinkWidths
+
+# <!-- custom: shared footer-tab renderer for advisor screens. Use non-bold title-sized links like Foreign/Info/Sevopedia footer navigation. Each row is (widget, label, width, page_id); page_id can be a simple 0/1/2 tab id, a Victory screen id, or a Foreign SCREEN_DICT id, so oddball advisors still use the same reliable pattern. Active tabs are colored yellow and emitted as inert WIDGET_GENERAL, -1/-1 labels. Use this helper only for screens where active-tab clicks can safely do nothing; inactive tabs keep routing through the caller-supplied ids. (GPT-5.5 + GPT-5.5-Thinking review) -->
+def drawAdvisorFooterTabRows(screen, aTabRows, iActivePageID, iYLink, iZ, iColorYellow, eInactiveWidget=WidgetTypes.WIDGET_GENERAL, iInactiveData2=-1, iXStart=0):
+	iX = iXStart
+	for iPage in range(len(aTabRows)):
+		szWidgetID, szLabel, iWidth, iData1 = aTabRows[iPage]
+		eWidget = eInactiveWidget
+		iData2 = iInactiveData2
+		if iData1 == iActivePageID:
+			szLabel = localText.changeTextColor(szLabel, iColorYellow)
+			eWidget = WidgetTypes.WIDGET_GENERAL
+			iData1 = -1
+			iData2 = -1
+		screen.setText(szWidgetID, "", sasFontTagTitle + szLabel + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iX + iWidth / 2, iYLink, iZ, FontTypes.TITLE_FONT, eWidget, iData1, iData2)
+		iX += iWidth
+
+def drawAdvisorFooterTabs(screen, aWidgetIDs, aLabels, aiWidths, iActivePageID, iYLink, iZ, iColorYellow, eInactiveWidget=WidgetTypes.WIDGET_GENERAL, aiInactiveData1=None, iInactiveData2=-1, iXStart=0):
+	aTabRows = []
+	for iPage in range(len(aLabels)):
+		iData1 = iPage
+		if aiInactiveData1 is not None:
+			iData1 = aiInactiveData1[iPage]
+		aTabRows.append((aWidgetIDs[iPage], aLabels[iPage], aiWidths[iPage], iData1))
+	drawAdvisorFooterTabRows(screen, aTabRows, iActivePageID, iYLink, iZ, iColorYellow, eInactiveWidget, iInactiveData2, iXStart)
 
 # <!-- custom: invisible sort key for advisor icon-only table cells. GameFont chars (religion, attitude, trade icons, etc.) already sort as text; this is only for separate icon-button cells where the visible text is otherwise empty. Usually skip this when an icon button is immediately followed by matching text in the next column (e.g. Info Screen Wonders), because that text column already gives the useful sort path. Keep hardcoded font=1 unscaled so the sort key stays invisible and does not affect row height. Pattern based on Sevopedia chart icon sorting. (GPT-5.5) -->
 def getAdvisorIconSortKey(iGroup, iRow):

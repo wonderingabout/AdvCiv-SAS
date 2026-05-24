@@ -401,8 +401,8 @@ def measureWorld():
 
 #-----------------------------------------------------------------------------
 # isValid Function, preventing playes to start on islands to small
-# to accomodate at least one City. The threshold-constant can be set in the
-# beginning of this file. There is also a Check, if the map can accomodate all
+# to accommodate at least one City. The threshold-constant can be set in the
+# beginning of this file. There is also a Check, if the map can accommodate all
 # civs given this condition. If not enought place is found, the Function will
 # accept smaller islands as well, so we shall not end up discarding
 # all plots.

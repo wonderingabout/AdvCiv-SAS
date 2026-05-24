@@ -365,15 +365,7 @@ class CvPolicyAdvisorScreen:
 	# Draw the contents...
 	def drawTabs(self):
 		screen = self.getScreen()
-		iX = 0
-		for iPage in range(len(self.PAGE_NAME_LIST)):
-			szLabel = self.PAGE_NAME_LIST[iPage]
-			if iPage == self.iPage:
-				szText = sasFontTagTitle.bold + szLabel + SAS_FONT_TAG_CLOSE
-			else:
-				szText = sasFontTagTitle + szLabel + SAS_FONT_TAG_CLOSE
-			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
-			iX += self.PAGE_LINK_WIDTH[iPage]
+		drawAdvisorFooterTabs(screen, self.PAGE_TAB_IDS, self.PAGE_NAME_LIST, self.PAGE_LINK_WIDTH, self.iPage, self.Y_LINK, -0.1, self.COLOR_YELLOW)
 
 	def clearPolicyTabWidgets(self):
 		screen = self.getScreen()

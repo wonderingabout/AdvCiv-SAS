@@ -3052,7 +3052,7 @@ See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplie
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #161 -----
 
-	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accomodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
+	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
 	-->
@@ -4919,7 +4919,7 @@ note: give them an offensive melee effect so alexander can use them as such (may
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #369 -----
 
-. This is good/cool toobecause the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accomodate that, so defeats targeted era/tech/stats purpose
+. This is good/cool toobecause the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accommodate that, so defeats targeted era/tech/stats purpose
 
 ===== \Assets\XML\Units\CIV4UnitInfos.xml =====
 ----- Comment #370 -----

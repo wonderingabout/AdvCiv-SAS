@@ -39,7 +39,8 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
 		leftL, leftR = self.addTwoColumnLayout(screen, left, "Advisors__ForeignAdv")
 		self.addTextDropdown(screen, leftL, leftR, "Advisors__DealTurnsLeft", True)
 		# </advc.072>
-		self.addCheckbox(screen, leftL, "Advisors__EFAImprovedInfo")
+		# <!-- custom: Info tab now always uses drawInfoImproved in CvForeignAdvisor, so the old Enhanced Info Tab toggle is obsolete. Base AdvCiv 1.12 also displayed its checkbox on the same row as the Glance attitude dropdown, which made that dropdown look like an Info-tab setting; see KI#139. (GPT-5.5) -->
+		# self.addCheckbox(screen, leftL, "Advisors__EFAImprovedInfo")
 		#self.addCheckbox(screen, leftL, "MiscHover__TechTradeDenial")
 		#self.addCheckbox(screen, leftL, "MiscHover__BonusTradeDenial")
 
@@ -49,11 +50,15 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
 		#self.addCheckbox(screen, leftL, "Advisors__EFAGlanceTab")
 		#self.addTextDropdown(screen, leftL, leftR, "Advisors__EFAGlanceAttitudes")
 		# advc.072: Align through leftL,leftR instead of ComboBox
-		self.addCheckboxTextDropdown(screen, leftL, leftR, "Advisors__EFAGlanceTab", "Advisors__EFAGlanceAttitudes")
+		# <!-- custom: Glance is always shown like the other advisor tabs, so keep the old visibility checkbox disabled. The separate EFAGlanceAttitudes dropdown is still useful because CvForeignAdvisor reads it to choose Numbers/Smilies/Both display inside the Glance tab; AdvCiv-SAS now gives it an explicit row and label. See KI#139. (GPT-5.5) -->
+		# self.addCheckboxTextDropdown(screen, leftL, leftR, "Advisors__EFAGlanceTab", "Advisors__EFAGlanceAttitudes")
+		# # advc.152:
+		# self.addCheckbox(screen, leftL, "Advisors__EFAWarTrades")
+		# # advc.ctr:
+		# self.addCheckbox(screen, leftL, "Advisors__EFACityTrades")
+		self.addTextDropdown(screen, leftL, leftR, "Advisors__EFAGlanceAttitudes", True)
 		# advc.152:
 		self.addCheckbox(screen, leftL, "Advisors__EFAWarTrades")
-		# advc.ctr:
-		self.addCheckbox(screen, leftL, "Advisors__EFACityTrades")
 		
 		# <advc.004> Moved to center column
 		self.addLabel(screen, center, "Military_Advisor", "Military [F5]:")

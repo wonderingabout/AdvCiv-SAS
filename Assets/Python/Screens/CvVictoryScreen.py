@@ -67,6 +67,10 @@ class CvVictoryScreen:
 		self.SETTINGS_TAB_ID = "SettingsTabWidget"
 		self.UN_RESOLUTION_TAB_ID = "VotingTabWidget"
 		self.UN_MEMBERS_TAB_ID = "MembersTabWidget"
+		self.PAGE_SCREEN_IDS = [VICTORY_CONDITION_SCREEN, GAME_SETTINGS_SCREEN, UN_RESOLUTION_SCREEN, UN_MEMBERS_SCREEN]
+		self.PAGE_TAB_IDS = [self.VC_TAB_ID, self.SETTINGS_TAB_ID, self.UN_RESOLUTION_TAB_ID, self.UN_MEMBERS_TAB_ID]
+		self.PAGE_NAME_LIST = []
+		self.PAGE_LINK_WIDTH = []
 		self.SPACESHIP_SCREEN_BUTTON = 1234
 		
 		# <advc.703>
@@ -172,6 +176,9 @@ class CvVictoryScreen:
 		self.SETTINGS_PANEL_X3 = self.SETTINGS_PANEL_X2 + self.SETTINGS_PANEL_WIDTH + iGap
 		self.SETTINGS_PANEL_Y = self.Y_AREA + iGap + 10
 		self.SETTINGS_PANEL_HEIGHT = self.Y_BOTTOM_PANEL - self.Y_AREA - 2 * iGap
+		self.PAGE_LINK_WIDTH[:] = []
+		for i in range(len(self.PAGE_TAB_IDS)):
+			self.PAGE_LINK_WIDTH.append(self.DX_LINK)
 
 	def scaleColumnsToWidth(self, aiBaseWidths, iTargetWidth):
 		iBaseTotal = sum(aiBaseWidths)
@@ -237,14 +244,10 @@ class CvVictoryScreen:
 		self.TAB_VOTING = localText.getText("TXT_KEY_VOTING_TITLE", ()).upper()
 		self.TAB_MEMBERS = localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper()
 		self.TAB_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ()).upper()
+		self.PAGE_NAME_LIST[:] = [self.TAB_VICTORIES, self.TAB_SETTINGS, self.TAB_VOTING, self.TAB_MEMBERS]
 		self.TEXT_DIPLOMATIC = localText.getText("TXT_KEY_BUG_VICTORY_DIPLOMATIC", ())
 		self.LABEL_SETTINGS_HEADER = sasFontTagLabel.bold + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE
 		self.LABEL_OPTIONS_HEADER = sasFontTagLabel.bold + localText.getText("TXT_KEY_MAIN_MENU_CUSTOM_SETUP_OPTIONS", ()).upper() + SAS_FONT_TAG_CLOSE
-		self.TAB_VICTORIES_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_VICTORIES", (), self.COLOR_YELLOW).upper()
-		self.TAB_SETTINGS_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), self.COLOR_YELLOW).upper()
-		self.TAB_VOTING_ACTIVE = localText.getColorText("TXT_KEY_VOTING_TITLE", (), self.COLOR_YELLOW).upper()
-		self.TAB_MEMBERS_ACTIVE = localText.getColorText("TXT_KEY_MEMBERS_TITLE", (), self.COLOR_YELLOW).upper()
-		self.TAB_SCORE_ACTIVE = localText.getColorText("TXT_KEY_GAME_SCORE", (), self.COLOR_YELLOW).upper()
 
 		# <!-- custom: precompute fully formatted strings that never change (claude opus 4.5) -->
 		self.szConquestText = u"%c %s" % (self.iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
@@ -363,38 +366,19 @@ class CvVictoryScreen:
 	def drawTabs(self):
 		screen = self.getScreen()
 
-		xLink = self.X_LINK
-		if (self.iScreen != VICTORY_CONDITION_SCREEN):
-			screen.setText(self.VC_TAB_ID, "", sasFontTagTitle + self.TAB_VICTORIES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		else:
-			screen.setText(self.VC_TAB_ID, "", sasFontTagTitle + self.TAB_VICTORIES_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		xLink += self.DX_LINK
-
-		if (self.iScreen != GAME_SETTINGS_SCREEN):
-			screen.setText(self.SETTINGS_TAB_ID, "", sasFontTagTitle + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		else:
-			screen.setText(self.SETTINGS_TAB_ID, "", sasFontTagTitle + self.TAB_SETTINGS_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		xLink += self.DX_LINK
-
 		# <!-- custom: always show Voting/Members tabs for exhaustive navigation, even when no vote source is currently active; empty screens are preferable to hidden tabs so users can discover all sections. (GPT-5.3-Codex) -->
-		if (self.iScreen != UN_RESOLUTION_SCREEN):
-			screen.setText(self.UN_RESOLUTION_TAB_ID, "", sasFontTagTitle + self.TAB_VOTING + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		else:
-			screen.setText(self.UN_RESOLUTION_TAB_ID, "", sasFontTagTitle + self.TAB_VOTING_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		xLink += self.DX_LINK
-		if (self.iScreen != UN_MEMBERS_SCREEN):
-			screen.setText(self.UN_MEMBERS_TAB_ID, "", sasFontTagTitle + self.TAB_MEMBERS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		else:
-			screen.setText(self.UN_MEMBERS_TAB_ID, "", sasFontTagTitle + self.TAB_MEMBERS_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		xLink += self.DX_LINK
+		aszPageTabIDs = list(self.PAGE_TAB_IDS)
+		aszPageNames = list(self.PAGE_NAME_LIST)
+		aiPageLinkWidths = list(self.PAGE_LINK_WIDTH)
+		aiPageScreenIDs = list(self.PAGE_SCREEN_IDS)
 		# <advc.703>
 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
-			if self.iScreen != RF_SCORE_SCREEN:
-				screen.setText(self.RF_SCORE_TAB_ID, "", sasFontTagTitle + self.TAB_SCORE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			else:
-				screen.setText(self.RF_SCORE_TAB_ID, "", sasFontTagTitle + self.TAB_SCORE_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			xLink += self.DX_LINK
+			aszPageTabIDs.append(self.RF_SCORE_TAB_ID)
+			aszPageNames.append(self.TAB_SCORE)
+			aiPageLinkWidths.append(self.DX_LINK)
+			aiPageScreenIDs.append(RF_SCORE_SCREEN)
 		# </advc.703>
+		drawAdvisorFooterTabs(screen, aszPageTabIDs, aszPageNames, aiPageLinkWidths, self.iScreen, self.Y_LINK, 0, self.COLOR_YELLOW, aiInactiveData1=aiPageScreenIDs, iXStart=self.X_LINK - self.DX_LINK / 2)
 
 	def drawVoteSourceInactiveFallback(self, szIntroText, aiVoteBuildingClass):
 		screen = self.getScreen()
@@ -2368,20 +2352,20 @@ class CvVictoryScreen:
 				# <!-- custom: preserve the current Victory sub-tab when changing debug/vassal perspective; old code forced the first Victories tab. (GPT-5.5) -->
 				self.redrawActiveTab()
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
-			if (sWidget == self.VC_TAB_ID):
+			if (sWidget == self.VC_TAB_ID and self.iScreen != VICTORY_CONDITION_SCREEN):
 				self.iScreen = VICTORY_CONDITION_SCREEN
 				self.showVictoryConditionScreen()
-			elif (sWidget == self.SETTINGS_TAB_ID):
+			elif (sWidget == self.SETTINGS_TAB_ID and self.iScreen != GAME_SETTINGS_SCREEN):
 				self.iScreen = GAME_SETTINGS_SCREEN
 				self.showGameSettingsScreen()
-			elif (sWidget == self.UN_RESOLUTION_TAB_ID):
+			elif (sWidget == self.UN_RESOLUTION_TAB_ID and self.iScreen != UN_RESOLUTION_SCREEN):
 				self.iScreen = UN_RESOLUTION_SCREEN
 				self.showVotingScreen()
-			elif (sWidget == self.UN_MEMBERS_TAB_ID):
+			elif (sWidget == self.UN_MEMBERS_TAB_ID and self.iScreen != UN_MEMBERS_SCREEN):
 				self.iScreen = UN_MEMBERS_SCREEN
 				self.showMembersScreen()
 			# <advc.703>
-			elif (sWidget == self.RF_SCORE_TAB_ID):
+			elif (sWidget == self.RF_SCORE_TAB_ID and self.iScreen != RF_SCORE_SCREEN):
 				self.iScreen = RF_SCORE_SCREEN
 				self.showRiseFall()
 			# </advc.703>
@@ -2421,4 +2405,3 @@ class CvVictoryScreen:
 
 	def update(self, fDelta):
 		return
-

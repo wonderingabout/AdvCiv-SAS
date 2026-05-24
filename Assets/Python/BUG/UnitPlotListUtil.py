@@ -27,11 +27,7 @@ sFileNamePromo = ArtFileMgr.getInterfaceArtInfo("OVERLAY_PROMOTION_FRAME").getPa
 #screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
 
 # constants
-(sUpdateShow,
- sUpdateShowIf,
- sUpdateHide,
- sUpdateNothing,
-) = range(4)
+(sUpdateShow, sUpdateShowIf, sUpdateHide, sUpdateNothing,) = range(4)
 
 sBupStringBase = "BUGUnitPlotString"
 cUplSize = 34

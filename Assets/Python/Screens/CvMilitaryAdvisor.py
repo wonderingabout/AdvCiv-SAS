@@ -454,8 +454,9 @@ class CvMilitaryAdvisor:
 			return
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		# <!-- custom: Match Tech Chooser's persistent-screen pattern so heavy widgets such as the Battles table can survive advisor close/reopen instead of only same-screen tab switches. (GPT-5.5) -->
-		screen.setPersistent(True)
+		# <!-- custom: Keep Military Advisor non-persistent. Empirically, screen.setPersistent(True) preserved expensive widgets such as the built Battles table across full advisor close/reopen, making very large late-game battle histories faster to reopen, but Civ4's native minimap did not survive that lifecycle reliably. Within one open Military Advisor instance, tab switching remained lightweight and kept the Map tab working; the failure happened after exiting and reopening the advisor, which left the minimap area as an empty blue panel. Debug mode triggered the same broken state, and turning debug mode back off did not restore it; only save reload did. See KI#129 (Update). (GPT-5.5-Thinking) -->
+		# <!-- custom: note: Prefer always-correct Map tab rendering over the rarer benefit of preserving the Battles table across full advisor close/reopen. (GPT-5.5-Thinking) -->
+		screen.setPersistent(False)
 
 		self.initDefines()
 		self.initText()
@@ -488,7 +489,7 @@ class CvMilitaryAdvisor:
 		self.drawActivePage()
 
 	def restoreAdvisorPerspectivePlayer(self):
-		# <!-- custom: Map tab uses iActivePlayer for its unit-map/minimap perspective and resets it to the real active player. Keep the dropdown perspective for Summary/Battles/Composition separately so selecting an AI or vassal is not lost after visiting Map or reopening this persistent advisor. (GPT-5.5) -->
+		# <!-- custom: Map tab uses iActivePlayer for its unit-map/minimap perspective and resets it to the real active player. Keep the dropdown perspective for Summary/Battles/Composition separately so selecting an AI or vassal is not lost after visiting Map or reopening this advisor. (GPT-5.5) -->
 		if self.iAdvisorPerspectivePlayer >= 0:
 			self.iActivePlayer = self.iAdvisorPerspectivePlayer
 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
@@ -546,13 +547,7 @@ class CvMilitaryAdvisor:
 
 	def drawTabs(self):
 		screen = self.getScreen()
-		iX = 0
-		for iPage in range(len(self.PAGE_NAME_LIST)):
-			szText = self.PAGE_NAME_LIST[iPage]
-			if self.iActivePage == iPage:
-				szText = localText.changeTextColor(szText, self.COLOR_YELLOW)
-			screen.setText(self.PAGE_TAB_IDS[iPage], "", sasFontTagTitle + szText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
-			iX += self.PAGE_LINK_WIDTH[iPage]
+		drawAdvisorFooterTabs(screen, self.PAGE_TAB_IDS, self.PAGE_NAME_LIST, self.PAGE_LINK_WIDTH, self.iActivePage, self.Y_LINK, self.Z_CONTROLS, self.COLOR_YELLOW)
 
 	def getTurnDate(self, iTurn):
 		iYear = CyGame().getTurnYear(iTurn)
@@ -807,7 +802,7 @@ class CvMilitaryAdvisor:
 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE:
 			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
-		# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget made same-advisor tab switches almost instant, and making the screen persistent preserves it across close/reopen too. Rebuild when player/history/layout signature changes. (GPT-5.5) -->
+		# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget makes same-open tab switches almost instant as long as the Military Advisor is not exited. Do not make the whole Military Advisor screen persistent just to preserve this table across full advisor close/reopen: testing showed that persistence breaks Civ4's native Map tab minimap after advisor exit/reopen and debug-mode transitions. Rebuild Battles after full close/reopen; keep the lightweight cache for tab switches within one advisor opening. See KI#129. (GPT-5.5-Thinking) -->
 		if self.BATTLE_TABLE_CACHE_KEY == battleTableCacheKey and self.canReuseBattleTableWidget(screen, aEntries):
 			screen.show(self.BATTLE_TABLE_ID)
 			screen.moveToFront(self.BATTLE_TABLE_ID)
@@ -1998,8 +1993,9 @@ class CvMilitaryAdvisor:
 																	
 	def resetMinimapColor(self):
 		screen = self.getScreen()
-		for iX in range(gc.getMap().getGridWidth()):
-			for iY in range(gc.getMap().getGridHeight()):
+		kMap = CyMap()
+		for iX in range(kMap.getGridWidth()):
+			for iY in range(kMap.getGridHeight()):
 				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_MILITARY, iX, iY, -1, 0.6)
 
 	def getBattlePlotFromInput(self, inputClass):

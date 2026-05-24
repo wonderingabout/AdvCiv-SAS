@@ -11930,7 +11930,7 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: changed to another/account for tech to accomodate reworked tech tree -->
+			<!-- custom: changed to another/account for tech to accommodate reworked tech tree -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>

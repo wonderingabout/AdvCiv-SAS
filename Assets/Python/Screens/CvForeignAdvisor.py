@@ -57,24 +57,9 @@ AdvisorOpt = BugCore.game.Advisors
 NUM_FOREIGN_SCREENS = 8
 
 # tech trade columns
-(iTechColLeader,
- iTechColStatus,
- iTechColWants,
- iTechColCantYou,
- iTechColResearch,
- iTechColGold,
- iTechColWill,
- iTechColWont,
- iTechColCantThem,
-) = range(9)
+(iTechColLeader, iTechColStatus, iTechColWants, iTechColCantYou, iTechColResearch, iTechColGold, iTechColWill, iTechColWont, iTechColCantThem,) = range(9)
 # <advc.ctr>
-(iCityColLeader,
- iCityColStatus,
- iCityColWants,
- iCityColRejects,
- iCityColWillCede,
- iCityColWontCede,
-) = range(6) # </advc.ctr>
+(iCityColLeader, iCityColStatus, iCityColWants, iCityColRejects, iCityColWillCede, iCityColWontCede,) = range(6) # </advc.ctr>
 
 # Debugging help
 def ForeignAdvisorPrint (stuff):
@@ -276,15 +261,15 @@ class CvForeignAdvisor:
 			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
 			}
 
-		# <!-- custom: trade cluster tabs only; diplomacy/intel cluster moved to CvForeignDiplomacyAdvisor shell. (GPT-5.3-Codex) -->
-		self.ORDER_LIST = ["ACTIVE_TRADE", "BONUS", "TECH", "CITIES"]
+		# <!-- custom: keep the two Foreign-advisor tab clusters explicit: F4 uses trade tabs, while CvForeignDiplomacyAdvisor selects the diplomacy/intel tabs. (GPT-5.5) -->
+		self.TRADE_TAB_KEYS = ["ACTIVE_TRADE", "BONUS", "TECH", "CITIES"]
+		self.DIPLOMACY_TAB_KEYS = ["RELATIONS", "GLANCE", "INFO", "ESPIONAGE"]
+		self.FOREIGN_TAB_KEYS = self.TRADE_TAB_KEYS
 
 		# K-Mod
 		self.LABEL_WIDTH_LIST = []
 		self.iLanguageLoaded = -1
 		# K-Mod end
-
-		self.iDefaultScreen = self.SCREEN_DICT["ACTIVE_TRADE"]
 
 		# <!-- custom: shared size for treaty icons rendered inline in active-deals text. (GPT-5.3-Codex) -->
 		self.SAS_TREATY_ICON_SIZE = 24
@@ -520,7 +505,7 @@ class CvForeignAdvisor:
 	def updateRuntimeTabLinkWidths(self):
 		# <!-- custom: tab-link widths depend on runtime X_EXIT; recompute every open using shared helper. (GPT-5.3-Codex) -->
 		aszTabLabels = []
-		for i in self.ORDER_LIST:
+		for i in self.FOREIGN_TAB_KEYS:
 			aszTabLabels.append(localText.getText(self.TXT_KEY_DICT[i], ()).upper())
 		self.LABEL_WIDTH_LIST[:] = getAdvisorRuntimeLinkWidths(CyInterface(), aszTabLabels, self.EXIT_TEXT, self.X_EXIT)
 
@@ -549,7 +534,7 @@ class CvForeignAdvisor:
 
 		if (iScreen < 0):
 			if (self.iScreen < 0):
-				iScreen = self.iDefaultScreen
+				iScreen = self.SCREEN_DICT[self.FOREIGN_TAB_KEYS[0]]
 			else:
 				iScreen = self.iScreen
 
@@ -651,27 +636,19 @@ class CvForeignAdvisor:
 
 		# Link to other Foreign advisor screens
 		#xLink = self.DX_LINK / 2;
-		# K-Mod
-		xLink = 0
-		# <!-- custom: LABEL_WIDTH_LIST calculation moved to initText() for performance (claude code sonnet 4.5) -->
+		# <!-- custom: LABEL_WIDTH_LIST is recomputed at screen entry because runtime width depends on X_EXIT and the active Foreign tab cluster. (Claude code Sonnet 4.5 + GPT-5.5) -->
 
-		for i in range (len (self.ORDER_LIST)):
-			szScreen = self.ORDER_LIST[i]
-			# BUG - Glance Tab - start
-			if szScreen == "GLANCE" and not AdvisorOpt.isShowGlance():
-				continue # skip the GLANCE label
-			# BUG - Glance Tab - end
-			# <advc.ctr>
-			if szScreen == "CITIES" and not AdvisorOpt.isCityTradesTab():
-				continue #</advc.ctr>
-			szTextId = self.getNextWidgetName()
-			if (self.iScreen != self.SCREEN_DICT[szScreen]):
-				screen.setText (szTextId, "", sasFontTagTitle + localText.getText (self.TXT_KEY_DICT[szScreen], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, self.SCREEN_DICT[szScreen], -1)
-			else:
-				# <!-- custom: keep active tab labels non-routing; clicking an already-active tab should do nothing, not dispatch WIDGET_FOREIGN_ADVISOR with -1 (which can route to the other Foreign shell via CvScreensInterface).
-				# Without this, repeated clicks on the 2nd tab of Foreign Diplomacy Advisor (Glance) will jump to the 2nd tab of Foreign Trade Advisor (Bonuses), which is not consistent with how other links behave and is likely unnecessary nor desired for players. (GPT-5.3-Codex) -->
-				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), self.COLOR_YELLOW).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			xLink += self.LABEL_WIDTH_LIST[i]
+		aszTabWidgetIDs = []
+		aszTabLabels = []
+		aiTabScreenIDs = []
+		aszTabKeys = self.FOREIGN_TAB_KEYS
+		for i in range (len (aszTabKeys)):
+			szScreen = aszTabKeys[i]
+			aszTabWidgetIDs.append(self.getNextWidgetName())
+			aszTabLabels.append(localText.getText(self.TXT_KEY_DICT[szScreen], ()).upper())
+			aiTabScreenIDs.append(self.SCREEN_DICT[szScreen])
+		# <!-- custom: When removing the old interdependent Foreign/Exotic Foreign setup, our first unified Foreign + Diplomacy-shell code had repeated clicks on the 2nd tab of Foreign Diplomacy Advisor (Glance) jump to the 2nd tab of Foreign Trade Advisor (Bonuses). That is not consistent with how other links behave and is unnecessary for players. Passing self.iScreen as the active page id keeps the selected label inert while inactive tabs still route through their SCREEN_DICT ids. (GPT-5.3-Codex + GPT-5.5) -->
+		drawAdvisorFooterTabs(screen, aszTabWidgetIDs, aszTabLabels, self.LABEL_WIDTH_LIST, self.iScreen, self.Y_LINK, 0, self.COLOR_YELLOW, WidgetTypes.WIDGET_FOREIGN_ADVISOR, aiInactiveData1=aiTabScreenIDs)
 	
 	def drawActive (self, bInitial):
 		screen = self.getScreen()
@@ -1512,7 +1489,7 @@ class CvForeignAdvisor:
 		# iExtraHeight = 0
 		iExtraHeight = 7
 
-		# <!-- custom: adjust base Y (was 104) as it was a bit too low (as in at the bottom) which led to an asymetrical display in bottom being too high as compared to top's edge over limit after our changes, vs now it being much more centered which allows to more cleanly/easily adjust iExtraHeight -->
+		# <!-- custom: adjust base Y (was 104) as it was a bit too low (as in at the bottom) which led to an asymmetrical display in bottom being too high as compared to top's edge over limit after our changes, vs now it being much more centered which allows to more cleanly/easily adjust iExtraHeight -->
 		screen.addPanel(mainPanelName, "", "", True, True, 0 - iExtraWidth, 106 - iExtraHeight, self.W_SCREEN + (2 * iExtraWidth), self.mainPanelHeight + (2 * iExtraHeight), PanelStyles.PANEL_STYLE_MAIN)
 		self.drawGlanceRows (screen, mainPanelName, self.iSelectedLeader != self.iActiveLeader, self.iSelectedLeader)
 
@@ -1653,7 +1630,11 @@ class CvForeignAdvisor:
 
 						# <!-- custom: This is extra info by gemini 3 pro; check if accurate -->
 						# 1. Base Attitude Text (Smilies/Numbers)
-						if nAttitude != None:
+						# <!-- custom: leave diagonal Glance cells empty: a player-vs-itself cell is not a real attitude modifier against another player. Rendering the matrix default as +0 was misleading, and in Both mode it was inconsistent with real +0 relation cells that also show an attitude icon. See KI#140. (GPT-5.5) -->
+						bSelfRelationCell = (j == iLoopPlayer)
+						if bSelfRelationCell:
+							szText = ""
+						elif nAttitude != None:
 							szText = AttitudeUtil.getAttitudeText(j, iLoopPlayer, AdvisorOpt.isShowGlanceNumbers(), AdvisorOpt.isShowGlanceSmilies(), True, True, AdvisorOpt.isShowGlanceWarTrades()) # advc.152: WarTrades added
 						else:
 							szText = ""
@@ -1694,7 +1675,9 @@ class CvForeignAdvisor:
 
 						# <advc.152>
 						widgType = WidgetTypes.WIDGET_LEADERHEAD_RELATIONS
-						if AdvisorOpt.isShowGlanceWarTrades():
+						if bSelfRelationCell:
+							widgType = WidgetTypes.WIDGET_GENERAL
+						elif AdvisorOpt.isShowGlanceWarTrades():
 							widgType = WidgetTypes.WIDGET_LH_GLANCE
 						# </advc.152>
 						# <!-- custom: when trailing status icons >= 2 (e.g., +11 or -8 with WE + war/peace/war-trade icons), keep that trailing icon run at fixed font=2 to avoid last-glyph clipping at larger label-font scales (this was observed to also happen for single-digit attitudes, so we do not gate on the number of attitude digits). Keep the rest of the cell text at scaled label font. See KI#116. (GPT-5.3-Codex) -->
@@ -2300,7 +2283,7 @@ class CvForeignAdvisor:
 		# iExtraX = 0
 		# iExtraWidth = 0
 		iExtraX = 24
-		# <!-- custom: note: empirically, it seems that reducing width to have symetrical margins than on the left side causes buttons (or is it icons?) like the war declare or peace one to be too close to the leader's button. On the other hand, the right space is useless in itself, and we have no other column on the right, so it's fine if it overfills beyond the screen on the right side, as long as it helps have enough space from the leader button. Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such i mean if i may say so left as such as long as it displays nicely on the left side. (comparing it to the foreign advisor's tech tab and trying to have a more or less identical left side display seems more important). -->
+		# <!-- custom: note: empirically, it seems that reducing width to have symmetrical margins than on the left side causes buttons (or is it icons?) like the war declare or peace one to be too close to the leader's button. On the other hand, the right space is useless in itself, and we have no other column on the right, so it's fine if it overfills beyond the screen on the right side, as long as it helps have enough space from the leader button. Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such i mean if i may say so left as such as long as it displays nicely on the left side. (comparing it to the foreign advisor's tech tab and trying to have a more or less identical left side display seems more important). -->
 		iExtraWidth = 10
 
 		iconGrid.setPosition(LEFT_RIGHT_SPACE + 10 + iExtraX, TOP_BOTTOM_SPACE + 10)

@@ -2070,20 +2070,29 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_FILTER_ALL</Tag>
 		<English>Show All Buildings</English>
 	</TEXT>
-
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_FILTER_REGULAR</Tag>
 		<English>Show Regular Buildings Only</English>
 	</TEXT>
-
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_FILTER_NATIONAL</Tag>
 		<English>Show National Wonders Only</English>
 	</TEXT>
-
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_FILTER_WORLD</Tag>
 		<English>Show World Wonders Only</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_CITY_TAB_UNITS</Tag>
+		<English>Start Scroll at Units (Production Chooser Bar)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_CITY_TAB_BUILDINGS</Tag>
+		<English>Start Scroll at Buildings (Production Chooser Bar)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_CITY_TAB_WONDERS</Tag>
+		<English>Start Scroll at Wonders (Production Chooser Bar)</English>
 	</TEXT>
 
 
@@ -4213,6 +4222,11 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
 		<English>Victory Screen [F9]:</English>
+	</TEXT>
+	<!-- custom: label EFAGlanceAttitudes explicitly because base AdvCiv 1.12 displayed its dropdown on the Enhanced Info row, making it look like an Info-tab setting even though it controls Glance-tab attitude display. See KI#139. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_TEXT</Tag>
+		<English>Glance Tab Attitudes</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SHORTCUTS_BUG</Tag>

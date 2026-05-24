@@ -40,7 +40,7 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- custom: similarly set this shit to 0 -->
 			<!-- BBAI: -->
@@ -104,7 +104,7 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- custom: similarly set this shit to 0 -->
 			<iTechCostModifier>0</iTechCostModifier>
@@ -185,7 +185,7 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- custom: similarly set this shit to 0 -->
 			<!-- BBAI: (was 6 in K-Mod) -->
@@ -274,7 +274,7 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 12 in K-Mod, 9 in BBAI. -->
@@ -361,7 +361,7 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 16 in K-Mod, 14 in BBAI. -->
@@ -449,7 +449,7 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 20 in K-Mod, 18 in BBAI. -->
@@ -532,7 +532,7 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symetrical or such tech tree if they apply all kinds of modifiers here -->
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
 			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 18 in K-Mod and BBAI. The historical time line is

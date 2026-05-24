@@ -276,7 +276,7 @@ class CvHallOfFameScreen:
 			and ((self.iMultiplayerFilter == 1) == replayInfo.isMultiplayer()))
 
 	def getReplayCivType(self, replayInfo):
-		# <!-- custom: Hall of Fame identity columns mirror the Info Screen Score tab:
+		# <!-- custom: Hall of Fame identity columns mirror the Info Screen Score Tab:
 		# leader icon, civ icon, player color marker, leader/civ name, then trait icons.
 		# CyReplayInfo stores leader id and player color directly, so those survive custom
 		# leader names. It does not store civilization id, only civ name strings; match them

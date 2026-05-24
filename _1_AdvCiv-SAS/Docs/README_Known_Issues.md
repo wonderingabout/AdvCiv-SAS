@@ -136,7 +136,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon)  
 [99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#99---fixed-base-advciv-bug-of-k-mod-unwrapped-in-text-xml-text)  
 [100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash)  
-[101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation)  
+[101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemingly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemingly-counting-them-for-the-total-gp-calculation)  
 [102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#102---seemingly-fixed-base-advciv-crash-related-to-cvcitygetproductionbarpercentages)  
 [103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#103---fixed-base-advciv-crash-variant-of-the-cvcitygetproductionbarpercentages-crash)  
 [104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient)  
@@ -152,7 +152,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked)  
 [115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab)  
 [116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#116---worked-around-foreign-diplomacy-advisor-glance-tab-clips-trailing-status-icons-at-upscaled-label-fonts)  
-[117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)  
+[117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#117---fixed-score-tab-attitude-icon-chars-disappearing-at-upscaled-label-fonts-sas_ui_font_label-34)  
 [118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses)  
 [119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history)  
 [120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players)  
@@ -174,10 +174,12 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [136 - (Open - likely Base AdvCiv lineage or maybe bad local installation/configuration, deprioritized) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#136---open---likely-base-advciv-lineage-or-maybe-bad-local-installationconfiguration-deprioritized-choose-production-popup-does-not-re-fire-when-a-city-finishes-production-city-then-sits-idle-for-many-turns)  
 [137 - (Fixed) Beyond the Game mod issue: BTG Cross reused Huge grid size for every world size of Huge and below](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#137---fixed-beyond-the-game-mod-issue-btg-cross-reused-huge-grid-size-for-every-world-size-of-huge-and-below)  
 [138 - (Fixed) Base AdvCiv issue: Global Highlands map sizes were too large](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#138---fixed-base-advciv-issue-global-highlands-map-sizes-were-too-large)  
+[139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#139---fixed-base-advciv-issue-foreign-advisor-bug-menu-made-glance-attitude-dropdown-look-attached-to-enhanced-info-tab)  
+[140 - (Fixed) Base AdvCiv issue: Foreign Advisor Glance tab showed incorrect and inconsistent +0 attitude display in self cells](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#140---fixed-base-advciv-issue-foreign-advisor-glance-tab-showed-incorrect-and-inconsistent-0-attitude-display-in-self-cells)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
-While debugging the new ai personality feature in the Sevopedia in advciv-sas (our mod), we found some information that some ai attributes seem to be shared accross all leaders:
+While debugging the new ai personality feature in the Sevopedia in advciv-sas (our mod), we found some information that some ai attributes seem to be shared across all leaders:
 
 ```log
 PY:[DEBUG] Cached AI attribute data for leader LEADER_ZARA_YAQOB
@@ -823,7 +825,7 @@ Still, adding a fallback iItem (for example of 1) if iItem is -1 seems to workar
 
 Update: now fixed: the issue/bug/error was seemingly caused by a new base advciv code in CvDLLWidgetData.cpp, now reverted to using `iData1` same as obsolete buildings did (and which didn't have the issue again) and not `widgetDataStruct.m_iData2` at the line after line `case WIDGET_HELP_OBSOLETE_BONUS:`, which fixed it now, see also screenshots for details in the google drive. So removed previous workaround of using a fallback as well as debug lines as they are not needed anymore now that issue is identified and solved.
 
-Update 2: although we fixed the obsolete bonus button in tech advisor, i noticed much later that now the non-obsolete bonus buttons (e.g. cattle or camel bonuses at tech_animal_husbandry) trigger the same error now, which they didn't before, so i partially reverted this fix, so that it still applies to `case WIDGET_HELP_OBSOLETE_BONUS:` as we want to fix the issue, but not anymore to `case WIDGET_HELP_BONUS_REVEAL:` which now doesn't use same code anymore as the former, but instead the old base advciv's code if i'm not mistaken, which seemignly nicely fixes this issue as well.
+Update 2: although we fixed the obsolete bonus button in tech advisor, i noticed much later that now the non-obsolete bonus buttons (e.g. cattle or camel bonuses at tech_animal_husbandry) trigger the same error now, which they didn't before, so i partially reverted this fix, so that it still applies to `case WIDGET_HELP_OBSOLETE_BONUS:` as we want to fix the issue, but not anymore to `case WIDGET_HELP_BONUS_REVEAL:` which now doesn't use same code anymore as the former, but instead the old base advciv's code if i'm not mistaken, which seemingly nicely fixes this issue as well.
 
 ## 22.5 - (Addressed) Seemingly fixed weird flavors or XML fields: Mistakes?
 
@@ -1186,7 +1188,7 @@ The fixes: they are tentative and quite conservative, perhaps patches in some ca
 The code that seemed to make a nice and decisive positive difference it seems to me at leastwas as of now this one i added:
 
 ```cpp
-		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
+		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemingly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
 		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile
 		if (iHappinessLevel >= 0)
@@ -1521,7 +1523,7 @@ In continuation with the changes to disallow the citizen specialist as it is rea
 So adding, rather and instead some sanity checks that hopefully help the AI be more efficient with its choice, making saner ones if i may say or statistically going to be most often helpful, while not killing versatility hopefully, which as of now are (see `CvCityAI::AI_jobChangeValue` or related functions if any for updates on these (as of now only in this function) (and also added with the help of chatgpt 5 too thanks):
 
 - low population cities (as of now <= 4) should never assign any specialist at all (they should focus on growth almost always, and if they can't grow, on yields then or whatever else they can do, should more often than not be helpful). See example of AI issues addressed with(/by?) this change in screenshots of this known issue. Hopefully helps AI a lot be competitive if i may say in this case.
-- mid size cities (as of now <= 7) with other conditions such as happy extra happiness (as of now >= 1 surplus (e.g. 8 happiness 6 unhappiness)) and extra food to accomodate this growth (as of now food difference >= 2 and not food is production that changes this formula) should favour growth and not assign any specialist. Hopefully this helps AI grow its cities faster while not killing versatility, as when they stagnate or are too big, they would fall back again to previous rules which seem otherwise to work quite well minus the edge case of low pop cities that don't grow at all due to too early specialist, which i hope these intend to patch/work around while making AI stronger as a result too as well in most cases at least
+- mid size cities (as of now <= 7) with other conditions such as happy extra happiness (as of now >= 1 surplus (e.g. 8 happiness 6 unhappiness)) and extra food to accommodate this growth (as of now food difference >= 2 and not food is production that changes this formula) should favour growth and not assign any specialist. Hopefully this helps AI grow its cities faster while not killing versatility, as when they stagnate or are too big, they would fall back again to previous rules which seem otherwise to work quite well minus the edge case of low pop cities that don't grow at all due to too early specialist, which i hope these intend to patch/work around while making AI stronger as a result too as well in most cases at least
 - for barbarians, on top of these rules, which should affect most of its cities, only allow the scientist specialist, as they have no use for the priest or spy or such, but the scientist specifically may help them stay relevant longer in tech without killing versatility, especially if we make them stronger later in the game so they don't disappear too soon but as of now hopefully this helps the AI as well in case it assigned such specialists.
 
 Hopefully they help AI be stronger and more reliable in its specialist choices or rather maybe non-choices here
@@ -1534,7 +1536,7 @@ update: after a bit further evaluation, i have decided to generalize the previou
 
 In the DLL i have cleaned up the old `uiFlag` code that was super redundant and messy, with the help of chatgpt 5 and a bit of claude ai too. I don't know too much about these, but if i understood and understand i mean too correctly this code was responsible for keeping savegame compatibility.
 
-While it would be nice if old savegames could be preserved accross all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean.
+While it would be nice if old savegames could be preserved across all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean.
 
 As a result, savegames are not compatible whenever a breaking change is made in AdvCiv-SAS. See related info at [/README.md#not-supported-in-advciv-sas](/README.md#not-supported-in-advciv-sas) as well.
 
@@ -1863,7 +1865,7 @@ After the changes (existing screenshots between 279 and 280), we instead build a
 - colosseum (a bit inefficient per hammer cost but the happiness helps grow since we have health room)
 - market (very good!! Gilgamesh has elephants bonus so it is great to increase happiness and all)
 
-Thanks to these it seems, kish city is now pop 13 instead at turn 150 (resuming from same save file at turn 100)!!! Which is tremendously better, both very nice hill grassland tiles are worked and improved since we have the population to accomodate them(/these?), and interesting thing is kish city switched from 3 scientists ebfore changes at pop 10 to now 3 merchants at pop 13 (the slider is 100% commerce too), so some code written by someone or many people or not xd leverages the market being built and goes for merchants which is more efficient than scientists here since we have no library after our changes but have a market so better use it!! I would have never thought of skipping library to build a market to gain happiness and then switch to merchant economy xd, that's super smart!!! Our production is still good, but city much better, and much better longterm potential even if we have slightly less untis as a result but are still the military leader at turn 150 (would be worth even if we lost quite a bit of power but is fine in such case).
+Thanks to these it seems, kish city is now pop 13 instead at turn 150 (resuming from same save file at turn 100)!!! Which is tremendously better, both very nice hill grassland tiles are worked and improved since we have the population to accommodate them(/these?), and interesting thing is kish city switched from 3 scientists ebfore changes at pop 10 to now 3 merchants at pop 13 (the slider is 100% commerce too), so some code written by someone or many people or not xd leverages the market being built and goes for merchants which is more efficient than scientists here since we have no library after our changes but have a market so better use it!! I would have never thought of skipping library to build a market to gain happiness and then switch to merchant economy xd, that's super smart!!! Our production is still good, but city much better, and much better longterm potential even if we have slightly less untis as a result but are still the military leader at turn 150 (would be worth even if we lost quite a bit of power but is fine in such case).
 
 So all in all seems like a very good safe and balanced change that should make AI much stronger especially at middle game and city growing!! But check to be sure.
 
@@ -1956,7 +1958,7 @@ So chatgpt 5 then got the brilliant idea to add our logic in `CvUnit::canScrap`,
 
 I refined the logic by telling it to as of now never scrap valuable military land units, and also as a general rule to never scrap before turn 150 for any unit at all regardless of its unitai or such. (So including workers, triremes, etc.) Hopefully this helps AI not waste hammer destroying and rebuilding units non stop.
 
-As can be seen in these screenshots after the change as well, japan ai now has a proper midgame, and doesn't die nor is badly weakened by barbarians taking its city(ies). I believe AI is stronger as such, and no extra change is needed, except reducing starting defenders and reducing handicap a bit to accomodate, after all no risk to overproduce if we have more even terms than the human, and the excess land military units are always useful.
+As can be seen in these screenshots after the change as well, japan ai now has a proper midgame, and doesn't die nor is badly weakened by barbarians taking its city(ies). I believe AI is stronger as such, and no extra change is needed, except reducing starting defenders and reducing handicap a bit to accommodate, after all no risk to overproduce if we have more even terms than the human, and the excess land military units are always useful.
 
 The results of before/after change are resumed by chatgpt 5's own analysis of each screenshot, but check if accurate as well if needed
 
@@ -2014,7 +2016,7 @@ It also seemed although i didn't check too much that some of those privateers di
 
 So just like in known issue as of now 52, we generalized the production control and overproduction management by putting our prechecks at the source, which seems to be `CvCityAI::AI_chooseUnit`. I did some refactoring as well with the help of chatgpt 5so the overloaded function now calls the 2nd overloaded one since they ultimately perform the same task duplicated, and so we can control it all so nice xd in one place.
 
-On top of that, i matched these new rules per unitAI asymetrically in `CvUnit::canScrap` as well, with now a more general approach covering more unitais than before or differently. The main/generalidea is quite simple: make sure we don't overproduce using max units for most unitais, then when it comes to scrapping, generally don't scrap most of these unitais (plus some extra nice sanity checks like don't scrap icbm, or great person units (who knows if they do somehow), etc.) and assume we have produced just enough anyway.
+On top of that, i matched these new rules per unitAI asymmetrically in `CvUnit::canScrap` as well, with now a more general approach covering more unitais than before or differently. The main/generalidea is quite simple: make sure we don't overproduce using max units for most unitais, then when it comes to scrapping, generally don't scrap most of these unitais (plus some extra nice sanity checks like don't scrap icbm, or great person units (who knows if they do somehow), etc.) and assume we have produced just enough anyway.
 
 I didn't implement any economy check, but it seems we don't go bankrupt at least for now, even if we did, if we are in danger or weak, it's better to do this last ditch effort than say build a wonder xd, which we also prevent in other known issue(s) hehe so AI is really strong now at least much more than in base advciv, and despite plenty of things to improve too ideally but still very nice progress.
 
@@ -2375,7 +2377,7 @@ Kept as is until i find the cause, but if we can streghten our functio so we don
 
 If i remove it (i.e. assuming we fix this specific crash and you encounter a crash), consider tinkering around `CvUnitAI::AI_bestCityBuild` or its callers, and see what happens and if it solves your issue, including but not only reenabling the safeties i mentioned or others changes if any.
 
-Update: fixed!!! The culprit was not our now strenghtened (and before that nicely rewritten) `CvUnitAI::AI_bestCityBuild` function but instead our reliance on old code of the `AI_betterPlotBuild` in `CvUnitAI::AI_nextCityToImprove` a bit after calling our rewritten function:
+Update: fixed!!! The culprit was not our now strengthened (and before that nicely rewritten) `CvUnitAI::AI_bestCityBuild` function but instead our reliance on old code of the `AI_betterPlotBuild` in `CvUnitAI::AI_nextCityToImprove` a bit after calling our rewritten function:
 
 ```cpp
 		getGroup()->pushMission(eMission, /* </advc.121> */
@@ -3057,7 +3059,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 AI seemingly was often too slow or straight up not valuing for research key military techs (with a high enough FLAVOR_MILITARY, see sas defines for details) at all, even when it was weaker and at risk of dying (economy or such techs would be useless to it at best, and at worst they would be researching them for their ennemies when they conquer them (kind of like how AI used to do/be for wonders before our changes i mean.)).
 
-After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead (but that he could not sustain after our changes it seems), and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later).
+After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead (but that he could not sustain after our changes it seems), and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemingly stronger eventually even though this was shortly game would have otherwise ended on time not long later).
 
 This seems like a good AI improvement at least based on this autoplay comparison sample, and at least a nice sanity to have for AIs.
 
@@ -4087,7 +4089,7 @@ Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot, as p
 
 See [commit/d2500dc40107815d6a0afef5b481b9d2073c1743](https://github.com/wonderingabout/AdvCiv-SAS/commit/d2500dc40107815d6a0afef5b481b9d2073c1743) and files for details about the fix.
 
-## 101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemignly counting them for the total GP calculation
+## 101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemingly counting them for the total GP calculation
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tzj-F2YcMUAbu1ltKkNM0l8vYZWQ-Xf8?usp=sharing).
 
@@ -4493,13 +4495,13 @@ Workaround used (kept intentionally minimal):
 
 This is a targeted workaround rather than a full Glance layout rewrite.
 
-## 117 - (Fixed) Score tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)
+## 117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tTPS4NWkAe5sJ5xqD9Z3aqlLCV8-W9w0?usp=sharing).
 
 Observed issue:
 
-- In Info Screen (F9) Score tab, the `Att` attitude icon char disappeared when text was upscaled (`SAS_UI_FONT_LABEL` 3 or 4).
+- In Info Screen (F9) Score Tab, the `Att` attitude icon char disappeared when text was upscaled (`SAS_UI_FONT_LABEL` 3 or 4).
 - The same icon chars appeared at smaller font paths (`SAS_UI_FONT_LABEL` 2 or lower).
 
 Root cause:
@@ -4510,7 +4512,7 @@ Root cause:
 
 Fix applied:
 
-- Added attitude icon chars into `GameFont.tga` too, using higher-quality source icons (21x20, from RI mod) while keeping textual icon-char rendering in Score tab as it was.
+- Added attitude icon chars into `GameFont.tga` too, using higher-quality source icons (21x20, from RI mod) while keeping textual icon-char rendering in Score Tab as it was.
 - Done with the help of Game Font Editor (V0.6) by Asaf.
 - Result: attitude icon chars are now visible at upscaled label fonts (3 and 4), while still working at lower label fonts.
 
@@ -4742,13 +4744,13 @@ File changed:
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sglSFxWnZ31_bl_Q5l8iVUmR-lVwUfUl?usp=sharing).
 
-If players start a game on larger world sizes (as of now SAS24 or higher) while using the 18civsDLL, player count is capped at 18 even if world size has a default player count of e.g., 24 on SAS24 world size.
+If players start a game on larger world sizes (as of now SAS24 or higher) while using the 18 civs DLL, player count is capped at 18 even if world size has a default player count of e.g., 24 on SAS24 world size.
 
 Also, players were not notified of this, so they may engage unawarely in a game where world size would never be fully populated most likely (extreme example as of now: 18 players on SAS48 worldsize).
 
 To work around this issue, added a popup at game start with the very nice help of Claude code Opus 4.7 thanks.
 
-Change in `onGameStart` in [CvEventManager.py](Assets/Python/CvEventManager.py).
+Change in `onGameStart` in [CvEventManager.py](/Assets/Python/CvEventManager.py).
 
 ## 128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior
 
@@ -4762,7 +4764,7 @@ Observed issue 1:
 
 Observed issue 2:
 
-- While documenting/testing the Sevopedia expanded-text playground, Civ4 sometimes crashed when exiting through the Windows red X after a sequence like opening the Info Screen Score tab, loading a save, browsing Sevopedia, and changing playground styles/backgrounds.
+- While documenting/testing the Sevopedia expanded-text playground, Civ4 sometimes crashed when exiting through the Windows red X after a sequence like opening the Info Screen Score Tab, loading a save, browsing Sevopedia, and changing playground styles/backgrounds.
 - The crash could not be reproduced reliably after the fixes below, so the exact root cause is not proven.
 - Crash dump signature from `crashdmp_styles.txt`: `INVALID_POINTER_WRITE_c0000005`, `ntdll!RtlpWaitOnCriticalSection`, with `Cannot read DebugInfo address ... Possible causes: The critical section is not initialized, deleted or corrupted`.
 
@@ -4801,6 +4803,18 @@ Notes:
 
 - The exact native/root cause was hard to pinpoint, so this entry describes the observed behavior and the empirically fixed redraw pattern rather than claiming a precise engine cause.
 - The fix follows the practical shape of the BUG Military Advisor, which keeps its screen alive during tab changes and rebuilds tab contents in place.
+
+Update:
+
+- Later, while optimizing the new Battles tab, we tried to preserve the built Battles table across full Military Advisor close/reopen by making the whole advisor screen persistent with `screen.setPersistent(True)`.
+- This was a performance optimization only: it made very large late-game battle histories faster to reopen after closing the advisor.
+- However, this persistent-screen approach was reverted because Civ4's native minimap did not survive that lifecycle reliably.
+- Same-open Military Advisor tab switching remained lightweight and stable as long as the advisor was not exited.
+- But after exiting and reopening the Military Advisor, the Map tab minimap became an empty blue panel instead of rendering the map.
+- Debug mode could trigger the same broken minimap state, and turning debug mode back off did not restore it; only save reload did.
+- Final behavior: keep the in-place tab redraw/cache path for same-open tab switching, but keep the whole Military Advisor screen non-persistent with `screen.setPersistent(False)`.
+- Trade-off: the Battles table cache is no longer preserved across full Military Advisor close/reopen, so very large late-game battle histories may reopen slower.
+- This is preferred because the Map tab should always render correctly, while the extreme late-game battle-history reopen case is rarer.
 
 File changed:
 
@@ -5031,3 +5045,47 @@ Fix applied:
 File changed:
 
 - [PrivateMaps/Global_Highlands.py](/PrivateMaps/Global_Highlands.py)
+
+## 139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1qEI8Msow1oHdDwIVqpshRy6jiQGOrdxA?usp=sharing).
+
+Observed issue:
+
+- In base AdvCiv 1.12, the Foreign Advisor BUG menu displayed the "Enhanced Info" (Tab) checkbox on the same visual row as the Numbers/Smilies/Both attitude dropdown.
+- That dropdown controls Glance-tab attitude display, not the Info tab, but the "Glance Tab" show/hide checkbox was on a separate row. This made the dropdown look like it belonged to "Enhanced Info Tab" instead of to the Glance tab.
+
+Fix applied:
+
+- Removed the obsolete `EFAImprovedInfo` BUG-menu checkbox and config option because AdvCiv-SAS always uses `drawInfoImproved` for the Info tab.
+- Kept `EFAGlanceAttitudes` as its own visible dropdown with the explicit label "Glance Tab Attitudes", so the setting reads as a separate Glance-tab display option.
+- Kept the old `EFAGlanceTab` and `EFACityTrades` visibility options disabled because those Foreign Advisor tabs are now always shown.
+
+Remaining caveat:
+
+- Showing both attitude numbers and smilies adds an extra attitude glyph next to text in tight Glance-tab cells. After Glance-tab pagination capped the number of players per page, Large Pangaea/default-player testing showed the combined mode still renders well when upscaled, including a long `-17` plus at-war and worst-enemy icon case. Higher-player games were not tested here and may behave differently. This is why AdvCiv-SAS defaults to Both while keeping the display mode configurable and the Glance players-per-page cap tunable for tighter cases.
+
+Files changed:
+
+- [Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py](/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py)
+- [Assets/Config/BUG Advisors.xml](/Assets/Config/BUG%20Advisors.xml)
+- [Assets/XML/Text/AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml)
+
+## 140 - (Fixed) Base AdvCiv issue: Foreign Advisor Glance tab showed incorrect and inconsistent +0 attitude display in self cells
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1bipOz4VPLNGrY5QNuolx0M7dwlkJaaej?usp=sharing).
+
+Observed issue:
+
+- In base AdvCiv 1.12, the Foreign Advisor Glance tab could show `+0` in diagonal cells where the row player and column player are the same player.
+- Those cells are not real attitude modifiers against another player. Showing `+0` made them look like actual attitude data.
+- In Both mode, this was also visually inconsistent: real `+0` relation cells showed the attitude icon plus `+0`, while self cells showed only `+0`.
+
+Fix applied:
+
+- Leave player-vs-itself Glance cells empty.
+- Use a neutral widget for those cells so they do not imply a real relation tooltip.
+
+File changed:
+
+- [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)

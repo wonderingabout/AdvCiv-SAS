@@ -26,17 +26,8 @@
 
 <!-- Foreign Advisor -->
 
-	<!-- advc.004: The tab is called "Einblick" in German (though "Überblick"
-		 would perhaps indeed be a better name) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT</Tag>
-		<English>Glance Tab</English>
-		<French>Page Coup d'Oeuil</French>
-		<German>Einblick</German>
-		<Italian>Tabella "Occhiata"</Italian>
-		<Spanish>Pestaña Mirar</Spanish>
-	</TEXT>
-	
+	<!-- custom: note: removed TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT since we as of now no longer have the Show Glance Tab option in Advisors (BUG Menu) (now always ON) -->
+
 	<!-- custom: Long_Comments_XML.txt #238 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_LIST</Tag>
@@ -111,8 +102,6 @@
 		<Italian>Volontà di guerra</Italian>
 		<Spanish>Guerras patrocinadas</Spanish>
 	</TEXT>
-	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
-		 BUG_Advisors_Options.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_HOVER</Tag>
 		<English>When checked, the Glance tab shows fist icons to indicate which leaders are currently willing to start a war at your request.</English>
@@ -122,25 +111,6 @@
 		<Spanish>Si se activa, la pestaña Mirar muestra iconos de puño para indicar qué líderes están dispuestos a iniciar una guerra a su petición.</Spanish>
 	</TEXT>
 
-	<!-- advc.ctr (FIS translations are placeholders) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFACITYTRADES_TEXT</Tag>
-		<English>Cities Tab</English>
-		<French>Villes</French>
-		<German>Städte-Bildschirm</German>
-		<Italian>Citt&#224;</Italian>
-		<Spanish>Ciudades</Spanish>
-	</TEXT>
-	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
-		 BUG_Advisors_Options.xml -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFACITYTRADES_HOVER</Tag>
-		<English>When checked, a tab "Cities" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</English>
-		<French>When checked, a tab "Villes" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</French>
-		<German>Zeigt auf dem Auslandsberater-Bildschirm den Reiter "Städte" an, welcher die Städte aufführt, mit denen Ihre Mitspieler bereit sind, Handel zu treiben.</German>
-		<Italian>When checked, a tab "Città" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</Italian>
-		<Spanish>When checked, a tab "Ciudades" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</Spanish>
-	</TEXT>
 
 <!-- Military Advisor -->
 
