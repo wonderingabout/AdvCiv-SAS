@@ -34,7 +34,7 @@ python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedi
 
 ### ChatGPT single-line cleanup scripts
 
-These were generated during a ChatGPT-5.5 Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
+These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
 
 The generated scripts were staged working scripts, not polished repo utilities:
 
@@ -167,6 +167,32 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow
 python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 50
 python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 --focus-start-pct 20 --focus-end-pct 80
 python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
+```
+
+## Game info comparison helpers
+
+### `compare_handicap_infos.py`
+
+- Report-only. Does not modify source files.
+- Compares one `CIV4HandicapInfo.xml` against another; pass both XML paths explicitly.
+- Compares handicap entries by XML order/index, so added/removed difficulties in other mods show with the missing side blank instead of relying on hardcoded difficulty names.
+- Missing/new fields on either side are also shown with the missing side blank.
+- Adds a separate entry table with each index's left/right `Type` and `Description`, then lists changed fields by index.
+- Flattens handicap XML by field path and writes an LLM-friendly Markdown table with flat numeric deltas and percentage deltas, computed as `(file 2 - file 1) / file 1` when both values are numeric and file 1 is nonzero.
+- Repeated XML collections such as `Goodies`, `FreeTechs`, and `AIFreeTechs` are compared as compact counted lists instead of noisy index-by-index rows.
+- Writes timestamped output to `LLM_Helpers\outputs\handicap_compare_<UTC-ISO>.md` by default; this folder is git-ignored.
+- `--example-output` writes to `LLM_Helpers\examples\handicap_infos_compared.md` instead, useful when publishing a stable hosted example URL.
+- The report includes its UTC run time, output path, and full input paths because XML assets can change between analysis runs.
+- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each handicap index. Empty cells mean that field/index has no shown change or no matching value on that side.
+- Optional `--file1-label`/`--file2-label` labels make published examples clearer while the defaults stay generic.
+- `--tsv-output` optionally writes the same matrix as a separate `.tsv` file too.
+- Created with GPT-5.5/Codex and reviewed with GPT-5.5-Thinking.
+
+```powershell
+python LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS"
+python LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS" --example-output
+python LLM_Helpers\compare_handicap_infos.py "..\SomeMod\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label SomeMod --file2-label AdvCiv-SAS --output C:\tmp\handicap_compare.md --tsv-output C:\tmp\handicap_compare.tsv
+python LLM_Helpers\compare_handicap_infos.py C:\tmp\file1.xml C:\tmp\file2.xml
 ```
 
 ## Static audit helpers
