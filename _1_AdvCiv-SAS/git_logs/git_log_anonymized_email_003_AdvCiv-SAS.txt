@@ -1,3 +1,2509 @@
+commit 1548510c785183e31222d43bd06dc1b2a919920a
+Author: wonderingabout <hidden>
+Date:   2026-05-24 15:29:34 +0200
+
+make city screen bonuses optionally larger icons if there is room and if some of the tunable rendering modes are set, sevopedia redirects to sevopedia bonus (in a varying way depending on mode)
+- refactor/cleanup CvMainInterface: done with the help of GPT-5.5, GPT-5.5-Thinking (review), and Claude Sonnet 4.6 (review)
+- restore and rename "Units"/"Buildings"/"Wonders" hover text to "Start Scroll at Units (Production Chooser Bar)" (same for Buildings and Wonders) (City Screen) (clearer and so it is not confused with the new AdvCiv-SAS Building Filter buttons' behaviour (filter on click vs set default scroll position))
+- update docs
+
+(tried to fit these many changes into this release number)
+
+fix commerce sliders + - buttons and text being partially hidden under Technology Advisor, and when Min Max ++ -- buttons are on for commerce sliders move it as a new row under them rather so it is horizontally more compact
+
+Shifted the default horizontal tech-tree start position left so, at 1080p, the current visible Ancient-era last column renders fully and symmetrically
+instead of being partially cut off to the right, and without having to tediously nudge the horizontal scrollbar at game start
+
+Fix policy advisor style being inconsistently white bold even when a tab link is selected instead of yellow, and foreign advisor tab links inconsistently not being bold
+- Refactor to helper files reusable advisor footer tabs (fixes the above as a side effect too)
+- Remove Show Glance Tab and Cities Tab options, now always on: matches previous AdvCiv-SAs victory screen change of always showing all tabs; simplifies code implementation too
+
+note: "<!-- custom: note: EFAGlanceAttitudes don't seem to be used in Base AdvCiv 1.12, kept here as they were part of the code but currently not functional it seems in AdvCiv-SAS either. -->"
+
+Fix Military Advisor minimap being an empty blue panel instead if debug mode is entered or sometimes on Military Advisor exit and reopen (change to screen.setPersistent(False)). See KI#129 (Update).
+- We deliberately do not preserve the whole Military Advisor across full close/reopen: testing `screen.setPersistent(True)` there made very large late-game Battles histories faster to reopen, but broke Civ4's native minimap lifecycle, causing the Map tab to reopen as an empty blue panel and also break after debug-mode transitions until save reload. So the Battles cache is kept for tab switching only, while full Military Advisor close/reopen rebuilds the screen/minimap for reliability. See also KI#129 (Update).
+- partial update docs
+
+remove BUG Menu unused advisor options, add text for Glance Tab Attitude dropdown (Fixes Base AdvCiv issue, see KI#139)
+- Following the change that the old **Enhanced Info Tab** BUG option was removed (to better support text upscaling and game resolution changes), the remaining Glance-tab attitude dropdown now has its own explicit **Glance Tab Attitudes** row for clarity instead of looking attached to the Info-tab option; see [KI#139].
+- Following the change that the Foreign Advisor **Glance** and **Cities** tabs are always shown, the corresponding old BUG menu visibility toggles are now removed
+
+change glance tab attitudes default from Numbers (only) to Both (numbers and smilies)
+- **Glance Tab Attitudes** row for clarity instead of looking attached to the Info-tab option, and now defaults to **Both (numbers and smilies)** instead of the previous **Numbers**-only default, after Large Pangaea/default-player testing showed an upscaled long case such as `-17` with at-war and worst-enemy icons still displayed fully after the per-page player cap. Higher-player games were not tested here and may behave differently; the tunable cap remains the adjustment point if needed. See [KI#139]
+
+Glance Tab: Diagonal player-vs-itself cells are now left empty instead of showing incorrect/inconsistent `+0` attitude display. See KI#140.
+
+commit f2ca08ee131cd52941d4685aba919e88ecb8e266
+Author: wonderingabout <hidden>
+Date:   2026-05-22 22:13:21 +0200
+
+speed up battles/timeline tabs reopen (unless history/layout state changes); preserve advisor perspective
+as per and based on GPT-5.5's message thanks:
+- preserve selected debug/vassal perspective in supported advisors
+- keep Victory Settings anchored to the real active player
+- reuse built Military Advisor Battles and Info Screen Timeline tables across tab switches/reopen when state is unchanged
+- convert Info Screen Timeline from ListBox to one-column table so it can be reused the same way. Note that preserving the old Timeline ListBox helped tab switches but not Info Screen close/reopen
+- rebuild heavy tables when player/history/language/layout or relevant display settings change
+- fix Battles LOG player legend py error from reading XP as opponent PID
+- minor formatting/comment polish and other changes
+
+commit c0af31da65b039f74aca96a3b65d716ae462f58d
+Author: wonderingabout <hidden>
+Date:   2026-05-22 15:57:38 +0200
+
+fix right-click working but not left-click for redirect to sevopedia on click for religion and corporation icons that are yellow-square colored, despite hover working fine
+- (for non-yellow square colored icons, both left-click and right-click was functional)
+- fix Team_Battleground.py ARENA world size's grid size being same as DUEL's instead of slightly less
+- minor organizatons icon art increase
+
+commit dee1d9c5ad56012188ae265a273e66905127dbc9
+Author: wonderingabout <hidden>
+Date:   2026-05-22 15:20:34 +0200
+
+add redirect to sevopedia on click (preserving WIDGET_HELP hover) for religion and corporation icons (city screen)
+- make religion and corporation icons larger too
+
+commit de057d10e84510307929045c4e902d56e123902c
+Author: wonderingabout <hidden>
+Date:   2026-05-22 15:07:00 +0200
+
+Summary Tab enhancements/tweaks (Military Advisor)
+- show missing battles panel rows even when inactive (use "-")
+- show buildings x / y value only if tech is known, else show "-"
+- for national wonders show 0 / 1 if not built but known
+- other minor or related changes
+
+commit 63884cdbf7c33577f2531e54ef193e547ea578a5
+Author: wonderingabout <hidden>
+Date:   2026-05-22 13:37:03 +0200
+
+refactor hardcoded magic sas world size integers into helper shared SAS_WORLDSIZE_ integer constants
+done with the very nice help of GPT-5.5, review ok with the help of claude code opus 4.7 thanks
+
+commit 05174d6206304e62983b85614ab44bbc73e21420
+Author: wonderingabout <hidden>
+Date:   2026-05-22 12:39:39 +0200
+
+mostly generalize direct map grid-size tables after ARENA shift
+as per GPT-5.5's review:
+
+Already handled in this diff
+Direct getGridSize dictionaries in BTG_Grid, BTG_Lagoon, Earth2, SAS_Longworld, plus the generic template in CvMapGeneratorUtil. Those were the risky ones because they index runtime eWorldSize directly.
+
+Likely OK / not urgent
+Percent-scaling maps like Pangaea, Terra, Hemispheres, Tectonics, Mixed_Continents, not_too_Big_or_Small. These usually use getNumPlotsPercent, so XML provides the base size and the dict is only a modifier. They may be semantically shifted, but the result remains plausible and changing them should be tested map-by-map, not swept in blindly.
+
+Needs separate review if we want to be exhaustive
+Rainforest, Global_Highlands grain tables, Earth2 grain table, RandomScriptMap. These are not direct dimensions, but they still use runtime getWorldSize() or similar keys for terrain/grain behavior. A shift there can affect climate/shape rather than map size. Worth a separate commit if we care.
+
+also in this commit:
+
+-  Fix SAS_Longworld.py key error when world size is Huge (was too small and incorrect at this world size too). Minor grid size adjustments (SAS48 is preserved as compared to before, standard world size also seems empirically fairly well spaced. World sizes have been adjusted with the help of GPT-5.5 so they have about the same per default ratio, so i'm thinking other worldsizes likely didn't shift too much as compared to before).
+
+commit f96ddafd752ced10725bc593e298fa17b5222b70
+Author: wonderingabout <hidden>
+Date:   2026-05-22 11:18:26 +0200
+
+Mapscript fixes and other changes
+- Fix BTG_Cross.py always using 60 x 60 grid size for worldsizes below Huge (Beyond the Game mod issue, see KI#137).
+- Fix Global_Highlands.py being too big (Base AdvCiv issue, see KI#138)
+- Fix PerfectMongoose.py and Water.py world sizes being incorrectly applied (AdvCiv-SAS specific issue)
+- Add W x H grid size information in Victory screen's Settings tab
+- Add sevopedia legend and legend link for sevopedia world sizes
+
+commit bd1cb45ec3247ebd3e3fc282ef5ceb9c5910bf12
+Author: wonderingabout <hidden>
+Date:   2026-05-21 11:48:10 +0200
+
+merge base advciv 1.12 changes part 2
+
+commit 4a2c6394d1d4add7ac1c0e2f094413e299912295
+Author: wonderingabout <hidden>
+Date:   2026-05-21 11:46:36 +0200
+
+Merge remote-tracking branch 'upstream/1.12' into updated-tech-rework
+- updated default 48 civs DLL, and 18 civs DLL
+- autoplay tested to seemingly run fine end to end on a sas24 pangea map in one go (win at t392, no crash), and other 0 to 100 and 0 to 200 autoplay runs on perfect mongoose
+- note: perfect mongoose takes significantly longer to load, didn't measure but maybe 2x or more like 3x-4x or such longer
+
+notes (claude code opus 4.7's review):
+3. ~2x slower load — expected, it's inherent to this fix (not your error)
+The old getCirclePoints returned only the circle outline (~8·r points). The fix switches the averaging functions to getFilledCirclePoints, which returns the filled disc (~π·r² points). Those run per-tile in Smooth/Deviate (width×height calls), so per-tile work went from O(r) to O(r²) → big map-gen slowdown. That's the cost of sampling the full neighborhood for a correct average instead of just the ring. Your port is right; the slowdown is upstream's trade-off. Worth noting in your changelog so it's not mistaken for a regression later.
+
+commit 814b748d66bafe8a671d32caeb5a6fa4fa44752f
+Author: wonderingabout <hidden>
+Date:   2026-05-17 23:01:42 +0200
+
+Reduce minimap buttons horizontal interspacing (to accomodate for the added map annotations button)
+- add numTxt to iFeatureProductionModifier panel in Sevopedia Build and Feature
+- formatting/cleanup
+
+commit a18e92afb73e4c025cd0b8062b6d32e5387a2c04
+Author: wonderingabout <hidden>
+Date:   2026-05-17 22:30:44 +0200
+
+Repo-wide blank-line trim (`.py` only)
+- sevopedia main multiline collapsing and cleanup
+
+commit 35177a3a9fdf330a30d3114dd88dc6016d1fc7dc
+Author: wonderingabout <hidden>
+Date:   2026-05-17 20:28:15 +0200
+
+add audit_unused_text_keys.py and delete unused TXT_KEY_
+done with the help of claude code opus 4.7 thanks a lot :)
+
+commit f3bb231d54704f73c4184c46ebb072b03ca4b3e7
+Author: wonderingabout <hidden>
+Date:   2026-05-17 12:52:47 +0200
+
+(Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen. See KI#135.
+- fix military advisor's summary tab total percentages not being equal to 100% in a sum of subsets and minor tweaks/polish
+- document KI#136: (Open - likely Base AdvCiv lineage or maybe bad local installation/configuration, deprioritized) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns
+
+commit fea2f98c7ece0a2577b3e2f63ed5c3f2091a6d4f
+Author: wonderingabout <hidden>
+Date:   2026-05-17 10:39:30 +0200
+
+ui polish: expand to the right trade route and building table so they align with commerce sliders in city screen
+- make max number of players per page in Glance Tab tunable
+
+commit c81ee605802ddeb3f8160d0a86744e8810999fbb
+Author: wonderingabout <hidden>
+Date:   2026-05-17 09:24:56 +0200
+
+Add commerce sliders fast increment buttons (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) in city screen (matching the ones in map view)
+(not added in Finance Tab or Espionage Tab because these still have access to commerce sliders as of now at their right in map view)
+
+commit 478cf7eceaf0b074bf94a7a0b2673e53f51d0d59
+Author: wonderingabout <hidden>
+Date:   2026-05-17 08:05:02 +0200
+
+Reduce commerce sliders fast increment (++ and -- optional buttons) from 100 to 50 and make them tunable
+- push them further to the left to accomodate them being enabled
+
+commit 5be8e021c15a5111e4e4cc04794a5590a57bda94
+Author: wonderingabout <hidden>
+Date:   2026-05-17 07:32:43 +0200
+
+add toggle background style button (default kept and tunable)
+
+commit 65336cddcb00b9b4e417efb3623091136e4cb27b
+Author: wonderingabout <hidden>
+Date:   2026-05-16 19:07:42 +0200
+
+add scroll fast up/down and fastest up/down scoreboard buttons (tunable thresholds)
+
+commit b6192c987b67b6221f148f55ac1e51fd0358282c
+Author: wonderingabout <hidden>
+Date:   2026-05-16 14:19:40 +0200
+
+(Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players. See KI#134.
+- replay screen minor ui adjustments/polish
+
+commit e65191a9926e17a51288683a0b670971667dbd1b
+Author: wonderingabout <hidden>
+Date:   2026-05-16 10:16:51 +0200
+
+collapse multiline to singleline in many files
+done with the help of Claude code Opus 4.7 thanks
+
+commit cb4670d2622018a82ef705f93a6eb13d35321e9c
+Author: wonderingabout <hidden>
+Date:   2026-05-15 21:16:33 +0200
+
+add LLM_Helpers/audit_define_keys.py
+
+commit c19464996c96dcb78a6161032f9f41d50f3f0c70
+Author: wonderingabout <hidden>
+Date:   2026-05-15 20:57:07 +0200
+
+change gc.getInfoTypeForString lookups to getInfoTypeOrFail in some py files - pass 3
+- variable ones
+
+commit 3cb04993543dfffb9452a86f2d2f02797fa95846
+Author: wonderingabout <hidden>
+Date:   2026-05-15 20:40:00 +0200
+
+change gc.getInfoTypeForString lookups to getInfoTypeOrFail in some py files - pass 2
+- less safe files done, variable ones not done in this pass
+
+commit 38e49c80d083d928c63fb85de0ef2709e2224bab
+Author: wonderingabout <hidden>
+Date:   2026-05-15 20:01:21 +0200
+
+change gc.getInfoTypeForString lookups to getInfoTypeOrFail in some py files; refactor
+- a batch of relatively safer ones: advisors, sevopedia
+- hoist and cache for perf opt, collapse to multiline to single-line statements in some files
+
+commit c3bec84245fde0622701d6bef939c927979eef9a
+Author: wonderingabout <hidden>
+Date:   2026-05-15 12:43:39 +0200
+
+Summary Tab tweaks or polish; update docs
+
+commit 1127ae3c5e114adcd9a254f4421069dcde748edc
+Author: wonderingabout <hidden>
+Date:   2026-05-15 11:04:32 +0200
+
+enhance Summary Tab (Military Advisor)
+
+commit 9e84f1482c65599f9acac386a612ca6885845c81
+Author: wonderingabout <hidden>
+Date:   2026-05-14 15:35:24 +0200
+
+add Military Advisor Summary Tab: initial implementation
+- expose exact unit cost and supply breakdowns from DLL to Python
+
+commit 58f4d842f6ce2a86ebf50290ac5e479f7274cf44
+Author: wonderingabout <hidden>
+Date:   2026-05-13 22:18:35 +0200
+
+(Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)
+See KI#133.
+
+commit 88a768728de4cdee4e34e701b1408eceea402ba9
+Author: wonderingabout <hidden>
+Date:   2026-05-13 19:47:09 +0200
+
+add UP/DOWN navigation support for sevopedia index too
+(but with select row and then highlight text for the cell instead for this multi column table, to work around seeming civ4 limitations)
+
+commit 97e1fbe82725695da18192f7d798cf4834754ed8
+Author: wonderingabout <hidden>
+Date:   2026-05-13 17:47:05 +0200
+
+fix UP/DOWN arrows causing a py error in sevopedia index
+- "# <!-- custom: Index uses the shared search refresher but not the normal one-column item list; UP/DOWN item-list navigation applies only to pages drawn by placeItems. (GPT-5.5 + Claude code Opus 4.7) -->"
+
+commit 60a6aeedd7e3d465fb58732ef6a097c588743ec8
+Author: wonderingabout <hidden>
+Date:   2026-05-13 17:13:14 +0200
+
+refactor LEFT/RIGHT code
+
+commit 6d205d3971dd64ec1d975d41f96769e017b9f0d4
+Author: wonderingabout <hidden>
+Date:   2026-05-13 16:53:28 +0200
+
+add Sevopedia LEFT/RIGHT keyboard arrows support for BACK/NEXT equivalent mouse behaviour
+
+commit 3afcce5978a384bfe88a1a142b3810003623f104
+Author: wonderingabout <hidden>
+Date:   2026-05-13 13:02:38 +0200
+
+rebalance traits
+done with the very nice help of GPT-5.5-Thinking (and the same model in a temporary chat too thanks a lot :))
+
+- Updated leader traits: Charlemagne (Aggressive + Organized -> Imperialist + Organized), Hammurabi (Organized + Protective -> Aggressive + Organized), Isabella (Spiritual + Aggressive -> Spiritual + Imperialist), Kublai Khan (Imperialist + Creative -> Aggressive + Creative), Mehmed (Aggressive + Imperialist -> Imperialist + Organized), Peter (Imperialist + Organized -> Philosophical + Organized), Wang Kon (Organized + Spiritual -> Financial + Protective).
+- Updated trait counts: Aggressive 13 -> 12, Financial 11 -> 12, Philosophical 10 -> 11, Spiritual 12 -> 11; all other trait counts unchanged.
+- Updated pair distribution: maximum pair count 3 -> 2; 3-count pairs 2 -> 0; 2-count pairs 14 -> 16; 1-count pairs 21 -> 23; zero-count pairs 8 -> 6.
+- Newly populated zero pairs: Aggressive + Creative, Financial + Protective, Imperialist + Spiritual.
+- Remaining zero pairs: Charismatic + Creative, Creative + Imperialist, Creative + Organized, Creative + Spiritual, Financial + Philosophical, Imperialist + Protective.
+
+commit a1e16a6c6fd8207d53b9974ebb41347e236dac59
+Author: wonderingabout <hidden>
+Date:   2026-05-12 09:39:42 +0200
+
+(Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network (See KI#132)
+- note: for some unclear reason gpt text was sometimes or always there in advciv-sas unlike in base advciv, so this fixes it and also enhances base advciv behaviour by pushing the cannot trade text away (from gpt text)
+- replace locked/unlocked sas emojis with more distinguishable variants
+
+commit 76d024947fa7e41ed459815916c64ade44694fa1
+Author: wonderingabout <hidden>
+Date:   2026-05-11 21:16:38 +0200
+
+add remaining no-multiline scripts and update docs
+
+commit 53128310118808709cc2fdd234b3f88e66e74d66
+Author: wonderingabout <hidden>
+Date:   2026-05-11 18:19:27 +0200
+
+Merge pull request #23 from wonderingabout/no-multiline
+
+Collapse multiline statements to single-line form (CvMainInterface.py)
+commit d860b136004a2a26313ff48da9c1c5dd02a5bea1
+Author: wonderingabout <hidden>
+Date:   2026-05-11 17:22:21 +0200
+
+multiline to single line for comments - pass 4
+with LLM (with some typo or such fixes or adjustments) then my manual pass, then LLM review of said pass
+
+commit 50e19bae20f9607d5420f06dfb2290b7660e013c
+Author: wonderingabout <hidden>
+Date:   2026-05-11 12:29:40 +0200
+
+replace multiline 3, in comments too, and update docs
+
+commit 110c82fdbc7eb186f6739c618601f7d3ff98c8eb
+Author: wonderingabout <hidden>
+Date:   2026-05-11 11:39:37 +0200
+
+replace multiline 2
+
+commit c20ca1c24dee60c0b0da173dbb0cd5422248baca
+Author: wonderingabout <hidden>
+Date:   2026-05-11 11:21:24 +0200
+
+replace multiline statements with single line statements
+done with the very nice help of GPT-5.5-Thinking thanks
+
+commit ce48dab4e46e578f6f0620edb83d870a9ac0c8d3
+Author: wonderingabout <hidden>
+Date:   2026-05-11 10:55:54 +0200
+
+increase tech bar and production bar icon size and better center them in city screen and map view
+
+commit 6e6bca43e404ae93a3afbbf9c497d1a805d4de3f
+Author: wonderingabout <hidden>
+Date:   2026-05-11 08:50:04 +0200
+
+(Perf) Cache getDefineINT/getDefineSTRING calls with init-None pattern across main interface, advisors, tech chooser, end screen, and Sevopedia
+
+commit 7d2431155e7d4759a2f0a90300efed964c3d9130
+Author: wonderingabout <hidden>
+Date:   2026-05-10 18:27:04 +0200
+
+increase promotion size to unit icon size (also no longer DLL-hardcoded); reduce leader icon reduction (now mild no longer halved) in maps tab
+
+commit 5383b0c4f6c4071965b2273915bcc4be5cfc603c
+Author: wonderingabout <hidden>
+Date:   2026-05-10 16:29:36 +0200
+
+ui polish number of leader icon rows in map tab
+
+commit 43a26177b81e2ad8466c5ff7811098c6776b442f
+Author: wonderingabout <hidden>
+Date:   2026-05-10 14:18:28 +0200
+
+(Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer
+e.g., `Build a Road(3)` instead of `Build a Road (3)`.
+
+commit 8bb159110b2f43a939a6dbb0d1b52137de62e32b
+Author: wonderingabout <hidden>
+Date:   2026-05-10 12:10:11 +0200
+
+(Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)
+
+commit d8d69be689fecaf3f2c216599bc82437794bb989
+Author: wonderingabout <hidden>
+Date:   2026-05-10 11:11:29 +0200
+
+expand unit panel to support individual unit view without vertical wrap, add more leader icon rows, and make show/hide individual unit text clickable in military advisor
+
+commit 0cc73aa368513c08675b6125655242912ef75006
+Author: wonderingabout <hidden>
+Date:   2026-05-09 12:53:43 +0200
+
+rename Units tab to Map tab, and map to map_minimap in Military Advisor; refactor
+
+commit 980efa1ffc1d5e0b1252f5fd35847740afccc3ee
+Author: wonderingabout <hidden>
+Date:   2026-05-07 18:19:17 +0200
+
+add text color in sevopedia expanded text playground
+
+commit b7420a011cca8beeb52469b7c2c692f06f5af071
+Author: wonderingabout <hidden>
+Date:   2026-05-07 12:18:20 +0200
+
+beautify/enhance military advisor: lift up units bar, make leader icon bar 2 row, do not halve icon size until both rows are full
+- minor add darker sas left arrow emoji
+
+commit 6ec0a7675e4999cb24e089a0c46a1be231e79bef
+Author: wonderingabout <hidden>
+Date:   2026-05-07 05:59:14 +0200
+
+Fix Military Advisor Units-tab minimap disappeared after switching tabs. See KI#129.
+
+commit 967e1fb7b75e7c36e883ccf7614c6e2ece51e734
+Author: wonderingabout <hidden>
+Date:   2026-05-06 22:58:55 +0200
+
+add composition tab (military advisor)
+
+commit 1c7dd567dc03886d60e0e6a3d255f4717ea1a315
+Author: wonderingabout <hidden>
+Date:   2026-05-06 21:15:20 +0200
+
+add sorting for icon buttons in tables for battles tab (military advisor), score tab (info screen), sevopedia techs/traits/improvements that didn't have it; based on existing sevopedia chart categories trick; done where relevant
+
+commit dfaf0ab340df74cfaa5fa5742a3f4c4a679ae959
+Author: wonderingabout <hidden>
+Date:   2026-05-06 20:30:39 +0200
+
+add XP, great general recording and yellow color text, result emojis, polish and cleanup
+
+commit fc82d93007367f62400a0dbddd10c257baf81c36
+Author: wonderingabout <hidden>
+Date:   2026-05-06 18:07:57 +0200
+
+add city plot information in battles tab
+
+commit dd03caa3faf32229d165860a053e6d67059353d0
+Author: wonderingabout <hidden>
+Date:   2026-05-06 00:00:23 +0200
+
+Expand Battles Tab (Add Estimated %, etc.), add Sevopedia Playground and other changes
+- Sevopedia expanded panel playground for quickly testing background/panel styles.
+- Shared maximized advisor panel/table layout helper in SASUtils.py (line 66).
+- Domestic and Military Battles tabs moved to that shared layout helper.
+- Info Screen Score tab now uses that helper plus a high-contrast panel, which is the main visual improvement you just tested.
+- Military Battles legend/log button define and text/concept entries.
+- Added KI#128 in README_Known_Issues.md (line 4741). It covers both: Military Advisor SAS define initialization causing crashy runtime behavior when XML defines were changed during a Civ4 session; Sevopedia playground crash-at-exit behavior after cycling styles/backgrounds, with the crash dump signature and the suspected/worked-around causes: lazy init and DDS-only background filtering.
+
+commit bfbd40cee85b6145f7275b5fb8dc28168f7a45cb
+Author: wonderingabout <hidden>
+Date:   2026-05-05 23:39:49 +0200
+
+refactor cleanup and lazy init and cache sas defines to prevent and empirically fix python-like crashy behaviour on runtime XML SAS define change
+
+commit 5f8b6c5e45c30e21e42b11b63f11d1774f85bc25
+Author: wonderingabout <hidden>
+Date:   2026-05-05 22:55:18 +0200
+
+add hill or peak, terrain, and feature optional columns in battles tab
+
+commit 6b70f34f6e263556f15e33380d0c7f2fb9503c78
+Author: wonderingabout <hidden>
+Date:   2026-05-05 20:16:21 +0200
+
+record retreats in battles tab
+
+commit 22cc5b07fcc3d73c943406c80cf0b7bf3ec871dd
+Author: wonderingabout <hidden>
+Date:   2026-05-05 18:13:41 +0200
+
+make our unit face their unit and move leader columns close to end
+
+commit f0a7f22288da7fc9c49119f94a20575835e2a4f5
+Author: wonderingabout <hidden>
+Date:   2026-05-05 17:09:17 +0200
+
+add end effective strength so it is distinct from start effective str
+
+commit 254194766d386cafbad9fb5029047de0e90bb101
+Author: wonderingabout <hidden>
+Date:   2026-05-05 16:40:24 +0200
+
+add support for unit capture (type and count) in dll and ui for battles tab
+
+commit 1763ecf09433b9b221e64e01e21d5e2b888d8184
+Author: wonderingabout <hidden>
+Date:   2026-05-05 12:19:18 +0200
+
+battles tab: switch to our unit/their unit display
+
+commit dce381540486ef46ea6720118115bba6c94297d0
+Author: wonderingabout <hidden>
+Date:   2026-05-05 11:47:11 +0200
+
+enhance battles tab
+as per GPT-5.5's answer thx:
+
+Changes:
+
+- Effective max strength no longer gets invented from XML when combat-log strength is unknown. Unknown current and unknown max now both stay blank.
+- Added separate base/XML strength columns for attacker and defender: STRb, STRc, STRm.
+- Current strength coloring now uses:
+- white only at full effective strength
+	green above 66%
+	yellow above 33%
+	red at 33% or below
+- Updated the LOG output to include base strength too.
+- You probably do not need to regenerate saves for this UI change:
+	Base strength is computed live from XML.
+	The old invented max value was UI fallback only, so existing rows should display more honestly now.
+	Only genuinely missing combat-log data will remain blank, as intended.
+- I also trimmed table widths. The saved width goes back into attacker/defender unit-name columns.
+
+commit 955ad14a1a5e530feca4a852272cb50801ee24fb
+Author: wonderingabout <hidden>
+Date:   2026-05-05 10:37:12 +0200
+
+Merge pull request #22 from wonderingabout/search-bar-special-chars
+
+Add search bar special chars support (sevopedia)
+commit 4605e74cc04a610dfbfda974ce4673a9f21a4144
+Author: wonderingabout <hidden>
+Date:   2026-05-05 10:29:23 +0200
+
+optionally disable KEYS toggle link via sas define (but not keyboard support); update docs
+
+commit a40eb2336cc7c799606d3a670eb15897fad65e9c
+Author: wonderingabout <hidden>
+Date:   2026-05-05 09:59:13 +0200
+
+add KEYS toggle for search bar special chars
+
+commit 60383688e1dcaebb7359772b860380d515c579cb
+Author: wonderingabout <hidden>
+Date:   2026-05-05 09:49:41 +0200
+
+add search bar special chars support; update agents.md rules about special chars
+
+commit 4481a5877f859eab67a1d972fd76535d7ac00fd8
+Author: wonderingabout <hidden>
+Date:   2026-05-04 23:33:03 +0200
+
+add debug dropdown and for vassals too; minor other changes
+
+commit 62ceac98ee02a609db5819b9379e599c74116a74
+Author: wonderingabout <hidden>
+Date:   2026-05-04 22:17:19 +0200
+
+add battles tab in military advisor: initial implementation
+- note: no DLL change required at least as of now / so far
+- shorten some leader names so scoreboard doesn't overlow laterally when text is upscaled (e.g., "Willem van Oranje" -> "Willhem")
+
+commit 0cf8406790bd793b5e5d73df90a232b36349b0ca
+Author: wonderingabout <hidden>
+Date:   2026-05-04 21:44:11 +0200
+
+fix military advisor noisy empty diff and add info about it in agents.md
+
+commit 1fabcaa557533f0fdcf5c117f350930c2253ae14
+Author: wonderingabout <hidden>
+Date:   2026-05-04 18:15:16 +0200
+
+show vassals player selection dropdown in advisors
+
+commit 05e1ed7cbef1de655688d7d53e0be8b4e7b817d5
+Author: wonderingabout <hidden>
+Date:   2026-05-04 16:39:37 +0200
+
+refactor debug dropdown code to helper; add barbarian to a few advisors
+
+commit 5ba9eb9bf87c0b658de202a99276f4d377e74053
+Author: wonderingabout <hidden>
+Date:   2026-05-04 15:55:52 +0200
+
+add legend link in overview tabs; update docs
+
+commit 792db3bcb140538159997f2f20406f54137a69d4
+Author: wonderingabout <hidden>
+Date:   2026-05-04 14:11:45 +0200
+
+polish overview tabs 3
+
+commit 89968e424fedaa3ef30b673ec0e3bd34be895918
+Author: wonderingabout <hidden>
+Date:   2026-05-04 12:03:02 +0200
+
+rename overview to overview 1 (except common logic)
+
+commit 98ad82db755e6831b65d28a939e12f55c379dee2
+Author: wonderingabout <hidden>
+Date:   2026-05-04 11:55:46 +0200
+
+polish overview tabs 2
+- Dynamic corporation width now mirrors religion width.
+- Overview 3 gets the missing Pop column.
+- No extra width trimming until a real screenshot shows it is needed. (overview 3 mostly fits at its last col at 1080p so maybe fine as such)
+
+commit de2bf3716e02ed95b153d818e741bab2b748f40c
+Author: wonderingabout <hidden>
+Date:   2026-05-04 11:40:18 +0200
+
+polish and enhance overview tabs
+as per GPT-5.5's summary as it was answering my prompt thx:
+- Domestic Advisor debug player dropdown.
+- Overview 3 expanded with the remaining city modifiers.
+- Religion column dynamically sized from the inspected player's visible city data.
+- Producing gets the unused width and only gives space back when religion glyphs actually need it.
+
+commit ee29cc613461248ab369d446db00781afe4d5f64
+Author: wonderingabout <hidden>
+Date:   2026-05-04 10:55:13 +0200
+
+add overview 4 in domestic advisor, reorder columns and tweaks, lift up specialists in city screen too low after specialists breakdown split or such
+
+commit 76b0869abc823dbf7c0f356f90c206369853265d
+Author: wonderingabout <hidden>
+Date:   2026-05-04 09:08:21 +0200
+
+add unlocked sas emoji when scoreboard toggle hover lock is off
+
+commit 9b71eac1e7324ddb413be533aa66f380938f500e
+Author: wonderingabout <hidden>
+Date:   2026-05-03 20:38:14 +0200
+
+refactor sas fonts and cache their tags
+also correction to previous message: was camelCase not PascalCase
+
+commit 17aef0734f1f995ec5d4929eb2ce394bcda0be55
+Author: wonderingabout <hidden>
+Date:   2026-05-03 20:00:40 +0200
+
+rename sas font tags to pascal case because they are not constants but objects
+exception: SAS_FONT_TAG_CLOSE because it is a constant
+
+commit e9e0025afc02061e59a27fd279ee79341d183c2c
+Author: wonderingabout <hidden>
+Date:   2026-05-03 19:42:54 +0200
+
+remove sas font size defaults, init to none, add init logging, and raise error if out of bounds instead of previous silent logging
+
+commit 93b9a144a91472ea4c347bd013192162019de36a
+Author: wonderingabout <hidden>
+Date:   2026-05-03 13:22:07 +0200
+
+make 48 civs DLL the default
+18 civ DLL provided as an alternative
+
+commit 4779445d433ecb4bf41930f324dff4462b012a71
+Author: wonderingabout <hidden>
+Date:   2026-05-03 12:55:56 +0200
+
+add notification at game start if DLL max players < worldsize default players
+- See KI#127.
+- Update 48 civs DLL
+
+commit d1e15cfc3059ec4efba6cd401e2c3dde91c5fc13
+Author: wonderingabout <hidden>
+Date:   2026-05-03 10:40:21 +0200
+
+minor
+
+commit 9b8bd26265aafd886b6f39f61f7650ef1b222d6c
+Author: wonderingabout <hidden>
+Date:   2026-05-02 18:51:02 +0200
+
+unify sevopedia search bar so sevopedia index uses the same one
+(no more duplicated logic or distinct search bar, no longer remembers search history)
+
+commit 588b84596f0c62bed5b25d58426d49a12ec37d17
+Author: wonderingabout <hidden>
+Date:   2026-05-02 17:45:25 +0200
+
+move sevopedia search bar to header so its size is independent on item bar width
+- fix clear (search bar) link not working: moved outside the search bar (at its right)
+- change text to clearer and briefer "Enter text"
+
+commit 7868026fd4e15b0452ba8ae892780fe769da2e31
+Author: wonderingabout <hidden>
+Date:   2026-05-02 13:19:32 +0200
+
+refactor add LLM_Helpers/collapse_multiline_brackets.py
+
+commit 6bdf60426c6d80c90531e2e83162960b809aaf44
+Author: wonderingabout <hidden>
+Date:   2026-05-02 13:05:46 +0200
+
+minor refactor to one liner and code ordering
+
+commit cdeda7202222067e38291e4936842a9fd0ccaa13
+Author: wonderingabout <hidden>
+Date:   2026-05-02 12:43:44 +0200
+
+refactor to draw_none_text
+
+commit 026e21d6fa3ced82ff034b64c50828bfc6c4092c
+Author: wonderingabout <hidden>
+Date:   2026-05-02 12:19:58 +0200
+
+refactor expanded text 2
+- unify offset so it applies to vote and eventtrigger: seems to run fine ingame
+
+commit 1730719cbf66783288c2ac08fc6d2f70825c5f0a
+Author: wonderingabout <hidden>
+Date:   2026-05-02 12:13:47 +0200
+
+refactor expanded text
+
+commit ed83a63b2965e69878b9562bba4cb631a2a8b7df
+Author: wonderingabout <hidden>
+Date:   2026-05-02 11:52:19 +0200
+
+change panels from sevopedia improvement and specialists to bShowDragBar=True template
+
+commit 79509304cf774cfa976132fe2ba40c508939605e
+Author: wonderingabout <hidden>
+Date:   2026-05-01 08:26:19 +0200
+
+add sevopedia game player id prev/next links
+
+commit 8c54cb851764ae1cdfcc8dea8f6c465e7657a4f0
+Author: wonderingabout <hidden>
+Date:   2026-04-30 09:05:16 +0200
+
+grey BACK, NEXT, and CLEAR sevopedia buttons if they are inactive
+- minor remove improvement bullet in sevopedia build (redundant with result panel)
+
+commit ea371803fca2149711341e0e90c8a2b0b0a7a13e
+Author: wonderingabout <hidden>
+Date:   2026-04-30 08:00:27 +0200
+
+file renames
+renamed:    _1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md -> _1_AdvCiv-SAS/Docs/README_Known_Issues.md
+renamed:    _1_AdvCiv-SAS/Docs/README_More_Exhaustive_Military_Tree.md -> _1_AdvCiv-SAS/Docs/README_Military_Tree.md
+renamed:    _1_AdvCiv-SAS/Docs/README_Mods_History_And_Changes.md -> _1_AdvCiv-SAS/Docs/README_Mods_History.md
+
+commit 22c7f9c3f86cf50c487115f06ef4d3867b8ed62a
+Author: wonderingabout <hidden>
+Date:   2026-04-30 07:54:46 +0200
+
+Fix base advciv issue of BACK/NEXT history being lost on sevopedia exit; add a CLEAR button
+
+commit c0087237931dd4875d8c8c3df33d57031ce3267a
+Author: wonderingabout <hidden>
+Date:   2026-04-29 14:11:02 +0200
+
+fix first open of e.g., specialists category having UP/DOWN keyboard not working but 2nd visit then working
+
+commit 554f98b0194b5d2f4e89c20b678472d7330b42f5
+Author: wonderingabout <hidden>
+Date:   2026-04-29 12:11:50 +0200
+
+make unit bar (plotlistpanel) x, y, and width tunable
+- fix overflow of unit bar into scoreboard when unit bar is full
+- rename coll. damage to shorter to prevent having a new line for siege units
+
+commit 0ca00a40d02703932832a595ddf2f60b8e9f30a1
+Author: wonderingabout <hidden>
+Date:   2026-04-29 09:37:17 +0200
+
+add help text box adjustable width
+
+similar idea to what has been done in ri mod but simpler implementation with the help of claude code Opus 4.7 thanks :)
+
+commit 66e2dbe24661a35fa968ca8acd5fb34e16f7da56
+Author: wonderingabout <hidden>
+Date:   2026-04-28 21:36:38 +0200
+
+switch to HUD icon for toggle map annotations button; refactor simplify code and swap existing ones to match this change
+
+commit 8dc09ee2fbb8554de738b260fb19e3610dad0a23
+Author: wonderingabout <hidden>
+Date:   2026-04-28 18:36:09 +0200
+
+update docs
+
+commit 5e3ef99bf4b158a5b6266ed68a8075d720200c99
+Author: wonderingabout <hidden>
+Date:   2026-04-28 17:34:09 +0200
+
+add toggle show map annotations button (persists on save and reload)
+
+commit 7de906fcdd9d0a11d7a274d6d417be5bf507a905
+Author: wonderingabout <hidden>
+Date:   2026-04-28 10:28:49 +0200
+
+enhance Overview 1 tab; add Overview 2 and Overview 3 tabs in Domestic advisor
+
+commit cd76f9cd37df85eb10d1452844d7b475409cfed8
+Author: wonderingabout <hidden>
+Date:   2026-04-27 09:16:31 +0200
+
+Fix domestic and military advisors requiring a Civ4 restart to switch from non-BUG to BUG version or vice versa
+- See KI#123.
+- minor fix advisor shortcut text being incorrect
+
+commit 87e5d7097aa571cc885a0ba8789954813f811a43
+Author: wonderingabout <hidden>
+Date:   2026-04-26 18:17:09 +0200
+
+split terrains and features in territory tab, adjust totals (e.g., do not count hill since it overlaps with terrains) and other adjustments
+
+commit bd7c56a32b6f4e89a24fe5ffb4a89e482708c432
+Author: wonderingabout <hidden>
+Date:   2026-04-26 14:03:29 +0200
+
+add rivers, lakes, coastal land; remove forts; in bfc1 tab (and summary tab)
+
+commit 46c7c90784a55178781918b7d17d9d027f60db10
+Author: wonderingabout <hidden>
+Date:   2026-04-26 11:09:22 +0200
+
+update docs
+
+commit deda3602d07668c8f47bc18932e27458573fe814
+Author: wonderingabout <hidden>
+Date:   2026-04-26 07:55:40 +0200
+
+make environment tab last in world advisor
+
+commit 117cd6da2010534cf5f35343314134496ff0be04
+Author: wonderingabout <hidden>
+Date:   2026-04-26 07:44:14 +0200
+
+remove info screen's statistics tab and ui polish
+was inconsistent with units and buildings tables that are about built (save file) not current (on plot: e.g., building a farm replacing it with cottage on same plot then replacing it back to a farm shows total farms 1 not total built 2 unlike units and buildings)
+
+commit ec3d2640ec9de2f345bb1008100a71502e1a2e5f
+Author: wonderingabout <hidden>
+Date:   2026-04-26 01:00:08 +0200
+
+change advisor buttons and ui polish
+
+commit 9abe202a3c2e276b6f1db60e55934634c75407f5
+Author: wonderingabout <hidden>
+Date:   2026-04-25 20:15:04 +0200
+
+add Territory Tab in World advisor (based on the info screen's statistics tab (notably supports hover and redirect on click))
+- add graphical only and special map improvements in sevopedia (improvements) with corresponding groupings, like how peak and hill are in sevopedia terrain, and pedia entries
+- use legend for territory tab instead of the bfc2 tab
+
+commit 4919f62e5f990c8dfeec222436eaadfd27af82e0
+Author: wonderingabout <hidden>
+Date:   2026-04-25 18:31:22 +0200
+
+add BFC2 tab (bonsues and improvements) in world advisor
+
+commit b5ca948b8e73db21834e2492cd067ed74f6cfb3c
+Author: wonderingabout <hidden>
+Date:   2026-04-25 17:06:37 +0200
+
+add BFC tab in world advisor
+
+commit 3ad8ca1d0746cb63f7a7a494e590e2738aaeb274
+Author: wonderingabout <hidden>
+Date:   2026-04-25 15:01:50 +0200
+
+move aggressively old environment tab code from info screen to world advisor
+
+commit 3ae737e057cbbe46e96c7cd0920ae2a96e7367f6
+Author: wonderingabout <hidden>
+Date:   2026-04-25 14:40:57 +0200
+
+Add new World Advisor (F7), move the Environment tab there
+
+commit 6574be4005596d686cacee4444d2d70153995ccd
+Author: wonderingabout <hidden>
+Date:   2026-04-25 13:04:32 +0200
+
+minor line changes to tentatively fix CvInfoScreen.py weird large diff on commit
+change a few lines to attempt to reset large empty diff in CvInfoScreen.py after editing it on vs code
+
+commit db2912d8dbdc18ede5357bd85fc26ba640a496be
+Author: wonderingabout <hidden>
+Date:   2026-04-25 12:46:30 +0200
+
+fix SASFontUtils: invalid or unavailable SAS_UI_FONT_LABEL=0; using default 3
+minor error in info screen's timeline tab's table log button
+
+commit a118eeebd5d931a7b7fb7a8aa1bd76e3b2e8ecac
+Author: wonderingabout <hidden>
+Date:   2026-04-25 10:20:40 +0200
+
+beautify CvHallOfFameScreen.py with new Leader, Civilization, Player Color, and Traits columns with icons or colors or chars (based on Info Screen's Score tab)
+- note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case)
+- make info screen's score tab leader and civilization icons now redirect to sevopedia instead of diplo screen: other advisors like the foreign advisor already cover it
+
+commit f8d1cda84bbfed1b78c69b69682ef483f6356a51
+Author: wonderingabout <hidden>
+Date:   2026-04-25 09:19:34 +0200
+
+rename un.list and combat to units and unit chart
+
+commit 964cd251f729eccec421038884932b2481cd587e
+Author: wonderingabout <hidden>
+Date:   2026-04-24 16:27:12 +0200
+
+ui polish and adjustments for SevoPediaEventTrigger
+
+commit f592e66e537ff63d31b52841c5208bbfd2eaff5e
+Author: wonderingabout <hidden>
+Date:   2026-04-24 09:35:23 +0200
+
+add missing eventinfo card effects
+to prevent showing "no direct effect" when there is in fact an effect and for exhaustiveness
+
+commit 298f4e52500f23fa9213608e23b15900696255a1
+Author: wonderingabout <hidden>
+Date:   2026-04-24 09:15:14 +0200
+
+add much more SevoPediaEventTrigger prereqs
+with the very nice help of GPT-5.5 thanks a lot
+
+commit 72e780b452f6878366ad7d131e243af4a692dabf
+Author: wonderingabout <hidden>
+Date:   2026-04-24 08:42:53 +0200
+
+add direct and indirect groupings for SevoPediaEventTrigger, add numTxt and legend
+
+commit de5c11cc2c7df1c0d3b58ee3b4e43a900a0f7e0f
+Author: wonderingabout <hidden>
+Date:   2026-04-24 01:02:37 +0200
+
+minor refactor sevopedia
+
+commit db46a59ae5873aa2f7a21b387e1fe2697b010b45
+Author: wonderingabout <hidden>
+Date:   2026-04-24 00:44:52 +0200
+
+adjust sevopedia groupings logic for eventtrigger so era are better taken into account
+as per claude code opus 4.7 thanks a lot:
+
+Those diagnostics are hints about pre-existing unused parameters (bSortLists across many grouping functions, unpackMusicKey) that were there before my changes touched this file — they're part of API contracts callers depend on, not something I introduced. Leaving them alone.
+
+Summary of what I did this round:
+
+Rewrote _SAS_getEventTriggerEarliestEra to factor in all era-gating fields instead of just <OrPreReqs>/<AndPreReqs>:
+OR-tech list → min era (any single tech satisfies) — unchanged
+AND-tech list → max era (all must be known)
+<OtherPlayerHasTech> — was missing, this is what Airliner Crash uses
+<CivicPrereq> → civic's getTechPrereq() era
+<BuildingsRequired> → each BuildingClass's default building's getPrereqAndTech() era
+<UnitsRequired> → UnitClass default unit's getPrereqAndTech() era
+<ReligionsRequired> → religion's getTechPrereq() era
+<CorporationsRequired> → corporation's getTechPrereq() era
+Routes skipped (use TechMovementChanges list, no clean single-era answer; rare anyway)
+Two small extracted helpers _SAS_getBuildingClassEra / _SAS_getUnitClassEra so chain-lookup is readable
+Algorithm combines them correctly: trigger can't fire before max(min(OR), max(all AND-ish constraints))
+Returns -1 only when truly nothing era-gates the trigger
+Airliner Crash should now land in Modern (via OtherPlayerHasTech=TECH_FLIGHT). Expect the "Any era" bucket to shrink noticeably and late-era buckets (Industrial/Modern/Atomic) to grow once you relaunch.
+
+commit 823694fffa371abd232782182cea946dcb07f902
+Author: wonderingabout <hidden>
+Date:   2026-04-24 00:14:43 +0200
+
+add links in SevoPediaEventTrigger
+
+commit 218460e3fb74f8547aa06b585d78aa58af6d2908
+Author: wonderingabout <hidden>
+Date:   2026-04-23 19:34:51 +0200
+
+further enhance SevoPediaEventTrigger (add more fields in page)
+
+commit e991959c53409501d211f900b9c2fcd0e2e99e7d
+Author: wonderingabout <hidden>
+Date:   2026-04-23 17:43:21 +0200
+
+enhance SevoPediaEventTrigger implementation
+- fix 3 bugs in DLL eventtriggerinfo getters
+- add getters in DLL for SevoPediaEventTrigger
+
+commit cfa9e3cd2edddb71cb88b62ea61182ff38a06588
+Author: f1rpo <hidden>
+Date:   2026-04-23 17:50:31 +0200
+
+Preemptively fix another potential map edge issue in PerfectMongoose
+
+And a couple of small non-functional tweaks.
+Related to commit a61a76dc. [advc.021b]
+
+commit 0cfbe91b71956d4b28dcf3a728c52d90690e0251
+Author: f1rpo <hidden>
+Date:   2026-04-23 17:46:06 +0200
+
+Merge branch 'bugfixes_from_Oxidized'
+
+commit a61a76dc22259010fad5a5bb7a88b15785672b74
+Author: f1rpo <hidden>
+Date:   2026-04-23 17:44:32 +0200
+
+Fix PerfectMongoose's getPlotCircle and its uses
+
+Adopted from this CFC post: [advc.oxi]
+https://forums.civfanatics.com/threads/advanced-civ.614217/post-16942057
+
+commit 9dbf3edafe2da24c4275df7fc6f7fb9d9acf3d08
+Author: f1rpo <hidden>
+Date:   2026-04-23 17:39:08 +0200
+
+Reduce AI low-priority nuke production odds
+
+See commit f6742abc for context. Still need to do the actual testing; just a guess at what might work better. For the higher-priority rule ultimately motivating this tweak, see commit d04df9e8. [advc.650]
+
+commit 14d233db447aa4623863c04fc2d2e313a66729df
+Author: f1rpo <hidden>
+Date:   2026-04-23 17:33:58 +0200
+
+Cleaner handling of Adv. Start special rule for Creative trait
+
+Advanced Start was repeating (overwriting) the free initial culture that AdvCiv grants the Creative trait. I had not been aware of this special rule when I implemented my new ability; only noticed it now. [advc.908b]
+
+commit 92556c71ffa8f58e2b3253b39a7839fbfcf86f2a
+Author: f1rpo <hidden>
+Date:   2026-04-23 17:01:35 +0200
+
+Fix 3 unused Python-to-DLL bindings for Random Events
+
+Bug report:
+https://forums.civfanatics.com/threads/advanced-civ.614217/post-16942463
+
+Test search seems to confirm they're unused. Should be a BtS bug (but I haven't checked). [advc.sas]
+
+commit 7e3ae7fe1f6abdf8329ed8abb97403e5429c11be
+Author: wonderingabout <hidden>
+Date:   2026-04-23 07:56:29 +0200
+
+sevopedia eventtriggerinfo: initial implementation
+- changes load order in CvXMLLoadUtilitySet.cpp so events can be loaded in main menu (similarly to votes)
+
+commit 24e206d39dec3fadeadd32fa0c6403287685156c
+Author: wonderingabout <hidden>
+Date:   2026-04-22 10:29:34 +0200
+
+add civilopedia text in sevopedia votes
+
+commit 0fe53a9cba66c4187a509849a52afffe3c5d5c6e
+Author: wonderingabout <hidden>
+Date:   2026-04-22 09:30:03 +0200
+
+further refactor sevopedia
+
+commit d6c6e0bbb578b6fefee7cee1156a2ef576a611f9
+Author: wonderingabout <hidden>
+Date:   2026-04-22 09:16:02 +0200
+
+refactor sevopedia and rename long filenames
+
+commit fb18bad9c46e52dd2f7b30e6a7677f1a7c35b817
+Author: wonderingabout <hidden>
+Date:   2026-04-21 18:10:56 +0200
+
+add sevopedia votes
+- load votes before a game is started
+- fix incorrect vote parse (see KI#121)
+
+commit 4a31a6ffbcaa5367e0d221bd4242729c06e885b9
+Author: f1rpo <hidden>
+Date:   2026-04-21 15:09:35 +0200
+
+Merge branch 'bugfixes_from_Oxidized'
+
+The third (maybe final) batch; reported here: https://forums.civfanatics.com/threads/advanced-civ.614217/post-16941677
+
+Compiles; not tested. And I haven't addressed the PerfectMongoose issues.
+
+commit 1fcdfcb6ef7eaecd3cc38d3b6fafd5a31349e1fd
+Author: f1rpo <hidden>
+Date:   2026-04-21 13:04:05 +0200
+
+Fix AdvCiv AI detection of incompatible impassables when grouping
+
+Amends commit 96d67106. Probably only relevant for mod-mods adding new kinds of transport ships. [advc.057]
+
+commit a64fd6fda3a9e94c2aba94db6aca3f090f621486
+Author: f1rpo <hidden>
+Date:   2026-04-21 12:44:40 +0200
+
+Fix parsing of unused ReligionCommerce tag (regression)
+
+It's a vote source tag, akin to the Apostolic Palace production modifier. Amends commit 0e04fd7f.
+
+commit 9ac96050f618239737a2500d1d9ae64aff5ecac3
+Author: f1rpo <hidden>
+Date:   2026-04-21 12:37:49 +0200
+
+Fix another minor error in UWAI nuclear war analysis
+
+I.e. in addition to commit 384d74b7. This bug has existed since the initial commit (f6ff6a18), however.
+
+commit 8c6daa0e26412c2dadd893c7d7d04420132f915d
+Author: f1rpo <hidden>
+Date:   2026-04-21 12:33:18 +0200
+
+Fix minor UWAI error in prediction of cavalry losses
+
+Amends commit 0884de49. Has caused the predicted losses to be underestimated, but the context is cavalry losses of the defending side in a war, which should hardly matter. The cavalry stuff doesn't have much impact generally.
+
+commit c594f4c2bacbf90b61c52b6fc45dfa4a8868f899
+Author: f1rpo <hidden>
+Date:   2026-04-21 12:12:08 +0200
+
+Fix minor errors in UWAI logic for naval buildup prediction
+
+Amends commit 0884de49. Had cheated inadvertently with visibility, and had failed to assume 0 naval buildup for landlocked rivals.
+
+commit a781a79362cbedfd8685370db3646f3d960f0b2d
+Author: f1rpo <hidden>
+Date:   2026-04-21 11:30:15 +0200
+
+Fix ineffective AdvCiv AI tweak for removal of jungle
+
+... from worked tiles. Amends commit 7e0e07d5. [advc.121]
+
+commit f6742abc2b500f75b9196c1cd2655759ffc9e0f3
+Author: f1rpo <hidden>
+Date:   2026-04-21 11:20:19 +0200
+
+Fix regression causing low AI nuke production odds
+
+Amends commit b9b15b00.
+Perhaps tbd.: Use a hash value instead of a dice roll - b/c the AI re-evaluates its production choices sometimes, which makes randomness generally questionable here. Cf. commit 486038f1.
+I think I will, at any rate, reduce the nuke production odds in a later commit. Because I had added a second, higher-priority rule for nuke production after introducing this bug, and, now with the bug fixed, there might be too much nuke production overall. Generally, I think the low-priority rule is rarely reached in many games, so the bug may not have been all that consequential. [advc.650]
+
+commit 299d90a56af41e2b5aa9fbd5e57d76f80aec2883
+Author: f1rpo <hidden>
+Date:   2026-04-21 10:02:08 +0200
+
+Fix likely copy-paste error in AI eval of UN building
+
+Looks like a minor issue. Was already broken in the initial commit f6ff6a18. [advc.115b]
+
+commit c9506f86f0ef06bb550d6760f6cb3d7d94c64ca4
+Author: f1rpo <hidden>
+Date:   2026-04-21 09:48:21 +0200
+
+Fix small memory leak in CvCityAI
+
+Amends commit 434de2c7.
+
+commit f3d0345919c23538b88de252cb76c9ecf5823ff7
+Author: wonderingabout <hidden>
+Date:   2026-04-20 14:49:05 +0200
+
+make scoreboard leader tech right-align on tech chooser open, and default align on close
+not added to SAS defines due to added complexity
+
+commit bdd90ecbc37a80e6a1194de508c61e173230882a
+Author: wonderingabout <hidden>
+Date:   2026-04-20 12:44:23 +0200
+
+lift blue ribbon up and adjust extra rows dimensions, with optional separate blue ribbon, bar Y position and bar height tunables
+done with the very nice help of Claude code Opus 4.7 and GPT-5.3-Codex thanks a lot
+
+commit cea9de8907a541b3f7c850523500f22943713af4
+Author: wonderingabout <hidden>
+Date:   2026-04-20 08:58:20 +0200
+
+move city camera to the north so extra rows are free and don't overflow into bottom BFC
+
+commit 7e8e968117923f3506b994368170fefbe579d7fe
+Author: wonderingabout <hidden>
+Date:   2026-04-19 17:27:52 +0200
+
+fix sevopedia leader expanded text panel rendering aip or such inside it
+
+commit 30003b69d5e13078fb1a22b1aa07fc41b316916f
+Author: wonderingabout <hidden>
+Date:   2026-04-19 17:13:58 +0200
+
+Merge pull request #21 from wonderingabout/leaderhead-art-per-era
+
+leaderhead art per era
+commit 85e356f7ed1646734eabe13468b398b47249b8ca
+Author: wonderingabout <hidden>
+Date:   2026-04-19 16:37:03 +0200
+
+add leaderhead art era buttons in sevopedia leader, expanded leaderhead panel, and legend
+- minor expand leader buttons in expanded leaderhead panel
+
+commit 56fe019d7edc9ff1af08daf448f971afb23d528b
+Author: wonderingabout <hidden>
+Date:   2026-04-19 13:30:32 +0200
+
+make leaderhead per era tunable with SAS define and update docs
+
+commit 8f6e1c532921a76adf93f6759423930ebe0ce7dd
+Author: wonderingabout <hidden>
+Date:   2026-04-19 09:12:35 +0200
+
+perf opt: skip era art checks if leader has none
+Perf change — getArtInfo() now does a single null-check before the MAX_PLAYERS scan. Leaders with no per-era art (~49/51) skip the loop entirely. Leaders with era art take the same path as before.
+
+commit ad844aa896ba5b9917530bbb10c9c48453191cf8
+Author: wonderingabout <hidden>
+Date:   2026-04-18 20:39:36 +0200
+
+initial implementation for 2 leaders
+
+commit e57d95292b28ef9270e8068c69e6e5b68725c690
+Author: wonderingabout <hidden>
+Date:   2026-04-18 14:15:54 +0200
+
+expand most sevopedia chart categories
+- (to better support upscaled text, and except for speeds category that is tight and has its own logic)
+- upscale "Waiting for other civilizations" text in map view
+
+commit e9d0f2aab222d6febc61955c69c737b807786b28
+Author: wonderingabout <hidden>
+Date:   2026-04-18 13:41:06 +0200
+
+make expanded panels stay persistent on click to other category items (e.g., when changing leaders)
+
+commit 25259dc3e39005769f835601f21482ebde1def5f
+Author: wonderingabout <hidden>
+Date:   2026-04-18 12:39:15 +0200
+
+generalize shortcut spacing
+- order religions by xml order within a grouping in sevopedia religion. E.g., paganism before hinduism; matches sevopedia civics change
+
+commit 4a4783e4f01f6575dce8d6522b3544e009cabcef
+Author: wonderingabout <hidden>
+Date:   2026-04-18 11:14:16 +0200
+
+add sevopedia shortcuts Cheats item (from CFC), equalize tab indentation for font label 3
+source: https://forums.civfanatics.com/threads/all-keyboard-cheats-for-civ-4.664273/
+
+commit 6318cdd190866dc570c5c21b111236f8d80a532b
+Author: wonderingabout <hidden>
+Date:   2026-04-18 10:53:12 +0200
+
+fix needless and disruptive empty item pages in sevopedia first open of a category
+- they woudl pollute history too which is/was annoying
+- also in this commit although not sure is was fixed before: BACK button successfully redirects to index if index was last category visited too
+
+commit efd952b607c5af02fa465eb8487f8c81e6b1874d
+Author: wonderingabout <hidden>
+Date:   2026-04-18 10:24:17 +0200
+
+add expanded leaderhead panel
+
+commit 1b8089910d60b01feebd4a5c358526ee57c81ea2
+Author: wonderingabout <hidden>
+Date:   2026-04-17 14:42:39 +0200
+
+add Expanded Content Panels in other categories (except leaderhead)
+
+commit cc72dc546c9edac60db4e8732f57276182ee1e23
+Author: wonderingabout <hidden>
+Date:   2026-04-17 14:22:37 +0200
+
+add RELOAD button in expanded view
+
+commit c0e3bfca2029fb6bc80731b0e6bb4695adb01c43
+Author: wonderingabout <hidden>
+Date:   2026-04-17 10:08:21 +0200
+
+add Expanded content (non-text; e.g., animation) panel (with EXPAND and CLOSE buttons)
+similarly; as of now only for sevopedia unit, and polish previous stuff a bit
+
+commit 2dc47f2c381d34e334753b690ddd269358b749ef
+Author: wonderingabout <hidden>
+Date:   2026-04-16 23:32:23 +0200
+
+generalize Sevopedia Expanded Text panels; refactor
+missing in previous commit:
+
+- add Sevopedia Expanded Text panels in Sevopedia Unit
+
+commit b0e2758dc4c1756fb0ef779a010af4934a58cdd2
+Author: wonderingabout <hidden>
+Date:   2026-04-16 15:20:13 +0200
+
+add unique names to sevopedia unit's placeHistory
+- upscale pedia text when it is a concept in seovpedia unit
+
+commit 0e59d066f96606df68b1a7aa78c9453094d4dcdd
+Author: f1rpo <hidden>
+Date:   2026-04-16 04:06:32 +0200
+
+Merge branch 'bugfixes_from_Oxidized'
+
+The second batch; reported here: https://forums.civfanatics.com/threads/advanced-civ.614217/post-16939929
+
+Compiles, but I haven't tried running it yet (nor any of the changes from this spring).
+
+commit 384d74b7edc5274feb1d17d376e45873a81268ef
+Author: f1rpo <hidden>
+Date:   2026-04-16 04:01:55 +0200
+
+Fix UWAI discovery of potential parties in nuclear war
+
+Another regression caused by commit 4ae382e5.
+Alternative targets for the nukes of a war enemy, i.e. the other enemies of that enemy, had not been accounted for, and this may have sometimes made the AI more afraid of getting nuked then it was intended to be. But this seems pretty minor.
+
+commit 4392e52130d440f0ec628e805639c4a334cf71f0
+Author: f1rpo <hidden>
+Date:   2026-04-16 03:51:44 +0200
+
+Fix scrambled city asset values in AI city evac decision
+
+This has never worked correctly, broken since the initial commit (f6ff6a18). I reckon that means my adjustment to evacuation thresholds based on the importance of the city worked more like randomization or perhaps even tended to have the opposite of the intended effect. [advc.139]
+
+commit 6c90a5a9cd736a72e4c61e0d833ff57097eb41cb
+Author: f1rpo <hidden>
+Date:   2026-04-16 03:42:54 +0200
+
+Amend fix for UWAI border dispute eval (syntax)
+
+Amends dd243872. Now it compiles.
+
+commit 3e4d2ce5d36b29bc021aa281eeede26ca4ce77ac
+Author: f1rpo <hidden>
+Date:   2026-04-16 02:19:01 +0200
+
+Fix regression in AI city site eval that break first-colony logic
+
+Amends commit 078fc9bd.
+
+commit b2708af7bf86f483748a7fa481f6a553b42333cc
+Author: f1rpo <hidden>
+Date:   2026-04-16 01:46:15 +0200
+
+Refactor: Rename "std11" namespace to "sequtil"
+
+A namespace for any helper functions I need that C++11 happens to have added to std was a bad idea. Now that I've added log2 in commit 27bde47c and didn't want to put it in std11, that namespace really needs to be renamed. Not really fond of the new name either.
+
+commit dd243872ff1e7052c150056d89e71af83441ab87
+Author: f1rpo <hidden>
+Date:   2026-04-16 01:41:57 +0200
+
+Fix regression in UWAI eval of border disputes
+
+Amends commit 4ae382e5dbec429eddcc84e08935e3f94d01a20a.
+Looks like this meant that not much utility, if any, was assigned to resolving border disputes.
+I ought to still test this in the debugger.
+
+commit f1d93d53e6b2e59558c46f0b0d0285bf7a46ccf5
+Author: wonderingabout <hidden>
+Date:   2026-04-15 13:31:00 +0200
+
+simplify scoreboard +/- scroll buttons code (with the help of GPT-5.3-Codex thanks a lot)
+
+commit 6c4ac8f9ca340a3880d706ce34cae9a0bb8c1178
+Author: f1rpo <hidden>
+Date:   2026-04-15 12:21:10 +0200
+
+Fix away-supply cost not being imposed
+
+Amends commit da462d23f0ad8790d7a8dc36bf6a311a54f81b0d.
+Based on SAS commit
+https://github.com/wonderingabout/AdvCiv-SAS/commit/6901fd17969c00abada610fbfd2bdf6bf1fc01ea
+
+commit 2835bc63ff66ba509f232fa65ef75a9d051e0b3e
+Author: wonderingabout <hidden>
+Date:   2026-04-15 09:50:17 +0200
+
+Merge branch 'ui-font-scaling' of https://github.com/wonderingabout/AdvCiv-SAS into tech-rework
+
+commit 57e2cacb59465b09bb5e40977579968cae3c4609
+Author: wonderingabout <hidden>
+Date:   2026-04-15 09:35:50 +0200
+
+Merge pull request #20 from wonderingabout/ui-font-scaling
+
+ui font scaling
+commit 858784dc33c30c88e9c07a30021c5fd99295c28d
+Author: wonderingabout <hidden>
+Date:   2026-04-15 09:25:43 +0200
+
+add scoreboard toggle lock hover button
+
+commit af7f9f3532ebe2e3920b6002a8e688987a4cd7c3
+Author: wonderingabout <hidden>
+Date:   2026-04-15 08:30:37 +0200
+
+avoid scoreboard vertical overflow, and add +/- scroll buttons
+
+commit be1f2fad485ce99e03f19cbd7735916b009b7395
+Author: wonderingabout <hidden>
+Date:   2026-04-14 21:00:41 +0200
+
+upscale CvWonderMovieScreen.py (font=4b -> font title for readability and to be tunable)
+- update 48 civs DLL
+- minor upscale Exit (continue) button in CvTechSplashScreen.py
+
+commit 374524782638316ca6db2aba27174764cf23bd17
+Author: wonderingabout <hidden>
+Date:   2026-04-14 20:57:36 +0200
+
+Info Screen: widen graph legend column and runtime-fit crowded legend rows
+
+commit 5977fad88cabd4d8e59f7609afd2b9adfb192cef
+Author: wonderingabout <hidden>
+Date:   2026-04-14 12:47:33 +0200
+
+add CvWonderMovieScreen.py (with sloppy code removed)
+
+commit f4b3071f8ef9e6b540385c89cf1ccfa2f1821147
+Author: wonderingabout <hidden>
+Date:   2026-04-14 12:20:57 +0200
+
+upscale LOG button in sevopedia chart categories and in timeline tab
+- increase sevopedia music item bar width to support upscaled text and lengthiest rows like AMB_FINAL_FRONTIER
+
+commit a344736ecea0aa4095e93a2f74aff8a7b1ee288b
+Author: wonderingabout <hidden>
+Date:   2026-04-14 12:16:24 +0200
+
+upscale and slightly expand CvSpaceShipScreen.py
+- upscale View (spaceship) button in CvVictoryScreen.py
+
+commit d2954699394ad25b27ced1aa00eb1ef37c6beecd
+Author: wonderingabout <hidden>
+Date:   2026-04-14 11:21:45 +0200
+
+Strip " Era" suffix in main interface top left text
+- upscale CvEraMovieScreen.py
+- removea era grouping in sevopedia media player for music tracks (inconsistent and unneeded)
+- fix sloppy code
+
+commit a121ffba5802f868b258698e8bc647be90d5a78f
+Author: wonderingabout <hidden>
+Date:   2026-04-14 11:10:24 +0200
+
+upscale and expand moderately CvTechSplashScreen.py
+
+commit e43ac9a5a37cd7a0cd6e190d08e8e0a2b4042295
+Author: wonderingabout <hidden>
+Date:   2026-04-14 09:29:44 +0200
+
+add CvTechSplashScreen.py (from BTS)
+
+commit ffa01b3373e973a09dc3bedb05e5a009f519c83a
+Author: wonderingabout <hidden>
+Date:   2026-04-14 08:30:52 +0200
+
+upscale some of the event messages (when possible and if supported)
+
+commit e51f6d39ad2ffc5437299e3dd4191f10fabe962c
+Author: wonderingabout <hidden>
+Date:   2026-04-13 19:23:04 +0200
+
+upscale CvHallOfFameScreen.py and maximize to full screen with enlarged cols
+
+commit 7d69f981421e91a82cc0f0c095805d6e4da057f4
+Author: wonderingabout <hidden>
+Date:   2026-04-13 18:36:35 +0200
+
+upscale most of diplomacy screen (when it was possible)
+
+commit 905a5090a8b23fb374000000db041fa4fe83e56c
+Author: wonderingabout <hidden>
+Date:   2026-04-13 17:30:07 +0200
+
+always expand score tab and simplify/refactor/harmonize outer margins margins
+
+commit e987566be45ee954b12f101f03e745274b052666
+Author: wonderingabout <hidden>
+Date:   2026-04-13 16:53:34 +0200
+
+add Tech (total techs) column in score tab
+
+commit 33f32dd81f41f8ed134cc402e74b3e7bc5ba9dca
+Author: wonderingabout <hidden>
+Date:   2026-04-13 16:42:47 +0200
+
+add score tab T1/T2 columns and legend updates
+
+commit c8726554aada1a62fd0c90383c7bc8f764e6c1dc
+Author: wonderingabout <hidden>
+Date:   2026-04-13 13:45:47 +0200
+
+add icon chars for traits in CvDawnOfMan.py
+
+commit e916c282664cd89627052dc2264ae318a1a73530
+Author: wonderingabout <hidden>
+Date:   2026-04-13 13:36:23 +0200
+
+add icons for buildings and units in CvDawnOfMan.py
+
+commit a689059534e3170283ec6c202394e3a7e14a31c5
+Author: wonderingabout <hidden>
+Date:   2026-04-13 13:03:45 +0200
+
+further upscale replay screen
+
+commit 727f3bc0a31b4af2f63c2a211f0736b492e0ca22
+Author: wonderingabout <hidden>
+Date:   2026-04-13 12:48:26 +0200
+
+upscale and beautify CvDawnOfMan.py, CvReplayScreen.py, CvDanQuayle.py
+
+commit 6218188952fd036bd1b7fa5298b2aa46fd57ef94
+Author: wonderingabout <hidden>
+Date:   2026-04-13 11:34:58 +0200
+
+upscale PLE and replay screen
+
+commit d1fb5d675b06a78fb18730d5ac6ae9b0b74d4a11
+Author: wonderingabout <hidden>
+Date:   2026-04-13 11:23:04 +0200
+
+rename history tab to timeline tab
+
+commit d01fbb4c760e949dff8cd14c67b7dd439868b9db
+Author: wonderingabout <hidden>
+Date:   2026-04-13 09:55:57 +0200
+
+cache in military advisor
+
+commit 88cda735b8adc6f51482a3ee96efb9be1715aadf
+Author: wonderingabout <hidden>
+Date:   2026-04-13 09:43:47 +0200
+
+expand military advisor and refactor to use helper format
+
+commit b9bebfca3026e782ea2c5f6dfdcfcfd2c48f0912
+Author: wonderingabout <hidden>
+Date:   2026-04-12 18:10:51 +0200
+
+use higher icon size for higher resolutions in military advisor
+
+commit ad18001b5462688c879fed5340e0ba19bad7d979
+Author: wonderingabout <hidden>
+Date:   2026-04-12 17:39:54 +0200
+
+fix military icons being misaligned when text was upscaled to label; removed clunky dual display with one streamlined img-based row instead - this also fixes military advisor not supporting scrolling - fix some dds filenames causing icons to be magenta/purple (no spaces or parentheses when easily possible (i.e. not nif for example)). See KI#118.
+
+commit deba579c9d4e6baf5fd67c307b541ad14326a118
+Author: wonderingabout <hidden>
+Date:   2026-04-12 13:24:51 +0200
+
+add comment with Notepad.exe solves massive git diff when doing so with VS Code for some reason
+
+commit 4d872a762b206cb3edad965f8b4717ee4064fbe8
+Author: wonderingabout <hidden>
+Date:   2026-04-12 12:28:03 +0200
+
+add attitude icon chars in GameFont.tga: fixes them disappearing in score tab when font label >=3. See KI#117.
+- also replace dds counterparts (for sevopedia leader attitude buttons) with these upscaled icons (as 20x20 not 21x20 though else they don't display)
+
+commit 3a0a232bd36349d07c18881a1db08040ceb74f71
+Author: wonderingabout <hidden>
+Date:   2026-04-11 23:19:32 +0200
+
+fix 2nd click on a tab of the f3 advisor redirecting to the same position tab of f4 advisor instead of staying in f3 advisor
+
+commit 2128dee8c776186775239b5491df03cafd57712a
+Author: wonderingabout <hidden>
+Date:   2026-04-11 23:07:16 +0200
+
+refactor move shared safe font upscaling to label to helper file
+
+commit 7f14d9f875ea82837d40e584922c19aa8b58c60d
+Author: wonderingabout <hidden>
+Date:   2026-04-11 21:02:01 +0200
+
+fix: work around glance tabs' cells being clipped when there are 2 icons when text is upscaled
+
+commit d272086f76484833bb18d2c9c8e794c89dc6ce5d
+Author: wonderingabout <hidden>
+Date:   2026-04-11 19:50:19 +0200
+
+fix buildings list table and trade routes not being upscaled (body->label)
+- fix some advisor buttons having old name on hover
+- fix f3 advisor always returning to relations tab instead of last visited
+
+note: no idea why it switched to GPT-5.4 even though VS Code says GPT-5.3-Codex is still selected as i want and prefer so far but as long as it works why not and whatever xd i guess thx :)
+
+commit 6c23de1a0282b8a73a1c2d9e0da8f613d76b4049
+Author: wonderingabout <hidden>
+Date:   2026-04-11 09:27:05 +0200
+
+add abbreviations and legend in sevopedia speeds; reduce per font first column width (for low res only)
+
+commit 6ae1dc83d09c15b84c5c327a957e819fd422cb97
+Author: wonderingabout <hidden>
+Date:   2026-04-10 14:21:03 +0200
+
+move BACK/NEXT/EXIT buttons to the left in sevopedia leader (to avoid AIP vertical overflow)
+- fix no war at not moved to the left at 1440p
+- refactor brittle category slicing to if/else based categories ordering
+- fix: disable AIP categories computing when AIP is disabled
+
+commit 42dba7265e862a2b94fbabeef713bd3740ca6f0b
+Author: wonderingabout <hidden>
+Date:   2026-04-10 13:42:03 +0200
+
+fix lower resolutions not having old AIP category order; refactor AIP categories so they are not anonymous, easier to reorganize, and cleaner way of doing so too
+
+commit 30a79579f7136406e6a60ee14e89eb002e0a4ef4
+Author: f1rpo <hidden>
+Date:   2026-04-10 13:18:56 +0200
+
+Merge branch 'bugfixes_from_Oxidized'
+
+Related CFC post: https://forums.civfanatics.com/threads/advanced-civ.614217/post-16937400
+I haven't even tried to compile with these yet.
+
+commit 27bde47c8a56cf5a7736e0882e446775a2aeca5d
+Author: f1rpo <hidden>
+Date:   2026-04-10 13:15:24 +0200
+
+Fix (hopefully) AI tech eval of K-Mod's ExtraSpecialistCommerce
+
+Not tested. The K-Mod code for taking the extra commerce into account was broken, and apparently I had broken it further in another place. The AI was ignoring the commerce. AdvCiv uses that effect for Scientific Method, as K-Mod did until v1.45. So it's actually in inconsequential problem in the current K-Mod version.
+
+commit 508a0a6b788fe31804d1ac9c33acd2ce65358342
+Author: f1rpo <hidden>
+Date:   2026-04-10 13:12:32 +0200
+
+Fix BBAI mixup of AI strategy and victory stage flags
+
+Was only relevant very late in the game and probably not much so. [advc.001]
+Related to my efforts at using separate enums for those startegy predicates. [advc.enum]
+
+commit 5a5a3551da9c510d59f39b6ac80119ac6310ab8f
+Author: f1rpo <hidden>
+Date:   2026-04-10 13:09:43 +0200
+
+Fix AdvCiv's AI eval of Apostolic Palace production modifier
+
+Seems to have been broken by a refactoring change, so I assume that just undoing that damage will restore the desired AI behavior. I.e. I haven't tested it. [advc.179]
+
+commit c74d1d4f8e8f5505d09ed4647ac240f57f240871
+Author: f1rpo <hidden>
+Date:   2026-04-10 13:03:32 +0200
+
+A few unimportant comment changes
+
+commit 0993575b56019d54e2e3ce4a3267ccbd3ce0cc8a
+Author: f1rpo <hidden>
+Date:   2026-04-10 13:00:52 +0200
+
+A few minor comment, text tweaks, small future-proofing tweak.
+
+All still from a year ago.
+
+commit 96ba34b36657f99cda6ff90e1aabb1fc1edbe62e
+Author: f1rpo <hidden>
+Date:   2026-04-10 12:59:44 +0200
+
+Revert change to TXT_KEY_PEDIA_BONUS_YIELDS in Pedia
+
+Another old change I don't recall the reason for. Originally said "Bonus Yields"; at some point I changed it to "Bonus Resources", and now it's "Bonus Yields" again. Maybe some hack that is now no longer needed. [advc.004y]
+
+commit 6c2598a79f62cee5a94329ac42a79af66ee6f847
+Author: f1rpo <hidden>
+Date:   2026-04-10 12:55:01 +0200
+
+Remove gray color from "Older Messages" log entry
+
+I changed this a year ago, apparently, and don't remember why. Maybe the coloring is done through the DLL now or had no effect - or I really felt that the dashes set the message apart sufficiently and that the coloring isn't helpful. [advc.106b]
+
+commit 7016e2e220690954af494bde55ed8d895f8010db
+Author: f1rpo <hidden>
+Date:   2026-04-10 12:50:43 +0200
+
+Fix Gandhi NoWarAttitudeProb at Friendly
+
+wonderingabout found that and mentioned it a few times, here e.g.:
+https://forums.civfanatics.com/threads/advanced-civ.614217/post-16900839
+So the value was "only" 100 - but UWAI doesn't treat it as a probability, and I really wanted Gandhi to go above higher than 100.
+
+commit 04696f26f67381966356381e2beb6a3cf1298f0f
+Author: wonderingabout <hidden>
+Date:   2026-04-10 12:30:42 +0200
+
+move AIP categories from predump to UI level, adjust AIP categories depending on game resolution
+
+commit 6bc421f1841269e56f8ee0f009401753c0cc8495
+Author: wonderingabout <hidden>
+Date:   2026-04-10 10:51:34 +0200
+
+do not reduce sevopedia leader item bar width when text is upscaled if resolution is high
+
+commit b2c5c93edd1504e38dd16109bbd476bb5788380a
+Author: wonderingabout <hidden>
+Date:   2026-04-10 09:57:33 +0200
+
+minor comment upscaling changes
+
+commit e27ca537c77fc8f95cb301d6b52dbb0b9bc5a367
+Author: wonderingabout <hidden>
+Date:   2026-04-10 09:52:23 +0200
+
+upscale to label domestic and custom domestic advisors and beautify
+
+commit b6a568125694ad50a6ddd21974c054e943fefacb
+Author: wonderingabout <hidden>
+Date:   2026-04-10 08:48:06 +0200
+
+increase font from 2 to 3 or body to label in most places (to improve readability)
+
+commit 79b078dff690d784af2eac2ff04722f16b453933
+Author: wonderingabout <hidden>
+Date:   2026-04-09 10:22:49 +0200
+
+increase base billboard from 100 to 120 percent, increase base hover text size from 2 to 3
+
+commit 3f7bf6f5f8a6225a6079bd5c53c9f285e66903c8
+Author: wonderingabout <hidden>
+Date:   2026-04-09 09:57:50 +0200
+
+reduce food/production top bars size; reduce tech bar and increase gp bar in map view
+
+commit 71065af0f953f20b556de5d216ff12d0f6947b1f
+Author: wonderingabout <hidden>
+Date:   2026-04-09 09:33:37 +0200
+
+increase base font size from body to label in main interface
+- move specialists breakdown above culture breakdown (since there is room above and so there is more room laterally when upscaled, maybe more readable as such too)
+
+commit b32e95eb5c8e54152dd9c2c05b019b20e5ed968e
+Author: wonderingabout <hidden>
+Date:   2026-04-08 10:59:20 +0200
+
+Avoid unnecessary rewrites (GPT-5.3-Codex)
+Before writing, compare generated key block to current block; skip write if identical.
+Optionally store last applied (font, percent) in memory module-level var to skip redundant work in same session.
+
+commit e6c0ad69a80920f610e2d74d3b6b2ff9b7e72199
+Author: wonderingabout <hidden>
+Date:   2026-04-08 10:45:14 +0200
+
+Auto-scale CITYBILLBOARD_SCALE by SAS_UI_FONT_BODY via Python apply hook
+
+commit b8f2aab775468493f4a8608587bffc2f856a18d7
+Author: wonderingabout <hidden>
+Date:   2026-04-08 09:48:12 +0200
+
+revert hacky city billboard trimming and upscaling
+
+commit 527e44b2a386c4c3d7c0dd8d6d394fb064fec168
+Author: wonderingabout <hidden>
+Date:   2026-04-08 09:23:43 +0200
+
+add Inverted info in sevopedia ai personality panel legend, fix sevopedia media player text not being bold
+
+commit 91467a18176b0c09784d8047a6a3133420457635
+Author: wonderingabout <hidden>
+Date:   2026-03-28 12:42:41 +0100
+
+replace old finance advisor wiring to foreign diplomacy advisor wiring now
+- swap advisor art buttons too of foreign trade and foreign diplomacy
+
+commit bb7b7eb7d8890f250a3c7d8499676e7045cb5ec8
+Author: wonderingabout <hidden>
+Date:   2026-03-28 12:21:35 +0100
+
+split the foreign advisor into foreign diplomacy and foreign trade advisors
+
+commit 862ba215e8557a8eb4812aa653dbe07b2ce66f7a
+Author: wonderingabout <hidden>
+Date:   2026-03-27 12:42:16 +0100
+
+move screen indepdendent geometry computation to init in foreign advisor
+
+commit 11d21ee951351b59c3b4e499dc0a084984e30904
+Author: wonderingabout <hidden>
+Date:   2026-03-27 12:12:32 +0100
+
+further cache advisors
+
+commit f21276c11ac7547c8b9db23202f76bd365f699d8
+Author: wonderingabout <hidden>
+Date:   2026-03-27 09:07:03 +0100
+
+cache in domestic advisor, policy advisor, foreign advisor, military advisor (non-bug), tech chooser, info screen, victory screen
+
+commit aa02dc468f3c1198d77462b481c6ffdc4a954ce7
+Author: wonderingabout <hidden>
+Date:   2026-03-27 08:54:54 +0100
+
+remove multiline Nationality in corporations tab and improve spacing
+
+commit a839d7bd88a3e58dcc7424fd3ae57ccfeb54cb14
+Author: wonderingabout <hidden>
+Date:   2026-03-27 08:15:54 +0100
+
+add GP icon in corporation tab
+
+commit 516fdce4259a3adc268d826bd327394f4f40854a
+Author: wonderingabout <hidden>
+Date:   2026-03-27 07:51:02 +0100
+
+add new rows (Bonuses Generated, Yields Generated), and add first column descriptions for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`)
+
+commit 31de1f5929199743284eab395c8c3d722c26fde1
+Author: wonderingabout <hidden>
+Date:   2026-03-27 07:13:12 +0100
+
+remove multiline bonuses wrapping in the corporation tab
+- add corporations buildings required for corporations in sevopedia building (e.g., cereal mills (World Wonder) is required for cereal mills (corporation))
+
+commit 2dfd631d16c8c4a58d505a734446f6c336698a8f
+Author: wonderingabout <hidden>
+Date:   2026-03-27 06:35:26 +0100
+
+fix corporation advisor persisting in other tabs on tab change
+
+commit a742ffbf05a7b018055677c66c7b3b19156e5187
+Author: wonderingabout <hidden>
+Date:   2026-03-26 08:31:42 +0100
+
+integrate the corporation tab into the policy advisor
+
+commit 662f1d53c0ec663f0060fdd777e59354b8133cd4
+Author: wonderingabout <hidden>
+Date:   2026-03-26 08:14:24 +0100
+
+beautify and enhance religion tab, remove old CvReligionScreen.py
+
+commit 685511e46fa8cdddb306af6bc725f6c855d12913
+Author: wonderingabout <hidden>
+Date:   2026-03-25 22:03:18 +0100
+
+fix last visited tab religion not being selected on reopen; refactor
+
+commit 0bb222d64042de326d38e3fdfc922042968c2b75
+Author: wonderingabout <hidden>
+Date:   2026-03-25 21:47:34 +0100
+
+merge religion advisor into the policy advisor as a tab
+
+commit 6ab44b0f6120032dad95fd1595b8771a598435f9
+Author: wonderingabout <hidden>
+Date:   2026-03-25 21:04:28 +0100
+
+minor align policy advisor title
+
+commit d7073ea436f9b39fb187f87a5722e4cc9afa3545
+Author: wonderingabout <hidden>
+Date:   2026-03-25 21:02:08 +0100
+
+rename to policy advisor 3
+
+commit 236c73f2bc1717ec9a941cea365d07c6392f5250
+Author: wonderingabout <hidden>
+Date:   2026-03-25 20:57:51 +0100
+
+rename to policy advisor 2
+
+commit aaa800431bd3094d131be3fa847904a429782082
+Author: wonderingabout <hidden>
+Date:   2026-03-25 20:47:33 +0100
+
+rename civics screen to policy advisor
+
+commit c6ab80c208b515bee40ec53e06873317b9a07808
+Author: wonderingabout <hidden>
+Date:   2026-03-25 20:32:54 +0100
+
+update advisor buttons order and other related changes
+
+commit 0532e0fd8b7a45227bc1cd6ff83f6cc4dbfc80ca
+Author: wonderingabout <hidden>
+Date:   2026-03-25 19:25:30 +0100
+
+Move victory screen to f9 and info screen to f8
+
+commit 9953b9f0ad2622e6aebb048252e89af026cad697
+Author: wonderingabout <hidden>
+Date:   2026-03-25 18:52:51 +0100
+
+move the environment tab to the info screen, delete EconomicsAdvisor.py
+
+commit d25484e2bbfa857e5edfb6243f20e6c9ba4bddb1
+Author: wonderingabout <hidden>
+Date:   2026-03-25 18:19:37 +0100
+
+merge the finance tab into the domestic advisor, make the domestic advisor be a tab as the overview tab
+
+commit b8253247d2dadbeda665c638c0c22a8896958ecd
+Author: wonderingabout <hidden>
+Date:   2026-03-25 14:48:20 +0100
+
+mirror the other advisors' structure in domestic advisor (add top and bottom advisor) + beautify using clearer constrast
+
+commit 2934fc73cf6db5fb8ff49723d817fdfb2b6fbf99
+Author: wonderingabout <hidden>
+Date:   2026-03-25 07:20:29 +0100
+
+add alternative top spacing for tech chooser, bolden title
+
+commit 270b91c183d6924c8e503e683250beb645285d61
+Author: wonderingabout <hidden>
+Date:   2026-03-25 06:54:48 +0100
+
+standardize y_title spacing + minor
+
+commit 81f966e9299c9c41bd90d332b120617cd45777c8
+Author: wonderingabout <hidden>
+Date:   2026-03-25 06:28:00 +0100
+
+use most of the screen for victory tabs, fix KI#115 (extra Requires vote spacing)
+
+commit 9d31bbb8518a1e2d9214fbaaac2470cb501cf181
+Author: wonderingabout <hidden>
+Date:   2026-03-24 10:59:33 +0100
+
+expand the victory screen similarly
+
+commit 16f52c5916663c6ab73aea189b8890d1be7b1ad3
+Author: wonderingabout <hidden>
+Date:   2026-03-24 09:37:50 +0100
+
+Victory screen: always show the Resolutions and Members tab so now all tabs are shown even if they are empty, and add a fallback table showing required wonders (as of now Apostolic Palace or United Nations) to make these tabs active
+
+commit 0ace3d709edbc24ddc7dd9b64b45d6cee07e6012
+Author: wonderingabout <hidden>
+Date:   2026-03-24 07:21:37 +0100
+
+cache CvCivicsScreen.py
+- minor update docs
+
+commit b36211565db2d1e77d4a255db05f5c771228c836
+Author: wonderingabout <hidden>
+Date:   2026-03-24 07:12:56 +0100
+
+adjust civics advisor similarly plus expand top panels so long civic names don't overflow
+
+commit 08c4bdf9e3b5306cc4320513f324fc2bc53bdc1e
+Author: wonderingabout <hidden>
+Date:   2026-03-24 06:55:33 +0100
+
+cache domestic advisor headers
+
+commit 09a4bc35a6351e7e0c6c955c25b56f67cb54cdd2
+Author: wonderingabout <hidden>
+Date:   2026-03-24 06:38:24 +0100
+
+adjust domestic advisor dimensions to usual template for advisors that scales dynamically with screen resolution
+
+commit c5b7209bf59337d20f10c04a6ee15bc8c125a9d5
+Author: wonderingabout <hidden>
+Date:   2026-03-23 11:27:59 +0100
+
+Fixed Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked
+See KI#114.
+
+commit a00938c20d5e4b7f8333488b7c338bcf6e4d8010
+Author: wonderingabout <hidden>
+Date:   2026-03-23 10:32:34 +0100
+
+make tech chooser scale with game resolution, make tech chooser right space customizable for lower resolutions (so one more column or more is shown in tech chooser)
+
+commit 208a8b6a910dd97ec90306d1831c9afa843c82e4
+Author: wonderingabout <hidden>
+Date:   2026-03-23 08:37:33 +0100
+
+adjust info screen tabs' dimensions (log button when upscaled, demographics' first column, wonders tab)
+
+commit 8f60e16c5115455ed852b9f02ad8932676231145
+Author: wonderingabout <hidden>
+Date:   2026-03-22 12:30:21 +0100
+
+fix too short and adjust score tab rows when text is upscaled
+
+commit 56bc90027a2d32665bc7846af5a15391a9e62ece
+Author: wonderingabout <hidden>
+Date:   2026-03-22 12:05:56 +0100
+
+refactor compute screen dependent info screen logic at interfacescreen and refactor foreign advisor
+
+commit 59b10e4620d3cbc6a6f25504ed2588c93b914744
+Author: wonderingabout <hidden>
+Date:   2026-03-22 09:27:30 +0100
+
+beautify and upscale the espionage tab to screen resolution
+
+commit e138ad4f8279ab874d8ce183bf8b3d3d59acc1a1
+Author: wonderingabout <hidden>
+Date:   2026-03-22 07:46:53 +0100
+
+merge the espionage screen into the foreign advisor so it is one of its tabs now
+
+commit ef8766cb5fa6523a74c634656f327fdb4f35460d
+Author: wonderingabout <hidden>
+Date:   2026-03-21 15:18:12 +0100
+
+increase relations web and beautify bonuses (move closer to edges)
+
+commit bbe944048ee93d0e0abaa981a9d08d830a38cf80
+Author: wonderingabout <hidden>
+Date:   2026-03-21 14:53:36 +0100
+
+move advisor constants to sas helper (SASUtils.py); increase advisor edge margins (for now only for the foreign advisor)
+
+commit 67f48e63e92a843086a6917424596ee2a6117eb5
+Author: wonderingabout <hidden>
+Date:   2026-03-21 14:39:56 +0100
+
+Remove screen-dependent geometry computation from `__init__` in foreign advisor
+
+commit 8a2494a806f24c84af6f3f8a3ee51a5857ee483f
+Author: wonderingabout <hidden>
+Date:   2026-03-21 09:40:45 +0100
+
+use the improved version of the foreign advisor's info tab
+
+commit bbbd9fea2c525fd80640ee01cf3a4d423db1886c
+Author: wonderingabout <hidden>
+Date:   2026-03-20 08:12:08 +0100
+
+merge CvForeignAdvisor.py and CvExoticForeignAdvisor.py into a single unified file
+
+commit ff496b5701640f5110bfcd1888602242fb54ad1b
+Author: wonderingabout <hidden>
+Date:   2026-03-20 06:11:31 +0100
+
+use left right anchor defines rather than giant leap define
+works correctly at 2560*1440 for example now
+
+commit 26abe649cd73947be350116cac7869c65e681d29
+Author: wonderingabout <hidden>
+Date:   2026-03-19 17:21:56 +0100
+
+adjust commerce sliders in map view too
+- upscale era text in main interface
+- make era text default on
+- move city arrows to the left in city screen so they are better centered
+- minor fix buildings filter buttons so they use the _OFF version (no yellow halo)
+
+commit 22bd4581e66e8c9de7a198c2b5190ba53690560d
+Author: wonderingabout <hidden>
+Date:   2026-03-19 16:33:20 +0100
+
+swap left and right side top text in main interface, and move comemrce sliders to the right in map view
+
+commit 9a310094409c4a4e8f54f0c1453696140da39991
+Author: wonderingabout <hidden>
+Date:   2026-03-19 13:37:29 +0100
+
+minor ui adjustments in sevopedia charts
+
+commit e9dfde4deae7fc35095a61b4c29d04b231e582a3
+Author: wonderingabout <hidden>
+Date:   2026-03-19 13:22:30 +0100
+
+split sevopedia techs' charts' tech combos into columns Tech1 tech2 and refactor similarly
+- minor use blue and checkered display on sevopedia improvement too
+
+commit fac9cc9a6d85aadb3978b434fad56ad396e2d9a4
+Author: wonderingabout <hidden>
+Date:   2026-03-19 11:43:00 +0100
+
+split sevopedia traits combinations into trait 1 and trait 2 so it is now sortable
+
+commit 682579f8087e08df20ac02f02c7cea44d1f4a6e0
+Author: wonderingabout <hidden>
+Date:   2026-03-19 11:36:29 +0100
+
+adjust sevopedia trait rows size and simplify code
+
+commit ef902ca930287781bdd21ad6fe3a6abd64ecb5cc
+Author: wonderingabout <hidden>
+Date:   2026-03-19 11:27:59 +0100
+
+minor
+
+commit 08d32a43caf328e880fd70570660a1a31e90aad2
+Author: wonderingabout <hidden>
+Date:   2026-03-19 08:38:11 +0100
+
+trim excess city_billboard chars when upscaled
+
+commit b4bf8dfadd0c54bd0e03eab321c3a77536c8a4f0
+Author: wonderingabout <hidden>
+Date:   2026-03-18 13:08:23 +0100
+
+upscale city_billboard
+
+commit fc94bc27ff63d86ebfa3517390d4185bfaa93c34
+Author: wonderingabout <hidden>
+Date:   2026-03-18 11:16:04 +0100
+
+adjust sevopedia category width depending on text upscaling
+
+commit b331c463c7b22cd815016696267f349fe1a72270
+Author: wonderingabout <hidden>
+Date:   2026-03-18 10:43:33 +0100
+
+upscale the AI personality panel and other changes
+- shorter aip abbreviations to accomodate larger text and rows as a result
+- add tunable item bar width to accomodate larger text in the aip
+- rename "Leaders" to "Favorites" in Sevopedia Civics and Religions
+
+commit fdeb58c16503861b35f7b8270760978b75b144d5
+Author: wonderingabout <hidden>
+Date:   2026-03-17 08:32:58 +0100
+
+externalize font from aip values and upscale aip
+
+commit 10fa767ad4587093b39490c4219b6a46d7454cce
+Author: wonderingabout <hidden>
+Date:   2026-03-17 08:21:18 +0100
+
+reorder aip + add aip 1st column legend
+
+commit a5fcdfa9370ff285c233adec6f241fa1f36ad125
+Author: wonderingabout <hidden>
+Date:   2026-03-17 06:40:21 +0100
+
+upscale sevopedia leaders (except the aip)
+
+commit 6d123adae2ab31be5a22b8ce73e9f7cc44ba5109
+Author: wonderingabout <hidden>
+Date:   2026-03-17 06:24:17 +0100
+
+upscale techs and "and"/"or" prereq text
+
+commit edfcb90a9548ac814a68792fb3ef48da5554600b
+Author: wonderingabout <hidden>
+Date:   2026-03-17 06:10:35 +0100
+
+ass support for Corporation Movies
+
+commit fdfab488eb49598075653bc1ee0975d68b51952e
+Author: wonderingabout <hidden>
+Date:   2026-03-16 20:42:49 +0100
+
+minor rename files to shorter name
+so it doesn't block git clone preemptively
+
+commit 09993883db5c6503a333c09761c8eb54d263f1cd
+Author: wonderingabout <hidden>
+Date:   2026-03-16 14:45:46 +0100
+
+upscale, beautify, rework (new panels + ui rework), and expose getBonusProduced in sevopedia corporations
+
+commit 0b7eea794836dd2f7a41988fd665c6c5727ab117
+Author: wonderingabout <hidden>
+Date:   2026-03-16 13:07:49 +0100
+
+upscale corporations
+
+commit dfcec2157a54a40c9103a35b1fb22fc6e12dc56a
+Author: wonderingabout <hidden>
+Date:   2026-03-16 13:03:28 +0100
+
+upscale religions
+
+commit 75b842cb182f1a0b1b762acc728d5f94252a3119
+Author: wonderingabout <hidden>
+Date:   2026-03-16 13:00:43 +0100
+
+upscale civics
+
+commit 25868e322d585ca5fa52a12d921f54218dbaeb7a
+Author: wonderingabout <hidden>
+Date:   2026-03-16 12:53:31 +0100
+
+upscale projects
+
+commit c5d6e5ef5638b4a753bf39c974042905018cd20b
+Author: wonderingabout <hidden>
+Date:   2026-03-16 12:47:36 +0100
+
+fix rare suboptimal scroll when last item is a header in sevopedia media player
+"# <!-- custom: Avoid orphan group headers at the bottom of the visible list."
++ "# This media table inserts spacer + header rows when changing era/group; without a row-budget check,
++ "# scrolling can end with a header as the last visible row (e.g. "Tech Quotes (Medieval)"), which looks rough."
++ "# Only add the group transition rows when there is still room for at least one tech item row after them. (GPT-5.3-Codex) -->"
+
+commit 550acbb427169abc4e5429a5fe996eda97dc7914
+Author: wonderingabout <hidden>
+Date:   2026-03-16 12:39:00 +0100
+
+upscale sevopedia media player + refactor remove redundant wrappers/helpers + polish UI
+
+commit 915ede9ca0a74c7f7ad7a2cf1269ce0472805cf9
+Author: wonderingabout <hidden>
+Date:   2026-03-16 12:21:52 +0100
+
+fix incorrect text size too small body instead of label or not title when needed
+
+commit 763c8e8503dcd60ed4b58d91f248f26e0991807c
+Author: wonderingabout <hidden>
+Date:   2026-03-16 11:22:36 +0100
+
+fix sevopedia builds having remove items without icon (despite sevopedia index having icons)
+
+commit e756d55bc40bc91cff369ac9a95c7b3f028d177b
+Author: wonderingabout <hidden>
+Date:   2026-03-16 11:16:50 +0100
+
+shorter numTxt abbreviations and better centering (more to the right) to match shorter abbreviation needing so
+
+commit 2f57a2d8a727e06e92b3ece1c165139eef0b7423
+Author: wonderingabout <hidden>
+Date:   2026-03-16 10:45:53 +0100
+
+add Legends for numTxt and sevopedia categories + refactor
+
+commit b90338d72d9024d7769d04ae189ae27f7f8a746a
+Author: wonderingabout <hidden>
+Date:   2026-03-16 08:28:58 +0100
+
+upscale buildings
+
+commit b825de154f85760802a3ef4844bf2b97c9e6d9c4
+Author: wonderingabout <hidden>
+Date:   2026-03-16 08:00:04 +0100
+
+Merge tech-rework into ui-font-scaling; keep docs both + preserve improvement upscaling (GPT-5.3-Codex)
+
+commit 1dbafbf25dfa80ada5ee5f564b3b236885c1c563
+Author: wonderingabout <hidden>
+Date:   2026-03-16 07:19:44 +0100
+
+minor
+
+commit 63c976964cb516b1dd7d37d73defd74f47fff2c6
+Author: wonderingabout <hidden>
+Date:   2026-03-16 06:47:06 +0100
+
+Fix hover on Builds in tech chooser and Sevopedia. See KI#113.
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16928830
+
+commit f1e860eb99ac50cf7d2a3c2f7c73e09022131578
+Author: wonderingabout <hidden>
+Date:   2026-03-15 22:16:38 +0100
+
+Merge branch 'tech-rework' of https://github.com/wonderingabout/AdvCiv-SAS into ui-font-scaling
+recompile DLL too
+
+commit cc7e46a6dd900cb47587ac28ecaeb4703d491412
+Author: wonderingabout <hidden>
+Date:   2026-03-15 20:47:42 +0100
+
+restore flag as an optional compact flag on top left in main interface
+- "**Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired."
+
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16928830
+
+commit c9be31986ebfdb95cd91b0c2bf3298739ab4ffaf
+Author: wonderingabout <hidden>
+Date:   2026-03-15 18:27:21 +0100
+
+hide collateral damage unit bullet for non-combat units (e.g., settlers)
+civilians don't need it and don't use it; better hide it for these.
+
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16928830
+
+commit c9424a447d87521e0f6f10729b11b98d11c3af55
+Author: wonderingabout <hidden>
+Date:   2026-03-15 16:34:38 +0100
+
+upscale traits
+
+commit 59bc5515c871878c84c54c04322a0531fb7c9f47
+Author: wonderingabout <hidden>
+Date:   2026-03-15 16:13:52 +0100
+
+refactor `re.compile(u"<font=` to sas module (so it applies where needed)
+
+commit e089863a5370461b4bb225b0079542e301318cd3
+Author: wonderingabout <hidden>
+Date:   2026-03-15 15:53:22 +0100
+
+upscale specialists
+
+commit 33771bb11b40dbbb0762a8acf43261c1c41348eb
+Author: wonderingabout <hidden>
+Date:   2026-03-15 15:35:56 +0100
+
+upscale promotions and fixes
+- Fix "None" not being upscaled in sevopedia improvements weights table panel
+- add "None" in Leads To
+- fix base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion: "<!-- custom: include PrereqOrPromotion3 (K-Mod extra OR prereq) so Leads To lists all promotions that depend on this one; otherwise some valid upgrades are missing from this panel. (GPT-5.3-Codex) -->". See KI#112.
+
+commit 6ed16c42513489375a86ffbf0516409a1189ed1a
+Author: wonderingabout <hidden>
+Date:   2026-03-15 15:15:27 +0100
+
+refactor sevopedia upscaling
+
+commit 0c57c4b98799e458daf316fdc66bfff94dcc7bff
+Author: wonderingabout <hidden>
+Date:   2026-03-15 15:10:47 +0100
+
+refactor and add SASTextScale.py
+
+commit 9c2dfd6af33d5cb1e3fba85f4ff58e9c3a5eb55f
+Author: wonderingabout <hidden>
+Date:   2026-03-15 14:17:01 +0100
+
+Merge branch 'tech-rework' of https://github.com/wonderingabout/AdvCiv-SAS into ui-font-scaling
+
+commit c4bf84bfd7c00231073dfa2e3255795c224d0952
+Author: wonderingabout <hidden>
+Date:   2026-03-15 14:07:01 +0100
+
+increase sevopedia category width a bit from 124
+for some users it seems to not be enough for some reason; increased width a bit tentatively.
+
+Tentatively addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16928773
+
+commit dbed0e2c01e2f93a66729f8848b6a6b6322b135d
+Author: wonderingabout <hidden>
+Date:   2026-03-15 13:40:57 +0100
+
+order civics by XML order
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16928773
+
+commit 1dfa2e678f2b9298c099a0c47ff2cf90bd5b4298
+Author: wonderingabout <hidden>
+Date:   2026-03-15 13:57:23 +0100
+
+Merge branch 'gp-bar-redirect-city-screen' of https://github.com/wonderingabout/AdvCiv-SAS into ui-font-scaling
+
+commit 261e9157e30e7cf4f65a1566509ff6c650e97a1f
+Author: wonderingabout <hidden>
+Date:   2026-03-15 13:40:57 +0100
+
+order civics by XML order
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16928773
+
+commit 4ccd0353ee8f1b64afb2af6cc7dcf3bfdafe1731
+Author: wonderingabout <hidden>
+Date:   2026-03-15 13:35:11 +0100
+
+Make left-click on GP bar open the **corresponding city's city screen.
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16928773
+
+commit d2db8edf2245cb98334ae77e60d4130d0598e758
+Author: wonderingabout <hidden>
+Date:   2026-03-15 12:40:27 +0100
+
+upscale unit chart ("Combat")
+
+commit 4bfd65ec4297b8021c6cdc53f0fc52e75f958456
+Author: wonderingabout <hidden>
+Date:   2026-03-15 11:53:04 +0100
+
+upscale units category
+
+commit 5f076640578114b14d977032168822261b47a39d
+Author: wonderingabout <hidden>
+Date:   2026-03-15 11:05:15 +0100
+
+upscale builds
+
+commit 3a5be76ef49c53cb13cc16675fe4cdcc1ec2dbb0
+Author: wonderingabout <hidden>
+Date:   2026-03-15 11:00:51 +0100
+
+upscale bonuses and improvements
+
+commit ef245356645d1614bce4a397844cac2082f015db
+Author: wonderingabout <hidden>
+Date:   2026-03-15 10:55:30 +0100
+
+upscale numTxt
+
+commit 2a98882044086dd8febc0ed01969be3104d03e3c
+Author: wonderingabout <hidden>
+Date:   2026-03-15 10:52:09 +0100
+
+upscale terrains and features (except numTxt)
+
+commit fc4739f9ed7e95454ed3f03d93a45e365c94ff9a
+Author: wonderingabout <hidden>
+Date:   2026-03-15 07:13:46 +0100
+
+upscale chart categories
+
+commit b6e9e354b093eac8e641e28d1112a3ff1c487b81
+Author: wonderingabout <hidden>
+Date:   2026-03-15 06:53:47 +0100
+
+upscale movies and music
+
+commit 8c8521b1445d77bed6d10c374a2a6f5bbc8f7239
+Author: wonderingabout <hidden>
+Date:   2026-03-15 06:47:24 +0100
+
+upscale hints
+
+commit 16ff40ba1ee46f762ea83603331de2cd37d10c4e
+Author: wonderingabout <hidden>
+Date:   2026-03-15 06:43:09 +0100
+
+upscale conceptinfos ("Outdated") and newconceptinfos ("Mods Infos")
+
+commit 0acd3abeac444fd1a972ede16e850832ebc4e4c1
+Author: wonderingabout <hidden>
+Date:   2026-03-14 14:22:40 +0100
+
+upscale sevopedia (first part), increase left column (catoegires) width
+to accomodate max font size of the categories column too
+
+commit c283deeb1eb2782bff441312670564ea0a756b98
+Author: wonderingabout <hidden>
+Date:   2026-03-14 13:44:55 +0100
+
+upscale hover text
+
+commit 238d35129e6e03306fe0ce6a720ab0da31bcb661
+Author: wonderingabout <hidden>
+Date:   2026-03-14 11:29:57 +0100
+
+fix domestic advisor not scaling down when sas defines are reduced
+
+commit 831aed2806dcc34f99d3fb25134a4fd42649eb46
+Author: wonderingabout <hidden>
+Date:   2026-03-14 11:08:57 +0100
+
+upscale scoreboard
+
+commit b024a013dff511d3b755945ccf6215af90d055de
+Author: wonderingabout <hidden>
+Date:   2026-03-14 10:53:53 +0100
+
+upscale left side map view
+
+commit 8926e1e7a4a22234c607443ba80f0ad5cd4e981d
+Author: wonderingabout <hidden>
+Date:   2026-03-14 10:47:07 +0100
+
+upscale espionage screen
+
+commit 0137bbee35a9d1386ad25a4aced99c6c32c5d611
+Author: wonderingabout <hidden>
+Date:   2026-03-14 10:35:06 +0100
+
+upscale the foreign advisor
+
+commit 36b53f94a8b364a3e17cdbd121df7c8262dc2988
+Author: wonderingabout <hidden>
+Date:   2026-03-14 09:53:42 +0100
+
+upscale the info screen
+
+commit f017567353ac3db3957d7ce0bfc9a8f8232e0a1b
+Author: wonderingabout <hidden>
+Date:   2026-03-14 09:33:23 +0100
+
+upscale victory screen
+
+commit 1f14da39a6d3d98b6d6139682e82c5c5ebf2cbac
+Author: wonderingabout <hidden>
+Date:   2026-03-13 09:58:59 +0100
+
+upscale bug religion advisor
+
+commit d613a8b0966eb089b2132a0a037ce87e6eea5f63
+Author: wonderingabout <hidden>
+Date:   2026-03-13 09:51:14 +0100
+
+upscale non-bug miltiary advisor
+
+commit 4c3506bc3925e1aecc0d2390cca0902d881e2407
+Author: wonderingabout <hidden>
+Date:   2026-03-13 09:39:57 +0100
+
+upscale civics advisor
+
+commit 1ef354763ec61a3834c9eea1c6399daf9b47387c
+Author: wonderingabout <hidden>
+Date:   2026-03-13 09:37:01 +0100
+
+upscale domestic advisor
+
+commit 4dc561f90889652796069abe3eb8fc4fe460f438
+Author: wonderingabout <hidden>
+Date:   2026-03-12 17:47:51 +0100
+
+upscale production queue in main interface
+
+commit 51539c04dab85372901cdd015485c8e5b42134de
+Author: wonderingabout <hidden>
+Date:   2026-03-12 17:37:25 +0100
+
+more main interface ui font upscaling; cache sas defines for perf opt
+
+commit 008f51227895a5bc1de7eb09b0dfbe9a25fb9f2e
+Author: wonderingabout <hidden>
+Date:   2026-03-12 15:19:51 +0100
+
+more upscaling in main interface
+
+commit 3f762655a21e2692380dcd8bb7813e00a7cdf995
+Author: wonderingabout <hidden>
+Date:   2026-03-12 13:22:55 +0100
+
+ui font scaling: initial implementation
+
+commit 4a0682c481e5665aea90836b19d173da1839d208
+Author: wonderingabout <hidden>
+Date:   2026-03-12 12:06:13 +0100
+
+add leader attitude and action buttons in sevopedia leader
+import from AdvCiv-SAS-NIF-Gallery
+
+commit 886d38063156406ddb5c55b06e4e357dbd8e9d2a
+Author: wonderingabout <hidden>
+Date:   2026-03-05 14:01:55 +0100
+
+update docs
+
 commit b421b9e33ff43349b4983398279c4f33dcfa94f3
 Author: wonderingabout <hidden>
 Date:   2026-02-27 11:12:56 +0100

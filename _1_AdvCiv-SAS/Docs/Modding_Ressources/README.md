@@ -166,7 +166,7 @@ To create a git log based on past commits using a comand line, plus also anonymi
 ```shell
 # 1. Set your commit hashes here
 start=b421b9e33ff43349b4983398279c4f33dcfa94f3 # old (excluded): e.g. AdCiv-SAS 5500.
-end=dd8a672712beb770d73c510766067a484464fad2   # new (included), e.g.: AdCiv-SAS 5860.
+end=1548510c785183e31222d43bd06dc1b2a919920a   # new (included), e.g.: AdCiv-SAS 5860.
 
 # 2. Run the command (uses the variables above)
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
@@ -250,7 +250,7 @@ git fetch origin
 # choose names
 # new tag
 TAG=5860
-SHA=e4258f6c012121e4916ed105071014d348423db5  # <- the TAG commit
+SHA=1548510c785183e31222d43bd06dc1b2a919920a  # <- the TAG commit
 OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
 BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
