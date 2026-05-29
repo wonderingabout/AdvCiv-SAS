@@ -369,7 +369,8 @@ def assignStartingPlots():
 					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
 						iPlotYield += (iFertileCheck - 1)
 					iRegionNetYield += iPlotYield
-					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
+					if pPlot.isHills():
+						iRegionNetYield += 1 # Add a bonus point for Hills plots.
 					if iArea not in land_areas: # This plot is the first detected in its AreaID.
 						iNumLandAreas += 1
 						land_areas.append(iArea)

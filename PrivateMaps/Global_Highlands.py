@@ -218,7 +218,8 @@ def generatePlotTypes():
 	
 	if userInputLandmass == 3: #Random landmass sizes
 		grainRoll = 1 + dice.get(7, "Fractal Grain - Global Highlands PYTHON")
-		if grainRoll > 4: grainRoll -= 4
+		if grainRoll > 4:
+			grainRoll -= 4
 		if grainRoll == 4:
 			fractal_world.initFractal(polar = True)
 			plotTypes = fractal_world.generatePlotTypes(water_percent=75)

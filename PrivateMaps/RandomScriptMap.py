@@ -151,9 +151,12 @@ def getNumCustomMapOptions():
 #
 def getCustomMapOptionName(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)  : szName = "TXT_KEY_MAP_SCRIPT_CREATION_METHOD"
-	elif (dummy == 1): szName = "TXT_KEY_MAP_SCRIPT_AI_START"
-	elif (dummy == 2): szName = "TXT_KEY_MAP_SCRIPT_PLAYER_START"
+	if (dummy == 0)  :
+		szName = "TXT_KEY_MAP_SCRIPT_CREATION_METHOD"
+	elif (dummy == 1):
+		szName = "TXT_KEY_MAP_SCRIPT_AI_START"
+	elif (dummy == 2):
+		szName = "TXT_KEY_MAP_SCRIPT_PLAYER_START"
 	else : szName = "TXT_KEY_MAP_SCRIPT_EXCLUDE_METHOD"
 	
 	return unicode(CyTranslator().getText(szName, ()))
@@ -198,9 +201,12 @@ def getCustomMapOptionDescAt(argsList):
 			 "TXT_KEY_MAP_SCRIPT_NEAR_COAST",
 			 "TXT_KEY_MAP_SCRIPT_LARGEST_CONTINENT",
 			 "TXT_KEY_MAP_SCRIPT_COASTAL_LARGEST_CONTINENT"]
-	if (dummy == 0)  : szName = genMethod_names[iSelection]
-	elif (dummy == 1): szName = startAi_names[iSelection]
-	elif (dummy == 2): szName = startPl_names[iSelection]
+	if (dummy == 0)  :
+		szName = genMethod_names[iSelection]
+	elif (dummy == 1):
+		szName = startAi_names[iSelection]
+	elif (dummy == 2):
+		szName = startPl_names[iSelection]
 	else : szName = exclude_names[iSelection]
 	return unicode(CyTranslator().getText(szName, ()))
 
@@ -728,14 +734,16 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
     def generatePlotsByRegion(self, forceCGrain = False):   
 
         cGrain = 2 + self.dice.get(4, "Python, RandomScriptUtil, Conti")
-        if ( cGrain > 2 ) : cGrain = 2
+        if ( cGrain > 2 ) :
+        	cGrain = 2
         rGrain = 5
         sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
         sea = min(sea, 5)
         sea = max(sea, -5)
         iWater = 81 + sea
 	mainWater = 76 + sea
-        if ( forceCGrain ) : cGrain = 2
+        if ( forceCGrain ) :
+        	cGrain = 2
 
         subSlot1 = 5 + self.dice.get(2, "Python, RndScriptUtil, Conti")
         subSlot2 = 1 + self.dice.get(4, "Python, RndScriptUtil, Conti")
@@ -1249,7 +1257,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # Now simulate South America
         nwsRoll = self.dice.get(2, "RandomScriptUtil PYTHON")
         nwsVar = 0.0
-        if nwsRoll == 1: nwsVar = 0.05
+        if nwsRoll == 1:
+        	nwsVar = 0.05
         nwsWestX = nwWestX + int(self.iW * (0.08 - nwsVar))
         # Not as wide as the north
         nwsEastX = nwEastX - int(self.iW * (0.03 + nwsVar))
@@ -1294,7 +1303,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         twWidth = int(self.iW * 0.15)
         twWestX = nwWestX
         boreal = self.dice.get(2, "RandomScriptUtil PYTHON")
-        if boreal == 1: twWestX += int(self.iW * 0.15)
+        if boreal == 1:
+        	twWestX += int(self.iW * 0.15)
         twEastX = twWestX + twWidth
         twNorthY = int(self.iH * 0.93)
         twSouthY = int(self.iH * 0.75)
@@ -1339,7 +1349,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # Now simulate Central America
         nwcVar = 0.0
         nwcRoll = self.dice.get(2, "RandomScriptUtil PYTHON")
-        if nwcRoll == 1: nwcVar = 0.04
+        if nwcRoll == 1:
+        	nwcVar = 0.04
         nwcWidth = int(self.iW * 0.06)
         nwcWestX = nwWestX + int(self.iW * (0.1 + nwcVar))
         nwcEastX = nwcWestX + nwcWidth
@@ -1361,7 +1372,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         # Now the Carribean islands
         carVar = 0.0
-        if nwcRoll == 1: carVar = 0.15
+        if nwcRoll == 1:
+        	carVar = 0.15
         twWidth = int(0.15 * self.iW)
         twEastX = nwEastX - int(carVar * self.iW)
         twWestX = twEastX - twWidth
@@ -1504,7 +1516,8 @@ class R_BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         global xShiftRoll
         xShiftRoll = self.dice.get(2, "Python, RndMapUtil, Bns")
         iContinentsGrain = 1 + self.dice.get(3, "Python, RndMapUtil, Bns")
-        if (iContinentsGrain > 2) : iContinentsGrain = 1
+        if (iContinentsGrain > 2) :
+        	iContinentsGrain = 1
         iIslandsGrain = 4
         contiPart = 0.4 + 0.01 * self.dice.get(21, "Python, RndMapUtil, Bns")
 	contiShift = 0.0 + 0.01 * self.dice.get(100, "Python, RndMapUtil, Bns")
@@ -1593,7 +1606,8 @@ class R_MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	yShiftRoll1 = self.dice.get(2, "Python, RndMapUtil, Mns")
 	yShiftRoll2 = self.dice.get(4, "Python, RndMapUtil, Mns")
 	if ( yShiftRoll2 > 1 ) :
-		if ( yShiftRoll1 == 0 ) : yShiftRoll2 == 1
+		if ( yShiftRoll1 == 0 ) :
+			yShiftRoll2 == 1
 		else : yShiftRoll2 == 0
 	iContinentsGrainWest = 1 + self.dice.get(2, "Python, RndMapUtil, Mns")
 	iContinentsGrainEast = 1 + self.dice.get(2, "Python, RndMapUtil, Mns") 
@@ -1868,7 +1882,8 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # Generate 2 or 3 Varied Regions
         iCGrain_1 = 1 + self.dice.get(2, "Python, RndMapUtil, Hemispheres")
         iCGrain_2 = 1 + self.dice.get(3, "Python, RndMapUtil, Hemispheres")
-	if (iCGrain_2 > 2) : iCGrain_2 = 1
+	if (iCGrain_2 > 2) :
+		iCGrain_2 = 1
         iCGrain_3 = 1 + self.dice.get(3, "Python, RndMapUtil, Hemispheres")
         iWater_1 = 72 + self.dice.get(5, "Python, RndMapUtil, Hemispheres")
         iWater_2 = 72 + self.dice.get(9, "Python, RndMapUtil, Hemispheres")
@@ -1885,7 +1900,8 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         iIslandVariance_3 = self.dice.get(3, "Python, RndMapHelper, Hemi.")
         
         regions = 2 + self.dice.get(3, "Python, RndMapUtil, Hemisph.")
-        if (regions > 3) : regions = 3
+        if (regions > 3) :
+        	regions = 3
         if (regions == 2):
             tripleSplit = 0
         else :

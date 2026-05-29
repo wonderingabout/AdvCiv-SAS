@@ -386,8 +386,10 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iWidth = iEastX - iWestX + 1
 			iHeight = iNorthY - iSouthY + 1
 
-			if region_duplicated[3] == 0 : region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
-			elif (iWidth > region_duplicated[3]) and ((iWidth > region_duplicated[3]) < region_duplicated[3]) : region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
+			if region_duplicated[3] == 0 :
+				region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
+			elif (iWidth > region_duplicated[3]) and ((iWidth > region_duplicated[3]) < region_duplicated[3]) :
+				region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
 			
                 region_roll = region_duplicated[0]
                 thisRegion = remaining_regions[region_roll]
@@ -800,7 +802,8 @@ def assignStartingPlots():
 					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
 						iPlotYield += (iFertileCheck - 1)
 					iRegionNetYield += iPlotYield
-					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
+					if pPlot.isHills():
+						iRegionNetYield += 1 # Add a bonus point for Hills plots.
 					if iArea not in land_areas: # This plot is the first detected in its AreaID.
 						iNumLandAreas += 1
 						land_areas.append(iArea)

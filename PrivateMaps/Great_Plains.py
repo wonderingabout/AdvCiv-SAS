@@ -187,12 +187,16 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 				i = y*self.iNumPlotsX + x
 				ozarks.append(i)
 			leftSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
-			if leftSeed == 4: leftSeed = 0
-			if leftSeed == 3: leftSeed = 1
+			if leftSeed == 4:
+				leftSeed = 0
+			if leftSeed == 3:
+				leftSeed = 1
 			varLeft += leftSeed
 			rightSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
-			if rightSeed == 4: rightSeed = 0
-			if rightSeed == 3: rightSeed = 1
+			if rightSeed == 4:
+				rightSeed = 0
+			if rightSeed == 3:
+				rightSeed = 1
 			varRight -= rightSeed
 		# Second Loop
 		varLeft = leftOzark
@@ -204,12 +208,16 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 				i = y*self.iNumPlotsX + x
 				ozarks.append(i)
 			leftSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
-			if leftSeed == 4: leftSeed = 0
-			if leftSeed == 3: leftSeed = 1
+			if leftSeed == 4:
+				leftSeed = 0
+			if leftSeed == 3:
+				leftSeed = 1
 			varLeft += leftSeed
 			rightSeed = dice.get(5, "Ozarks Shape - Great Plains PYTHON")
-			if rightSeed == 4: rightSeed = 0
-			if rightSeed == 3: rightSeed = 1
+			if rightSeed == 4:
+				rightSeed = 0
+			if rightSeed == 3:
+				rightSeed = 1
 			varRight -= rightSeed
 		# now define the four easiest regions and append their plots to their plot lists
 		NiTextOut("Simulate the Rockies (Python Great Plains) ...")
@@ -218,8 +226,10 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 				i = y*self.iNumPlotsX + x
 				lat = x/float(self.iNumPlotsX)
 				lat += (128 - regionsFrac.getHeight(x, y))/(255.0 * 5.0)
-				if lat < 0: lat = 0.0
-				if lat > 1: lat = 1.0
+				if lat < 0:
+					lat = 0.0
+				if lat > 1:
+					lat = 1.0
 				if y >= south and lat <= plainsWest:
 					rockies.append(i)
 				elif y < south and lat <= plainsWest:
@@ -633,12 +643,15 @@ def addBonusType(argsList):
 		iH = map.getGridHeight()
 
 		# init forced-eligibility flags
-		if (type_string not in resourcesToForce): unforced = True
+		if (type_string not in resourcesToForce):
+			unforced = True
 		else: unforced = False
 		forceFlats = False
 		forceHills = False
-		if (type_string in forcePlacementOnFlats): forceFlats = True
-		if (type_string in forcePlacementOnHills): forceHills = True
+		if (type_string in forcePlacementOnFlats):
+			forceFlats = True
+		if (type_string in forcePlacementOnHills):
+			forceHills = True
 
 		# init bonus in regions. NOTE: a bonus can exist in more than one region!
 		inRockies = False
@@ -647,12 +660,18 @@ def addBonusType(argsList):
 		inNorth = False
 		inSW = False
 		inTexas = False
-		if (type_string in resourcesInRockies): inRockies = True
-		if (type_string in resourcesInPlains): inPlains = True
-		if (type_string in resourcesInEast): inEast = True
-		if (type_string in resourcesInSW): inSW = True
-		if (type_string in resourcesInNorth): inNorth = True
-		if (type_string in resourcesInTexas): inTexas = True
+		if (type_string in resourcesInRockies):
+			inRockies = True
+		if (type_string in resourcesInPlains):
+			inPlains = True
+		if (type_string in resourcesInEast):
+			inEast = True
+		if (type_string in resourcesInSW):
+			inSW = True
+		if (type_string in resourcesInNorth):
+			inNorth = True
+		if (type_string in resourcesInTexas):
+			inTexas = True
 
 		# Generate buffalo herds (Cows!) all over the Great Plains!
 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for regional bonuses.
@@ -762,12 +781,18 @@ def addBonusType(argsList):
 				# tests could be designed and used, including lists.
 				long = x/float(iW)
 				lat = y/float(iH)
-				if long <= westlong and lat >= southlat: plotInRockies = True
-				if long > westlong and long <= eastlong: plotInPlains = True
-				if long > eastlong: plotInEast = True
-				if long > westlong and lat > northlat: plotInNorth = True
-				if long <= westlong and lat < southlat: plotInSW = True
-				if (long > westlong and long < eastlong) and lat <= texlat: plotInTexas = True
+				if long <= westlong and lat >= southlat:
+					plotInRockies = True
+				if long > westlong and long <= eastlong:
+					plotInPlains = True
+				if long > eastlong:
+					plotInEast = True
+				if long > westlong and lat > northlat:
+					plotInNorth = True
+				if long <= westlong and lat < southlat:
+					plotInSW = True
+				if (long > westlong and long < eastlong) and lat <= texlat:
+					plotInTexas = True
 				# Check regional bonus eligibility vs plot membership.
 				if (inNorth and plotInNorth):
 					pass

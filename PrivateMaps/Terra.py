@@ -303,7 +303,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# Now simulate South America
 		nwsRoll = self.dice.get(2, "New World South E/W - Terra PYTHON")
 		nwsVar = 0.0
-		if nwsRoll == 1: nwsVar = 0.05
+		if nwsRoll == 1:
+			nwsVar = 0.05
 		nwsWestX = nwWestX + int(self.iW * (0.08 - nwsVar)) # Not as wide as the north
 		nwsEastX = nwEastX - int(self.iW * (0.03 + nwsVar))
 		nwsNorthY = int(self.iH * 0.47)
@@ -348,7 +349,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twWidth = int(self.iW * 0.15)
 		twWestX = nwWestX
 		boreal = self.dice.get(2, "New World North E/W - Terra PYTHON")
-		if boreal == 1: twWestX += int(self.iW * 0.15)
+		if boreal == 1:
+			twWestX += int(self.iW * 0.15)
 		twEastX = twWestX + twWidth
 		twNorthY = int(self.iH * 0.93)
 		twSouthY = int(self.iH * 0.75)
@@ -394,7 +396,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
  		# Now simulate Central America
  		nwcVar = 0.0
-		if nwsRoll == 1: nwcVar = 0.04
+		if nwsRoll == 1:
+			nwcVar = 0.04
 		nwcWidth = int(self.iW * 0.06)
 		nwcRoll = self.dice.get(2, "Central America and Carribean Placement - Terra PYTHON")
 		nwcWestX = nwWestX + int(self.iW * (0.1 + nwcVar))
@@ -418,7 +421,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 		# Now the Carribean islands
  		carVar = 0.0
-		if nwsRoll == 1: carVar = 0.15
+		if nwsRoll == 1:
+			carVar = 0.15
 		twWidth = int(0.15 * self.iW)
 		twEastX = nwEastX - int(carVar * self.iW)
 		twWestX = twEastX - twWidth

@@ -587,12 +587,15 @@ def addBonusType(argsList):
 		iH = map.getGridHeight()
 
 		# init forced-eligibility flags
-		if (type_string not in resourcesToForce): unforced = True
+		if (type_string not in resourcesToForce):
+			unforced = True
 		else: unforced = False
 		forceFlats = False
 		forceHills = False
-		if (type_string in forcePlacementOnFlats): forceFlats = True
-		if (type_string in forcePlacementOnHills): forceHills = True
+		if (type_string in forcePlacementOnFlats):
+			forceFlats = True
+		if (type_string in forcePlacementOnHills):
+			forceHills = True
 
 		# Generate jungle food
 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for forced bonuses.

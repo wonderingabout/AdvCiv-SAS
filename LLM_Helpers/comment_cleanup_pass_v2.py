@@ -95,7 +95,8 @@ def maybe_flush_group(out, indent, group):
 def transform(text):
     src_lines=text.split('\n')
     ends=text.endswith('\n')
-    if ends: src_lines=src_lines[:-1]
+    if ends:
+    	src_lines=src_lines[:-1]
     lines=[]; typos=0
     for l in src_lines:
         n,c=fix_typos(l); lines.append(n); typos+=c
@@ -134,7 +135,8 @@ def transform(text):
         collapsed += any_collapse
         i=j
     result='\n'.join(out)
-    if ends: result+='\n'
+    if ends:
+    	result+='\n'
     return result,typos,collapsed
 
 raw=SRC.read_bytes(); use_crlf=b'\r\n' in raw

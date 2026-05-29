@@ -469,18 +469,30 @@ def addBonusType(argsList):
 	forceNoJungle = False
 	forceNoForest = False
 	forceNoFresh = False
-	if type_string in forcePlacementOnFlats: forceFlats = True
-	if type_string in forcePlacementOnHills: forceHills = True
-	if type_string in forcePlacementInFloodPlains: forceFlood = True
-	if type_string in forcePlacementInJungle: forceJungle = True
-	if type_string in forcePlacementInForest: forceForest = True
-	if type_string in forceNotInGrass: forceNoGrass = True
-	if type_string in forceNotInDesert: forceNoDesert = True
-	if type_string in forceNotInSnow: forceNoSnow = True
-	if type_string in forceNotInPlains: forceNoPlains = True
-	if type_string in forceNotInJungle: forceNoJungle = True
-	if type_string in forceNotInForest: forceNoForest = True
-	if type_string in forceNotInFreshWater: forceNoFresh = True
+	if type_string in forcePlacementOnFlats:
+		forceFlats = True
+	if type_string in forcePlacementOnHills:
+		forceHills = True
+	if type_string in forcePlacementInFloodPlains:
+		forceFlood = True
+	if type_string in forcePlacementInJungle:
+		forceJungle = True
+	if type_string in forcePlacementInForest:
+		forceForest = True
+	if type_string in forceNotInGrass:
+		forceNoGrass = True
+	if type_string in forceNotInDesert:
+		forceNoDesert = True
+	if type_string in forceNotInSnow:
+		forceNoSnow = True
+	if type_string in forceNotInPlains:
+		forceNoPlains = True
+	if type_string in forceNotInJungle:
+		forceNoJungle = True
+	if type_string in forceNotInForest:
+		forceNoForest = True
+	if type_string in forceNotInFreshWater:
+		forceNoFresh = True
 
 	# determine number of bonuses to place (defined as count)
 	# size modifier is a fixed component based on world size

@@ -709,14 +709,18 @@ def addBonusType(argsList):
 			# Can you say "Now That's Corny"? =)
 
 		# init forced-eligibility flags
-		if (type_string not in resourcesToForce): unforced = True
+		if (type_string not in resourcesToForce):
+			unforced = True
 		else: unforced = False
 		forceForest = False
 		forceGrass = False
 		forceHills = False
-		if (type_string in forcePlacementInForest): forceForest = True
-		if (type_string in forcePlacementOnGrass): forceGrass = True
-		if (type_string in forcePlacementOnHills): forceHills = True
+		if (type_string in forcePlacementInForest):
+			forceForest = True
+		if (type_string in forcePlacementOnGrass):
+			forceGrass = True
+		if (type_string in forcePlacementOnHills):
+			forceHills = True
 
 		# determine number of bonuses to place (defined as count)
 		# size modifier is a fixed component based on world size
@@ -752,9 +756,12 @@ def addBonusType(argsList):
 		inNorth = False
 		inOasis = False
 		inSouth = False
-		if (type_string in resourcesInOasis): inOasis = True
-		if (type_string in resourcesInNorth): inNorth = True
-		if (type_string in resourcesInSouth): inSouth = True
+		if (type_string in resourcesInOasis):
+			inOasis = True
+		if (type_string in resourcesInNorth):
+			inNorth = True
+		if (type_string in resourcesInSouth):
+			inSouth = True
 
 		# Set plot eligibility for current bonus.
 		# Begin by initiating the list, into which eligible plots will be recorded.
@@ -782,9 +789,12 @@ def addBonusType(argsList):
 				# Oasis is using latitude to check, but other
 				# tests could be designed and used, including lists.
 				lat = desert.getLatitudeAtPlot(x, y)
-				if lat >= northlat: plotInNorth = True
-				if lat < northoasis and lat > southoasis: plotInOasis = True
-				if lat <= southlat: plotInSouth = True
+				if lat >= northlat:
+					plotInNorth = True
+				if lat < northoasis and lat > southoasis:
+					plotInOasis = True
+				if lat <= southlat:
+					plotInSouth = True
 				# Check regional bonus eligibility vs plot membership.
 				if (inNorth and plotInNorth):
 					pass

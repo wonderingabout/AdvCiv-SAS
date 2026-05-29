@@ -122,12 +122,14 @@ def generatePlotTypes():
 	dice = gc.getGame().getMapRand()
 	fractal_world = FractalWorld()
 	grainRoll = 1 + dice.get(8, "Fractal Grain - Shuffle PYTHON")
-	if grainRoll > 5: grainRoll -= 5
+	if grainRoll > 5:
+		grainRoll -= 5
 	if grainRoll == 2:
 		fractal_world.initFractal(polar = True)
 		return fractal_world.generatePlotTypes(water_percent=75)
 	else:
-		if grainRoll == 5: grainRoll -= 3
+		if grainRoll == 5:
+			grainRoll -= 3
 		fractal_world.initFractal(continent_grain = grainRoll, rift_grain = -1, has_center_rift = False, polar = True)
 		return fractal_world.generatePlotTypes()
 
