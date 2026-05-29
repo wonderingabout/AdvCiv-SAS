@@ -610,7 +610,8 @@ def findStartingPlot(argsList):
 		iTileValue = area.calculateTotalBestNatureYield() + area.getNumRiverEdges() + 2 * area.countCoastalLand() + 3 * area.countNumUniqueBonusTypes()
 		iValue = iTileValue / iNumPlayersOnArea
 		if (iNumPlayersOnArea == 1):
-			iValue *= 4; iValue /= 3
+			iValue *= 4
+			iValue /= 3
 		if (iValue > iBestValue):
 			iBestValue = iValue
 			iBestArea = area.getID()

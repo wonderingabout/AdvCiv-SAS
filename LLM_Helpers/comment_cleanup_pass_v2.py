@@ -42,10 +42,12 @@ def split_comment(line):
 def fix_typos(line):
     if not line.lstrip(' \t').startswith('#'):
         return line,0
-    n=line; c=0
+    n=line
+    c=0
     for old,new in TYPO_REPLACEMENTS:
         if old in n:
-            n=n.replace(old,new); c+=1
+            n=n.replace(old,new)
+            c+=1
     return n,c
 
 def skip_content(content):
@@ -97,10 +99,13 @@ def transform(text):
     ends=text.endswith('\n')
     if ends:
     	src_lines=src_lines[:-1]
-    lines=[]; typos=0
+    lines=[]
+    typos=0
     for l in src_lines:
-        n,c=fix_typos(l); lines.append(n); typos+=c
-    out=[]; collapsed=0; i=0
+        n,c=fix_typos(l); lines.append(n)
+        typos+=c
+    out=[]; collapsed=0
+    i=0
     while i < len(lines):
         if not is_plain_comment_line(lines[i]):
             out.append(lines[i]); i+=1; continue
@@ -109,9 +114,11 @@ def transform(text):
             out.append(lines[i]); i+=1; continue
         indent, _ = split_comment(lines[i])
         # collect same-indent plain comments only
-        j=i; contents=[]; raw=[]
+        j=i; contents=[]
+        raw=[]
         while j < len(lines) and is_plain_comment_line(lines[j]) and split_comment(lines[j])[0] == indent:
-            _ind, cont=split_comment(lines[j]); contents.append(cont); raw.append(lines[j]); j+=1
+            _ind, cont=split_comment(lines[j]); contents.append(cont); raw.append(lines[j])
+            j+=1
         # Process only short-ish runs; long prose/doc blocks are intentionally multiline.
         if len(contents) < 2 or len(contents) > 6:
             out.extend(raw); i=j; continue
@@ -120,7 +127,8 @@ def transform(text):
         for cont in contents:
             s=cont.strip()
             if skip_content(cont):
-                any_collapse += maybe_flush_group(out, indent, group); group=[]
+                any_collapse += maybe_flush_group(out, indent, group)
+                group=[]
                 out.append(indent + '# ' + cont)
                 continue
             group.append(cont)
@@ -130,7 +138,8 @@ def transform(text):
                     # Single complete sentence/label; keep it separate so following lowercase continuation lines do not get merged into it.
                     out.append(indent + '# ' + group[0]); group=[]
                 elif len(group) >= 2:
-                    any_collapse += maybe_flush_group(out, indent, group); group=[]
+                    any_collapse += maybe_flush_group(out, indent, group)
+                    group=[]
         any_collapse += maybe_flush_group(out, indent, group)
         collapsed += any_collapse
         i=j

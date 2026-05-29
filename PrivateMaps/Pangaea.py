@@ -377,7 +377,8 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			[scWestLon, scSouthLat, scVertRange, scHorzRange, scSouthShift] = scValues[scIndex]
 			scWidth = int(subcontinentDimension * self.iW)
 			scHeight = int(subcontinentDimension * self.iH)
-			scHorzShift = 0; scVertShift = 0
+			scHorzShift = 0
+			scVertShift = 0
 			if scHorzRange > 0.0:
 				scHorzShift = self.dice.get(int(self.iW * scHorzRange), "Subcontinent Variance - Terra PYTHON")
 			if scVertRange > 0.0:
@@ -400,11 +401,14 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 			scShape = self.dice.get(5, "Subcontinent Shape - Terra PYTHON")
 			if scShape > 1: # Regular subcontinent.
-				scWater = 55+sea; scGrain = 1; scRift = -1
+				scWater = 55+sea; scGrain = 1
+				scRift = -1
 			elif scShape == 1: # Irregular subcontinent.
-				scWater = 66+sea; scGrain = 2; scRift = 2
+				scWater = 66+sea; scGrain = 2
+				scRift = 2
 			else: # scShape == 0, Archipelago subcontinent.
-				scWater = 77+sea; scGrain = grain; scRift = -1
+				scWater = 77+sea; scGrain = grain
+				scRift = -1
                 
 			self.generatePlotsInRegion(scWater,
 			                           scWidth, scHeight,
