@@ -248,7 +248,8 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	def addFeaturesAtPlot(self, iX, iY):
 		pPlot = self.map.sPlot(iX, iY)
 		
-		if pPlot.isPeak() or pPlot.isWater(): pass
+		if pPlot.isPeak() or pPlot.isWater():
+			pass
 		
 		else:
 			if pPlot.isRiverSide() and pPlot.isFlatlands():
@@ -435,7 +436,8 @@ def assignStartingPlots():
 					pPlot = map.plotByIndex(i)
 					y += slope
 					print("y plus slope: ", y)
-					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+					if pPlot.isHills() or pPlot.isFlatlands():
+						continue # on to next plot!
 					if pPlot.isPeak():
 						print("Peak found! Bulldozing this plot.")
 						print("---")
@@ -495,7 +497,8 @@ def assignStartingPlots():
 					pPlot = map.plotByIndex(i)
 					x += slope
 					print("x plus slope: ", x)
-					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+					if pPlot.isHills() or pPlot.isFlatlands():
+						continue # on to next plot!
 					if pPlot.isPeak():
 						print("Peak found! Bulldozing this plot.")
 						print("---")
@@ -655,10 +658,12 @@ def addBonusType(argsList):
 			for y in range(iH):
 				# First check the plot for an existing bonus.
 				pPlot = map.plot(x,y)
-				if pPlot.getBonusType(-1) != -1: continue # to next plot.
+				if pPlot.getBonusType(-1) != -1:
+					continue # to next plot.
 				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
 				# Check plot type and features for eligibility.
-				if forceHills and pPlot.isHills(): pass
+				if forceHills and pPlot.isHills():
+					pass
 				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")): pass
 				else: continue # to next plot.
 				# Finally we have run all the checks.
@@ -669,7 +674,8 @@ def addBonusType(argsList):
                                     
 		# Now we assign the bonuses to eligible plots chosen completely at random.
 		while count > 0:
-			if eligible == []: break # No eligible plots left!
+			if eligible == []:
+				break # No eligible plots left!
 			index = dice.get(len(eligible), "Bonus Placement - Rainforest PYTHON")
 			[x,y] = eligible[index]
 			map.plot(x,y).setBonusType(iBonusType)

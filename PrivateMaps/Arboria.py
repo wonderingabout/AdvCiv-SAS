@@ -346,7 +346,8 @@ def addBonusType(argsList):
 				for x in range(iW):
 					# Fractalized placement
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak(): continue
+					if pPlot.isWater() or pPlot.isPeak():
+						continue
 					if pPlot.getBonusType(-1) == -1:
 						foodVal = food.getHeight(x,y)
 						if (type_string in deer):

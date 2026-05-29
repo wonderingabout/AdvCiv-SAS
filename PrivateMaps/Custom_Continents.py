@@ -899,7 +899,8 @@ class CCMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 					iSouthY += yShift
 
 				# Handle the map grain.
-				if iGrain > 0 and iGrain < 7: pass
+				if iGrain > 0 and iGrain < 7:
+					pass
 				elif iGrain == 12:
 					grainRoll = self.dice.get(2, "Random Grain - Custom Continents PYTHON")
 					iGrain = grainRoll + 1

@@ -299,7 +299,8 @@ class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		gc = CyGlobalContext()
 		pPlot = CyMap().sPlot(iX, iY)
 		
-		if pPlot.isPeak() or pPlot.isWater(): pass
+		if pPlot.isPeak() or pPlot.isWater():
+			pass
 		
 		else:
 			if pPlot.isRiverSide() and pPlot.isFlatlands():
@@ -477,7 +478,8 @@ def assignStartingPlots():
 					pPlot = map.plotByIndex(i)
 					y += slope
 					print("y plus slope: ", y)
-					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+					if pPlot.isHills() or pPlot.isFlatlands():
+						continue # on to next plot!
 					if pPlot.isPeak():
 						print("Peak found! Bulldozing this plot.")
 						print("---")
@@ -537,7 +539,8 @@ def assignStartingPlots():
 					pPlot = map.plotByIndex(i)
 					x += slope
 					print("x plus slope: ", x)
-					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+					if pPlot.isHills() or pPlot.isFlatlands():
+						continue # on to next plot!
 					if pPlot.isPeak():
 						print("Peak found! Bulldozing this plot.")
 						print("---")
@@ -652,7 +655,8 @@ def addBonusType(argsList):
 				for x in range(iW):
 					# Fractalized placement
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak(): continue
+					if pPlot.isWater() or pPlot.isPeak():
+						continue
 					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"): continue
 					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"): continue
 					if pPlot.getBonusType(-1) == -1:

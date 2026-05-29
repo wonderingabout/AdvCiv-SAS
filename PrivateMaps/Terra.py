@@ -477,7 +477,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		while endless == 1: # Prevent excessive overlap of the two subcontinents.
 			scsRoll = self.dice.get((eurasiaWidth - scSmallWidth), "Small Subcontinent Placement - Terra PYTHON")
 			scsWestX = eurasiaWestX + scsRoll
-			if abs((scsWestX + self.iW/12) - scWestX) > self.iW/8: break
+			if abs((scsWestX + self.iW/12) - scWestX) > self.iW/8:
+				break
 		scsEastX = scsWestX + scSmallWidth
 		scsNorthY = int(self.iH * subcontinentSmallNorthLat)
 		scsSouthY = int(self.iH * subcontinentSmallSouthLat)

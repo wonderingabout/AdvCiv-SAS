@@ -733,7 +733,8 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
 				val = regionContinentsFrac.getHeight(x,y)
-				if val <= iWaterThreshold: pass
+				if val <= iWaterThreshold:
+					pass
 				else:
 					hillVal = regionHillsFrac.getHeight(x,y)
 					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
@@ -761,7 +762,8 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			wholeworldX = x + iWestX
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
-				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN: continue
+				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN:
+					continue
 				wholeworldY = y + iSouthY
 				iWorld = wholeworldY*self.iW + wholeworldX
 				self.wholeworldPlotTypes[iWorld] = self.plotTypes[i]
@@ -807,7 +809,8 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
 				val = regionContinentsFrac.getHeight(x,y)
-				if val <= iWaterThreshold: pass
+				if val <= iWaterThreshold:
+					pass
 				else:
 					hillVal = regionHillsFrac.getHeight(x,y)
 					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
@@ -831,7 +834,8 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			wholeworldX = x + iWestX
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
-				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN: continue
+				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN:
+					continue
 				wholeworldY = y + iSouthY
 				iWorld = wholeworldY*self.iW + wholeworldX
 				self.wholeworldPlotTypes[iWorld] = self.plotTypes[i]
@@ -1048,7 +1052,8 @@ def generatePlotTypes():
 	
 	# Check for valid number of players.
 	global bSuccessFlag
-	if bSuccessFlag: pass
+	if bSuccessFlag:
+		pass
 	else:
 		fractal_world = FractalWorld()
 		fractal_world.initFractal(polar = True)

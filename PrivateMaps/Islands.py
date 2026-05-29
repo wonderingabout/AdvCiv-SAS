@@ -294,7 +294,8 @@ class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		sea = max(sea, -5)
 
 		# Add the Tiny Islands first (if appropriate).
-		if userInputTinyIslands == 0: pass # No tinies.
+		if userInputTinyIslands == 0:
+			pass # No tinies.
 		else:
 			tiny_one = [[-1, -1], [92, 6], [91, 5], [85, 5]]
 			[tinyWater, tinyGrain] = tiny_one[userInputTinyIslands]
@@ -419,7 +420,8 @@ def generatePlotTypes():
 	iPlayers = CyGlobalContext().getGame().countCivPlayersEverAlive()
 
 	# Check for valid number of players.
-	if iPlayers > 0 and iPlayers < 19: pass
+	if iPlayers > 0 and iPlayers < 19:
+		pass
 	else: # Error catching.
 		fractal_world = FractalWorld()
 		fractal_world.initFractal(polar = True)
@@ -625,10 +627,14 @@ def assignStartingPlots():
 				for iX in range(westX, eastX + 1):
 					for iY in range(southY, northY + 1):
 						pPlot = map.plot(iX, iY)
-						if pPlot.isWater(): continue
-						if not pPlot.isCoastalLand(): continue
-						if areaID != pPlot.getArea(): continue
-						if validFn is not None and not validFn(playerID, iX, iY): continue
+						if pPlot.isWater():
+							continue
+						if not pPlot.isCoastalLand():
+							continue
+						if areaID != pPlot.getArea():
+							continue
+						if validFn is not None and not validFn(playerID, iX, iY):
+							continue
 						val = pPlot.getFoundValue(playerID)
 						if val > iBestValue:
 							valid = True

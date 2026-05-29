@@ -302,7 +302,8 @@ class DonutFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		ice = 0
 		
 	def addJunglesAtPlot(self, pPlot, iX, iY, lat):
-		if (CyMap().getCustomMapOption(1) == 1): pass #No Jungles option
+		if (CyMap().getCustomMapOption(1) == 1):
+			pass #No Jungles option
 		else: #Normal Jungles
 			if pPlot.canHaveFeature(self.featureJungle):
 				iJungleHeight = self.jungles.getHeight(iX, iY)

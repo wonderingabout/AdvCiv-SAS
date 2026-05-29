@@ -626,10 +626,14 @@ def assignStartingPlots():
 					for iX in range(westX, eastX + 1):
 						for iY in range(southY, northY + 1):
 							pPlot = map.plot(iX, iY)
-							if pPlot.isWater(): continue
-							if bRequireCoastal and not pPlot.isCoastalLand(): continue
-							if areaID != pPlot.getArea(): continue
-							if validFn is not None and not validFn(playerID, iX, iY): continue
+							if pPlot.isWater():
+								continue
+							if bRequireCoastal and not pPlot.isCoastalLand():
+								continue
+							if areaID != pPlot.getArea():
+								continue
+							if validFn is not None and not validFn(playerID, iX, iY):
+								continue
 							val = pPlot.getFoundValue(playerID)
 							if val > iBestValue:
 								valid = True
@@ -678,9 +682,12 @@ def assignStartingPlots():
 					for iX in range(westX, eastX + 1):
 						for iY in range(southY, northY + 1):
 							pPlot = map.plot(iX, iY)
-							if pPlot.isWater(): continue
-							if pPlot.isPeak(): continue
-							if pPlot.isImpassable(): continue
+							if pPlot.isWater():
+								continue
+							if pPlot.isPeak():
+								continue
+							if pPlot.isImpassable():
+								continue
 							pBestPlot = pPlot
 							break
 						if pBestPlot is not None:
@@ -690,9 +697,12 @@ def assignStartingPlots():
 						for iX in range(iW):
 							for iY in range(iH):
 								pPlot = map.plot(iX, iY)
-								if pPlot.isWater(): continue
-								if pPlot.isPeak(): continue
-								if pPlot.isImpassable(): continue
+								if pPlot.isWater():
+									continue
+								if pPlot.isPeak():
+									continue
+								if pPlot.isImpassable():
+									continue
 								pBestPlot = pPlot
 								break
 							if pBestPlot is not None:

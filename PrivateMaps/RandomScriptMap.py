@@ -674,7 +674,8 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             for y in range(iRegionHeight):
                 i = y*iRegionWidth + x
                 val = regionContinentsFrac.getHeight(x,y)
-                if val <= iWaterThreshold: pass
+                if val <= iWaterThreshold:
+                	pass
                 else:
                     hillVal = regionHillsFrac.getHeight(x,y)
                     if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or
@@ -698,7 +699,8 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             wholeworldX = x + iWestX
             for y in range(iRegionHeight):
                 i = y*iRegionWidth + x
-                if self.plotTypes[i] == PlotTypes.PLOT_OCEAN: continue
+                if self.plotTypes[i] == PlotTypes.PLOT_OCEAN:
+                	continue
                 wholeworldY = y + iSouthY
                 iWorld = wholeworldY*self.iW + wholeworldX
                 self.wholeworldPlotTypes[iWorld] = self.plotTypes[i]
@@ -1418,7 +1420,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             scsRoll = self.dice.get((eurasiaWidth - scSmallWidth),
                                     "RandomScriptUtil PYTHON")
             scsWestX = eurasiaWestX + scsRoll
-            if abs((scsWestX + self.iW/12) - scWestX) > self.iW/8: break
+            if abs((scsWestX + self.iW/12) - scWestX) > self.iW/8:
+            	break
         scsEastX = scsWestX + scSmallWidth
         scsNorthY = int(self.iH * subcontinentSmallNorthLat)
         scsSouthY = int(self.iH * subcontinentSmallSouthLat)

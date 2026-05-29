@@ -1768,7 +1768,8 @@ def findStartingPlot(argsList):
 		allOnBest = true
 
 	for area in areas:
-		if area.isWater(): continue 
+		if area.isWater():
+			continue 
 		areaValue[area.getID()] = area.calculateTotalBestNatureYield() + area.getNumRiverEdges() + 2 * area.countCoastalLand() + 3 * area.countNumUniqueBonusTypes()
 
 	# Shuffle players so the same player doesn't always get the first pick.
@@ -1802,7 +1803,8 @@ def findStartingPlot(argsList):
 			global bestArea
 			bestArea = -1
 			for area in areas:
-				if area.isWater(): continue 
+				if area.isWater():
+					continue 
 				players = 2*area.getNumStartingPlots()
 				#Avoid single players on landmasses:
 				if (false == isolatedStarts and players == 0):

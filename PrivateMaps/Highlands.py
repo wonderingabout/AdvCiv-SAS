@@ -628,7 +628,8 @@ def assignStartingPlots():
 					pPlot = map.plotByIndex(i)
 					y += slope
 					print("y plus slope: ", y)
-					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+					if pPlot.isHills() or pPlot.isFlatlands():
+						continue # on to next plot!
 					if pPlot.isPeak():
 						print("Peak found! Bulldozing this plot.")
 						print("---")
@@ -688,7 +689,8 @@ def assignStartingPlots():
 					pPlot = map.plotByIndex(i)
 					x += slope
 					print("x plus slope: ", x)
-					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
+					if pPlot.isHills() or pPlot.isFlatlands():
+						continue # on to next plot!
 					if pPlot.isPeak():
 						print("Peak found! Bulldozing this plot.")
 						print("---")

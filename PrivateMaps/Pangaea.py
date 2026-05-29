@@ -592,7 +592,8 @@ def generateTerrainTypes():
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
 				val = regionContinentsFrac.getHeight(x,y)
-				if val <= iWaterThreshold: pass
+				if val <= iWaterThreshold:
+					pass
 				else:
 					hillVal = regionHillsFrac.getHeight(x,y)
 					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
@@ -608,7 +609,8 @@ def generateTerrainTypes():
 			wholeworldX = x + iWestX
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
-				if plotTypes[i] == PlotTypes.PLOT_OCEAN: continue # Not merging water!
+				if plotTypes[i] == PlotTypes.PLOT_OCEAN:
+					continue # Not merging water!
 				wholeworldY = y + iSouthY
 				# print("Changing water plot at ", wholeworldX, wholeworldY, " to ", plotTypes[i])
 				iWorld = wholeworldY*iW + wholeworldX

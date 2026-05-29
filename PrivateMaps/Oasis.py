@@ -259,7 +259,8 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			for y in range(iRegionHeight):
 				i = y*iRegionWidth + x
 				# The following line is customized for Oasis, to layer water plots!
-				if self.plotTypes[i] != PlotTypes.PLOT_OCEAN: continue
+				if self.plotTypes[i] != PlotTypes.PLOT_OCEAN:
+					continue
 				wholeworldY = y + iSouthY
 				iWorld = wholeworldY*self.iW + wholeworldX
 				self.wholeworldPlotTypes[iWorld] = self.plotTypes[i]
@@ -337,7 +338,8 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		for x in range(self.iW):
 			for y in range(self.iH):
 				i = y*self.iW + x
-        			if self.wholeworldPlotTypes[i] == PlotTypes.PLOT_OCEAN: continue
+        			if self.wholeworldPlotTypes[i] == PlotTypes.PLOT_OCEAN:
+        				continue
         			else:
         				hillVal = hillsFrac.getHeight(x,y)
         				if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
@@ -681,7 +683,8 @@ def addBonusType(argsList):
 
 		# Generate desert maize (Corn!) all over the Oasis region!
 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for regional bonuses.
-		if (type_string not in oasisCorn): pass
+		if (type_string not in oasisCorn):
+			pass
 		else:
 			NiTextOut("Placing Desert Maize (Corn - Python Oasis) ...")
 			crops = CyFractal()
@@ -696,7 +699,8 @@ def addBonusType(argsList):
 				for x in range(iW):
 					# Fractalized placement of crops
 					pPlot = map.plot(x,y)
-					if (not pPlot.isFlatlands()) or pPlot.getFeatureType() != -1: continue
+					if (not pPlot.isFlatlands()) or pPlot.getFeatureType() != -1:
+						continue
 					cropVal = crops.getHeight(x,y)
 					if pPlot.getBonusType(-1) == -1 and ((cropVal >= iCropsBottom1 and cropVal <= iCropsTop1) or (cropVal >= iCropsBottom2 and cropVal <= iCropsTop2)):
 						map.plot(x,y).setBonusType(iBonusType)
@@ -760,10 +764,13 @@ def addBonusType(argsList):
 			for y in range(iH):
 				# First check the plot for an existing bonus.
 				pPlot = map.plot(x,y)
-				if pPlot.getBonusType(-1) != -1: continue # to next plot.
+				if pPlot.getBonusType(-1) != -1:
+					continue # to next plot.
 				# Check plot type and features for eligibility.
-				if (pPlot.canHaveBonus(iBonusType, True) and unforced): pass
-				elif forceHills and pPlot.isHills(): pass
+				if (pPlot.canHaveBonus(iBonusType, True) and unforced):
+					pass
+				elif forceHills and pPlot.isHills():
+					pass
 				elif forceForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): pass
 				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1: pass
 				else: continue # to next plot.
@@ -779,9 +786,12 @@ def addBonusType(argsList):
 				if lat < northoasis and lat > southoasis: plotInOasis = True
 				if lat <= southlat: plotInSouth = True
 				# Check regional bonus eligibility vs plot membership.
-				if (inNorth and plotInNorth): pass
-				elif (inOasis and plotInOasis): pass
-				elif (inSouth and plotInSouth): pass
+				if (inNorth and plotInNorth):
+					pass
+				elif (inOasis and plotInOasis):
+					pass
+				elif (inSouth and plotInSouth):
+					pass
 				else: continue # on to next plot. This plot not eligible.
 				#
 				# Finally we have run all the checks.
@@ -793,7 +803,8 @@ def addBonusType(argsList):
                                     
 		# Now we assign the bonuses to eligible plots chosen completely at random.
 		while count > 0:
-			if eligible == []: break # No eligible plots left!
+			if eligible == []:
+				break # No eligible plots left!
 			index = dice.get(len(eligible), "Bonus Placement - Oasis PYTHON")
 			[x,y] = eligible[index]
 			map.plot(x,y).setBonusType(iBonusType)
@@ -869,53 +880,64 @@ def addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, iDirectionOd
 		northPlotWest = map.plot(iX, iY+1)
 		northPlotEast = map.plot(iX+1, iY+1)
 		# Checking both plots for water.
-		if northPlotEast.isWater() or northPlotWest.isWater(): break
+		if northPlotEast.isWater() or northPlotWest.isWater():
+			break
 		pRiverPlot = map.plot(iX, iY)
 		direction = dice.get(iDirectionOdds, "River Direction - Oasis PYTHON")
 		segmentLength = 1 + dice.get(maxshift, "River Direction - Oasis PYTHON")
 		# WEST
 		if direction == 1: # Turn to the West, then North again.
-			if iY == iH: break
+			if iY == iH:
+				break
 			iY += 1
 			pRiverPlot = map.plot(iX, iY)
 			# Turn west.
 			for segment in range(segmentLength):
-				if iX <= left: break
+				if iX <= left:
+					break
 				else:
 					pRiverPlot.setNOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_WEST)
 					plotWest = map.plot(iX-1, iY)
 					# Only checking North-West Plot for Oasis.
-					if plotWest.isWater(): break
+					if plotWest.isWater():
+						break
 					iX -= 1
 					pRiverPlot = map.plot(iX, iY)
 			# Now turn back toward the north.
 			pRiverPlot.setWOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 		# EAST
 		elif direction == 2: # Turn to the East, then North again.
-			if iY == iH: break
-			if iX >= right: continue
+			if iY == iH:
+				break
+			if iX >= right:
+				continue
 			iY += 1
 			# Turn east.
 			for segment in range(segmentLength):
-				if iX >= right: break
+				if iX >= right:
+					break
 				else: 
 					iX += 1
 					pRiverPlot = map.plot(iX, iY)
 					pRiverPlot.setNOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_EAST)
 					plotEast = map.plot(iX+1, iY)
 					# Only checking North-East Plot for Oasis.
-					if plotEast.isWater(): break
+					if plotEast.isWater():
+						break
 			# Now turn back toward the north.
 			plotEast = map.plot(iX+1, iY)
-			if plotEast.isWater(): break
+			if plotEast.isWater():
+				break
 			pRiverPlot.setWOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
 		# NORTH
 		else: # Run straight North for a segment. Note: 60% chance of North.
 			for segment in range(segmentLength):
-				if iY == iH: break
+				if iY == iH:
+					break
 				northPlotWest = map.plot(iX, iY+1)
 				northPlotEast = map.plot(iX+1, iY+1)
-				if northPlotEast.isWater() or northPlotWest.isWater(): break
+				if northPlotEast.isWater() or northPlotWest.isWater():
+					break
 				iY += 1
 				pRiverPlot = map.plot(iX, iY)
 				pRiverPlot.setWOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)

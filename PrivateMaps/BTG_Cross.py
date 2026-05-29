@@ -631,7 +631,8 @@ def generatePlotTypes():
 	#I've already declared this
 
 	# Check for valid number of players.
-	if iPlayers > 0 and iPlayers <= CyGlobalContext().getMAX_CIV_PLAYERS(): pass
+	if iPlayers > 0 and iPlayers <= CyGlobalContext().getMAX_CIV_PLAYERS():
+		pass
 	else: # Error catching.
 		fractal_world = FractalWorld()
 		fractal_world.initFractal(polar = True)
@@ -951,10 +952,13 @@ def assignStartingPlots():
 						for iX in range(westX, eastX + 1):
 							for iY in range(southY, northY + 1):
 								pPlot = map.plot(iX, iY)
-								if pPlot.isWater(): continue
+								if pPlot.isWater():
+									continue
 								# if not pPlot.isCoastalLand(): continue
-								if areaID != pPlot.getArea(): continue
-								if validFn is not None and not validFn(playerID, iX, iY): continue
+								if areaID != pPlot.getArea():
+									continue
+								if validFn is not None and not validFn(playerID, iX, iY):
+									continue
 								val = pPlot.getFoundValue(playerID)
 								if pPlot.isFreshWater:
 									val += 1000
@@ -1096,10 +1100,13 @@ def assignStartingPlots():
 						for iX in range(westX, eastX + 1):
 							for iY in range(southY, northY + 1):
 								pPlot = map.plot(iX, iY)
-								if pPlot.isWater(): continue
+								if pPlot.isWater():
+									continue
 								# if not pPlot.isCoastalLand(): continue
-								if areaID != pPlot.getArea(): continue
-								if validFn is not None and not validFn(playerID, iX, iY): continue
+								if areaID != pPlot.getArea():
+									continue
+								if validFn is not None and not validFn(playerID, iX, iY):
+									continue
 								val = pPlot.getFoundValue(playerID)
 								if pPlot.isFreshWater:
 									val += 1000
@@ -1384,7 +1391,8 @@ def mirrorizeMap():
 
 	for iX in range(iW):
 		for iY in range(iH):
-                        if iX >= iWestX and iX < iWestX + minW and iY >= iSouthY and iY < iSouthY + minH : continue
+                        if iX >= iWestX and iX < iWestX + minW and iY >= iSouthY and iY < iSouthY + minH :
+                        	continue
 			pPlot = map.plot(iX, iY)
 
 			pPlot.setImprovementType(-1)

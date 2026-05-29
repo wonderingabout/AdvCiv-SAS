@@ -214,7 +214,8 @@ def generatePlotTypes():
 	else:
 		plotTypes[i] = PlotTypes.PLOT_LAND
 	
-	if multiplier == 1: pass
+	if multiplier == 1:
+		pass
 	else:
 		for mazeX in range(x, x+multiplier):
 			for mazeY in range(y, y+multiplier):
@@ -330,7 +331,8 @@ def generatePlotTypes():
 			else:
 				plotTypes[i] = PlotTypes.PLOT_LAND
 	
-			if multiplier == 1: pass
+			if multiplier == 1:
+				pass
 			else:
 				for mazeX in range(x, x+multiplier):
 					for mazeY in range(y, y+multiplier):

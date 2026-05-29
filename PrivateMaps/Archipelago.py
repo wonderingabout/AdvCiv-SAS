@@ -508,9 +508,12 @@ def assignStartingPlots():
 				for iX in range(westX, eastX + 1):
 					for iY in range(southY, northY + 1):
 						pPlot = map.plot(iX, iY)
-						if pPlot.isWater(): continue
-						if areaID != pPlot.getArea(): continue
-						if validFn is not None and not validFn(playerID, iX, iY): continue
+						if pPlot.isWater():
+							continue
+						if areaID != pPlot.getArea():
+							continue
+						if validFn is not None and not validFn(playerID, iX, iY):
+							continue
 						val = pPlot.getFoundValue(playerID)
 						if val > iBestValue:
 							valid = True
@@ -598,7 +601,8 @@ def findStartingPlot(argsList):
 	areas = CvMapGeneratorUtil.getAreas()
 	
 	for area in areas:
-		if area.isWater(): continue # Don't want to start "in the drink"!
+		if area.isWater():
+			continue # Don't want to start "in the drink"!
 		iNumPlayersOnArea = area.getNumStartingPlots() + 1 # Number of players starting on the area, plus this player.
 		
 		iTileValue = area.calculateTotalBestNatureYield() + area.getNumRiverEdges() + 2 * area.countCoastalLand() + 3 * area.countNumUniqueBonusTypes()

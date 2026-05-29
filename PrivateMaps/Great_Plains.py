@@ -151,7 +151,8 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		coast = middle
 		for y in range(south):
 			coast += dice.get(4, "Gulf of Mexico - Great Plains PYTHON")
-			if coast > self.iNumPlotsX: break
+			if coast > self.iNumPlotsX:
+				break
 			for x in range(coast, self.iNumPlotsX):
 				i = y*self.iNumPlotsX + x
 				gulf.append(i)
@@ -180,7 +181,8 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		varLeft = leftOzark
 		varRight = rightOzark
 		for y in range(midOzarkY + 1, topOzark):
-			if varLeft > varRight: break
+			if varLeft > varRight:
+				break
 			for x in range(varLeft, varRight):
 				i = y*self.iNumPlotsX + x
 				ozarks.append(i)
@@ -196,7 +198,8 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		varLeft = leftOzark
 		varRight = rightOzark
 		for y in range(midOzarkY, botOzark, -1):
-			if varLeft > varRight: break
+			if varLeft > varRight:
+				break
 			for x in range(varLeft, varRight):
 				i = y*self.iNumPlotsX + x
 				ozarks.append(i)
@@ -653,7 +656,8 @@ def addBonusType(argsList):
 
 		# Generate buffalo herds (Cows!) all over the Great Plains!
 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for regional bonuses.
-		if (type_string not in buffalo): pass
+		if (type_string not in buffalo):
+			pass
 		else:
 			NiTextOut("Placing Buffalo Herds (Cows - Python Great Plains) ...")
 			herds = CyFractal()
@@ -734,12 +738,16 @@ def addBonusType(argsList):
 			for y in range(iH):
 				# First check the plot for an existing bonus.
 				pPlot = map.plot(x,y)
-				if pPlot.getBonusType(-1) != -1: continue # to next plot.
+				if pPlot.getBonusType(-1) != -1:
+					continue # to next plot.
 				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
 				# Check plot type and features for eligibility.
-				if (pPlot.canHaveBonus(iBonusType, True) and unforced): pass
-				elif forceHills and pPlot.isHills(): pass
-				elif forceFlats and pPlot.isFlatlands(): pass
+				if (pPlot.canHaveBonus(iBonusType, True) and unforced):
+					pass
+				elif forceHills and pPlot.isHills():
+					pass
+				elif forceFlats and pPlot.isFlatlands():
+					pass
 				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills(): pass
 				else: continue # to next plot.
 				# re-init regional plot membership tests for each pass.
@@ -761,12 +769,18 @@ def addBonusType(argsList):
 				if long <= westlong and lat < southlat: plotInSW = True
 				if (long > westlong and long < eastlong) and lat <= texlat: plotInTexas = True
 				# Check regional bonus eligibility vs plot membership.
-				if (inNorth and plotInNorth): pass
-				elif (inRockies and plotInRockies): pass
-				elif (inSW and plotInSW): pass
-				elif (inPlains and plotInPlains): pass
-				elif (inEast and plotInEast): pass
-				elif (inTexas and plotInTexas): pass
+				if (inNorth and plotInNorth):
+					pass
+				elif (inRockies and plotInRockies):
+					pass
+				elif (inSW and plotInSW):
+					pass
+				elif (inPlains and plotInPlains):
+					pass
+				elif (inEast and plotInEast):
+					pass
+				elif (inTexas and plotInTexas):
+					pass
 				else: continue # on to next plot. This plot not eligible.
 				#
 				# Finally we have run all the checks.
@@ -778,7 +792,8 @@ def addBonusType(argsList):
                                     
 		# Now we assign the bonuses to eligible plots chosen completely at random.
 		while count > 0:
-			if eligible == []: break # No eligible plots left!
+			if eligible == []:
+				break # No eligible plots left!
 			index = dice.get(len(eligible), "Bonus Placement - Great Plains PYTHON")
 			[x,y] = eligible[index]
 			map.plot(x,y).setBonusType(iBonusType)
@@ -799,7 +814,8 @@ def addBonusType(argsList):
 					if pPlot.getBonusType(-1) == -1 and pPlot.isFlatlands() and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
 						corn.append([x,y])
 			while corncount > 0:
-				if corn == []: break # No eligible plots left!
+				if corn == []:
+					break # No eligible plots left!
 				index = dice.get(len(corn), "SW Corn Placement - Great Plains PYTHON")
 				[x,y] = corn[index]
 				map.plot(x,y).setBonusType(iBonusType)
@@ -819,7 +835,8 @@ def addBonusType(argsList):
 					if pPlot.getBonusType(-1) == -1 and pPlot.canHaveBonus(iBonusType, True):
 						seafood.append([x,y])
 			while seafoodcount > 0:
-				if seafood == []: break # No eligible plots left!
+				if seafood == []:
+					break # No eligible plots left!
 				index = dice.get(len(seafood), "Seafood Placement - Great Plains PYTHON")
 				[x,y] = seafood[index]
 				map.plot(x,y).setBonusType(iBonusType)
@@ -873,7 +890,8 @@ def addNileStyleRiverFlowingSouth(center, left, right, maxshift, startX, startY,
 		southPlotWest = map.plot(iX, iY-1)
 		southPlotEast = map.plot(iX+1, iY-1)
 		# Checking both plots for water.
-		if southPlotEast.isWater() or southPlotWest.isWater(): break
+		if southPlotEast.isWater() or southPlotWest.isWater():
+			break
 		pRiverPlot = map.plot(iX, iY)
 		direction = dice.get(iDirectionOdds, "River Direction - PYTHON")
 		segmentLength = 1 + dice.get(maxshift, "River Direction - PYTHON")
@@ -881,13 +899,15 @@ def addNileStyleRiverFlowingSouth(center, left, right, maxshift, startX, startY,
 		if direction < 2: # Turn to the West, then South again.
 			# Turn west.
 			for segment in range(segmentLength):
-				if iX <= left: break
+				if iX <= left:
+					break
 				else:
 					pRiverPlot.setRiverID(iThisRiverID)
 					pRiverPlot.setNOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_WEST)
 					plotWest = map.plot(iX-1, iY-1)
 					# Only checking South-West Plot for Sahara.
-					if plotWest.isWater(): break
+					if plotWest.isWater():
+						break
 					iX -= 1
 					pRiverPlot = map.plot(iX, iY)
 			# Now turn back toward the south.
@@ -898,10 +918,12 @@ def addNileStyleRiverFlowingSouth(center, left, right, maxshift, startX, startY,
 			mississippi_x_coords.append(iX)
 		# EAST
 		elif direction > 8: # Turn to the East, then South again.
-			if iX >= right: continue
+			if iX >= right:
+				continue
 			# Turn east.
 			for segment in range(segmentLength):
-				if iX >= right: break
+				if iX >= right:
+					break
 				else: 
 					iX += 1
 					pRiverPlot = map.plot(iX, iY)
@@ -909,10 +931,12 @@ def addNileStyleRiverFlowingSouth(center, left, right, maxshift, startX, startY,
 					pRiverPlot.setNOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_EAST)
 					plotEast = map.plot(iX+1, iY)
 					# Only checking South-East Plot for Sahara.
-					if plotEast.isWater(): break
+					if plotEast.isWater():
+						break
 			# Now turn back toward the south.
 			plotEast = map.plot(iX+1, iY-1)
-			if plotEast.isWater(): break
+			if plotEast.isWater():
+				break
 			iY -= 1
 			pRiverPlot = map.plot(iX, iY)
 			pRiverPlot.setRiverID(iThisRiverID)
@@ -921,10 +945,12 @@ def addNileStyleRiverFlowingSouth(center, left, right, maxshift, startX, startY,
 		# SOUTH
 		else: # Run straight South for a segment. Note: 60% chance of South.
 			for segment in range(segmentLength):
-				if iY == 0: break
+				if iY == 0:
+					break
 				southPlotWest = map.plot(iX, iY-1)
 				southPlotEast = map.plot(iX+1, iY-1)
-				if southPlotEast.isWater() or southPlotWest.isWater(): break
+				if southPlotEast.isWater() or southPlotWest.isWater():
+					break
 				iY -= 1
 				pRiverPlot = map.plot(iX, iY)
 				pRiverPlot.setRiverID(iThisRiverID)
