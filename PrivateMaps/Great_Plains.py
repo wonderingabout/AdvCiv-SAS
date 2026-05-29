@@ -773,7 +773,8 @@ def addBonusType(argsList):
 					pass
 				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills():
 					pass
-				else: continue # to next plot.
+				else:
+					continue # to next plot.
 				# re-init regional plot membership tests for each pass.
 				plotInRockies = False
 				plotInPlains = False
@@ -811,7 +812,8 @@ def addBonusType(argsList):
 					pass
 				elif (inTexas and plotInTexas):
 					pass
-				else: continue # on to next plot. This plot not eligible.
+				else:
+					continue # on to next plot. This plot not eligible.
 				#
 				# Finally we have run all the checks.
 				# 1. The plot has no bonus.

@@ -783,7 +783,8 @@ def addBonusType(argsList):
 					pass
 				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1:
 					pass
-				else: continue # to next plot.
+				else:
+					continue # to next plot.
 				# re-init regional plot membership tests for each pass.
 				plotInNorth = False
 				plotInOasis = False
@@ -805,7 +806,8 @@ def addBonusType(argsList):
 					pass
 				elif (inSouth and plotInSouth):
 					pass
-				else: continue # on to next plot. This plot not eligible.
+				else:
+					continue # on to next plot. This plot not eligible.
 				#
 				# Finally we have run all the checks.
 				# 1. The plot has no bonus.

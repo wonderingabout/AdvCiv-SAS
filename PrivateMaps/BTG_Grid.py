@@ -1174,7 +1174,8 @@ def assignStartingPlots():
 						# Regional start plot assignment has failed. Reverting to default.
 						CyPythonMgr().allowDefaultImpl()
 						return
-				else: break # This player has been assigned a start plot.
+				else:
+					break # This player has been assigned a start plot.
 				
 		# Successfully assigned start plots, continue back to C++
 		return None
@@ -1308,7 +1309,8 @@ def assignStartingPlots():
 								# Regional start plot assignment has failed. Reverting to default.
 								CyPythonMgr().allowDefaultImpl()
 								return
-					else: break # This player has been assigned a start plot.
+					else:
+						break # This player has been assigned a start plot.
 			
 			else :
 				sPlot = map.plot(wX + dX, sY + dY)

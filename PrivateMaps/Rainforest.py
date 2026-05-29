@@ -672,7 +672,8 @@ def addBonusType(argsList):
 					pass
 				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")):
 					pass
-				else: continue # to next plot.
+				else:
+					continue # to next plot.
 				# Finally we have run all the checks.
 				# 1. The plot has no bonus.
 				# 2. The plot has an eligible terrain and feature type.

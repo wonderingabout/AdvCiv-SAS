@@ -719,7 +719,8 @@ def assignStartingPlots():
 					plrID = gc.getPlayer(playerID)
 					plrID.setStartingPlot(sPlot, true)
 					break
-			else: break # This player has been assigned a start plot.
+			else:
+				break # This player has been assigned a start plot.
 			
 	# Successfully assigned start plots, continue back to C++
 	return None
