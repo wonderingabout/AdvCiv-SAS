@@ -5,6 +5,7 @@
 # <!-- custom: The page treats the trigger as the dominant entity (matches player's mental model: the trigger is "what happens", events are "the choices when it fires"). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import SevoScreenEnums
 import SASTextScale
@@ -22,7 +23,7 @@ class SevoPediaEventTrigger:
 		self.top = main
 		# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order. Cache translated labels once per page object so rendering requirements does not repeat translator lookups, while keeping the rare enum-order audit point obvious. (GPT-5.5) -->
 		self.PLOT_TYPE_LABELS = (localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()))
-		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this page the expandable panel is actually Texts, not a Civilopedia/History panel — but reusing the shared mechanism avoids adding a new python widget id just for one page. (Claude code Opus 4.7) -->
+		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch in SevoPediaMain (SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this page the expandable panel is actually Texts, not a Civilopedia/History panel — but reusing the shared mechanism avoids adding a new python widget id just for one page. (Claude code Opus 4.7) -->
 		self.bHistoryExpanded = False
 
 		self.X_NAME = self.top.X_PEDIA_PAGE
@@ -667,7 +668,7 @@ class SevoPediaEventTrigger:
 			szBody = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
 
 		szTitle = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS", ())
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_TEXTS, self.Y_TEXTS, self.W_TEXTS, self.H_TEXTS, szBody, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_TEXTS, self.Y_TEXTS, self.W_TEXTS, self.H_TEXTS, szBody, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def placeEvents(self):
 		screen = self.top.getScreen()
 		info = self._getTriggerInfo()
@@ -951,7 +952,7 @@ class SevoPediaEventTrigger:
 			if iTargetTrigger >= 0:
 				if iListButtonIndex > 0:
 					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
-				screen.appendMultiListButton(rowListName, eventInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY, iTargetTrigger, False)
+				screen.appendMultiListButton(rowListName, eventInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY, iTargetTrigger, False)
 				iButtonIndex += 1
 				iListButtonIndex += 1
 

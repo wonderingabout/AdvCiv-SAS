@@ -1,4 +1,4 @@
-﻿#
+#
 #	FILE:	 Fantasy_Realm.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Regional map script - Fantastical terrain, X and Y Wrap

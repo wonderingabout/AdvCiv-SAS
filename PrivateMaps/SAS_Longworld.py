@@ -214,15 +214,15 @@ def getGridSize(argsList):
 	if argsList[0] == -1:
 		return []
 
-	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
+	# <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
 	grid_sizes = {
-		SAS_WORLDSIZE_ARENA: (9, 4),
-		SAS_WORLDSIZE_DUEL: (12, 4),
-		SAS_WORLDSIZE_TINY: (18, 5),
-		SAS_WORLDSIZE_SMALL: (27, 6),
-		SAS_WORLDSIZE_STANDARD: (34, 6),
-		SAS_WORLDSIZE_LARGE: (41, 6),
-		SAS_WORLDSIZE_HUGE: (54, 6),
+		SAS_MAGIC_WORLDSIZE_ARENA: (9, 4),
+		SAS_MAGIC_WORLDSIZE_DUEL: (12, 4),
+		SAS_MAGIC_WORLDSIZE_TINY: (18, 5),
+		SAS_MAGIC_WORLDSIZE_SMALL: (27, 6),
+		SAS_MAGIC_WORLDSIZE_STANDARD: (34, 6),
+		SAS_MAGIC_WORLDSIZE_LARGE: (41, 6),
+		SAS_MAGIC_WORLDSIZE_HUGE: (54, 6),
 	}
 
 	[eWorldSize] = argsList
@@ -236,15 +236,15 @@ def getGridSize(argsList):
 
 	# <!-- custom: For post-Huge SAS sizes, keep long-map height and scale width by default player ratio from Huge anchor. (GPT-5.3-Codex) -->
 	gc = CyGlobalContext()
-	if eWorldSize > SAS_WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
-		(iAnchorWidth, iAnchorHeight) = grid_sizes[SAS_WORLDSIZE_HUGE]
+	if eWorldSize > SAS_MAGIC_WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
+		(iAnchorWidth, iAnchorHeight) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
 		iAnchorWidth = _scaled_width(iAnchorWidth)
-		iAnchorPlayers = max(1, gc.getWorldInfo(SAS_WORLDSIZE_HUGE).getDefaultPlayers())
+		iAnchorPlayers = max(1, gc.getWorldInfo(SAS_MAGIC_WORLDSIZE_HUGE).getDefaultPlayers())
 		iTargetPlayers = max(1, gc.getWorldInfo(eWorldSize).getDefaultPlayers())
 		iTargetWidth = max(iAnchorWidth + 1, int((float(iAnchorWidth) * float(iTargetPlayers)) / float(iAnchorPlayers) + 0.5))
 		return (iTargetWidth, iAnchorHeight)
 
-	(iFallbackWidth, iFallbackHeight) = grid_sizes[SAS_WORLDSIZE_HUGE]
+	(iFallbackWidth, iFallbackHeight) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
 	return (_scaled_width(iFallbackWidth), iFallbackHeight)
 
 def generatePlotTypes():

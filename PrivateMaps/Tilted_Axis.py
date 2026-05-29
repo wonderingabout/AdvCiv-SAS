@@ -107,13 +107,13 @@ def addBonusType(argsList):
 def getGridSize(argsList):
 	"Override Grid Size function to make the maps square."
 	grid_sizes = {
-		SAS_WORLDSIZE_ARENA: (7,7),
-		SAS_WORLDSIZE_DUEL: (8,8),
-		SAS_WORLDSIZE_TINY: (10,10),
-		SAS_WORLDSIZE_SMALL: (13,13),
-		SAS_WORLDSIZE_STANDARD: (16,16),
-		SAS_WORLDSIZE_LARGE: (20,20),
-		SAS_WORLDSIZE_HUGE: (25,25)
+		SAS_MAGIC_WORLDSIZE_ARENA: (7,7),
+		SAS_MAGIC_WORLDSIZE_DUEL: (8,8),
+		SAS_MAGIC_WORLDSIZE_TINY: (10,10),
+		SAS_MAGIC_WORLDSIZE_SMALL: (13,13),
+		SAS_MAGIC_WORLDSIZE_STANDARD: (16,16),
+		SAS_MAGIC_WORLDSIZE_LARGE: (20,20),
+		SAS_MAGIC_WORLDSIZE_HUGE: (25,25)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -133,13 +133,13 @@ class TiltedAxisFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		"For no rifts, use rift_grain = -1"
 		iFlags = CyFractal.FracVals.FRAC_WRAP_Y + CyFractal.FracVals.FRAC_POLAR
 		worldsizes = {
-			SAS_WORLDSIZE_ARENA: (6,6),
-			SAS_WORLDSIZE_DUEL: (6,6),
-			SAS_WORLDSIZE_TINY: (6,6),
-			SAS_WORLDSIZE_SMALL: (6,6),
-			SAS_WORLDSIZE_STANDARD: (7,7),
-			SAS_WORLDSIZE_LARGE: (7,7),
-			SAS_WORLDSIZE_HUGE: (7,7)
+			SAS_MAGIC_WORLDSIZE_ARENA: (6,6),
+			SAS_MAGIC_WORLDSIZE_DUEL: (6,6),
+			SAS_MAGIC_WORLDSIZE_TINY: (6,6),
+			SAS_MAGIC_WORLDSIZE_SMALL: (6,6),
+			SAS_MAGIC_WORLDSIZE_STANDARD: (7,7),
+			SAS_MAGIC_WORLDSIZE_LARGE: (7,7),
+			SAS_MAGIC_WORLDSIZE_HUGE: (7,7)
 			}
 		(fracXExp, fracYExp) = sas_lookup_world_size(self.map.getWorldSize(), worldsizes)
 

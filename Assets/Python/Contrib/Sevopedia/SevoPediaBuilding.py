@@ -16,6 +16,7 @@
 # <!-- custom: Long_Comments_py.txt #4 -->
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
@@ -597,7 +598,7 @@ class SevoPediaBuilding:
 		# <!-- custom: use attachLabel for padding similar to Obsolete panel -->
 		screen.attachLabel(panelName, "", "  ")
 
-		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_WONDER
+		iMovieType = SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER
 		if self.top.pediaMovies.hasMovie(iMovieType, self.iBuilding):
 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iBuilding)
 			buttonSize = 64
@@ -606,7 +607,7 @@ class SevoPediaBuilding:
 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
 			buttonX = (self.W_MOVIE - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
 			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
@@ -1058,7 +1059,7 @@ class SevoPediaBuilding:
 
 	def placeBuildingAnimation(self):
 		screen = self.top.getScreen()
-		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_BUILDING_ANIMATION, self.Y_BUILDING_ANIMATION, self.W_BUILDING_ANIMATION, self.H_BUILDING_ANIMATION, self.bContentExpanded, self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND, self.top.SAS_PEDIA_PYTHON_CONTENT_RELOAD)
+		iAnimX, iAnimY, iAnimW, iAnimH = draw_expandable_content_panel_container(screen, self.top, u"", self.X_BUILDING_ANIMATION, self.Y_BUILDING_ANIMATION, self.W_BUILDING_ANIMATION, self.H_BUILDING_ANIMATION, self.bContentExpanded, SAS_MAGIC_PEDIA_PYTHON_CONTENT_EXPAND, SAS_MAGIC_PEDIA_PYTHON_CONTENT_RELOAD)
 		screen.addBuildingGraphicGFC(self.top.getNextWidgetName(), self.iBuilding, iAnimX, iAnimY, iAnimW, iAnimH, WidgetTypes.WIDGET_GENERAL, -1, -1, X_ROTATION_ANIMATION, Z_ROTATION_ANIMATION, self.SCALE_ANIMATION, True)
 
 	def setHistoryExpanded(self, bExpanded):
@@ -1071,7 +1072,7 @@ class SevoPediaBuilding:
 		screen = self.top.getScreen()
 		szText = gc.getBuildingInfo(self.iBuilding).getCivilopedia()
 		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def handleInput (self, inputClass):
 		return 0
 

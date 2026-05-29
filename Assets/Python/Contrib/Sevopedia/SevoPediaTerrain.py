@@ -6,6 +6,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 from SASFontUtils import *
 import SASTextScale
@@ -575,7 +576,7 @@ class SevoPediaTerrain:
 		screen = self.top.getScreen()
 		szText = gc.getTerrainInfo(self.iTerrain).getCivilopedia()
 		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def handleInput (self, inputClass):
 		return 0
 

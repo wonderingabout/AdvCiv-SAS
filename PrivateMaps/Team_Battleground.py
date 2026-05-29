@@ -189,13 +189,13 @@ def getGridSize(argsList):
 
 	# <!-- custom: Team Battleground round/top-bottom modes need square maps; keep them compact and SAS-safe with calibrated sizes above Huge. (GPT-5.3-Codex; GPT-5.5) -->
 	square_compact_grid_sizes = {
-		SAS_WORLDSIZE_ARENA: (3,3),
-		SAS_WORLDSIZE_DUEL: (4,4),
-		SAS_WORLDSIZE_TINY: (5,5),
-		SAS_WORLDSIZE_SMALL: (6,6),
-		SAS_WORLDSIZE_STANDARD: (8,8),
-		SAS_WORLDSIZE_LARGE: (10,10),
-		SAS_WORLDSIZE_HUGE: (13,13),
+		SAS_MAGIC_WORLDSIZE_ARENA: (3,3),
+		SAS_MAGIC_WORLDSIZE_DUEL: (4,4),
+		SAS_MAGIC_WORLDSIZE_TINY: (5,5),
+		SAS_MAGIC_WORLDSIZE_SMALL: (6,6),
+		SAS_MAGIC_WORLDSIZE_STANDARD: (8,8),
+		SAS_MAGIC_WORLDSIZE_LARGE: (10,10),
+		SAS_MAGIC_WORLDSIZE_HUGE: (13,13),
 	}
 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes, sas_huge_custom_max_players())
 
@@ -265,13 +265,13 @@ def generatePlotTypes():
 		
 		# Now add the bridge across the center!
 		sizevalues = {
-			SAS_WORLDSIZE_ARENA: 3,
-			SAS_WORLDSIZE_DUEL: 3,
-			SAS_WORLDSIZE_TINY: 4,
-			SAS_WORLDSIZE_SMALL: 5,
-			SAS_WORLDSIZE_STANDARD: 6,
-			SAS_WORLDSIZE_LARGE: 8,
-			SAS_WORLDSIZE_HUGE: 10,
+			SAS_MAGIC_WORLDSIZE_ARENA: 3,
+			SAS_MAGIC_WORLDSIZE_DUEL: 3,
+			SAS_MAGIC_WORLDSIZE_TINY: 4,
+			SAS_MAGIC_WORLDSIZE_SMALL: 5,
+			SAS_MAGIC_WORLDSIZE_STANDARD: 6,
+			SAS_MAGIC_WORLDSIZE_LARGE: 8,
+			SAS_MAGIC_WORLDSIZE_HUGE: 10,
 		}
 		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
 		linewidth = 3
@@ -344,13 +344,13 @@ def generatePlotTypes():
 		if userInputPlots == 5: # donut
 			# get the size of the hole
 			sizevalues = {
-				SAS_WORLDSIZE_ARENA: 2,
-				SAS_WORLDSIZE_DUEL: 2,
-				SAS_WORLDSIZE_TINY: 3,
-				SAS_WORLDSIZE_SMALL: 4,
-				SAS_WORLDSIZE_STANDARD: 5,
-				SAS_WORLDSIZE_LARGE: 7,
-				SAS_WORLDSIZE_HUGE: 8,
+				SAS_MAGIC_WORLDSIZE_ARENA: 2,
+				SAS_MAGIC_WORLDSIZE_DUEL: 2,
+				SAS_MAGIC_WORLDSIZE_TINY: 3,
+				SAS_MAGIC_WORLDSIZE_SMALL: 4,
+				SAS_MAGIC_WORLDSIZE_STANDARD: 5,
+				SAS_MAGIC_WORLDSIZE_LARGE: 7,
+				SAS_MAGIC_WORLDSIZE_HUGE: 8,
 			}
 			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
 
@@ -474,13 +474,13 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 			if userInputPlots == 5: # donut
 				# get the size of the hole
 				sizevalues = {
-					SAS_WORLDSIZE_ARENA: 2,
-					SAS_WORLDSIZE_DUEL: 2,
-					SAS_WORLDSIZE_TINY: 3,
-					SAS_WORLDSIZE_SMALL: 4,
-					SAS_WORLDSIZE_STANDARD: 5,
-					SAS_WORLDSIZE_LARGE: 7,
-					SAS_WORLDSIZE_HUGE: 8,
+					SAS_MAGIC_WORLDSIZE_ARENA: 2,
+					SAS_MAGIC_WORLDSIZE_DUEL: 2,
+					SAS_MAGIC_WORLDSIZE_TINY: 3,
+					SAS_MAGIC_WORLDSIZE_SMALL: 4,
+					SAS_MAGIC_WORLDSIZE_STANDARD: 5,
+					SAS_MAGIC_WORLDSIZE_LARGE: 7,
+					SAS_MAGIC_WORLDSIZE_HUGE: 8,
 				}
 				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
 			else:

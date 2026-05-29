@@ -1,4 +1,4 @@
-﻿#
+#
 #	FILE:	 Rainforest.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Regional map script - Tropical rainforest

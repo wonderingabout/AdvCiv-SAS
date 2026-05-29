@@ -1,4 +1,4 @@
-﻿#
+#
 #	FILE:	 Equal Islands V2.py
 #	AUTHOR:  Axius
 #	CONTRIB: Bob Thomas (Sirian)

@@ -214,103 +214,103 @@ def getGridSize(argsList):
 
 	#Traditional way
 	# <!-- custom: Land Size option removed; keep default size mode only. (GPT-5.3-Codex) -->
-	# <!-- custom: Use runtime world-size keys; see SAS_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
+	# <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
 	if True:
 		# Section 1 - if  default option "16 tiles" is clicked
 		if (CyMap().getCustomMapOption(5) == 0):
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(6,4),
-					SAS_WORLDSIZE_DUEL:		(8,4),
-					SAS_WORLDSIZE_TINY:		(12,4),
-					SAS_WORLDSIZE_SMALL:		(16,4),
-					SAS_WORLDSIZE_STANDARD:		(21,4),
-					SAS_WORLDSIZE_LARGE:		(23,4),
-					SAS_WORLDSIZE_HUGE:		(26,4)
+					SAS_MAGIC_WORLDSIZE_ARENA:		(6,4),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(8,4),
+					SAS_MAGIC_WORLDSIZE_TINY:		(12,4),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(16,4),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(21,4),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(23,4),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(26,4)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(6,4),
-					SAS_WORLDSIZE_DUEL:		(8,4),
-					SAS_WORLDSIZE_TINY:		(8,8),
-					SAS_WORLDSIZE_SMALL:		(12,8),
-					SAS_WORLDSIZE_STANDARD:		(16,8),
-					SAS_WORLDSIZE_LARGE:		(21,8),
-					SAS_WORLDSIZE_HUGE:		(23,8) 
+					SAS_MAGIC_WORLDSIZE_ARENA:		(6,4),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(8,4),
+					SAS_MAGIC_WORLDSIZE_TINY:		(8,8),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(12,8),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(16,8),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(21,8),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(23,8)
 				}	
 			else:
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(4,6),
-					SAS_WORLDSIZE_DUEL:		(4,8),
-					SAS_WORLDSIZE_TINY:		(4,12),
-					SAS_WORLDSIZE_SMALL:		(8,12),
-					SAS_WORLDSIZE_STANDARD:		(12,12),
-					SAS_WORLDSIZE_LARGE:		(16,12),
-					SAS_WORLDSIZE_HUGE:		(21,12)# not set up
+					SAS_MAGIC_WORLDSIZE_ARENA:		(4,6),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(4,8),
+					SAS_MAGIC_WORLDSIZE_TINY:		(4,12),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(8,12),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(12,12),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(16,12),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(21,12)# not set up
 				}
 				
 		elif (CyMap().getCustomMapOption(7) == 1): # Section 2 - if the map is clicked for larger (20)
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(8,5),
-					SAS_WORLDSIZE_DUEL:		(10,5),
-					SAS_WORLDSIZE_TINY:		(15,5),
-					SAS_WORLDSIZE_SMALL:		(20,5),
-					SAS_WORLDSIZE_STANDARD:		(26,5),
-					SAS_WORLDSIZE_LARGE:		(29,5),
-					SAS_WORLDSIZE_HUGE:		(32,5)
+					SAS_MAGIC_WORLDSIZE_ARENA:		(8,5),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(10,5),
+					SAS_MAGIC_WORLDSIZE_TINY:		(15,5),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(20,5),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(26,5),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(29,5),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(32,5)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(8,5),
-					SAS_WORLDSIZE_DUEL:		(10,5),
-					SAS_WORLDSIZE_TINY:		(10,10),
-					SAS_WORLDSIZE_SMALL:		(15,10),
-					SAS_WORLDSIZE_STANDARD:		(20,10),
-					SAS_WORLDSIZE_LARGE:		(26,10),
-					SAS_WORLDSIZE_HUGE:		(29,10)
+					SAS_MAGIC_WORLDSIZE_ARENA:		(8,5),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(10,5),
+					SAS_MAGIC_WORLDSIZE_TINY:		(10,10),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(15,10),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(20,10),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(26,10),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(29,10)
 				}	
 			else:
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(5,8),
-					SAS_WORLDSIZE_DUEL:		(5,10),
-					SAS_WORLDSIZE_TINY:		(5,15),
-					SAS_WORLDSIZE_SMALL:		(10,15),
-					SAS_WORLDSIZE_STANDARD:		(15,15),
-					SAS_WORLDSIZE_LARGE:		(20,15),
-					SAS_WORLDSIZE_HUGE:		(26,15)
+					SAS_MAGIC_WORLDSIZE_ARENA:		(5,8),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(5,10),
+					SAS_MAGIC_WORLDSIZE_TINY:		(5,15),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(10,15),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(15,15),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(20,15),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(26,15)
 				}
 				
 		else : # Section 3 - if 20x16
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(8,4),
-					SAS_WORLDSIZE_DUEL:		(10,4),
-					SAS_WORLDSIZE_TINY:		(15,4),
-					SAS_WORLDSIZE_SMALL:		(20,4),
-					SAS_WORLDSIZE_STANDARD:		(26,4),
-					SAS_WORLDSIZE_LARGE:		(29,4),
-					SAS_WORLDSIZE_HUGE:		(32,4)
+					SAS_MAGIC_WORLDSIZE_ARENA:		(8,4),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(10,4),
+					SAS_MAGIC_WORLDSIZE_TINY:		(15,4),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(20,4),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(26,4),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(29,4),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(32,4)
 				}
 			elif (CyMap().getCustomMapOption(3) == 1):
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(8,4),
-					SAS_WORLDSIZE_DUEL:		(10,4),
-					SAS_WORLDSIZE_TINY:		(10,8),
-					SAS_WORLDSIZE_SMALL:		(15,8),
-					SAS_WORLDSIZE_STANDARD:		(20,8),
-					SAS_WORLDSIZE_LARGE:		(26,8),
-					SAS_WORLDSIZE_HUGE:		(29,8)
+					SAS_MAGIC_WORLDSIZE_ARENA:		(8,4),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(10,4),
+					SAS_MAGIC_WORLDSIZE_TINY:		(10,8),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(15,8),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(20,8),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(26,8),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(29,8)
 				}	
 			else:
 				grid_sizes = {
-					SAS_WORLDSIZE_ARENA:		(4,8),
-					SAS_WORLDSIZE_DUEL:		(4,10),
-					SAS_WORLDSIZE_TINY:		(4,15),
-					SAS_WORLDSIZE_SMALL:		(10,12),
-					SAS_WORLDSIZE_STANDARD:		(15,12),
-					SAS_WORLDSIZE_LARGE:		(20,12),
-					SAS_WORLDSIZE_HUGE:		(26,12)
+					SAS_MAGIC_WORLDSIZE_ARENA:		(4,8),
+					SAS_MAGIC_WORLDSIZE_DUEL:		(4,10),
+					SAS_MAGIC_WORLDSIZE_TINY:		(4,15),
+					SAS_MAGIC_WORLDSIZE_SMALL:		(10,12),
+					SAS_MAGIC_WORLDSIZE_STANDARD:		(15,12),
+					SAS_MAGIC_WORLDSIZE_LARGE:		(20,12),
+					SAS_MAGIC_WORLDSIZE_HUGE:		(26,12)
 				}			
 		
 		[eWorldSize] = argsList

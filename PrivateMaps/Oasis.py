@@ -1,4 +1,4 @@
-﻿#
+#
 #	FILE:	 Oasis.py
 #	AUTHOR:  Bob Thomas (Sirian)
 #	PURPOSE: Regional map script - Desert region between two fertile bands.
@@ -271,13 +271,13 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# The following grain matrix is specific to Oasis.py
 		sizekey = self.map.getWorldSize()
 		sizevalues = {
-			SAS_WORLDSIZE_ARENA: 2,
-			SAS_WORLDSIZE_DUEL: 3,
-			SAS_WORLDSIZE_TINY: 3,
-			SAS_WORLDSIZE_SMALL: 3,
-			SAS_WORLDSIZE_STANDARD: 4,
-			SAS_WORLDSIZE_LARGE: 4,
-			SAS_WORLDSIZE_HUGE: 5
+			SAS_MAGIC_WORLDSIZE_ARENA: 2,
+			SAS_MAGIC_WORLDSIZE_DUEL: 3,
+			SAS_MAGIC_WORLDSIZE_TINY: 3,
+			SAS_MAGIC_WORLDSIZE_SMALL: 3,
+			SAS_MAGIC_WORLDSIZE_STANDARD: 4,
+			SAS_MAGIC_WORLDSIZE_LARGE: 4,
+			SAS_MAGIC_WORLDSIZE_HUGE: 5
 			}
 		grain = sas_lookup_world_size(sizekey, sizevalues)
 
@@ -717,13 +717,13 @@ def addBonusType(argsList):
 		# size modifier is a fixed component based on world size
 		sizekey = map.getWorldSize()
 		sizevalues = {
-			SAS_WORLDSIZE_ARENA: 1,
-			SAS_WORLDSIZE_DUEL: 1,
-			SAS_WORLDSIZE_TINY: 1,
-			SAS_WORLDSIZE_SMALL: 1,
-			SAS_WORLDSIZE_STANDARD: 2,
-			SAS_WORLDSIZE_LARGE: 2,
-			SAS_WORLDSIZE_HUGE: 3
+			SAS_MAGIC_WORLDSIZE_ARENA: 1,
+			SAS_MAGIC_WORLDSIZE_DUEL: 1,
+			SAS_MAGIC_WORLDSIZE_TINY: 1,
+			SAS_MAGIC_WORLDSIZE_SMALL: 1,
+			SAS_MAGIC_WORLDSIZE_STANDARD: 2,
+			SAS_MAGIC_WORLDSIZE_LARGE: 2,
+			SAS_MAGIC_WORLDSIZE_HUGE: 3
 			}
 		sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
 		# playermodifier involves two layers of randomnity.
@@ -932,13 +932,13 @@ def addRivers():
 	# Set maxshift, numbers of rivers for Oasis according to grid size.
 	sizekey = map.getWorldSize()
 	shiftvalues = {
-		SAS_WORLDSIZE_ARENA: 1,
-		SAS_WORLDSIZE_DUEL: 1,
-		SAS_WORLDSIZE_TINY: 2,
-		SAS_WORLDSIZE_SMALL: 3,
-		SAS_WORLDSIZE_STANDARD: 5,
-		SAS_WORLDSIZE_LARGE: 7,
-		SAS_WORLDSIZE_HUGE: 9
+		SAS_MAGIC_WORLDSIZE_ARENA: 1,
+		SAS_MAGIC_WORLDSIZE_DUEL: 1,
+		SAS_MAGIC_WORLDSIZE_TINY: 2,
+		SAS_MAGIC_WORLDSIZE_SMALL: 3,
+		SAS_MAGIC_WORLDSIZE_STANDARD: 5,
+		SAS_MAGIC_WORLDSIZE_LARGE: 7,
+		SAS_MAGIC_WORLDSIZE_HUGE: 9
 		}
 	maxshift = sas_lookup_world_size(sizekey, shiftvalues)
 

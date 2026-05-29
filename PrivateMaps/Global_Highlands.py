@@ -146,13 +146,13 @@ def getGridSize(argsList):
 	"Enlarge the grids! Need extra land to cover that 'wasted' by all the peaks!"
 	# <!-- custom: in this mapscript, even accounting for the many peaks, empirically map is still way too large (accounts for using the sas world size integer fix to account for world size arena shift), so reduce them by one world size as compared to old values (e.g., World size HUGE (38,24) -> (32,20) (old LARGE)). Same issue in Base AdvCiv empirically. See KI#138. -->
 	grid_sizes = {
-		SAS_WORLDSIZE_ARENA: (8,5),
-		SAS_WORLDSIZE_DUEL: (10,6),
-		SAS_WORLDSIZE_TINY: (13,8),
-		SAS_WORLDSIZE_SMALL: (16,10),
-		SAS_WORLDSIZE_STANDARD: (21,13),
-		SAS_WORLDSIZE_LARGE: (26,16),
-		SAS_WORLDSIZE_HUGE: (32,20),
+		SAS_MAGIC_WORLDSIZE_ARENA: (8,5),
+		SAS_MAGIC_WORLDSIZE_DUEL: (10,6),
+		SAS_MAGIC_WORLDSIZE_TINY: (13,8),
+		SAS_MAGIC_WORLDSIZE_SMALL: (16,10),
+		SAS_MAGIC_WORLDSIZE_STANDARD: (21,13),
+		SAS_MAGIC_WORLDSIZE_LARGE: (26,16),
+		SAS_MAGIC_WORLDSIZE_HUGE: (32,20),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

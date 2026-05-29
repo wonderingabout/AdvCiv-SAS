@@ -5,6 +5,7 @@
 # <!-- custom: imported from RFC Dawn of Civilization mod  C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py then adjusted for AdvCiv-SAS; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes -->
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
@@ -547,7 +548,7 @@ class SevoPediaFeature:
 		screen = self.top.getScreen()
 		szText = gc.getFeatureInfo(self.iFeature).getCivilopedia()
 		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def handleInput (self, inputClass):
 		return 0
 

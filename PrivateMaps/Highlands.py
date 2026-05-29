@@ -207,17 +207,17 @@ def generatePlotTypes():
 	# [clustered_grain, ridgelines_grain, scattered_grain]
 	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices. (Claude code Opus 4.5; GPT-5.5) -->
 	worldsizes = {
-		SAS_WORLDSIZE_ARENA: [3, 4, 5],
-		SAS_WORLDSIZE_DUEL: [3, 4, 5],
-		SAS_WORLDSIZE_TINY: [3, 4, 5],
-		SAS_WORLDSIZE_SMALL: [4, 5, 6],
-		SAS_WORLDSIZE_STANDARD: [4, 5, 6],
-		SAS_WORLDSIZE_LARGE: [4, 5, 6],
-		SAS_WORLDSIZE_HUGE: [4, 5, 6],
-		SAS_WORLDSIZE_SAS24: [5, 6, 7],
-		SAS_WORLDSIZE_SAS32: [5, 6, 7],
-		SAS_WORLDSIZE_SAS40: [5, 6, 7],
-		SAS_WORLDSIZE_SAS48: [5, 6, 7],
+		SAS_MAGIC_WORLDSIZE_ARENA: [3, 4, 5],
+		SAS_MAGIC_WORLDSIZE_DUEL: [3, 4, 5],
+		SAS_MAGIC_WORLDSIZE_TINY: [3, 4, 5],
+		SAS_MAGIC_WORLDSIZE_SMALL: [4, 5, 6],
+		SAS_MAGIC_WORLDSIZE_STANDARD: [4, 5, 6],
+		SAS_MAGIC_WORLDSIZE_LARGE: [4, 5, 6],
+		SAS_MAGIC_WORLDSIZE_HUGE: [4, 5, 6],
+		SAS_MAGIC_WORLDSIZE_SAS24: [5, 6, 7],
+		SAS_MAGIC_WORLDSIZE_SAS32: [5, 6, 7],
+		SAS_MAGIC_WORLDSIZE_SAS40: [5, 6, 7],
+		SAS_MAGIC_WORLDSIZE_SAS48: [5, 6, 7],
 	}
 
 	# Convert WorldSizeTypes enum to int for lookup

@@ -14,6 +14,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
@@ -187,13 +188,13 @@ class SevoPediaCorporation:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
-		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION
+		iMovieType = SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION
 		if self.top.pediaMovies.hasMovie(iMovieType, self.iCorporation):
 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iCorporation)
 			buttonSize = 64
 			buttonX = (self.W_MOVIE - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
 			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
@@ -212,6 +213,6 @@ class SevoPediaCorporation:
 		screen = self.top.getScreen()
 		szText = gc.getCorporationInfo(self.iCorporation).getCivilopedia()
 		szTitle = u""
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def handleInput (self, inputClass):
 		return 0

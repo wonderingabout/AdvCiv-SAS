@@ -56,6 +56,7 @@ import BugUtil
 from SASFontUtils import *
 import SASTextScale
 from SASUtils import getInfoTypeOrFail
+from SASMagicNumbers import *
 
 from _sevopedia_helpers import *
 import _sevopedia_main_groupings as SAS_MainGroupings
@@ -107,44 +108,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEARCH_H = 32
 		self.SAS_SEARCH_KEYBOARD_CHARS = (u"(", u")", u"_", u"/", u"*", u"+", u"-", u"=", u"[", u"]", u"'", u"#", u"&", u"~", u";", u",", u":", u"!", u"?", u".", u"@", u"\\", u"|", u"<", u">")
 		# <!-- custom: End - search bar for the left item list (initially based on how other mod(s) do) (chatgpt 5.2 + claude opus 4.5) -->
-		# <!-- custom: WIDGET_PYTHON magic IDs for custom Sevopedia categories. These allow Builds and Traits to have their own dedicated pages without requiring new widget types in the DLL. The ID is passed as data1, and the actual item ID (build/trait index) as data2. Handled in placeItems(), handleInput(), and SevoPediaIndex. -->
-		self.SAS_PEDIA_PYTHON_BUILD = 6798
-		self.SAS_PEDIA_PYTHON_TRAIT = 6799  # <!-- custom: (Claude Opus 4.5) -->
-		self.SAS_PEDIA_PYTHON_MOVIE_ENTRY = 6800
-		self.SAS_PEDIA_PYTHON_MOVIE_PLAY = 6801
-		self.SAS_PEDIA_PYTHON_MUSIC_ENTRY = 6802
-		self.SAS_PEDIA_PYTHON_MUSIC_PLAY = 6803
-		self.SAS_PEDIA_PYTHON_CHART_LOG = 6804
-		# <!-- custom: note: 6805 = SAS_PEDIA_PYTHON_LEADER_ATTITUDE and 6806 = SAS_PEDIA_PYTHON_LEADER_ACTION are already defined as module-level constants in SevoPediaLeader.py. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
-		self.SAS_PEDIA_PYTHON_HISTORY_EXPAND = 6807
-		self.SAS_PEDIA_PYTHON_CONTENT_EXPAND = 6808
-		self.SAS_PEDIA_PYTHON_CONTENT_RELOAD = 6809
-		# <!-- custom: 6810 = SAS_PEDIA_PYTHON_LEADER_ERA (Sevopedia leader era art preview buttons) defined in SevoPediaLeader.py. (Claude code Sonnet 4.6) -->
-		# <!-- custom: Votes category has no native engine jump widget (no WIDGET_PEDIA_JUMP_TO_VOTE), so left-list entries use WIDGET_PYTHON dispatched via this id. (Claude code Opus 4.7) -->
-		self.SAS_PEDIA_PYTHON_VOTE_ENTRY = 6811
-		# <!-- custom: Event Trigger category also has no native jump widget in the DLL, so use WIDGET_PYTHON routing like Votes. (Claude code Opus 4.7) -->
-		self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY = 6812
-		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV = 6813
-		self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT = 6814
-		self.SAS_PEDIA_PYTHON_SEARCH_KEY = 6815
-		# <!-- custom: dev playground for picking a panel style for other tabs/screens. iData2 carries the signed cycle delta (-1 / +1); see draw_expandable_text_panel and cycle_sas_pedia_panel_style in _sevopedia_helpers.py. See KI#128 for runtime-style/background stability notes. (Claude code Opus 4.7 + GPT-5.5) -->
-		self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE = 6816
-		# <!-- custom: companion widget id for cycling the underlying background DDS in the same playground; same iData2 convention. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
-		self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE = 6817
-		self.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE = 6818
-		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
-		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
-		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
-		self.SAS_PEDIA_MOVIE_TYPE_RELIGION = 4
-		self.SAS_PEDIA_MOVIE_TYPE_ERA = 5
-		self.SAS_PEDIA_MOVIE_TYPE_CORPORATION = 6
-		self.SAS_PEDIA_MUSIC_TYPE_TECH = 1
-		self.SAS_PEDIA_MUSIC_TYPE_ERA = 2
-		self.SAS_PEDIA_MUSIC_TYPE_LEADER = 3
-		self.SAS_PEDIA_MUSIC_TYPE_CIV = 4
-		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT = 5
-		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D = 6
-
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
 
@@ -511,7 +474,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		for iChar, szChar in enumerate(self.SAS_SEARCH_KEYBOARD_CHARS):
 			szWidget = self.SAS_SEARCH_KEY_PREFIX + str(iChar)
 			self.SAS_searchKeyboardIds.append(szWidget)
-			screen.setText(szWidget, "Background", SASTextScale.labelText(self.SAS_getSearchKeyDisplayText(szChar)), CvUtil.FONT_CENTER_JUSTIFY, iX + (iKeyW / 2) + iChar * (iKeyW + iKeyGap), iY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_SEARCH_KEY, iChar)
+			screen.setText(szWidget, "Background", SASTextScale.labelText(self.SAS_getSearchKeyDisplayText(szChar)), CvUtil.FONT_CENTER_JUSTIFY, iX + (iKeyW / 2) + iChar * (iKeyW + iKeyGap), iY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_SEARCH_KEY, iChar)
 
 	# <!-- custom: escape renderer-sensitive search text before passing it through font-tagged UI labels. Empirically, raw < or > can corrupt the rendered label (e.g. showing /font-like tag fragments), while raw & can be invisible and prevent following characters from rendering clearly. These raw chars are XML/markup-sensitive and rarely useful for ordinary XML text-key search, but keep them raw in SAS_szSearchString so clicked/typed input remains faithful; escape only the display string. (GPT-5.5) -->
 	def SAS_getSearchDisplayText(self, szText):
@@ -851,7 +814,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def determineNewConceptSubCategory(self, iItem):
 		info = gc.getNewConceptInfo(iItem)
 		BugUtil.debug("NewConcept item %d is %s" % (iItem, info.getDescription()))
-		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
+		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use WIDGET_PYTHON routing. (Claude Opus 4.5 / GPT-5.5) -->
 		if (self.isShortcutInfo(info)):
 			return SevoScreenEnums.PEDIA_SHORTCUTS
 		return SevoScreenEnums.PEDIA_BTS_CONCEPTS
@@ -1131,11 +1094,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iNextX is None:
 				iNextX = self.SAS_X_GAME_PLAYER_ID_NEXT
 			if iPrevItem >= 0:
-				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, eJustify, iPrevX, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV, iPrevItem)
+				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, eJustify, iPrevX, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_PREV, iPrevItem)
 			else:
 				screen.setText(self.SAS_GAME_PLAYER_ID_PREV_ID, "Background", szPrevText, eJustify, iPrevX, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			if iNextItem >= 0:
-				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, eJustify, iNextX, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT, iNextItem)
+				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, eJustify, iNextX, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT, iNextItem)
 			else:
 				screen.setText(self.SAS_GAME_PLAYER_ID_NEXT_ID, "Background", szNextText, eJustify, iNextX, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		else:
@@ -1602,7 +1565,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			r.pop(0)
 		return r # </advc.004y>
 
-	# <!-- custom: Sevopedia Traits rework - Previously traits used a hacky CONCEPT_TRAIT_* wrapper approach where trait entries were stored as NewConcept entries and required extracting the actual TraitInfo via string parsing. Now traits use WIDGET_PYTHON 6799 approach (like Builds with 6798), reading directly from CIV4TraitInfos.xml. This is cleaner, allows proper linking from Sevopedia Leader, and the CONCEPT_TRAIT_* XML entries are deleted. See also: SevoPediaIndex.py (row mapping), SevoPediaTrait.py (receives trait ID directly), and CvGameTextMgr.cpp parseTraits (DLL adds <link=literal> for clickable trait links). (Claude Opus 4.5) -->
+	# <!-- custom: Sevopedia Traits rework - Previously traits used a hacky CONCEPT_TRAIT_* wrapper approach where trait entries were stored as NewConcept entries and required extracting the actual TraitInfo via string parsing. Now traits use WIDGET_PYTHON routing like Builds, reading directly from CIV4TraitInfos.xml. This is cleaner, allows proper linking from Sevopedia Leader, and the CONCEPT_TRAIT_* XML entries are deleted. See also: SevoPediaIndex.py (row mapping), SevoPediaTrait.py (receives trait ID directly), and CvGameTextMgr.cpp parseTraits (DLL adds <link=literal> for clickable trait links). (Claude Opus 4.5 / GPT-5.5) -->
 	def placeTraits(self):
 		self.list = self.getTraitList()
 		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
@@ -1641,7 +1604,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				return False  # Traits are never graphical-only
 		return TraitInfoWrapper(info, id)
 
-	# <!-- custom: Removed isTraitInfo() - no longer needed since CONCEPT_TRAIT_* entries deleted from XML. Traits now use WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
+	# <!-- custom: Removed isTraitInfo() - no longer needed since CONCEPT_TRAIT_* entries deleted from XML. Traits now use WIDGET_PYTHON routing. (Claude Opus 4.5 / GPT-5.5) -->
 
 	def placeCivics(self):
 		self.list = self.getCivicList()
@@ -1712,7 +1675,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_cacheCorporationsTuple = tuple(baseList)
 		return self.SAS_cacheCorporationsTuple
 
-	# <!-- custom: Sevopedia Votes category (grouped by vote source). No native engine jump widget for votes, so items use WIDGET_PYTHON routed via SAS_PEDIA_PYTHON_VOTE_ENTRY. Vote pages have no dedicated icon art, so the left-list button reuses the hosting building's icon. Design assumes each vote has exactly one source (modders adding multi-source votes would need to extend the grouping helper). (Claude code Opus 4.7) -->
+	# <!-- custom: Sevopedia Votes category (grouped by vote source). No native engine jump widget for votes, so items use WIDGET_PYTHON routed via SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY. Vote pages have no dedicated icon art, so the left-list button reuses the hosting building's icon. Design assumes each vote has exactly one source (modders adding multi-source votes would need to extend the grouping helper). (Claude code Opus 4.7) -->
 	def placeVotes(self):
 		self.list = self.getVoteList()
 		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getVoteInfoForList)
@@ -1740,7 +1703,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				break
 		return ""
 
-	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the "Any era (no tech requirement)" bucket placed FIRST since those events fire from turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON + SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7) -->
+	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the "Any era (no tech requirement)" bucket placed FIRST since those events fire from turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON + SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7) -->
 	def placeEventTriggers(self):
 		self.list = self.getEventTriggerList()
 		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getEventTriggerInfoForList)
@@ -1788,7 +1751,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getNewConceptInfo(self, id):
 		info = gc.getNewConceptInfo(id)
-		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
+		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use WIDGET_PYTHON routing. (Claude Opus 4.5 / GPT-5.5) -->
 		if not self.isShortcutInfo(info):
 			return info
 		return None
@@ -1831,14 +1794,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getMovieList(self):
 		# <!-- custom: build base list in groupings module, then add headers there. (ChatGPT-5.2 Thinking) -->
 		if self.SAS_cacheMoviesTuple is None:
-			listEntries = SAS_MainGroupings.SAS_getMoviesListGroupedByType(self.isSortLists(), self.SAS_packMovieKey, self.SAS_unpackMovieKey, self.SAS_PEDIA_MOVIE_TYPE_VICTORY, self.SAS_PEDIA_MOVIE_TYPE_WONDER, self.SAS_PEDIA_MOVIE_TYPE_PROJECT, self.SAS_PEDIA_MOVIE_TYPE_RELIGION, self.SAS_PEDIA_MOVIE_TYPE_ERA, self.SAS_PEDIA_MOVIE_TYPE_CORPORATION)
+			listEntries = SAS_MainGroupings.SAS_getMoviesListGroupedByType(self.isSortLists(), self.SAS_packMovieKey, self.SAS_unpackMovieKey, SAS_MAGIC_PEDIA_MOVIE_TYPE_VICTORY, SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER, SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT, SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION, SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA, SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION)
 			self.SAS_cacheMoviesTuple = tuple(listEntries)
 		return self.SAS_cacheMoviesTuple
 
 	def getMusicList(self):
 		# <!-- custom: build music base lists + section headers in groupings module to keep this file clean. (ChatGPT-5.2 Thinking) -->
 		if self.SAS_cacheMusicTuple is None:
-			(listEntries, self.SAS_musicEraTracks, self.SAS_musicLeaderTracks, self.SAS_musicCivTracks, self.SAS_musicScriptTracks, self.SAS_musicScript3DTracks, self.SAS_firstCivScript3DMusicKey) = SAS_MainGroupings.SAS_getMusicListAndTables(self.isSortLists(), self.SAS_packMusicKey, self.SAS_unpackMusicKey, self.SAS_PEDIA_MUSIC_TYPE_TECH, self.SAS_PEDIA_MUSIC_TYPE_ERA, self.SAS_PEDIA_MUSIC_TYPE_LEADER, self.SAS_PEDIA_MUSIC_TYPE_CIV, self.SAS_PEDIA_MUSIC_TYPE_SCRIPT, self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY)
+			(listEntries, self.SAS_musicEraTracks, self.SAS_musicLeaderTracks, self.SAS_musicCivTracks, self.SAS_musicScriptTracks, self.SAS_musicScript3DTracks, self.SAS_firstCivScript3DMusicKey) = SAS_MainGroupings.SAS_getMusicListAndTables(self.isSortLists(), self.SAS_packMusicKey, self.SAS_unpackMusicKey, SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH, SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA, SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER, SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV, SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT, SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY)
 			self.SAS_cacheMusicTuple = tuple(listEntries)
 		return self.SAS_cacheMusicTuple
 
@@ -1860,48 +1823,48 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getMovieInfo(self, iPacked):
 		iMovieType, iMovieId = self.SAS_unpackMovieKey(iPacked)
-		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_VICTORY:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_VICTORY:
 			return gc.getVictoryInfo(iMovieId)
-		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_WONDER:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER:
 			return gc.getBuildingInfo(iMovieId)
-		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_PROJECT:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT:
 			return gc.getProjectInfo(iMovieId)
-		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_RELIGION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION:
 			return gc.getReligionInfo(iMovieId)
-		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_ERA:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA:
 			return gc.getEraInfo(iMovieId)
-		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
 			return gc.getCorporationInfo(iMovieId)
 		return None
 	
 	def getMusicInfo(self, iPacked):
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_TECH:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			if iMusicId < 0:
 				return None
 			return gc.getTechInfo(iMusicId)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_ERA:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
 			if (self.SAS_musicEraTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicEraTracks)):
 				return None
 			iEra, _, _ = self.SAS_musicEraTracks[iMusicId]
 			return gc.getEraInfo(iEra)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
 				return None
 			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return gc.getLeaderHeadInfo(iLeader)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
 				return None
 			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
 			return gc.getCivilizationInfo(iCiv)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT:
 			return None
 		return None
 
 	def SAS_getMusicSoundScript(self, iPacked):
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_TECH:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			info = gc.getTechInfo(iMusicId)
 			if not info:
 				return ""
@@ -1909,17 +1872,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				return info.getSound()
 			except:
 				return ""
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT:
 			if (self.SAS_musicScriptTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScriptTracks)):
 				return ""
 			szScript, _, _ = self.SAS_musicScriptTracks[iMusicId]
 			return szScript
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
 				return ""
 			_, _, szScript, _, _ = self.SAS_musicCivTracks[iMusicId]
 			return szScript
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D:
 			if (self.SAS_musicScript3DTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScript3DTracks)):
 				return ""
 			szScript, _, _ = self.SAS_musicScript3DTracks[iMusicId]
@@ -1928,17 +1891,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getMusicSoundId(self, iPacked):
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_ERA:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
 			if (self.SAS_musicEraTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicEraTracks)):
 				return -1
 			_, iTrackId, _ = self.SAS_musicEraTracks[iMusicId]
 			return iTrackId
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
 				return -1
 			_, _, _, iSoundId, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return iSoundId
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
 				return -1
 			_, iSoundId, _, _, _ = self.SAS_musicCivTracks[iMusicId]
@@ -1947,33 +1910,33 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getMusicEra(self, iPacked):
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_TECH:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			info = gc.getTechInfo(iMusicId)
 			if info:
 				return info.getEra()
 			return -1
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_ERA:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
 			if (self.SAS_musicEraTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicEraTracks)):
 				return -1
 			iEra, _, _ = self.SAS_musicEraTracks[iMusicId]
 			return iEra
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
 				return -1
 			_, iEra, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
 			return iEra
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			return -1
 		return -1
 
 	def SAS_getMusicTitle(self, iPacked):
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_TECH:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			info = gc.getTechInfo(iMusicId)
 			if info:
 				return info.getDescription()
 			return u""
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_ERA:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
 			if (self.SAS_musicEraTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicEraTracks)):
 				return u""
 			iEra, _, iTrack = self.SAS_musicEraTracks[iMusicId]
@@ -1989,22 +1952,22 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					szLabel = szLabel + u" - " + unicode(szTrackName)
 				return szLabel
 			return u"Track " + (u"%02d" % (iTrack + 1))
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
 				return u""
 			_, _, _, _, szLabel = self.SAS_musicLeaderTracks[iMusicId]
 			return unicode(szLabel)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT:
 			if (self.SAS_musicScriptTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScriptTracks)):
 				return u""
 			_, _, szLabel = self.SAS_musicScriptTracks[iMusicId]
 			return unicode(szLabel)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
 				return u""
 			_, _, _, szLabel, _ = self.SAS_musicCivTracks[iMusicId]
 			return unicode(szLabel)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D:
 			if (self.SAS_musicScript3DTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScript3DTracks)):
 				return u""
 			_, _, szLabel = self.SAS_musicScript3DTracks[iMusicId]
@@ -2013,23 +1976,23 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getMusicButton(self, iPacked):
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_TECH:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			info = gc.getTechInfo(iMusicId)
 			if info:
 				return info.getButton()
 			return ""
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_ERA:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
 			iEra = self.SAS_getMusicEra(iPacked)
 			if iEra != -1:
 				return gc.getEraInfo(iEra).getButton()
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
 				return ""
 			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
 			info = gc.getLeaderHeadInfo(iLeader)
 			if info:
 				return info.getButton()
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
 				return ""
 			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
@@ -2041,7 +2004,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_getMusicLeaderId(self, iPacked):
 		# Returns the leader ID if this is a leader music type, otherwise returns -1
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			if (self.SAS_musicLeaderTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicLeaderTracks)):
 				return -1
 			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
@@ -2051,7 +2014,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_getMusicCivId(self, iPacked):
 		# Returns the civ ID if this is a civ music type, otherwise returns -1
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
 				return -1
 			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
@@ -2061,7 +2024,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_isMusicSound3D(self, iPacked):
 		# Returns True when a sound id should be played as 3D audio.
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
-		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
 				return False
 			_, _, _, _, bIs3D = self.SAS_musicCivTracks[iMusicId]
@@ -2077,7 +2040,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		for iMusicId, track in enumerate(self.SAS_musicLeaderTracks):
 			trackLeader, _, trackType, _, _ = track
 			if trackLeader == iLeader and trackType == "Peace":
-				return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_LEADER, iMusicId)
+				return self.SAS_packMusicKey(SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER, iMusicId)
 		return -1
 
 	def SAS_getFirstEraMusicKey(self):
@@ -2086,7 +2049,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			self.getMusicList()
 		if self.SAS_musicEraTracks is None or len(self.SAS_musicEraTracks) == 0:
 			return -1
-		return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_ERA, 0)
+		return self.SAS_packMusicKey(SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA, 0)
 
 	def SAS_getFirstCivScript3DMusicKey(self):
 		# Returns the packed music key for the first item in the Civilizations 3D scripts grouping.
@@ -2105,7 +2068,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		for iMusicId, track in enumerate(self.SAS_musicCivTracks):
 			iTrackCiv, _, _, _, _ = track
 			if iTrackCiv == iCiv:
-				return self.SAS_packMusicKey(self.SAS_PEDIA_MUSIC_TYPE_CIV, iMusicId)
+				return self.SAS_packMusicKey(SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV, iMusicId)
 		return -1
 
 	def isShortcutInfo(self, info):
@@ -2258,34 +2221,34 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
 				if data1 != -1:
 					data2 = data1
-					data1 = self.SAS_PEDIA_PYTHON_TRAIT
+					data1 = SAS_MAGIC_PEDIA_PYTHON_TRAIT
 					bSAS_hasCustomData2 = True
 
 			if info == self.getMovieInfo:
 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
 				if data1 != -1:
 					data2 = data1
-					data1 = self.SAS_PEDIA_PYTHON_MOVIE_ENTRY
+					data1 = SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY
 					bSAS_hasCustomData2 = True
 			if info == self.getMusicInfo:
 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
 				if data1 != -1:
 					data2 = data1
-					data1 = self.SAS_PEDIA_PYTHON_MUSIC_ENTRY
+					data1 = SAS_MAGIC_PEDIA_PYTHON_MUSIC_ENTRY
 					bSAS_hasCustomData2 = True
 			# <!-- custom: votes use WIDGET_PYTHON routing since no native jump-to-vote widget exists. (Claude code Opus 4.7) -->
 			if info == self.getVoteInfoForList:
 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
 				if data1 != -1:
 					data2 = data1
-					data1 = self.SAS_PEDIA_PYTHON_VOTE_ENTRY
+					data1 = SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY
 					bSAS_hasCustomData2 = True
 			# <!-- custom: event triggers also have no native jump widget, so route through WIDGET_PYTHON like Votes. (Claude code Opus 4.7) -->
 			if info == self.getEventTriggerInfoForList:
 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
 				if data1 != -1:
 					data2 = data1
-					data1 = self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY
+					data1 = SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY
 					bSAS_hasCustomData2 = True
 
 			if info == gc.getConceptInfo:
@@ -2536,36 +2499,36 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
 			iData1 = inputClass.getData1()
 			iData2 = inputClass.getData2()
-			if iData1 == self.SAS_PEDIA_PYTHON_BUILD:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_BUILD:
 				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iData2, True, False)
 			# <!-- custom: Handle trait clicks with WIDGET_PYTHON. (Claude Opus 4.5) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_TRAIT:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_TRAIT:
 				return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iData2, True, False)
-			if iData1 == self.SAS_PEDIA_PYTHON_MOVIE_ENTRY:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY:
 				return self.pediaJump(SevoScreenEnums.PEDIA_MOVIES, iData2, True, False)
-			if iData1 == self.SAS_PEDIA_PYTHON_MOVIE_PLAY:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_MOVIE_PLAY:
 				self.pediaMovies.playMovie(iData2)
 				return 1
-			if iData1 == self.SAS_PEDIA_PYTHON_MUSIC_ENTRY:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_MUSIC_ENTRY:
 				return self.pediaJump(SevoScreenEnums.PEDIA_MUSIC, iData2, True, False)
-			if iData1 == self.SAS_PEDIA_PYTHON_MUSIC_PLAY:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_MUSIC_PLAY:
 				self.pediaMusic.playMusic(iData2)
 				return 1
 			# <!-- custom: Vote WIDGET_PYTHON route (no native WIDGET_PEDIA_JUMP_TO_VOTE exists). (Claude code Opus 4.7) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_VOTE_ENTRY:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY:
 				return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, iData2, True, False)
 			# <!-- custom: Event Trigger WIDGET_PYTHON route (same situation as Votes — no native jump-to-event-trigger widget in the DLL). (Claude code Opus 4.7) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY:
 				return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, iData2, True, False)
-			if iData1 == self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_PREV or iData1 == self.SAS_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_PREV or iData1 == SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT:
 				return self.SAS_jumpGamePlayerId(iData2)
 			# <!-- custom: route search-key clicks through WIDGET_PYTHON/data2 instead of parsing widget-name suffixes. Empirically, Civ can strip numeric suffixes from generated names and trigger: ValueError: invalid literal for int(): in SevoPediaMain.handleInput. (GPT-5.5) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_SEARCH_KEY:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_SEARCH_KEY:
 				if self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE and iData2 >= 0 and iData2 < len(self.SAS_SEARCH_KEYBOARD_CHARS):
 					return self.SAS_appendSearchCharacter(self.SAS_SEARCH_KEYBOARD_CHARS[iData2])
 				return 1
 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_CHART_LOG:
 				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
 					self.pediaHandicapChart.dumpCsvLog()
 					return 1
@@ -2579,7 +2542,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					self.pediaEraChart.dumpCsvLog()
 					return 1
 			# <!-- custom: toggle expanded Background/History overlay for any pedia category via WIDGET_PYTHON routing. All categories share one ID since only one category is active at a time. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_HISTORY_EXPAND:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND:
 				if self.iItem != -1:
 					pediaScreen = self.mapScreenFunctions.get(self.iCategory, None)
 					if pediaScreen and hasattr(pediaScreen, "setHistoryExpanded"):
@@ -2587,7 +2550,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						self.pediaJump(self.iCategory, self.iItem, False, False)
 						return 1
 			# <!-- custom: toggle expanded content (non-text; e.g., animation) overlay for pages that implement setContentExpanded (starting with Units). (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_CONTENT_EXPAND:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_CONTENT_EXPAND:
 				if self.iItem != -1:
 					pediaScreen = self.mapScreenFunctions.get(self.iCategory, None)
 					if pediaScreen and hasattr(pediaScreen, "setContentExpanded"):
@@ -2595,38 +2558,38 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						self.pediaJump(self.iCategory, self.iItem, False, False)
 						return 1
 			# <!-- custom: reload expanded content panel (re-renders animation with potentially different color) without changing expanded state. (Claude code Sonnet 4.6) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_CONTENT_RELOAD:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_CONTENT_RELOAD:
 				if self.iItem != -1:
 					self.pediaJump(self.iCategory, self.iItem, False, False)
 					return 1
 			# <!-- custom: dev playground: bump the cached panel style index by iData2 (signed delta) and re-jump to redraw the same item with the expanded overlay still open, so the new style is visible immediately without closing/reopening. Reuses pediaJump's existing "preserve expanded state" behavior. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_PANEL_STYLE_CYCLE:
 				if self.iItem != -1:
 					cycle_sas_pedia_panel_style(iData2)
 					self.pediaJump(self.iCategory, self.iItem, False, False)
 					return 1
 			# <!-- custom: dev playground: same as the panel style cycle but for the underlying full-screen background DDS art key. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
-			if iData1 == self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_BACKGROUND_CYCLE:
 				if self.iItem != -1:
 					cycle_sas_pedia_background(iData2)
 					self.pediaJump(self.iCategory, self.iItem, False, False)
 					return 1
-			if iData1 == self.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_TEXT_COLOR_CYCLE:
 				if self.iItem != -1:
 					cycle_sas_pedia_text_color(iData2)
 					self.pediaJump(self.iCategory, self.iItem, False, False)
 					return 1
 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
 			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
-			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE:
 				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
 					return self.pediaLeader.applyLeaderAttitude(iData2)
 			# <!-- custom: route Sevopedia leader action preview buttons (no/greeting/agree/disagree) here as the same fallback path used for attitude buttons. (GPT-5.3-Codex) -->
-			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ACTION:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_LEADER_ACTION:
 				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
 					return self.pediaLeader.applyLeaderAction(iData2)
 			# <!-- custom: route era art preview buttons. (Claude code Sonnet 4.6) -->
-			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ERA:
+			if iData1 == SAS_MAGIC_PEDIA_PYTHON_LEADER_ERA:
 				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
 					return self.pediaLeader.applyLeaderEra(iData2)
 		elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:

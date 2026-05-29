@@ -11,6 +11,7 @@ import ScreenInput
 import CvScreenEnums
 from SASFontUtils import *
 from SASUtils import *
+from SASMagicNumbers import *
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base tech-chooser text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 import CvScreensInterface
 
@@ -166,8 +167,6 @@ class CvTechChooser:
 		self.bTechChooserArtCached = False
 		# <!-- custom: cached vanilla engine define; looked up techs x terrains times during tech tree draw. (Claude code Sonnet 4.6) -->
 		self.iDEEP_WATER_TERRAIN = None
-
-		self.SAS_PEDIA_PYTHON_BUILD = 6798
 
 	def initText(self):
 		# <!-- custom: this file had no shared text/art cache before; add one-time language/art caching and reuse it in hot tech-tree loops to avoid repeated lookup work on redraw. (GPT-5.3-Codex) -->
@@ -1431,7 +1430,7 @@ class CvTechChooser:
 				self.sTechTabID = self.sTechTradeTab
 				self.ShowTab()
 			elif inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
-				if inputClass.getData1() == self.SAS_PEDIA_PYTHON_BUILD:
+				if inputClass.getData1() == SAS_MAGIC_PEDIA_PYTHON_BUILD:
 					import CvScreensInterface
 					CvScreensInterface.pediaJumpToBuild((inputClass.getData2(),))
 					return 1

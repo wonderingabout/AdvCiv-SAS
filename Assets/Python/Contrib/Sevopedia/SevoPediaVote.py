@@ -3,6 +3,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import SevoScreenEnums
 import SASTextScale
@@ -343,7 +344,7 @@ class SevoPediaVote:
 		screen = self.top.getScreen()
 		szText = SASTextScale.normalizeLabelText(gc.getVoteInfo(self.iVote).getCivilopedia())
 		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 
 	def handleInput(self, inputClass):
 		return 0

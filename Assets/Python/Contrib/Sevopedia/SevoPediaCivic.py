@@ -14,6 +14,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
@@ -204,7 +205,7 @@ class SevoPediaCivic:
 								break
 						break
 				if szButton:
-					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVote, False)
+					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY, iVote, False)
 					bFound = True
 				break
 		if not bFound:
@@ -239,6 +240,6 @@ class SevoPediaCivic:
 		screen = self.top.getScreen()
 		szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
 		szTitle = u""
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def handleInput (self, inputClass):
 		return 0

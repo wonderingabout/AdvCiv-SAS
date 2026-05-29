@@ -4,6 +4,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import SevoScreenEnums
 from SASFontUtils import *
@@ -81,17 +82,17 @@ class SevoPediaMusic:
 		if info:
 			szButton = self.top.SAS_getMusicButton(self.iMusic)
 		if szButton:
-			if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
+			if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iMusicId, 1)
-			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_ERA:
+			elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
 				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
-			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
+			elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 				iLeaderId = self.top.SAS_getMusicLeaderId(self.iMusic)
 				if iLeaderId != -1:
 					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
 				else:
 					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+			elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 				iCivId = self.top.SAS_getMusicCivId(self.iMusic)
 				if iCivId != -1:
 					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCivId, 1)
@@ -106,7 +107,7 @@ class SevoPediaMusic:
 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if self.hasMusic(self.iMusic):
-			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_PLAY, self.iMusic)
+			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MUSIC_PLAY, self.iMusic)
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
@@ -115,7 +116,7 @@ class SevoPediaMusic:
 		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
 		info = self.getMusicInfo(self.iMusic)
 		szText = ""
-		if info and iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
+		if info and iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			try:
 				szText = info.getQuote()
 			except:
@@ -129,7 +130,7 @@ class SevoPediaMusic:
 					szText = ""
 			if szText and szText.startswith("TXT_KEY_"):
 				szText = ""
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_ERA:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA:
 			szEraText = u""
 			if info:
 				szEraText = info.getDescription() + u" " + localText.getText("TXT_KEY_PEDIA_ERA", ())
@@ -149,14 +150,14 @@ class SevoPediaMusic:
 					szExtra += u"\nTrack ID: %d" % iTrackId
 
 			szText = szEraText + szExtra
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
 			iTrackId = self.top.SAS_getMusicSoundId(self.iMusic)
 			if iTrackId != -1:
 				szText = szTitleText + u"\nTrack ID: %d" % iTrackId
 			else:
 				szText = szTitleText
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
 			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
 			iSoundId = self.top.SAS_getMusicSoundId(self.iMusic)
@@ -169,7 +170,7 @@ class SevoPediaMusic:
 				szText = szTitleText
 			if szNote:
 				szText = szText + u"\n\n" + szNote
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT:
 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
 			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
 			szSoundId = ""
@@ -183,7 +184,7 @@ class SevoPediaMusic:
 					szText = szTitleText + u"\n" + szSoundId + u"\n" + szScript
 			else:
 				szText = szTitleText + u"\n" + szScript
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D:
 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
 			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
 			szSoundId = ""
@@ -213,7 +214,7 @@ class SevoPediaMusic:
 	def showMusicPlayer(self, iMusic):
 		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(iMusic)
 		info = self.getMusicInfo(iMusic)
-		if (iMusicType != self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT) and (iMusicType != self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D) and (not info):
+		if (iMusicType != SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT) and (iMusicType != SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D) and (not info):
 			return
 		szSoundScript = self.top.SAS_getMusicSoundScript(iMusic)
 		iSoundId = self.top.SAS_getMusicSoundId(iMusic)
@@ -229,15 +230,15 @@ class SevoPediaMusic:
 		self.mediaPlayer.startTimer()
 
 		iLeaderId = -1
-		if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			iLeaderId = self.top.SAS_getMusicLeaderId(iMusic)
 		if iLeaderId != -1:
 			screen.addLeaderheadGFC("MusicPlayerLeaderhead", iLeaderId, AttitudeTypes.ATTITUDE_PLEASED, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			self.placeCivDisplay(screen, iMusic, iImageX, iImageY, iImageW, iImageH)
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			self.placeTechDisplay(screen, iMusic, iImageX, iImageY, iImageW, iImageH)
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT or iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT or iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D:
 			self.placeScriptDisplay(screen, iMusic, iImageX, iImageY, iImageW, iImageH)
 		else:
 			iEra = self.top.SAS_getMusicEra(iMusic)
@@ -291,7 +292,7 @@ class SevoPediaMusic:
 			return
 		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
 		iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
-		if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_LEADER:
+		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 			self.mediaPlayer.stopSound()
 			self.mediaPlayer.closeScreen()
 			self.showMusicPlayer(self.iMusic)
@@ -427,7 +428,7 @@ class SevoPediaMusic:
 		info = self.getMusicInfo(iPacked)
 
 		# For tech music: show the tech quote
-		if info and iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
+		if info and iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
 			try:
 				szQuote = info.getQuote()
 				if szQuote and not szQuote.startswith("TXT_KEY_"):
@@ -436,7 +437,7 @@ class SevoPediaMusic:
 				pass
 
 		# For civilization music: show the variant note
-		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			szNote = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_VARIANT_NOTE", ())
 			if szNote:
 				return szNote
@@ -604,7 +605,7 @@ class SevoPediaMusic:
 			# If we found a first item in group, make it clickable to jump to that
 			if iFirstInGroup >= 0 and iFirstInGroup < len(playable):
 				iTargetMusic = playable[iFirstInGroup]
-				screen.setImageButton("MusicPlayerScriptButton", szGroupIcon, iButtonX, iButtonY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_PLAY, iTargetMusic)
+				screen.setImageButton("MusicPlayerScriptButton", szGroupIcon, iButtonX, iButtonY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MUSIC_PLAY, iTargetMusic)
 			else:
 				# Otherwise just show the icon without action
 				screen.addDDSGFC("MusicPlayerScriptButton", szGroupIcon, iButtonX, iButtonY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)

@@ -3,6 +3,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 
 import CvUtil
 import re
@@ -468,7 +469,7 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 			ePanelStyle = PanelStyles.PANEL_STYLE_MAIN
 		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, ePanelStyle)
 		screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"CLOSE"), "", iOverlayX + iOverlayW - (iCloseButtonW + 10), iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET, iCloseButtonW, 26, WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0, ButtonStyles.BUTTON_STYLE_STANDARD)
-		# <!-- custom: panel style playground header strip: "[label] [PREV] [NEXT] [CLOSE]" sits on the same row as CLOSE inside the header bar. iData2 is the signed cycle delta (-1 / +1); a separate widget id (top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE) keeps the existing iData2 dispatch on HISTORY_EXPAND (0=close, 1=expand) untouched. The label uses RIGHT_JUSTIFY so it grows leftward without us having to measure the variable-length style name width. (Claude code Opus 4.7) -->
+		# <!-- custom: panel style playground header strip: "[label] [PREV] [NEXT] [CLOSE]" sits on the same row as CLOSE inside the header bar. iData2 is the signed cycle delta (-1 / +1); a separate widget id (SAS_MAGIC_PEDIA_PYTHON_PANEL_STYLE_CYCLE) keeps the existing iData2 dispatch on HISTORY_EXPAND (0=close, 1=expand) untouched. The label uses RIGHT_JUSTIFY so it grows leftward without us having to measure the variable-length style name width. (Claude code Opus 4.7) -->
 		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
 			iCycleBtnW = 28
 			iCycleBtnSpacing = 6
@@ -481,16 +482,16 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 			szStyleLabel = SASTextScale.labelText(u"STYLE: %s (%d/%d)" % (SAS_PEDIA_PANEL_STYLE_NAMES[g_iSasPediaPanelStyleIdx], g_iSasPediaPanelStyleIdx + 1, len(SAS_PEDIA_PANEL_STYLE_NAMES)))
 			screen.setText(top.getNextWidgetName(), "Background", szStyleLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iLabelY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			# <!-- custom: use "-" / "+" rather than "<" / ">" because angle brackets are parsed as font/markup tag delimiters by the Civ4 text renderer (see agents.md), which breaks the button label rendering. (Claude code Opus 4.7) -->
-			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
-			# <!-- custom: background DDS playground row, sits one row ABOVE the style row (the user said "we have plenty room up" so it lives in the gutter above the panel header). Same x columns as the style row so the two stacked groups align visually. Routing uses a separate widget id (SAS_PEDIA_PYTHON_BACKGROUND_CYCLE) so the iData2 cycle delta does not collide with the style row's dispatch. (Claude code Opus 4.7) -->
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_PANEL_STYLE_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iCycleY, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_PANEL_STYLE_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
+			# <!-- custom: background DDS playground row, sits one row ABOVE the style row (the user said "we have plenty room up" so it lives in the gutter above the panel header). Same x columns as the style row so the two stacked groups align visually. Routing uses a separate widget id (SAS_MAGIC_PEDIA_PYTHON_BACKGROUND_CYCLE) so the iData2 cycle delta does not collide with the style row's dispatch. (Claude code Opus 4.7) -->
 			if len(SAS_PEDIA_BG_NAMES) > 0:
 				iBgRowYBtn = iCycleY - 30
 				iBgRowYLabel = iLabelY - 30
 				szBgLabel = SASTextScale.labelText(u"BG: %s (%d/%d)" % ( SAS_PEDIA_BG_NAMES[g_iSasPediaBgIdx], g_iSasPediaBgIdx + 1, len(SAS_PEDIA_BG_NAMES)))
 				screen.setText(top.getNextWidgetName(), "Background", szBgLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iBgRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
+				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_BACKGROUND_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_BACKGROUND_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
 			iTextRowYBtn = iCycleY - 60
 			iTextRowYLabel = iLabelY - 60
 			tColorPreview = SAS_PEDIA_TEXT_COLOR_RGBS[g_iSasPediaTextColorIdx]
@@ -500,8 +501,8 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 				szColorCode = u"%d,%d,%d,%d" % tColorPreview
 			szTextColorLabel = SASTextScale.labelText(u"TEXT: %s (%s) (%d/%d)" % (SAS_PEDIA_TEXT_COLOR_NAMES[g_iSasPediaTextColorIdx], szColorCode, g_iSasPediaTextColorIdx + 1, len(SAS_PEDIA_TEXT_COLOR_NAMES)))
 			screen.setText(top.getNextWidgetName(), "Background", szTextColorLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iTextRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_TEXT_COLOR_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_TEXT_COLOR_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		# <!-- custom: <color=R,G,B,A> wrap syntax matches BUG/RawYields.py:246. (Claude code Opus 4.7) -->
 		szTextForOverlay = szText
 		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_TEXT_COLOR_RGBS) > 0:
@@ -838,10 +839,7 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
 		else:
 			yPos = y + chart_log_button_margin_y
 	# <!-- custom: use WIDGET_PYTHON + data1 routing for chart log clicks because function-name matching can fail on generated widget IDs in Sevopedia; this mirrors the robust Music/Movie click pattern in SevoPediaMain.handleInput. (GPT-5.3-Codex) -->
-	if hasattr(top, "SAS_PEDIA_PYTHON_CHART_LOG"):
-		screen.setButtonGFC(widget, label, "", xPos, yPos, chart_log_button_w, chart_log_button_h, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_CHART_LOG, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-	else:
-		screen.setButtonGFC(widget, label, "", xPos, yPos, chart_log_button_w, chart_log_button_h, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+	screen.setButtonGFC(widget, label, "", xPos, yPos, chart_log_button_w, chart_log_button_h, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_CHART_LOG, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 	return widget
 
 def chart_dump_table_csv(log_tag, table_data):

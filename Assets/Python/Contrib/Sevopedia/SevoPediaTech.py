@@ -17,6 +17,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import CvPediaScreen
 import ScreenInput
@@ -348,7 +349,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.attachLabel(panelName, "", "  ")
 
 		# <!-- custom: Music system uses packed keys (unlike Movies which use separate type+id). (Claude code Sonnet 4.5) -->
-		iMusicType = self.top.SAS_PEDIA_MUSIC_TYPE_TECH
+		iMusicType = SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH
 		iPackedMusic = self.top.SAS_packMusicKey(iMusicType, self.iTech)
 
 		if self.top.pediaMusic.hasMusic(iPackedMusic):
@@ -358,7 +359,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
 			buttonX = (self.W_MUSIC - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
 		else:
 			draw_none_text(screen, self.top, self.X_MUSIC, self.Y_MUSIC, self.W_MUSIC, self.H_MUSIC)
 
@@ -1092,6 +1093,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		szText = gc.getTechInfo(self.iTech).getQuote()
 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
 		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def handleInput (self, inputClass):
 		return 0

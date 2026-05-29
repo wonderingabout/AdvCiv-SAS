@@ -6,6 +6,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import SevoScreenEnums
 from SASFontUtils import *
@@ -94,7 +95,7 @@ class SevoPediaMovie:
 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		if self.hasMovie(iMovieType, iMovieId):
-			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_PLAY, self.iMovie)
+			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MOVIE_PLAY, self.iMovie)
 
 	def placeHistory(self):
 		screen = self.top.getScreen()
@@ -350,17 +351,17 @@ class SevoPediaMovie:
 		self.top.pediaMusic.playMusic(iFirstMusic)
 
 	def getMovieInfo(self, iMovieType, iMovieId):
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_VICTORY:
 			return gc.getVictoryInfo(iMovieId)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER:
 			return gc.getBuildingInfo(iMovieId)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT:
 			return gc.getProjectInfo(iMovieId)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION:
 			return gc.getReligionInfo(iMovieId)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA:
 			return gc.getEraInfo(iMovieId)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
 			return gc.getCorporationInfo(iMovieId)
 		return None
 
@@ -368,7 +369,7 @@ class SevoPediaMovie:
 		if not self.hasMovie(iMovieType, iMovieId):
 			return None
 
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_VICTORY:
 			szArtDef = gc.getVictoryInfo(iMovieId).getMovie()
 			if not szArtDef:
 				return None
@@ -377,7 +378,7 @@ class SevoPediaMovie:
 				return None
 			return (szMovie, "movie", None)
 
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER:
 			szMovie = gc.getBuildingInfo(iMovieId).getMovie()
 			if not szMovie:
 				return None
@@ -391,7 +392,7 @@ class SevoPediaMovie:
 				szMovieKind = "dds"
 			return (szMovie, szMovieKind, None)
 
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT:
 			szArtDef = gc.getProjectInfo(iMovieId).getMovieArtDef()
 			if not szArtDef:
 				return None
@@ -400,7 +401,7 @@ class SevoPediaMovie:
 				return None
 			return (szMovie, "movie", None)
 
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION:
 			szMovieFile = gc.getReligionInfo(iMovieId).getMovieFile()
 			if not szMovieFile:
 				return None
@@ -416,13 +417,13 @@ class SevoPediaMovie:
 				szSoundScript = ""
 			return (szMovieFile, szMovieKind, szSoundScript)
 
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA:
 			szMovieFile = gc.getEraInfo(iMovieId).getButton()
 			if not szMovieFile:
 				return None
 			return (szMovieFile, "dds", "AS2D_NEW_ERA")
 
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
 			szMovieFile = gc.getCorporationInfo(iMovieId).getMovieFile()
 			if (not szMovieFile) or (szMovieFile == "NONE"):
 				return None
@@ -441,7 +442,7 @@ class SevoPediaMovie:
 		return None
 
 	def getMovieTitle(self, iMovieType, iMovieId):
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA:
 			info = self.getMovieInfo(iMovieType, iMovieId)
 			if info:
 				return info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
@@ -453,21 +454,21 @@ class SevoPediaMovie:
 		return u""
 
 	def hasMovie(self, iMovieType, iMovieId):
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_VICTORY:
 			info = gc.getVictoryInfo(iMovieId)
 			return (info is not None) and bool(info.getMovie())
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER:
 			info = gc.getBuildingInfo(iMovieId)
 			return (info is not None) and bool(info.getMovie())
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT:
 			info = gc.getProjectInfo(iMovieId)
 			return (info is not None) and bool(info.getMovieArtDef())
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION:
 			info = gc.getReligionInfo(iMovieId)
 			return (info is not None) and bool(info.getMovieFile())
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA:
 			return bool(gc.getEraInfo(iMovieId).getButton())
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
 			info = gc.getCorporationInfo(iMovieId)
 			if info is None:
 				return False
@@ -480,16 +481,16 @@ class SevoPediaMovie:
 		return False
 
 	def getPediaJumpWidget(self, iMovieType, iMovieId):
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER:
 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iMovieId, 1)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT:
 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iMovieId, 1)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION:
 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iMovieId, 1)
 		# <!-- custom: this successfully works: redirects to Sevopedia Eras Chart category, that has no item and only a chart (like Promotions Tree for example). Done with the very nice help of Claude code Sonnet 4.5 thanks a lot! -->
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA:
 			return (WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
-		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_CORPORATION:
+		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iMovieId, 1)
 		return (WidgetTypes.WIDGET_GENERAL, -1, -1)
 

@@ -6,6 +6,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import SevoScreenEnums
 from _sevopedia_helpers import *
@@ -91,7 +92,7 @@ class SevoPediaEraChart:
 				# <!-- custom: redirect to first era track (Track 01 of Ancient era) in Sevopedia Music category -->
 				iFirstEraMusicKey = self.top.SAS_getFirstEraMusicKey()
 				if iFirstEraMusicKey != -1:
-					screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
+					screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
 				else:
 					screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
 
@@ -105,9 +106,9 @@ class SevoPediaEraChart:
 					btnX = buttonRowStartX + (iEra * wNum)
 					btnY = buttonRowY
 					# <!-- custom: each era button redirects to its movie entry if movie exists. (Claude Opus 4.5) -->
-					if self.top.pediaMovies.hasMovie(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, iEra):
-						iPackedEraMovie = self.top.SAS_packMovieKey(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, iEra)
-						screen.setImageButton(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedEraMovie)
+					if self.top.pediaMovies.hasMovie(SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA, iEra):
+						iPackedEraMovie = self.top.SAS_packMovieKey(SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA, iEra)
+						screen.setImageButton(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY, iPackedEraMovie)
 					else:
 						screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
 

@@ -14,6 +14,7 @@
 #
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
@@ -185,7 +186,7 @@ class SevoPediaReligion:
 		# <!-- custom: use attachLabel for padding similar to Requires panel -->
 		screen.attachLabel(panelName, "", "  ")
 
-		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION
+		iMovieType = SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION
 		if self.top.pediaMovies.hasMovie(iMovieType, self.iReligion):
 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iReligion)
 
@@ -195,7 +196,7 @@ class SevoPediaReligion:
 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
 			buttonX = (self.W_MOVIE - buttonSize) / 2
 			buttonY = 10
-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
 		else:
 			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
@@ -238,6 +239,6 @@ class SevoPediaReligion:
 		screen = self.top.getScreen()
 		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
 		szTitle = u""
-		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def handleInput (self, inputClass):
 		return 0
