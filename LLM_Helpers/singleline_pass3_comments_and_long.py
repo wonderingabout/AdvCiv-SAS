@@ -15,7 +15,7 @@ Adds two conservative behaviors on top of the previous passes:
   bracket-continuation code comments. Normal prose comments are left alone.
 
 Verification:
-- significant real-code token sequence is unchanged;
+- significant real-code token sequence is unchanged
 - output compiles under Python 3's parser for this file.
 """
 from __future__ import print_function

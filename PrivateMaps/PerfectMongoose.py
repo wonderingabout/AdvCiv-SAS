@@ -6617,7 +6617,7 @@ def addLakes():
 		for x in range(mc.width):
 			i = GetIndex(x, y)
 			makeHarbor(x, y, oceanMap)
-	mmap.recalculateAreas(); # advc.opt: No longer done in makeChannel
+	mmap.recalculateAreas() # advc.opt: No longer done in makeChannel
 
 def addFeatures():
 	print("========================")
