@@ -779,8 +779,10 @@ def addBonusType(argsList):
 					pass
 				elif forceHills and pPlot.isHills():
 					pass
-				elif forceForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): pass
-				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1: pass
+				elif forceForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"):
+					pass
+				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1:
+					pass
 				else: continue # to next plot.
 				# re-init regional plot membership tests for each pass.
 				plotInNorth = False

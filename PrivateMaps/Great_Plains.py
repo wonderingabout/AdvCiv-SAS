@@ -698,7 +698,8 @@ def addBonusType(argsList):
 				for x in range(herdLeft, herdRight):
 					# Fractalized placement of herds
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
+					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
+						continue # No buffalo at the water hole, sorry!
 					herdVal = herds.getHeight(x,y)
 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
 						map.plot(x,y).setBonusType(iBonusType)
@@ -714,7 +715,8 @@ def addBonusType(argsList):
 				for x in range(herdLeft, herdRight):
 					# Fractalized placement of herds
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
+					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
+						continue # No buffalo at the water hole, sorry!
 					herdVal = herds.getHeight(x,y)
 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
 						map.plot(x,y).setBonusType(iBonusType)
@@ -760,7 +762,8 @@ def addBonusType(argsList):
 				pPlot = map.plot(x,y)
 				if pPlot.getBonusType(-1) != -1:
 					continue # to next plot.
-				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
+					continue # Soren wants no bonuses in oasis plots. So mote it be.
 				# Check plot type and features for eligibility.
 				if (pPlot.canHaveBonus(iBonusType, True) and unforced):
 					pass
@@ -768,7 +771,8 @@ def addBonusType(argsList):
 					pass
 				elif forceFlats and pPlot.isFlatlands():
 					pass
-				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills(): pass
+				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills():
+					pass
 				else: continue # to next plot.
 				# re-init regional plot membership tests for each pass.
 				plotInRockies = False

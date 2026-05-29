@@ -615,7 +615,8 @@ def addBonusType(argsList):
 				for x in range(iW):
 					# Fractalized placement
 					pPlot = map.plot(x,y)
-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_JUNGLE"): continue
+					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_JUNGLE"):
+						continue
 					if pPlot.getBonusType(-1) == -1:
 						foodVal = food.getHeight(x,y)
 						if (type_string in banana):
@@ -664,11 +665,13 @@ def addBonusType(argsList):
 				pPlot = map.plot(x,y)
 				if pPlot.getBonusType(-1) != -1:
 					continue # to next plot.
-				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
+					continue # Soren wants no bonuses in oasis plots. So mote it be.
 				# Check plot type and features for eligibility.
 				if forceHills and pPlot.isHills():
 					pass
-				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")): pass
+				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")):
+					pass
 				else: continue # to next plot.
 				# Finally we have run all the checks.
 				# 1. The plot has no bonus.

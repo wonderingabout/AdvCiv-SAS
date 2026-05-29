@@ -524,21 +524,31 @@ def addBonusType(argsList):
 				continue # to next plot.
 			if pPlot.getBonusType(-1) != -1:
 				continue # to next plot.
-			if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+			if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
+				continue # Soren wants no bonuses in oasis plots. So mote it be.
 			# Check plot type and features for eligibility.
 			if forceHills and not pPlot.isHills():
 				continue
 			if forceFlats and not pPlot.isFlatlands():
 				continue
-			if forceFlood and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FLOOD_PLAINS"): continue
-			if forceJungle and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"): continue
-			if forceForest and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): continue
-			if forceNoGrass and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"): continue
-			if forceNoDesert and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"): continue
-			if forceNoSnow and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")): continue
-			if forceNoPlains and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"): continue
-			if forceNoJungle and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"): continue
-			if forceNoForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): continue
+			if forceFlood and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FLOOD_PLAINS"):
+				continue
+			if forceJungle and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"):
+				continue
+			if forceForest and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"):
+				continue
+			if forceNoGrass and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
+				continue
+			if forceNoDesert and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
+				continue
+			if forceNoSnow and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")):
+				continue
+			if forceNoPlains and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
+				continue
+			if forceNoJungle and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"):
+				continue
+			if forceNoForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"):
+				continue
 			if forceNoFresh and pPlot.isFreshWater():
 				continue
 			#
@@ -587,7 +597,8 @@ def afterGeneration():
 			pPlot = map.plot(x,y)
 			if pPlot.getBonusType(-1) != -1:
 				continue # A bonus already exists in this plot!
-			if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue
+			if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
+				continue
 			crazyVal = crazies.getHeight(x,y)
 			for crazy_bonus in crazy_types:
 				type_string = gc.getBonusInfo(crazy_bonus).getType()

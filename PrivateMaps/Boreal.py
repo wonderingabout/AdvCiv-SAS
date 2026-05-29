@@ -657,8 +657,10 @@ def addBonusType(argsList):
 					pPlot = map.plot(x,y)
 					if pPlot.isWater() or pPlot.isPeak():
 						continue
-					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"): continue
-					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"): continue
+					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
+						continue
+					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"):
+						continue
 					if pPlot.getBonusType(-1) == -1:
 						foodVal = food.getHeight(x,y)
 						if (type_string in deer):
