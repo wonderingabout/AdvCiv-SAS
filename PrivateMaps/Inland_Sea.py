@@ -572,7 +572,7 @@ def getStartingPlot(playerID, validFn = None):
 		
 		for iX in range(map.getGridWidth()):
 			for iY in range(map.getGridHeight()):
-				if validFn != None and not validFn(playerID, iX, iY):
+				if validFn is not None and not validFn(playerID, iX, iY):
 					continue
 				pLoopPlot = map.plot(iX, iY)
 
@@ -593,7 +593,7 @@ def getStartingPlot(playerID, validFn = None):
 							iBestValue = val
 							pBestPlot = pLoopPlot
 
-		if pBestPlot != None:
+		if pBestPlot is not None:
 			plotSuccess = true
 			plotValue = map.plotNum(pBestPlot.getX(), pBestPlot.getY())
 			break
@@ -687,13 +687,13 @@ class ISHintedWorld(CvMapGeneratorUtil.HintedWorld, ISFractalWorld):
 				height += 1
 			if size == width*height:
 				iGrain = i
-		assert(iGrain != None)
+		assert(iGrain is not None)
 		iFlags = self.map.getMapFractalFlags()
 		self.continentsFrac.fracInitHints(self.iNumPlotsX, self.iNumPlotsY, iGrain, self.mapRand, iFlags, self.data, self.fracXExp, self.fracYExp)
 
 	def generatePlotTypes(self, water_percent=-1, shift_plot_types=False):
 		for i in range(len(self.data)):
-			if self.data[i] == None:
+			if self.data[i] is None:
 				self.data[i] = self.mapRand.get(48, "Generate Plot Types PYTHON")
 		
 		self.__doInitFractal()

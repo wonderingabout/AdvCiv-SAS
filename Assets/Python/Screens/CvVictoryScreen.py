@@ -794,14 +794,14 @@ class CvVictoryScreen:
 			if iMember != self.iActivePlayer:
 				# player attitude to candidate #1
 				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer1, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
-				if (szText != None
+				if (szText is not None
 				and iCand1Known == 1
 				and bKnown):
 					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# player attitude to candidate #2
 				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer2, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
-				if (szText != None
+				if (szText is not None
 				and iCand2Known == 1
 				and bKnown):
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer2, CvUtil.FONT_CENTER_JUSTIFY)

@@ -48,7 +48,7 @@ def _buildDynamicRegionTemplate(iNumRegions):
 
 def _getBalancerBonusTypeIDs():
 	global _balancerBonusTypeIDs
-	if _balancerBonusTypeIDs == None:
+	if _balancerBonusTypeIDs is None:
 		_balancerBonusTypeIDs = []
 		for tag in balancer.resourcesToBalance:
 			_balancerBonusTypeIDs.append(getInfoTypeOrFail(tag))
@@ -629,7 +629,7 @@ def assignStartingPlots():
 							if pPlot.isWater(): continue
 							if bRequireCoastal and not pPlot.isCoastalLand(): continue
 							if areaID != pPlot.getArea(): continue
-							if validFn != None and not validFn(playerID, iX, iY): continue
+							if validFn is not None and not validFn(playerID, iX, iY): continue
 							val = pPlot.getFoundValue(playerID)
 							if val > iBestValue:
 								valid = True
@@ -657,18 +657,18 @@ def assignStartingPlots():
 									iBestValue = val
 									pBestPlot = pPlot
 
-					if pBestPlot != None:
+					if pBestPlot is not None:
 						min_dist.append([pBestPlot.getX(), pBestPlot.getY()])
 						sPlot = map.plot(pBestPlot.getX(), pBestPlot.getY())
 						plrID = gc.getPlayer(playerID)
 						plrID.setStartingPlot(sPlot, true)
 						break # Valid start found, stop checking areas and plots.
 					else: pass # This area too close to somebody, try the next area.
-				if pBestPlot != None:
+				if pBestPlot is not None:
 					break
 			
 			# Check to see if a valid start was found in ANY areaID.
-			if pBestPlot == None:
+			if pBestPlot is None:
 				print("player %s pass %s failed" % (playerID, iPass))
 				iPass += 1
 				if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
@@ -682,9 +682,9 @@ def assignStartingPlots():
 							if pPlot.isImpassable(): continue
 							pBestPlot = pPlot
 							break
-						if pBestPlot != None:
+						if pBestPlot is not None:
 							break
-					if pBestPlot == None:
+					if pBestPlot is None:
 						# Last-resort global fallback (should never happen on this script).
 						for iX in range(iW):
 							for iY in range(iH):
@@ -694,9 +694,9 @@ def assignStartingPlots():
 								if pPlot.isImpassable(): continue
 								pBestPlot = pPlot
 								break
-							if pBestPlot != None:
+							if pBestPlot is not None:
 								break
-					if pBestPlot == None:
+					if pBestPlot is None:
 						print("---")
 						print("A region has failed")
 						print("---")

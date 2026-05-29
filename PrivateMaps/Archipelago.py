@@ -510,7 +510,7 @@ def assignStartingPlots():
 						pPlot = map.plot(iX, iY)
 						if pPlot.isWater(): continue
 						if areaID != pPlot.getArea(): continue
-						if validFn != None and not validFn(playerID, iX, iY): continue
+						if validFn is not None and not validFn(playerID, iX, iY): continue
 						val = pPlot.getFoundValue(playerID)
 						if val > iBestValue:
 							valid = True
@@ -538,7 +538,7 @@ def assignStartingPlots():
 								iBestValue = val
 								pBestPlot = pPlot
 
-				if pBestPlot != None:
+				if pBestPlot is not None:
 					min_dist.append([pBestPlot.getX(), pBestPlot.getY()])
 					sPlot = map.plot(pBestPlot.getX(), pBestPlot.getY())
 					plrID = gc.getPlayer(playerID)
@@ -555,7 +555,7 @@ def assignStartingPlots():
 				else: pass # This area too close to somebody, try the next area.
 			
 			# Check to see if a valid start was found in ANY areaID.
-			if pBestPlot == None:
+			if pBestPlot is None:
 				print("player", playerID, "pass", iPass, "failed")
 				iPass += 1
 				if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):

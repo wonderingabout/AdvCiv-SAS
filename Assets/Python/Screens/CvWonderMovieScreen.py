@@ -77,7 +77,7 @@ class CvWonderMovieScreen:
 			self.szMovieFile = gc.getBuildingInfo(iMovieItem).getMovie()
 		elif self.iMovieType == MOVIE_SCREEN_RELIGION:
 			self.szMovieFile = gc.getReligionInfo(iMovieItem).getMovieFile()
-		if (self.szMovieFile == None or len(self.szMovieFile) == 0):
+		if (self.szMovieFile is None or len(self.szMovieFile) == 0):
 			return
 		
 		player = PyPlayer(CyGame().getActivePlayer())

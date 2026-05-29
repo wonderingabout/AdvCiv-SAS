@@ -714,10 +714,10 @@ class CvUnitDesc:
 
 				unit = player.initUnit(unitTypeNum, self.plotX, self.plotY, UnitAITypes(eUnitAI), self.facingDirection)
 			if (unit):
-				if (self.szName != None):
+				if (self.szName is not None):
 					unit.setName(self.szName)
 				#leader unit type
-				if(self.leaderUnitType != None):
+				if(self.leaderUnitType is not None):
 					leaderUnitTypeNum = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), self.leaderUnitType)
 					if leaderUnitTypeNum >= 0:
 						unit.setLeaderUnitType(leaderUnitTypeNum)
@@ -896,7 +896,7 @@ class CvCityDesc:
 
 		self.city = player.initCity(self.plotX, self.plotY)
 
-		if (self.name != None):
+		if (self.name is not None):
 			self.city.setName(self.name, False)
 
 		if (self.population):

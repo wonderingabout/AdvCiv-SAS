@@ -430,7 +430,7 @@ def getGridSize(argsList):
 # a[2] = "data1"
 # b[5] = "data2"
 # - retrieving data:
-# if a[2] != None:
+# if a[2] is not None:
 #    print a[2]
 # - length:
 # print len(a)
@@ -451,7 +451,7 @@ class bArray:
 
 	def __setitem__(self, power, newValue):
 		index, value = self._search(power,0,len(self._data)-1)
-		if value == None:
+		if value is None:
 			self._data.insert(index, [power, newValue])
 		else:
 			self._data[index][1] = newValue
@@ -464,14 +464,14 @@ class bArray:
 		return len(self._data)
 
 	def pop(self, index = None):
-		if index == None:
+		if index is None:
 			return self._data.pop()
 		else:
 			return self._data.pop(index)
 
 	def remove(self, power):
 		index, value = self._search(power,0,len(self._data)-1)
-		if value != None:
+		if value is not None:
 			self._data.pop(index)
 			return True
 		else:
@@ -698,7 +698,7 @@ class ContinentPart:
 		self.links = bArray()
 
 	def deepMaxTiles(self,used = bArray()):
-		if used[self.id] == None:
+		if used[self.id] is None:
 			used[self.id] = True
 			maxTiles = len(self.tiles)
 			for link in self.links:
@@ -822,7 +822,7 @@ class TileBuilder:
 			self.nextRefresh = self.targetSize / float(self.refreshCountRequired + 1) * (self.refreshCount + 1)
 			for index in range(int(activeTiles / 15)):
 				tile = self.allTiles.randomItem(self.dice)
-				if tile != None:
+				if tile is not None:
 					x, y, d, scatt, scattdir = tile
 					if not self._intersect(x,y):
 						self._makeActive(x,y)
@@ -836,7 +836,7 @@ class TileBuilder:
 			c = 0
 			for j in range(builderTiles * 2):
 				tile = self.active.randomItem(self.dice)
-				if tile != None:
+				if tile is not None:
 					x, y, d, scatt, scattdir = tile
 					c = self._checkPosGrow(self.possibleTiles,x,y,scatt,scattdir)
 					if (c > 0):
@@ -855,7 +855,7 @@ class TileBuilder:
 			newActive = bArray()
 			for index in range(len(self.active)):
 				tile = self.active.random(self.dice)
-				if tile != None:
+				if tile is not None:
 					x, y, d, scatt, scattdir = tile
 					offset = world.getOffset([x,y])
 					newActive[offset] = tile
@@ -873,7 +873,7 @@ class TileBuilder:
 			self.active = bArray()
 			for index in range(len(self.allTiles)):
 				tile = self.allTiles.randomItem(self.dice)
-				if tile != None:
+				if tile is not None:
 					x, y, d, scatt, scattdir = tile
 					if self._makeActive(x,y):
 						c += self._checkPosGrow(self.possibleTiles,x,y,scatt,scattdir)
@@ -885,7 +885,7 @@ class TileBuilder:
 			if (c > 0):
 				while len(self.builders) < builderTiles:
 					tile = self.possibleTiles.random(self.dice)
-					if (tile != None):
+					if (tile is not None):
 						if len(self.builders) < builderTiles:
 							x, y, scatt, scattdir, origoffset = tile
 							offset = world.getOffset([x,y])
@@ -912,7 +912,7 @@ class TileBuilder:
 					tx, ty = tile
 					toffset =  world.getOffset([tx, ty])
 					partId = self.continentPartAllTiles[toffset]
-					if partId != None:
+					if partId is not None:
 						partsAround[partId] = partId
 				if len(partsAround) == 0:
 					self.continentPartsIdGen += 1 #gaunam nauja id
@@ -1004,11 +1004,11 @@ class TileBuilder:
 		if self.continentPartControlEnabled:
 			bUsed = bArray()
 			for part in self.continentParts:
-				if bUsed[part.id] == None:
+				if bUsed[part.id] is None:
 					if len(part.tiles) >= minSize:
 						for link in part.links:
 							otherId, thisOffset, otherOffset = link
-							if bUsed[otherId] == None:
+							if bUsed[otherId] is None:
 								otherPart = self.continentParts[otherId]
 								usedTiles = bArray()
 								usedTiles[part.id] = True
@@ -1061,7 +1061,7 @@ class TileBuilder:
 				if self.world[ax, ay] in self.tileType:
 					offset = self.world.getOffset([ax, ay])
 					tile = self.allTiles[offset]
-					if tile != None:
+					if tile is not None:
 						self.active[offset] = tile
 					else:
 						return False
@@ -1888,7 +1888,7 @@ def generatePlotTypes():
 				for ax in range(w):
 					for ay in range(h):
 						cell = orig[ay][ax]
-						if landR(cell) != None:
+						if landR(cell) is not None:
 							if landR(cell) != world[x-dw+ax,y-dh+ay]:
 								Tinka = False
 								break
@@ -1905,7 +1905,7 @@ def generatePlotTypes():
 					for ax in range(w):
 						for ay in range(h):
 							cell = final[ay][ax]
-							if landR(cell) != None:
+							if landR(cell) is not None:
 								world[x-dw+ax,y-dh+ay] = landR(cell)
 
 	#ocean tiles we want to collect
@@ -1948,7 +1948,7 @@ def generatePlotTypes():
 		possibleIslandList = bArray()
 		for index in range(len(oceanTiles) / (islandAreaRadius * islandAreaRadius)):
 			tile = oceanTiles.random(dice)
-			if tile == None:
+			if tile is None:
 				break
 			x, y = tile
 			if world[x,y] == PlotTypes.PLOT_OCEAN:
@@ -1957,7 +1957,7 @@ def generatePlotTypes():
 				for tile in tileList:
 					ax, ay = tile
 					oceanTile = oceanTiles[world.getOffset([ax,ay])]
-					if oceanTile == None:
+					if oceanTile is None:
 						Tinka = False
 						break
 				if Tinka:
@@ -1971,7 +1971,7 @@ def generatePlotTypes():
 		# get island start positions
 		for index in range(len(possibleIslandList)):
 			possibleTile = possibleIslandList.random(dice)
-			if possibleTile == None:
+			if possibleTile is None:
 				break
 			x, y = possibleTile
 			islandStartList[world.getOffset([x,y])] = [x, y]
@@ -1979,39 +1979,39 @@ def generatePlotTypes():
 			for tile in tileList:
 				ax, ay = tile
 				index, value = possibleIslandList._search(world.getOffset([ax,ay]),0,len(possibleIslandList._data)-1)
-				if value != None:
+				if value is not None:
 					possibleIslandList._data.pop(index)
 
 		if lonelyIslands == "lonely1":
 			contPositions = []
 			pos = islandStartList.random(dice)
-			if pos != None:
+			if pos is not None:
 				contPositions.append(pos)
 		elif lonelyIslands == "lonely2":
 			for index in range(2):
 				pos = islandStartList.random(dice)
-				if pos != None:
+				if pos is not None:
 					contPositions.append(pos)
 				else:
 					break
 		elif lonelyIslands == "lonely3":
 			for index in range(3):
 				pos = islandStartList.random(dice)
-				if pos != None:
+				if pos is not None:
 					contPositions.append(pos)
 				else:
 					break
 		elif lonelyIslands == "lonely4":
 			for index in range(4):
 				pos = islandStartList.random(dice)
-				if pos != None:
+				if pos is not None:
 					contPositions.append(pos)
 				else:
 					break
 		elif lonelyIslands == "lonely5":
 			for index in range(5):
 				pos = islandStartList.random(dice)
-				if pos != None:
+				if pos is not None:
 					contPositions.append(pos)
 				else:
 					break
@@ -2023,7 +2023,7 @@ def generatePlotTypes():
 			contPositions = []
 			for index in range(int(len(islandStartList) * lonelyIslands)):
 				pos = islandStartList.random(dice)
-				if pos != None:
+				if pos is not None:
 					contPositions.append(pos)
 				else:
 					break
@@ -2255,7 +2255,7 @@ def getStartPositions(world, contData):
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 
-	if contData == None:
+	if contData is None:
 		contData = []
 		for p in range(continentCount):
 			contData.append(1) # create dummy array
@@ -2320,7 +2320,7 @@ def getContinentDistribution():
 	global worldTypes
 
 	distributionOption = getSelValue("continent_distribution")
-	if distributionOption == None:
+	if distributionOption is None:
 		distributionOption = "smart-random"
 
 	cgc = CyGlobalContext()
@@ -2653,7 +2653,7 @@ def addFeatures():
 		tileTemperature = getTileTemperature(y,iH)
 
 		if not plot.isPeak():
-			if feature == None and plot.getFeatureType() == featNone:
+			if feature is None and plot.getFeatureType() == featNone:
 				randomFeat = probabilityArray()
 
 				randomFeat[distanceFromRiver * 14 * (1 - climateHumidity)] = None # how many tiles have no forest and no jungle
@@ -2749,7 +2749,7 @@ def addFeatures():
 					randomFeat[1] = featForest
 
 				feat = randomFeat.randomItem(dice)
-				if feat != None:
+				if feat is not None:
 					plot.setFeatureType(feat,-1)
 					feature = feat
 
@@ -2802,7 +2802,7 @@ def addFeatures():
 								else:
 									seedList[world.getOffset([tx,ty])] = [tx,ty,2,featForest]
 		else:
-			if feature != None:
+			if feature is not None:
 				if plot.getFeatureType() == featNone:
 					plot.setFeatureType(feature,-1)
 
@@ -2920,7 +2920,7 @@ def addFeatures():
 
 				posList[len(posList) / 2] = None # add some none probability
 				item = posList.random(dice)
-				if item != None:
+				if item is not None:
 					seedList[world.getOffset([item[0],item[1]])] = item
 
 	# find best places for oasis
@@ -3072,7 +3072,7 @@ def getTilesAroundDistance(x,y,distance,plotTypes = None):
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 	l = []
-	if plotTypes == None:
+	if plotTypes is None:
 		for by in range(distance * 2 + 1):
 			for bx in range(distance * 2 + 1):
 				ax = x - distance + bx
@@ -3260,29 +3260,29 @@ class FairBuilder:
 	def grow(self):
 		tile = None
 		gtile = None
-		while tile == None:
+		while tile is None:
 			gtile = None
 			tile = self.edgeTiles.randomItem(self.dice)
-			if tile != None:
+			if tile is not None:
 				offset, x, y, distance, validTiles = tile
 				#print "--- Random edge tile try: x=%d y=%d"%(x,y)
 				gtile = None
-				while gtile == None:
+				while gtile is None:
 					gtile = validTiles.random(self.dice)
-					if gtile == None:
+					if gtile is None:
 						#print "--- Random possible tile try failed"
 						break
 					else:
 						aoffset, ax, ay, adistance = gtile
 						#print "--- Random possible tile try: x=%d y=%d distance=%d"%(ax,ay,adistance)
-						if self.usedTiles[aoffset] == None:
+						if self.usedTiles[aoffset] is None:
 							#print "ok"
 							break
 						else:
 							#print "remove"
 							validTiles.remove(aoffset)
 							gtile = None
-				if gtile != None:
+				if gtile is not None:
 					break
 				else:
 					self.edgeTiles.remove(offset)
@@ -3291,7 +3291,7 @@ class FairBuilder:
 				#print "--- Random edge tile try failed"
 				break
 
-		if tile != None and gtile != None:
+		if tile is not None and gtile is not None:
 			offset, x, y, distance, validTiles = tile
 			aoffset, ax, ay, adistance = gtile
 			if self._grow(aoffset, ax, ay, adistance):
@@ -3307,7 +3307,7 @@ class FairBuilder:
 					rmx, rmy = rmtile
 					rmoffset = self.world.getOffset([rmx,rmy])
 					edgeTile = self.edgeTiles[rmoffset]
-					if edgeTile != None:
+					if edgeTile is not None:
 						if self._isEdgeTileExpired(edgeTile,aoffset):
 							#print "--- Remove edge tile: x=%d y=%d"%(rmx,rmy)
 							self.edgeTiles.remove(rmoffset)
@@ -3320,7 +3320,7 @@ class FairBuilder:
 
 	def _isEdgeTileExpired(self,edgeTile,newOffset):
 		offset, x, y, distance, validTiles = edgeTile
-		if validTiles[newOffset] != None:
+		if validTiles[newOffset] is not None:
 			validTiles.remove(newOffset)
 		if len(validTiles) == 0:
 			return True
@@ -3332,7 +3332,7 @@ class FairBuilder:
 		for atile in tilesAround:
 			ax, ay = atile
 			aoffset = self.world.getOffset([ax,ay])
-			if self.usedTiles[aoffset] == None:
+			if self.usedTiles[aoffset] is None:
 				if self._canGrow(offset, x, y, aoffset, ax, ay, distance + 1):
 					validTiles[aoffset] = [aoffset, ax, ay, distance + 1]
 		return validTiles
@@ -3376,7 +3376,7 @@ class BonusBuilder(FairBuilder):
 		for tile in tiles:
 			ax, ay = tile
 			aoffset = self.world.getOffset([ax,ay])
-			if self.usedCoastTiles[aoffset] == None:
+			if self.usedCoastTiles[aoffset] is None:
 				self.usedCoastTiles[aoffset] = [aoffset]
 				self.coastTiles[aoffset] = [aoffset, ax, ay, distance + 1]
 				self.coastTilesWithoutBonuses[aoffset] = [aoffset, ax, ay, distance + 1]

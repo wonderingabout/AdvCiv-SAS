@@ -4360,7 +4360,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 							break
 						if bonus.currentBonusCount < bonus.desiredBonusCount:
 							loopPlot = self.plotXY(x, y, dx, dy)
-							if loopPlot != None:
+							if loopPlot is not None:
 								if loopPlot.getX() == -1:
 									raise ValueError("plotXY returns invalid plots plot= %(x)d, %(y)d" % {"x":x, "y":y})
 								if self.CanPlaceBonusAt(loopPlot,eBonus,False,False):
@@ -4405,7 +4405,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 				bonus.currentBonusCount += 1
 				#restore the feature if possible
 				if featureEnum != FeatureTypes.NO_FEATURE:
-					if bonusInfo == None or bonusInfo.isFeature(featureEnum):
+					if bonusInfo is None or bonusInfo.isFeature(featureEnum):
 						plot.setFeatureType(featureEnum, featureVariety)
 				print("Emergency placement of 1 %(bt)s" % {"bt":bonusInfo.getType()})
 				break
@@ -4484,7 +4484,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 			if (CyMap().getNumBonusesOnLand(eBonus) * 100) / (CyMap().getNumBonuses(eBonus) + 1) < bonusInfo.getMinLandPercent():
 				return False
 		#Make sure there are no bonuses of the same class (but a different type) nearby:
-		if classInfo != None:
+		if classInfo is not None:
 			try:
 				iRange = classInfo.getUniqueRange()
 			except:
@@ -4493,7 +4493,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 			for dx in range(-iRange, iRange + 1):
 				for dy in range(-iRange, iRange + 1):
 					loopPlot = self.plotXY(x, y, dx, dy)
-					if loopPlot != None:
+					if loopPlot is not None:
 						if areaID == loopPlot.getArea():
 							if plotDistance(x, y, loopPlot.getX(), loopPlot.getY()) <= iRange:
 								eOtherBonus = loopPlot.getBonusType(TeamTypes.NO_TEAM)
@@ -4506,7 +4506,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		for dx in range(-iRange, iRange + 1):
 			for dy in range(-iRange, iRange + 1):
 				loopPlot = self.plotXY(x, y, dx, dy)
-				if loopPlot != None:
+				if loopPlot is not None:
 					if areaID == loopPlot.getArea():
 						if plotDistance(x, y, loopPlot.getX(), loopPlot.getY()) <= iRange:
 							eOtherBonus = loopPlot.getBonusType(TeamTypes.NO_TEAM)
@@ -4630,7 +4630,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		if eClass == BonusClassTypes.NO_BONUSCLASS:
 			return 0
 		classInfo = gc.getBonusClassInfo(eClass)
-		if classInfo == None:
+		if classInfo is None:
 			return 0
 		try:
 			uRange = classInfo.getUniqueRange()
@@ -5426,7 +5426,7 @@ class StartingPlotFinder:
 				#restore the feature if possible
 				if featureEnum != FeatureTypes.NO_FEATURE:
 					bonusInfo = gc.getBonusInfo(plot.getBonusType(TeamTypes.NO_TEAM))
-					if bonusInfo == None or bonusInfo.isFeature(featureEnum):
+					if bonusInfo is None or bonusInfo.isFeature(featureEnum):
 						plot.setFeatureType(featureEnum, featureVariety)
 
 	def ensureMinimumHills(self, x, y):
@@ -5440,7 +5440,7 @@ class StartingPlotFinder:
 			featureInfo = gc.getFeatureInfo(plot.getFeatureType())
 			if plot.getX() == x and plot.getY() == y:
 				#remove bad feature on start but don't count it.
-				if featureInfo != None:
+				if featureInfo is not None:
 					totalYield = 0
 					for yi in range(YieldTypes.NUM_YIELD_TYPES):
 						totalYield += featureInfo.getYieldChange(YieldTypes(yi))
@@ -5451,7 +5451,7 @@ class StartingPlotFinder:
 				hillsFound += 1
 			if plot.getPlotType() == PlotTypes.PLOT_PEAK:
 				peaksFound += 1
-			if featureInfo != None:
+			if featureInfo is not None:
 				#now count the bad features
 				totalYield = 0
 				for yi in range(YieldTypes.NUM_YIELD_TYPES):
@@ -5481,15 +5481,15 @@ class StartingPlotFinder:
 				if hillsNeeded <= 0:
 					break
 				featureInfo = gc.getFeatureInfo(plot.getFeatureType())
-				requiresFlatlands = (featureInfo != None and featureInfo.isRequiresFlatlands())
+				requiresFlatlands = (featureInfo is not None and featureInfo.isRequiresFlatlands())
 				bonusInfo = gc.getBonusInfo(plot.getBonusType(TeamTypes.NO_TEAM))
-				if plot.getPlotType() != PlotTypes.PLOT_HILLS and plot.getArea() == CyMap().plot(x, y).getArea() and bonusInfo == None and not requiresFlatlands:
+				if plot.getPlotType() != PlotTypes.PLOT_HILLS and plot.getArea() == CyMap().plot(x, y).getArea() and bonusInfo is None and not requiresFlatlands:
 					plot.setPlotType(PlotTypes.PLOT_HILLS, True, True)
 					hillsNeeded -= 1
 			if hillsNeeded > 0:
 				for plot in plotList:
 					if plot.getPlotType() != PlotTypes.PLOT_HILLS and plot.getArea() == CyMap().plot(x, y).getArea():
-						#if bonusInfo == None or not bonusInfo.isRequiresFlatlands():
+						#if bonusInfo is None or not bonusInfo.isRequiresFlatlands():
 						# advc.001: That function doesn't exist in the original BtS DLL. It might exist in MongooseMod, but, in the v3.2 standalone version, this was definitely a bug. Use isHills instead (like in the DLL).
 						if bonusInfo is None or bonusInfo.isHills():
 							plot.setPlotType(PlotTypes.PLOT_HILLS, True, True)
@@ -5508,7 +5508,7 @@ class StartingPlotFinder:
 				featureEnum = plot.getFeatureType()
 				featureInfo = gc.getFeatureInfo(featureEnum)
 				bonusEnum = plot.getBonusType(TeamTypes.NO_TEAM)
-				if featureInfo != None:
+				if featureInfo is not None:
 					totalYield = 0
 					for yi in range(YieldTypes.NUM_YIELD_TYPES):
 						totalYield += featureInfo.getYieldChange(YieldTypes(yi))
@@ -5527,7 +5527,7 @@ class StartingPlotFinder:
 				if badFeaturesToRemove <= 0:
 					break
 				featureInfo = gc.getFeatureInfo(plot.getFeatureType())
-				if featureInfo != None:
+				if featureInfo is not None:
 					totalYield = 0
 					for yi in range(YieldTypes.NUM_YIELD_TYPES):
 						totalYield += featureInfo.getYieldChange(YieldTypes(yi))

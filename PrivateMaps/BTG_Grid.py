@@ -1124,7 +1124,7 @@ def assignStartingPlots():
 							if pPlot.isWater(): continue
 							# if not pPlot.isCoastalLand(): continue
 							if areaID != pPlot.getArea(): continue
-							if validFn != None and not validFn(playerID, iX, iY): continue
+							if validFn is not None and not validFn(playerID, iX, iY): continue
 							val = pPlot.getFoundValue(playerID)
 							if pPlot.isFreshWater:
 								val += 1000
@@ -1146,7 +1146,7 @@ def assignStartingPlots():
 									iBestValue = val
 									pBestPlot = pPlot
 
-					if pBestPlot != None:
+					if pBestPlot is not None:
 						min_dist.append([pBestPlot.getX(), pBestPlot.getY()])
 						sPlot = map.plot(pBestPlot.getX(), pBestPlot.getY())
 						plrID = gc.getPlayer(playerID)
@@ -1155,7 +1155,7 @@ def assignStartingPlots():
 					else: pass # This area too close to somebody, try the next area.
 				
 				# Check to see if a valid start was found in ANY areaID.
-				if pBestPlot == None:
+				if pBestPlot is None:
 					print("player %s pass %s failed" % (playerID, iPass))
 					iPass += 1
 					if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
@@ -1252,7 +1252,7 @@ def assignStartingPlots():
 								if pPlot.isWater(): continue
 								# if not pPlot.isCoastalLand(): continue
 								if areaID != pPlot.getArea(): continue
-								if validFn != None and not validFn(playerID, iX, iY): continue
+								if validFn is not None and not validFn(playerID, iX, iY): continue
 								val = pPlot.getFoundValue(playerID)
 								if pPlot.isFreshWater:
 									val += 1000
@@ -1274,7 +1274,7 @@ def assignStartingPlots():
 										iBestValue = val
 										pBestPlot = pPlot
 
-						if pBestPlot != None:
+						if pBestPlot is not None:
 							min_dist.append([pBestPlot.getX(), pBestPlot.getY()])
 							sPlot = map.plot(pBestPlot.getX(), pBestPlot.getY())
 							plrID = gc.getPlayer(playerID)
@@ -1285,7 +1285,7 @@ def assignStartingPlots():
 						else: pass # This area too close to somebody, try the next area.
 					
 					# Check to see if a valid start was found in ANY areaID.
-					if pBestPlot == None:
+					if pBestPlot is None:
 							print("player %s pass %s failed" % (playerID, iPass))
 							iPass += 1
 							if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):

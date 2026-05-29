@@ -181,7 +181,7 @@ def argmin(list):
 	best_index = None
 	for i in range(len(list)):
 		val = list[i]
-		if (best == None) or (val < best):
+		if (best is None) or (val < best):
 			best_index = i
 			best = val
 	return (best_index, best)

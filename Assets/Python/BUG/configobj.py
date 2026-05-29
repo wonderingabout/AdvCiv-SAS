@@ -2912,7 +2912,7 @@ def _doctest():
     >>> uc2 = ConfigObj(file_like)
     >>> uc2 == uc
     1
-    >>> uc2.filename == None
+    >>> uc2.filename is None
     1
     >>> uc2.newlines == '\\r'
     1

@@ -1634,7 +1634,7 @@ class CvForeignAdvisor:
 						bSelfRelationCell = (j == iLoopPlayer)
 						if bSelfRelationCell:
 							szText = ""
-						elif nAttitude != None:
+						elif nAttitude is not None:
 							szText = AttitudeUtil.getAttitudeText(j, iLoopPlayer, AdvisorOpt.isShowGlanceNumbers(), AdvisorOpt.isShowGlanceSmilies(), True, True, AdvisorOpt.isShowGlanceWarTrades()) # advc.152: WarTrades added
 						else:
 							szText = ""
