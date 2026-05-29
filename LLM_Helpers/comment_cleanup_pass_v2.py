@@ -104,7 +104,8 @@ def transform(text):
     for l in src_lines:
         n,c=fix_typos(l); lines.append(n)
         typos+=c
-    out=[]; collapsed=0
+    out=[]
+    collapsed=0
     i=0
     while i < len(lines):
         if not is_plain_comment_line(lines[i]):
@@ -114,7 +115,8 @@ def transform(text):
             out.append(lines[i]); i+=1; continue
         indent, _ = split_comment(lines[i])
         # collect same-indent plain comments only
-        j=i; contents=[]
+        j=i
+        contents=[]
         raw=[]
         while j < len(lines) and is_plain_comment_line(lines[j]) and split_comment(lines[j])[0] == indent:
             _ind, cont=split_comment(lines[j]); contents.append(cont); raw.append(lines[j])

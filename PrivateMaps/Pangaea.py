@@ -401,13 +401,16 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 			scShape = self.dice.get(5, "Subcontinent Shape - Terra PYTHON")
 			if scShape > 1: # Regular subcontinent.
-				scWater = 55+sea; scGrain = 1
+				scWater = 55+sea
+				scGrain = 1
 				scRift = -1
 			elif scShape == 1: # Irregular subcontinent.
-				scWater = 66+sea; scGrain = 2
+				scWater = 66+sea
+				scGrain = 2
 				scRift = 2
 			else: # scShape == 0, Archipelago subcontinent.
-				scWater = 77+sea; scGrain = grain
+				scWater = 77+sea
+				scGrain = grain
 				scRift = -1
                 
 			self.generatePlotsInRegion(scWater,
