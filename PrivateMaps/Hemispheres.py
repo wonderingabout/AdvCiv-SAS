@@ -120,7 +120,7 @@ def beforeGeneration():
 	yShiftRoll = dice.get(2, "Region Shift, Vertical - Left and Right PYTHON")
 	ySplitRoll = dice.get(2, "Region Split, Vertical - Left and Right PYTHON")
 	yPortionRoll = dice.get(2, "Region Portioning, Vertical - Left and Right PYTHON")
-	print xShiftRoll
+	print(xShiftRoll)
 
 class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generateIslandRegion(self, minTinies, extraTinies, iWestX, iSouthY, iWidth, iHeight, iGrain):
@@ -504,7 +504,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 					self.generateIslandRegion(3, 4, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
 
 		# All regions have been processed. Plot Type generation completed.
-		print "Done"
+		print("Done")
 		return self.wholeworldPlotTypes
 
 #

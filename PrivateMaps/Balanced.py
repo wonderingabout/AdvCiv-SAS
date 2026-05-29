@@ -78,7 +78,7 @@ def generatePlotTypes():
 	numBlocksLand = int(numBlocks*0.25)
 	cont = hinted_world.addContinent(numBlocksLand,mapRand.get(5, "Generate Plot Types PYTHON")+4,mapRand.get(3, "Generate Plot Types PYTHON")+2)
 	if not cont:
-		print "Couldn't create continent! Reverting to C implementation."
+		print("Couldn't create continent! Reverting to C implementation.")
 		CyPythonMgr().allowDefaultImpl()
 	else:		
 		for x in range(hinted_world.w):

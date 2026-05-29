@@ -875,10 +875,10 @@ class AreaMap:
 					newSeg = LineSegment(seg.y + seg.dy, xLeftExtreme, xRightExtreme - 1, -seg.dy)
 					self.segStack.append(newSeg)
 					if debugReport:
-						print "opposite direction to stack",str(newSeg)
+						print("opposite direction to stack %s" % str(newSeg))
 				if xRightExtreme >= seg.xRight + landOffset:
 					if debugReport:
-						print "finished with line"
+						print("finished with line")
 					break #past the end of the parent line and this line ends
 			elif not lineFound and xRightExtreme >= seg.xRight + landOffset:
 				break #past the end of the parent line and no line found
@@ -886,13 +886,13 @@ class AreaMap:
 				continue #keep looking for more line segments
 		if lineFound: #still a line needing to be put on stack
 			if debugReport:
-				print "still needing to stack some segs"
+				print("still needing to stack some segs")
 			lineFound = False
 			#put same direction on stack
 			newSeg = LineSegment(seg.y + seg.dy, xLeftExtreme, xRightExtreme - 1, seg.dy)
 			self.segStack.append(newSeg)
 			if debugReport:
-				print str(newSeg)
+				print(str(newSeg))
 			#determine if we must put reverse direction on stack
 			if xLeftExtreme < seg.xLeft or xRightExtreme - 1 > seg.xRight:
 				#out of shadow so put reverse direction on stack also
@@ -3004,8 +3004,8 @@ def FindValueFromPercent(map, length, percent, greaterThan):
 	while not inTolerance:
 		iterations += 1
 		if(iterations > 500):
-			print "can't find value within tolerance"
-			print "threshold = %f, thresholdChange = %f" % (threshold, thresholdChange)
+			print("can't find value within tolerance")
+			print("threshold = %f, thresholdChange = %f" % (threshold, thresholdChange))
 			break #close enough
 		matchCount = 0
 		for i in range(length):
@@ -3189,9 +3189,9 @@ class TerrainMap:
 			self.tData.append(mc.OCEAN)
 
 	def GeneratePlotMap(self):
-		print "-------------------"
-		print "Generating Plot Map"
-		print "-------------------"
+		print("-------------------")
+		print("Generating Plot Map")
+		print("-------------------")
 		deAttenuate = False # advc (only e3 uses attenuation)
 		if mc.LandmassGenerator == 2:
 			em = e2
@@ -3349,9 +3349,9 @@ class TerrainMap:
 		#
 
 	def GenerateTerrainMap(self):
-		print "----------------------"
-		print "Generating Terrain Map"
-		print "----------------------"
+		print("----------------------")
+		print("Generating Terrain Map")
+		print("----------------------")
 		gc = CyGlobalContext()
 		mmap = gc.getMap()
 		if mc.LandmassGenerator == 2:
@@ -3469,7 +3469,7 @@ class TerrainMap:
 						self.tData[i] = mc.PLAINS
 					else:
 						self.tData[i] = mc.GRASS
-		print "Jungle Temperature"
+		print("Jungle Temperature")
 		jungleTiles  = []
 		jungleLength = 0
 		for y in range(mc.height):
@@ -3511,7 +3511,7 @@ class PangaeaBreaker:
 			while self.isPangaea() and meteorCount < mc.maximumMeteorCount:
 				pangaeaDetected = True
 				x, y = self.getMeteorStrike()
-				print "A meteor has struck the Earth at %(x)d, %(y)d!!" % {"x":x,"y":y}
+				print("A meteor has struck the Earth at %(x)d, %(y)d!!" % {"x":x,"y":y})
 				self.castMeteorUponTheEarth(x, y)
 				meteorThrown = True
 				meteorCount += 1
@@ -3519,15 +3519,15 @@ class PangaeaBreaker:
 				self.createDistanceMap()
 				self.areaMap.defineAreas(isHmWaterMatch)
 		if not pangaeaDetected:
-			print "No pangaea detected on this map."
+			print("No pangaea detected on this map.")
 		if meteorThrown:
-			print "The age of dinosaurs has come to a cataclysmic end."
+			print("The age of dinosaurs has come to a cataclysmic end.")
 		#if meteorCount == 15:
 		if meteorCount == mc.maximumMeteorCount: # advc.001
-			print "Maximum meteor count of %d has been reached." % meteorCount
+			print("Maximum meteor count of %d has been reached." % meteorCount)
 			# <advc> Previously always said that "Pangaea may still exist"
 			if self.isPangaea():
-				print "Pangaea still exists" # </advc>
+				print("Pangaea still exists") # </advc>
 
 	def isPangaea(self):
 		continentList = list()
@@ -3863,9 +3863,9 @@ class ContinentMap:
 		return
 
 	def GenerateContinentMap(self):
-		print "------------------------"
-		print "Generating Continent Map"
-		print "------------------------"
+		print("------------------------")
+		print("Generating Continent Map")
+		print("------------------------")
 		self.areaMap = AreaMap(mc.width, mc.height, True, True)
 		self.areaMap.defineAreas(isWaterMatch)
 		#self.newWorldID = self.getNewWorldID()
@@ -3899,7 +3899,7 @@ class ContinentMap:
 			if len(continentList) <= 1:
 				return 0, 0
 			bRegionID = False
-			print "Pangaea; will at best be able to designate an area separated by shallow water as the New World"
+			print("Pangaea; will at best be able to designate an area separated by shallow water as the New World")
 			# </advc>
 		#totalLand = 0
 		#for c in continentList:
@@ -3959,7 +3959,7 @@ class ContinentMap:
 			oldWorldPercent = oldWorldScore / float(totalScore)
 			if oldWorldPercent > oldWorldTargetPercent:
 				break
-		print "oldWorldPercent=" + str(oldWorldPercent) # advc
+		print("oldWorldPercent=" + str(oldWorldPercent)) # advc
 		#add back the mainNewWorld continent
 		if reserveSecondBest:
 			# <advc> A too small Old World is going to be unplayable; rather reserve no New World then (or just some islands).
@@ -3999,9 +3999,9 @@ class RiverMap:
 		return
 
 	def GenerateRiverMap(self):
-		print "--------------------"
-		print "Generating River Map"
-		print "--------------------"
+		print("--------------------")
+		print("Generating River Map")
+		print("--------------------")
 		if mc.LandmassGenerator == 2:
 			em = e2
 		else:
@@ -4135,7 +4135,7 @@ class RiverMap:
 					self.averageRainfallMap[i] += 4 * (maxRf - minRf) # </advc>
 		#Now use the flowMap as a guide to distribute average rainfall.
 		#Wherever the most rainfall ends up is where the rivers will be.
-		print "Distributing rainfall"
+		print("Distributing rainfall")
 		for y in range(mc.height):
 			for x in range(mc.width):
 				i = GetIndex(x, y)
@@ -4172,7 +4172,7 @@ class RiverMap:
 			else:
 				self.riverMap[i] = self.O
 		# advc: Print number of pegged river segments
-		print "River map generated (" + str(riversPlaced) + " segments placed)"
+		print("River map generated (" + str(riversPlaced) + " segments placed)")
 		#at this point river should be in tolerance or close to it
 		#riverMap is ready for use
 
@@ -4312,8 +4312,8 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 			bonus = self.bonusList[i]
 			bonusInfo = gc.getBonusInfo(bonus.eBonus)
 			if bonus.currentBonusCount == 0 and bonus.desiredBonusCount > 0:
-				print "No room at all found for %(bt)s!!!" % {"bt":bonusInfo.getType()}
-			print "Placed %(cb)d, desired %(db)d for %(bt)s" % {"cb":bonus.currentBonusCount, "db":bonus.desiredBonusCount, "bt":bonusInfo.getType()}
+				print("No room at all found for %(bt)s!!!" % {"bt":bonusInfo.getType()})
+			print("Placed %(cb)d, desired %(db)d for %(bt)s" % {"cb":bonus.currentBonusCount, "db":bonus.desiredBonusCount, "bt":bonusInfo.getType()})
 
 	#AIAndy - Changed to start at the end of the last run in the plot list
 	def AddBonusType(self, eBonus, plotIndexList, startAtIndex):
@@ -4407,7 +4407,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 				if featureEnum != FeatureTypes.NO_FEATURE:
 					if bonusInfo == None or bonusInfo.isFeature(featureEnum):
 						plot.setFeatureType(featureEnum, featureVariety)
-				print "Emergency placement of 1 %(bt)s" % {"bt":bonusInfo.getType()}
+				print("Emergency placement of 1 %(bt)s" % {"bt":bonusInfo.getType()})
 				break
 		lastI = (lastI + 1) % plotListLength
 		return lastI
@@ -4792,7 +4792,7 @@ class StartingPlotFinder:
 						startArea = StartingArea(areas[i].getID())
 						# <advc>
 						if mc.OldWorldStarts:
-							print "Appending area of size " + str(areas[i].getNumTiles()) + " to startingAreaList"
+							print("Appending area of size " + str(areas[i].getNumTiles()) + " to startingAreaList")
 						# </advc>
 						self.startingAreaList.append(startArea)
 
@@ -4828,7 +4828,7 @@ class StartingPlotFinder:
 				startingArea.idealNumberOfPlayers = float(startingArea.rawValue) / float(max(1, oldWorldValuePerPlayer))
 			#Now we want best first
 			self.startingAreaList.reverse()
-			print "number of starting areas is %(s)3d" % {"s":len(self.startingAreaList)}
+			print("number of starting areas is %(s)3d" % {"s":len(self.startingAreaList)})
 			#LM - This iteration-based while loop is a complete mess. Not only is it slow and inefficient, but it
 			#ONLY MODIFIES THE BEST/LARGEST LANDMASS'S PLAYER COUNT, no matter HOW far off it is in either direction!
 			#You can EASILY end up with a super-crowded main landmass, or a nearly-deserted one, this way.
@@ -5545,39 +5545,39 @@ class StartingPlotFinder:
 				sPlot = StartPlot(startPlot.getX(),startPlot.getY(), 0)
 				if eHandicap == getInfoTypeOrFail("HANDICAP_SETTLER"):
 					if mc.SettlerBonus > 0:
-						print "Human player at Settler difficulty, adding %d resources" % mc.SettlerBonus
+						print("Human player at Settler difficulty, adding %d resources" % mc.SettlerBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.SettlerBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_CHIEFTAIN"):
 					if mc.ChieftainBonus > 0:
-						print "Human player at Chieftain difficulty, adding %d resources" % mc.ChieftainBonus
+						print("Human player at Chieftain difficulty, adding %d resources" % mc.ChieftainBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ChieftainBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_WARLORD"):
 					if mc.WarlordBonus > 0:
-						print "Human player at Warlord difficulty, adding %d resources" % mc.WarlordBonus
+						print("Human player at Warlord difficulty, adding %d resources" % mc.WarlordBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.WarlordBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_NOBLE"):
 					if mc.NobleBonus > 0:
-						print "Human player at Noble difficulty, adding %d resources" % mc.NobleBonus
+						print("Human player at Noble difficulty, adding %d resources" % mc.NobleBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.NobleBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_PRINCE"):
 					if mc.PrinceBonus > 0:
-						print "Human player at Prince difficulty, adding %d resources" % mc.PrinceBonus
+						print("Human player at Prince difficulty, adding %d resources" % mc.PrinceBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.PrinceBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_MONARCH"):
 					if mc.MonarchBonus > 0:
-						print "Human player at Monarch difficulty, adding %d resources" % mc.MonarchBonus
+						print("Human player at Monarch difficulty, adding %d resources" % mc.MonarchBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.MonarchBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_EMPEROR"):
 					if mc.EmperorBonus > 0:
-						print "Human player at Emperor difficulty, adding %d resources" % mc.EmperorBonus
+						print("Human player at Emperor difficulty, adding %d resources" % mc.EmperorBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.EmperorBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_IMMORTAL"):
 					if mc.ImmortalBonus > 0:
-						print "Human player at Immortal difficulty, adding %d resources" % mc.ImmortalBonus
+						print("Human player at Immortal difficulty, adding %d resources" % mc.ImmortalBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ImmortalBonus, sPlot.isCoast())
 				elif eHandicap == getInfoTypeOrFail("HANDICAP_DEITY"):
 					if mc.DeityBonus > 0:
-						print "Human player at Deity Difficulty, adding %d resources" % mc.DeityBonus
+						print("Human player at Deity Difficulty, adding %d resources" % mc.DeityBonus)
 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.DeityBonus, sPlot.isCoast())
 
 class CityPlot:
@@ -5658,7 +5658,7 @@ class StartingArea:
 		self.plotList.reverse()
 		# advc: Moved into subroutine
 		self.ClearVicinity(3)
-		print "Number of final plots in areaID = %(a)3d is %(p)5d" % {"a":self.areaID, "p":len(self.plotList)}
+		print("Number of final plots in areaID = %(a)3d is %(p)5d" % {"a":self.areaID, "p":len(self.plotList)})
 		# advc: Moved up:
 		for n in range(len(self.plotList)):
 			self.rawValue += self.plotList[n].localValue
@@ -6168,10 +6168,10 @@ def getGridSize(argsList):
 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
 
 def generatePlotTypes():
-	print ""
-	print "====================="
-	print "Generating Plot Types"
-	print "====================="
+	print("")
+	print("=====================")
+	print("Generating Plot Types")
+	print("=====================")
 	gc = CyGlobalContext()
 	map = gc.getMap()
 	mc.width  = map.getGridWidth()
@@ -6266,9 +6266,9 @@ def scaleMinMeteorSize():
 	mc.minimumMeteorSize = int(math.ceil((mc.minimumMeteorSize * mc.hmWidth) / float(mc.width)))
 
 def generateTerrainTypes():
-	print "========================"
-	print "Generating Terrain Types"
-	print "========================"
+	print("========================")
+	print("Generating Terrain Types")
+	print("========================")
 	if mc.LandmassGenerator == 2:
 		em = e2
 	else:
@@ -6620,9 +6620,9 @@ def addLakes():
 	mmap.recalculateAreas(); # advc.opt: No longer done in makeChannel
 
 def addFeatures():
-	print "========================"
-	print "Generating Feature Types"
-	print "========================"
+	print("========================")
+	print("Generating Feature Types")
+	print("========================")
 	gc = CyGlobalContext()
 	mmap = gc.getMap()
 	if mc.LandmassGenerator == 2:

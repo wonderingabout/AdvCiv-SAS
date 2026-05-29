@@ -537,7 +537,7 @@ def generateTerrainTypes():
 	if (userInputShoreline == 1 or userInputShoreline == 2 or (userInputShoreline == 0 and terrainRoll < 7)) and iBiggestAreaPlots < 0.8 * iTotalLandPlots:
 		global pangaea_type
 		print("Total Land: ", iTotalLandPlots, " Main Landmass Plots: ", iBiggestAreaPlots)
-		print "Cohesion failure! Attempting to remedy..."
+		print("Cohesion failure! Attempting to remedy...")
 		#print("Pangaea Type: ", pangaea_type)
 		iW = map.getGridWidth()
 		iH = map.getGridHeight()

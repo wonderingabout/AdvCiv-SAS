@@ -552,7 +552,7 @@ def assignStartingPlots():
 	global shuffledTeams
 	global assignedPlayers
 	assignedPlayers = [0] * gc.getGame().countCivTeamsEverAlive()
-	print assignedPlayers
+	print(assignedPlayers)
 	shuffle = gc.getGame().getMapRand().get(2, "Start Location Shuffle - PYTHON")
 	if gc.getGame().countCivTeamsEverAlive() < 5:
 		team_list = [0, 1, 2, 3]

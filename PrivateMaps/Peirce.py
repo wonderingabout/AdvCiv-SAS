@@ -168,7 +168,7 @@ def generatePlotTypes():
 	# Generates the PlotTypes for all plots in the map. See PeirceMultilayeredFractal for details. This method also
 	# creates the border of the Peirce.  It should ensure that there is Ocean where the crease in the map is.
 	# :return: List of the PlotTypes generated for each plot of the map.
-	print "[PEIRCE] -- generatePlotTypes()"
+	print("[PEIRCE] -- generatePlotTypes()")
 
 	plotGenerator = PeirceMultilayeredFractal()
 
@@ -241,7 +241,7 @@ def generatePlotTypes():
 def generateTerrainTypes():
 	# Generates terrain types for all the plots of the map. The terrain generation is based on the equators being the diagonals linking the midpoints of the sides.
 	# :return: List of generated terrain types.
-	print "[PEIRCE] -- generateTerrainTypes()"
+	print("[PEIRCE] -- generateTerrainTypes()")
 
 	global terrainVarFractal
 	terrainVarFractal = getVariationFractal(iTerrainGrain)
@@ -326,7 +326,7 @@ def generateTerrainTypes():
 
 def addFeatures():
 	# Generates feature types for all the plots of the map. These reflect the equator on the diagonals linking the midpoints of the edges
-	print "[PEIRCE] -- addFeatures()"
+	print("[PEIRCE] -- addFeatures()")
 
 	# Add other features.
 	global featuresVarFractal

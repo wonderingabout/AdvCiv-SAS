@@ -20,7 +20,7 @@ class Tester :
 
 	def __init__(self, customEM):
 
-		print "Initializing Tester"
+		print("Initializing Tester")
 
 		self.LOG_DEBUG = True
 
@@ -29,7 +29,7 @@ class Tester :
 		self.customEM = customEM
 
 	def removeEventHandlers( self ) :
-		print "Removing event handlers from Tester"
+		print("Removing event handlers from Tester")
 		
 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
 

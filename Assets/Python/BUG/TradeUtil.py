@@ -637,14 +637,14 @@ def makeTrade(type, value=-1):
 	return trade
 
 def test(player, type, value):
-	print format(player, makeTrade(type, value))
+	print(format(player, makeTrade(type, value)))
 
 def testAll():
 	for i in TRADE_FORMATS.keys():
 		test(2, i, 1)
 
 def testList():
-	print format(2, [makeTrade(TradeableItems.TRADE_GOLD, 53), makeTrade(TradeableItems.TRADE_MAPS), makeTrade(TradeableItems.TRADE_PEACE, 1), makeTrade(TradeableItems.TRADE_CITY, 1), makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6)])
+	print(format(2, [makeTrade(TradeableItems.TRADE_GOLD, 53), makeTrade(TradeableItems.TRADE_MAPS), makeTrade(TradeableItems.TRADE_PEACE, 1), makeTrade(TradeableItems.TRADE_CITY, 1), makeTrade(TradeableItems.TRADE_GOLD_PER_TURN, 6)]))
 
 STATUS_TRADE_ITEMS = ((TradeableItems.TRADE_MAPS, "Map"), (TradeableItems.TRADE_VASSAL, "Vassal"), (TradeableItems.TRADE_SURRENDER, "Surrender"), (TradeableItems.TRADE_OPEN_BORDERS, "Borders"), (TradeableItems.TRADE_DEFENSIVE_PACT, "Pact"), (TradeableItems.TRADE_PERMANENT_ALLIANCE, "Alliance"), (TradeableItems.TRADE_PEACE_TREATY, "Peace"))
 DENIALS = {
@@ -685,7 +685,7 @@ def printStatus(ePlayer, eAskingPlayer=None):
 	player = PlayerUtil.getPlayer(ePlayer)
 	if eAskingPlayer is None:
 		eAskingPlayer = PlayerUtil.getActivePlayerID()
-	print "Trade Status -- %s" % player.getName()
+	print("Trade Status -- %s" % player.getName())
 	for eItem, name in STATUS_TRADE_ITEMS:
 		tradeData = TradeData()
 		tradeData.ItemType = eItem
@@ -698,11 +698,11 @@ def printStatus(ePlayer, eAskingPlayer=None):
 			denial = str(denial)
 		if not can:
 			if will:
-				print "%s: can't but will" % (name)
+				print("%s: can't but will" % (name))
 			else:
-				print "%s: can't and won't because %s" % (name, denial)
+				print("%s: can't and won't because %s" % (name, denial))
 		else:
 			if will:
-				print "%s: will" % (name)
+				print("%s: will" % (name))
 			else:
-				print "%s: won't because %s" % (name, denial)
+				print("%s: won't because %s" % (name, denial))

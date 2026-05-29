@@ -92,7 +92,7 @@ def beforeGeneration():
 
 	# Binary shift roll (for horizontal shifting if Island Region Separate).
 	xShiftRoll = dice.get(2, "Region Shift, Horizontal - Big and Small PYTHON")
-	print xShiftRoll
+	print(xShiftRoll)
 
 class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generatePlotsByRegion(self):
@@ -215,7 +215,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		                           )
 
 		# All regions have been processed. Plot Type generation completed.
-		print "Done"
+		print("Done")
 		return self.wholeworldPlotTypes
 
 '''

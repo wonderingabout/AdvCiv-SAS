@@ -32,6 +32,23 @@ Example:
 python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
 ```
 
+### `wrap_python2_prints_for_linting.py`
+
+Conservative Python 2 print-wrapper helper.
+
+- Converts simple active Python 2 bare prints such as `print "hello"` and `print "value = %s" % value` to Python 2.4/3-compatible single-expression calls such as `print("hello")` and `print("value = %s" % value)`.
+- Skips ambiguous cases such as redirected prints, trailing-comma prints, semicolon-packed lines, and top-level comma prints; manually rewrite those with one formatted string such as `print("player %s pass %s failed" % (playerID, iPass))`.
+- Does not touch commented-out prints, because comments do not block Ruff/Python 3 parsing.
+- Intended to reduce parser/linter noise while preserving Civ4 Python 2.4 runtime compatibility.
+
+Example:
+
+```powershell
+python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --diff Assets\Python PrivateMaps
+python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --in-place Assets\Python PrivateMaps
+python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --check Assets\Python PrivateMaps
+```
+
 ### ChatGPT single-line cleanup scripts
 
 These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.

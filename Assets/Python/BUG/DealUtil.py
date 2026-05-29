@@ -270,6 +270,6 @@ class ReversedDeal(Deal):
 def test():
 	allDeals = findDealsByPlayerAndType(0, (TradeableItems.TRADE_PEACE_TREATY, TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_RESOURCES, TradeableItems.TRADE_GOLD_PER_TURN))
 	for player, deals in allDeals.iteritems():
-		print PlayerUtil.getPlayer(player).getName()
+		print(PlayerUtil.getPlayer(player).getName())
 		for type, deal in deals.iteritems():
-			print "%s: %r" % (TradeUtil.TRADE_FORMATS[type].name, deal)
+			print("%s: %r" % (TradeUtil.TRADE_FORMATS[type].name, deal))

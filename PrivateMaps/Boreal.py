@@ -360,9 +360,9 @@ def assignStartingPlots():
 	iPlayers = gc.getGame().countCivPlayersEverAlive()
 	iNumStartsAllocated = 0
 	start_plots = []
-	print "==="
-	print "Number of players:", iPlayers
-	print "==="
+	print("===")
+	print("Number of players: %s" % iPlayers)
+	print("===")
 
 	terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
 
@@ -396,38 +396,38 @@ def assignStartingPlots():
 		if assign_loop == 0:
 			start_plots.append([iStartX, iStartY])
 			player.setStartingPlot(sPlot, true) # True flag causes data to be refreshed for MinOriginalStartDist data cells in plots on the same land mass.
-			print "-+-+-"
-			print "Player"
-			print playerID
-			print "First player assigned."
-			print "-+-+-"
+			print("-+-+-")
+			print("Player")
+			print(playerID)
+			print("First player assigned.")
+			print("-+-+-")
 			continue
 		
 		# Check the pathing in the start plot.
 		if sPlot.getMinOriginalStartDist() != -1:
 			start_plots.append([iStartX, iStartY])
 			player.setStartingPlot(sPlot, true)
-			print "-+-+-"
-			print "Player"
-			print playerID
-			print "Open Path, no problems."
-			print "-+-+-"
+			print("-+-+-")
+			print("Player")
+			print(playerID)
+			print("Open Path, no problems.")
+			print("-+-+-")
 			continue
 		
 		# If the process has reached this point, then this player is stuck 
 		# in a "pocket". This could be an island, a valley surrounded by peaks, 
 		# or an area blocked off by peaks. Could even be that a major line 
 		# of peaks and lakes combined is bisecting the entire map.
-		print "-----"
-		print "Player"
-		print playerID
-		print "Pocket detected, attempting to resolve..."
-		print "-----"
+		print("-----")
+		print("Player")
+		print(playerID)
+		print("Pocket detected, attempting to resolve...")
+		print("-----")
 		#
 		# First step is to identify which existing start plot is closest.
-		print "Pocket Plot"
-		print iStartX, iStartY
-		print "---"
+		print("Pocket Plot")
+		print("%s %s" % (iStartX, iStartY))
+		print("---")
 		[iEndX, iEndY] = start_plots[0]
 		fMinDistance = sqrt(((iStartX - iEndX) ** 2) + ((iStartY - iEndY) ** 2))
 		for check_loop in range(1, len(start_plots)):
@@ -436,12 +436,12 @@ def assignStartingPlots():
 				# Closer start plot found!
 				[iEndX, iEndY] = start_plots[check_loop]
 				fMinDistance = sqrt(((iStartX - iX) ** 2) + ((iStartY - iY) ** 2))
-		print "Nearest player (path destination)"
-		print iEndX, iEndY
-		print "---"
-		print "Absolute distance:"
-		print fMinDistance
-		print "-----"
+		print("Nearest player (path destination)")
+		print("%s %s" % (iEndX, iEndY))
+		print("---")
+		print("Absolute distance:")
+		print(fMinDistance)
+		print("-----")
 		
 		# Now we draw an invisible line, plot by plot, one plot wide, from 
 		# the current start to the nearest start, converting peaks along the 
@@ -455,11 +455,11 @@ def assignStartingPlots():
 			if iStartX > iEndX:
 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
 				bReverseFlag = True
-				print "Path reversed, working from the end plot."
+				print("Path reversed, working from the end plot.")
 			else: # don't swap
 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
 				bReverseFlag = False
-				print "Path not reversed."
+				print("Path not reversed.")
 			dx = endX-startX
 			dy = endY-startY
 			if dx == 0 or dy == 0:
@@ -469,9 +469,9 @@ def assignStartingPlots():
 			print("Slope: ", slope)
 			y = startY
 			for x in range(startX, endX):
-				print "Checking plot"
-				print x, int(round(y))
-				print "---"
+				print("Checking plot")
+				print("%s %s" % (x, int(round(y))))
+				print("---")
 				if map.isPlot(x, int(round(y))):
 					i = map.plotNum(x, int(round(y)))
 					pPlot = map.plotByIndex(i)
@@ -479,36 +479,36 @@ def assignStartingPlots():
 					print("y plus slope: ", y)
 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
 					if pPlot.isPeak():
-						print "Peak found! Bulldozing this plot."
-						print "---"
+						print("Peak found! Bulldozing this plot.")
+						print("---")
 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
 						if bReverseFlag:
 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
 						else:
 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
 						if currentDistance != -1: # The path has been opened!
-							print "Pocket successfully opened!"
-							print "-----"
+							print("Pocket successfully opened!")
+							print("-----")
 							break
 					elif pPlot.isWater():
-						print "Lake found! Filling in this plot."
-						print "---"
+						print("Lake found! Filling in this plot.")
+						print("---")
 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
 						pPlot.setTerrainType(terrainTundra, true, true)
 						if pPlot.getBonusType(-1) != -1:
-							print "########################"
-							print "A sea-based Bonus is now present on the land! EEK!"
-							print "########################"
+							print("########################")
+							print("A sea-based Bonus is now present on the land! EEK!")
+							print("########################")
 							pPlot.setBonusType(-1)
-							print "OK, nevermind. The resource has been removed."
-							print "########################"
+							print("OK, nevermind. The resource has been removed.")
+							print("########################")
 						if bReverseFlag:
 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
 						else:
 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
 						if currentDistance != -1: # The path has been opened!
-							print "Pocket successfully opened!"
-							print "-----"
+							print("Pocket successfully opened!")
+							print("-----")
 							break
 
 		else:
@@ -516,11 +516,11 @@ def assignStartingPlots():
 			if iStartY > iEndY:
 				startX, startY, endX, endY = iEndX, iEndY, iStartX, iStartY # swap start and end
 				bReverseFlag = True
-				print "Path reversed, working from the end plot."
+				print("Path reversed, working from the end plot.")
 			else: # don't swap
 				startX, startY, endX, endY = iStartX, iStartY, iEndX, iEndY
 				bReverseFlag = False
-				print "Path not reversed."
+				print("Path not reversed.")
 			dx, dy = endX-startX, endY-startY
 			if dx == 0 or dy == 0:
 				slope = 0
@@ -529,9 +529,9 @@ def assignStartingPlots():
 			print("Slope: ", slope)
 			x = startX
 			for y in range(startY, endY+1):
-				print "Checking plot"
-				print int(round(x)), y
-				print "---"
+				print("Checking plot")
+				print("%s %s" % (int(round(x)), y))
+				print("---")
 				if map.isPlot(int(round(x)), y):
 					i = map.plotNum(int(round(x)), y)
 					pPlot = map.plotByIndex(i)
@@ -539,36 +539,36 @@ def assignStartingPlots():
 					print("x plus slope: ", x)
 					if pPlot.isHills() or pPlot.isFlatlands(): continue # on to next plot!
 					if pPlot.isPeak():
-						print "Peak found! Bulldozing this plot."
-						print "---"
+						print("Peak found! Bulldozing this plot.")
+						print("---")
 						pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
 						if bReverseFlag:
 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
 						else:
 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
 						if currentDistance != -1: # The path has been opened!
-							print "Pocket successfully opened!"
-							print "-----"
+							print("Pocket successfully opened!")
+							print("-----")
 							break
 					elif pPlot.isWater():
-						print "Lake found! Filling in this plot."
-						print "---"
+						print("Lake found! Filling in this plot.")
+						print("---")
 						pPlot.setPlotType(PlotTypes.PLOT_LAND, true, true)
 						pPlot.setTerrainType(terrainTundra, true, true)
 						if pPlot.getBonusType(-1) != -1:
-							print "########################"
-							print "A sea-based Bonus is now present on the land! EEK!"
-							print "########################"
+							print("########################")
+							print("A sea-based Bonus is now present on the land! EEK!")
+							print("########################")
 							pPlot.setBonusType(-1)
-							print "OK, nevermind. The resource has been removed."
-							print "########################"
+							print("OK, nevermind. The resource has been removed.")
+							print("########################")
 						if bReverseFlag:
 							currentDistance = map.calculatePathDistance(pPlot, startPlot)
 						else:
 							currentDistance = map.calculatePathDistance(pPlot, endPlot)
 						if currentDistance != -1: # The path has been opened!
-							print "Pocket successfully opened!"
-							print "-----"
+							print("Pocket successfully opened!")
+							print("-----")
 							break
 			
 		# Now that all the pathing for this player is resolved, set the start plot.
@@ -576,9 +576,9 @@ def assignStartingPlots():
 		player.setStartingPlot(sPlot, true)
 
 	# All done!
-	print "**********"
-	print "All start plots assigned!"
-	print "**********"
+	print("**********")
+	print("All start plots assigned!")
+	print("**********")
 	return None
 
 def normalizeRemovePeaks():

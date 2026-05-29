@@ -31,7 +31,7 @@ class AIAutoPlay :
 
 	def __init__(self, customEM ) :
 
-		print "Initializing AIAutoPlay Mod"
+		print("Initializing AIAutoPlay Mod")
 
 		self.LOG_DEBUG = False
 		self.blockPopups = True
@@ -63,23 +63,23 @@ class AIAutoPlay :
 		CvUtil.SilentEvents.extend([7050,7052])
 		
 		if( self.blockPopups ) :
-			print "Removing some event handlers"
+			print("Removing some event handlers")
 			try :
 				self.customEM.removeEventHandler( "cityBuilt", customEM.onCityBuilt )
 				self.customEM.addEventHandler( "cityBuilt", self.onCityBuilt )
 			except ValueError :
-				print "Failed to remove 'onCityBuilt', perhaps not registered"
+				print("Failed to remove 'onCityBuilt', perhaps not registered")
 				self.customEM.setEventHandler( "cityBuilt", self.onCityBuilt )
 			
 			try :
 				self.customEM.removeEventHandler( "BeginGameTurn", customEM.onBeginGameTurn )
 				self.customEM.addEventHandler( "BeginGameTurn", self.onBeginGameTurn )
 			except ValueError :
-				print "Failed to remove 'onBeginGameTurn', perhaps not registered"
+				print("Failed to remove 'onBeginGameTurn', perhaps not registered")
 				self.customEM.setEventHandler( "BeginGameTurn", self.onBeginGameTurn )
 
 	def removeEventHandlers( self ) :
-		print "Removing event handlers from AIAutoPlay"
+		print("Removing event handlers from AIAutoPlay")
 		
 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
 		# advc: Disable unused handlers

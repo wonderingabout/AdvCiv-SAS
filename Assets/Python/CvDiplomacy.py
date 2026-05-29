@@ -24,7 +24,7 @@ class CvDiplomacy:
 		# constructor - set up class vars, AI and User strings
 		#
 		if DebugLogging:
-			print "Launching Diplomacy"
+			print("Launching Diplomacy")
 		
 		self.iLastResponseID = -1
 
@@ -38,7 +38,7 @@ class CvDiplomacy:
 		# Will determine the user responses given an AI comment
 		#
 		if DebugLogging:
-			print "CvDiplomacy.determineResponses: %s" %(eComment,)
+			print("CvDiplomacy.determineResponses: %s" %(eComment,))
 		
 		# Eliminate previous comments
 		self.diploScreen.clearUserComments()
@@ -372,9 +372,9 @@ class CvDiplomacy:
 		AIString = self.getDiplomacyComment(eComment)
 
 		if DebugLogging:
-			print "CvDiplomacy.setAIComment: %s" %(eComment,)
+			print("CvDiplomacy.setAIComment: %s" %(eComment,))
 			if (len(args)):
-				print "args", args
+				print("args %s" % (args,))
 			AIString = "(%d) - %s" %(self.getLastResponseID(), AIString)
 
 		# <!-- custom: diplomacy main AI line text uses label scaling so upscaled UI font settings apply here too. (GPT-5.3-Codex) -->
@@ -456,7 +456,7 @@ class CvDiplomacy:
 		debugString = "CvDiplomacy.getDiplomacyComment: %s" %(eComment,)
 		eComment = int(eComment)
 		if DebugLogging:
-			print debugString, eComment
+			print("%s %s" % (debugString, eComment))
 		
 		szString = ""
 		szFailString = "Error***: No string found for eComment: %s"
@@ -464,7 +464,7 @@ class CvDiplomacy:
 		if ( gc.getDiplomacyInfo(eComment) ):
 			DiplomacyTextInfo = gc.getDiplomacyInfo(eComment)
 			if ( not DiplomacyTextInfo ):
-				print "%s IS AN INVALID DIPLOCOMMENT" %(eComment,)
+				print("%s IS AN INVALID DIPLOCOMMENT" %(eComment,))
 				CvUtil.pyAssert(True, "CvDiplomacy.getDiplomacyComment: %s does not have a DiplomacyTextInfo" %(eComment,))
 				return szFailString %(eComment,)
 			
@@ -559,7 +559,7 @@ class CvDiplomacy:
 			
 	def handleUserResponse(self, eComment, iData1, iData2):
 		if DebugLogging:
-			print "CvDiplomacy.handleUserResponse: %s" %(eComment,)
+			print("CvDiplomacy.handleUserResponse: %s" %(eComment,))
 			
 		diploScreen = CyDiplomacy()
 

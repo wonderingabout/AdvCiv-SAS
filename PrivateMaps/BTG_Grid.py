@@ -1156,15 +1156,15 @@ def assignStartingPlots():
 				
 				# Check to see if a valid start was found in ANY areaID.
 				if pBestPlot == None:
-					print "player", playerID, "pass", iPass, "failed"
+					print("player %s pass %s failed" % (playerID, iPass))
 					iPass += 1
 					if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
 						continue
 					else: # A region has failed to produce any valid starts!
 						bSuccessFlag = False
-						print "---"
-						print "A region has failed"
-						print "---"
+						print("---")
+						print("A region has failed")
+						print("---")
 						# Regional start plot assignment has failed. Reverting to default.
 						CyPythonMgr().allowDefaultImpl()
 						return
@@ -1185,7 +1185,7 @@ def assignStartingPlots():
 							if not item in tpR : tpR.append(item)
 					best_regions = tpR
 		else :
-			print "you missed something there O.o"
+			print("you missed something there O.o")
 
 		#2.18 A funky way, you double and remove the num of Spec : now the specs are on the left and players on the right
 		#iNumSpectators
@@ -1286,15 +1286,15 @@ def assignStartingPlots():
 					
 					# Check to see if a valid start was found in ANY areaID.
 					if pBestPlot == None:
-							print "player", playerID, "pass", iPass, "failed"
+							print("player %s pass %s failed" % (playerID, iPass))
 							iPass += 1
 							if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
 								continue
 							else: # A region has failed to produce any valid starts!
 								bSuccessFlag = False
-								print "---"
-								print "A region has failed"
-								print "---"
+								print("---")
+								print("A region has failed")
+								print("---")
 								# Regional start plot assignment has failed. Reverting to default.
 								CyPythonMgr().allowDefaultImpl()
 								return

@@ -279,7 +279,7 @@ class IniFile(object):
 		self.write()
 	
 	def fillComments(self):
-		print dir(self.config)
+		print(dir(self.config))
 		self.config.clearInitialComment()
 		self.config.addInitialComment(self.id)
 		self.config.addInitialComment("")

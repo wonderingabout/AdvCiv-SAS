@@ -562,9 +562,9 @@ def assignStartingPlots():
 					continue
 				else: # A region has failed to produce any valid starts!
 					bSuccessFlag = False
-					print "---"
-					print "A region has failed"
-					print "---"
+					print("---")
+					print("A region has failed")
+					print("---")
 					# Regional start plot assignment has failed. Reverting to default.
 					CyPythonMgr().allowDefaultImpl()
 					return

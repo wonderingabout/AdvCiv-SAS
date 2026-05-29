@@ -391,7 +391,7 @@ def initDynamicFontIcons():
 def addIconToMap(infoChar, desc):
 	global FontIconMap
 	desc = convertToStr(desc)
-	print "%s - %s" %(infoChar(), desc)
+	print("%s - %s" %(infoChar(), desc))
 	uc = infoChar()
 	if (uc>=0):
 		FontIconMap[desc] = u"%c" %(uc,)

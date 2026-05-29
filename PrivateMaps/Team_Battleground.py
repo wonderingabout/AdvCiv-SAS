@@ -802,7 +802,7 @@ def normalizeStartingPlotLocations():
 def getRiverStartCardinalDirection(argsList):
 	"Returns the cardinal direction of the first river segment."
 	pPlot = argsList[0]
-	print pPlot
+	print(pPlot)
 	map = CyMap()
 	x, y = pPlot.getX(), pPlot.getY()
 	iW = map.getGridWidth()

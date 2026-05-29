@@ -1715,13 +1715,13 @@ def generatePlotTypes():
 
 	#calculate actual land tiles we must produce
 	maxLandTiles = iW * (iH - poleSeparation * 2) * ((100 - oceanPercentage) / 100.0)
-	print "default max tiles:",maxLandTiles
+	print("default max tiles: %s" % maxLandTiles)
 	if continentCount > 0 and maxLandTiles >=0:
 		newMaxLandTiles = ((( sqrt(maxLandTiles / float(continentCount))) - continentSeparation * 0.9)**2) * continentCount
 		if newMaxLandTiles > continentCount * 2:
 			maxLandTiles = newMaxLandTiles
 	maxLandTiles = int(maxLandTiles * 0.95)
-	print "modified max tiles:",maxLandTiles
+	print("modified max tiles: %s" % maxLandTiles)
 
 	#world is two-dimensional array which wraps in X automagically, so you may not worry about edges
 	world = worldArray([iW,iH],PlotTypes.PLOT_OCEAN)
@@ -1869,7 +1869,7 @@ def generatePlotTypes():
 			#print "Final %d continent parts: %d"%(i,len(continent.continentParts))
 			continent.joinParts(continent.coastScatterMax * 2)
 
-	print "size",size
+	print("size %s" % size)
 
 	# now we want to remove one-square and two-square lakes. more templates (which describe how to remove tiles) can be added in initReplacements function,
 	#  and code below should handle them just fine. i am not adding comments to it because i forgot how it works :D
@@ -2775,7 +2775,7 @@ def addFeatures():
 					if score < 0:
 						break
 				if score > 0:
-					print "Peak with score %d was found."%(score)
+					print("Peak with score %d was found."%(score))
 					tileList = getTilesAroundDistance(x,y,1)
 					for tile in tileList:
 						tx,ty = tile
@@ -3124,7 +3124,7 @@ def getTileTemperature(y,h):
 #this method puts down the tile bonuses, such as iron, whale, rice, oil, etc.
 def addBonuses():
 	"Can override to control where bonuses are added on	the	map"
-	print "-------- Add bonuses ----------"
+	print("-------- Add bonuses ----------")
 	global bonusGeneration
 
 	bonusGeneration = "standard"
@@ -3191,47 +3191,47 @@ def findStartingPlot(argsList):
 
 def normalizeStartingPlotLocations():
 	"Can override to change	how	starting plots are distributed.	(note, this	function is	called after all starting locs are distributed...)"
-	print "-------- Normalize starting plot locations ----------"
+	print("-------- Normalize starting plot locations ----------")
 	CyPythonMgr().allowDefaultImpl()
 
 def normalizeAddRiver():
 	"A normalize start function	(called	after starting plots are set) -	this call adds a river."
-	print "-------- Normalize add river ----------"
+	print("-------- Normalize add river ----------")
 	if bonusGeneration == "standard":
 		CyPythonMgr().allowDefaultImpl()
 
 def normalizeRemovePeaks():
 	"A normalize start function	(called	after starting plots are set) -	this call removes peaks."
-	print "-------- Normalize remove peaks ----------"
+	print("-------- Normalize remove peaks ----------")
 	if bonusGeneration == "standard":
 		CyPythonMgr().allowDefaultImpl()
 
 def normalizeAddLakes():
 	"A normalize start function	(called	after starting plots are set) -	this call adds a lake."
-	print "-------- Normalize add lakes ----------"
+	print("-------- Normalize add lakes ----------")
 	if bonusGeneration == "standard":
 		CyPythonMgr().allowDefaultImpl()
 
 def normalizeRemoveBadFeatures():
 	"A normalize start function	(called	after starting plots are set) -	this call removes bad features."
-	print "-------- Normalize remove gbad features ----------"
+	print("-------- Normalize remove gbad features ----------")
 	CyPythonMgr().allowDefaultImpl()
 
 def normalizeRemoveBadTerrain():
 	"A normalize start function	(called	after starting plots are set) -	this call removes bad terrain."
-	print "-------- Normalize remove good terrain ----------"
+	print("-------- Normalize remove good terrain ----------")
 	if bonusGeneration == "standard":
 		CyPythonMgr().allowDefaultImpl()
 
 def normalizeAddFoodBonuses():
 	"A normalize start function	(called	after starting plots are set) -	this call adds food	bonuses."
-	print "-------- Normalize add food ----------"
+	print("-------- Normalize add food ----------")
 	if bonusGeneration == "standard":
 		CyPythonMgr().allowDefaultImpl()
 
 def normalizeAddGoodTerrain():
 	"A normalize start function	(called	after starting plots are set) -	this call adds good	terrain."
-	print "-------- Normalize add good terrain ----------"
+	print("-------- Normalize add good terrain ----------")
 	if bonusGeneration == "standard":
 		CyPythonMgr().allowDefaultImpl()
 
@@ -3385,7 +3385,7 @@ class BonusBuilder(FairBuilder):
 
 def normalizeAddExtras():
 	"A normalize start function (called after starting plots are set) - this call adds extra features and bonuses."
-	print "-------- Normalize extras ----------"
+	print("-------- Normalize extras ----------")
 	collectGarbage()
 
 	global bonusGeneration
@@ -3441,8 +3441,8 @@ def normalizeAddExtras():
 				bonusTypesLand.append([bonusInt,bonusInfo])
 		bonusTypesOcean.sort(lambda x, y: cmp(x[1].getPlacementOrder(), y[1].getPlacementOrder()))
 		bonusTypesLand.sort(lambda x, y: cmp(x[1].getPlacementOrder(), y[1].getPlacementOrder()))
-		print "bonusTypesOcean:",bonusTypesOcean
-		print "bonusTypesLand:",bonusTypesLand
+		print("bonusTypesOcean: %s" % bonusTypesOcean)
+		print("bonusTypesLand: %s" % bonusTypesLand)
 
 		# we use BonusBuilder class to get all land and coast tiles player can reach without sailing
 		# it is done using randomly calculated aproximate traveling paths, but produces generally accurate result
@@ -3472,7 +3472,7 @@ def normalizeAddExtras():
 				else:
 					grows = False
 		if size >= maxSize:
-			print "WARNING: size limit exceeded!"
+			print("WARNING: size limit exceeded!")
 
 		for index in range(cgc.getNumBonusInfos()):
 			bonusInfo = cgc.getBonusInfo(index)
@@ -3626,19 +3626,19 @@ def saveMapOptionDefaults():
 			smoptions.append((smoption,valueName))
 
 		#print "    try to store settings to",fileName
-		print smoptions
+		print(smoptions)
 		try:
 			pickle.dump(smoptions, settings)
 		except Exception, inst:
-			print "    Pickling Error",inst,"trying to save map settings to",fileName
+			print("    Pickling Error %s trying to save map settings to %s" % (inst, fileName))
 		settings.close()
-		print "    store successful"
+		print("    store successful")
 	except IOError:
-		print "    Couldn't create ",fileName
+		print("    Couldn't create %s" % fileName)
 	except EOFError:
-		print "    EOF writing ",fileName
+		print("    EOF writing %s" % fileName)
 	except:
-		print "    unexpected problem writing ",fileName
+		print("    unexpected problem writing %s" % fileName)
 
 def loadMapOptionDefaults():
 	global selection_defaults
@@ -3659,11 +3659,11 @@ def loadMapOptionDefaults():
 		#print "    loaded option from cfg:",option,value
 		settings.close()
 	except IOError:
-		print "    Couldn't find ",fileName
+		print("    Couldn't find %s" % fileName)
 	except EOFError:
-		print "    Bad contents in ",fileName
+		print("    Bad contents in %s" % fileName)
 	except:
-		print "    unexpected problem reading",fileName
+		print("    unexpected problem reading %s" % fileName)
 
 def isRandomCustomMapOption(argsList):
 	return False # we use our own defaults
@@ -3704,8 +3704,8 @@ def isBonusIgnoreLatitude():
 	CyPythonMgr().allowDefaultImpl()
 
 def collectGarbage():
-	print "Collect python garbage"
+	print("Collect python garbage")
 	try:
 		gc.collect()
 	except:
-		print "Unexpected error during garbage collection"
+		print("Unexpected error during garbage collection")

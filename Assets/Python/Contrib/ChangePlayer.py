@@ -24,7 +24,7 @@ class ChangePlayer :
 
 	def __init__(self, customEM ) :
 
-		print "Initializing ChangePlayer Mod"
+		print("Initializing ChangePlayer Mod")
 
 		global LOG_DEBUG
 
@@ -42,7 +42,7 @@ class ChangePlayer :
 		CvUtil.SilentEvents.extend([changeCivPopupNum,changeHumanPopupNum])
 
 	def removeEventHandlers( self ) :
-		print "Removing event handlers from ChangePlayer"
+		print("Removing event handlers from ChangePlayer")
 		
 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
 

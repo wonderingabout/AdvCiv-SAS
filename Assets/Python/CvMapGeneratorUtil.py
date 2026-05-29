@@ -456,7 +456,7 @@ class HintedWorld(FractalWorld):
 					else:
 						return True
 		
-		print "\tcould not expand continent:"
+		print("\tcould not expand continent:")
 		printMap(self.data, self.w, self.h, cont.centerx, cont.centery)
 		cont.done = True
 		return False
@@ -507,7 +507,7 @@ class HintedWorld(FractalWorld):
 		return best_split
 	
 	def shiftHintsBy(self, splitx, splity):
-		print "shifting hints by ", splitx, splity
+		print("shifting hints by %s %s" % (splitx, splity))
 		if splitx != 0 or splity != 0:
 			buf = self.data[:]
 			# shift the values in self.data left by best_split
@@ -607,7 +607,7 @@ class HintedWorld(FractalWorld):
 		return FractalWorld.generatePlotTypes(self, water_percent, shift_plot_types) # call superclass
 		
 def printMap(data, w, h, markerx=-1, markery=-1):
-	print "-"*(w+2)
+	print("-"*(w+2))
 	hrange = range(h)
 	hrange.reverse()
 	for y in hrange:
@@ -621,8 +621,8 @@ def printMap(data, w, h, markerx=-1, markery=-1):
 			else:
 				str += " "
 		str += "|"
-		print str
-	print "-"*(w+2)
+		print(str)
+	print("-"*(w+2))
 
 #
 # SIRIAN's "MULTILAYERED FRACTAL" INSTRUCTIONS
@@ -1336,7 +1336,7 @@ class TerrainGenerator:
 		for attribName in essentialMethods:
 			if getattr(self, attribName).im_func is not getattr(TerrainGenerator, attribName).im_func:
 				self.bEarthlike = False
-				print "CvMapGeneratorUtil: Essential TerrainGenerator method overridden by map script: " + attribName + ". AdvCiv customizations disabled."
+				print("CvMapGeneratorUtil: Essential TerrainGenerator method overridden by map script: " + attribName + ". AdvCiv customizations disabled.")
 				break
 	# </advc.129c>
 	

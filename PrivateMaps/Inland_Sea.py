@@ -598,7 +598,7 @@ def getStartingPlot(playerID, validFn = None):
 			plotValue = map.plotNum(pBestPlot.getX(), pBestPlot.getY())
 			break
 			
-		print "player", playerID, "pass", iPass, "failed"
+		print("player %s pass %s failed" % (playerID, iPass))
 		
 		iPass += 1
 

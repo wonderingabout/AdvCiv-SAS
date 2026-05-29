@@ -431,14 +431,14 @@ def generatePlotTypes():
 	return plotTypes
 
 def generateTerrainTypes():
-	print "terrain"
+	print("terrain")
 	NiTextOut("Generating Terrain (Python Islands) ...")
 	terraingen = TerrainGenerator()
 	terrainTypes = terraingen.generateTerrain()
 	return terrainTypes
 
 def addFeatures():
-	print "features"
+	print("features")
 	NiTextOut("Adding Features (Python Islands) ...")
 	featuregen = FeatureGenerator()
 	featuregen.addFeatures()
@@ -666,15 +666,15 @@ def assignStartingPlots():
 			
 			# Check to see if a valid start was found in ANY areaID.
 			if pBestPlot == None:
-				print "player", playerID, "pass", iPass, "failed"
+				print("player %s pass %s failed" % (playerID, iPass))
 				iPass += 1
 				if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
 					continue
 				else: # A region has failed to produce any valid starts!
 					bSuccessFlag = False
-					print "---"
-					print "A region has failed"
-					print "---"
+					print("---")
+					print("A region has failed")
+					print("---")
 					# Regional start plot assignment has failed. Reverting to default.
 					CyPythonMgr().allowDefaultImpl()
 					return

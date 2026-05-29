@@ -196,21 +196,21 @@ class TechPrefs:
 		# Prints the techs in the flavor's list.
 		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
-			print pTech
+			print(pTech)
 
 	def printResearchableFlavorTechs(self, iFlavor):
 		# Prints the techs in the flavor's list.
 		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if pTech.canResearch():
-				print pTech
+				print(pTech)
 
 	def printResearchableWithFlavorTechs(self, iFlavor, sTechs):
 		# Prints the techs in the flavor's list.
 		#
 		for pTech in self.lTechsByFlavor[iFlavor]:
 			if pTech.canResearchWith(sTechs):
-				print pTech
+				print(pTech)
 
 class Tech:
 	
