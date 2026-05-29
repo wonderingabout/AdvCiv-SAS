@@ -166,9 +166,12 @@ def getCustomMapOptionName(argsList):
 #
 def getNumCustomMapOptionValues(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)  : return 8 # Force Script
-	elif (dummy == 1): return 3 # AI Start
-	elif (dummy == 2): return 4 # Player Start
+	if (dummy == 0)  :
+		return 8 # Force Script
+	elif (dummy == 1):
+		return 3 # AI Start
+	elif (dummy == 2):
+		return 4 # Player Start
 	else : return 8             # Excludes
 
 #-----------------------------------------------------------------------------
@@ -215,9 +218,12 @@ def getCustomMapOptionDescAt(argsList):
 #
 def isRandomCustomMapOption(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)   : return False
-	elif (dummy == 1) : return False
-	elif (dummy == 2) : return False
+	if (dummy == 0)   :
+		return False
+	elif (dummy == 1) :
+		return False
+	elif (dummy == 2) :
+		return False
 	else: return True
 	return True
 #-----------------------------------------------------------------------------
@@ -226,12 +232,18 @@ def isRandomCustomMapOption(argsList):
 #
 def getCustomMapOptionDefault(argsList):
 	dummy = argsList[0]
-	if (dummy == 0)  : return c_genMethodDefault
-	elif (dummy == 1): return c_aiStartDefault
-	elif (dummy == 2): return c_plStartDefault
-	elif (dummy == 3): return c_exclude1Default
-	elif (dummy == 4): return c_exclude2Default
-	elif (dummy == 5): return c_exclude3Default
+	if (dummy == 0)  :
+		return c_genMethodDefault
+	elif (dummy == 1):
+		return c_aiStartDefault
+	elif (dummy == 2):
+		return c_plStartDefault
+	elif (dummy == 3):
+		return c_exclude1Default
+	elif (dummy == 4):
+		return c_exclude2Default
+	elif (dummy == 5):
+		return c_exclude3Default
 	else : return 0
 	return 0
 
@@ -1831,7 +1843,8 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
     def generateIslandRegion(self, numTinies,
                              iWestX, iSouthY,
                              iWidth, iHeight):
-        if ( numTinies == 0 ) : return 0
+        if ( numTinies == 0 ) :
+        	return 0
         for tiny_loop in range(numTinies):
             vVariance = 0.01 * self.dice.get(9, "Python, RndMapUtil, Hemi.")
             hVariance = 0.01 * self.dice.get(9, "Python, RndMapUtil, Hemi.")
