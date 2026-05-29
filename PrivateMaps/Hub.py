@@ -615,7 +615,8 @@ def beforeGeneration():
 			iSouthY = int((iH - 1) * fSouthLat)
 			iNorthY = int((iH - 1) * fNorthLat) -1
 			buffer_data.append([iWestX, iEastX, iSouthY, iNorthY])
-	else: pass
+	else:
+		pass
 
 	# center_data: [WestX, EastX, SouthY, NorthY]
 	global center_data
@@ -756,7 +757,8 @@ class HubMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				                           -1, False,
 				                           False
 				                           )
-		else: pass
+		else:
+			pass
 
 		# Add players' regions (two fractals each to ensure cohesion).
 		for region_loop in range(iPlayers):

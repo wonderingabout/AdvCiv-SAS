@@ -346,7 +346,8 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_PEAK
         					else:
         						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_HILLS
-        				else: pass
+        				else:
+        					pass
 
 		return self.wholeworldPlotTypes
 

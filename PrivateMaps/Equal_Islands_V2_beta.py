@@ -663,7 +663,8 @@ def assignStartingPlots():
 						plrID = gc.getPlayer(playerID)
 						plrID.setStartingPlot(sPlot, true)
 						break # Valid start found, stop checking areas and plots.
-					else: pass # This area too close to somebody, try the next area.
+					else:
+						pass # This area too close to somebody, try the next area.
 				if pBestPlot is not None:
 					break
 			
