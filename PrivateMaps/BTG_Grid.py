@@ -992,7 +992,7 @@ def assignStartingPlots():
 						iPlotYield += (iFertileCheck - 1)
 					iRegionNetYield += iPlotYield
 					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
-					if not iArea in land_areas: # This plot is the first detected in its AreaID.
+					if iArea not in land_areas: # This plot is the first detected in its AreaID.
 						iNumLandAreas += 1
 						land_areas.append(iArea)
 						land_area_plots[iArea] = 1
@@ -1182,7 +1182,7 @@ def assignStartingPlots():
 		if region_duplicated[0] in best_regions :
 					tpR = [region_duplicated[0]]
 					for item in best_regions :
-							if not item in tpR : tpR.append(item)
+							if item not in tpR : tpR.append(item)
 					best_regions = tpR
 		else :
 			print("you missed something there O.o")

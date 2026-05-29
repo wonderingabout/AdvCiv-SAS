@@ -2460,7 +2460,7 @@ class ConfigObj(Section):
         for entry in spec_section:
             if entry == '__many__':
                 continue
-            if (not entry in section.scalars) or (entry in section.defaults):
+            if (entry not in section.scalars) or (entry in section.defaults):
                 # missing entries
                 # or entries from defaults
                 missing = True

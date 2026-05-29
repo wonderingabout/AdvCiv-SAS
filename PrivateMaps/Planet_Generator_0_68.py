@@ -1121,15 +1121,15 @@ class TileBuilder:
 					if (len(self.baseTerrain) == 0):
 						wtt = world[px,py]
 						if py > y:
-							if py < world._dimensions[0]-ps-1 and not wtt in self.tileType and not self._intersect(px,py):
+							if py < world._dimensions[0]-ps-1 and wtt not in self.tileType and not self._intersect(px,py):
 								list[world.getOffset([px,py])] = [px,py,scatt,scattdir,world.getOffset([x,y])]
 								c += 1
 						elif py < y:
-							if py > ps and not wtt in self.tileType and not self._intersect(px,py):
+							if py > ps and wtt not in self.tileType and not self._intersect(px,py):
 								list[world.getOffset([px,py])] = [px,py,scatt,scattdir,world.getOffset([x,y])]
 								c += 1
 						else:
-							if not wtt in self.tileType and not self._intersect(px,py):
+							if wtt not in self.tileType and not self._intersect(px,py):
 								list[world.getOffset([px,py])] = [px,py,scatt,scattdir,world.getOffset([x,y])]
 								c += 1
 					else:
@@ -1162,15 +1162,15 @@ class TileBuilder:
 			if (len(self.baseTerrain) == 0):
 				wtt = world[px,py]
 				if py > y:
-					if py < world._dimensions[0]-ps-1 and not wtt in self.tileType and not self._intersect(px,py):
+					if py < world._dimensions[0]-ps-1 and wtt not in self.tileType and not self._intersect(px,py):
 						list[world.getOffset([px,py])] = [px,py,scatt,scattdir,world.getOffset([x,y])]
 						c += 1
 				elif py < y:
-					if py > ps and not wtt in self.tileType and not self._intersect(px,py):
+					if py > ps and wtt not in self.tileType and not self._intersect(px,py):
 						list[world.getOffset([px,py])] = [px,py,scatt,scattdir,world.getOffset([x,y])]
 						c += 1
 				else:
-					if not wtt in self.tileType and not self._intersect(px,py):
+					if wtt not in self.tileType and not self._intersect(px,py):
 						list[world.getOffset([px,py])] = [px,py,scatt,scattdir,world.getOffset([x,y])]
 						c += 1
 			else:
