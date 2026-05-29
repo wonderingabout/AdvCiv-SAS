@@ -1584,7 +1584,7 @@ class ElevationMap2(FloatMap):
 		if height % mc.hmMaxGrain != 0:
 			ok = False
 		if not ok:
-			raise ValueError, "height map dimesions not divisible by mc.hmMaxGrain. also check wrapping options"
+			raise ValueError("height map dimesions not divisible by mc.hmMaxGrain. also check wrapping options")
 
 	def isPlotOnMargin(self, x, y):
 		marginSize = mc.hmMaxGrain * mc.hmGrainMargin
@@ -1611,7 +1611,7 @@ class ElevationMap2(FloatMap):
 				dimension = x
 				middle = mc.hmWidth  / 2
 			else:
-				raise ValueError, "bad hmSeparation type"
+				raise ValueError("bad hmSeparation type")
 			if dimension > middle - marginSize and dimension < middle + marginSize:
 				return True
 		return False
@@ -1777,7 +1777,7 @@ class ElevationMap2(FloatMap):
 			while (True):
 				iterations += 1
 				if iterations > 10000:
-					raise ValueError, "endless loop in region seed placement"
+					raise ValueError("endless loop in region seed placement")
 				seedX = PRand.randint(0, mc.hmWidth  + 1)
 				seedY = PRand.randint(0, mc.hmHeight + 1)
 				# <advc>
@@ -1810,7 +1810,7 @@ class ElevationMap2(FloatMap):
 				print("plateGrowthChance=" + str(plateGrowthChanceY))
 				print("distanceFilterSize=" + str(distanceFilterSize))
 				# </advc>
-				raise ValueError, "endless loop in plate growth"
+				raise ValueError("endless loop in plate growth")
 			plot = growthPlotList[0]
 			roomLeft = False
 			for direction in range(1, 5):
@@ -1947,9 +1947,9 @@ class ElevationMap2(FloatMap):
 	def AddWaterBands(self):
 		#validate water bands. Maps that wrap cannot have one in that direction
 		if mc.WrapX and (mc.eastWaterBand  != 0 or mc.westWaterBand  != 0):
-			raise ValueError,"east/west water bands cannot be used when wrapping in X direction."
+			raise ValueError("east/west water bands cannot be used when wrapping in X direction.")
 		if mc.WrapY and (mc.northWaterBand != 0 or mc.southWaterBand != 0):
-			raise ValueError,"north/south water bands cannot be used when wrapping in Y direction."
+			raise ValueError("north/south water bands cannot be used when wrapping in Y direction.")
 		newWidth  = mc.hmWidth  + mc.eastWaterBand  + mc.westWaterBand
 		newHeight = mc.hmHeight + mc.northWaterBand + mc.southWaterBand
 		newHeightMap = array('d')
@@ -4362,7 +4362,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 							loopPlot = self.plotXY(x, y, dx, dy)
 							if loopPlot != None:
 								if loopPlot.getX() == -1:
-									raise ValueError, "plotXY returns invalid plots plot= %(x)d, %(y)d" % {"x":x, "y":y}
+									raise ValueError("plotXY returns invalid plots plot= %(x)d, %(y)d" % {"x":x, "y":y})
 								if self.CanPlaceBonusAt(loopPlot,eBonus,False,False):
 									if PRand.randint(0, 99) < bonusInfo.getGroupRand():
 										#place bonus
@@ -4857,7 +4857,7 @@ class StartingPlotFinder:
 								if searchArea.idealNumberOfPlayers < float(len(searchArea.plotList)):
 									searchArea.idealNumberOfPlayers *= fRatio
 						else:
-							raise ValueError, "Not enough room on the map to place all players!"
+							raise ValueError("Not enough room on the map to place all players!")
 							bSpaceAvailable = False
 							break
 				iterations -= 1
@@ -4879,7 +4879,7 @@ class StartingPlotFinder:
 							if iNum == 0:
 								break
 					if iNum == iEntry:
-						raise ValueError, "Not enough room on the map to place all players!"
+						raise ValueError("Not enough room on the map to place all players!")
 						break
 			elif idealTotal > len(shuffledPlayers):
 				iNum = idealTotal - len(shuffledPlayers)
@@ -4892,7 +4892,7 @@ class StartingPlotFinder:
 							if iNum == 0:
 								break
 					if iNum == iEntry:
-						raise ValueError, "Not enough room on the map to place all players!"
+						raise ValueError("Not enough room on the map to place all players!")
 						break
 			#Assign players.
 			for startingArea in self.startingAreaList:
@@ -4901,7 +4901,7 @@ class StartingPlotFinder:
 					del shuffledPlayers[0]
 				startingArea.FindStartingPlots()
 			if len(shuffledPlayers) > 0:
-				raise ValueError, "Some players not placed in starting plot finder!"
+				raise ValueError("Some players not placed in starting plot finder!")
 			#Now set up for normalization
 			# # advc: AdvCiv DLL handles normalization
 			# self.plotList = list()
@@ -5362,7 +5362,7 @@ class StartingPlotFinder:
 			shuffledBonuses.append(bonusList[n])
 			del bonusList[n]
 		if len(shuffledBonuses) != numBonuses:
-			raise ValueError, "Bad bonus shuffle. Learn 2 shuffle."
+			raise ValueError("Bad bonus shuffle. Learn 2 shuffle.")
 		bonusCount = 0
 		#Do this process in 3 passes for each yield type
 		yields = []
@@ -5630,7 +5630,7 @@ class StartingArea:
 					if value > 0:
 						startPlot = StartPlot(x, y, value)
 						if plot.isWater():
-							raise ValueError, "potential start plot is water!"
+							raise ValueError("potential start plot is water!")
 						self.plotList.append(startPlot)
 		# <advc> Want to be able to divide by this length
 		if len(self.plotList) <= 0:
@@ -5834,7 +5834,7 @@ class StartingArea:
 			if not self.plotList[m].vacant:
 				sPlot = CyMap().plot(self.plotList[m].x, self.plotList[m].y)
 				if sPlot.isWater():
-					raise ValueError, "Start plot is water!"
+					raise ValueError("Start plot is water!")
 				#sPlot.setImprovementType(getInfoTypeOrFail("NO_IMPROVEMENT"))
 				# advc.001:
 				sPlot.setImprovementType(ImprovementTypes.NO_IMPROVEMENT)
@@ -6564,7 +6564,7 @@ def expandLake(x, y, riversIntoLake, oceanMap):
 				#if this neighbor is in water area, then quit
 				areaID = oceanMap.data[ii]
 				if areaID == 0:
-					raise ValueError, "areaID = 0 while generating lakes. This is a bug"
+					raise ValueError("areaID = 0 while generating lakes. This is a bug")
 				for n in range(len(oceanMap.areaList)):
 					if oceanMap.areaList[n].ID == areaID:
 						if oceanMap.areaList[n].water:
