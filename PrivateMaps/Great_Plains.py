@@ -645,7 +645,8 @@ def addBonusType(argsList):
 		# init forced-eligibility flags
 		if (type_string not in resourcesToForce):
 			unforced = True
-		else: unforced = False
+		else:
+			unforced = False
 		forceFlats = False
 		forceHills = False
 		if (type_string in forcePlacementOnFlats):
@@ -872,7 +873,8 @@ def addBonusType(argsList):
 		if (type_string in resourcesInTexas):
 			CyPythonMgr().allowDefaultImpl()
 		# Finito
-		else: return None # The default handler is not to place any more of this type.
+		else:
+			return None # The default handler is not to place any more of this type.
 
 # "Nile Style" Custom River Placement System designed by Sirian.
 def addNileStyleRiverFlowingSouth(center, left, right, maxshift, startX, startY, iDirectionOdds):

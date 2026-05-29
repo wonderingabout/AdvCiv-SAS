@@ -157,7 +157,8 @@ def getCustomMapOptionName(argsList):
 		szName = "TXT_KEY_MAP_SCRIPT_AI_START"
 	elif (dummy == 2):
 		szName = "TXT_KEY_MAP_SCRIPT_PLAYER_START"
-	else : szName = "TXT_KEY_MAP_SCRIPT_EXCLUDE_METHOD"
+	else:
+		szName = "TXT_KEY_MAP_SCRIPT_EXCLUDE_METHOD"
 	
 	return unicode(CyTranslator().getText(szName, ()))
 
@@ -172,7 +173,8 @@ def getNumCustomMapOptionValues(argsList):
 		return 3 # AI Start
 	elif (dummy == 2):
 		return 4 # Player Start
-	else : return 8             # Excludes
+	else:
+		return 8             # Excludes
 
 #-----------------------------------------------------------------------------
 # Menu entries. Many are non standard, therefore we do not use the default
@@ -210,7 +212,8 @@ def getCustomMapOptionDescAt(argsList):
 		szName = startAi_names[iSelection]
 	elif (dummy == 2):
 		szName = startPl_names[iSelection]
-	else : szName = exclude_names[iSelection]
+	else:
+		szName = exclude_names[iSelection]
 	return unicode(CyTranslator().getText(szName, ()))
 
 #-----------------------------------------------------------------------------
@@ -224,7 +227,8 @@ def isRandomCustomMapOption(argsList):
 		return False
 	elif (dummy == 2) :
 		return False
-	else: return True
+	else:
+		return True
 	return True
 #-----------------------------------------------------------------------------
 # Assign default values to the Options, using the constants defined in the
@@ -244,7 +248,8 @@ def getCustomMapOptionDefault(argsList):
 		return c_exclude2Default
 	elif (dummy == 5):
 		return c_exclude3Default
-	else : return 0
+	else:
+		return 0
 	return 0
 
 #-----------------------------------------------------------------------------
@@ -282,43 +287,50 @@ def beforeGeneration():
 	if( exclude1 != MAP_FRACT and
 	    exclude2 != MAP_FRACT and exclude3 != MAP_FRACT ) :
 		diceNumber += fracWeight
-	else : fracWeight = 0
+	else:
+		fracWeight = 0
 	terraWeight = c_terraWeight
 	if( favMethod == MAP_TERRA ) : terraWeight += c_favWeight	
 	if( exclude1 != MAP_TERRA and
 	    exclude2 != MAP_TERRA and exclude3 != MAP_TERRA ) :
 		diceNumber += terraWeight
-	else : terraWeight = 0
+	else:
+		terraWeight = 0
 	hemiWeight = c_hemiWeight
 	if( favMethod == MAP_HEMIS ) : hemiWeight += c_favWeight
 	if( exclude1 != MAP_HEMIS and
 	    exclude2 != MAP_HEMIS and exclude3 != MAP_HEMIS ) :
 		diceNumber += hemiWeight
-	else : hemiWeight = 0
+	else:
+		hemiWeight = 0
 	bnsWeight = c_bnsWeight
 	if( favMethod == MAP_BIGNS ) : bnsWeight += c_favWeight
 	if( exclude1 != MAP_BIGNS and
 	    exclude2 != MAP_BIGNS and exclude3 != MAP_BIGNS ) :
 		diceNumber += bnsWeight
-	else : bnsWeight = 0
+	else:
+		bnsWeight = 0
 	mnsWeight = c_mnsWeight
 	if( favMethod == MAP_MANDS ) : mnsWeight += c_favWeight
 	if( exclude1 != MAP_MANDS and
 	    exclude2 != MAP_MANDS and exclude3 != MAP_MANDS ) :
 		diceNumber += mnsWeight
-	else : mnsWeight = 0
+	else:
+		mnsWeight = 0
 	archiWeight = c_archiWeight
 	if( favMethod == MAP_ARCHI ) : archiWeight += c_favWeight
 	if( exclude1 != MAP_ARCHI and
 	    exclude2 != MAP_ARCHI and exclude3 != MAP_ARCHI ) :
 		diceNumber += archiWeight
-	else : archiWeight = 0	
+	else:
+		archiWeight = 0	
 	pangWeight = c_pangWeight
 	if( favMethod == MAP_PANGA ) : pangWeight += c_favWeight
 	if( exclude1 != MAP_PANGA and
 	    exclude2 != MAP_PANGA and exclude3 != MAP_PANGA ) :
 		diceNumber += pangWeight
-	else : pangWeight = 0
+	else:
+		pangWeight = 0
 	# Now make Random Choice according to Calculated Weights
 	if( genMethod == MAP_RAND ) :
 		rnd = dice.get(diceNumber, "Python RandomMapScript" )
@@ -1620,7 +1632,8 @@ class R_MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	if ( yShiftRoll2 > 1 ) :
 		if ( yShiftRoll1 == 0 ) :
 			yShiftRoll2 == 1
-		else : yShiftRoll2 == 0
+		else:
+			yShiftRoll2 == 0
 	iContinentsGrainWest = 1 + self.dice.get(2, "Python, RndMapUtil, Mns")
 	iContinentsGrainEast = 1 + self.dice.get(2, "Python, RndMapUtil, Mns") 
 	iIslandsGrainWest = 3 + self.dice.get(2, "Python, RndMapUtil, Mns") 

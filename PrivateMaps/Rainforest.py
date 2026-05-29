@@ -589,7 +589,8 @@ def addBonusType(argsList):
 		# init forced-eligibility flags
 		if (type_string not in resourcesToForce):
 			unforced = True
-		else: unforced = False
+		else:
+			unforced = False
 		forceFlats = False
 		forceHills = False
 		if (type_string in forcePlacementOnFlats):
