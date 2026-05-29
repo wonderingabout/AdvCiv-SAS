@@ -283,49 +283,56 @@ def beforeGeneration():
 	# NOTE: Exclude overrides Favourite.
 	diceNumber = 0
 	fracWeight = c_fracWeight
-	if( favMethod == MAP_FRACT ) : fracWeight += c_favWeight
+	if( favMethod == MAP_FRACT ):
+		fracWeight += c_favWeight
 	if( exclude1 != MAP_FRACT and
 	    exclude2 != MAP_FRACT and exclude3 != MAP_FRACT ) :
 		diceNumber += fracWeight
 	else:
 		fracWeight = 0
 	terraWeight = c_terraWeight
-	if( favMethod == MAP_TERRA ) : terraWeight += c_favWeight	
+	if( favMethod == MAP_TERRA ):
+		terraWeight += c_favWeight	
 	if( exclude1 != MAP_TERRA and
 	    exclude2 != MAP_TERRA and exclude3 != MAP_TERRA ) :
 		diceNumber += terraWeight
 	else:
 		terraWeight = 0
 	hemiWeight = c_hemiWeight
-	if( favMethod == MAP_HEMIS ) : hemiWeight += c_favWeight
+	if( favMethod == MAP_HEMIS ):
+		hemiWeight += c_favWeight
 	if( exclude1 != MAP_HEMIS and
 	    exclude2 != MAP_HEMIS and exclude3 != MAP_HEMIS ) :
 		diceNumber += hemiWeight
 	else:
 		hemiWeight = 0
 	bnsWeight = c_bnsWeight
-	if( favMethod == MAP_BIGNS ) : bnsWeight += c_favWeight
+	if( favMethod == MAP_BIGNS ):
+		bnsWeight += c_favWeight
 	if( exclude1 != MAP_BIGNS and
 	    exclude2 != MAP_BIGNS and exclude3 != MAP_BIGNS ) :
 		diceNumber += bnsWeight
 	else:
 		bnsWeight = 0
 	mnsWeight = c_mnsWeight
-	if( favMethod == MAP_MANDS ) : mnsWeight += c_favWeight
+	if( favMethod == MAP_MANDS ):
+		mnsWeight += c_favWeight
 	if( exclude1 != MAP_MANDS and
 	    exclude2 != MAP_MANDS and exclude3 != MAP_MANDS ) :
 		diceNumber += mnsWeight
 	else:
 		mnsWeight = 0
 	archiWeight = c_archiWeight
-	if( favMethod == MAP_ARCHI ) : archiWeight += c_favWeight
+	if( favMethod == MAP_ARCHI ):
+		archiWeight += c_favWeight
 	if( exclude1 != MAP_ARCHI and
 	    exclude2 != MAP_ARCHI and exclude3 != MAP_ARCHI ) :
 		diceNumber += archiWeight
 	else:
 		archiWeight = 0	
 	pangWeight = c_pangWeight
-	if( favMethod == MAP_PANGA ) : pangWeight += c_favWeight
+	if( favMethod == MAP_PANGA ):
+		pangWeight += c_favWeight
 	if( exclude1 != MAP_PANGA and
 	    exclude2 != MAP_PANGA and exclude3 != MAP_PANGA ) :
 		diceNumber += pangWeight

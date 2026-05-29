@@ -1180,8 +1180,10 @@ class Earth2TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.mapRand = self.gc.getGame().getMapRand()
 		
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+		if self.map.isWrapX():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+		if self.map.isWrapY():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
 
 		self.deserts=CyFractal()
 		self.plains=CyFractal()

@@ -897,8 +897,10 @@ class RingTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.mapRand = self.gc.getGame().getMapRand()
 		
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+		if self.map.isWrapX():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+		if self.map.isWrapY():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
 
 		self.main=CyFractal()
 		self.center=CyFractal()
@@ -987,8 +989,10 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		[self.cenWestX, self.cenEastX, self.cenSouthY, self.cenNorthY] = center_data
 		
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
-		if self.map.isWrapX(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
-		if self.map.isWrapY(): self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+		if self.map.isWrapX():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
+		if self.map.isWrapY():
+			self.iFlags += CyFractal.FracVals.FRAC_WRAP_Y
 
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
