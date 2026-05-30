@@ -18,6 +18,7 @@ Always review diffs before committing generated source changes.
 - [Source-rewrite helpers](#source-rewrite-helpers)
   - [`collapse_multiline_calls.py`](#collapse_multiline_callspy)
   - [`collapse_multiline_calls2.py`](#collapse_multiline_calls2py)
+  - [`fix_matrix_indent.py`](#fix_matrix_indentpy)
   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
 - [CvMainInterface single-line cleanup reference scripts](#cvmaininterface-single-line-cleanup-reference-scripts)
@@ -86,6 +87,48 @@ Tested broad run workflow from Git Bash. The helper itself processes one file at
 
 ```bash
 cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_multiline_calls2.py" "LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_collapse_multiline_calls2_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
+```
+
+### `fix_matrix_indent.py`
+
+Targeted matrix/data indentation cleanup helper.
+
+- Normalizes mixed tab/space indentation inside multiline list/dict/tuple assignment blocks.
+- Intended mainly for old Civ4 map-script matrix/data blocks such as `templates = {...}`, region tables, coordinate tables, and similar static data.
+- Does not collapse lines; keeps large matrices and tables multiline for readability.
+- Does not touch the assignment's first line indentation, because that may be real Python block indentation.
+- Converts mixed leading indentation inside the data block to spaces-only indentation.
+- Uses tabsize 4 by default, matching the intended editor-style alignment for these visual matrix/data blocks better than Python's historical tabsize 8.
+- Strips trailing whitespace only on lines whose leading indentation was changed.
+- Preserves line endings and refuses to write if significant token sequence changes.
+- Intended for Ruff `E101` cleanup in matrix/data blocks, not as a general indentation fixer.
+
+Tested broad run workflow from Git Bash. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/fix_matrix_indent.py" "LLM_Helpers/fix_matrix_indent_TEMP_RUNNER.py" && runner="LLM_Helpers/fix_matrix_indent_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_fix_matrix_indent_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
+```
+
+In the tested broad PrivateMaps pass, this produced a high-impact Ruff cleanup: for example, `Wheel.py` dropped from roughly 400 Ruff findings to 15, while the staged diff was still mostly mechanical whitespace-only matrix indentation replacement.
+
+```bash
+LLM_Helpers/fix_matrix_indent.py     |  290 ++++++++
+PrivateMaps/Archipelago.py           |  186 +++---
+PrivateMaps/BTG_Lagoon.py            |  220 +++----
+PrivateMaps/Balanced.py              |    4 +-
+PrivateMaps/Custom_Continents.py     | 1200 +++++++++++++++++-----------------
+PrivateMaps/Equal_Islands_V2_beta.py |  188 +++---
+PrivateMaps/Great_Plains.py          |    4 +-
+PrivateMaps/Hub.py                   |  738 ++++++++++-----------
+PrivateMaps/Ice_Age.py               |    8 +-
+PrivateMaps/Inland_Sea.py            |  628 +++++++++---------
+PrivateMaps/Islands.py               |  188 +++---
+PrivateMaps/Pangaea.py               |   24 +-
+PrivateMaps/Rainforest.py            |    4 +-
+PrivateMaps/Ring.py                  |  646 +++++++++---------
+PrivateMaps/Tectonics.py             |   22 +-
+PrivateMaps/Wheel.py                 |  786 +++++++++++-----------
+16 files changed, 2713 insertions(+), 2423 deletions(-)
 ```
 
 ### `collapse_multiline_brackets.py`
@@ -367,7 +410,7 @@ DRIFT: 2 key(s) used but not declared in any scanned XML:
   - vanilla Civ4 `Python/**/*.py` + `XML/**/*.xml` (auto: `<mod-root>/../../../Assets`, override `--vanilla-assets`)
   - skip the external scan with `--no-external` (mod-only; expect engine/front-end false positives)
 - Scanning base+vanilla is the authoritative source for inherited engine/front-end keys (main menu, setup, Civilopedia, sealevel/worldsize Info XML) the mod does not override — confirmed used by evidence, not whitelist.
-- Buckets: **LIKELY-UNUSED** (candidates); **REVIEW** (name under a known dynamic-construction prefix, e.g. `TXT_KEY_BUG_OPT_*` built via `"..."+id`); engine-derived suffixes (`_PEDIA/_STRATEGY/_HELP/...`) treated used if the base key is referenced. Output is candidates, not proof — a small pure-EXE-internal residue can remain; verify before deleting.
+- Buckets: LIKELY-UNUSED (candidates); REVIEW (name under a known dynamic-construction prefix, e.g. `TXT_KEY_BUG_OPT_*` built via `"..."+id`); engine-derived suffixes (`_PEDIA/_STRATEGY/_HELP/...`) treated used if the base key is referenced. Output is candidates, not proof — a small pure-EXE-internal residue can remain; verify before deleting.
 - `--prefix TXT_KEY_SAS` to focus on mod-custom keys. Exit 1 if any LIKELY-UNUSED, 0 otherwise. Timestamped report to `LLM_Helpers/outputs/` unless `--no-output-file`.
 
 ```powershell

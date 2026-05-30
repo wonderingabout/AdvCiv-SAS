@@ -295,10 +295,10 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			numSubcontinents = 2 + equRoll
 			# List values: [westLon, southLat, vertRange, horzRange, southShift]
 			scValues = [[0.05, 0.2, 0.2, 0.0, 0.0],
-			            [0.55, 0.2, 0.2, 0.0, 0.0],
-			            [0.2, 0.05, 0.0, 0.2, 0.0],
-			            [0.2, 0.55, 0.0, 0.2, 0.0]
-			            ]
+                        [0.55, 0.2, 0.2, 0.0, 0.0],
+                        [0.2, 0.05, 0.0, 0.2, 0.0],
+                        [0.2, 0.55, 0.0, 0.2, 0.0]
+                        ]
 		else: # Natural
 			subcontinentDimension = 0.3
 			# Shift mainland north or south?
@@ -315,14 +315,14 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			numSubcontinents = 4 + self.dice.get(3, "Subcontinents - Pangaea PYTHON")
 			# List values: [westLon, southLat, vertRange, horzRange, southShift]
 			scValues = [[0.05, 0.575, 0.0, 0.0, 0.15],
-			            [0.05, 0.275, 0.0, 0.0, 0.15],
-			            [0.2, 0.175, 0.0, 0.0, 0.15],
-			            [0.5, 0.175, 0.0, 0.0, 0.15],
-			            [0.65, 0.575, 0.0, 0.0, 0.15],
-			            [0.65, 0.275, 0.0, 0.0, 0.15],
-			            [0.2, 0.675, 0.0, 0.0, 0.15],
-			            [0.5, 0.675, 0.0, 0.0, 0.15]
-			            ]
+                        [0.05, 0.275, 0.0, 0.0, 0.15],
+                        [0.2, 0.175, 0.0, 0.0, 0.15],
+                        [0.5, 0.175, 0.0, 0.0, 0.15],
+                        [0.65, 0.575, 0.0, 0.0, 0.15],
+                        [0.65, 0.275, 0.0, 0.0, 0.15],
+                        [0.2, 0.675, 0.0, 0.0, 0.15],
+                        [0.5, 0.675, 0.0, 0.0, 0.15]
+                        ]
 
 		# Generate the main land mass, first pass (to vary shape).
 		mainWestX = int(self.iW * mainWestLon)

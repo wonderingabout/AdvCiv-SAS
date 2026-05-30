@@ -152,19 +152,19 @@ def getCustomMapOptionDescAt(argsList):
 	iOption = argsList[0]
 	iSelection = argsList[1]
 	selection_names = ["TXT_KEY_MAP_SCRIPT_EARTH_70",
-	                   "TXT_KEY_MAP_SCRIPT_EARTH_60",
-					   "TXT_KEY_MAP_SCRIPT_EARTH_50", # advc.021a
-	                   "TXT_KEY_MAP_SCRIPT_PANGAEA",
-	                   "TXT_KEY_MAP_SCRIPT_LAKES",
-	                   "TXT_KEY_MAP_SCRIPT_ISLANDS_90", # advc.021a: was ..._ISLANDS
-	                   "TXT_KEY_MAP_SCRIPT_MEDITERRANEAN", 
-	                   "TXT_KEY_MAP_SCRIPT_TERRA",
-	                   "TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START"]
+                       "TXT_KEY_MAP_SCRIPT_EARTH_60",
+                       "TXT_KEY_MAP_SCRIPT_EARTH_50", # advc.021a
+                       "TXT_KEY_MAP_SCRIPT_PANGAEA",
+                       "TXT_KEY_MAP_SCRIPT_LAKES",
+                       "TXT_KEY_MAP_SCRIPT_ISLANDS_90", # advc.021a: was ..._ISLANDS
+                       "TXT_KEY_MAP_SCRIPT_MEDITERRANEAN",
+                       "TXT_KEY_MAP_SCRIPT_TERRA",
+                       "TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START"]
 	                   
 	aridity_names = ["TXT_KEY_CLIMATE_ARID",
-	                 "TXT_KEY_GAMESPEED_NORMAL",
-	                 "TXT_KEY_MAP_SCRIPT_WET",
-	                 "TXT_KEY_MAP_SCRIPT_NO_ICE"]
+                     "TXT_KEY_GAMESPEED_NORMAL",
+                     "TXT_KEY_MAP_SCRIPT_WET",
+                     "TXT_KEY_MAP_SCRIPT_NO_ICE"]
 	                 
 	if (iOption == 0):
 		return unicode(CyTranslator().getText(selection_names[iSelection], ()))
