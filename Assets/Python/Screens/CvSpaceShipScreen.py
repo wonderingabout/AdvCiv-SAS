@@ -48,7 +48,7 @@ class CvSpaceShipScreen:
 		self.H_LAUNCH = 60
 		self.X_LAUNCH = self.X_SCREEN - self.PADDING - self.W_LAUNCH
 		self.Y_LAUNCH = self.Y_SCREEN + self.H_SCREEN - self.H_LAUNCH - self.PADDING
-	
+
 		self.X_LAUNCH_LABEL1 = self.X_SCREEN + self.PADDING
 		self.Y_LAUNCH_LABEL1 = self.Y_LAUNCH + 8
 		self.X_LAUNCH_LABEL2 = self.X_LAUNCH_LABEL1

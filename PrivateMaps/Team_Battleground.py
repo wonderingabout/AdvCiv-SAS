@@ -45,10 +45,10 @@ def getDescription():
 def getNumCustomMapOptions():
 #	BugUtil.debug("Team_Battleground: getNumCustomMapOptions")
 	return 3
-	
+
 def getNumHiddenCustomMapOptions():
 	return 1
-	
+
 def getCustomMapOptionName(argsList):
 #	BugUtil.debug("Team_Battleground: getCustomMapOptionName")
 	[iOption] = argsList
@@ -61,7 +61,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -70,7 +70,7 @@ def getNumCustomMapOptionValues(argsList):
 		2:	3
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 #	BugUtil.debug("Team_Battleground: getCustomMapOptionDescAt")
 	[iOption, iSelection] = argsList
@@ -102,7 +102,7 @@ def getCustomMapOptionDescAt(argsList):
 
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 #	BugUtil.debug("Team_Battleground: getCustomMapOptionDefault")
 	[iOption] = argsList
@@ -133,16 +133,16 @@ def isSeaLevelMap():
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(2) == 1 or map.getCustomMapOption(2) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(2) == 2)
-	
+
 def getTopLatitude():
 	return 80
 def getBottomLatitude():
 	return -80
-	
+
 def minStartingDistanceModifier():
 	return -65
 
@@ -178,7 +178,7 @@ def getGridSize(argsList):
 
 	if grid_choice == 3: # left v right with land bridge defaults to same as left v right
 		grid_choice = 0
-	
+
 	if (grid_choice == 4   # round
 	or  grid_choice == 5): # donut
 		grid_choice = 1
@@ -208,7 +208,7 @@ def generatePlotTypes():
 	map = CyMap()
 	mapRand = gc.getGame().getMapRand()
 	userInputPlots = map.getCustomMapOption(0)
-	
+
 	if userInputPlots == 2: # Four Corners
 		hinted_world = HintedWorld()
 		iNumPlotsX = map.getGridWidth()
@@ -216,12 +216,12 @@ def generatePlotTypes():
 
 		centery = (hinted_world.h - 1)//2
 		centerx = (hinted_world.w - 1)//2
-	
+
 		iCenterXList = []
 		iCenterXList.append(centerx-1)
 		iCenterXList.append(centerx)
 		iCenterXList.append(centerx+1)
-	
+
 		iCenterYList = []
 		iCenterYList.append(centery-1)
 		iCenterYList.append(centery)
@@ -246,7 +246,7 @@ def generatePlotTypes():
 
 		hinted_world.buildAllContinents()
 		plotTypes = hinted_world.generatePlotTypes(20)
-	
+
 		# Remove any land bridge that exists
 		centerplotx = (iNumPlotsX - 1)//2
 		dx = 1
@@ -262,7 +262,7 @@ def generatePlotTypes():
 				i = map.plotNum(x, y)
 				if plotTypes[i] != PlotTypes.PLOT_OCEAN:
 					plotTypes[i] = PlotTypes.PLOT_OCEAN
-		
+
 		# Now add the bridge across the center!
 		sizevalues = {
 			SAS_MAGIC_WORLDSIZE_ARENA: 3,
@@ -316,7 +316,7 @@ def generatePlotTypes():
 							i = map.plotNum(int(round(x+offset)), y)
 							plotTypes[i] = PlotTypes.PLOT_LAND
 					x += slope
-		
+
 		return plotTypes
 
 	if (userInputPlots == 4   # round
@@ -386,7 +386,7 @@ def generatePlotTypes():
 	else: # Left vs Right
 		iNumPlotsX = map.getGridWidth()
 		iNumPlotsY = map.getGridHeight()
-	
+
 		hinted_world = HintedWorld(4,2)
 		centerx = (hinted_world.w - 1)//2	
 		centery = (hinted_world.h - 1)//2
@@ -402,10 +402,10 @@ def generatePlotTypes():
 						hinted_world.setValue(x,y,0)
 				else:
 					hinted_world.setValue(x,y,255)
-		
+
 		hinted_world.buildAllContinents()
 		plotTypes = hinted_world.generatePlotTypes(20)
-	
+
 		#fix any land bridge that exists
 		centerplotx = (iNumPlotsX - 1)//2
 		dx = 1
@@ -632,7 +632,7 @@ def assignStartingPlots():
 				del team_list[iChooseTeam]
 
 	CyPythonMgr().allowDefaultImpl()
-	
+
 def findStartingPlot(argsList):
 #	BugUtil.debug("Team_Battleground: findStartingPlot1")
 	[playerID] = argsList
@@ -651,7 +651,7 @@ def findStartingPlot(argsList):
 
 	thisTeamID = CyGlobalContext().getPlayer(playerID).getTeam()
 	teamID = team_num[thisTeamID]
-	
+
 	assignedPlayers[teamID] += 1
 
 #	BugUtil.debug("Team_Battleground: findStartingPlot4")
@@ -788,7 +788,7 @@ def findStartingPlot(argsList):
 
 		# All conditions have failed? Wow. Is that even possible? :)
 		return true
-	
+
 	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)
 
 def normalizeStartingPlotLocations():

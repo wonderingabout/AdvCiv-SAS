@@ -20,7 +20,7 @@ balancer = BonusBalancer()
 
 def getDescription():#The BTS description, used in general game setup, not the MapPreview screen in game from BTS
 	return "Modified BTG_Lagoon map from the Beyond the Game mod (by Penny). Adapted for AdvCiv-SAS: upscaled, non-AdvCiv options removed, and SAS48/high player counts supported."
-	
+
 def getDescriptionTitle():
 	return "A map deisgned for two sides, as a top v bottom. There will be 1 player of each team in a very rich central donut"
 
@@ -32,10 +32,10 @@ def getDescriptionMain():
 
 def getDescriptionSecond():#Script tip : (on TOP)
 	return "The 'size factor' option has a huge impact, it determines if the donut in the center can be reach by a very thin 1 tile layer at the bottom, or if boats will be necessary "
-	
+
 def getDescriptionThird():#Option : (at the bottom)"
 	return "Perfect for 4v4, with favoring a 'non-bridge' configuration, so that the bottom and top players will have to decide to build galleys very quickly or not."	
-	
+
 def getDescriptionScenario():#Scenario : (at the bottom)"
 	return "On 3v3 also good, will make more sense to leave a band of land in that case. Don't play other player counts"
 
@@ -62,7 +62,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -76,7 +76,7 @@ def getNumCustomMapOptionValues(argsList):
 	if not option_values.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -114,7 +114,7 @@ def getCustomMapOptionDescAt(argsList):
 		return u""
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -146,52 +146,52 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(5) == 1 or map.getCustomMapOption(5) == 2)	
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(5) == 2)
-	
+
 def normalizeAddExtras():
 
 	if (CyMap().getCustomMapOption(1) >= 1):
 		balancer.normalizeAddExtras()
-		
+
 
 	#BTG
 	# Moving from 4 to 8 because there are lots of tundras etc.
 	BTPForceResourceLand(100,True,getInfoTypeOrFail("BONUS_OIL"),10,False,getInfoTypeOrFail("TERRAIN_DESERT"))
 	BTPForceResourceLand(100,False,getInfoTypeOrFail("BONUS_ALUMINUM"),10,True,getInfoTypeOrFail("TERRAIN_PLAINS"))
-		
+
 	if (CyMap().getCustomMapOption(1) >= 2):	
 		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_BANANA"),5,3,False,getInfoTypeOrFail("TERRAIN_PLAINS"))	
 		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_PIG"),5,4,True,getInfoTypeOrFail("TERRAIN_PLAINS"))
 		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_WHEAT"),7,5,True,getInfoTypeOrFail("TERRAIN_PLAINS"))				
-						
+
 	if (CyMap().getCustomMapOption(3) >= 1):
 		doUUCenter()
-		
+
 	#End Map Specific		
-		
+
 	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
 
 def doUUCenter():
 	iExtraTile = 0
-	
+
 	#Center Unique
 	# <!-- custom: AdvCiv-SAS has no BONUS_SALT/BONUS_TEA/BONUS_OLIVES; use supported luxuries instead. (GPT-5.3-Codex) -->
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 
-			
+
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_MARBLE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_STONE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
-	
+
 	BTPresourceFromCenter(2,7+iExtraTile,getInfoTypeOrFail("BONUS_WHALE"),getInfoTypeOrFail("TERRAIN_COAST"))
 
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SILVER"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GEMSTONES"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GOLD"),getInfoTypeOrFail("TERRAIN_PLAINS"))	
-	
-	
+
+
 	#2.23 Elephants every two players rather than 3
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_ELEPHANTS"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
 
@@ -214,7 +214,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(1) >= 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isAdvancedMap():
@@ -230,7 +230,7 @@ def isSeaLevelMap():
 
 def getGridSize(argsList):
 	"Override Grid Size function to make the maps square."
-	
+
 	# <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
 	grid_sizes = {
 		SAS_MAGIC_WORLDSIZE_ARENA: (5,5),
@@ -241,12 +241,12 @@ def getGridSize(argsList):
 		SAS_MAGIC_WORLDSIZE_LARGE: (10,10),
 		SAS_MAGIC_WORLDSIZE_HUGE: (11,11)
 	}			
-		
+
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
-	
+
 	#return (10, 10) 
 
 def minStartingDistanceModifier():
@@ -262,15 +262,15 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - self.hillGroupTwoRange), 0))
 		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + self.hillGroupTwoRange), 100))
 		iPeakThreshold = self.peaksFrac.getHeightFromPercent(self.peakPercent)
-		
+
 		iCenterX = int(self.iNumPlotsX / 2)
 		iCenterY = int(self.iNumPlotsY / 2)
-		
-		
+
+
 		#Default Value work well with Grid Size 10, 10, which is the value of large map, which is 4
 		iShiftBias = 4
 		iShift = iShiftBias - (int(CyMap().getWorldSize()))
-		
+
 		iRadius = int(self.map.getGridHeight() / 4)
 		iHoleRadius = int(self.map.getGridHeight() / 4)
 		iWidthSize = max(7 - (iShift),4) + (CyMap().getCustomMapOption(0)) #This option is worth 1 if bridge activated
@@ -278,7 +278,7 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 			iSmallWidthSize = max(5 - (iShift),4) + (CyMap().getCustomMapOption(0)) #This option is worth 1 if bridge activated
 		if int(CyMap().getWorldSize()) < 2:#else
 			iSmallWidthSize = max(5 - (iShift),3) + (CyMap().getCustomMapOption(0)) #This option is worth 1 if bridge activated
-			
+
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
 				i = y*self.iNumPlotsX + x
@@ -315,12 +315,12 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 							self.plotTypes[i] = PlotTypes.PLOT_HILLS
 					else:
 						self.plotTypes[i] = PlotTypes.PLOT_LAND
-		
-		
+
+
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
 				i = y*self.iNumPlotsX + x	
-				
+
 				#A - Extreme sides solid
 				if x <= iSmallWidthSize or x >= self.map.getGridWidth() - iSmallWidthSize or y <= iSmallWidthSize or y >= self.map.getGridWidth() - iSmallWidthSize:
 					iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
@@ -328,7 +328,7 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 						self.plotTypes[i] = PlotTypes.PLOT_HILLS
 					else :
 						self.plotTypes[i] = PlotTypes.PLOT_LAND
-				
+
 				#B Next to that, less solid
 				if x <= iWidthSize or x >= self.map.getGridWidth() - iWidthSize or y <= iWidthSize or y >= self.map.getGridWidth() - iWidthSize:
 					iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
@@ -338,7 +338,7 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 							self.plotTypes[i] = PlotTypes.PLOT_HILLS
 						else :
 							self.plotTypes[i] = PlotTypes.PLOT_LAND
-							
+
 				#C make a bridge for the lagoon
 				if (CyMap().getCustomMapOption(0) == 0): #This option is worth 1 if bridge activated
 					if x >= iCenterX -1 and x <= iCenterX +1:				
@@ -352,13 +352,13 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 							iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
 							if (iProba < 95):
 								self.plotTypes[i] = PlotTypes.PLOT_HILLS					
-						
-									
+
+
 		if shift_plot_types:
 			self.shiftPlotTypes()
 
 		return self.plotTypes
-		
+
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Donut) ...")
 	fractal_world = DonutFractalWorld()
@@ -388,10 +388,10 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 
 		self.iCenterX = int(self.map.getGridWidth() / 2)
 		self.iCenterY = int(self.map.getGridHeight() / 2)
-		
+
 		self.iRadius = int(self.map.getGridHeight() / 2)
 		self.iHoleRadius = int(self.map.getGridHeight() / 2)
-		
+
 	def initFractals(self):
 		self.terrain.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iGrassBottom = self.terrain.getHeightFromPercent(12)
@@ -415,7 +415,7 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	def generateTerrainAtPlot(self,iX,iY):
 		if (self.map.plot(iX, iY).isWater()):
 			return self.map.plot(iX, iY).getTerrainType()
-			
+
 		#version B - Simplified
 		val = self.terrain.getHeight(iX, iY)
 		iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
@@ -433,7 +433,7 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 			return self.map.plot(iX, iY).getTerrainType()
 
 		return terrainVal
-		
+
 def addRivers():#Lagoon 2.26 -- Adding this because it's direct after Generate plot and before the bonuses
 
 	#Polish the Terrain Type
@@ -450,8 +450,8 @@ def addRivers():#Lagoon 2.26 -- Adding this because it's direct after Generate p
 					p.setPlotType(PlotTypes.PLOT_PEAK,True,True)
 				else:
 					p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"), True, True)	
-					
-						
+
+
 	#Need to finish by doing normal rivers
 	CyPythonMgr().allowDefaultImpl()				
 
@@ -465,7 +465,7 @@ class DonutFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	def addIceAtPlot(self, pPlot, iX, iY, lat):
 		# We don' need no steeking ice. M'kay? Alrighty then.
 		ice = 0
-		
+
 	def addJunglesAtPlot(self, pPlot, iX, iY, lat):
 		jungle = 0	
 
@@ -474,8 +474,8 @@ def addFeatures():
 	featuregen = DonutFeatureGenerator()
 	featuregen.addFeatures()
 	return 0
-	
-	
+
+
 def beforeGeneration():
 	#copy /inspired by inland			
 	"Set up global variables for start point templates"
@@ -486,17 +486,17 @@ def beforeGeneration():
 	dice = gc.getGame().getMapRand()
 	iW = CyMap().getGridWidth()
 	iH = CyMap().getGridHeight()
-	
+
 	# Choose a Template to be used for this game.
 	iPlayers = gc.getGame().countCivPlayersEverAlive()
 	iTemplateRoll = 0#Because only 1 template for each
-	
+
 	#2.23 - Debug because it crashes if too close
-	
+
 	if (CyMap().getCustomMapOption(2) == 0):#Normal with people inside
-	
+
 		fVar = 2
-		
+
 		templates = {(1,0): {0: [0.50, 0.50, 4, 4]},
                      (2,0): {0: [0.50, 0.10, fVar, fVar],
                              1: [0.50, 0.90, fVar, fVar]},
@@ -553,11 +553,11 @@ def beforeGeneration():
                              8: [0.70, 0.10, fVar, fVar],
                              9: [0.70, 0.90, fVar, fVar]},
 		}
-		
+
 	if (CyMap().getCustomMapOption(2) == 1):#Only outside
-	
+
 		fVar = 2
-		
+
 		templates = {(1,0): {0: [0.50, 0.50, 4, 4]},
                      (2,0): {0: [0.10, 0.10, fVar, fVar],
                              1: [0.10, 0.90, fVar, fVar]},
@@ -627,11 +627,11 @@ def beforeGeneration():
 		iChoosePlayer = dice.get(len(player_list), "Shuffling Template IDs - Inland Sea PYTHON")
 		shuffledPlayers.append(player_list[iChoosePlayer])
 		del player_list[iChoosePlayer]
-			
-				
-		
+
+
+
 	return None		
-	
+
 
 def findStartingPlot(argsList):
 	# Set up for maximum of 18 players! If more, use default implementation.
@@ -639,9 +639,9 @@ def findStartingPlot(argsList):
 	if iPlayers > 10:
 		CyPythonMgr().allowDefaultImpl()
 		return
-		
+
 	[playerID] = argsList
-	
+
 	global plotSuccess
 	global plotValue
 
@@ -652,14 +652,14 @@ def findStartingPlot(argsList):
 		iW = map.getGridWidth()
 		iH = map.getGridHeight()
 		iPlayers = gc.getGame().countCivPlayersEverAlive()
-				
+
 		# Use global data set up via beforeGeneration().
 		global templates
 		global shuffledPlayers
 		global iTemplateRoll
 		playerTemplateAssignment = shuffledPlayers[playerID]
 		[fLat, fLon, varX, varY] = templates[(iPlayers, iTemplateRoll)][playerTemplateAssignment]
-		
+
 		# Check to ensure the plot is on the main landmass.
 		#2.26 Lagoon - This makes it crash !
 		#if (pPlot.getArea() != map.findBiggestArea(False).getID()):
@@ -683,7 +683,7 @@ def normalizeStartingPlotLocations():
 
 	gc = CyGlobalContext()	
 	dice = gc.getGame().getMapRand()	
-		
+
 	if (CyMap().getCustomMapOption(4) == 1):
 		BTPTopBottomTwoTeams(False)
 	elif (CyMap().getCustomMapOption(4) == 2):
@@ -692,7 +692,7 @@ def normalizeStartingPlotLocations():
 		CyPythonMgr().allowDefaultImpl()#this is the bit that puts team together and is normal case	
 
 def startHumansOnSameTile():
-	
+
 	#doing in normalizeAddExtra was too early
 	#we do this after because default implement does add forest
 	CyPythonMgr().allowDefaultImpl()
@@ -700,15 +700,15 @@ def startHumansOnSameTile():
 def BTGSong():
 	return 0
 
-			
+
 def BTPTopBottomTwoTeams(isBTG):							
 	gc = CyGlobalContext()	
-	
+
 	#2.19 debug		
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))	
-				
+
 	iEverAliveTeamCount = 0
-	
+
 	for iI in range(gc.getMAX_CIV_TEAMS()):	
 		if isBTG:
 			if gc.getTeam(iI).isEverAlive() and not gc.getTeam(iI).isSpectator() and not gc.getTeam(iI).isBarbarian():
@@ -719,19 +719,19 @@ def BTPTopBottomTwoTeams(isBTG):
 
 	if gc.getGame().countCivPlayersEverAlive() <= 3:
 		return None			
-		
+
 	if (gc.getGame().countCivPlayersEverAlive() % 2) != 0 :#verify it's even number, if not don't apply
 		return None	
-				
+
 	elif not iEverAliveTeamCount == 2:
 		return None
-		
+
 	else:
-	
+
 		#############################
 		#Spectator bit - not amazing if spectator is middle team
 
-	
+
 		listTeams = []
 		#2.23 Improve for spectators
 		for iI in range(gc.getMAX_CIV_TEAMS()):	
@@ -742,7 +742,7 @@ def BTPTopBottomTwoTeams(isBTG):
 			else:
 				if gc.getTeam(iI).isEverAlive():				
 					listTeams.append(gc.getTeam(iI).getID())				
-				
+
 		random.shuffle(listTeams)		
 		teamOne = listTeams[0]
 		teamTwo = listTeams[1]
@@ -761,7 +761,7 @@ def BTPTopBottomTwoTeams(isBTG):
 				if (gc.getPlayer(iI).isAlive()):		
 					listPlot.append(gc.getPlayer(iI).getStartingPlot())
 					listPlayer.append(gc.getPlayer(iI).getID())				
-		
+
 		#only do team one it will be good 		
 		listCurrentPlayer = listPlayer
 		for iI in range(gc.getMAX_CIV_PLAYERS()):
@@ -781,13 +781,13 @@ def BTPTopBottomTwoTeams(isBTG):
 					while ((gc.getPlayer(iRoll).getStartingPlot().getY() >= halfHeight) or (iRoll == iI) or gc.getPlayer(iRoll).getTeam() == teamOne):#I roll until it's a bottom tile
 						random.shuffle(listCurrentPlayer)
 						iRoll = listCurrentPlayer[0]
-					
+
 					spotA = gc.getPlayer(iI).getStartingPlot()
 					spotB = gc.getPlayer(iRoll).getStartingPlot()
 					gc.getPlayer(iI).setStartingPlot(spotB,True)
 					gc.getPlayer(iRoll).setStartingPlot(spotA,True)				
-			
-			
+
+
 def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bMakeHill,iForceTerrain):
 
 	gc = CyGlobalContext()
@@ -795,10 +795,10 @@ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bM
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
 
 	for i in range(gc.getMAX_CIV_PLAYERS()):
-	
+
 		iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
 		if iProba <= iProbaTreshold:
-	
+
 			if gc.getPlayer(i).isEverAlive():
 				start_plot = gc.getPlayer(i).getStartingPlot()
 				startx, starty = start_plot.getX(), start_plot.getY()
@@ -842,7 +842,7 @@ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bM
 									plotsboundariesSafe.append(p)#all the tiles are no bonus, this has priority
 								if p.getBonusType(-1) == iResourceType:
 									has_resource = True
-									
+
 				if not has_resource:
 					if len(plotsboundariesSafeNoRiver) > 0:	#2.34 new block									
 						random.shuffle(plotsboundariesSafeNoRiver)	
@@ -857,7 +857,7 @@ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bM
 								p.setFeatureType(-1,-1)#2.34 avoid resource on floodplains transformed into 5F
 								has_resource = True
 								break						
-				
+
 					elif len(plotsboundariesSafe) > 0:										
 						random.shuffle(plotsboundariesSafe)	
 						for p in plotsboundariesSafe:
@@ -871,7 +871,7 @@ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bM
 								p.setFeatureType(-1,-1)#2.34 avoid resource on floodplains transformed into 5F
 								has_resource = True
 								break
-								
+
 					else:								
 						random.shuffle(plotsboundaries)	
 						for p in plotsboundaries:
@@ -885,20 +885,20 @@ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bM
 								p.setFeatureType(-1,-1)#2.34 avoid resource on floodplains transformed into 5F
 								has_resource = True
 								break				
-								
-								
+
+
 def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,iMinDistance,bMakeHill,iForceTerrain):		
 
 	gc = CyGlobalContext()
 	map = CyMap()
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
-	
-	
+
+
 	for i in range(gc.getMAX_CIV_PLAYERS()):
-		
+
 		iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
 		if iProba <= iProbaTreshold:
-	
+
 			if gc.getPlayer(i).isEverAlive():
 				start_plot = gc.getPlayer(i).getStartingPlot()
 				startx, starty = start_plot.getX(), start_plot.getY()
@@ -934,10 +934,10 @@ def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,i
 										plotsboundaries.append(p)
 									else :
 										plotsboundariesSafe.append(p)#all the tiles are no bonus, this has priority								
-									
+
 
 				if len(plotsboundariesSafe) > 0:
-									
+
 					random.shuffle(plotsboundariesSafe)	
 					for p in plotsboundariesSafe:
 						#if (p.getBonusType(-1) == BonusTypes.NO_BONUS) and p.canHaveBonus(iResourceType, True):
@@ -950,7 +950,7 @@ def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,i
 							p.setBonusType(iResourceType)
 							p.setFeatureType(-1, -1)#2.25 -- Need remove floodplains, and forest then	
 							break
-							
+
 				else:	
 					random.shuffle(plotsboundaries)
 					for p in plotsboundaries:
@@ -971,7 +971,7 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
 	centerY = CyMap().getGridHeight()*50/100
 	plotCenter = CyMap().plot(CyMap().getGridWidth()*50/100,CyMap().getGridHeight()*50/100)
 	random.seed(CyGlobalContext().getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
-	
+
 	plotsboundaries = []
 	plotsboundariesSafe = []
 	for dx in range(-maxFromCenter,maxFromCenter):
@@ -980,7 +980,7 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
 			#if (((dx >= minFromCenter) or (dx <= -minFromCenter)) and ((dy >= minFromCenter) or (dy <=-minFromCenter))): 
 			if ((abs(dx) >= minFromCenter) and (abs(dy) >= minFromCenter)):
 				if (not p.isNone()) and (not p.isImpassable()) and (not p.isWater()):
-					
+
 					#2.21
 					iBonusCount = 0
 					for tx in range(3):
@@ -988,15 +988,15 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
 							testP = CyMap().plot(centerX+dx+tx-1,centerY+dy+ty-1)
 							if (testP.getBonusType(-1) != -1):
 								iBonusCount += 1		
-								
+
 					if iBonusCount >= 1:
 						plotsboundaries.append(p)
 					else :
 						plotsboundariesSafe.append(p)#all the tiles are no bonus, this has priority
-						
-	
+
+
 	if len(plotsboundariesSafe) > 0:
-	
+
 		random.shuffle(plotsboundariesSafe)	
 		for p in plotsboundariesSafe:
 			if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
@@ -1005,7 +1005,7 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
 				p.setBonusType(iResourceType)
 				p.setFeatureType(-1, -1)
 				break	
-		
+
 	else:
 		random.shuffle(plotsboundaries)
 		for p in plotsboundaries:

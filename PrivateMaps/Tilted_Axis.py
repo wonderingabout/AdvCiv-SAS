@@ -43,7 +43,7 @@ def getCustomMapOptionName(argsList):
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -51,7 +51,7 @@ def getNumCustomMapOptionValues(argsList):
 		1:	2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -71,7 +71,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -101,7 +101,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(1) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def getGridSize(argsList):
@@ -126,7 +126,7 @@ def getWrapX():
 	return False
 def getWrapY():
 	return True
-    
+
 # subclass FractalWorld to enable square exponents for use with Tilted Axis.
 class TiltedAxisFractalWorld(CvMapGeneratorUtil.FractalWorld):
 	def initFractal(self, continent_grain = 2, rift_grain = 2, has_center_rift = True):
@@ -157,10 +157,10 @@ def generatePlotTypes():
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
 	fractal_world = TiltedAxisFractalWorld()
-	
+
 	# Get user input.
 	userInputLandmass = map.getCustomMapOption(0)
-	
+
 	if userInputLandmass == 4:
 		NiTextOut("Setting Plot Types (Python Tilted Axis, Tiny Islands) ...")
 		fractal_world.initFractal(continent_grain = 5, rift_grain = -1, has_center_rift = False)
@@ -175,17 +175,17 @@ def generatePlotTypes():
 		NiTextOut("Setting Plot Types (Python Tilted Axis, Small Continents) ...")
 		fractal_world.initFractal(continent_grain = 3, rift_grain = 3, has_center_rift = False)
 		return fractal_world.generatePlotTypes(grain_amount = 4)
-		
+
 	elif userInputLandmass == 0:
 		NiTextOut("Setting Plot Types (Python Tilted Axis, Massive Continents) ...")
 		fractal_world.initFractal(continent_grain = 1, rift_grain = 2, has_center_rift = False)
 		return fractal_world.generatePlotTypes(grain_amount = 4)
-	
+
 	else: # standard lands
 		NiTextOut("Setting Plot Types (Python Tilted Axis, Normal Continents) ...")
 		fractal_world.initFractal(continent_grain = 2, rift_grain = 2, has_center_rift = True)
 		return fractal_world.generatePlotTypes(grain_amount = 4)
-	
+
 # subclass TerrainGenerator to make the climate "latitudes" run west to east
 class TiltedAxisTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	def getLatitudeAtPlot(self, iX, iY):

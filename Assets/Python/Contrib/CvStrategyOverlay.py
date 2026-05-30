@@ -33,13 +33,13 @@ SAS_HIDDEN_ANNOTATION_SIGNS_SAVE_ID = "SASHiddenAnnotationSigns"
 
 def init(paletteWidth=3, paletteColors=None):
 	global COLOR_KEYS, PALETTE_WIDTH
-	
+
 	# setup palette width
 	if paletteWidth:
 		PALETTE_WIDTH = paletteWidth
 	else:
 		PALETTE_WIDTH = 10
-	
+
 	# setup palette colors
 	if paletteColors:
 		COLOR_KEYS = paletteColors
@@ -52,7 +52,7 @@ def init(paletteWidth=3, paletteColors=None):
 				COLOR_KEYS.append(info.getType())
 		except:
 			pass
-	
+
 	# create layers
 	DotMapLayer()
 
@@ -157,7 +157,7 @@ class StrategyLayer(object):
 		self.dirty = False
 		g_layers[id] = self
 		self.reset()
-	
+
 	def reset(self):
 		# Resets the data to a blank state and clears the dirty flag.
 		#
@@ -166,58 +166,58 @@ class StrategyLayer(object):
 		# only through its key combo (and not through a BUG options checkbox).
 		if StratLayerOpt.isEnabled():
 			StratLayerOpt.setShowDotMap(True) # </advc.004>
-	
+
 	def read(self):
 		# Reads the data from the game and clears the dirty flag.
 		#
 		self.dirty = False
-	
+
 	def write(self):
 		# Writes the data to the game and clears the dirty flag.
 		#
 		self.dirty = False
-	
+
 	def toggleVisibility(self):
 		if self.visible:
 			self.hide()
 		else:
 			self.show()
-	
+
 	def show(self):
 		if not self.visible:
 			self.visible = True
 			return True
 		return False
-	
+
 	def hide(self):
 		if self.visible:
 			self.freeze()
 			self.visible = False
 			return True
 		return False
-	
+
 	def toggleEditing(self):
 		if not self.editing:
 			self.edit()
 		else:
 			self.freeze()
-	
+
 	def edit(self):
 		if not self.editing:
 			self.show()
 			self.editing = True
 			return True
 		return False
-	
+
 	def freeze(self):
 		if self.editing:
 			self.editing = False
 			return True
 		return False
-	
+
 	def onBeginActivePlayerTurn(self, ePlayer):
 		pass
-	
+
 	def onSwitchHotSeatPlayer(self, ePlayer):
 		pass
 
@@ -237,22 +237,22 @@ class City:
 		self.point = point
 		self.color = color
 		self.layer = layer
-	
+
 	def __eq__(self, other):
 		return self.point == other.point and self.color == other.color
-	
+
 	def __str__(self):
 		return "(%d,%d) on %d" % (self.point[X], self.point[Y], self.layer)
-	
+
 	def isAt(self, point):
 		return self.point == point
-	
+
 	def samePoint(self, other):
 		return self.point == other.point
-	
+
 	def sameColor(self, other):
 		return self.color == other.color
-	
+
 	def sameLayer(self, other):
 		return self.layer == other.layer
 
@@ -314,12 +314,12 @@ class DotMapLayer(StrategyLayer):
 		self.readOptions()
 		# state
 		self.highlightedCity = None
-	
+
 	def reset(self):
 		super(DotMapLayer, self).reset() # advc.001
 		self.cities = {}
 		self.dirty = False
-	
+
 	def read(self):
 		data = SdToolKit.sdGetGlobal(self.MOD_SAVE_ID, self.CITY_SAVE_ID)
 		self.clearCityLayers()
@@ -328,7 +328,7 @@ class DotMapLayer(StrategyLayer):
 			self.dirty = False
 		else:
 			self.reset()
-	
+
 	def updateData(self, data):
 		# Upgrade previous data formats to latest format.
 		#
@@ -358,70 +358,70 @@ class DotMapLayer(StrategyLayer):
 			layer = (point[X] % grid) * grid + (point[Y] % grid)
 			cities[point] = City(point, color, layer)
 		return newData
-		
+
 	def write(self):
 		if self.dirty:
 			SdToolKit.sdSetGlobal(self.MOD_SAVE_ID, self.CITY_SAVE_ID, self.cities)
 			self.dirty = False
-	
+
 	def show(self):
 		if super(DotMapLayer, self).show():
 			self.redrawCities()
-	
+
 	def hide(self):
 		if super(DotMapLayer, self).hide():
 			self.clearCityLayers()
-	
+
 	def edit(self):
 		if super(DotMapLayer, self).edit():
 			CvOverlayScreenUtils.showOverlayScreen()
-	
+
 	def freeze(self):
 		if super(DotMapLayer, self).freeze():
 			self.unhighlightCity()
 			CvOverlayScreenUtils.hideOverlayScreen()
-	
+
 	def onBeginActivePlayerTurn(self, ePlayer):
 		if StratLayerOpt.isShowDotMap():
 			self.show()
-	
+
 	def onSwitchHotSeatPlayer(self, ePlayer):
 		self.hide()
-	
-	
+
+
 	def hasCities(self, ePlayer):
 		return ePlayer in self.cities
-	
+
 	def hasCity(self, ePlayer, point):
 		return self.hasCities(ePlayer) and point in self.cities[ePlayer]
-	
+
 	def getCities(self, ePlayer):
 		if self.hasCities(ePlayer):
 			return self.cities[ePlayer]
 		cities = {}
 		self.cities[ePlayer] = cities
 		return cities
-	
+
 	def getCity(self, ePlayer, point):
 		if self.hasCities(ePlayer):
 			cities = self.cities[ePlayer]
 			if point in cities:
 				return cities[point]
 		return None
-	
+
 	def iterCities(self, ePlayer):
 		# Iterates over the player's cities.
 		#
 		if self.hasCities(ePlayer):
 			for city in self.getCities(ePlayer).itervalues():
 				yield city
-	
-	
+
+
 	def addCityAt(self, point, color, layer):
 		# Sends a message to add a city for the active player at the given point.
 		#
 		CyMessageControl().sendModNetMessage(MSG_ADD_CITY, PlayerUtil.getActivePlayerID(), point[X] * 1000 + point[Y], color, layer)
-	
+
 	def addCityMessage(self, ePlayer, xy, color, layer):
 		# Processes a message to add a city.
 		#
@@ -429,7 +429,7 @@ class DotMapLayer(StrategyLayer):
 		y = xy % 1000
 		city = City((x, y), color, layer)
 		self.addCity(ePlayer, city)
-	
+
 	def addCity(self, ePlayer, city):
 		# Adds the city to the data set and draws its dot and cross.
 		#
@@ -444,8 +444,8 @@ class DotMapLayer(StrategyLayer):
 		self.dirty = True
 		if ePlayer == PlayerUtil.getActivePlayerID():
 			self.drawCity(city, self.CROSS_ALPHA, self.DOT_ALPHA)
-	
-	
+
+
 	def removeCityAt(self, point):
 		# Sends a message to remove the active player's city at the given point.
 		#
@@ -454,14 +454,14 @@ class DotMapLayer(StrategyLayer):
 			CyMessageControl().sendModNetMessage(MSG_REMOVE_CITY, ePlayer, point[X] * 1000 + point[Y], -1, -1)
 		else:
 			self.freeze()
-	
+
 	def removeCityMessage(self, ePlayer, xy):
 		# Processes a message to remove a city.
 		#
 		x = xy / 1000
 		y = xy % 1000
 		self.removeCity(ePlayer, self.getCity(ePlayer, (x, y)))
-		
+
 	def removeCity(self, ePlayer, city):
 		# Removes the city from the data set and erases its dot and cross.
 		#
@@ -474,8 +474,8 @@ class DotMapLayer(StrategyLayer):
 				self.eraseDot(city, self.DOT_ALPHA)
 		else:
 			BugUtil.warn("City doesn't exist")
-	
-	
+
+
 	def highlightCity(self, point, color):
 		# Highlights the given city location by drawing it using the given color on the highlight layer.
 		# Unhighlights the currently highlighted city if there is one.
@@ -513,26 +513,26 @@ class DotMapLayer(StrategyLayer):
 			if city is not None:
 				self.drawCity(city, self.CROSS_ALPHA, self.DOT_ALPHA)
 			self.highlightedCity = None
-	
-	
+
+
 	def redrawCities(self):
 		# Erases all city layers and draws all of the cities.
 		#
 		self.clearCityLayers()
 		self.drawCities()
-	
+
 	def redrawCrosses(self, layer, skip=None):
 		# Erases the given layer and draws all city crosses in that layer.
 		#
 		self.clearCrossLayer(layer)
 		self.drawCrosses(layer, skip)
-	
+
 	def redrawDots(self):
 		# Erases and redraws all city dots as they are all in the same layer.
 		#
 		self.clearDotLayer()
 		self.drawDots()
-	
+
 	def drawCities(self, skip=None):
 		# Draws all of the cities except skip, if given.
 		#
@@ -541,7 +541,7 @@ class DotMapLayer(StrategyLayer):
 		for city in self.iterCities(PlayerUtil.getActivePlayerID()):
 			if not city.isAt(skip):
 				self.drawCity(city, crossAlpha, dotAlpha)
-	
+
 	def drawCrosses(self, layer=None, skip=None):
 		# Draws the cross for every city in the given layer.
 		#
@@ -550,7 +550,7 @@ class DotMapLayer(StrategyLayer):
 			if not city.isAt(skip):
 				if layer is None or layer == city.layer:
 					self.drawCross(city, crossAlpha)
-	
+
 	def drawDots(self, skip=None):
 		# Draws the dot for every city.
 		#
@@ -558,13 +558,13 @@ class DotMapLayer(StrategyLayer):
 		for city in self.iterCities(PlayerUtil.getActivePlayerID()):
 			if not city.isAt(skip):
 				self.drawDot(city, dotAlpha)
-	
+
 	def drawCity(self, city, crossAlpha, dotAlpha):
 		# Draws the cross and dot for a single city.
 		#
 		self.drawCross(city, crossAlpha)
 		self.drawDot(city, dotAlpha)
-	
+
 	def drawCross(self, city, alpha):
 		# Draws the cross for a single city.
 		#
@@ -573,7 +573,7 @@ class DotMapLayer(StrategyLayer):
 		layer = city.layer
 		for dx, dy in self.BFC_OFFSETS:
 			CyEngine().fillAreaBorderPlotAlt(x + dx, y + dy, layer, color, alpha)
-	
+
 	def drawDot(self, city, alpha):
 		# Draws the dot for a single city.
 		#
@@ -585,7 +585,7 @@ class DotMapLayer(StrategyLayer):
 				CyEngine().addColoredPlot(x, y, NiColorA(color.r, color.g, color.b, alpha), self.DOT_LAYER)
 			else:
 				CyEngine().addColoredPlotAlt(x, y, self.DOT_STYLE, self.DOT_LAYER, colorInfo.getType(), alpha)
-	
+
 	def eraseDot(self, city, alpha):
 		# Erases the dot for a single city.
 		#
@@ -595,7 +595,7 @@ class DotMapLayer(StrategyLayer):
 				CyEngine().addColoredPlot(x, y, self.INVISIBLE_COLOR, self.DOT_LAYER)
 			else:
 				CyEngine().addColoredPlotAlt(x, y, self.NO_DOT_STYLE, self.DOT_LAYER, "COLOR_BLACK", alpha)
-	
+
 	def clearCityLayers(self):
 		# Erases all city crosses and dots.
 		#
@@ -618,11 +618,11 @@ class DotMapLayer(StrategyLayer):
 		# Clears all the dots from screen.
 		#
 		CyEngine().clearColoredPlots(self.DOT_LAYER)
-	
+
 	def percentToAlpha(self, percent):
 		return min(100, max(0, percent)) / 100.0
-	
-	
+
+
 	def readOptions(self):
 		self.CROSS_ALPHA = self.percentToAlpha(StratLayerOpt.getDotMapBrightness())
 		self.DOT_ALPHA = self.percentToAlpha(StratLayerOpt.getDotMapBrightness())
@@ -630,7 +630,7 @@ class DotMapLayer(StrategyLayer):
 		self.HIGHLIGHT_DOT_ALPHA = self.percentToAlpha(StratLayerOpt.getDotMapHighlightBrightness())
 		self.DRAW_DOTS = StratLayerOpt.isDotMapDrawDots()
 		self.DOT_STYLE = min(self.MAX_DOT_STYLE, max(0, StratLayerOpt.getDotMapDotIcon()))
-	
+
 	def optionChanged(self, option, value):
 		# Redraws the layer if it is currently visible.
 		#

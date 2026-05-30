@@ -204,7 +204,7 @@ class CvDomesticAdvisor:
 
 	def updateRuntimeTabLinkWidths(self):
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.TEXT_EXIT, self.X_EXIT)
-		
+
 	# Screen construction function
 	def interfaceScreen(self, argsList=None):
 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
@@ -214,7 +214,7 @@ class CvDomesticAdvisor:
 					self.iPage = argsList[0]
 			elif argsList in self.PAGE_IDS:
 				self.iPage = argsList
-	
+
 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 		self.updateRuntimeLayout(screen)
@@ -228,7 +228,7 @@ class CvDomesticAdvisor:
 		screen.setRenderInterfaceOnly(True)
 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-	
+
 		# Here we set the background widget and exit button, and we show the screen
 		screen.addDrawControl("DomesticAdvisorBackground", self.ART_SCREEN_BG_OPAQUE, 0, 0, self.nScreenWidth, self.nScreenHeight, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.addPanel( "DomesticTopPanel", u"", u"", True, False, 0, 0, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
@@ -393,17 +393,17 @@ class CvDomesticAdvisor:
 			elif pCity.isActiveCorporation(iCorp):
 				szCorps += (u"%c" % gc.getCorporationInfo(iCorp).getChar())
 		return szCorps
-		
+
 	# headers...
 	def drawHeaders1( self ):
 		self.initText()
 
 		# Get the screen and the player
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
-		
+
 		# Zoom to City
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 0, "", (24 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Name Column (advc.193: Font size increased; was 2.)
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 1, self.getOverviewHeaderLabel(self.HEADER_NAME), (self.OVERVIEW_CITY_COL_WIDTH * self.nTableWidth) / self.nNormalizedTableWidth )
 
@@ -412,40 +412,40 @@ class CvDomesticAdvisor:
 
 		# <!-- custom: keep religions in a compact aligned column; appending glyphs to city names was harder to scan. Corporations stay on Overview 3 because they matter less often and would crowd Overview 1. (GPT-5.5) -->
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 3, self.getOverviewHeaderLabel(self.HEADER_RELIGIONS), (self.getOverviewReligionColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Happiness Column  advc.ctr: width was 40
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 4, self.getOverviewHeaderLabel(self.HEADER_HAPPINESS), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Health Column  advc.ctr: width was 40
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 5, self.getOverviewHeaderLabel(self.HEADER_HEALTH), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Food Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 6, self.getOverviewHeaderLabel(self.HEADER_FOOD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Production Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 7, self.getOverviewHeaderLabel(self.HEADER_PRODUCTION), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Gold Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 8, self.getOverviewHeaderLabel(self.HEADER_GOLD), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Research Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 9, self.getOverviewHeaderLabel(self.HEADER_RESEARCH), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Espionage Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 10, self.getOverviewHeaderLabel(self.HEADER_ESPIONAGE), (40 * self.nTableWidth) / self.nNormalizedTableWidth )
-		
+
 		# Culture Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 11, self.getOverviewHeaderLabel(self.HEADER_CULTURE), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
-				
+
 		# Great Person Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 12, self.getOverviewHeaderLabel(self.HEADER_GREAT_PERSON), (70 * self.nTableWidth) / self.nNormalizedTableWidth )
 
 		# Trade Column
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 13, self.getOverviewHeaderLabel(self.HEADER_TRADE), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-				
+
 		# Maintenance Column  advc.ctr: width was 40
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 14, self.getOverviewHeaderLabel(self.HEADER_MAINTENANCE), (33 * self.nTableWidth) / self.nNormalizedTableWidth )
-				
+
 		# Production Column (advc.193: Font size increased; was 2.)
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW1, 15, self.getOverviewHeaderLabel(self.HEADER_PRODUCING), (self.getOverviewProducingColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
 
@@ -512,15 +512,15 @@ class CvDomesticAdvisor:
 			self.updateTable1(pLoopCity, i)
 			i += 1
 			(pLoopCity, iter) = player.nextCity(iter, false)
-		
+
 		self.drawHeaders1()
-		
+
 		if isAdvisorReadOnlyPerspective(self.iActivePlayer):
 			self.hideSpecialists()
 		else:
 			self.drawSpecialists()
 			self.updateAppropriateCitySelection()
-		
+
 		CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, true)
 
 	def drawFinanceContents(self):
@@ -589,11 +589,11 @@ class CvDomesticAdvisor:
 		szCommercePanel = self.getNextFinanceWidgetName()
 		screen.addPanel(szCommercePanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
 		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  sasFontTagLabel + self.TEXT_FIN_COMMERCE.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-				
+
 		szIncomePanel = self.getNextFinanceWidgetName()
 		screen.addPanel(szIncomePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
 		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  sasFontTagLabel + self.TEXT_FIN_INCOME_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-		
+
 		szExpensePanel = self.getNextFinanceWidgetName()
 		screen.addPanel(szExpensePanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
 		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  sasFontTagLabel + self.TEXT_FIN_EXPENSES_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
@@ -869,7 +869,7 @@ class CvDomesticAdvisor:
 			szName += (u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR))
 		elif pLoopCity.isGovernmentCenter():
 			szName += (u"%c" % CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
-		
+
 		# City name...
 		#WidgetTypes.WIDGET_GENERAL, -1, -1,
 		# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
@@ -909,7 +909,7 @@ class CvDomesticAdvisor:
 			# <!-- custom: leave food-to-production cities blank instead of showing 0 net food; they still sort with the zero-surplus group. (GPT-5.5) -->
 			szText = u""
 		screen.setTableInt( self.TABLE_OVERVIEW1, 6, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		
+
 		# Production status...
 		screen.setTableInt( self.TABLE_OVERVIEW1, 7, i, szFontTagOpen+ unicode(pLoopCity.getYieldRate(YieldTypes.YIELD_PRODUCTION)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
@@ -943,7 +943,7 @@ class CvDomesticAdvisor:
 				if iTurnsLeft * pLoopCity.getGreatPeopleRate() <  iGPPLeft:
 					iTurnsLeft += 1
 				szGreatPerson += u" (" + unicode(iTurnsLeft) + u")"
-		
+
 		screen.setTableInt( self.TABLE_OVERVIEW1, 12, i, szFontTagOpen + szGreatPerson + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Trade
@@ -1020,7 +1020,7 @@ class CvDomesticAdvisor:
 			szRevoltPr = localText.changeTextColor(szRevoltPr, getInfoTypeOrFail(szColorTag))
 			screen.setTableText(self.TABLE_OVERVIEW1, 19, i, szFontTagOpen + szRevoltPr + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# </advc.ctr>
-		
+
 	def drawOverview2Contents(self):
 		self.clearFinanceWidgets()
 		screen = self.getScreen()
@@ -1396,7 +1396,7 @@ class CvDomesticAdvisor:
 				screen.hide("SpecialistPlus" + str(i))
 				screen.hide("SpecialistMinus" + str(i))
 				screen.hide("SpecialistText" + str(i))
-				
+
 	def updateSpecialists(self):
 		# Function which shows the specialists.
 		#
@@ -1407,7 +1407,7 @@ class CvDomesticAdvisor:
 			return
 
 		if (CyInterface().isOneCitySelected()):
-		
+
 			city = CyInterface().getHeadSelectedCity()
 			nPopulation = city.getPopulation()
 			nFreeSpecial = city.totalFreeSpecialists()
@@ -1416,7 +1416,7 @@ class CvDomesticAdvisor:
 				if (gc.getSpecialistInfo(i).isVisible()):	
 					szName = "SpecialistImage" + str(i)
 					screen.show(szName)
-					
+
 					szName = "SpecialistText" + str(i)
 					screen.setLabel(szName, "Background", str (city.getSpecialistCount(i)) + "/" + str(city.getMaxSpecialistCount(i)), CvUtil.FONT_LEFT_JUSTIFY, self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 					screen.show(szName)
@@ -1436,7 +1436,7 @@ class CvDomesticAdvisor:
 						screen.hide(szName)
 		else:
 			self.hideSpecialists()
-				
+
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):
 		# Calls function mapped in DomesticAdvisorInputMap
@@ -1451,7 +1451,7 @@ class CvDomesticAdvisor:
 		if self.iPage == self.PAGE_FINANCE and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getButtonType() == WidgetTypes.WIDGET_CHANGE_PERCENT:
 			self.drawFinanceContents()
 			return 1
-		
+
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED ):
 			if inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
 				screen = self.getScreen()
@@ -1479,7 +1479,7 @@ class CvDomesticAdvisor:
 				self.updateAppropriateCitySelection()
 				self.updateSpecialists()
 		return 0
-	
+
 	def updateAppropriateCitySelection(self):
 		if self.iPage != self.PAGE_OVERVIEW1 or isAdvisorReadOnlyPerspective(self.iActivePlayer):
 			return
@@ -1493,7 +1493,7 @@ class CvDomesticAdvisor:
 		for i in range(nCities):
 			if screen.isRowSelected(self.TABLE_OVERVIEW1, i):
 				self.listSelectedCities.append(screen.getTableText(self.TABLE_OVERVIEW1, 1, i))
-								
+
 	def update(self, fDelta):
 		if self.iPage == self.PAGE_FINANCE:
 			if (CyInterface().isDirty(InterfaceDirtyBits.Financial_Screen_DIRTY_BIT)):
@@ -1524,5 +1524,5 @@ class CvDomesticAdvisor:
 
 			if self.iPage == self.PAGE_OVERVIEW1:
 				self.updateSpecialists()
-		
+
 		return

@@ -39,15 +39,15 @@ def getDescription():
 
 def getNumCustomMapOptions():
 	return 1
-	
+
 def getCustomMapOptionName(argsList):
 	translated_text = unicode(CyTranslator().getText("TXT_KEY_MAP_SCRIPT_LANDMASS_TYPE", ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	# Four selections for Landmass Types option
 	return 5
-	
+
 def getCustomMapOptionDescAt(argsList):
 	iSelection = argsList[1]
 	selection_names = ["TXT_KEY_MAP_SCRIPT_RANDOM",
@@ -57,7 +57,7 @@ def getCustomMapOptionDescAt(argsList):
                        "TXT_KEY_MAP_SCRIPT_SMALL_ISLANDS"]
 	translated_text = unicode(CyTranslator().getText(selection_names[iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	return 0
 
@@ -142,19 +142,19 @@ def generatePlotTypes():
 	if land_type == 2: # Narrow Continents
 		fractal_world.initFractal(continent_grain = 3, rift_grain = -1, has_center_rift = False, polar = True)
 		return fractal_world.generatePlotTypes(water_percent = water, grain_amount = 4)
-		
+
 	elif land_type == 3: # Islands
 		fractal_world.initFractal(continent_grain = 4, rift_grain = -1, has_center_rift = False, polar = True)
 		return fractal_world.generatePlotTypes(water_percent = water, grain_amount = 4)
-		
+
 	elif land_type == 4: # Tiny Islands
 		fractal_world.initFractal(continent_grain = 5, rift_grain = -1, has_center_rift = False, polar = True)
 		return fractal_world.generatePlotTypes(water_percent = water, grain_amount = 4)
-		
+
 	elif land_type == 0: # Wide Continents, Huge
 		fractal_world.initFractal(continent_grain = 1, rift_grain = 2, has_center_rift = False, polar = True)
 		return fractal_world.generatePlotTypes(water_percent = water)
-	
+
 	else: # Wide Continents, Large
 		fractal_world.initFractal(rift_grain = 3, has_center_rift = True, polar = True)
 		return fractal_world.generatePlotTypes(water_percent = water)
@@ -163,7 +163,7 @@ def generatePlotTypes():
 # Also, desert reduced, plains dramatically increased. Latitudes shifted colder.
 class IceAgeTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	def __init__(self, iDesertPercent=20, iPlainsPercent=50, fSnowLatitude=0.4, fTundraLatitude=0.3, fGrassLatitude=0.0, fDesertBottomLatitude=0.1, fDesertTopLatitude=0.2, fracXExp=-1, fracYExp=-1, grain_amount=4):
-		
+
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 
@@ -215,7 +215,7 @@ class IceAgeTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		# In order to increase the coverage of tundra latitude, had to increase the "power" of each 0.1 of latitudal effect.
 		# Making this change required changes to addIceAtPlot function.
 		lat = lat * 0.6
-                
+
 		return lat
 
 def generateTerrainTypes():
@@ -252,7 +252,7 @@ class IceAgeFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		self.__initFractals()
 		self.__initFeatureTypes()
-	
+
 	def __initFractals(self):
 		self.jungles.fracInit(self.iGridW, self.iGridH, self.jungle_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
@@ -271,7 +271,7 @@ class IceAgeFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		"Ice Age specific function: returns a value in the range of 0.0 (temperate) to 0.6 (polar)"
 		# 0.0 = equator, 0.3 = tundra, 0.6 = edge of impassable ice.
 		return abs((self.iGridH/2) - iY)/float(self.iGridH/2) * 0.6
-		
+
 	def addIceAtPlot(self, pPlot, iX, iY, lat):
 		if pPlot.canHaveFeature(self.featureIce):
 			if iY == 0 or iY == self.iGridH - 1:

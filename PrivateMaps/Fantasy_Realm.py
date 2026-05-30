@@ -45,7 +45,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -53,7 +53,7 @@ def getNumCustomMapOptionValues(argsList):
 		1:	3
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -72,7 +72,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -92,11 +92,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 2)
-	
+
 def isClimateMap():
 	return 0
 
@@ -128,7 +128,7 @@ def beforeGeneration():
 	userInputResources = map.getCustomMapOption(0)
 	if userInputResources != 2:
 		return
-	
+
 	# Set up "Crazy" resources.
 		food_list = ["BONUS_BANANA", "BONUS_MAIZE", "BONUS_PIG", "BONUS_RICE", "BONUS_SHEEP", "BONUS_WHEAT"]
 		luxury_list = ["BONUS_GEMSTONES", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_SILK", "BONUS_SILVER", "BONUS_GRAPES"]
@@ -195,7 +195,7 @@ class FantasyFractalWorld(CvMapGeneratorUtil.FractalWorld):
 	                      grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
-		
+
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, 0, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, 0, self.fracXExp, self.fracYExp)
 
@@ -262,7 +262,7 @@ class FantasyTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.fracYExp = fracYExp
 
 		self.initFractals()
-		
+
 	def initFractals(self):
 		self.fantasy.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iTen = self.fantasy.getHeightFromPercent(10)
@@ -328,15 +328,15 @@ class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()
 		self.forests = CyFractal()
-		
+
 		self.iFlags = 0 
 
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
-		
+
 		self.iJunglePercent = iJunglePercent
 		self.iForestPercent = iForestPercent
-		
+
 		self.forest_grain = forest_grain + self.gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
 
 		self.fracXExp = fracXExp
@@ -344,10 +344,10 @@ class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		self.__initFractals()
 		self.__initFeatureTypes()
-	
+
 	def __initFractals(self):
 		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		
+
 		self.iJungleLevel = self.forests.getHeightFromPercent(100 - self.iJunglePercent)
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 
@@ -360,13 +360,13 @@ class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 	def addFeaturesAtPlot(self, iX, iY):
 		pPlot = self.map.sPlot(iX, iY)
-		
+
 		if pPlot.isPeak():
 			pass
-		
+
 		elif pPlot.isWater():
 			self.addIceAtPlot(pPlot, iX, iY)
-		
+
 		else:
 			if pPlot.isRiverSide() and pPlot.isFlatlands():
 				self.addFloodAtPlot(pPlot, iX, iY)
@@ -376,10 +376,10 @@ class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 			if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 				self.addJunglesAtPlot(pPlot, iX, iY)
-			
+
 			if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 				self.addForestsAtPlot(pPlot, iX, iY)
-		
+
 	def addIceAtPlot(self, pPlot, iX, iY):
 		iceRoll = self.mapRand.get(35, "Add Feature PYTHON")
 		if iceRoll < 3:
@@ -394,7 +394,7 @@ class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			if pPlot.getTerrainType() != getInfoTypeOrFail("TERRAIN_GRASS"):
 				if self.mapRand.get(30, "Add Feature PYTHON") == 23:
 					pPlot.setFeatureType(self.featureOasis, -1)
-	
+
 	def addJunglesAtPlot(self, pPlot, iX, iY):
 		# Warning: this version of JunglesAtPlot is using the forest fractal!
 		if (self.forests.getHeight(iX, iY) >= self.iJungleLevel):
@@ -557,7 +557,7 @@ def addBonusType(argsList):
 			# 2. The plot has an eligible terrain and feature type.
 			# Now we append this plot to the eligible list.
 			eligible.append([x,y])
-                                    
+
 	# Now we assign the bonuses to eligible plots chosen completely at random.
 	while count > 0:
 		if eligible == []:
@@ -619,7 +619,7 @@ def afterGeneration():
 
 def normalizeRemovePeaks():
 	return None
-	
+
 def normalizeRemoveBadTerrain():
 	return None
 

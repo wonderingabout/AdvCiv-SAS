@@ -57,7 +57,7 @@ def do_pre_load_xml_features_info_required_data_validation():
 								# If not, raise an error here and advise manual display implementation if desired.
 								raise ValueError(u"[VALUE ERROR] Unexpected iTime difference=%d when existing maxSoFarTime=%d for builds removing feature=%d (%s). Please ensure all builds that remove this feature share the same iTime, or update display logic to show per-build time if desired." %
 									(removeTime, maxSoFarTime, iFeature, gc.getFeatureInfo(iFeature).getType()))
-							
+
 							maxSoFarTime = removeTime
 
 class SevoPediaFeature:

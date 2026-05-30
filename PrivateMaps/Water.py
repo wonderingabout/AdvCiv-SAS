@@ -60,7 +60,7 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
 	def generatePlotTypes(self, water_percent=30, shift_plot_types=False, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
-		
+
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, 0, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, 0, self.fracXExp, self.fracYExp)
 
@@ -88,7 +88,7 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
 				i = y*self.iNumPlotsX + x
-				
+
 				# Continuing on with plot generation.
 				val = self.continentsFrac.getHeight(x,y)
 				if val <= iWaterThreshold:
@@ -110,12 +110,12 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
 				i = y*self.iNumPlotsX + x
 				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN and self.isSurroundedByLand(x, y):
 					self.plotTypes[i] = PlotTypes.PLOT_LAND	
-							
+
 
 		if shift_plot_types:
 			self.shiftPlotTypes()
-		
-		
+
+
 
 		return self.plotTypes
 

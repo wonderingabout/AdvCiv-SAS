@@ -58,7 +58,7 @@ def getDescription():
 
 def getNumCustomMapOptions():
 	return 2
-	
+
 def getCustomMapOptionName(argsList):
 	index = argsList[0]
 	option_names = {
@@ -118,7 +118,7 @@ def getGridSize(argsList):
 		return []
 
 	map = CyGlobalContext().getMap()
-	
+
 	# Get user input.
 	iPeirceType = map.getCustomMapOption(0)
 	iPeirceWrap = map.getCustomMapOption(1)
@@ -465,7 +465,7 @@ class PeirceMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		iBaseSeaLevel = 70 + self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
 
 		map = CyGlobalContext().getMap()
-		
+
 		# Get user input.
 		iPeirceType = map.getCustomMapOption(0)
 

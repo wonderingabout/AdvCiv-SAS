@@ -67,7 +67,7 @@ def init():
 	for eUnit in range(NUM_UNITS):
 		unitInfo = gc.getUnitInfo(eUnit)
 		BugUtil.debug("==== %s ====", unitInfo.getDescription())
-		
+
 		# generic unit
 		classInfo = gc.getUnitClassInfo(unitInfo.getUnitClassType())
 		eGenericUnit = classInfo.getDefaultUnitIndex()
@@ -77,7 +77,7 @@ def init():
 				genericUnits.add(eUnit)
 			else:
 				BugUtil.debug("  unique of %s", gc.getUnitInfo(eGenericUnit).getDescription())
-		
+
 		# resource sets
 		found = False
 		eBonus = unitInfo.getPrereqAndBonus()
@@ -95,7 +95,7 @@ def init():
 			unitsWithBonuses.add(eUnit)
 		else:
 			unitsWithoutBonuses.add(eUnit)
-		
+
 		# tech map
 		techs = set()
 		unitTechs[eUnit] = techs
@@ -108,12 +108,12 @@ def init():
 				techs.add(eTech)
 		for eTech in techs:
 			BugUtil.debug("  requires %s", gc.getTechInfo(eTech).getDescription())
-		
+
 	# upgrade maps
 	for eUnit in range(NUM_UNITS):
 		getOlderUnits(eUnit)
 		getNewerUnits(eUnit)
-	
+
 	initOrders()
 
 def unitInfos():

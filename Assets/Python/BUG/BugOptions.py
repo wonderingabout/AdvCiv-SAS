@@ -131,14 +131,14 @@ class Options(object):
 		self.files = {}
 		self.options = {}
 		self.loaded = True
-	
+
 	def getFile(self, id):
 		# Returns the IniFile with the given ID.
 		if (id in self.files):
 			return self.files[id]
 		else:
 			raise BugUtil.ConfigError("Missing file: %s", id)
-	
+
 	def addFile(self, file):
 		# Adds the given IniFile to the dictionary.
 		if file.id in self.files:
@@ -146,24 +146,24 @@ class Options(object):
 		else:
 			self.files[file.id] = file
 			self.createFileGetter(file)
-	
+
 	def isLoaded(self):
 		return self.loaded
-	
+
 	def read(self):
 		# Reads each IniFile.
 		#
 		for file in self.files.itervalues():
 			file.read()
 		self.loaded = True
-	
+
 	def write(self):
 		# Writes each IniFile that is dirty.
 		#
 		if self.isLoaded():
 			for file in self.files.itervalues():
 				file.write()
-	
+
 
 	def findOption(self, id):
 		# Returns the Option with the given ID or returns None of not found.
@@ -191,13 +191,13 @@ class Options(object):
 		# Clears the translations of all options in response to the user choosing a language.
 		for option in self.options.itervalues():
 			option.clearTranslation()
-	
+
 	def resetOptions(self):
 		# Resets all options to their default values.
 		for option in self.options.itervalues():
 			option.resetValue()
-	
-	
+
+
 	def createFileGetter(self, file):
 		# Creates a getter for the given IniFile.
 		def get():
@@ -231,11 +231,11 @@ def read():
 
 def write():
 	g_options.write()
-	
+
 
 class IniFile(object):
 	# Controls reading/writing an INI file and getting/setting Option values.
-	
+
 	def __init__(self, id, name):
 		self.id = id
 		self.name = name
@@ -243,16 +243,16 @@ class IniFile(object):
 		self.config = None
 		self.dirty = False
 		self.options = []
-	
+
 	def addOption(self, option):
 		self.options.append(option)
-	
+
 	def isLoaded(self):
 		return self.config is not None
-	
+
 	def fileExists(self):
 		return self.path is not None
-	
+
 	def isDirty(self):
 		return self.dirty
 
@@ -267,7 +267,7 @@ class IniFile(object):
 			self.path = None
 			self.config = None
 			BugUtil.trace("BugOptions - error reading file '%s'", self.name)
-	
+
 	def create(self):
 		BugUtil.debug("BugOptions - creating INI file '%s'", self.name)
 		self.config = ConfigObj(encoding='utf_8')
@@ -277,7 +277,7 @@ class IniFile(object):
 		# advc.009d: Don't put comments in ini files
 		#self.fillComments()
 		self.write()
-	
+
 	def fillComments(self):
 		print(dir(self.config))
 		self.config.clearInitialComment()
@@ -297,7 +297,7 @@ class IniFile(object):
 				section.addKeyComment(key, defaultHeader + str(option.getDefault()))
 				section.addKeyComment(key)
 		self.config.addFinalComment()
-	
+
 	def write(self):
 		if self.fileExists():
 			if self.isDirty():
@@ -322,21 +322,21 @@ class IniFile(object):
 				BugUtil.error("BugOptions - Cannot locate settings folder")
 		else:
 			BugUtil.warn("BugOptions - INI file '%s' was never read", self.name)
-	
-	
+
+
 	def exists(self, section, key=None):
 		return self.config and section in self.config and (key is None or key in self.config[section])
-	
+
 	def getSection(self, section):
 		if section not in self.config:
 			self.config[section] = {}
 		return self.config[section]
-	
+
 	def getRawValue(self, section, key, default=None):
 		if self.exists(section, key):
 			return self.getSection(section)[key]
 		return default
-	
+
 	def getString(self, section, key, default=None):
 		if self.exists(section, key):
 			return str(self.getSection(section)[key])
@@ -431,93 +431,93 @@ class AbstractOption(object):
 		if self.dll > 0:
 			if not BugDll.isVersion(self.dll):
 				self.enabled = False
-	
+
 	def createLinkedOption(self, mod, id):
 		return LinkedOption(mod, id, self)
-	
+
 	def getID(self):
 		return self.id
-	
+
 	def getFullID(self):
 		return self.idFull
-	
+
 	def getMod(self):
 		return self.mod
-	
+
 	def getTrimmedID(self):
 		return unqualify(self.id)
-	
+
 	def getDll(self):
 		return self.dll
-	
+
 	def isDll(self):
 		return self.dll > 0
-	
+
 	def isEnabled(self):
 		return self.enabled
-	
+
 	def setEnabled(self, enabled):
 		self.enabled = enabled
-	
+
 	def enable(self):
 		self.setEnabled(True)
-	
+
 	def disable(self):
 		self.setEnabled(False)
-	
+
 	def getDefaultGetterName(self):
 		if self.isBoolean():
 			return "is" + self.getTrimmedID()
 		else:
 			return "get" + self.getTrimmedID()
-	
+
 	def getDefaultComparerName(self):
 		if self.isBoolean():
 			return "equals" + self.getTrimmedID()
-	
+
 	def getDefaultSetterName(self):
 		return "set" + self.getTrimmedID()
-	
+
 	def getDefaultResetterName(self):
 		return "reset" + self.getTrimmedID()
-	
-	
+
+
 #	def getType(self):
 #		return NONE_TYPE
-	
+
 	def isBoolean(self):
 		return self.getType() == "boolean"
-	
+
 	def isString(self):
 		return self.getType() == "string"
-	
+
 	def isInt(self):
 		return self.getType() == "int"
-	
+
 	def isFloat(self):
 		return self.getType() == "float"
-	
+
 	def isColor(self):
 		return self.getType() == "color"
 
 #	def getDefault(self):
 #		return None
-	
+
 	def __str__(self):
 		return "<%s %s [%s]>" % (self.id, self.getType(), str(self.getDefault()))
-	
+
 
 	def createAccessorPair(self, getter=None, setter=None):
 		# Creates a pair of plain accessors (getter and setter) for this Option.
 		#
 		self.createGetter(getter)
 		self.createSetter(setter)
-	
+
 	def createGetter(self, name=None, values=None):
 		if not name:
 			name = self.getDefaultGetterName()
 		self.bindAccessor(name, self.createGetterFunction(values))
-	
+
 	def createGetterFunction(self, values=None):
 		if self.isColor():
 			return self.createColorGetterFunction(values)
@@ -527,7 +527,7 @@ class AbstractOption(object):
 			def get(*args):
 				return self.getValue(*args)
 			return get
-	
+
 	def createColorGetterFunction(self, values=None):
 		if values is not None:
 			return self.createColorComparerFunction(values)
@@ -535,12 +535,12 @@ class AbstractOption(object):
 			def get(*args):
 				return self.getColor(*args)
 			return get
-	
+
 	def createComparer(self, name, values):
 		if not name:
 			name = self.getDefaultComparerName()
 		self.bindAccessor(name, self.createComparerFunction(values))
-	
+
 	def createComparerFunction(self, values):
 		if self.isColor():
 			return self.createColorGetterFunction(values)
@@ -560,7 +560,7 @@ class AbstractOption(object):
 				def equals(*args):
 					return self.getValue(*args) == value
 				return equals
-	
+
 	def createColorComparerFunction(self, values):
 		if values is None:
 			BugUtil.warn("BugOptions - createColorComparerFunction() requires one or more values")
@@ -578,12 +578,12 @@ class AbstractOption(object):
 				def equals(*args):
 					return self.getColor(*args) == value
 				return equals
-	
+
 	def createSetter(self, name=None, fixedValue=None):
 		if not name:
 			name = self.getDefaultSetterName()
 		self.bindAccessor(name, self.createSetterFunction(fixedValue))
-	
+
 	def createSetterFunction(self, fixedValue=None):
 		if fixedValue is None:
 			def set(value, *args):
@@ -592,33 +592,33 @@ class AbstractOption(object):
 			def set(*args):
 				self.setValue(fixedValue, *args)
 		return set
-	
+
 	def createResetter(self, name=None):
 		if not name:
 			name = self.getDefaultResetterName()
 		self.bindAccessor(name, self.createResetterFunction())
-	
+
 	def createResetterFunction(self):
 		def reset(*args):
 			self.resetValue(*args)
 		return reset
-	
+
 	def bindAccessor(self, name, function):
 		setattr(self.mod, name, function)
-	
-	
+
+
 	def hasValue(self, *args):
 		return self.getRawValue() is not None
-	
+
 	def getRawValue(self, *args):
 		return None
-	
+
 	def getRealValue(self, *args):
 		if self.hasValue():
 			return TYPE_MAP[self.getType()](self.getRawValue())
 		else:
 			return self.getDefault()
-	
+
 	def getValue(self, *args):
 		if not self.getAndOptionValue():
 			if self.isBoolean():
@@ -627,7 +627,7 @@ class AbstractOption(object):
 				return -1
 			return None
 		return self.getRealValue(*args)
-	
+
 	def getAndOptionValue(self):
 		if self.andId is not None:
 			if self.andOption is None:
@@ -638,13 +638,13 @@ class AbstractOption(object):
 			if not self.andOption.getValue():
 				return False
 		return True
-	
+
 	def asType(self, value):
 		return TYPE_MAP[self.getType()](value)
-	
+
 	def __call__(self, *args):
 		return self.getValue(*args)
-	
+
 	def __nonzero__(self, *args):
 		value = self.getValue(*args)
 		if value is None:
@@ -658,7 +658,7 @@ class AbstractOption(object):
 		if value:
 			return True
 		return False
-	
+
 	def getColor(self, *args):
 		# Returns the value as a color type (int) if this is a color or string option,
 		# the actual value if an int, or -1 otherwise.
@@ -668,7 +668,7 @@ class AbstractOption(object):
 		elif self.isInt():
 			return self.getValue(*args)
 		return -1
-	
+
 	def setValue(self, value, *args):
 		# Sets the value and calls onChanged() if different.
 		#		
@@ -681,13 +681,13 @@ class AbstractOption(object):
 			BugUtil.debug("AbstractOption - setting %s to %s", self.getID(), value)
 		if self._setValue(value, *args):
 			self.onChanged(*args)
-	
+
 #	def _setValue(self, value, *args):
 #		return False
-	
+
 	def onChanged(self, *args):
 		pass
-	
+
 	def resetValue(self, *args):
 		BugUtil.debug("BugOptions - resetting %s", self.getID())
 		self.setValue(self.getDefault(), *args)
@@ -708,7 +708,7 @@ class BaseOption(AbstractOption):
 		# Sets the important fields of the new Option.
 		#
 		super(BaseOption, self).__init__(mod, id, andId, dll)
-		
+
 		if type in TYPE_REPLACE:
 			type = TYPE_REPLACE[type]
 		if type not in TYPE_MAP:
@@ -718,25 +718,25 @@ class BaseOption(AbstractOption):
 			self.default = self.asType(default)
 		else:
 			self.default = TYPE_DEFAULT[type]
-		
+
 		self.translated = False
 		# TODO: Get key prefix from mod
 		self.xmlKey = "TXT_KEY_BUG_OPT_" + self.id.upper()
 		self.title = title
 		self.tooltip = tooltip
-		
+
 		self.dirtyBits = None
 		self.dirtyFunctions = None
 		if dirty:
 			self.addDirty(dirty)
-	
-	
+
+
 	def getType(self):
 		return self.type
 
 	def getDefault(self):
 		return self.default
-	
+
 
 	def getTitle(self):
 		if (not self.translated):
@@ -747,7 +747,7 @@ class BaseOption(AbstractOption):
 		if (not self.translated):
 			self.translate()
 		return self.tooltip
-	
+
 	def translate(self):
 		self.title = BugUtil.getPlainText(self.xmlKey + "_TEXT", self.title)
 		self.tooltip = BugUtil.getPlainText(self.xmlKey + "_HOVER", self.tooltip)
@@ -782,22 +782,22 @@ class BaseOption(AbstractOption):
 						return ""
 				self.tooltip = RE_DLL_CAPTURE_VERSION_MESSAGE.sub(repl, self.tooltip)
 		self.translated = True
-	
+
 	def clearTranslation(self):
 		"Marks this option so that it will be translated again the next time it is accessed"
 		self.translated = False
-	
-	
+
+
 	def onChanged(self, *args):
 		if not BugInit.g_initRunning:
 			self.doDirties(*args)
-	
+
 	def addDirty(self, obj):
 		if isinstance(obj, types.FunctionType):
 			self.addDirtyFunction(obj)
 		else:
 			self.addDirtyBit(obj)
-	
+
 	def addDirtyBit(self, bit):
 		# Adds a dirty function to the list.
 		#
@@ -807,7 +807,7 @@ class BaseOption(AbstractOption):
 			self.dirtyBits.extend(map(lambda b: getattr(InterfaceDirtyBits, b + "_DIRTY_BIT"), bit.replace(",", " ").split()))
 		else:
 			self.dirtyBits.append(bit)
-	
+
 	def addDirtyFunction(self, function):
 		# Adds a dirty function to the list.
 		#
@@ -815,19 +815,19 @@ class BaseOption(AbstractOption):
 			self.dirtyFunctions = [function]
 		else:
 			self.dirtyFunctions.append(function)
-	
+
 	def doDirties(self, *args):
 		# Sets the dirty bits and calls the dirty functions.
 		#
 		self.applyDirtyBits(*args)
 		self.callDirtyFunctions(*args)
-	
+
 	def applyDirtyBits(self, *args):
 		if self.dirtyBits:
 			interface = CyInterface()
 			for bit in self.dirtyBits:
 				interface.setDirty(bit, True)
-	
+
 	def callDirtyFunctions(self, *args):
 		if self.dirtyFunctions:
 			value = self.getValue()
@@ -865,12 +865,12 @@ class BaseListOption(BaseOption):
 			type = LIST_TYPE_DEFAULT_TYPE[listType]
 		if type not in TYPE_DEFAULT_LIST_TYPE:
 			raise BugUtil.ConfigError("Invalid option type for list: %s", type)
-		
+
 		super(BaseListOption, self).__init__(mod, id, type, default, andId, dll, title, tooltip, dirty)
 		if not listType:
 			listType = TYPE_DEFAULT_LIST_TYPE[type]
 		self.listType = listType
-		
+
 		self.valuesXmlKey = None
 		if values is not None:
 			self.setValues(values)
@@ -879,32 +879,32 @@ class BaseListOption(BaseOption):
 		self.format = format
 		self.displayValues = None
 		self.getters = None
-	
+
 	def createLinkedOption(self, mod, id):
 		return LinkedListOption(mod, id, self)
-	
+
 	def getListType(self):
 		return self.listType
-	
+
 	def isStringList(self):
 		return self.listType == "string"
-	
+
 	def isIntList(self):
 		return self.listType == "int"
-	
+
 	def isFloatList(self):
 		return self.listType == "float"
-	
+
 	def isColorList(self):
 		return self.listType == "color"
-	
+
 	def __str__(self):
 		return "<%s %s [%s] list (%d %ss)>" % (self.id, self.type, str(self.default), len(self.values), self.listType)
-	
-	
+
+
 	def getValues(self):
 		return self.values
-	
+
 	def setValues(self, values):
 		if isinstance(values, str):
 			if self.isStringList():
@@ -922,7 +922,7 @@ class BaseListOption(BaseOption):
 		else:
 			self.values = values
 		self.displayValues = None
-	
+
 	def addValue(self, value, getter=None, setter=None):
 		if value in self.values:
 			index = self.values.index(value)
@@ -939,31 +939,31 @@ class BaseListOption(BaseOption):
 		if setter:
 			# TODO: Change to addIndexSetter or pass in value instead of index
 			self.addSetter(name, index)
-	
+
 	def addGetter(self, name, index):
 		if self.getters is None:
 			self.getters = {}
 		self.getters.setdefault(name, []).append(index)
-	
+
 	def addSetter(self, name, value):
 		self.createSetter(name, value)
-	
+
 	def createComparers(self):
 		# Creates all of the getters assigned to individual BaseListOption indices.
 		if self.getters:
 			for name, values in self.getters.iteritems():
 				# Munge values based on type or create different comparator functions
 				self.createComparer(name, values)
-	
-	
+
+
 	def getFormat(self):
 		return self.format
-	
+
 	def setFormat(self, format):
 		self.format = format
 		if self.isIntList() or self.isFloatList():
 			self.displayValues = None
-	
+
 	def getDisplayValues(self):
 		if self.isStringList():
 			if (not self.translated):
@@ -973,7 +973,7 @@ class BaseListOption(BaseOption):
 		else:
 			self.buildDisplayValues()
 		return self.displayValues
-	
+
 	def buildDisplayValues(self):
 		if not self.displayValues:
 			if self.format is None:
@@ -984,7 +984,7 @@ class BaseListOption(BaseOption):
 			else:
 				format = self.format
 			self.displayValues = map(lambda n: format % n, self.values)
-	
+
 	def translate(self):
 		if self.isStringList():
 			if self.valuesXmlKey:
@@ -996,11 +996,11 @@ class BaseListOption(BaseOption):
 			else:
 				self.displayValues = self.values
 		super(BaseListOption, self).translate()
-	
+
 
 	def isValid(self, value):
 		return value in self.values
-	
+
 	def getIndex(self, *args):
 		value = self.getRealValue(*args)
 		if self.isStringList():
@@ -1009,7 +1009,7 @@ class BaseListOption(BaseOption):
 			return ColorUtil.keyToIndex(value)
 		else:
 			return self.findClosestIndex(value)
-	
+
 	def findClosestIndex(self, value):
 		index = -1
 		bestDelta = None
@@ -1019,7 +1019,7 @@ class BaseListOption(BaseOption):
 				index = i
 				bestDelta = delta
 		return index
-	
+
 	def setIndex(self, index, *args):
 		if self.isStringList():
 			self.setValue(index, *args)
@@ -1037,10 +1037,10 @@ class UnsavedMixin(object):
 	def __init__(self, value):
 		# Sets the value to the one passed in, typically the default value.
 		self.value = value
-	
+
 	def getRawValue(self, *args):
 		return self.value
-	
+
 	def _setValue(self, value, *args):
 		value = TYPE_MAP[self.type](value)
 		BugUtil.debug("BugOptions - setting %s to %r (UNSAVED)", self.getID(), value)
@@ -1048,13 +1048,13 @@ class UnsavedMixin(object):
 		return True
 
 class UnsavedOption(UnsavedMixin, BaseOption):
-	
+
 	def __init__(self, mod, id, type, default=None, andId=None, dll=None, title=None, tooltip=None, dirty=None):
 		BaseOption.__init__(self, mod, id, type, default, andId, dll, title, tooltip, dirty)
 		UnsavedMixin.__init__(self, self.default)
 
 class UnsavedListOption(UnsavedMixin, BaseListOption):
-	
+
 	def __init__(self, mod, id, type=None, default=None, andId=None, dll=None, listType="string", values=None, format=None, title=None, tooltip=None, dirty=None):
 		BaseListOption.__init__(self, mod, id, type, default, andId, dll, listType, values, format, title, tooltip, dirty)
 		UnsavedMixin.__init__(self, self.default)
@@ -1093,7 +1093,7 @@ class IniMixin(object):
 
 	def getKey(self):
 		return self.key
-	
+
 	def isParameterized(self):
 		return "%s" in self.key
 
@@ -1102,19 +1102,19 @@ class IniMixin(object):
 			return self.file.exists(self.section, self.key % args)
 		else:
 			return self.file.exists(self.section, self.key)
-	
+
 	def getRawValue(self, *args):
 		if args:
 			return self.file.getRawValue(self.section, self.key % args)
 		else:
 			return self.file.getRawValue(self.section, self.key)
-	
+
 	def getRealValue(self, *args):
 		if args:
 			return TYPE_GETTER_MAP[self.type](self.file, self.section, self.key % args, self.default)
 		else:
 			return TYPE_GETTER_MAP[self.type](self.file, self.section, self.key, self.default)
-	
+
 	def _setValue(self, value, *args):
 		# Sets the actual value in the INI file.
 		#
@@ -1125,13 +1125,13 @@ class IniMixin(object):
 			return TYPE_SETTER_MAP[self.type](self.file, self.section, self.key, value)
 
 class IniOption(IniMixin, BaseOption):
-	
+
 	def __init__(self, mod, id, file, section, key, type, default=None, andId=None, dll=None, title=None, tooltip=None, dirty=None):
 		BaseOption.__init__(self, mod, id, type, default, andId, dll, title, tooltip, dirty)
 		IniMixin.__init__(self, file, section, key)
 
 class IniListOption(IniMixin, BaseListOption):
-	
+
 	def __init__(self, mod, id, file, section, key, type=None, default=None, andId=None, dll=None, listType="string", values=None, format=None, title=None, tooltip=None, dirty=None):
 		BaseListOption.__init__(self, mod, id, type, default, andId, dll, listType, values, format, title, tooltip, dirty)
 		IniMixin.__init__(self, file, section, key)
@@ -1146,7 +1146,7 @@ class LinkedOption(AbstractOption):
 		# Sets the important fields of the new LinkedOption.
 		super(LinkedOption, self).__init__(mod, id)
 		self.option = option
-	
+
 	def getOption(self):
 		return self.option
 
@@ -1155,34 +1155,34 @@ class LinkedOption(AbstractOption):
 
 	def getKey(self):
 		return self.option.getKey()
-	
+
 	def getType(self):
 		return self.option.getType()
 
 	def getDefault(self):
 		return self.option.getDefault()
-	
+
 	def __str__(self):
 		return "<%s link: %s>" % (self.id, str(self.option))
-	
+
 	def getTitle(self):
 		return self.option.getTitle()
 
 	def getTooltip(self):
 		return self.option.getTooltip()
-	
+
 	def clearTranslation(self):
 		pass
 
 	def hasValue(self, *args):
 		return self.option.hasValue(*args)
-	
+
 	def getRawValue(self, *args):
 		return self.option.getRawValue(*args)
-	
+
 	def getRealValue(self, *args):
 		return self.option.getValue(*args)
-	
+
 	def _setValue(self, value, *args):
 		return self.option._setValue(value, *args)
 
@@ -1193,61 +1193,61 @@ class LinkedListOption(LinkedOption):
 	def __init__(self, mod, id, option):
 		# Sets the important fields of the new LinkedListOption.
 		super(LinkedOption, self).__init__(mod, id, option)
-	
+
 	def getListType(self):
 		return self.option.getListType()
-	
+
 	def isStringList(self):
 		return self.option.isStringList()
-	
+
 	def isIntList(self):
 		return self.option.isIntList()
-	
+
 	def isFloatList(self):
 		return self.option.isFloatList()
-	
+
 	def isColorList(self):
 		return self.option.isColorList()
-	
+
 	def getValues(self):
 		return self.option.getValue()
-	
+
 	def setValues(self, values):
 		pass
-	
+
 	def addValue(self, value, function=None):
 		pass
-	
+
 	def addGetter(self, getter, index):
 		pass
-	
+
 	def addSetter(self, name, value):
 		pass
-	
+
 	def createComparers(self):
 		pass
-	
+
 	def getFormat(self):
 		return self.option.getFormat()
-	
+
 	def setFormat(self, format):
 		pass
-	
+
 	def getDisplayValues(self):
 		return self.option.getDisplayValues()
-	
+
 	def translate(self):
 		pass
 
 	def isValid(self, value):
 		return self.option.isValid(value)
-	
+
 	def getIndex(self, *args):
 		return self.option.getIndex(*args)
-	
+
 	def findClosestIndex(self, value):
 		return self.option.findClosestIndex(value)
-	
+
 	def setIndex(self, index, *args):
 		self.option.setIndex(index, *args)
 
@@ -1275,49 +1275,49 @@ def unqualify(optionId):
 ## Configuration
 
 class OptionsHandler(BugConfig.Handler):
-	
+
 	TAG = "options"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, self.TAG, "id file", SectionHandler.TAG)
 		self.addAttribute("id", True)
 		self.addAttribute("file", True)
-	
+
 	def handle(self, element, id, file):
 		ini = IniFile(id, file)
 		g_options.addFile(ini)
 		element.setState("ini", ini)
-	
+
 	def complete(self, element):
 		ini = element.getState("ini")
 		if ini:
 			ini.read()
 
 class SectionHandler(BugConfig.Handler):
-	
+
 	TAG = "section"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, self.TAG, "id name", (OptionHandler.TAG,))
 		self.addExcludedAttribute("id")
 		self.addAttribute("name", True, False, None, "id")
-	
+
 	def handle(self, element, name):
 		element.setState("ini-section", name)
 
 class BaseOptionHandler(BugConfig.Handler):
-	
+
 	def __init__(self, tag, validAttrs="", validChildren="", elementClass=BugConfig.Element):
 		BugConfig.Handler.__init__(self, tag, validAttrs, validChildren, elementClass)
 		self.addAttribute("id", True)
-	
+
 	def addOption(self, mod, option, getter, setter):
 		# TODO: move next two lines to BaseOption ctor?
 		g_options.addOption(option)
 		mod._addOption(option)
 		# TODO: add to option ctors
 		option.createAccessorPair(getter, setter)
-	
+
 	def createOption(self, element, id, type, key, default, andId, dll, title, tooltip, dirtyBit, getter, setter):
 		if type == "color":
 			return self.createListOption(element, id, type, key, default, andId, dll, title, tooltip, dirtyBit, getter, setter, type, None, None)
@@ -1343,7 +1343,7 @@ class BaseOptionHandler(BugConfig.Handler):
 		self.addOption(mod, option, getter, setter)
 		element.setState("option", option)
 		return option
-	
+
 	def createListOption(self, element, id, type, key, default, andId, dll, title, tooltip, dirtyBit, getter, setter, listType, values, format):
 		mod = element.getState("mod")
 		id = qualify(mod._id, id)
@@ -1371,9 +1371,9 @@ class BaseOptionHandler(BugConfig.Handler):
 		return option
 
 class OptionHandler(BaseOptionHandler):
-	
+
 	TAG = "option"
-	
+
 	def __init__(self):
 		BaseOptionHandler.__init__(self, self.TAG, "id type key default and dll title label tooltip help dirty dirtyBit get set args", ())
 		self.addAttribute("type", True)
@@ -1390,14 +1390,14 @@ class OptionHandler(BaseOptionHandler):
 		self.addAttribute("get")
 		self.addAttribute("set")
 		self.addExcludedAttribute("args")
-	
+
 	def handle(self, element, id, type, key, default, andId, dll, label, help, dirtyBit, getter, setter):
 		self.createOption(element, id, type, key, default, andId, dll, label, help, dirtyBit, getter, setter)
 
 class ListOptionHandler(BaseOptionHandler):
-	
+
 	TAG = "list"
-	
+
 	def __init__(self):
 		BaseOptionHandler.__init__(self, self.TAG, "id type key default and dll title label tooltip help dirty dirtyBit get set args listType values format", ())
 		self.addAttribute("type")
@@ -1417,37 +1417,37 @@ class ListOptionHandler(BaseOptionHandler):
 		self.addAttribute("listType")
 		self.addAttribute("values")
 		self.addAttribute("format")
-	
+
 	def handle(self, element, id, type, key, default, andId, dll, label, help, dirtyBit, getter, setter, listType, values, format):
 		self.createListOption(element, id, type, key, default, andId, dll, label, help, dirtyBit, getter, setter, listType, values, format)
-	
+
 	def complete(self, element):
 		element.getState("option").createComparers()
 
 class ListChoiceHandler(BugConfig.Handler):
-	
+
 	TAG = "choice"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, self.TAG, "id get set", ())
 		self.addAttribute("id", True)
 		self.addAttribute("get")
 		self.addAttribute("set")
-	
+
 	def handle(self, element, id, getter, setter):
 		option = element.getState("option")
 		option.addValue(id, getter, setter)
 
 class LinkedOptionHandler(BaseOptionHandler):
-	
+
 	TAG = "link"
-	
+
 	def __init__(self):
 		BaseOptionHandler.__init__(self, self.TAG, "id to get set", ())
 		self.addAttribute("to", True)
 		self.addAttribute("get")
 		self.addAttribute("set")
-	
+
 	def handle(self, element, id, to, getter, setter):
 		mod = element.getState("mod")
 		id = qualify(mod._id, id)
@@ -1460,15 +1460,15 @@ class LinkedOptionHandler(BaseOptionHandler):
 			BugUtil.error("Option ID %s in element <%s> %s not found", to, element.tag, id)
 
 class ChangeHandler(BugConfig.Handler):
-	
+
 	TAG = "change"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, self.TAG, "dirtyBit module function")
 		self.addAttribute("dirtyBit")
 		self.addAttribute("module", False, True)
 		self.addAttribute("function")
-	
+
 	def handle(self, element, dirtyBit, module, function):
 		option = element.getState("option")
 		if dirtyBit:
@@ -1479,16 +1479,16 @@ class ChangeHandler(BugConfig.Handler):
 			raise BugUtil.ConfigError("Element <%s> requires attribute dirtyBit or both module and function", element.tag)
 
 class AccessorHandler(BugConfig.Handler):
-	
+
 	TAG = "accessor"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, self.TAG, "id args get set", ())
 		self.addAttribute("id", True)
 		self.addAttribute("args")
 		self.addAttribute("get")
 		self.addAttribute("set")
-	
+
 	def handle(self, element, id, args, getter, setter):
 		mod = element.getState("mod")
 		mod._createParameterizedAccessorPair(id, getter, setter)

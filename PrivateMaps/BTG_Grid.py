@@ -33,7 +33,7 @@ balancer.resourcesToEliminate = ("", )
 
 def getDescription():
 	return "Modified version of the BTG_Grid map from the Beyond the Game mod by Penny. Adapted for AdvCiv-SAS: upscaled, non-AdvCiv options removed, and SAS48/high player counts supported."
-	
+
 def getDescriptionTitle():
 	return "Each player has its own hub protected and linked via a band of land in all 4 cardinal directions to other players"
 
@@ -45,10 +45,10 @@ def getDescriptionMain():
 
 def getDescriptionSecond():#Script tip : (on TOP)
 	return "Your hub shape and starting positon location are mirrored (default), beware to be accurate on ennemy distance"	
-	
+
 def getDescriptionThird():#Option : (at the bottom)"
 	return "Know well the amount of lines you're using in the game. Use 1 not 2, if you have an uneven number of players"	
-	
+
 def getDescriptionScenario():#Scenario : (at the bottom)"
 	return "Megamap for Ironman. 9 players in 3x3 a must. Other numbers good too. Also used for 3v3 Modern"	
 
@@ -61,7 +61,7 @@ def isAdvancedMap():
 
 def getNumCustomMapOptions():
 	return 10
-	
+
 def getNumHiddenCustomMapOptions():
 	return 0
 
@@ -83,7 +83,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -101,7 +101,7 @@ def getNumCustomMapOptionValues(argsList):
 	if not option_values.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -163,7 +163,7 @@ def getCustomMapOptionDescAt(argsList):
 		return u""
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -203,11 +203,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
-	
+
 def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
@@ -248,7 +248,7 @@ def getGridSize(argsList):
 					SAS_MAGIC_WORLDSIZE_LARGE:		(16,12),
 					SAS_MAGIC_WORLDSIZE_HUGE:		(21,12)# not set up
 				}
-				
+
 		elif (CyMap().getCustomMapOption(7) == 1): # Section 2 - if the map is clicked for larger (20)
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
@@ -280,7 +280,7 @@ def getGridSize(argsList):
 					SAS_MAGIC_WORLDSIZE_LARGE:		(20,15),
 					SAS_MAGIC_WORLDSIZE_HUGE:		(26,15)
 				}
-				
+
 		else : # Section 3 - if 20x16
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
@@ -312,7 +312,7 @@ def getGridSize(argsList):
 					SAS_MAGIC_WORLDSIZE_LARGE:		(20,12),
 					SAS_MAGIC_WORLDSIZE_HUGE:		(26,12)
 				}			
-		
+
 		[eWorldSize] = argsList
 		# <!-- custom: Keep existing BTG line options untouched; only extend world-size support by calibrating SAS sizes from Huge instead of falling back to Huge dimensions. (GPT-5.3-Codex) -->
 		grid_size = sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
@@ -325,15 +325,15 @@ def beforeGeneration():
 	global regions_in_use
 	global remaining_regions
 	global remaining_regionsTwo
-	
+
 	#2.22
 	global isBTPon
 	try:
 		isBTPon = CvMapGeneratorUtil.BTGInfo().BTG_Version() > 0
 	except:
 		isBTPon = False
-	
-	
+
+
 	gc = CyGlobalContext()
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
@@ -342,7 +342,7 @@ def beforeGeneration():
 	iPlayersCount = gc.getGame().countCivPlayersEverAlive()
 	iPlayersCountClamped = min(iPlayersCount, 18)
 	global iPlayers
-	
+
 	# Number of regions
 	if (CyMap().getCustomMapOption(3) == 0):
 		configs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
@@ -353,7 +353,7 @@ def beforeGeneration():
 	else:	
 		configs = [0, 1, 2, 3, 6, 6, 6, 9, 9, 9, 12, 12, 12, 15, 15, 15, 18, 18, 18]
 		iNumRegions = configs[iPlayersCountClamped]
-	
+
 	# Do the real player count now, trick for spoiling number of player / region
 	if (CyMap().getCustomMapOption(5) == 0):
 		iPlayers = iNumRegions # 2.22 - Imagine it's the Template 3x2 for 5 players.
@@ -569,7 +569,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# You -MUST- customize this function for each use of the class.
 		# iPlayers = self.gc.getGame().countCivPlayersEverAlive()
 		# I Want this as a global definition
-		
+
 		# Sea Level adjustment (from user input), limited to value of 5%.
 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
 		sea = min(sea, 5)
@@ -596,7 +596,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
 			elif (iWidth > region_duplicated[3]) and ((iWidth > region_duplicated[3]) < region_duplicated[3]) : 
 				region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
-			
+
                 region_roll = region_duplicated[0]
                 thisRegion = remaining_regions[region_roll]
                 regions_in_use.append(thisRegion)
@@ -660,8 +660,8 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                            -1, False,
                                            False
                                            )
-										   
-										   
+
+
 		#2.21z - the 'Open part'
 		if (CyMap().getCustomMapOption(1) == 0):
 
@@ -730,7 +730,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 										   -1, False,
 										   False
 										   )		
-		
+
 		#2.21z - Back to common part
 
 		if (CyMap().getCustomMapOption(1) >= 1):
@@ -743,7 +743,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				#thisRegion = remaining_regions[region_roll]
 				#regions_in_use.append(thisRegion)
 				#del remaining_regions[region_roll]
-				
+
 			for region_loop in range(iNumRegions):
 				#region_roll = self.dice.get(len(remaining_regions), "Region Roll - Grid PYTHON")
 				thisRegion = region_loop
@@ -771,13 +771,13 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 						wholeworldYD = y + iSouthYD
 						iWorldD = wholeworldYD*self.iW + wholeworldXD
 						self.wholeworldPlotTypes[iWorld] = self.wholeworldPlotTypes[iWorldD]
-						
-						
+
+
 		# Generate spokes
 		map = CyMap()
 		spoke_width = map.getCustomMapOption(2)
 		if spoke_width > 0:
-		
+
 			for regionLoop in range(len(regions_in_use)):
 				thisRegion = regions_in_use[regionLoop]
 				# Region dimensions
@@ -800,7 +800,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 						self.addLandPlot(i + self.iW + self.iW)
 					if spoke_width > 4:#2.21z
 						self.addLandPlot(i - self.iW - self.iW)						
-		
+
 				for y in range(iSouthY, iNorthY+1):
 					i = y*self.iW + iCenterX
 					self.addLandPlot(i)
@@ -812,7 +812,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 						self.addLandPlot(i + 2)
 					if spoke_width > 4:#2.21z
 						self.addLandPlot(i - 2)				
-						
+
 
 		return self.wholeworldPlotTypes
 
@@ -871,10 +871,10 @@ def addFeatures():
 		if pPlot.isPeak() and pPlot.isCoastalLand():
 			# If a peak is along the coast, change to hills and recalc.
 			pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
-			
+
 	# Now add the features.
 	featuregen = FeatureGenerator()
-	
+
 	if (CyMap().getCustomMapOption(6) == 3):
 		featuregen.__init__(iJunglePercent=0, iForestPercent=90,
 			jungle_grain=5, forest_grain=6)
@@ -887,7 +887,7 @@ def addFeatures():
 	else: 		
 		featuregen.__init__(iJunglePercent=0, iForestPercent=40,
 			jungle_grain=5, forest_grain=6)	
-			
+
 	featuregen.addFeatures()
 	return 0
 
@@ -907,7 +907,7 @@ def assignStartingPlots():
 	iH = map.getGridHeight()
 	#iPlayers = gc.getGame().countCivPlayersEverAlive()
 	#I've already declared this
-	
+
 	# Error catching.
 	if iPlayers < 1 or iPlayers > 18:
 		CyPythonMgr().allowDefaultImpl()
@@ -1021,7 +1021,7 @@ def assignStartingPlots():
 		region_best_areas[thisRegion] = best_areas
 		region_yields.append(iRegionNetYield)
 		sorting_regions.append(iRegionNetYield)
-		
+
 	# Now sort the regions
 	best_regions = []
 	region_numbers = regions_in_use
@@ -1034,7 +1034,7 @@ def assignStartingPlots():
 				del region_numbers[yieldLoop]
 				del region_yields[yieldLoop]
 				break
-		
+
 	# Need to discard the worst regions and then reverse the region order.
 	# Of the regions that will be used, the worst will be assigned first.
 	best_regions.reverse()
@@ -1060,11 +1060,11 @@ def assignStartingPlots():
 	# Now assign the start plots!
 	plot_assignments = {}
 	min_dist = []
-	
+
 	if (CyMap().getCustomMapOption(1) == 0 or CyMap().getCustomMapOption(1) == 1):
-	
+
 		# Loop through players/regions.
-		
+
 		#2.18 A funky way, you double and remove the num of Spec : now the specs are on the left and players on the right
 		#iNumSpectators
 		'''if iNumSpectators > 0:#Hang on, don't even need this, since it's reverse in C++
@@ -1078,13 +1078,13 @@ def assignStartingPlots():
 
 		iStartLoop = 0
 		iDidLoop = 0
-		
+
 		#for assignLoop in range(iPlayers):
 		for assignLoop in range(iStartLoop,min(iTotLoop, len(shuffledPlayers))):
 			#playerID = shuffledPlayers[assignLoop]############ PYTHON ERROR #####################
 			playerID = shuffledPlayers[iDidLoop]#2.18
 			iDidLoop += 1#2.18
-			
+
 			#reg = best_regions[assignLoop]#Particularity of the Americas Map
 			reg = assignLoop#Americas - Need to be in order, so that all the region on same line are assigned first
 			if not region_data.has_key(reg):
@@ -1094,7 +1094,7 @@ def assignStartingPlots():
 					reg = region_data.keys()[0]
 				else:
 					continue
-			
+
 			[westX, eastX, southY, northY] = region_data[reg][0:4]
 			# Only consider the inner part of the region
 			iWidth = eastX - westX + 1
@@ -1103,7 +1103,7 @@ def assignStartingPlots():
 			eastX = eastX - int(iWidth * 0.2)
 			southY = southY + int(iHeight * 0.2)
 			northY = northY - int(iHeight * 0.2)
-			 
+
 			iNumAreas = region_data[reg][8]
 			area_list = region_best_areas[reg]
 			# Print Data for debugging
@@ -1159,7 +1159,7 @@ def assignStartingPlots():
 						break # Valid start found, stop checking areas and plots.
 					else:
 						pass # This area too close to somebody, try the next area.
-				
+
 				# Check to see if a valid start was found in ANY areaID.
 				if pBestPlot is None:
 					print("player %s pass %s failed" % (playerID, iPass))
@@ -1176,12 +1176,12 @@ def assignStartingPlots():
 						return
 				else:
 					break # This player has been assigned a start plot.
-				
+
 		# Successfully assigned start plots, continue back to C++
 		return None
-	
+
 	elif (CyMap().getCustomMapOption(1) >= 2):	
-	
+
 		# Loop through players/regions.
 		dX = 0
 		dY = 0
@@ -1204,7 +1204,7 @@ def assignStartingPlots():
 			iTotLoop = iNumRegions #2.22 - Because would crash for when you leave Water on a 3x3 Map of 5 players		
 		else:
 			iTotLoop = iPlayers
-			
+
 		iStartLoop = 0
 		iDidLoop = 0
 		#for assignLoop in range(iPlayers):
@@ -1223,20 +1223,20 @@ def assignStartingPlots():
 					reg = region_data.keys()[0]
 				else:
 					continue
-			
-			
+
+
 			[wX, eX, sY, nY] = region_data[reg][0:4]
 			# Only consider the inner part of the region
 			iWidth = eX - wX + 1
 			iHeight = nY - sY + 1
-			
+
 			westX = wX + int(iWidth * 0.2)
 			eastX = eX - int(iWidth * 0.2)
 			southY = sY + int(iHeight * 0.2)
 			northY = nY - int(iHeight * 0.2)
 
 			if dX == 0 :
-							 
+
 				iNumAreas = region_data[reg][8]
 				area_list = region_best_areas[reg]
 				# Print Data for debugging
@@ -1294,7 +1294,7 @@ def assignStartingPlots():
 							break # Valid start found, stop checking areas and plots.
 						else:
 							pass # This area too close to somebody, try the next area.
-					
+
 					# Check to see if a valid start was found in ANY areaID.
 					if pBestPlot is None:
 							print("player %s pass %s failed" % (playerID, iPass))
@@ -1311,15 +1311,15 @@ def assignStartingPlots():
 								return
 					else:
 						break # This player has been assigned a start plot.
-			
+
 			else :
 				sPlot = map.plot(wX + dX, sY + dY)
 				plrID = gc.getPlayer(playerID)
 				plrID.setStartingPlot(sPlot, true)
-				
+
 		# Successfully assigned start plots, continue back to C++'''
 		return None
-	
+
 def normalizeRemovePeaks():
 	return None
 
@@ -1341,7 +1341,7 @@ def normalizeAddExtras():
 	desert = getInfoTypeOrFail("TERRAIN_DESERT")
 	grass = getInfoTypeOrFail("TERRAIN_GRASS")
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
-	
+
 	for i in range(0,gc.getMAX_CIV_PLAYERS()):
 		#if gc.getPlayer(i).isAlive():
 		if gc.getPlayer(i).isEverAlive():#2.22 - Very important - nothing was working with Spectator
@@ -1365,7 +1365,7 @@ def normalizeAddExtras():
 							has_oil = True
 						if p.getBonusType(-1) == alu:
 							has_alu = True
-							
+
 			for dx in range(-7,7):
 				for dy in range(-7,7):
 					p = map.plot(startx+dx,starty+dy)
@@ -1379,7 +1379,7 @@ def normalizeAddExtras():
 							has_precious = True
 						if p.getBonusType(-1) == gems:
 							has_precious = True				
-							
+
 			for dx in range(-6,6):
 				for dy in range(-6,6):
 					p = map.plot(startx+dx,starty+dy)
@@ -1389,7 +1389,7 @@ def normalizeAddExtras():
 							if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
 								plotsboundaries.append(p)						
 
-	
+
 			if (CyMap().getCustomMapOption(4) == 1):
 				if not has_precious:
 
@@ -1405,14 +1405,14 @@ def normalizeAddExtras():
 						p.setTerrainType(desert, True, True)
 						p.setFeatureType(-1,-1)#2.34 -- Because Sometimes Oil is on floodplain
 						p.setBonusType(silver)		
-	
 
-	
-	
+
+
+
 	#2020 04 - After player's all stuff
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
-	
+
 
 	if (CyMap().getCustomMapOption(8) >= 1):
 		for iX in range(iW):
@@ -1423,27 +1423,27 @@ def normalizeAddExtras():
 				#if pPlot.getTerrainType() == desert and pPlot.getBonusType(-1) == -1:
 				#if pPlot.getTerrainType() == desert and pPlot.getBonusType(-1) == BonusTypes.NO_BONUS and pPlot.getFeatureType(-1) == FeatureTypes.NO_FEATURE:
 					pPlot.setTerrainType(grass, True, True)
-	
+
 
 	# BTG Resources option removed: keep default behavior (no BTG extra-resource injections).
-	
+
 
 	if (CyMap().getCustomMapOption(1) == 3):
 		mirrorizeMap() #2020 06 - BTP 2.15 - Restart feature
-		
-	# BTG Resources option removed: no sulphur-on-capital mode.
-	
 
-	
+	# BTG Resources option removed: no sulphur-on-capital mode.
+
+
+
 	CyMap().recalculateAreas()#2.21zz Mirror looks weird				
-							
+
 	return None
 
 def addBonusType(argsList):
 	[iBonusType] = argsList
 	gc = CyGlobalContext()
 	type_string = gc.getBonusInfo(iBonusType).getType()
-	
+
 	#2.21y
 	if isBTPon:
 		# BTG Resources option removed: keep default exclusion behavior.
@@ -1455,7 +1455,7 @@ def addBonusType(argsList):
 	#if (CyMap().getCustomMapOption(1) == 1): # Applies in all cases now, no balanced option always balanced
 	if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 		return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isBonusIgnoreLatitude():
@@ -1494,7 +1494,7 @@ def mirrorizeMap():
                                 pPlot = map.plot(wX + dX, sY + dY)
                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
                                 pPlot.setPlotType(rPlot.getPlotType(), True, True)
-	
+
 	map.recalculateAreas()
 
         #reflect terrain
@@ -1504,7 +1504,7 @@ def mirrorizeMap():
                                 pPlot = map.plot(wX + dX, sY + dY)
                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
                                 pPlot.setTerrainType(rPlot.getTerrainType(), True, True)
-	
+
 	map.recalculateAreas()
 
         #rearrange river IDs
@@ -1532,7 +1532,7 @@ def mirrorizeMap():
                         for dY in range(rH):
                                 pPlot = map.plot(wX + dX, sY + dY)
                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
-                                        
+
                                 if rPlot.isNOfRiver():
                                         pPlot.setNOfRiver(True, rPlot.getRiverWEDirection())
                                 if rPlot.isWOfRiver():
@@ -1541,7 +1541,7 @@ def mirrorizeMap():
                                 rID = rPlot.getRiverID()
                                 if rID != -1 :
                                         pPlot.setRiverID(rID + incr * iRivers)
-	
+
 	map.recalculateAreas()
 
 	# mirrorize features
@@ -1552,7 +1552,7 @@ def mirrorizeMap():
                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
         			pPlot.setFeatureType(rPlot.getFeatureType(), -1)
 
-	
+
 	map.recalculateAreas()
 
 	# mirrorize bonuses
@@ -1581,8 +1581,8 @@ def startHumansOnSameTile():
 	# BTG Forest Type option removed: keep default forest behavior.
 	if (CyMap().getCustomMapOption(9) == 1):
 		return True
-		
-		
+
+
 def normalizeStartingPlotLocations():#2.21z
 
 	gc = CyGlobalContext()	
@@ -1594,12 +1594,12 @@ def normalizeStartingPlotLocations():#2.21z
 ''' 11 - BTG local/map Redclaration of MapGeneratorUtil functions for logic '''
 def BTPTopBottomTwoTeams(isBTG):							
 	gc = CyGlobalContext()	
-	
+
 	#2.19 debug		
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))	
-				
+
 	iEverAliveTeamCount = 0
-	
+
 	for iI in range(gc.getMAX_CIV_TEAMS()):	
 		if isBTG:
 			if gc.getTeam(iI).isEverAlive() and not gc.getTeam(iI).isSpectator() and not gc.getTeam(iI).isBarbarian():
@@ -1610,19 +1610,19 @@ def BTPTopBottomTwoTeams(isBTG):
 
 	if gc.getGame().countCivPlayersEverAlive() <= 3:
 		return None			
-		
+
 	if (gc.getGame().countCivPlayersEverAlive() % 2) != 0 :#verify it's even number, if not don't apply
 		return None	
-				
+
 	elif not iEverAliveTeamCount == 2:
 		return None
-		
+
 	else:
-	
+
 		#############################
 		#Spectator bit - not amazing if spectator is middle team
 
-	
+
 		listTeams = []
 		#2.23 Improve for spectators
 		for iI in range(gc.getMAX_CIV_TEAMS()):	
@@ -1633,7 +1633,7 @@ def BTPTopBottomTwoTeams(isBTG):
 			else:
 				if gc.getTeam(iI).isEverAlive():				
 					listTeams.append(gc.getTeam(iI).getID())				
-				
+
 		random.shuffle(listTeams)		
 		teamOne = listTeams[0]
 		teamTwo = listTeams[1]
@@ -1652,7 +1652,7 @@ def BTPTopBottomTwoTeams(isBTG):
 				if (gc.getPlayer(iI).isAlive()):		
 					listPlot.append(gc.getPlayer(iI).getStartingPlot())
 					listPlayer.append(gc.getPlayer(iI).getID())				
-		
+
 		#only do team one it will be good 		
 		listCurrentPlayer = listPlayer
 		for iI in range(gc.getMAX_CIV_PLAYERS()):
@@ -1672,7 +1672,7 @@ def BTPTopBottomTwoTeams(isBTG):
 					while ((gc.getPlayer(iRoll).getStartingPlot().getY() >= halfHeight) or (iRoll == iI) or gc.getPlayer(iRoll).getTeam() == teamOne):#I roll until it's a bottom tile
 						random.shuffle(listCurrentPlayer)
 						iRoll = listCurrentPlayer[0]
-					
+
 					spotA = gc.getPlayer(iI).getStartingPlot()
 					spotB = gc.getPlayer(iRoll).getStartingPlot()
 					gc.getPlayer(iI).setStartingPlot(spotB,True)

@@ -137,7 +137,7 @@ def placeLandmark(pPlot, sEventType, iFood, iProd, iComm, bIsSign, iSignOwner):
 	# Bail out early if EventSigns are disabled
 	if not EventSignsOpt.isEnabled():
 		return False
-	
+
 	# Bail out if there are no yield changes
 	if iFood == 0 and iProd == 0 and iComm == 0:
 		return False

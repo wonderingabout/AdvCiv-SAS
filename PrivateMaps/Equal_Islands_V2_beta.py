@@ -66,7 +66,7 @@ def isAdvancedMap():
 
 def getNumCustomMapOptions():
 	return 2
-	
+
 def getNumHiddenCustomMapOptions():
 	return 0
 
@@ -80,7 +80,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -88,7 +88,7 @@ def getNumCustomMapOptionValues(argsList):
 		1:	3
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -107,7 +107,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -127,11 +127,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
-	
+
 def beforeGeneration():
 	global iNumRegions
 	global regions_in_use
@@ -149,7 +149,7 @@ def beforeGeneration():
 
 	# Number of Large Islands: One per Player
 	configs = [0, 4, 4, 4, 6, 8, 8, 12, 12, 12, 15, 15, 15, 15, 20, 20, 20, 24, 24]
-		
+
 	# Choose a "Large Islands" template.
 	if iPlayers < len(configs):
 		iNumRegions = configs[iPlayers]
@@ -278,7 +278,7 @@ def beforeGeneration():
 			regionWidth = iWidth
 		if iHeight < regionHeight:
 			regionHeight = iHeight
-		
+
 class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generatePlotsByRegion(self):
 		# Sirian's MultilayeredFractal class, controlling function.
@@ -290,7 +290,7 @@ class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		fSquareOffset = 0.2
 		fNarrowOffset = 0.37
 		fCenterOffset = 0.1
-		
+
 		# Sea Level adjustment (from user input), limited to value of 5%.
 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
 		sea = min(sea, 5)
@@ -435,7 +435,7 @@ def assignStartingPlots():
 		if (not globals().has_key("region_coords")) or (not globals().has_key("iNumRegions")):
 			CyPythonMgr().allowDefaultImpl()
 			return
-	
+
 	# Error catching.
 	if iPlayers < 1:
 		CyPythonMgr().allowDefaultImpl()
@@ -540,7 +540,7 @@ def assignStartingPlots():
 		region_best_areas[thisRegion] = best_areas
 		region_yields.append(iRegionNetYield)
 		sorting_regions.append(iRegionNetYield)
-		
+
 	# Now sort the regions
 	best_regions = []
 	region_numbers = regions_in_use
@@ -553,7 +553,7 @@ def assignStartingPlots():
 				del region_numbers[yieldLoop]
 				del region_yields[yieldLoop]
 				break
-		
+
 	# Need to discard the worst regions and then reverse the region order.
 	# Of the regions that will be used, the worst will be assigned first.
 	best_regions.reverse()
@@ -578,7 +578,7 @@ def assignStartingPlots():
 		if not area.isNone():
 			if area.isWater() and not area.isLake():
 				oceans.append(area)
-	
+
 	# Now assign the start plots!
 	plot_assignments = {}
 	min_dist = []
@@ -654,7 +654,7 @@ def assignStartingPlots():
 						pass # This area too close to somebody, try the next area.
 				if pBestPlot is not None:
 					break
-			
+
 			# Check to see if a valid start was found in ANY areaID.
 			if pBestPlot is None:
 				print("player %s pass %s failed" % (playerID, iPass))
@@ -703,10 +703,10 @@ def assignStartingPlots():
 					break
 			else:
 				break # This player has been assigned a start plot.
-			
+
 	# Successfully assigned start plots, continue back to C++
 	return None
-	
+
 def normalizeRemovePeaks():
 	return None
 
@@ -933,7 +933,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(1) == 1):
 		if iBonusType in _getBalancerBonusTypeIDs():
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def startHumansOnSameTile():

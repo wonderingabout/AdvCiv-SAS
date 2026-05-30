@@ -39,12 +39,12 @@ class TechPrefs:
 		self.NUM_AND_PREREQS = gc.getNUM_AND_TECH_PREREQS()
 		self.NUM_OR_PREREQS = gc.getNUM_OR_TECH_PREREQS()
 		# </advc.003c>
-		
+
 		self.mTechs = {}
 		self.lTechsByFlavor = []
 		for iFlavor in range(NUM_FLAVORS):
 			self.lTechsByFlavor.append([])
-		
+
 		# build a list of all techs and a list of techs for each flavor
 		for iTech in range(self.NUM_TECHS):
 			pTechInfo = gc.getTechInfo(iTech)
@@ -55,7 +55,7 @@ class TechPrefs:
 					pTech.setFlavorValue(iFlavor, iFlavorValue)
 					self.lTechsByFlavor[iFlavor].append((-iFlavorValue, iTech, pTech))
 					bHasFlavor = True
-			
+
 			# hook up prereq techs
 			for i in range(self.NUM_AND_PREREQS):
 				pPrereqTech = pTechInfo.getPrereqAndTechs(i)
@@ -65,7 +65,7 @@ class TechPrefs:
 				pPrereqTech = pTechInfo.getPrereqOrTechs(i)
 				if (pPrereqTech != -1):
 					pTech.addOrPrereq(self.getTech(pPrereqTech))
-		
+
 		# sort each flavor's list of techs by decreasing preference: reverse flavor value, tech number
 		# and create a copy that doesn't get trimmed as techs are researched
 		self.lAllTechsByFlavor = {}
@@ -213,7 +213,7 @@ class TechPrefs:
 				print(pTech)
 
 class Tech:
-	
+
 	def __init__(self, iTech):
 		self.iTech = iTech
 		self.lFlavorValues = [0] * NUM_FLAVORS
@@ -232,13 +232,13 @@ class Tech:
 
 	def getName(self):
 		return self.getInfo().getDescription()
-	
+
 	def __hash__(self):
 		return hash(self.iTech)
-	
+
 	def __eq__(self, other):
 		return self.iTech == other.iTech
-	
+
 	def __cmp__(self, other):
 		return self.iTech - other.iTech
 
@@ -357,7 +357,7 @@ class Tech:
 					str += ", "
 				str += pTech.getName()
 		return str
-		
+
 	# <advc.004a> Is this tech a necessary requirement for pForTech, i.e. is there no path to pForTech that doesn't include this tech?
 	# Recursive function that will run OOM if the tech tree has a cycle.
 	def isInevitableReq(self, pForTech):

@@ -39,7 +39,7 @@ def getNumCustomMapOptions():
 	Number of different user-defined options for this map
 	"""
 	return 6
-	
+
 def getNumHiddenCustomMapOptions():
 	return 2
 
@@ -61,7 +61,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -73,7 +73,7 @@ def getNumCustomMapOptionValues(argsList):
 		5:  2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -111,7 +111,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -139,11 +139,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(4) == 1 or map.getCustomMapOption(4) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(4) == 2)
-		
+
 def normalizeAddExtras():
 	if (CyMap().getCustomMapOption(5) == 1):
 		balancer.normalizeAddExtras()
@@ -157,7 +157,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(5) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isBonusIgnoreLatitude():
@@ -597,7 +597,7 @@ def beforeGeneration():
 	iX = int((iW - 1) * fLon)
 	iY = int((iH - 1) * fLat)
 	wheel_data.append([iX, iY])
-	
+
 	# Successfully generated regions, continue back to C++
 	return 0
 
@@ -612,7 +612,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		iWestX = iRegionWestX
 		# Note: if you pass bad regional dimensions so that iEastX > self.iW, BOOM! So don't do that. I could close out that possibility, but better that I not, so that you get an error to warn you of erroneous regional parameters. - Sirian
 		iSouthY = iRegionSouthY
-		
+
 		# Init the plot types array and the regional fractals
 		self.plotTypes = [] # reinit the array for each pass
 		self.plotTypes = [PlotTypes.PLOT_OCEAN] * (iRegionWidth*iRegionHeight)
@@ -685,7 +685,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		buffer_one = [0, 58, 64, 70]
 		bufWater = buffer_one[userInputBufferType]
 		grainType = userInputBufferType
-		
+
 		# Sea Level adjustment (from user input), limited to value of 5%.
 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
 		sea = min(sea, 5)
@@ -693,7 +693,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		bufWater += sea
 
 		# If Buffered map, add buffers (one fractal each).
-		
+
 		if ring_type == 1 and iPlayers < 11 and iPlayers > 1: # Buffered
 			# One buffer per player.
 			global buffer_data
@@ -787,7 +787,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 							i = map.plotNum(int(round(x+offset)), y)
 							self.wholeworldPlotTypes[i] = PlotTypes.PLOT_LAND
 					x += slope
-		
+
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes
 
@@ -810,7 +810,7 @@ def generatePlotTypes():
 	gc = CyGlobalContext()
 	global map
 	map = CyMap()
-	
+
 	# Check for valid number of players.
 	global bSuccessFlag
 	if bSuccessFlag:
@@ -832,9 +832,9 @@ def generatePlotTypes():
 class RingTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	"If iDesertPercent=35, then about 35% of all land will be desert. Plains is similar. \
 	Note that all percentages are approximate, as values have to be roughened to achieve a natural look."
-	
+
 	def __init__(self, iDesertPercent=20, iPlainsPercent=25, iIcePercent=50, iTundraPercent=35, fracXExp=-1, fracYExp=-1, grain_amount=5):
-		
+
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 
@@ -842,14 +842,14 @@ class RingTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		[self.cenWestX, self.cenEastX, self.cenSouthY, self.cenNorthY] = center_data
 
 		grain_amount += self.gc.getWorldInfo(self.map.getWorldSize()).getTerrainGrainChange()
-		
+
 		self.grain_amount = grain_amount
 
 		self.iWidth = self.map.getGridWidth()
 		self.iHeight = self.map.getGridHeight()
 
 		self.mapRand = self.gc.getGame().getMapRand()
-		
+
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
 		if self.map.isWrapX():
 			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
@@ -877,7 +877,7 @@ class RingTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.fracYExp = fracYExp
 
 		self.initFractals()
-		
+
 	def initFractals(self):
 		self.main.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iDesertBottom = self.main.getHeightFromPercent(self.iDesertBottomPercent)
@@ -933,14 +933,14 @@ def generateTerrainTypes():
 
 class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	def __init__(self, iJunglePercent=25, iForestPercent=40, forest_grain=6, fracXExp=-1, fracYExp=-1):
-		
+
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()
 		self.forests = CyFractal()
 		global center_data
 		[self.cenWestX, self.cenEastX, self.cenSouthY, self.cenNorthY] = center_data
-		
+
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
 		if self.map.isWrapX():
 			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
@@ -953,7 +953,7 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.pineEastX = self.iGridW - int((self.cenEastX + self.iGridW - 1) * 0.35) - 1
 		self.pineSouthY = int(self.cenSouthY * 0.7)
 		self.pineNorthY = self.iGridH - int((self.cenNorthY + self.iGridH - 1) * 0.35) - 1
-		
+
 		self.iJunglePercent = iJunglePercent
 		self.iForestPercent = iForestPercent
 		self.iIceChance = 15
@@ -966,7 +966,7 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			self.iIceChance = 6 # Add more ice if Cold Climate
 			self.iJunglePercent -= 10 # Reduce jungles if Cold Climate
 			self.iForestPercent += 20 # Add forests if Cold
-		
+
 		if self.gc.getClimateInfo(self.map.getClimate()).getDesertPercentChange() >= 10:
 			self.iJunglePercent = 15 # Reduce foliage if Arid Climate
 			self.iForestPercent = 20
@@ -980,10 +980,10 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		self.__initFractals()
 		self.__initFeatureTypes()
-	
+
 	def __initFractals(self):
 		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		
+
 		self.iJungleBottom = self.forests.getHeightFromPercent(100 - self.iJunglePercent)
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 
@@ -992,7 +992,7 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
 		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
 		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
-	
+
 	def addFeaturesAtPlot(self, iX, iY):
 		"adds any appropriate features at the plot (iX, iY) where (0,0) is in the SW"
 		pPlot = self.map.sPlot(iX, iY)
@@ -1004,26 +1004,26 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addIceAtPlot(pPlot, iX, iY)
-			
+
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addJunglesAtPlot(pPlot, iX, iY)
-			
+
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addForestsAtPlot(pPlot, iX, iY)
-		
+
 	def addIceAtPlot(self, pPlot, iX, iY):
 		if pPlot.isWater() and ((iX >= self.cenWestX and iX <= self.cenEastX) and (iY >= self.cenSouthY and iY <= self.cenNorthY)):
 			rand = self.mapRand.get(self.iIceChance, "Add Ice PYTHON")
 			if rand == 4:
 				pPlot.setFeatureType(self.featureIce, -1)
-	
+
 	def addJunglesAtPlot(self, pPlot, iX, iY):
 		# Warning! This version of Jungles is using the forest fractal!
 		if pPlot.canHaveFeature(self.featureJungle) and not ((iX >= self.cenWestX and iX <= self.cenEastX) and (iY >= self.cenSouthY and iY <= self.cenNorthY)):
 			iJungleHeight = self.forests.getHeight(iX, iY)
 			if iJungleHeight >= self.iJungleBottom:
 				pPlot.setFeatureType(self.featureJungle, -1)
-	
+
 	def addForestsAtPlot(self, pPlot, iX, iY):
 		if pPlot.canHaveFeature(self.featureForest):
 			if self.forests.getHeight(iX, iY) <= self.iForestLevel:
@@ -1051,7 +1051,7 @@ def assignStartingPlots():
 	if bSuccessFlag == False or bUseDefaultStartPlacement == True:
 		CyPythonMgr().allowDefaultImpl()
 		return
-	
+
 	global start_plots
 	global iPlotShift
 	global shuffledPlayers
@@ -1106,7 +1106,7 @@ def assignStartingPlots():
 		iChoosePlayer = dice.get(len(player_list), "Shuffling Template IDs - Inland Sea PYTHON")
 		shuffledPlayers.append(player_list[iChoosePlayer])
 		del player_list[iChoosePlayer]
-	
+
 	# Done setting up variables. Proceed to normal process.
 	CyPythonMgr().allowDefaultImpl()
 
@@ -1147,7 +1147,7 @@ def findStartingPlot(argsList):
 		if playerTemplateAssignment < 0 or playerTemplateAssignment >= len(start_plots):
 			return false
 		[iStartX, iStartY] = start_plots[playerTemplateAssignment]
-		
+
 		# Now check for eligibility according to the defintions found in the template.
 		westX = max(2, iStartX - iPlotShift)
 		eastX = min(iW - 3, iStartX + iPlotShift)

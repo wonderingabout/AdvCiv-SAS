@@ -60,7 +60,7 @@ class ProgressBar:
 		self.line_cnt = 0
 		self.bVisible = False
 		self.barItems = []
-	
+
 	def addBarItem(self, item):
 		self.barItems.append(item)
 

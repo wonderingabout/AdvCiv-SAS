@@ -318,7 +318,7 @@ class FavoriteCivicDetector:
 		eventManager.addEventHandler("OnLoad", self.onLoadGame)
 		eventManager.addEventHandler("OnPreSave", self.onPreSave)
 		eventManager.addEventHandler("CivicDemanded", self.onCivicDemanded)
-		
+
 	def onBeginActivePlayerTurn(self, argsList):
 		# Called when the active player can start making their moves.
 		#

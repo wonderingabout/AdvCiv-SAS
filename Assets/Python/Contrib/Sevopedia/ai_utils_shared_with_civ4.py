@@ -243,13 +243,13 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 				print(u"[INFO] In contact contact_type=%s Delay < 0, adjusted delay is considered infinite, so Rand is irrelevant, as regardless of its value we would force aggregate to zero. But for exhaustiveness, adjusting the rand as well, here to 0 since Rand <= 0. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
 
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
-			
+
 		else:
 			adjusted_rand = contact_rand_raw
 			force_zero_adjusted_values = True # Forced 0 aggregation
 			if is_debug:
 				print(u"[INFO] In contact contact_type=%s Delay < 0, adjusted delay is considered infinite, so Rand is irrelevant, as regardless of its value we would force aggregate to zero. But for exhaustiveness, adjusting the rand as well, here to a real value equal to raw rand value, as Rand > 0 which is valid even though delay makes it eventually irrelevant and we still force aggregate in the end for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
-		
+
 		return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
 	else:
@@ -274,7 +274,7 @@ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, c
 			force_zero_adjusted_values = False # Normal aggregation
 			if is_debug:
 				print(u"[INFO] In contact contact_type=%s Delay >=0 which is valid: adjusted delay is equal to delay raw. As for forced aggregation value, Rand > 0 which is valid, so probability of contact is highest when rand is low, and decreases the higher rand is. For example a rand of 5 gives 1/5 i.e. better odds whatever the actual value is than say 1000 which would be 1 / 1000 or some transformed value that would indicate or lead to a much lower contact chance if i (advciv-sas mod maker based on trying to understand how the base advciv or similar or before behaves) am not mistaken in my understanding. So we do not force aggregate to 0 for this contact. Values of these are contact_delay_raw=%d, adjusted_delay=%d, contact_rand_raw=%d, adjusted_rand=%d, force_zero_adjusted_values=%s." % (contact_type, contact_delay_raw, adjusted_delay, contact_rand_raw, adjusted_rand, str(force_zero_adjusted_values)))
-			
+
 			return adjusted_rand, adjusted_delay, force_zero_adjusted_values
 
 def get_contact_rand_and_delay_invert_flags():
@@ -323,7 +323,7 @@ def get_adjusted_memory_values(raw_attitude_percent, raw_decay, is_affection, is
 
 	# Step 2: Adjust decay (decay must be non-negative)
 	adjusted_decay = max(0, raw_decay)
-	
+
 	# <!-- custom: Step 3: (also was it my code comment originally or not) we --> never force aggregation to 0 for memories unlike in contact code, despite their similarities, so just one False here should be enough hopefully maybe anyways.
 	force_zero_adjusted_values = False
 

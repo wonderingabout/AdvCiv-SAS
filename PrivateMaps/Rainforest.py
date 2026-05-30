@@ -28,7 +28,7 @@ def getDescription():
 def isAdvancedMap():
 	"This map should not show up in simple mode"
 	return 1
-	
+
 def isClimateMap():
 	return 0
 
@@ -44,10 +44,10 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	translated_text = unicode(CyTranslator().getText("TXT_KEY_MAP_WORLD_WRAP", ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	return 3
-	
+
 def getCustomMapOptionDescAt(argsList):
 	iSelection = argsList[1]
 	selection_names = ["TXT_KEY_MAP_WRAP_FLAT",
@@ -55,7 +55,7 @@ def getCustomMapOptionDescAt(argsList):
                        "TXT_KEY_MAP_WRAP_TOROID"]
 	translated_text = unicode(CyTranslator().getText(selection_names[iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	return 0
 
@@ -65,14 +65,14 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
 
 def getTopLatitude():
 	return 15
-	
+
 def getBottomLatitude():
 	return -15
 
@@ -95,13 +95,13 @@ def beforeGeneration():
 	global food
 	food = CyFractal()
 	food.fracInit(iW, iH, 7, dice, 0, -1, -1)
-		
+
 # Subclass
 class RainforestFractalWorld(CvMapGeneratorUtil.FractalWorld):
 	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
-		
+
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, 2, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, 5, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 
@@ -170,7 +170,7 @@ class RainforestTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.fracYExp = fracYExp
 
 		self.initFractals()
-		
+
 	def initFractals(self):
 		self.desert.fracInit(self.iWidth, self.iHeight, 1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.plains.fracInit(self.iWidth, self.iHeight, 4, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
@@ -215,15 +215,15 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()
 		self.forests = CyFractal()
-		
+
 		self.iFlags = 0 
 
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
-		
+
 		self.iJunglePercent = iJunglePercent
 		self.iForestPercent = iForestPercent
-		
+
 		self.forest_grain = forest_grain + self.gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
 
 		self.fracXExp = fracXExp
@@ -231,10 +231,10 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		self.__initFractals()
 		self.__initFeatureTypes()
-	
+
 	def __initFractals(self):
 		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		
+
 		self.iJungleLevel = self.forests.getHeightFromPercent(self.iJunglePercent)
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 
@@ -246,10 +246,10 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 	def addFeaturesAtPlot(self, iX, iY):
 		pPlot = self.map.sPlot(iX, iY)
-		
+
 		if pPlot.isPeak() or pPlot.isWater():
 			pass
-		
+
 		else:
 			if pPlot.isRiverSide() and pPlot.isFlatlands():
 				self.addFloodAtPlot(pPlot, iX, iY)
@@ -262,7 +262,7 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 			if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 				self.addJunglesAtPlot(pPlot, iX, iY)
-			
+
 	def addFloodAtPlot(self, pPlot, iX, iY):
 		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
 			pPlot.setFeatureType(self.featureFlood, -1)
@@ -272,7 +272,7 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
 				if self.mapRand.get(25, "Add Feature PYTHON") == 23:
 					pPlot.setFeatureType(self.featureOasis, -1)
-	
+
 	def addJunglesAtPlot(self, pPlot, iX, iY):
 		# Warning: this version of JunglesAtPlot is using the forest fractal!
 		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
@@ -340,16 +340,16 @@ def assignStartingPlots():
 	for assign_loop in range(iPlayers):
 		playerID = shuffledPlayers[assign_loop]
 		player = gc.getPlayer(playerID)
-		
+
 		# Use the absolute approach for findStart from CvMapGeneratorUtil, which 
 		# ignores areaID quality and finds the best local situation on the board.
 		findstart = CvMapGeneratorUtil.findStartingPlot(playerID)
 		sPlot = map.plotByIndex(findstart)
-		
+
 		# Record the plot number to the data array for use if needed to open a "pocket".
 		iStartX = sPlot.getX()
 		iStartY = sPlot.getY()
-		
+
 		# If first player placed, no need to check for pathing yet.
 		if assign_loop == 0:
 			start_plots.append([iStartX, iStartY])
@@ -360,7 +360,7 @@ def assignStartingPlots():
 			print("First player assigned.")
 			print("-+-+-")
 			continue
-		
+
 		# Check the pathing in the start plot.
 		if sPlot.getMinOriginalStartDist() != -1:
 			start_plots.append([iStartX, iStartY])
@@ -371,7 +371,7 @@ def assignStartingPlots():
 			print("Open Path, no problems.")
 			print("-+-+-")
 			continue
-		
+
 		# If the process has reached this point, then this player is stuck 
 		# in a "pocket". This could be an island, a valley surrounded by peaks, 
 		# or an area blocked off by peaks. Could even be that a major line 
@@ -400,11 +400,11 @@ def assignStartingPlots():
 		print("Absolute distance:")
 		print(fMinDistance)
 		print("-----")
-		
+
 		# Now we draw an invisible line, plot by plot, one plot wide, from 
 		# the current start to the nearest start, converting peaks along the 
 		# way in to hills, and lakes in to flatlands, until a path opens.
-		
+
 		# Bulldoze the path until it opens!
 		startPlot = map.plot(iStartX, iStartY)
 		endPlot = map.plot(iEndX, iEndY)
@@ -530,7 +530,7 @@ def assignStartingPlots():
 							print("Pocket successfully opened!")
 							print("-----")
 							break
-			
+
 		# Now that all the pathing for this player is resolved, set the start plot.
 		start_plots.append([iStartX, iStartY])
 		player.setStartingPlot(sPlot, true)
@@ -678,7 +678,7 @@ def addBonusType(argsList):
 				# 2. The plot has an eligible terrain and feature type.
 				# Now we append this plot to the eligible list.
 				eligible.append([x,y])
-                                    
+
 		# Now we assign the bonuses to eligible plots chosen completely at random.
 		while count > 0:
 			if eligible == []:

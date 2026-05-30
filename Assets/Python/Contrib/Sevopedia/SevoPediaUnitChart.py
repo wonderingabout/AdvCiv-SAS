@@ -35,7 +35,7 @@ class SevoPediaUnitChart:
 		self.W_NAME = 270
 		# <!-- custom: 129 is enough, but add a bit more margin to avoid truncation if digits are wider. (GPT-5.2-Codex (summarized)) -->
 		self.W_NUM = 130
-		
+
 		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
 
 	def interfaceScreen(self, iGroup):
@@ -132,7 +132,7 @@ class SevoPediaUnitChart:
 			szAirEvasion = u"Air Evasion"
 			szAirIntercept = u"Air Intercept"
 			szAirRange = u"Air Range"
-			
+
 			szAirEvasionText = chart_font2(_headerPad(5) + szAirEvasion)
 			szAirInterceptText = chart_font2(_headerPad(4) + szAirIntercept)
 			szAirRangeText = chart_font2(_headerPad(6) + szAirRange)

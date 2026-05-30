@@ -10,7 +10,7 @@ import BugOptionsTab
 
 class BugNJAGCOptionsTab(BugOptionsTab.BugOptionsTab):
 	"BUG NJAGC Options Screen Tab"
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "NJAGC", "Clock")
 
@@ -23,7 +23,7 @@ class BugNJAGCOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addSpacer(screen, upperPanel, "Clock_Tab_Top1")
 		screen.attachHSeparator(upperPanel, upperPanel + "Sep")
 		# </advc.002k>
-		
+
 		leftPanel, spaceLC, centerPanel, rightPanel = self.addMultiColumnLayout(screen, upperPanel, 4, "EraColors")
 		# advc.067: Adding space between left and center column
 		self.addSpacer(screen, spaceLC, "Extra_Space_CR", 20)

@@ -10,7 +10,7 @@ import BugOptionsTab
 
 class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
 	"BUG Nap Options Screen Tab"
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "Map", "Map")
 
@@ -18,7 +18,7 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
 		tab = self.createTab(screen)
 		panel = self.createMainPanel(screen)
 		column = self.addOneColumnLayout(screen, panel)
-		
+
 		left, center, right = self.addThreeColumnLayout(screen, column, "Top", True)
 		# advc.004:
 		self.addLabel(screen, left, "Layers", "Layers:")
@@ -108,24 +108,24 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
 		#self.addTextEdit(screen, rightL, rightR, "StrategyOverlay__DotMapDotIcon")
 		self.addSlider(screen, rightL, rightR, "StrategyOverlay__DotMapBrightness", False, False, False, "up", 0, 100)
 		self.addSlider(screen, rightL, rightR, "StrategyOverlay__DotMapHighlightBrightness", False, False, False, "up", 0, 100)
-		
+
 		#self.addCheckbox(screen, right, "Actions__IgnoreHarmlessBarbarians")
-		
+
 		# advc.009c: Commented out
 		#screen.attachHSeparator(column, column + "Sep1")
 		#left, right = self.addTwoColumnLayout(screen, column, "MapFinderEnabled", True)
 		#self.addLabel(screen, left, "MapFinder", "MapFinder:")
 		#self.addCheckbox(screen, right, "MapFinder__Enabled")
-		
+
 		#self.addTextEdit(screen, column, column, "MapFinder__Path")
 		#self.addTextEdit(screen, column, column, "MapFinder__SavePath")
-		
+
 		#left, right = self.addTwoColumnLayout(screen, column, "MapFinder", True)
 		#leftL, leftR = self.addTwoColumnLayout(screen, left, "MapFinderDelays")
 		#self.addFloatDropdown(screen, leftL, leftR, "MapFinder__RegenerationDelay")
 		#self.addFloatDropdown(screen, leftL, leftR, "MapFinder__SkipDelay")
 		#self.addFloatDropdown(screen, leftL, leftR, "MapFinder__SaveDelay")
-		
+
 		#rightL, rightR = self.addTwoColumnLayout(screen, right, "MapFinderLimits")
 		#self.addTextEdit(screen, rightL, rightR, "MapFinder__RuleFile")
 		#self.addTextEdit(screen, rightL, rightR, "MapFinder__RegenerationLimit")

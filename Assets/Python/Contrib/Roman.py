@@ -41,7 +41,7 @@ def toRoman(Number):
     #
     if not (0 < Number < 10000):
         raise OutOfRangeError("number out of range (must be 1..9999)")
-    
+
     Roman = ""
     for Romantext, integer in RomanNumberMap:
         while Number >= integer:

@@ -10,7 +10,7 @@ import BugOptionsTab
 
 class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 	"BUG General Options Screen Tab"
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "General", "General")
 
@@ -20,7 +20,7 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 		column = self.addOneColumnLayout(screen, panel)
 
 		left, center, right = self.addThreeColumnLayout(screen, column, "Top", True)
-		
+
 		self.createGreatPersonGeneralPanel(screen, left)
 		#self.addSpacer(screen, left, "GeneralL1") # advc.256: No more room for this
 		self.createTechSplashPanel(screen, left)
@@ -38,7 +38,7 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 		# advc.004k (note): Should remove this spacer if the hide-command options are re-enabled
 		self.addSpacer(screen, center, "GeneralC1")
 		self.createActionsPanel(screen, center) # advc.004: Restored
-		
+
 		self.createSlidersPanel(screen, right) # advc.120c
 		self.addSpacer(screen, right, "GeneralR1")
 		self.createMiscellaneousPanel(screen, right)
@@ -62,14 +62,14 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 	#	self.addCheckbox(screen, panel, "MiscHover__LeaderheadHiddenAttitude")
 	#	self.addCheckbox(screen, panel, "MiscHover__LeaderheadWorstEnemy")
 	#	self.addCheckbox(screen, panel, "MiscHover__LeaderheadDefensivePacts")
-		
+
 	def createAutoSavePanel(self, screen, panel):
 		self.addLabel(screen, panel, "AutoSave", "AutoSave:")
 		self.addCheckbox(screen, panel, "AutoSave__CreateStartSave")
 		self.addCheckbox(screen, panel, "AutoSave__CreateEndSave")
 		self.addCheckbox(screen, panel, "AutoSave__CreateExitSave")
 		self.addCheckbox(screen, panel, "AutoSave__UsePlayerName")
-		
+
 	def createActionsPanel(self, screen, panel):
 		self.addLabel(screen, panel, "Actions", "Commands:")
 		# advc.004l, advc.011b: These five remain disabled
@@ -116,7 +116,7 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addCheckbox(screen, left, "MainInterface__StackPromotionCounts", True)
 		self.addColorDropdown(screen, center, right, "MainInterface__StackPromotionColor", False)
 		self.addColorDropdown(screen, center, right, "MainInterface__StackPromotionColorAll", False)
-	
+
 	# <advc.120c>
 	def createSlidersPanel(self, screen, panel):
 		self.addLabel(screen, panel, "Sliders", "Sliders:")
@@ -136,7 +136,7 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
 		# </advc.070>
 
 	# </advc.120c>
-		
+
 	def createMiscellaneousPanel(self, screen, panel):
 		self.addLabel(screen, panel, "Misc", "Misc:")
 		# <advc.106b>

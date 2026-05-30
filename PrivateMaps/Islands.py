@@ -32,7 +32,7 @@ def isAdvancedMap():
 
 def getNumCustomMapOptions():
 	return 4
-	
+
 def getNumHiddenCustomMapOptions():
 	return 2
 
@@ -48,7 +48,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -58,7 +58,7 @@ def getNumCustomMapOptionValues(argsList):
 		3:  2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -87,7 +87,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -111,11 +111,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(2) == 1 or map.getCustomMapOption(2) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(2) == 2)
-	
+
 def normalizeAddExtras():
 	if (CyMap().getCustomMapOption(3) == 1):
 		balancer.normalizeAddExtras()
@@ -129,7 +129,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(3) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def beforeGeneration():
@@ -175,7 +175,7 @@ def beforeGeneration():
 		else:
 			extras_range = dice.get((extras_max - extras_min + 1), "Extra Islands - Islands PYTHON")
 			iExtras = extras_min + extras_range
-		
+
 	# Choose a "Large Islands" template.
 	iNumRegions = configs[iPlayers]
 	# Some regions may go unused. We need to track the ones that have been used.
@@ -280,14 +280,14 @@ def beforeGeneration():
 	# List region_coords: [WestLon, EastLon, SouthLat, NorthLat]
 	global region_coords
 	region_coords = templates[iNumRegions]
-		
+
 class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generatePlotsByRegion(self):
 		# Sirian's MultilayeredFractal class, controlling function.
 		# You -MUST- customize this function for each use of the class.
 		iPlayers = self.gc.getGame().countCivPlayersEverAlive()
 		userInputTinyIslands = self.map.getCustomMapOption(1)
-		
+
 		# Sea Level adjustment (from user input), limited to value of 5%.
 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
 		sea = min(sea, 5)
@@ -431,7 +431,7 @@ def assignStartingPlots():
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 	iPlayers = gc.getGame().countCivPlayersEverAlive()
-	
+
 	# Error catching.
 	if iPlayers < 1 or iPlayers > 18:
 		CyPythonMgr().allowDefaultImpl()
@@ -533,7 +533,7 @@ def assignStartingPlots():
 		region_best_areas[thisRegion] = best_areas
 		region_yields.append(iRegionNetYield)
 		sorting_regions.append(iRegionNetYield)
-		
+
 	# Now sort the regions
 	best_regions = []
 	region_numbers = regions_in_use
@@ -546,7 +546,7 @@ def assignStartingPlots():
 				del region_numbers[yieldLoop]
 				del region_yields[yieldLoop]
 				break
-		
+
 	# Need to discard the worst regions and then reverse the region order.
 	# Of the regions that will be used, the worst will be assigned first.
 	if iExtras:
@@ -573,7 +573,7 @@ def assignStartingPlots():
 		if not area.isNone():
 			if area.isWater() and not area.isLake():
 				oceans.append(area)
-	
+
 	# Now assign the start plots!
 	plot_assignments = {}
 	min_dist = []
@@ -644,7 +644,7 @@ def assignStartingPlots():
 					break # Valid start found, stop checking areas and plots.
 				else:
 					pass # This area too close to somebody, try the next area.
-			
+
 			# Check to see if a valid start was found in ANY areaID.
 			if pBestPlot is None:
 				print("player %s pass %s failed" % (playerID, iPass))
@@ -661,9 +661,9 @@ def assignStartingPlots():
 					return
 			else:
 				break # This player has been assigned a start plot.
-			
+
 	# Successfully assigned start plots, continue back to C++
 	return None
-	
+
 def normalizeRemovePeaks():
 	return None

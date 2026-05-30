@@ -60,10 +60,10 @@ class CvHallOfFameScreen:
 		self.W_SCREEN = 1024
 		self.H_SCREEN = 768
 		self.Y_TITLE = 12
-		
+
 		self.X_EXIT = 994
 		self.Y_EXIT = 726
-		
+
 		self.DROPDOWN_WIDTH = 200
 		self.DROPDOWN_Y = 70
 		self.DROPDOWN_SPACING_X = 45
@@ -76,13 +76,13 @@ class CvHallOfFameScreen:
 		self.TOP_BOTTOM_PANEL_H = 55
 		self.HOF_ICON_SIZE = 24
 		self.HOF_COLOR_MARKER = u"|||||"
-								
+
 		self.nWidgetCount = 0
 		self.infoList = [] # K-Mod
-				
+
 		self.bAllowReplay = False
-		
-		
+
+
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 
@@ -116,10 +116,10 @@ class CvHallOfFameScreen:
 		xDropDown = self.DROPDOWN_START_X + iColumn * (self.DROPDOWN_WIDTH + self.DROPDOWN_SPACING_X)
 		yDropDown = self.DROPDOWN_Y + iRow * self.DROPDOWN_SPACING_Y
 		return xDropDown, yDropDown
-		
+
 	# Screen construction function
 	def interfaceScreen(self, bAllowReplay):
-						
+
 		# Create a new screen
 		screen = self.getScreen()
 		if screen.isActive():
@@ -128,7 +128,7 @@ class CvHallOfFameScreen:
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 		screen.setAlwaysShown(True)
 		self.updateLayoutForResolution(screen)
-	
+
 		self.bAllowReplay = bAllowReplay
 		self.iLeaderFilter = -1
 		self.iHandicapFilter = -1
@@ -176,7 +176,7 @@ class CvHallOfFameScreen:
 					if civ.isLeaders(iLeader):
 						screen.addPullDownString(self.LEADER_DROPDOWN_ID, gc.getLeaderHeadInfo(iLeader).getDescription(), iCiv, iLeader, False)
 		iNumDropDowns += 1
-		
+
 		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Victory dropdown initialization
@@ -194,7 +194,7 @@ class CvHallOfFameScreen:
 		for iHandicap in range(gc.getNumHandicapInfos()):
 			screen.addPullDownString(self.DIFFICULTY_DROPDOWN_ID, gc.getHandicapInfo(iHandicap).getDescription(), iHandicap, iHandicap, False)
 		iNumDropDowns += 1
-			
+
 		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# World Size dropdown initialization
@@ -203,7 +203,7 @@ class CvHallOfFameScreen:
 		for i in range(gc.getNumWorldInfos()):
 			screen.addPullDownString(self.MAPSIZE_DROPDOWN_ID, gc.getWorldInfo(i).getDescription(), i, i, False)
 		iNumDropDowns += 1
-			
+
 		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Era dropdown initialization
@@ -212,7 +212,7 @@ class CvHallOfFameScreen:
 		for i in range(gc.getNumEraInfos()):
 			screen.addPullDownString(self.ERA_DROPDOWN_ID, gc.getEraInfo(i).getDescription(), i, i, False)
 		iNumDropDowns += 1
-			
+
 		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Game Speed dropdown initialization
@@ -221,7 +221,7 @@ class CvHallOfFameScreen:
 		for i in range(gc.getNumGameSpeedInfos()):
 			screen.addPullDownString(self.SPEED_DROPDOWN_ID, gc.getGameSpeedInfo(i).getDescription(), i, i, False)
 		iNumDropDowns += 1
-		
+
 		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Climate dropdown initialization
@@ -230,7 +230,7 @@ class CvHallOfFameScreen:
 		#for i in range(gc.getNumClimateInfos()):
 		#	screen.addPullDownString(self.CLIMATE_DROPDOWN_ID, gc.getClimateInfo(i).getDescription(), i, i, False)
 		#iNumDropDowns += 1
-			
+
 		#yDropDown = self.DROPDOWN_SPACING_Y * (iNumDropDowns % 2) + self.DROPDOWN_Y
 		#xDropDown = (self.DROPDOWN_WIDTH  + self.DROPDOWN_SPACING_X) * (iNumDropDowns / 2) + self.DROPDOWN_SPACING_X
 
@@ -240,7 +240,7 @@ class CvHallOfFameScreen:
 		#for i in range(gc.getNumSeaLevelInfos()):
 		#	screen.addPullDownString(self.SEALEVEL_DROPDOWN_ID, gc.getSeaLevelInfo(i).getDescription(), i, i, False)
 		#iNumDropDowns += 1
-			
+
 		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Multiplayer dropdown initialization
@@ -252,7 +252,7 @@ class CvHallOfFameScreen:
 			screen.addPullDownString(self.MULTIPLAYER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_SINGLE_PLAYER", ()), 0, 0, True)
 			screen.addPullDownString(self.MULTIPLAYER_DROPDOWN_ID, localText.getText("TXT_KEY_MAIN_MENU_MULTIPLAYER", ()), 1, 1, False)
 		iNumDropDowns += 1
-			
+
 		xDropDown, yDropDown = self.getDropdownPos(iNumDropDowns)
 
 		# Score dropdown initialization
@@ -263,7 +263,7 @@ class CvHallOfFameScreen:
 		iNumDropDowns += 1
 
 		self.drawContents()
-		
+
 	def isDisplayed(self, replayInfo):
 		return ((self.iLeaderFilter == -1 or self.iLeaderFilter == replayInfo.getLeader(replayInfo.getActivePlayer())) 
 			and (self.iHandicapFilter == -1 or self.iHandicapFilter == replayInfo.getDifficulty()) 
@@ -313,7 +313,7 @@ class CvHallOfFameScreen:
 		return szTrait1, szTrait2
 
 	def drawContents(self):
-				
+
 		screen = self.getScreen()
 
 		# K-Mod. Delete old widgets.
@@ -322,7 +322,7 @@ class CvHallOfFameScreen:
 			screen.deleteWidget(szButtonName)
 		screen.deleteWidget(self.TABLE_ID)
 		# K-Mod end
-		
+
 		screen.addTableControlGFC(self.TABLE_ID, 15, self.TABLE_X, self.TABLE_Y, self.TABLE_W, self.TABLE_H, True, True, self.HOF_ICON_SIZE, self.HOF_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(self.TABLE_ID, False)
 		screen.enableSort(self.TABLE_ID)
@@ -411,7 +411,7 @@ class CvHallOfFameScreen:
 				win, szType = self.isReplayWinner(replayInfo)
 				szVictory = results[win] + szType
 # BUG - Win/Loss Info - end
-					
+
 				if self.iSortBy == SORT_BY_NORMALIZED_SCORE:
 					iValue = -replayInfo.getNormalizedScore()
 				elif self.iSortBy == SORT_BY_FINISH_DATE:
@@ -477,7 +477,7 @@ class CvHallOfFameScreen:
 					data1 = 1
 				# </advc.106i>
 				screen.setButtonGFC(szButtonName, self.infoList[i][1], "", 0, 0, 10, 10, WidgetTypes.WIDGET_SHOW_REPLAY, data1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
-		
+
 			screen.appendTableRow(self.TABLE_ID)
 			# <advc.106i> Replacing hardcoded column numbers
 			iColumn = 0
@@ -519,9 +519,9 @@ class CvHallOfFameScreen:
 			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][8], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			iColumn += 1
 			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][9], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-								
+
 		return
-	
+
 # BUG - Win/Loss Info - start
 	def isReplayWinner(self, replay):
 		szWinText = localText.getText("TXT_KEY_GAME_WON", ("(.*)", "(.*)"))
@@ -548,7 +548,7 @@ class CvHallOfFameScreen:
 			msgNum -= 1
 		return False, localText.getText("TXT_KEY_NONE", ())
 # BUG - Win/Loss Info - end
-																				
+
 	# handle the input for this screen...
 	def handleInput (self, inputClass):
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
@@ -611,7 +611,7 @@ class CvHallOfFameScreen:
 				if iRow < len(self.infoList):
 					CvScreensInterface.replayScreen.replayInfo = self.hallOfFame.getReplayInfo(self.infoList[iRow][10])
 					CvScreensInterface.replayScreen.showScreen(True)
-										
+
 		return 0
 
 	def update(self, fDelta):

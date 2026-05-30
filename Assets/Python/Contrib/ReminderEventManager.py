@@ -165,7 +165,7 @@ class ReminderEventManager:
 	def initReminders(self):
 		self.setReminders(Reminders())
 		self.reminder = None
-	
+
 	def setReminders(self, queues):
 		self.reminders = queues
 		global g_reminders
@@ -175,17 +175,17 @@ class ReminderEventManager:
 		self.reminders.clear()
 		global g_turnReminderTexts
 		g_turnReminderTexts = None
-	
+
 	def addReminder(self, playerID, reminder):
 		if hasNetMessage():
 			player = gc.getPlayer(playerID)
 			player.addReminder(reminder.turn, reminder.message)
 		else:
 			self.reminders.push(playerID, reminder)
-	
+
 	def createReminder(self):
 		g_eventMgr.beginEvent(STORE_EVENT_ID)
-	
+
 	def onSwitchHotSeatPlayer(self, argsList):
 		# Clears the end turn text so hot seat players don't see each other's reminders.
 		#

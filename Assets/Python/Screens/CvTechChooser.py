@@ -330,7 +330,7 @@ class CvTechChooser:
 		yPanelHeight = self.H_SCREEN
 
 		screen.showWindowBackground( False )
-	
+
 		# <!-- custom: no longer center it; adjust dimensions like the military advisor and related reworks. (GPT-5.2-Codex (summarized)) -->
 		# screen.setDimensions((screen.getXResolution() - xPanelWidth) / 2, screen.centerY(0), xPanelWidth, yPanelHeight)
 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, xPanelWidth, yPanelHeight)
@@ -627,7 +627,7 @@ class CvTechChooser:
 				screen.addDDSGFCAt( szObsoleteButton, szTechRecord, gc.getBonusInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_BONUS, j, -1, False )
 				screen.addDDSGFCAt( szObsoleteX, szTechRecord, self.ART_RED_X, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_BONUS, j, -1, False )
 				fX += X_INCREMENT
-					
+
 		j = 0
 		k = 0
 
@@ -723,7 +723,7 @@ class CvTechChooser:
 
 		j = 0
 		k = 0
-		
+
 		# Adjustments  (advc.120g: Moved up so that the icon appears before the tech trading icon)
 		for j in range( CommerceTypes.NUM_COMMERCE_TYPES ):
 			# advc.120g: The second condition said (I paraphrase) "not team.isCommerceFlexible". This hides the icon once the tech is dicovered, which I don't like. If there were multiple techs unlocking the same slider it would make more sense. Actually, buildings can - in theory - unlock a slider for a player. So I'm going to check if the player already has the slider, but the team doesn't (meaning that the player must have it through a building).
@@ -1264,7 +1264,7 @@ class CvTechChooser:
 # BUG - GP Tech Prefs - start
 	def resetTechPrefs (self):
 		self.pPrefs = TechPrefs.TechPrefs()
-	
+
 	def updateTechPrefs (self):
 #		BugUtil.debug("cvTechChooser: updateTechPrefs")
 
@@ -1313,7 +1313,7 @@ class CvTechChooser:
 			# advc.004a: WIDGET added
 			screen.addDDSGFC( "GreatPersonHeading", ArtFileMgr.getInterfaceArtInfo("DISCOVER_TECHNOLOGY_BUTTON").getPath(), iX, iY-iIconSize/5, iIconSize, iIconSize, WidgetTypes.WIDGET_TECH_PREFS_HEADING, -1, -1 )
 			iX += 3 * PREF_ICON_SIZE # advc.004a: Continue to the right
-		
+
 		# advc.004a: Merged into the code below
 		#for i, f in enumerate(FLAVORS):
 		#	# GP icon
@@ -1336,7 +1336,7 @@ class CvTechChooser:
 			if (pPlayer.isResearchingTech(i)):
 				sTechs.add(self.pPrefs.getTech(i))
 				bAnyResearch = True # advc.004a
-		
+
 		# advc.004a: This loop is based on the placeGreatPeople function of the RFC:DoC mod
 		for i, f in enumerate(FLAVORS):
 			iUnitClass = getInfoTypeOrFail(UNIT_CLASSES[i])
@@ -1365,7 +1365,7 @@ class CvTechChooser:
 			#	screen.addDDSGFC( szButtonName, self.NO_TECH_ART, iX, iY, PREF_ICON_SIZE, PREF_ICON_SIZE, WidgetTypes.WIDGET_TECH_PREFS_FUTURE, f, -1 )
 			# advc.004a: Rather show no button
 				screen.hide( szButtonName )
-				
+
 # BUG - GP Tech Prefs - end
 			iX += 2 * PREF_ICON_SIZE # advc.004a
 

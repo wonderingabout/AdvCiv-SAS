@@ -31,7 +31,7 @@ def getDescription():
 def isAdvancedMap():
 	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
 	return 1
-	
+
 def getNumCustomMapOptions():
 	return 2
 
@@ -56,7 +56,7 @@ def getNumCustomMapOptionValues(argsList):
 		1:	2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -74,7 +74,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -94,7 +94,7 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
@@ -112,7 +112,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(1) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isClimateMap():
@@ -132,27 +132,27 @@ def getGridSize(argsList):
 		return []
 	[eWorldSize] = argsList
 	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
-	
+
 def findStartingPlot(argsList):
 	[playerID] = argsList
 
 	def isValid(playerID, x, y):
 		teamID = CyGlobalContext().getPlayer(playerID).getTeam()
 		iH = CyMap().getGridHeight()
-		
+
 		if int(teamID/2) * 2 == teamID: # Even-numbered team.
 			isOdd = False
 		else:
 			isOdd = True
-		
+
 		if isOdd and y >= iH * 0.7:
 			return true
-		
+
 		if not isOdd and y <= iH * 0.3:
 			return true
-			
+
 		return false
-	
+
 	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)
 
 def normalizeStartingPlotLocations():
@@ -223,7 +223,7 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		iWestX = iRegionWestX
 		# Note: if you pass bad regional dimensions so that iEastX > self.iW, BOOM! So don't do that. I could close out that possibility, but better that I not, so that you get an error to warn you of erroneous regional parameters. - Sirian
 		iSouthY = iRegionSouthY
-		
+
 		# Init the plot types array and the regional fractals
 		self.plotTypes = [] # reinit the array for each pass
 		self.plotTypes = [PlotTypes.PLOT_OCEAN] * (iRegionWidth*iRegionHeight)
@@ -372,9 +372,9 @@ class OasisTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	             iOasisPlainsPercent=16, iOasisTopLatitude=0.69,
 	             iJungleLatitude=0.14, iOasisBottomLatitude=0.3,
 	             fracXExp=-1, fracYExp=-1, grain_amount=4):
-		
+
 		self.grain_amount = grain_amount
-		
+
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 
@@ -402,22 +402,22 @@ class OasisTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.iNorthernPlainsBottomPercent = max(0,int(100-iNorthernPlainsPercent))
 		self.iMountainTopPercent = 75
 		self.iMountainBottomPercent = 60
-		
+
 		self.iOasisBottomLatitude = iOasisBottomLatitude
 		self.iOasisTopLatitude = iOasisTopLatitude
 		self.iJungleLatitude = iJungleLatitude
-		
+
 		self.iGrassPercent = iGrassPercent
 		self.iPlainsPercent = iPlainsPercent
 		self.iOasisGrassPercent = iOasisGrassPercent
 		self.iOasisPlainsPercent = iOasisPlainsPercent
 		self.iNorthernPlainsPercent = iNorthernPlainsPercent
-		
+
 		self.fracXExp = fracXExp
 		self.fracYExp = fracYExp
 
 		self.initFractals()
-		
+
 	def initFractals(self):
 		self.grass.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iGrassTop = self.grass.getHeightFromPercent(self.iGrassTopPercent)
@@ -520,10 +520,10 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.iFlags = 0
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
-		
+
 		self.iJunglePercent = iJunglePercent
 		self.iForestPercent = iForestPercent
-		
+
 		self.jungle_grain = jungle_grain
 		self.forest_grain = forest_grain
 
@@ -532,14 +532,14 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		self.__initFractals()
 		self.__initFeatureTypes()
-	
+
 	def __initFractals(self):
 		self.jungles.fracInit(self.iGridW+1, self.iGridH+1, self.jungle_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.forests.fracInit(self.iGridW+1, self.iGridH+1, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		
+
 		self.iJungleLevel = self.jungles.getHeightFromPercent(self.iJunglePercent)
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
-		
+
 	def __initFeatureTypes(self):
 		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
 		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
@@ -575,11 +575,11 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			# Add more Oases!
 			if (lat < 0.71 and lat > 0.3) and self.mapRand.get(9, "Add Extra Oases PYTHON") == 0:
 				pPlot.setFeatureType(self.featureOasis, -1)
-                                		
+
 	def addIceAtPlot(self, pPlot, iX, iY, lat):
 		# We don' need no steeking ice. M'kay? Alrighty then.
 		ice = 0
-	
+
 	def addJunglesAtPlot(self, pPlot, iX, iY, lat):
 		if pPlot.canHaveFeature(self.featureJungle):
 			if self.jungles.getHeight(iX+1, iY+1) <= self.iJungleLevel:
@@ -815,7 +815,7 @@ def addBonusType(argsList):
 				# 3. The plot is in one or more eligible regions.
 				# Now we append this plot to the eligible list.
 				eligible.append([x,y])
-                                    
+
 		# Now we assign the bonuses to eligible plots chosen completely at random.
 		while count > 0:
 			if eligible == []:
@@ -853,7 +853,7 @@ for each plot of river you place. The default river process needs the riverID va
 to behave properly when it intersects any rivers that you draw first.
 
 Example:
-	
+
 pRiverPlot = map.plot(iX, iY)
 pRiverPlot.setRiverID(iRiverNumberHere)
 pRiverPlot.setWOfRiver(true, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
@@ -1003,6 +1003,6 @@ def addRivers():
 		startY = startRangeBottom + dice.get(vertRand, "River Start Y - Oasis PYTHON")
 		#
 		addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, 5)
-	
+
 	return 0
 

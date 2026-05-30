@@ -41,7 +41,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -50,7 +50,7 @@ def getNumCustomMapOptionValues(argsList):
 		2:  2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -75,7 +75,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -97,11 +97,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 2)
-	
+
 def normalizeAddExtras():
 	if (CyMap().getCustomMapOption(2) == 1):
 		balancer.normalizeAddExtras()
@@ -115,7 +115,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(2) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isAdvancedMap():
@@ -186,11 +186,11 @@ def generatePlotTypes():
 	iHillsBottom2 = hillsFrac.getHeightFromPercent(max((75 - gc.getClimateInfo(map.getClimate()).getHillRange()), 0))
 	iHillsTop2 = hillsFrac.getHeightFromPercent(min((75 + gc.getClimateInfo(map.getClimate()).getHillRange()), 100))
 	iPeakThreshold = peaksFrac.getHeightFromPercent((10 * extraPeaks) + gc.getClimateInfo(map.getClimate()).getPeakPercent())
-	
+
 	# Set maze dimensions
 	mazeW = iW/(2 * multiplier)
 	mazeH = iH/(2 * multiplier)
-	
+
 	# Init Maze
 	plotTypes = [PlotTypes.PLOT_OCEAN] * (iW*iH)
 	matrix = [False] * (mazeW*mazeH)
@@ -203,7 +203,7 @@ def generatePlotTypes():
 		directions -= 1
 	if iY == 0 or iY == mazeH - 1:
 		directions -= 1
-	
+
 	# Add land at initial vertex.
 	x = iX * 2 * multiplier
 	y = iY * 2 * multiplier
@@ -213,7 +213,7 @@ def generatePlotTypes():
 		plotTypes[i] = PlotTypes.PLOT_HILLS
 	else:
 		plotTypes[i] = PlotTypes.PLOT_LAND
-	
+
 	if multiplier == 1:
 		pass
 	else:
@@ -264,13 +264,13 @@ def generatePlotTypes():
 			west = 0
 		else:
 			west = 1
-		
+
 		# Possible Directions
 		directions = north + south + east + west
 		# Remember this vertex for possible return to it later
 		if directions > 1:
 			path.append([iX, iY])
-			
+
 		# If no Directions possible, must choose another vertex.
 		while directions < 1:
 			vertexRoll = dice.get(len(path), "Pathfinding - Maze PYTHON")
@@ -310,7 +310,7 @@ def generatePlotTypes():
 			# Remove this vertex if no longer valid
 			if directions < 2:
 				del path[vertexRoll]
-		
+
 		# Choose a direction at random.
 		choose = []
 		if north:
@@ -323,7 +323,7 @@ def generatePlotTypes():
 			choose.append([-1, 0])
 		dir = dice.get(len(choose), "Segment Direction - Maze PYTHON")
 		[xPlus, yPlus] = choose[dir]
-		
+
 		# Add land in the chosen direction.
 		for loop in range(1, 3):
 			x = (iX * 2 * multiplier) + (multiplier * xPlus * loop)
@@ -334,7 +334,7 @@ def generatePlotTypes():
 				plotTypes[i] = PlotTypes.PLOT_HILLS
 			else:
 				plotTypes[i] = PlotTypes.PLOT_LAND
-	
+
 			if multiplier == 1:
 				pass
 			else:
@@ -353,10 +353,10 @@ def generatePlotTypes():
 
 		iX += xPlus
 		iY += yPlus
-		
+
 	# Finished generating the maze!
 	return plotTypes
-	
+
 def generateTerrainTypes():
 	NiTextOut("Generating Terrain (Python Maze) ...")
 	terraingen = TerrainGenerator()
@@ -373,7 +373,7 @@ def addFeatures():
 		if pPlot.isPeak() and pPlot.isCoastalLand():
 			# If a peak is along the coast, change to hills and recalc.
 			pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
-			
+
 	# Now add the features.
 	NiTextOut("Adding Features (Python Maze) ...")
 	featuregen = FeatureGenerator()

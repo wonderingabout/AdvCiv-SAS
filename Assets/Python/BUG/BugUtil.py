@@ -318,21 +318,21 @@ INPUT_CODES = {
 	NotifyCode.NOTIFY_CURSOR_MOVE_OFF       : "Mouse Leave", 
 	NotifyCode.NOTIFY_CLICKED               : "Click",
 	NotifyCode.NOTIFY_DBL_CLICKED           : "Double Click",
-	
+
 	NotifyCode.NOTIFY_CHARACTER             : "Character", 
-	
+
 	NotifyCode.NOTIFY_TABLE_HEADER_SELECTED : "Table Header Select",
 	NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED : "List Select",
 	NotifyCode.NOTIFY_SCROLL_DOWN           : "Scroll Down",
 	NotifyCode.NOTIFY_SCROLL_UP             : "Scroll Up",
-	
+
 	NotifyCode.NOTIFY_NEW_HORIZONTAL_STOP   : "New Horizontal Stop",
 	NotifyCode.NOTIFY_NEW_VERTICAL_STOP     : "New Vertical Stop",
 	NotifyCode.NOTIFY_SLIDER_NEWSTOP        : "Slider New Stop",
-	
+
 	NotifyCode.NOTIFY_FOCUS                 : "Focus",
 	NotifyCode.NOTIFY_UNFOCUS               : "Unfocus",
-	
+
 	NotifyCode.NOTIFY_LINKEXECUTE           : "Link Execute",
 	NotifyCode.NOTIFY_FLYOUT_ITEM_SELECTED  : "Flyout Item Selected",
 	NotifyCode.NOTIFY_MOVIE_DONE            : "Movie Done",
@@ -460,7 +460,7 @@ class Timer:
 		self.reset()
 		if start:
 			self.start()
-	
+
 	def reset(self):
 		# Resets all times to zero and stops the timer.
 		self._initial = None
@@ -468,18 +468,18 @@ class Timer:
 		self._time = 0
 		self._total = 0
 		return self
-	
+
 	def start(self):
 		# Starts the timer or starts it again if it is already running.
 		self._start = time.clock()
 		if self._initial is None:
 			self._initial = self._start
 		return self
-	
+
 	def restart(self):
 		# Resets all times to zero and starts the timer.
 		return self.reset().start()
-	
+
 	def stop(self):
 		# Stops the timer if it is running and returns the elapsed time since start, otherwise returns 0.
 		#
@@ -490,19 +490,19 @@ class Timer:
 			self._start = None
 			return self._time
 		return 0
-	
+
 	def running(self):
 		# Returns True if the timer is running.
 		return self._start is not None
-	
+
 	def time(self):
 		# Returns the most recent timing or 0 if none has completed.
 		return self._time
-	
+
 	def total(self):
 		# Returns the sum of all the individual timings.
 		return self._total
-	
+
 	def span(self):
 		# Returns the span of time from the first start() to the last stop().
 		#
@@ -513,7 +513,7 @@ class Timer:
 			return time.clock() - self._initial
 		else:
 			return self._final - self._initial
-	
+
 	def log(self, extra=None):
 		# Stops the timer and logs the time of the current timing.
 		#
@@ -521,7 +521,7 @@ class Timer:
 		#
 		self.stop()
 		return self._log(self.time(), extra)
-	
+
 	def logTotal(self, extra="total"):
 		# Stops the timer and logs the sum of all timing steps.
 		#
@@ -529,7 +529,7 @@ class Timer:
 		#
 		self.stop()
 		return self._log(self.total(), extra)
-	
+
 	def logSpan(self, extra=None):
 		# Stops the timer and logs the span of time covering all timings.
 		#
@@ -537,7 +537,7 @@ class Timer:
 		#
 		self.stop()
 		return self._log(self.span(), extra)
-	
+
 	def _log(self, runtime, extra):
 		# Logs the passed in runtime value.
 		#
@@ -553,31 +553,31 @@ class Timer:
 ## and passing in arguments set up at time of creation or when called)
 
 class Function:
-	
+
 	def __init__(self, module, functionOrClass, *args, **kwargs):
 		self.__module__ = module
 		self.__name__ = functionOrClass
 		self.function = None
 		self.setArguments(*args, **kwargs)
-	
+
 	def bind(self):
 		if self.function is None:
 			self.function = lookupFunction(self.__module__, self.__name__)
-	
+
 	def setArguments(self, *args, **kwargs):
 		self.args = args
 		self.kwargs = kwargs
-	
+
 	def call(self, *args, **kwargs):
 		self.bind()
 		if args or kwargs:
 			self.setArguments(*args, **kwargs)
 		debug("BugUtil - calling %r" % self)
 		return self.function(*self.args, **self.kwargs)
-	
+
 	def __call__(self, *args, **kwargs):
 		return self.call(*args, **kwargs)
-	
+
 	def __repr__(self):
 		if self.args or self.kwargs:
 			return "<func %s.%s (%r, %r)>" % (self.__module__, self.__name__, self.args, self.kwargs)

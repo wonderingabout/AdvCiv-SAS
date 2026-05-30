@@ -332,18 +332,18 @@ def init():
 	BuildingType("Shrine", FontUtil.getChar("commerce gold"), isShrine)
 # MOD: Add a BuildingType() call for each new religious building type you define
 #	BuildingType("Inquisition Office", FontUtil.getChar("cancel"), isInquisitionOffice)
-	
+
 	UnitType("Missionary", FontUtil.getChar("religion"), isMissionary)
 # MOD: Add a BuildingType() call for each new religious unit type you define
 #	UnitType("Inquisitor", FontUtil.getChar("religion"), isInquisitor)
-	
+
 	global NUM_RELIGIONS, ALL_RELIGIONS
 	NUM_RELIGIONS = gc.getNumReligionInfos()
 	ALL_RELIGIONS = range(NUM_RELIGIONS)
 	for iReligion in ALL_RELIGIONS:
 		BUILDINGS_BY_RELIGION.append([-1] * NUM_BUILDING_TYPES)
 		UNITS_BY_RELIGION.append([-1] * NUM_UNIT_TYPES)
-	
+
 	for iBldg in range(gc.getNumBuildingInfos()):
 		bldg = gc.getBuildingInfo(iBldg)
 		iReligion = getBuildingReligion(bldg)
@@ -353,7 +353,7 @@ def init():
 					BUILDINGS_BY_RELIGION[iReligion][type.index] = iBldg
 					BugUtil.debug("ReligionUtil.init - %s %s is %i: %s", gc.getReligionInfo(iReligion).getDescription(), type.description, iBldg, bldg.getDescription())
 					break
-	
+
 	for iUnit in range(gc.getNumUnitInfos()):
 		unit = gc.getUnitInfo(iUnit)
 		iReligion = getUnitReligion(unit)

@@ -15,7 +15,7 @@ localText = CyTranslator()
 
 def printObjAttrs(obj):
 	print ("[DEBUG] Beginning of show obj inner fields.")
-	
+
 	for attr in dir(obj):
 		try:
 			# Try to get the attribute
@@ -28,7 +28,7 @@ def printObjAttrs(obj):
 				print(u"%s = %s\n" % (attr, attr_value))
 		except:
 			print(u"%s - Error accessing\n" % attr)
-	
+
 	print ("[DEBUG] End of show show obj inner fields.")
 
 def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):

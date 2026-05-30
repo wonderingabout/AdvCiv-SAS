@@ -593,7 +593,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 					screen.addDDSGFCAt(szOverlayName, panelName, szRedX, iCurrentX - self.X_OBSOLETES, iOverlayY - self.Y_OBSOLETES, iOverlaySize, iOverlaySize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, -1, False)
 					screen.setHitTest(szOverlayName, HitTestTypes.HITTEST_NOHIT)
 					iCurrentX += iButtonSpacing
-		
+
 		else:
 			# No obsolete items - display "None" text
 			draw_none_text(screen, self.top, self.X_OBSOLETES, self.Y_OBSOLETES, self.W_OBSOLETES, self.H_OBSOLETES)

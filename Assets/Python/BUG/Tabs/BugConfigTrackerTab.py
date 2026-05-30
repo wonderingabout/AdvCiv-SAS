@@ -11,7 +11,7 @@ import BugConfigTracker
 
 class BugConfigTrackerTab(BugOptionsTab.BugOptionsTab):
 	"BUG Config Tracker Options Screen Tab"
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "System", "System")
 
@@ -19,7 +19,7 @@ class BugConfigTrackerTab(BugOptionsTab.BugOptionsTab):
 		tab = self.createTab(screen)
 		panel = self.createMainPanel(screen)
 		column = self.addOneColumnLayout(screen, panel)
-		
+
 		items = BugConfigTracker.combine()
 		itemNum = 0
 #		first = True

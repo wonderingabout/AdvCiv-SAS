@@ -20,10 +20,10 @@ class SevoPediaIndex:
 
 	def __init__(self, main):
 		self.top = main
-		
+
 		self.LIST_BUTTON_SIZE = 24
 		self.SAS_indexSetLayout(False)
-		
+
 		self.index = None
 		self.letterTextIDs = None
 		# <!-- custom: filter reads SevoPediaMain.SAS_szSearchString; the shared top-header search bar
@@ -42,7 +42,7 @@ class SevoPediaIndex:
 			self.Y_INDEX = self.top.Y_CATEGORIES
 			self.W_INDEX = self.top.W_SCREEN - 2 * self.top.X_CATEGORIES
 			self.H_INDEX = self.top.H_CATEGORIES
-		
+
 		self.X_LETTER = self.X_INDEX + 130  # position of first letter button
 		self.Y_LETTER = self.Y_INDEX
 		self.W_LETTER = 20
@@ -51,40 +51,40 @@ class SevoPediaIndex:
 		self.SAS_indexSetLayout(bCategory)
 		self.buildIndex()
 		self.placeIndex()
-	
+
 	def buildIndex(self):
 		if self.index:
 			return
-		
+
 		techList = self.top.getTechList()
 		unitList = self.top.getUnitList()
 		unitCombatList = self.top.getUnitCategoryList()
 		promotionList = self.top.getPromotionList()
-		
+
 		buildingList = self.top.getBuildingList()
 		nationalWonderList = self.top.getNationalWonderList()
 		worldWonderList = self.top.getWorldWonderList()
 		projectList = self.top.getProjectList()
 		specialistList = self.top.getSpecialistList()
-		
+
 		terrainList = self.top.getTerrainList()
 		featureList = self.top.getFeatureList()
 		bonusList = self.top.getBonusList()
 		improvementList = self.top.getImprovementList()
-		
+
 		civList = self.top.getCivilizationList()
 		leaderList = self.top.getLeaderList()
 		traitList = self.top.getTraitList()
-		
+
 		civicList = self.top.getCivicList()
 		religionList = self.top.getReligionList()
 		corporationList = self.top.getCorporationList()
-		
+
 		conceptList = self.top.getConceptList()
 		newConceptList = self.top.getNewConceptList()
 		# <!-- custom: add Builds to index, inspired by Middle-earth mod's PlatyPedia approach (Claude Opus 4.5) -->
 		buildList = self.top.getBuildList()
-		
+
 		# <!-- custom: Note: keep Index list/cell handling local and direct instead of sharing Main's per-category widget metadata. Index is one flattened table while Main drives many independent pedia pages, so sharing would push Index-only rules into Main code for no real reuse win. (GPT-5.5) -->
 		# <!-- custom: Dropped the legacy TXT_KEY_* prefix-strip and "The X" comma-flip sort-key cleanup here (sorted the same items differently in Index vs the type-specific pedia pages, hurt diagnosis of missing translations, needless per-entry build-time cost in any locale - and especially wasteful in non-English ones where "The X" never matches anyway, and needless code complexity). See KI#133 for full rationale. (Claude code Opus 4.7) -->
 		list=[]
@@ -137,15 +137,15 @@ class SevoPediaIndex:
 		# <!-- custom: add Builds to index (Claude Opus 4.5) -->
 		for item in buildList:
 			list.append([item[0],"Build",item])
-		
+
 		list.sort()
 		self.index = list
-		
+
 	def placeIndex(self):
 		screen = self.top.getScreen()
 		CONCEPT_CHAR = gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()
 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND")
-		
+
 		if self.SAS_indexWidgetNames:
 			for szWidget in self.SAS_indexWidgetNames:
 				try:
@@ -153,7 +153,7 @@ class SevoPediaIndex:
 				except:
 					pass
 			self.SAS_indexWidgetNames = []
-		
+
 		# <!-- custom: draw the shared top-header search bar from SevoPediaMain, and register this
 		# method as the active refresher so Main's search handlers can invoke it on each keystroke
 		# without needing any category-specific branching. (Claude code Opus 4.7) -->
@@ -184,7 +184,7 @@ class SevoPediaIndex:
 		self.SAS_indexWidgetNames.append(self.tableName)
 		for i in range(nColumns):
 			screen.setTableColumnHeader(self.tableName, i, "", (self.W_INDEX - 10) / nColumns)
-		
+
 		iRow = -1
 		iColumn = 0
 		sLetter = "#"
@@ -279,7 +279,7 @@ class SevoPediaIndex:
 				self._SAS_indexPlaceCell(screen, iRow, iColumn, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iData1)
 			elif (type == "NewConcept"):
 				self._SAS_indexPlaceCell(screen, iRow, iColumn, sasFontTagLabel + (u"%c %s" % (CONCEPT_CHAR, item[0])) + SAS_FONT_TAG_CLOSE, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1)
-		
+
 		self.iLastRow = iRow
 
 	# <!-- custom: helper used during placeIndex so every cell's args are remembered for arrow-key re-render. Keeps the placement loop one-line-per-type while ensuring SAS_indexCells stays in sync with what's actually drawn. (Claude code Opus 4.7) -->
@@ -332,14 +332,14 @@ class SevoPediaIndex:
 			screen.selectRow(self.tableName, self.iLastRow, True)
 			screen.selectRow(self.tableName, inputClass.getData1(), True)
 			return 1
-		
+
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
 			iBuild = inputClass.getData2()
 			# <!-- custom: Build rows now use WIDGET_HELP_IMPROVEMENT to restore hover text in Index; route click
 			# explicitly to Sevopedia Builds so behavior matches other Build entries. See KI#113. (GPT-5.3-Codex) -->
 			if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
 				return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
-		
+
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
 				or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
 			if inputClass.getFunctionName() == self.top.WIDGET_ID and inputClass.getID() == self.iTableWidgetId:

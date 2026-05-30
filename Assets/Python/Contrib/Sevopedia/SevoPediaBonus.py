@@ -170,7 +170,7 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(panelName, False)
-		
+
 		# <!-- custom: handle multiple potential yield changes by separating the header from yield stats display --> 
 		szTextHeader = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + u"\n")
 		screen.appendListBoxString(panelName, szTextHeader, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
@@ -198,25 +198,25 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES", ()), "", True, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 
-		
+
 		# Create a row container for horizontal layout
 		rowPanelName = self.top.getNextWidgetName()
 		screen.attachPanel(panelName, rowPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
-		
+
 		# Add vertical spacing at top to help center content
 		# We estimate about 40% of panel height as top margin to achieve vertical centering
 		# <!-- custom: note: currently vertical button above label doesn't work so code should be cleaned up and solved, but this is good enough so keeping it as is as it working and functional and an improvement over previous vertical scrolling code -->
 		#verticalSpacerName = self.top.getNextWidgetName()
 		#verticalMargin = int(self.H_IMPROVEMENTS * 0.2)  # 20% of panel height as top margin
 		#screen.attachLabel(rowPanelName, verticalSpacerName, "\n" * int(verticalMargin/10))
-		
+
 		# <!-- custom: hack to add left padding, ideally find how to do it properly while keeping our nice spaced horizontal display -->
 		screen.attachLabel(panelName, "", "")
 
 		bAnyFound = False
 		xOffset = 0
 		buttonSpacing = 20  # Spacing between button columns
-		
+
 		for j in range(gc.getNumImprovementInfos()):
 			bFirst = True
 			szYield = u""
@@ -236,30 +236,30 @@ class SevoPediaBonus:
 					else:
 						sign = ""
 					szYield += SASTextScale.titleText(u"%c%s%i" % (gc.getYieldInfo(k).getChar(), sign, iYieldChange))
-			
+
 			if bEffect:
 				# Add horizontal spacing if not the first button
 				if xOffset > 0:
 					spacerName = self.top.getNextWidgetName()
 					spacerText = " " * buttonSpacing
 					screen.attachLabel(rowPanelName, spacerName, spacerText)
-				
+
 				# <!-- custom: note: currently vertical button above label doesn't work so code should be cleaned up and solved, but this is good enough so keeping it as is as it working and functional and an improvement over previous vertical scrolling code -->
 				# Create a column panel for vertical arrangement (button above label)
 				colPanelName = self.top.getNextWidgetName()
 				screen.attachPanel(rowPanelName, colPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
-				
+
 				# Attach the button to the column
 				buttonName = self.top.getNextWidgetName()
 				screen.attachImageButton(colPanelName, buttonName, gc.getImprovementInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, j, 1, False)
-				
+
 				# Attach the yield label below the button
 				yieldLabelName = self.top.getNextWidgetName()
 				screen.attachLabel(colPanelName, yieldLabelName, szYield)
-				
+
 				# Update horizontal position
 				xOffset += 1
-		
+
 		if not bAnyFound:
 			draw_none_text(screen, self.top, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
 
@@ -393,7 +393,7 @@ class SevoPediaBonus:
 
 				isButtonFound = True
 				#iButtonIndex += 1
-		
+
 		if not isButtonFound:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
@@ -497,7 +497,7 @@ class SevoPediaBonus:
 
 			# Get bonus info
 			bonusInfo = gc.getBonusInfo(self.iBonus)
-			
+
 			# Add iAIObjective
 			aiObjective = bonusInfo.getAIObjective()
 
@@ -505,7 +505,7 @@ class SevoPediaBonus:
 			if szSpecialText.strip():
 				szSpecialText += "\n\n"
 			szSpecialText += "%siAIObjective: %d" % (bullet, aiObjective)
-			
+
 			# Add iAITradeModifier
 			aiTradeModifier = bonusInfo.getAITradeModifier()
 			szSpecialText += "\n%siAITradeModifier: %d" % (bullet, aiTradeModifier)
@@ -547,18 +547,18 @@ class SevoPediaBonus:
 	# Places the tech that obsoletes this bonus resource in the Sevopedia.
 	def placeObsoleteWith(self):
 		screen = self.top.getScreen()
-		
+
 		# Get the current bonus
 		bonusInfo = gc.getBonusInfo(self.iBonus)
 		# Get the tech that obsoletes this bonus
 		iTechObsolete = bonusInfo.getTechObsolete()
 		techInfo = gc.getTechInfo(iTechObsolete)
-		
+
 		# Set up the panel
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_BONUS_OBSOLETE_WITH", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
-		
+
 		if techInfo > -1:
 			# Add the tech button directly to the panel
 			szButton = techInfo.getButton()

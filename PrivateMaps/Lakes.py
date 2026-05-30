@@ -57,7 +57,7 @@ def getNumCustomMapOptionValues(argsList):
 		1:	2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -75,7 +75,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -95,7 +95,7 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
@@ -113,7 +113,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(1) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def getGridSize(argsList):
@@ -138,7 +138,7 @@ class LakesFractalWorld(CvMapGeneratorUtil.FractalWorld):
 	def generatePlotTypes(self, water_percent=9, shift_plot_types=True, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
-		
+
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, 0, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, 0, self.fracXExp, self.fracYExp)
 
@@ -156,12 +156,12 @@ class LakesFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
 				i = y*self.iNumPlotsX + x
-				
+
 				# Adding a row of water (ice) at the poles, at Barry's request.
 				if y == 0 or y == self.iNumPlotsY - 1:
 					self.plotTypes[i] = PlotTypes.PLOT_OCEAN
 					continue
-					
+
 				# Continuing on with plot generation.
 				val = self.continentsFrac.getHeight(x,y)
 				if val <= iWaterThreshold:
@@ -179,8 +179,8 @@ class LakesFractalWorld(CvMapGeneratorUtil.FractalWorld):
 
 		if shift_plot_types:
 			self.shiftPlotTypes()
-		
-		
+
+
 
 		return self.plotTypes
 

@@ -62,7 +62,7 @@ def getViewAndType(iView):
 		return (False, YieldTypes.YIELD_FOOD)
 
 class Tracker:
-	
+
 	def __init__(self):
 		# Creates a table to hold all of the tracked values for each yield type.
 		#
@@ -72,26 +72,26 @@ class Tracker:
 			for eType in range(NUM_TYPES):
 				self.values[eYield][eType] = 0
 		self.tileCounts = [0, 0, 0, 0]
-	
-	
+
+
 	def getYield(self, eYield, eType):
 		return self.values[eYield][eType]
-	
+
 	def _addYield(self, eYield, eType, iValue):
 		# Adds the given yield value to the given type in the table.
 		#
 		self.values[eYield][eType] += iValue
-	
-	
+
+
 	def addBuilding(self, eYield, iValue):
 		self._addYield(eYield, BUILDINGS, iValue)
-	
+
 	def addDomesticTrade(self, iValue):
 		self._addYield(YieldTypes.YIELD_COMMERCE, DOMESTIC_TRADE, iValue)
-	
+
 	def addForeignTrade(self, iValue):
 		self._addYield(YieldTypes.YIELD_COMMERCE, FOREIGN_TRADE, iValue)
-	
+
 	def processCity(self, pCity):
 		# Calculates the yields for the given city's tiles, specialists, corporations and multipliers.
 		# The building and trade yields are calculated by CvMainInterface.
@@ -100,7 +100,7 @@ class Tracker:
 		self.calculateSpecialists(pCity)
 		self.calculateCorporations(pCity)
 		self.calculateModifiers(pCity)
-	
+
 	def calculateTiles(self, pCity):
 		# Calculates the yields for all tiles of the given CyCity.
 		#
@@ -115,7 +115,7 @@ class Tracker:
 					self._addTile(OWNED_TILES, pPlot)
 				else:
 					self._addTile(ALL_TILES, pPlot)
-	
+
 	def _addTile(self, eFirstTileType, pPlot):
 		for eYield in YIELDS:
 			iValue = pPlot.getYield(eYield)
@@ -123,7 +123,7 @@ class Tracker:
 				self._addYield(eYield, eType, iValue)
 		for eType in range(eFirstTileType, ALL_TILES + 1):
 			self.tileCounts[eType] += 1
-	
+
 	def calculateSpecialists(self, pCity):
 		pPlayer = gc.getPlayer(pCity.getOwner())
 		for eYield in range(YieldTypes.NUM_YIELD_TYPES):
@@ -131,10 +131,10 @@ class Tracker:
 			for eSpec in range(gc.getNumSpecialistInfos()):
 				iValue += pPlayer.specialistYield(eSpec, eYield) * (pCity.getSpecialistCount(eSpec) + pCity.getFreeSpecialistCount(eSpec))
 			self.addSpecialist(eYield, iValue)
-	
+
 	def addSpecialist(self, eYield, iValue):
 		self._addYield(eYield, SPECIALISTS, iValue)
-		
+
 	def calculateCorporations(self, pCity):
 		for eYield in range(YieldTypes.NUM_YIELD_TYPES):
 			iValue = 0
@@ -142,15 +142,15 @@ class Tracker:
 				if (pCity.isHasCorporation(eCorp)):
 					iValue += pCity.getCorporationYieldByCorporation(eYield, eCorp)
 			self.addCorporation(eYield, iValue)
-	
+
 	def addCorporation(self, eYield, iValue):
 		self._addYield(eYield, CORPORATIONS, iValue)
-	
+
 	def calculateModifiers(self, pCity):
 		for eYield in range(YieldTypes.NUM_YIELD_TYPES):
 			iValue = pCity.getBaseYieldRateModifier(eYield, 0) - 100
 			self._addYield(eYield, BASE_MODIFIER, iValue)
-		
+
 		# Depends on the item being built
 		self.iProductionModifier = pCity.getProductionModifier()
 		if self.iProductionModifier != 0:
@@ -159,8 +159,8 @@ class Tracker:
 			iCharLimit = 8
 			if len(self.sModifierDetail) > (iCharLimit + 1):
 				self.sModifierDetail = (self.sModifierDetail[:iCharLimit] + '.')
-	
-	
+
+
 	def fillTable(self, screen, table, eYield, eTileType):
 		# Fills the given GFC table control with the chosen yield values.
 		#
@@ -168,7 +168,7 @@ class Tracker:
 		# Tiles
 		iTotal = self.getYield(eYield, eTileType)
 		self.appendTable(screen, table, False, BugUtil.getText(LABEL_KEYS[eTileType], (self.tileCounts[eTileType],)), eYield, iTotal)
-		
+
 		# Trade
 		for eType in (DOMESTIC_TRADE, FOREIGN_TRADE):
 			iValue = self.getYield(eYield, eType)
@@ -178,14 +178,14 @@ class Tracker:
 		if TradeUtil.isFractionalTrade():
 			iValue //= 100
 		iTotal += iValue
-		
+
 		# Buildings, Corporations, Specialists
 		for eType in (BUILDINGS, CORPORATIONS, SPECIALISTS):
 			iValue = self.getYield(eYield, eType)
 			if iValue != 0:
 				iTotal += iValue
 				self.appendTable(screen, table, False, BugUtil.getPlainText(LABEL_KEYS[eType]), eYield, iValue)
-		
+
 		# Subtotal and Base Modifiers
 		iModifier = self.getYield(eYield, BASE_MODIFIER)
 		if iModifier != 0:
@@ -198,7 +198,7 @@ class Tracker:
 			self.appendTable(screen, table, False, BugUtil.getText("TXT_KEY_CONCEPT_BASE_MODIFIER", (iModifier,)), eYield, iValue)
 		else:
 			iSubtotal = iTotal
-		
+
 		# Subtotal and Production Modifiers
 		if eYield == YieldTypes.YIELD_PRODUCTION and self.iProductionModifier != 0:
 			# Subtotal
@@ -211,11 +211,11 @@ class Tracker:
 			self.appendTable(screen, table, False, BugUtil.getText("TXT_KEY_CONCEPT_PRODUCTION_MODIFIER", (self.sModifierDetail, self.iProductionModifier)), eYield, iValue)
 		else:
 			iTotal = iSubtotal
-		
+
 		# Total
 		self.appendTableTotal(screen, table, eYield, iTotal)
 		#self.appendTable(screen, table, True, BugUtil.getPlainText("TXT_KEY_CONCEPT_TOTAL"), eYield, iTotal)
-	
+
 	def appendTable(self, screen, table, bTotal, heading, eYield, iValue, bFraction=False):
 		# Appends the given yield value to the table control.
 		# If bTotal is True, the heading is colored yellow and there's no + sign on the value.

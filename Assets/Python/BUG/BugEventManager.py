@@ -164,12 +164,12 @@ class BugEventManager(CvEventManager.CvEventManager):
 
 	def __init__(self, logging=None, noLogEvents=None):
 		CvEventManager.CvEventManager.__init__(self)
-		
+
 		global g_eventManager
 		if g_eventManager is not None:
 			raise BugUtil.ConfigError("BugEventManager already created")
 		g_eventManager = self
-		
+
 		if logging is None:
 			self.setLogging(DEFAULT_LOGGING)
 		else:
@@ -178,17 +178,17 @@ class BugEventManager(CvEventManager.CvEventManager):
 			self.setNoLogEvents(DEFAULT_NOLOG_EVENTS)
 		else:
 			self.setNoLogEvents(noLogEvents)
-		
+
 		self.bDbg = False
 		self.bMultiPlayer = False
 		self.bAllowCheats = False
-		
+
 		# used to register shortcut handlers
 		self.shortcuts = {}
-		
+
 		# init fields for BeginActivePlayerTurn
 		self.resetActiveTurn()
-		
+
 		# map the initial EventHandlerMap values into the new data structure
 		for eventType, eventHandler in self.EventHandlerMap.iteritems():
 			self.setEventHandler(eventType, eventHandler)
@@ -208,11 +208,11 @@ class BugEventManager(CvEventManager.CvEventManager):
 		for szBullEvent in ("unitUpgraded", "unitCaptured", "combatWithdrawal", "combatRetreat", "combatLogCollateral", "combatLogFlanking", "playerRevolution"):
 			if not self.hasEvent(szBullEvent):
 				self.addEvent(szBullEvent)
-	
+
 	def setLogging(self, logging):
 		if logging is not None:
 			self.logging = bool(logging)
-	
+
 	def setNoLogEvents(self, noLogEvents):
 		if noLogEvents is not None:
 			try:
@@ -268,7 +268,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 
 		self._checkEvent(eventType)
 		self.EventHandlerMap[eventType].remove(eventHandler)
-	
+
 	def setEventHandler(self, eventType, eventHandler):
 		# Removes all previously installed event handlers for the given 
 		# event type and installs a new handler, adding the event if necessary.
@@ -278,14 +278,14 @@ class BugEventManager(CvEventManager.CvEventManager):
 		# primarily useful for overriding, rather than extending, the default 
 		# event handler functionality.
 		#
-		
+
 		if not self.hasEvent(eventType):
 			self.addEvent(eventType)
 		if eventHandler is not None:
 			self.EventHandlerMap[eventType] = [eventHandler]
 		else:
 			self.EventHandlerMap[eventType] = []
-	
+
 	def setPopupHandler(self, eventType, handler):
 		# Removes all previously installed popup handlers for the given 
 		# event type and installs a new pair of handlers.
@@ -299,12 +299,12 @@ class BugEventManager(CvEventManager.CvEventManager):
 		#
 		BugUtil.debug("BugEventManager - setting popup handler for event %s (%d)", handler[0], eventType)
 		self.Events[eventType] = handler
-	
+
 	def setPopupHandlers(self, eventType, name, beginFunction, applyFunction):
 		# Builds a handler tuple to pass to setPopupHandler().
 		#
 		self.setPopupHandler(eventType, (name, applyFunction, beginFunction))
-	
+
 	def removePopupHandler(self, eventType):
 		# Removes all previously installed popup handlers for the given 
 		# event type.
@@ -317,14 +317,14 @@ class BugEventManager(CvEventManager.CvEventManager):
 			del self.Events[eventType]
 		else:
 			BugUtil.warn("BugEventManager - event %d has no popup handler", eventType)
-	
+
 	def addShortcutHandler(self, keys, handler):
 		# Adds the given handler to be called when any of the keyboard shortcut(s) is hit.
 		#
 		# The keys argument may be a single Keystroke, a collection of one or more Keystrokes, or
 		# a string which will be converted to such.
 		# If any keystrokes have existing handlers, new ones are ignored and a warning is displayed.
-		
+
 
 		if isinstance(keys, InputUtil.Keystroke):
 			keys = (keys,)
@@ -336,8 +336,8 @@ class BugEventManager(CvEventManager.CvEventManager):
 			else:
 				BugUtil.debug("BugEventManager - setting shortcut handler for %s", key)
 				self.shortcuts[key] = handler
-	
-	
+
+
 	def fireEvent(self, eventType, *args):
 		# Fires the given event passing in all args as a list.
 		self._dispatchEvent(eventType, args)
@@ -346,7 +346,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 		# Handles events by calling all installed handlers.
 		self.bDbg, self.bMultiPlayer, self.bAlt, self.bCtrl, self.bShift, self.bAllowCheats = argsList[-6:]
 		self._dispatchEvent(argsList[0], argsList[1:-6])
-	
+
 	def _dispatchEvent(self, eventType, argsList):
 		if self.logging:
 			self._logEvent(eventType, argsList)
@@ -411,13 +411,13 @@ class BugEventManager(CvEventManager.CvEventManager):
 		import BugInit
 		BugInit.init()
 		self._handleDefaultEvent(eventType, argsList)
-	
-	
+
+
 	def resetActiveTurn(self, argsList=None):
 		self.iActiveTurn = -1
 		self.eActivePlayer = -1
 		self.bEndTurnFired = False
-		
+
 	# <advc.106c> Normal reset, then set current values
 	# in order to prevent checkActivePlayerTurnStart from firing
 	# right after loading a game. Still fires when Python modules
@@ -431,7 +431,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 		self.iActiveTurn = gc.getGame().getGameTurn()
 		self.eActivePlayer = gc.getGame().getActivePlayer()
 	# </advc.106c>
-	
+
 	def checkActivePlayerTurnStart(self):
 		# Fires the BeginActivePlayerTurn event if either the active player or game turn
 		# have changed since the last check. This signifies that the active player is about
@@ -446,7 +446,7 @@ class BugEventManager(CvEventManager.CvEventManager):
 			self.eActivePlayer = ePlayer
 			self.bEndTurnFired = False
 			self.fireEvent("BeginActivePlayerTurn", ePlayer, iTurn)
-	
+
 	def checkActivePlayerTurnEnd(self):
 		# Fires the endTurnReady event if it hasn't been fired since the active player's turn started.
 		#
@@ -456,9 +456,9 @@ class BugEventManager(CvEventManager.CvEventManager):
 			self.bEndTurnFired = True
 			self.fireEvent("endTurnReady", self.iActiveTurn)
 
-	
+
 # Used Event Handlers
-	
+
 	def onGameUpdate(self, argsList):
 		# Checks for active player turn begin/end.
 		#
@@ -530,26 +530,26 @@ class BugEventManager(CvEventManager.CvEventManager):
 						return 1
 				# </advc.007b>
 		return 0
-	
+
 
 # Sample Event Handlers
-	
+
 	def onPreGameStart(self, argsList):
 		# Fired from CvAppInterface.preGameStart().
 		pass
-	
+
 	def onBeginActivePlayerTurn(self, argsList):
 		# Called when the active player can start their turn.
 		ePlayer, iGameTurn = argsList
-	
+
 	def onEndTurnReady(self, argsList):
 		# Called when the active player has moved their last waiting unit.
 		ePlayer = argsList[0]
-	
+
 	def onSwitchHotSeatPlayer(self, argsList):
 		# Called when a hot seat player's turn ends.
 		ePlayer = argsList[0]
-	
+
 	def onLanguageChanged(self, argsList):
 		# Called when the user changes their language selection.
 		iLanguage = argsList[0]
@@ -557,41 +557,41 @@ class BugEventManager(CvEventManager.CvEventManager):
 	def onResolutionChanged(self, argsList):
 		# Called when the user changes their graphics resolution.
 		iResolution = argsList[0]
-	
-	
+
+
 	def onUnitUpgraded(self, argsList):
 		# Called when a unit is upgraded.
 		pOldUnit, pNewUnit, iPrice = argsList
 		BugUtil.debug("%s upgraded to %s for %d%c", pOldUnit.getName(), pNewUnit.getName(), iPrice, gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar())
-	
+
 	def onUnitCaptured(self, argsList):
 		# Called when a unit is captured.
 		eOwner, eUnitType, pNewUnit = argsList
 		BugUtil.debug("%s %s captured as %s by %s", gc.getPlayer(eOwner).getName(), gc.getUnitInfo(eUnitType).getDescription(), pNewUnit.getName(), gc.getPlayer(pNewUnit.getOwner()).getName())
 		# <!-- custom: Fix Military Advisor capture columns staying blank: BugEventManager shadows CvEventManager.onUnitCaptured, so CvEventManager.__init__ binds the unitCaptured event to this override on the live BUG manager. Record SAS battle-history capture data here rather than only in the parent handler. Credit: Claude code Opus 4.7 investigation. (GPT-5.5) -->
 		SASBattleHistory.recordUnitCaptured(eOwner, eUnitType, pNewUnit)
-	
+
 	def onCombatWithdrawal(self, argsList):
 		# Fired when a unit withdraws from combat after doing maximum damage.
 		pAttacker, pDefender = argsList
 		BugUtil.debug("%s withdraws from %s", pAttacker.getName(), pDefender.getName())
-	
+
 	def onCombatRetreat(self, argsList):
 		# Fired when a unit retreats from combat, escaping death.
 		pAttacker, pDefender = argsList
 		BugUtil.debug("%s retreats from %s", pAttacker.getName(), pDefender.getName())
-	
+
 	def onCombatLogCollateral(self, argsList):
 		# Fired when a unit inflicts collateral damage to another unit.
 		pAttacker, pDefender, iDamage = argsList
 		BugUtil.debug("%s bombards %s for %d HP", pAttacker.getName(), pDefender.getName(), iDamage)
-	
+
 	def onCombatLogFlanking(self, argsList):
 		# Fired when a unit inflicts flanking damage to another unit.
 		pAttacker, pDefender, iDamage = argsList
 		BugUtil.debug("%s flanks %s for %d HP", pAttacker.getName(), pDefender.getName(), iDamage)
-	
-	
+
+
 	def onPlayerRevolution(self, argsList):
 		ePlayer, iAnarchyTurns, leOldCivics, leNewCivics = argsList
 		civics = []

@@ -147,7 +147,7 @@ def getBottomLatitude():
 		return 25
 	#return -90
 	CyPythonMgr().allowDefaultImpl() # advc.129
-	
+
 def getCustomMapOptionDescAt(argsList):
 	iOption = argsList[0]
 	iSelection = argsList[1]
@@ -160,12 +160,12 @@ def getCustomMapOptionDescAt(argsList):
                        "TXT_KEY_MAP_SCRIPT_MEDITERRANEAN",
                        "TXT_KEY_MAP_SCRIPT_TERRA",
                        "TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START"]
-	                   
+
 	aridity_names = ["TXT_KEY_CLIMATE_ARID",
                      "TXT_KEY_GAMESPEED_NORMAL",
                      "TXT_KEY_MAP_SCRIPT_WET",
                      "TXT_KEY_MAP_SCRIPT_NO_ICE"]
-	                 
+
 	if (iOption == 0):
 		return unicode(CyTranslator().getText(selection_names[iSelection], ()))
 	else:
@@ -993,7 +993,7 @@ class ClimateGenerator:
 								self.terrain[i-1] = self.terrainPlains
 							if self.terrain[i+1] == self.terrainGrass:
 								self.terrain[i+1] = self.terrainPlains
-					
+
 	def getArcticTerrain(self, climate, latitude, moisture):
 		polar = 0
 		if (latitude > 70):
@@ -1725,7 +1725,7 @@ class riversFromSea:
 			if (upperPlot.isWater()):
 				return False
 		return True
-	
+
 	def westX(self,x):
 		westX = x - 1
 		if (westX < 0):
@@ -1788,7 +1788,7 @@ def findStartingPlot(argsList):
 	# advc.021a: Need to return sth. to avoid an exception in
 	# CvPlayer::findStartingPlot
 	r = -1
-	
+
 	# Loop through players, assigning starts for each.
 	for assign_loop in range(iPlayers):
 		playerID = shuffledPlayers[assign_loop]

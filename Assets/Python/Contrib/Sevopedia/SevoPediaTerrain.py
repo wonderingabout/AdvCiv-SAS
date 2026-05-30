@@ -465,7 +465,7 @@ class SevoPediaTerrain:
 						numTxt = "N"
 					else:
 						numTxt = "_/_"  # or "" if you prefer no tag
-				
+
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 

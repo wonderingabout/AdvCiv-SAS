@@ -49,7 +49,7 @@ def init (colors=DEFAULT_COLORS, modifiers=None):
 	ATTITUDE_ICONS = [FontUtil.getChar(key) for key in ATTITUDE_KEYS]
 	if len(ATTITUDE_ICONS) != NUM_ATTITUDES:
 		raise BugUtil.ConfigError("Failed to create attitude icons")
-	
+
 	# convert colors to type IDs
 	if len(colors) != NUM_ATTITUDES:
 		raise BugUtil.ConfigError("Expected %d colors" % NUM_ATTITUDES)
@@ -122,13 +122,13 @@ def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, 
 	nAttitude = getAttitudeCount (nPlayer, nTarget)
 	if nAttitude is None:
 		return None
-	
+
 	szText = []
 	if bSmily:
 		szText.append(getAttitudeIcon(nPlayer, nTarget))
 	if bNumber:
 		szText.append(BugUtil.colorText(u"%+d" % nAttitude, getAttitudeColor(nPlayer, nTarget)))
-	
+
 	szIcons = u""
 	pPlayer = gc.getPlayer(nPlayer)
 	pTarget = gc.getPlayer(nTarget)
@@ -162,7 +162,7 @@ def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, 
 	# </advc.152>
 	if szIcons:
 		szText.append(szIcons)
-	
+
 	return u" ".join(szText)
 
 def initModifiers (argsList=None):
@@ -288,7 +288,7 @@ class Attitude:
 			if eCategory != AttitudeTypes.NO_ATTITUDE:
 				return ATTITUDE_COLORS[int(eCategory)]
 		return -1
-	
+
 	def getText (self, bNumber, bSmily, bWorstEnemy, bWarPeace):
 		# Returns a string describing the attitude this player has toward target.
 		if self.bHasActiveMetBoth:
@@ -333,10 +333,10 @@ class Attitude:
 								break
 					if bPeace:
 						szText += u"%c" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar() + 26)
-		
+
 			return szText
 		return ""
-	
+
 
 ## Worst Enemy
 ##

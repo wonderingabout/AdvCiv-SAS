@@ -22,7 +22,7 @@ localText = CyTranslator()
 class CvEraMovieScreen:
 	"Wonder Movie Screen"
 	def interfaceScreen (self, iEra):
-		
+
 		# K-Mod note: I've taken out all reference to X_SCREEN and Y_SCREEN, and instead set it up to be automatically centered. (I haven't left the old code in. I've just deleted it.)
 		self.W_SCREEN = 775
 		self.H_SCREEN = 660

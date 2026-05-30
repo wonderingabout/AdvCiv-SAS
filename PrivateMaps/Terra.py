@@ -100,7 +100,7 @@ def getNumCustomMapOptionValues(argsList):
 		1:	2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -118,7 +118,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -138,7 +138,7 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
@@ -156,7 +156,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(1) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def minStartingDistanceModifier():
@@ -168,12 +168,12 @@ def findStartingPlot(argsList):
 	def isValid(playerID, x, y):
 		map = CyMap()
 		pPlot = map.plot(x, y)
-		
+
 		if (pPlot.getArea() != map.findBiggestArea(False).getID()):
 			return False
 
 		return True
-	
+
 	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)
 
 class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
@@ -197,7 +197,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			(archGrain, contGrain, gaeaGrain, eurasiaGrain) = (5, 2, 1, 2)
 		else: # </advc.165>
 			(archGrain, contGrain, gaeaGrain, eurasiaGrain) = sizevalues[sizekey]
-		
+
 		# Sea Level adjustment (from user input), limited to value of 5%.
 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
 		sea = min(sea, 5)
@@ -248,7 +248,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		eurasiaSouthY = int(self.iH * eurasiaSouthLat)
 		eurasiaWidth = eurasiaEastX - eurasiaWestX + 1
 		eurasiaHeight = eurasiaNorthY - eurasiaSouthY + 1
-		
+
 		eurasiaWater = 55+sea
 
 		self.generatePlotsInRegion(eurasiaWater,
@@ -273,7 +273,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twWater = 60+sea
 		twGrain = 1
 		twRift = 2
-                
+
 		self.generatePlotsInRegion(twWater,
 		                           twWidth, twHeight,
 		                           twWestX, twSouthY,
@@ -298,7 +298,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwWater = 61+sea
 		nwGrain = 1
 		nwRift = -1
-                
+
 		self.generatePlotsInRegion(nwWater,
 		                           nwWidth, nwHeight,
 		                           nwWestX, nwSouthY,
@@ -325,7 +325,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwsWater = 55+sea
 		nwsGrain = 1
 		nwsRift = -1
-                
+
 		self.generatePlotsInRegion(nwsWater,
 		                           nwsWidth, nwsHeight,
 		                           nwsWestX, nwsSouthY,
@@ -347,7 +347,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwpWater = 67+sea
 		nwpGrain = 1
 		nwpRift = -1
-                
+
 		self.generatePlotsInRegion(nwpWater,
 		                           nwpWidth, nwpHeight,
 		                           nwpWestX, nwpSouthY,
@@ -373,7 +373,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twWater = 68+sea
 		twGrain = 2
 		twRift = -1
-                
+
 		self.generatePlotsInRegion(twWater,
 		                           twWidth, twHeight,
 		                           twWestX, twSouthY,
@@ -400,7 +400,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twWater = 76+sea
 		twGrain = archGrain
 		twRift = -1
-                
+
 		self.generatePlotsInRegion(twWater,
 		                           twWidth, twHeight,
 		                           twWestX, twSouthY,
@@ -427,7 +427,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwcWater = 60+sea
 		nwcGrain = 1
 		nwcRift = -1
-                
+
 		self.generatePlotsInRegion(nwcWater,
 		                           nwcWidth, nwcHeight,
 		                           nwcWestX, nwcSouthY,
@@ -453,7 +453,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twWater = 75+sea
 		twGrain = archGrain + 1
 		twRift = -1
-                
+
 		self.generatePlotsInRegion(twWater,
 		                           twWidth, twHeight,
 		                           twWestX, twSouthY,
@@ -491,7 +491,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			scWater = 77+sea
 			scGrain = archGrain
 			scRift = -1
-                
+
 		self.generatePlotsInRegion(scWater,
 		                           scLargeWidth, scLargeHeight,
 		                           scWestX, scSouthY,
@@ -528,7 +528,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			scsWater = 77+sea
 			scsGrain = archGrain
 			scsRift = -1
-                
+
 		self.generatePlotsInRegion(scsWater,
 		                           scSmallWidth, scSmallHeight,
 		                           scsWestX, scsSouthY,
@@ -567,7 +567,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				twWater = 70+sea
 				twGrain = archGrain
 				twRift = -1
-                
+
 			self.generatePlotsInRegion(twWater,
 			                           twWidth, twHeight,
 			                           twWestX, twSouthY,

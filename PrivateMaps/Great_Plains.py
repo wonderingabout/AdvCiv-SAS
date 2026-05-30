@@ -28,7 +28,7 @@ def getDescription():
 def isAdvancedMap():
 	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
 	return 1
-	
+
 def isClimateMap():
 	return 0
 
@@ -44,10 +44,10 @@ def getNumHiddenCustomMapOptions():
 def getCustomMapOptionName(argsList):
 	translated_text = unicode(CyTranslator().getText("TXT_KEY_MAP_WORLD_WRAP", ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	return 3
-	
+
 def getCustomMapOptionDescAt(argsList):
 	iSelection = argsList[1]
 	selection_names = ["TXT_KEY_MAP_WRAP_FLAT",
@@ -55,7 +55,7 @@ def getCustomMapOptionDescAt(argsList):
                        "TXT_KEY_MAP_WRAP_TOROID"]
 	translated_text = unicode(CyTranslator().getText(selection_names[iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	return 0
 
@@ -65,14 +65,14 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
 
 def getTopLatitude():
 	return 45
-	
+
 def getBottomLatitude():
 	return 25
 
@@ -240,7 +240,7 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
 				else:
 					if (i not in gulf) and (i not in ozarks):
 						plains.append(i)
-        	
+
 		# Now the main loop, which will assign the plot types.
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
@@ -359,7 +359,7 @@ class GreatPlainsTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.fracYExp = fracYExp
 
 		self.initFractals()
-		
+
 	def initFractals(self):
 		self.rocky.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iRockyDTop = self.rocky.getHeightFromPercent(self.iRockyDTopPercent)
@@ -474,17 +474,17 @@ class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()
 		self.forests = CyFractal()
-		
+
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
 
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
-		
+
 		self.iJunglePercent = iJunglePercent
 		self.iForestPercent = iForestPercent
 		self.iEastForestPercent = iEastForestPercent
 		self.iRockyForestPercent = iRockyForestPercent
-		
+
 		self.forest_grain = forest_grain + self.gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
 
 		self.fracXExp = fracXExp
@@ -492,15 +492,15 @@ class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		self.__initFractals()
 		self.__initFeatureTypes()
-	
+
 	def __initFractals(self):
 		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		
+
 		self.iJungleLevel = self.forests.getHeightFromPercent(100 - self.iJunglePercent)
 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
 		self.iEastForestLevel = self.forests.getHeightFromPercent(self.iEastForestPercent)
 		self.iRockyForestLevel = self.forests.getHeightFromPercent(self.iRockyForestPercent)
-		
+
 	def __initFeatureTypes(self):
 		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
 		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
@@ -525,14 +525,14 @@ class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			# Jungles only in Louisiana Wetlands!
 			if long > 0.65 and lat < 0.45:
 				self.addJunglesAtPlot(pPlot, iX, iY, lat)
-			
+
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addForestsAtPlot(pPlot, iX, iY, lat, long)
-		
+
 	def addIceAtPlot(self, pPlot, iX, iY, lat):
 		# We don' need no steeking ice. M'kay? Alrighty then.
 		ice = 0
-	
+
 	def addJunglesAtPlot(self, pPlot, iX, iY, lat):
 		# Warning: this version of JunglesAtPlot is using the forest fractal!
 		if pPlot.canHaveFeature(self.featureJungle):
@@ -815,7 +815,7 @@ def addBonusType(argsList):
 				# 3. The plot is in one or more eligible regions.
 				# Now we append this plot to the eligible list.
 				eligible.append([x,y])
-                                    
+
 		# Now we assign the bonuses to eligible plots chosen completely at random.
 		while count > 0:
 			if eligible == []:
@@ -1033,7 +1033,7 @@ def getRiverStartCardinalDirection(argsList):
 	pPlot = argsList[0]
 	global mississippi_x_coords
 	x, y = pPlot.getX(), pPlot.getY()
-	
+
 	# Check river start plot X coord vs the Mississippi X coord at the same Y coord for both.
 	if x > mississippi_x_coords[y]: # River start plot is east of Mississippi.
 		return CardinalDirectionTypes.CARDINALDIRECTION_WEST

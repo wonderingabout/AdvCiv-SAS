@@ -506,7 +506,7 @@ class BupPanel:
 #		return ( nRow * self.getMaxCol() ) + ( nCol % self.getMaxCol() )
 
 ############## functions for visual objects (show and hide) ######################
-		
+
 	# PLE Grouping Mode Switcher 
 
 class BupUnit:

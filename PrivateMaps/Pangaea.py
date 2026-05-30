@@ -79,7 +79,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -88,7 +88,7 @@ def getNumCustomMapOptionValues(argsList):
 		2:  2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -112,7 +112,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -134,11 +134,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 2)
-	
+
 def normalizeAddExtras():
 	if (CyMap().getCustomMapOption(2) == 1):
 		balancer.normalizeAddExtras()
@@ -152,7 +152,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(2) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isAdvancedMap():
@@ -197,7 +197,7 @@ class PangaeaHintedWorld:
 
 		hinted_world.buildAllContinents()
 		return hinted_world.generatePlotTypes(shift_plot_types=True)
-	
+
 	def generateAndysHintedPangaea(self):
 		NiTextOut("Setting Plot Types (Python Pangaea Hinted) ...")
 		global hinted_world
@@ -239,7 +239,7 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			grain = 5
 		else: # </advc.165>
 			grain = sizevalues[sizekey]
-		
+
 		# Sea Level adjustment (from user input), limited to value of 5%.
 		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
 		#sea = min(sea, 5)
@@ -331,7 +331,7 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		mainSouthY = int(self.iH * mainSouthLat)
 		mainWidth = mainEastX - mainWestX + 1
 		mainHeight = mainNorthY - mainSouthY + 1
-		
+
 		mainWater = 55+sea
 
 		self.generatePlotsInRegion(mainWater, mainWidth, mainHeight, mainWestX, mainSouthY, 2, grain, self.iHorzFlags, self.iTerrainFlags, -1, -1, True, 15, 2, False, False)
@@ -345,7 +345,7 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		second_layerSouthY = mainSouthY + mainHeight/4
 
 		second_layerWater = 60+sea
-                
+
 		self.generatePlotsInRegion(second_layerWater, second_layerWidth, second_layerHeight, second_layerWestX, second_layerSouthY, 1, grain, self.iHorzFlags, self.iTerrainFlags, -1, -1, True, 15, 2, False, False)
 
 		# Add subcontinents.
@@ -394,7 +394,7 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				scWater = 77+sea
 				scGrain = grain
 				scRift = -1
-                
+
 			self.generatePlotsInRegion(scWater, scWidth, scHeight, scWestX, scSouthY, scGrain, grain, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 7, scRift, False, False)
 
 			del scValues[scIndex]
@@ -429,7 +429,7 @@ def generatePlotTypes():
 
 	# Get user input.
 	userInputLandmass = map.getCustomMapOption(0)
-	
+
 	# Implement Pangaea by Type
 	if userInputLandmass == 3: # Solid
 		# Roll for type selection.
@@ -459,11 +459,11 @@ def generatePlotTypes():
 		else:
 			pangaea_type = 2
 		return fractal_world.generatePlotsByRegion(pangaea_type)
-		
+
 	elif userInputLandmass == 1: # Natural
 		pangaea_type = 0
 		return fractal_world.generatePlotsByRegion(pangaea_type)
-		
+
 	else: # Random
 		global terrainRoll
 		terrainRoll = dice.get(10, "PlotGen Chooser - Pangaea PYTHON")
@@ -472,7 +472,7 @@ def generatePlotTypes():
 		# 5,6 = Pressed, Polar
 		# 7,8 = Solid, Irregular
 		# 9 = Solid, Round
-		
+
 		if terrainRoll > 6:
 			# Solid Shoreline cohesion check and catch - patched Dec 30, 2005 - Sirian
 			cohesive = False
@@ -550,7 +550,7 @@ def generateTerrainTypes():
 		northY = int(northLat * iH)
 		iRegionWidth = eastX - iWestX + 1
 		iRegionHeight = northY - iSouthY + 1
-		
+
 		# Init the plot types array and the regional fractals
 		plotTypes = [] # reinit the array for each pass
 		plotTypes = [PlotTypes.PLOT_OCEAN] * (iRegionWidth*iRegionHeight)
@@ -613,7 +613,7 @@ def addFeatures():
 	featuregen = FeatureGenerator()
 	featuregen.addFeatures()
 	return 0
-	
+
 def findStartingPlot(argsList):
 	[playerID] = argsList
 
@@ -632,5 +632,5 @@ def findStartingPlot(argsList):
 			return not pWaterArea.isLake()
 		else:
 			return true
-	
+
 	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)

@@ -48,7 +48,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -57,7 +57,7 @@ def getNumCustomMapOptionValues(argsList):
 		2:  2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -80,7 +80,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -102,11 +102,11 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 2)
-	
+
 def normalizeAddExtras():
 	if (CyMap().getCustomMapOption(2) == 1):
 		balancer.normalizeAddExtras()
@@ -120,7 +120,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(2) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 class ArchipelagoFractalWorld(CvMapGeneratorUtil.FractalWorld):
@@ -141,7 +141,7 @@ def generatePlotTypes():
 
 	# Get user input.
 	userInputLandmass = map.getCustomMapOption(0)
-	
+
 	if userInputLandmass == 2: # Tiny Islands
 		fractal_world.initFractal(continent_grain = 5, rift_grain = -1, has_center_rift = False, polar = True)
 		return fractal_world.generatePlotTypes(grain_amount = 4)
@@ -171,7 +171,7 @@ def addFeatures():
 		if pPlot.isPeak() and pPlot.isCoastalLand():
 			# If a peak is along the coast, change to hills and recalc.
 			pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
-	
+
 	# Now add Features.
 	NiTextOut("Adding Features (Python Archipelago) ...")
 	featuregen = FeatureGenerator()
@@ -186,7 +186,7 @@ def assignStartingPlots():
 	dice = gc.getGame().getMapRand()
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
-	
+
 	# Success flag. Set to false if regional assignment fails or is not to be used.
 	global bSuccessFlag
 	global start_plots
@@ -314,7 +314,7 @@ def assignStartingPlots():
                       23: [0.833, 1.0, 0.7, 1.0]}
 	}
 	# End of template data.
-	
+
 	# region_data: [WestX, EastX, SouthY, NorthY, 
 	# numLandPlotsinRegion, numCoastalPlotsinRegion,
 	# numOceanPlotsinRegion, iRegionNetYield, 
@@ -395,7 +395,7 @@ def assignStartingPlots():
 		region_best_areas.append(best_areas)
 		region_yields.append(iRegionNetYield)
 		sorting_regions.append(iRegionNetYield)
-		
+
 	#print region_data
 	#print "---"
 	#print region_best_areas
@@ -429,7 +429,7 @@ def assignStartingPlots():
 				break
 			#print "x-x"
 		#print "-x-"
-		
+
 	# Need to discard the worst regions and then reverse the region order.
 	# Of the regions that will be used, the worst will be assigned first.
 	#
@@ -555,7 +555,7 @@ def assignStartingPlots():
 					break # Valid start found, stop checking areas and plots.
 				else:
 					pass # This area too close to somebody, try the next area.
-			
+
 			# Check to see if a valid start was found in ANY areaID.
 			if pBestPlot is None:
 				print("player", playerID, "pass", iPass, "failed")
@@ -572,13 +572,13 @@ def assignStartingPlots():
 					return
 			else:
 				break # This player has been assigned a start plot.
-			
+
 	#print plot_assignments
 	#print "..."
 
 	# Successfully assigned start plots, continue back to C++
 	return None
-	
+
 def findStartingPlot(argsList):
 	# This function is only called for Snaky Continents (or if an entire region should fail to produce a valid start plot via the regional method).
 	[playerID] = argsList
@@ -588,7 +588,7 @@ def findStartingPlot(argsList):
 	if bSuccessFlag == False:
 		CyPythonMgr().allowDefaultImpl()
 		return
-	
+
 	# Identify the best land area available to this player.
 	global areas
 	global area_values
@@ -598,12 +598,12 @@ def findStartingPlot(argsList):
 	iBestValue = 0
 	iBestArea = -1
 	areas = CvMapGeneratorUtil.getAreas()
-	
+
 	for area in areas:
 		if area.isWater():
 			continue # Don't want to start "in the drink"!
 		iNumPlayersOnArea = area.getNumStartingPlots() + 1 # Number of players starting on the area, plus this player.
-		
+
 		iTileValue = area.calculateTotalBestNatureYield() + area.getNumRiverEdges() + 2 * area.countCoastalLand() + 3 * area.countNumUniqueBonusTypes()
 		iValue = iTileValue / iNumPlayersOnArea
 		if (iNumPlayersOnArea == 1):
@@ -623,7 +623,7 @@ def findStartingPlot(argsList):
 		if (pWaterArea.isNone()):
 			return false
 		return not pWaterArea.isLake()
-	
+
 	return CvMapGeneratorUtil.findStartingPlot(playerID, isValid)
 
 def normalizeRemovePeaks():

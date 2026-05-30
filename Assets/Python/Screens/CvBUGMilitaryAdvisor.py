@@ -70,7 +70,7 @@ class CvMilitaryAdvisor:
 		self.X_GROUP_LIST = 20
 		self.Y_GROUP_LIST = 190
 		self.W_GROUP_LIST = 280
-		
+
 		self.X_MAP = 20
 		self.Y_MAP = 220      # 190
 		self.W_MAP = 580
@@ -81,7 +81,7 @@ class CvMilitaryAdvisor:
 		self.Y_TEXT = 190
 		self.W_TEXT = 380
 		self.H_TEXT = 500
-						
+
 		self.X_LEADERS = 20
 		self.Y_LEADERS = 80
 		self.W_LEADERS = 985
@@ -96,7 +96,7 @@ class CvMilitaryAdvisor:
 		self.selectedGroups = set()
 		self.selectedUnits = set()
 		self.groupingKeys = ["loc", "type"]
-		
+
 		self.bUnitDetails = False
 		self.iShiftKeyDown = 0
 
@@ -188,18 +188,18 @@ class CvMilitaryAdvisor:
 
 		self.szMaybeButton = ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath()
 
-						
+
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 
 	def hideScreen(self):
 		screen = self.getScreen()
 		screen.hideScreen()
-										
+
 	def interfaceScreen(self):
 
 		self.timer = BugUtil.Timer("MilAdv")
-		
+
 		# Create a new screen
 		screen = self.getScreen()
 		if screen.isActive():
@@ -213,12 +213,12 @@ class CvMilitaryAdvisor:
 		# if self.W_SCREEN < 1024:
 			# self.W_SCREEN = 1024
 			# self.L_SCREEN = 0
-		
+
 		# self.X_EXIT = self.W_SCREEN - 30
 		# (above code disabled by K-Mod)
 		#self.Y_EXIT = 726
 		#self.H_SCREEN = screen.getYResolution()
-			
+
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
@@ -237,7 +237,7 @@ class CvMilitaryAdvisor:
 
 		# Header...
 		screen.setLabel(self.HEADER_ID, "Background", u"<font=4b>" + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		
+
 		self.iconGrid = None
 		self.unitLocationInitDone = False
 		if self.iScreen == UNIT_LOCATION_SCREEN:
@@ -249,7 +249,7 @@ class CvMilitaryAdvisor:
 		self.timer.logSpan("total")
 
 	def drawTabs(self):
-	
+
 		screen = self.getScreen()
 
 		#xLink = self.MARGIN
@@ -283,7 +283,7 @@ class CvMilitaryAdvisor:
 		self.timer.start()
 		self.deleteAllWidgets()
 		screen = self.getScreen()
-		
+
 		# get Player arrays
 		pVassals = [[]] * gc.getMAX_PLAYERS()
 		pDefPacts = [[]] * gc.getMAX_PLAYERS()
@@ -311,9 +311,9 @@ class CvMilitaryAdvisor:
 		bDefPacts = True
 		self.initIconGrid(screen, bVassals, bDefPacts)
 		self.initPower()
-		
+
 		activePlayer = gc.getPlayer(self.iActivePlayer)		
-		
+
 		# Assemble the panel.
 		iPANEL_X = self.MIN_LEFT_RIGHT_SPACE / 2
 		iPANEL_Y = self.SITREP_PANEL_SPACE + self.MIN_TOP_BOTTOM_SPACE/2 # was 60
@@ -322,7 +322,7 @@ class CvMilitaryAdvisor:
 
 		self.tradePanel = self.getNextWidgetName()
 		screen.addPanel(self.tradePanel, "", "", True, True, iPANEL_X, iPANEL_Y, iPANEL_WIDTH, iPANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
-		
+
 		self.iconGrid.createGrid()
 		self.iconGrid.clearData()
 
@@ -384,7 +384,7 @@ class CvMilitaryAdvisor:
 					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars, ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), 32, WidgetTypes.WIDGET_GENERAL, -1)
 					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn, ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath(), 32, WidgetTypes.WIDGET_GENERAL, -1)
 				# K-Mod end
-				
+
 				# show possible trade embargos
 				pPossibleEmbargos = PlayerUtil.getPossibleEmbargos(iLoopPlayer, self.iActivePlayer)
 				for pLoopPlayer in pPossibleEmbargos:
@@ -403,13 +403,13 @@ class CvMilitaryAdvisor:
 		self.timer.log("SitRep")
 
 	def initIconGrid(self, screen, bVassals, bDefPacts):
-		
+
 		# was range(9); Col_WHEOOH removed from this unpack
 		(self.Col_Leader, self.Col_WEnemy, self.Col_Threat, self.Col_Curr_Wars, self.Col_WillDeclareOn, self.Col_WillEmbargo, self.Col_Vassals, self.Col_DefPacts) = range(8)
 		if (not bVassals):
 			# shift over 1 to make room for vassals column
 			self.Col_DefPacts -= 1
-		
+
 		if (not bVassals and not bDefPacts):
 			columns = ( IconGrid_BUG.GRID_ICON_COLUMN,
 						#IconGrid_BUG.GRID_TEXT_COLUMN,
@@ -474,7 +474,7 @@ class CvMilitaryAdvisor:
 
 		#self.iconGrid.setTextColWidth(self.Col_WHEOOH, 25)
 		self.iconGrid.setStackedBarColWidth(self.Col_Threat, 120)
-				
+
 		gridWidth = self.iconGrid.getPrefferedWidth()
 		gridHeight = self.iconGrid.getPrefferedHeight()
 		# self.SITREP_LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
@@ -599,7 +599,7 @@ class CvMilitaryAdvisor:
 		self.timer.start()
 		self.deleteAllWidgets()
 		screen = self.getScreen()
-		
+
 		# Assemble the panel
 		# iPANEL_X = 5
 		# iPANEL_Y = 60
@@ -609,10 +609,10 @@ class CvMilitaryAdvisor:
 		iPANEL_Y = self.SITREP_PANEL_SPACE + self.MIN_TOP_BOTTOM_SPACE/2
 		iPANEL_WIDTH = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE
 		iPANEL_HEIGHT = self.Y_LINK - iPANEL_Y - self.MIN_TOP_BOTTOM_SPACE/2
-		
+
 		self.tradePanel = self.getNextWidgetName()
 		screen.addPanel(self.tradePanel, "", "", True, True, iPANEL_X, iPANEL_Y, iPANEL_WIDTH, iPANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
-		
+
 		self.initStratAdvGrid(screen)
 		self.fillStratAdvGrid()
 		self.drawTabs()
@@ -620,21 +620,21 @@ class CvMilitaryAdvisor:
 
 	def initStratAdvGrid(self, screen):
 		(self.SA_Col_Leader, self.SA_Col_Bonus_Us, self.SA_Col_Bonus_Them, self.SA_Col_Unit_Us_Yes, self.SA_Col_Unit_Us_Maybe, self.SA_Col_Unit_Them_Yes, self.SA_Col_Unit_Them_Maybe) = range(7)
-		
+
 		columns = (IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN)
-		
+
 		gridX = self.MIN_LEFT_RIGHT_SPACE + 10
 		gridY = self.MIN_TOP_BOTTOM_SPACE + self.SITREP_PANEL_SPACE + self.TABLE_CONTROL_HEIGHT + self.TITLE_HEIGHT + 8
 		gridWidth = self.W_SCREEN - 10 - self.MIN_LEFT_RIGHT_SPACE * 2# - 20
 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - self.SITREP_PANEL_SPACE - self.TITLE_HEIGHT - 16
 		self.iconGrid = IconGrid_BUG.IconGrid_BUG(self.getNextWidgetName(), screen, gridX, gridY, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
-		
+
 		# set constants
 		self.iconGrid.setGroupBorder(self.GROUP_BORDER)
 		self.iconGrid.setGroupLabelOffset(self.GROUP_LABEL_OFFSET)
 		self.iconGrid.setMinColumnSpace(self.MIN_COLUMN_SPACE)
 		self.iconGrid.setMinRowSpace(self.MIN_ROW_SPACE)
-		
+
 		# set headings
 		self.iconGrid.setHeader(self.SA_Col_Leader, "", 3)
 		self.iconGrid.setHeader(self.SA_Col_Bonus_Us, localText.getText("TXT_KEY_MILITARY_STRATADV_OURS", ()), 3)
@@ -643,12 +643,12 @@ class CvMilitaryAdvisor:
 		self.iconGrid.setHeader(self.SA_Col_Unit_Us_Maybe, localText.getText("TXT_KEY_MILITARY_STRATADV_POSSIBLE", ()), 3)
 		self.iconGrid.setHeader(self.SA_Col_Unit_Them_Yes, localText.getText("TXT_KEY_MILITARY_STRATADV_KNOWN", ()), 3)
 		self.iconGrid.setHeader(self.SA_Col_Unit_Them_Maybe, localText.getText("TXT_KEY_MILITARY_STRATADV_POSSIBLE", ()), 3)
-		
+
 		self.iconGrid.createColumnGroup("", 1)
 		self.iconGrid.createColumnGroup(localText.getText("TXT_KEY_MILITARY_STRATADV_RESOURCES", ()), 2)
 		self.iconGrid.createColumnGroup(localText.getText("TXT_KEY_MILITARY_STRATADV_OUR_UNITS", ()), 2)
 		self.iconGrid.createColumnGroup(localText.getText("TXT_KEY_MILITARY_STRATADV_THEIR_UNITS", ()), 2)
-		
+
 		gridWidth = self.iconGrid.getPrefferedWidth()
 		gridHeight = self.iconGrid.getPrefferedHeight()
 		self.SITREP_LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
@@ -659,7 +659,7 @@ class CvMilitaryAdvisor:
 		self.iconGrid.setPosition(gridX, gridY)
 		self.iconGrid.setSize(gridWidth, gridHeight)
 		self.iconGrid.createGrid()
-	
+
 	def fillStratAdvGrid(self):
 		self.iconGrid.clearData()
 		self.iHumanKnowableUnits = UnitUtil.getKnowableUnits(self.iActivePlayer)
@@ -669,7 +669,7 @@ class CvMilitaryAdvisor:
 		self.iHumanObsoleteUnits = UnitUtil.findObsoleteUnits(self.iHumanUnits)
 		for eUnit in self.iHumanObsoleteUnits:
 			BugUtil.debug("  obs %s", gc.getUnitInfo(eUnit).getDescription())
-		
+
 		activePlayer, activeTeam = PlayerUtil.getPlayerAndTeam(self.iActivePlayer)
 		iRow = 0
 		for player in PlayerUtil.players(alive=True, barbarian=False, minor=False):
@@ -677,19 +677,19 @@ class CvMilitaryAdvisor:
 			if (ePlayer != self.iActivePlayer
 					and (activeTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 				self.iconGrid.appendRow(player.getName(), "", 3)
-				
+
 				# add leaderhead icon
 				self.iconGrid.addIcon(iRow, self.SA_Col_Leader, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, player.getID(), self.iActivePlayer)
-				
+
 				# add bonus and unit icons
 				self.addStratAdvBonuses(activePlayer, player, iRow)
 				self.addStratAdvUnits(activePlayer, player, iRow)
-				
+
 				iRow += 1
-		
+
 		BugUtil.debug("----------------------- fillStratAdvGrid end")
 		self.iconGrid.refresh()
-	
+
 	def addStratAdvBonuses(self, activePlayer, player, iRow):
 		if activePlayer.canTradeNetworkWith(player.getID()):
 			self.iRivalBonuses = set()
@@ -711,7 +711,7 @@ class CvMilitaryAdvisor:
 			szButton = ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath()
 			self.iconGrid.addIcon(iRow, self.SA_Col_Bonus_Us, szButton, 32, WidgetTypes.WIDGET_GENERAL, -1)
 			self.iconGrid.addIcon(iRow, self.SA_Col_Bonus_Them, szButton, 32, WidgetTypes.WIDGET_GENERAL, -1)
-	
+
 	def addStratAdvBonusIcons(self, iRow, iCol, bonuses):
 		bonuses.sort()
 		for eBonus in bonuses:
@@ -724,7 +724,7 @@ class CvMilitaryAdvisor:
 			self.iconGrid.addIcon(iRow, self.SA_Col_Unit_Us_Yes, szButton, 32, WidgetTypes.WIDGET_GENERAL, -1)
 			self.iconGrid.addIcon(iRow, self.SA_Col_Unit_Them_Yes, szButton, 32, WidgetTypes.WIDGET_GENERAL, -1)
 			return
-		
+
 		iAIUnits, iAIMaybeUnits = UnitUtil.getKnownTrainableUnits(player.getID(), self.iActivePlayer, self.iHumanKnowableUnits, self.iRivalBonuses, True)
 		# determine units that human can build that the AI cannot
 		yesUnits = set()
@@ -742,7 +742,7 @@ class CvMilitaryAdvisor:
 		maybeUnits -= self.iHumanObsoleteUnits
 		self.addStratAdvUnitIcons(iRow, self.SA_Col_Unit_Us_Yes, yesUnits)
 		self.addStratAdvUnitIcons(iRow, self.SA_Col_Unit_Us_Maybe, maybeUnits)
-		
+
 		# determine units that AI can build that the human cannot
 		yesUnits = set()
 		maybeUnits = set()
@@ -758,7 +758,7 @@ class CvMilitaryAdvisor:
 		yesUnits -= UnitUtil.findObsoleteUnits(yesUnits)
 		self.addStratAdvUnitIcons(iRow, self.SA_Col_Unit_Them_Yes, yesUnits)
 		self.addStratAdvUnitIcons(iRow, self.SA_Col_Unit_Them_Maybe, maybeUnits)
-		
+
 #		iRivalYesUnits, iRivalNoUnits = UnitUtil.getKnownTrainableUnits(player.getID(), self.iActivePlayer, self.iHumanKnowableUnits, True)
 #		
 #		# determine units that both the player and rival can build for sure
@@ -841,10 +841,10 @@ class CvMilitaryAdvisor:
 			CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_MINIMAP_ONLY)
 		else:
 			CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_HIDE)
-			
+
 		screen.updateMinimapVisibility()
 		CyInterface().setShowInterface(iOldMode)
-	
+
 	def UL_drawUnitSelectionControls(self, screen):
 		self.szDropdownWidgetGroup1 = self.getNextWidgetName()
 		screen.addDropDownBoxGFC(self.szDropdownWidgetGroup1, self.X_GROUP_LIST, self.Y_GROUP_LIST, self.W_GROUP_LIST, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
@@ -858,55 +858,55 @@ class CvMilitaryAdvisor:
 	def UL_refresh(self, bReload, bRedraw):
 		if (self.iActivePlayer < 0):
 			return
-		
+
 		screen = self.getScreen()
 		if bRedraw:
 			# Set scrollable area for unit buttons
 			szPanel_ID = self.getNextWidgetName()
 			screen.addPanel(szPanel_ID, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_MAIN)
-			
+
 			# Set scrollable area for leaders
 			szPanel_ID = self.getNextWidgetName()
 			screen.addPanel(szPanel_ID, "", "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_MAIN)
-	
+
 			listLeaders = []
 			for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 				player = gc.getPlayer(iLoopPlayer)
 				if (player.isAlive() and (gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(self.iActivePlayer).getTeam()) or gc.getGame().isDebugMode())):
 					listLeaders.append(iLoopPlayer)
-					
+
 			iNumLeaders = len(listLeaders)
 			if iNumLeaders >= self.LEADER_COLUMNS:
 				iButtonSize = self.LEADER_BUTTON_SIZE / 2
 			else:
 				iButtonSize = self.LEADER_BUTTON_SIZE
-	
+
 			iColumns = int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN))
-	
+
 			# loop through all players and display leaderheads
 			for iIndex in range(iNumLeaders):
 				iLoopPlayer = listLeaders[iIndex]
 				player = gc.getPlayer(iLoopPlayer)
-				
+
 				x = self.X_LEADERS + self.LEADER_MARGIN + (iIndex % iColumns) * (iButtonSize + self.LEADER_MARGIN)
 				y = self.Y_LEADERS + self.LEADER_MARGIN + (iIndex // iColumns) * (iButtonSize + self.LEADER_MARGIN)
-	
+
 				if player.isBarbarian():
 					# <!-- custom: read the Barbarian button path from CIV4ArtDefines_Civilization.xml instead of hardcoding "Art/Interface/Buttons/Civilizations/Barbarian.dds". (Claude code Opus 4.7) -->
 					szButton = gc.getCivilizationInfo(player.getCivilizationType()).getButton()
 				else:
 					szButton = gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton()
-	
+
 				szLeaderButton = self.getLeaderButtonWidget(iLoopPlayer)              #self.getNextWidgetName()
 				screen.addCheckBoxGFC(szLeaderButton, szButton, ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), x, y, iButtonSize, iButtonSize, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 2, iLoopPlayer, ButtonStyles.BUTTON_STYLE_LABEL)
 				screen.setState(szLeaderButton, (iLoopPlayer in self.selectedLeaders))				
-		
+
 		self.UL_refreshUnitSelection(bReload, bRedraw)
 
 	def UL_refreshUnitSelection(self, bReload, bRedraw):
 		screen = self.getScreen()
 		screen.minimapClearAllFlashingTiles()
-		
+
 		if (bRedraw):
 			iBtn_X = self.X_TEXT + self.MAP_MARGIN
 			iBtn_Y = self.Y_TEXT + self.MAP_MARGIN / 2
@@ -937,7 +937,7 @@ class CvMilitaryAdvisor:
 					if unit.getVisualOwner() in self.selectedLeaders:
 						self.stats.processUnit(activePlayer, activeTeam, unit)
 			self.timer.log("process units")
-		
+
 		iGroupID = 1
 		szText = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
 		bAllSelected = iGroupID in self.selectedGroups
@@ -950,11 +950,11 @@ class CvMilitaryAdvisor:
 			screen.appendListBoxString(self.UNIT_LIST_ID, szText, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, iGroupID, CvUtil.FONT_LEFT_JUSTIFY)
 		else:
 			screen.setListBoxStringGFC(self.UNIT_LIST_ID, 0, szText, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, iGroupID, CvUtil.FONT_LEFT_JUSTIFY)
-		
+
 #		for grouping in self.stats.itergroupings():
 #			for group in grouping.itergroups():
 #				BugUtil.debug("%s / %s : %d (%d)" % (grouping.grouping.title, group.group.title, group.size(), group.isEmpty()))
-		
+
 		eYellow = getInfoTypeOrFail("COLOR_YELLOW")
 		eRed = getInfoTypeOrFail("COLOR_RED")
 		eWhite = getInfoTypeOrFail("COLOR_WHITE")
@@ -1001,7 +1001,7 @@ class CvMilitaryAdvisor:
 				else:
 					screen.setListBoxStringGFC(self.UNIT_LIST_ID, iItem, szDescription, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 1, iGroupID, CvUtil.FONT_LEFT_JUSTIFY)
 				iItem += 1
-				
+
 				bGroup2Selected = bGroup2Selected or bGroup1Selected
 				for unit in units2:
 					loopUnit = unit.unit
@@ -1012,10 +1012,10 @@ class CvMilitaryAdvisor:
 						listMatches = re.findall("<.*?color.*?>", szDescription)	
 						for szMatch in listMatches:
 							szDescription = szDescription.replace(szMatch, u"")
-						
+
 						if (loopUnit.isWaiting()):
 							szDescription = '*' + szDescription
-						
+
 						if (bUnitSelected):
 							szDescription = u"         <u>" + szDescription + u"</u>"
 						else:
@@ -1035,7 +1035,7 @@ class CvMilitaryAdvisor:
 					iColor = gc.getPlayerColorInfo(gc.getPlayer(iPlayer).getPlayerColor()).getColorTypePrimary()
 					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_MILITARY, loopUnit.getX(), loopUnit.getY(), iColor, 0.6)
 					if (bUnitSelected or bGroup2Selected) and iPlayer in self.selectedLeaders:
-						
+
 						if (player.getTeam().isAtWar(gc.getPlayer(self.iActivePlayer).getTeam())):
 							iColor = eRed
 						elif (gc.getPlayer(iPlayer).getTeam() != gc.getPlayer(self.iActivePlayer).getTeam()):
@@ -1051,7 +1051,7 @@ class CvMilitaryAdvisor:
 		else:
 			self.selectedGroups.add(iSelected)
 		self.UL_refreshUnitSelection(False, False)
-			
+
 	def refreshSelectedUnit(self, iPlayer, iUnitId):
 		selectedUnit = (iPlayer, iUnitId)
 		if (selectedUnit in self.selectedUnits):
@@ -1069,9 +1069,9 @@ class CvMilitaryAdvisor:
 		else:
 			self.selectedLeaders.clear()	
 			self.selectedLeaders.add(iPlayer)
-	
+
 		self.UL_refresh(True, True)
-	
+
 	def isSelectedGroup(self, group):
 		if not group:
 			return -1 in self.selectedGroups
@@ -1081,7 +1081,7 @@ class CvMilitaryAdvisor:
 		return (iPlayer, iUnitId) in self.selectedUnits
 
 	def drawCombatExperience(self):
-	
+
 		if (gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(true) > 0):
 
 			screen = self.getScreen()
@@ -1090,7 +1090,7 @@ class CvMilitaryAdvisor:
 #			screen.addPanel(szPanel_ID, u"", "", False, False, iPanel_X, iPanel_Y, iPanel_W, iPanel_H, PanelStyles.PANEL_STYLE_MAIN)
 
 			iExperience = gc.getPlayer(self.iActivePlayer).getCombatExperience()
-			
+
 			szGGBar_ID = self.getNextWidgetName()
 			szGGTxt_ID = self.getNextWidgetName()
 
@@ -1115,7 +1115,7 @@ class CvMilitaryAdvisor:
 		szName = self.WIDGET_ID + str(self.nWidgetCount)
 		self.nWidgetCount += 1
 		return szName
-	
+
 	def deleteAllWidgets(self):
 		screen = self.getScreen()
 		count = self.nWidgetCount
@@ -1171,7 +1171,7 @@ class CvMilitaryAdvisor:
 						self.getScreen().hideScreen()
 						return 1
 			# RJG End
-		
+
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
 			if (inputClass.getData() == int(InputTypes.KB_LSHIFT)
 			or  inputClass.getData() == int(InputTypes.KB_RSHIFT)):
@@ -1195,10 +1195,10 @@ class CvMilitaryAdvisor:
 				if (self.iActivePlayer != inputClass.getData1()):
 					self.getScreen().hideScreen()
 					return 1
-		
+
 		if self.iconGrid:
 			return self.iconGrid.handleInput(inputClass)
-		
+
 		return 0
 
 	def update(self, fDelta):

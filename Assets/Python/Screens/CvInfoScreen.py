@@ -54,7 +54,7 @@ class CvInfoScreen:
 	"Info Screen! Contains the Demographics, Wonders / Top Cities and Statistics Screens"
 
 	def __init__(self, screenId):
-	
+
 		# <advc.077> Settings for Demographics tab
 		# Shows the active player's value and rank in a single column
 		self.bRankInValueColumn = True
@@ -304,12 +304,12 @@ class CvInfoScreen:
 
 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), getInfoTypeOrFail("COLOR_PLAYER_GRAY")).upper()
-		
+
 		self.TEXT_ENTIRE_TIMELINE = localText.getText("TXT_KEY_SAS_INFO_ENTIRE_TIMELINE", ())
 		self.TEXT_TIMELINE_EMPTY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_EMPTY", ())
 		self.TEXT_TIMELINE_UNKNOWN_CITY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY", ())
 		self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ())
-		
+
 		self.TEXT_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ())
 		self.TEXT_POWER = localText.getText("TXT_KEY_POWER", ())
 		self.TEXT_CULTURE = localText.getObjectText("TXT_KEY_COMMERCE_CULTURE", 0)
@@ -382,7 +382,7 @@ class CvInfoScreen:
 		szRank1IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_TROPHY").getPath()  # 🏆
 		szRank2IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_2ND_PLACE_MEDAL").getPath()  # 🥈
 		szRank3IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_3RD_PLACE_MEDAL").getPath()  # 🥉
-		
+
 		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
 		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
 		self.szRank2ImgTag = u"<img=%s size=%d></img>" % (szRank2IconPath, self.iRankIconSize)
@@ -2293,7 +2293,7 @@ class CvInfoScreen:
 
 	def drawDemographicsTab(self):
 		self.drawTextChart()
-		
+
 	def getHappyValue(self, pPlayer):
 		iHappy = pPlayer.calculateTotalCityHappiness()
 		iUnhappy = pPlayer.calculateTotalCityUnhappiness()
@@ -2303,7 +2303,7 @@ class CvInfoScreen:
 		iGood = pPlayer.calculateTotalCityHealthiness()
 		iBad = pPlayer.calculateTotalCityUnhealthiness()
 		return (iGood * 100) / max(1, iGood + iBad)	 
-	
+
 	# <advc.077> Optional param added
 	def getRank(self, aiGroup, iPlayer = -1):
 		if iPlayer < 0:
@@ -2352,7 +2352,7 @@ class CvInfoScreen:
 				iWorstPlayer = iLoopPlayer # </advc.077>
 				bFirst = false
 		return (iWorstValue, iWorstPlayer) # advc.077
-	
+
 	# <advc.077>
 	def addGroupData(self, iValue, iPlayer, aiGroup):
 		if (not self.bRanksAmongKnown or self.bRevealAll or
@@ -2397,7 +2397,7 @@ class CvInfoScreen:
 				else:
 					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
 		return (szPlayerName, self.separateThousands(valuePlayerPair[0]) + szMeasure)
-	
+
 	def getPlayerStr(self, valuePlayerPair, aiGroup = None):
 		return self.getPlayerValueStr(valuePlayerPair, "", aiGroup)[0]
 
@@ -2417,7 +2417,7 @@ class CvInfoScreen:
 	def roundToMultiple(self, iValue, iMultiple):
 		r = int(iValue + 0.5 * iMultiple)
 		return r - (r % iMultiple)
-	
+
 	def separateThousands(self, iValue):
 		szSep = self.szSepBase
 		# The rest of the function is adopted from this StackOverflow answer by Nadia Alramli: https://stackoverflow.com/posts/1823189/revisions
@@ -2458,7 +2458,7 @@ class CvInfoScreen:
 		aiGroupHappiness = []
 		aiGroupHealth = []
 		aiGroupNetTrade = []
-		
+
 		# <advc.077>
 		iMilitaryCoeff = 1000
 		iLandCoeff = 1000
@@ -2481,7 +2481,7 @@ class CvInfoScreen:
 					if not self.pActiveTeam.isAVassal() and pCurrTeam.getMasterTeam() == self.pActiveTeam.getMasterTeam():
 						continue
 				# </advc.077>
-				
+
 				#iValue = pCurrPlayer.calculateTotalCommerce()
 				# <advc.077> Use the current value only for the active player
 				if iGameTurn >= 0:
@@ -2569,7 +2569,7 @@ class CvInfoScreen:
 				else:
 					iNetTradeGameAverage += iValue
 				self.addGroupData(iValue, iPlayerLoop, aiGroupNetTrade) # advc.077
-					
+
 		iEconomyRank = self.getRank(aiGroupEconomy)
 		iIndustryRank = self.getRank(aiGroupIndustry)
 		iAgricultureRank = self.getRank(aiGroupAgriculture)
@@ -2579,7 +2579,7 @@ class CvInfoScreen:
 		iHappinessRank = self.getRank(aiGroupHappiness)
 		iHealthRank = self.getRank(aiGroupHealth)
 		iNetTradeRank = self.getRank(aiGroupNetTrade)
-		
+
 		# <advc.077> Don't always show the rival columns
 		iColumns = 6
 		bShowBest = (not self.bShowBestKnown or self.bRevealAll or iKnownRivalDemogr > 0)
@@ -2668,7 +2668,7 @@ class CvInfoScreen:
 			SASTextScale.setTableColumnHeaderLabel(screen, szTable, iRankCol, self.TEXT_RANK, self.W_DEMOGRAPHICS_COL_VALUE)
 		iNextCol += 1
 		iValueCol = iNextCol
-		
+
 		szValueHead = self.TEXT_VALUE
 		if self.bRankInValueColumn:
 			szValueHead += "/ " + self.TEXT_RANK
@@ -2967,15 +2967,15 @@ class CvInfoScreen:
 			self.szCityWonderScrollArea.append(self.getNextWidgetName())
 
 			szIconPanel = self.szCityWonderScrollArea[iCityLoop]
-			
+
 			iMultiListX = self.X_COL_1_CITIES_DESC
 			iMultiListY = self.Y_ROWS_CITIES[iCityLoop] + self.Y_CITIES_WONDER_BUFFER + self.Y_CITIES_DESC_BUFFER
 			iMultiListW = self.W_CITIES_DESC
 			iMultiListH = self.H_CITIES_WONDER_PANEL
-			
+
 			# Create panel first
 			screen.addPanel(szIconPanel, "", "", False, True, iMultiListX, iMultiListY, iMultiListW, iMultiListH, PanelStyles.PANEL_STYLE_DAWNTOP)
-			
+
 			# <!-- custom: use no-header offsets since wonder panel has no title text, added with claude opus 4.5's help thanks. -->
 			# Create multilist control for multiple rows of wonder buttons
 			szMultiListName = self.getNextWidgetName()
@@ -2993,9 +2993,9 @@ class CvInfoScreen:
 		for iPlayerLoop in range(gc.getMAX_PLAYERS()):
 
 			apCityList = PyPlayer(iPlayerLoop).getCityList()
-			
+
 			for pCity in apCityList:
-			
+
 				iTotalCityValue = ((pCity.getCulture() / 5) + (pCity.getFoodRate() + pCity.getProductionRate() \
 					+ pCity.calculateGoldRate())) * pCity.getPopulation()
 
@@ -3278,7 +3278,7 @@ class CvInfoScreen:
 
 				szWonderDesc = "%s, %s" %(self.aiWonderBuiltBy[self.iActiveWonderCounter], szTempText)
 				szStatsText += szWonderDesc + "\n"
-				
+
 				if (self.aszWonderCity[self.iActiveWonderCounter] != ""):
 					szStatsText += self.aszWonderCity[self.iActiveWonderCounter] + "\n\n"
 				else:
@@ -3357,7 +3357,7 @@ class CvInfoScreen:
 
 				szWonderDesc = "%s%s" %(self.aiWonderBuiltBy[self.iActiveWonderCounter], szDateBuilt)
 				szStatsText += szWonderDesc + "\n"
-				
+
 				if (self.aszWonderCity[self.iActiveWonderCounter] != ""):
 					szStatsText += self.aszWonderCity[self.iActiveWonderCounter] + "\n\n"
 				else:
@@ -3797,7 +3797,7 @@ class CvInfoScreen:
 				pWonderInfo = gc.getBuildingInfo(iWonderType)
 				iWidget = WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING
 			szWonderName = pWonderInfo.getDescription()
-			
+
 			if iTurnYearBuilt == -9999:
 				szTurnYearBuilt = u""
 			else:
@@ -4190,7 +4190,7 @@ class CvInfoScreen:
 		if (szWidgetName == self.graphLeftButtonID and code == NotifyCode.NOTIFY_CLICKED):
 			self.slideGraph(- 2 * self.graphZoom / 5)
 			self.drawGraphs()
-			
+
 		elif (szWidgetName == self.graphRightButtonID and code == NotifyCode.NOTIFY_CLICKED):
 			self.slideGraph(2 * self.graphZoom / 5)
 			self.drawGraphs()

@@ -10,7 +10,7 @@ import BugOptionsTab
 
 class BugUnitNameOptionsTab(BugOptionsTab.BugOptionsTab):
 	"BUG Unit Name Options Screen Tab"
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "UnitNaming", "Unit Naming")
 
@@ -18,9 +18,9 @@ class BugUnitNameOptionsTab(BugOptionsTab.BugOptionsTab):
 		tab = self.createTab(screen)
 		panel = self.createMainPanel(screen)
 		column = self.addOneColumnLayout(screen, panel)
-	
+
 		left, center, right = self.addThreeColumnLayout(screen, column, "Options")
-		
+
 		self.addCheckbox(screen, left, "UnitNaming__Enabled")
 		#self.addCheckbox(screen, center, "MiscHover__UpdateUnitNameOnUpgrade")
 		self.addCheckbox(screen, right, "UnitNaming__UseAdvanced")

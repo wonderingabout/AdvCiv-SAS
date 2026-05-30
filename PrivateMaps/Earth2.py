@@ -271,7 +271,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         NATundraHeight = NATundraNorthY - NATundraSouthY + 1
 
         NATundraWater = 35+sea
-        
+
         self.generatePlotsInRegion(NATundraWater,
 				   NATundraWidth, NATundraHeight,
 				   NATundraWestX, NATundraSouthY,
@@ -294,7 +294,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         GreenlandHeight = GreenlandNorthY - GreenlandSouthY + 1
 
         GreenlandWater = 70+sea
-        
+
         self.generatePlotsInRegion(GreenlandWater,
 				   GreenlandWidth, GreenlandHeight,
 				   GreenlandWestX, GreenlandSouthY,
@@ -328,7 +328,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         NAmericasHeight = NAmericasNorthY - NAmericasSouthY + 1
 
         NAmericasWater = 40+sea
-        
+
         self.generatePlotsInRegion(NAmericasWater,
 				   NAmericasWidth, NAmericasHeight,
 				   NAmericasWestX, NAmericasSouthY,
@@ -362,7 +362,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         FloridaHeight = FloridaNorthY - FloridaSouthY + 1
 
         FloridaWater = 40+sea
-        
+
         self.generatePlotsInRegion(FloridaWater,
 				   FloridaWidth, FloridaHeight,
 				   FloridaWestX, FloridaSouthY,
@@ -385,7 +385,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         MexicoHeight = MexicoNorthY - MexicoSouthY + 1
 
         MexicoWater = 30+sea
-        
+
         self.generatePlotsInRegion(MexicoWater,
 				   MexicoWidth, MexicoHeight,
 				   MexicoWestX, MexicoSouthY,
@@ -408,7 +408,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         CAmericasHeight = CAmericasNorthY - CAmericasSouthY + 1
 
         CAmericasWater = 80+sea
-        
+
         self.generatePlotsInRegion(CAmericasWater,
 				   CAmericasWidth, CAmericasHeight,
 				   CAmericasWestX, CAmericasSouthY,
@@ -431,7 +431,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         PanamaHeight = PanamaNorthY - PanamaSouthY + 1
 
         PanamaWater = 85+sea
-        
+
         self.generatePlotsInRegion(PanamaWater,
 				   PanamaWidth, PanamaHeight,
 				   PanamaWestX, PanamaSouthY,
@@ -454,7 +454,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         CaribHeight = CaribNorthY - CaribSouthY + 1
 
         CaribWater = 90+sea
-        
+
         self.generatePlotsInRegion(CaribWater,
 				   CaribWidth, CaribHeight,
 				   CaribWestX, CaribSouthY,
@@ -477,7 +477,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         SAmericasHeight = SAmericasNorthY - SAmericasSouthY + 1
 
         SAmericasWater = 65+sea
-        
+
         self.generatePlotsInRegion(SAmericasWater,
 				   SAmericasWidth, SAmericasHeight,
 				   SAmericasWestX, SAmericasSouthY,
@@ -511,7 +511,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         BrazilHeight = BrazilNorthY - BrazilSouthY + 1
 
         BrazilWater = 45+sea
-        
+
         self.generatePlotsInRegion(BrazilWater,
 				   BrazilWidth, BrazilHeight,
 				   BrazilWestX, BrazilSouthY,
@@ -545,7 +545,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         AndesHeight = AndesNorthY - AndesSouthY + 1
 
         AndesWater = 35+sea
-        
+
         self.generatePlotsInRegion(AndesWater,
 				   AndesWidth, AndesHeight,
 				   AndesWestX, AndesSouthY,
@@ -568,7 +568,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         EmeraldHeight = EmeraldNorthY - EmeraldSouthY + 1
 
         EmeraldWater = 80+sea
-        
+
         self.generatePlotsInRegion(EmeraldWater,
 				   EmeraldWidth, EmeraldHeight,
 				   EmeraldWestX, EmeraldSouthY,
@@ -602,7 +602,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         NEuropeHeight = NEuropeNorthY - NEuropeSouthY + 1
 
         NEuropeWater = 50+sea
-        
+
         self.generatePlotsInRegion(NEuropeWater,
 				   NEuropeWidth, NEuropeHeight,
 				   NEuropeWestX, NEuropeSouthY,
@@ -625,7 +625,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         CEuropeHeight = CEuropeNorthY - CEuropeSouthY + 1
 
         CEuropeWater = 35+sea
-        
+
         self.generatePlotsInRegion(CEuropeWater,
 				   CEuropeWidth, CEuropeHeight,
 				   CEuropeWestX, CEuropeSouthY,
@@ -659,7 +659,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         IberiaHeight = IberiaNorthY - IberiaSouthY + 1
 
         IberiaWater = 20+sea
-        
+
         self.generatePlotsInRegion(IberiaWater,
 				   IberiaWidth, IberiaHeight,
 				   IberiaWestX, IberiaSouthY,
@@ -682,7 +682,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         MediHeight = MediNorthY - MediSouthY + 1
 
         MediWater = 80+sea
-        
+
         self.generatePlotsInRegion(MediWater,
 				   MediWidth, MediHeight,
 				   MediWestX, MediSouthY,
@@ -705,7 +705,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         AfricaHeight = AfricaNorthY - AfricaSouthY + 1
 
         AfricaWater = 50+sea
-        
+
         self.generatePlotsInRegion(AfricaWater,
 				   AfricaWidth, AfricaHeight,
 				   AfricaWestX, AfricaSouthY,
@@ -716,7 +716,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				   -1, False,
 				   False
 				   )
-        
+
         self.generatePlotsInRegion(AfricaWater,
 				   AfricaWidth, AfricaHeight,
 				   AfricaWestX, AfricaSouthY,
@@ -750,7 +750,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         NumidiaHeight = NumidiaNorthY - NumidiaSouthY + 1
 
         NumidiaWater = 20+sea
-        
+
         self.generatePlotsInRegion(NumidiaWater,
 				   NumidiaWidth, NumidiaHeight,
 				   NumidiaWestX, NumidiaSouthY,
@@ -773,7 +773,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         CAfricaHeight = CAfricaNorthY - CAfricaSouthY + 1
 
         CAfricaWater = 35+sea
-        
+
         self.generatePlotsInRegion(CAfricaWater,
 				   CAfricaWidth, CAfricaHeight,
 				   CAfricaWestX, CAfricaSouthY,
@@ -807,7 +807,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         SAfricaHeight = SAfricaNorthY - SAfricaSouthY + 1
 
         SAfricaWater = 45+sea
-        
+
         self.generatePlotsInRegion(SAfricaWater,
 				   SAfricaWidth, SAfricaHeight,
 				   SAfricaWestX, SAfricaSouthY,
@@ -841,7 +841,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         SiberiaHeight = SiberiaNorthY - SiberiaSouthY + 1
 
         SiberiaWater = 25+sea
-        
+
         self.generatePlotsInRegion(SiberiaWater,
 				   SiberiaWidth, SiberiaHeight,
 				   SiberiaWestX, SiberiaSouthY,
@@ -864,7 +864,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         SteppeHeight = SteppeNorthY - SteppeSouthY + 1
 
         SteppeWater = 6+sea
-        
+
         self.generatePlotsInRegion(SteppeWater,
 				   SteppeWidth, SteppeHeight,
 				   SteppeWestX, SteppeSouthY,
@@ -887,7 +887,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         NearEastHeight = NearEastNorthY - NearEastSouthY + 1
 
         NearEastWater = 50+sea
-        
+
         self.generatePlotsInRegion(NearEastWater,
 				   NearEastWidth, NearEastHeight,
 				   NearEastWestX, NearEastSouthY,
@@ -921,7 +921,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         ArabiaHeight = ArabiaNorthY - ArabiaSouthY + 1
 
         ArabiaWater = 50+sea
-        
+
         self.generatePlotsInRegion(ArabiaWater,
 				   ArabiaWidth, ArabiaHeight,
 				   ArabiaWestX, ArabiaSouthY,
@@ -944,7 +944,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         IndiaHeight = IndiaNorthY - IndiaSouthY + 1
 
         IndiaWater = 33+sea
-        
+
         self.generatePlotsInRegion(IndiaWater,
 				   IndiaWidth, IndiaHeight,
 				   IndiaWestX, IndiaSouthY,
@@ -955,7 +955,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				   -1, False,
 				   False
 				   )
-        
+
         self.generatePlotsInRegion(IndiaWater,
 				   IndiaWidth, IndiaHeight,
 				   IndiaWestX, IndiaSouthY,
@@ -978,7 +978,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         ChinaHeight = ChinaNorthY - ChinaSouthY + 1
 
         ChinaWater = 65+sea
-        
+
         self.generatePlotsInRegion(ChinaWater,
 				   ChinaWidth, ChinaHeight,
 				   ChinaWestX, ChinaSouthY,
@@ -989,7 +989,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				   -1, False,
 				   False
 				   )
-        
+
         self.generatePlotsInRegion(ChinaWater,
 				   ChinaWidth, ChinaHeight,
 				   ChinaWestX, ChinaSouthY,
@@ -1023,7 +1023,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         IndoChinaHeight = IndoChinaNorthY - IndoChinaSouthY + 1
 
         IndoChinaWater = 82+sea
-        
+
         self.generatePlotsInRegion(IndoChinaWater,
 				   IndoChinaWidth, IndoChinaHeight,
 				   IndoChinaWestX, IndoChinaSouthY,
@@ -1034,7 +1034,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				   -1, False,
 				   False
 				   )
-        
+
         self.generatePlotsInRegion(IndoChinaWater,
 				   IndoChinaWidth, IndoChinaHeight,
 				   IndoChinaWestX, IndoChinaSouthY,
@@ -1057,7 +1057,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         JapanHeight = JapanNorthY - JapanSouthY + 1
 
         JapanWater = 92+sea
-        
+
         self.generatePlotsInRegion(JapanWater,
 				   JapanWidth, JapanHeight,
 				   JapanWestX, JapanSouthY,
@@ -1091,7 +1091,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         AustraliaHeight = AustraliaNorthY - AustraliaSouthY + 1
 
         AustraliaWater = 45+sea
-        
+
         self.generatePlotsInRegion(AustraliaWater,
 				   AustraliaWidth, AustraliaHeight,
 				   AustraliaWestX, AustraliaSouthY,
@@ -1125,7 +1125,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         SouthPacificHeight = SouthPacificNorthY - SouthPacificSouthY + 1
 
         SouthPacificWater = 94+sea
-        
+
         self.generatePlotsInRegion(SouthPacificWater,
 				   SouthPacificWidth, SouthPacificHeight,
 				   SouthPacificWestX, SouthPacificSouthY,
@@ -1171,14 +1171,14 @@ class Earth2TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.map = CyMap()
 
 		grain_amount += self.gc.getWorldInfo(self.map.getWorldSize()).getTerrainGrainChange()
-		
+
 		self.grain_amount = grain_amount
 
 		self.iWidth = self.map.getGridWidth()
 		self.iHeight = self.map.getGridHeight()
 
 		self.mapRand = self.gc.getGame().getMapRand()
-		
+
 		self.iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
 		if self.map.isWrapX():
 			self.iFlags += CyFractal.FracVals.FRAC_WRAP_X
@@ -1227,12 +1227,12 @@ class Earth2TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		fDesertTopLatitude = min(fDesertTopLatitude, 1.0)
 		fDesertTopLatitude = max(fDesertTopLatitude, 0.0)
 		self.fDesertTopLatitude = fDesertTopLatitude
-		
+
 		self.fracXExp = fracXExp
 		self.fracYExp = fracYExp
 
 		self.initFractals()
-		
+
 	def initFractals(self):
 		self.deserts.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iDesertTop = self.deserts.getHeightFromPercent(self.iDesertTopPercent)

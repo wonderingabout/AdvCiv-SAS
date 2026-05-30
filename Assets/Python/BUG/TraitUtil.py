@@ -31,7 +31,7 @@ def init():
 	game = gc.getGame()
 	global GENERIC_ICON
 	GENERIC_ICON = u"%c" % game.getSymbolID(FontSymbols.MAP_CHAR)
-	
+
 	addTrait("AGGRESSIVE", game.getSymbolID(FontSymbols.STRENGTH_CHAR), "Art/Interface/Buttons/Promotions/Combat1.dds")
 	addTrait("CHARISMATIC", game.getSymbolID(FontSymbols.HAPPY_CHAR), "Art/Interface/Buttons/TechTree/MassMedia.dds")
 	addTrait("CREATIVE", gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar(), "Art/Interface/Buttons/TechTree/Music.dds")

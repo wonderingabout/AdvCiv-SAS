@@ -84,7 +84,7 @@ def getLocalRevision(path):
 				raise BugUtil.BugError("invalid SVN entries file format '%s'" % format_line)
 			if not format_nbr >= MINIMUM_ENTRIES_FORMAT:
 				raise BugUtil.BugError("SVN entries file format %d too old" % format_nbr)
-			
+
 			# Verify first entry's name and kind.
 			name = input.readline().strip()
 			if name != "":
@@ -92,7 +92,7 @@ def getLocalRevision(path):
 			kind = input.readline().strip()
 			if kind != "dir":
 				BugUtil.warn("SvnUtil.getLocalRevision - first SVN is not a dir, kind '%s'", kind)
-			
+
 			# Extract the revision number for the first entry.
 			rev_line = input.readline().strip()
 			BugUtil.debug("SvnUtil.getLocalRevision - revision '%s'", rev_line)
@@ -100,7 +100,7 @@ def getLocalRevision(path):
 				rev = int(rev_line)
 			except ValueError:
 				raise BugUtil.BugError("invalid SVN revision number format '%s'" % rev_line)
-			
+
 			return rev
 		finally:
 			input.close()

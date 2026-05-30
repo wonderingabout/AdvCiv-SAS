@@ -30,7 +30,7 @@ def getDescription():
 def isAdvancedMap():
 	"This map should not show up in simple mode"
 	return 1
-	
+
 def isClimateMap():
 	return 0
 
@@ -53,7 +53,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -61,7 +61,7 @@ def getNumCustomMapOptionValues(argsList):
 		1: 3
 	}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -83,7 +83,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -103,7 +103,7 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 2)
@@ -115,7 +115,7 @@ def getDeerPercent():
 
 def getTopLatitude():
 	return 50
-	
+
 def getBottomLatitude():
 	return -50
 
@@ -148,7 +148,7 @@ def beforeGeneration():
 	global food
 	food = CyFractal()
 	food.fracInit(iW, iH, 7, dice, 0, -1, -1)
-		
+
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Arboria) ...")
 	global hinted_world
@@ -175,7 +175,7 @@ class ArboriaTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		# Keep only fractal state persistent; handles/derived values stay local.
 		self.terrain = CyFractal()
 		self.initFractals(grain_amount, fracXExp, fracYExp)
-		
+
 	def initFractals(self, grain_amount, fracXExp, fracYExp):
 		gc = CyGlobalContext()
 		map = CyMap()
@@ -233,17 +233,17 @@ class ArboriaFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.map = CyMap()
 		self.mapRand = gc.getGame().getMapRand()
 		self.forests = CyFractal()
-		
+
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
-		
+
 		iForestGrain = forest_grain + gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
 		self.__initFractals(iForestGrain, fracXExp, fracYExp)
-	
+
 	def __initFractals(self, iForestGrain, fracXExp, fracYExp):
 		iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
 		self.forests.fracInit(self.iGridW, self.iGridH, iForestGrain, self.mapRand, iFlags, fracXExp, fracYExp)
-	
+
 	def getLatitudeAtPlot(self, iX, iY):
 		return 50
 
@@ -255,14 +255,14 @@ class ArboriaFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addJunglesAtPlot(pPlot, iX, iY, lat)
-			
+
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addForestsAtPlot(pPlot, iX, iY, lat, long)
-		
+
 	def addIceAtPlot(self, pPlot, iX, iY, lat):
 		# We don' need no steeking ice. M'kay? Alrighty then.
 		ice = 0
-	
+
 	def addJunglesAtPlot(self, pPlot, iX, iY, lat):
 		# Warning: this version of JunglesAtPlot is using the forest fractal!
 		gc = CyGlobalContext()

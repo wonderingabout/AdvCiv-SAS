@@ -202,13 +202,13 @@ def getRandomCivilizationName(iCivilizationType):
 	if(len(unitName) < 14):
 		middleName = generateCivilizationName(iCivilizationType)
 		unitName = firstName + " " + middleName + " " + lastName
-		
+
 
 	return unitName
 
 def generateCivilizationName(iCivilizationType):
 	strCivilizationType = "DEFAULT"
-	
+
 	if(gc.getCivilizationInfo(iCivilizationType) is not None):		
 		strCivilizationType = gc.getCivilizationInfo(iCivilizationType).getType()
 		if not civilizationNameHash.has_key(strCivilizationType):
@@ -218,7 +218,7 @@ def generateCivilizationName(iCivilizationType):
 	strMid = ""
 	strEnd = ""
 	random = gc.getASyncRand()
-	
+
 	if(len(civilizationNameHash[strCivilizationType]["PRE"]) > 0):
 		strPre = civilizationNameHash[strCivilizationType]["PRE"][random.get(len(civilizationNameHash[strCivilizationType]["PRE"]), "Random Name")]
 
@@ -227,22 +227,22 @@ def generateCivilizationName(iCivilizationType):
 
 	if(len(civilizationNameHash[strCivilizationType]["END"]) > 0):	
 		strEnd = civilizationNameHash[strCivilizationType]["END"][random.get(len(civilizationNameHash[strCivilizationType]["END"]), "Random Name")]	
-	
+
 	# <!-- custom: no need to import string just to concatenate and capitalize 3 strings; use capitalize directly. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 	#strName = string.capwords(strPre+strMid+strEnd)
 	#strName = (strPre+strMid+strEnd).capitalize()
 	# <!-- custom: cover the PRE/MID/END-with-spaces edge case by inlining capwords logic. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
 	strName = " ".join(w.capitalize() for w in (strPre + strMid + strEnd).split())
-	
+
 	return strName
-	
-	
+
+
 # Returns a random unique name not found in the global mercenary pool
 def getRandomName():
 
 	unitName = ""
 	random = gc.getASyncRand()
-	
+
 	firstName = firstNameList[random.get(len(firstNameList), "Random Name")]
 	lastName = lastNamesList[random.get(len(lastNamesList), "Random Name")]
 
@@ -251,7 +251,7 @@ def getRandomName():
 	if(len(unitName) < 14):
 		middleName = middleNameList[random.get(len(middleNameList), "Random Name")]
 		unitName = firstName + " " + middleName + " " + lastName
-		
+
 
 	return unitName
-	
+

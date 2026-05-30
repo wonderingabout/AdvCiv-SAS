@@ -159,7 +159,7 @@ def getCustomMapOptionName(argsList):
 		szName = "TXT_KEY_MAP_SCRIPT_PLAYER_START"
 	else:
 		szName = "TXT_KEY_MAP_SCRIPT_EXCLUDE_METHOD"
-	
+
 	return unicode(CyTranslator().getText(szName, ()))
 
 #-----------------------------------------------------------------------------
@@ -262,7 +262,7 @@ def beforeGeneration():
 	global gl_plStartType
 	global gl_startPlot_firstrun
 	gl_startPlot_firstrun = True
-	
+
 	gc = CyGlobalContext()
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
@@ -366,7 +366,7 @@ def beforeGeneration():
 	else :
 		gl_mapType = genMethod
 	# Alea iacta est
-	
+
 	# Now for Start Conditions
 	gl_plStartType = int(plStartMethod)
 
@@ -418,7 +418,7 @@ def measureWorld():
 	gl_numAreas_min_25 = 0
 	gl_numAreas_conti = 0
 	gl_numAreas_contiBig = 0
-	
+
 	areas = CvMapGeneratorUtil.getAreas()
 	for area in areas:
 		if not area.isWater() : 
@@ -561,7 +561,7 @@ def findStartingPlot(argsList):
 	if ( gl_startPlot_firstrun ) :
 		measureWorld()
 		gl_startPlot_firstrun = False
-	
+
 	goodForOldWorld = False
 	if ( (bcSize * 1.6) > worldLandSize and
 	     bcSize > numCivs * c_spacePerCiv[sk] ) :
@@ -585,7 +585,7 @@ def findStartingPlot(argsList):
 			return CvMapGeneratorUtil.findStartingPlot(playerID,
 								   isValidBoth)
 		# Unexpected Defaults to "Same as AI"
-		
+
 	if( gl_aiStartType == STA_OLDWORLD or
 	    ((gl_aiStartType == STA_DEFAULT) and goodForOldWorld ) ) :
 		print("Player ", playerID, " - Start In Old World")
@@ -646,7 +646,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	self.shiftRegionPlotsBy(best_split_x, best_split_y,
 				iRegionWidth,
 				iRegionHeight)
-	
+
     #-------------------------------------------------------------------------
     # Overwriting to change the parameters of the regional fractals.
     # Main Change - the RegionalFractal now can have a RiftFractal
@@ -689,7 +689,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                           iRegionGrain, self.dice,
                                           iRegionPlotFlags, iRegionFracXExp,
                                           iRegionFracYExp)
-        
+
         regionHillsFrac.fracInit(iRegionWidth, iRegionHeight,
                                  iRegionHillsGrain, self.dice,
                                  iRegionTerrainFlags, iRegionFracXExp,
@@ -724,11 +724,11 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                             self.plotTypes[i] = PlotTypes.PLOT_HILLS
                     else:
                         self.plotTypes[i] = PlotTypes.PLOT_LAND
-        
+
         if bShift :
             # Shift plots to obtain a more natural shape.
             self.shiftRegionPlots(iRegionWidth, iRegionHeight, iStrip)
-                    
+
         # Once the plot types for the region have been generated, they must be
         # applied to the global plot array.
         # Default approach is to ignore water and layer the lands over 
@@ -744,7 +744,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         # This region is done.
         return
-    
+
     #-------------------------------------------------------------------------
     # MultilayeredFractal class, controlling function.
     #
@@ -798,7 +798,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 	# xExp = CyFractal.FracVals.DEFAULT_FRAC_X_EXP
 	# yExp = CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
-        
+
         # Islands.
         # Additional Slots can be choosen.
         # Slot Order:
@@ -824,7 +824,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                        True, 10,
                                        -1, False,
                                        False)
-        
+
         # Slot2
         if( subSlot1 == 2 or subSlot2 == 2 or subSlot3 == 2 or subSlot4 == 2) :
             iSouthY = int(self.iH * (0.47 + 0.01 * self.dice.get(10,"RndScr.")))
@@ -909,7 +909,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                        True, 5,
                                        -1, False,
                                        False) 
-        
+
         #Main Landmasses
         iSouthY = int(self.iH * 0.03)
         iNorthY = int(self.iH * 0.97)
@@ -926,7 +926,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 15,
                                    rGrain, False,
                                    False)
-        
+
         return self.wholeworldPlotTypes
 
 #    
@@ -970,7 +970,7 @@ class R_ArchipelagoMultilayeredFractal(R_MultilayeredFractal):
 
         print("Archipelago: [S,N,E,W] = [", iSouthY, iNorthY, iEastX, iWestX,
 	      "] Grain: ", cGrain)
-        
+
         self.generatePlotsInRegion(iWater,
                                    iWidth, iHeight,
                                    iWestX, iSouthY,
@@ -980,7 +980,7 @@ class R_ArchipelagoMultilayeredFractal(R_MultilayeredFractal):
                                    True, 15,
                                    5, False,
                                    False)
-        
+
         return self.wholeworldPlotTypes
 #    
 #END class R_ArchipelagoMultilayeredFractal
@@ -1009,12 +1009,12 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             WorldSizeTypes.WORLDSIZE_HUGE:      5
             }
         grain = sas_lookup_world_size(sizekey, sizevalues)
-        
+
         # Sea Level adjustment (from user input), limited to value of 5%.
         sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
         sea = min(sea, 5)
         sea = max(sea, -5)
-        
+
         # The following regions are specific to Pangaea.py
         mainWestLon = 0.05 + 0.01 * self.dice.get(12, "Rnd, Pangea, Python")
         mainEastLon = 0.75 + 0.01 * self.dice.get(23, "Rnd, Pangea, Python")
@@ -1022,7 +1022,7 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         mainNorthLat = 0.75 + 0.01 * self.dice.get(11, "Rnd, Pangea, Python")
         subcontinentDimension = 0.4 
         bSouthwardShift = False
-        
+
         # Shift mainland north or south?
         global shiftRoll
         shiftRoll = self.dice.get(2, "RndScriptUtil, Pangea, PYTHON")
@@ -1051,7 +1051,7 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                     [0.2, 0.675, 0.0, 0.0, 0.15],
                     [0.5, 0.675, 0.0, 0.0, 0.15]
                     ]
-        
+
         # Generate the main land mass, first pass (to vary shape).
         mainWestX = int(self.iW * mainWestLon)
         mainEastX = int(self.iW * mainEastLon)
@@ -1059,9 +1059,9 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         mainSouthY = int(self.iH * mainSouthLat)
         mainWidth = mainEastX - mainWestX + 1
         mainHeight = mainNorthY - mainSouthY + 1
-        
+
         mainWater = 55+sea
-        
+
         self.generatePlotsInRegion(mainWater,
                                    mainWidth, mainHeight,
                                    mainWestX, mainSouthY,
@@ -1071,7 +1071,7 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 15,
                                    2, False,
                                    False)
-        
+
         # Second pass (to ensure cohesion).
         # Will be droped in favor of Randomness in about 80% of cases.
         if ( 0 != self.dice.get(5, "RandomScriptUtil, Pangea, Python") ) :
@@ -1091,7 +1091,7 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                        True, 15,
                                        2, False,
                                        False)
-        
+
         # Add subcontinents.
         while numSubcontinents > 0:
             # Choose a slot for this subcontinent.
@@ -1143,7 +1143,7 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                 scWater = 77+sea
                 scGrain = grain
                 scRift = -1
-                
+
             self.generatePlotsInRegion(scWater,
                                        scWidth, scHeight,
                                        scWestX, scSouthY,
@@ -1153,7 +1153,7 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                        True, 7,
                                        scRift, False,
                                        False)
-            
+
             del scValues[scIndex]
             numSubcontinents -= 1
 
@@ -1187,7 +1187,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
             }
         (archGrain, contGrain, gaeaGrain, eurasiaGrain) = sas_lookup_world_size(sizekey, sizevalues)
-        
+
         # Sea Level adjustment (from user input), limited to value of 5%.
         sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
         sea = min(sea, 7)
@@ -1210,7 +1210,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         subcontinentSmallDimension = 0.125
         subcontinentSmallNorthLat = 0.525
         subcontinentSmallSouthLat = 0.4
-        
+
         secondPass = self.dice.get(2, "(Python RandomScriptUtil)")
 
         # Dice rolls to randomize the quadrants (specific to Terra.py's regions)
@@ -1230,7 +1230,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             newworldEastLon += 0.6
             eurasiaWestLon -= 0.4
             eurasiaEastLon -= 0.4
-        
+
         eurasiaWestX = int(self.iW * eurasiaWestLon)
         eurasiaEastX = int(self.iW * eurasiaEastLon)
         eurasiaNorthY = int(self.iH * eurasiaNorthLat)
@@ -1238,7 +1238,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         eurasiaWidth = eurasiaEastX - eurasiaWestX + 1
         eurasiaHeight = eurasiaNorthY - eurasiaSouthY + 1
         eurasiaWater = 55+sea
- 
+
         print("Terra: Quadrants Rolls: ", roll1, roll2,
               " Second Pass Eurasia: ", secondPass)
 
@@ -1254,7 +1254,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             twWater = 60+sea
             twGrain = 1
             twRift = 2
-            
+
             self.generatePlotsInRegion(twWater,
                                        twWidth, twHeight,
                                        twWestX, twSouthY,
@@ -1264,7 +1264,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                        True, 11,
                                        twRift, False,
                                        False)
-                
+
         # Simulate the Old World - a large continent akin to Earth's Eurasia.
         # Set dimensions of the Old World region (specific to Terra.py)
         self.generatePlotsInRegion(eurasiaWater,
@@ -1276,7 +1276,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 11,
                                    2, False,
                                    False)
- 
+
         # Simulate the New World. Land masses akin to American continents.
         # First simulate North America
         nwWestX = int(self.iW * newworldWestLon)
@@ -1289,7 +1289,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         nwWater = 61+sea
         nwGrain = 1
         nwRift = -1
-                
+
         self.generatePlotsInRegion(nwWater,
                                    nwWidth, nwHeight,
                                    nwWestX, nwSouthY,
@@ -1299,7 +1299,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 7,
                                    nwRift, False,
                                    False)
-        
+
         # Now simulate South America
         nwsRoll = self.dice.get(2, "RandomScriptUtil PYTHON")
         nwsVar = 0.0
@@ -1312,11 +1312,11 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         nwsSouthY = int(self.iH * 0.25)
         nwsWidth = nwsEastX - nwsWestX + 1
         nwsHeight = nwsNorthY - nwsSouthY + 1
-    
+
         nwsWater = 55+sea
         nwsGrain = 1
         nwsRift = -1
-                
+
         self.generatePlotsInRegion(nwsWater,
                                    nwsWidth, nwsHeight,
                                    nwsWestX, nwsSouthY,
@@ -1326,7 +1326,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 5,
                                    nwsRift, False,
                                    False)
-        
+
         nwpWestX = nwWestX + int(self.iW * (0.1 - nwsVar))
         # Not as wide as the north
         nwpEastX = nwEastX - int(self.iW * (0.07 + nwsVar))
@@ -1334,11 +1334,11 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         nwpSouthY = int(self.iH * 0.18)
         nwpWidth = nwpEastX - nwpWestX + 1
         nwpHeight = nwpNorthY - nwpSouthY + 1
-        
+
         nwpWater = 67+sea
         nwpGrain = 1
         nwpRift = -1
-        
+
         self.generatePlotsInRegion(nwpWater,
                                    nwpWidth, nwpHeight,
                                    nwpWestX, nwpSouthY,
@@ -1348,7 +1348,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 3,
                                    nwpRift, False,
                                    False)
-        
+
         # Now the Yukon
         twWidth = int(self.iW * 0.15)
         twWestX = nwWestX
@@ -1359,11 +1359,11 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         twNorthY = int(self.iH * 0.93)
         twSouthY = int(self.iH * 0.75)
         twHeight = twNorthY - twSouthY + 1
-        
+
         twWater = 68+sea
         twGrain = 2
         twRift = -1
-        
+
         self.generatePlotsInRegion(twWater,
                                    twWidth, twHeight,
                                    twWestX, twSouthY,
@@ -1373,7 +1373,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 5,
                                    twRift, False,
                                    False)
-        
+
         # Now add a random region of arctic islands
         twWidth = int(thirdworldDimension * self.iW)
         twHeight = int(thirdworldDimension * self.iH)
@@ -1385,11 +1385,11 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             twEastX = twWestX + twWidth
         twNorthY = int(self.iH * 0.975)
         twSouthY = int(self.iH * 0.85)
-        
+
         twWater = 76+sea
         twGrain = archGrain
         twRift = -1
-                
+
         self.generatePlotsInRegion(twWater,
                                    twWidth, twHeight,
                                    twWestX, twSouthY,
@@ -1411,11 +1411,11 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         nwcNorthY = int(self.iH * 0.6)
         nwcSouthY = int(self.iH * 0.42)
         nwcHeight = nwcNorthY - nwcSouthY + 1
-        
+
         nwcWater = 60+sea
         nwcGrain = 1
         nwcRift = -1
-                
+
         self.generatePlotsInRegion(nwcWater,
                                    nwcWidth, nwcHeight,
                                    nwcWestX, nwcSouthY,
@@ -1436,11 +1436,11 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         twNorthY = int(self.iH * 0.55)
         twSouthY = int(self.iH * 0.47)
         twHeight = twNorthY - twSouthY + 1
-        
+
         twWater = 75+sea
         twGrain = archGrain + 1
         twRift = -1
-        
+
         self.generatePlotsInRegion(twWater,
                                    twWidth, twHeight,
                                    twWestX, twSouthY,
@@ -1463,7 +1463,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         scEastX = scWestX + scLargeWidth
         scNorthY = int(self.iH * subcontinentLargeNorthLat)
         scSouthY = int(self.iH * subcontinentLargeSouthLat)
-        
+
         scShape = self.dice.get(4, "RndMapUtil, Terra, PYTHON")
         if scShape > 1:    # Massive subcontinent! (Africa style)
             scWater = 55+sea
@@ -1477,7 +1477,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             scWater = 77+sea
             scGrain = archGrain
             scRift = -1
-            
+
         self.generatePlotsInRegion(scWater,
                                    scLargeWidth, scLargeHeight,
                                    scWestX, scSouthY,
@@ -1515,7 +1515,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
             scsWater = 77+sea
             scsGrain = archGrain
             scsRift = -1
-                
+
         self.generatePlotsInRegion(scsWater,
                                    scSmallWidth, scSmallHeight,
                                    scsWestX, scsSouthY,
@@ -1525,7 +1525,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 5,
                                    scsRift, False,
                                    False)
-    
+
         # Now simulate random lands akin to Australia and Antarctica
         extras = 3 + self.dice.get(6, "RandomScriptUtil PYTHON")
         for loop in range(extras):
@@ -1541,7 +1541,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                        "RandomScriptUtil PYTHON")
             twNorthY = int(self.iH * thirdworldNorthLat) + twVertRoll
             twSouthY = int(self.iH * thirdworldSouthLat) + twVertRoll
-            
+
             twShape = self.dice.get(3, "RandomScriptUtil PYTHON")
             if twShape == 2:   # Massive subcontinent!
                 twWater = 60+sea
@@ -1555,7 +1555,7 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                 twWater = 70+sea
                 twGrain = archGrain
                 twRift = -1
-                
+
             self.generatePlotsInRegion(twWater,
                                        twWidth, twHeight,
                                        twWestX, twSouthY,
@@ -1605,7 +1605,7 @@ class R_BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         print("Big And Small: Continental Rate: ", contiPart,
 	      "Continental Shift, West Boundary: ", contiShift,
               " CGrain, IGrain: ", iContinentsGrain, iIslandsGrain)
-        
+
         # Since there will be two layers in all areas, reduce the amount of
         # Land Plots
         sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
@@ -1637,7 +1637,7 @@ class R_BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                    True, 15,
                                    -1, False,
                                    False)
-                
+
         # North and South dimensions always fill almost the entire vertical span
         iSouthY = int(self.iH * 0.05)
         iNorthY = int(self.iH * 0.95)
@@ -1956,7 +1956,7 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         global xShiftRoll
 	xShiftRoll = self.dice.get(2, "Python, RndMapUtil, Hemispheres")
         hasVSplit = False
-       
+
         # Generate 2 or 3 Varied Regions
         iCGrain_1 = 1 + self.dice.get(2, "Python, RndMapUtil, Hemispheres")
         iCGrain_2 = 1 + self.dice.get(3, "Python, RndMapUtil, Hemispheres")
@@ -1976,7 +1976,7 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         iIslandVariance_1 = self.dice.get(4, "Python, RndMapHelper, Hemi.")
         iIslandVariance_2 = self.dice.get(5, "Python, RndMapHelper, Hemi.")
         iIslandVariance_3 = self.dice.get(3, "Python, RndMapHelper, Hemi.")
-        
+
         regions = 2 + self.dice.get(3, "Python, RndMapUtil, Hemisph.")
         if (regions > 3) :
         	regions = 3
@@ -1991,12 +1991,12 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         if( vSplitRnd > 1 ) :
             hasVSplit = True
             iVSplit += 0.01 * self.dice.get(20, "Python, RndMapUtil, Hem.")
- 
+
         print("Hemispheres: TripleSplit: ", tripleSplit,
               " VSplit, Value: ", hasVSplit, iVSplit,
               " Overlap: ", regionsOverlap,
               " CGrains: ", iCGrain_1, iCGrain_2, iCGrain_3)
-        
+
         # 1.st Split.
         # Add the Continents.
         # Handle horizontal shift for the Continents layer.
@@ -2064,7 +2064,7 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                          iWidth, iHeight,
                                          iWestX, iSouthY,
                                          iCGrain_2, xExp)
-        
+
         # 2.nd Split
         xExp = 6
         if tripleSplit:
@@ -2089,7 +2089,7 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                 eastShiftC = 0
                 westShiftI = int((0.50 - regionsOverlap) * self.iW)
                 eastShiftI = 0
-                
+
         iSouthY = int(self.iH * 0.07)
         iNorthY = int(self.iH * 0.93)
         iHeight = iNorthY - iSouthY + 1
@@ -2136,7 +2136,7 @@ class R_HemiMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                          iWidth, iHeight,
                                          iWestX, iSouthY,
                                          iCGrain_3, xExp)
-            
+
         # All regions have been processed. Plot Type generation completed.
         return self.wholeworldPlotTypes
 #    
@@ -2167,12 +2167,12 @@ class R_TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 			     self.fracXExp, self.fracYExp)
 	self.iPlainsTop = self.plains.getHeightFromPercent(self.iPlainsTopPercent)
 	self.iPlainsBottom = self.plains.getHeightFromPercent(self.iPlainsBottomPercent)
-	
+
 	self.variation.fracInit(self.iWidth, self.iHeight,
 				self.grain_amount,
 				self.mapRand, self.iFlags,
 				self.fracXExp, self.fracYExp)
-	
+
 	self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
 	self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
 	self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")

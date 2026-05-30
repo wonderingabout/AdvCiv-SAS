@@ -32,7 +32,7 @@ def isAdvancedMap():
 	"This map should not show up in simple mode"
 	# <!-- custom: keep Boreal out of Simple Game by design; return 1 hides it there while keeping the script available in advanced/custom setup. (GPT-5.3-Codex) -->
 	return 1
-	
+
 def isClimateMap():
 	return 0
 
@@ -55,7 +55,7 @@ def getCustomMapOptionName(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -65,7 +65,7 @@ def getNumCustomMapOptionValues(argsList):
 	if not option_values.has_key(iOption):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -89,7 +89,7 @@ def getCustomMapOptionDescAt(argsList):
 		return u""
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -113,7 +113,7 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
-	
+
 def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(1) == 2)
@@ -128,7 +128,7 @@ def getDeerPercent():
 
 def getTopLatitude():
 	return 90
-	
+
 def getBottomLatitude():
 	return 70
 
@@ -161,13 +161,13 @@ def beforeGeneration():
 	global food
 	food = CyFractal()
 	food.fracInit(iW, iH, 7, dice, 0, -1, -1)
-		
+
 # Subclass
 class BorealFractalWorld(CvMapGeneratorUtil.FractalWorld):
 	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
-		
+
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, 2, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, 5, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 
@@ -227,7 +227,7 @@ class BorealTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		self.ice=CyFractal()
 		self.plains=CyFractal()
 		self.initFractals(fracXExp, fracYExp)
-		
+
 	def initFractals(self, fracXExp, fracYExp):
 		gc = CyGlobalContext()
 		map = CyMap()
@@ -285,7 +285,7 @@ class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		iForestGrain = forest_grain + gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()
 
 		self.__initFractals(iForestGrain, fracXExp, fracYExp)
-	
+
 	def __initFractals(self, iForestGrain, fracXExp, fracYExp):
 		gc = CyGlobalContext()
 		map = CyMap()
@@ -298,10 +298,10 @@ class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	def addFeaturesAtPlot(self, iX, iY):
 		gc = CyGlobalContext()
 		pPlot = CyMap().sPlot(iX, iY)
-		
+
 		if pPlot.isPeak() or pPlot.isWater():
 			pass
-		
+
 		else:
 			if pPlot.isRiverSide() and pPlot.isFlatlands():
 				if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"):
@@ -383,16 +383,16 @@ def assignStartingPlots():
 	for assign_loop in range(iPlayers):
 		playerID = shuffledPlayers[assign_loop]
 		player = gc.getPlayer(playerID)
-		
+
 		# Use the absolute approach for findStart from CvMapGeneratorUtil, which 
 		# ignores areaID quality and finds the best local situation on the board.
 		findstart = CvMapGeneratorUtil.findStartingPlot(playerID)
 		sPlot = map.plotByIndex(findstart)
-		
+
 		# Record the plot number to the data array for use if needed to open a "pocket".
 		iStartX = sPlot.getX()
 		iStartY = sPlot.getY()
-		
+
 		# If first player placed, no need to check for pathing yet.
 		if assign_loop == 0:
 			start_plots.append([iStartX, iStartY])
@@ -403,7 +403,7 @@ def assignStartingPlots():
 			print("First player assigned.")
 			print("-+-+-")
 			continue
-		
+
 		# Check the pathing in the start plot.
 		if sPlot.getMinOriginalStartDist() != -1:
 			start_plots.append([iStartX, iStartY])
@@ -414,7 +414,7 @@ def assignStartingPlots():
 			print("Open Path, no problems.")
 			print("-+-+-")
 			continue
-		
+
 		# If the process has reached this point, then this player is stuck 
 		# in a "pocket". This could be an island, a valley surrounded by peaks, 
 		# or an area blocked off by peaks. Could even be that a major line 
@@ -443,11 +443,11 @@ def assignStartingPlots():
 		print("Absolute distance:")
 		print(fMinDistance)
 		print("-----")
-		
+
 		# Now we draw an invisible line, plot by plot, one plot wide, from 
 		# the current start to the nearest start, converting peaks along the 
 		# way in to hills, and lakes in to flatlands, until a path opens.
-		
+
 		# Bulldoze the path until it opens!
 		startPlot = map.plot(iStartX, iStartY)
 		endPlot = map.plot(iEndX, iEndY)
@@ -573,7 +573,7 @@ def assignStartingPlots():
 							print("Pocket successfully opened!")
 							print("-----")
 							break
-			
+
 		# Now that all the pathing for this player is resolved, set the start plot.
 		start_plots.append([iStartX, iStartY])
 		player.setStartingPlot(sPlot, true)

@@ -23,14 +23,14 @@ class BugOptionsTab:
 	#
 	# Provides an API for building a single tab on the BUG_Options_Screen by placing UI controls.
 	#
-	
+
 	def __init__(self, name, title):
 		self.name = name
 		self.tab = self.name + "Tab"
-		
+
 		self.title = title
 		self.translated = False
-		
+
 		# EF: Has to be this module. I tried splitting it out into a new module without success.
 		self.callbackIFace = "CvOptionsScreenCallbackInterface"
 
@@ -41,12 +41,12 @@ class BugOptionsTab:
 		if (not self.translated):
 			self.translate()
 		return self.title
-	
+
 	def translate (self):
 		xmlKey = "TXT_KEY_BUG_OPTTAB_" + self.name.upper()
 		self.title = BugUtil.getPlainText(xmlKey, self.title)
 		self.translated = True
-	
+
 	def clearTranslation(self):
 		"Marks this tab so that it will be translated again the next time it is accessed"
 		self.translated = False
@@ -67,7 +67,7 @@ class BugOptionsTab:
 	def createTab (self, screen):
 		"Creates and returns the options tab"
 		screen.attachTabItem(self.tab, self.getTitle())
-		
+
 		return self.tab
 
 	def createMainPanel (self, screen):
@@ -75,40 +75,40 @@ class BugOptionsTab:
 		# VBox with two blocks: scrolling control panel and Exit button with separator
 		vbox = self.name + "VBox"
 		screen.attachVBox(self.tab, vbox)		
-		
+
 		# scrollpane
 		scrollpane = self.name + "Scroll"
 		screen.attachScrollPanel(vbox, scrollpane)
 		screen.setLayoutFlag(scrollpane, "LAYOUT_SIZE_HEXPANDING")
 		screen.setLayoutFlag(scrollpane, "LAYOUT_SIZE_VEXPANDING")
-		
+
 		# panel for option controls
 		panel = self.name + "Panel"
 		screen.attachPanel(scrollpane, panel)
 		screen.setStyle(panel, "Panel_Tan15_Style")
 		screen.setLayoutFlag(panel, "LAYOUT_SIZE_HPREFERREDEXPANDING")
 		screen.setLayoutFlag(panel, "LAYOUT_SIZE_VPREFERREDEXPANDING")
-		
+
 		# panel for Help and Exit buttons
 		screen.attachHSeparator(vbox, "RM_ExitSeparator")
 		exitPanel = self.name + "ExitBox"
 		screen.attachHBox(vbox, exitPanel)
 		screen.setLayoutFlag(exitPanel, "LAYOUT_HCENTER")
-		
+
 		# Help button
 		title = BugUtil.getPlainText("TXT_KEY_BUG_OPTBUTTON_HELP", "Help")
 		hover = BugUtil.getPlainText("TXT_KEY_BUG_OPTBUTTON_HELP_HOVER", "Opens the help file. You can hit Shift-F1 from the main interface.")
 		helpButton = self.name + "Help"
 		self.addButton(screen, exitPanel, helpButton, "handleBugHelpButtonInput", title, hover)
-		
+
 		self.addSpacer(screen, exitPanel, exitPanel)
-		
+
 		# Exit button
 		title = BugUtil.getPlainText("TXT_KEY_PEDIA_SCREEN_EXIT", "Exit")
 		hover = BugUtil.getPlainText("TXT_KEY_BUG_OPTBUTTON_EXIT_HOVER", "Exits the BUG_Options_Screen.")
 		exitButton = self.name + "Exit"
 		self.addButton(screen, exitPanel, exitButton, "handleBugExitButtonInput", title, hover)
-		
+
 		return panel
 
 	def addOneColumnLayout (self, screen, parent, panel=None):
@@ -119,12 +119,12 @@ class BugOptionsTab:
 		screen.attachHBox(parent, hbox)
 		screen.setLayoutFlag(hbox, "LAYOUT_SIZE_HPREFERREDEXPANDING")
 		screen.setLayoutFlag(hbox, "LAYOUT_SIZE_VMIN")
-		
+
 		column = panel + "VBox"
 		screen.attachVBox(hbox, column)
 		screen.setLayoutFlag(column, "LAYOUT_SIZE_HMIN")
 		screen.setLayoutFlag(column, "LAYOUT_SIZE_VMIN")
-		
+
 		return column
 
 	def addTwoColumnLayout (self, screen, parent, panel=None, separator=False):
@@ -135,22 +135,22 @@ class BugOptionsTab:
 		screen.attachHBox(parent, hbox)
 		screen.setLayoutFlag(hbox, "LAYOUT_SIZE_HPREFERREDEXPANDING")
 		screen.setLayoutFlag(hbox, "LAYOUT_SIZE_VMIN")
-		
+
 		leftColumn = panel + "Left"
 		screen.attachVBox(hbox, leftColumn)
 		screen.setLayoutFlag(leftColumn, "LAYOUT_SIZE_HMIN")
 		screen.setLayoutFlag(leftColumn, "LAYOUT_SIZE_VMIN")
-		
+
 		if (separator):
 			sep = panel + "Sep"
 			screen.attachVSeparator(hbox, sep)
 			screen.setLayoutFlag(sep, "LAYOUT_LEFT")
-		
+
 		rightColumn = panel + "Right"
 		screen.attachVBox(hbox, rightColumn)
 		screen.setLayoutFlag(rightColumn, "LAYOUT_SIZE_HMIN")
 		screen.setLayoutFlag(rightColumn, "LAYOUT_SIZE_VMIN")
-		
+
 		return leftColumn, rightColumn
 
 	def addThreeColumnLayout (self, screen, parent, panel=None, separator=False):
@@ -161,14 +161,14 @@ class BugOptionsTab:
 		"Creates an HBox containing multiple VBoxes for lists of controls"
 		if (count <= 2):
 			return self.addTwoColumnLayout(screen, parent, panel, separator)
-		
+
 		if (panel is None):
 			panel = parent
 		hbox = panel + "HBox"
 		screen.attachHBox(parent, hbox)
 		screen.setLayoutFlag(hbox, "LAYOUT_SIZE_HPREFERREDEXPANDING")
 		screen.setLayoutFlag(hbox, "LAYOUT_SIZE_VMIN")
-		
+
 		columns = []
 		first = True
 		for i in range(count):
@@ -177,13 +177,13 @@ class BugOptionsTab:
 				screen.attachVSeparator(hbox, sep)
 				#screen.setLayoutFlag(sep, "LAYOUT_LEFT")
 			first = False
-			
+
 			column = panel + "Col%d" % i
 			screen.attachVBox(hbox, column)
 			screen.setLayoutFlag(column, "LAYOUT_SIZE_HMIN")
 			screen.setLayoutFlag(column, "LAYOUT_SIZE_VMIN")
 			columns.append(column)
-		
+
 		return columns
 
 	def addLabel (self, screen, panel, name, title=None, tooltip=None, spacer=False):
@@ -209,7 +209,7 @@ class BugOptionsTab:
 		spacer = name + "_Spacer"
 		screen.attachLabel(panel, spacer, " " * size)
 		screen.setControlFlag(spacer, "CF_LABEL_DEFAULTSIZE")
-	
+
 	def addButton (self, screen, panel, name, callback, title=None, tooltip=None):
 		key = "TXT_KEY_BUG_OPTBUTTON_" + name.upper()
 		title = BugUtil.getPlainText(key, title)
@@ -255,7 +255,7 @@ class BugOptionsTab:
 				label = name + "Label"
 				screen.attachLabel(labelPanel, label, option.getTitle())
 				screen.setControlFlag(label, "CF_LABEL_DEFAULTSIZE")
-			
+
 			# create textedit
 			control = name + "Edit"
 			value = str(option.getValue())
@@ -307,7 +307,7 @@ class BugOptionsTab:
 				label = name + "Label"
 				screen.attachLabel(labelPanel, label, option.getTitle())
 				screen.setControlFlag(label, "CF_LABEL_DEFAULTSIZE")
-				
+
 			# create dropdown
 			control = name + "Dropdown"
 			screen.attachDropDown(controlPanel, control, "", elements, self.callbackIFace, callback, name, index)
@@ -354,7 +354,7 @@ class BugOptionsTab:
 			return self.addDropdown(screen, labelPanel, controlPanel, name, spacer, layout, elements, index, "handleBugColorDropdownChange")
 		else:
 			self.addMissingOption(screen, controlPanel, name)
-	
+
 
 	def addCheckboxDropdown (self, screen, checkPanel, dropPanel, checkName, dropName, layout, elements, index, callback, spacer=False):
 		"Adds a dropdown with a checkbox for a label."
@@ -430,7 +430,7 @@ class BugOptionsTab:
 				self.addMissingOption(screen, checkPanel, checkName)
 			if (dropOption is None):
 				self.addMissingOption(screen, dropPanel, dropName)
-	
+
 
 	def addSlider (self, screen, labelPanel, controlPanel, name, spacer=False, vertical=False, expanding=True, fill=None, min=0, max=100):
 		option = self.getOption(name)
@@ -449,7 +449,7 @@ class BugOptionsTab:
 				label = name + "Label"
 				screen.attachLabel(labelPanel, label, option.getTitle())
 				screen.setControlFlag(label, "CF_LABEL_DEFAULTSIZE")
-				
+
 			# create slider
 			control = name + "Slider"
 			value = option.getRealValue()

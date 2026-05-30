@@ -41,7 +41,7 @@ class CvDanQuayle:
 		self.Y_TITLE = 12
 		self.X_EXIT = 994
 		self.Y_EXIT = 726
-		
+
 		self.X_LEADERHEAD = 120
 		self.Y_LEADERHEAD = 70
 		self.W_LEADERHEAD = 390
@@ -61,7 +61,7 @@ class CvDanQuayle:
 		self.Y_TEXT = 590
 		self.W_TEXT = 390
 		self.H_TEXT = 100
-		
+
 		self.leaders = ["TXT_KEY_DQ_LEADER_NAME_1", "TXT_KEY_DQ_LEADER_NAME_2", "TXT_KEY_DQ_LEADER_NAME_3", "TXT_KEY_DQ_LEADER_NAME_4", "TXT_KEY_DQ_LEADER_NAME_5", "TXT_KEY_DQ_LEADER_NAME_6", "TXT_KEY_DQ_LEADER_NAME_7", "TXT_KEY_DQ_LEADER_NAME_8", "TXT_KEY_DQ_LEADER_NAME_9", "TXT_KEY_DQ_LEADER_NAME_10", "TXT_KEY_DQ_LEADER_NAME_11", "TXT_KEY_DQ_LEADER_NAME_12", "TXT_KEY_DQ_LEADER_NAME_13", "TXT_KEY_DQ_LEADER_NAME_14", "TXT_KEY_DQ_LEADER_NAME_15", "TXT_KEY_DQ_LEADER_NAME_16", "TXT_KEY_DQ_LEADER_NAME_17", "TXT_KEY_DQ_LEADER_NAME_18", "TXT_KEY_DQ_LEADER_NAME_19", "TXT_KEY_DQ_LEADER_NAME_20"]
 
 		self.nWidgetCount = 0
@@ -77,7 +77,7 @@ class CvDanQuayle:
 		if replayInfo.isNone():
 			replayInfo = CyReplayInfo()
 			replayInfo.createInfo(gc.getGame().getActivePlayer())
-		
+
 		screen = self.getScreen()
 		if screen.isActive():
 			return
@@ -116,7 +116,7 @@ class CvDanQuayle:
 		self.H_LEADERHEAD = iContentBottom - iContentTop
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen( PopupStates.POPUPSTATE_IMMEDIATE, False)
-	
+
 		# Set the background and exit button, and show the screen
 		screen.setDimensions(0, 0, self.W_SCREEN, self.H_SCREEN)
 
@@ -129,10 +129,10 @@ class CvDanQuayle:
 
 		# Header...
 		screen.setLabel(self.WIDGET_HEADER, "Background", sasFontTagTitle.bold + localText.getText("TXT_KEY_GAME_END_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				
+
 		# Leaderhead
 		screen.addLeaderheadGFC(self.LEADERHEAD_ID, replayInfo.getLeader(replayInfo.getActivePlayer()), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
-	
+
 		iScore = replayInfo.getNormalizedScore()
 		if self.iMaxScore is None:
 			self.iMaxScore = ((100 + gc.getDefineINT("SCORE_VICTORY_PERCENT")) * (gc.getDefineINT("SCORE_POPULATION_FACTOR") + gc.getDefineINT("SCORE_LAND_FACTOR") + gc.getDefineINT("SCORE_WONDER_FACTOR") + gc.getDefineINT("SCORE_TECH_FACTOR"))) / 100
@@ -186,10 +186,10 @@ class CvDanQuayle:
 		screen.addPanel("", u"", u"", True, False, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_IN)
 		szBottomText = localText.getText("TXT_KEY_DQ_TEXT_STRING", (replayInfo.getLeaderName(), szLeaderText, ))
 		screen.addMultilineText(self.TEXT_ID, SASTextScale.labelText(szBottomText), self.X_TEXT+5, self.Y_TEXT+5, self.W_TEXT-10, self.H_TEXT-10, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-		
+
 		screen.addPanel(self.SCORE_ID, u"", u"", True, False, self.X_SCORE, self.Y_SCORE, self.W_SCORE, self.H_SCORE, PanelStyles.PANEL_STYLE_IN)
 		screen.setLabelAt("", self.SCORE_ID, sasFontTagTitle + localText.getObjectText("TXT_KEY_VICTORY_SCORE", 0) + u" : " + unicode(iScore) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCORE/2-10, 5, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		
+
 		screen.addListBoxGFC(self.LIST_ID, "", self.X_LIST, self.Y_LIST, self.W_LIST, self.H_LIST, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSelect(self.LIST_ID, False)
 		# <!-- custom: hoist out of per-leader loop. (Claude code Opus 4.7) -->
@@ -202,7 +202,7 @@ class CvDanQuayle:
 				szText = localText.getText(szText, ())
 
 			screen.appendListBoxString(self.LIST_ID, sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-			
+
 
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):
@@ -210,7 +210,7 @@ class CvDanQuayle:
 		self.nWidgetCount += 1
 		return szName
 
-			
+
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):
 		return 0

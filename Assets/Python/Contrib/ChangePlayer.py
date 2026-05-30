@@ -37,18 +37,18 @@ class ChangePlayer :
 
 		self.customEM.setPopupHandler( changeCivPopupNum, ["changeCivPopup",changeCivHandler,self.blankHandler] )
 		self.customEM.setPopupHandler( changeHumanPopupNum, ["changeHumanPopup",changeHumanHandler,self.blankHandler] )
-		
+
 		# Keep game from showing messages about handling these popups
 		CvUtil.SilentEvents.extend([changeCivPopupNum,changeHumanPopupNum])
 
 	def removeEventHandlers( self ) :
 		print("Removing event handlers from ChangePlayer")
-		
+
 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
 
 		self.customEM.setPopupHandler( changeCivPopupNum, ["changeCivPopup",self.blankHandler,self.blankHandler] )
 		self.customEM.setPopupHandler( changeHumanPopupNum, ["changeHumanPopup",self.blankHandler,self.blankHandler] )
-	
+
 	def blankHandler( self, playerID, netUserData, popupReturn ) :
 		# Dummy handler to take the second event for popup
 		return
@@ -162,16 +162,16 @@ def changeCivHandler( playerID, netUserData, popupReturn ) :
 		if (LOG_DEBUG):
 			CvUtil.pyPrint( "   CP : Error on changeCiv" )
 		return
-	
+
 def updateGraphicsHandler( playerID, netUserData, popupReturn ) :
-	
+
 	if( popupReturn.getButtonClicked() == 0 ):  # if you pressed update now
 		updateGraphics( )
 
 def updateGraphics( ) :
 	# Switch human player around to force a redraw of unit flags
 	iHuman = game.getActivePlayer()
-	
+
 	iSwitchTo = -1
 	for i in range(0,gc.getMAX_CIV_PLAYERS()) :
 		player = PyPlayer(i)
@@ -179,16 +179,16 @@ def updateGraphics( ) :
 			if( not player.isAlive() ) :
 				iSwitchTo = i
 				break
-	
+
 	if( iSwitchTo < 0 ) :
 		iSwitchTo = 1 + game.getSorenRandNum( gc.getMAX_CIV_PLAYERS() - 1, 'ChangePlayer')
-		
+
 	game.setAIAutoPlay( 3 )
-	
+
 	changeHuman( iSwitchTo, iHuman )
-	
+
 	changeHuman( iHuman, iSwitchTo )
-	
+
 	#game.setAIAutoPlay(0)
 
 def changeHumanPopup( bDied = False ) :
@@ -265,17 +265,17 @@ def changeCiv( playerIdx, newCivType = -1, newLeaderType = -1, teamIdx = -1 ) :
 	oldLeaderType = player.getLeaderType()
 	if( newCivType >= 0 and not newCivType == oldCivType ) :
 		player.changeCiv( newCivType )
-	
+
 	if( newLeaderType >= 0 and not newLeaderType == oldLeaderType ) :
 		player.changeLeader( newLeaderType )
-	
+
 	return True
 
 def changePersonality( playerIdx, newPersonality = -1 ) :
 	# Changes leader personality of this civ
-	
+
 	player = gc.getPlayer(playerIdx)
-	
+
 	if( newPersonality < 0 ) :
 		iBestValue = 0
 		newPersonality = -1
@@ -299,16 +299,16 @@ def changePersonality( playerIdx, newPersonality = -1 ) :
 def changeHuman( newHumanIdx, oldHumanIdx ) :
 
 	game.changeHumanPlayer( newHumanIdx )
-	
+
 	doRefortify( newHumanIdx )
 	return True
 
 ########################## Utility functions ###########################################
-			
+
 def doRefortify( iPlayer ) :
 	#pyPlayer = PyPlayer( iPlayer )
 	pPlayer = gc.getPlayer(iPlayer)
-	
+
 	CvUtil.pyPrint( "Refortifying units for player %d"%(iPlayer))
 
 	for groupID in range(0,pPlayer.getNumSelectionGroups()) :

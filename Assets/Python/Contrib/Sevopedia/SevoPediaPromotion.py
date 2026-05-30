@@ -175,7 +175,7 @@ class SevoPediaPromotion:
 		# Loop through all units to find those with this promotion
 		for iUnit in xrange(gc.getNumUnitInfos()):
 			unitInfo = gc.getUnitInfo(iUnit)
-			
+
 			# Check if this unit has the current promotion as a free promotion
 			if unitInfo.getFreePromotions(self.iPromotion):
 				screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
@@ -218,7 +218,7 @@ class SevoPediaPromotion:
 		# Loop through all buildings to find those that grant this promotion
 		for iBuilding in range(gc.getNumBuildingInfos()):
 			buildingInfo = gc.getBuildingInfo(iBuilding)
-			
+
 			# Check if this building grants the current promotion
 			if buildingInfo.getFreePromotion() == self.iPromotion:
 				screen.appendMultiListButton(rowListName, buildingInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)

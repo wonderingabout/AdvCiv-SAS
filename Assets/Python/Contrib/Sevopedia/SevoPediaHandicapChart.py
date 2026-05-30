@@ -422,7 +422,7 @@ class SevoPediaHandicapChart:
 			)
 			for _name, _glyph in _glyph_defs:
 				glyph_by_name[_name] = _glyph
-			
+
 				# Token map: key -> "btn:name" or "glyph:name"
 			# Built from the centralized specs above, so there is only ONE place to edit.
 			icon_token_by_key = {}

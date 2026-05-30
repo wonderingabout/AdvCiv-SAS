@@ -105,7 +105,7 @@ class UnitNameEventManager:
 	def __init__(self, eventManager):
 
 		BuildUnitName(eventManager)
-		
+
 		# additions to self.Events
 		moreEvents = {
 			RENAME_EVENT_ID : ('', self.__eventUnitRenameApply,  self.__eventUnitRenameBegin),
@@ -299,7 +299,7 @@ class UnitReName(object):
 
 		iPlayer = pUnit.getOwner()
 		pPlayer = gc.getPlayer(iPlayer)
-		
+
 		zsCiv = pPlayer.getCivilizationAdjective(0)
 		zsLeader = pPlayer.getName()
 		zsUnitCombat = self.getUnitCombat(pUnit)
@@ -373,9 +373,9 @@ class UnitReName(object):
 				zsSDKey = zsSDKey + zsUnit + zsCity
 			elif zsSDKey == "DOMAIN":
 				zsSDKey = zsSDKey + zsUnitDomain
-	
+
 			#BUGPrint("UnitNameEM-E [" + zsSDKey + "]")
-	
+
 #			see if we have already started this counter
 			if (not counters.hasTable(zsSDKey)):
 				#Since no record create entries
@@ -411,7 +411,7 @@ class UnitReName(object):
 			zsName = self.swapCountCode(zsName, "^tt2", ziTT2)
 
 		return zsName
-	
+
 	def getUnitNameConvFromIniFile(self, Era, UnitClass, UnitCombat):
 ##    a. try to get the advanced naming convention
 ##    b. if it returns 'DEFAULT', then get the combat based naming convention

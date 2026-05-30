@@ -75,7 +75,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def __init__(self):
 		self.PEDIA_MAIN_SCREEN	= "PediaMainScreen"
 		self.INTERFACE_ART_INFO	= "SCREEN_BG_OPAQUE"
-		
+
 		self.TAB_TOC   = "Contents"
 		self.TAB_INDEX = "Index"
 		self.SAS_USE_BOTTOM_TABS = False
@@ -538,7 +538,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_getVisibleCharacter(self, inputClass):
 		iKey = inputClass.getData()
 		bShift = inputClass.isShiftKeyDown()
-		
+
 		# Letters A-Z
 		if iKey >= int(InputTypes.KB_A) and iKey <= int(InputTypes.KB_Z):
 			iLetterOffset = iKey - int(InputTypes.KB_A)
@@ -546,14 +546,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				return unichr(65 + iLetterOffset)  # Uppercase A-Z
 			else:
 				return unichr(97 + iLetterOffset)  # Lowercase a-z
-		
+
 		# Numbers 0-9
 		if iKey >= int(InputTypes.KB_0) and iKey <= int(InputTypes.KB_9):
 			iNumberOffset = iKey - int(InputTypes.KB_0)
 			if bShift:
 				return (u")", u"!", u"@", u"#", u"$", u"%", u"^", u"&", u"*", u"(")[iNumberOffset]
 			return unichr(48 + iNumberOffset)
-		
+
 		# Space
 		if iKey == int(InputTypes.KB_SPACE):
 			return u" "
@@ -623,7 +623,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return u","
 		if iKey == int(InputTypes.KB_NUMPADSLASH):
 			return u"/"
-		
+
 		# No visible character for this key
 		return u""
 	# <!-- custom: End - search bar for the left item list (chatgpt 5.2 + claude opus 4.5) -->
@@ -638,7 +638,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return False
 		if not self.list or len(self.list) == 0:
 			return False
-		
+
 		# Prefer cached selectable indices (built in placeItems)
 		listSelectableRows = getattr(self, "SAS_selectableListIdx", None)
 		if not listSelectableRows:
@@ -660,7 +660,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		dPos = getattr(self, "SAS_itemToSelectablePos", None)
 		if dPos is not None:
 			iCurrentPos = dPos.get(self.iItem, -1)
-		
+
 		# Calculate new position
 		if iCurrentPos == -1:
 			# No item selected, select first or last based on direction
@@ -675,15 +675,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				iNewPos = 0
 			elif iNewPos >= len(listSelectableRows):
 				iNewPos = len(listSelectableRows) - 1
-		
+
 		# Get the item at new position and jump to it
 		iNewListIdx = listSelectableRows[iNewPos]
 		iNewItem = self.list[iNewListIdx][1]
-		
+
 		if iNewItem != self.iItem:
 			self.pediaJump(self.iCategory, iNewItem, False, False)
 			return True
-		
+
 		return False
 	# <!-- custom: End - Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
@@ -837,7 +837,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def isContentsShowing(self):
 		return self.tab == self.TAB_TOC
-	
+
 	def showContents(self, bForce=False, iCategory=None):
 		if iCategory is None:
 			iCategory = self.SAS_CATEGORY_DEFS[0][0]
@@ -902,7 +902,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def isIndexShowing(self):
 		return self.tab == self.TAB_INDEX
-	
+
 	def showIndex(self):
 		if not self.SAS_USE_BOTTOM_TABS:
 			return
@@ -918,7 +918,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		screen.hide(self.SAS_CLEAR_ID)
 		self.pediaIndex.interfaceScreen()
 		self.tab = self.TAB_INDEX
-	
+
 	def placeIndexCategory(self):
 		screen = self.getScreen()
 		self.SAS_lastItemsWidget = None
@@ -930,7 +930,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_deleteSearchWidgets(screen)
 		self.SAS_safeDeleteWidget(screen, self.ITEM_LIST_ID)
 		self.pediaIndex.interfaceScreen(True)
-	
+
 	def setPediaCommonWidgets(self):
 		# advc.004y: was TXT_KEY_SEVOPEDIA_TITLE
 		self.HEAD_TEXT = sasFontTagTitle.bold + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
@@ -947,7 +947,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: use bracket-direction labels for player-id arrows instead of "<-" / "->"; empirically, literal angle brackets in this footer text path render as broken markup such as "/color" and can corrupt the control text. (GPT-5.5) -->
 		self.SAS_GAME_PLAYER_ID_PREV_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_PREV", (-1,)), eLightGrey))
 		self.SAS_GAME_PLAYER_ID_NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT", (-1,)), eLightGrey))
-		
+
 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
 		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
 		eYellow = getInfoTypeOrFail("COLOR_YELLOW")
@@ -1263,14 +1263,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeUnitCategories(self):
 		self.list = self.getUnitCategoryList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, gc.getUnitCombatInfo)
-	
+
 	def getUnitCategoryList(self):
 		return self.getSortedList(gc.getNumUnitCombatInfos(), gc.getUnitCombatInfo)
 
 	def placePromotions(self):
 		self.list = self.getPromotionList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, gc.getPromotionInfo)
-	
+
 	def getPromotionList(self):
 		return self.getSortedList(gc.getNumPromotionInfos(), gc.getPromotionInfo)
 
@@ -1334,7 +1334,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeNationalWonders(self):
 		self.list = self.getNationalWonderList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
-	
+
 	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks -->
 	def getNationalWonderList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
@@ -1523,7 +1523,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeCivs(self):
 		self.list = self.getCivilizationList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, gc.getCivilizationInfo)
-	
+
 	def getCivilizationList(self):
 		civList = self.getSortedList(gc.getNumCivilizationInfos(), gc.getCivilizationInfo)
 		# <advc.004y> Filter out minor civ, but not Barbarians (which do have sensible strategy text). Distinguish b/w them by checking for free Palace. Not sure if that's really better than using getInfoTypeOrFail("CIVILIZATION_MINOR")
@@ -1553,7 +1553,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected -->
 			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
 			print("Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
-	
+
 	def getLeaderList(self):
 		if self.IS_SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV:
 			return SAS_MainGroupings.SAS_getLeadersGroupedByCivilization(self.isSortLists())
@@ -1738,14 +1738,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def placeConcepts(self):
 		self.list = self.getConceptList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_DESCRIPTION, gc.getConceptInfo)
-	
+
 	def getConceptList(self):
 		return self.getSortedList(gc.getNumConceptInfos(), gc.getConceptInfo)
 
 	def placeBTSConcepts(self):
 		self.list = self.getNewConceptList()
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_DESCRIPTION, self.getNewConceptInfo)
-	
+
 	def getNewConceptList(self):
 		return self.getSortedList(gc.getNumNewConceptInfos(), self.getNewConceptInfo)
 
@@ -1836,7 +1836,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
 			return gc.getCorporationInfo(iMovieId)
 		return None
-	
+
 	def getMusicInfo(self, iPacked):
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
 		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH:
@@ -2074,7 +2074,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def isShortcutInfo(self, info):
 		return info.getType().find("SHORTCUTS") != -1
 
-	
+
 	def placeItems(self, widget, info):
 		screen = self.getScreen()
 
@@ -2495,7 +2495,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			elif (inputClass.getFunctionName() == self.INDEX_ID):
 				self.showIndex()
 				return 1
-		
+
 		if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
 			iData1 = inputClass.getData1()
 			iData2 = inputClass.getData2()
@@ -2668,7 +2668,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.isSortLists() and not noSort:
 			list.sort()
 		return list
-	
+
 	# <!-- custom: according to chatgpt 5.2 and if i understood it correctly, TERRAIN_HILL and TERRAIN_PEAK already exist in our terrains list as per CIV4TerrainInfos.xml. However they have an <bGraphicalOnly>1</bGraphicalOnly> so they are excluded from the display. Reveal them from the display here. We'll later handle their incorrect <bWater>1</bWater> property when handling the list. At least we have all the terrains we need now -->
 	# <!-- custom: generalize this logic by using an alternative helper that we can use if we need to (e.g. for peak, hill, or anything else we'd want it to use it for) without affecting or slowing down the other parts of the code that already use the (filtered/default) getSortedList. -->
 	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries ("Unfiltered" here specifically means "don’t filter GraphicalOnly".). Useful for categories where GraphicalOnly infos are still meaningful in Sevopedia (e.g. terrains like TERRAIN_HILL / TERRAIN_PEAK in our CIV4TerrainInfos.xml).

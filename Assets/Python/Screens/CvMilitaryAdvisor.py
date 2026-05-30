@@ -23,7 +23,7 @@ PyInfo = PyHelpers.PyInfo
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
- 
+
 class CvMilitaryAdvisor:
 	"Military Advisor"
 
@@ -81,7 +81,7 @@ class CvMilitaryAdvisor:
 
 		self.BORDER_WIDTH = 4
 		self.W_HELP_AREA = 200
-						
+
 		self.nWidgetCount = 0
 		self.nRefreshWidgetCount = 0
 		self.nAttachedWidgetCount = 0
@@ -444,10 +444,10 @@ class CvMilitaryAdvisor:
 			screen.hide(self.BATTLE_TABLE_ID)
 		for iPlayer in range(gc.getMAX_PLAYERS()):
 			screen.deleteWidget(self.getLeaderButton(iPlayer))
-										
+
 	# Screen construction function
 	def interfaceScreen(self):
-							
+
 		# Create a new screen
 		screen = self.getScreen()
 		if screen.isActive():
@@ -476,7 +476,7 @@ class CvMilitaryAdvisor:
 
 		screen.showWindowBackground(False)
 		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
-												
+
 		# Header...
 		self.szHeader = self.getNextWidgetName()
 		screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
@@ -527,10 +527,10 @@ class CvMilitaryAdvisor:
 		screen.updateMinimapSection(False, False)
 		screen.updateMinimapColorFromMap(MinimapModeTypes.MINIMAPMODE_TERRITORY, 0.6)
 		screen.setMinimapMode(MinimapModeTypes.MINIMAPMODE_MILITARY)
-				
+
 		self.setMapMinimapVisibility(screen, True)
 		screen.bringMinimapToFront()
-	
+
 		self.unitsList = [(0, 0, [], 0)] * gc.getNumUnitInfos()
 		self.selectedUnitList = []
 		# <advc.004> Reset selected unit groups if a player other than the active player was selected
@@ -1983,14 +1983,14 @@ class CvMilitaryAdvisor:
 			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, self.COLOR_EMPTY)
 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(iGreatPeopleThreshold))
 			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", sasFontTagLabel + self.TEXT_COMBAT_EXPERIENCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
-					
-																									
+
+
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount)
 		self.nWidgetCount += 1
 		return szName
-																	
+
 	def resetMinimapColor(self):
 		screen = self.getScreen()
 		kMap = CyMap()
@@ -2007,7 +2007,7 @@ class CvMilitaryAdvisor:
 		if 0 <= iX < CyMap().getGridWidth() and 0 <= iY < CyMap().getGridHeight():
 			return (iX, iY)
 		return self.BATTLE_ROW_PLOTS.get(inputClass.getData(), (-1, -1))
-																				
+
 	# handle the input for this screen...
 	def handleInput (self, inputClass):
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
@@ -2036,7 +2036,7 @@ class CvMilitaryAdvisor:
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
 			if (inputClass.getData() == int(InputTypes.KB_LSHIFT) or inputClass.getData() == int(InputTypes.KB_RSHIFT)):
 				self.iShiftKeyDown = inputClass.getID() 
-		
+
 		return 0
 
 	def update(self, fDelta):
@@ -2047,7 +2047,7 @@ class CvMilitaryAdvisor:
 
 	def minimapClicked(self):
 		self.hideScreen()
-						
+
 	def isSelectedGroup(self, iGroup, bIndirect):
 		if (bIndirect):
 			if -1 in self.selectedGroupList:
@@ -2055,7 +2055,7 @@ class CvMilitaryAdvisor:
 			if iGroup == -1:
 				return False
 		return ((iGroup + gc.getNumUnitInfos()) in self.selectedGroupList)
-				
+
 	def isSelectedUnitType(self, iUnit, bIndirect):
 		if (bIndirect):
 			if -1 in self.selectedGroupList:
@@ -2063,7 +2063,7 @@ class CvMilitaryAdvisor:
 			if self.isSelectedGroup(gc.getUnitInfo(iUnit).getUnitCombatType(), True):
 				return True
 		return (iUnit in self.selectedGroupList)
-		
+
 	def isSelectedUnit(self, iPlayer, iUnitId, bIndirect):
 		if (bIndirect):
 			if -1 in self.selectedGroupList:
@@ -2074,7 +2074,7 @@ class CvMilitaryAdvisor:
 			if self.isSelectedUnitType(unit.getUnitType(), True):
 				return True
 		return ((iPlayer, iUnitId) in self.selectedUnitList)
-		
+
 	def refreshSelectedLeader(self, iPlayer):
 		if self.iActivePage != self.PAGE_MAP:
 			return
@@ -2086,9 +2086,9 @@ class CvMilitaryAdvisor:
 		else:
 			self.selectedPlayerList = []
 			self.selectedPlayerList.append(iPlayer)	
-	
+
 		self.refresh(True)
-				
+
 	def getLeaderButton(self, iPlayer):
 		szName = self.LEADER_BUTTON_ID + str(iPlayer)
 		return szName
@@ -2101,7 +2101,7 @@ class CvMilitaryAdvisor:
 		else:
 			self.selectedGroupList.append(iSelected)
 		self.refreshUnitSelection(false)
-			
+
 	def refreshSelectedUnit(self, iPlayer, iUnitId):
 		if self.iActivePage != self.PAGE_MAP:
 			return
@@ -2111,7 +2111,7 @@ class CvMilitaryAdvisor:
 		else:
 			self.selectedUnitList.append(selectedUnit)
 		self.refreshUnitSelection(false)		
-	
+
 	# <!-- custom: refactor refreshUnitSelection to reduce redundancy while preserving behavior. Credit: ChatGPT 5.2; Gemini 3 Pro review. (GPT-5.2-Codex (summarized)) -->
 	# <!-- custom: add icon overlays on listbox rows with indent. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
 	def refreshUnitSelection(self, bReload):
@@ -2139,7 +2139,7 @@ class CvMilitaryAdvisor:
 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
 		# self.unitsList[iUnit][2] is a list of the active player's actual units
 		# self.unitsList[iUnit][3] is the total number of those units seen by the active player (not only his own)
-		
+
 		iColorYellow = self.COLOR_YELLOW
 		iColorRed = self.COLOR_RED
 		iColorWhite = self.COLOR_WHITE
@@ -2203,7 +2203,7 @@ class CvMilitaryAdvisor:
 					unitList = player.getUnitList()
 					for loopUnit in unitList:
 						unitType = loopUnit.getUnitType()
-						
+
 						bVisible = False
 						plot = loopUnit.plot()
 						if (not plot.isNone()):
@@ -2216,12 +2216,12 @@ class CvMilitaryAdvisor:
 								iNumUnits += 1
 							if loopUnit.getVisualOwner() in self.selectedPlayerList:
 								self.unitsList[unitType][2].append(loopUnit)							
-							
+
 							self.unitsList[unitType] = (self.unitsList[unitType][0], self.unitsList[unitType][1], self.unitsList[unitType][2], iNumUnits)
 
 			# sort by unit combat type
 			self.unitsList.sort()
-		
+
 		szText = self.TEXT_ALL_UNITS
 		bAllSelected = (-1 in self.selectedGroupList)
 		szText = formatSelection(u"", szText, bAllSelected, bAllSelected)
@@ -2229,7 +2229,7 @@ class CvMilitaryAdvisor:
 			screen.addListBoxGFC(self.UNIT_LIST_ID, "", iListX, iListY, iListW, iListH, TableStyles.TABLE_STYLE_STANDARD)
 			screen.enableSelect(self.UNIT_LIST_ID, False)
 			screen.setStyle(self.UNIT_LIST_ID, "Table_StandardCiv_Style")
-		
+
 		iPrevUnitCombat = -2
 		iItem = addUnitListRow(0, szText, 1, -1, "", 0)
 
@@ -2245,15 +2245,15 @@ class CvMilitaryAdvisor:
 					szCombatButton = gc.getUnitCombatInfo(self.unitsList[iUnit][0]).getButton()
 					szDescription = formatSelection(u"", szDescription, self.isSelectedGroup(self.unitsList[iUnit][0], False), self.isSelectedGroup(self.unitsList[iUnit][0], True))
 					iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][0] + iNumUnitInfos, szCombatButton, 0)
-				
+
 				kUnitInfo = gc.getUnitInfo(self.unitsList[iUnit][1])
 				szDescription = kUnitInfo.getDescription() + u" (" + unicode(len(self.unitsList[iUnit][2])) + u")"
 				szUnitButton = kUnitInfo.getButton()
 				szDescription = formatSelection(szUnitIndentSpace, szDescription, self.isSelectedUnitType(self.unitsList[iUnit][1], False), self.isSelectedUnitType(self.unitsList[iUnit][1], True))
 				iItem = addUnitListRow(iItem, szDescription, 1, self.unitsList[iUnit][1], szUnitButton, 1)
-				
+
 				for loopUnit in self.unitsList[iUnit][2]:
-				
+
 					if (self.bUnitDetails):
 						# <!-- custom: Expanded Map-tab unit rows already belong to the selected player; use the DLL omit-owner wrapper to avoid repeated owner suffixes like "PC", which also corrupted worker build rows such as "Build a Cottage" into "Build a PC". See KI#130. (GPT-5.5); note: this also fixes stray leader name in unit rows, which was unneeded since selected leader is already visible. -->
 						szDescription = CyGameTextMgr().getSpecificUnitHelpOmitOwner(loopUnit, true, false, self.iPromotionInlineIconSize)
@@ -2261,10 +2261,10 @@ class CvMilitaryAdvisor:
 						listMatches = re.findall("<.*?color.*?>", szDescription)	
 						for szMatch in listMatches:
 							szDescription = szDescription.replace(szMatch, u"")
-						
+
 						if (loopUnit.isWaiting()):
 							szDescription = '*' + szDescription
-						
+
 						szDescription = formatSelection(szDetailIndentSpace, szDescription, self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), False), self.isSelectedUnit(loopUnit.getOwner(), loopUnit.getID(), True))
 						szUnitButton = gc.getUnitInfo(loopUnit.getUnitType()).getButton()
 						iItem = addUnitListRow(iItem, szDescription, -loopUnit.getOwner(), loopUnit.getID(), szUnitButton, 2)
@@ -2303,7 +2303,7 @@ class CvMilitaryAdvisor:
 		if (bReload):
 			# Set scrollable area for unit buttons
 			screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_MAIN)
-			
+
 			# Set scrollable area for leaders
 			screen.addPanel(self.LEADER_PANEL_ID, "", "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_MAIN)
 
@@ -2312,7 +2312,7 @@ class CvMilitaryAdvisor:
 			player = gc.getPlayer(iLoopPlayer)
 			if player.isAlive() and (gc.getTeam(player.getTeam()).isHasMet(iActiveTeam) or bDebugMode):
 				listLeaders.append(iLoopPlayer)
-				
+
 		iNumLeaders = len(listLeaders)
 		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; at 1080p with 5 rows, SAS48 needs only a mild size reduction (roughly 10 columns x 5 rows) rather than the old half-size icon. (GPT-5.5) -->
 		iFullLeaderRows = max(1, int(self.H_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
@@ -2327,7 +2327,7 @@ class CvMilitaryAdvisor:
 		for iIndex in range(iNumLeaders):
 			iLoopPlayer = listLeaders[iIndex]
 			player = gc.getPlayer(iLoopPlayer)
-			
+
 			x = self.X_LEADERS + self.LEADER_MARGIN + (iIndex % iColumns) * (iButtonSize + self.LEADER_MARGIN)
 			y = self.Y_LEADERS + self.LEADER_MARGIN + (iIndex // iColumns) * (iButtonSize + self.LEADER_MARGIN)
 
@@ -2339,5 +2339,5 @@ class CvMilitaryAdvisor:
 					szButton = gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton()
 				screen.addCheckBoxGFC(self.getLeaderButton(iLoopPlayer), szButton, self.ART_BUTTON_HILITE_SQUARE, x, y, iButtonSize, iButtonSize, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 2, iLoopPlayer, ButtonStyles.BUTTON_STYLE_LABEL)
 				screen.setState(self.getLeaderButton(iLoopPlayer), (iLoopPlayer in self.selectedPlayerList))				
-		
+
 		self.refreshUnitSelection(bReload)

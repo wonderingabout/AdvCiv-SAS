@@ -58,10 +58,10 @@ finally:
 	sys.stderr = stderr
 
 class ConfigParser(xmllib.XMLParser):
-	
+
 	def __init__(self):
 		xmllib.XMLParser.__init__(self)
-	
+
 	def parse(self, path):
 		self._path = path
 		self.start()
@@ -85,12 +85,12 @@ class ConfigParser(xmllib.XMLParser):
 		except:
 			BugUtil.trace("BugConfig - failure parsing %s at line %d", path, self.lineno)
 			raise
-	
+
 	def start(self):
 		self._handler = g_rootHandler
 		self._element = g_rootHandler.start()
 		self._stack = [(self._handler, self._element)]
-	
+
 	def unknown_starttag(self, tag, attrs):
 		try:
 			#BugUtil.debug("BugConfig - %s", self.format(tag, attrs))
@@ -98,7 +98,7 @@ class ConfigParser(xmllib.XMLParser):
 			self._stack.append((self._handler, self._element))
 		except:
 			BugUtil.trace("BugConfig - failure parsing %s at line %d" % (self._path, self.lineno))
-	
+
 	def unknown_endtag(self, tag):
 		try:
 			#BugUtil.debug("BugConfig - end <%s>", tag)
@@ -112,10 +112,10 @@ class ConfigParser(xmllib.XMLParser):
 				handler.end(element)
 		except:
 			BugUtil.trace("BugConfig - failure parsing %s at line %d" % (self._path, self.lineno))
-	
+
 	def handle_data(self, data):
 		self._element.addText(data)
-	
+
 	def syntax_error(self, message):
 		raise BugUtil.ConfigError("error parsing configuration: %s", message)
 
@@ -129,7 +129,7 @@ class ConfigParser(xmllib.XMLParser):
 ## Element State Tracking
 
 class Element:
-	
+
 	def __init__(self, handler, parent, tag, attrs={}, saveText=False):
 		self.handler = handler
 		self.parent = parent
@@ -142,14 +142,14 @@ class Element:
 			self.text = ""
 		else:
 			self.text = None
-	
+
 	def addText(self, text):
 		if self.text is not None:
 			self.text += text
-	
+
 	def hasAttribute(self, name):
 		return name in self.attrs
-	
+
 	def getAttribute(self, name, default=None, inherit=False):
 		if self.hasAttribute(name):
 			return self.attrs[name]
@@ -157,42 +157,42 @@ class Element:
 			return self.getInheritedAttribute(name, default)
 		else:
 			return default
-	
+
 	def getInheritedAttribute(self, name, default=None):
 		if self.parent:
 			return self.parent.getAttribute(name, default, True)
 		else:
 			return default
-	
+
 	def getRequiredAttribute(self, name, inherit=False):
 		value = self.getAttribute(name, None, inherit)
 		if value is not None:
 			return value
 		else:
 			raise BugUtil.ConfigError("Element <%s> requires attribute %s", self.tag, name)
-	
+
 	def getRequiredInheritedAttribute(self, name):
 		value = self.getInheritedAttribute(name, None)
 		if value is not None:
 			return value
 		else:
 			raise BugUtil.ConfigError("Element <%s> requires inherited attribute %s", self.tag, name)
-	
+
 	def getFlatAttribute(self, name):
 		return self.flatAttrs.get(name)
-	
+
 	def setFlatAttribute(self, name, value):
 		self.flatAttrs[name] = value
-	
+
 	def isProcessed(self):
 		return self.processed
-	
+
 	def setProcessed(self, value):
 		self.processed = value
-	
+
 	def setState(self, key, value):
 		self.state[key] = value
-	
+
 	def getState(self, key):
 		if key in self.state:
 			return self.state[key]
@@ -202,7 +202,7 @@ class Element:
 			return None
 
 class ElementWithArgs(Element):
-	
+
 	def __init__(self, handler, parent, tag, attrs={}, saveText=False):
 		Element.__init__(self, handler, parent, tag, attrs, saveText)
 		self.args = []
@@ -228,7 +228,7 @@ def getHandler(tag):
 ## Handler Base Classes
 
 class Handler:
-	
+
 	def __init__(self, tag, validAttrs="", validChildren="", elementClass=Element):
 		self.tag = tag
 		self.attributes = []
@@ -238,16 +238,16 @@ class Handler:
 		self.validChildren = set(validChildren)
 		self.accumulatedTags = set()
 		self.elementClass = elementClass
-	
+
 	def addValidAttribute(self, name):
 		self.validAttrs.add(name)
-	
+
 	def addAttribute(self, name, required=False, inherited=False, default=None, fallback=None, exclude=False):
 		self.attributes.append((name, required, inherited, default, fallback, exclude))
-	
+
 	def addExcludedAttribute(self, name, inherited=False, default=None, fallback=None):
 		self.addAttribute(name, False, inherited, default, fallback, True)
-	
+
 	def setAttribute(self, name, *values):
 		for i in range(len(self.attributes)):
 			attr = self.attributes[i]
@@ -260,41 +260,41 @@ class Handler:
 				break
 		else:
 			raise BugUtil.ConfigError("Missing attribute %s", name)
-	
+
 	def isValidAttribute(self, name):
 		return name in self.validAttrs
-	
+
 	def addValidChild(self, tag, accumuated=False):
 		self.validChildren.add(tag)
 		if accumuated:
 			self.accumulatedTags.add(tag)
-	
+
 	def addAccumulatedChild(self, tag):
 		self.addValidChild(tag, True)
-	
+
 	def isValidChild(self, tag):
 		return tag in self.validChildren
-	
+
 	def getChildHandler(self, tag):
 		return getHandler(tag)
-	
+
 	def start(self, parent=None, tag=None, attrs={}):
 		self.validate(parent, tag, attrs)
 		element = self.createElement(parent, tag, attrs)
 		self.flatten(element)
 		return element
-	
+
 	def validate(self, parent, tag, attrs):
 		for attr in attrs:
 			if not self.isValidAttribute(attr):
 				BugUtil.warn("BugConfig - invalid <%s> attribute %s", tag, attr)
-	
+
 	def createElement(self, parent, tag, attrs):
 		return self.elementClass(self, parent, tag, attrs, self.isSaveText(tag, attrs))
-	
+
 	def isSaveText(self, tag, attrs):
 		return False
-	
+
 	def flatten(self, element):
 		for (name, required, inherit, default, fallback, exclude) in self.attributes:
 			if default is None and fallback:
@@ -303,7 +303,7 @@ class Handler:
 			if value is None and required:
 				raise BugUtil.ConfigError("Element <%s> requires attribute '%s'", element.tag, name)
 			element.setFlatAttribute(name, value)
-	
+
 	def process(self, element):
 		if not element.isProcessed():
 			values = []
@@ -312,10 +312,10 @@ class Handler:
 					values.append(element.getFlatAttribute(attr[0]))
 			self.handle(element, *values)
 			element.setProcessed(True)
-	
+
 	def handle(self, element, *values):
 		pass
-	
+
 	def startChild(self, parentElement, tag, attrs):
 		if not self.isValidChild(tag):
 			raise BugUtil.ConfigError("Element <%s> does not accept child <%s>", parentElement.tag, tag)
@@ -324,24 +324,24 @@ class Handler:
 		handler = self.getChildHandler(tag)
 		element = handler.start(parentElement, tag, attrs)
 		return (handler, element)
-	
+
 	def endChild(self, parentElement, handler, element):
 		handler.end(element)
-	
+
 	def end(self, element):
 		self.process(element)
 		self.complete(element)
-	
+
 	def complete(self, element):
 		pass
-	
+
 	def isDllOkay(self, element, dll):
 		dll = self.resolveDll(element, dll)
 		if dll is not None:
 			element.setState("dll", dll)
 			return BugDll.isVersion(dll)
 		return True
-	
+
 	def resolveDll(self, element, dll):
 		dll = BugDll.decode(dll)
 		inherited = element.getState("dll")
@@ -352,15 +352,15 @@ class Handler:
 		if inherited > dll:
 			BugUtil.warn("BugConfig - element <%s>.dll attribute %s overrides newer inherited dll attribute %s" % (element.tag, dll, inherited))
 		return dll
-	
+
 	def isTrue(self, value):
 		return BugTypes.isTrue(value)
-	
+
 	def createValue(self, type, value):
 		return BugTypes.to(type, value)
 
 class HandlerWithArgs(Handler):
-	
+
 	def __init__(self, tag, validAttrs="", validChildren=""):
 		Handler.__init__(self, tag, validAttrs, validChildren, ElementWithArgs)
 		self.addAccumulatedChild(ArgHandler.TAG)
@@ -368,21 +368,21 @@ class HandlerWithArgs(Handler):
 ## Core Handlers
 
 class RootHandler(Handler):
-	
+
 	TAG = "xml"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "", (BugHandler.TAG, ModHandler.TAG))
 
 class BugHandler(Handler):
-	
+
 	TAG = "bug"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "module dll", (LoadHandler.TAG, ConfigHandler.TAG, ModHandler.TAG, ))
 		self.addAttribute("module")
 		self.addAttribute("dll")
-	
+
 	def handle(self, element, module, dll):
 		dll = BugDll.decode(dll)
 		element.setState("dll", dll)
@@ -390,22 +390,22 @@ class BugHandler(Handler):
 			BugUtil.debug("BugConfig - configuration for module %s requires DLL version %s", module, dll)
 
 class LoadHandler(Handler):
-	
+
 	TAG = "load"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "name mod")
 		self.addExcludedAttribute("mod")
 		self.addAttribute("name", True, False, None, "mod")
-	
+
 	def handle(self, element, name):
 		BugUtil.debug("BugConfig - loading mod file %s", name)
 		BugInit.loadMod(name)
 
 class ConfigHandler(Handler):
-	
+
 	TAG = "config"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "root tag key parents module class", ConfigHandler.TAG)
 		self.addAttribute("root")
@@ -415,7 +415,7 @@ class ConfigHandler(Handler):
 		self.addAttribute("module", True, True, None, "root")
 		self.addAttribute("class", True, False, None, "root")
 		#addChildHandler(self)
-	
+
 	def handle(self, element, root, tag, key, parents, module, clazz):
 		if root:
 			element.setState("config-handler", getHandler(root))
@@ -448,18 +448,18 @@ class ConfigHandler(Handler):
 				element.setState("config-handler", handler)
 
 class ArgHandler(Handler):
-	
+
 	TAG = "arg"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "name type value")
 		self.addAttribute("name")
 		self.addAttribute("type")
 		self.addAttribute("value")
-	
+
 	def isSaveText(self, tag, attrs):
 		return "value" not in attrs
-	
+
 	def handle(self, element, name, type, value):
 		# create argument and store on element.parent
 		if value is None:
@@ -471,9 +471,9 @@ class ArgHandler(Handler):
 			element.parent.args.append(arg)
 
 class ModHandler(Handler):
-	
+
 	TAG = "mod"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "id module name author version build date url dll", (LoadHandler.TAG))
 		self.addAttribute("id")
@@ -484,12 +484,12 @@ class ModHandler(Handler):
 		self.addAttribute("build")
 		self.addAttribute("date")
 		self.addAttribute("url")
-	
+
 	def handle(self, element, id, name, dll, author, version, build, date, url):
 		dll = BugDll.decode(dll)
 		element.setState("mod", BugCore.game._getMod(id))
 		element.setState("dll", BugDll.decode(dll))
-	
+
 	def complete(self, element):
 		mod = element.getState("mod")
 		mod._initDone()
@@ -498,16 +498,16 @@ class ModHandler(Handler):
 ## Standard Handlers
 
 class InitHandler(HandlerWithArgs):
-	
+
 	TAG = "init"
-	
+
 	def __init__(self):
 		HandlerWithArgs.__init__(self, self.TAG, "module function immediate dll")
 		self.addAttribute("module", True, True)
 		self.addAttribute("function", True, False, "init")
 		self.addAttribute("immediate", False, False, "False")
 		self.addAttribute("dll")
-	
+
 	def handle(self, element, module, function, immediate, dll):
 		immediate = self.isTrue(immediate)
 		dll = BugDll.decode(dll)
@@ -521,16 +521,16 @@ class InitHandler(HandlerWithArgs):
 			BugUtil.info("BugConfig - ignoring <%s> %s.%s, requires dll version %s", element.tag, module, function, self.resolveDll(element, dll))
 
 class EventsHandler(HandlerWithArgs):
-	
+
 	TAG = "events"
-	
+
 	def __init__(self):
 		HandlerWithArgs.__init__(self, self.TAG, "module function class dll")
 		self.addAttribute("module", True, True)
 		self.addExcludedAttribute("function", False, None, "module")
 		self.addAttribute("class", True, False, None, "function")
 		self.addAttribute("dll")
-	
+
 	def handle(self, element, module, clazz, dll):
 		dll = BugDll.decode(dll)
 		if self.isDllOkay(element, dll):
@@ -539,16 +539,16 @@ class EventsHandler(HandlerWithArgs):
 			BugUtil.info("BugConfig - ignoring <%s> from %s.%s, requires dll version %s", element.tag, module, clazz, self.resolveDll(element, dll))
 
 class EventHandler(HandlerWithArgs):
-	
+
 	TAG = "event"
-	
+
 	def __init__(self):
 		HandlerWithArgs.__init__(self, self.TAG, "type module function dll")
 		self.addAttribute("type", True)
 		self.addAttribute("module", True, True)
 		self.addAttribute("function", True)
 		self.addAttribute("dll")
-	
+
 	def handle(self, element, type, module, function, dll):
 		dll = BugDll.decode(dll)
 		if self.isDllOkay(element, dll):
@@ -557,9 +557,9 @@ class EventHandler(HandlerWithArgs):
 			BugUtil.info("BugConfig - ignoring <%s> %s, requires dll version %s", element.tag, type, self.resolveDll(element, dll))
 
 class ExportHandler(Handler):
-	
+
 	TAG = "export"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "module function to as dll")
 		self.addAttribute("module", True, True)
@@ -567,7 +567,7 @@ class ExportHandler(Handler):
 		self.addAttribute("to", True)
 		self.addAttribute("as", True, False, None, "function")
 		self.addAttribute("dll")
-	
+
 	def handle(self, element, module, function, toModule, asName, dll):
 		dll = BugDll.decode(dll)
 		if self.isDllOkay(element, dll):
@@ -576,9 +576,9 @@ class ExportHandler(Handler):
 			BugUtil.info("BugConfig - ignoring <%s> %s.%s, requires dll version %s", element.tag, module, function, self.resolveDll(element, dll))
 
 class ExtendHandler(Handler):
-	
+
 	TAG = "extend"
-	
+
 	def __init__(self):
 		Handler.__init__(self, self.TAG, "how module function to as dll")
 		self.addAttribute("how", True, False, BugUtil.EXTEND_INSTEAD)
@@ -587,7 +587,7 @@ class ExtendHandler(Handler):
 		self.addAttribute("to", True)
 		self.addAttribute("as", True, False, None, "function")
 		self.addAttribute("dll")
-	
+
 	def handle(self, element, how, module, function, toModule, asName, dll):
 		dll = BugDll.decode(dll)
 		if self.isDllOkay(element, dll):
@@ -604,15 +604,15 @@ def init():
 	global g_rootHandler, g_bugHandler
 	g_rootHandler = RootHandler()
 	g_bugHandler = BugHandler()
-	
+
 	registerHandler(RootHandler.TAG, g_rootHandler)
 	registerHandler(BugHandler.TAG, g_bugHandler)
 	registerHandler(LoadHandler.TAG, LoadHandler())
 	registerHandler(ConfigHandler.TAG, ConfigHandler())
 	registerHandler(ArgHandler.TAG, ArgHandler())
-	
+
 #	registerHandler(ModHandler.TAG, ModHandler())
-	
+
 #	parser = ConfigParser()
 #	parser.parse(r"C:\Coding\Civ\BUG\BUG\CustomAssets\Config\NewConfig.xml")
 

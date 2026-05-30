@@ -68,26 +68,26 @@ promotionsVerticalSpacing = 5
 
 class Node:
 	"This node holds all necessary information for a single unit"
-	
+
 	def __init__(self):
 		self.x = 999
 		self.y = 999
 		self.upgradesTo = set()
 		self.upgradesFrom = set()
 		self.seen = False
-		
+
 	def __repr__(self):
 		return "Node<x: %i, y: %i, to: %s, from: %s, seen: %s>"%(self.x, self.y, self.upgradesTo, self.upgradesFrom, self.seen)
 
 class MGraph:
 	"This Graph is a collection of unit Node's with multiple access methods for fast topological sorting"
-	
+
 	def __init__(self):
 		self.graph = {}
 		self.matrix = []
 		self.depth = 0
 		self.width = 0
-	
+
 	def __repr__(self):
 		return "MGraph<depth: %i, width: %i, graph: %s, matrix: %s>"%(self.depth, self.width, self.graph, self.matrix)
 
@@ -96,7 +96,7 @@ class UnitUpgradesGraph:
 	"The graph of unit upgrades"
 
 	# Rearranged so that methods that need to be overridden by promotions graph are placed first.
-	
+
 	def __init__(self, pediaScreen):
 		self.mGraphs = []
 		self.horizontalMargin = unitHorizontalMargin
@@ -112,7 +112,7 @@ class UnitUpgradesGraph:
 
 	def getNumberOfUnits(self):
 		return gc.getNumUnitClassInfos()
-		
+
 	def getUnitNumber(self, k):
 		"Gets the id for the kth unit for the current active player"
 		if (self.getActivePlayer() == -1):
@@ -120,7 +120,7 @@ class UnitUpgradesGraph:
 		else:
 			result = gc.getCivilizationInfo(gc.getGame().getActiveCivilizationType()).getCivilizationUnits(k)
 		return result
-	
+
 	def getUnitType(self, e):
 		"Returns the type of the units with the specified id"
 		return gc.getUnitInfo(e).getType()
@@ -140,10 +140,10 @@ class UnitUpgradesGraph:
 			szButton = gc.getPlayer(iActivePlayer).getUnitButton(unit)
 		# </advc.003l>
 		screen.setImageButtonAt(self.pediaScreen.getNextWidgetName(), self.upgradesList, szButton, xPos, yPos, self.buttonSize, self.buttonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, unit, 1)
-			
+
 	def unitToString(self, unit):
 		return gc.getUnitInfo(unit).getDescription() + ":%d"%(unit, )
-	
+
 	################## Stuff to generate Unit Upgrade Graph ##################
 
 	def addUpgradePath(self, graph, unitFrom, unitTo):
@@ -160,7 +160,7 @@ class UnitUpgradesGraph:
 
 	def getMedianY(self, mGraph, unitSet):
 		"Returns the average Y position of the units in unitSet"
-		
+
 		if (len(unitSet) == 0):
 			return -1
 		sum = 0.0
@@ -169,10 +169,10 @@ class UnitUpgradesGraph:
 			sum += mGraph.graph[unit].y
 			num += 1
 		return sum/num
-	
+
 	def swap(self, mGraph, x, yA, yB):
 		"Swaps two elements in a given row"
-	
+
 		unitA = mGraph.matrix[x][yA]
 		unitB = mGraph.matrix[x][yB]
 		if (unitA != "E"):
@@ -185,33 +185,33 @@ class UnitUpgradesGraph:
 
 	def getGraph(self):
 		"Goes through all the units and adds upgrade paths to the graph.  The MGraph data structure is complete by the end of this function."
-		
+
 		self.mGraphs.append(MGraph())
 		graph = self.mGraphs[0].graph
-		
+
 		for k in range(self.getNumberOfUnits()):
 			unit = self.getUnitNumber(k)
 			if (unit == -1):
 				continue
 			if (self.getUnitType(unit) not in self.exceptionList):
 				graph[unit] = Node()
-		
+
 		self.getGraphEdges(graph)
 		#CvUtil.pyPrint("1:\n" + str(graph))
-		
+
 		#remove units that don't upgrade to or from anything
 		for unit in graph.keys():
 			if (len(graph[unit].upgradesTo) == 0 and len(graph[unit].upgradesFrom) == 0):
 				del(graph[unit])
 		#CvUtil.pyPrint("2:\n" + str(graph))
-		
+
 		#split the graph into several disconnected graphs, filling out the rest of the data structure as we go
 		mGraphIndex = 0
 		while (len(self.mGraphs) > mGraphIndex):
 			mGraph = self.mGraphs[mGraphIndex]
 			self.mGraphs.append(MGraph())
 			newMGraph = self.mGraphs[mGraphIndex + 1]
-			
+
 			#Pick a "random" element and mark it as order 0, then make all its successors higher and predecessors lower
 			#We can fix that to the range (0..depth) in a moment, and we've already marked everything that's connected
 			unit = mGraph.graph.iterkeys().next()
@@ -263,7 +263,7 @@ class UnitUpgradesGraph:
 			lowOrder = min(map.keys())
 			map = 0
 			mGraph.depth = highOrder - lowOrder + 1
-						
+
 			#Now we can move anything that isn't marked with an order to the next MGraph
 			#if there's nothing to move, we're done after this iteration
 			for (unit, node) in mGraph.graph.items():
@@ -272,14 +272,14 @@ class UnitUpgradesGraph:
 					del(mGraph.graph[unit])
 				else:
 					node.x -= lowOrder
-					
+
 			if (len(newMGraph.graph) == 0):
 				del(self.mGraphs[mGraphIndex + 1])
 
 			mGraphIndex += 1
-		
+
 		#CvUtil.pyPrint("3:\n" + str(self.mGraphs))
-			
+
 		for mGraph in self.mGraphs:
 			#remove links that would otherwise have to jump 
 			for (unit, node) in mGraph.graph.iteritems():
@@ -289,7 +289,7 @@ class UnitUpgradesGraph:
 				for u in node.upgradesFrom.copy():
 					if (not mGraph.graph.has_key(u)):
 						node.upgradesFrom.remove(u)
-			
+
 
 			nextDummy = -1
 			#For any upgrade path that crosses more than one level, insert dummy nodes in between
@@ -316,13 +316,13 @@ class UnitUpgradesGraph:
 							nextDummy -= 1
 						nodeA.upgradesTo.add(unitB)
 						nodeB.upgradesFrom.add(nextDummy + 1)
-						
+
 
 			#Now we can build the matrix from the order data
 			#make sure the matrix is <depth> deep
 			while(len(mGraph.matrix) < mGraph.depth):
 				mGraph.matrix.append([])
-			
+
 			#fill out node.y and the matrix
 			for (unit, node) in mGraph.graph.iteritems():
 				node.y = len(mGraph.matrix[node.x])
@@ -333,11 +333,11 @@ class UnitUpgradesGraph:
 			#make all rows of the matrix the same width
 			for row in mGraph.matrix:
 				row.extend(["E"] * (mGraph.width - len(row)))
-			
+
 			#finally, do the Sugiyama algorithm: iteratively step through layer by layer, swapping
 			#two units in layer i, if they cause fewer crosses or give a shorter line length from
 			#layer i-1, then work back from the other end.  Repeat until no changes are made
-			
+
 			doneA = False
 			iterlimit = 8
 			while (not doneA and iterlimit > 0):
@@ -420,7 +420,7 @@ class UnitUpgradesGraph:
 									doneB = False
 							if not doneB:
 								doneA = False
-						
+
 						#this is a fix for median float->int conversions throwing off the list
 						if (mGraph.matrix[x][-1] == "E"):
 							sum = 0.0
@@ -443,7 +443,7 @@ class UnitUpgradesGraph:
 								mGraph.matrix[x][0] = "E"
 
 		#CvUtil.pyPrint("4:\n" + str(self.mGraphs))
-						
+
 		#one final step: sort the graphs with the biggest one at top
 		done = False
 		while not done:
@@ -455,14 +455,14 @@ class UnitUpgradesGraph:
 					self.mGraphs[i] = self.mGraphs[i-1]
 					self.mGraphs[i-1] = temp
 		return
-		
+
 	################## Stuff to lay out the graph in space ###################
 
 	def getPosition(self, x, y, verticalOffset):
 		xPos = self.horizontalMargin + x * (self.buttonSize + self.horizontalSpacing)
 		yPos = self.verticalMargin + y * (self.buttonSize + self.verticalSpacing) + verticalOffset
 		return (xPos, yPos)
-	
+
 	def drawGraph(self):
 		screen = self.pediaScreen.getScreen()
 		offset = 0
@@ -478,7 +478,7 @@ class UnitUpgradesGraph:
 			offset = self.getPosition(0, mGraph.width, offset)[1]
 
 	####################### Stuff to draw graph arrows #######################
-	
+
 	def drawGraphArrows(self, mGraph, offset):
 		matrix = mGraph.matrix
 		for x in range(len(matrix) - 1, -1, -1):
@@ -487,7 +487,7 @@ class UnitUpgradesGraph:
 				if unit != "E":
 					self.drawUnitArrows(mGraph, offset, unit)
 		return
-	
+
 	def drawUnitArrows(self, mGraph, offset, unit):
 		toNode = mGraph.graph[unit]
 		for fromUnit in toNode.upgradesFrom:
@@ -496,15 +496,15 @@ class UnitUpgradesGraph:
 			posTo = self.getPosition(toNode.x, toNode.y, offset)
 			self.drawArrow(posFrom, posTo, fromUnit < 0, unit < 0)
 		return
-	
+
 	def drawArrow(self, posFrom, posTo, dummyFrom, dummyTo):
 		screen = self.pediaScreen.getScreen()
-		
+
 		LINE_ARROW = ArtFileMgr.getInterfaceArtInfo("LINE_ARROW").getPath()
 		LINE_TLBR = ArtFileMgr.getInterfaceArtInfo("LINE_TLBR").getPath()
 		LINE_BLTR = ArtFileMgr.getInterfaceArtInfo("LINE_BLTR").getPath()
 		LINE_STRAIT = ArtFileMgr.getInterfaceArtInfo("LINE_STRAIT").getPath()
-		
+
 		if (dummyFrom):
 			xFrom = posFrom[0] + self.buttonSize / 2
 		else:
@@ -515,7 +515,7 @@ class UnitUpgradesGraph:
 			xTo = posTo[0] - 8
 		yFrom = posFrom[1] + (self.buttonSize / 2)
 		yTo = posTo[1] + (self.buttonSize / 2)
-		
+
 		if (yFrom == yTo):
 			screen.addDDSGFCAt( self.pediaScreen.getNextWidgetName(), self.upgradesList, LINE_STRAIT, xFrom, yFrom - 3, xTo - xFrom, 8, WidgetTypes.WIDGET_GENERAL, -1, -1, False )
 		else:
@@ -539,7 +539,7 @@ class UnitUpgradesGraph:
 					yT = yF
 					yF = temp
 				screen.addDDSGFCAt(self.pediaScreen.getNextWidgetName(), self.upgradesList, line, xF, yF, xT-xF, yT-yF, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
-		
+
 		if not dummyTo:
 			screen.addDDSGFCAt( self.pediaScreen.getNextWidgetName(), self.upgradesList, LINE_ARROW, xTo, yTo - 6, 12, 12, WidgetTypes.WIDGET_GENERAL, -1, -1, False )
 		return
@@ -571,7 +571,7 @@ class PromotionsGraph(UnitUpgradesGraph):
 
 	def getUnitNumber(self, k):
 		"Gets the id for the kth unit for the current active player"
-		
+
 		# No unique promotions, so very simple
 		return k
 
@@ -590,7 +590,7 @@ class PromotionsGraph(UnitUpgradesGraph):
 			# K-Mod, extra prereq
 			unitE = gc.getPromotionInfo(unitA).getPrereqOrPromotion3()
 			self.addUpgradePath(graph, unitE, unitA)
-		
+
 	def unitToString(self, unit):
 		return gc.getPromotionInfo(unit).getDescription() + ":%d"%(unit, )
 

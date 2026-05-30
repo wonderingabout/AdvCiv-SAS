@@ -56,7 +56,7 @@ def getNumCustomMapOptionValues(argsList):
 		1:	2
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -73,7 +73,7 @@ def getCustomMapOptionDescAt(argsList):
 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-	
+
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
 	option_defaults = {
@@ -93,7 +93,7 @@ def isRandomCustomMapOption(argsList):
 def getWrapX():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 1)
-	
+
 def getWrapY():
 	return false
 
@@ -110,7 +110,7 @@ def addBonusType(argsList):
 	if (CyMap().getCustomMapOption(1) == 1):
 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
 			return None # don't place any of this bonus randomly
-		
+
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def beforeGeneration():
@@ -128,7 +128,7 @@ def beforeGeneration():
 
 	# List of number of template instances, indexed by number of players.
 	configs = [0, 1, 6, 4, 3, 2, 2, 2, 4, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1]
-	
+
 	# Choose a Template to be used for this game.
 	iPlayers = gc.getGame().countCivPlayersEverAlive()
 	# <!-- custom: Inland Sea templates only cover up to 18 players; for larger counts, keep globals initialized and let findStartingPlot fall back to default start placement. (GPT-5.3-Codex) -->
@@ -136,7 +136,7 @@ def beforeGeneration():
 		return 0
 	iNumTemplates = configs[iPlayers]
 	iTemplateRoll = dice.get(iNumTemplates, "Template Selection - Inland Sea PYTHON")
-	
+
 	# Set variance for start plots according to map size vs number of players.
 	map_size = CyMap().getWorldSize()
 	# <!-- custom: Use integer world-size indices with SAS fallback so Inland Sea supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
@@ -160,7 +160,7 @@ def beforeGeneration():
 		fVar = 2
 	else:
 		fVar = 1
-	
+
 	# Templates are nested by keys: {(NumPlayers, TemplateID): {PlayerID: [X, Y, xVariance, yVariance]}}
 	templates = {(1,0): {0: [0.5, 0.5, int(0.5 * iW), int(0.5 * iH)]},
                  (2,0): {0: [0.1, 0.5, fVar, int(0.5 * iH)],
@@ -509,7 +509,7 @@ def findStartingPlot(argsList):
 		not globals().has_key('iTemplateRoll') or len(shuffledPlayers) <= 0 or len(templates) <= 0):
 		CyPythonMgr().allowDefaultImpl()
 		return
-		
+
 	[playerID] = argsList
 	global plotSuccess
 	global plotValue
@@ -521,18 +521,18 @@ def findStartingPlot(argsList):
 		iW = map.getGridWidth()
 		iH = map.getGridHeight()
 		iPlayers = gc.getGame().countCivPlayersEverAlive()
-		
+
 		# Use global data set up via beforeGeneration().
 		global templates
 		global shuffledPlayers
 		global iTemplateRoll
 		playerTemplateAssignment = shuffledPlayers[playerID]
 		[fLat, fLon, varX, varY] = templates[(iPlayers, iTemplateRoll)][playerTemplateAssignment]
-		
+
 		# Check to ensure the plot is on the main landmass.
 		if (pPlot.getArea() != map.findBiggestArea(False).getID()):
 			return false
-		
+
 		# Now check for eligibility according to the defintions found in the template.
 		iX = int(iW * fLat)
 		iY = int(iH * fLon)
@@ -569,7 +569,7 @@ def getStartingPlot(playerID, validFn = None):
 	while (iPass < 50):
 		iBestValue = 0
 		pBestPlot = None
-		
+
 		for iX in range(map.getGridWidth()):
 			for iY in range(map.getGridHeight()):
 				if validFn is not None and not validFn(playerID, iX, iY):
@@ -579,9 +579,9 @@ def getStartingPlot(playerID, validFn = None):
 				val = pLoopPlot.getFoundValue(playerID)
 
 				if val > iBestValue:
-				
+
 					valid = True
-					
+
 					for iI in range(gc.getMAX_CIV_PLAYERS()):
 						if (gc.getPlayer(iI).isAlive()):
 							if (iI != playerID):
@@ -597,9 +597,9 @@ def getStartingPlot(playerID, validFn = None):
 			plotSuccess = true
 			plotValue = map.plotNum(pBestPlot.getX(), pBestPlot.getY())
 			break
-			
+
 		print("player %s pass %s failed" % (playerID, iPass))
-		
+
 		iPass += 1
 
 	return -1
@@ -632,7 +632,7 @@ class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
 	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
-		
+
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, 0, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, 0, self.fracXExp, self.fracYExp)
 
@@ -672,7 +672,7 @@ class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
 class ISHintedWorld(CvMapGeneratorUtil.HintedWorld, ISFractalWorld):
 	def __doInitFractal(self):
 		self.shiftHintsToMap()
-		
+
 		# don't call base method, this overrides it.
 		size = len(self.data)
 		minExp = min(self.fracXExp, self.fracYExp)
@@ -694,7 +694,7 @@ class ISHintedWorld(CvMapGeneratorUtil.HintedWorld, ISFractalWorld):
 		for i in range(len(self.data)):
 			if self.data[i] is None:
 				self.data[i] = self.mapRand.get(48, "Generate Plot Types PYTHON")
-		
+
 		self.__doInitFractal()
 		if (water_percent == -1):
 			numPlots = len(self.data)
@@ -703,7 +703,7 @@ class ISHintedWorld(CvMapGeneratorUtil.HintedWorld, ISFractalWorld):
 				if val < 192:
 					numWaterPlots += 1
 			water_percent = int(100*numWaterPlots/numPlots)
-		
+
 		# Call superclass
 		return ISFractalWorld.generatePlotTypes(self, water_percent, shift_plot_types)
 
@@ -712,12 +712,12 @@ def generatePlotTypes():
 	gc = CyGlobalContext()
 	map = CyMap()
 	mapRand = gc.getGame().getMapRand()
-	
+
 	NiTextOut("Setting Plot Types (Python Inland Sea) ...")
-	
+
 	hinted_world = ISHintedWorld(4,2)
 	area = hinted_world.w * hinted_world.h
-	
+
 	for y in range(hinted_world.h):
 		for x in range(hinted_world.w):
 			if x in (0, hinted_world.w-1) or y in (0, hinted_world.h-1):
@@ -744,14 +744,14 @@ def generateTerrainTypes():
 	return terrainTypes
 
 # subclass FeatureGenerator to eliminate arctic, equatorial latitudes
-	
+
 class ISFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 	def getLatitudeAtPlot(self, iX, iY):
 		"returns 0.0 for tropical, up to 1.0 for polar"
 		lat = CvMapGeneratorUtil.FeatureGenerator.getLatitudeAtPlot(self, iX, iY) 	# range [0,1]
 		lat = 0.07 + 0.56*lat				# range [0.07, 0.56]
 		return lat
-	
+
 def addFeatures():
 	NiTextOut("Adding Features (Python Inland Sea) ...")
 	featuregen = ISFeatureGenerator()

@@ -383,7 +383,7 @@ class SevoPediaUnit:
 		if iPrereq >= 0:
 			screen.attachImageButton(panelName, "", gc.getBuildingInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iPrereq, -1, False)
 			isButtonFound = True
-		
+
 		# Project requirements - New code for Manhattan Project and other projects
 		unitInfo = gc.getUnitInfo(self.iUnit)
 		iSpecialUnitType = unitInfo.getSpecialUnitType()
@@ -409,7 +409,7 @@ class SevoPediaUnit:
 			if not bFirst:
 				# Add "OR" text between projects
 				screen.attachLabel(panelName, "", SASTextScale.labelText(localText.getText("TXT_KEY_OR", ())))
-			
+
 			screen.attachImageButton(panelName, "", gc.getProjectInfo(iProject).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, -1, False)
 			bFirst = False
 			isButtonFound = True
@@ -464,17 +464,17 @@ class SevoPediaUnit:
 
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		
+
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		# Additional left side padding for the button(s)
 		screen.attachLabel(panelName, "", "  ")
-		
+
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 		# Track if we found any free items to display
 		isButtonFound = False
-		
+
 		# Check if the unit has any free promotions
 		for iPromotion in range(gc.getNumPromotionInfos()):
 			if unitInfo.getFreePromotions(iPromotion):
@@ -495,7 +495,7 @@ class SevoPediaUnit:
 
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		
+
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 
@@ -591,7 +591,7 @@ class SevoPediaUnit:
 		unitInfo = gc.getUnitInfo(self.iUnit)
 		iUnitClass = unitInfo.getUnitClassType()
 		iUnitCombatType = unitInfo.getUnitCombatType()
-		
+
 		# Loop through all unit types to find those with UnitClassAttackMods or UnitClassDefenseMods against our unit class
 		for i in range(gc.getNumUnitInfos()):
 			otherUnitInfo = gc.getUnitInfo(i)
@@ -610,14 +610,14 @@ class SevoPediaUnit:
 
 				isButtonFound = True
 				iButtonIndex += 1
-		
+
 		# Check for unit combat types that this unit belongs to
 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
 			# Loop through all units to find those with UnitCombatMods against this combat type
 			for i in range(gc.getNumUnitInfos()):
 				otherUnitInfo = gc.getUnitInfo(i)
 				iModCombat = otherUnitInfo.getUnitCombatModifier(iUnitCombatType)
-				
+
 				if iModCombat != 0:
 					screen.appendMultiListButton(rowListName, otherUnitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, 1, False)
 
@@ -657,7 +657,7 @@ class SevoPediaUnit:
 		isButtonFound = False
 		iButtonIndex = 0
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
-		
+
 		# Get the unit info
 		unitInfo = gc.getUnitInfo(self.iUnit)
 
@@ -679,13 +679,13 @@ class SevoPediaUnit:
 
 			isButtonFound = True
 			iButtonIndex += 1
-	
+
 		# Terrain Attack/Defense bonuses
 		# <!-- custom: note peak is handled here as well (i.e. same as for the other terrains only here), except for hills that follow a different modifier formula with getHillsAttackModifier and getHillsDefenseModifier -->
 		for i in range(gc.getNumTerrainInfos()):	
 			iTerrainAttack = unitInfo.getTerrainAttackModifier(i)
 			iTerrainDefense = unitInfo.getTerrainDefenseModifier(i)
-			
+
 			if iTerrainAttack != 0 or iTerrainDefense != 0:
 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
 				widgetID2 = -1
@@ -698,7 +698,7 @@ class SevoPediaUnit:
 
 				isButtonFound = True
 				iButtonIndex += 1
-		
+
 		# City bonuses
 		iCityAttack = unitInfo.getCityAttackModifier()
 		iCityDefense = unitInfo.getCityDefenseModifier()
@@ -720,7 +720,7 @@ class SevoPediaUnit:
 		for i in range(gc.getNumFeatureInfos()):	
 			iFeatureAttack = unitInfo.getFeatureAttackModifier(i)
 			iFeatureDefense = unitInfo.getFeatureDefenseModifier(i)
-			
+
 			if iFeatureAttack != 0 or iFeatureDefense != 0:
 				widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE
 				widgetID2 = -1
@@ -792,7 +792,7 @@ class SevoPediaUnit:
 			if not unitAIsText:
 				unitAIsText = "_"
 			szSpecialText += "\n%sUnitAIs: %s" % (bullet, unitAIsText)
-					
+
 			# Add all <!-- custom: NotUnitAIs -->
 			notUnitAIsText = ""
 			for i in xrange(UnitAITypes.NUM_UNITAI_TYPES):
@@ -849,7 +849,7 @@ class SevoPediaUnit:
 			isButtonFound = True
 			screen.attachImageButton(panel, "", gc.getUnitInfo(iBaseUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iBaseUnit, 1, False)
 			return
-		
+
 		else:
 			# If this is the base building, show all unique (i.e.civ-specific) buildings that replace it
 			for iUnit in xrange(gc.getNumUnitInfos()):
@@ -865,19 +865,19 @@ class SevoPediaUnit:
 	def placeCivilizations(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
-		
+
 		# Create panel with proper styling
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS", ()), "", False, True, self.X_CIVILIZATIONS, self.Y_CIVILIZATIONS, self.W_CIVILIZATIONS, self.H_CIVILIZATIONS, PanelStyles.PANEL_STYLE_BLUE50)
 		# <!-- custom: additionnal left side padding for the button(s) -->
 		screen.attachLabel(panelName, "", "  ")
-		
+
 		# Get unit class info
 		iUnitClass = gc.getUnitInfo(self.iUnit).getUnitClassType()
 		iDefaultUnit = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
-		
+
 		# Check if this is a unique (i.e.civ-specific) unit (not the default unit for its class)
 		bIsUnique = (self.iUnit != iDefaultUnit)
-		
+
 		# If this is a unique (i.e.civ-specific) unit, show which civ can build it
 		if bIsUnique:
 			# Find which civ has this unique (i.e.civ-specific) unit

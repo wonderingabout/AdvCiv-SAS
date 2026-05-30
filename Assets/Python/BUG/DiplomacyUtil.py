@@ -104,44 +104,44 @@ def addEvents(eventManager):
 	#
 	global g_eventManager
 	g_eventManager = eventManager
-	
+
 	# Trade
 	DiploEvent("AI_DIPLOCOMMENT_OFFER_DEAL", "DealOffered", onDealOffered, sendTrade=True)
 	DiploEvent("AI_DIPLOCOMMENT_CANCEL_DEAL", "DealCanceled", onDealCanceled, sendTrade=True)
 	DiploEvent("USER_DIPLOCOMMENT_ACCEPT_OFFER", "DealAccepted", onDealAccepted, sendTrade=True)
 	DiploEvent("USER_DIPLOCOMMENT_REJECT_OFFER", "DealRejected", onDealRejected, sendTrade=True)
-	
+
 	# Free Stuff
 	DiploEvent("AI_DIPLOCOMMENT_OFFER_CITY", "CityOffered", onCityOffered, tradeType=TradeableItems.TRADE_CITIES)
 	DiploEvent("AI_DIPLOCOMMENT_GIVE_HELP", "HelpOffered", onHelpOffered, sendTrade=True)
 	DiploEvent("AI_DIPLOCOMMENT_OFFER_PEACE", "PeaceOffered", onPeaceOffered)
 	DiploEvent("AI_DIPLOCOMMENT_OFFER_VASSAL", "VassalOffered", onVassalOffered)
-	
+
 	# Ask for Help
 	DiploEvent("AI_DIPLOCOMMENT_ASK_FOR_HELP", "HelpDemanded", onHelpDemanded, sendTrade=True)
 	DiploEvent("USER_DIPLOCOMMENT_GIVE_HELP", "HelpAccepted", onHelpAccepted, sendTrade=True)
 	DiploEvent("USER_DIPLOCOMMENT_REFUSE_HELP", "HelpRejected", onHelpRejected, sendTrade=True)
-	
+
 	# Demand Tribute
 	DiploEvent("AI_DIPLOCOMMENT_DEMAND_TRIBUTE", "TributeDemanded", onTributeDemanded, sendTrade=True)
 	DiploEvent("USER_DIPLOCOMMENT_ACCEPT_DEMAND", "TributeAccepted", onTributeAccepted, sendTrade=True)
 	DiploEvent("USER_DIPLOCOMMENT_REJECT_DEMAND", "TributeRejected", onTributeRejected, sendTrade=True)
-	
+
 	# Religion
 	DiploEvent("AI_DIPLOCOMMENT_RELIGION_PRESSURE", "ReligionDemanded", onReligionDemanded, argFunc=lambda eFromPlayer, eToPlayer, args, data: (PlayerUtil.getStateReligion(eFromPlayer), ))
 	DiploEvent("USER_DIPLOCOMMENT_CONVERT", "ReligionAccepted", onReligionAccepted, argFunc=lambda eFromPlayer, eToPlayer, args, data: (PlayerUtil.getStateReligion(eToPlayer), ))
 	DiploEvent("USER_DIPLOCOMMENT_NO_CONVERT", "ReligionRejected", onReligionRejected, argFunc=lambda eFromPlayer, eToPlayer, args, data: (PlayerUtil.getStateReligion(eToPlayer), ))
-	
+
 	# Civic
 	DiploEvent("AI_DIPLOCOMMENT_CIVIC_PRESSURE", "CivicDemanded", onCivicDemanded, argFunc=lambda eFromPlayer, eToPlayer, args, data: (PlayerUtil.getFavoriteCivic(eFromPlayer), ))
 	DiploEvent("USER_DIPLOCOMMENT_REVOLUTION", "CivicAccepted", onCivicAccepted, argFunc=lambda eFromPlayer, eToPlayer, args, data: (PlayerUtil.getFavoriteCivic(eToPlayer), ))
 	DiploEvent("USER_DIPLOCOMMENT_NO_REVOLUTION", "CivicRejected", onCivicRejected, argFunc=lambda eFromPlayer, eToPlayer, args, data: (PlayerUtil.getFavoriteCivic(eToPlayer), ))
-	
+
 	# Join War
 	DiploEvent("AI_DIPLOCOMMENT_JOIN_WAR", "WarDemanded", onWarDemanded, sendData=True)
 	DiploEvent("USER_DIPLOCOMMENT_JOIN_WAR", "WarAccepted", onWarAccepted, sendData=True)
 	DiploEvent("USER_DIPLOCOMMENT_NO_JOIN_WAR", "WarRejected", onWarRejected, sendData=True)
-	
+
 	# Trade Embargo
 	DiploEvent("AI_DIPLOCOMMENT_STOP_TRADING", "EmbargoDemanded", onEmbargoDemanded, sendData=True)
 	DiploEvent("USER_DIPLOCOMMENT_STOP_TRADING", "EmbargoAccepted", onEmbargoAccepted, sendData=True)
@@ -167,7 +167,7 @@ class DiploEvent:
 			BugUtil.debug("DiplomacyUtil - mapped %s to %s", comment, event)
 		g_eventsByCommentType[self.eComment] = self
 		g_eventManager.addEventHandler(event, handler)
-	
+
 	def dispatch(self, eFromPlayer, eToPlayer, args):
 		data = diplo.getData()
 		BugUtil.debug("DiplomacyUtil - %s [%d] from %d to %d with %r", self.comment, data, eFromPlayer, eToPlayer, args)
@@ -176,7 +176,7 @@ class DiploEvent:
 			argList.append(eFromPlayer)
 		if self.sendToPlayer:
 			argList.append(eToPlayer)
-		
+
 		if self.argFunc:
 			argList.extend(self.argFunc(eFromPlayer, eToPlayer, args, data))
 			BugUtil.debug("DiplomacyUtil - firing %s", self.event)
@@ -185,7 +185,7 @@ class DiploEvent:
 				argList.append(data)
 			if self.sendArgs:
 				argList.append(args)
-			
+
 			if self.sendTrade or self.tradeType:
 				trade = getProposedTrade()
 				if self.sendTrade:
