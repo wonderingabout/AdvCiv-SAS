@@ -198,8 +198,7 @@ class Deal(object):
 	def isUncancelableVassalDeal(self, eByPlayer):
 		# Note: Doesn't check if a surrendered vassal is not allowed to revolt.
 		# 
-		return ((eByPlayer == self.getOtherPlayer() and self.hasAnyType(VASSAL_TRADE_ITEMS)) or
-				(eByPlayer == self.getPlayer() and self.otherHasAnyType(VASSAL_TRADE_ITEMS)))
+		return ((eByPlayer == self.getOtherPlayer() and self.hasAnyType(VASSAL_TRADE_ITEMS)) or (eByPlayer == self.getPlayer() and self.otherHasAnyType(VASSAL_TRADE_ITEMS)))
 	
 	def isReversed(self):
 		return False
@@ -238,12 +237,7 @@ class Deal(object):
 		return found
 	
 	def __repr__(self):
-		return ("<deal %d [trades %d %s] [trades %d %s]>" % 
-				(self.getID(), 
-				self.getPlayer(), 
-				TradeUtil.format(self.getPlayer(), [t for t in self.trades()]), 
-				self.getOtherPlayer(), 
-				TradeUtil.format(self.getOtherPlayer(), [t for t in self.otherTrades()])))
+		return ("<deal %d [trades %d %s] [trades %d %s]>" % (self.getID(), self.getPlayer(), TradeUtil.format(self.getPlayer(), [t for t in self.trades()]), self.getOtherPlayer(), TradeUtil.format(self.getOtherPlayer(), [t for t in self.otherTrades()])))
 
 class ReversedDeal(Deal):
 	# A Deal where the basic and 'Other' functions are reversed.

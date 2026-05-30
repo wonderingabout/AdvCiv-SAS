@@ -841,16 +841,7 @@ class CCMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
 
-				self.generatePlotsInRegion(80,
-				                           tinyWidth, tinyHeight,
-				                           tinyWestX, tinySouthY,
-				                           4, 3,
-				                           0, self.iTerrainFlags,
-				                           6, 5,
-				                           True, 3,
-				                           -1, False,
-				                           False
-				                           )
+				self.generatePlotsInRegion(80, tinyWidth, tinyHeight, tinyWestX, tinySouthY, 4, 3, 0, self.iTerrainFlags, 6, 5, True, 3, -1, False, False)
 
 		# Add the Continents.
 		global iNumConts
@@ -941,16 +932,7 @@ class CCMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				else: # Unexpected data value, transforming to empty flags.
 					iFlags = 0
 
-				self.generatePlotsInRegion(iWater,
-				                           iWidth, iHeight,
-				                           iWestX, iSouthY,
-				                           iGrain, 4,
-				                           iFlags, self.iTerrainFlags,
-				                           xExp, yExp,
-				                           True, iShift,
-				                           -1, False,
-				                           False
-				                           )
+				self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iGrain, 4, iFlags, self.iTerrainFlags, xExp, yExp, True, iShift, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes

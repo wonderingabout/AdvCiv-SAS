@@ -1,4 +1,4 @@
-﻿#
+#
 #   FILE:       Peirce.py
 #   AUTHOR:     LPlate
 #   BASIS:      Discworld.py by Terkhen

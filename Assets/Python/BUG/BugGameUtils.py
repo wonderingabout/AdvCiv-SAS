@@ -376,9 +376,7 @@ class GameUtilsHandler(BugConfig.Handler):
 	TAG = "gameutils"
 	
 	def __init__(self):
-		BugConfig.Handler.__init__(self, GameUtilsHandler.TAG, 
-				"module function class handler handlers listener listeners override log dll",
-				CallbackHandler.TAG)
+		BugConfig.Handler.__init__(self, GameUtilsHandler.TAG, "module function class handler handlers listener listeners override log dll", CallbackHandler.TAG)
 		self.addAttribute("module", True, True)
 		self.addExcludedAttribute("function")
 		self.addAttribute("class", False, False, None, "function")
@@ -436,8 +434,7 @@ class CallbackHandler(BugConfig.Handler):
 	TAG = "callback"
 	
 	def __init__(self):
-		BugConfig.Handler.__init__(self, CallbackHandler.TAG, 
-				"name type default module handler listener log dll")
+		BugConfig.Handler.__init__(self, CallbackHandler.TAG, "name type default module handler listener log dll")
 		self.addAttribute("name", True)
 		self.addAttribute("type")
 		self.addAttribute("default")

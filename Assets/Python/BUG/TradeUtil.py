@@ -474,11 +474,7 @@ class Trade(object):
 		return found
 	
 	def __repr__(self):
-		return ("<trade %d [%s] for %d [%s]>" % 
-				(self.getPlayer(), 
-				format(self.getPlayer(), self.trades()), 
-				self.getOtherPlayer(), 
-				format(self.getOtherPlayer(), self.otherTrades())))
+		return ("<trade %d [%s] for %d [%s]>" % (self.getPlayer(), format(self.getPlayer(), self.trades()), self.getOtherPlayer(), format(self.getOtherPlayer(), self.otherTrades())))
 
 ## TradeData Formatting
 

@@ -366,15 +366,7 @@ def logInput(fxn, inputClass, flags=False):
 	# fxn should be alert() or debug().
 	#
 	if inputClass.getNotifyCode() in INPUT_CODES:
-		fxn("%s - %s #%d, data %d, widget %d %d %d",
-			INPUT_CODES[inputClass.getNotifyCode()], 
-			inputClass.getFunctionName(),
-			inputClass.getID(), 
-			inputClass.getData(),
-			inputClass.getButtonType(),
-			inputClass.getData1(),
-			inputClass.getData2()
-		)
+		fxn("%s - %s #%d, data %d, widget %d %d %d", INPUT_CODES[inputClass.getNotifyCode()], inputClass.getFunctionName(), inputClass.getID(), inputClass.getData(), inputClass.getButtonType(), inputClass.getData1(), inputClass.getData2())
 	if flags:
 		logInputFlags(fxn, inputClass)
 

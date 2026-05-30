@@ -40,6 +40,7 @@ Instead of:
 [In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)  
 [Mapscripts](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts)  
 [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)  
+[How to check with ruff installed locally a folder for py linter errors candidates to fix with text report](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report)  
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)  
 [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)  
 [Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete) using regexp (with chatgpt 5's help) and vs code](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-how-to-fast-replace-many-redundant-entries-eg-400-strategy-entries-to-obsolete-using-regexp-with-chatgpt-5s-help-and-vs-code)  
@@ -475,6 +476,117 @@ ERR: Python function pediaJumpToImprovement failed, module CvScreensInterface
 ```
 
 Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [civ4bug_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details)
+
+## How to check with ruff installed locally a folder for py linter errors candidates to fix with text report
+
+Additionally to ruff VS Code extension "Problems" section, running ruff checks locally helps identify more broadly errors without manually checking files.
+
+Done with the help/information of GPT-5.5-Thinking thanks.
+
+Note: Treat Ruff output as candidate cleanup only: Civ4 uses Python 2.4, and some imports, indentation, or compatibility patterns can look wrong to modern Python tooling.
+
+Example:
+
+In powershell on windows:
+
+```powershell
+py -m pip install ruff
+py -m ruff --version
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"
+py -m ruff check PrivateMaps/ --output-format=grouped > ruff_privatemaps_all_grouped.txt
+```
+
+Example of how i used it:
+
+```powershell
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Tous droits réservés.
+
+Testez le nouveau système multiplateforme PowerShell https://aka.ms/pscore6
+
+PS C:\Users\PC> py -m pip install ruff
+Collecting ruff
+  Downloading ruff-0.15.15-py3-none-win_amd64.whl.metadata (27 kB)
+Downloading ruff-0.15.15-py3-none-win_amd64.whl (11.9 MB)
+   ---------------------------------------- 11.9/11.9 MB 77.1 MB/s eta 0:00:00
+Installing collected packages: ruff
+Successfully installed ruff-0.15.15
+
+[notice] A new release of pip is available: 25.0.1 -> 26.1.1
+[notice] To update, run: C:\Users\PC\AppData\Local\Programs\Python\Python313\python.exe -m pip install --upgrade pip
+PS C:\Users\PC> py -m ruff --version
+ruff 0.15.15
+PS C:\Users\PC> cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"
+PS C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS> py -m ruff check PrivateMaps/ --output-format=grouped > ruff_privatemaps_all_grouped.txt
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `ruff.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+PS C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS> py -m ruff check PrivateMaps/ --select E701,E702,E703,E713 --output-format=grouped > ruff_privatemaps_easy_grouped.txt
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `ruff.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+PS C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS> py -m ruff check PrivateMaps/ --select E101 --output-format=grouped > ruff_privatemaps_indent_grouped.txt
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `ruff.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+PS C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
+```
+
+Then gave the .txt reports to GPT-5.5-Thinking, which could find likel next fixes to try to address, for example it said:
+
+From the full report, the broader categories are:
+
+```md
+E101: 3800  -> skip / separate indentation archaeology
+F841: 130   -> maybe later, manual only
+F401: 115   -> maybe later, but imports in Civ4 scripts can be weird
+E731: 60    -> Mirror.py only, skip for now
+E712: 40    -> maybe later, because true/false aliases and truthiness can matter
+E701: 8     -> good, selected files first
+E713: 2     -> best immediate target
+E741: 2     -> manual only, Planet_Generator local rename
+E402: 2     -> skip unless we inspect context
+```
+
+Some errors may be tricky or solving them may break the code, so check the output with LLM or such.
+
+For example, to solve E101, an easy and clean way we used is to collapse those lines rather than fix their indentation (since it is helpful to code for our needs anyway (see [collapse_multiline_calls.py](/LLM_Helpers/collapse_multiline_calls.py))).
+
+Example:
+
+```powershell
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Tous droits réservés.
+
+Testez le nouveau système multiplateforme PowerShell https://aka.ms/pscore6
+
+PS C:\Users\PC> cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; New-Item -ItemType Directory -Force "LLM_Helpers\outputs" | Out-Null; $ts = Get-Date -Format "yyyyMMdd_HHmmss"; py -m ruff check PrivateMaps/ --output-format=grouped | Out-File -Encoding utf8 "LLM_Helpers\outputs\ruff_privatemaps_all_grouped_$ts.txt"; py -m ruff check PrivateMaps/ --select E701,E702,E703,E713 --output-format=grouped | Out-File -Encoding utf8 "LLM_Helpers\outputs\ruff_privatemaps_easy_grouped_$ts.txt"; py -m ruff check PrivateMaps/ --select E101 --output-format=grouped | Out-File -Encoding utf8 "LLM_Helpers\outputs\ruff_privatemaps_indent_grouped_$ts.txt"; Write-Host "wrote Ruff reports with timestamp $ts"
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `ruff.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `ruff.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `ruff.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+wrote Ruff reports with timestamp 20260530_090009
+PS C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
+```
+
+| Category                         | Before collapse pass | After collapse pass | Change | Takeaway                                                                                                          |
+| -------------------------------- | -------------------: | ------------------: | -----: | ----------------------------------------------------------------------------------------------------------------- |
+| `E101` mixed indentation         |                ~3800 |                3467 |  ~-333 | Good reduction, but most remaining cases are true indentation/table archaeology.                                  |
+| `invalid-syntax`                 |                   89 |                  89 |      0 | Unchanged; mostly parser fallout from old/messy indentation.                                                      |
+| `F841` unused local variable     |                  130 |                 130 |      0 | Not affected by multiline collapse. Manual only later.                                                            |
+| `F401` unused import             |                  115 |                 115 |      0 | Not affected; risky in Civ4 scripts because imports can be engine/side-effect-ish.                                |
+| `E731` lambda assignment         |                   60 |                  60 |      0 | Still `Mirror.py`-style cleanup; skip for now.                                                                    |
+| `E712` true/false comparison     |                   40 |                  40 |      0 | Later/manual due to truthiness and `true`/`false` alias weirdness.                                                |
+| `E701` one-line colon statements |                    8 |                   8 |      0 | Still good targeted cleanup.                                                                                      |
+| `E713` `not in` style            |                    2 |                   2 |      0 | Still only two exact candidates.                                                                                  |
+| `E741` ambiguous variable name   |                    2 |                   2 |      0 | Manual only.                                                                                                      |
+| `E402` import position           |                    2 |                   2 |      0 | Skip unless inspecting context.                                                                                   |
+| **Total Ruff findings**          |                ~4248 |                3915 |  ~-333 | The helper did exactly its narrow job: reduce continuation-style indentation noise without touching logic/tables. |
 
 ## How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash
 

@@ -76,8 +76,7 @@ def init():
 			if eUnit == eGenericUnit:
 				genericUnits.add(eUnit)
 			else:
-				BugUtil.debug("  unique of %s",
-						gc.getUnitInfo(eGenericUnit).getDescription())
+				BugUtil.debug("  unique of %s", gc.getUnitInfo(eGenericUnit).getDescription())
 		
 		# resource sets
 		found = False
@@ -309,8 +308,7 @@ def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None
 		# techs
 		for eTech in unitTechs[eUnit]:
 			if not team.isHasTech(eTech):
-				BugUtil.debug("  %s -> doesn't know %s", unitInfo.getDescription(), 
-						gc.getTechInfo(eTech).getDescription())
+				BugUtil.debug("  %s -> doesn't know %s", unitInfo.getDescription(), gc.getTechInfo(eTech).getDescription())
 				missing = True
 				break
 		else:
@@ -329,8 +327,7 @@ def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None
 		# getSpecialUnitType, game.isSpecialUnitValid
 		eSpecialType = unitInfo.getSpecialUnitType()
 		if eSpecialType != -1 and not game.isSpecialUnitValid(eSpecialType):
-			BugUtil.debug("  %s -> special unit type %s invalid", unitInfo.getDescription(),
-					gc.getSpecialUnitInfo(eSpecialType).getDescription())
+			BugUtil.debug("  %s -> special unit type %s invalid", unitInfo.getDescription(), gc.getSpecialUnitInfo(eSpecialType).getDescription())
 			continue
 		# cities
 		if cities and not canAnyCityBuildUnit(eUnit, cities, -1, True):
@@ -362,8 +359,7 @@ def getKnownTrainableUnits(playerOrID, askingPlayerOrID, knowableUnits, bonuses,
 	askingPlayer = PlayerUtil.getPlayer(askingPlayerOrID)
 	eAskingTeam, askingTeam = PlayerUtil.getPlayerTeamAndID(askingPlayer)
 	#trade = player.canTradeNetworkWith(askingPlayer.getID())
-	cities = PlayerUtil.getPlayerCities(player, 
-			lambda city: city.isRevealed(eAskingTeam, False))
+	cities = PlayerUtil.getPlayerCities(player, lambda city: city.isRevealed(eAskingTeam, False))
 	# separate units into two groups: yes and maybe
 	units = getTrainableUnits(playerOrID, knowableUnits, False, military)
 	yesUnits = set()

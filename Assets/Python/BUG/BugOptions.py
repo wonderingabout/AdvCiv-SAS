@@ -381,8 +381,7 @@ class IniFile(object):
 			if old is None or old != value:
 				sect[key] = value
 				self.dirty = True
-				BugUtil.debug("BugOptions - option %s.%s changed from %s to %s", 
-						section, key, str(old), str(value))
+				BugUtil.debug("BugOptions - option %s.%s changed from %s to %s", section, key, str(old), str(value))
 				return True
 		#BugUtil.debug("BugOptions - option %s.%s not changed", section, key)
 		return False

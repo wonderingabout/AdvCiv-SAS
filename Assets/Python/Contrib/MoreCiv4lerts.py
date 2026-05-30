@@ -364,12 +364,10 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 				if (currentTurn != self.lastDomLimitMsgTurn or ourLand != self.lastLandCount):
 					self.lastLandCount = ourLand
 					if (landPercent > VictoryLandPercent):
-						message = localText.getText("TXT_KEY_MORECIV4LERTS_LAND_EXCEEDS_LIMIT",
-								(ourLand, (u"%.2f%%" % landPercent), LimitLand, (u"%.2f%%" % VictoryLandPercent)))
+						message = localText.getText("TXT_KEY_MORECIV4LERTS_LAND_EXCEEDS_LIMIT", (ourLand, (u"%.2f%%" % landPercent), LimitLand, (u"%.2f%%" % VictoryLandPercent)))
 						self._addMessageNoIcon(iActivePlayer, message)
 					elif (VictoryLandPercent - landPercent < self.getLandThreshold()):
-						message = localText.getText("TXT_KEY_MORECIV4LERTS_LAND_CLOSE_TO_LIMIT",
-								(ourLand, (u"%.2f%%" % landPercent), LimitLand, (u"%.2f%%" % VictoryLandPercent)))
+						message = localText.getText("TXT_KEY_MORECIV4LERTS_LAND_CLOSE_TO_LIMIT", (ourLand, (u"%.2f%%" % landPercent), LimitLand, (u"%.2f%%" % VictoryLandPercent)))
 						self._addMessageNoIcon(iActivePlayer, message)
 					else:
 						pass #end elif
@@ -403,16 +401,14 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 				newTechs = currentTechs.difference(previousTechs).intersection(researchTechs)
 				if (newTechs):
 					szNewTechs = self.buildTechString(newTechs)
-					message = localText.getText("TXT_KEY_MORECIV4LERTS_NEW_TECH_AVAIL",	
-												(gc.getPlayer(iLoopPlayer).getName(), szNewTechs))
+					message = localText.getText("TXT_KEY_MORECIV4LERTS_NEW_TECH_AVAIL", (gc.getPlayer(iLoopPlayer).getName(), szNewTechs))
 					self._addMessageNoIcon(iActivePlayer, message)
 				
 				#Determine removed techs
 				removedTechs = previousTechs.difference(currentTechs).intersection(researchTechs)
 				if (removedTechs):
 					szRemovedTechs = self.buildTechString(removedTechs)
-					message = localText.getText("TXT_KEY_MORECIV4LERTS_TECH_NOT_AVAIL",	
-												(gc.getPlayer(iLoopPlayer).getName(), szRemovedTechs))
+					message = localText.getText("TXT_KEY_MORECIV4LERTS_TECH_NOT_AVAIL", (gc.getPlayer(iLoopPlayer).getName(), szRemovedTechs))
 					self._addMessageNoIcon(iActivePlayer, message)
 				
 			else:
@@ -440,8 +436,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
 				newTrades = currentTrades.difference(previousTrades).intersection(desiredBonuses)
 				if (newTrades):
 					szNewTrades = self.buildBonusString(newTrades)
-					message = localText.getText("TXT_KEY_MORECIV4LERTS_NEW_BONUS_AVAIL",	
-												(gc.getPlayer(iLoopPlayer).getName(), szNewTrades))
+					message = localText.getText("TXT_KEY_MORECIV4LERTS_NEW_BONUS_AVAIL", (gc.getPlayer(iLoopPlayer).getName(), szNewTrades))
 					self._addMessageNoIcon(iActivePlayer, message)
 					# advc.106: Moved here to avoid messages about "flickering" offers
 					self.PrevAvailBonusTrades = tradesByPlayer

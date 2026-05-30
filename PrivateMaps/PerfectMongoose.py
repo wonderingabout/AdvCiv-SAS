@@ -6539,11 +6539,9 @@ def expandLake(x, y, riversIntoLake, oceanMap):
 	else:
 		terrainModifier = 1.0
 	if mc.ClimateSystem == 0:
-		lakeSize = max(mc.expandedLakeMinSize,
-				int(rm.drainageMap[i] * mc.LakeSizePerDrainage3 * terrainModifier))
+		lakeSize = max(mc.expandedLakeMinSize, int(rm.drainageMap[i] * mc.LakeSizePerDrainage3 * terrainModifier))
 	else:
-		lakeSize = max(mc.expandedLakeMinSize,
-				int(rm.drainageMap[i] * mc.LakeSizePerDrainage2 * terrainModifier))
+		lakeSize = max(mc.expandedLakeMinSize, int(rm.drainageMap[i] * mc.LakeSizePerDrainage2 * terrainModifier))
 	start = LakePlot(x, y, em.data[i])
 	lakeNeighbors.append(start)
 	while lakeSize > 0 and len(lakeNeighbors) > 0:

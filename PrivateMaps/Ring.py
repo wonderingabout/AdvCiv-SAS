@@ -717,16 +717,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				# Generate the buffer.
 				bufWidth = bufEastX - bufWestX + 1
 				bufHeight = bufNorthY - bufSouthY + 1
-				self.generatePlotsInRegion(bufWater,
-				                           bufWidth, bufHeight,
-				                           bufWestX, bufSouthY,
-				                           bufGrain, 3,
-				                           self.iRoundFlags, self.iTerrainFlags,
-				                           6, 6,
-				                           True, 3,
-				                           -1, False,
-				                           False
-				                           )
+				self.generatePlotsInRegion(bufWater, bufWidth, bufHeight, bufWestX, bufSouthY, bufGrain, 3, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 		else:
 			pass
 
@@ -736,16 +727,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			# Main fractal
 			regWidth = regEastX - regWestX + 1
 			regHeight = regNorthY - regSouthY + 1
-			self.generatePlotsInRegion(55 + sea,
-			                           regWidth, regHeight,
-			                           regWestX, regSouthY,
-			                           area_grain, 4,
-			                           self.iRoundFlags, self.iTerrainFlags,
-			                           6, 6,
-			                           True, 3,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(55 + sea, regWidth, regHeight, regWestX, regSouthY, area_grain, 4, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 
 			# Core fractal to increase cohesion
 			coreWestX = regWestX + int(regWidth * 0.25)
@@ -754,16 +736,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			coreNorthY = regNorthY - int(regHeight * 0.25)
 			coreWidth = coreEastX - coreWestX + 1
 			coreHeight = coreNorthY - coreSouthY + 1
-			self.generatePlotsInRegion(65,
-			                           coreWidth, coreHeight,
-			                           coreWestX, coreSouthY,
-			                           1, 3,
-			                           self.iHorzFlags, self.iTerrainFlags,
-			                           5, 5,
-			                           True, 3,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(65, coreWidth, coreHeight, coreWestX, coreSouthY, 1, 3, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 3, -1, False, False)
 
 		# Add center isle(s).
 		global center_data
@@ -776,16 +749,7 @@ class RingMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			bufGrain = thisBuffer + 1
 		else:
 			bufGrain = grainType + 1
-		self.generatePlotsInRegion(bufWater,
-		                           cenWidth, cenHeight,
-		                           cenWestX, cenSouthY,
-		                           bufGrain, 4,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           -1, -1,
-		                           True, 5,
-		                           -1, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(bufWater, cenWidth, cenHeight, cenWestX, cenSouthY, bufGrain, 4, self.iRoundFlags, self.iTerrainFlags, -1, -1, True, 5, -1, False, False)
 
 		# Draw the wheel to connect all players.
 		global wheel_data

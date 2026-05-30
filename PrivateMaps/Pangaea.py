@@ -334,16 +334,7 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		
 		mainWater = 55+sea
 
-		self.generatePlotsInRegion(mainWater,
-		                           mainWidth, mainHeight,
-		                           mainWestX, mainSouthY,
-		                           2, grain,
-		                           self.iHorzFlags, self.iTerrainFlags,
-		                           -1, -1,
-		                           True, 15,
-		                           2, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(mainWater, mainWidth, mainHeight, mainWestX, mainSouthY, 2, grain, self.iHorzFlags, self.iTerrainFlags, -1, -1, True, 15, 2, False, False)
 
 		# Second pass (to ensure cohesion).
 		second_layerHeight = mainHeight/2
@@ -355,16 +346,7 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 		second_layerWater = 60+sea
                 
-		self.generatePlotsInRegion(second_layerWater,
-		                           second_layerWidth, second_layerHeight,
-		                           second_layerWestX, second_layerSouthY,
-		                           1, grain,
-		                           self.iHorzFlags, self.iTerrainFlags,
-		                           -1, -1,
-		                           True, 15,
-		                           2, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(second_layerWater, second_layerWidth, second_layerHeight, second_layerWestX, second_layerSouthY, 1, grain, self.iHorzFlags, self.iTerrainFlags, -1, -1, True, 15, 2, False, False)
 
 		# Add subcontinents.
 		# Subcontinents can be akin to India/Alaska, Europe, or the East Indies.
@@ -413,16 +395,7 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				scGrain = grain
 				scRift = -1
                 
-			self.generatePlotsInRegion(scWater,
-			                           scWidth, scHeight,
-			                           scWestX, scSouthY,
-			                           scGrain, grain,
-			                           self.iRoundFlags, self.iTerrainFlags,
-			                           6, 6,
-			                           True, 7,
-			                           scRift, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(scWater, scWidth, scHeight, scWestX, scSouthY, scGrain, grain, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 7, scRift, False, False)
 
 			del scValues[scIndex]
 			numSubcontinents -= 1

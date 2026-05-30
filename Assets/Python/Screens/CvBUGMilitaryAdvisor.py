@@ -442,8 +442,7 @@ class CvMilitaryAdvisor:
 		gridY = self.MIN_TOP_BOTTOM_SPACE + self.SITREP_PANEL_SPACE + self.TABLE_CONTROL_HEIGHT + self.TITLE_HEIGHT + 8
 		gridWidth = self.W_SCREEN - 10 - self.MIN_LEFT_RIGHT_SPACE * 2# - 20
 		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - self.SITREP_PANEL_SPACE - self.TITLE_HEIGHT - 16
-		self.iconGrid = IconGrid_BUG.IconGrid_BUG(self.getNextWidgetName(), screen, gridX, gridY, gridWidth, gridHeight,
-													columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
+		self.iconGrid = IconGrid_BUG.IconGrid_BUG(self.getNextWidgetName(), screen, gridX, gridY, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
 
 		# set constants
 		self.iconGrid.setGroupBorder(self.GROUP_BORDER)
@@ -716,8 +715,7 @@ class CvMilitaryAdvisor:
 	def addStratAdvBonusIcons(self, iRow, iCol, bonuses):
 		bonuses.sort()
 		for eBonus in bonuses:
-			self.iconGrid.addIcon(iRow, iCol, gc.getBonusInfo(eBonus).getButton(), 
-					32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, eBonus)
+			self.iconGrid.addIcon(iRow, iCol, gc.getBonusInfo(eBonus).getButton(), 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, eBonus)
 
 	def addStratAdvUnits(self, activePlayer, player, iRow):
 		if (not gc.getTeam(activePlayer.getTeam()).isTechTrading()

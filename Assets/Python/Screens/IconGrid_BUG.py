@@ -586,9 +586,7 @@ class IconGrid_BUG:
 					text += "\t\t\t\t\t"
 				text += "%s</font>" % (rowData.message)
 				# </advc.073>
-				self.screen.attachLabel(self.rowName + str(rowIndex),
-										self.rowName + str(rowIndex) + "NotConnected",
-										text)
+				self.screen.attachLabel(self.rowName + str(rowIndex), self.rowName + str(rowIndex) + "NotConnected", text)
 
 	def calculateLayout(self):
 		if (self.useSmallIcons):
@@ -718,14 +716,10 @@ class IconGrid_BUG:
 				colGroupWidth -= self.colSpace
 				if (colGroup.length == 1):
 					self.groupLabelOffset = "  "
-					self.screen.addPanel( self.groupPanelName + str(index), self.groupLabelOffset + colGroup.label, "", False, False
-										, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight
-										, PanelStyles.PANEL_STYLE_EMPTY )
+					self.screen.addPanel( self.groupPanelName + str(index), self.groupLabelOffset + colGroup.label, "", False, False, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight, PanelStyles.PANEL_STYLE_EMPTY )
 				else:
 					self.groupLabelOffset = "  "
-					self.screen.addPanel( self.groupPanelName + str(index), self.groupLabelOffset + colGroup.label, "", False, False
-										, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight
-										, PanelStyles.PANEL_STYLE_MAIN_TAN )
+					self.screen.addPanel( self.groupPanelName + str(index), self.groupLabelOffset + colGroup.label, "", False, False, colGroupX, self.yStart, colGroupWidth + 7, self.colGroupHeight, PanelStyles.PANEL_STYLE_MAIN_TAN )
 				colGroupX += colGroupWidth + self.colSpace
 			else:
 				for offset in range(colGroup.length):
@@ -794,9 +788,7 @@ class IconGrid_BUG:
 				panelY += self.rowHeaderHeight
 				panelHeight -= self.rowHeaderHeight
 			
-			self.screen.addPanel( self.rowName + str(rowIndex), "", "", False, True, self.xStart, panelY
-								, self.width - self.scrollArrowSize - self.scrollSpace, panelHeight
-								, PanelStyles.PANEL_STYLE_OUT )
+			self.screen.addPanel( self.rowName + str(rowIndex), "", "", False, True, self.xStart, panelY, self.width - self.scrollArrowSize - self.scrollSpace, panelHeight, PanelStyles.PANEL_STYLE_OUT )
 		
 		startIndex = 0
 		currentX = self.xStart

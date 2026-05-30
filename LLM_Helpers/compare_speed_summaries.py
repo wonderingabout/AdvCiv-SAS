@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
@@ -249,10 +249,7 @@ def run(args):
         d_ratio_text = "n/a"
         if ratio_val is not None and prev_ratio is not None:
             d_ratio_text = "%+.2f" % (ratio_val - prev_ratio)
-        lines.append(
-            "%3d  %3d  %-20s  %-20s  %-8s  %9s  %8s  %9s"
-            % (idx, pct, n, t, format_delta_months(d), ratio_text, d_ratio_text, pct_text)
-        )
+        lines.append("%3d  %3d  %-20s  %-20s  %-8s  %9s  %8s  %9s" % (idx, pct, n, t, format_delta_months(d), ratio_text, d_ratio_text, pct_text))
         if ratio_val is not None:
             prev_ratio = ratio_val
 
@@ -296,25 +293,14 @@ def run(args):
     print("Saved: %s" % out_path)
 
 def main():
-    default_log = os.path.join(
-        os.path.expanduser("~"),
-        "Documents",
-        "My Games",
-        "beyond the sword",
-        "Logs",
-        "PythonDbg.log",
-    )
+    default_log = os.path.join(os.path.expanduser("~"), "Documents", "My Games", "beyond the sword", "Logs", "PythonDbg.log",)
 
     parser = argparse.ArgumentParser(description="Compare Sevopedia summary rows between Normal and a selected speed")
     parser.add_argument("--log", default=default_log, help="Path to PythonDbg.log")
     parser.add_argument("--speed", default="slow", help="Target speed name (e.g. slow, marathon, veryslow)")
     parser.add_argument("--normal-speed", default="normal", help="Reference speed name")
     parser.add_argument("--summary", type=int, help="Optional summary index (1-20)")
-    parser.add_argument(
-        "--output-dir",
-        default=os.path.join("LLM_Helpers", "outputs"),
-        help="Output directory for timestamped .txt output",
-    )
+    parser.add_argument("--output-dir", default=os.path.join("LLM_Helpers", "outputs"), help="Output directory for timestamped .txt output",)
 
     run(parser.parse_args())
 

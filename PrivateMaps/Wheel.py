@@ -871,16 +871,7 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				# Generate the buffer.
 				bufWidth = bufEastX - bufWestX + 1
 				bufHeight = bufNorthY - bufSouthY + 1
-				self.generatePlotsInRegion(bufWater,
-				                           bufWidth, bufHeight,
-				                           bufWestX, bufSouthY,
-				                           bufGrain, 3,
-				                           self.iRoundFlags, self.iTerrainFlags,
-				                           6, 6,
-				                           True, 3,
-				                           -1, False,
-				                           False
-				                           )
+				self.generatePlotsInRegion(bufWater, bufWidth, bufHeight, bufWestX, bufSouthY, bufGrain, 3, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 		else:
 			pass
 
@@ -890,16 +881,7 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			# Main fractal
 			regWidth = regEastX - regWestX + 1
 			regHeight = regNorthY - regSouthY + 1
-			self.generatePlotsInRegion(55 + sea,
-			                           regWidth, regHeight,
-			                           regWestX, regSouthY,
-			                           area_grain, 4,
-			                           self.iRoundFlags, self.iTerrainFlags,
-			                           6, 6,
-			                           True, 3,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(55 + sea, regWidth, regHeight, regWestX, regSouthY, area_grain, 4, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 
 			# Core fractal to increase cohesion
 			coreWestX = regWestX + int(regWidth * 0.25)
@@ -908,16 +890,7 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			coreNorthY = regNorthY - int(regHeight * 0.25)
 			coreWidth = coreEastX - coreWestX + 1
 			coreHeight = coreNorthY - coreSouthY + 1
-			self.generatePlotsInRegion(65,
-			                           coreWidth, coreHeight,
-			                           coreWestX, coreSouthY,
-			                           1, 3,
-			                           self.iHorzFlags, self.iTerrainFlags,
-			                           5, 5,
-			                           True, 3,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(65, coreWidth, coreHeight, coreWestX, coreSouthY, 1, 3, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 3, -1, False, False)
 
 		# Draw the wheel.
 		global wheel_data
@@ -1016,16 +989,7 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		thisBuffer = 1 + self.dice.get(3, "Random Buffer Type - Wheel PYTHON")
 		bufWater = sea + buffer_one[thisBuffer]
 		bufGrain = thisBuffer + 1
-		self.generateCenter(bufWater,
-		                    cenWidth, cenHeight,
-		                    cenWestX, cenSouthY,
-		                    bufGrain, 4,
-		                    self.iRoundFlags, self.iTerrainFlags,
-		                    -1, -1,
-		                    True, 5,
-		                    -1, False,
-		                    False
-		                    )
+		self.generateCenter(bufWater, cenWidth, cenHeight, cenWestX, cenSouthY, bufGrain, 4, self.iRoundFlags, self.iTerrainFlags, -1, -1, True, 5, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes

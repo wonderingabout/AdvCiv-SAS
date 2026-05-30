@@ -271,76 +271,44 @@ def _addCombatMsg(ePlayer, iModifier, szTextKey):
 		addCombatMessageScaled(ePlayer, localText.getText(szTextKey, (iModifier,)))
 
 def combatDetailMessageBuilder(cdUnit, ePlayer, iChange):
-	_addCombatMsg(ePlayer, cdUnit.iExtraCombatPercent * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_EXTRA_COMBAT_PERCENT")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierTA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierTA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierAA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierAA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierTB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierTB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierAB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierAB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iExtraCombatPercent * iChange, "TXT_KEY_COMBAT_MESSAGE_EXTRA_COMBAT_PERCENT")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierTA * iChange, "TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierTA * iChange, "TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierAA * iChange, "TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierAA * iChange, "TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierTB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierTB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierAB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierAB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
 	# <advc.313>
-	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierTB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
-	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierAB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
+	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierTB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
+	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierAB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
 	# </advc.313>
-	_addCombatMsg(ePlayer, cdUnit.iPlotDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_PLOT_DEFENSE")
-	_addCombatMsg(ePlayer, cdUnit.iFortifyModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_FORTIFY")
-	_addCombatMsg(ePlayer, cdUnit.iCityDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CITY_DEFENSE")
-	_addCombatMsg(ePlayer, cdUnit.iHillsAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_HILLS_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iHillsDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_HILLS")
-	_addCombatMsg(ePlayer, cdUnit.iFeatureAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_FEATURE_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iFeatureDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_FEATURE")
-	_addCombatMsg(ePlayer, cdUnit.iTerrainAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_TERRAIN_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iTerrainDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_TERRAIN")
-	_addCombatMsg(ePlayer, cdUnit.iCityAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CITY_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iDomainDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CITY_DOMAIN_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iPlotDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_PLOT_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iFortifyModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_FORTIFY")
+	_addCombatMsg(ePlayer, cdUnit.iCityDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iHillsAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_HILLS_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iHillsDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_HILLS")
+	_addCombatMsg(ePlayer, cdUnit.iFeatureAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_FEATURE_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iFeatureDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_FEATURE")
+	_addCombatMsg(ePlayer, cdUnit.iTerrainAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_TERRAIN_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iTerrainDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_TERRAIN")
+	_addCombatMsg(ePlayer, cdUnit.iCityAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iDomainDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_DOMAIN_DEFENSE")
 	#_addCombatMsg(ePlayer, cdUnit.iCityBarbarianDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_BARBARIAN_DEFENSE")
 	# <advc.313>
 	_addCombatMsg(ePlayer, cdUnit.iBarbarianCityAttackModifier * iChange,
 			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_CITY") # </advc.313>
-	_addCombatMsg(ePlayer, cdUnit.iClassDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_DEFENSE")
-	_addCombatMsg(ePlayer, cdUnit.iClassAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iCombatModifierT * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iCombatModifierA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iDomainModifierA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
-	_addCombatMsg(ePlayer, cdUnit.iDomainModifierT * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierT * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iRiverAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_RIVER_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iAmphibAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_AMPHIB_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iClassDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iClassAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iCombatModifierT * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iCombatModifierA * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iDomainModifierA * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
+	_addCombatMsg(ePlayer, cdUnit.iDomainModifierT * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierA * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierT * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iRiverAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_RIVER_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iAmphibAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_AMPHIB_ATTACK")
 
 def combatMessageBuilder(cdAttacker, cdDefender, iCombatOdds):
 	combatMessage = ""

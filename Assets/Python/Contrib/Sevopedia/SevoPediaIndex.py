@@ -208,9 +208,7 @@ class SevoPediaIndex:
 				# create letter button
 				textName = self.top.getNextWidgetName()
 				letterText = sasFontTagTitle + sLetter + SAS_FONT_TAG_CLOSE
-				screen.setText(textName, "Background", letterText, CvUtil.FONT_CENTER_JUSTIFY, 
-						iX, iLetterY, 0, FontTypes.TITLE_FONT, 
-						WidgetTypes.WIDGET_GENERAL, iRow, -1)
+				screen.setText(textName, "Background", letterText, CvUtil.FONT_CENTER_JUSTIFY, iX, iLetterY, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iRow, -1)
 				self.letterTextIDs[textName] = iRow
 				self.SAS_indexWidgetNames.append(textName)
 				iX += self.W_LETTER

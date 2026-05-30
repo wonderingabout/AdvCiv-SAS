@@ -440,8 +440,7 @@ class CvHallOfFameScreen:
 				else:
 					szSpeed = szUnknown
 				# </advc.106i>
-				szFinalDate = CyGameTextMgr().getDateStr(replayInfo.getFinalTurn(), false,
-						replayInfo.getCalendar(), replayInfo.getStartYear(), replayInfo.getGameSpeed())
+				szFinalDate = CyGameTextMgr().getDateStr(replayInfo.getFinalTurn(), false, replayInfo.getCalendar(), replayInfo.getStartYear(), replayInfo.getGameSpeed())
 				iReplayLeader = replayInfo.getLeader(replayInfo.getActivePlayer())
 				iReplayCiv = self.getReplayCivType(replayInfo)
 				szReplayColor = self.getReplayColorMarker(replayInfo)

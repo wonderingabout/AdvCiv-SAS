@@ -548,11 +548,7 @@ class Scoreboard:
 						screen.show(name)
 					# <advc.085>
 					elif bExpanded:
-						screen.setText(name, "Background", szBlank,
-								CvUtil.FONT_RIGHT_JUSTIFY,
-								x, y - p * height, Z_DEPTH,
-								FontTypes.SMALL_FONT,
-								WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
+						screen.setText(name, "Background", szBlank, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 						screen.show(name) # </advc.085>
 				x -= width
 				totalWidth += width + spacing
@@ -620,11 +616,7 @@ class Scoreboard:
 						if c == POWER: # Power ratio takes up extra space
 							# Mustn't add too much space though: when the power ratio is in the leftmost column, too many spaces will prevent the scoreboard from collapsing when the mouse is moved away to the left.
 							szBlankLoop += szBlank + szBlank
-						screen.setText(name, "Background", szBlankLoop,
-								CvUtil.FONT_RIGHT_JUSTIFY,
-								x, y - p * height, Z_DEPTH,
-								FontTypes.SMALL_FONT,
-								WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
+						screen.setText(name, "Background", szBlankLoop, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 						screen.show(name) # </advc.085>
 				x -= width
 				totalWidth += width + spacing
@@ -639,10 +631,7 @@ class Scoreboard:
 							name = "ScoreTech%d" % playerScore.getID() # advc.085: was p
 							info = gc.getTechInfo(tech)
 							iData2 = 0 # advc.085: was -1
-							screen.addDDSGFC(name, info.getButton(),
-									x - techIconSize, y - p * height + iYIconOffset,
-									techIconSize, techIconSize,
-									WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, iData2 )
+							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, iData2 )
 					x -= techIconSize
 					totalWidth += techIconSize + spacing
 					spacing = defaultSpacing
@@ -654,10 +643,7 @@ class Scoreboard:
 							leader = playerScore.value(c)
 							name = "ScoreLeader%d" % playerScore.getID() # advc.085: was p
 							info = gc.getLeaderHeadInfo(leader)
-							screen.addDDSGFC(name, info.getButton(),
-									x - techIconSize, y - p * height + iYIconOffset,
-									techIconSize, techIconSize,
-									WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, leader, 1 )
+							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, leader, 1 )
 					x -= techIconSize
 					totalWidth += techIconSize + spacing
 					spacing = defaultSpacing
@@ -668,10 +654,7 @@ class Scoreboard:
 							civ = playerScore.value(c)
 							name = "ScoreCiv%d" % playerScore.getID() # advc.085: was p
 							info = gc.getCivilizationInfo(civ)
-							screen.addDDSGFC(name, info.getButton(),
-									x - techIconSize, y - p * height + iYIconOffset,
-									techIconSize, techIconSize,
-									WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, civ, -1 )
+							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, civ, -1 )
 					x -= techIconSize
 					totalWidth += techIconSize + spacing
 					spacing = defaultSpacing

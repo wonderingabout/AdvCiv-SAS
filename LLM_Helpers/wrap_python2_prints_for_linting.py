@@ -363,9 +363,7 @@ def validate_paths(paths):
 
 
 def parse_args(argv):
-    parser = argparse.ArgumentParser(
-        description="Conservatively wrap easy Python 2 print statements as print(...) for Python 3 linters."
-    )
+    parser = argparse.ArgumentParser(description="Conservatively wrap easy Python 2 print statements as print(...) for Python 3 linters.")
     parser.add_argument("paths", nargs="*", help="Python source files or directories to scan/rewrite.")
     parser.add_argument("--recursive", action="store_true", help="When a directory is passed, scan it recursively.")
     parser.add_argument("--include", action="append", help="Glob pattern for directory scanning. Default: *.py. Can be repeated or separated with semicolons.")

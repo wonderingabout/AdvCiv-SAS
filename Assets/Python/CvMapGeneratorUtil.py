@@ -1214,20 +1214,16 @@ class TerrainGenerator:
 		
 	def initFractals(self):
 		self.processCustomizations() # advc.129c
-		self.deserts.fracInit(self.iWidth, self.iHeight, self.grain_amount,
-				self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+		self.deserts.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.iDesertTop = self.deserts.getHeightFromPercent(self.iDesertTopPercent)
 		self.iDesertBottom = self.deserts.getHeightFromPercent(self.iDesertBottomPercent)
 		# <advc.129c>
 		if self.bEarthlike:
-			self.plainsFine.fracInit(self.iWidth, self.iHeight, self.grain_amount + 1,
-					self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+			self.plainsFine.fracInit(self.iWidth, self.iHeight, self.grain_amount + 1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 			# Second plains fractal with coarser grain
-			self.plainsCoarse.fracInit(self.iWidth, self.iHeight, self.grain_amount,
-					self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+			self.plainsCoarse.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		else: # </advc.129c>
-			self.plains.fracInit(self.iWidth, self.iHeight, self.grain_amount + 1,
-					self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+			self.plains.fracInit(self.iWidth, self.iHeight, self.grain_amount + 1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		# <advc.129c>
 		if self.bEarthlike:
 			self.iPlainsFineTop = self.plainsFine.getHeightFromPercent(self.iPlainsTopPercent)
@@ -1238,8 +1234,7 @@ class TerrainGenerator:
 			self.iPlainsTop = self.plains.getHeightFromPercent(self.iPlainsTopPercent)
 			self.iPlainsBottom = self.plains.getHeightFromPercent(self.iPlainsBottomPercent)
 
-		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount,
-				self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 
 		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
 		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
@@ -1377,10 +1372,8 @@ class FeatureGenerator:
 		self.__initFeatureTypes()
 	
 	def __initFractals(self):
-		self.jungles.fracInit(self.iGridW, self.iGridH, self.jungle_grain,
-				self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
-		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain,
-				self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+		self.jungles.fracInit(self.iGridW, self.iGridH, self.jungle_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+		self.forests.fracInit(self.iGridW, self.iGridH, self.forest_grain, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		
 		self.iJungleBottom = self.jungles.getHeightFromPercent((100 - self.iJunglePercent)/2)
 		self.iJungleTop = self.jungles.getHeightFromPercent((100 + self.iJunglePercent)/2)

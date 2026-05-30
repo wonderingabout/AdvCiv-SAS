@@ -188,8 +188,7 @@ class PLE:
 	def PLE_CalcConstants(self, screen):
 		# advc.opt: All those widgets get added to the screen even if the enhanced
 		# plot list is disabled. Better put a hard limit on this.
-		self.iMaxPlotListIcons = min(500,
-				self.getMaxCol() * self.getMaxRow())
+		self.iMaxPlotListIcons = min(500, self.getMaxCol() * self.getMaxRow())
 
 		self.sPLEMode = self.PLE_MODE_MULTILINE
 		self.nPLEGrpMode = self.PLE_GRP_UNITTYPE
@@ -1075,15 +1074,11 @@ class PLE:
 
 			# place/init the promotion frame. Important to have it at first place within the for loop.
 			szStringPromoFrame = szString + "PromoFrame"
-			screen.addDDSGFC( szStringPromoFrame, szFileNamePromo,
-					x, y, iFrameSize, iFrameSize,
-					WidgetTypes.WIDGET_GENERAL, i, -1 )
+			screen.addDDSGFC( szStringPromoFrame, szFileNamePromo, x, y, iFrameSize, iFrameSize, WidgetTypes.WIDGET_GENERAL, i, -1 )
 			screen.hide( szStringPromoFrame )
 
 			# place the plot list unit button
-			screen.addCheckBoxGFC( szString, szFileNameGovernor, szFileNameHilite,
-					x, y, iFrameSize, iFrameSize,
-					WidgetTypes.WIDGET_GENERAL, i, -1, ButtonStyles.BUTTON_STYLE_LABEL )
+			screen.addCheckBoxGFC( szString, szFileNameGovernor, szFileNameHilite, x, y, iFrameSize, iFrameSize, WidgetTypes.WIDGET_GENERAL, i, -1, ButtonStyles.BUTTON_STYLE_LABEL )
 			screen.hide( szString )
 
 			# place/init the health bar. Important to have it at last place within the for loop.
@@ -1093,20 +1088,14 @@ class PLE:
 			iBarX = x + CvScreensInterface.mainInterface.plotListUnitButtonSize() - iBarW
 			iBarH = (11 * iFrameSize) / 32
 			iBarY = y - iBarH + 2
-			screen.addStackedBarGFC( szStringHealthBar,
-					iBarX, iBarY, iBarW, iBarH,
-					InfoBarTypes.NUM_INFOBAR_TYPES,
-					WidgetTypes.WIDGET_GENERAL, i, -1 )
+			screen.addStackedBarGFC( szStringHealthBar, iBarX, iBarY, iBarW, iBarH, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, i, -1 )
 			screen.setStackedBarColors( szStringHealthBar, InfoBarTypes.INFOBAR_STORED, iHealthyColor )
 			screen.setStackedBarColors( szStringHealthBar, InfoBarTypes.INFOBAR_RATE, iWoundedColor )
 			screen.hide( szStringHealthBar )
 
 			# place/init the movement bar. Important to have it at last place within the for loop.
 			szStringMoveBar = szString + "MoveBar"
-			screen.addStackedBarGFC( szStringMoveBar,
-					iBarX, iBarY + (5 * iBarH) / 11, iBarW, iBarH,
-					InfoBarTypes.NUM_INFOBAR_TYPES,
-					WidgetTypes.WIDGET_GENERAL, i, -1 )
+			screen.addStackedBarGFC( szStringMoveBar, iBarX, iBarY + (5 * iBarH) / 11, iBarW, iBarH, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, i, -1 )
 			screen.setStackedBarColors( szStringMoveBar, InfoBarTypes.INFOBAR_STORED, iMovementColor )
 			screen.setStackedBarColors( szStringMoveBar, InfoBarTypes.INFOBAR_RATE, iHasMovedColor )
 			screen.setStackedBarColors( szStringMoveBar, InfoBarTypes.INFOBAR_EMPTY, iNoMovementColor )
@@ -1747,9 +1736,7 @@ class PLE:
 			szFileNameUpgrade = gc.getUnitInfo(iUnitIndex).getButton()
 			# advc.092: Get the size from CvMainInterface
 			iPlotListUnitBtnSz = CvScreensInterface.mainInterface.plotListUnitButtonSize()
-			screen.setImageButton( szStringUnitUpgrade, szFileNameUpgrade,
-					x, y, iPlotListUnitBtnSz, iPlotListUnitBtnSz,
-					WidgetTypes.WIDGET_GENERAL, iUnitIndex, -1 )
+			screen.setImageButton( szStringUnitUpgrade, szFileNameUpgrade, x, y, iPlotListUnitBtnSz, iPlotListUnitBtnSz, WidgetTypes.WIDGET_GENERAL, iUnitIndex, -1 )
 			if pUnit.canUpgrade(iUnitIndex, false):
 				screen.enable(szStringUnitUpgrade, true)
 			else:
@@ -2116,14 +2103,7 @@ class PLE:
 			x = self.CFG_INFOPANE_X_CITY
 		else: # </advc.069>
 			x = self.CFG_INFOPANE_X
-		screen.moveItem(szName,
-				x + 4 +
-				self.CFG_INFOPANE_BUTTON_SIZE *
-				(iPromotionCount % self.CFG_INFOPANE_BUTTON_PER_LINE),
-				y + 4 - yOffset +
-				self.CFG_INFOPANE_BUTTON_SIZE *
-				(iPromotionCount / self.CFG_INFOPANE_BUTTON_PER_LINE),
-				-0.3)
+		screen.moveItem(szName, x + 4 + self.CFG_INFOPANE_BUTTON_SIZE * (iPromotionCount % self.CFG_INFOPANE_BUTTON_PER_LINE), y + 4 - yOffset + self.CFG_INFOPANE_BUTTON_SIZE * (iPromotionCount / self.CFG_INFOPANE_BUTTON_PER_LINE), -0.3)
 		screen.moveToFront( szName )
 
 	# calculates the height of a text in pixels
@@ -2143,8 +2123,7 @@ class PLE:
 			else:
 				iNormalLines += iWidth
 		# advc.069: Was 20+... I guess that's a safety margin(?). Try going lower on that.
-		return (12 + iNormalLines*self.CFG_INFOPANE_PIX_PER_LINE_1
-				+ iBulletLines*self.CFG_INFOPANE_PIX_PER_LINE_2)
+		return (12 + iNormalLines*self.CFG_INFOPANE_PIX_PER_LINE_1 + iBulletLines*self.CFG_INFOPANE_PIX_PER_LINE_2)
 		
 	# base function to display a self sizing info pane
 	def displayInfoPane(self, szText):
@@ -2167,25 +2146,15 @@ class PLE:
 			x = self.CFG_INFOPANE_X_CITY # advc.092
 		else:
 			x = self.CFG_INFOPANE_X
-		screen.addPanel(self.UNIT_INFO_PANE, u"", u"", True, True,
-						x, y - dy, self.CFG_INFOPANE_DX, dy,
-						PanelStyles.PANEL_STYLE_HUD_HELP)
+		screen.addPanel(self.UNIT_INFO_PANE, u"", u"", True, True, x, y - dy, self.CFG_INFOPANE_DX, dy, PanelStyles.PANEL_STYLE_HUD_HELP)
 		
 		# create shadow text
 		szTextBlack = localText.changeTextColor(mt.removeColor(szText), getInfoTypeOrFail("COLOR_BLACK"))
 		
 		# display shadow text
-		screen.addMultilineText( self.UNIT_INFO_TEXT_SHADOW, szTextBlack,
-								x + 5, y - dy + 5,
-								self.CFG_INFOPANE_DX - 3, dy - 3,
-								WidgetTypes.WIDGET_GENERAL, -1, -1,
-								CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText( self.UNIT_INFO_TEXT_SHADOW, szTextBlack, x + 5, y - dy + 5, self.CFG_INFOPANE_DX - 3, dy - 3, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# display text
-		screen.addMultilineText( self.UNIT_INFO_TEXT, szText,
-								x + 4, y - dy + 4,
-								self.CFG_INFOPANE_DX - 3, dy - 3,
-								WidgetTypes.WIDGET_GENERAL, -1, -1,
-								CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText( self.UNIT_INFO_TEXT, szText, x + 4, y - dy + 4, self.CFG_INFOPANE_DX - 3, dy - 3, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					
 		return dy
 

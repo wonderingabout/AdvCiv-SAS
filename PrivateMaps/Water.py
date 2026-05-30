@@ -138,11 +138,7 @@ def generatePlotTypes():
 
 def generateTerrainTypes():
 	NiTextOut("Generating Terrain (Python Lakes) ...")
-	terraingen = TerrainGenerator(iDesertPercent=25, iPlainsPercent=13,
-				fSnowLatitude=1.00, fTundraLatitude=0.89,
-				fGrassLatitude=0.13, fDesertBottomLatitude=0.23,
-				fDesertTopLatitude=0.63, fracXExp=-1,
-				fracYExp=-1, grain_amount=5)
+	terraingen = TerrainGenerator(iDesertPercent=25, iPlainsPercent=13, fSnowLatitude=1.00, fTundraLatitude=0.89, fGrassLatitude=0.13, fDesertBottomLatitude=0.23, fDesertTopLatitude=0.63, fracXExp=-1, fracYExp=-1, grain_amount=5)
 	terrainTypes = terraingen.generateTerrain()
 	return terrainTypes
 

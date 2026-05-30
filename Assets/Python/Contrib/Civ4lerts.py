@@ -576,22 +576,18 @@ class CityHappiness(AbstractCityTestAlert):
 	
 	def _getAlertMessageIcon(self, city, passes):
 		if (passes):
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_UNHAPPY", (city.getName(), )),
-					UNHAPPY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_UNHAPPY", (city.getName(), )), UNHAPPY_ICON)
 		else:
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_HAPPY", (city.getName(), )),
-					HAPPY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_HAPPY", (city.getName(), )), HAPPY_ICON)
 	
 	def _isShowPendingAlert(self, passes):
 		return Civ4lertsOpt.isShowCityPendingHappinessAlert()
 
 	def _getPendingAlertMessageIcon(self, city, passes):
 		if (passes):
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_UNHAPPY", (city.getName(), )),
-					UNHAPPY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_UNHAPPY", (city.getName(), )), UNHAPPY_ICON)
 		else:
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_HAPPY", (city.getName(), )),
-					HAPPY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_HAPPY", (city.getName(), )), HAPPY_ICON)
 
 class CityHealthiness(AbstractCityTestAlert):
 	# Displays an event when a city goes from healthy to sick or vice versa.
@@ -622,22 +618,18 @@ class CityHealthiness(AbstractCityTestAlert):
 	
 	def _getAlertMessageIcon(self, city, passes):
 		if (passes):
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_UNHEALTHY", (city.getName(), )),
-					UNHEALTHY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_UNHEALTHY", (city.getName(), )), UNHEALTHY_ICON)
 		else:
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_HEALTHY", (city.getName(), )),
-					HEALTHY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_HEALTHY", (city.getName(), )), HEALTHY_ICON)
 	
 	def _isShowPendingAlert(self, passes):
 		return Civ4lertsOpt.isShowCityPendingHealthinessAlert()
 
 	def _getPendingAlertMessageIcon(self, city, passes):
 		if (passes):
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_UNHEALTHY", (city.getName(), )),
-					UNHEALTHY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_UNHEALTHY", (city.getName(), )), UNHEALTHY_ICON)
 		else:
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_HEALTHY", (city.getName(), )),
-					HEALTHY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_HEALTHY", (city.getName(), )), HEALTHY_ICON)
 
 # Occupation
 
@@ -663,8 +655,7 @@ class CityOccupation(AbstractCityTestAlert):
 			BugUtil.debug("%s passed occupation test, ignoring", city.getName())
 			return (None, None)
 		else:
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PACIFIED", (city.getName(), )),
-					HAPPY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PACIFIED", (city.getName(), )), HAPPY_ICON)
 	
 	def _isShowPendingAlert(self, passes):
 		return False #Civ4lertsOpt.isShowCityPendingOccupationAlert() # advc.106d: Disabled
@@ -674,8 +665,7 @@ class CityOccupation(AbstractCityTestAlert):
 			BugUtil.warn("%s passed pending occupation test, ignoring", city.getName())
 			return (None, None)
 		else:
-			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_PACIFIED", (city.getName(), )),
-					HAPPY_ICON)
+			return (localText.getText("TXT_KEY_CIV4LERTS_ON_CITY_PENDING_PACIFIED", (city.getName(), )), HAPPY_ICON)
 
 	# <advc.106d> The default implementation suppresses messages about cities in occupation. Obv. don't want that here.
 	# (Untested b/c the occupation alert is permanently disabled.)
@@ -1109,8 +1099,7 @@ class WorstEnemy(AbstractStatefulAlert):
 						if eOldEnemy == eOwnerTeam: # advc.135b: Right side was active team
 							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_YOU_NO_WORST_ENEMY", gc.getTeam(eTeam).getName())
 						else:
-							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_NO_WORST_ENEMY", 
-									(gc.getTeam(eTeam).getName(), gc.getTeam(eOldEnemy).getName()))
+							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_NO_WORST_ENEMY", (gc.getTeam(eTeam).getName(), gc.getTeam(eOldEnemy).getName()))
 					elif eOldEnemy == -1:
 						message = None # handled below
 						if eNewEnemy not in delayedMessages:
@@ -1119,14 +1108,11 @@ class WorstEnemy(AbstractStatefulAlert):
 							delayedMessages[eNewEnemy] += u", " + gc.getTeam(eTeam).getName()
 					else:
 						if eOldEnemy == eOwnerTeam: # advc.135b: Right side was active team
-							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_SWITCH_WORST_ENEMY_FROM_YOU", 
-									(gc.getTeam(eTeam).getName(), gc.getTeam(eNewEnemy).getName()))
+							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_SWITCH_WORST_ENEMY_FROM_YOU", (gc.getTeam(eTeam).getName(), gc.getTeam(eNewEnemy).getName()))
 						elif eNewEnemy == eOwnerTeam: # advc.135b: Right side was active team
-							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_SWITCH_WORST_ENEMY_TO_YOU", 
-									(gc.getTeam(eTeam).getName(), gc.getTeam(eOldEnemy).getName()))
+							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_SWITCH_WORST_ENEMY_TO_YOU", (gc.getTeam(eTeam).getName(), gc.getTeam(eOldEnemy).getName()))
 						else:
-							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_SWITCH_WORST_ENEMY", 
-									(gc.getTeam(eTeam).getName(), gc.getTeam(eNewEnemy).getName(), gc.getTeam(eOldEnemy).getName()))
+							message = BugUtil.getText("TXT_KEY_CIV4LERTS_ON_SWITCH_WORST_ENEMY", (gc.getTeam(eTeam).getName(), gc.getTeam(eNewEnemy).getName(), gc.getTeam(eOldEnemy).getName()))
 					if message and not silent: # advc.106c
 						addMessageNoIcon(self.iOwner, message) # advc.135b: 1st arg was active player
 		for eEnemy, haters in delayedMessages.iteritems():

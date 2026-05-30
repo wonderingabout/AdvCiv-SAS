@@ -391,10 +391,7 @@ def assignStartingPlots():
 					del land_areas[landLoop]
 					break
 		# Store infos to regional lists.
-		region_data.append([iWestX, iEastX, iSouthY, iNorthY, 
-		                    iNumLandPlots, iNumCoastalPlots,
-		                    iNumOceanPlots, iRegionNetYield,
-		                    iNumLandAreas, iNumPlotsinRegion])
+		region_data.append([iWestX, iEastX, iSouthY, iNorthY, iNumLandPlots, iNumCoastalPlots, iNumOceanPlots, iRegionNetYield, iNumLandAreas, iNumPlotsinRegion])
 		region_best_areas.append(best_areas)
 		region_yields.append(iRegionNetYield)
 		sorting_regions.append(iRegionNetYield)

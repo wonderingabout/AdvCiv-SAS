@@ -146,13 +146,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
 				iHillGrain = 5 # advc.mxc: was 3
-				self.generatePlotsInRegion(iWater,
-				                           tinyWidth, tinyHeight,
-				                           tinyWestX, tinySouthY,
-				                           4, iHillGrain,
-				                           0, self.iTerrainFlags,
-				                           6, 5,
-				                           True, 3)
+				self.generatePlotsInRegion(iWater, tinyWidth, tinyHeight, tinyWestX, tinySouthY, 4, iHillGrain, 0, self.iTerrainFlags, 6, 5, True, 3)
 		# <K-Mod>
 		zone_types = [0] * iTotalZones
 		i = 0
@@ -189,29 +183,11 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 			if (zone_types[i] == 1):
 				# continent zone </K-Mod>
-				self.generatePlotsInRegion(iWater,
-										   iWidth, iHeight,
-										   iWestX, iSouthY,
-										   iContinentsGrain, 4,
-										   self.iRoundFlags, self.iTerrainFlags,
-										   xExp, 6,
-										   True, 15,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrain, 4, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 			# <K-Mod>
 			else:
 				# islands zone # </K-Mod>
-				self.generatePlotsInRegion(iWater,
-										   iWidth, iHeight,
-										   iWestX, iSouthY,
-										   iIslandsGrain, 5,
-										   self.iRoundFlags, self.iTerrainFlags,
-										   xExp, 6,
-										   True, 15,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iIslandsGrain, 5, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes

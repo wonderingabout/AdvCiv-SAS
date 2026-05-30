@@ -128,26 +128,16 @@ def build_report(stats, xml_groups, missing_by_source, usage, mod_root, show_cal
     return "\n".join(lines) + "\n"
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--mod-root", type=Path, default=Path.cwd(),
-                        help="mod root (default: CWD)")
-    parser.add_argument("--bts-xml-dir", type=Path, default=None,
-                        help="dir holding base BTS *.xml (default: <mod-root>/../../Assets/XML/)")
-    parser.add_argument("--vanilla-xml-dir", type=Path, default=None,
-                        help="dir holding vanilla Civ4 *.xml (default: <mod-root>/../../../Assets/XML/)")
-    parser.add_argument("--dll-root", type=Path, default=None,
-                        help="dir to scan for .cpp/.h literal calls (default: <mod-root>/CvGameCoreDLL/)")
-    parser.add_argument("--extra-xml", action="append", default=[],
-                        help="additional XML file or dir to treat as authoritative; repeatable")
-    parser.add_argument("--no-dll", action="store_true",
-                        help="skip DLL scan")
-    parser.add_argument("--show-callsites", action="store_true",
-                        help="list files that use each missing key")
-    parser.add_argument("--output-dir", default=os.path.join("LLM_Helpers", "outputs"),
-                        help="dir to write timestamped report (default: LLM_Helpers/outputs)")
-    parser.add_argument("--no-output-file", action="store_true",
-                        help="print to stdout only; do not write a report file")
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--mod-root", type=Path, default=Path.cwd(), help="mod root (default: CWD)")
+    parser.add_argument("--bts-xml-dir", type=Path, default=None, help="dir holding base BTS *.xml (default: <mod-root>/../../Assets/XML/)")
+    parser.add_argument("--vanilla-xml-dir", type=Path, default=None, help="dir holding vanilla Civ4 *.xml (default: <mod-root>/../../../Assets/XML/)")
+    parser.add_argument("--dll-root", type=Path, default=None, help="dir to scan for .cpp/.h literal calls (default: <mod-root>/CvGameCoreDLL/)")
+    parser.add_argument("--extra-xml", action="append", default=[], help="additional XML file or dir to treat as authoritative; repeatable")
+    parser.add_argument("--no-dll", action="store_true", help="skip DLL scan")
+    parser.add_argument("--show-callsites", action="store_true", help="list files that use each missing key")
+    parser.add_argument("--output-dir", default=os.path.join("LLM_Helpers", "outputs"), help="dir to write timestamped report (default: LLM_Helpers/outputs)")
+    parser.add_argument("--no-output-file", action="store_true", help="print to stdout only; do not write a report file")
     args = parser.parse_args()
 
     mod_root = args.mod_root.resolve()

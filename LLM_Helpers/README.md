@@ -13,7 +13,62 @@ Important distinction:
 
 Always review diffs before committing generated source changes.
 
+## Menu
+
+- [Source-rewrite helpers](#source-rewrite-helpers)
+  - [`collapse_multiline_calls.py`](#collapse_multiline_callspy)
+  - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
+  - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
+- [CvMainInterface single-line cleanup reference scripts](#cvmaininterface-single-line-cleanup-reference-scripts)
+  - [`singleline_pass.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
+  - [`singleline_pass_comments.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
+  - [`singleline_pass3_comments_and_long.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
+  - [`comment_cleanup_pass_v2.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
+- [Game speed helper scripts](#game-speed-helper-scripts)
+  - [`compare_speed_summaries.py`](#compare_speed_summariespy)
+  - [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy)
+- [Game info comparison helpers](#game-info-comparison-helpers)
+  - [`compare_handicap_infos.py`](#compare_handicap_infospy)
+- [Static audit helpers](#static-audit-helpers)
+  - [`audit_define_keys.py`](#audit_define_keyspy)
+  - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
+- [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
+- [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
+
 ## Source-rewrite helpers
+
+### `collapse_multiline_calls.py`
+
+Conservative source-rewrite helper for Python files.
+
+- Collapses multiline call-like statements and simple parenthesized return expressions into one line.
+- Useful for making Civ4 Python calls easier to grep/review and for reducing harmless continuation-indent noise.
+- Skips statements containing comments, multiline strings, explicit backslash continuations, and large list/dict/table assignments.
+- Preserves line endings and refuses to write if significant token sequence changes.
+- Safer than `collapse_multiline_brackets.py` for broad cleanup because it does not collapse arbitrary bracketed dictionaries/lists/tables.
+- Still review the diff before committing. The goal is searchability and reviewability, not general formatting.
+- For broad passes, prefer active mod/helper source. Avoid reference/comparison folders such as `_0_Common_Docs` unless the task explicitly needs them.
+- If the diff starts touching large data tables, comments, fragile indentation, or hard-to-review inherited files, stop and narrow the target set.
+
+Single-file examples:
+
+```powershell
+python LLM_Helpers\collapse_multiline_calls.py PrivateMaps\Mirror.py
+python LLM_Helpers\collapse_multiline_calls.py PrivateMaps\Mirror.py --in-place
+python LLM_Helpers\collapse_multiline_calls.py PrivateMaps\Mirror.py --diff
+```
+
+Broad run workflow from PowerShell. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, then removes the runner. The helper can also be run on a single file from PowerShell or Git Bash; this broad pass was tested with PowerShell for file generation, then Git Bash for staged diff output.
+
+```powershell
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; Copy-Item "LLM_Helpers\collapse_multiline_calls.py" "LLM_Helpers\collapse_multiline_calls_TEMP_RUNNER.py"; $script=(Resolve-Path "LLM_Helpers\collapse_multiline_calls_TEMP_RUNNER.py").Path; Get-ChildItem -Recurse -File -Filter *.py | Where-Object { $_.FullName -ne $script } | ForEach-Object { py $script $_.FullName --in-place }; Remove-Item $script; git diff --ignore-space-at-eol --stat; git diff --check
+```
+
+Broad staged-review workflow from Git Bash after the files were modified. This stages only `.py` files, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/staged_collapse_multiline_calls_${ts}.diff" && git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add && git diff --cached --ignore-space-at-eol > "$out" && git diff --cached --ignore-space-at-eol --stat && git diff --cached --check && echo "wrote $out"
+```
 
 ### `collapse_multiline_brackets.py`
 
@@ -49,7 +104,7 @@ python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --in-place Ass
 python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --check Assets\Python PrivateMaps
 ```
 
-### ChatGPT single-line cleanup scripts
+### CvMainInterface single-line cleanup reference scripts
 
 These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
 

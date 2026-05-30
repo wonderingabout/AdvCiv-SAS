@@ -36,8 +36,7 @@ def testW():
 		else:
 			global error
 			error = result.message
-	t = getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/",
-			callback)
+	t = getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/", callback)
 	count = 0
 	while not t.done() and count < 100:
 		time.sleep(0.05)

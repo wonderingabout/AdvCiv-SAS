@@ -332,12 +332,7 @@ except Exception as e:
     py3_compile_error = repr(e)
 
 # Diff from pass2 to pass3.
-diff = difflib.unified_diff(
-    SRC.read_text(encoding='utf-8', errors='replace').splitlines(True),
-    DST.read_text(encoding='utf-8', errors='replace').splitlines(True),
-    fromfile='CvMainInterface.singleline2.py',
-    tofile='CvMainInterface.singleline3.py',
-)
+diff = difflib.unified_diff(SRC.read_text(encoding='utf-8', errors='replace').splitlines(True), DST.read_text(encoding='utf-8', errors='replace').splitlines(True), fromfile='CvMainInterface.singleline2.py', tofile='CvMainInterface.singleline3.py',)
 DIFF.write_text(''.join(diff), encoding='utf-8')
 
 print('real_code_changed_logical_statements=%d' % real_changed)

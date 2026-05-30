@@ -259,20 +259,14 @@ def matchPlayerOrTeam(teamOrPlayer, alive=None, human=None, barbarian=None, mino
 	#
 	# Pass None (or leave out) for any filter to ignore it.
 	#
-	return ((alive is None or alive == teamOrPlayer.isAlive())
-			and (human is None or human == teamOrPlayer.isHuman())
-			and (barbarian is None or barbarian == teamOrPlayer.isBarbarian())
-			and (minor is None or minor == teamOrPlayer.isMinorCiv())
-			and (active is None or active == isEverActive(teamOrPlayer)))
+	return ((alive is None or alive == teamOrPlayer.isAlive()) and (human is None or human == teamOrPlayer.isHuman()) and (barbarian is None or barbarian == teamOrPlayer.isBarbarian()) and (minor is None or minor == teamOrPlayer.isMinorCiv()) and (active is None or active == isEverActive(teamOrPlayer)))
 
 def isEverActive(teamOrPlayer):
 	# Returns True if the given team/player can ever be the active team/player.
 	#
 	# For HotSeat games this includes all human players/teams. For all other game types there is only one.
 	#
-	return ((gc.getGame().isHotSeat() and teamOrPlayer.isHuman()) 
-			or (isinstance(teamOrPlayer, CyPlayer) and teamOrPlayer.getID() == getActivePlayerID())
-			or (isinstance(teamOrPlayer, CyTeam) and teamOrPlayer.getID() == getActiveTeamID()))
+	return ((gc.getGame().isHotSeat() and teamOrPlayer.isHuman()) or (isinstance(teamOrPlayer, CyPlayer) and teamOrPlayer.getID() == getActivePlayerID()) or (isinstance(teamOrPlayer, CyTeam) and teamOrPlayer.getID() == getActiveTeamID()))
 
 ## Player Information
 

@@ -562,41 +562,34 @@ class BugEventManager(CvEventManager.CvEventManager):
 	def onUnitUpgraded(self, argsList):
 		# Called when a unit is upgraded.
 		pOldUnit, pNewUnit, iPrice = argsList
-		BugUtil.debug("%s upgraded to %s for %d%c", 
-				pOldUnit.getName(), pNewUnit.getName(), iPrice, gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar())
+		BugUtil.debug("%s upgraded to %s for %d%c", pOldUnit.getName(), pNewUnit.getName(), iPrice, gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar())
 	
 	def onUnitCaptured(self, argsList):
 		# Called when a unit is captured.
 		eOwner, eUnitType, pNewUnit = argsList
-		BugUtil.debug("%s %s captured as %s by %s",
-				gc.getPlayer(eOwner).getName(), gc.getUnitInfo(eUnitType).getDescription(),
-				pNewUnit.getName(), gc.getPlayer(pNewUnit.getOwner()).getName())
+		BugUtil.debug("%s %s captured as %s by %s", gc.getPlayer(eOwner).getName(), gc.getUnitInfo(eUnitType).getDescription(), pNewUnit.getName(), gc.getPlayer(pNewUnit.getOwner()).getName())
 		# <!-- custom: Fix Military Advisor capture columns staying blank: BugEventManager shadows CvEventManager.onUnitCaptured, so CvEventManager.__init__ binds the unitCaptured event to this override on the live BUG manager. Record SAS battle-history capture data here rather than only in the parent handler. Credit: Claude code Opus 4.7 investigation. (GPT-5.5) -->
 		SASBattleHistory.recordUnitCaptured(eOwner, eUnitType, pNewUnit)
 	
 	def onCombatWithdrawal(self, argsList):
 		# Fired when a unit withdraws from combat after doing maximum damage.
 		pAttacker, pDefender = argsList
-		BugUtil.debug("%s withdraws from %s", 
-				pAttacker.getName(), pDefender.getName())
+		BugUtil.debug("%s withdraws from %s", pAttacker.getName(), pDefender.getName())
 	
 	def onCombatRetreat(self, argsList):
 		# Fired when a unit retreats from combat, escaping death.
 		pAttacker, pDefender = argsList
-		BugUtil.debug("%s retreats from %s", 
-				pAttacker.getName(), pDefender.getName())
+		BugUtil.debug("%s retreats from %s", pAttacker.getName(), pDefender.getName())
 	
 	def onCombatLogCollateral(self, argsList):
 		# Fired when a unit inflicts collateral damage to another unit.
 		pAttacker, pDefender, iDamage = argsList
-		BugUtil.debug("%s bombards %s for %d HP", 
-				pAttacker.getName(), pDefender.getName(), iDamage)
+		BugUtil.debug("%s bombards %s for %d HP", pAttacker.getName(), pDefender.getName(), iDamage)
 	
 	def onCombatLogFlanking(self, argsList):
 		# Fired when a unit inflicts flanking damage to another unit.
 		pAttacker, pDefender, iDamage = argsList
-		BugUtil.debug("%s flanks %s for %d HP", 
-				pAttacker.getName(), pDefender.getName(), iDamage)
+		BugUtil.debug("%s flanks %s for %d HP", pAttacker.getName(), pDefender.getName(), iDamage)
 	
 	
 	def onPlayerRevolution(self, argsList):

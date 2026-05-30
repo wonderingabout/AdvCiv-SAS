@@ -82,24 +82,16 @@ class BupPanel:
 			# Important to have it at first place within the for loop
 			# so that it sits behind the unit icon button
 			szStringPromoFrame = szBupCell + "PromoFrame"
-			screen.addDDSGFC(szStringPromoFrame, sPromoFrame,
-					iX, iY, iFrameSize, iFrameSize,
-					WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
+			screen.addDDSGFC(szStringPromoFrame, sPromoFrame, iX, iY, iFrameSize, iFrameSize, WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
 			screen.hide(szStringPromoFrame)
 
 			# unit icon
-			screen.addCheckBoxGFC(szBupCell, sTexture, sHiLiteTexture,
-					iX, iY, iFrameSize, iFrameSize,
-					WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1,
-					ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC(szBupCell, sTexture, sHiLiteTexture, iX, iY, iFrameSize, iFrameSize, WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 			screen.hide(szBupCell)
 
 			# health bar
 			szStringHealth = szBupCell + "Health"
-			screen.addStackedBarGFC(szStringHealth,
-					iX, iY + (23 * iFrameSize) / 32, iFrameSize, (11 * iFrameSize) / 32,
-					InfoBarTypes.NUM_INFOBAR_TYPES,
-					WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
+			screen.addStackedBarGFC(szStringHealth, iX, iY + (23 * iFrameSize) / 32, iFrameSize, (11 * iFrameSize) / 32, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
 			screen.hide(szStringHealth)
 
 			self.BupCell_Displayed.append(False)
@@ -390,9 +382,7 @@ class BupPanel:
 		yOffset /= 34 # </advc.092>
 
 		# display the colored spot icon
-		self.screen.addDDSGFC(szCell + "Dot", getArt(BupUnit.DotStatus),
-				x + xOffset, y + yOffset, xSize, ySize,
-				WidgetTypes.WIDGET_GENERAL, iCount, -1 )
+		self.screen.addDDSGFC(szCell + "Dot", getArt(BupUnit.DotStatus), x + xOffset, y + yOffset, xSize, ySize, WidgetTypes.WIDGET_GENERAL, iCount, -1 )
 
 ############## promotion available ##############
 

@@ -88,8 +88,7 @@ def init():
 	for count, getInfo in ((YieldTypes.NUM_YIELD_TYPES, gc.getYieldInfo), (CommerceTypes.NUM_COMMERCE_TYPES, gc.getCommerceInfo)):
 		for enum in range(count):
 			info = getInfo(enum)
-			addSymbol(info.getType().lower().replace("_", " "), 
-					info.getChar(), info.getType())
+			addSymbol(info.getType().lower().replace("_", " "), info.getChar(), info.getType())
 
 def addBuiltinSymbol(key, symbol):
 	registerSymbol(key, symbol, gc.getGame().getSymbolID(symbol))

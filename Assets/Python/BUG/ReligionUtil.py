@@ -351,8 +351,7 @@ def init():
 			for type in BUILDINGS:
 				if type.matches(bldg, iReligion):
 					BUILDINGS_BY_RELIGION[iReligion][type.index] = iBldg
-					BugUtil.debug("ReligionUtil.init - %s %s is %i: %s", 
-								gc.getReligionInfo(iReligion).getDescription(), type.description, iBldg, bldg.getDescription())
+					BugUtil.debug("ReligionUtil.init - %s %s is %i: %s", gc.getReligionInfo(iReligion).getDescription(), type.description, iBldg, bldg.getDescription())
 					break
 	
 	for iUnit in range(gc.getNumUnitInfos()):
@@ -362,8 +361,7 @@ def init():
 			for type in UNITS:
 				if type.matches(unit, iReligion):
 					UNITS_BY_RELIGION[iReligion][type.index] = iUnit
-					BugUtil.debug("ReligionUtil.init - %s %s is %i: %s", 
-								gc.getReligionInfo(iReligion).getDescription(), type.description, iUnit, unit.getDescription())
+					BugUtil.debug("ReligionUtil.init - %s %s is %i: %s", gc.getReligionInfo(iReligion).getDescription(), type.description, iUnit, unit.getDescription())
 					break
 
 ## Building and Unit Types

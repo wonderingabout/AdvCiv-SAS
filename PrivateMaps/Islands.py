@@ -299,16 +299,7 @@ class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		else:
 			tiny_one = [[-1, -1], [92, 6], [91, 5], [85, 5]]
 			[tinyWater, tinyGrain] = tiny_one[userInputTinyIslands]
-			self.generatePlotsInRegion(tinyWater,
-			                           self.iW, self.iH,
-			                           0, 0,
-			                           tinyGrain, 4,
-			                           self.iHorzFlags, self.iTerrainFlags,
-			                           7, 6,
-			                           True, 15,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(tinyWater, self.iW, self.iH, 0, 0, tinyGrain, 4, self.iHorzFlags, self.iTerrainFlags, 7, 6, True, 15, -1, False, False)
 
 		# Add the Large Islands (two fractals each to ensure cohesion).
 		global iExtras
@@ -368,16 +359,7 @@ class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			# Vary the shoreline
 			shore_grain = 1 + self.dice.get(3, "Random Shoreline Type - Islands PYTHON")
 
-			self.generatePlotsInRegion(55 + sea,
-			                           regWidth, regHeight,
-			                           regWestX, regSouthY,
-			                           shore_grain, 4,
-			                           self.iRoundFlags, self.iTerrainFlags,
-			                           6, 6,
-			                           True, 3,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(55 + sea, regWidth, regHeight, regWestX, regSouthY, shore_grain, 4, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 
 			# Core fractal to increase cohesion
 			coreWestX = regWestX + int(regWidth * 0.25)
@@ -387,16 +369,7 @@ class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			coreWidth = coreEastX - coreWestX + 1
 			coreHeight = coreNorthY - coreSouthY + 1
 
-			self.generatePlotsInRegion(65,
-			                           coreWidth, coreHeight,
-			                           coreWestX, coreSouthY,
-			                           1, 3,
-			                           self.iHorzFlags, self.iTerrainFlags,
-			                           5, 5,
-			                           True, 3,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(65, coreWidth, coreHeight, coreWestX, coreSouthY, 1, 3, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 3, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes

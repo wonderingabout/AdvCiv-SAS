@@ -34,8 +34,7 @@ def launch(argsList=None):
 			webbrowser.open(url, new=1, autoraise=1)
 			return True
 		except:
-			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_TITLE"), 
-					BugUtil.getText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_BODY", (url,)))		
+			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_TITLE"), BugUtil.getText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_BODY", (url,)))
 	else: # advc.009: There is no FRA and ESP translation
 		sLang = ["ENG", "ENG", "DEU", "ITA", "ENG"]
 		name = "BUG Mod Help-%s.chm" % (sLang[CyGame().getCurrentLanguage()])
@@ -49,8 +48,7 @@ def launch(argsList=None):
 			os.startfile(file)
 			return True
 		else:
-			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_MISSING_TITLE"),
-					debug + BugUtil.getText("TXT_KEY_BUG_HELP_MISSING_BODY", (name,)))
+			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_MISSING_TITLE"), debug + BugUtil.getText("TXT_KEY_BUG_HELP_MISSING_BODY", (name,)))
 	return False
 
 def showLaunchMessage():

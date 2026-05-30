@@ -407,8 +407,7 @@ class ConfigHandler(Handler):
 	TAG = "config"
 	
 	def __init__(self):
-		Handler.__init__(self, self.TAG, 
-				"root tag key parents module class", ConfigHandler.TAG)
+		Handler.__init__(self, self.TAG, "root tag key parents module class", ConfigHandler.TAG)
 		self.addAttribute("root")
 		self.addAttribute("tag", True, False, None, "root")
 		self.addAttribute("key", True, False, None, "tag")
@@ -476,9 +475,7 @@ class ModHandler(Handler):
 	TAG = "mod"
 	
 	def __init__(self):
-		Handler.__init__(self, self.TAG, 
-				"id module name author version build date url dll", 
-				(LoadHandler.TAG))
+		Handler.__init__(self, self.TAG, "id module name author version build date url dll", (LoadHandler.TAG))
 		self.addAttribute("id")
 		self.addAttribute("name")
 		self.addAttribute("dll")

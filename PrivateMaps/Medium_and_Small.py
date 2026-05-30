@@ -132,16 +132,7 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
 
-				self.generatePlotsInRegion(80,
-				                           tinyWidth, tinyHeight,
-				                           tinyWestX, tinySouthY,
-				                           4, 3,
-				                           0, self.iTerrainFlags,
-				                           6, 5,
-				                           True, 3,
-				                           -1, False,
-				                           False
-				                           )
+				self.generatePlotsInRegion(80, tinyWidth, tinyHeight, tinyWestX, tinySouthY, 4, 3, 0, self.iTerrainFlags, 6, 5, True, 3, -1, False, False)
 
 		# Add the contental regions.
 
@@ -179,16 +170,7 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iHeight = iNorthY - iSouthY + 1
 		print("Cont South: ", iSouthY, "Cont North: ", iNorthY, "Cont Height: ", iHeight)
 
-		self.generatePlotsInRegion(iWater,
-		                           iWidth, iHeight,
-		                           iWestX, iSouthY,
-		                           iContinentsGrainWest, 4,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, yExp,
-		                           True, 15,
-		                           -1, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrainWest, 4, self.iRoundFlags, self.iTerrainFlags, 6, yExp, True, 15, -1, False, False)
 
 		# Add the Western Islands.
 		iWestX = int(self.iW * 0.12)
@@ -223,16 +205,7 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iHeight = iNorthY - iSouthY + 1
 		print("Cont South: ", iSouthY, "Cont North: ", iNorthY, "Cont Height: ", iHeight)
 
-		self.generatePlotsInRegion(iWater,
-		                           iWidth, iHeight,
-		                           iWestX, iSouthY,
-		                           iIslandsGrain, 5,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, yExp,
-		                           True, 15,
-		                           -1, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iIslandsGrain, 5, self.iRoundFlags, self.iTerrainFlags, 6, yExp, True, 15, -1, False, False)
 
 		# Add the Eastern Continent(s).
 		iSouthY = 0
@@ -268,16 +241,7 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iHeight = iNorthY - iSouthY + 1
 		print("Cont South: ", iSouthY, "Cont North: ", iNorthY, "Cont Height: ", iHeight)
 
-		self.generatePlotsInRegion(iWater,
-		                           iWidth, iHeight,
-		                           iWestX, iSouthY,
-		                           iContinentsGrainWest, 4,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, yExp,
-		                           True, 15,
-		                           -1, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrainWest, 4, self.iRoundFlags, self.iTerrainFlags, 6, yExp, True, 15, -1, False, False)
 
 		# Add the Eastern Islands.
 		iWestX = int(self.iW * 0.62)
@@ -312,16 +276,7 @@ class MnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			iHeight = iNorthY - iSouthY + 1
 		print("Cont South: ", iSouthY, "Cont North: ", iNorthY, "Cont Height: ", iHeight)
 
-		self.generatePlotsInRegion(iWater,
-		                           iWidth, iHeight,
-		                           iWestX, iSouthY,
-		                           iIslandsGrain, 5,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, yExp,
-		                           True, 15,
-		                           -1, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iIslandsGrain, 5, self.iRoundFlags, self.iTerrainFlags, 6, yExp, True, 15, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		print("Done")

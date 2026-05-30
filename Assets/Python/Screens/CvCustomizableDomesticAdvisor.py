@@ -2759,15 +2759,7 @@ class CvCustomizableDomesticAdvisor:
 		screen = self.getScreen()
 		self.customizingClearSelection()
 		name = "New Page %d" % (len(self.PAGES) + 1)
-		self.PAGES.append(
-			{
-				"name" : name,
-				"showSpecControls" : False,
-				"showCultureLegend" : False,
-				"showGPLegend" : False,
-				"columns" : [("NAME", 95, "text")]
-			}
-		)
+		self.PAGES.append({"name" : name, "showSpecControls" : False, "showCultureLegend" : False, "showGPLegend" : False, "columns" : [("NAME", 95, "text")]})
 		self.switchPage(name)
 		self.drawScreen(self.currentPage)
 

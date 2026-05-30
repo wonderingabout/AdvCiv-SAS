@@ -1219,8 +1219,7 @@ class CvPlotDesc:
 		if (plot.getImprovementType()!=-1):
 			f.write("\tImprovementType=%s\n" %(gc.getImprovementInfo(plot.getImprovementType()).getType()) )
 		if (plot.getFeatureType()!=-1):
-			f.write("\tFeatureType=%s, FeatureVariety=%d\n"
-			%(gc.getFeatureInfo(plot.getFeatureType()).getType(), plot.getFeatureVariety(), ) )
+			f.write("\tFeatureType=%s, FeatureVariety=%d\n" %(gc.getFeatureInfo(plot.getFeatureType()).getType(), plot.getFeatureVariety(), ) )
 		if (plot.getRouteType()!=-1):
 			f.write("\tRouteType=%s\n" %(gc.getRouteInfo(plot.getRouteType()).getType()) )
 		if (plot.getTerrainType()!=-1):

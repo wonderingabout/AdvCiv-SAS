@@ -182,16 +182,7 @@ class MirrorMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		water = 50 + (5 * cont_grain)
 		
 		# Generate the main land mass.
-		self.generatePlotsInRegion(water,
-		                           iWidth, iHeight,
-		                           westX, southY,
-		                           cont_grain, grain,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, 6,
-		                           True, 7,
-		                           -1, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(water, iWidth, iHeight, westX, southY, cont_grain, grain, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 7, -1, False, False)
 
 		# Second pass (to ensure cohesion), but only for Continents choices.
 		if terrain_type < 3:
@@ -202,16 +193,7 @@ class MirrorMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			second_layerNorthY = northY - int(iHeight/5)
 			second_layerSouthY = southY + int(iHeight/5)
 
-			self.generatePlotsInRegion(60,
-			                           second_layerWidth, second_layerHeight,
-			                           second_layerWestX, second_layerSouthY,
-			                           1, grain,
-			                           self.iHorzFlags, self.iTerrainFlags,
-			                           6, 5,
-			                           True, 5,
-			                           -1, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(60, second_layerWidth, second_layerHeight, second_layerWestX, second_layerSouthY, 1, grain, self.iHorzFlags, self.iTerrainFlags, 6, 5, True, 5, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes

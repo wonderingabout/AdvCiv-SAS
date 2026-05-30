@@ -226,9 +226,7 @@ class InterpolationDepthError(InterpolationError):
         Traceback (most recent call last):
         InterpolationDepthError: max interpolation depth exceeded in value "yoda".
         """
-        InterpolationError.__init__(
-            self,
-            'max interpolation depth exceeded in value "%s".' % option)
+        InterpolationError.__init__(self, 'max interpolation depth exceeded in value "%s".' % option)
 
 class RepeatSectionError(ConfigObjError):
     """
@@ -249,9 +247,7 @@ class MissingInterpolationOption(InterpolationError):
         Traceback (most recent call last):
         MissingInterpolationOption: missing option "yoda" in interpolation.
         """
-        InterpolationError.__init__(
-            self,
-            'missing option "%s" in interpolation.' % option)
+        InterpolationError.__init__(self, 'missing option "%s" in interpolation.' % option)
 
 class Section(dict):
     #
@@ -382,15 +378,7 @@ class Section(dict):
             if not self.has_key(key):
                 self.sections.append(key)
             new_depth = self.depth + 1
-            dict.__setitem__(
-                self,
-                key,
-                Section(
-                    self,
-                    new_depth,
-                    self.main,
-                    indict=value,
-                    name=key))
+            dict.__setitem__(self, key, Section(self, new_depth, self.main, indict=value, name=key))
         else:
             if not self.has_key(key):
                 self.scalars.append(key)
@@ -771,8 +759,7 @@ class Section(dict):
     def istrue(self, key):
         # A deprecated version of ``as_bool``.
         #
-        warn('use of ``istrue`` is deprecated. Use ``as_bool`` method '
-                'instead.', DeprecationWarning)
+        warn('use of ``istrue`` is deprecated. Use ``as_bool`` method ' 'instead.', DeprecationWarning)
         return self.as_bool(key)
 
     def as_bool(self, key):
@@ -1352,20 +1339,14 @@ class ConfigObj(Section):
                     self.indent_type = indent[0]
                 cur_depth = sect_open.count('[')
                 if cur_depth != sect_close.count(']'):
-                    self._handle_error(
-                        "Cannot compute the section depth at line %s.",
-                        NestingError, infile, cur_index)
+                    self._handle_error("Cannot compute the section depth at line %s.", NestingError, infile, cur_index)
                     continue
                 if cur_depth < this_section.depth:
                     # the new section is dropping back to a previous level
                     try:
-                        parent = self._match_depth(
-                            this_section,
-                            cur_depth).parent
+                        parent = self._match_depth(this_section, cur_depth).parent
                     except SyntaxError:
-                        self._handle_error(
-                            "Cannot compute nesting level at line %s.",
-                            NestingError, infile, cur_index)
+                        self._handle_error("Cannot compute nesting level at line %s.", NestingError, infile, cur_index)
                         continue
                 elif cur_depth == this_section.depth:
                     # the new section is a sibling of the current section
@@ -1374,23 +1355,15 @@ class ConfigObj(Section):
                     # the new section is a child the current section
                     parent = this_section
                 else:
-                    self._handle_error(
-                        "Section too nested at line %s.",
-                        NestingError, infile, cur_index)
+                    self._handle_error("Section too nested at line %s.", NestingError, infile, cur_index)
                 #
                 sect_name = self._unquote(sect_name)
                 if parent.has_key(sect_name):
 ##                    print >> sys.stderr, sect_name
-                    self._handle_error(
-                        'Duplicate section name at line %s.',
-                        DuplicateError, infile, cur_index)
+                    self._handle_error('Duplicate section name at line %s.', DuplicateError, infile, cur_index)
                     continue
                 # create the new section
-                this_section = Section(
-                    parent,
-                    cur_depth,
-                    self,
-                    name=sect_name)
+                this_section = Section(parent, cur_depth, self, name=sect_name)
                 parent[sect_name] = this_section
                 parent.inline_comments[sect_name] = comment
                 parent.comments[sect_name] = comment_list
@@ -1413,26 +1386,20 @@ class ConfigObj(Section):
                         (value, comment, cur_index) = self._multiline(
                             value, infile, cur_index, maxline)
                     except SyntaxError:
-                        self._handle_error(
-                            'Parse error in value at line %s.',
-                            ParseError, infile, cur_index)
+                        self._handle_error('Parse error in value at line %s.', ParseError, infile, cur_index)
                         continue
                 else:
                     # extract comment and lists
                     try:
                         (value, comment) = self._handle_value(value)
                     except SyntaxError:
-                        self._handle_error(
-                            'Parse error in value at line %s.',
-                            ParseError, infile, cur_index)
+                        self._handle_error('Parse error in value at line %s.', ParseError, infile, cur_index)
                         continue
                 #
 ##                print >> sys.stderr, sline
                 key = self._unquote(key)
                 if this_section.has_key(key):
-                    self._handle_error(
-                        'Duplicate keyword name at line %s.',
-                        DuplicateError, infile, cur_index)
+                    self._handle_error('Duplicate keyword name at line %s.', DuplicateError, infile, cur_index)
                     continue
                 # add the key
 ##                print >> sys.stderr, this_section.name
@@ -1448,9 +1415,7 @@ class ConfigObj(Section):
             #
             # it neither matched as a keyword
             # or a section marker
-            self._handle_error(
-                'Invalid line at line "%s".',
-                ParseError, infile, cur_index)
+            self._handle_error('Invalid line at line "%s".', ParseError, infile, cur_index)
         if self.indent_type is None:
             # no indentation used, set the type accordingly
             self.indent_type = ''
@@ -1750,11 +1715,7 @@ class ConfigObj(Section):
     def _handle_configspec(self, configspec):
         # Parse the configspec.
         try:
-            configspec = ConfigObj(
-                configspec,
-                raise_errors=True,
-                file_error=True,
-                list_values=False)
+            configspec = ConfigObj(configspec, raise_errors=True, file_error=True, list_values=False)
         except ConfigObjError, e:
             # FIXME: Should these errors have a reference
             # to the already parsed ConfigObj ?
@@ -1955,8 +1916,7 @@ class ConfigObj(Section):
                     line = csp + line
                 out.append(line)
         #
-        indent_string = self._a_to_u(
-            self._compute_indent_string(section.depth))
+        indent_string = self._a_to_u(self._compute_indent_string(section.depth))
         for entry in (section.scalars + section.sections):
             if entry in section.defaults:
                 # don't write out default values
@@ -1971,18 +1931,10 @@ class ConfigObj(Section):
             #
             if isinstance(this_entry, dict):
                 # a section
-                out.append(self._write_marker(
-                    indent_string,
-                    this_entry.depth,
-                    entry,
-                    comment))
+                out.append(self._write_marker(indent_string, this_entry.depth, entry, comment))
                 out.extend(self.write(section=this_entry))
             else:
-                out.append(self._write_line(
-                    indent_string,
-                    entry,
-                    this_entry,
-                    comment))
+                out.append(self._write_line(indent_string, entry, this_entry, comment))
         #
         if section is self:
             for line in self.final_comment:
@@ -2469,10 +2421,7 @@ class ConfigObj(Section):
                 missing = False
                 val = section[entry]
             try:
-                check = validator.check(spec_section[entry],
-                                        val,
-                                        missing=missing
-                                        )
+                check = validator.check(spec_section[entry], val, missing=missing)
             except validator.baseErrorClass, e:
                 if not preserve_errors or isinstance(e, VdtMissingValue):
                     out[entry] = False
@@ -2505,8 +2454,7 @@ class ConfigObj(Section):
         for entry in section.sections:
             if section is self and entry == 'DEFAULT':
                 continue
-            check = self.validate(validator, preserve_errors=preserve_errors,
-                section=section[entry])
+            check = self.validate(validator, preserve_errors=preserve_errors, section=section[entry])
             out[entry] = check
             if check == False:
                 ret_true = False
@@ -2993,10 +2941,5 @@ if __name__ == '__main__':
     a = ConfigObj(testconfig1.split('\n'), raise_errors=True)
     b = ConfigObj(testconfig2.split('\n'), raise_errors=True)
     i = ConfigObj(testconfig6.split('\n'), raise_errors=True)
-    globs.update({
-        'INTP_VER': INTP_VER,
-        'a': a,
-        'b': b,
-        'i': i,
-    })
+    globs.update({'INTP_VER': INTP_VER, 'a': a, 'b': b, 'i': i,})
     doctest.testmod(m, globs=globs)

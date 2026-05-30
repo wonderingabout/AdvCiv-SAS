@@ -1955,9 +1955,7 @@ class CvForeignAdvisor:
 					message = "\t\t" + self.TEXT_NOT_CONNECTED
 
 				self.resIconGrid.appendRow(labelText(currentPlayer.getName()), labelText(message))
-				self.resIconGrid.addIcon( currentRow, self.leaderCol
-										, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton()
-										, 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
+				self.resIconGrid.addIcon( currentRow, self.leaderCol, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
 				
 				# gold
 				# advc.036:

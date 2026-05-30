@@ -223,6 +223,5 @@ class BugScreen:
 					justify = CvUtil.FONT_RIGHT_JUSTIFY
 				else:
 					justify = CvUtil.FONT_LEFT_JUSTIFY
-				self.screen.setText(tab.widget_id, self.widget_id + "BottomPanel", tab.getLabel(), justify,
-									tab.X, tab.Y, tab.Z, FontTypes.TITLE_FONT, tab.WidgetType, -1, -1 )
+				self.screen.setText(tab.widget_id, self.widget_id + "BottomPanel", tab.getLabel(), justify, tab.X, tab.Y, tab.Z, FontTypes.TITLE_FONT, tab.WidgetType, -1, -1 )
 			itab += 1

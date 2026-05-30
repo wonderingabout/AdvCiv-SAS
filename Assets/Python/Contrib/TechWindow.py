@@ -134,31 +134,26 @@ class CvTechSplashScreen:
 		
 		# Main Panel
 		szMainPanel = "TechSplashMainPanel"
-		screen.addPanel( szMainPanel, "", "", true, true,
-			self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( szMainPanel, "", "", true, true, self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
 		
 		# Top Panel
 		szHeaderPanel = "TechSplashHeaderPanel"
-		screen.addPanel( szHeaderPanel, "", "", true, true,
-			self.X_UPPER_PANEL, self.Y_UPPER_PANEL, self.W_UPPER_PANEL, self.H_UPPER_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
+		screen.addPanel( szHeaderPanel, "", "", true, true, self.X_UPPER_PANEL, self.Y_UPPER_PANEL, self.W_UPPER_PANEL, self.H_UPPER_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
 		screen.setStyle(szHeaderPanel, "Panel_DawnBottom_Style")
 		
 		# Icon Panel
 		szIconPanel = "IconPanel"
-		screen.addPanel( szIconPanel, "", "", true, true,
-			self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_UPPER_PANEL-(self.iMarginSpace * 2), self.H_UPPER_PANEL-(self.iMarginSpace * 4), PanelStyles.PANEL_STYLE_MAIN_TAN15 )
+		screen.addPanel( szIconPanel, "", "", true, true, self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_UPPER_PANEL-(self.iMarginSpace * 2), self.H_UPPER_PANEL-(self.iMarginSpace * 4), PanelStyles.PANEL_STYLE_MAIN_TAN15 )
 		screen.setStyle(szIconPanel, "Panel_TechDiscover_Style")
 		
 		# Icon Panel
 		szIconPanel = "IconPanelGlow"
-		screen.addPanel( szIconPanel, "", "", true, true,
-			self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_ICON_PANEL, self.H_ICON_PANEL, PanelStyles.PANEL_STYLE_MAIN_TAN15 )
+		screen.addPanel( szIconPanel, "", "", true, true, self.X_ICON_PANEL, self.Y_ICON_PANEL, self.W_ICON_PANEL, self.H_ICON_PANEL, PanelStyles.PANEL_STYLE_MAIN_TAN15 )
 		screen.setStyle(szIconPanel, "Panel_TechDiscoverGlow_Style")
 		
 		# Bottom Panel
 		szTextPanel = "TechSplashTextPanel"
-		screen.addPanel( szTextPanel, "", "", true, true,
-			self.X_LOWER_PANEL+self.iMarginSpace, self.Y_LOWER_PANEL, self.W_LOWER_PANEL-(self.iMarginSpace * 2), self.H_LOWER_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+		screen.addPanel( szTextPanel, "", "", true, true, self.X_LOWER_PANEL+self.iMarginSpace, self.Y_LOWER_PANEL, self.W_LOWER_PANEL-(self.iMarginSpace * 2), self.H_LOWER_PANEL, PanelStyles.PANEL_STYLE_MAIN )
 		screen.setStyle(szTextPanel, "Panel_TanT_Style")
 		
 		# Exit Button
@@ -166,35 +161,30 @@ class CvTechSplashScreen:
 		
 		# Special Panel
 		szSpecialPanel = "TechSplashSpecialPanel"
-		screen.addPanel( szSpecialPanel, "", "", true, true,
-				self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL, self.W_SPECIAL_PANEL-(self.iMarginSpace * 2), self.H_SPECIAL_PANEL, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( szSpecialPanel, "", "", true, true, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL, self.W_SPECIAL_PANEL-(self.iMarginSpace * 2), self.H_SPECIAL_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(szSpecialPanel, "Panel_Black25_Style")
 		
 #---Eingefügt START - kann komplett gelöscht werden-----------------
 		# Allows PanelSIR
 		panelNameSIR = "SIR"
-		screen.addPanel( panelNameSIR, "", "", false, true,
-                                 self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR, self.W_ALLOWS_PANELSIR-(self.iMarginSpace * 2), self.H_ALLOWS_PANELSIR, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( panelNameSIR, "", "", false, true, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR, self.W_ALLOWS_PANELSIR-(self.iMarginSpace * 2), self.H_ALLOWS_PANELSIR, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelNameSIR, "Panel_Black25_Style")
 #---Eingefügt ENDE -------------------------------------------------
 
 		# Allows Panel
 		panelName = self.getNextWidgetName()
-		screen.addPanel( panelName, "", "", false, true,
-                                 self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( panelName, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelName, "Panel_Black25_Style")
 		
 #---Eingefügt START - kann komplett gelöscht werden-----------------
 		# Allows Panel2
 		panelName2 = "SIR2"
-		screen.addPanel( panelName2, "", "", false, true,
-                                 self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL2, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( panelName2, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL2, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelName2, "Panel_Black25_Style")
 
 		# Allows Panel3
 		panelName3 = "SIR3"
-		screen.addPanel( panelName3, "", "", false, true,
-                                 self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL3, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
+		screen.addPanel( panelName3, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL3, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelName3, "Panel_Black25_Style")
 #---Eingefügt ENDE -------------------------------------------------
 
@@ -202,8 +192,7 @@ class CvTechSplashScreen:
 		
 		# Title
 		szTech = techInfo.getDescription()
-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=4>" + szTech.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY,
-			self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=4>" + szTech.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		
 		# Tech Icon
 		screen.addDDSGFC(self.getNextWidgetName(), techInfo.getButton(), self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, self.iTech, -1 )
@@ -215,8 +204,7 @@ class CvTechSplashScreen:
 			szTechQuote += "\n\n" + techInfo.getCivilopedia()
 		else:
 			iTextOffset = 20
-		screen.addMultilineText( "Text", szTechQuote, 
-                        self.X_QUOTE, self.Y_QUOTE + iTextOffset, self.W_QUOTE, self.H_QUOTE - iTextOffset, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText( "Text", szTechQuote, self.X_QUOTE, self.Y_QUOTE + iTextOffset, self.W_QUOTE, self.H_QUOTE - iTextOffset, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		
 		# Special
 		szSpecialTitle = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()) + u"</font>"

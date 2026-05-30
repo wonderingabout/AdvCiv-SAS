@@ -136,29 +136,11 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWestX = iWestX + self.dice.get(iWidth - tinyWidth, "Tiny Longitude - Custom Continents PYTHON")
 				tinySouthY = iSouthY + self.dice.get(iHeight - tinyHeight, "Tiny Latitude - Custom Continents PYTHON")
 
-				self.generatePlotsInRegion(80,
-										   tinyWidth, tinyHeight,
-										   tinyWestX, tinySouthY,
-										   iGrain, 3,
-										   0, self.iTerrainFlags,
-										   6, 5,
-										   True, 3,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(80, tinyWidth, tinyHeight, tinyWestX, tinySouthY, iGrain, 3, 0, self.iTerrainFlags, 6, 5, True, 3, -1, False, False)
 		return 0
 
 	def generateContinentRegion(self, iWater, iWidth, iHeight, iWestX, iSouthY, iGrain, xExp):
-		self.generatePlotsInRegion(iWater,
-								   iWidth, iHeight,
-								   iWestX, iSouthY,
-								   iGrain, 4,
-								   self.iRoundFlags, self.iTerrainFlags,
-								   xExp, 6,
-								   True, 15,
-								   -1, False,
-								   False
-								   )
+		self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iGrain, 4, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 		return 0
 
 	def generatePlotsByRegion(self):

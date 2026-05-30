@@ -122,16 +122,12 @@ def collect_external_tokens(root):
 
 def main():
 	ap = argparse.ArgumentParser(description="Flag unused mod GameText TXT_KEY_* entries.")
-	ap.add_argument("--text-glob", default="Assets/XML/Text/*.xml",
-			help="glob (relative to mod root) for GameText files whose <Tag> entries are audited")
-	ap.add_argument("--prefix", default="",
-			help="only audit defined tags starting with this prefix (e.g. TXT_KEY_SAS)")
-	ap.add_argument("--no-external", action="store_true",
-			help="do NOT scan base BTS / vanilla Civ4 (mod-only references; more false positives)")
+	ap.add_argument("--text-glob", default="Assets/XML/Text/*.xml", help="glob (relative to mod root) for GameText files whose <Tag> entries are audited")
+	ap.add_argument("--prefix", default="", help="only audit defined tags starting with this prefix (e.g. TXT_KEY_SAS)")
+	ap.add_argument("--no-external", action="store_true", help="do NOT scan base BTS / vanilla Civ4 (mod-only references; more false positives)")
 	ap.add_argument("--base-assets", default="", help="override base BTS Assets dir")
 	ap.add_argument("--vanilla-assets", default="", help="override vanilla Civ4 Assets dir")
-	ap.add_argument("--no-output-file", action="store_true",
-			help="print only; do not write a report into LLM_Helpers/outputs/")
+	ap.add_argument("--no-output-file", action="store_true", help="print only; do not write a report into LLM_Helpers/outputs/")
 	args = ap.parse_args()
 
 	text_paths = sorted(p for p in MOD_ROOT.glob(args.text_glob) if p.is_file())
@@ -184,10 +180,8 @@ def main():
 		L.append("external : SKIPPED (mod-only; expect engine/front-end false positives)")
 	else:
 		L.append("external : %s" % " | ".join("%s%s" % (r, "" if r.is_dir() else " (MISSING)") for r in ext_roots))
-	L.append("defined  : %d tags in %d files | referenced tokens: %d | rescued by base/vanilla: %d" % (
-			len(defined), len(text_paths), len(referenced), rescued))
-	L.append("LIKELY-UNUSED: %d | REVIEW (maybe dynamic): %d | duplicate-defined: %d" % (
-			n_likely, n_review, len(dup)))
+	L.append("defined  : %d tags in %d files | referenced tokens: %d | rescued by base/vanilla: %d" % (len(defined), len(text_paths), len(referenced), rescued))
+	L.append("LIKELY-UNUSED: %d | REVIEW (maybe dynamic): %d | duplicate-defined: %d" % (n_likely, n_review, len(dup)))
 	L.append("")
 	L.append("=== LIKELY UNUSED (no reference in mod, base BTS, or vanilla; verify before deleting) ===")
 	if n_likely == 0:
