@@ -352,8 +352,10 @@ class voronoiMap:
 				currentCoord = y*self.mapWidth + x
 				lastPlate = self.checkFault(currentCoord,sum,width,lastPlate)
 		for i in range(plates):
-			if (width[i] != 0): self.verticalFault(i,width[i])
-			elif (height[i] != 0): self.horizontalFault(i,height[i])
+			if (width[i] != 0):
+				self.verticalFault(i,width[i])
+			elif (height[i] != 0):
+				self.horizontalFault(i,height[i])
 
 	def checkFault(self,currentCoord,sum,table,lastPlate):
 		plates = self.numContinents + self.numSeaPlates

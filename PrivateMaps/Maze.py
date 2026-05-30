@@ -313,10 +313,14 @@ def generatePlotTypes():
 		
 		# Choose a direction at random.
 		choose = []
-		if north: choose.append([0, 1])
-		if south: choose.append([0, -1])
-		if east: choose.append([1, 0])
-		if west: choose.append([-1, 0])
+		if north:
+			choose.append([0, 1])
+		if south:
+			choose.append([0, -1])
+		if east:
+			choose.append([1, 0])
+		if west:
+			choose.append([-1, 0])
 		dir = dice.get(len(choose), "Segment Direction - Maze PYTHON")
 		[xPlus, yPlus] = choose[dir]
 		
