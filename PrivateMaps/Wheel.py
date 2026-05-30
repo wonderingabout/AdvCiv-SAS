@@ -693,15 +693,7 @@ def beforeGeneration():
 
 class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	# Override InRegion to increase hills, make up for those lost to the ring path.
-	def generatePlotsInRegion(self, iWaterPercent, 
-	                          iRegionWidth, iRegionHeight, 
-	                          iRegionWestX, iRegionSouthY, 
-	                          iRegionGrain, iRegionHillsGrain, 
-	                          iRegionPlotFlags, iRegionTerrainFlags, 
-	                          iRegionFracXExp = -1, iRegionFracYExp = -1, 
-	                          bShift = True, iStrip = 15, 
-	                          rift_grain = -1, has_center_rift = False, 
-	                          invert_heights = False):
+	def generatePlotsInRegion(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
 		# This is the code to generate each fractal.
 		# Determine and pass in the appropriate arguments from the controlling function.
 		#
@@ -772,15 +764,7 @@ class WheelMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		return
 
 	# Custom genPlotsInRegion to overwrite spoke flatlands with hills while generating the center region.
-	def generateCenter(self, iWaterPercent, 
-	                   iRegionWidth, iRegionHeight, 
-	                   iRegionWestX, iRegionSouthY, 
-	                   iRegionGrain, iRegionHillsGrain, 
-	                   iRegionPlotFlags, iRegionTerrainFlags, 
-	                   iRegionFracXExp = -1, iRegionFracYExp = -1, 
-	                   bShift = True, iStrip = 15, 
-	                   rift_grain = -1, has_center_rift = False, 
-	                   invert_heights = False):
+	def generateCenter(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
 		# This is the code to generate each fractal.
 		# Determine and pass in the appropriate arguments from the controlling function.
 		#
@@ -1036,9 +1020,7 @@ class WheelTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	"If iDesertPercent=35, then about 35% of all land will be desert. Plains is similar. \
 	Note that all percentages are approximate, as values have to be roughened to achieve a natural look."
 	
-	def __init__(self, iDesertPercent=20, iPlainsPercent=25,
-	             iIcePercent=50, iTundraPercent=35,
-	             fracXExp=-1, fracYExp=-1, grain_amount=5):
+	def __init__(self, iDesertPercent=20, iPlainsPercent=25, iIcePercent=50, iTundraPercent=35, fracXExp=-1, fracYExp=-1, grain_amount=5):
 		
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
@@ -1137,8 +1119,7 @@ def generateTerrainTypes():
 	return terrainTypes
 
 class WheelFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
-	def __init__(self, iJunglePercent=25, iForestPercent=40,
-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=25, iForestPercent=40, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		
 		self.gc = CyGlobalContext()
 		self.map = CyMap()

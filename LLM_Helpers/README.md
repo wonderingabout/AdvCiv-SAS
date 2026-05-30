@@ -17,6 +17,7 @@ Always review diffs before committing generated source changes.
 
 - [Source-rewrite helpers](#source-rewrite-helpers)
   - [`collapse_multiline_calls.py`](#collapse_multiline_callspy)
+  - [`collapse_multiline_calls2.py`](#collapse_multiline_calls2py)
   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
 - [CvMainInterface single-line cleanup reference scripts](#cvmaininterface-single-line-cleanup-reference-scripts)
@@ -68,6 +69,23 @@ Broad staged-review workflow from Git Bash after the files were modified. This s
 
 ```bash
 cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/staged_collapse_multiline_calls_${ts}.diff" && git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add && git diff --cached --ignore-space-at-eol > "$out" && git diff --cached --ignore-space-at-eol --stat && git diff --cached --check && echo "wrote $out"
+```
+
+### `collapse_multiline_calls2.py`
+
+Targeted second-pass source-rewrite helper.
+
+- Separate follow-up to `collapse_multiline_calls.py`; keep the first helper as the committed known-good pass 1.
+- Collapses multiline `def` headers such as `def __init__(..., ...):`.
+- Collapses selected long map-generation calls such as `generatePlotsInRegion(...)`, `generateCenter(...)`, and `generateCenterPlot(...)`.
+- Skips comments inside the collapsed statement, multiline strings, explicit backslash continuations, list/dict/table assignments, calls whose first argument is a list/dict literal, and long boolean return cascades beyond the conservative line cap.
+- Preserves line endings and refuses to write if significant token sequence changes.
+- Intended for narrow cleanup after the first collapse pass, not as a general formatter.
+
+Tested broad run workflow from Git Bash. The helper itself processes one file at a time, but this was tested as a broad repo pass using a temporary runner. The loop applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_multiline_calls2.py" "LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_collapse_multiline_calls2_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
 ```
 
 ### `collapse_multiline_brackets.py`

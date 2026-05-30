@@ -607,8 +607,7 @@ class Section(dict):
         self.comments[newkey] = comm
         self.inline_comments[newkey] = inline_comment
 
-    def walk(self, function, raise_errors=True,
-            call_on_sections=False, **keywargs):
+    def walk(self, function, raise_errors=True, call_on_sections=False, **keywargs):
         """
         Walk every member and call a function on the keyword and value.
         

@@ -57,8 +57,7 @@ def findStartingArea(argsList):
 
 # Subclass to customize sea level effects.
 class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
-	def generatePlotTypes(self, water_percent=30, shift_plot_types=False, 
-						grain_amount=3):
+	def generatePlotTypes(self, water_percent=30, shift_plot_types=False, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
 		

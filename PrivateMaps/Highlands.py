@@ -403,8 +403,7 @@ def generateTerrainTypes():
 	return terrainTypes
 
 class HighlandsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
-	def __init__(self, iJunglePercent=60, iForestPercent=45, iHotForestPercent = 25,
-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=60, iForestPercent=45, iHotForestPercent = 25, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()

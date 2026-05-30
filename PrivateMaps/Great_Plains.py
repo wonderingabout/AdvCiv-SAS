@@ -304,11 +304,7 @@ def generatePlotTypes():
 
 # subclass TerrainGenerator to redefine everything. This is a regional map.
 class GreatPlainsTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
-	def __init__(self, iRockyDesertPercent=50, iRockyPlainsPercent=30, 
-	             iGrassPercent=17, iDesertPercent=8, iTexDesertPercent=20,
-	             iEastDesertPercent=2, iEastPlainsPercent=23, 
-	             fWestLongitude=0.15, fEastLongitude=0.65, fTexLat=0.37,
-	             fTexEast=0.55, fracXExp=-1, fracYExp=-1, grain_amount=4):
+	def __init__(self, iRockyDesertPercent=50, iRockyPlainsPercent=30, iGrassPercent=17, iDesertPercent=8, iTexDesertPercent=20, iEastDesertPercent=2, iEastPlainsPercent=23, fWestLongitude=0.15, fEastLongitude=0.65, fTexLat=0.37, fTexEast=0.55, fracXExp=-1, fracYExp=-1, grain_amount=4):
 		# Note: If you change longitude values here, then you will...
 		# ...need to change them elsewhere in the script, as well.
 		self.gc = CyGlobalContext()
@@ -473,9 +469,7 @@ def generateTerrainTypes():
 	return terrainTypes
 
 class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
-	def __init__(self, iJunglePercent=40, iEastForestPercent=45, 
-	             iForestPercent=8, iRockyForestPercent=55, 
-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=40, iEastForestPercent=45, iForestPercent=8, iRockyForestPercent=55, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()

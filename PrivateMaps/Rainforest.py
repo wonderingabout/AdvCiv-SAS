@@ -210,8 +210,7 @@ def generateTerrainTypes():
 	return terrainTypes
 
 class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
-	def __init__(self, iJunglePercent=85, iForestPercent=15,
-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=85, iForestPercent=15, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()

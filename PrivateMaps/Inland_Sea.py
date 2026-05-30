@@ -629,8 +629,7 @@ def getGridSize(argsList):
 
 # Subclasses to fix the FRAC_POLAR zero row bugs.
 class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
-	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, 
-	                      grain_amount=3):
+	def generatePlotTypes(self, water_percent=78, shift_plot_types=True, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
 		

@@ -162,11 +162,7 @@ def generatePlotTypes():
 # subclass TerrainGenerator to cool the climate compared to normal.
 # Also, desert reduced, plains dramatically increased. Latitudes shifted colder.
 class IceAgeTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
-	def __init__(self, iDesertPercent=20, iPlainsPercent=50, 
-	             fSnowLatitude=0.4, fTundraLatitude=0.3,
-	             fGrassLatitude=0.0, fDesertBottomLatitude=0.1, 
-	             fDesertTopLatitude=0.2, fracXExp=-1, 
-	             fracYExp=-1, grain_amount=4):
+	def __init__(self, iDesertPercent=20, iPlainsPercent=50, fSnowLatitude=0.4, fTundraLatitude=0.3, fGrassLatitude=0.0, fDesertBottomLatitude=0.1, fDesertTopLatitude=0.2, fracXExp=-1, fracYExp=-1, grain_amount=4):
 		
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
@@ -232,9 +228,7 @@ def generateTerrainTypes():
 # Jungles only appear on grass near equator. Percentage appearance reduced.
 # Forest percentage reduced slightly.
 class IceAgeFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
-	def __init__(self, iJunglePercent=30, iForestPercent=50, 
-	             jungle_grain=7, forest_grain=6, 
-	             fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=30, iForestPercent=50, jungle_grain=7, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()

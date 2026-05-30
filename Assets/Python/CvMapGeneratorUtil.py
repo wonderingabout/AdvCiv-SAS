@@ -868,15 +868,7 @@ class MultilayeredFractal:
 			landWeights[i] = landWeight
 		return landWeights
 
-	def generatePlotsInRegion(self, iWaterPercent, 
-	iRegionWidth, iRegionHeight, 
-	iRegionWestX, iRegionSouthY, 
-	iRegionGrain, iRegionHillsGrain, 
-	iRegionPlotFlags, iRegionTerrainFlags, 
-	iRegionFracXExp = -1, iRegionFracYExp = -1, 
-	bShift = True, iStrip = 15, 
-	rift_grain = -1, has_center_rift = False, 
-	invert_heights = False):
+	def generatePlotsInRegion(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
 		# This is the code to generate each fractal.
 		# Determine and pass in the appropriate arguments from the controlling function.
 		#
@@ -1337,9 +1329,7 @@ class TerrainGenerator:
 	
 class FeatureGenerator:
 	# advc.108: Default iForestPercent lowered from 60 - to compensate for fewer forests placed during normalization. (Smaller percentage leads to more forests.)
-	def __init__(self, iJunglePercent=80, iForestPercent=57,
-	jungle_grain=5, forest_grain=6, 
-	fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=80, iForestPercent=57, jungle_grain=5, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
