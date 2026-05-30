@@ -320,7 +320,7 @@ def addBonusType(argsList):
 	dice = gc.getGame().getMapRand()
 	type_string = gc.getBonusInfo(iBonusType).getType()
 
-	if not (type_string in forest):
+	if type_string not in forest:
 		print("Default", type_string, "Default")
 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
 	else: # Current bonus type is custom-handled. Assignments to follow.

@@ -620,7 +620,7 @@ def addBonusType(argsList):
 	if (type_string in resourcesToEliminate):
 		print("-NONE-", type_string, "-NONE-")
 		return None # These bonus types will not appear, at all.
-	elif not (type_string in boreal):
+	elif type_string not in boreal:
 		print("Default", type_string, "Default")
 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
 	else: # Current bonus type is custom-handled. Assignments to follow.
