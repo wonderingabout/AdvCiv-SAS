@@ -487,8 +487,7 @@ class CityGrowth(AbstractCityAlert):
 			iOldConscriptCounter = self.CityConscriptCounter[cityId]
 
 			bWhipOrDraft = False
-			if (iWhipCounter > iOldWhipCounter
-			or  iConscriptCounter > iOldConscriptCounter):
+			if (iWhipCounter > iOldWhipCounter or iConscriptCounter > iOldConscriptCounter):
 				bWhipOrDraft = True
 
 			if (Civ4lertsOpt.isShowCityGrowthAlert()):

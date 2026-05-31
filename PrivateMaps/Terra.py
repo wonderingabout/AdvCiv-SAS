@@ -251,16 +251,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 		eurasiaWater = 55+sea
 
-		self.generatePlotsInRegion(eurasiaWater,
-		                           eurasiaWidth, eurasiaHeight,
-		                           eurasiaWestX, eurasiaSouthY,
-		                           eurasiaGrain, archGrain,
-		                           self.iHorzFlags, self.iTerrainFlags,
-		                           -1, -1,
-		                           True, 11,
-		                           2, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(eurasiaWater, eurasiaWidth, eurasiaHeight, eurasiaWestX, eurasiaSouthY, eurasiaGrain, archGrain, self.iHorzFlags, self.iTerrainFlags, -1, -1, True, 11, 2, False, False)
 
 		# Eurasia, second layer (to increase pangaea-like cohesion).
 		twHeight = eurasiaHeight/2
@@ -274,16 +265,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twGrain = 1
 		twRift = 2
 
-		self.generatePlotsInRegion(twWater,
-		                           twWidth, twHeight,
-		                           twWestX, twSouthY,
-		                           twGrain, archGrain,
-		                           self.iHorzFlags, self.iTerrainFlags,
-		                           -1, -1,
-		                           True, 11,
-		                           twRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(twWater, twWidth, twHeight, twWestX, twSouthY, twGrain, archGrain, self.iHorzFlags, self.iTerrainFlags, -1, -1, True, 11, twRift, False, False)
 
 		# Simulate the New World - land masses akin to Earth's American continents.
 		# First simulate North America
@@ -299,16 +281,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwGrain = 1
 		nwRift = -1
 
-		self.generatePlotsInRegion(nwWater,
-		                           nwWidth, nwHeight,
-		                           nwWestX, nwSouthY,
-		                           nwGrain, archGrain,
-		                           self.iVertFlags, self.iTerrainFlags,
-		                           6, 6,
-		                           True, 7,
-		                           nwRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(nwWater, nwWidth, nwHeight, nwWestX, nwSouthY, nwGrain, archGrain, self.iVertFlags, self.iTerrainFlags, 6, 6, True, 7, nwRift, False, False)
 
 		# Now simulate South America
 		nwsRoll = self.dice.get(2, "New World South E/W - Terra PYTHON")
@@ -326,16 +299,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwsGrain = 1
 		nwsRift = -1
 
-		self.generatePlotsInRegion(nwsWater,
-		                           nwsWidth, nwsHeight,
-		                           nwsWestX, nwsSouthY,
-		                           nwsGrain, archGrain,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, 6,
-		                           True, 5,
-		                           nwsRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(nwsWater, nwsWidth, nwsHeight, nwsWestX, nwsSouthY, nwsGrain, archGrain, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 5, nwsRift, False, False)
 
 		nwpWestX = nwWestX + int(self.iW * (0.1 - nwsVar)) # Not as wide as the north
 		nwpEastX = nwEastX - int(self.iW * (0.07 + nwsVar))
@@ -348,16 +312,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwpGrain = 1
 		nwpRift = -1
 
-		self.generatePlotsInRegion(nwpWater,
-		                           nwpWidth, nwpHeight,
-		                           nwpWestX, nwpSouthY,
-		                           nwpGrain, archGrain,
-		                           self.iVertFlags, self.iTerrainFlags,
-		                           6, 5,
-		                           True, 3,
-		                           nwpRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(nwpWater, nwpWidth, nwpHeight, nwpWestX, nwpSouthY, nwpGrain, archGrain, self.iVertFlags, self.iTerrainFlags, 6, 5, True, 3, nwpRift, False, False)
 
 		# Now the Yukon
 		twWidth = int(self.iW * 0.15)
@@ -374,16 +329,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twGrain = 2
 		twRift = -1
 
-		self.generatePlotsInRegion(twWater,
-		                           twWidth, twHeight,
-		                           twWestX, twSouthY,
-		                           twGrain, archGrain,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, 5,
-		                           True, 5,
-		                           twRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(twWater, twWidth, twHeight, twWestX, twSouthY, twGrain, archGrain, self.iRoundFlags, self.iTerrainFlags, 6, 5, True, 5, twRift, False, False)
 
 		# Now add a random region of arctic islands
 		twWidth = int(thirdworldDimension * self.iW)
@@ -401,16 +347,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twGrain = archGrain
 		twRift = -1
 
-		self.generatePlotsInRegion(twWater,
-		                           twWidth, twHeight,
-		                           twWestX, twSouthY,
-		                           twGrain, archGrain,
-		                           self.iHorzFlags, self.iTerrainFlags,
-		                           6, 5,
-		                           True, 5,
-		                           twRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(twWater, twWidth, twHeight, twWestX, twSouthY, twGrain, archGrain, self.iHorzFlags, self.iTerrainFlags, 6, 5, True, 5, twRift, False, False)
 
  		# Now simulate Central America
  		nwcVar = 0.0
@@ -428,16 +365,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		nwcGrain = 1
 		nwcRift = -1
 
-		self.generatePlotsInRegion(nwcWater,
-		                           nwcWidth, nwcHeight,
-		                           nwcWestX, nwcSouthY,
-		                           nwcGrain, archGrain,
-		                           self.iVertFlags, self.iTerrainFlags,
-		                           6, 5,
-		                           True, 5,
-		                           nwcRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(nwcWater, nwcWidth, nwcHeight, nwcWestX, nwcSouthY, nwcGrain, archGrain, self.iVertFlags, self.iTerrainFlags, 6, 5, True, 5, nwcRift, False, False)
 
 		# Now the Carribean islands
  		carVar = 0.0
@@ -454,16 +382,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		twGrain = archGrain + 1
 		twRift = -1
 
-		self.generatePlotsInRegion(twWater,
-		                           twWidth, twHeight,
-		                           twWestX, twSouthY,
-		                           twGrain, archGrain,
-		                           0, self.iTerrainFlags,
-		                           6, 5,
-		                           True, 3,
-		                           twRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(twWater, twWidth, twHeight, twWestX, twSouthY, twGrain, archGrain, 0, self.iTerrainFlags, 6, 5, True, 3, twRift, False, False)
 
 		# Add subcontinents to the Old World, one large, one small. (Terra.py)
 		# Subcontinents can be akin to pangaea, continents, or archipelago.
@@ -492,16 +411,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			scGrain = archGrain
 			scRift = -1
 
-		self.generatePlotsInRegion(scWater,
-		                           scLargeWidth, scLargeHeight,
-		                           scWestX, scSouthY,
-		                           scGrain, archGrain,
-		                           self.iRoundFlags, self.iTerrainFlags,
-		                           6, 6,
-		                           True, 7,
-		                           scRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(scWater, scLargeWidth, scLargeHeight, scWestX, scSouthY, scGrain, archGrain, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 7, scRift, False, False)
 
 		scSmallWidth = int(subcontinentSmallDimension * self.iW)
 		scSmallHeight = int(subcontinentSmallDimension * self.iH)
@@ -529,16 +439,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			scsGrain = archGrain
 			scsRift = -1
 
-		self.generatePlotsInRegion(scsWater,
-		                           scSmallWidth, scSmallHeight,
-		                           scsWestX, scsSouthY,
-		                           scsGrain, archGrain,
-		                           self.iHorzFlags, self.iTerrainFlags,
-		                           6, 5,
-		                           True, 5,
-		                           scsRift, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(scsWater, scSmallWidth, scSmallHeight, scsWestX, scsSouthY, scsGrain, archGrain, self.iHorzFlags, self.iTerrainFlags, 6, 5, True, 5, scsRift, False, False)
 
 		# Now simulate random lands akin to Australia and Antarctica
 		extras = 2 + self.dice.get(3, "Number of Minor Regions - Terra PYTHON")
@@ -568,16 +469,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				twGrain = archGrain
 				twRift = -1
 
-			self.generatePlotsInRegion(twWater,
-			                           twWidth, twHeight,
-			                           twWestX, twSouthY,
-			                           twGrain, archGrain,
-			                           self.iHorzFlags, self.iTerrainFlags,
-			                           6, 5,
-			                           True, 5,
-			                           twRift, False,
-			                           False
-			                           )
+			self.generatePlotsInRegion(twWater, twWidth, twHeight, twWestX, twSouthY, twGrain, archGrain, self.iHorzFlags, self.iTerrainFlags, 6, 5, True, 5, twRift, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes

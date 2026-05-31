@@ -218,16 +218,7 @@ class SevoPediaGameSpeedChart:
 
 		btn_by_name = {}
 
-		_btn_defs = (
-			("dove",      "SAS_EMOJI_DOVE"),
-			("swords",    "SAS_EMOJI_CROSSED_SWORDS"),
-			("skull",     "SAS_EMOJI_SKULL"),
-			("gear",      "SAS_EMOJI_GEAR"),
-			("brain",     "SAS_EMOJI_BRAIN"),
-			("hourglass", "SAS_EMOJI_HOURGLASS_NOT_DONE"),
-			("fire",      "SAS_EMOJI_FIRE"),
-			("trophy",    "SAS_EMOJI_TROPHY"),
-		)
+		_btn_defs = (("dove", "SAS_EMOJI_DOVE"), ("swords", "SAS_EMOJI_CROSSED_SWORDS"), ("skull", "SAS_EMOJI_SKULL"), ("gear", "SAS_EMOJI_GEAR"), ("brain", "SAS_EMOJI_BRAIN"), ("hourglass", "SAS_EMOJI_HOURGLASS_NOT_DONE"), ("fire", "SAS_EMOJI_FIRE"), ("trophy", "SAS_EMOJI_TROPHY"),)
 		for i, (name, artKey) in enumerate(_btn_defs):
 			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
 

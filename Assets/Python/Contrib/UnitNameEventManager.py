@@ -192,9 +192,7 @@ class BuildUnitName(AbstractBuildUnitName):
 	def onKbdEvent(self, argsList):
 		eventType,key,mx,my,px,py = argsList
 		if ( eventType == self.eventMgr.EventKeyDown ):
-			if (int(key) == int(InputTypes.KB_N)
-			and self.eventMgr.bCtrl
-			and self.eventMgr.bAlt):
+			if (int(key) == int(InputTypes.KB_N) and self.eventMgr.bCtrl and self.eventMgr.bAlt):
 
 				if UnitNamingOpt.isEnabled():
 					self.eventMgr.beginEvent(RENAME_EVENT_ID)
@@ -217,8 +215,7 @@ class BuildUnitName(AbstractBuildUnitName):
 
 		#BUGPrint("onUnitBuild-B %s %s %s" % (iPlayer, CyGame().getActivePlayer(), UnitNamingOpt.isEnabled()))
 
-		if not (iPlayer == CyGame().getActivePlayer()
-		and UnitNamingOpt.isEnabled()):
+		if not (iPlayer == CyGame().getActivePlayer() and UnitNamingOpt.isEnabled()):
 			return
 
 		#BUGPrint("onUnitBuild-C")
@@ -248,10 +245,7 @@ class BuildUnitName(AbstractBuildUnitName):
 		#
 		pCity = argsList[0]
 		pPlayer = gc.getPlayer(pCity.getOwner())
-		if not (pCity.isCapital() 
-		and pPlayer.getNumCities() == 1
-		and pCity.getOwner() == PlayerUtil.getActivePlayerID() 
-		and UnitNamingOpt.isEnabled()):
+		if not (pCity.isCapital() and pPlayer.getNumCities() == 1 and pCity.getOwner() == PlayerUtil.getActivePlayerID() and UnitNamingOpt.isEnabled()):
 			return
 		lUnitReName = UnitReName()
 		zsEra = gc.getEraInfo(pPlayer.getCurrentEra()).getType()
@@ -395,8 +389,7 @@ class UnitReName(object):
 #			increment count, adjust totals if required
 			if bIncrementCounter:
 				ziCnt = ziCnt + 1
-				if (ziCnt > ziTT1
-				and ziTT1 > 0):
+				if (ziCnt > ziTT1 and ziTT1 > 0):
 					ziCnt = 1
 					ziTT1 = self.getTotal1(zsName)
 					ziTT2 = ziTT2 + 1

@@ -85,8 +85,7 @@ class statusdumpInstance:
 				zMsg = "<b>%s</b>" % (zMsg)
 			if vUnderline:
 				zMsg = "<u>%s</u>" % (zMsg)
-			if (vColor != "Black"
-			and BugAutolog.isColorCoding()):
+			if (vColor != "Black" and BugAutolog.isColorCoding()):
 				zMsg = "<span style=\"color: %s\">%s</span>" % (vColor, zMsg)
 
 			zMsg = "%s<br>" % (zMsg)
@@ -96,8 +95,7 @@ class statusdumpInstance:
 				zMsg = "[b]%s[/b]" % (zMsg)
 			if vUnderline:
 				zMsg = "[u]%s[/u]" % (zMsg)
-			if (vColor != "Black"
-			and BugAutolog.isColorCoding()):
+			if (vColor != "Black" and BugAutolog.isColorCoding()):
 				if zStyle == 2:  # color coding with "
 					zMsg = "[color=\"%s\"]%s[/color]" % (vColor, zMsg)
 				else:  # color coding without "

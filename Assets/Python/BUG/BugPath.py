@@ -89,10 +89,7 @@ MODS_FOLDER = "Mods"
 ASSETS_FOLDER = "Assets"
 CUSTOM_ASSETS_FOLDER = "CustomAssets"
 
-MY_DOCUMENTS_FOLDER_REG_KEYS = (
-	("XP", r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "Personal"),
-	("Vista", r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Personal"),
-)
+MY_DOCUMENTS_FOLDER_REG_KEYS = (("XP", r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "Personal"), ("Vista", r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Personal"),)
 MY_GAMES_FOLDER = "My Games"
 
 def isMac():

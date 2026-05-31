@@ -423,16 +423,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                         regWidth = int(iWidth * 0.8)
                         regHeight = int(iHeight * 0.8)
 
-                self.generatePlotsInRegion(45 + sea,
-                                           regWidth, regHeight,
-                                           regWestX, regSouthY,
-                                           1, 4,
-                                           self.iRoundFlags, self.iTerrainFlags,
-                                           6, 6,
-                                           True, 3,
-                                           -1, False,
-                                           False
-                                           )
+                self.generatePlotsInRegion(45 + sea, regWidth, regHeight, regWestX, regSouthY, 1, 4, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 
                 # Core fractal to increase cohesion
                 coreWestX = regWestX + int(regWidth * 0.25)
@@ -442,16 +433,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                 coreWidth = coreEastX - coreWestX + 1
                 coreHeight = coreNorthY - coreSouthY + 1
 
-                self.generatePlotsInRegion(25,
-                                           coreWidth, coreHeight,
-                                           coreWestX, coreSouthY,
-                                           1, 3,
-                                           self.iHorzFlags, self.iTerrainFlags,
-                                           5, 5,
-                                           True, 3,
-                                           -1, False,
-                                           False
-                                           )
+                self.generatePlotsInRegion(25, coreWidth, coreHeight, coreWestX, coreSouthY, 1, 3, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 3, -1, False, False)
 
 		#2.21z - the 'Open part'
 		if (CyMap().getCustomMapOption(1) == 0):
@@ -492,16 +474,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 					regWidth = int(iWidth * 0.8)
 					regHeight = int(iHeight * 0.8)
 
-				self.generatePlotsInRegion(45 + sea,
-										   regWidth, regHeight,
-										   regWestX, regSouthY,
-										   1, 4,
-										   self.iRoundFlags, self.iTerrainFlags,
-										   6, 6,
-										   True, 3,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(45 + sea, regWidth, regHeight, regWestX, regSouthY, 1, 4, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 
 				# Core fractal to increase cohesion
 				coreWestX = regWestX + int(regWidth * 0.25)
@@ -511,16 +484,7 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				coreWidth = coreEastX - coreWestX + 1
 				coreHeight = coreNorthY - coreSouthY + 1
 
-				self.generatePlotsInRegion(25,
-										   coreWidth, coreHeight,
-										   coreWestX, coreSouthY,
-										   1, 3,
-										   self.iHorzFlags, self.iTerrainFlags,
-										   5, 5,
-										   True, 3,
-										   -1, False,
-										   False
-										   )		
+				self.generatePlotsInRegion(25, coreWidth, coreHeight, coreWestX, coreSouthY, 1, 3, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 3, -1, False, False)		
 
 		#2.21z - Back to common part										   
 
@@ -643,9 +607,7 @@ def generatePlotTypes():
 
 def generateTerrainTypes():
 	terraingen = TerrainGenerator()
-	terraingen.__init__(iDesertPercent=8, iPlainsPercent=25,
-		fSnowLatitude=2.0, fTundraLatitude=2.0, fGrassLatitude=0.0, 
-		fDesertBottomLatitude=0.0, fDesertTopLatitude=2.0)
+	terraingen.__init__(iDesertPercent=8, iPlainsPercent=25, fSnowLatitude=2.0, fTundraLatitude=2.0, fGrassLatitude=0.0, fDesertBottomLatitude=0.0, fDesertTopLatitude=2.0)
 	terrainTypes = terraingen.generateTerrain()
 
 	# Eliminate snow and tundra completely (they still get placed sometimes at extreme latitudes)
@@ -671,17 +633,13 @@ def addFeatures():
 
 	#2.10 -- Adding this --	featuregen.__init__(iIcePercent=0)	
 	if (CyMap().getCustomMapOption(8) == 3):
-		featuregen.__init__(iJunglePercent=0, iForestPercent=90,
-			jungle_grain=5, forest_grain=6)#, iIcePercent=0)
+		featuregen.__init__(iJunglePercent=0, iForestPercent=90, jungle_grain=5, forest_grain=6)#, iIcePercent=0)
 	elif (CyMap().getCustomMapOption(8) == 2):
-		featuregen.__init__(iJunglePercent=0, iForestPercent=75,
-			jungle_grain=5, forest_grain=6)#, iIcePercent=0)
+		featuregen.__init__(iJunglePercent=0, iForestPercent=75, jungle_grain=5, forest_grain=6)#, iIcePercent=0)
 	elif (CyMap().getCustomMapOption(8) == 1):
-		featuregen.__init__(iJunglePercent=0, iForestPercent=60,
-			jungle_grain=5, forest_grain=6)#, iIcePercent=0)
+		featuregen.__init__(iJunglePercent=0, iForestPercent=60, jungle_grain=5, forest_grain=6)#, iIcePercent=0)
 	else: 		
-		featuregen.__init__(iJunglePercent=0, iForestPercent=40,
-			jungle_grain=5, forest_grain=6)#, iIcePercent=0)	
+		featuregen.__init__(iJunglePercent=0, iForestPercent=40, jungle_grain=5, forest_grain=6)#, iIcePercent=0)	
 
 	featuregen.addFeatures()
 

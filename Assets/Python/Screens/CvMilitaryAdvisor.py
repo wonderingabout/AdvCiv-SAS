@@ -1768,25 +1768,8 @@ class CvMilitaryAdvisor:
 		szDrydockValue = u"-"
 		if dStats["tech_drydocks"] and dStats["num_coastal_cities"] > 0:
 			szDrydockValue = u"%d %s" % (dStats["count_drydocks"], szCoastalFraction)
-		aSupport.extend([
-			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_MIL_BUILDINGS, u"", eNone, -1, -1, 0, -1),
-			(dStats["label_barracks"], szBarracksValue, eNone, -1, -1, 1, -1, dStats["icon_barracks"]),
-			(dStats["label_stables"], szStablesValue, eNone, -1, -1, 1, -1, dStats["icon_stables"]),
-			(dStats["label_drydocks"], szDrydockValue, eNone, -1, -1, 1, -1, dStats["icon_drydocks"]),
-			(self.TEXT_SUMMARY_BLDG_HEROIC_EPIC, _nationalWonderValue(dStats["tech_heroic_epic"], dStats["city_heroic_epic"]), eNone, -1, -1, 1, -1, dStats["icon_heroic_epic"]),
-			(self.TEXT_SUMMARY_BLDG_MIL_ACADEMY, _nationalWonderValue(dStats["tech_mil_academy"], dStats["city_mil_academy"]), eNone, -1, -1, 1, -1, dStats["icon_mil_academy"]),
-		])
-		aSupport.extend([
-			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_UNIT_PRODUCTION, u"", eNone, -1, -1, 0, -1),
-			(self.TEXT_SUMMARY_AVG_MODIFIER, _signedPct(dStats["avg_prod_mod"]), eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_BEST_CITY, szBestProdValue, eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_AVG_NEW_XP, u"%.1f" % dStats["avg_free_xp"], eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_BEST_NEW_XP, szBestXpValue, eNone, -1, -1, 1, -1),
-			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_ALLIED_HAMMERS, unicode(dStats["allied_hammers"]) + self.HAMMER_CHAR, eNone, -1, -1, 0, -1),
-		])
+		aSupport.extend([(None, None, eNone, -1, -1), (self.TEXT_SUMMARY_MIL_BUILDINGS, u"", eNone, -1, -1, 0, -1), (dStats["label_barracks"], szBarracksValue, eNone, -1, -1, 1, -1, dStats["icon_barracks"]), (dStats["label_stables"], szStablesValue, eNone, -1, -1, 1, -1, dStats["icon_stables"]), (dStats["label_drydocks"], szDrydockValue, eNone, -1, -1, 1, -1, dStats["icon_drydocks"]), (self.TEXT_SUMMARY_BLDG_HEROIC_EPIC, _nationalWonderValue(dStats["tech_heroic_epic"], dStats["city_heroic_epic"]), eNone, -1, -1, 1, -1, dStats["icon_heroic_epic"]), (self.TEXT_SUMMARY_BLDG_MIL_ACADEMY, _nationalWonderValue(dStats["tech_mil_academy"], dStats["city_mil_academy"]), eNone, -1, -1, 1, -1, dStats["icon_mil_academy"]),])
+		aSupport.extend([(None, None, eNone, -1, -1), (self.TEXT_SUMMARY_UNIT_PRODUCTION, u"", eNone, -1, -1, 0, -1), (self.TEXT_SUMMARY_AVG_MODIFIER, _signedPct(dStats["avg_prod_mod"]), eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_BEST_CITY, szBestProdValue, eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_AVG_NEW_XP, u"%.1f" % dStats["avg_free_xp"], eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_BEST_NEW_XP, szBestXpValue, eNone, -1, -1, 1, -1), (None, None, eNone, -1, -1), (self.TEXT_SUMMARY_ALLIED_HAMMERS, unicode(dStats["allied_hammers"]) + self.HAMMER_CHAR, eNone, -1, -1, 0, -1),])
 		# <!-- custom: Defenses moved from Support to Deployment because city protection reads closer to "where my forces/cities are" than to support cost. (Claude code Opus 4.7, GPT-5.5) -->
 
 		# <!-- custom: Army column summarizes the active player's own forces: composition, strongest/costliest/power-rank callouts, quality means, Great General state, promotions, covert-unit flags, and upgrade costs. (Claude code Opus 4.7, GPT-5.5) -->
@@ -1865,21 +1848,8 @@ class CvMilitaryAdvisor:
 			# <!-- custom: promotion rows show count + %-of-military so a "Combat I 8 (62%)" reads as "most of my army has this" without further math. (Claude code Opus 4.7) -->
 			aArmy.append((szPromoName, _withPct(iPromoCount, iMilCount), eNone, -1, -1, 1, -1, szPromoButton))
 		# <!-- custom: covert-units block always emitted (even when all three categories are zero) so the section's existence and exhaustive coverage are discoverable. Previously suppressed-when-empty, which led to "I have no covert section, is the feature broken?" confusion. The block is short (parent + 3 rows) and its zero state is informative - it confirms there's no covert coverage in the current army. (Claude code Opus 4.7) -->
-		aArmy.extend([
-			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_COVERT_UNITS, u"", eNone, -1, -1, 0, -1),
-			(self.TEXT_SUMMARY_INVISIBLE, _withPct(dStats["invisible_units"], dStats["total"]), eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_SPIES, _withPct(dStats["spy_units"], dStats["total"]), eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_HIDDEN_NAT, _withPct(dStats["hidden_nat_units"], dStats["total"]), eNone, -1, -1, 1, -1),
-		])
-		aArmy.extend([
-			(None, None, eNone, -1, -1),
-			(self.TEXT_SUMMARY_UPGRADEABLE, unicode(dStats["upgradeable"]), eNone, -1, -1, 0, -1),
-			(self.TEXT_SUMMARY_UPGRADE_MIN_COST, unicode(dStats["upgrade_min"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_UPGRADE_AVG_COST, unicode(dStats["upgrade_avg"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_UPGRADE_MAX_COST, unicode(dStats["upgrade_max"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
-			(self.TEXT_SUMMARY_UPGRADE_TOTAL_COST, unicode(dStats["upgrade_total"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),
-		])
+		aArmy.extend([(None, None, eNone, -1, -1), (self.TEXT_SUMMARY_COVERT_UNITS, u"", eNone, -1, -1, 0, -1), (self.TEXT_SUMMARY_INVISIBLE, _withPct(dStats["invisible_units"], dStats["total"]), eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_SPIES, _withPct(dStats["spy_units"], dStats["total"]), eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_HIDDEN_NAT, _withPct(dStats["hidden_nat_units"], dStats["total"]), eNone, -1, -1, 1, -1),])
+		aArmy.extend([(None, None, eNone, -1, -1), (self.TEXT_SUMMARY_UPGRADEABLE, unicode(dStats["upgradeable"]), eNone, -1, -1, 0, -1), (self.TEXT_SUMMARY_UPGRADE_MIN_COST, unicode(dStats["upgrade_min"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_UPGRADE_AVG_COST, unicode(dStats["upgrade_avg"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_UPGRADE_MAX_COST, unicode(dStats["upgrade_max"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_UPGRADE_TOTAL_COST, unicode(dStats["upgrade_total"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),])
 
 		# <!-- custom: Deployment groups unit locations by strategic relation, then city defenses, health distribution, and recent battle-history summary. Wounded + health % rows reuse Battles-tab health colors for consistency. (Claude code Opus 4.7, GPT-5.5) -->
 		iWoundedColor = self.getSummaryHealthColor(100 - (100 * dStats["wounded"]) / max(1, iMilCount))

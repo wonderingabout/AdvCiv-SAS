@@ -60,8 +60,7 @@ def StartLogger(vsFileName):
 	if (not vsFileName):
 		vsFileName = Logger.getLogFileName()
 
-	if (AutologOpt.isUseDefaultFileName()
-		or not vsFileName):
+	if (AutologOpt.isUseDefaultFileName() or not vsFileName):
 		ePlayer = gc.getGame().getActivePlayer()
 		szfileName = gc.getPlayer(ePlayer).getName()
 	else:
@@ -247,17 +246,12 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		if ( eventType == self.eventMgr.EventKeyDown ):
 			theKey=int(key)
 			'Check if ALT + E was hit == echoes to text log and in-game log'
-			if (theKey == int(InputTypes.KB_E)
-			and self.eventMgr.bAlt
-			and AutologOpt.isEnabled()
-			and isLoggingOn()):
+			if (theKey == int(InputTypes.KB_E) and self.eventMgr.bAlt and AutologOpt.isEnabled() and isLoggingOn()):
 				self.eventMgr.beginEvent(CUSTOM_ENTRY_EVENT_ID)
 				return 1
 
 			'Check if ALT + L was hit == open in-game log'
-			if (theKey == int(InputTypes.KB_L)
-			and self.eventMgr.bAlt
-			and AutologOpt.isEnabled()):
+			if (theKey == int(InputTypes.KB_L) and self.eventMgr.bAlt and AutologOpt.isEnabled()):
 				if AutologOpt.isSilent():
 					setLoggingOn(True)
 					StartLogger("")
@@ -267,10 +261,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 				return 1
 
 			'Check if ALT + B was hit == dump battle stats, and reset'
-			if (theKey == int(InputTypes.KB_B)
-			and self.eventMgr.bAlt
-			and AutologOpt.isEnabled()
-			and isLoggingOn()):
+			if (theKey == int(InputTypes.KB_B) and self.eventMgr.bAlt and AutologOpt.isEnabled() and isLoggingOn()):
 				Logger.writeLog("")
 				Logger.writeLog(BugUtil.getPlainText("TXT_KEY_AUTOLOG_BATTLE_STATS"), vBold=True)
 				message = BugUtil.getText("TXT_KEY_AUTOLOG_UNITS_VICTORIOUS_ATTACKING", (self.iBattleWonAttacking, ))
@@ -302,8 +293,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		self.bHumanEndTurn = False
 		self.bAIsTurn = False
 
-		if (AutologOpt.isEnabled()
-		and AutologOpt.isSilent()):
+		if (AutologOpt.isEnabled() and AutologOpt.isSilent()):
 			setLoggingOn(True)
 			StartLogger("")
 		else:
@@ -319,8 +309,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		self.bHumanEndTurn = False
 		self.bAIsTurn = False
 
-		if (AutologOpt.isEnabled()
-		and AutologOpt.isSilent()):
+		if (AutologOpt.isEnabled() and AutologOpt.isSilent()):
 			setLoggingOn(True)
 			StartLogger("")
 		else:
@@ -411,15 +400,11 @@ class AutoLogEvent(AbstractAutoLogEvent):
 					message = BugUtil.getText("TXT_KEY_AUTOLOG_CONSCRIPT", (gc.getUnitInfo(iCity.getConscriptUnit()).getDescription(), iCity.getName()))
 					Logger.writeLog(message, vColor="Red")
 
-				if (self.CityWhipCounter[i] != 0
-				and iCurrentWhipCounter < self.CityWhipCounter[i]
-				and iCurrentWhipCounter % iCity.flatHurryAngerLength() == 0):
+				if (self.CityWhipCounter[i] != 0 and iCurrentWhipCounter < self.CityWhipCounter[i] and iCurrentWhipCounter % iCity.flatHurryAngerLength() == 0):
 					message = BugUtil.getText("TXT_KEY_AUTOLOG_WHIP_ANGER_DECREASED", (iCity.getName(), ))
 					Logger.writeLog(message, vColor="DarkRed")
 
-				if (self.CityConscriptCounter[i] != 0
-				and iCurrentConscriptCounter < self.CityConscriptCounter[i]
-				and iCurrentConscriptCounter % iCity.flatConscriptAngerLength() == 0):
+				if (self.CityConscriptCounter[i] != 0 and iCurrentConscriptCounter < self.CityConscriptCounter[i] and iCurrentConscriptCounter % iCity.flatConscriptAngerLength() == 0):
 					message = BugUtil.getText("TXT_KEY_AUTOLOG_DRAFT_ANGER_DECREASED", (iCity.getName(), ))
 					Logger.writeLog(message, vColor="DarkRed")
 
@@ -429,8 +414,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		'Called at the end of a players turn'
 		iGameTurn, iPlayer = argsList
 
-		if (self.bHumanEndTurn
-		and AutologOpt.isShowIBT()):
+		if (self.bHumanEndTurn and AutologOpt.isShowIBT()):
 #			Logger.writeLog_pending_flush()
 			Logger.writeLog_pending("")
 			Logger.writeLog_pending(BugUtil.getPlainText("TXT_KEY_AUTOLOG_OTHER_PLAYER_ACTIONS"), vBold=True)
@@ -445,8 +429,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		if (AutologOpt.isLogContact()):
 			iTeamX,iHasMetTeamY = argsList
 			# advc.001: check was iTeamX==0
-			if (iTeamX == CyGame().getActiveTeam()
-			and gc.getGame().getGameTurn() > 0):
+			if (iTeamX == CyGame().getActiveTeam() and gc.getGame().getGameTurn() > 0):
 
 				sMsgArray = []
 				sLeader = gc.getTeam(iHasMetTeamY).getName()
@@ -488,8 +471,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 			self.UnitKilled = 1
 
 			pWinner,pLoser = argsList
-			if (pWinner.getOwner() == CyGame().getActivePlayer()
-			or pLoser.getOwner() == CyGame().getActivePlayer()):
+			if (pWinner.getOwner() == CyGame().getActivePlayer() or pLoser.getOwner() == CyGame().getActivePlayer()):
 				playerX = PyPlayer(pWinner.getOwner())
 				playerY = PyPlayer(pLoser.getOwner())
 				winnerHealth = float(pWinner.baseCombatStr()) * float(pWinner.currHitPoints()) / float(pWinner.maxHitPoints())
@@ -549,8 +531,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		if self.WdlDefender is None:
 			return
 
-		if (AutologOpt.isLogCombat()
-		and gc.getPlayer(eOwner).getTeam() == gc.getActivePlayer().getTeam()):
+		if (AutologOpt.isLogCombat() and gc.getPlayer(eOwner).getTeam() == gc.getActivePlayer().getTeam()):
 
 			playerX = PyPlayer(self.WdlDefender.eOwner)
 			defCivName = playerX.getCivilizationAdjective()
@@ -796,8 +777,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		if iTeam == gc.getBARBARIAN_TEAM():
 			return # </advc.001>
 
-		if (gc.getGame().isFinalInitialized()
-		and AutologOpt.isLogWar()):
+		if (gc.getGame().isFinalInitialized() and AutologOpt.isLogWar()):
 
 #			Civ1 declares war on Civ2
 			#iCiv1 = iPlayer
@@ -806,8 +786,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 			zsCiv1 = gc.getPlayer(iCiv1).getName() + " (" + gc.getPlayer(iCiv1).getCivilizationShortDescription(0) + ")"
 			zsCiv2 = gc.getPlayer(iCiv2).getName() + " (" + gc.getPlayer(iCiv2).getCivilizationShortDescription(0) + ")"
 
-			if (gc.getTeam(gc.getPlayer(iCiv1).getTeam()).isHasMet(gc.getActivePlayer().getTeam())
-			and gc.getTeam(gc.getPlayer(iCiv2).getTeam()).isHasMet(gc.getActivePlayer().getTeam())):
+			if (gc.getTeam(gc.getPlayer(iCiv1).getTeam()).isHasMet(gc.getActivePlayer().getTeam()) and gc.getTeam(gc.getPlayer(iCiv2).getTeam()).isHasMet(gc.getActivePlayer().getTeam())):
 				if (bIsWar):
 					message = BugUtil.getText("TXT_KEY_AUTOLOG_DECLARES_WAR", (zsCiv1, zsCiv2))
 					Logger.writeLog(message, vColor="Red")
@@ -911,8 +890,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 
 		pPlot = CyMap().plot(iX,iY)
 
-		if (AutologOpt.isLogImprovements()
-		and pPlot.getOwner() == CyGame().getActivePlayer()):
+		if (AutologOpt.isLogImprovements() and pPlot.getOwner() == CyGame().getActivePlayer()):
 			message = BugUtil.getText("TXT_KEY_AUTOLOG_IMPROVEMENT_BUILT", (PyInfo.ImprovementInfo(iImprovement).getDescription(), ))
 			zsLocn = ""
 			for iiX in range(iX-2, iX+3, 1):
@@ -934,8 +912,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 
 		pPlot = CyMap().plot(iX,iY)
 
-		if (AutologOpt.isLogImprovements()
-		and pPlot.getOwner() == CyGame().getActivePlayer()):
+		if (AutologOpt.isLogImprovements() and pPlot.getOwner() == CyGame().getActivePlayer()):
 			message = BugUtil.getText("TXT_KEY_AUTOLOG_IMPROVEMENT_DESTROYED", (PyInfo.ImprovementInfo(iImprovement).getDescription(), ))
 			zsLocn = ""
 			for iiX in range(iX-2, iX+3, 1):
@@ -955,9 +932,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		iY = pUnit.getY()
 		pPlot = CyMap().plot(iX,iY)
 
-		if (AutologOpt.isLogPillage()
-		and (pPlot.getOwner() == CyGame().getActivePlayer()
-		or   pUnit.getOwner() == CyGame().getActivePlayer())):
+		if (AutologOpt.isLogPillage() and (pPlot.getOwner() == CyGame().getActivePlayer() or pUnit.getOwner() == CyGame().getActivePlayer())):
 			if (iImprovement != -1):
 				message = BugUtil.getText("TXT_KEY_AUTOLOG_IMPROVEMENT", (gc.getImprovementInfo(iImprovement).getDescription(), ))
 			elif (iRoute != -1):
@@ -990,9 +965,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		'Vassal State'
 		iMaster, iVassal, bVassal = argsList
 
-		if (AutologOpt.isLogVassals()
-		and gc.getTeam(iMaster).isHasMet(gc.getActivePlayer().getTeam())
-		and gc.getTeam(iVassal).isHasMet(gc.getActivePlayer().getTeam())):
+		if (AutologOpt.isLogVassals() and gc.getTeam(iMaster).isHasMet(gc.getActivePlayer().getTeam()) and gc.getTeam(iVassal).isHasMet(gc.getActivePlayer().getTeam())):
 
 			zsMaster = gc.getTeam(iMaster).getName()
 			zsVassal = gc.getTeam(iVassal).getName()
@@ -1393,9 +1366,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		# check if civ state religion has changed
 		if (AutologOpt.isLogReligion()):
 			for iCiv in range(0, ziMaxCiv, 1):
-				if (gc.getTeam(gc.getPlayer(iCiv).getTeam()).isHasMet(gc.getActivePlayer().getTeam())
-				and self.CIVReligion[iCiv] != gc.getPlayer(iCiv).getStateReligion()
-				and PyPlayer(iCiv).isAlive()):
+				if (gc.getTeam(gc.getPlayer(iCiv).getTeam()).isHasMet(gc.getActivePlayer().getTeam()) and self.CIVReligion[iCiv] != gc.getPlayer(iCiv).getStateReligion() and PyPlayer(iCiv).isAlive()):
 					zsCiv = gc.getPlayer(iCiv).getName() + " (" + gc.getPlayer(iCiv).getCivilizationShortDescription(0) + ")"
 					if self.CIVReligion[iCiv] == -1:
 						zsOldRel = BugUtil.getPlainText("TXT_KEY_AUTOLOG_NO_STATE_RELIGION")
@@ -1418,12 +1389,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 					zKey = ziMaxCiv * iCiv1 + iCiv2
 					zsNewAttitude = gc.getAttitudeInfo(gc.getPlayer(iCiv1).AI_getAttitude(iCiv2)).getDescription()
 
-					if (gc.getTeam(gc.getPlayer(iCiv1).getTeam()).isHasMet(gc.getActivePlayer().getTeam())
-					and gc.getTeam(gc.getPlayer(iCiv2).getTeam()).isHasMet(gc.getActivePlayer().getTeam())
-					and self.CIVAttitude[zKey] != zsNewAttitude
-					and iCiv1 != gc.getGame().getActivePlayer()
-					and PyPlayer(iCiv1).isAlive()
-					and PyPlayer(iCiv2).isAlive()):
+					if (gc.getTeam(gc.getPlayer(iCiv1).getTeam()).isHasMet(gc.getActivePlayer().getTeam()) and gc.getTeam(gc.getPlayer(iCiv2).getTeam()).isHasMet(gc.getActivePlayer().getTeam()) and self.CIVAttitude[zKey] != zsNewAttitude and iCiv1 != gc.getGame().getActivePlayer() and PyPlayer(iCiv1).isAlive() and PyPlayer(iCiv2).isAlive()):
 						zsCiv1 = gc.getPlayer(iCiv1).getName() + " (" + gc.getPlayer(iCiv1).getCivilizationShortDescription(0) + ")"
 						zsCiv2 = gc.getPlayer(iCiv2).getName() + " (" + gc.getPlayer(iCiv2).getCivilizationShortDescription(0) + ")"
 						message = BugUtil.getText("TXT_KEY_AUTOLOG_ATTITUDE_CHANGE", (zsCiv1, zsCiv2, self.CIVAttitude[zKey], zsNewAttitude))
@@ -1433,8 +1399,7 @@ class AutoLogEvent(AbstractAutoLogEvent):
 		if (AutologOpt.isLogCivics()):
 			for iCiv in range(0, ziMaxCiv, 1):
 				zsCiv = gc.getPlayer(iCiv).getName() + "(" + gc.getPlayer(iCiv).getCivilizationShortDescription(0) + ")"
-				if (PyPlayer(iCiv).isAlive()
-				and gc.getTeam(gc.getPlayer(iCiv).getTeam()).isHasMet(gc.getActivePlayer().getTeam())):
+				if (PyPlayer(iCiv).isAlive() and gc.getTeam(gc.getPlayer(iCiv).getTeam()).isHasMet(gc.getActivePlayer().getTeam())):
 					for iCivic in range(0, 5, 1):
 						zKey = 5 * iCiv + iCivic
 						if (self.CIVCivics[zKey] != gc.getPlayer(iCiv).getCivics(iCivic)):

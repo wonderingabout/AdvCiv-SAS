@@ -173,8 +173,7 @@ class UnitPlot:
 			if self.pCurrUnit.bPromo:
 				_showPromo()
 		else:
-			if (self.pCurrUnit.bPromo
-			and not self.pPrevUnit.bPromo):
+			if (self.pCurrUnit.bPromo and not self.pPrevUnit.bPromo):
 				_showPromo()
 
 	def _erasePromo():
@@ -183,8 +182,7 @@ class UnitPlot:
 			if self.pPrevUnit.bPromo:
 				_hidePromo()
 		else:
-			if (self.pPrevUnit.bPromo
-			and not self.pCurrUnit.bPromo):
+			if (self.pPrevUnit.bPromo and not self.pCurrUnit.bPromo):
 				_hidePromo()
 
 	def _hidePromo():

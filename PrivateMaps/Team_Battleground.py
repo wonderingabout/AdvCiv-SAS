@@ -455,13 +455,10 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 		map = CyMap()
 		userInputPlots = map.getCustomMapOption(0)
 		if userInputPlots == 3: # Left v Right with bridge
-			if (iY - 3 > 0
-			and iY + 3 < map.getGridHeight()):
-				if (self.map.plot(iX, iY - 3).isWater()
-				and self.map.plot(iX, iY + 3).isWater()):
+			if (iY - 3 > 0 and iY + 3 < map.getGridHeight()):
+				if (self.map.plot(iX, iY - 3).isWater() and self.map.plot(iX, iY + 3).isWater()):
 					terrainVal = self.terrainDesert
-				elif (self.map.plot(iX, iY - 3).isWater()
-				or    self.map.plot(iX, iY + 3).isWater()):
+				elif (self.map.plot(iX, iY - 3).isWater() or self.map.plot(iX, iY + 3).isWater()):
 					terrainVal = self.terrainPlains
 
 		if (userInputPlots == 4   # round
@@ -487,9 +484,7 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 				hole_radii = -1
 
 			# Set all blocks to ocean except the inner circle
-			if (dist_xy_c < radii
-			and dist_xy_c > hole_radii
-			and self.map.plot(iX, iY).isWater()):
+			if (dist_xy_c < radii and dist_xy_c > hole_radii and self.map.plot(iX, iY).isWater()):
 				return self.terrainPlains
 
 		if (self.map.plot(iX, iY).isWater()):

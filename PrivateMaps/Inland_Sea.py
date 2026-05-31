@@ -505,8 +505,7 @@ def findStartingPlot(argsList):
 		CyPythonMgr().allowDefaultImpl()
 		return
 	# <!-- custom: Safety fallback: if template globals are missing/empty for any reason, use default placement instead of raising NameError. (GPT-5.3-Codex) -->
-	if (not globals().has_key('shuffledPlayers') or not globals().has_key('templates') or
-		not globals().has_key('iTemplateRoll') or len(shuffledPlayers) <= 0 or len(templates) <= 0):
+	if (not globals().has_key('shuffledPlayers') or not globals().has_key('templates') or not globals().has_key('iTemplateRoll') or len(shuffledPlayers) <= 0 or len(templates) <= 0):
 		CyPythonMgr().allowDefaultImpl()
 		return
 

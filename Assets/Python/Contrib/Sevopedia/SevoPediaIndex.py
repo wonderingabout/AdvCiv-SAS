@@ -326,8 +326,7 @@ class SevoPediaIndex:
 		BugUtil.debugInput(inputClass)
 		# <!-- custom: search typing + CLEAR live in SevoPediaMain.handleInput; this method only
 		# handles letter buttons and table-row clicks specific to the Index page. (Claude code Opus 4.7) -->
-		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED
-				and inputClass.getFunctionName() + str(inputClass.getID()) in self.letterTextIDs):
+		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() + str(inputClass.getID()) in self.letterTextIDs):
 			screen = self.top.getScreen()
 			screen.selectRow(self.tableName, self.iLastRow, True)
 			screen.selectRow(self.tableName, inputClass.getData1(), True)
@@ -340,8 +339,7 @@ class SevoPediaIndex:
 			if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
 				return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
 
-		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED
-				or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
 			if inputClass.getFunctionName() == self.top.WIDGET_ID and inputClass.getID() == self.iTableWidgetId:
 				iRow = inputClass.getData()
 				iBuild = self.SAS_rowToBuild.get(iRow, None)

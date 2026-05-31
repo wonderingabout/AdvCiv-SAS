@@ -330,10 +330,7 @@ class SevoPediaBonus:
 
 		for iBuilding in range(gc.getNumBuildingInfos()):
 			info = gc.getBuildingInfo(iBuilding)
-			bShow = (info.getFreeBonus() == self.iBonus
-					or info.getBonusHealthChanges(self.iBonus) > 0
-					or info.getBonusHappinessChanges(self.iBonus) > 0
-					or info.getBonusProductionModifier(self.iBonus) > 0)
+			bShow = (info.getFreeBonus() == self.iBonus or info.getBonusHealthChanges(self.iBonus) > 0 or info.getBonusHappinessChanges(self.iBonus) > 0 or info.getBonusProductionModifier(self.iBonus) > 0)
 			if not bShow:
 				for eYield in range(YieldTypes.NUM_YIELD_TYPES):
 					if info.getBonusYieldModifier(self.iBonus, eYield) > 0:

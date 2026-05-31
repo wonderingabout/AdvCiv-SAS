@@ -202,9 +202,7 @@ def main():
         ("vanilla XML defines:", len(defined_vanilla)),
         ("extra XML defines:", len(defined_extra)),
         ("distinct literal keys (py):", len(usage_by_source.get("python", ({}, 0))[0])),
-        ("distinct literal keys (dll):",
-         len(usage_by_source.get("dll_cpp", ({}, 0))[0])
-         + len(usage_by_source.get("dll_h", ({}, 0))[0])),
+        ("distinct literal keys (dll):", len(usage_by_source.get("dll_cpp", ({}, 0))[0]) + len(usage_by_source.get("dll_h", ({}, 0))[0])),
         ("variable-arg calls (skipped):", variable_total),
     ]
 

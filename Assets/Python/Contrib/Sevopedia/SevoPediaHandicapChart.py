@@ -392,12 +392,7 @@ class SevoPediaHandicapChart:
 			game = CyGame()
 			btn_by_name = {}
 
-			_btn_defs = (
-				("dove",   "SAS_EMOJI_DOVE"),
-				("lion",   "SAS_EMOJI_LION_FACE"),
-				("skull",  "SAS_EMOJI_SKULL"),
-				("swords", "SAS_EMOJI_CROSSED_SWORDS"),
-			)
+			_btn_defs = (("dove", "SAS_EMOJI_DOVE"), ("lion", "SAS_EMOJI_LION_FACE"), ("skull", "SAS_EMOJI_SKULL"), ("swords", "SAS_EMOJI_CROSSED_SWORDS"),)
 			for i, (name, artKey) in enumerate(_btn_defs):
 				# Group id only affects sorting by the icon column.
 				# Reorder _btn_defs to change the icon-theme sort order.

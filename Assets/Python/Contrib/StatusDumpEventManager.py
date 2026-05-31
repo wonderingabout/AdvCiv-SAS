@@ -50,10 +50,7 @@ class StatusDumpEvent(AbstractStatusDumpEvent):
 
 #		BugUtil.debug("StatusDump-Start-1")
 
-		if (eventType == self.eventMgr.EventKeyDown
-		and int(key) == int(InputTypes.KB_D)
-		and self.eventMgr.bCtrl
-		and self.eventMgr.bAlt):
+		if (eventType == self.eventMgr.EventKeyDown and int(key) == int(InputTypes.KB_D) and self.eventMgr.bCtrl and self.eventMgr.bAlt):
 			BugUtil.debug("StatusDump-Start-2")
 			self.DumpStatus()
 

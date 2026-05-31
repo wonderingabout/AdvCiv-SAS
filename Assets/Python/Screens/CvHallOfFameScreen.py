@@ -264,15 +264,7 @@ class CvHallOfFameScreen:
 		self.drawContents()
 
 	def isDisplayed(self, replayInfo):
-		return ((self.iLeaderFilter == -1 or self.iLeaderFilter == replayInfo.getLeader(replayInfo.getActivePlayer())) 
-			and (self.iHandicapFilter == -1 or self.iHandicapFilter == replayInfo.getDifficulty()) 
-			and (self.iWorldFilter == -1 or self.iWorldFilter == replayInfo.getWorldSize()) 
-			and (self.iClimateFilter == -1 or self.iClimateFilter == replayInfo.getClimate()) 
-			and (self.iSeaLevelFilter == -1 or self.iSeaLevelFilter == replayInfo.getSeaLevel()) 
-			and (self.iEraFilter == -1 or self.iEraFilter == replayInfo.getEra()) 
-			and (self.iSpeedFilter == -1 or self.iSpeedFilter == replayInfo.getGameSpeed()) 
-			and (self.iVictoryFilter == -1 or self.iVictoryFilter == replayInfo.getVictoryType()) 
-			and ((self.iMultiplayerFilter == 1) == replayInfo.isMultiplayer()))
+		return ((self.iLeaderFilter == -1 or self.iLeaderFilter == replayInfo.getLeader(replayInfo.getActivePlayer())) and (self.iHandicapFilter == -1 or self.iHandicapFilter == replayInfo.getDifficulty()) and (self.iWorldFilter == -1 or self.iWorldFilter == replayInfo.getWorldSize()) and (self.iClimateFilter == -1 or self.iClimateFilter == replayInfo.getClimate()) and (self.iSeaLevelFilter == -1 or self.iSeaLevelFilter == replayInfo.getSeaLevel()) and (self.iEraFilter == -1 or self.iEraFilter == replayInfo.getEra()) and (self.iSpeedFilter == -1 or self.iSpeedFilter == replayInfo.getGameSpeed()) and (self.iVictoryFilter == -1 or self.iVictoryFilter == replayInfo.getVictoryType()) and ((self.iMultiplayerFilter == 1) == replayInfo.isMultiplayer()))
 
 	def getReplayCivType(self, replayInfo):
 		# <!-- custom: Hall of Fame identity columns mirror the Info Screen Score Tab:
@@ -285,9 +277,7 @@ class CvHallOfFameScreen:
 		szAdjective = replayInfo.getCivAdjective()
 		for iCiv in range(gc.getNumCivilizationInfos()):
 			civInfo = gc.getCivilizationInfo(iCiv)
-			if (szShort == civInfo.getShortDescription(0) or
-				szFull == civInfo.getDescription() or
-				szAdjective == civInfo.getAdjective(0)):
+			if (szShort == civInfo.getShortDescription(0) or szFull == civInfo.getDescription() or szAdjective == civInfo.getAdjective(0)):
 				return iCiv
 		return -1
 
@@ -342,8 +332,7 @@ class CvHallOfFameScreen:
 		iWorldSizeW = 125
 		iEraW = 125
 		iSpeedW = 250
-		iNonLeaderTotalW = (iNormalizedScoreW + iDateW + iGameScoreW + iVictoryW +
-				iDifficultyW + iWorldSizeW + iEraW + iSpeedW)
+		iNonLeaderTotalW = (iNormalizedScoreW + iDateW + iGameScoreW + iVictoryW + iDifficultyW + iWorldSizeW + iEraW + iSpeedW)
 		iLeaderColumnW = self.TABLE_W - iNonLeaderTotalW - (2 * iIconColumnW) - iColorColumnW - (2 * iTraitColumnW) - 12
 		if bAllowReplay:
 			iLeaderColumnW -= iReplayButtonColumnW

@@ -210,8 +210,7 @@ class PLE:
 		self.CFG_INFOPANE_DX 					    = gRect("DefaultHelpArea").width()
 		# <advc.092> Had been set via PleOpt
 		self.CFG_INFOPANE_X					= gRect("DefaultHelpArea").x()
-		self.CFG_INFOPANE_X_CITY			= (self.CFG_INFOPANE_X
-				+ gRect("CityLeftPanel").xRight() + HSPACE(2))
+		self.CFG_INFOPANE_X_CITY			= (self.CFG_INFOPANE_X + gRect("CityLeftPanel").xRight() + HSPACE(2))
 		self.CFG_INFOPANE_Y		 			= gRect("DefaultHelpArea").y()
 		# </advc.092>
 		self.CFG_INFOPANE_BUTTON_SIZE		= self.CFG_INFOPANE_PIX_PER_LINE_1 - 2
@@ -436,20 +435,14 @@ class PLE:
 						bFirstLoop 		= false
 
 			# left/right scroll buttons
-			if ((self.sPLEMode == self.PLE_MODE_STANDARD and
-					self.iVisibleUnits > self.getMaxCol()) or
-					(self.sPLEMode == self.PLE_MODE_STACK_VERT and
-					((nCol >= self.getMaxCol() or self.iColOffset > 0)))):
+			if ((self.sPLEMode == self.PLE_MODE_STANDARD and self.iVisibleUnits > self.getMaxCol()) or (self.sPLEMode == self.PLE_MODE_STACK_VERT and ((nCol >= self.getMaxCol() or self.iColOffset > 0)))):
 				screen.enable( self.PLOT_LIST_MINUS_NAME, bLeftArrow )
 				screen.show( self.PLOT_LIST_MINUS_NAME )
 				screen.enable( self.PLOT_LIST_PLUS_NAME, bRightArrow )
 				screen.show( self.PLOT_LIST_PLUS_NAME )
 
 			# up/Down scroll buttons
-			if ((self.sPLEMode == self.PLE_MODE_MULTILINE and
-					(nRow >= self.getMaxRow() or self.iRowOffset > 0)) or
-					(self.sPLEMode == self.PLE_MODE_STACK_HORIZ and
-					((nRow >= self.getMaxRow() or self.iRowOffset > 0)))):
+			if ((self.sPLEMode == self.PLE_MODE_MULTILINE and (nRow >= self.getMaxRow() or self.iRowOffset > 0)) or (self.sPLEMode == self.PLE_MODE_STACK_HORIZ and ((nRow >= self.getMaxRow() or self.iRowOffset > 0)))):
 				screen.enable(self.PLOT_LIST_UP_NAME, bUpArrow )
 				screen.show( self.PLOT_LIST_UP_NAME )
 				screen.enable( self.PLOT_LIST_DOWN_NAME, bDownArrow )
@@ -891,8 +884,7 @@ class PLE:
 	def getX(self, nCol):
 		#return 315 + nCol * PleOpt.getHoriztonalSpacing() #=34
 		# <advc.092>
-		return (gRect("PlotListPanel0").x() + 3 +
-				nCol * CvScreensInterface.mainInterface.plotListUnitButtonSize()) # </advc.092>
+		return (gRect("PlotListPanel0").x() + 3 + nCol * CvScreensInterface.mainInterface.plotListUnitButtonSize()) # </advc.092>
 
 	def getY(self, nRow):
 		#return yResolution - 169 ...
@@ -1062,8 +1054,7 @@ class PLE:
 		szFileNameGovernor = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_GOVERNOR").getPath()
 		szFileNameHilite = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
 		# <advc.092>
-		iFrameSize = (CvScreensInterface.mainInterface.plotListUnitButtonSize()
-				- CvScreensInterface.mainInterface.plotListUnitFrameThickness()) # </advc.092>
+		iFrameSize = (CvScreensInterface.mainInterface.plotListUnitButtonSize() - CvScreensInterface.mainInterface.plotListUnitFrameThickness()) # </advc.092>
 		for i in range( self.iMaxPlotListIcons ):
 			# create button name
 			szString = self.PLOT_LIST_BUTTON_NAME + str(i)
@@ -1866,15 +1857,7 @@ class PLE:
 
 		szUpgradeHelp = localText.getText("TXT_KEY_PLE_UPGRADE_HELP", () )		
 
-		szText 		= (sasFontTagLabel + szUnitName +
-						szCombatType  +
-						szStrength  +
-						szMovement +
-						szRange  +
-						szSpecialText +
-						szUpgradePrice +
-						szUpgradeHelp +
-					SAS_FONT_TAG_CLOSE)
+		szText 		= (sasFontTagLabel + szUnitName + szCombatType + szStrength + szMovement + szRange + szSpecialText + szUpgradePrice + szUpgradeHelp + SAS_FONT_TAG_CLOSE)
 
 		# display the info pane
 		self.displayInfoPane(szText)
@@ -1964,10 +1947,7 @@ class PLE:
 		# compressed display for standard display
 		szStrengthMovement = sasFontTagLabel + szCurrStrength + szMaxStrength
 		# advc.069: szTurnsToHeal omitted in the middle, appended at the end after a newline.
-		szStrengthMovement += (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + ", " +
-							szCurrMoves + szMaxMoves +
-							u"%c"%(CyGame().getSymbolID(FontSymbols.MOVES_CHAR)) +
-							szAirRange + szTurnsToHeal + SAS_FONT_TAG_CLOSE + u"\n")
+		szStrengthMovement += (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + ", " + szCurrMoves + szMaxMoves + u"%c"%(CyGame().getSymbolID(FontSymbols.MOVES_CHAR)) + szAirRange + szTurnsToHeal + SAS_FONT_TAG_CLOSE + u"\n")
 
 		# civilization type
 		szCiv = u""
@@ -2053,16 +2033,7 @@ class PLE:
 			szPromotion = u"\n"*((iPromotionCount/self.CFG_INFOPANE_BUTTON_PER_LINE)+1)
 
 		# build text
-		szText 	= (szUnitName +
-				szPromotion +
-				szStrengthMovement +
-				szLevel +
-				szExperience +
-				szCargo +
-				szCiv +
-				szFortifyBonus +
-				szEspionage +
-				szSpecialText)
+		szText 	= (szUnitName + szPromotion + szStrengthMovement + szLevel + szExperience + szCargo + szCiv + szFortifyBonus + szEspionage + szSpecialText)
 
 		# display the info pane
 		dy = self.displayInfoPane(szText)
@@ -2157,10 +2128,7 @@ class PLE:
 
 	def checkInfoPane(self, tMousePos):
 		if self.bInfoPaneActive and (self.iInfoPaneCnt == (self.iLastInfoPaneCnt+1)): 
-			if (tMousePos.x < self.tLastMousePos[0]-self.iMousePosTol or
-					tMousePos.x > self.tLastMousePos[0]+self.iMousePosTol or
-					tMousePos.y < self.tLastMousePos[1]-self.iMousePosTol or
-					tMousePos.y > self.tLastMousePos[1]+self.iMousePosTol):
+			if (tMousePos.x < self.tLastMousePos[0]-self.iMousePosTol or tMousePos.x > self.tLastMousePos[0]+self.iMousePosTol or tMousePos.y < self.tLastMousePos[1]-self.iMousePosTol or tMousePos.y > self.tLastMousePos[1]+self.iMousePosTol):
 				self.hideInfoPane()
 				if self.bUnitPromoButtonsActive:
 					self.hideUnitInfoPromoButtons()

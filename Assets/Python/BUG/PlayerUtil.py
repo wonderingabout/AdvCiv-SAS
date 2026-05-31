@@ -244,8 +244,7 @@ def teams(alive=None, human=None, barbarian=None, minor=None, active=None):
 	#
 	for eTeam in range(gc.getMAX_TEAMS()):
 		team = gc.getTeam(eTeam)
-		if (not team.isNone() and team.isEverAlive() 
-				and matchPlayerOrTeam(team, alive, human, barbarian, minor)):
+		if (not team.isNone() and team.isEverAlive() and matchPlayerOrTeam(team, alive, human, barbarian, minor)):
 			yield team
 
 def matchPlayerOrTeam(teamOrPlayer, alive=None, human=None, barbarian=None, minor=None, active=None):
@@ -301,8 +300,7 @@ def getWorstEnemy(playerOrID, askingPlayerOrID=None):
 			if player.getName() == name:
 				if askingPlayerOrID is not None:
 					askingTeam = getPlayerTeam(askingPlayerOrID)
-					if (askingTeam and (askingTeam.isHasMet(player.getTeam())
-							or gc.getGame().isDebugMode())):
+					if (askingTeam and (askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 						return player
 					return None
 				return player
@@ -319,8 +317,7 @@ def getVassals(playerOrID, askingPlayerOrID):
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
 	for player in players(alive=True, barbarian=False, minor=False):
-		if (askedPlayer.getTeam() != player.getTeam() and 
-				(askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
+		if (askedPlayer.getTeam() != player.getTeam() and (askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 			team = getPlayerTeam(player)
 			if team.isAVassal() and team.isVassal(askedTeam.getID()):
 				vassals.append(player)
@@ -334,8 +331,7 @@ def getDefensivePacts(playerOrID, askingPlayerOrID):
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
 	for player in players(alive=True, barbarian=False, minor=False):
-		if (askedPlayer.getTeam() != player.getTeam() and 
-				(askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
+		if (askedPlayer.getTeam() != player.getTeam() and (askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 			if askedTeam.isDefensivePact(player.getTeam()):
 				pacts.append(player)
 	return pacts

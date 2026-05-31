@@ -146,8 +146,7 @@ class BupPanel:
 		self.screen.hide(sBupStringBase + "Plus")
 
 		# kill off the prior units and delete all of the unit plot list if the plot has changed
-		if (self._hasPlotChanged()
-		or CyInterface().isCityScreenUp() != self.CityUp_Prior):
+		if (self._hasPlotChanged() or CyInterface().isCityScreenUp() != self.CityUp_Prior):
 #			BugUtil.debug("BupPanel plot has changed or CityScreenUp status has changed - %s %s", CyInterface().isCityScreenUp(), self.CityUp_Prior)
 			self.BupUnits_Prior = []
 			self.PlotListOffset_Prior = 0
@@ -197,8 +196,7 @@ class BupPanel:
 			BugUtil.debug("BupPanel index(%i), iUnit(%i), iUnit_Prior(%i)", iIndex, iUnit, iUnit_Prior)
 
 			# check if the unit we have is within the display bounds
-			if (iIndex < iFirstPlot
-			or iIndex > iLastPlot):
+			if (iIndex < iFirstPlot or iIndex > iLastPlot):
 				iIndex += 1
 				continue
 
@@ -222,9 +220,7 @@ class BupPanel:
 
 			# prior unit doesn't exist - just need to draw the new unit
 			# this is handled below in the '_update*' functions
-			if (len(self.BupUnits_Prior) != 0
-			and iUnit_Prior >= 0
-			and iUnit_Prior < len(self.BupUnits_Prior)):
+			if (len(self.BupUnits_Prior) != 0 and iUnit_Prior >= 0 and iUnit_Prior < len(self.BupUnits_Prior)):
 #			or  iUnit_Prior < len(self.BupUnits_Prior))):
 				BupUnit_Prior = self.BupUnits_Prior[iUnit_Prior]
 			else:
@@ -333,8 +329,7 @@ class BupPanel:
 #		BugUtil.debug("BupPanel _updateUnitIcon %s %s", BupUnit.isSelected, BupUnit_Prior.isSelected)
 
 		# if we get to here, then we have a unit in BupUnit and BupUnit_Prior
-		if (BupUnit.UnitType	!= BupUnit_Prior.UnitType
-		or BupUnit.Owner		!= BupUnit_Prior.Owner):
+		if (BupUnit.UnitType != BupUnit_Prior.UnitType or BupUnit.Owner != BupUnit_Prior.Owner):
 			self._drawUnitIcon(BupUnit, iIndex, szCell)
 
 		if self.BupCell_Displayed[iIndex]:
@@ -366,8 +361,7 @@ class BupPanel:
 		yOffset = -7
 		# handles the display of the colored buttons in the upper left corner of each unit icon.
 		# Units lead by a GG will get a star instead of a dot - and the location and size of star differs
-		if (PleOpt.isShowGreatGeneralIndicator()
-		and BupUnit.isLeadByGreatGeneral):
+		if (PleOpt.isShowGreatGeneralIndicator() and BupUnit.isLeadByGreatGeneral):
 			xSize = BTNSZ(16) # advc.092
 			ySize = xSize
 			xOffset -= 3
@@ -456,13 +450,11 @@ class BupPanel:
 			return
 
 		# if we get to here, then we have a unit in BupUnit and BupUnit_Prior
-		if (BupUnit.currHitPoints != BupUnit_Prior.currHitPoints
-		or not BupUnit_Prior.isShowHealth):
+		if (BupUnit.currHitPoints != BupUnit_Prior.currHitPoints or not BupUnit_Prior.isShowHealth):
 			self._drawHealthBar(BupUnit, szCell)
 
 	def _drawHealthBar(self, BupUnit, szCell):
-		if (PleOpt.isShowHealthBar()
-		and BupUnit.isShowHealth):
+		if (PleOpt.isShowHealthBar() and BupUnit.isShowHealth):
 			if BupUnit.currHitPoints < (BupUnit.maxHitPoints * 2) / 3:
 				sColor = "COLOR_RED"
 			elif BupUnit.currHitPoints < BupUnit.maxHitPoints / 3:
@@ -559,13 +551,11 @@ class BupUnit:
 			sDotStatus = "OVERLAY_NOMOVE"
 
 		# Wounded units will get a darker colored button.
-		if (PleOpt.isShowWoundedIndicator()
-		and self.isHurt):
+		if (PleOpt.isShowWoundedIndicator() and self.isHurt):
 			sDotStatus += "_INJURED"
 
 		# Units lead by a GG will get a star instead of a dot.
-		if (PleOpt.isShowGreatGeneralIndicator()
-		and self.isLeadByGreatGeneral):
+		if (PleOpt.isShowGreatGeneralIndicator() and self.isLeadByGreatGeneral):
 			sDotStatus += "_GG"
 
 		return sDotStatus

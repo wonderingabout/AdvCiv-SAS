@@ -34,10 +34,7 @@ from pathlib import Path
 
 DEFAULT_MAX_LINE_LEN = 380
 
-HEADER_KEYWORDS = (
-    "def ", "class ", "if ", "elif ", "while ", "for ", "with ",
-    "try:", "except", "finally:", "else:"
-)
+HEADER_KEYWORDS = ("def ", "class ", "if ", "elif ", "while ", "for ", "with ", "try:", "except", "finally:", "else:")
 
 CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*$")
 ASSIGN_CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*\s*=\s*[A-Za-z_][A-Za-z0-9_\.]*$")
@@ -82,12 +79,7 @@ def significant_tokens_from_text(text):
     result = []
     reader = io.BytesIO(text.encode("utf-8", errors="surrogatepass")).readline
     for tok in tokenize.tokenize(reader):
-        if tok.type in (
-            tokenize.ENCODING,
-            tokenize.ENDMARKER,
-            tokenize.NL,
-            tokenize.NEWLINE,
-        ):
+        if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER, tokenize.NL, tokenize.NEWLINE,):
             continue
         result.append((tok.type, tok.string))
     return result

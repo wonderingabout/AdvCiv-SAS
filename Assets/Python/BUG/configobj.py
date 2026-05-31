@@ -124,25 +124,7 @@ __docformat__ = "restructuredtext en"
 # NOTE: DEFAULT_INDENT_TYPE, NUM_INDENT_SPACES, MAX_INTERPOL_DEPTH
 # NOTE: If used via ``from configobj import...``
 # NOTE: They are effectively read only
-__all__ = (
-    '__version__',
-    'DEFAULT_INDENT_TYPE',
-    'NUM_INDENT_SPACES',
-    'MAX_INTERPOL_DEPTH',
-    'ConfigObjError',
-    'NestingError',
-    'ParseError',
-    'DuplicateError',
-    'ConfigspecError',
-    'ConfigObj',
-    'SimpleVal',
-    'InterpolationError',
-    'InterpolationDepthError',
-    'MissingInterpolationOption',
-    'RepeatSectionError',
-    '__docformat__',
-    'flatten_errors',
-)
+__all__ = ('__version__', 'DEFAULT_INDENT_TYPE', 'NUM_INDENT_SPACES', 'MAX_INTERPOL_DEPTH', 'ConfigObjError', 'NestingError', 'ParseError', 'DuplicateError', 'ConfigspecError', 'ConfigObj', 'SimpleVal', 'InterpolationError', 'InterpolationDepthError', 'MissingInterpolationOption', 'RepeatSectionError', '__docformat__', 'flatten_errors',)
 
 DEFAULT_INDENT_TYPE = ' '
 NUM_INDENT_SPACES = 4
@@ -495,8 +477,7 @@ class Section(dict):
         return iter(self.values())
 
     def __repr__(self):
-        return '{%s}' % ', '.join([('%s: %s' % (repr(key), repr(self[key])))
-            for key in (self.scalars + self.sections)])
+        return '{%s}' % ', '.join([('%s: %s' % (repr(key), repr(self[key]))) for key in (self.scalars + self.sections)])
 
     __str__ = __repr__
 
@@ -574,8 +555,7 @@ class Section(dict):
         {'section1': {'option1': 'False', 'subsection': {'more_options': 'False'}}}
         """
         for key, val in indict.items():
-            if (key in self and isinstance(self[key], dict) and
-                                isinstance(val, dict)):
+            if (key in self and isinstance(self[key], dict) and isinstance(val, dict)):
                 self[key].merge(val)
             else:   
                 self[key] = val
@@ -684,11 +664,7 @@ class Section(dict):
                 # bound again in case name has changed
                 entry = self.sections[i]
             # previous result is discarded
-            out[entry] = self[entry].walk(
-                function,
-                raise_errors=raise_errors,
-                call_on_sections=call_on_sections,
-                **keywargs)
+            out[entry] = self[entry].walk(function, raise_errors=raise_errors, call_on_sections=call_on_sections, **keywargs)
         return out
 
     def decode(self, encoding):
@@ -1112,8 +1088,7 @@ class ConfigObj(Section):
         # ``infile`` must always be returned as a list of lines, but may be
         # passed in as a single string.
         #
-        if ((self.encoding is not None) and
-            (self.encoding.lower() not in BOM_LIST)):
+        if ((self.encoding is not None) and (self.encoding.lower() not in BOM_LIST)):
             # No need to check for a BOM
             # encoding specified doesn't have one
             # just decode
@@ -1382,8 +1357,7 @@ class ConfigObj(Section):
                 # check for a multiline value
                 if value[:3] in ['"""', "'''"]:
                     try:
-                        (value, comment, cur_index) = self._multiline(
-                            value, infile, cur_index, maxline)
+                        (value, comment, cur_index) = self._multiline(value, infile, cur_index, maxline)
                     except SyntaxError:
                         self._handle_error('Parse error in value at line %s.', ParseError, infile, cur_index)
                         continue
@@ -1484,8 +1458,7 @@ class ConfigObj(Section):
                 return ','
             elif len(value) == 1:
                 return self._quote(value[0], multiline=False) + ','
-            return ', '.join([self._quote(val, multiline=False)
-                for val in value])
+            return ', '.join([self._quote(val, multiline=False) for val in value])
         if not isinstance(value, StringTypes):
             if self.stringify:
                 value = str(value)
@@ -1499,8 +1472,7 @@ class ConfigObj(Section):
         tdquot = "'''%s'''"
         if not value:
             return '""'
-        if (not self.list_values and '\n' not in value) or not (multiline and
-                ((("'" in value) and ('"' in value)) or ('\n' in value))):
+        if (not self.list_values and '\n' not in value) or not (multiline and ((("'" in value) and ('"' in value)) or ('\n' in value))):
             if not self.list_values:
                 # we don't quote if ``list_values=False``
                 quot = noquot
@@ -1508,9 +1480,7 @@ class ConfigObj(Section):
             elif '\n' in value:
                 # will only happen if multiline is off - e.g. '\n' in key
                 raise ConfigObjError('Value "%s" cannot be safely quoted.' % value)
-            elif ((value[0] not in wspace_plus) and
-                    (value[-1] not in wspace_plus) and
-                    (',' not in value)):
+            elif ((value[0] not in wspace_plus) and (value[-1] not in wspace_plus) and (',' not in value)):
                 quot = noquot
             else:
                 if ("'" in value) and ('"' in value):
@@ -1774,22 +1744,12 @@ class ConfigObj(Section):
         # Write an individual line, for the write method
         # 
         # NOTE: the calls to self._quote here handles non-StringType values.
-        return '%s%s%s%s%s' % (
-            indent_string,
-            self._decode_element(self._quote(entry, multiline=False)),
-            self._a_to_u(' = '),
-            self._decode_element(self._quote(this_entry)),
-            self._decode_element(comment))
+        return '%s%s%s%s%s' % (indent_string, self._decode_element(self._quote(entry, multiline=False)), self._a_to_u(' = '), self._decode_element(self._quote(this_entry)), self._decode_element(comment))
 
     def _write_marker(self, indent_string, depth, entry, comment):
         # Write a section marker line
         #
-        return '%s%s%s%s%s' % (
-            indent_string,
-            self._a_to_u('[' * depth),
-            self._quote(self._decode_element(entry), multiline=False),
-            self._a_to_u(']' * depth),
-            self._decode_element(comment))
+        return '%s%s%s%s%s' % (indent_string, self._a_to_u('[' * depth), self._quote(self._decode_element(entry), multiline=False), self._a_to_u(']' * depth), self._decode_element(comment))
 
     def _handle_comment(self, comment):
         """
@@ -1953,8 +1913,7 @@ class ConfigObj(Section):
             # NOTE: This will *screw* UTF16, each line will start with the BOM
             if self.encoding:
                 out = [l.encode(self.encoding) for l in out]
-            if (self.BOM and ((self.encoding is None) or
-                (BOM_LIST.get(self.encoding.lower()) == 'utf_8'))):
+            if (self.BOM and ((self.encoding is None) or (BOM_LIST.get(self.encoding.lower()) == 'utf_8'))):
                 # Add the UTF8 BOM
                 if not out:
                     out.append('')
@@ -1962,12 +1921,10 @@ class ConfigObj(Section):
             return out
         #
         # Turn the list to a string, joined with correct newlines
-        output = (self._a_to_u(self.newlines or os.linesep)
-            ).join(out)
+        output = (self._a_to_u(self.newlines or os.linesep)).join(out)
         if self.encoding:
             output = output.encode(self.encoding)
-        if (self.BOM and ((self.encoding is None) or
-            (BOM_LIST.get(self.encoding.lower()) == 'utf_8'))):
+        if (self.BOM and ((self.encoding is None) or (BOM_LIST.get(self.encoding.lower()) == 'utf_8'))):
             # Add the UTF8 BOM
             output = BOM_UTF8 + output
         if outfile is not None:

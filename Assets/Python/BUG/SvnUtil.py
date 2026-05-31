@@ -179,8 +179,7 @@ def _getRemoteRevision(url):
 						try:
 							return int(result.group(1))
 						except ValueError:
-							raise BugUtil.BugError("invalid SVN revision format '%s'" 
-									% result.group(1))
+							raise BugUtil.BugError("invalid SVN revision format '%s'" % result.group(1))
 					count += 1
 					if count > MAX_READ_LINES:
 						return None

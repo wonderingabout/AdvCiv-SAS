@@ -1185,9 +1185,7 @@ class CvInfoScreen:
 		iResearchW = iMinColW
 		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
 		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
-		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW +
-				iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iTraitW + iTraitW + iAttNumW + iColorW + iResearchPctW + iTechsW + iAttW + 8 * iFlagW + iPidW +
-				iNameW + iResearchW)
+		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW + iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iTraitW + iTraitW + iAttNumW + iColorW + iResearchPctW + iTechsW + iAttW + 8 * iFlagW + iPidW + iNameW + iResearchW)
 		iExtraW = iW - iUsedW
 		iVMW += iExtraW
 		if iVMW < iMinColW:
@@ -2355,8 +2353,7 @@ class CvInfoScreen:
 
 	# <advc.077>
 	def addGroupData(self, iValue, iPlayer, aiGroup):
-		if (not self.bRanksAmongKnown or self.bRevealAll or
-				self.pActiveTeam.isHasMet(gc.getPlayer(iPlayer).getTeam())):
+		if (not self.bRanksAmongKnown or self.bRevealAll or self.pActiveTeam.isHasMet(gc.getPlayer(iPlayer).getTeam())):
 			aiGroup.append((iValue, iPlayer))
 
 	# <!-- custom: helper function to format rank with medal icons for ranks 1-3, added with claude opus 4.5's help thanks. -->
@@ -4223,10 +4220,7 @@ class CvInfoScreen:
 			if (self.iActiveTab == self.iTopCitiesID):
 
 				# Wonder type dropdown box
-				if (szWidgetName == self.szWondersDropdownWidget
-				or szShortWidgetName == self.BUGWorldWonderWidget
-				or szShortWidgetName == self.BUGNatWonderWidget
-				or szShortWidgetName == self.BUGProjectWidget):
+				if (szWidgetName == self.szWondersDropdownWidget or szShortWidgetName == self.BUGWorldWonderWidget or szShortWidgetName == self.BUGNatWonderWidget or szShortWidgetName == self.BUGProjectWidget):
 
 					self.handleInput_Wonders(inputClass)
 
@@ -4317,16 +4311,13 @@ class CvInfoScreen:
 
 			# Wonder type dropdown box
 			if self.iActiveTab == self.iTopCitiesID: # K-Mod
-				if (szShortWidgetName == self.BUGWorldWonderWidget
-				or szShortWidgetName == self.BUGNatWonderWidget
-				or szShortWidgetName == self.BUGProjectWidget):
+				if (szShortWidgetName == self.BUGWorldWonderWidget or szShortWidgetName == self.BUGNatWonderWidget or szShortWidgetName == self.BUGProjectWidget):
 					self.handleInput_Wonders(inputClass)
 
 #BUG: Change Graphs - start
 			if AdvisorOpt.isGraphs() and self.iActiveTab == self.iGraphID:
 				for i in range(7):
-					if (szWidgetName == self.sGraphTextHeadingWidget[i]
-					or (szWidgetName == self.sGraphBGWidget[i] and code == NotifyCode.NOTIFY_CLICKED)):
+					if (szWidgetName == self.sGraphTextHeadingWidget[i] or (szWidgetName == self.sGraphBGWidget[i] and code == NotifyCode.NOTIFY_CLICKED)):
 						if self.Graph_Status_Current == self.Graph_Status_1in1:
 							self.Graph_Status_Current = self.Graph_Status_Prior
 							self.Graph_Status_Prior = self.Graph_Status_1in1
@@ -4417,8 +4408,7 @@ class CvInfoScreen:
 			self.determineListBoxContents()
 
 		# Change selected wonder to the one at the top of the new list
-		if (self.iNumWonders > 0
-		and not AdvisorOpt.isShowInfoWonders()):
+		if (self.iNumWonders > 0 and not AdvisorOpt.isShowInfoWonders()):
 			self.iWonderID = self.aiWonderListBoxIDs[0]
 
 		self.redrawContents()

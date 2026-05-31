@@ -176,8 +176,7 @@ def beforeGeneration():
 
 # Subclass
 class FantasyFractalWorld(CvMapGeneratorUtil.FractalWorld):
-	def initFractal(self, continent_grain = 2, rift_grain = 2,
-					has_center_rift = True, invert_heights = False):
+	def initFractal(self, continent_grain = 2, rift_grain = 2, has_center_rift = True, invert_heights = False):
 		"For no rifts, use rift_grain = -1"
 		iFlags = 0
 		if invert_heights:
@@ -191,8 +190,7 @@ class FantasyFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		else:
 			self.continentsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, continent_grain, self.mapRand, iFlags, self.fracXExp, self.fracYExp)
 
-	def generatePlotTypes(self, water_percent=9, shift_plot_types=True, 
-	                      grain_amount=3):
+	def generatePlotTypes(self, water_percent=9, shift_plot_types=True, grain_amount=3):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
 
@@ -322,8 +320,7 @@ def generateTerrainTypes():
 	return terrainTypes
 
 class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
-	def __init__(self, iJunglePercent=20, iForestPercent=30,
-	             forest_grain=6, fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=20, iForestPercent=30, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()

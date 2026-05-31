@@ -1000,8 +1000,7 @@ def cityAdvise(pCity, iPlayer):
 				# K-Mod
 				if (gc.getGame().getGameTurn() + 8) % 40 == pCity.getGameTurnFounded() % 40:
 
-					if ((pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_GOLD) > 10 and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_GOLD) <= (gc.getPlayer(iPlayer).getNumCities()+1)/2) or 
-						(gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes.COMMERCE_GOLD) > 20 and pCity.findYieldRateRank(YieldTypes.YIELD_COMMERCE) <= (gc.getPlayer(iPlayer).getNumCities()+2)/3)):
+					if ((pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_GOLD) > 10 and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_GOLD) <= (gc.getPlayer(iPlayer).getNumCities()+1)/2) or (gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes.COMMERCE_GOLD) > 20 and pCity.findYieldRateRank(YieldTypes.YIELD_COMMERCE) <= (gc.getPlayer(iPlayer).getNumCities()+2)/3)):
 				# K-Mod end
 
 						iBestValue = 0
@@ -1046,8 +1045,7 @@ def cityAdvise(pCity, iPlayer):
 				# K-Mod
 				if (gc.getGame().getGameTurn() + 10) % 40 == pCity.getGameTurnFounded() % 40:
 
-					if ((pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_RESEARCH) > 10 and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_RESEARCH) <= (gc.getPlayer(iPlayer).getNumCities()+1)/2) or 
-						(gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes.COMMERCE_RESEARCH) > 20 and pCity.findYieldRateRank(YieldTypes.YIELD_COMMERCE) <= (gc.getPlayer(iPlayer).getNumCities()+2)/3)):
+					if ((pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_RESEARCH) > 10 and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_RESEARCH) <= (gc.getPlayer(iPlayer).getNumCities()+1)/2) or (gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes.COMMERCE_RESEARCH) > 20 and pCity.findYieldRateRank(YieldTypes.YIELD_COMMERCE) <= (gc.getPlayer(iPlayer).getNumCities()+2)/3)):
 				# K-Mod end
 
 						iBestValue = 0

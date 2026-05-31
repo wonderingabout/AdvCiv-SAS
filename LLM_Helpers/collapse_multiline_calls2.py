@@ -43,10 +43,7 @@ DEFAULT_DEF_HEADER_MAX_LINE_LEN = 900
 DEFAULT_LONG_CALL_MAX_LINE_LEN = 1200
 DEFAULT_LONG_CALL_NAMES = "generatePlotsInRegion,generateCenter,generateCenterPlot"
 
-HEADER_KEYWORDS = (
-    "def ", "class ", "if ", "elif ", "while ", "for ", "with ",
-    "try:", "except", "finally:", "else:"
-)
+HEADER_KEYWORDS = ("def ", "class ", "if ", "elif ", "while ", "for ", "with ", "try:", "except", "finally:", "else:")
 
 CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*$")
 ASSIGN_CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*\s*=\s*[A-Za-z_][A-Za-z0-9_\.]*$")
@@ -97,12 +94,7 @@ def significant_tokens_from_text(text):
     result = []
     reader = io.BytesIO(text.encode("utf-8", errors="surrogatepass")).readline
     for tok in tokenize.tokenize(reader):
-        if tok.type in (
-            tokenize.ENCODING,
-            tokenize.ENDMARKER,
-            tokenize.NL,
-            tokenize.NEWLINE,
-        ):
+        if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER, tokenize.NL, tokenize.NEWLINE,):
             continue
         result.append((tok.type, tok.string))
     return result
@@ -328,11 +320,7 @@ def main(argv):
 
     long_call_names = parse_name_set(args.long_call_names)
 
-    new_text, changed, removed_lines, skipped = transform_text(
-        text, newline, args.max_line_len,
-        args.def_header_max_line_len,
-        long_call_names, args.long_call_max_line_len,
-    )
+    new_text, changed, removed_lines, skipped = transform_text(text, newline, args.max_line_len, args.def_header_max_line_len, long_call_names, args.long_call_max_line_len,)
 
     if changed:
         orig_tokens = significant_tokens_from_text(text)

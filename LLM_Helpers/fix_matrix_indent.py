@@ -75,12 +75,7 @@ def significant_tokens_from_text(text):
     result = []
     reader = io.BytesIO(text.encode("utf-8", errors="surrogatepass")).readline
     for tok in tokenize.tokenize(reader):
-        if tok.type in (
-            tokenize.ENCODING,
-            tokenize.ENDMARKER,
-            tokenize.NL,
-            tokenize.NEWLINE,
-        ):
+        if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER, tokenize.NL, tokenize.NEWLINE,):
             continue
         result.append((tok.type, tok.string))
     return result

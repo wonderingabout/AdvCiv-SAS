@@ -291,12 +291,7 @@ class CvMilitaryAdvisor:
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			pPlayer = gc.getPlayer(iLoopPlayer)
 
-			if (pPlayer.isAlive()
-			and (gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getPlayer(self.iActivePlayer).getTeam())
-			or gc.getGame().isDebugMode())
-			and iLoopPlayer != self.iActivePlayer
-			and not pPlayer.isBarbarian()
-			and not pPlayer.isMinorCiv()):
+			if (pPlayer.isAlive() and (gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getPlayer(self.iActivePlayer).getTeam()) or gc.getGame().isDebugMode()) and iLoopPlayer != self.iActivePlayer and not pPlayer.isBarbarian() and not pPlayer.isMinorCiv()):
 				pVassals[iLoopPlayer] = PlayerUtil.getVassals(iLoopPlayer, self.iActivePlayer)
 				pDefPacts[iLoopPlayer] = PlayerUtil.getDefensivePacts(iLoopPlayer, self.iActivePlayer)
 
@@ -329,12 +324,7 @@ class CvMilitaryAdvisor:
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			pPlayer = gc.getPlayer(iLoopPlayer)
 
-			if (pPlayer.isAlive()
-			and (gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getPlayer(self.iActivePlayer).getTeam())
-			or gc.getGame().isDebugMode())
-			and iLoopPlayer != self.iActivePlayer
-			and not pPlayer.isBarbarian()
-			and not pPlayer.isMinorCiv()):
+			if (pPlayer.isAlive() and (gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getPlayer(self.iActivePlayer).getTeam()) or gc.getGame().isDebugMode()) and iLoopPlayer != self.iActivePlayer and not pPlayer.isBarbarian() and not pPlayer.isMinorCiv()):
 
 #				szPlayerName = pPlayer.getName() + "/" + pPlayer.getCivilizationShortDescription(0)
 #				BugUtil.debug("Grid_ThreatIndex - Start %i %s" % (iLoopPlayer, szPlayerName))
@@ -673,8 +663,7 @@ class CvMilitaryAdvisor:
 		iRow = 0
 		for player in PlayerUtil.players(alive=True, barbarian=False, minor=False):
 			ePlayer = player.getID()
-			if (ePlayer != self.iActivePlayer
-					and (activeTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
+			if (ePlayer != self.iActivePlayer and (activeTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 				self.iconGrid.appendRow(player.getName(), "", 3)
 
 				# add leaderhead icon
@@ -717,8 +706,7 @@ class CvMilitaryAdvisor:
 			self.iconGrid.addIcon(iRow, iCol, gc.getBonusInfo(eBonus).getButton(), 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, eBonus)
 
 	def addStratAdvUnits(self, activePlayer, player, iRow):
-		if (not gc.getTeam(activePlayer.getTeam()).isTechTrading()
-				and not gc.getTeam(player.getTeam()).isTechTrading()):
+		if (not gc.getTeam(activePlayer.getTeam()).isTechTrading() and not gc.getTeam(player.getTeam()).isTechTrading()):
 			szButton = ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath()
 			self.iconGrid.addIcon(iRow, self.SA_Col_Unit_Us_Yes, szButton, 32, WidgetTypes.WIDGET_GENERAL, -1)
 			self.iconGrid.addIcon(iRow, self.SA_Col_Unit_Them_Yes, szButton, 32, WidgetTypes.WIDGET_GENERAL, -1)
@@ -1172,8 +1160,7 @@ class CvMilitaryAdvisor:
 			# RJG End
 
 		elif (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
-			if (inputClass.getData() == int(InputTypes.KB_LSHIFT)
-			or  inputClass.getData() == int(InputTypes.KB_RSHIFT)):
+			if (inputClass.getData() == int(InputTypes.KB_LSHIFT) or inputClass.getData() == int(InputTypes.KB_RSHIFT)):
 				self.iShiftKeyDown = inputClass.getID()
 				return 1
 

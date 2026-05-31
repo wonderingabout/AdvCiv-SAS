@@ -27,9 +27,7 @@ def onRepositoryUrlChanged(option, value):
 	CoreOpt.RepositoryVersion.resetValue()
 
 def scheduleSvnCheck():
-	if (CoreOpt.isCheckForUpdates() 
-	and CoreOpt.getRepositoryUrl() 
-	and CoreOpt.getLocalRoot()):
+	if (CoreOpt.isCheckForUpdates() and CoreOpt.getRepositoryUrl() and CoreOpt.getLocalRoot()):
 		checkForSvnUpdates()
 
 def checkForSvnUpdates():

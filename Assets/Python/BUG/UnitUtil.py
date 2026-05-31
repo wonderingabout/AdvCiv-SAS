@@ -296,8 +296,7 @@ def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None
 		unitInfo = gc.getUnitInfo(eUnit)
 		# military
 		if military is not None:
-			combat = (unitInfo.getUnitCombatType() > 0 or unitInfo.getNukeRange() != -1
-					or unitInfo.getAirCombat() > 0)
+			combat = (unitInfo.getUnitCombatType() > 0 or unitInfo.getNukeRange() != -1 or unitInfo.getAirCombat() > 0)
 			if military != combat:
 				#BugUtil.debug("  %s -> combat is %s", unitInfo.getDescription(), combat)
 				continue

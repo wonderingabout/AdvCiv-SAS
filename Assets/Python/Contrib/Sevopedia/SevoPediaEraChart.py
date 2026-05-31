@@ -237,14 +237,7 @@ class SevoPediaEraChart:
 		game = CyGame()
 		btn_by_name = {}
 
-		_btn_defs = (
-			("lion",   "SAS_EMOJI_LION_FACE"),
-			("skull",  "SAS_EMOJI_SKULL"),
-			("swords", "SAS_EMOJI_CROSSED_SWORDS"),
-			("fire",   "SAS_EMOJI_FIRE"),
-			("gear",   "SAS_EMOJI_GEAR"),
-			("brain",  "SAS_EMOJI_BRAIN"),
-		)
+		_btn_defs = (("lion", "SAS_EMOJI_LION_FACE"), ("skull", "SAS_EMOJI_SKULL"), ("swords", "SAS_EMOJI_CROSSED_SWORDS"), ("fire", "SAS_EMOJI_FIRE"), ("gear", "SAS_EMOJI_GEAR"), ("brain", "SAS_EMOJI_BRAIN"),)
 		for i, (name, artKey) in enumerate(_btn_defs):
 			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
 

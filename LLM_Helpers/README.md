@@ -15,17 +15,19 @@ Always review diffs before committing generated source changes.
 
 ## Menu
 
-- [Source-rewrite helpers](#source-rewrite-helpers)
+- [Python source cleanup helpers](#python-source-cleanup-helpers)
   - [`collapse_multiline_calls.py`](#collapse_multiline_callspy)
   - [`collapse_multiline_calls2.py`](#collapse_multiline_calls2py)
+  - [`collapse_multiline_parens_safe.py`](#collapse_multiline_parens_safepy)
   - [`fix_matrix_indent.py`](#fix_matrix_indentpy)
-  - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
-- [CvMainInterface single-line cleanup reference scripts](#cvmaininterface-single-line-cleanup-reference-scripts)
-  - [`singleline_pass.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
-  - [`singleline_pass_comments.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
-  - [`singleline_pass3_comments_and_long.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
-  - [`comment_cleanup_pass_v2.py`](#cvmaininterface-single-line-cleanup-reference-scripts)
+  - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
+- [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
+  - [`singleline_pass.py`](#cvmaininterface-cleanup-reference-scripts)
+  - [`singleline_pass_comments.py`](#cvmaininterface-cleanup-reference-scripts)
+  - [`singleline_pass3_comments_and_long.py`](#cvmaininterface-cleanup-reference-scripts)
+  - [`comment_cleanup_pass_v2.py`](#cvmaininterface-cleanup-reference-scripts)
+  - [Notes](#notes)
 - [Game speed helper scripts](#game-speed-helper-scripts)
   - [`compare_speed_summaries.py`](#compare_speed_summariespy)
   - [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy)
@@ -37,7 +39,7 @@ Always review diffs before committing generated source changes.
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
-## Source-rewrite helpers
+## Python source cleanup helpers
 
 ### `collapse_multiline_calls.py`
 
@@ -89,6 +91,37 @@ Tested broad run workflow from Git Bash. The helper itself processes one file at
 cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_multiline_calls2.py" "LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_collapse_multiline_calls2_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
 ```
 
+### `collapse_multiline_parens_safe.py`
+
+Broad but safety-checked parenthesis-collapse helper.
+
+- Collapses multiline parenthesized expressions to one physical line.
+- Intended mainly for old Civ4 Python files where wrapped parenthesized calls/expressions create Ruff/Pylance mixed-indentation noise.
+- Broader than `collapse_multiline_calls.py` because it is not limited to call-like statements.
+- Safer than the legacy `collapse_multiline_brackets.py` because it defaults to parentheses only and skips risky ranges.
+- Skips ranges containing comments, multiline strings, explicit backslash continuations, unmatched brackets, overly large blocks, and lines exceeding the configured maximum line length.
+- Preserves strings and line endings.
+- Compares significant token streams when tokenization works.
+- If a file is already indentation-broken and cannot be tokenized, the helper can still apply local parenthesis-only rewrites and reports that token verification was skipped. Review those files especially carefully.
+- Optional flags can include square/curly bracket ranges, but do not use those broadly unless the task explicitly needs them and the diff is easy to review.
+- Always review the staged diff before committing. This is not a general formatter.
+
+Broad Git Bash staged-review workflow. This copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, stages Python changes, writes the full staged diff and a check report under `LLM_Helpers/outputs`, prints the staged stat, runs `git diff --cached --check`, and reruns Ruff `E101` so the user/agent can compare the remaining mixed-indent count:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_multiline_parens_safe.py" "LLM_Helpers/collapse_multiline_parens_safe_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_parens_safe_TEMP_RUNNER.py" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && runlog="LLM_Helpers/outputs/run_collapse_multiline_parens_safe_${ts}.txt" && diff="LLM_Helpers/outputs/staged_collapse_multiline_parens_safe_${ts}.diff" && report="LLM_Helpers/outputs/check_collapse_multiline_parens_safe_${ts}.txt" && { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done > "$runlog" 2>&1; rc=$?; rm -f "$runner"; [ $rc -eq 0 ] || { cat "$runlog"; exit $rc; }; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add --; git diff --cached --ignore-space-at-eol > "$diff"; { echo "=== collapse_multiline_parens_safe run log ==="; cat "$runlog"; echo; echo "=== git diff --cached --ignore-space-at-eol --stat -- *.py ==="; git diff --cached --ignore-space-at-eol --stat -- '*.py'; echo; echo "=== git diff --cached --check -- *.py ==="; git diff --cached --check -- '*.py'; echo; echo "=== remaining Ruff E101 ==="; py -m ruff check . --select E101 --output-format=grouped || true; echo; echo "runlog=$runlog"; echo "diff=$diff"; } > "$report" 2>&1 && cat "$report" && echo "wrote $report" && echo "wrote $diff"
+```
+
+On top of the code formatting/grepping gains, notably helped reduce ruff errors.
+
+```md
+54 files changed
+816 insertions / 1875 deletions
+net ~1059 physical lines removed
+E101 Indentation contains mixed spaces and tabs count: ~1068 -> 259
+total remaining Ruff E101 report errors: 349
+```
+
 ### `fix_matrix_indent.py`
 
 Targeted matrix/data indentation cleanup helper.
@@ -131,23 +164,6 @@ PrivateMaps/Wheel.py                 |  786 +++++++++++-----------
 16 files changed, 2713 insertions(+), 2423 deletions(-)
 ```
 
-### `collapse_multiline_brackets.py`
-
-Legacy/reference helper.
-
-- Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
-- Useful idea: make boilerplate Civ4 API calls and helper invocations greppable on one line.
-- Preserves line endings, string literals, and comments outside collapsed ranges.
-- Important caution: this script strips line comments and indentation inside collapsed ranges.
-- Because many AdvCiv-SAS UI files contain important inline/manual-layout comments, do not use this blindly on comment-heavy files.
-- Run on ONE file at a time and eyeball the diff before committing. A whole-directory sweep was tried once and reverted.
-
-Example:
-
-```powershell
-python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
-```
-
 ### `wrap_python2_prints_for_linting.py`
 
 Conservative Python 2 print-wrapper helper.
@@ -165,31 +181,57 @@ python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --in-place Ass
 python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --check Assets\Python PrivateMaps
 ```
 
-### CvMainInterface single-line cleanup reference scripts
+### `collapse_multiline_brackets.py`
+
+Legacy/reference helper.
+
+- Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
+- Useful idea: make boilerplate Civ4 API calls and helper invocations greppable on one line.
+- Preserves line endings, string literals, and comments outside collapsed ranges.
+- Important caution: this script strips line comments and indentation inside collapsed ranges.
+- Because many AdvCiv-SAS UI files contain important inline/manual-layout comments, do not use this blindly on comment-heavy files.
+- Run on ONE file at a time and eyeball the diff before committing. A whole-directory sweep was tried once and reverted.
+
+Example:
+
+```powershell
+python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+```
+
+## CvMainInterface cleanup reference scripts
 
 These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
 
 The generated scripts were staged working scripts, not polished repo utilities:
 
-- `singleline_pass.py`
-  - First conservative pass.
-  - Collapsed uncommented multiline logical statements.
-  - Skipped statements containing comments.
-- `singleline_pass_comments.py`
-  - Second staged pass.
-  - Collapsed more multiline statements.
-  - Preserved comments by moving them above the collapsed statement instead of deleting them.
-- `singleline_pass3_comments_and_long.py`
-  - Third staged pass and best reference for the final single-line statement approach.
-  - Allowed more long-line/comment-aware collapses.
-  - Also handled some commented-out multiline code groups.
-  - This was run after earlier passes, on an already-modified file.
-- `comment_cleanup_pass_v2.py`
-  - Fourth staged/reference pass, focused on comments rather than statements.
-  - Condensed simple wrapped prose comments.
-  - Fixed minor comment typos and wording issues.
-  - Intentionally left structured notes, custom XML-style comments, and commented-out code mostly alone.
-  - This is separate from the single-line statement passes and should be reviewed as a comment-only cleanup.
+### `singleline_pass.py`
+
+- First conservative pass.
+- Collapsed uncommented multiline logical statements.
+- Skipped statements containing comments.
+
+### `singleline_pass_comments.py`
+
+- Second staged pass.
+- Collapsed more multiline statements.
+- Preserved comments by moving them above the collapsed statement instead of deleting them.
+
+### `singleline_pass3_comments_and_long.py`
+
+- Third staged pass and best reference for the final single-line statement approach.
+- Allowed more long-line/comment-aware collapses.
+- Also handled some commented-out multiline code groups.
+- This was run after earlier passes, on an already-modified file.
+
+### `comment_cleanup_pass_v2.py`
+
+- Fourth staged/reference pass, focused on comments rather than statements.
+- Condensed simple wrapped prose comments.
+- Fixed minor comment typos and wording issues.
+- Intentionally left structured notes, custom XML-style comments, and commented-out code mostly alone.
+- This is separate from the single-line statement passes and should be reviewed as a comment-only cleanup.
+
+### Notes
 
 Important: `singleline_pass3_comments_and_long.py` should not be treated as guaranteed to include all behavior from pass 1 and pass 2 when run directly on a raw original file. It is the best reference implementation from the final single-line statement pass, not a clean all-in-one tool. Likewise, `comment_cleanup_pass_v2.py` is a later comment-cleanup reference pass, not part of the statement-collapsing logic.
 

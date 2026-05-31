@@ -358,8 +358,7 @@ class Scoreboard:
 		if maxPlayers > 0 and len(self._playerScores) > maxPlayers:
 			self._playerScores = self._playerScores[len(self._playerScores) - maxPlayers:]
 
-	def hide(self, screen,
-			bUnhide = False): # advc.085
+	def hide(self, screen, bUnhide = False): # advc.085
 		# Hides the text from the screen before building the scoreboard.
 		#
 		#screen.hide( "ScoreBackground" ) # advc.004z: Handled by CvMainInterface now
@@ -376,8 +375,7 @@ class Scoreboard:
 		# resulting in a call to CvDLLWidgetData::parseHelp)
 		for p, playerScore in enumerate(self._playerScores):
 			iPlayer = playerScore.getID()
-			if (not Scoreboard.isShowTeamScore(gc.getPlayer(iPlayer).getTeam()) or
-					not Scoreboard.isShowPlayerScore(iPlayer)):
+			if (not Scoreboard.isShowTeamScore(gc.getPlayer(iPlayer).getTeam()) or not Scoreboard.isShowPlayerScore(iPlayer)):
 				continue
 			sName = "ScoreText%d" %(iPlayer)
 			screen.show(sName)

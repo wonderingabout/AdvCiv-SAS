@@ -617,8 +617,7 @@ class CvVictoryScreen:
 				else:
 					iUNVote = i
 
-			if (gc.getGame().canHaveSecretaryGeneral(i)
-			and gc.getGame().getSecretaryGeneral(i) != -1):
+			if (gc.getGame().canHaveSecretaryGeneral(i) and gc.getGame().getSecretaryGeneral(i) != -1):
 				for j in range(gc.getNumVoteInfos()):
 					if gc.getVoteInfo(j).isVoteSourceType(i):
 						if gc.getVoteInfo(j).isSecretaryGeneral():
@@ -668,8 +667,7 @@ class CvVictoryScreen:
 		for j in range(gc.getMAX_TEAMS()):
 			BugUtil.debug("CvVictoryScreen: Team %i", j)
 
-			if (gc.getTeam(j).isAlive()
-			and gc.getGame().isTeamVoteEligible(j, iActiveVote)):
+			if (gc.getTeam(j).isAlive() and gc.getGame().isTeamVoteEligible(j, iActiveVote)):
 				BugUtil.debug("CvVictoryScreen: Team %i, %s <- vote eligible ", j, gc.getTeam(j).getName())
 				if iCandTeam1 == -1:
 					iCandTeam1 = j
@@ -713,8 +711,7 @@ class CvVictoryScreen:
 			sText = BugUtil.colorText(sText, "COLOR_YELLOW")
 		screen.setText(self.Vote_DipVic_ID, "", sText, CvUtil.FONT_RIGHT_JUSTIFY, iX, self.Vote_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		if (iRelVote != -1
-		and iUNVote != -1):  # both AP and UN are active
+		if (iRelVote != -1 and iUNVote != -1):  # both AP and UN are active
 			iX = self.Vote_X
 			sText = gc.getVoteSourceInfo(iRelVote).getDescription()
 			if iActiveVote == iRelVote:
@@ -739,20 +736,16 @@ class CvVictoryScreen:
 
 		for j in range(gc.getMAX_PLAYERS()):
 			pPlayer = gc.getPlayer(j)
-			if (pPlayer.isAlive()
-			and not pPlayer.isBarbarian()):
+			if (pPlayer.isAlive() and not pPlayer.isBarbarian()):
 				iPlayer = j
 				lPlayerName = pPlayer.getName()
 				lPlayerVotes = 10000 - pPlayer.getVotes(iVoteIdx, iActiveVote)   # so that it sorts from most votes to least
 
 				# <!-- custom: add icons to membership labels (claude opus 4.5) -->
-				if (gc.getGame().canHaveSecretaryGeneral(iActiveVote)
-				and iAPUNTeam == pPlayer.getTeam()
-				and gc.getGame().getSecretaryGeneral(iActiveVote) == -1):
+				if (gc.getGame().canHaveSecretaryGeneral(iActiveVote) and iAPUNTeam == pPlayer.getTeam() and gc.getGame().getSecretaryGeneral(iActiveVote) == -1):
 					lPlayerStatus = 0
 					lPlayerLabel = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
-				elif (gc.getGame().canHaveSecretaryGeneral(iActiveVote)
-				and gc.getGame().getSecretaryGeneral(iActiveVote) == pPlayer.getTeam()):
+				elif (gc.getGame().canHaveSecretaryGeneral(iActiveVote) and gc.getGame().getSecretaryGeneral(iActiveVote) == pPlayer.getTeam()):
 					lPlayerStatus = 1
 					lPlayerLabel = u"%c %s" % (self.iStarIcon, gc.getVoteSourceInfo(iActiveVote).getSecretaryGeneralText())
 				elif (pPlayer.isFullMember(iActiveVote)):
@@ -784,8 +777,7 @@ class CvVictoryScreen:
 				szPlayerText = gc.getPlayer(iMember).getName()
 				szPlayerButton = self.getLeaderButton(iMember)
 
-			if (lMemberVotes > 0
-			and bKnown):
+			if (lMemberVotes > 0 and bKnown):
 				szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (lMemberVotes, iActiveVote), )
 
 			iRow = screen.appendTableRow(szTable)
@@ -794,16 +786,12 @@ class CvVictoryScreen:
 			if iMember != self.iActivePlayer:
 				# player attitude to candidate #1
 				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer1, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
-				if (szText is not None
-				and iCand1Known == 1
-				and bKnown):
+				if (szText is not None and iCand1Known == 1 and bKnown):
 					SASTextScale.setTableTextLabel(screen, szTable, 1, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# player attitude to candidate #2
 				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer2, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
-				if (szText is not None
-				and iCand2Known == 1
-				and bKnown):
+				if (szText is not None and iCand2Known == 1 and bKnown):
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer2, CvUtil.FONT_CENTER_JUSTIFY)
 
 			iVote = self.getVotesForWhichCandidate(iMember, iCandTeam1, iCandTeam2, self.VoteType)
@@ -814,15 +802,11 @@ class CvVictoryScreen:
 				iVoteTotal[iVote - 1] += lMemberVotes
 
 				# number of votes for Candidate #1
-				if (iVote == 1
-				and lMemberVotes > 0
-				and iCand1Known == 1):
+				if (iVote == 1 and lMemberVotes > 0 and iCand1Known == 1):
 					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# number of votes for Candidate #2
-				if (iVote == 2
-				and lMemberVotes > 0
-				and iCand2Known == 1):
+				if (iVote == 2 and lMemberVotes > 0 and iCand2Known == 1):
 					SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, sVote, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 			# player status
@@ -830,11 +814,9 @@ class CvVictoryScreen:
 				SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, lMemberLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			# store the candidates own votes
-			if (iCandTeam1 == gc.getPlayer(iMember).getTeam()
-			and iCand1Known == 1):
+			if (iCandTeam1 == gc.getPlayer(iMember).getTeam() and iCand1Known == 1):
 				iVoteCand[0] = lMemberVotes
-			if (iCandTeam2 == gc.getPlayer(iMember).getTeam()
-			and iCand2Known == 1):
+			if (iCandTeam2 == gc.getPlayer(iMember).getTeam() and iCand2Known == 1):
 				iVoteCand[1] = lMemberVotes
 
 		# calculate the maximum number of votes
@@ -848,8 +830,7 @@ class CvVictoryScreen:
 		iVoteReq = self.getVoteReq(iActiveVote, self.VoteType)
 		sVoteReq = "%i" % (iVoteReq)
 		sString = sasFontTagLabel.bold + localText.getText("TXT_KEY_BUG_VICTORY_VOTES_TOTAL", ()) + SAS_FONT_TAG_CLOSE + u" "
-		if (iCand1Known != 0
-		and iCand2Known != 0):
+		if (iCand1Known != 0 and iCand2Known != 0):
 			sString +=  localText.getText("TXT_KEY_BUG_VICTORY_VOTES_REQUIRED", (sVoteReq,))
 		SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -889,8 +870,7 @@ class CvVictoryScreen:
 			sSecGen = self.TEXT_DIPLOMATIC
 
 		# display SecGen vote prediction
-		if (iCand1Known != 0
-		and iCand2Known != 0):
+		if (iCand1Known != 0 and iCand2Known != 0):
 			sString = sSecGen + ":"
 			iRow = screen.appendTableRow(szTable)
 			SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -1193,8 +1173,7 @@ class CvVictoryScreen:
 		print("%i %i %i" % (iVoteReq, iVoteTotal, iVoteCand))
 		if not bWinner:
 			return -1
-		if (iVoteCand > iVoteReq
-		and bVictoryVote):
+		if (iVoteCand > iVoteReq and bVictoryVote):
 			return ColorUtil.keyToType("COLOR_RED")
 		if iVoteTotal > iVoteReq:
 			return ColorUtil.keyToType("COLOR_GREEN")
@@ -1848,9 +1827,7 @@ class CvVictoryScreen:
 				bestProject = -1
 				for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
 					if (gc.getTeam(iLoopTeam).isAlive() and not gc.getTeam(iLoopTeam).isMinorCiv() and not gc.getTeam(iLoopTeam).isBarbarian()):
-						if (iLoopTeam != iActiveTeam
-						and (activePlayer.getTeam().isHasMet(iLoopTeam) or gc.getGame().isDebugMode())
-						and self.isApolloBuiltbyTeam(gc.getTeam(iLoopTeam))):
+						if (iLoopTeam != iActiveTeam and (activePlayer.getTeam().isHasMet(iLoopTeam) or gc.getGame().isDebugMode()) and self.isApolloBuiltbyTeam(gc.getTeam(iLoopTeam))):
 							teamProject = 0
 							for i in range(gc.getNumProjectInfos()):
 								if (gc.getProjectInfo(i).getVictoryThreshold(iLoopVC) > 0):
@@ -2206,17 +2183,14 @@ class CvVictoryScreen:
 
 		# * if neither candidate is at 'friendly', abstains
 		# assumes friendly = 4, pleased = 3, etc
-		if (iC1Cat < iCutOff
-		and iC2Cat < iCutOff):
+		if (iC1Cat < iCutOff and iC2Cat < iCutOff):
 			return -1
 
 		# * if the AI attitude to one of the candidates is 'friendly' and the other is 'pleased' or less, AI votes for 'friend'
-		if (iC1Cat >= iCutOff
-		and iC1Cat > iC2Cat):
+		if (iC1Cat >= iCutOff and iC1Cat > iC2Cat):
 			return 1
 
-		if (iC2Cat >= iCutOff
-		and iC2Cat > iC1Cat):
+		if (iC2Cat >= iCutOff and iC2Cat > iC1Cat):
 			return 2
 
 		# if the code gets to here, then both candidates are at or above the cutoff
@@ -2269,13 +2243,10 @@ class CvVictoryScreen:
 		# check if anyone has built the apollo project (PROJECT_APOLLO_PROGRAM)
 		for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
 			pLoopTeam = gc.getTeam(iLoopTeam)
-			if (pLoopTeam.isAlive()
-			and not pLoopTeam.isMinorCiv()
-			and not pLoopTeam.isBarbarian()):
+			if (pLoopTeam.isAlive() and not pLoopTeam.isMinorCiv() and not pLoopTeam.isBarbarian()):
 				if iLoopTeam == iActiveTeam:
 					bContact = True
-				elif (gc.getTeam(iActiveTeam).isHasMet(iLoopTeam)
-				or gc.getGame().isDebugMode()):
+				elif (gc.getTeam(iActiveTeam).isHasMet(iLoopTeam) or gc.getGame().isDebugMode()):
 					bContact = True
 				else:
 					bContact = False

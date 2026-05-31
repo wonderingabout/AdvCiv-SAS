@@ -1511,12 +1511,7 @@ class CvForeignAdvisor:
 				self.ltPlayerMet [iLoopPlayer] = True
 
 				for nHost in range(gc.getMAX_PLAYERS()):
-					if (gc.getPlayer(nHost).isAlive()
-					and nHost != self.iActiveLeader
-					and (gc.getTeam(gc.getPlayer(nHost).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam())
-					or gc.getGame().isDebugMode())
-					and not gc.getPlayer(nHost).isBarbarian()
-					and not gc.getPlayer(nHost).isMinorCiv()):
+					if (gc.getPlayer(nHost).isAlive() and nHost != self.iActiveLeader and (gc.getTeam(gc.getPlayer(nHost).getTeam()).isHasMet(gc.getPlayer(self.iActiveLeader).getTeam()) or gc.getGame().isDebugMode()) and not gc.getPlayer(nHost).isBarbarian() and not gc.getPlayer(nHost).isMinorCiv()):
 						nRelation = AttitudeUtil.getAttitudeCount(nHost, iLoopPlayer)
 						self.ltPlayerRelations [iLoopPlayer][nHost] = nRelation
 

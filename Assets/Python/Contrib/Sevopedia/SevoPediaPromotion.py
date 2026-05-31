@@ -134,10 +134,7 @@ class SevoPediaPromotion:
 		isButtonFound = False
 		for j in range(gc.getNumPromotionInfos()):
 			# <!-- custom: include PrereqOrPromotion3 (K-Mod extra OR prereq) so Leads To lists all promotions that depend on this one; otherwise some valid upgrades are missing from this panel. (GPT-5.3-Codex) -->
-			if (gc.getPromotionInfo(j).getPrereqPromotion() == self.iPromotion or
-					gc.getPromotionInfo(j).getPrereqOrPromotion1() == self.iPromotion or
-					gc.getPromotionInfo(j).getPrereqOrPromotion2() == self.iPromotion or
-					gc.getPromotionInfo(j).getPrereqOrPromotion3() == self.iPromotion):
+			if (gc.getPromotionInfo(j).getPrereqPromotion() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion1() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion2() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion3() == self.iPromotion):
 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False)
 				isButtonFound = True
 		if not isButtonFound:

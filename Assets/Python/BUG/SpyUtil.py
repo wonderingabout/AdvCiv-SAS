@@ -26,8 +26,7 @@ def getSpending(playerOrID, ActiveplayerOrID=None):
 
 	iTotal = 0
 	for targetTeam in PlayerUtil.teams(True, None, False):
-		if (ActiveplayerOrID is None
-		or pActiveTeam.isHasMet(targetTeam.getID())):
+		if (ActiveplayerOrID is None or pActiveTeam.isHasMet(targetTeam.getID())):
 			iTotal += getDifferenceByTeam(PlayerUtil.getPlayerTeam(playerOrID), targetTeam.getID())
 	return iTotal
 

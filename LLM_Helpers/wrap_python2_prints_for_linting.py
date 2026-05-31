@@ -59,14 +59,7 @@ import tokenize
 
 TEXT_ENCODINGS = ("utf-8-sig", "utf-8", "cp1252", "latin-1")
 DEFAULT_INCLUDES = ("*.py",)
-SANDBOX_SAMPLE_PATHS = (
-    "/mnt/data/CvMapGeneratorUtil.py",
-    "/mnt/data/CvDiplomacy.py",
-    "/mnt/data/CvMainInterface.py",
-    "/mnt/data/BTG_Cross.py",
-    "/mnt/data/PerfectMongoose.py",
-    "/mnt/data/Planet_Generator_0_68.py",
-)
+SANDBOX_SAMPLE_PATHS = ("/mnt/data/CvMapGeneratorUtil.py", "/mnt/data/CvDiplomacy.py", "/mnt/data/CvMainInterface.py", "/mnt/data/BTG_Cross.py", "/mnt/data/PerfectMongoose.py", "/mnt/data/Planet_Generator_0_68.py",)
 
 class FileResult(object):
     def __init__(self, path, encoding, original, rewritten, changed_lines, skipped_reasons):
@@ -240,12 +233,7 @@ def process_file(path):
 def unified_diff(result):
     old_lines = result.original.splitlines(True)
     new_lines = result.rewritten.splitlines(True)
-    return "".join(difflib.unified_diff(
-        old_lines,
-        new_lines,
-        fromfile=str(result.path),
-        tofile=str(result.path) + " (wrapped prints)",
-    ))
+    return "".join(difflib.unified_diff(old_lines, new_lines, fromfile=str(result.path), tofile=str(result.path) + " (wrapped prints)",))
 
 def write_text_preserving_encoding(path, text, encoding):
     path.write_bytes(text.encode(encoding))

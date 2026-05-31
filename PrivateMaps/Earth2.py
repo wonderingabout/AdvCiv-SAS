@@ -272,16 +272,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         NATundraWater = 35+sea
 
-        self.generatePlotsInRegion(NATundraWater,
-				   NATundraWidth, NATundraHeight,
-				   NATundraWestX, NATundraSouthY,
-				   BalanceGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(NATundraWater, NATundraWidth, NATundraHeight, NATundraWestX, NATundraSouthY, BalanceGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - Greenland.
         NiTextOut("Generating North America (Python Earth2) ...")
@@ -295,27 +286,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         GreenlandWater = 70+sea
 
-        self.generatePlotsInRegion(GreenlandWater,
-				   GreenlandWidth, GreenlandHeight,
-				   GreenlandWestX, GreenlandSouthY,
-				   ScatterGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   1, True,
-				   False
-				   )
+        self.generatePlotsInRegion(GreenlandWater, GreenlandWidth, GreenlandHeight, GreenlandWestX, GreenlandSouthY, ScatterGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, 1, True, False)
 
-        self.generatePlotsInRegion(GreenlandWater,
-				   GreenlandWidth, GreenlandHeight,
-				   GreenlandWestX, GreenlandSouthY,
-				   ScatterGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   1, True,
-				   False
-				   )
+        self.generatePlotsInRegion(GreenlandWater, GreenlandWidth, GreenlandHeight, GreenlandWestX, GreenlandSouthY, ScatterGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, 1, True, False)
 
         # Simulate the Western Hemisphere - North America Mainland.
         NiTextOut("Generating North America (Python Earth2) ...")
@@ -329,27 +302,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         NAmericasWater = 40+sea
 
-        self.generatePlotsInRegion(NAmericasWater,
-				   NAmericasWidth, NAmericasHeight,
-				   NAmericasWestX, NAmericasSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(NAmericasWater, NAmericasWidth, NAmericasHeight, NAmericasWestX, NAmericasSouthY, GatherGrain, BalanceGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(NAmericasWater,
-				   NAmericasWidth, NAmericasHeight,
-				   NAmericasWestX, NAmericasSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(NAmericasWater, NAmericasWidth, NAmericasHeight, NAmericasWestX, NAmericasSouthY, GatherGrain, BalanceGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - Florida.
         NiTextOut("Generating North America (Python Earth2) ...")
@@ -363,16 +318,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         FloridaWater = 40+sea
 
-        self.generatePlotsInRegion(FloridaWater,
-				   FloridaWidth, FloridaHeight,
-				   FloridaWestX, FloridaSouthY,
-				   GatherGrain, ScatterGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(FloridaWater, FloridaWidth, FloridaHeight, FloridaWestX, FloridaSouthY, GatherGrain, ScatterGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - Mexico.
         NiTextOut("Generating Central America (Python Earth2) ...")
@@ -386,16 +332,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         MexicoWater = 30+sea
 
-        self.generatePlotsInRegion(MexicoWater,
-				   MexicoWidth, MexicoHeight,
-				   MexicoWestX, MexicoSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(MexicoWater, MexicoWidth, MexicoHeight, MexicoWestX, MexicoSouthY, GatherGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - Central America.
         NiTextOut("Generating Central America (Python Earth2) ...")
@@ -409,16 +346,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         CAmericasWater = 80+sea
 
-        self.generatePlotsInRegion(CAmericasWater,
-				   CAmericasWidth, CAmericasHeight,
-				   CAmericasWestX, CAmericasSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(CAmericasWater, CAmericasWidth, CAmericasHeight, CAmericasWestX, CAmericasSouthY, GatherGrain, GatherGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - Panama.
         NiTextOut("Generating Central America (Python Earth2) ...")
@@ -432,16 +360,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         PanamaWater = 85+sea
 
-        self.generatePlotsInRegion(PanamaWater,
-				   PanamaWidth, PanamaHeight,
-				   PanamaWestX, PanamaSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iHorzFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(PanamaWater, PanamaWidth, PanamaHeight, PanamaWestX, PanamaSouthY, GatherGrain, GatherGrain, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - The Caribbean.
         NiTextOut("Generating Central America (Python Earth2) ...")
@@ -455,16 +374,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         CaribWater = 90+sea
 
-        self.generatePlotsInRegion(CaribWater,
-				   CaribWidth, CaribHeight,
-				   CaribWestX, CaribSouthY,
-				   ScatterGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(CaribWater, CaribWidth, CaribHeight, CaribWestX, CaribSouthY, ScatterGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - South America.
         NiTextOut("Generating South America (Python Earth2) ...")
@@ -478,27 +388,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         SAmericasWater = 65+sea
 
-        self.generatePlotsInRegion(SAmericasWater,
-				   SAmericasWidth, SAmericasHeight,
-				   SAmericasWestX, SAmericasSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(SAmericasWater, SAmericasWidth, SAmericasHeight, SAmericasWestX, SAmericasSouthY, GatherGrain, GatherGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(SAmericasWater,
-				   SAmericasWidth, SAmericasHeight,
-				   SAmericasWestX, SAmericasSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(SAmericasWater, SAmericasWidth, SAmericasHeight, SAmericasWestX, SAmericasSouthY, GatherGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - Brazil.
         NiTextOut("Generating South America (Python Earth2) ...")
@@ -512,27 +404,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         BrazilWater = 45+sea
 
-        self.generatePlotsInRegion(BrazilWater,
-				   BrazilWidth, BrazilHeight,
-				   BrazilWestX, BrazilSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(BrazilWater, BrazilWidth, BrazilHeight, BrazilWestX, BrazilSouthY, GatherGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(BrazilWater,
-				   BrazilWidth, BrazilHeight,
-				   BrazilWestX, BrazilSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iHorzFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(BrazilWater, BrazilWidth, BrazilHeight, BrazilWestX, BrazilSouthY, GatherGrain, GatherGrain, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Western Hemisphere - Andes.
         NiTextOut("Generating South America (Python Earth2) ...")
@@ -546,16 +420,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         AndesWater = 35+sea
 
-        self.generatePlotsInRegion(AndesWater,
-				   AndesWidth, AndesHeight,
-				   AndesWestX, AndesSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(AndesWater, AndesWidth, AndesHeight, AndesWestX, AndesSouthY, GatherGrain, GatherGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - British Isles.
         NiTextOut("Generating Europe (Python Earth2) ...")
@@ -569,27 +434,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         EmeraldWater = 80+sea
 
-        self.generatePlotsInRegion(EmeraldWater,
-				   EmeraldWidth, EmeraldHeight,
-				   EmeraldWestX, EmeraldSouthY,
-				   BalanceGrain, ScatterGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(EmeraldWater, EmeraldWidth, EmeraldHeight, EmeraldWestX, EmeraldSouthY, BalanceGrain, ScatterGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(EmeraldWater,
-				   EmeraldWidth, EmeraldHeight,
-				   EmeraldWestX, EmeraldSouthY,
-				   BalanceGrain, ScatterGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(EmeraldWater, EmeraldWidth, EmeraldHeight, EmeraldWestX, EmeraldSouthY, BalanceGrain, ScatterGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, 1, False, False)
 
         # Simulate the Eastern Hemisphere - Northern Europe.
         NiTextOut("Generating Europe (Python Earth2) ...")
@@ -603,16 +450,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         NEuropeWater = 50+sea
 
-        self.generatePlotsInRegion(NEuropeWater,
-				   NEuropeWidth, NEuropeHeight,
-				   NEuropeWestX, NEuropeSouthY,
-				   BalanceGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(NEuropeWater, NEuropeWidth, NEuropeHeight, NEuropeWestX, NEuropeSouthY, BalanceGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Central Europe.
         NiTextOut("Generating Europe (Python Earth2) ...")
@@ -626,27 +464,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         CEuropeWater = 35+sea
 
-        self.generatePlotsInRegion(CEuropeWater,
-				   CEuropeWidth, CEuropeHeight,
-				   CEuropeWestX, CEuropeSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(CEuropeWater, CEuropeWidth, CEuropeHeight, CEuropeWestX, CEuropeSouthY, GatherGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(CEuropeWater,
-				   CEuropeWidth, CEuropeHeight,
-				   CEuropeWestX, CEuropeSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(CEuropeWater, CEuropeWidth, CEuropeHeight, CEuropeWestX, CEuropeSouthY, GatherGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Iberia.
         NiTextOut("Generating Europe (Python Earth2) ...")
@@ -660,16 +480,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         IberiaWater = 20+sea
 
-        self.generatePlotsInRegion(IberiaWater,
-				   IberiaWidth, IberiaHeight,
-				   IberiaWestX, IberiaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(IberiaWater, IberiaWidth, IberiaHeight, IberiaWestX, IberiaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Mediterranean.
         NiTextOut("Generating Europe (Python Earth2) ...")
@@ -683,16 +494,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         MediWater = 80+sea
 
-        self.generatePlotsInRegion(MediWater,
-				   MediWidth, MediHeight,
-				   MediWestX, MediSouthY,
-				   ScatterGrain, ScatterGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(MediWater, MediWidth, MediHeight, MediWestX, MediSouthY, ScatterGrain, ScatterGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - North Africa.
         NiTextOut("Generating Africa (Python Earth2) ...")
@@ -706,38 +508,11 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         AfricaWater = 50+sea
 
-        self.generatePlotsInRegion(AfricaWater,
-				   AfricaWidth, AfricaHeight,
-				   AfricaWestX, AfricaSouthY,
-				   GatherGrain, ScatterGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(AfricaWater, AfricaWidth, AfricaHeight, AfricaWestX, AfricaSouthY, GatherGrain, ScatterGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(AfricaWater,
-				   AfricaWidth, AfricaHeight,
-				   AfricaWestX, AfricaSouthY,
-				   GatherGrain, ScatterGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(AfricaWater, AfricaWidth, AfricaHeight, AfricaWestX, AfricaSouthY, GatherGrain, ScatterGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(AfricaWater,
-				   AfricaWidth, AfricaHeight,
-				   AfricaWestX, AfricaSouthY,
-				   GatherGrain, ScatterGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(AfricaWater, AfricaWidth, AfricaHeight, AfricaWestX, AfricaSouthY, GatherGrain, ScatterGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Numidia.
         NiTextOut("Generating Africa (Python Earth2) ...")
@@ -751,16 +526,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         NumidiaWater = 20+sea
 
-        self.generatePlotsInRegion(NumidiaWater,
-				   NumidiaWidth, NumidiaHeight,
-				   NumidiaWestX, NumidiaSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(NumidiaWater, NumidiaWidth, NumidiaHeight, NumidiaWestX, NumidiaSouthY, GatherGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Central Africa.
         NiTextOut("Generating Africa (Python Earth2) ...")
@@ -774,27 +540,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         CAfricaWater = 35+sea
 
-        self.generatePlotsInRegion(CAfricaWater,
-				   CAfricaWidth, CAfricaHeight,
-				   CAfricaWestX, CAfricaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(CAfricaWater, CAfricaWidth, CAfricaHeight, CAfricaWestX, CAfricaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(CAfricaWater,
-				   CAfricaWidth, CAfricaHeight,
-				   CAfricaWestX, CAfricaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(CAfricaWater, CAfricaWidth, CAfricaHeight, CAfricaWestX, CAfricaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - South Africa.
         NiTextOut("Generating Africa (Python Earth2) ...")
@@ -808,27 +556,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         SAfricaWater = 45+sea
 
-        self.generatePlotsInRegion(SAfricaWater,
-				   SAfricaWidth, SAfricaHeight,
-				   SAfricaWestX, SAfricaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(SAfricaWater, SAfricaWidth, SAfricaHeight, SAfricaWestX, SAfricaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(SAfricaWater,
-				   SAfricaWidth, SAfricaHeight,
-				   SAfricaWestX, SAfricaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(SAfricaWater, SAfricaWidth, SAfricaHeight, SAfricaWestX, SAfricaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Siberia.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -842,16 +572,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         SiberiaWater = 25+sea
 
-        self.generatePlotsInRegion(SiberiaWater,
-				   SiberiaWidth, SiberiaHeight,
-				   SiberiaWestX, SiberiaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(SiberiaWater, SiberiaWidth, SiberiaHeight, SiberiaWestX, SiberiaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Steppe.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -865,16 +586,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         SteppeWater = 6+sea
 
-        self.generatePlotsInRegion(SteppeWater,
-				   SteppeWidth, SteppeHeight,
-				   SteppeWestX, SteppeSouthY,
-				   GatherGrain, GatherGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(SteppeWater, SteppeWidth, SteppeHeight, SteppeWestX, SteppeSouthY, GatherGrain, GatherGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Near East.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -888,27 +600,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         NearEastWater = 50+sea
 
-        self.generatePlotsInRegion(NearEastWater,
-				   NearEastWidth, NearEastHeight,
-				   NearEastWestX, NearEastSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(NearEastWater, NearEastWidth, NearEastHeight, NearEastWestX, NearEastSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(NearEastWater,
-				   NearEastWidth, NearEastHeight,
-				   NearEastWestX, NearEastSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(NearEastWater, NearEastWidth, NearEastHeight, NearEastWestX, NearEastSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Arabia.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -922,16 +616,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         ArabiaWater = 50+sea
 
-        self.generatePlotsInRegion(ArabiaWater,
-				   ArabiaWidth, ArabiaHeight,
-				   ArabiaWestX, ArabiaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iVertFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(ArabiaWater, ArabiaWidth, ArabiaHeight, ArabiaWestX, ArabiaSouthY, GatherGrain, BalanceGrain, self.iVertFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - India.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -945,27 +630,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         IndiaWater = 33+sea
 
-        self.generatePlotsInRegion(IndiaWater,
-				   IndiaWidth, IndiaHeight,
-				   IndiaWestX, IndiaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(IndiaWater, IndiaWidth, IndiaHeight, IndiaWestX, IndiaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(IndiaWater,
-				   IndiaWidth, IndiaHeight,
-				   IndiaWestX, IndiaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(IndiaWater, IndiaWidth, IndiaHeight, IndiaWestX, IndiaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - China.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -979,38 +646,11 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         ChinaWater = 65+sea
 
-        self.generatePlotsInRegion(ChinaWater,
-				   ChinaWidth, ChinaHeight,
-				   ChinaWestX, ChinaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(ChinaWater, ChinaWidth, ChinaHeight, ChinaWestX, ChinaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(ChinaWater,
-				   ChinaWidth, ChinaHeight,
-				   ChinaWestX, ChinaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iHorzFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(ChinaWater, ChinaWidth, ChinaHeight, ChinaWestX, ChinaSouthY, GatherGrain, BalanceGrain, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(ChinaWater,
-				   ChinaWidth, ChinaHeight,
-				   ChinaWestX, ChinaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iHorzFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(ChinaWater, ChinaWidth, ChinaHeight, ChinaWestX, ChinaSouthY, GatherGrain, BalanceGrain, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - IndoChina.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -1024,27 +664,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         IndoChinaWater = 82+sea
 
-        self.generatePlotsInRegion(IndoChinaWater,
-				   IndoChinaWidth, IndoChinaHeight,
-				   IndoChinaWestX, IndoChinaSouthY,
-				   ScatterGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(IndoChinaWater, IndoChinaWidth, IndoChinaHeight, IndoChinaWestX, IndoChinaSouthY, ScatterGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(IndoChinaWater,
-				   IndoChinaWidth, IndoChinaHeight,
-				   IndoChinaWestX, IndoChinaSouthY,
-				   ScatterGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(IndoChinaWater, IndoChinaWidth, IndoChinaHeight, IndoChinaWestX, IndoChinaSouthY, ScatterGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Japan.
         NiTextOut("Generating Asia (Python Earth2) ...")
@@ -1058,27 +680,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         JapanWater = 92+sea
 
-        self.generatePlotsInRegion(JapanWater,
-				   JapanWidth, JapanHeight,
-				   JapanWestX, JapanSouthY,
-				   BalanceGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(JapanWater, JapanWidth, JapanHeight, JapanWestX, JapanSouthY, BalanceGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(JapanWater,
-				   JapanWidth, JapanHeight,
-				   JapanWestX, JapanSouthY,
-				   BalanceGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(JapanWater, JapanWidth, JapanHeight, JapanWestX, JapanSouthY, BalanceGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the Eastern Hemisphere - Australia.
         NiTextOut("Generating Australia (Python Earth2) ...")
@@ -1092,27 +696,9 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         AustraliaWater = 45+sea
 
-        self.generatePlotsInRegion(AustraliaWater,
-				   AustraliaWidth, AustraliaHeight,
-				   AustraliaWestX, AustraliaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(AustraliaWater, AustraliaWidth, AustraliaHeight, AustraliaWestX, AustraliaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
-        self.generatePlotsInRegion(AustraliaWater,
-				   AustraliaWidth, AustraliaHeight,
-				   AustraliaWestX, AustraliaSouthY,
-				   GatherGrain, BalanceGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(AustraliaWater, AustraliaWidth, AustraliaHeight, AustraliaWestX, AustraliaSouthY, GatherGrain, BalanceGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # Simulate the South Pacific - South Pacific.
         NiTextOut("Generating Pacific (Python Earth2) ...")
@@ -1126,16 +712,7 @@ class EarthMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
         SouthPacificWater = 94+sea
 
-        self.generatePlotsInRegion(SouthPacificWater,
-				   SouthPacificWidth, SouthPacificHeight,
-				   SouthPacificWestX, SouthPacificSouthY,
-				   ScatterGrain, ScatterGrain,
-				   self.iRoundFlags, self.iTerrainFlags,
-				   5, 5,
-				   True, 5,
-				   -1, False,
-				   False
-				   )
+        self.generatePlotsInRegion(SouthPacificWater, SouthPacificWidth, SouthPacificHeight, SouthPacificWestX, SouthPacificSouthY, ScatterGrain, ScatterGrain, self.iRoundFlags, self.iTerrainFlags, 5, 5, True, 5, -1, False, False)
 
         # All regions have been processed. Plot Type generation completed.
         return self.wholeworldPlotTypes
@@ -1162,11 +739,7 @@ def generatePlotTypes():
     return plotgen.generatePlotsByRegion()
 
 class Earth2TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
-        def __init__(self, iDesertPercent=40, iPlainsPercent=26,
-	             fSnowLatitude=0.82, fTundraLatitude=0.75,
-	             fGrassLatitude=0.1, fDesertBottomLatitude=0.1,
-	             fDesertTopLatitude=0.3, fracXExp=-1,
-	             fracYExp=-1, grain_amount=3):
+        def __init__(self, iDesertPercent=40, iPlainsPercent=26, fSnowLatitude=0.82, fTundraLatitude=0.75, fGrassLatitude=0.1, fDesertBottomLatitude=0.1, fDesertTopLatitude=0.3, fracXExp=-1, fracYExp=-1, grain_amount=3):
                 self.gc = CyGlobalContext()
 		self.map = CyMap()
 

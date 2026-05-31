@@ -188,8 +188,7 @@ def argmin(list):
 
 # Subclass MultilayeredFractal to obtain natural coastline.
 class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
-	def __init__(self, fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP, 
-	             fracYExp=CyFractal.FracVals.DEFAULT_FRAC_Y_EXP):
+	def __init__(self, fracXExp=CyFractal.FracVals.DEFAULT_FRAC_X_EXP, fracYExp=CyFractal.FracVals.DEFAULT_FRAC_Y_EXP):
 		self.gc = CyGlobalContext()
 		self.map = self.gc.getMap()
 		self.iW = self.map.getGridWidth()
@@ -207,15 +206,7 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# NOTE: The following line customized for Oasis, defaulting to land instead of ocean!
 		self.wholeworldPlotTypes = [PlotTypes.PLOT_LAND] * (self.iW*self.iH)
 
-	def generatePlotsInRegion(self, iWaterPercent, 
-	                          iRegionWidth, iRegionHeight, 
-	                          iRegionWestX, iRegionSouthY, 
-	                          iRegionGrain, iRegionHillsGrain, 
-	                          iRegionPlotFlags, iRegionTerrainFlags, 
-	                          iRegionFracXExp = -1, iRegionFracYExp = -1, 
-	                          bShift = True, iStrip = 15, 
-	                          rift_grain = -1, has_center_rift = False, 
-	                          invert_heights = False):
+	def generatePlotsInRegion(self, iWaterPercent, iRegionWidth, iRegionHeight, iRegionWestX, iRegionSouthY, iRegionGrain, iRegionHillsGrain, iRegionPlotFlags, iRegionTerrainFlags, iRegionFracXExp = -1, iRegionFracYExp = -1, bShift = True, iStrip = 15, rift_grain = -1, has_center_rift = False, invert_heights = False):
 		# This function highly customized for Oasis.
 		#
 		# Init local variables
@@ -305,16 +296,7 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		grassHeight = grassNorthY - grassSouthY + 1
 		grassFlags = CyFractal.FracVals.FRAC_WRAP_X + CyFractal.FracVals.FRAC_POLAR
 
-		self.generatePlotsInRegion(50,
-		                           grassWidth, grassHeight,
-		                           grassWestX, grassSouthY,
-		                           1, 3,
-		                           grassFlags, self.iTerrainFlags,
-		                           8, 6,
-		                           True, 15,
-		                           -1, False,
-		                           False
-		                           )
+		self.generatePlotsInRegion(50, grassWidth, grassHeight, grassWestX, grassSouthY, 1, 3, grassFlags, self.iTerrainFlags, 8, 6, True, 15, -1, False, False)
 
 		# Force land south of grassMidLat
 		for x in range(self.iW):
@@ -367,11 +349,7 @@ def generatePlotTypes():
 # Latitudes, ratios, the works... It's all rewired. - Sirian June 20, 2005
 
 class OasisTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
-	def __init__(self, iGrassPercent=50, iPlainsPercent=35,
-	             iNorthernPlainsPercent=40, iOasisGrassPercent=9,
-	             iOasisPlainsPercent=16, iOasisTopLatitude=0.69,
-	             iJungleLatitude=0.14, iOasisBottomLatitude=0.3,
-	             fracXExp=-1, fracYExp=-1, grain_amount=4):
+	def __init__(self, iGrassPercent=50, iPlainsPercent=35, iNorthernPlainsPercent=40, iOasisGrassPercent=9, iOasisPlainsPercent=16, iOasisTopLatitude=0.69, iJungleLatitude=0.14, iOasisBottomLatitude=0.3, fracXExp=-1, fracYExp=-1, grain_amount=4):
 
 		self.grain_amount = grain_amount
 
@@ -510,8 +488,7 @@ def generateTerrainTypes():
 	return terrainTypes
 
 class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
-	def __init__(self, iJunglePercent=40, iForestPercent=45,
-                     jungle_grain=5, forest_grain=6, fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=40, iForestPercent=45, jungle_grain=5, forest_grain=6, fracXExp=-1, fracYExp=-1):
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
 		self.mapRand = self.gc.getGame().getMapRand()
@@ -643,13 +620,9 @@ up to the end of development.
 '''
 
 # Init all bonuses. This is your master key.
-resourcesInOasis = ("BONUS_ALUMINUM", "BONUS_IRON", "BONUS_OIL", "BONUS_STONE",
-                     "BONUS_GOLD", "BONUS_INCENSE", "BONUS_ELEPHANTS")
-resourcesInNorth = ("BONUS_HORSE", "BONUS_MARBLE", "BONUS_FUR", "BONUS_SILVER",
-                    "BONUS_SPICES", "BONUS_GRAPES", "BONUS_WHALE", "BONUS_MOLLUSCS",
-                    "BONUS_CRAB", "BONUS_FISH", "BONUS_SHEEP", "BONUS_WHEAT")
-resourcesInSouth = ("BONUS_DYE", "BONUS_FUR", "BONUS_GEMSTONES", "BONUS_SILK", "BONUS_SUGAR",
-                    "BONUS_BANANA", "BONUS_DEER", "BONUS_PIG", "BONUS_RICE")
+resourcesInOasis = ("BONUS_ALUMINUM", "BONUS_IRON", "BONUS_OIL", "BONUS_STONE", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_ELEPHANTS")
+resourcesInNorth = ("BONUS_HORSE", "BONUS_MARBLE", "BONUS_FUR", "BONUS_SILVER", "BONUS_SPICES", "BONUS_GRAPES", "BONUS_WHALE", "BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_SHEEP", "BONUS_WHEAT")
+resourcesInSouth = ("BONUS_DYE", "BONUS_FUR", "BONUS_GEMSTONES", "BONUS_SILK", "BONUS_SUGAR", "BONUS_BANANA", "BONUS_DEER", "BONUS_PIG", "BONUS_RICE")
 resourcesToEliminate = ()
 
 resourcesToForce = ("BONUS_FUR", "BONUS_SILVER", "BONUS_DEER")

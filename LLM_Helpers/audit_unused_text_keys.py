@@ -56,20 +56,9 @@ TAG_DEF_RE = re.compile(r"<Tag>\s*(TXT_KEY_[A-Z0-9_]+)\s*</Tag>", re.IGNORECASE)
 TAG_SPAN_RE = re.compile(r"<Tag>.*?</Tag>", re.DOTALL | re.IGNORECASE)
 TOKEN_RE = re.compile(r"TXT_KEY_[A-Z0-9_]+")
 
-DERIVED_SUFFIXES = (
-	"_PEDIA", "_STRATEGY", "_HELP", "_QUOTE", "_HEADING",
-	"_DESC", "_ADJECTIVE", "_TEXT", "_HOVER",
-)
-DYNAMIC_PREFIXES = (
-	"TXT_KEY_BUG_OPT_", "TXT_KEY_BUG_OPTTAB_", "TXT_KEY_BUG_OPTBUTTON_",
-	"TXT_KEY_BUG_OPTLABEL_", "TXT_KEY_BUG_OPTLIST_",
-)
-MOD_GLOBS = (
-	"Assets/Python/**/*.py",
-	"CvGameCoreDLL/**/*.cpp",
-	"CvGameCoreDLL/**/*.h",
-	"Assets/XML/**/*.xml",
-)
+DERIVED_SUFFIXES = ("_PEDIA", "_STRATEGY", "_HELP", "_QUOTE", "_HEADING", "_DESC", "_ADJECTIVE", "_TEXT", "_HOVER",)
+DYNAMIC_PREFIXES = ("TXT_KEY_BUG_OPT_", "TXT_KEY_BUG_OPTTAB_", "TXT_KEY_BUG_OPTBUTTON_", "TXT_KEY_BUG_OPTLABEL_", "TXT_KEY_BUG_OPTLIST_",)
+MOD_GLOBS = ("Assets/Python/**/*.py", "CvGameCoreDLL/**/*.cpp", "CvGameCoreDLL/**/*.h", "Assets/XML/**/*.xml",)
 EXTERNAL_GLOBS = ("Python/**/*.py", "XML/**/*.xml")
 
 def read(path):
