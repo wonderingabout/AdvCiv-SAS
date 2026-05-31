@@ -16,7 +16,7 @@
 	 date="05/04/2009"
 	 url=""
 	 dll="1">
-	 
+
 	<options id="AutoSave" file="AutoSave.ini">
 		<section id="AutoSave">
 			<option id="CreateStartSave" key="Create Start Save" 
@@ -32,9 +32,9 @@
 					type="boolean" default="False"/>
 		</section>
 	</options>
-	
+
 	<init/>
-	
+
 	<export function="saveGameStart" to="CvAppInterface" as="gameStartSave"/>
 	<export function="saveGameEnd" to="CvAppInterface" as="gameEndSave"/>
 	<export function="saveGameExit" to="CvAppInterface" as="gameExitSave"/>

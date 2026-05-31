@@ -27,7 +27,7 @@
 		<Italian>Quando è selezionato, i valori grezzi di Cibo, Produzione e Commerci) vengono mostrati nel pannello delle vie commerciali.</Italian>
 		<Spanish>Si se activa, muestra los valores en bruto de [ICON_FOOD], [ICON_PRODUCTION], y [ICON_COMMERCE] en la zona de rutas comerciales.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__RAWYIELDSVIEW_TEXT</Tag>
 		<English>Default View</English>
@@ -35,7 +35,7 @@
 		<Italian>Vista predefinita</Italian>
 		<Spanish>Vista por Defecto</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: See comment above -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__RAWYIELDSVIEW_HOVER</Tag>
@@ -96,7 +96,7 @@
 		<English>If checked, the music pauses while the city screen is open and urban sounds are played instead (as in BtS). If unchecked, the music continues and no urban sounds are played. However, the change in camera distance will affect the music volume. You may want to experiment with the [COLOR_HIGHLIGHT_TEXT]Default Distance[COLOR_REVERT] option on the "Map" tab to get the volume right. Toggling this option doesn't take effect while the city screen is open.</English>
 		<German>Erlaubt es, die Alltags-Geräusche abzuschalten, die normalerweise auf dem Stadtbildschirm abgespielt werden. Stattdessen läuft dann die Musik weiter. Allerdings wirkt sich der Kamera-Abstand auf die Musik-Lautstärke aus; siehe dazu auch die Option [COLOR_HIGHLIGHT_TEXT]Standard-Abstand[COLOR_REVERT] unter dem Reiter "Karte". Das Ein- und Ausschalten von Stadt-Geräuschen wirkt sich erst beim nächsten Öffnen des Stadtbildschirms aus (also nicht bei bereits offenem Stadtbildschirm).</German>
 	</TEXT>
-	
+
 	<!-- advc.004: "Detailed food info" sounds a bit grand (as does "Food
 		 Assist") -->
 	<TEXT>
@@ -115,13 +115,13 @@
 		<Spanish>Muestra la diferencia de comida generada por turno (excedente o faltante) y el número de turnos hasta la inanición cuando el depósito de comida se está reduciendo.</Spanish>
 	</TEXT>
 
-	
+
 	<!-- advc.064: Moved the four WHIPASSIST keys to 'BULL Misc Hovers
 		 Options.xml' b/c I want to use (partly) the same text as for
 		 HURRYOVERFLOWINCLUDECURRENT, and b/c all whip assist options depend on
 		 BULL code now. -->
 
-		 
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__CULTURETURNS_TEXT</Tag>
 		<English>Culture Turns</English>
@@ -145,7 +145,7 @@
 		<Italian>Turni per la nascita di un Grande Personaggio</Italian>
 		<Spanish>Turnos hasta Nacimiento</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__GREATPERSONTURNS_HOVER</Tag>
@@ -154,7 +154,7 @@
 		<Italian>Quando è selezionato, viene visualizzato il numero di turni mancanti alla successiva nascita di un Grande Personaggio.</Italian>
 		<Spanish>Activar esta opción permite mostrar el número de turnos hasta que la ciudad produzca una [ICON_GREATPEOPLE].</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: "probability" is a bit long; "chance" is at least better
 		 than "percentage". -->
 	<TEXT>
@@ -164,7 +164,7 @@
 		<Italian>Tipo e probabilitá</Italian>
 		<Spanish>Tipo y Porcentaje</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Completely rewritten (English, German). Would be nice
 		 to mention advc.001c (projected GP probabilities), but the text is already too long. -->
 	<TEXT>
@@ -174,7 +174,7 @@
 		<Italian>Quando è selezionato, vengono visualizzate informazioni aggiuntive sui Grandi Personaggi.</Italian>
 		<Spanish>Permite mostrar los tipos de [ICON_GREATPEOPLE] que es posible obtener, así como el porcentaje de probabilidad de cada uno. El número mostrado es controlado por la opción General.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German was a bit too long -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ANGER_COUNTER_TEXT</Tag>
@@ -184,7 +184,7 @@
 		<Italian>Infelicità da sacrifici</Italian>
 		<Spanish>Contador Infelicidad</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.188: Now affects all temporary unhappiness -
 		 and [advc.186] the city bar. -->
 	<TEXT>
@@ -195,7 +195,7 @@
 		<Italian>Quando è selezionato, nella Schermata Cittadina viene visualizzato un contatore dei turni di Infelicità da sacrifici.</Italian>
 		<Spanish>Si está activa, muestra un contador de infelicidad en la pantalla de la ciudad.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__ONLYPRESENTRELIGIONS_TEXT</Tag>
 		<English>Only Present Religions</English>
@@ -328,7 +328,7 @@
 	</TEXT>
 	<!-- advc.094: Not going to use these -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #32 -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONPOPUPTRAINCIVILIANUNITSFOREVER_TEXT</Tag>
 		<English>Train Civilian Units Forever</English>

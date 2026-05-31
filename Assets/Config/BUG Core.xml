@@ -2,7 +2,7 @@
 <!--
 	BUG Core
 	by EmperorFool
-	
+
 	Holds state and options used by the BUG Core.
 
 	Copyright (c) 2008 The BUG Mod.
@@ -14,7 +14,7 @@
 	 build="1324" 
 	 date="09/11/2008"
 	 url="http://forums.civfanatics.com/forumdisplay.php?f=268">
-	 
+
 	<options id="Core" file="BUG Core.ini">
 		<!-- advc (note): Since isShowOptionsKeyReminder in
 			 'BUG Main Interface.xml' isn't used anymore, this setting
@@ -41,14 +41,14 @@
 				<change module="BugUtil" function="readLoggingOptions"/>
 			</option>
 		</section>
-		
+
 		<section id="Subversion">
 			<option id="CheckForUpdates" key="Check For Updates" 
 					type="boolean" default="False" 
 					title="Check for Updates">
 				<change module="BugUpdateChecker" function="onCheckForUpdatesChanged"/>
 			</option>
-			
+
 			<option id="LocalRoot" key="Local Root" 
 					type="string" default=""
 					title="Local Root Directory">
@@ -57,7 +57,7 @@
 			<option id="LocalVersion" key="Local Revision" 
 					type="int" default="0"
 					title="Local Revision"/>
-			
+
 			<option id="RepositoryUrl" key="Repository URL" 
 					type="string" default="http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/"
 					title="Repository URL">
@@ -69,7 +69,7 @@
 			<option id="LastSvnCheck" type="float" default="0"/>
 		</section>
 	</options>
-	
+
 	<init module="BugUtil" function="readLoggingOptions" immediate="true"/>
     <init module="BugDll" immediate="true"/>
 	<init module="BugEventManager" function="configure" immediate="true">
@@ -91,21 +91,21 @@
 	<export module="BugOptionsScreen" function="handleBugFloatDropdownChange" to="CvOptionsScreenCallbackInterface"/>
 	<export module="BugOptionsScreen" function="handleBugColorDropdownChange" to="CvOptionsScreenCallbackInterface"/>
 	<export module="BugOptionsScreen" function="handleBugSliderChanged" to="CvOptionsScreenCallbackInterface"/>
-	
+
 	<!-- Civ4 Options Screen UI control handlers -->
 	<extend how="after" module="BugOptionsScreen" function="handleLanguagesDropdownBoxInput" to="CvOptionsScreenCallbackInterface"/>
 	<extend how="after" module="BugOptionsScreen" function="handleResolutionDropdownInput" to="CvOptionsScreenCallbackInterface"/>
-	
+
 	<event type="gameUpdate" module="BugUtil" function="doDeferredCalls"/>
 	<event type="BeginPlayerTurn" module="BugUtil" function="doHotSeatCheck"/>
 	<!-- advc.009b: Moved from CvMainInterface to BugUtil. There was some (circular dependency?) problem with accessing it in CvMainInterface upon reloading. -->
 	<event type="SwitchHotSeatPlayer" module="BugUtil" function="onSwitchHotSeatPlayer"/>
-	
+
 	<!-- Game ScriptData -->
 	<event type="GameStart" module="BugData" function="onGameStart"/>
 	<event type="OnLoad" module="BugData" function="onGameLoad"/>
 	<!--event type="OnPreSave" module="BugData" function="onPreSave"/-->
-	
+
 	<event type="LanguageChanged" module="BugOptions" function="clearAllTranslations"/>
 	<event type="LanguageChanged" module="BugOptionsScreen" function="clearAllTranslations"/>
 

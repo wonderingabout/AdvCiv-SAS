@@ -7,7 +7,7 @@
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<!-- General -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTIONS_KEY_REMINDER</Tag>
 		<English>Press [BOLD]ALT + CTRL + O[\BOLD] to customize %s1</English>
@@ -24,7 +24,7 @@
 		<Italian>Premi [BOLD]CMD+ALT+O[\BOLD] per personalizzare %s1</Italian>
 		<Spanish>Pulsa [BOLD]ALT + CMD + O[\BOLD] para personalizar %s1</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_CREATED_BY_HEADER</Tag>
 		<English>Created by The BUG Mod.</English>>
@@ -39,9 +39,9 @@
 		<Italian>Predefinito</Italian>
 		<Spanish>Predefinido</Spanish>
 	</TEXT>
-	
+
 	<!-- Help -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_HELP_OPENING</Tag>
 		<English>Opening the BUG Mod help file...</English>
@@ -74,9 +74,9 @@
 		<Italian>Impossibile trovare il file "%s1" nei percorsi di ricerca. Vedi la tabella 'System' nella Schermata di Opzioni del BUG Mod [ALT + CTRL + O] per maggiori dettagli.</Italian>
 		<Spanish>No se pudo encontrar el fichero "%s1" en las rutas de búsqueda. Compruebe la pestaña 'Sistema' en las opciones de BUG [ALT + CTRL + O] para más información.</Spanish>
 	</TEXT>
-	
+
 	<!-- Missing Civ4 Entries -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CIV_MINOR_PEDIA</Tag>
 		<English>No description provided.</English>
@@ -126,9 +126,9 @@
 		<Italian>Missionari:</Italian>
 		<Spanish>Misioneros:</Spanish>
 	</TEXT>
-	
+
 	<!-- Gold Rate Warning -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MISC_POS_GOLD</Tag>
 		<English>[ICON_GOLD]: %d1_Gold</English>
@@ -162,9 +162,9 @@
 		<Italian>%D1_Change/Turno</Italian>
 		<Spanish>%D1_Change/turno</Spanish>
 	</TEXT>
-	
+
 	<!-- Not Just Another Game Clock -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_ERA</Tag>
 		<English>%s1 Era</English>
@@ -173,9 +173,9 @@
 		<Italian>Era %s1</Italian>
 		<Spanish>%s1</Spanish>
 	</TEXT>
-	
+
 	<!-- Great Person / General Bars -->
-	
+
 	<TEXT>
 		<Tag>INTERFACE_GREAT_PERSON_NONE</Tag>
 		<English>%s1: None</English>
@@ -208,9 +208,9 @@
 		<Tag>INTERFACE_NEXT_GREAT_GENERAL_XP</Tag>
 		<English>%s1 (%d2)</English>
 	</TEXT>
-	
+
 	<!-- Dead Civs Scoreboard -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_DEAD_CIV</Tag>
 		<English>DEAD</English>
@@ -219,9 +219,9 @@
 		<Italian>SCOMPARSA</Italian>
 		<Spanish>ELIMINADO</Spanish>
 	</TEXT>
-	
+
 	<!-- Raw Yields -->
-	
+
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #96 -->
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
@@ -256,7 +256,7 @@
 		<Italian>Tutte le caselle (%d1)</Italian>
 		<Spanish>Todas las casillas (%d1)</Spanish>
 	</TEXT-->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_BASE_MODIFIER</Tag>
 		<!-- Bureaucracy, Forge, Factory, Power, Ironworks -->
@@ -286,7 +286,7 @@
 		<Italian>Totale</Italian>
 		<Spanish>Total</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes to the next seven keys -->
 	<TEXT>
 		<Tag>TXT_KEY_RAW_YIELD_VIEW_TRADE</Tag>
@@ -345,9 +345,9 @@
 	</TEXT>
 	<!-- unused -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #97 -->
-	
+
 	<!-- Food Assist -->
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_GROWTH</Tag>
 		<English>Growth!</English>
@@ -356,12 +356,12 @@
 		<Italian>Crescita!</Italian>
 		<Spanish>¡Crecimiento!</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_FOOD_GROW</Tag>
 		<English>%d1[ICON_FOOD] - %d2[ICON_EATENFOOD] = +%d3[ICON_FOOD]</English>
 	</TEXT>
-	
+
 	<!-- advc.004: Was [ICON_BAD_FOOD] -->
 	<TEXT>
 		<Tag>INTERFACE_CITY_FOOD_SHRINK</Tag>
@@ -371,9 +371,9 @@
 		<Tag>INTERFACE_CITY_FOOD_STAGNATE</Tag>
 		<English>%d1[ICON_FOOD] = %d2[ICON_EATENFOOD]</English>
 	</TEXT>
-	
+
 	<!-- Whip Assist -->
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_PRODUCTION_WHIP</Tag>
 		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION]</English>
@@ -383,7 +383,7 @@
 		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP</Tag>
 		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</English>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD</Tag>
 		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION] %d5[ICON_GOLD]</English>
@@ -403,9 +403,9 @@
 		<Tag>INTERFACE_CITY_NO_PRODUCTION_BUY</Tag>
 		<English>%s1   -%d2[ICON_GOLD]</English>
 	</TEXT>
-	
+
 	<!-- Production Decay -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_WARNING</Tag>
 		<English>[COLOR_YELLOW][BOLD]![\BOLD][COLOR_REVERT] %s1</English>
@@ -414,9 +414,9 @@
 		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_THIS_TURN</Tag>
 		<English>[COLOR_WARNING_TEXT][BOLD]!![\BOLD][COLOR_REVERT] %s1</English>
 	</TEXT>
-	
+
 	<!-- Military Advisor -->
-	
+
 	<!-- Unit Groupings -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_TYPE_GROUPING</Tag>
@@ -425,7 +425,7 @@
 		<Italian>Tipo Unit&#224;</Italian>
 		<Spanish>Tipo de Unidad</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_COMBAT_GROUPING</Tag>
 		<English>Combat Type</English>
@@ -441,7 +441,7 @@
 		<Italian>Nessuno</Italian>
 		<Spanish>Ninguno</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_LEVEL_GROUPING</Tag>
 		<English>Level</English>
@@ -458,7 +458,7 @@
 		<Italian>Livello %s1</Italian>
 		<Spanish>Nivel %s1</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_PROMOTION_GROUPING</Tag>
 		<English>Promotions</English>
@@ -475,7 +475,7 @@
 		<Italian>Nessuno</Italian>
 		<Spanish>Ninguno</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUPING</Tag>
 		<English>Location</English>
@@ -546,7 +546,7 @@
 		<Italian>Territorio barbaro</Italian>
 		<Spanish>Territorio Bárbaro</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUPING</Tag>
 		<English>Orders</English>
@@ -673,7 +673,7 @@
 		<Italian>Altri</Italian>
 		<Spanish>Otro</Spanish>
 	</TEXT>
-	
+
 	<!-- General Screen -->
 	<TEXT>
 		<Tag>TXT_KEY_MILITARY_UNIT_LOCATION</Tag>
@@ -698,7 +698,7 @@
 		<Italian>Vantaggi Strategici</Italian>
 		<Spanish>Ventajas Estratégicas</Spanish>
 	</TEXT>
-	
+
 	<!-- Situation Report Tab -->
 	<!-- advc.002b: Changed German to "Erz-" (was empty) -->
 	<TEXT>
@@ -878,9 +878,9 @@
 		<Italian>Possibili</Italian>
 		<Spanish>Posibles</Spanish>
 	</TEXT>
-	
+
 	<!-- Reminders -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_REMINDER_HEADER</Tag>
 		<English>Create Reminder</English>
@@ -913,9 +913,9 @@
 		<Italian>Mostrare nuovamente il promemoria il prossimo turno?</Italian>
 		<Spanish>¿Desea mostrar el recordatorio nuevamente el próximo turno?</Spanish>
 	</TEXT>
-	
+
 	<!-- Tech Prefs -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_TECH_PREFS_ALL</Tag>
 		<English>Research Preference Order</English>
@@ -937,9 +937,9 @@
 		<Italian>Future Technologies</Italian>
 		<Spanish>Tecnologías Futuras</Spanish>
 	</TEXT>
-	
+
 	<!-- Fix for Overlap in Foreign Advisor Tab in Italian Translation -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_INFO</Tag>
 		<English>Info</English>
@@ -948,9 +948,9 @@
 		<Italian>Info</Italian>
 		<Spanish>Info.</Spanish>
 	</TEXT>
-	
+
 	<!-- Fix for wrong translation of "Power" in German, Italian and Spanish language -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_POWER</Tag>
 		<English>Power</English>
@@ -959,9 +959,9 @@
 		<Italian>Energia</Italian>
 		<Spanish>Energ&#237;a</Spanish>
 	</TEXT>
-	
+
 	<!-- Graph Screen -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_SHOW_ALL</Tag>
 		<English>Show All</English>
@@ -1109,7 +1109,7 @@
 		<Italian>Fonte: recente sondaggio BUG, margine di errore statistico %s1.</Italian>
 		<Spanish>Fuente: Encuesta BUG reciente, margen estadístico de error %s1.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_GRAPH_SMOOTHING</Tag>
 		<English>Smooth Factor %d1_Num</English>
@@ -1119,7 +1119,7 @@
 	</TEXT>
 
 	<!-- Maze Map Stuff -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MAP_SCRIPT_MAZE_LAND_PLUS1</Tag>
 		<English>Extra Land Strip</English>
@@ -1143,7 +1143,7 @@
 	</TEXT>
 
 	<!-- Hall of Fame Screen: Win/Loss Result -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_HOF_WINLOSS_WIN</Tag>
 		<English>W-</English>
@@ -1160,9 +1160,9 @@
 		<Italian>L-</Italian>
 		<Spanish>D-</Spanish>
 	</TEXT>
-	
+
 	<!-- Espionage Advisor -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_ESPIONAGE_MISSIONS_TAB</Tag>
 		<English>Missions</English>
@@ -1187,7 +1187,7 @@
 	</TEXT>
 
 	<!-- BUG Finance Advisor -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_DOMESTIC_TRADE</Tag>
 		<English>Domestic Trade</English>
@@ -1234,7 +1234,7 @@
 	</TEXT>
 
 	<!-- Foreign Advisor Info Screen Header Text
-	
+
 		 All the entries except POSSIBLE_FAV_CIVICS must be kept 
 		 short so that everything lines up properly. 4-6 letters 
 		 is usually best; some can probably fit 8-9 if the letters 
@@ -1307,9 +1307,9 @@
 		<Italian>Religione</Italian>
 		<Spanish>Religi&#243;n</Spanish>
 	</TEXT>
-	
+
 	<!-- Customizable Domestic Advisor -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SETTLED_SPECIALISTS</Tag>
 		<English>Settled Specialists</English>
@@ -1344,7 +1344,7 @@
 		<Italian>Choose an event which should be triggered.</Italian>
 		<Spanish>Choose an event which should be triggered.</Spanish>
 	</TEXT>
-	
+
 	<!-- BULL -->
 	<!-- advc: Commented out -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #38 -->

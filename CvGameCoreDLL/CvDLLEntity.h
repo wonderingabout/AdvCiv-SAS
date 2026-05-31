@@ -31,7 +31,7 @@ public:
 	virtual ~CvDLLEntity() {}
 
 	virtual void setup();
-	
+
 	void destroyEntity();
 	void removeEntity();
 	void setVisible(bool b);

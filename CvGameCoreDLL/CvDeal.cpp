@@ -511,7 +511,7 @@ bool CvDeal::isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReaso
 		// Voluntary vassal can always cancel
 		if (pItem->m_eItemType != TRADE_SURRENDER)
 			return false;
-	
+
 		if (!GET_TEAM(eVassal).canVassalRevolt(eMaster))
 		{
 			if (pszReason)

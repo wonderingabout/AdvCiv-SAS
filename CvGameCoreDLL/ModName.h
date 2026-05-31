@@ -24,7 +24,7 @@ public:
 	char const* getFullPath() const { return m_sFullPath.c_str(); }
 	char const* getPathInRoot() const { return m_sPathInRoot.c_str(); }
 	char const* getName() const { return m_sName.c_str(); } // name of the AdvCiv folder
-	
+
 private:
 	CvString m_sFullPath;
 	CvString m_sPathInRoot;

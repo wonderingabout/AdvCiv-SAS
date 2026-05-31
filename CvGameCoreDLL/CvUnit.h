@@ -670,12 +670,12 @@ public:
 
 	DllExport int getHotKeyNumber();																													// Exposed to Python
 	void setHotKeyNumber(int iNewValue);																											// Exposed to Python
-	
+
 	DllExport int getX() const { return m_iX; } // advc.inl: was "getX_INLINE"								// Exposed to Python
 	DllExport int getY() const { return m_iY; } // advc.inl: was "getY_INLINE"								// Exposed to Python
 	void setXY(int iX, int iY, bool bGroup = false, bool bUpdate = true, bool bShow = false,				// Exposed to Python
 			bool bCheckPlotVisible = false);
-	
+
 	bool at(int iX, int iY) const { return (getX() == iX && getY() == iY); }								// Exposed to Python
 	bool at(CvPlot const& kPlot) const { return atPlot(&kPlot); }
 	DllExport bool atPlot(const CvPlot* pPlot) const { return (plot() == pPlot); }							// Exposed to Python

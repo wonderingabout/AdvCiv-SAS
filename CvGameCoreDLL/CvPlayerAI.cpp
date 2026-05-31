@@ -4657,7 +4657,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
 
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
-	
+
 	bool const bCapitalAlone = (kGame.getElapsedGameTurns() > 0 ?
 			AI_isCapitalAreaAlone() : false);
 	bool const bFinancialTrouble = AI_isFinancialTrouble();
@@ -6240,7 +6240,7 @@ int CvPlayerAI::AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bE
 		if (!kLoopBuilding.isTechRequired(eTech))
 			continue; // this building class is not relevent
 
-		
+
 		if (GET_TEAM(getTeam()).isObsoleteBuilding(eLoopBuilding))
 			continue; // already obsolete
 
@@ -12473,7 +12473,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 				iMonasteryExtraMax = std::max(iMonasteryExtraMax, iExtra);
 				continue; // same here
 			}
-			
+
 			// Non-religious buildings: normal coverage (coastal ~ half the cities)
 			// Coastal-only buildings only affect a subset of cities; treat as 50% coverage
 			scaled const rCoverage = (kB.isWater() ? fixp(0.5) : fixp(1));
@@ -13533,7 +13533,7 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
 	CvPlot const& kCityPlot = *kCity.plot();
 	/*if(pCity->getLiberationPlayer(false) == ePlayer)
 		return NO_DENIAL;*/
-	
+
 	bool const bLib = (kCity.getLiberationPlayer() == eToPlayer);
 	int iAcquireVal = MIN_INT; // (need this again for DENIAL_MYSTERY)
 	if (!bLib && !kToPlayer.isHuman() && kToPlayer.getTeam() != getTeam() &&
@@ -13680,7 +13680,7 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
 
 	if (kToPlayer.isHuman())
 		return NO_DENIAL;
-	
+
 	// Don't accept cities with resistance from third-party culture
 	if (!bLib && kCity.isOccupation() &&
 		kCity.getPlot().findHighestCulturePlayer() != eToPlayer)
@@ -18394,7 +18394,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 			static const int iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY = GC.getDefineINT("SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY");
 			static const int iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY = GC.getDefineINT("SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY");
-			
+
 			FOR_EACH_CITYAI(pCity, *this)
 			{
 				// Happy slack: how many heads we can add before going unhappy
@@ -18710,7 +18710,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		}
 	}
 	// K-Mod end
-	
+
 	// <!-- custom: compute these once as computationally more efficient-->
 	int iNeedy = 0;
 	bool const bAIEasyCulture = AI_isEasyCulture();
@@ -27387,7 +27387,7 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 	// // <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// // <!-- custom: code/performance optimization: hoist -->
 	// static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
-		
+
 	FOR_EACH_ENUM(Specialist)
 	{
 		UnitClassTypes eGreatPersonClass = (UnitClassTypes)
@@ -30024,7 +30024,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	// 	kUnit.plot()->getOwner() == getID())
 	// 	return MAX_INT;
 	// <!-- custom: then normal/old code below -->
-	
+
 	// <!-- custom: deterministic disband ordering; no random jitter. (GPT-5.2-Codex) -->
 	// int iValue = 1000 + SyncRandNum(200);
 	int iValue = 1000;

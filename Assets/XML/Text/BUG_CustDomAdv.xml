@@ -18,9 +18,9 @@
 		<Italian>(%d1 XP)</Italian>
 		<Spanish>(%d1 PE)</Spanish>
 	</TEXT>
-	
+
 	<!-- Button Hovers -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CDA_SELECT_PAGE</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Switch Page[COLOR_REVERT][NEWLINE]Select any page in the list to switch to it</English>
@@ -42,7 +42,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Pagina successiva[COLOR_REVERT][NEWLINE]Cambia con la pagina successiva della lista</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Página Posterior[COLOR_REVERT][NEWLINE]Lleva a la siguiente página de la lista</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CDA_START_EDITING</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Enter Edit Mode[COLOR_REVERT][NEWLINE]Show the editing controls to be able to add/remove/reorder pages and columns or change whether or not the specialist buttons are displayed</English>
@@ -71,7 +71,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Ricarica[COLOR_REVERT][NEWLINE]Carica le pagine dal disco per annullare ogni modifica fatta</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cargar[COLOR_REVERT][NEWLINE]Carga las páginas de fichero para revertir cualquier cambio que hayas hecho.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CDA_RENAME_PAGE</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Rename Page[COLOR_REVERT][NEWLINE]Enter a new name for the current page</English>
@@ -107,7 +107,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Sposta Pagina in basso[COLOR_REVERT][NEWLINE]Sposta la pagina corrente in basso nella lista</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Mover Abajo[COLOR_REVERT][NEWLINE]Mueve la página hacia abajo en la lista</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CDA_TOGGLE_SPECIALISTS</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Specialist[COLOR_REVERT][NEWLINE]Toggle whether or not the selected city's specialists are displayed along with buttons to add/remove them</English>

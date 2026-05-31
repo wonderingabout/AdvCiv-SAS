@@ -5846,7 +5846,7 @@ void CvDLLWidgetData::parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, Play
 {
 	// 1. Safety Checks
 	if (eRival == NO_PLAYER || ePlayer == NO_PLAYER) return;
-	
+
 	// 2. Spoiler Check: Only show this if WE (Active Player) are the potential master.
 	if (ePlayer != getActivePlayer()) return;
 
@@ -5877,7 +5877,7 @@ void CvDLLWidgetData::parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, Play
 	{
 		TradeData itemSurrender;
 		itemSurrender.m_eItemType = TRADE_SURRENDER;
-		
+
 		if (kRival.canTradeItem(ePlayer, itemSurrender, false))
 		{
 			if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
@@ -6294,7 +6294,7 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 	{
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iGlobalWarmingPopulationWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
-		
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION",
 				iGlobalWarmingPopulationWeight));

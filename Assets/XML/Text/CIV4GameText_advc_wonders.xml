@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <Civ4GameText>
-	
+
 	<!-- advc.008e: The first two are from
 		 CIV4GameText_Objects_BTS.xml, the next two from
 		 CIV4GameText_Warlords_Objects.xml and the rest from
@@ -987,7 +987,7 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
-	
+
 	<!-- From CIV4GameTextInfos.xml. "The" added b/c it no longer appears in 
 		 wonder and project names. -->
 	<TEXT>
@@ -1064,5 +1064,5 @@
 		<Italian>Hai creato il progetto [COLOR_HIGHLIGHT_TEXT]%s1_PrjtName[COLOR_REVERT] a %s2_CityName. Cosa vuoi realizzare adesso?</Italian>
 		<Spanish>Hab&#233;is creado [NUM1:el:la] [COLOR_HIGHLIGHT_TEXT]%s1_PrjtName[COLOR_REVERT] en %s2_CityName. &#191;Qu&#233; quer&#233;is hacer a continuaci&#243;n?</Spanish>
 	</TEXT>
-		 
+
 </Civ4GameText>

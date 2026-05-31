@@ -2,7 +2,7 @@
 <!--
 	BULL City Bar
 	by EmperorFool
-	
+
 	Copyright (c) 2009 The BUG Mod.
 	advc: Don't require dll=1
 -->
@@ -13,9 +13,9 @@
 	 date="04/20/2009"
 	 url="http://forums.civfanatics.com/showthread.php?t=307951"
 	 dll="0">
-	 
+
 	<options id="CityBar" file="BUG City Bar.ini">
-		
+
 		<section id="Bar">
 			<!-- advc.002f: Now in 'BUG Main Interface.xml' -->
 			<!--option id="AirportIcons" key="Airport Icons" 
@@ -23,18 +23,18 @@
 			<option id="StarvationTurns" key="Starvation Turns" 
 					type="boolean" default="False"/>
 		</section>
-		
+
 		<section id="Hover">
 			<option id="Health" key="Health" 
 					type="boolean" default="False"/>
 			<option id="Happiness" key="Happiness" 
 					type="boolean" default="False"/>
-					
+
 			<option id="HurryAnger" key="Hurry Anger" 
 					type="boolean" default="False"/>
 			<option id="DraftAnger" key="Draft Anger" 
 					type="boolean" default="False"/>
-					
+
 			<option id="FoodAssist" key="Food Assist" 
 					type="boolean" default="False"/>
 			<option id="BaseValues" key="Base Values" 
@@ -43,22 +43,22 @@
 					type="boolean" default="False"/>
 			<option id="BuildingActualEffects" key="Building Actual Effects" 
 					type="boolean" default="False"/>
-					
+
 			<option id="HurryAssist" key="Hurry Assist" 
 					type="boolean" default="False"/>
 			<option id="HurryAssistIncludeCurrent" key="Hurry Assist Include Current" 
 					type="boolean" default="False"/>
-					
+
 			<option id="TradeDetail" key="Trade Detail" 
 					type="boolean" default="False"/>
 			<option id="Commerce" key="Commerce" 
 					type="boolean" default="False"/>
-					
+
 			<option id="CultureTurns" key="Culture Turns" 
 					type="boolean" default="False"/>
 			<option id="GreatPersonTurns" key="Great Person Turns" 
 					type="boolean" default="False"/>
-					
+
 			<option id="Specialists" key="Specialists" 
 					type="boolean" default="False"/>
 			<option id="RevoltChance" key="Revolt Chance" 

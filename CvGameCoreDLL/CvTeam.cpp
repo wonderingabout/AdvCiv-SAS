@@ -1333,7 +1333,7 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
-	
+
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
 	CvTeam const& kTarget = GET_TEAM(eTarget);
@@ -1473,7 +1473,7 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 		{
 			szSound = "AS2D_MAKEPEACE";
 			bForce = true;
-			
+
 		}
 		else if (kObs.getTeam() == eTarget)
 		{
@@ -2446,7 +2446,7 @@ HandicapTypes CvTeam::getHandicapType() const
 
 		return eSTANDARD_HANDICAP;
 	}
-		
+
 	//FAssert((iGameHandicap / iDiv) >= 0);
 	// advc.250a: (also disabled the assertion above)
 	return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1,

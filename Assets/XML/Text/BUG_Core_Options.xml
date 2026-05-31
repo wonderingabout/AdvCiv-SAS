@@ -8,7 +8,7 @@
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 <!-- Logging -->
-	
+
 	<!-- advc.004: German was "Protokollierungsstufe" - too long. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CORE__SCREENLOGLEVEL_TEXT</Tag>
@@ -24,7 +24,7 @@
 		<Italian>Livello di log su file</Italian>
 		<Spanish>Registrado en Fichero</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CORE__SCREENLOGLEVEL_HOVER</Tag>
 		<English>Selects which logging messages get printed to the screen. Each level includes messages of all levels below it.</English>
@@ -67,9 +67,9 @@
 		<Italian>Quando è selezionato, ogni messaggio di log include l'ora corrente (nel formato HH:MM:SS).</Italian>
 		<Spanish>Si se activa, cada mensaje del registro incluye el tiempo actual en el formato HH:MM:SS.</Spanish>
 	</TEXT>
-	
+
 <!-- Subversion -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CORE__CHECKFORUPDATES_TEXT</Tag>
 		<English>Check for Updates</English>

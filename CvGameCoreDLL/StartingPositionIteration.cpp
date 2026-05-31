@@ -1115,7 +1115,7 @@ void StartingPositionIteration::computeStartValues(
 		arFoundValues.push_back(kFoundValues.get(itPlayer->getID()));
 		arSpaceValues.push_back(spaceValues.get(itPlayer->getID()));
 	}
-	
+
 	scaled const rMedianFoundValue = stats::median(arFoundValues);
 	scaled const rMedianSpaceValue = stats::median(arSpaceValues);
 
@@ -2200,7 +2200,7 @@ int iCurrFoundVal = -1;
 	scaled const rMedianCurrFoundVal = stats::median(arCurrFoundValues);
 	scaled const rMedianCurrStartVal = stats::median(arCurrStartValues);
 	scaled const rMaxCurrStartVal = stats::max(arCurrStartValues);
-	
+
 	scaled rIncreaseNeeded =
 			// Don't increase kStartSite's found value far beyond the median found value
 			std::min(fixp(1.1) * rMedianCurrFoundVal - iCurrFoundVal,

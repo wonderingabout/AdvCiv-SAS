@@ -1845,7 +1845,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount,
 		{
 			if (!GC.getInfo(eUnit).getUpgradeUnitClass(kCiv.unitClassAt(i)))
 				continue;
-	
+
 			bUpgradeFound = true;
 			UnitTypes eTempUnit = allUpgradesAvailable(kCiv.unitAt(i), iUpgradeCount + 1,
 					eAssumeAvailable); // advc.001u
@@ -11901,7 +11901,7 @@ void CvCity::read(FDataStreamBase* pStream)
 	// m_bInfoDirty not saved...
 	// m_bLayoutDirty not saved...
 	pStream->Read(&m_bPlundered);
-	
+
 	// <advc.103>
 	pStream->Read(&m_bInvestigate);
 	// </advc.103> <advc.003u>

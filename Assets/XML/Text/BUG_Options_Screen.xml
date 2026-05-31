@@ -21,7 +21,7 @@
 		<Italian>Opzioni BUG Mod</Italian>
 		<Spanish>Opciones de BUG Mod</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German was "Hilfe der BUG Mod" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTBUTTON_HELP</Tag>
@@ -62,7 +62,7 @@
 <!-- Tabs and Labels -->
 
 	<!-- General Tab -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_GENERAL</Tag>
 		<English>General</English>
@@ -98,7 +98,7 @@
 		<Italian>Salvataggio automatico:</Italian>
 		<Spanish>Autoguardado:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "Actions". I'm trying to tie a chunk of the "misc."
 		 options together under some label. These options have to do with
 		 selecting units and giving them orders. -->
@@ -109,7 +109,7 @@
 		<Italian>Azioni:</Italian>
 		<Spanish>Acciones:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: This was hardcoded as "Unit/Stack Info:" in
 		 BugGeneralOptionsTab.py -->
 	<TEXT>
@@ -137,7 +137,7 @@
 		<Italian>Regolatori:</Italian>
 		<Spanish>Controles deslizantes:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.070: Based on TXT_KEY_FOREIGN_ADVISOR_GOLD_PER_TURN_FOR_TRADE
 		 in CIV4GameText_Misc1.xml -->
 	<TEXT>
@@ -148,7 +148,7 @@
 		<Italian>Oro per turno:</Italian>
 		<Spanish>Oro por turno:</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_MISC</Tag>
 		<English>Miscellaneous:</English>
@@ -170,9 +170,9 @@
 		<Italian>Il file 'BUG Mod.ini' non è stato trovato</Italian>
 		<Spanish>No se pudo encontrar fichero INI</Spanish>
 	</TEXT>
-	
+
 	<!-- Map Tab -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_MAP</Tag>
 		<English>Map</English>
@@ -190,7 +190,7 @@
 		<Italian>Layers:</Italian>
 		<Spanish>Layers:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: The Strategy layer (Globe view) is really a separate thing -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_STRATEGYOVERLAY</Tag>
@@ -223,9 +223,9 @@
 		<German>Städte-Balken:</German>
 	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #251 -->
-	
+
 	<!-- Advisors Tab -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_ADVISORS</Tag>
 		<English>Advisors</English>
@@ -291,7 +291,7 @@
 		<Italian>Missioni:</Italian>
 		<Spanish>Misiones:</Spanish>
 	</TEXT>
-	
+
 	<!-- City Screen Tab -->
 	<!-- advc.004: German shortened -->
 	<TEXT>
@@ -301,7 +301,7 @@
 		<Italian>Citt&#224;</Italian>
 		<Spanish>Pantalla de Ciudad</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Needs to cover the anger counter now -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_HURRYDETAIL</Tag>
@@ -310,7 +310,7 @@
 		<Italian>Accelerazione dettagliata:</Italian>
 		<Spanish>Detalles acelerar:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German shortened -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_GREATPERSONBAR</Tag>
@@ -320,7 +320,7 @@
 		<Italian>Barra dei Grandi Personaggi:</Italian>
 		<Spanish>Barra Grandes Personajes:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.063: "absolute" is more precise than "actual" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_BUILDINGEFFECTS</Tag>
@@ -329,7 +329,7 @@
 		<Italian>Effetti degli Edifici:</Italian>
 		<Spanish>Efectos Construcción:</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_PRODUCTIONQUEUE</Tag>
 		<English>Production Queue:</English>
@@ -358,9 +358,9 @@
 		<Italian>Rabbia Cittadina:</Italian>
 		<Spanish>Infelicidad Ciudad:</Spanish>
 	</TEXT>
-	
+
 	<!-- Clock Tab -->
-	
+
 	<!-- custom: Long_Comments_XML.txt #253 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_NJAGC</Tag>
@@ -386,9 +386,9 @@
 		<Italian>Visualizzazione alternativa:</Italian>
 		<Spanish>Vista Alternativa:</Spanish>
 	</TEXT>
-	
+
 	<!-- Scores Tab -->
-	
+
 	<!-- advc.002b: was "Scoreboard" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_SCORES</Tag>
@@ -412,7 +412,7 @@
 		<Italian>Civiltà scomparse:</Italian>
 		<Spanish>Civilizaciones Eliminadas:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Additional Columns" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_NEW_COLUMNS</Tag>
@@ -421,7 +421,7 @@
 		<Italian>Colonne aggiuntive:</Italian>
 		<Spanish>Columnas Adicionales:</Spanish>
 	</TEXT>
-	
+
 	<!-- custom: Long_Comments_XML.txt #252 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_RELATIONS</Tag>
@@ -431,7 +431,7 @@
 		<Italian>Relazioni:</Italian>
 		<Spanish>Relaciones:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Now unused; replaced by
 		 TXT_KEY_BUG_OPT_SCORES__ALIGNICONS_TEXT in
 		 Advanced Scoreboard Options.xml. -->
@@ -443,7 +443,7 @@
 		<Italian>Layout avanzato:</Italian>
 		<Spanish>Puntuaciones Avanzadas:</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_SCORES_ORDER</Tag>
 		<English>Column Order:</English>
@@ -452,7 +452,7 @@
 		<Italian>Ordine delle colonne:</Italian>
 		<Spanish>Orden de Columnas:</Spanish>
 	</TEXT>
-	
+
 	<!-- PLE Tab -->
 
 	<!-- advc.004: Was "Plot List". The Italian translator had a better idea
@@ -464,7 +464,7 @@
 		<Italian>Icone Unit&#224;</Italian>
 		<Spanish>Lista</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: German was "Zusätzliche Anzeigen" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_PLE_INDICATORS</Tag>
@@ -474,7 +474,7 @@
 		<Italian>Indicatori:</Italian>
 		<Spanish>Indicadores:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: New heading; not very specific, but the PLE options have
 		 peculiar dependencies and thus can't be structured easily. -->
 	<TEXT>
@@ -484,7 +484,7 @@
 		<Italian>Advanced:</Italian>
 		<Spanish>Advanced:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: was "Unit Info Tooltip" / "Info-Tooltip". I wouldn't refer
 		 to any text shown on the lower left as a "tooltip". -->
 	<TEXT>
@@ -495,7 +495,7 @@
 		<Italian>Informazioni sulle Unità:</Italian>
 		<Spanish>Información Unidad:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: German shortened to match
 		 TXT_KEY_BUG_OPT_PLE__UPGRADE_POSSIBLE_COLOR_TEXT
 		 in Plot List Enhancements Options.xml -->
@@ -506,7 +506,7 @@
 		<Italian>Costo di avanzamento:</Italian>
 		<Spanish>Coste Actualización:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: was "Unit Specialties" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_PLE_SPECIALTIES</Tag>
@@ -515,7 +515,7 @@
 		<Italian>Caratteristiche:</Italian>
 		<Spanish>Especialización:</Spanish>
 	</TEXT>
-	
+
 	<!-- ACO Tab -->
 
 	<TEXT>
@@ -525,7 +525,7 @@
 		<Italian>Probabilit&#224;</Italian>
 		<Spanish>Probabilidades</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: new key -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_ACO_ALWAYS</Tag>
@@ -535,7 +535,7 @@
 		<Italian>Sempre ...</Italian>
 		<Spanish>Siempre ...</Spanish>
 	</TEXT>
-	
+
 	<!-- Alerts Tab -->
 
 	<!-- advc.106d: German was "Warnungen" -->
@@ -590,9 +590,9 @@
 		<Italian>[SPACE]Incontro:</Italian>
 		<Spanish>[SPACE]Encuentro:</Spanish>
 	</TEXT>
-	
+
 	<!-- Logging Tab -->
-	
+
 	<!-- advc.002b: Was "Logging" and In German "Protokoll" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_AUTOLOG</Tag>
@@ -602,7 +602,7 @@
 		<Italian>Registro</Italian>
 		<Spanish>Registrado</Spanish>
 	</TEXT>
-	
+
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #36 -->
 	<!-- advc.004: Replacing the above (restructured) -->
 	<TEXT>
@@ -635,9 +635,9 @@
 		<English>Units:</English>
 		<German>Einheiten:</German>
 	</TEXT>
-	
+
 	<!-- Unit Naming Tab -->
-	
+
 	<!-- advc.002b: Was "Unit Naming"; every character counts here. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_UNITNAMING</Tag>
@@ -647,9 +647,9 @@
 		<Italian>Nomi Unit&#224;</Italian>
 		<Spanish>Nombres Unidad</Spanish>
 	</TEXT>
-	
+
 	<!-- System Tab -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_SYSTEM</Tag>
 		<English>System</English>
@@ -670,9 +670,9 @@
 		<German>Debug-Meldungen (BUG-Mod):</German>
 		<Italian>Output del debug:</Italian>
 	</TEXT>
-	
+
 	<!-- Configuration Tab -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_CONFIG</Tag>
 		<English>Config</English>
@@ -742,9 +742,9 @@
 		<Italian>File del Registro Automatico:</Italian>
 		<Spanish>Fichero Autolog:</Spanish>
 	</TEXT>
-	
+
 	<!-- Credits Tab -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTTAB_CREDITS</Tag>
 		<English>Credits</English>

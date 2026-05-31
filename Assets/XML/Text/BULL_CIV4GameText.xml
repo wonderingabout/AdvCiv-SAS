@@ -11,7 +11,7 @@
 	<!-- Food Assist -->
 	<!-- advc.189: Handled through (less verbose) text in Civ4GameText_advc.xml -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #63 -->
-	
+
 	<!-- Base Production -->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_BAR_CTRL_BASE_VALUES</Tag>
@@ -52,7 +52,7 @@
 		<Italian>[NEWLINE]%d1 [ICON_PRODUCTION] (%d2 [ICON_PRODUCTION]/Turno)</Italian>
 		<Spanish>[NEWLINE]%d1 [ICON_PRODUCTION] (%d2 [ICON_PRODUCTION]/turno)</Spanish>
 	</TEXT>
-	
+
 	<!-- Culture Turns --> <!-- advc.186: NEWLINE removed -->
 	<TEXT>
 		<Tag>TXT_KEY_CITY_BAR_CULTURE_NO_LEVEL</Tag>
@@ -62,7 +62,7 @@
 		<Italian>[ICON_CULTURE]: %d1/%d2</Italian>
 		<Spanish>[ICON_CULTURE]: %d1/%d2</Spanish>
 	</TEXT>
-	
+
 <!-- Finance Advisor -->
 	<!-- advc.086: These were headings; now directly state the numbers. -->
 	<TEXT>
@@ -344,7 +344,7 @@
 		<Italian>-----------------------[NEWLINE]%s1_commerce_type totale: %s2%F3</Italian>
 		<Spanish>-----------------------[NEWLINE]Total %s1_commerce_type: %s2%F3</Spanish>
 	</TEXT>
-	
+
 	<!-- Defense Hover -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_HELP_BUILDING_DEFENSE</Tag>
@@ -402,7 +402,7 @@
 		<Italian>Difesa netto: %D1%%[ICON_DEFENSE]</Italian>
 		<Spanish>Defensa neta: %D1%%[ICON_DEFENSE]</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MISC_HELP_TOTAL_BOMBARD_DEFENSE</Tag>
 		<English>Total Bombard Defense: %d1%%[ICON_DEFENSE]</English>

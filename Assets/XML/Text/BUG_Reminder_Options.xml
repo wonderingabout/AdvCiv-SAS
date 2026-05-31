@@ -16,7 +16,7 @@
 		<Italian>Promemoria [ALT + M]</Italian>
 		<Spanish>Recordatorios [ALT + M]</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_REMINDER__ENABLED_HOVER</Tag>

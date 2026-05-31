@@ -2505,7 +2505,7 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
 		eCityOwner = kCity.getOwner();
 		iPopulation = kCity.getPopulation(); // </advc.031>
 	}
-	
+
 	int iProduction = (GC.getInfo(eBuild).getFeatureProduction(getFeatureType()) -
 			std::max(0, plotDistance(this, pCityPlot) - 2) * 5);
 
@@ -5290,7 +5290,7 @@ int CvPlot::calculateImprovementYieldChange(
 		if (eRoute != NO_ROUTE)
 			iYield += kImpr.getRouteYieldChanges(eRoute, eYield);
 	}
-	
+
 	if (eYieldPlayer == NO_PLAYER)
 	{
 		FOR_EACH_ENUM(Tech)
@@ -5674,7 +5674,7 @@ bool CvPlot::canFound(bool bTestVisible,
 		but doesn't hurt to make sure. */
 	if (eTeam != NO_TEAM && !isRevealed(eTeam))
 		return false; // </advc.181>
-	
+
 	if (isFeature() && GC.getInfo(getFeatureType()).isNoCity())
 		return false; // (advc.opt: Moved down)
 

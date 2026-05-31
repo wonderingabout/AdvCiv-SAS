@@ -6109,7 +6109,7 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
 		}
 		// <advc.908a>
 		{
-			
+
 			int const iThresh = kTrait.getExtraYieldNaturalThreshold(eYield);
 			if (iThresh != 0)
 			{
@@ -9882,7 +9882,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	{
 		if (eDefaultUnit != NO_UNIT && eDefaultUnit != eUnit)
 		{
-			
+
 			FOR_EACH_ENUM(Civilization)
 			{
 				UnitTypes eUniqueUnit = GC.getInfo(eLoopCivilization).
@@ -10399,7 +10399,7 @@ void CvGameTextMgr::setBuildingNetEffectsHelp(CvWStringBuffer &szBuffer,
 	bStarted = setGoodBadChangeHelp(szBuffer, szStart, L": ", L"",
 			iGood, gDLL->getSymbolID(HAPPY_CHAR), iBad,
 			gDLL->getSymbolID(UNHAPPY_CHAR), false, false, bStarted);
-	
+
 	// Health
 	iGood = 0;
 	iBad = 0;
@@ -15839,7 +15839,7 @@ bool CvGameTextMgr::buildBonusRevealString(CvWStringBuffer &szBuffer, TechTypes 
 bool CvGameTextMgr::buildCivicRevealString(CvWStringBuffer &szBuffer, TechTypes eTech,
 	CivicTypes eCivic, bool bFirst, bool bList, bool bPlayerContext) // advc: civic param was int
 {
-	
+
 	if (GC.getInfo(eCivic).getTechPrereq() == eTech)
 	{
 		if (bList && bFirst)
@@ -15857,7 +15857,7 @@ bool CvGameTextMgr::buildCivicRevealString(CvWStringBuffer &szBuffer, TechTypes 
 bool CvGameTextMgr::buildProcessInfoString(CvWStringBuffer &szBuffer, TechTypes eTech,
 	ProcessTypes eProcess, bool bFirst, bool bList, bool bPlayerContext) // advc: process param was int
 {
-	
+
 	if (GC.getInfo(eProcess).getTechPrereq() == eTech)
 	{
 		if (bList && bFirst)

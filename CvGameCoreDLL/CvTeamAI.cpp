@@ -5688,7 +5688,7 @@ int CvTeamAI::AI_getOpenBordersAttitudeDivisor() const
 scaled CvTeamAI::AI_getOpenBordersCounterIncrement(TeamTypes eOther) const
 {
 	FAssert(eOther != getID() && eOther != NO_TEAM);
-	
+
 	int iTotalForeignTrade = 0;
 	int iTradeFromThem = 0;
 	for (MemberIter it(getID()); it.hasNext(); ++it)

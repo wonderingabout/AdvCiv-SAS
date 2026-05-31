@@ -348,7 +348,7 @@ protected:
 		}
 		return true;
 	}
-	
+
 private:
 	int const m_iScreenHeight;
 	struct PlotIndicatorSize
@@ -416,7 +416,7 @@ protected:
 		*reinterpret_cast<byte*>(uiCodeAddress) = iTargetMultiplicand;
 		return true;
 	}
-	
+
 private:
 	double const m_dTargetWidth;
 	byte calculateTargetMultiplicand()

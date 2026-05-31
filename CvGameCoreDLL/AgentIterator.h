@@ -285,7 +285,7 @@ protected:
 	{
 		delete[] m_aiShuffledIndices;
 	}
-	
+
 	void setNextFromCache() // override
 	{
 		m_pNext = (*m_pCache)[m_aiShuffledIndices[m_iPos]];
@@ -306,7 +306,7 @@ protected:
 	{
 		generateNext();
 	}
-	
+
 	void setNextFromCache() // override
 	{
 		m_pNext = (*m_pCache)[m_iPos];

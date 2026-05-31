@@ -26,7 +26,7 @@ public:
 
 	int getID() const { return m_iID; }																	// Exposed to Python
 	void setID(int iID);
-	
+
 	bool isWater() const { return m_bWater; }															// Exposed to Python
 	bool isLake() const																					// Exposed to Python
 	{	// <advc.030>
@@ -71,7 +71,7 @@ public:
 	void changeNumStartingPlots(int iChange);
 	// advc.enum: return type was int
 	PlotNumTypes getNumStartingPlots() const { return (PlotNumTypes)m_iNumStartingPlots; }				// Exposed to Python
-	
+
 	int getNumUnits() const { return m_iNumUnits; }														// Exposed to Python
 	int getNumCities() const { return m_iNumCities; }													// Exposed to Python
 	int getUnitsPerPlayer(PlayerTypes eIndex) const { return m_aiUnitsPerPlayer.get(eIndex); }			// Exposed to Python

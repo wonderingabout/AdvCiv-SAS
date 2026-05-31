@@ -5,9 +5,9 @@
 	Copyright (c) 2010 The BUG Mod.
   -->
 <Civ4GameText xmlns="http://www.firaxis.com">
-	
+
 	<!-- Domain Descriptions -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_UNIT_NAMING_DOMAIN_LAND</Tag>
 		<English>Land</English>

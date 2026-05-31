@@ -170,7 +170,7 @@ int CvArea::countHasCorporation(CorporationTypes eCorporation, PlayerTypes eOwne
 		}
 		return iCount;
 	} // </advc.opt>
-	
+
 	FOR_EACH_CITY(pLoopCity, GET_PLAYER(eOwner))
 	{
 		if (pLoopCity->isArea(*this))

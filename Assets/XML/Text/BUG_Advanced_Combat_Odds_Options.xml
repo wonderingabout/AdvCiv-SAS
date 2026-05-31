@@ -14,7 +14,7 @@
 		<Italian>Probabilità di Combattimento Avanzate</Italian>
 		<Spanish>Probabilidades de Combate Avanzadas</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__ENABLED_HOVER</Tag>
@@ -24,7 +24,7 @@
 		<Italian>Quando selezionato, PieceOfMind's ACO mostra probabilità di combattimento più avanzate quando passi il mouse sopra un'unità da attaccare.</Italian>
 		<Spanish>Cuando está activada, PCA de PieceOfMind muestra información más detallada de probabilidades de combate cuando pasas el ratón sobre una unidad a atacar.</Spanish>
 	</TEXT>
-	
+
 	<!-- custom: Long_Comments_XML.txt #236 -->
 	<!-- advc.048: was "Force Original Odds" and in German
 		 "Originale Berechnung" -->
@@ -36,7 +36,7 @@
 		<Italian>Forza probabilità originali</Italian>
 		<Spanish>Forzar Probabilidades Originales</Spanish>
 	</TEXT>
-	
+
 	<!-- Rewritten (English, German) to make clearer that this is just a
 		 single line -->
 	<TEXT>
@@ -47,7 +47,7 @@
 		<Italian>Quando selezionato, mostra le probabilità originali oltre quelle dell'ACO.</Italian>
 		<Spanish>Cuando está habilitada muestra las probabilidades originales, en adición a las de PCA.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__IGNOREBARBFREEWINS_TEXT</Tag>
 		<English>Ignore Free Wins</English>
@@ -56,7 +56,7 @@
 		<Italian>Ignora vittorie gratuite</Italian>
 		<Spanish>Ignorar Victorias Gratuitas</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: German was "Ansicht wechseln" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SWAPVIEWS_TEXT</Tag>
@@ -66,7 +66,7 @@
 		<Italian>Cambia modalità di visione</Italian>
 		<Spanish>Intercambiar Vistas</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Rewritten, now explains the two views. This option isn't the
 		 best place to do that, but I don't want to group it with the other
 		 checkboxes b/c these apply regardless of the view. -->
@@ -78,7 +78,7 @@
 		<Italian>Quando selezionato, cambia tra visualizzazione normale o alternativa.</Italian>
 		<Spanish>Cuando está habilitada intercambia la vista normal y la alternativa.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__MERGESHORTBARS_TEXT</Tag>
 		<English>Merge Short Bars</English>
@@ -87,7 +87,7 @@
 		<Italian>Riunisci barre corte</Italian>
 		<Spanish>Combinar Barras Cortas</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Merging doesn't always happen; can seem like the option
 		 isn't working. (Not explicitly mentioned: A low-probability bar
 		 is not merged if both its neighbors have pr>0.5%.) -->
@@ -99,7 +99,7 @@
 		<Italian>Quando selezionato, riunisce le barre delle probabilità che sono meno della metà dell'uno percento.</Italian>
 		<Spanish>Cuando está habilitada, combina las barras de probabilidades que son menores que la mitad de uno por ciento.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: English was "Modifier Labels". German was "Modifikatoren
 		 kennzeichnen". -->
 	<TEXT>
@@ -118,7 +118,7 @@
 		<Italian>Quando selezionato, mostra le etichette "attaccante" e "difensore" prima di ogni set di modificatori non vuoto.</Italian>
 		<Spanish>Cuando está habilitado, muestra las etiquetas "atacante" y "defensor" antes de cada conjunto de modificadores que no esté vacío.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Was "Basic Info" and in German "Basis-Info".
 		 The "info" is just one line of numbers. -->
 	<TEXT>
@@ -129,7 +129,7 @@
 		<Italian>Informazioni base</Italian>
 		<Spanish>Información Básica</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWBASICINFO_HOVER</Tag>
 		<English>Select when to show the values that the odds computation is based on: damage per round, hits needed for victory, chance to hit, combat ratio.</English>
@@ -138,7 +138,7 @@
 		<Italian>Seleziona quando mostrare le informazioni base di combattimento.</Italian>
 		<Spanish>Selecciona cuándo mostrar la información de probabilidades básicas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Renamed "Normal" to "Standard" and German "Alternativ" to
 		 "Zusätzlich" -->
 	<TEXT>
@@ -149,7 +149,7 @@
 		<Italian>Mai|Normale|Alterna|Sempre</Italian>
 		<Spanish>Nunca|Normal|Alternativa|Siempre</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: "Unit" instead of "Infos". Hopefully makes clearer that
 		 these options don't cover combat modifiers. -->
 	<TEXT>
@@ -168,7 +168,7 @@
 		<Italian>Info Difensore</Italian>
 		<Spanish>Información del Defensor</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Say what info is shown about the units -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWATTACKERINFO_HOVER</Tag>
@@ -186,7 +186,7 @@
 		<Italian>Seleziona quando mostrare le informazioni del difensore.</Italian>
 		<Spanish>Selecciona cuándo mostrar la información de la unidad defensora.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWSURVIVALODDS_TEXT</Tag>
 		<English>Survival Odds</English>
@@ -203,7 +203,7 @@
 		<Italian>Probabilità di restare illeso</Italian>
 		<Spanish>Probabilidades de Salir Ileso</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Explain difference from victory odds -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWSURVIVALODDS_HOVER</Tag>
@@ -221,7 +221,7 @@
 		<Italian>Seleziona per mostrare le probabilità di sopravvivere senza alcun danno.</Italian>
 		<Spanish>Selecciona cuándo mostrar las probabilidades para cada unidad de sobrevivir sin sufrir daños.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: German "Gesundheitsbalken des Angreifers/Verteidigers" was
 		 too long -->
 	<TEXT>
@@ -264,7 +264,7 @@
 		<Italian>Seleziona per mostrare le probabili barre salute per ogni possibilie salute del Difensore.</Italian>
 		<Spanish>Selecciona cuándo mostrar las barras de probabilidad de cada posible nivel final de salud del defensor.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWAVERAGEHEALTH_HOVER</Tag>
@@ -274,7 +274,7 @@
 		<Italian>Seleziona per mostrare la media (probabile) di salute che ogni unità avrà dopo la battaglia.</Italian>
 		<Spanish>Selecciona cuándo mostrar el promedio (esperado) de salud que tendrá cada unidad después de la batalla.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWUNROUNDEDEXPERIENCE_TEXT</Tag>
 		<English>Unrounded XP</English>
@@ -283,7 +283,7 @@
 		<Italian>XP non arrotondata</Italian>
 		<Spanish>PE sin Redondear</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWUNROUNDEDEXPERIENCE_HOVER</Tag>
@@ -293,7 +293,7 @@
 		<Italian>Seleziona per mostrare i valori XP in aggiunta agli attuali valori arrotondati che l'unità guadagnerà.</Italian>
 		<Spanish>Selecciona cuándo mostrar los valores no redondeados de experiencia además de los redondeados que las unidades ganarán.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWEXPERIENCERANGE_TEXT</Tag>
 		<English>XP Range</English>
@@ -302,7 +302,7 @@
 		<Italian>XP Range</Italian>
 		<Spanish>Rango de PE</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Rewritten (English, German); this needs some explaining. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWEXPERIENCERANGE_HOVER</Tag>
@@ -312,7 +312,7 @@
 		<Italian>Seleziona per mostrare i valori R di entrambi i lati dell'attuale valore che produrrà +/- 1 XP.</Italian>
 		<Spanish>Selecciona cuándo mostrar los valores R a cada lado del valor real que producirá +/- 1 PE.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWDEFENSEMODIFIERS_TEXT</Tag>
 		<English>Defense Modifiers</English>
@@ -330,7 +330,7 @@
 		<Italian>Modificatore difensivo globale</Italian>
 		<Spanish>Modificador Defensivo Total</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Moved the explanation about attacker's modifiers applied to
 		 the defender here (from TOTALDEFENSEMODIFIER below). -->
 	<TEXT>
@@ -349,7 +349,7 @@
 		<Italian>Seleziona per mostrare il modificatore difensivo globale(include i modificatori di non combattimento dell'attacante che si applicano al difensore).</Italian>
 		<Spanish>Selecciona cuándo mostrar los modificadores defensivos totales (incluyendo los modificadores del atacante que no sean de combate y que se aplican al defensor).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: was "[SHIFT] Instructions" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWSHIFTINSTRUCTIONS_TEXT</Tag>
@@ -359,7 +359,7 @@
 		<Italian>[SHIFT] Instruzioni</Italian>
 		<Spanish>[MAYÚS] Instrucciones</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: Rewritten (English, German); another chance to explain the
 		 two views.
 		 I'm not mentioning the [ALT] info here; too complicated to

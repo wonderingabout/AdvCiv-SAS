@@ -41,7 +41,7 @@ public:
 	bool LoadThroneRoomInfo(); // </advc.003v>
 
 	bool ReadGlobalDefines(TCHAR const* szXMLFileName, CvCacheObject* cache);
-	
+
 	DllExport bool SetGlobalDefines();
 	DllExport bool SetGlobalTypes();
 	// advc.003j: Unused and has no definition

@@ -67,10 +67,10 @@ bool CvUnitAI::AI_update()
 	// <advc.128>
 	m_iSearchRangeRandPercent = syncRand().get(101, "SearchRangeRand",
 			getX() * 1000 + getY(), getID()); // </advc.128>
-	
+
 	// <!-- custom: performance optimizations -->
 	CvPlot const& kPlot = getPlot();
-	
+
 	if (getDomainType() == DOMAIN_LAND)
 	{
 		if (kPlot.isWater() && !canMoveAllTerrain())
@@ -290,7 +290,7 @@ bool CvUnitAI::AI_update()
 	char const* szTypeDbg = m_pUnitInfo->getType();
 #endif
 	// </advc>
-	
+
 	switch (eUnitAI)
 	{
 	case UNITAI_UNKNOWN:
@@ -2089,7 +2089,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// 	if (peBestBuild != NULL)
 	// 		*peBestBuild = eBestBuild;
 	// }
-	
+
 	// return (eBestBuild != NO_BUILD);
 
 	// Ensure outputs are consistent no matter how we exit
@@ -2813,7 +2813,7 @@ bool CvUnitAI::AI_foundFirstCity()
 		kGame.getElapsedGameTurns() <= iMaxTurnsToFound)
 	{
 		CvPlot* pBestPlot = NULL;
-		
+
 		int iBestValue = 0; // raw found value of the chosen site (for logs)
 		// <!-- custom: expand this logic chatgpt 5 suggested / had the idea, that in case the base value is somehow really low but the only good one, check if accurate-->
 		// (Nice-to-have) Initialize iBestWeightedValue = -1 so a site with score 0 can still win if nothing else is reachable.
@@ -3488,7 +3488,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 						return;
 					}
 					// <!-- custom: end of new code change -->
-					
+
 					/*  Scrap eventually b/c the worker could be stuck in this area,
 						but there's no hurry. */
 					scaled rScrapProb(iTotalHave, std::max(1, iTotalThresh));
@@ -6510,7 +6510,7 @@ void CvUnitAI::AI_generalMove()
     {
         return;
     }
-    
+
     // Try joining again
     if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
     {
@@ -10811,7 +10811,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 				return AI_PROMOTION_FORBIDDEN;
 			}
 		}
-			
+
 		const bool bStrictDefenseLandUnitAI = (
 			(eAI == UNITAI_CITY_DEFENSE) ||
 			(eAI == UNITAI_CITY_SPECIAL)
@@ -20271,7 +20271,7 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
                 }
             }
         }
-        
+
         // Then fall back to your existing AI_connectPlot logic
         if (canBuildRoute())
         {
@@ -20279,7 +20279,7 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
                 return true;
         }
     }
-    
+
     return false;
 }
 
@@ -20339,13 +20339,13 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 		// Check if this improved bonus needs a road for trade connection
 		// Most bonuses need roads unless the improvement itself provides connection
 		bool bNeedsRoad = true;
-		
+
 		// Only some improvements (like camps, fishing boats) connect bonuses without roads
 		if (GET_PLAYER(getOwner()).doesImprovementConnectBonus(kPlot.getImprovementType(), eBonus))
 		{
 			bNeedsRoad = false;
 		}
-		
+
 		// If bonus needs road for connection, prioritize building it
 		if (bNeedsRoad)
 		{
@@ -20389,7 +20389,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 
 	// --- High-Priority Override 2: Bridge Plot Groups ---
 	// Check if the plot is a critical link between two unconnected road networks
-	
+
 	// NEW LOGIC: Check if the original build is a local bonus improvement.
 	// If so, we should prioritize that over bridging plot groups.
 	if (kOriginalBuildInfo.getImprovement() != NO_IMPROVEMENT && 

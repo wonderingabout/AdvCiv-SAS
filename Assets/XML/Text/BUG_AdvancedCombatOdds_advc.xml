@@ -147,7 +147,7 @@
 		<Italian>[NEWLINE][COLOR_HIGHLIGHT_TEXT]Certa! I difensori non possono colpire neppure una volta.[COLOR_REVERT]</Italian>
 		<Spanish>[NEWLINE][COLOR_HIGHLIGHT_TEXT]¡Garantizado! El defensor no puede dar en el blanco.[COLOR_REVERT]</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.048: German was "trifft". "hits" should be a noun here. -->
 	<TEXT>
 		<Tag>TXT_ACO_HitsAt</Tag>

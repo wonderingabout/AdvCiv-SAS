@@ -10,7 +10,7 @@
 
 	<!-- advc.004: Disabled -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #33 -->
-	
+
 	<!-- advc.004: Options are on a menu -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSBUTTON_TEXT</Tag>
@@ -56,7 +56,7 @@
 		<English>The Event Log is opened when the number of new messages exceeds this limit.</English>
 		<German>Das Ereignis-Log wird automatisch geöffnet, wenn die Anzahl der neuen Nachrichten die eingestellte Obergrenze überschreitet.</German>
 	</TEXT>
-	
+
 	<!-- advc.002b -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENDTURNMESSAGE_TEXT</Tag>
@@ -109,7 +109,7 @@
 		<English>Text color to use when a negative per-turn income exceeds the gold reserves in the treasury</English>
 		<German>Textfarbe bei negativem Einkommen, das den Goldvorrat übersteigt.</German>>
 	</TEXT>
-	
+
 	<!-- advc.004: German shortened (was the longest heading in its column) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GPBAR_TEXT</Tag>
@@ -119,7 +119,7 @@
 		<Italian>Grandi Personaggi</Italian>
 		<Spanish>Gran Personaje</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes. Could add:
 		 "or, if a city is currently selected, the Great Person progress of that city," but I guess that's not important enough. -->
 	<TEXT>
@@ -151,7 +151,7 @@
 		<Italian>0|1|Tutti</Italian>
 		<Spanish>0|1|Máximo</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__COMBAT_COUNTER_TEXT</Tag>
 		<English>Great General</English>
@@ -169,7 +169,7 @@
 		<Italian>Quando è selezionato, mostra la barra di avanzamento per il prossimo Grande Generale.</Italian>
 		<Spanish>Muestra una barra de progreso para el próximo Gran General.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.078: New option -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ONCEPROGRESS_TEXT</Tag>
@@ -215,7 +215,7 @@
 		<Italian>Bottoni del Commercio minimo/massimo</Italian>
 		<Spanish>Comercio Mínimo/Máximo</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Mention right-click -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MINMAX_COMMERCE_HOVER</Tag>
@@ -224,7 +224,7 @@
 		<Italian>Quando è selezionato, mostra una seconda coppia di bottoni +/- per ogni tipo di commercio che impostano il valore rispettivamente al 100% ed allo 0%.</Italian>
 		<Spanish>Muestra un segundo par de botones +/- buttons que permiten fijar la producción a 100% y 0% respectivamente.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.120c: Translations based on TXT_KEY_TECH_DRAMA_STRATEGY in
 		 CIV4GameText_Strategy.xml ("slider"), TXT_KEY_CONCEPT_DIPLOMACY_PEDIA
 		 in CIV4GameText_Civilopedia_Concepts.xml ("screen"). -->
@@ -267,7 +267,7 @@
 		<English>If checked, the total [ICON_CULTURE] output (sum over all cities) is displayed next to the Culture slider.</English>
 		<German>Zeigt die Gesamt-[ICON_CULTURE]-Rate (Summe aller Städte) neben dem Kulturregler an.</German>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__CITYARROWS_TEXT</Tag>
 		<English>City Cycle Arrows</English>
@@ -408,7 +408,7 @@
 		<Italian>Visualizza sulle barre di avanzamento selezionate dei trattini che mostrano il progresso stimato per i turni successivi.</Italian>
 		<Spanish>Muestra líneas en las barras de progreso seleccionadas que muestran el progreso estimado en turnos futuros.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__FIELDOFVIEW_REMEMBER_TEXT</Tag>
 		<English>Remember Field of View</English>
@@ -437,7 +437,7 @@
 		<Italian>Riporta il valore assegnato al Campo visuale</Italian>
 		<Spanish>Almacena el valor de Campo de Visión.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITMOVEMENTPOINTSFRACTION_TEXT</Tag>
 		<English>Fractional Movement Points</English>
@@ -445,7 +445,7 @@
 		<Italian>Punti movimento decimali</Italian>
 		<Spanish>Puntos de Movimiento Decimales</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITMOVEMENTPOINTSFRACTION_HOVER</Tag>
@@ -454,7 +454,7 @@
 		<Italian>Quando è selezionato, mostra nel Pannello delle Informazioni i Punti Movimento di una Unità come un numero con una cifra decimale.</Italian>
 		<Spanish>Muestra los puntos de movimiento para unidades como una fracción en el panel de información.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German translation was too unwieldy -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKMOVEMENTPOINTS_TEXT</Tag>
@@ -464,7 +464,7 @@
 		<Italian>Punti Movimento di gruppo</Italian>
 		<Spanish>Apilar Puntos de Movimiento</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKMOVEMENTPOINTS_HOVER</Tag>
@@ -473,7 +473,7 @@
 		<Italian>Quando è selezionato, mostra nel Pannello delle Informazioni il valore minimo e quello massimo per i Punti Movimento del gruppo di Unità selezionate.</Italian>
 		<Spanish>Si se activa, muestra en el panel de información los puntos de movimiento mínimos y máximos para todas las unidades seleccionadas.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_TEXT</Tag>
 		<English>Stack Promotions</English>
@@ -481,7 +481,7 @@
 		<Italian>Stack Promotions</Italian>
 		<Spanish>Apilar ascensos</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes to the next three keys -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_HOVER</Tag>
@@ -513,14 +513,14 @@
 		<Italian>Colore</Italian>
 		<Spanish>Color</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: This was just a repetition of the "Counts" hover text -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLOR_HOVER</Tag>
 		<English>Text color of the promotion count (unless a promotion is possessed by all units)</English>
 		<German>Farbe, in der die Anzahl der Einheiten mit einer bestimmten Beförderung angezeigt wird (außer wenn alle Einheiten über diese Beförderung verfügen)</German>
 	</TEXT>
-	
+
 	<!-- advc.004 (no change): "Color (All)" would be too long -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLORALL_TEXT</Tag>
@@ -528,14 +528,14 @@
 		<German>Alle</German>
 		<Spanish>Todas</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: This was just a repetition of the "Counts" hover text -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLORALL_HOVER</Tag>
 		<English>If all units in a stack possess a given promotion, use this color instead of the one above.</English>
 		<German>Diese Farbe wird anstatt der obigen verwendet, wenn eine Beförderung allen Einheiten des Verbandes gemeinsam ist.</German>
 	</TEXT>
-	
+
 	<!-- advc.061 (I've given this option a simpler name in AdvCiv 1.07;
 		 haven't bothered changing the FIS translations.) -->
 	<TEXT>
@@ -628,7 +628,7 @@
 		<English>The duration of the animations shown for nuclear attacks.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Full[COLOR_REVERT]: The whole animation is shown. Exceptions: Only a short camera rumble is shown when the [COLOR_HIGHLIGHT_TEXT]No Particle Effects[COLOR_REVERT] graphics option is enabled and for nuclear attacks launched against you.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Rumble[COLOR_REVERT]: All nuke animations are aborted after a couple of seconds, resulting just in a camera rumble and (depending on camera distance) the explosion sound. This setting is always used in games with simultaneous turns.[NEWLINE][COLOR_HIGHLIGHT_TEXT]None[COLOR_REVERT]: No animation is shown. This also disables the recon effect that nukes normally have.</English>
 		<German>Die Animationsdauer von Atomangriffen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Vollständig[COLOR_REVERT]: Zeigt die gesamte Animation. Ausnahmen: Die Animation wird stark abgekürzt (s.u.), wenn die Grafikoption [COLOR_HIGHLIGHT_TEXT]Keine Partikeleffekte[COLOR_REVERT] aktiviert ist, und bei Atomschlägen Ihrer Gegner.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Abgekürzt[COLOR_REVERT]: Die Animation wird i.W. auf ein Rütteln der Kamera und (je nach Kameraabstand) das Explosionsgeräusch reduziert. Diese Einstellung wird in Spielen mit gleichzeitigen Zügen zwangsweise verwendet.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Keine[COLOR_REVERT]: Atomangriffe werden nicht animiert. Damit entfällt auch das Aufdecken der betroffenen Felder.</German>
 	</TEXT>
-	
+
 	<!-- advc.004: German was too long -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SIMPLESELECTION_TEXT</Tag>
@@ -669,7 +669,7 @@
 		<English>Uncheck this option to hide the "Explore (Automated)" command button. You will still be able to issue the command through the [COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] key. (Recommended if you never automate exploration or sometimes press that button by accident.)</English>
 		<German>Deaktivieren Sie diese Option, um den Automatisierungs-Befehl "Erkunden" auszublenden. Das Tataturkürzel [COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] ist davon nicht betroffen.</German>
 	</TEXT>
-	
+
 	<!-- advc.004z -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SCORESINGLOBEVIEW_TEXT</Tag>
@@ -701,7 +701,7 @@
 		<English>When checked, the Resource Display highlights Tribal Villages in addition to resources. Note: The [COLOR_HIGHLIGHT_TEXT]Unit Action Recommendations[COLOR_REVERT] option (Ctrl + O) also highlights Tribal Villages, but only when a nearby combat unit is selected.</English>
 		<German>Markiert zusätzlich zu Ressourcen auch Stammesdörfer, wenn die Ressourcenanzeige aktiv ist. Bemerkung: Die Option [COLOR_HIGHLIGHT_TEXT]Einheitenempfehlungen[COLOR_REVERT] (Strg + O) hebt ebenfalls Stammesdörfer hervor, jedoch nur wenn eine Kampfeinheit in der Nähe ausgewählt ist.</German>
 	</TEXT>
-	
+
 	<!-- advc.004h -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__FOUNDINGYIELDS_TEXT</Tag>
@@ -728,7 +728,7 @@
 		<English>None|Adjacent|City Cross</English>
 		<German>Keine|Innerer Ring|Stadtkreuz</German>
 	</TEXT>
-	
+
 	<!-- advc.004m -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STARTWITHRESOURCEICONS_TEXT</Tag>
@@ -777,7 +777,7 @@
 		<English>Multiplier for the [COLOR_HIGHLIGHT_TEXT]Balloon Size[COLOR_REVERT] when the currently selected unit is off-screen. (Off-screen indicators shown for certain events are not affected by this multiplier.) [COLOR_HIGHLIGHT_TEXT]1.4[COLOR_REVERT] is the AdvCiv default, [COLOR_HIGHLIGHT_TEXT]1.6[COLOR_REVERT] is closest to the original behavior. [COLOR_HIGHLIGHT_TEXT]Disable[COLOR_REVERT] means that no balloon is shown for off-screen units. Changes won't take effect until a different unit is selected.</English>
 		<German>Faktor, mit dem die [COLOR_HIGHLIGHT_TEXT]Ballon-Größe[COLOR_REVERT] multipliziert wird, wenn die derzeit ausgewählte Einheit nicht im Bild ist. Standard in AdvCiv ist [COLOR_HIGHLIGHT_TEXT]1.4[COLOR_REVERT], in BtS betrug der Faktor ca. [COLOR_HIGHLIGHT_TEXT]1.6[COLOR_REVERT]. Die Einheiten-Ballons am Bildrand können auch ganz deaktiviert werden ([COLOR_HIGHLIGHT_TEXT]Keine[COLOR_REVERT]). Änderungen werden erst nach Auswahl einer anderen Einheit wirksam. (Ein Ballon am Bildrand wird auch bei manchen Ereignis-Meldungen angezeigt; diese Option hier betrifft aber nur Einheiten.)</German>
 	</TEXT>
-	
+
 	<!-- advc.002f: -->
 	<!-- Based on TXT_KEY_EMPHASIZE_AVOID_GROWTH.
 		 There is very little space for German. -->
@@ -889,5 +889,5 @@
 		<English>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</English>
 		<German>Zeigt die extra-breiten Fortschritts-Balken aus der BUG-Mod auf der Hauptkarte an. (Die rechten Hälften dieser Balken lassen sich nicht anklicken - bekanntes Problem.)</German>
 	</TEXT>
-	
+
 </Civ4GameText>

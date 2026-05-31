@@ -12,7 +12,7 @@
 		<Italian>Segnali d'evento</Italian>
 		<Spanish>Indicadores de Evento</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Added mention of Alt+S -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_EVENTSIGNS__ENABLED_HOVER</Tag>

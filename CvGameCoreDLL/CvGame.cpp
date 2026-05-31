@@ -413,7 +413,7 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	// 5) Call sites (in CvGame.cpp) — recap
 	// After regenerating map: right after addGameElements() in regenerateMap(...)
 	recomputeMapnameHeaviness();
-	
+
 	gDLL->getEngineIFace()->RebuildAllPlots();
 	/*	<advc.001> Even if we call CvMap::setupGraphical before RebuildAllPlots,
 		there are still artifacts in texture surfaces. I guess we need to give
@@ -6448,7 +6448,7 @@ void CvGame::doGlobalWarming()
 
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
-		
+
 		// Send a message saying that the threshold has been passed
 		CvWString szBuffer;
 

@@ -720,7 +720,7 @@ public:
 	{
 		return base_t::get(static_cast<base_t::IntElementTypes>(e));
 	} // </advc.tag>
- 
+
 	CvWorldInfo();
 	// All the const functions are exposed to Python ...
 	DllExport int getDefaultPlayers() const { return m_iDefaultPlayers; }

@@ -249,7 +249,7 @@ CLLNode<tVARTYPE>* CLinkList<tVARTYPE>::deleteNode(
 	}
 	delete pNode;
 	pNode = NULL;
-	
+
 	m_iLength--;
 	return pNextNode;
 }

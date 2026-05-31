@@ -36,7 +36,7 @@
 		<Italian>Numeri|Icone|Entrambi</Italian>
 		<Spanish>Números|Iconos|Ambos</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_HOVER</Tag>
@@ -55,7 +55,7 @@
 		<Italian>Scheda Informazioni migliorata</Italian>
 		<Spanish>Información Mejorada</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAIMPROVEDINFO_HOVER</Tag>
@@ -121,7 +121,7 @@
 		<Italian>BUG Military Advisor</Italian>
 		<Spanish>Consejero Militar BUG</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Summary of features added -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGMA_HOVER</Tag>
@@ -148,7 +148,7 @@
 		<Italian>Quando è selezionato, la larghezza della schermata del Consigliere Tecnologico è legata alla risoluzione dello schermo (è richiesto un riavvio perchè il cambiamento abbia effetto).</Italian>
 		<Spanish>Si se activa, el ancho de la ventana del consejero de tecnología quedará unido a la resolución de pantalla en uso (requiere reiniciar).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Plural -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWTECHERA_TEXT</Tag>
@@ -157,7 +157,7 @@
 		<Italian>Mostra Era</Italian>
 		<Spanish>Mostrar Era</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWTECHERA_HOVER</Tag>
@@ -166,7 +166,7 @@
 		<Italian>Quando selezionato, Mostra l'era associata alla tecnologia.</Italian>
 		<Spanish>Permite mostrar la era asociada a una tecnología dada.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes to these two -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWRELIGIONS_TEXT</Tag>
@@ -182,7 +182,7 @@
 		<Italian>Tutte|Fondate|del Giocatore</Italian>
 		<Spanish>Todas|Fundadas|Jugador</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Clarified that this only applies to the BUG Advisor -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SHOWRELIGIONS_HOVER</Tag>
@@ -244,7 +244,7 @@
 		<Italian>Scala logaritmica</Italian>
 		<Spanish>Escala Logarítmica</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGGRAPHSLOGSCALE_HOVER</Tag>
@@ -262,7 +262,7 @@
 		<Italian>Scheda Grafici</Italian>
 		<Spanish>Pestaña Gráfica</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004s: Mention moving average -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGGRAPHSTAB_HOVER</Tag>
@@ -271,7 +271,7 @@
 		<Italian>Quando è selezionato, mostra la Scheda dei Grafici nel formato modificato del BUG Mod.</Italian>
 		<Spanish>Si se activa, las gráficas son mostradas en el formato BUG.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was just "Wonders Tab"  -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERS_TEXT</Tag>
@@ -289,7 +289,7 @@
 		<Italian>Quando è selezionato, mostra la Scheda delle Meraviglie nel formato modificato del BUG Mod.</Italian>
 		<Spanish>Activa la versión BUG de la información de maravillas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: plural -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERSPLAYERCOLOR_TEXT</Tag>
@@ -298,7 +298,7 @@
 		<Italian>Usa Colore del Giocatore</Italian>
 		<Spanish>Color del Jugador</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERSPLAYERCOLOR_HOVER</Tag>
@@ -326,7 +326,7 @@
 		<Italian>Quando è selezionato, viene utilizzata la Sevopedia invece della Sevopedia (è richiesto un riavvio perchè il cambiamento abbia effetto).</Italian>
 		<Spanish>Si se activa, emplea la Sevopedia (requiere reiniciar).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: A bit better than "sort lists"? -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SEVOPEDIASORTITEMLIST_TEXT</Tag>

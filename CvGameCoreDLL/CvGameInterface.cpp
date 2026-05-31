@@ -277,7 +277,7 @@ void CvGame::updateColoredPlots()
 		// 		}
 		// 	}
 		// }
-		
+
 		/*	K-Mod. I've rearranged the following code a bit, so that it is more efficient, and so that
 			it shows city sites within 7 turns, rather than just the ones in 4 plot range.
 			the original code has been deleted, because it was quite bulky. */

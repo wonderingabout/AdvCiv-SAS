@@ -39,7 +39,7 @@
 		<English>Enables the BUG method for drawing the unit icons, which is faster than the BtS (and PLE) method when dealing with large unit stacks and allows health bars to be customized. The icon display may not immediately be updated when you change the health bar and indicator settings. This option has no effect if [COLOR_HIGHLIGHT_TEXT]PLE Drawing Method[COLOR_REVERT] is enabled.</English>
 		<German>Die Anzeigemethode des BUG-Mods kann gro�e Einheitenverb�nde schneller darstellen als die BtS-Methode, und erlaubt das Anpassen der Gesundheitsbalken. Allerdings setzt BUG �nderungen an den Gesundheitsbalken- und Markereinstellungen nicht immer sofort um. Die Option [COLOR_HIGHLIGHT_TEXT]PLE Anzeigemethode[COLOR_REVERT] hat Vorrang, setzt also die BUG-Anzeigemethode au�er Kraft.</German>
 	</TEXT>
-	
+
 	<!-- advc.069: The filters are the main thing -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__SHOW_BUTTONS_TEXT</Tag>
@@ -48,7 +48,7 @@
 		<Italian>Pulsanti per raggruppamenti e filtri</Italian>
 		<Spanish>Mostrar Modo/Botones de Filtrado</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__SHOW_BUTTONS_HOVER</Tag>
@@ -67,7 +67,7 @@
 		<Italian>Modalit� filtri</Italian>
 		<Spanish>Filtrado</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Order flipped, and don't call the modes "BUG" and "PLE"	
 		 b/c that suggests that they require the respective drawing method
 		 (but both actually require the PLE method). -->
@@ -76,14 +76,14 @@
 		<English>Show Matches|Hide Matches</English>
 		<German>Anzeigen|Ausblenden</German>
 	</TEXT>
-	
+
 	<!-- advc.069: rewritten -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__FILTER_BEHAVIOR_HOVER</Tag>
 		<English>Effect of the PLE filter buttons:[NEWLINE][COLOR_HIGHLIGHT_TEXT]Show Matches[COLOR_REVERT] (default) - When a filter is activated, only those units that match the filter are shown, and only one filter per category can be active. (E.g. activating the air unit filter deactivates the land and sea unit filter.)[NEWLINE][COLOR_HIGHLIGHT_TEXT]Hide Matches[COLOR_REVERT] - When a filter is activated, units that match the filter are hidden; multiple filters per category can be active. (E.g. to show only air units, you'd activate both the sea and land unit filter.)</English>
 		<German>Wirkung der Filter-Schaltfl�chen:[NEWLINE][COLOR_HIGHLIGHT_TEXT]Treffer anzeigen[COLOR_REVERT] (Standard) - Bei Aktivierung eines Filters werden nur diejenigen Einheiten angezeigt, die das Filterkriterium erf�llen. Verwandte Filter k�nnen nicht gleichzeitig aktiv sein. (Z.B. werden die Filter f�r Land- und Seeeinheiten automatisch deaktiviert, wenn man den Filter f�r Lufteinheiten aktiviert.)[NEWLINE][COLOR_HIGHLIGHT_TEXT]Treffer ausblenden[COLOR_REVERT] - Bei Aktivierung eines Filters werden diejenigen Einheiten ausgeblendet, die das Filterkriterium erf�llen. Auch verwandte Filter k�nnen gleichzeitig aktiv sein. (Um z.B. nur Lufteinheiten anzuzeigen, w�rde man sowohl den Land- als auch den See-Filter aktivieren.)</German>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DEFAULT_VIEW_MODE_TEXT</Tag>
 		<English>Default View</English>
@@ -92,7 +92,7 @@
 		<Italian>Visualizzazione</Italian>
 		<Spanish>Vista por defecto</Spanish>
 	</TEXT>
-	
+
 	<!-- custom: Long_Comments_XML.txt #256 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DEFAULT_VIEW_MODE_LIST</Tag>
@@ -105,7 +105,7 @@
 		<English>Sets the view (icon arrangement) that is used at game start.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Single Row[COLOR_REVERT] - The original Civ 4 view with arrows if the row of icons is too long to fit on the screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Wrapped Row[COLOR_REVERT] - The BtS view, which wraps the single row into multiple rows when running out of horizontal space.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Multi Rows[COLOR_REVERT] - Units are grouped together (by type or selection) and each group is shown on a separate row.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Vertical Groups[COLOR_REVERT] - Units are grouped together and each group is shown in a separate column.</English>
 		<German>Ansicht (Anordnung) der Einheitenliste bei Spielstart:[NEWLINE][COLOR_HIGHLIGHT_TEXT]Einzeilig[COLOR_REVERT] - Wie im "Civilization 4"-Hauptspiel mit Pfeilen, wenn der Platz nicht f�r alle Einheitensymbole reicht.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Mit Umbruch[COLOR_REVERT] - Wie in BtS, also mit Zeilenumbruch wenn nicht alle Einheitensymbole in eine Zeile passen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Mehrzeilig[COLOR_REVERT] - Gruppiert Einheiten (nach Typ oder Auswahl) und stellt jede Gruppe in einer eignen Zeile dar.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Mehrspaltig[COLOR_REVERT] - Gruppiert Einheiten und stellt jede Gruppe in einer eignen Spalte dar.</German>
 	</TEXT>
-	
+
 	<!-- advc.069: German was "Gruppierung nach" - the "default" part is
 		 somewhat important. -->
 	<TEXT>
@@ -116,7 +116,7 @@
 		<Italian>Raggruppamento</Italian>
 		<Spanish>Agrupamiento por Defecto</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: was "Selection Groups". Avoid using the same term
 		 "group" for both selection groups and groups of icons (which may
 		 or may not correspond to selection groups). "Einheitenverband"
@@ -129,7 +129,7 @@
 		<Italian>Tipo Unit�|Selezione</Italian>
 		<Spanish>Tipo de Unidad|Selecci�n</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: rewritten (German, English) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__DEFAULT_GROUP_MODE_HOVER</Tag>
@@ -139,7 +139,7 @@
 		<Italian>Determina la modalit� di raggruppamento utilizzata all'avvio del gioco. Modifica il raggruppamento delle Unit� nelle diverse modalit� di visualizzazione.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Tipo Unit�[COLOR_REVERT] - le Unit� vengono raggruppate per tipo (Arciere, Cocchio, Carrarmato, ecc.);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Gruppo selezione[COLOR_REVERT] - le Unit� vengono raggruppate in base al gruppo di selezione (1, 2, 3, ecc.) in cui si trovano.</Italian>
 		<Spanish>Permite fijar el modo de agrupamiento a emplear cuando inicias Civilization IV. Altera como las unidades se agrupan en cada una de las distintas vistas.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Tipo de Unidad[COLOR_REVERT] - Las unidades se agrupan por tipo (Arquero, Carro, Tanque, etc)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos de Selecci�n[COLOR_REVERT] - Las unidades se agrupan seg�n el grupo en el que est�n seleccionadas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: plural -s added -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__HEALTH_BAR_TEXT</Tag>
@@ -149,7 +149,7 @@
 		<Italian>Barra della salute</Italian>
 		<Spanish>Barra de Salud</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__HEALTH_BAR_HOVER</Tag>
@@ -159,7 +159,7 @@
 		<Italian>Mostra una barra sopra l'icona dell'Unit� che rappresenta la salute ed i danni subiti dall'Unit�.</Italian>
 		<Spanish>Muestra una barra encima del icono de unidad que representa su salud.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__HIDE_HEALTH_FIGHTING_TEXT</Tag>
 		<English>Hide During Combat</English>
@@ -168,7 +168,7 @@
 		<Italian>Nascondi in battaglia</Italian>
 		<Spanish>Esconder en Combate</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Warning about combat spoiler added -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__HIDE_HEALTH_FIGHTING_HOVER</Tag>
@@ -178,7 +178,7 @@
 		<Italian>Nasconde la Barra della salute quando un'Unit� � in combattimento.</Italian>
 		<Spanish>Esconde la barra de salud durante los combates.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: English was "Healthy", German was "Gesund". -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__HEALTHY_COLOR_TEXT</Tag>
@@ -214,7 +214,7 @@
 		<Italian>Il colore da utilizzare per la barra corrispondente ad una Unit� ferita.</Italian>
 		<Spanish>Color a emplear para la parte de la barra de salud correspondiente a las heridas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: hyphen added (German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__MOVE_BAR_TEXT</Tag>
@@ -224,7 +224,7 @@
 		<Italian>Barra di movimento</Italian>
 		<Spanish>Barra de movimiento</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__MOVE_BAR_HOVER</Tag>
@@ -234,7 +234,7 @@
 		<Italian>Mostra una barra sopra l'icona dell'Unit� che rappresenta i punti di movimento dell'Unit�.</Italian>
 		<Spanish>Muestra una barra encima del icono de unidad que representa sus puntos de movimiento.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__FULL_MOVEMENT_COLOR_TEXT</Tag>
 		<English>Available</English>
@@ -259,7 +259,7 @@
 		<Italian>Immobile</Italian>
 		<Spanish>Inm�vil</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__FULL_MOVEMENT_COLOR_HOVER</Tag>
@@ -285,7 +285,7 @@
 		<Italian>Il colore da utilizzare per l'intera barra corrispondente ad una Unit� che non pu� pi� muoversi.</Italian>
 		<Spanish>Color a usar cuando la unidad no puede moverse m�s</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Was "Wounded Dot" / "Verwundet"; not good for
 		 Mechanized units. -->
 	<TEXT>
@@ -296,7 +296,7 @@
 		<Italian>Disco di stato</Italian>
 		<Spanish>Indicador Salud</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Explain that the main function of the dot remains. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__WOUNDED_INDICATOR_HOVER</Tag>
@@ -306,7 +306,7 @@
 		<Italian>Rende pi� scuro il dischetto nell'angolo superiore sinistro per le Unit� non in piena salute.</Italian>
 		<Spanish>Oscurece el punto en la esquina superior izquierda de las unidades que est�n heridas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Was "Great General", but I don't think this will mark
 		 an unattached GG. -->
 	<TEXT>
@@ -317,7 +317,7 @@
 		<Italian>Grande Generale</Italian>
 		<Spanish>Gran General</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Rewritten (English, German); didn't say that the dot is
 		 replaced. -->
 	<TEXT>
@@ -328,7 +328,7 @@
 		<Italian>Visualizza una piccola stella dorata sulle Unit� guidate da un Grande Generale.</Italian>
 		<Spanish>Coloca una estrella en las unidades que son lideradas por un Gran General.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__PROMOTION_INDICATOR_TEXT</Tag>
 		<English>Promotion Available</English>
@@ -337,7 +337,7 @@
 		<Italian>Promozione disponibile</Italian>
 		<Spanish>Ascenso Disponible</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__PROMOTION_INDICATOR_HOVER</Tag>
@@ -347,7 +347,7 @@
 		<Italian>Visualizza dei bordi blu attorno alle Unit� che hanno una promozione disponibile.</Italian>
 		<Spanish>Dibuja las unidades que pueden recibir un ascenso con un borde azul claro.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.002e: New option -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__SHOWPROMOTIONGLOW_TEXT</Tag>
@@ -359,7 +359,7 @@
 		<English>When checked, a blue glow effect is shown on tiles where all units are ready for a promotion (as in BtS). Regardless of this setting, the promotion glow is shown when a selected unit or a foreign unit is ready for a promotion. Toggling this option may require a save/reload.</English>
 		<German>Zeigt, wenn alle Einheiten eines Feldes bef�rdert werden k�nnen, ein blaues Licht auf dem Feld an (wie in BtS). Unabh�ngig von dieser Option erscheint das Licht bei Einheiten, die ausgew�hlt sind, und bei fremden Einheiten. Das Ein- und Ausschalten dieser Option wirkt sich u.U. erst nach dem n�chsten Speichern/Laden des Spiels aus.</German>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__UPGRADE_INDICATOR_TEXT</Tag>
 		<English>Upgrade Available</English>
@@ -367,7 +367,7 @@
 		<Italian>Avanzamento disponibile</Italian>
 		<Spanish>Actualizaci�n Disponible</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: said lower right -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__UPGRADE_INDICATOR_HOVER</Tag>
@@ -377,7 +377,7 @@
 		<Italian>Visualizza una freccia arancio nell'angolo inferiore destro delle Unit� che possono godere di un avanzamento (non tenendo conto del costo dell'avanzamento).</Italian>
 		<Spanish>Coloca una flecha naranja se�alando hacia arriba en la esquina inferior derecha de las unidades que pueden ser actualizadas (sin tener en cuenta el coste).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: German was "Einheitenaktion" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__MISSION_INFO_TEXT</Tag>
@@ -387,7 +387,7 @@
 		<Italian>Azioni delle Unit&#224;</Italian>
 		<Spanish>Indicador Acci�n</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Rewritten (English, German). Said that the tag is
 		 placed below the unit icon. List of missions added (based on BUG
 		 manual, _displayUnitPlotList_Mission in PLE.py and some quick
@@ -411,7 +411,7 @@
 		<Italian>Nome</Italian>
 		<Spanish>Nombre Unidad</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: This will be shown as the first option on the right
 		 column, so it should explain what is meant by the label ("Unit Help Text") above. -->
 	<TEXT>
@@ -421,7 +421,7 @@
 		<Italian>Colore del nome dell'Unit�.</Italian>
 		<Spanish>Color del nombre de la unidad</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: German was "(Un-)Erschwinglich" - too long. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__UPGRADE_POSSIBLE_COLOR_TEXT</Tag>
@@ -437,7 +437,7 @@
 		<Italian>Non possibile</Italian>
 		<Spanish>Imposible el pago</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Explanation about upgrade mode added (English, German)
 		 -->
 	<TEXT>
@@ -454,7 +454,7 @@
 		<Italian>Colore del costo di avanzamento quando non ce lo si pu� permettere economicamente.</Italian>
 		<Spanish>Color del coste de actualizaci�n cuando no es posible pagar la actualizaci�n.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Was "Unit Type" / "Einheitentyp". Too little room
 		 to do sth. similar in German. -->
 	<TEXT>
@@ -471,7 +471,7 @@
 		<Italian>Promozioni</Italian>
 		<Spanish>Ascenso</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Rewritten (English, German); use "abilities" instead of
 		 "specialties". -->
 	<TEXT>
@@ -488,7 +488,7 @@
 		<Italian>Colore delle caratteristiche di una unit� dovute alle sue Promozioni.</Italian>
 		<Spanish>Color de las especialidades que una unidad tiene debido a sus ascensos.</Spanish>
 	</TEXT>
-	
+
 	<!-- Was "Move Highlighter" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__MOVE_HIGHLIGHTER_TEXT</Tag>
@@ -498,7 +498,7 @@
 		<Italian>Visualizzatore di movimento</Italian>
 		<Spanish>Mostrar Movimientos</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_PLE__MOVE_HIGHLIGHTER_HOVER</Tag>

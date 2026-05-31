@@ -2,9 +2,9 @@
 <!--
 	BUG City Screen
 	by EmperorFool, Dresden, Chinese American, Ruff_Hi, TheLopez, Sevo
-	
+
 	Collects all of the various city screen mods.
-	
+
 	Copyright (c) 2008 The BUG Mod.
 -->
 <mod id="CityScreen" 
@@ -13,7 +13,7 @@
 	 version="3.0" 
 	 date="07/11/2008"
 	 url="http://forums.civfanatics.com/forumdisplay.php?f=268">
-	 
+
 	<options id="CityScreen" file="BUG City Screen.ini">
 		<section id="City Screen">
 			<!-- Raw Yields by EmperorFool (inspired by Raw Commerce by Sevo) -->
@@ -46,13 +46,13 @@
 			<!-- advc.002q: -->
 			<option id="CitySoundScapes" key="City Soundscapes" 
 					type="boolean" default="True"/>
-			
+
 			<!-- FoodAssist by EmperorFool
 				 advc.004: default was False in K-Mod -->
 			<option id="FoodAssist" key="FoodAssist" 
 					type="boolean" default="True" 
 					get="isShowFoodAssist" dirtyBit="CityScreen"/>
-			
+
 			<!-- WhipAssist by EmperorFool, Dresden -->
 			<!-- advc.064: default was False -->
 			<option id="WhipAssist" key="WhipAssist" 
@@ -61,18 +61,18 @@
 			<option id="WhipAssistOverflowCountCurrentProduction" key="WhipAssist Overflow Count Current Production" 
 					type="boolean" default="False" 
 					get="isWhipAssistOverflowCountCurrentProduction" dirtyBit="CityScreen"/>
-			
+
 			<!-- advc.064: New option for disabling hurry tick marks -->
 			<option id="HurryTickMarks" key="Hurry Tick Marks" 
 					type="boolean" default="False" 
 					get="isShowHurryTickMarks" dirtyBit="CityScreen"/>
-			
+
 			<!-- Culture Turns by Chinese American -->
 			<!-- advc.065: No longer optional -->
 			<!--option id="CultureTurns" key="Culture Turns" 
 					type="boolean" default="True" 
 					get="isShowCultureTurns" dirtyBit="CityScreen"/-->
-			
+
 			<!-- Great Person Info by Chinese American, EmperorFool -->
 			<option id="GreatPersonTurns" key="Great Person Turns" 
 					type="boolean" default="True" 
@@ -80,12 +80,12 @@
 			<option id="GreatPersonInfo" key="Great Person Info" 
 					type="boolean" default="True" 
 					get="isShowCityGreatPersonInfo" dirtyBit="CityScreen"/>
-			
+
 			<!-- Anger Counter by Ruff_Hi -->
 			<option id="Anger_Counter" key="Anger Counter" 
 					type="boolean" default="True" 
 					get="isShowAngerCounter" dirtyBit="CityScreen"/>
-			
+
 			<!-- Show Only Present and Extra Religions/Corporations by johny smith -->
 			<!-- advc.004: Default was False in K-Mod -->
 			<option id="OnlyPresentReligions" key="Only Present Religions" 
@@ -104,7 +104,7 @@
 				<choice id="Text" get="isBuildings_TextOnly"/>
 				<choice id="Icon" get="isBuildings_IconOnly"/>
 			</list>
-			
+
 			<!-- Specialist Stacker by TheLopez -->
 			<!-- Specialist Chevrons by Ruff_Hi -->
 			<!-- advc.004: "Default" renamed to "BtS".
@@ -118,11 +118,11 @@
 				<choice id="Stacker" get="isCitySpecialist_Stacker"/>
 				<choice id="Chevron" get="isCitySpecialist_Chevron"/>
 			</list>
-			
+
 			<!-- Production Started by EmperorFool -->
 			<option id="ProductionStarted" key="Production Started" 
 					type="boolean" default="False" dirtyBit="InfoPane" get="isShowProductionStarted"/>
-			
+
 			<!-- Production Decay by EmperorFool [BULL] -->
 			<!-- Queue -->
 			<!-- advc.094: dll=1 attributes removed -->
@@ -144,7 +144,7 @@
 			<list   id="ProductionDecayHoverUnitThreshold" key="Production Decay Hover Unit Threshold" dll="1" 
 					type="int" default="5"
 					values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"/-->
-			
+
 			<!-- Production Popup by EmperorFool -->
 			<option id="ProductionPopupTrainCivilianUnitsForever" key="Production Popup Train Civilian Units Forever" dll="1" 
 					type="boolean" default="False" get="isProductionPopupTrainCivilianUnitsForever"/>

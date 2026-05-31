@@ -12,9 +12,9 @@
 	 version="1.0" 
 	 date="8/1/2010"
 	 url="http://forums.civfanatics.com/showthread.php?p=9320491#post9320491">
-	 
+
 	<shortcut key="CTRL SHIFT E" function="showChooseEventPopup"/>
-	
+
 	<export function="triggerRandomEvent" to="CvScreensInterface"/>
 
 </mod>

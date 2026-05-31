@@ -15,7 +15,7 @@
 		<Italian>Personalizzabile</Italian>
 		<Spanish>Personalizable</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Very minor change (English) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CUSTDOMADV__ENABLED_HOVER</Tag>
@@ -39,7 +39,7 @@
 		<Italian>Nessuno|Piccolo|Medio|Ampio</Italian>
 		<Spanish>Ninguno|Pequeño|Mediano|Grande</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Only corrected a typo - said "culture sliders" instead of
 		 "commerce sliders". -->
 	<TEXT>
@@ -49,7 +49,7 @@
 		<Italian>Seleziona la quantità di spazio da lasciare al di sopra della schermata del Consigliere Interno:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Nessuno[COLOR_REVERT] - non viene lasciato alcuno spazio;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Piccolo[COLOR_REVERT] - viene lasciato spazio a sufficienza per mostrare l'orologio ed il tesoro;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Medio[COLOR_REVERT] - viene lasciato spazio a sufficienza per mostrare i pulsanti dei consiglieri;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ampio[COLOR_REVERT] - viene lasciato spazio a sufficienza per mostrare i regolatori percentuali.</Italian>
 		<Spanish>Selecciona la cantidad de espacio a dejar por encima de la ventana del Consejero del Interior.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ninguno[COLOR_REVERT] - Nada de espacio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Pequeño[COLOR_REVERT] - Suficiente espacio para ver el indicador de turnos y tesoro.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Medio[COLOR_REVERT] - Suficiente tamaño como para ver los botones de consejeros.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grande[COLOR_REVERT] - Suficiente espacio como para poder ver los deslizadores de gasto.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CUSTDOMADV__SPACESIDES_TEXT</Tag>
 		<English>Space to Sides</English>
@@ -64,7 +64,7 @@
 		<Italian>Nessuno|Piccolo|Medio|Ampio|Ampio a sin.</Italian>
 		<Spanish>Ninguno|Pequeño|Mediano|Grande|Grande (Izquierda)</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Said "same amount of space as Military and Foreign Advisor",
 		 but these aren't widescreen advisors (currently). And the same error
 		 as above with culture vs. commerce sliders. -->
@@ -75,7 +75,7 @@
 		<Italian>Seleziona la quantità di spazio da lasciare lateralmente alla schermata del Consigliere Interno:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Nessuno[COLOR_REVERT] - non viene lasciato alcuno spazio;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Piccolo[COLOR_REVERT] - viene lasciata la stessa quantità di spazio delle schermate del Consigliere Estero e del Consigliere Militare;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Medio[COLOR_REVERT] - viene lasciato il doppio della quantità di spazio delle schermate del Consigliere Estero e del Consigliere Militare;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ampio[COLOR_REVERT] - viene lasciato spazio a sufficienza per mostrare i regolatori percentuali sulla sinistra e una quantità uguale sulla destra;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ampio a sin.[COLOR_REVERT] - viene lasciato spazio a sufficienza per mostrare i regolatori percentuali sulla sinistra, mentre sulla destra viene lasciato la stessa quantità di spazio delle schermate del Consigliere Estero e del Consigliere Militare.</Italian>
 		<Spanish>Selecciona la cantidad de espacio a dejar a cada lado de la ventana del Consejero del Interior:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ninguno[COLOR_REVERT] - Nada de espacio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Pequeño[COLOR_REVERT] - Mismo espacio que otras ventanas de consejero.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Mediano[COLOR_REVERT] - El doble del espacio de otras ventanas de consejero.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grande[COLOR_REVERT] - Suficiente.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grande (Izquierda)[COLOR_REVERT] - Suficiente espacio como para poder ver los deslizadores de gasto a la izquierda, escaso espacio a la derecha.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CUSTDOMADV__PRODUCTIONGROUPING_TEXT</Tag>
 		<English>Production Grouping</English>
@@ -90,7 +90,7 @@
 		<Italian>Nulla|Icone|Colori|Entrambi</Italian>
 		<Spanish>Ninguna|Iconos|Colores|Ambos</Spanish>
 	</TEXT>
-	
+
 	<!-- Minor changes in English, German was wild (still not great of course).
 		 -->
 	<TEXT>

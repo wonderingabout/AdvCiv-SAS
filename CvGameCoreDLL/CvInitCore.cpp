@@ -419,7 +419,7 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
 
 	// Standard game parameters
 	m_eWorldSize = NO_WORLDSIZE;		// STANDARD_ option?
-	
+
 	if (!bBeforeRead) // advc.enum (doesn't really matter ...)
 	/*  <advc.003c> This function is called multiple times before XML is loaded.
 		GC.getDefineINT returns 0 then, which is fine, but now also triggers

@@ -23,7 +23,7 @@
 		<Italian>(CTRL: unità in questa casella.[NEWLINE]ALT: tutte le unità)</Italian>
 		<Spanish>(CTRL: unidades en esta casilla.[NEWLINE]ALT: todas las unidades)</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Some changes to the next few key to be consistent with the
 		 terms used in Plot List Enhancements Options.xml -->
 	<TEXT>
@@ -34,7 +34,7 @@
 		<Italian>Questa è la modalità corrente</Italian>
 		<Spanish>Modo actual</Spanish>
 	</TEXT>
-	
+
 	<!-- View Modes -->
 	<!-- custom: Long_Comments_XML.txt #274 -->
 	<TEXT>
@@ -45,7 +45,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Switch View[COLOR_REVERT][NEWLINE]Icon arrangement: single row, wrapped row, one row per group or one column per group.</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Switch View[COLOR_REVERT][NEWLINE]Icon arrangement: single row, wrapped row, one row per group or one column per group.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: I don't think these 4 are currently shown. The onClickPLEMode
 		 functions are supposed to show them, but somehow don't. -->
 	<TEXT>
@@ -80,9 +80,9 @@
 		<Italian>Visualizza le icone delle Unità raggruppate in righe</Italian>
 		<Spanish>Agrupar en filas</Spanish>
 	</TEXT>
-	
+
 	<!-- Reset All Filters -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_RESET_FILTERS</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</English>
@@ -97,9 +97,9 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Annulla tutti i filtri[COLOR_REVERT][NEWLINE]Mostra tutte le Unit&#224;</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Limpiar filtros[COLOR_REVERT][NEWLINE]Mostrar todas las unidades</Spanish>
 	</TEXT>
-	
+
 	<!-- Movement Filters -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_CANMOVE</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Movement Filter[COLOR_REVERT][NEWLINE]Hide units that can move</English>
@@ -128,7 +128,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sul movimento[COLOR_REVERT][NEWLINE]Mostra sia le Unità che possono muoversi che quelle che non possono</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Movimiento[COLOR_REVERT][NEWLINE]Mostrar unidades que pueden moverse y que no pueden moverse</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_CANTMOVE</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Movement Filter[COLOR_REVERT][NEWLINE]Hide units that cannot move</English>
@@ -157,7 +157,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sul movimento[COLOR_REVERT][NEWLINE]Mostra sia le Unità che possono muoversi che quelle che non possono</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Movimiento[COLOR_REVERT][NEWLINE]Mostrar unidades que pueden moverse y que no pueden moverse</Spanish>
 	</TEXT>
-	
+
 	<!-- Health Filters -->
 	<!-- advc.069: "wounded" -> "damaged" -->
 	<TEXT>
@@ -219,9 +219,9 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla salute[COLOR_REVERT][NEWLINE]Mostra le Unità ferite e le Unità sane</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Salud[COLOR_REVERT][NEWLINE]Mostrar unidades heridas y sanas</Spanish>
 	</TEXT>
-	
+
 	<!-- Domain Filters -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_AIR</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Domain Filter[COLOR_REVERT][NEWLINE]Hide air units</English>
@@ -251,7 +251,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sul dominio[COLOR_REVERT][NEWLINE]Mostra le Unità aeree, navali e terrestri</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Dominio[COLOR_REVERT][NEWLINE]Mostrar unidades terrestres, navales y aéreas</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_SEA</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Domain Filter[COLOR_REVERT][NEWLINE]Hide naval units</English>
@@ -281,7 +281,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sul dominio[COLOR_REVERT][NEWLINE]Mostra le Unità aeree, navali e terrestri</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Dominio[COLOR_REVERT][NEWLINE]]Mostrar unidades terrestres, navales y aéreas</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_LAND</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Domain Filter[COLOR_REVERT][NEWLINE]Hide land units</English>
@@ -311,9 +311,9 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sul dominio[COLOR_REVERT][NEWLINE]Mostra le Unità aeree, navali e terrestri</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Dominio[COLOR_REVERT][NEWLINE]Mostrar unidades terrestres, navales y aéreas</Spanish>
 	</TEXT>
-	
+
 	<!-- Civilian/Military Filters -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_DOM</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Military Filter[COLOR_REVERT][NEWLINE]Hide civilian units</English>
@@ -343,7 +343,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sul tipo[COLOR_REVERT][NEWLINE]Mostra le Unità civili e militari</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Militar[COLOR_REVERT][NEWLINE]Mostrar unidades civiles y militares</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_MIL</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Military Filter[COLOR_REVERT][NEWLINE]Hide military units</English>
@@ -373,9 +373,9 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sul tipo[COLOR_REVERT][NEWLINE]Mostra le Unità civili e militari</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Militar[COLOR_REVERT][NEWLINE]Mostrar unidades civiles y militares</Spanish>
 	</TEXT>
-	
+
 	<!-- Foreign/Domestic Filters -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_OWN</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Hide domestic units</English>
@@ -405,7 +405,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalità[COLOR_REVERT][NEWLINE]Mostra le proprie Unità e quelle altrui</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Nacionalidad[COLOR_REVERT][NEWLINE]Mostrar unidades domésticas y extranjeras</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_PLE_FILTER_FOREIGN</Tag>
 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Hide foreign units</English>
@@ -435,7 +435,7 @@
 		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalità[COLOR_REVERT][NEWLINE]Mostra le proprie Unità e quelle altrui</Italian>
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Nacionalidad[COLOR_REVERT][NEWLINE]Mostrar unidades domésticas y extranjeras</Spanish>
 	</TEXT>
-	
+
 	<!-- Grouping Modes -->
 	<!-- custom: Long_Comments_XML.txt #275 -->
 	<TEXT>
@@ -471,7 +471,7 @@
 		<Italian>Raggruppa le Unità per gruppo di selezione</Italian>
 		<Spanish>Agrupar por grupo</Spanish>
 	</TEXT>
-	
+
 	<!-- Promotion and Upgrade Modes -->
 	<!-- advc.069: German said "Filter", but this is a mode.
 		 Columns-view requirement mentioned. -->

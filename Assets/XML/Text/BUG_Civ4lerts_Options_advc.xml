@@ -25,7 +25,7 @@
 		<Italian>Quando è selezionato, vengono visualizzati dei messaggi per avvertirti di varie condizioni presenti o imminenti (utilizzando il Civ4lerts Mod di Dr. Elmer Jiggle's).</Italian>
 		<Spanish>Si se activa, se muestran mensajes para avisar sobre diversas situaciones empleando el mod Civ4lerts de Dr. Elmer Jiggle.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Removed "when checked" from hover text b/c it's a)
 		 superfluous and b) sounds like it refers to the alert getting checked
 		 once per turn or so. -->
@@ -41,7 +41,7 @@
 		<Italian>Imminente</Italian>
 		<Spanish>Pendiente</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106d: No longer triggers on growth (normally).
 		 Note added about the strange end-turn condition. -->
 	<TEXT>
@@ -52,7 +52,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando la popolazione di una città si ridurrà al turno successivo.</Italian>
 		<Spanish>Muestra un aviso cuando la población de una ciudad vaya a reducirse en el próximo turno.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYGROWTH_TEXT</Tag>
 		<English>Growth</English>
@@ -69,7 +69,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando la popolazione di una città cresce o si riduce.</Italian>
 		<Spanish>Muestra un aviso cada vez que la población de una ciudad crezca o se reduzca.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGHAPPINESS_TEXT</Tag>
 		<English>Pending</English>
@@ -78,7 +78,7 @@
 		<Italian>Imminente</Italian>
 		<Spanish>Pendiente</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106d: No longer triggers on will-become-happy (normally).
 		 And German text was misleading and too long. ICON added. -->
 	<TEXT>
@@ -89,7 +89,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando la popolazione di una città diverrà infelice al turno successivo.</Italian>
 		<Spanish>Muestra un aviso cuando una ciudad se vuelve infeliz en el próximo turno.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYHAPPINESS_TEXT</Tag>
 		<English>Happiness</English>
@@ -98,7 +98,7 @@
 		<Italian>Felicit&#224;</Italian>
 		<Spanish>Felicidad</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.105d: ICONs added. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYHAPPINESS_HOVER</Tag>
@@ -108,7 +108,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando la popolazione di una città diviene felice o infelice.</Italian>
 		<Spanish>Muestra un aviso cuando una ciudad se vuelva feliz o infeliz.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGHEALTHINESS_TEXT</Tag>
 		<English>Pending</English>
@@ -117,7 +117,7 @@
 		<Italian>Imminente</Italian>
 		<Spanish>Pendiente</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106d: No longer triggers on will-become-healthy (normally).
 		 And German text was misleading and too long. ICON added. -->
 	<TEXT>
@@ -128,7 +128,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una città diverrà insalubre al turno successivo.</Italian>
 		<Spanish>Muestra un aviso cuando una ciudad se vuelve insalubre en el próximo turno.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYHEALTHINESS_TEXT</Tag>
 		<English>Healthiness</English>
@@ -137,7 +137,7 @@
 		<Italian>Salute</Italian>
 		<Spanish>Salud</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106d: ICONs added -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYHEALTHINESS_HOVER</Tag>
@@ -159,12 +159,12 @@
 		<English>Trigger the [COLOR_HIGHLIGHT_TEXT]Pending[COLOR_REVERT] alerts for [COLOR_HIGHLIGHT_TEXT]Growth[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Happiness[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Health[COLOR_REVERT] also when a positive change is pending. Normally, those alerts cover only negative pending changes (e.g. population loss).</English>
 		<German>Zeigt [COLOR_HIGHLIGHT_TEXT]Nächste[COLOR_REVERT]-[COLOR_HIGHLIGHT_TEXT]Runde[COLOR_REVERT]-Meldungen bzgl. [COLOR_HIGHLIGHT_TEXT]Wachstum[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]Zufriedenheit[COLOR_REVERT] und [COLOR_HIGHLIGHT_TEXT]Gesundheit[COLOR_REVERT] auch dann an, wenn eine positive Veränderung bevorsteht (z.B. Bevölkerungszuwachs). Ansonsten werden bevorstehende Veränderungen nur dann gemeldet, wenn sie negativ sind.</German>
 	</TEXT>
-	
+
 	<!-- advc.210b: Now unused -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #39 -->
 
 <!-- Hurry -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYCANHURRYPOP_TEXT</Tag>
 		<English>Can Hurry with Population</English>
@@ -173,7 +173,7 @@
 		<Italian>Accelerazione con sacrifici</Italian>
 		<Spanish>Apresurar con Sacrificio</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYCANHURRYPOP_HOVER</Tag>
@@ -183,7 +183,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una città può accelerare la produzione attuale mediante sacrifici di Popolazione.</Italian>
 		<Spanish>Muestra un aviso cuando una ciudad pueda apresurar su producción actual mediante sacrificio.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYCANHURRYGOLD_TEXT</Tag>
 		<English>Can Hurry with Gold</English>
@@ -192,7 +192,7 @@
 		<Italian>Accelerazione con pagamenti</Italian>
 		<Spanish>Apresurar con Oro</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYCANHURRYGOLD_HOVER</Tag>
@@ -205,7 +205,7 @@
 
 <!-- Diplomacy -->
 
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__REFUSESTOTALK_TEXT</Tag>
 		<English>Refuses to Talk</English>
@@ -214,7 +214,7 @@
 		<Italian>Rifiuta di parlare</Italian>
 		<Spanish>Se niega a hablar</Spanish>
 	</TEXT>
-	
+
 	<!-- avdc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__REFUSESTOTALK_HOVER</Tag>
@@ -233,7 +233,7 @@
 		<Italian>Peggiori Nemici</Italian>
 		<Spanish>Peor Enemigo</Spanish>
 	</TEXT>
-	
+
 	<!-- Minor changes; the color is used for the alert messages, so use it
 		 here too. -->
 	<TEXT>
@@ -263,7 +263,7 @@
 		<Italian>Oro per turno</Italian>
 		<Spanish>Oro por Turno</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Rewritten; the Gold alerts are a bit
 		 tricky. -->
 	<TEXT>
@@ -299,7 +299,7 @@
 		<Spanish>Determina la cantidad de oro turno que hará mostrar una alerta.</Spanish>
 	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #245 -->
-	
+
 	<!-- advc.071 -->
 	<!-- Italian, Spanish based on TXT_KEY_BUG_OPT_REMINDER__DISPLAYMETHOD_LIST
 		 ('Reminder Options.xml') -->

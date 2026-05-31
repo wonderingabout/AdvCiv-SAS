@@ -14,7 +14,7 @@
 		<Italian>Abilita Registro Automatico</Italian>
 		<Spanish>Habilitar Registro</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Changes to match the next key; mention that this is not
 		 an extended replay nor really a debug log. -->
 	<TEXT>
@@ -25,7 +25,7 @@
 		<Italian>Quando è selezionato, vari eventi di gioco vengono registrati in un file  (utilizzando l'AutoLog Mod di Eotinb).</Italian>
 		<Spanish>Si se activa, determinados eventos de juego son registrados en un fichero de texto empleando el mod de AutoLog de eotinb.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: "Start Automatically" is a nice option name, but not quite 
 		 what this does. -->
 	<TEXT>
@@ -44,7 +44,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico viene avviato automaticamente; quando non è selezionato, il Registro Automatico deve essere avviato (ed eventualmente arrestato) utilizzando il comando [Alt + L].</Italian>
 		<Spanish>Si se activa, el registrado comienza automáticamente sin esperar al comienzo o parada manual que puede emplearse usando [Alt + L].</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German shortened -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__DEFAULTFILENAME_TEXT</Tag>
@@ -54,7 +54,7 @@
 		<Italian>Usa il nome di file predefinito</Italian>
 		<Spanish>Usar Nombre de Fichero por Defecto</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: "Custom", so it's clearer that this doesn't have to be
 		 edited -->
 	<TEXT>
@@ -83,7 +83,7 @@
 		<Italian>Quando è selezionato, viene utilizzato il nome di file predefinito (nomegiocatore.txt): le opzioni sul nome di file personalizzato verranno ignorate.</Italian>
 		<Spanish>Cuando se activa, se empleará el nombre de fichero por defecto (nombrejugador.txt), ignorándo la opción de nombre de fichero de registro.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Mention default dir -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FILEPATH_HOVER</Tag>
@@ -93,7 +93,7 @@
 		<Italian>Cartella dove è localizzato il file di registro (percorso completo (ad esempio C:\cartella\sottocartella) o vuoto).</Italian>
 		<Spanish>Directorio en el que guardar los registros (ruta absoluta, por ejemplo C:\folder\subfolder) o en blanco.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Mention DefaultFileName -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FILENAME_HOVER</Tag>
@@ -103,7 +103,7 @@
 		<Italian>Nome del file di registro. Se non è presente alcun file con questo nome nella cartella indicata, ne verrà creato uno.</Italian>
 		<Spanish>Nombre del fichero de log. Si no hay fichero con este nombre en el directorio indicado anteriormente, se creará uno.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Format Style" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__FORMAT_TEXT</Tag>
@@ -113,7 +113,7 @@
 		<Italian>Stile</Italian>
 		<Spanish>Formato</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was:
 		 <English>Forum Tags, With " around color codes|Forum Tags, No " around color codes</English>
 		 <German>Klartext|HTML-Code|Foren-Code, mit Anfÿhrungszeichen (") um Farbcodes|Foren-Code, ohne Anfÿhrungszeichen (") um Farbcodes</German>
@@ -134,7 +134,7 @@
 		<Italian>Lo stile di visualizzazione del registro.</Italian>
 		<Spanish>Formato de salida del registro.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German was "Farbkodierung" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__COLORCODING_TEXT</Tag>
@@ -144,7 +144,7 @@
 		<Italian>Codice cromatico</Italian>
 		<Spanish>Códigos de Color</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__COLORCODING_HOVER</Tag>
@@ -154,7 +154,7 @@
 		<Italian>Quando è selezionato, viene applicato il codice cromatico per i post nel Forum.</Italian>
 		<Spanish>Cuando se activa, se emplean códigos de color para posts de foro en los comentarios.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German was "n.Chr." -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__4000BC_TEXT</Tag>
@@ -172,7 +172,7 @@
 		<Italian>Indica che numero di turno deve corrispondere all'anno 4000 a.C.</Italian>
 		<Spanish>Permite seleccionar a qué número de turno se corresponde el 4000 a.C.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: The help file says that the IBT option was
 		 "added to split user actions and AI actions."
 		 But it doesn't seem to work at all. I suppose a line is missing in		 
@@ -195,7 +195,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico inserisce IBT ("In Between Turns" = "Fra i turni") alla fine del turno del giocatore.</Italian>
 		<Spanish>Si se activa, el registrador inserta IBT ("In Between Turns" = "Entre Turnos") al final del turno del jugador.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "Custom Entry Prefix" and "Präfix" in German.
 		 "Prefix for Manual Entries" would be nice, but too long. -->
 	<TEXT>
@@ -206,7 +206,7 @@
 		<Italian>Prefisso</Italian>
 		<Spanish>Prefijo Personalizado</Spanish>
 	</TEXT>
-	
+
 	<!-- rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__PREFIX_HOVER</Tag>
@@ -216,7 +216,7 @@
 		<Italian>Questo prefisso viene immesso prima delle aggiunte manuali del giocatore (inserite mediante [ALT + E]) per distinguerle dagli eventi registrati automaticamente; può essere per esempio il nome o la sigla del giocatore.</Italian>
 		<Spanish>Usado como prefijo antes de las entradas manuales en el registro (emplea [ALT + E]), por ejemplo tu nick.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTECH_TEXT</Tag>
 		<English>Technologies</English>
@@ -233,7 +233,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra le tecnologie acquisite e le ricerche avviate.</Italian>
 		<Spanish>Si se activa, se registrarán las tecnologías adquiridas e investigaciones comenzadas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: These keys were missing (fallback text from config folder was
 		 used) -->
 	<TEXT>
@@ -252,7 +252,7 @@
 		<Italian>When checked, will log the positions of your commerce sliders at the end of every turn.</Italian>
 		<Spanish>When checked, will log the positions of your commerce sliders at the end of every turn.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Those aren't "builds", they're "items" or "production
 		 orders". -->
 	<TEXT>
@@ -295,7 +295,7 @@
 		<Italian>Progetti completati</Italian>
 		<Spanish>Proyectos Completados</Spanish>
 	</TEXT>
-	
+
 	<!-- custom: Long_Comments_XML.txt #241 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPROJECTS_HOVER</Tag>
@@ -305,7 +305,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra il completamento dei Progetti (certe Meraviglie sono tecnicamente dei Progetti, altre vengono considerate come normali edifici).</Italian>
 		<Spanish>Si se activa, se registrarán los proyectos completados (ciertas maravillas son técnicamente proyectos, mientras que otras son tratadas como edificios normales).</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGIMPROVEMENTS_TEXT</Tag>
 		<English>Improvement</English>
@@ -314,7 +314,7 @@
 		<Italian>Miglioramenti</Italian>
 		<Spanish>Mejoras</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGIMPROVEMENTS_HOVER</Tag>
@@ -340,7 +340,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra quando fondi una Città.</Italian>
 		<Spanish>Cuando esté activa, se registran las ciudades que fundes.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "City Growth" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYGROWTH_TEXT</Tag>
@@ -358,7 +358,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra quando cresce la popolazione di una tua Città.</Italian>
 		<Spanish>Si está activada, se registrarán los crecimientos de población en tus ciudades.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "City Borders" and German "Stadtgrenzen" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYBORDERS_TEXT</Tag>
@@ -376,7 +376,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra quando si espandono i confini culturali di una tua Città.</Italian>
 		<Spanish>Permite registrar la expansión de bordes de tus ciudades.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "City Ownership" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYOWNER_TEXT</Tag>
@@ -394,7 +394,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra quando acquisisci una città mediante conquista o diplomazia.</Italian>
 		<Spanish>Permite registrar las adquisiciones o pérdidas de ciudades mediante conquista o intercambio.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYRAZED_TEXT</Tag>
 		<English>City Razed</English>
@@ -403,7 +403,7 @@
 		<Italian>Città Razziate</Italian>
 		<Spanish>Ciudad Destruída</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCITYRAZED_HOVER</Tag>
@@ -413,7 +413,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra quando tu saccheggi una Città altrui o quando una delle tue Città viene razziata.</Italian>
 		<Spanish>Permite registrar las ciudades que destruyas o la destrucción de una de tus ciudades.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "City Whip" and German "Zwangsarbeit", but also covers
 		 drafting (but not rushbuy). -->
 	<TEXT>
@@ -450,7 +450,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra le conseguenze del ritrovamento di Villaggi Tribali.</Italian>
 		<Spanish>Permite registrar los resultados de entrar en aldeas tribales.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was just "Religions" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGRELIGION_TEXT</Tag>
@@ -486,7 +486,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra: [NEWLINE][ICON_BULLET]quando fondi una Corporazione;[NEWLINE][ICON_BULLET]la diffusione delle varie Corporazioni nelle tue Città;[NEWLINE][ICON_BULLET]la diffusione nelle città straniere delle Corporazioni di cui controlli la Sede Principale.</Italian>
 		<Spanish>Si se activa esta opción, quedará registrado:[NEWLINE][ICON_BULLET]Corporaciones que fundes[NEWLINE][ICON_BULLET]Propagación de cualquier corporación a tus ciudades[NEWLINE][ICON_BULLET]Propagación de corporaciones cuya central controles a ciudades extranjeras.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Great People" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGGP_TEXT</Tag>
@@ -504,7 +504,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra la nascita di Grandi Personaggi nelle tue Città.</Italian>
 		<Spanish>Cuando esta opción está activa, se registran los nacimientos de Grandes Personas en tus ciudades.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGGA_TEXT</Tag>
 		<English>Golden Age</English>
@@ -513,7 +513,7 @@
 		<Italian>Età dell'Oro</Italian>
 		<Spanish>Edad de Oro</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGGA_HOVER</Tag>
@@ -523,7 +523,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra l'inizio e la fine delle Età dell'Oro.</Italian>
 		<Spanish>Si se activa, se registrará el comienzo y final de las Edades Doradas de tu civilización.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was just "Contact" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCONTACT_TEXT</Tag>
@@ -541,7 +541,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra i Primi Contatti con le altre Civiltà.</Italian>
 		<Spanish>Permite registrar los primeros contactos con otras civilizaciones.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was just "Attitude" and German "Beziehungen" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGATTITUDE_TEXT</Tag>
@@ -559,7 +559,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra ogni cambio di atteggiamento fra le Civiltà che ti sono note.</Italian>
 		<Spanish>Si se activa, se registran los cambios de actitud de civilizaciones que conozcas.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGWAR_TEXT</Tag>
 		<English>War</English>
@@ -578,7 +578,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra l'inizio e la fine delle Guerre fra le Civiltà che ti sono note.</Italian>
 		<Spanish>Si se activa, se registrará el inicio y final de guerras en las que participen civilizaciones que conozcas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Vassal States" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGVASSALS_TEXT</Tag>
@@ -596,7 +596,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra quando una Civiltà diviene uno Stato Vassallo di un'altra e quando si affranca da essa.</Italian>
 		<Spanish>Permite registrar el momento en que una civilización se convierte en vasallo de otra, y cuando se libera de dicho control.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was just "Civics".
 		 Note: Religion changes aren't recorded. (tbd.) -->
 	<TEXT>
@@ -615,7 +615,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra ogni modifica di Forma di Governo nelle Civiltà che ti sono note.</Italian>
 		<Spanish>Si se activa, se registran todos los cambios de Principios de las civilizaciones que conozcas.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGCOMBAT_TEXT</Tag>
 		<English>Combat</English>
@@ -633,7 +633,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra tutte le battaglie in cui sono coinvolte le tue Unità.</Italian>
 		<Spanish>Permite registrar todos los resultados de combates en los que tus unidades participen.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPROMOTIONS_TEXT</Tag>
 		<English>Promotion</English>
@@ -651,7 +651,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra le Promozioni delle tue Unità.</Italian>
 		<Spanish>Cuando esta opción está activa, se registran todas las promociones que tus unidades obtengan.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGPILLAGE_TEXT</Tag>
 		<English>Pillaging</English>
@@ -660,7 +660,7 @@
 		<Italian>Saccheggi</Italian>
 		<Spanish>Pillaje</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes.
 		 (I suppose this overlaps with the Improvements option) -->
 	<TEXT>
@@ -673,7 +673,7 @@
 	</TEXT>
 
 
-	
+
 	<!-- advc.004: German was "Handelsangebote" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRADEOFFER_TEXT</Tag>
@@ -692,7 +692,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra le offerte commerciali ed i doni delle altre Civiltà e le vostre risposte.</Italian>
 		<Spanish>Permite registrar los intercambios y regalos iniciados por IAs así como tus respuestas.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGTRIBUTEDEMAND_TEXT</Tag>
 		<English>Tribute/Help</English>
@@ -710,7 +710,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra le richieste di tributi o d'aiuto delle altre Civiltà e le vostre risposte.</Italian>
 		<Spanish>Permite registrar las exigencias de tributo o ayuda iniciadas por IAs así como tus respuestas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Change Religion" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGRELIGIONDEMAND_TEXT</Tag>
@@ -744,7 +744,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra le richieste di cambio di forme di governo delle altre Civiltà e le vostre risposte.</Italian>
 		<Spanish>Permite registrar las exigencias de cambio de Principios de la IA, así como tus respuestas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Declare War" / "Kriegserklärung" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGWARDEMAND_TEXT</Tag>
@@ -762,7 +762,7 @@
 		<Italian>Quando è selezionato, il Registro Automatico registra le richieste di dichiarazione di guerra delle altre Civiltà e le vostre risposte.</Italian>
 		<Spanish>Permite registrar las peticiones de comienzo de guerra de la IA, así como tus respuestas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: was "Stop Trading" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_AUTOLOG__LOGEMBARGODEMAND_TEXT</Tag>

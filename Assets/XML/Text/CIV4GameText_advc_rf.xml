@@ -247,7 +247,7 @@
 		<English>[COLOR_WARNING_TEXT]The R&#038;F option prevents gifts to %s1_Leader.[COLOR_REVERT]</English>
 		<German>[COLOR_WARNING_TEXT]%s1_Leader kann keine Geschenke von Ihnen annehmen.[COLOR_REVERT]</German>
 	</TEXT>
-	
+
 	<!-- advc.706: The Retire action needs slightly different text. Could be
 		 done more nicely by showing help text dynamically depending on game
 		 settings (but I'm not going to). -->

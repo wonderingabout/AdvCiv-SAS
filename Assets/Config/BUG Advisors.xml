@@ -2,7 +2,7 @@
 <!--
 	BUG Advisors
 	by Taelis, Cammagno, Requies, Ruff_Hi, Sevo, EmperorFool
-	
+
 	Collects all of the various advisor-based mods.
 
 	Copyright (c) 2008 The BUG Mod.
@@ -13,7 +13,7 @@
 	 version="3.0" 
 	 date="07/11/2008"
 	 url="http://forums.civfanatics.com/forumdisplay.php?f=268">
-	 
+
 	<options id="Advisors" file="BUG Advisors.ini">
 		<section id="Advisors">
 			<!-- (K-Mod has removed the BugFinanceAdvisor option) -->
@@ -61,12 +61,12 @@
 				<choice id="Both"/>
 				<choice id="Neither"/>
 			</list>
-	
+
 			<!-- BUG Military Advisor (F5) by Ruff_Hi, EmperorFool, Karadoc -->
 			<option id="BugMA" key="BugMilitaryAdvisor"
 					type="boolean" default="False"
 					get="isBUG_MA"/>
-	
+
 			<!-- Technology Advisor (F6) by EmperorFool, Ruff_Hi -->
 			<!-- advc.004e: Disabled by default. -->
 			<!-- custom: invert meaning so unchecked keeps GP bulbing info visible by default; experienced players can opt out. (GPT-5.2-Codex) -->
@@ -82,7 +82,7 @@
 			<option id="ShowTechEra" key="Show Tech Era" 
 					type="boolean" default="False"
 					get="isShowTechEra" dirtyBit="Tech_Screen"/>
-	
+
 			<!-- BUG Religion Advisor (F7) by Ruff_Hi -->
 			<option id="BugReligiousTab" key="Religious" 
 					type="boolean" default="False" 
@@ -102,7 +102,7 @@
 			<option id="BugMembersTab" key="Members" 
 					type="boolean" default="False" 
 					get="isMembers"/>
-	
+
 			<!-- advc.091: -->
 			<option id="PartialScoreGraphs" key="Partial Score Graphs" 
 					type="boolean" default="False" 
@@ -139,7 +139,7 @@
 					get="isSortSevopedia"/>
 		</section>
 	</options>
-	
+
 	<widget name="WIDGET_INFO_WORLD_WONDERS" xml="TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS"/>
 	<widget name="WIDGET_INFO_NATIONAL_WONDERS" xml="TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS"/>
 	<widget name="WIDGET_INFO_PROJECTS" xml="TXT_KEY_PEDIA_CATEGORY_PROJECT"/>

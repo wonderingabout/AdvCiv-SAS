@@ -115,7 +115,7 @@ private:
 	void alignAreaAI(bool bNaval);
 	int peaceThreshold(TeamTypes eTarget) const;
 	scaled limitedWarWeight() const;
-	
+
 	scaled utilityToTradeVal(scaled rUtility) const;
 	/*	tradeVal should roughly correspond to gold per turn; converted into
 		war utility based on our current commerce rate. */

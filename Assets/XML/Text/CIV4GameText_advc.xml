@@ -178,7 +178,7 @@
 		<Spanish>Mientras se [NUM1:defend&#237;a:defend&#237;a:defend&#237;an:defend&#237;an], [NUM1:vuestro:vuestra:vuestros:vuestras] %s1_UnitName%s3_Strength [NUM1:ha sido destruido:ha sido destruida:han sido destruidos:han sido destruidas] por [NUM2:un:una:unos:unas] %s2_EnUName (prob. del atacante: %s5_Odds%%).</Spanish>
 	</TEXT>
 	<!-- advc.048c: end -->
-	
+
 	<!-- advc.106g: Based on TXT_KEY_GAME_OPTION_NO_EVENTS
 		 (CIV4GameText_BTS.xml) -->
 	<TEXT>
@@ -464,7 +464,7 @@
 		<Italian>Usa l'IA aggressiva di K-Mod per le decisioni di guerra e pace.</Italian>
 		<Spanish>Emplea IA de K-Mod por las decisiones de guerra e paz.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.250b: New game option. -->
 	<TEXT>
 		<Tag>TXT_KEY_GAME_OPTION_SPAH</Tag>
@@ -482,7 +482,7 @@
 		<Italian>Assegna i punti di avvio solo all'IA per handicappare i giocatori umani.</Italian>
 		<Spanish>Asigna los puntos de inicio solo a la IA por handicapar los jugadores humanos.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.250b: Dawn-of-Man text from Civ4GameTextInfos.xml split
 		 in two. -->
 	<TEXT>
@@ -501,7 +501,7 @@
 		<Italian>%s1_leader, il tuo popolo ti ha conferito potere assoluto, credendo che tu possa sviluppare una civilt&#224; in grado di resistere alle prove del tempo!</Italian>
 		<Spanish>%s1_leader, vuestro pueblo os ha conferido poder absoluto, confiando en que pod&#225;is desarrollar una civilizaci&#243;n que supere los retos del tiempo.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004e: Used in help text of promotion buttons.
 		 Akin to TXT_KEY_PEDIA_LEADS_TO in CIV4GameTextInfos.xml.
 		 The "Leads to" translations are taken from there. -->
@@ -521,7 +521,7 @@
 		<Italian>Necessario per</Italian>
 		<Spanish>Necesario por</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004a
 		 Text fragments used for showing bulb paths as help text
 		 when a GP is selected.
@@ -671,7 +671,7 @@
 		<Italian>o</Italian>
 		<Spanish>o</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106l: Can't control these messages through the DLL,
 		 so I'm disabling them here. -->
 	<TEXT> <!-- redefine -->
@@ -711,7 +711,7 @@
 		<Italian>Salvataggio automatico...</Italian>
 		<Spanish>Guardado autom&#225;tico...</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106 -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_CITY_NUKED</Tag>
@@ -757,7 +757,7 @@
 		<Italian>La capitale %s1:3_CivShortDesc non è più %s2_CityName.</Italian>
 		<Spanish>La capital de %s1_CivShortDesc ya no es %s2_CityName.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106f: Based on TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT in
 		 CIV4GameText_Misc1.xml -->
 	<TEXT>
@@ -768,7 +768,7 @@
 		<Italian>%s1 annulla la sua alleanza difensiva con %s2</Italian>
 		<Spanish>%s1 revoca su acuerdo de protecci&#243;n con %s2.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.106i -->
 	<TEXT>
 		<Tag>TXT_KEY_HOF_WARN</Tag>
@@ -965,7 +965,7 @@
 		<Italian>+%d1_Change[ICON_UNHAPPY]: "Tutto questo movimento mi rende pazzo!"</Italian>
 		<Spanish>+%d1_Change [ICON_UNHAPPY]: "&#161;Eso de abrazar arbolitos nos saca de quicio!"</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.550
 		 Just added the word "better"; the rest is copied from vanilla
 		 Civ4GameTextInfos.xml. -->
@@ -988,7 +988,7 @@
 		<Italian>%D1: "I nostri reciproci aiuti militari ci hanno reso molto vicini l'un l'altro."</Italian>
 		<Spanish>%D1: "Nuestra mutua lucha militar nos ha acercado m&#225;s."</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004g: "close" borders sounds too similar to "closed".
 		 That would be tolerable, but the German and Spanish translation
 		 actually get it wrong (geschlossen, cerrada). -->
@@ -1051,7 +1051,7 @@
 		<Italian>"Hai accettato di aiutarci in tempi di guerra."</Italian>
 		<Spanish>"Accedisteis a venir en nuestra ayuda en tiempos de guerra."</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004g: These are hard to describe, but hopefully a bit less
 		 clumsy now, and shorter in any case. From CIV4GameTextInfos.xml -->
 	<TEXT> <!-- redefine -->
@@ -1144,7 +1144,7 @@
 		<Italian>Ogni %s2_UnitClassName in gioco aumenta il costo di %d1%%</Italian>
 		<Spanish>Cada %s2_UnitClassName en juego aumenta el coste en un %d1%%</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004g: Originally in CIV4GameText_Misc1.xml. German translation
 		 was wrong ("Zeile"). -->
 	<TEXT> <!-- redefine -->
@@ -1212,7 +1212,7 @@
 		<Italian>L'unit&#224; interrompe la rotta commerciale in modo che nessuna rotta commerciale intercontinentale possa passare dalla casella bloccata.</Italian>
 		<Spanish>La unidad corta la ruta comercial para que ninguna operaci&#243;n de comercio intercontinental pueda atravesar la casilla bloqueada.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004g: Based on TXT_KEY_COMMAND_LOAD_HELP in
 		 CIV4GameText_Help.xml. For situations when "Load" means going
 		 from one ship to another. FR/IT/ES not changed. -->
@@ -1427,7 +1427,7 @@
 			<Plural>0:1</Plural>
 		</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.907b: Original in CIV4GameTextInfos_Objects.xml -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_UNIT_INCAN_QUECHUA</Tag>
@@ -1480,7 +1480,7 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004g: Originally in Civ4GameTextInfos.xml. Said "Show Tiles",
 		 which could mean anything. Romance languages are now the same as
 		 TXT_KEY_ACTION_GRID_HELP in CIV4GameText_Help.xml. -->
@@ -1522,7 +1522,7 @@
 		<Italian>Attiva/disattiva la visibilit&#224; delle icone Cibo/Produzione/Commercio.</Italian>
 		<Spanish>Activa la visibilidad de iconos de alimentos / producci&#243;n / comercio</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004z: Originally in CIV4GameText_Misc1.xml. FIS translations
 		 based on TXT_KEY_GLOBELAYER_UNITS_ENEMYMILITARY. -->
 	<TEXT> <!-- redefine -->
@@ -1555,7 +1555,7 @@
 		<Italian>Abilita/disabilita la segnalazione delle risorse</Italian>
 		<Spanish>Activar las marcas de recursos</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004s: Originally in CIV4GameTextInfos.xml;
 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
 		 in CIV4GameText_Misc1.xml.
@@ -1592,7 +1592,7 @@
 		<Italian>Beni (Prod.)</Italian>
 		<Spanish>Merc.fabric.(Prod)</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.077: The above is only used for the "Graphs" tab now. The
 		 following is for the "Demographics" tab, where icons can be used. -->
 	<TEXT>
@@ -1685,7 +1685,7 @@
 		<Italian>.</Italian>
 		<Spanish>.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.150a: Akin to TXT_KEY_MISC_PLAYER_CONVERT_RELIGION in
 		 (Vanilla) Civ4GameTextInfos. -->
 	<TEXT>
@@ -1713,7 +1713,7 @@
 		<Italian>([NUM1:Abolito:Abolita]: %s1_CvcName.)</Italian>
 		<Spanish>([NUM1:Abolido:Abolida]: %s1_CvcName.)</Spanish>
 	</TEXT>
-	
+
 	<!-- custom: Long_Comments_XML.txt #265 -->
 	<TEXT>
 		<Tag>TXT_KEY_PLAYER_ELIMINATED</Tag>
@@ -1723,7 +1723,7 @@
 		<Italian>%s1_Plyr è stat[NUM1:o:a] sconfitt[NUM1:o:a]!!</Italian>
 		<Spanish>%s1_Plyr ha sido derrotad[NUM1:o:a]!!</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.099: Used to say "we yearn to join our motherland", which
 		 may suggest to players that this was somehow possible, but isn't
 		 when their civ has been eliminated, and I guess the barbarian civ
@@ -1829,7 +1829,7 @@
 		<Italian>(Combattimento navale Barbari: %D1%%)</Italian>
 		<Spanish>(Combate naval del b&#225;rbaro: %D1%%)</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.314: Based on TXT_KEY_GOODY_SCOUT in Vanilla
 		 Civ4GameTextInfos.xml. -->
 	<TEXT>
@@ -1840,7 +1840,7 @@
 		<Italian>Gli abitanti del villaggio ti hanno donato un'unit&#224; (%s1_Unit)!</Italian>
 		<Spanish>Los aldeanos os han dado una unidad (%s1_Unit).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.315: The original text keys for unit abilities are in
 		 Civ4GameTextInfos.xml. -->
 	<!-- advc.315a -->
@@ -1920,7 +1920,7 @@
 		<Italian>Alto</Italian>
 		<Spanish>Alto</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.165: Copy-pasted from Civ4GameText_Misc1.xml; no longer
 		 "extra large". -->
 	<TEXT> <!-- redefine -->
@@ -1968,7 +1968,7 @@
 		<Italian>Non appariranno animali</Italian>
 		<Spanish>No aparecer&#225;n animales.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.912b: Based on TXT_KEY_DOMESTIC_ADVISOR_MOUSEOVER_PROD_NOCHANGE in
 		 CIV4GameTextInfos.xml -->
 	<TEXT>
@@ -1979,7 +1979,7 @@
 		<Italian>al momento</Italian>
 		<Spanish>en este momento</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.912d -->
 	<TEXT>
 		<Tag>TXT_KEY_GAME_OPTION_NO_SLAVERY</Tag>
@@ -2548,7 +2548,7 @@
 			<Plural>0</Plural>
 		</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004l: Similar to TXT_KEY_MISSION_SENTRY and
 		 TXT_KEY_MISSION_HEAL in Civ4GameTextInfos.xml.
 		 Name of Sentry-Heal mission. -->
@@ -2710,7 +2710,7 @@
 		<Italian>Rovine cittadine (%s1City_Name)</Italian>
 		<Spanish>Ruinas de ciudad (%s1City_Name)</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.130r: Copied from TXT_KEY_MISC_ATTITUDE_FREEDOM
 		 (CIV4GameText_BTS.xml) -->
 	<TEXT>
@@ -2721,7 +2721,7 @@
 		<Italian>"Ci hai promesso l'indipendenza!"</Italian>
 		<Spanish>"Nos hab&#233;is concedido la independencia."</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.130v: Based on TXT_KEY_ATTITUDE_VASSAL_OF and
 		 TXT_KEY_MISC_CAPITULATE_AGREEMENT in CIV4GameText_Warlords.xml. -->
 	<TEXT>
@@ -2885,7 +2885,7 @@
 		<Italian>"Se dai la caccia a due conigli, li perderai entrambi." - Proverbio</Italian>
 		<Spanish>"Si persigues a dos conejos al mismo tiempo, los perder&#225;s a ambos." - Dicho</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004i: Originally in CIV4GameText_BTS.xml. Added a variable
 		 for the amount of gold. -->
 	<TEXT> <!-- redefine -->
@@ -3043,7 +3043,7 @@
 		<Italian>%s1_LeaderName non pare più prepararsi alla guerra.</Italian>
 		<Spanish>%s1_LeaderName ya no parece prepararse para la guerra.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.210b -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__REVOLT_TEXT</Tag>
@@ -3100,7 +3100,7 @@
 		<Italian>[NUM1:Disposto:Disposta] a [COLOR_NEGATIVE_TEXT]dichiarare guerra[COLOR_REVERT] a %s1_LdrName</Italian>
 		<Spanish>[NUM1:Dispuesto:Dispuesta] a [COLOR_NEGATIVE_TEXT]declarar la guerra[COLOR_REVERT] a %s1_LdrName</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.120: From CIV4GameText_BTS.xml. "Enemy" changed to "Rival" -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_ESPIONAGE_TARGET_COUNTERESPIONAGE</Tag>
@@ -3110,7 +3110,7 @@
 		<Italian>Pare che le spie nemiche saranno molto attente a scoprire i nostri tentativi di spionaggio nell'immediato futuro.</Italian>
 		<Spanish>Parece que los esp&#237;as enemigos no perder&#225;n de vista a nuestros agentes de ahora en adelante.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_OCCUPATION_TIMER</Tag>
 		<English>Occupation timer: %d1 [NUM1:Turn:Turns]</English>
@@ -3135,7 +3135,7 @@
 		<Italian>Probabilità di ridurre il timer di occupazione: %s1_Chance%% </Italian>
 		<Spanish>Probabilidad de disminuir el timer de ocupaci&#243;n: %s1_Chance%%</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.210d -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__BONUSTHIRDPARTIES_TEXT</Tag>
@@ -3362,7 +3362,7 @@
 		<Italian>%s1_warlord (%s2_Civ) &#232; morto in battaglia contro noi!</Italian>
 		<Spanish>&#161;%s1_warlord (%s2_Civ) ha muerto en combate en contra de nosotros!</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004v: Originally in CIV4GameTextInfos.xml. Shortened. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_MISC_CTRL_TRADE</Tag>
@@ -3550,7 +3550,7 @@
 		<Italian>Ruba tecnologie</Italian>
 		<Spanish>Robar tecnolog&#237;a</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.120f -->
 	<!-- Based on TXT_KEY_ESPIONAGE_TARGET_SWITCH_CIVIC in
 		 CIV4GameText_BTS.xml -->
@@ -3637,7 +3637,7 @@
 		<English>The GameSpy platform has shut down in 2014!</English>
 		<German>Das GameSpy-Netzwerk wurde 2014 abgeschaltet!</German>
 	</TEXT>
-	
+
 	<!-- advc.106b -->
 	<TEXT>
 		<Tag>TXT_KEY_END_TURN_MSG</Tag>
@@ -3647,7 +3647,7 @@
 		<Italian>----- Messaggi meno recenti:</Italian>
 		<Spanish>----- Mensajes más antiguos:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.104v -->
 	<TEXT>
 		<Tag>TXT_KEY_WAR_PREPARATION_STARTED</Tag>
@@ -3667,7 +3667,7 @@
 		<Italian>%s1_Ldr ha abbandonato i suoi piani di guerra contro %s2_Ldr.</Italian>
 		<Spanish>%s1_Ldr ha abandonado sus planes de guerra contra %s2_Ldr.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.034: Based on TXT_KEY_TRADE_OPEN_BORDERS in CIV4GameTextInfos.xml -->
 	<TEXT>
 		<Tag>TXT_KEY_TRADE_DISENGAGE</Tag>
@@ -3737,7 +3737,7 @@
 		<Italian>%d1_Date d.C.</Italian>
 		<Spanish>%d1_Date d. C.</Spanish>
 	</TEXT>
-	
+
 	<!-- Alternatives: e.c. in Italian
 		 n.u.Z. or n.d.Z. in German (or even the English CE instead, as secular
 		 dates aren't commonly used in German)  -->
@@ -3805,7 +3805,7 @@
 		<Italian>%s1_Ldr è entrato nell'era %s2_era!</Italian>
 		<Spanish>%s1_Ldr ha entrado en [NUM2:el:la:los:las] %s2_era.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.179 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_RELIGION_YIELD</Tag>
@@ -3849,7 +3849,7 @@
 		<Italian>[ICON_BULLET]Attiva le %s1 Elezioni</Italian>
 		<Spanish>[ICON_BULLET]Activa el sufragio mundial (%s1).</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.033 -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CAN_PLUNDER</Tag>
@@ -3859,7 +3859,7 @@
 		<Italian>[ICON_BULLET]Raccoglie l'oro del saccheggio quando blocca città rivali</Italian>
 		<Spanish>[ICON_BULLET]Recolecta oro del saqueo cuando bloquea ciudades rivales</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.150b -->
 	<TEXT>
 		<Tag>TXT_KEY_REPLAY_RESOLUTION_PASSED</Tag>
@@ -3869,7 +3869,7 @@
 		<Italian>[NUM1:Il:Le] %s1_institution [NUM1:ha:hanno] approvato la seguente risoluzione proposta da %s2_TeamName con %d3 su %d4 voti: %s5_resolution</Italian>
 		<Spanish>[NUM1:El:Las] %s1_institution [NUM1:ha:han] aprobado la siguiente resolución propuesta por %s2_TeamName con %d3 de %d4 votos: %s5_resolution</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004a: Replacing TXT_KEY_BUG_TECH_PREFS_ALL, 
 		 TXT_KEY_BUG_TECH_PREFS_CURRENT and TXT_KEY_BUG_TECH_PREFS_FUTURE in
 		 BUG_CIV4GameText.xml-->
@@ -3916,7 +3916,7 @@
 		<Italian>Requisiti non soddisfatti per:</Italian>
 		<Spanish>No se cumplen los requisitos para:</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.001: "an" not "and" -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_TRADE_PEACE_TREATY</Tag>
@@ -3926,7 +3926,7 @@
 		<Italian>Stabilisce un trattato di pace infrangibile per %d1_Num [NUM1:turno:turni]</Italian>
 		<Spanish>Establece un tratado de paz inquebrantable durante %d1_Num [NUM1:turno:turnos].</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.127: Treating AI Auto Play as a proper name -->
 	<TEXT>
 		<Tag>TXT_KEY_AUTO_PLAY_STARTED</Tag>
@@ -3944,7 +3944,7 @@
 		<Italian>Fine di AI Auto Play</Italian>
 		<Spanish>Fin de AI Auto Play</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.130h -->
 	<TEXT>
 		<Tag>TXT_KEY_POPUP_DOW_EXTRA_TARGETS</Tag>
@@ -3981,7 +3981,7 @@
 		<Italian>Ci&#242; vuol dire GUERRA? (contro [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</Italian>
 		<Spanish>&#191;Esto es la GUERRA? (contra [COLOR_HIGHLIGHT_TEXT]%s1_Team[COLOR_REVERT])</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.130o -->
 	<TEXT>
 		<Tag>TXT_KEY_POPUP_DOW_TRIBUTE</Tag>
@@ -4032,7 +4032,7 @@
 		<Italian>Impedisce l'utilizzo degli strumenti di debug, impedendo la modifica dei beni di gioco.</Italian>
 		<Spanish>No se pueden usar herramientas de depuraci&#243;n, ni se pueden modificar los par&#225;metros del juego.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.061: Would prefer game terms like "Military", but space is
 		 limited and the important distinctions are between military land units,
 		 military sea units and civilians/ air units (a single category for
@@ -4200,7 +4200,7 @@
 		<Italian>%F1: %s2 %s3/turno</Italian>
 		<Spanish>%F1: %s2 %s3/turno</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.069: Originally in CIV4GameTextInfos.xml; removed parentheses. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_UNIT_HELP_LEVEL</Tag>
@@ -4210,7 +4210,7 @@
 		<Italian>, XP: %d1_Curr/%d2_Needed</Italian>
 		<Spanish>, PX: %d1_Curr/%d2_Needed</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.071: Grammar in translations based on TXT_KEY_MISC_CIV_DESTROYED
 		 (CIV4GameTextInfos.xml) -->
 	<TEXT>
@@ -4474,7 +4474,7 @@
 		<Italian>Chieder&#224;</Italian>
 		<Spanish>Demandar&#225;</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004w: Based on TXT_KEY_BONUS_AVAILABLE_PLAYER
 		 (CIV4GameText_BTS.xml).  -->
 	<TEXT>
@@ -4495,7 +4495,7 @@
 		<Italian>[ICON_PRODUCTION] per [LINK=literal]%s1_Bonus[\LINK]</Italian>
 		<Spanish>[ICON_PRODUCTION] por [LINK=literal]%s1_Bonus[\LINK]</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004w: Based on TXT_KEY_BUILDING_DOUBLE_SPEED_WITH and
 		 TXT_KEY_BUILDING_BUILDS_FASTER_WITH in CIV4GameTextInfos.xml. -->
 	<TEXT>
@@ -4672,7 +4672,7 @@
 		<Italian>Leader</Italian>
 		<Spanish>L&#237;der</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004g: New key to replace the first "Can't Trade" heading on the
 		 "Technologies" tab. Based on TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE
 		 (CIV4GameText_BTS.xml), and I've kept the Romance translations from
@@ -4722,7 +4722,7 @@
 		<Italian>Nessun scambio di tecnologie</Italian>
 		<Spanish>Intercambio no permitido</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.002b: From CIV4GameText_BTS.xml. Was too long. -->
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_UNIT_COMBAT_LIMIT</Tag>
@@ -4732,7 +4732,7 @@
 		<Italian>[ICON_BULLET]Al massimo %d1%% di danni al nemico per attacco</Italian>
 		<Spanish>[ICON_BULLET]Da&#241;o m&#225;ximo de %d1%% al enemigo en ataque</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.080 -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_LOST_XP</Tag>
@@ -4750,7 +4750,7 @@
 		<Italian>[COLOR_WARNING_TEXT]Perderanno %d1 XP in totale[COLOR_REVERT]</Italian>
 		<Spanish>[COLOR_WARNING_TEXT]Perderán %d1 PX en total[COLOR_REVERT]</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064b: Based on TXT_KEY_MISC_HELP_PROD_OVERFLOW in
 		 CIV4GameTextInfos.xml and TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED
 		 in CIV4GameTextInfos.xml. -->
@@ -4807,7 +4807,7 @@
 		<Italian>%s1_yield_type base: %d2%F3</Italian>
 		<Spanish>%s1_yield_type base: %d2 %F3</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064b -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_OVERFLOW_BLOCKS_HURRY</Tag>
@@ -4846,7 +4846,7 @@
 		<Italian>Cosa vuoi creare in questa citt&#224;?</Italian>
 		<Spanish>&#191;Qu&#233; os gustar&#237;a construir en esta ciudad?</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004x: Based on TXT_KEY_CITY_BAR_HAMMER_PRODUCTION and
 		 TXT_KEY_CITY_BAR_FOOD_HAMMER_PRODUCTION (CIV4GameTextInfos.xml). -->
 	<TEXT>
@@ -5443,7 +5443,7 @@
 		<Italian>Altri giocatori</Italian>
 		<Spanish>Otros jugadores</Spanish>
 	</TEXT>
-	
+
 	<!-- Translations based on TXT_KEY_MAIN_MENU_RANDOM.
 		 (Don't have access to an AI translator right now,
 		 so this batch of FIS translations might be -even-

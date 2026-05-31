@@ -401,7 +401,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_med_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- RENAISSANCE -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_RENAISSANCE</Attribute>
@@ -523,7 +523,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_mod_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- Asian -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
@@ -570,7 +570,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_mod_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- Greco Roman -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
@@ -677,7 +677,7 @@
 			<Attribute Class="Scalar">fTwist:-0.7853981633</Attribute>
 			<Scale>0.8</Scale>
 		</ArtRef>
-		
+
 		<!-- villages -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_ANCIENT</Attribute>
@@ -715,7 +715,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_an_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_CLASSICAL</Attribute>
 			<Attribute Class="ArtStyle">ARTSTYLE_EUROPEAN,ARTSTYLE_SOUTH_AMERICA,ARTSTYLE_MIDDLE_EAST,ARTSTYLE_BARBARIAN</Attribute>
@@ -776,7 +776,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_an_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-			
+
 		<!-- medieval -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_CLASSICAL,ERA_MEDIEVAL</Attribute>
@@ -993,7 +993,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_ren_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- industrial -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_INDUSTRIAL</Attribute>
@@ -1059,7 +1059,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_ind_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- modern -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_MODERN,ERA_FUTURE</Attribute>
@@ -1144,7 +1144,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_mod_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- Asian -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
@@ -1186,7 +1186,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_an_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
 			<Attribute Class="ArtStyle">ARTSTYLE_ASIAN</Attribute>
@@ -1227,7 +1227,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_an_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- Greco Roman -->
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
@@ -1269,7 +1269,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_an_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<ArtRef Name="art:building">
 			<Attribute Class="Era">ERA_CLASSICAL,ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
 			<Attribute Class="ArtStyle">ARTSTYLE_GRECO_ROMAN</Attribute>
@@ -1310,7 +1310,7 @@
 			<Attribute Class="Scalar">szBatchGroup:buildings_an_eu</Attribute>
 			<Scale>0.35</Scale>
 		</ArtRef>
-		
+
 		<!-- corn -->
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x1_01</Attribute>
@@ -2811,7 +2811,7 @@
 			<Attribute Class="Scalar">szForceContourGeometry:Shadow</Attribute>
 			<Scale>0.5</Scale>
 		</ArtRef>
-		
+
 		<ArtRef Name="art:IMPROVEMENT_FARM1">
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/mod_eu_farm02.nif</Attribute>
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
@@ -2877,7 +2877,7 @@
 			<Attribute Class="Scalar">bIsPartOfImprovement:1</Attribute>
 			<Rotate>-45</Rotate>
 		</ArtRef>
-		
+
 		<!-- medieval farms -->
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
@@ -2922,7 +2922,7 @@
 			<Rotate>-45</Rotate>
 			<Scale>0.5</Scale>
 		</ArtRef>
-		
+
 		<!-- industrial/modern/future farms -->
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
@@ -2968,7 +2968,7 @@
 			<Scale>0.5</Scale>
 		</ArtRef>
 
-		
+
 		<!--- corn crop -->
 		<ArtRef Name="goal:BONUS_MAIZE">
 			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
@@ -3009,7 +3009,7 @@
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Whalingboat_Modern/WhalingBoat_Modern.kfm</Attribute>
 		</ArtRef>
 	</LNode>
-	
+
 	<LNode Name="Leaf_LandImprovement_4x4">
 		<Width>4</Width>
 		<Height>4</Height>
@@ -3069,7 +3069,7 @@
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">szForceContourGeometry:shadow</Attribute>
 		</ArtRef>
-		
+
 		<!-- Pasture -->
 		<ArtRef Name="goal:IMPROVEMENT_PASTURE">
 			<Attribute Class="Improvement">IMPROVEMENT_PASTURE</Attribute>
@@ -3085,7 +3085,7 @@
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Pasture/mod_pasture.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Pasture/mod_pasture.kfm</Attribute>
 		</ArtRef>
-		
+
 		<!-- Quarry -->
 		<ArtRef Name="goal:IMPROVEMENT_QUARRY">
 			<Attribute Class="Improvement">IMPROVEMENT_QUARRY</Attribute>
@@ -3103,7 +3103,7 @@
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Quarry/QuarryModern.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Quarry/QuarryModern.kfm</Attribute>
 		</ArtRef>
-		
+
 		<!-- Windmill -->
 		<ArtRef Name="goal:IMPROVEMENT_WINDMILL">
 			<Attribute Class="Improvement">IMPROVEMENT_WINDMILL</Attribute>
@@ -3150,20 +3150,20 @@
 		<To Name="Leaf_LandImprovement_4x4"/>
 	</LProduction>
 	<!-- *************************************************************************** -->
-	
+
 	<LProduction From="PLOT_ROOT" Name="LandImprovementProd">
 		<Attribute Class="Improvement">IMPROVEMENT_MINE,IMPROVEMENT_WINDMILL,IMPROVEMENT_FORT</Attribute>
 		<Attribute Class="Bonus">NO_BONUS</Attribute>
 		<Attribute Class="Scalar">bNotBFS:1</Attribute>
 		<To Name="Leaf_LandImprovement_4x4"/>
 	</LProduction>
-	
+
 	<LProduction From="PLOT_ROOT" Name="LandImprovementProd">
 		<Attribute Class="Improvement">IMPROVEMENT_PASTURE,IMPROVEMENT_QUARRY</Attribute>
 		<Attribute Class="Scalar">bNotBFS:1</Attribute>
 		<To Name="Leaf_LandImprovement_4x4"/>
 	</LProduction>
-	
+
 	<LProduction From="PLOT_ROOT" Name="WaterImprovementProd">
 		<Attribute Class="Improvement">IMPROVEMENT_WHALING_BOATS</Attribute>
 		<Attribute Class="Scalar">bNotBFS:1</Attribute>

@@ -25,7 +25,7 @@
 		<Italian>Rosso</Italian>
 		<Spanish>Rojo</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_COLOR_YELLOW</Tag>
 		<English>Yellow</English>
@@ -60,7 +60,7 @@
 		<Italian>Verde Chiaro</Italian>
 		<Spanish>Verde Claro</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_COLOR_CYAN</Tag>
 		<English>Cyan</English>
@@ -78,7 +78,7 @@
 		<Italian>Azzurro</Italian>
 		<Spanish>Cian</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_COLOR_BLUE</Tag>
 		<English>Blue</English>
@@ -120,7 +120,7 @@
 		<Italian>Grigio Chiaro</Italian>
 		<Spanish>Gris Claro</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_COLOR_GREY</Tag>
 		<English>Gray</English>
@@ -129,7 +129,7 @@
 		<Italian>Grigio</Italian>
 		<Spanish>Gris</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_COLOR_DARK_GREY</Tag>
 		<English>Dark Gray</English>
@@ -147,7 +147,7 @@
 		<Italian>Arancione</Italian>
 		<Spanish>Anaranjado</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_COLOR_BLACK</Tag>
 		<English>Black</English>

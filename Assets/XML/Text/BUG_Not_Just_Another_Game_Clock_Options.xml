@@ -51,7 +51,7 @@
 		<Italian>Quando è selezionato, viene utilizzato l'orologio evoluto del NJAGC (Not Just Another Game Clock) Mod di TheLopez.</Italian>
 		<Spanish>Si se activa, el reloj de juego se muestra empleando el mod NJAGC de TheLopez.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: was "Display Era" and in German "Epoche" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWERA_TEXT</Tag>
@@ -61,7 +61,7 @@
 		<Italian>Mostra l'Era</Italian>
 		<Spanish>Mostrar Era</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: Make clear that it's not the game era -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWERA_HOVER</Tag>
@@ -71,7 +71,7 @@
 		<Italian>Quando è selezionato, viene mostrata l'Era corrente a sinistra della Barra di Ricerca Tecnologica.</Italian>
 		<Spanish>Si se activa, muestra la era actual a la izquierda de la barra de investigación.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: New option -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWGAMEERA_TEXT</Tag>
@@ -86,7 +86,7 @@
 		<English>When checked, the average era of all civilizations in the game is displayed (game era) instead of the era of your civilization. The game era is relevant for some AI behaviors, but not normally known to the human players until they've met all other civilizations, so this option could be considered cheating.</English>
 		<German>Zeigt statt Ihrem Zeitalter das Durchschnittszeitalter aller Zivilisationen an (Spielzeitalter). Das Spielzeitalter beeinflusst das Verhalten der KI-Spieler, ist den menschlichen Spielern aber gewöhnlich erst dann bekannt, wenn sie mit allen Zivilisationen in Kontakt stehen; daher könnte man diese Option als regelwidrig ansehen.</German>
 	</TEXT>
-	
+
 	<!-- advc.067: was "Use Era-Related Colors" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWERACOLOR_TEXT</Tag>
@@ -96,7 +96,7 @@
 		<Italian>Usa colori dell'Era</Italian>
 		<Spanish>Usar color de la Era</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: rewritten (English, German) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWERACOLOR_HOVER</Tag>
@@ -106,7 +106,7 @@
 		<Italian>Quando è selezionato, la data e l'era vengono visualizzati utilizzando colori specifici per ogni era.</Italian>
 		<Spanish>La fecha de juego y la era se muestran con un color específico para cada era.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__COLOR_ERA_ANCIENT_TEXT</Tag>
@@ -220,7 +220,7 @@
 		<Italian>Colore da utilizzare per l'Era Futura.</Italian>
 		<Spanish>Color a emplear para la Edad Futura.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: Added the part in parentheses -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWTIME_TEXT</Tag>
@@ -238,7 +238,7 @@
 		<Italian>Orologio</Italian>
 		<Spanish>Reloj</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWTIME_HOVER</Tag>
@@ -274,7 +274,7 @@
 		<Italian>Turni completati</Italian>
 		<Spanish>Turnos Completados</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDTURNS_HOVER</Tag>
@@ -292,7 +292,7 @@
 		<Italian>Quando è selezionato, viene visualizzato il numero di turni completati.</Italian>
 		<Spanish>Muestra el número de turnos completados.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: was "Total Turns" and in German "Gesamtanzahl Runden"-->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWTOTALTURNS_TEXT</Tag>
@@ -310,7 +310,7 @@
 		<Italian>Turni Totali</Italian>
 		<Spanish>Turnos Totales</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWTOTALTURNS_HOVER</Tag>
@@ -328,7 +328,7 @@
 		<Italian>Quando è selezionato, viene visualizzato il numero di turni totali (se la Vittoria a Tempo è abilitata).</Italian>
 		<Spanish>Muestra el número de turnos totales si la condición de Victoria por Tiempo está habilitada.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: was "Game Date and Golden Age Turns" and in German
 		 "Spieldatum / Runden eines Goldenen Zeitalters". These should really
 		 be separate settings ...
@@ -350,7 +350,7 @@
 		<Italian>Data del gioco e turni rimasti dell'Età dell'Oro</Italian>
 		<Spanish>Fecha de Juego y Edad de Oro</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWALTDATE_HOVER</Tag>
@@ -377,7 +377,7 @@
 		<Italian>Visualizzazione alternativa</Italian>
 		<Spanish>Vista Alternativa</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.067: Rewritten; old translations:
 		 <French>En activant, l'horloge alterne entre la vue standard et la vue alternative.</French>
 		 <Italian>Quando è selezionato, l'orologio alterna due visualizzazioni, normale ed alternativa.</Italian>
@@ -400,7 +400,7 @@
 		<English>The duration in seconds for which the settings on the left are used if [COLOR_HIGHLIGHT_TEXT]Alternate View[COLOR_REVERT] is enabled.</English>
 		<German>Die Anzeigedauer (Sekunden) für die Einstellungen in der linken Spalte, falls [COLOR_HIGHLIGHT_TEXT]Abwechselnde Anzeige[COLOR_REVERT] aktiviert ist.</German>
 	</TEXT>
-	
+
 	<!-- advc.067: Now unused -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #42 -->
 

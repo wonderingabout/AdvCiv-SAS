@@ -16178,7 +16178,7 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				// <!-- custom: code/performance optimization: hoist -->
 				static const ColorTypes eColorTechText = (ColorTypes)GC.getColorType("TECH_TEXT");
-				
+
 				// advc: Was effectively itMember(getID()); previously fixed by kmodx.
 				for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 				{

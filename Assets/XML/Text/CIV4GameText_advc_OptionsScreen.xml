@@ -28,7 +28,7 @@
 		<Italian>Profili</Italian>
 		<Spanish>Perfiles</Spanish>
 	</TEXT>
-	
+
 	<!-- New key, replacing "Profile Name" as the heading for the edit box.
 		 FR, IT, SP through deepl.com -->
 	<TEXT>
@@ -39,7 +39,7 @@
 		<Italian>Nome del profilo da creare o cancellare:</Italian>
 		<Spanish>Nombre del perfil a crear o borrar:</Spanish>
 	</TEXT>
-	
+
 	<!-- Based on TXT_KEY_OPTIONS_NEED_TO_RESTART in CIV4GameTextInfos.xml.
 		 Romance-language translations just copied from there. -->
 	<TEXT>
@@ -50,7 +50,7 @@
 		<Italian>Il programma deve essere riavviato prima che i cambiamenti abbiano effetto</Italian>
 		<Spanish>Hay que reiniciar el programa para que los cambios surtan efecto</Spanish>
 	</TEXT>
-	
+
 	<!-- New: Headings -->
 	<TEXT>
 		<Tag>TXT_KEY_OPTIONS_SCREEN_HEADING_GENCONTROL</Tag>
@@ -120,7 +120,7 @@
 		<Italian>Unit&#224;</Italian>
 		<Spanish>Unidades</Spanish>
 	</TEXT>
-	
+
 	<!-- From CIV4GameTextInfos.xml. The translations were too long (repeating
 		 "volume" every time); no changes in English. -->
 	<TEXT> <!-- redefine -->
@@ -173,7 +173,7 @@
 		<Italian>Muto</Italian>
 		<Spanish>Mudo</Spanish>
 	</TEXT>
-	
+
 	<!-- New: Tooltips for the reset and exit buttons.
 		 deepl.com for FR, IT, SP. -->
 	<TEXT>
@@ -770,5 +770,5 @@
 		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
 		<Spanish>Mostrar informaci&#243;n adicional en la barra de la ciudad.</Spanish>
 	</TEXT>
-	
+
 </Civ4GameText>

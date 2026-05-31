@@ -7,15 +7,15 @@
 	Copyright (c) 2008 The BUG Mod.
 -->
 <bug>
-	
+
 	<!-- BUG Core -->
-	
+
 	<load mod="BUG Config"/>
 	<load mod="BUG Core"/>
-	
+
 
 	<!-- Utility Modules -->
-	
+
 	<init module="FontUtil" immediate="True"/>
 	<symbol id="war" from="COMMERCE_GOLD" offset="25"/>
 	<symbol id="peace"/>
@@ -38,7 +38,7 @@
 	<symbol id="ss thruster"/>
 	<symbol id="citizen" from="POWER" offset="1"/>
 	<symbol id="greatgeneral" name="GREAT_GENERAL"/>
-	
+
 	<init module="AttitudeUtil">
 		<!-- Furious, Annoyed, Cautious, Pleased, Friendly -->
 		<arg name="colors" type="tuple">
@@ -75,7 +75,7 @@
 	<symbol id="cautious" name="ATTITUDE_CAUTIOUS"/>
 	<symbol id="pleased" name="ATTITUDE_PLEASED"/>
 	<symbol id="friendly" name="ATTITUDE_FRIENDLY"/>
-	
+
 	<init module="ColorUtil">
 		<!--
 			You can safely modify this list to change the color dropdown menus
@@ -110,12 +110,12 @@
 		</arg>
 	</init>
 	<event type="LanguageChanged" module="ColorUtil" function="createColors"/>
-	
+
 	<events module="DealUtil" function="addEvents"/>
 	<events module="DiplomacyUtil" function="addEvents"/>
 	<extend how="after" module="DiplomacyUtil" function="handleAIComment" to="CvDiplomacyInterface" as="beginDiplomacy"/>
 	<extend how="after" module="DiplomacyUtil" function="handleUserResponse" to="CvDiplomacyInterface" as="handleUserResponse"/>
-	
+
 	<init module="GGUtil"/>
 	<init module="GPUtil"/>
 	<init module="ReligionUtil"/>
@@ -135,22 +135,22 @@
 	<!-- advc.009b: Moved down (was crashing on reload), and use BugScreenInit as a wrapper for CvScreensInterface. -->
 	<init module="BugScreenInit"/>
 
-	
+
 	<!-- Mods -->
-	
+
 	<load mod="BUG Main Interface"/>
 	<load mod="BUG City Screen"/>
 	<load mod="BUG Advisors"/>
-	
+
 	<load mod="Customizable Domestic Advisor"/>
 	<load mod="Better Espionage"/>
 	<load mod="All Eras Dawn of Man Screen"/>
 	<load mod="TechWindow"/>
-	
+
 	<load mod="Not Just Another Game Clock"/>
 	<load mod="Advanced Scoreboard"/>
 	<load mod="Plot List Enhancements"/>
-	
+
 	<load mod="Autolog"/>
 	<load mod="Reminder"/>  <!-- requires Autolog -->
 	<load mod="Civ4lerts"/>
@@ -163,43 +163,43 @@
 	<!-- advc.007d (from BUG 4.5) -->
 	<load mod="Trigger Event"/>
 	<load mod="OOSLogger"/> <!-- kekm.27: OOS logging, idea from Fall From Heaven 2 by Kael. -->
-	
+
 	<!-- BULL -->
-	
+
 	<load mod="BULL Core"/>
 	<load mod="BULL Actions"/>
 	<load mod="BULL City Bar"/>
 	<load mod="BULL Misc Hovers"/>
-	
+
 	<load mod="AutoSave"/>
 	<!-- advc.009c: Commented out -->
 	<!--load mod="MapFinder"/-->
 	<load mod="Advanced Combat Odds"/>
-	
+
 	<!-- BUFFY -->
-	
+
 	<!-- <load mod="BUFFY"/> -->
-	
-	
+
+
 	<!-- Options Screen -->
-	
+
 	<screen id="BUGFull">
 		<tab module="BugGeneralOptionsTab"/>
 		<tab module="BugMapOptionsTab"/>
 		<tab module="BugCityScreenOptionsTab"/>
-		
+
 		<tab module="BugAdvisorOptionsTab"/>
-		
+
 		<tab module="BugAlertsOptionsTab"/>
 		<tab module="BugScoreOptionsTab"/>
 		<tab module="BugNJAGCOptionsTab"/>
-		
+
 		<tab module="BugPleOptionsTab"/>
 		<tab module="BugACOOptionsTab"/>
 		<tab module="BugUnitNameOptionsTab"/>
-		
+
 		<tab module="BugAutologOptionsTab"/>
-		
+
 		<tab module="BugSystemOptionsTab"/>
 		<!--tab module="BugCreditsOptionsTab"/-->
 	</screen>

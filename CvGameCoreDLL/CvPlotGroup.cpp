@@ -283,7 +283,7 @@ void CvPlotGroup::read(FDataStreamBase* pStream)
 	pStream->Read(&uiFlag);
 	pStream->Read(&m_iID);
 	pStream->Read((int*)&m_eOwner);
-	
+
 	m_aiNumBonuses.read(pStream);
 
 	m_plots.Read(pStream);

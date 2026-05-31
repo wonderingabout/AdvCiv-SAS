@@ -24,7 +24,7 @@
 		<Italian>Libero Accesso</Italian>
 		<Spanish>Apertura de Fronteras</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__OPENBORDERSTRADE_HOVER</Tag>
@@ -33,7 +33,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una Civiltà è disponibile a firmare un trattato di Libero Accesso.</Italian>
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a firmar un acuerdo de Apertura de Fronteras.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DEFENSIVEPACTTRADE_TEXT</Tag>
 		<English>Defensive Pact</English>
@@ -42,7 +42,7 @@
 		<Italian>Patto Difensivo</Italian>
 		<Spanish>Acuerdos de Protección</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DEFENSIVEPACTTRADE_HOVER</Tag>
@@ -51,7 +51,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una Civiltà è disponibile a firmare un Patto Difensivo.</Italian>
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a firmar un Acuerdo de Protección.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PERMANENTALLIANCETRADE_TEXT</Tag>
 		<English>Permanent Alliance</English>
@@ -60,7 +60,7 @@
 		<Italian>Alleanza Permanente</Italian>
 		<Spanish>Alianza Permanente</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: MInor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__PERMANENTALLIANCETRADE_HOVER</Tag>
@@ -69,7 +69,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una Civiltà è disponibile a firmare una Alleanza Permanente.</Italian>
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a firmar un acuerdo de Alianza Permanente.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__VASSALTRADE_TEXT</Tag>
 		<English>Vassal</English>
@@ -96,7 +96,7 @@
 		<Italian>Capitolazione</Italian>
 		<Spanish>Capitulación</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__SURRENDERTRADE_HOVER</Tag>
@@ -107,7 +107,7 @@
 	</TEXT>
 
 <!-- Trade -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__TECHTRADE_TEXT</Tag>
 		<English>Technologies</English>
@@ -115,7 +115,7 @@
 		<Italian>Tecnologie</Italian>
 		<Spanish>Tecnologías</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: This one triggers also on "no longer willing". And tried to
 		 make clearer that it doesn't just check if civs are generally willing
 		 to trade tech, but checks every individual tech. -->
@@ -126,7 +126,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una Civiltà è disponibile a commerciare Tecnologie.</Italian>
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a intercambiar tecnologías.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__BONUSTRADE_TEXT</Tag>
 		<English>Resources</English>
@@ -134,7 +134,7 @@
 		<Italian>Risorse</Italian>
 		<Spanish>Recursos</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.210e: Mention imports -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__BONUSTRADE_HOVER</Tag>
@@ -143,7 +143,7 @@
 		<Italian>Quando è selezionato, viene visualizzato un avviso quando una Civiltà è disponibile a commerciare Risorse.</Italian>
 		<Spanish>Muestra un aviso cuando una civilización está dispuesta a intercambiar recursos.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__MAPTRADE_TEXT</Tag>
 		<English>Maps</English>
@@ -152,7 +152,7 @@
 		<Italian>Mappa</Italian>
 		<Spanish>Mapas</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__MAPTRADE_HOVER</Tag>

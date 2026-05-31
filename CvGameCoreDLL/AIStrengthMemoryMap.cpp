@@ -28,7 +28,7 @@ void AIStrengthMemoryMap::reset()
 void AIStrengthMemoryMap::read(FDataStreamBase* pStream, uint /* <!-- custom: disable this and remove subsequent checks/usage of this parameter in the function i mean, as advised by chatgpt 5, check if accurate --> uiFlag */, TeamTypes eTeam)
 {
 	m_eTeam = eTeam;
-	
+
 	size_t iSize;
 	pStream->Read(&iSize);
 	if (iSize > 0)

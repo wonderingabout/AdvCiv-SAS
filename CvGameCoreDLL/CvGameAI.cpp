@@ -95,7 +95,7 @@ void CvGameAI::AI_sortOutUWAIOptions(bool bFromSaveGame)
 		setOption(GAMEOPTION_AGGRESSIVE_AI, true);
 		return;
 	}
-	
+
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iUWAI_IN_BACKGROUND = GC.getDefineINT("UWAI_IN_BACKGROUND");
 

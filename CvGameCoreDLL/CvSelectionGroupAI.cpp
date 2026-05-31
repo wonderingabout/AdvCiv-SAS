@@ -152,7 +152,7 @@ bool CvSelectionGroupAI::AI_update()
 		/*  <advc.001y> Moved out of the block below so I can see what the loop does
 			before it terminates. Debugger stops in CvSelectionGroup::pushMission,
 			startMission and in CvUnitAI::AI_update have been helpful to me. */
-		
+
 		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
 		// 1) Snapshot state at the start of each loop iteration
 		// Place this right after setForceUpdate(false); and the iAttempts++; line, before any attack/AI_update logic:

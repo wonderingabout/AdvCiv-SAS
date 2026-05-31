@@ -14,7 +14,7 @@
 		<Italian>Attivato</Italian>
 		<Spanish>Activar</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Added mention of the test mode -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__ENABLED_HOVER</Tag>

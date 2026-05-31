@@ -9,7 +9,7 @@
 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_TEXT</Tag>
 		<English>Tech</English>
 	</TEXT>
-	
+
 	<!-- advc.004: "Adds more detailed information" is just not true as far as
 		 I can tell, or mostly untrue. -->
 	<TEXT>
@@ -19,7 +19,7 @@
 		<Italian>Determina quale visualizzazione mostrare quando viene scoperta una nuova Tecnologia:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Originale[COLOR_REVERT] - visualizzazione minima standard di Civ4;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Dettagliata[COLOR_REVERT] - aggiunge informazioni più dettagliate;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ampia[COLOR_REVERT] - versione estesa della visualizzazione dettagliata.</Italian>
 		<Spanish>Determina la vista a mostrar cuando descubres una tecnología.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Original[COLOR_REVERT] - Vista por defecto.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Detallada[COLOR_REVERT] - Información detallada.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Wide[COLOR_REVERT] - Versión mas ancha de la vista detallada.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Was "Detailed". I don't think it really presents more
 		 details. -->
 	<TEXT>
@@ -29,7 +29,7 @@
 		<Italian>Originale|Dettagliata|Ampia</Italian>
 		<Spanish>Original|Detallada|Ancha</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__CIVILOPEDIATEXT_TEXT</Tag>
 		<English>Show Sevopedia Text</English>
@@ -37,7 +37,7 @@
 		<Italian>Mostra il testo della Sevopedia</Italian>
 		<Spanish>Mostrar texto de Sevopedia</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__CIVILOPEDIATEXT_HOVER</Tag>
@@ -46,7 +46,7 @@
 		<Italian>Quando è selezionato, include il testo della Sevopedia dopo la citazione per la tecnologia scoperta.</Italian>
 		<Spanish>Si se activa, se muestra el texto de Sevopedia después de la cita para la tecnología descubierta.</Spanish>
 	</TEXT>
-	
+
 		<!-- advc.060 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__SHOWSSSCREEN_TEXT</Tag>

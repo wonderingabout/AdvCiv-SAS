@@ -750,7 +750,7 @@ int AIFoundValue::evaluate()
 			{
 				FOR_EACH_ENUM(Yield)
 				{
-					
+
 					{
 						int iThresh = kPlayer.getExtraYieldThreshold(eLoopYield);
 						if (iThresh > 0 &&
@@ -1137,7 +1137,7 @@ int AIFoundValue::evaluate()
 		iResourceValue += evaluateSpecialYields(aiSpecialYield, iSpecialYieldTiles,
 				iSpecialFoodPlus, iSpecialFoodMinus);
 	}
-	
+
 	// <!-- custom: simplify logic and attempt to spread cities more, currently they are way too crowded which is inefficient -->
 	// if (isTooManyTakenTiles(iTakenTiles, iResourceValue, iValue < 780))
 	if (isTooManyTakenTiles(iTakenTiles, iResourceValue))

@@ -51,7 +51,7 @@
 		<Italian>Quando è selezionato, se il nome di una Unità contiene il suo tipo (p. es. "Arciere I di Roma"), questo viene rimpiazzato dal nuovo tipo quando l'Unità viene aggiornata (p. es. "Balestriere I di Roma").</Italian>
 		<Spanish>Si se activa esta opción, al actualizar una unidad se actualiza también su nombre.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__UNITEXPERIENCE_TEXT</Tag>
 		<English>Starting Experience</English>
@@ -82,7 +82,7 @@
 	</TEXT>
 
 <!-- Building -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGACTUALEFFECTS_TEXT</Tag>
 		<English>Building</English>
@@ -120,7 +120,7 @@
 	<!-- advc.063: end -->
 
 <!-- Tech -->
-	
+
 	<!-- advc.910: Permanently disabled (won't merge this from BULL) -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #60 -->
 	<!-- advc.073: Not going to make this optional -->
@@ -129,10 +129,10 @@
 <!-- Bonus -->
 	<!-- advc.073: Not going to make this optional -->
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #62 -->
-	
+
 
 <!-- City Screen -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BASECOMMERCE_TEXT</Tag>
 		<English>Commerce Subtotals</English>
@@ -148,7 +148,7 @@
 		<Spanish>Muestra el subtotal para cada tipo de comercio en su texto flotante.</Spanish>
 	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #263 -->
-	
+
 	<!-- advc.004: German shortened -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGSAVEDMAINTENANCE_TEXT</Tag>
@@ -241,7 +241,7 @@
 		<Italian>Quando è selezionato, vengono visualizzati gli edifici che influenzano il gradimento ([ICON_HAPPY] e [ICON_UNHAPPY]) e l'ammontare con cui lo fanno.</Italian>
 		<Spanish>Muestra los edificios que afectan a la cantidad de [ICON_HAPPY] y [ICON_UNHAPPY].</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: German abbreviated; it's in the widest row.  -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGADDITIONALGREATPEOPLE_TEXT</Tag>
@@ -250,7 +250,7 @@
 		<Italian>Grandi Personaggi</Italian>
 		<Spanish>Grandes Personajes</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.063: English and German rewritten -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGADDITIONALGREATPEOPLE_HOVER</Tag>
@@ -276,7 +276,7 @@
 
 
 <!-- Action Buttons -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CONSCRIPTUNIT_TEXT</Tag>
 		<English>Draft Unit Details</English>
@@ -315,7 +315,7 @@
 		<Italian>Bottone dei sacrifici</Italian>
 		<Spanish>Sacrificio</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Explain "whip" button -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__HURRYOVERFLOW_HOVER</Tag>
@@ -324,7 +324,7 @@
 		<Italian>Quando è selezionato, il testo a comparsa del Bottone dei Sacrifici mostra il surplus ([ICON_PRODUCTION] e [ICON_GOLD]) generato dall'accelerazione mediante sacrifici.</Italian>
 		<Spanish>El texto flotante del botón de Sacrificio incluye el excedente ([ICON_PRODUCTION] y [ICON_GOLD]) creado al emplearlo.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__HURRYOVERFLOWINCLUDECURRENT_TEXT</Tag>
 		<English>Include Current</English>
@@ -342,7 +342,7 @@
 		<Italian>Includi corrente</Italian>
 		<Spanish>Incluir Actual</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Made the caveat about lost population clearer. In German, it
 		 was wrong/incomprehensible. -->
 	<TEXT>
@@ -352,7 +352,7 @@
 		<Italian>Quando è selezionato, il calcolo del surplus da sacrifici include il tasso di produzione ([ICON_PRODUCTION]) corrente. Poichè l'accelerazione solitamente influenza tale tasso, il surplus effettivo può differire da quello mostrato.</Italian>
 		<Spanish>Incluye el [ICON_PRODUCTION] actual al calcular excedentes de sacrificio. Como usar sacrificio afecta a la producción, el resultado final puede ser diferente.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml'. Now says the exact
 		 same thing as HURRYOVERFLOWINCLUDECURRENT above b/c it's the same
 		 functionality (even using the same C++ code now). -->
@@ -373,7 +373,7 @@
 		<Italian>Barra di Produzione</Italian>
 		<Spanish>Barra de Producción</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml' and made some changes.
 		 advc.186: Also affects city bars now. -->
 	<TEXT>
@@ -383,7 +383,7 @@
 		<Italian>Quando è selezionato, la Barra della Pruduzione della Schermata Cittadina mostra il costo in popolazione ed il surplus di produzione per l'accelerazione di produzione mediante sacrifici e il costo in oro per l'accelerazione di produzione mediante pagamenti relativi all'oggetto attualmente costruito.</Italian>
 		<Spanish>Si se activa, muestra el coste en población y el excedente de [ICON_PRODUCTION]/[ICON_GOLD] por usar sacrificios y/o el coste en [ICON_GOLD] por comprar la producción mostrada en la barra de producción.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.064: New option. Same label as TXT_KEY_BUG_OPT_MAININTERFACE__
 		 PROGRESSBARSTICKMARKS_TEXT (BUG_Main_Interface_Options.xml), but
 		 the IT, SP translations are no help here; too long. -->
@@ -397,8 +397,8 @@
 		<English>When checked, yellow tick marks on the production bar show how much production is needed to reduce the population loss from hurrying. This option works with and without the [COLOR_HIGHLIGHT_TEXT]Tick Marks[COLOR_REVERT] option on the "General" tab (which shows blue tick marks on the production bar).</English>
 		<German>Zeigt durch kurze, gelbe Striche auf dem Produktionsbalken an, wie viel Produktion erforderlich ist, um den Bevölkerungsverlust bei Beschleunigung zu verringern. Funktioniert mit und ohne die Option [COLOR_HIGHLIGHT_TEXT]Teilstriche[COLOR_REVERT] auf dem Reiter "Allgemein" (welche blaue Striche auf dem Produktionsbalken anzeigt).</German>
 	</TEXT>
-	
-	
+
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__REMOVESPECIALIST_TEXT</Tag>
 		<English>Remove Specialist Button</English>

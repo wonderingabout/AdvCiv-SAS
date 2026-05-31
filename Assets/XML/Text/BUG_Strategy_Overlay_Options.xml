@@ -29,7 +29,7 @@
 		<Italian>Disegna le icone per le Citt&#224;</Italian>
 		<Spanish>Dibujar Centro</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Added mention of Alt+X -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPDRAWDOTS_HOVER</Tag>
@@ -38,7 +38,7 @@
 		<Italian>Quando è selezionato, viene disegnata un'icona al centro delle aree di posizionamento delle città.</Italian>
 		<Spanish>Se muestra un punto en el centro de los bordes de las ciudades planeadas.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPDOTICON_TEXT</Tag>
 		<English>City Dot Icon</English>
@@ -62,7 +62,7 @@
 		<Italian>Determina la trasparenza delle Città posizionate.</Italian>
 		<Spanish>Brillo con que se muestran las ciudades planeadas.</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: "highlight" is a bit difficult to understand; and long. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPHIGHLIGHTBRIGHTNESS_TEXT</Tag>
@@ -71,7 +71,7 @@
 		<Italian>Trasparenza di selezione</Italian>
 		<Spanish>Brillo Actual</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPHIGHLIGHTBRIGHTNESS_HOVER</Tag>
 		<English>Sets the opacity of the city cross shown at the cursor position when placing a city marker through Alt+X.</English>

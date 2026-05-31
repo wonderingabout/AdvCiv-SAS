@@ -62,7 +62,7 @@
 		<Italian>+%d1[ICON_CULTURE] (%d2 per era)</Italian>
 		<Spanish>+%d1[ICON_CULTURE] (%d2 por &#233;poca)</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.002c: German was garbled/ ungrammatical -->
 	<TEXT>
 		<Tag>TXT_KEY_MISC_RELIGION_REMOVE</Tag>
