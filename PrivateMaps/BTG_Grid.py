@@ -378,152 +378,152 @@ def beforeGeneration():
 	# Templates are nested by keys: {NumRegions: {RegionID: [WestLon, EastLon, SouthLat, NorthLat]}}
 	if (CyMap().getCustomMapOption(3) == 0):
 		templates = {2: {0: [0.0, 0.5, 0.0, 1.0],
-	                 1: [0.5, 1.0, 0.0, 1.0]},
-				 3: {0: [0.0, 0.333, 0.0, 1.0],
-	                 1: [0.333, 0.666, 0.0, 1.0],
-					 2: [0.666, 1.0, 0.0, 1.0]},
-				 4: {0: [0.0, 0.25, 0.0, 1.0],
-	                 1: [0.25, 0.5, 0.0, 1.0],
-	                 2: [0.5, 0.75, 0.0, 1.0],
-	                 3: [0.75, 1.0, 0.0, 1.0]},
-				 5: {0: [0.0, 0.2, 0.0, 1.0],
-	                 1: [0.2, 0.4, 0.0, 1.0],
-	                 2: [0.4, 0.6, 0.0, 1.0],
-					 3: [0.6, 0.8, 0.0, 1.0],
-	                 4: [0.8, 1.0, 0.0, 1.0]},
-	             6: {0: [0, 0.166, 0.0, 1.0],
-	                 1: [0.166, 0.333, 0.0, 1.0],
-	                 2: [0.333, 0.5, 0.0, 1.0],
-	                 3: [0.5, 0.666, 0.0, 1.0],
-	                 4: [0.666, 0.833, 0.0, 1.0],
-	                 5: [0.833, 1.0, 0.0, 1.0]},
-				 7: {0: [0, 0.142, 0.0, 1.0],
-	                 1: [0.141, 0.285, 0.0, 1.0],
-	                 2: [0.282, 0.428, 0.0, 1.0],
-	                 3: [0.428, 0.571, 0.0, 1.0],
-	                 4: [0.571, 0.705, 0.0, 1.0],
-					 5: [0.705, 0.857, 0.0, 1.0],
-	                 6: [0.857, 1.0, 0.0, 1.0]},
-				 8: {0: [0.000, 0.125, 0.0, 1.0],
-	                 1: [0.125, 0.250, 0.0, 1.0],
-	                 2: [0.250, 0.375, 0.0, 1.0],
-	                 3: [0.375, 0.500, 0.0, 1.0],
-	                 4: [0.500, 0.625, 0.0, 1.0],
-					 5: [0.625, 0.750, 0.0, 1.0],
-					 6: [0.750, 0.875, 0.0, 1.0],					 
-	                 7: [0.875, 1.000, 0.0, 1.0]},
-				 9: {0: [0.000, 0.111, 0.0, 1.0],
-	                 1: [0.111, 0.222, 0.0, 1.0],
-	                 2: [0.222, 0.333, 0.0, 1.0],
-	                 3: [0.333, 0.444, 0.0, 1.0],
-	                 4: [0.444, 0.555, 0.0, 1.0],
-					 5: [0.755, 0.666, 0.0, 1.0],
-					 6: [0.666, 0.777, 0.0, 1.0],
-					 7: [0.777, 0.888, 0.0, 1.0],					 
-	                 8: [0.888, 1.000, 0.0, 1.0]},
+					1: [0.5, 1.0, 0.0, 1.0]},
+				3: {0: [0.0, 0.333, 0.0, 1.0],
+					1: [0.333, 0.666, 0.0, 1.0],
+					2: [0.666, 1.0, 0.0, 1.0]},
+				4: {0: [0.0, 0.25, 0.0, 1.0],
+					1: [0.25, 0.5, 0.0, 1.0],
+					2: [0.5, 0.75, 0.0, 1.0],
+					3: [0.75, 1.0, 0.0, 1.0]},
+				5: {0: [0.0, 0.2, 0.0, 1.0],
+					1: [0.2, 0.4, 0.0, 1.0],
+					2: [0.4, 0.6, 0.0, 1.0],
+					3: [0.6, 0.8, 0.0, 1.0],
+					4: [0.8, 1.0, 0.0, 1.0]},
+				6: {0: [0, 0.166, 0.0, 1.0],
+					1: [0.166, 0.333, 0.0, 1.0],
+					2: [0.333, 0.5, 0.0, 1.0],
+					3: [0.5, 0.666, 0.0, 1.0],
+					4: [0.666, 0.833, 0.0, 1.0],
+					5: [0.833, 1.0, 0.0, 1.0]},
+				7: {0: [0, 0.142, 0.0, 1.0],
+					1: [0.141, 0.285, 0.0, 1.0],
+					2: [0.282, 0.428, 0.0, 1.0],
+					3: [0.428, 0.571, 0.0, 1.0],
+					4: [0.571, 0.705, 0.0, 1.0],
+					5: [0.705, 0.857, 0.0, 1.0],
+					6: [0.857, 1.0, 0.0, 1.0]},
+				8: {0: [0.000, 0.125, 0.0, 1.0],
+					1: [0.125, 0.250, 0.0, 1.0],
+					2: [0.250, 0.375, 0.0, 1.0],
+					3: [0.375, 0.500, 0.0, 1.0],
+					4: [0.500, 0.625, 0.0, 1.0],
+					5: [0.625, 0.750, 0.0, 1.0],
+					6: [0.750, 0.875, 0.0, 1.0],
+					7: [0.875, 1.000, 0.0, 1.0]},
+				9: {0: [0.000, 0.111, 0.0, 1.0],
+					1: [0.111, 0.222, 0.0, 1.0],
+					2: [0.222, 0.333, 0.0, 1.0],
+					3: [0.333, 0.444, 0.0, 1.0],
+					4: [0.444, 0.555, 0.0, 1.0],
+					5: [0.755, 0.666, 0.0, 1.0],
+					6: [0.666, 0.777, 0.0, 1.0],
+					7: [0.777, 0.888, 0.0, 1.0],
+					8: [0.888, 1.000, 0.0, 1.0]},
 				10: {0: [0.000, 0.100, 0.0, 1.0],
-	                 1: [0.100, 0.200, 0.0, 1.0],
-	                 2: [0.200, 0.300, 0.0, 1.0],
-	                 3: [0.300, 0.400, 0.0, 1.0],
-	                 4: [0.400, 0.500, 0.0, 1.0],
-					 5: [0.500, 0.600, 0.0, 1.0],
-					 6: [0.600, 0.700, 0.0, 1.0],
-					 7: [0.700, 0.800, 0.0, 1.0],					 
-					 8: [0.800, 0.900, 0.0, 1.0],					 
-	                 9: [0.900, 1.000, 0.0, 1.0]},					 
+					1: [0.100, 0.200, 0.0, 1.0],
+					2: [0.200, 0.300, 0.0, 1.0],
+					3: [0.300, 0.400, 0.0, 1.0],
+					4: [0.400, 0.500, 0.0, 1.0],
+					5: [0.500, 0.600, 0.0, 1.0],
+					6: [0.600, 0.700, 0.0, 1.0],
+					7: [0.700, 0.800, 0.0, 1.0],
+					8: [0.800, 0.900, 0.0, 1.0],
+					9: [0.900, 1.000, 0.0, 1.0]},
 		}
 	elif (CyMap().getCustomMapOption(3) == 1):	
 		templates = {2: {0: [0.0, 0.5, 0.0, 1.0],
-	                 1: [0.5, 1.0, 0.0, 1.0]},
-				 4: {0: [0.0, 0.5, 0.0, 0.5],
-	                 1: [0.5, 1.0, 0.0, 0.5],
-	                 2: [0.0, 0.5, 0.5, 1.0],
-	                 3: [0.5, 1.0, 0.5, 1.0]},
-	             6: {0: [0.0, 0.333, 0.0, 0.5],
-	                 1: [0.333, 0.667, 0.0, 0.5],
-	                 2: [0.667, 1.0, 0.0, 0.5],
-	                 3: [0.0, 0.333, 0.5, 1.0],
-	                 4: [0.333, 0.667, 0.5, 1.0],
-	                 5: [0.667, 1.0, 0.5, 1.0]},
-	             8: {0: [0.0, 0.25, 0.0, 0.5],
-	                 1: [0.25, 0.5, 0.0, 0.5],
-	                 2: [0.5, 0.75, 0.0, 0.5],
-	                 3: [0.75, 1.0, 0.0, 0.5],
-	                 4: [0.0, 0.25, 0.5, 1.0],
-	                 5: [0.25, 0.5, 0.5, 1.0],
-	                 6: [0.5, 0.75, 0.5, 1.0],
-	                 7: [0.75, 1.0, 0.5, 1.0]},
-	             10: {0:[0.0, 0.2, 0.0, 0.5],
-	                 1: [0.2, 0.4, 0.0, 0.5],
-	                 2: [0.4, 0.6, 0.0, 0.5],
-					 3: [0.6, 0.8, 0.0, 0.5],
-	                 4: [0.8, 1.0, 0.0, 0.5],
-	                 5: [0.0, 0.2, 0.5, 1.0],
-	                 6: [0.2, 0.4, 0.5, 1.0],
-	                 7: [0.4, 0.6, 0.5, 1.0],
-					 8: [0.6, 0.8, 0.5, 1.0],
-	                 9: [0.8, 1.0, 0.5, 1.0]},
-	             12: {0: [0.0, 0.166, 0.0, 0.5],
-	                  1: [0.166, 0.333, 0.0, 0.5],
-	                  2: [0.333, 0.5, 0.0, 0.5],
-	                  3: [0.5, 0.666, 0.0, 0.5],
-	                  4: [0.666, 0.833, 0.0, 0.5],
-	                  5: [0.833, 1.0, 0.0, 0.5],
-	                  6: [0.0, 0.166, 0.50, 1.0],
-	                  7: [0.166, 0.333, 0.50, 1.0],
-	                  8: [0.333, 0.5, 0.50, 1.0],
-	                  9: [0.5, 0.666, 0.50, 1.0],
-	                  10: [0.666, 0.833, 0.50, 1.0],
-	                  11: [0.833, 1.0, 0.50, 1.0]},
+					1: [0.5, 1.0, 0.0, 1.0]},
+				4: {0: [0.0, 0.5, 0.0, 0.5],
+					1: [0.5, 1.0, 0.0, 0.5],
+					2: [0.0, 0.5, 0.5, 1.0],
+					3: [0.5, 1.0, 0.5, 1.0]},
+				6: {0: [0.0, 0.333, 0.0, 0.5],
+					1: [0.333, 0.667, 0.0, 0.5],
+					2: [0.667, 1.0, 0.0, 0.5],
+					3: [0.0, 0.333, 0.5, 1.0],
+					4: [0.333, 0.667, 0.5, 1.0],
+					5: [0.667, 1.0, 0.5, 1.0]},
+				8: {0: [0.0, 0.25, 0.0, 0.5],
+					1: [0.25, 0.5, 0.0, 0.5],
+					2: [0.5, 0.75, 0.0, 0.5],
+					3: [0.75, 1.0, 0.0, 0.5],
+					4: [0.0, 0.25, 0.5, 1.0],
+					5: [0.25, 0.5, 0.5, 1.0],
+					6: [0.5, 0.75, 0.5, 1.0],
+					7: [0.75, 1.0, 0.5, 1.0]},
+				10: {0:[0.0, 0.2, 0.0, 0.5],
+					1: [0.2, 0.4, 0.0, 0.5],
+					2: [0.4, 0.6, 0.0, 0.5],
+					3: [0.6, 0.8, 0.0, 0.5],
+					4: [0.8, 1.0, 0.0, 0.5],
+					5: [0.0, 0.2, 0.5, 1.0],
+					6: [0.2, 0.4, 0.5, 1.0],
+					7: [0.4, 0.6, 0.5, 1.0],
+					8: [0.6, 0.8, 0.5, 1.0],
+					9: [0.8, 1.0, 0.5, 1.0]},
+				12: {0: [0.0, 0.166, 0.0, 0.5],
+						1: [0.166, 0.333, 0.0, 0.5],
+						2: [0.333, 0.5, 0.0, 0.5],
+						3: [0.5, 0.666, 0.0, 0.5],
+						4: [0.666, 0.833, 0.0, 0.5],
+						5: [0.833, 1.0, 0.0, 0.5],
+						6: [0.0, 0.166, 0.50, 1.0],
+						7: [0.166, 0.333, 0.50, 1.0],
+						8: [0.333, 0.5, 0.50, 1.0],
+						9: [0.5, 0.666, 0.50, 1.0],
+						10: [0.666, 0.833, 0.50, 1.0],
+						11: [0.833, 1.0, 0.50, 1.0]},
 		}
 	else:
 		templates =  {2: {0: [0.0, 1.0, 0.0, 0.5],
-	                 1: [0.0, 1.0, 0.5, 1.0]},
-				 3: {0: [0.0, 1.0, 0.0, 0.334],
-	                 1: [0.0, 1.0, 0.334, 0.667],
-					 2: [0.0, 1.0, 0.667, 1.0]},
-				 6: {0: [0.0, 0.5, 0.0, 0.334],
-				 	 1: [0.5, 1.0, 0.0, 0.334],
-	                 2: [0.0, 0.5, 0.334, 0.667],
-					 3: [0.5, 1.0, 0.334, 0.667],
-					 4: [0.0, 0.5, 0.667, 1.0],
-					 5: [0.5, 1.0, 0.667, 1.0]},
-	             9: {0: [0.0, 0.334, 0.0, 0.334],
-				 	 1: [0.334, 0.667, 0.0, 0.334],
-					 2: [0.667, 1.0, 0.0, 0.334],
-	                 3: [0.0, 0.334, 0.334, 0.667],
-					 4: [0.334, 0.667, 0.334, 0.667],
-					 5: [0.667, 1.0, 0.334, 0.667],
-					 6: [0.0, 0.334, 0.667, 1.0],
-					 7: [0.334, 0.667, 0.667, 1.0],
-					 8: [0.667, 1.0, 0.667, 1.0]},
-				 12: {0: [0.0, 0.25, 0.0, 0.334],
-	                  1: [0.25, 0.50, 0.0, 0.334],
-					  2: [0.50, 0.75, 0.0, 0.334],
-					  3: [0.75, 1.0, 0.0, 0.334],
-	                  4: [0.0, 0.25, 0.334, 0.667],
-					  5: [0.25, 0.50, 0.334, 0.667],
-					  6: [0.50, 0.75, 0.334, 0.667],
-					  7: [0.75, 1.0, 0.334, 0.667],
-					  8: [0.0, 0.25, 0.667, 1.0],
-					  9: [0.25, 0.50, 0.667, 1.0],
-					  10: [0.50, 0.75, 0.667, 1.0],
-	                  11: [0.75, 1.0, 0.667, 1.0]},
-	             15: {0: [0.0, 0.2, 0.0, 0.334],
-	                  1: [0.2, 0.4, 0.0, 0.334],
-					  2: [0.4, 0.6, 0.0, 0.334],
-					  3: [0.6, 0.8, 0.0, 0.334],
-					  4: [0.8, 1.0, 0.0, 0.334],
-	                  5: [0.0, 0.2, 0.334, 0.667],
-					  6: [0.2, 0.4, 0.334, 0.667],
-					  7: [0.4, 0.6, 0.334, 0.667],
-					  8: [0.6, 0.8, 0.334, 0.667],
-					  9: [0.8, 1.0, 0.334, 0.667],
-					  10: [0.0, 0.2, 0.667, 1.0],
-					  11: [0.2, 0.4, 0.667, 1.0],
-					  12: [0.4, 0.6, 0.667, 1.0],
-					  13: [0.6, 0.8, 0.667, 1.0],
-	                  14: [0.8, 1.0, 0.667, 1.0]},
+					1: [0.0, 1.0, 0.5, 1.0]},
+				3: {0: [0.0, 1.0, 0.0, 0.334],
+					1: [0.0, 1.0, 0.334, 0.667],
+					2: [0.0, 1.0, 0.667, 1.0]},
+				6: {0: [0.0, 0.5, 0.0, 0.334],
+					1: [0.5, 1.0, 0.0, 0.334],
+					2: [0.0, 0.5, 0.334, 0.667],
+					3: [0.5, 1.0, 0.334, 0.667],
+					4: [0.0, 0.5, 0.667, 1.0],
+					5: [0.5, 1.0, 0.667, 1.0]},
+				9: {0: [0.0, 0.334, 0.0, 0.334],
+					1: [0.334, 0.667, 0.0, 0.334],
+					2: [0.667, 1.0, 0.0, 0.334],
+					3: [0.0, 0.334, 0.334, 0.667],
+					4: [0.334, 0.667, 0.334, 0.667],
+					5: [0.667, 1.0, 0.334, 0.667],
+					6: [0.0, 0.334, 0.667, 1.0],
+					7: [0.334, 0.667, 0.667, 1.0],
+					8: [0.667, 1.0, 0.667, 1.0]},
+				12: {0: [0.0, 0.25, 0.0, 0.334],
+						1: [0.25, 0.50, 0.0, 0.334],
+						2: [0.50, 0.75, 0.0, 0.334],
+						3: [0.75, 1.0, 0.0, 0.334],
+						4: [0.0, 0.25, 0.334, 0.667],
+						5: [0.25, 0.50, 0.334, 0.667],
+						6: [0.50, 0.75, 0.334, 0.667],
+						7: [0.75, 1.0, 0.334, 0.667],
+						8: [0.0, 0.25, 0.667, 1.0],
+						9: [0.25, 0.50, 0.667, 1.0],
+						10: [0.50, 0.75, 0.667, 1.0],
+						11: [0.75, 1.0, 0.667, 1.0]},
+				15: {0: [0.0, 0.2, 0.0, 0.334],
+						1: [0.2, 0.4, 0.0, 0.334],
+						2: [0.4, 0.6, 0.0, 0.334],
+						3: [0.6, 0.8, 0.0, 0.334],
+						4: [0.8, 1.0, 0.0, 0.334],
+						5: [0.0, 0.2, 0.334, 0.667],
+						6: [0.2, 0.4, 0.334, 0.667],
+						7: [0.4, 0.6, 0.334, 0.667],
+						8: [0.6, 0.8, 0.334, 0.667],
+						9: [0.8, 1.0, 0.334, 0.667],
+						10: [0.0, 0.2, 0.667, 1.0],
+						11: [0.2, 0.4, 0.667, 1.0],
+						12: [0.4, 0.6, 0.667, 1.0],
+						13: [0.6, 0.8, 0.667, 1.0],
+						14: [0.8, 1.0, 0.667, 1.0]},
 		}
 	# End of template data.
 	if iNumRegionsForShape > (max(templates.keys()) + 1):
@@ -596,51 +596,51 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			elif (iWidth > region_duplicated[3]) and ((iWidth > region_duplicated[3]) < region_duplicated[3]) : 
 				region_duplicated = [region_loop, iWestX, iSouthY, iWidth, iHeight]
 
-                region_roll = region_duplicated[0]
-                thisRegion = remaining_regions[region_roll]
-                regions_in_use.append(thisRegion)
-                del remaining_regions[region_roll]
+		region_roll = region_duplicated[0]
+		thisRegion = remaining_regions[region_roll]
+		regions_in_use.append(thisRegion)
+		del remaining_regions[region_roll]
 
-                # Region dimensions
-                [fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
-                iWestX = int(self.iW * fWestLon)
-                iEastX = int(self.iW * fEastLon) - 1
-                iSouthY = int(self.iH * fSouthLat)
-                iNorthY = int(self.iH * fNorthLat) -1
-                iWidth = iEastX - iWestX + 1
-                iHeight = iNorthY - iSouthY + 1
+		# Region dimensions
+		[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
+		iWestX = int(self.iW * fWestLon)
+		iEastX = int(self.iW * fEastLon) - 1
+		iSouthY = int(self.iH * fSouthLat)
+		iNorthY = int(self.iH * fNorthLat) -1
+		iWidth = iEastX - iWestX + 1
+		iHeight = iNorthY - iSouthY + 1
 
-                # Each landmass only takes up approximately 64% of the space in its region.
-                # This space is further divided between land and water.
-                # Choose a pattern for this region
-                landPattern = self.dice.get(3, "Land Pattern - Grid PYTHON")
-                if landPattern == 1: # Tall
-					regWestX = iWestX + int(iWidth * 0.18)
-					regSouthY = iSouthY
-					regWidth = int(iWidth * 0.64)
-					regHeight = iHeight
-                elif landPattern == 2: # Wide
-					regWestX = iWestX
-					regSouthY = iSouthY + int(iHeight * 0.18)
-					regWidth = iWidth
-					regHeight = int(iHeight * 0.64)
-                else: # landPattern == 0, Square
-					regWestX = iWestX + int(iWidth * 0.1)
-					regSouthY = iSouthY + int(iHeight * 0.1)
-					regWidth = int(iWidth * 0.8)
-					regHeight = int(iHeight * 0.8)
+		# Each landmass only takes up approximately 64% of the space in its region.
+		# This space is further divided between land and water.
+		# Choose a pattern for this region
+		landPattern = self.dice.get(3, "Land Pattern - Grid PYTHON")
+		if landPattern == 1: # Tall
+			regWestX = iWestX + int(iWidth * 0.18)
+			regSouthY = iSouthY
+			regWidth = int(iWidth * 0.64)
+			regHeight = iHeight
+		elif landPattern == 2: # Wide
+			regWestX = iWestX
+			regSouthY = iSouthY + int(iHeight * 0.18)
+			regWidth = iWidth
+			regHeight = int(iHeight * 0.64)
+		else: # landPattern == 0, Square
+			regWestX = iWestX + int(iWidth * 0.1)
+			regSouthY = iSouthY + int(iHeight * 0.1)
+			regWidth = int(iWidth * 0.8)
+			regHeight = int(iHeight * 0.8)
 
-                self.generatePlotsInRegion(45 + sea, regWidth, regHeight, regWestX, regSouthY, 1, 4, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
+		self.generatePlotsInRegion(45 + sea, regWidth, regHeight, regWestX, regSouthY, 1, 4, self.iRoundFlags, self.iTerrainFlags, 6, 6, True, 3, -1, False, False)
 
-                # Core fractal to increase cohesion
-                coreWestX = regWestX + int(regWidth * 0.25)
-                coreEastX = coreWestX + int(regWidth * 0.5)
-                coreSouthY = regSouthY + int(regHeight * 0.25)
-                coreNorthY = coreSouthY + int(regHeight * 0.5)
-                coreWidth = coreEastX - coreWestX + 1
-                coreHeight = coreNorthY - coreSouthY + 1
+		# Core fractal to increase cohesion
+		coreWestX = regWestX + int(regWidth * 0.25)
+		coreEastX = coreWestX + int(regWidth * 0.5)
+		coreSouthY = regSouthY + int(regHeight * 0.25)
+		coreNorthY = coreSouthY + int(regHeight * 0.5)
+		coreWidth = coreEastX - coreWestX + 1
+		coreHeight = coreNorthY - coreSouthY + 1
 
-                self.generatePlotsInRegion(25, coreWidth, coreHeight, coreWestX, coreSouthY, 1, 3, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 3, -1, False, False)
+		self.generatePlotsInRegion(25, coreWidth, coreHeight, coreWestX, coreSouthY, 1, 3, self.iHorzFlags, self.iTerrainFlags, 5, 5, True, 3, -1, False, False)
 
 		#2.21z - the 'Open part'
 		if (CyMap().getCustomMapOption(1) == 0):
@@ -876,16 +876,16 @@ def assignStartingPlots():
 				3: [0.15, 0.17], #added penny
 				4: [0.15, 0.15],
 				5: [0.125, 0.16], #added penny
-	            6: [0.1, 0.15],
+				6: [0.1, 0.15],
 				7: [0.08, 0.15], #added penny
-	            8: [0.07, 0.15],
-	            9: [0.1, 0.1],
+				8: [0.07, 0.15],
+				9: [0.1, 0.1],
 				10: [0.09, 0.1], #added penny
 				11: [0.08, 0.1], #added penny
-	            12: [0.07, 0.1],
-	            15: [0.06, 0.1],
-	            16: [0.07, 0.07],
-	            18: [0.05, 0.1]}
+				12: [0.07, 0.1],
+				15: [0.06, 0.1],
+				16: [0.07, 0.07],
+				18: [0.05, 0.1]}
 	[minLon, minLat] = minimums[iNumRegions]
 	minX = max(3, int(minLon * iW))
 	minY = max(3, int(minLat * iH))
@@ -969,9 +969,9 @@ def assignStartingPlots():
 					break
 		# Store infos to regional lists.
 		region_data[thisRegion] = [iWestX, iEastX, iSouthY, iNorthY, 
-								   iNumLandPlots, iNumCoastalPlots,
-								   iNumOceanPlots, iRegionNetYield,
-								   iNumLandAreas, iNumPlotsinRegion]
+									iNumLandPlots, iNumCoastalPlots,
+									iNumOceanPlots, iRegionNetYield,
+									iNumLandAreas, iNumPlotsinRegion]
 		region_best_areas[thisRegion] = best_areas
 		region_yields.append(iRegionNetYield)
 		sorting_regions.append(iRegionNetYield)
@@ -1406,115 +1406,115 @@ def isBonusIgnoreLatitude():
 	return True
 
 def mirrorizeMap():
-        global region_duplicated
-        global other_regions
+	global region_duplicated
+	global other_regions
 	gc = CyGlobalContext()
 	map = CyMap()
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 
-        region_duplicated_ID, iWestX, iSouthY, iWidth, iHeight = region_duplicated
-        #make sure larger duplicated land doesn't get extra bonuses/goodies
-        minW = min([item[3] for item in other_regions])
-        minH = min([item[4] for item in other_regions])
+	region_duplicated_ID, iWestX, iSouthY, iWidth, iHeight = region_duplicated
+	#make sure larger duplicated land doesn't get extra bonuses/goodies
+	minW = min([item[3] for item in other_regions])
+	minH = min([item[4] for item in other_regions])
 
 	for iX in range(iW):
 		for iY in range(iH):
-                        if iX >= iWestX and iX < iWestX + minW and iY >= iSouthY and iY < iSouthY + minH :
-                        	continue
+			if iX >= iWestX and iX < iWestX + minW and iY >= iSouthY and iY < iSouthY + minH :
+				continue
 			pPlot = map.plot(iX, iY)
 
 			pPlot.setImprovementType(-1)
 			pPlot.setBonusType(-1)	
 			pPlot.setFeatureType(-1, -1)
 			pPlot.setNOfRiver(False, CardinalDirectionTypes.CARDINALDIRECTION_WEST)
-                        pPlot.setWOfRiver(False, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
-                        pPlot.setRiverID (-1)
+			pPlot.setWOfRiver(False, CardinalDirectionTypes.CARDINALDIRECTION_NORTH)
+			pPlot.setRiverID (-1)
 
-        #reflect plot types (addlake)
+	#reflect plot types (addlake)
 	for region_ID, wX, sY, rW, rH in other_regions:
-                for dX in range(rW):
-                        for dY in range(rH):
-                                pPlot = map.plot(wX + dX, sY + dY)
-                                rPlot = map.plot(iWestX + dX, iSouthY + dY)
-                                pPlot.setPlotType(rPlot.getPlotType(), True, True)
+		for dX in range(rW):
+			for dY in range(rH):
+				pPlot = map.plot(wX + dX, sY + dY)
+				rPlot = map.plot(iWestX + dX, iSouthY + dY)
+				pPlot.setPlotType(rPlot.getPlotType(), True, True)
 
 	map.recalculateAreas()
 
-        #reflect terrain
+	#reflect terrain
 	for region_ID, wX, sY, rW, rH in other_regions:
-                for dX in range(rW):
-                        for dY in range(rH):
-                                pPlot = map.plot(wX + dX, sY + dY)
-                                rPlot = map.plot(iWestX + dX, iSouthY + dY)
-                                pPlot.setTerrainType(rPlot.getTerrainType(), True, True)
+		for dX in range(rW):
+			for dY in range(rH):
+				pPlot = map.plot(wX + dX, sY + dY)
+				rPlot = map.plot(iWestX + dX, iSouthY + dY)
+				pPlot.setTerrainType(rPlot.getTerrainType(), True, True)
 
 	map.recalculateAreas()
 
-        #rearrange river IDs
+	#rearrange river IDs
 	initRiverID = 0
 	riverID = {}
-        for dX in range(iWidth):
-                for dY in range(iHeight):
-                        pPlot = map.plot(iWestX + dX, iSouthY + dY)
-                        rID = pPlot.getRiverID()
-                        if rID != -1 :
-                                if rID in riverID.keys() :
-                                        pPlot.setRiverID(riverID[rID])
-                                else :
-                                        riverID[rID] = initRiverID
-                                        pPlot.setRiverID(riverID[rID])
-                                        initRiverID += 1
+	for dX in range(iWidth):
+		for dY in range(iHeight):
+			pPlot = map.plot(iWestX + dX, iSouthY + dY)
+			rID = pPlot.getRiverID()
+			if rID != -1 :
+				if rID in riverID.keys() :
+					pPlot.setRiverID(riverID[rID])
+				else :
+					riverID[rID] = initRiverID
+					pPlot.setRiverID(riverID[rID])
+					initRiverID += 1
 
-        iRivers = len(riverID.keys())
-        incr = 0
+	iRivers = len(riverID.keys())
+	incr = 0
 
-        #mirrorize rivers
+	#mirrorize rivers
 	for region_ID, wX, sY, rW, rH in other_regions:
-                incr += 1
-                for dX in range(rW):
-                        for dY in range(rH):
-                                pPlot = map.plot(wX + dX, sY + dY)
-                                rPlot = map.plot(iWestX + dX, iSouthY + dY)
+		incr += 1
+		for dX in range(rW):
+			for dY in range(rH):
+				pPlot = map.plot(wX + dX, sY + dY)
+				rPlot = map.plot(iWestX + dX, iSouthY + dY)
 
-                                if rPlot.isNOfRiver():
-                                        pPlot.setNOfRiver(True, rPlot.getRiverWEDirection())
-                                if rPlot.isWOfRiver():
-                                        pPlot.setWOfRiver(True, rPlot.getRiverNSDirection())
+				if rPlot.isNOfRiver():
+					pPlot.setNOfRiver(True, rPlot.getRiverWEDirection())
+				if rPlot.isWOfRiver():
+					pPlot.setWOfRiver(True, rPlot.getRiverNSDirection())
 
-                                rID = rPlot.getRiverID()
-                                if rID != -1 :
-                                        pPlot.setRiverID(rID + incr * iRivers)
+				rID = rPlot.getRiverID()
+				if rID != -1 :
+					pPlot.setRiverID(rID + incr * iRivers)
 
 	map.recalculateAreas()
 
 	# mirrorize features
 	for region_ID, wX, sY, rW, rH in other_regions:
-                for dX in range(rW):
-                        for dY in range(rH):
-                                pPlot = map.plot(wX + dX, sY + dY)
-                                rPlot = map.plot(iWestX + dX, iSouthY + dY)
-        			pPlot.setFeatureType(rPlot.getFeatureType(), -1)
+		for dX in range(rW):
+			for dY in range(rH):
+				pPlot = map.plot(wX + dX, sY + dY)
+				rPlot = map.plot(iWestX + dX, iSouthY + dY)
+				pPlot.setFeatureType(rPlot.getFeatureType(), -1)
 
 	map.recalculateAreas()
 
 	# mirrorize bonuses
 	for region_ID, wX, sY, rW, rH in other_regions:
-                for dX in range(rW):
-                        for dY in range(rH):
-                                pPlot = map.plot(wX + dX, sY + dY)
-                                rPlot = map.plot(iWestX + dX, iSouthY + dY)
-        			pPlot.setBonusType(rPlot.getBonusType(-1))	
+		for dX in range(rW):
+			for dY in range(rH):
+				pPlot = map.plot(wX + dX, sY + dY)
+				rPlot = map.plot(iWestX + dX, iSouthY + dY)
+				pPlot.setBonusType(rPlot.getBonusType(-1))
 
 	map.recalculateAreas()
 
 	# mirrorize goodies
 	for region_ID, wX, sY, rW, rH in other_regions:
-                for dX in range(rW):
-                        for dY in range(rH):
-                                pPlot = map.plot(wX + dX, sY + dY)
-                                rPlot = map.plot(iWestX + dX, iSouthY + dY)
-        			pPlot.setImprovementType(rPlot.getImprovementType())
+		for dX in range(rW):
+			for dY in range(rH):
+				pPlot = map.plot(wX + dX, sY + dY)
+				rPlot = map.plot(iWestX + dX, iSouthY + dY)
+				pPlot.setImprovementType(rPlot.getImprovementType())
 
 	map.recalculateAreas()
 

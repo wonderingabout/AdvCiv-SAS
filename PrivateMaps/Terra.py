@@ -349,8 +349,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 		self.generatePlotsInRegion(twWater, twWidth, twHeight, twWestX, twSouthY, twGrain, archGrain, self.iHorzFlags, self.iTerrainFlags, 6, 5, True, 5, twRift, False, False)
 
- 		# Now simulate Central America
- 		nwcVar = 0.0
+		# Now simulate Central America
+		nwcVar = 0.0
 		if nwsRoll == 1:
 			nwcVar = 0.04
 		nwcWidth = int(self.iW * 0.06)
@@ -368,7 +368,7 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		self.generatePlotsInRegion(nwcWater, nwcWidth, nwcHeight, nwcWestX, nwcSouthY, nwcGrain, archGrain, self.iVertFlags, self.iTerrainFlags, 6, 5, True, 5, nwcRift, False, False)
 
 		# Now the Carribean islands
- 		carVar = 0.0
+		carVar = 0.0
 		if nwsRoll == 1:
 			carVar = 0.15
 		twWidth = int(0.15 * self.iW)

@@ -4477,7 +4477,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
 		for i in range(DirectionTypes.NUM_DIRECTION_TYPES):
 			loopPlot = plotDirection(x, y, DirectionTypes(i))
 			if loopPlot.getBonusType(TeamTypes.NO_TEAM) != BonusTypes.NO_BONUS and loopPlot.getBonusType(TeamTypes.NO_TEAM) != eBonus:
-			   return False
+				return False
 		bonusInfo = gc.getBonusInfo(eBonus)
 		classInfo = gc.getBonusClassInfo(bonusInfo.getBonusClassType())
 		if plot.isWater():
@@ -6657,7 +6657,7 @@ def addFeatures():
 			elif tm.tData[i] == mc.TUNDRA:
 				coldTiles.append(cm.TemperatureMap.data[i])
 	treeLineTemp = FindValueFromPercent(coldTiles, len(coldTiles), mc.TreelinePercent, True)
-	 # </advc>
+	# </advc>
 	deciduousTemp = FindValueFromPercent(forestTiles, forestLength, mc.DeciduousPercent, True)
 
 	#print "Oasis"

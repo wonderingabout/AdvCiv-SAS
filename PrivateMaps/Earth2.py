@@ -739,8 +739,8 @@ def generatePlotTypes():
     return plotgen.generatePlotsByRegion()
 
 class Earth2TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
-        def __init__(self, iDesertPercent=40, iPlainsPercent=26, fSnowLatitude=0.82, fTundraLatitude=0.75, fGrassLatitude=0.1, fDesertBottomLatitude=0.1, fDesertTopLatitude=0.3, fracXExp=-1, fracYExp=-1, grain_amount=3):
-                self.gc = CyGlobalContext()
+	def __init__(self, iDesertPercent=40, iPlainsPercent=26, fSnowLatitude=0.82, fTundraLatitude=0.75, fGrassLatitude=0.1, fDesertBottomLatitude=0.1, fDesertTopLatitude=0.3, fracXExp=-1, fracYExp=-1, grain_amount=3):
+		self.gc = CyGlobalContext()
 		self.map = CyMap()
 
 		grain_amount += self.gc.getWorldInfo(self.map.getWorldSize()).getTerrainGrainChange()

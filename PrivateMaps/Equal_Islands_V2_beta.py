@@ -534,9 +534,9 @@ def assignStartingPlots():
 					break
 		# Store infos to regional lists.
 		region_data[thisRegion] = [iWestX, iEastX, iSouthY, iNorthY, 
-		                           iNumLandPlots, iNumCoastalPlots,
-		                           iNumOceanPlots, iRegionNetYield,
-		                           iNumLandAreas, iNumPlotsinRegion]
+			iNumLandPlots, iNumCoastalPlots,
+			iNumOceanPlots, iRegionNetYield,
+			iNumLandAreas, iNumPlotsinRegion]
 		region_best_areas[thisRegion] = best_areas
 		region_yields.append(iRegionNetYield)
 		sorting_regions.append(iRegionNetYield)

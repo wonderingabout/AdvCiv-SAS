@@ -130,12 +130,12 @@ def beforeGeneration():
 		return
 
 	# Set up "Crazy" resources.
-		food_list = ["BONUS_BANANA", "BONUS_MAIZE", "BONUS_PIG", "BONUS_RICE", "BONUS_SHEEP", "BONUS_WHEAT"]
-		luxury_list = ["BONUS_GEMSTONES", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_SILK", "BONUS_SILVER", "BONUS_GRAPES"]
-		strategic_list = ["BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_ELEPHANTS", "BONUS_MARBLE", "BONUS_STONE"]
-		late_list = ["BONUS_ALUMINUM", "BONUS_COAL", "BONUS_OIL", "BONUS_URANIUM"]
-		sea_list = ["BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_WHALE"]
-		leftovers_list = ["BONUS_DYE", "BONUS_FUR", "BONUS_SPICES", "BONUS_SUGAR", "BONUS_CATTLE", "BONUS_DEER"]
+	food_list = ["BONUS_BANANA", "BONUS_MAIZE", "BONUS_PIG", "BONUS_RICE", "BONUS_SHEEP", "BONUS_WHEAT"]
+	luxury_list = ["BONUS_GEMSTONES", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_SILK", "BONUS_SILVER", "BONUS_GRAPES"]
+	strategic_list = ["BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_ELEPHANTS", "BONUS_MARBLE", "BONUS_STONE"]
+	late_list = ["BONUS_ALUMINUM", "BONUS_COAL", "BONUS_OIL", "BONUS_URANIUM"]
+	sea_list = ["BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_WHALE"]
+	leftovers_list = ["BONUS_DYE", "BONUS_FUR", "BONUS_SPICES", "BONUS_SUGAR", "BONUS_CATTLE", "BONUS_DEER"]
 
 	# Choose the four "Crazy" resources.
 	gc = CyGlobalContext()
@@ -600,16 +600,16 @@ def afterGeneration():
 			for crazy_bonus in crazy_types:
 				type_string = gc.getBonusInfo(crazy_bonus).getType()
 				if type_string == crazy_food:
-					 if (crazyVal >= crazyTwo and crazyVal < crazyThree) and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")):
+					if (crazyVal >= crazyTwo and crazyVal < crazyThree) and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")):
 						map.plot(x,y).setBonusType(crazy_bonus)
 				if type_string == crazy_luxury:
-					 if (crazyVal >= crazyFour and crazyVal < crazyFive) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
+					if (crazyVal >= crazyFour and crazyVal < crazyFive) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
 						map.plot(x,y).setBonusType(crazy_bonus)
 				if type_string == crazy_strategic:
-					 if (crazyVal >= crazyThree and crazyVal < crazyFour) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
+					if (crazyVal >= crazyThree and crazyVal < crazyFour) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
 						map.plot(x,y).setBonusType(crazy_bonus)
 				if type_string == crazy_late_game:
-					 if (crazyVal >= crazyOne and crazyVal < crazyTwo) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
+					if (crazyVal >= crazyOne and crazyVal < crazyTwo) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
 						map.plot(x,y).setBonusType(crazy_bonus)
 	# Finito
 	return None

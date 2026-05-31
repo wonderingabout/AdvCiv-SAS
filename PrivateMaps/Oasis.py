@@ -320,30 +320,30 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		for x in range(self.iW):
 			for y in range(self.iH):
 				i = y*self.iW + x
-        			if self.wholeworldPlotTypes[i] == PlotTypes.PLOT_OCEAN:
-        				continue
-        			else:
-        				hillVal = hillsFrac.getHeight(x,y)
-        				if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
-        					peakVal = peaksFrac.getHeight(x,y)
-        					if (peakVal <= iPeakThreshold):
-        						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_PEAK
-        					else:
-        						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_HILLS
-        				else:
-        					pass
+				if self.wholeworldPlotTypes[i] == PlotTypes.PLOT_OCEAN:
+					continue
+				else:
+					hillVal = hillsFrac.getHeight(x,y)
+					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
+						peakVal = peaksFrac.getHeight(x,y)
+						if (peakVal <= iPeakThreshold):
+							self.wholeworldPlotTypes[i] = PlotTypes.PLOT_PEAK
+						else:
+							self.wholeworldPlotTypes[i] = PlotTypes.PLOT_HILLS
+					else:
+						pass
 
 		return self.wholeworldPlotTypes
 
 def generatePlotTypes():
-        NiTextOut("Setting Plot Types (Python Oasis) ...")
-        # Call generatePlotsByRegion() function from MultilayeredFractal subclass.
-        #
-        # To adapt to other scripts, use the original version instead of the one
-        # customized for this script.
-        global plotgen
-        plotgen = OasisMultilayeredFractal()
-        return plotgen.generatePlotsByRegion()
+	NiTextOut("Setting Plot Types (Python Oasis) ...")
+	# Call generatePlotsByRegion() function from MultilayeredFractal subclass.
+	#
+	# To adapt to other scripts, use the original version instead of the one
+	# customized for this script.
+	global plotgen
+	plotgen = OasisMultilayeredFractal()
+	return plotgen.generatePlotsByRegion()
 
 # subclass TerrainGenerator to redefine everything. This is a regional map. Ice need not apply!
 # Latitudes, ratios, the works... It's all rewired. - Sirian June 20, 2005
