@@ -853,13 +853,13 @@ note: modified button path in code below to a button path known to exist in base
 			for k in range(YieldTypes.NUM_YIELD_TYPES):
 				iYieldModifier = buildingInfo.getYieldModifier(k)
 				iPowerYieldModifier = buildingInfo.getPowerYieldModifier(k)
-				
+
 				# Total modifier (regular + power)
 				iTotalYieldModifier = iYieldModifier + iPowerYieldModifier
-				
+
 				if (iTotalYieldModifier != 0):
 					szText1 = ""
-					
+
 					# Base modifier part
 					if (iYieldModifier != 0):
 						if (iYieldModifier > 0):
@@ -867,7 +867,7 @@ note: modified button path in code below to a button path known to exist in base
 						else:
 							szSign = ""
 						szText1 = szSign + str(iYieldModifier) + "%"
-					
+
 					# Power modifier part (optional, only if exists)
 					if (iPowerYieldModifier != 0):
 						if (len(szText1) > 0):
@@ -877,11 +877,11 @@ note: modified button path in code below to a button path known to exist in base
 						else:
 							szPowerSign = ""
 						szText1 += szPowerSign + str(iPowerYieldModifier) + "% with "
-						
+
 						# Add power button (using fictional path - replace with actual if found)
 						szPowerButton = u"<img=Art/Interface/Buttons/Buildings/Temple_Jewish.dds size=16></img>"
 						szText1 += szPowerButton
-					
+
 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
 					fillCell(screen, szText2, x, y)
 					x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)

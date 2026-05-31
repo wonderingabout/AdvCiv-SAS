@@ -121,7 +121,7 @@ i don't know why there is production, even from reading the 020 manual in the ni
 ===== \Assets\XML\Buildings\CIV4PlotLSystem.xml =====
 ----- Comment #15 -----
 <!-- Attribute Overview
-     
+
      On specific art:	ONE artref is picked as long as it satisfies all the subconstraints below
         Bonus
         Imporvement
@@ -130,13 +130,13 @@ i don't know why there is production, even from reading the 020 manual in the ni
 			bZMode_Ground	- if set, the builder will try to force the art to not z-write nor z-test
 			bIsPartOfImprovement, bIsPartOfBonus - when provided once during a plot build on any placed artref, this will
 			                                       prevent the LSystem from falling back to a fixed placement alg
-			
+
 	On nodes:
 		RegionTest			- if value is 1, then the node will be tested against cut regions when expanded
 							- if the value is 0 then this won't happen
 							- if value is 0NW then the node won't be region tested or water tested
 							- if the value is 1NW then the node will be region tested but won't be water tested
-		
+
      On productions:
         Bonus			- can be multiple, if any met constraint met, then the production is expandable
         Improvement		- as with bonus
@@ -144,7 +144,7 @@ i don't know why there is production, even from reading the 020 manual in the ni
 			bGoalOnly:1	- if true, then the production can only be expanded if we're in GOAL seek mode
 						- note, this does not prevent child nodes from being visited by DFS or BFS
 			bExtraGoalOnly:1	- same behavior as bGoalOnly, but when placing nodes defined by szExtra attributes on a goal artref
-			
+
 		-->
 
 ===== \Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml =====
@@ -1899,16 +1899,16 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 		- and finally too, not renaming specialists like/such as SPECIALIST_SCIENTIST to great scientist as they are a normal type of people not a great type of people not that they can't be great by themselves or in general or particular or not...
 		An exception or maybe indeed rather particular caseis the priest specialist, there is no great priest but a great prophet, should we rename these for consistency or keep as is? But then there is no great priest, and a normal prophet should be i think weird too (as they should be more unique and great by default/definition? Or maybe not or yes or and other or and not), leaving as is for now maybe makes sense or not,; but update even though i didn't send yet but update in my reasoning anyways that yes it makes so much more sense to have a great priest that lives for thousands of years, and matches the existing ("normal"/"default"/"standard"/"base" or and other or and not) priest specialist, so as said below the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist), got partially the idea from "Great Military instructor" that i wanted to change to "great general" like the other great people, but the distinction between great specialist and great unit makes sense, a general is also more supposed to be in battle (as a unit maybe and not in city as an instructor that gives XP to new units furthermore), and since i had the great priest confusion that is not a confusion but clarity i think maybe or not or yes, may apply it there too and rename now indeed rather the great prophet specialist to great priest, all the while keeping the great prophet unit as great prophet and not great priest, and update 2 after doing/looking at this change and as said in another code comment "specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me, see after this bracket for details: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s directionas is or not); and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully", as the shrine is unique and a prophet seemingly unique to a religion, hopefully makes much more sense and wraps it all now hopefully, at least to me makes sense
 		Another particular case is the great general, there are great general specialists (when they join a city), scientist(s) specialists, and great scientist specialists (when they join a city too), but another exception or particular case is that when a great prophet joins the city it (update: now) becomes a great priest which is (update: not) so weird and inconsistent, but makes sense in terms of gameplay maybe as a prophet can't live thousands of turns (update: yes i think so especially now), but a great priest could be repolaced as in renewed by/in succession/successor, so maybe leaving as is even though a bit weirdbut maybe makes sense though (but: no changing it actually, the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist).
-		
+
 		(note: it seems K-Mod's code comment also mistakenly mentioned UNITAI_MERCHANT while designating the great merchant not the merchant
-			
+
 		in (edited the comment chars/format/syntax from/in the quoted below code comment to not break our comment out syntax):
 			<Capture>NONE</Capture>
 			<Combat>NONE</Combat>
 			<Domain>DOMAIN_LAND</Domain>
 			< K-Mod: was UNITAI_GREAT_MERCHANT >
 			<DefaultUnitAI>UNITAI_GREAT_SPY</DefaultUnitAI>
-			
+
 		and in:
 			<FlankingStrikes/>
 			<UnitAIs>
@@ -1921,7 +1921,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
 		)
 
 		Added a code comment about these old kmod(?).
-		
+
 		So hopefully to "fix" these as in making them consistent again and hopefully clear and accurate.
 		-->
 
@@ -2606,7 +2606,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 
 	<!-- custom: Leader AI Cache:
 		0 = compute at runtime (still fairly fast, but needless computation: this ignores the predumped file (SevoPediaLeaderCachePredumped.py) and always recomputes the ai personality panel's values for the first time we access the Sevopedia leader panel, and the same again every time we start the game and do so again (i.e. computes only once during same session, not many times, and does not compute if we don't access Sevopedia leader, but still computes once every time we do for the first time during this session); optional for modders or temporarily for players who want to change some display options in the ai personality panel until they have updated the predump, then they can use 1 rather)
-		
+
 		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed, but if you want to change something like adding emojis in headers, changing any xml value in leader info, you need to manually update the predumped file (set this to 0 temporarily and when you have updated the file you can set this to 1 again if you want). -->
 
 ===== \Assets/XML/AI_Variables_GlobalDefines.xml =====
@@ -2820,7 +2820,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 
 <!-- custom: gather all base civ4 (vanilla or BTS alike) content in the same category, was "Game Concepts".
 	I prefer to keep the data as it can be useful/helpful to players maybe, and not delete it entirely, but clearly indicate (or more clearly indicate) that it is outdated.
-	
+
 	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove the burden for modders to maintain this page, as i think it is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
 	Also "BtS" is one character shorter than "Game", with the other advantage (i think) of being more indicative of the fact that it relates to base civ4 (vanilla or BTS or similar), and not to other mods info (for example K-Mod, AdvCiv, AdvCiv-SAS, etc). -->
 
@@ -3471,7 +3471,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 <!-- custom: do not rename the tag itself as we would have to recompile and may break compatibility with other mods, we mostly (just or not)
 	wanted to rename the tag of promotioninfo itself that is much more used and prone to confusing those who read it maybe, at least me, anyways.
 	We may also have to change it in a lot more places that we would want to or need to, for other promotions with a similar case of renaming.
-	
+
 	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
 	-->
 
@@ -3645,7 +3645,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Italian>Quando è selezionato, mostra la Scheda delle Statistiche nella versione migliorata del BUG Mod</Italian>
 		<Spanish>Muestra mejoras de casillas en la pestaña 'Estadísticas'.</Spanish>
 	</TEXT-->
-	
+
 	<!-- advc.004: No longer used -->
 	<!--TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_TEXT</Tag>
@@ -3824,7 +3824,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		<Italian>Periodo (in secondi)</Italian>
 		<Spanish>Período (en segundos)</Spanish>
 	</TEXT-->
-	
+
 	<!-- advc.067: Rewritten; old translations:
 		 <French>Sélectionnez la rythme à laquelle l'horloge alterne entre les deux vues.</French>
 		 <Italian>Determina perr quanti secondi viene visualizzata ciascuna delle due versioni dell'orologio (se la visualizzazione alternativa è abilitata).</Italian>

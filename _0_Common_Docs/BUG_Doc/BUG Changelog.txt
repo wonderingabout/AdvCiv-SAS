@@ -387,7 +387,7 @@ BUG 4.0 released August 16, 2009
 CHANGES
 
 	*** BULL: The BUG DLL ***
-	
+
 	This is an optional component that, once installed, enables the features listed below marked [BULL].
 	Any features that don't require BUG are not listed here. Refer to BULL's changelog for more information.
 

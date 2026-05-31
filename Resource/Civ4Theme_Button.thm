@@ -27,9 +27,9 @@ For information regarding GFC Commercial License Agreements go to:
 
 with GFC_Control_Button
 {
-	
+
 	// Default style
-	
+
 	GFC_Control_DefaultButton_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
@@ -54,11 +54,11 @@ with GFC_Control_Button
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER, GFC_CF_FORCE_ROLLOVER);
 		}
-					
+
 		with .Flag
 		{
 			// Button flags
@@ -103,15 +103,15 @@ with GFC_Control_Button
 			.DownOffset_Image					=	GPoint(0,1);
 			.ItemSpace							=	GFC_Control_Size_ItemSpace;
 			.Image								=	GSize(0,0);
-			
+
 			.Default							=	GSize(64,31);
 		}										
-													
+
 		with .Color									
 		{										
 			.Inner								=	GFC_Control_Color_Surface;
 			.Highlight							=	GColor(255,255,255,128);
-			
+
 			with .Text
 			{
 				.Default						=	SF_CtrlTheme_Civ4_Control_Color_AltText;
@@ -126,7 +126,7 @@ with GFC_Control_Button
 				.ToggleRollover					=	.Rollover;		
 				.ToggleFocus					=	.Focus;			
 				.ToggleFocusRollover			=	.FocusRollover;	
-													
+
 				.Inactive						=	.Default;	
 				.InactivePress					=	.Press;		
 				.InactiveDisable				=	.Disable;	
@@ -135,7 +135,7 @@ with GFC_Control_Button
 				.InactiveTogglePress			=	.TogglePress;		
 				.InactiveToggleDisable			=	.ToggleDisable;	
 				.InactiveToggleRollover			=	.ToggleRollover;	
-													
+
 				.Winoff							=	.Inactive;	
 				.WinoffPress					=	.InactivePress;		
 				.WinoffDisable					=	.InactiveDisable;	
@@ -160,7 +160,7 @@ with GFC_Control_Button
 				.ToggleRollover					=	.Rollover;		
 				.ToggleFocus					=	.Focus;			
 				.ToggleFocusRollover			=	.FocusRollover;	
-													
+
 				.Inactive						=	.Default;	
 				.InactivePress					=	.Press;		
 				.InactiveDisable				=	.Disable;	
@@ -169,7 +169,7 @@ with GFC_Control_Button
 				.InactiveTogglePress			=	.TogglePress;		
 				.InactiveToggleDisable			=	.ToggleDisable;	
 				.InactiveToggleRollover			=	.ToggleRollover;	
-													
+
 				.Winoff							=	.Inactive;	
 				.WinoffPress					=	.InactivePress;		
 				.WinoffDisable					=	.InactiveDisable;	
@@ -183,12 +183,12 @@ with GFC_Control_Button
 			.Image_Default						=	GFC_Control_Color_Image_Default;
 			.Image_Disable						=	GFC_Control_Color_Image_Disable;
 		}									
-												
+
 		with .Combine							
 		{									
 			.Inner_Dest							=	GFC_Control_Combine_Surface;	
 			.Inner_Factor						=	GColorCombine(Factor, Source);
-			
+
 			.Highlight_Dest						=	GColorCombine(BlendSource, Disable);
 			.Highlight_Factor					=	GColorCombine(Factor, Source);
 
@@ -196,12 +196,12 @@ with GFC_Control_Button
 			.Image_Default_Factor				=	GFC_Control_Combine_Image_Default_Factor;	
 			.Image_Disable_Dest					=	GFC_Control_Combine_Image_Disable_Dest;
 			.Image_Disable_Factor				=	GFC_Control_Combine_Image_Disable_Factor;	
-			
+
 			.Text_Default_Dest					=	GFC_Control_Combine_Text_Default_Dest;			
 			.Text_Default_Factor				=	GFC_Control_Combine_Text_Default_Factor;
 			.Text_Disable_Dest					=	GFC_Control_Combine_Text_Disable_Dest;
 			.Text_Disable_Factor				=	GFC_Control_Combine_Text_Disable_Factor;
-			
+
 			.TextShadow_Default_Dest			=	GFC_Control_Combine_TextShadow_Default_Dest;
 			.TextShadow_Default_Factor			=	GFC_Control_Combine_TextShadow_Default_Factor;
 			.TextShadow_Disable_Dest			=	GFC_Control_Combine_TextShadow_Disable_Dest;
@@ -223,15 +223,15 @@ with GFC_Control_Button
 			.ButtonPress					=	GInputBinding(GPropertyId(GFC_Input_Mouse_Message_OnDown), LeftButton,
 															  GPropertyId(GFC_Input_Mouse_Message_OnDblClick), LeftButton,
 															  GPropertyId(GFC_Input_Keyboard_Message_OnKeyDown), Space);
-																								
+
 			.ButtonCancel					=	GInputBinding(GPropertyId(GFC_Input_Keyboard_Message_OnKeyDown), Escape);
 
 			.ButtonExecute					=	GInputBinding(GPropertyId(GFC_Input_Keyboard_Message_OnKeyDown), Return);
-												
+
 			.ButtonRelease					=	GInputBinding(GPropertyId(GFC_Input_Mouse_Message_OnUp), LeftButton,
 															  GPropertyId(GFC_Input_Keyboard_Message_OnKeyUp), Space);
 		}									
-												
+
 		.Font_Text							=	SF_CtrlTheme_Civ4_Control_Font_Size3_Normal;
 
 
@@ -272,7 +272,7 @@ with GFC_Control_Button
 			.WinoffTogglePress								= 0;
 			.WinoffToggleDisable							= 0;
 			.WinoffToggleRollover							= 0;
-															
+
 			// Button icon (check or radio) skins			
 			.Image_Default									= 0;
 			.Image_Press									= 0;
@@ -306,7 +306,7 @@ with GFC_Control_Button
 			.Image_WinoffTogglePress						= 0;
 			.Image_WinoffToggleDisable						= 0;
 			.Image_WinoffToggleRollover						= 0;
-															
+
 			// Button focus skins							
 			.Focuser_Press									= 0;
 			.Focuser_Rollover								= 0;
@@ -332,16 +332,16 @@ with GFC_Control_Button
 	}	// end GFC_Control_DefaultButton_Style
 
 
-	
+
 	// *** Normal button style
 	// This style is used for the default stone style of buttons. 
 	// This uses the default text, which is mapped to a custom alt text style defined in common.
-	
+
 	GFC_Control_StandardButton_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
 		GFC_Control_Flag_Mask_InvalidateControl		=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
-		
+
 		.Size_BorderMargin							=	GRectMargin(10,6,10,3);
 
 		// Image skins
@@ -484,7 +484,7 @@ with GFC_Control_Button
 			.InactiveToggleRollover	= .ToggleRollover;
 			.InactiveTogglePress	= .TogglePress;
 			.InactiveToggleDisable	= .ToggleDisable;
-									
+
 			.Winoff					= .Default;
 			.WinoffRollover			= .Rollover;
 			.WinoffPress			= .Press;
@@ -494,7 +494,7 @@ with GFC_Control_Button
 			.WinoffTogglePress		= .TogglePress;
 			.WinoffToggleDisable	= .ToggleDisable;
 		}	
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Button					= GFC_Control_DefaultButton_Style;
 		map GFC_Control											= GFC_Control_DefaultButton_Style;
 	}
@@ -517,7 +517,7 @@ with GFC_Control_Button
 	GFC_Control_FlatButton_Style
 	{
 		GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-				
+
 		with .Color_Text
 			{
 				.Default						=	GFC_Control_Color_Text_Default;
@@ -582,7 +582,7 @@ with GFC_Control_Button
 	GFC_Control_LabelButton_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlLabel;
-											
+
 		.Size_BorderMargin							=	GRectMargin(2,2,2,2);
 
 		with .Flag							
@@ -591,7 +591,7 @@ with GFC_Control_Button
 			.Text_HAlign					= GFlags(GButtonCtrl, GFC_CF_BUTTON_TEXT_RIGHT);
 			.Text_VAlign					= GFlags(GButtonCtrl, GFC_CF_BUTTON_TEXT_VCENTER);
 		}
-		
+
 		with .Color_Text
 		{
 			.Default						=	GFC_Control_Color_Text_Default;
@@ -623,7 +623,7 @@ with GFC_Control_Button
 			.ToggleFocus					=	.Focus;			
 			.ToggleFocusRollover			=	.FocusRollover;	
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Button					= GFC_Control_FlatButton_Style;
 		map GFC_Control											= GFC_Control_FlatButton_Style;
 	}
@@ -632,10 +632,10 @@ with GFC_Control_Button
 	GFC_Control_ImageButton_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlImage;
-		
+
 		.Size_BorderMargin							=	GRectMargin(2,2,2,2);
-		
-		
+
+
 		with .Flag							
 		{								
 			.DownOffset						= GFlags(GButtonCtrl, GFC_CF_BUTTON_DOWNOFFSET_CONTENT);
@@ -678,24 +678,24 @@ with GFC_Control_Button
 		map GFC_CtrlTheme_Bitmap_Control_Button					= GFC_Control_StandardButton_Style;
 		map GFC_Control											= GFC_Control_StandardButton_Style;
 	}
-	
+
 	GFC_Control_LinkButton_Style
 	{
 		GFC_Control_Renderer_Control				=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlLink;
-		
+
 		.Renderer_Text								=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_TextLink;
 		.Flag_DownOffset							=	0;	//GFlags(GButtonCtrl, GFC_CF_BUTTON_DOWNOFFSET_CONTENT);
 
 		.Size_BorderMargin							=	GRectMargin(2,2,2,2);
-										
+
 		GFC_Control_Cursor_Default		=	GFC_Control_Cursor_Link;
-				
+
 		with .Cursor
 		{
 			.Press						=	GFC_Control_Cursor_Link;
 			.Tracking					=	GFC_Control_Cursor_Arrow;
 		}
-		
+
 		with .Color_Text
 		{
 			.Default					=	SF_CtrlTheme_Civ4_Control_Color_RollText;
@@ -710,7 +710,7 @@ with GFC_Control_Button
 			.ToggleRollover				=	.Rollover;		
 			.ToggleFocus				=	.Toggle;			
 			.ToggleFocusRollover		=	.ToggleRollover;
-										
+
 			.Inactive					=	.Default;	
 			.InactivePress				=	.Press;		
 			.InactiveDisable			=	.Disable;	
@@ -719,7 +719,7 @@ with GFC_Control_Button
 			.InactiveTogglePress		=	.TogglePress;		
 			.InactiveToggleDisable		=	.ToggleDisable;	
 			.InactiveToggleRollover		=	.ToggleRollover;
-										
+
 			.Winoff						=	.Inactive;	
 			.WinoffPress				=	.InactivePress;		
 			.WinoffDisable				=	.InactiveDisable;	
@@ -763,7 +763,7 @@ with GFC_Control_Button
 			.Disable					=	.Default;
 			.Focus						=	.Default;
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Button					= GFC_Control_StandardButton_Style;
 		map GFC_Control											= GFC_Control_StandardButton_Style;
 	}
@@ -871,7 +871,7 @@ with GFC_Control_Button
 			.InactiveToggleRollover	= .ToggleRollover;
 			.InactiveTogglePress	= .TogglePress;
 			.InactiveToggleDisable	= .ToggleDisable;
-									
+
 			.Winoff					= .Default;
 			.WinoffRollover			= .Rollover;
 			.WinoffPress			= .Press;
@@ -881,13 +881,13 @@ with GFC_Control_Button
 			.WinoffTogglePress		= .TogglePress;
 			.WinoffToggleDisable	= .ToggleDisable;
 		}
-			
+
 		map GFC_CtrlTheme_Bitmap_Control_Button					= GFC_Control_StandardButton_Style;
 		map GFC_Control											= GFC_Control_StandardButton_Style;
 	}
 
 
-	
+
 	// ** Normal Checkbox style
 
 	GFC_Control_StandardCheckBox_Style
@@ -902,7 +902,7 @@ with GFC_Control_Button
 			.Focus							=	0;	//GFlags(GButtonCtrl, GFC_CF_BUTTON_FOCUS_TEXT);
 			.DownOffset						=	GFlags(GButtonCtrl, GFC_CF_BUTTON_DOWNOFFSET_CONTENT);				
 		}							
-	
+
 		with .Size
 		{
 			// Border style side widths
@@ -928,7 +928,7 @@ with GFC_Control_Button
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;
 			.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;
 		}
-		
+
 		// Toggle State images
 		with GFC_CtrlTheme_Bitmap_Control_Button_Skin_Image
 		{
@@ -1100,7 +1100,7 @@ with GFC_Control_Button
 				}			
 			}	
 		}								
-											
+
 		map GFC_CtrlTheme_Bitmap_Control_Button		= GFC_Control_DefaultButton_Style;
 		map GFC_Control								= GFC_Control_DefaultButton_Style;
 	}
@@ -1120,7 +1120,7 @@ with GFC_Control_Button
 			.Focus							=	0;	//GFlags(GButtonCtrl, GFC_CF_BUTTON_FOCUS_TEXT);
 			.DownOffset						=	GFlags(GButtonCtrl, GFC_CF_BUTTON_DOWNOFFSET_CONTENT);
 		}								
-											
+
 		with .Size
 		{
 			// Border style side widths
@@ -1150,7 +1150,7 @@ with GFC_Control_Button
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;
 			.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;
 		}
-		
+
 		// Toggle State images
 		with GFC_CtrlTheme_Bitmap_Control_Button_Skin_Image
 		{
@@ -1322,7 +1322,7 @@ with GFC_Control_Button
 				}			
 			}	
 		}									
-											
+
 		map GFC_CtrlTheme_Bitmap_Control_Button		= GFC_Control_DefaultButton_Style;
 		map GFC_Control								= GFC_Control_DefaultButton_Style;
 	}

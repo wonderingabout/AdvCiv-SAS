@@ -9661,7 +9661,7 @@ See also	145 applies accepted-religion memory only so long as the religion is sh
 106e, 151: notifications about religions
 131: AI switches its state religion probabilistically
 AdvCiv	BtS
-	
+
 Rationale	
 
 
@@ -10397,9 +10397,9 @@ Rationale	From what I recall when I first experimented with this option, the spe
 
 
 297	(unassigned)
-	
-	
-	
+
+
+
 
 
 298	Tweaks to opportunistic AI attacks (AI_anyAttack)
@@ -10858,7 +10858,7 @@ settings	Chieftain
 -5% (-10%)		Deity
 0% (0%)		
 Rationale	The total penalty against AI units and the penalties against humans on the medium difficulty settings seemed needlessly high to me. Losing an exploration unit now and then won't hurt the AI much and could help delay the first contact between far-flung civs.
-	
+
 314	Tribal villages ("goody huts") revised
 See also	315b makes it easier for Explorers to enter guarded Tribal Villages.
 Config	Most of the specific changes to the Tribal Village outcomes are customizable and revertible through Civ4GoodyInfo.xml. I haven't added any new tags; instead, I'm e.g. using the Gold and Tech tags together to represent tech progress.
@@ -10952,7 +10952,7 @@ Recon units entering a hut can't get the Scout outcome if their owner already ha
 Rationale	The third Scout is a weak outcome, and no fun because the map gets explored too fast.
 315e	Huts within 3 tiles of the edge of a non-wrapping map can't yield the reveal-map outcome.
 Rationale	The reveal-map outcome is weak in any case. When one direction is blocked, it gets too weak I think. 
-	
+
 500	Dormant changes; to be enabled or discarded sometime in the future.
 See also	098: The changes to the doubling of building culture rates would also fit here.
 AdvCiv	BtS
@@ -10980,11 +10980,11 @@ Tbd.	Defense from obsolete buildings shouldn't count. Will have to add a data me
 Need to show "Garrison strength x.x, population: y" in help text when there is anger. Otherwise it's too difficult to learn.
 Performance was slightly problematic until I disabled the check for outdated units. Should check sometime if there is still any issue now. If so, then the result of CvCity::getNoMilitaryPercentAnger should be cached. That cache will have to be updated once per turn (sufficient for dealing with defensive buildings and unit obsoletion); and in CvUnit::setXY, CvCity::setPopulation; and after assigning a promotion.
 I've been thinking about making unit upgrades mandatory (if not upgraded in time, units refuse to fight with outdated equipment and defect). Then this change will be important because otherwise players could try to play around unit obsoletion (e.g. don't get Hunting so that Warriors can be trained indefinitely) so that they don't have to upgrade their city garrisons.
-	
+
 500c	Nationalism tech disables “we fear for our safety" anger
 Rationale	Same as for 500b; this is a much simpler solution that players don't even have to be aware of. Good enough to prevent pre-gunpowder garrisons in the Industrial era.
 See also	I've posted briefly about this change here on CFC (end of the post).
-	
+
 550	Changes to tech trading
 See also	130z deals with tech gifted by the AI to rivals
 550a	Tech trade value dependent on tech score and power
@@ -11896,7 +11896,7 @@ On the research bar and the choose-research popup, help text shows when one rese
 “Priesthood – Speeds up Writing by 20%"
 when Animal Husbandry already makes Writing researchable. Or
 “Code of Laws – Can be sped up through Priesthood by 20%" when Priesthood not yet discovered.
-	
+
 
 
 Doesn't mention the link to Writing at all when Writing is already enabled by Animal Husbandry.

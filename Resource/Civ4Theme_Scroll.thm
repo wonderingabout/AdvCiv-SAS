@@ -33,7 +33,7 @@ with GFC_Control_Scroll
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Scroll_Renderer_Control;
 
 		GFC_Control_Update_ChildLayout			=	GFC_CtrlTheme_Bitmap_Control_Scroll_Update_ChildLayout;
-											
+
 		with .Child							
 		{
 			.UpButton				= GFC_CtrlTheme_Bitmap_Control_Scroll_Child_UpButton;
@@ -71,7 +71,7 @@ with GFC_Control_Scroll
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-												
+
 			// Control flag change masks		
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -84,11 +84,11 @@ with GFC_Control_Scroll
 			.NoUpDownButtons					=	0;	//GFlags(GScrollCtrl, GFC_CF_SCROLL_NOUPDOWNBUTTONS);
 			.SnapTo_OnDrop						=	GFlags(GScrollCtrl, GFC_CF_SCROLL_SNAPTO_ONDROP);
 			.SnapTo_OnDrag						=	0;	//GFlags(GScrollCtrl, GFC_CF_SCROLL_SNAPTO_ONDRAG);
-												
+
 			// Scroll flag change masks		
 			//.ScrollMask_InvalidateControl		=	GFlags(GScrollCtrl);
 		}
-	
+
 		with .Size						
 		{							
 			.HGripLength			=	16;
@@ -100,7 +100,7 @@ with GFC_Control_Scroll
 			.HDefault				=	16;
 			.VDefault				=	16;
 		}							
-										
+
 		with .Delay						
 		{							
 			.TrackStepping_First	=	250;
@@ -114,7 +114,7 @@ with GFC_Control_Scroll
 			.Track_Press			=	GFC_Control_Color_3DLook_Dark;
 			.Track_Rollover			=	GFC_Control_Color_3DLook_Normal;
 		}
-				
+
 		with .Combine
 		{
 			.Track_Default			=	GFC_Control_Combine_Surface;
@@ -136,7 +136,7 @@ with GFC_Control_Scroll
 				.Left				=	"Scroll Left";
 				.Right				=	"Scroll Right";
 				.HStepTo			=	"Scroll Here";
-				
+
 				.FullTop			=	"Top";
 				.FullBottom			=	"Bottom";
 				.PageUp				=	"Page Up";
@@ -162,9 +162,9 @@ with GFC_Control_Scroll
 				.DownTrack			=	"Step Down";
 			}							
 		}
-	
+
 		// ******* Initialize all the Bitmap theme Scroll properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Scroll_Skin
 		{
 			.HShaft_Default						=	0;
@@ -175,7 +175,7 @@ with GFC_Control_Scroll
 			.HShaft_WinoffRollover				=	0;
 			.HShaft_WinoffPress					=	0;
 			.HShaft_WinoffDisable				=	0;
-												
+
 			.VShaft_Default						=	0;
 			.VShaft_Rollover					=	0;
 			.VShaft_Press						=	0;
@@ -199,7 +199,7 @@ style SF_CtrlTheme_Civ4_Control_Scroll_UpButton_Style
 	GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
 
 	GFC_Control_Button_Size_Default			=	GSize(16,19);
-	
+
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
 	{
 		.Default
@@ -744,7 +744,7 @@ style SF_CtrlTheme_Civ4_Control_Scroll_HGripButton_Style
 
 
 		// Scroll shaft skins
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Scroll_Skin_HShaft
 		{
 			.Default
@@ -816,7 +816,7 @@ style SF_CtrlTheme_Civ4_Control_Scroll_HGripButton_Style
 			.WinoffRollover			= .Rollover;
 			.WinoffDisable			= .Disable;	
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Scroll			= GFC_Control_DefaultScroll_Style;
 		map GFC_Control									= GFC_Control_DefaultScroll_Style;
 	}

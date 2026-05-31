@@ -26,18 +26,18 @@ For information regarding GFC Commercial License Agreements go to:
 
 with GFC_Control_Table				
 {								
-			
+
 	GFC_Control_DefaultTable_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Table_Renderer_Control;
-								
+
 		with .Renderer				
 		{
 			.Cell								=	GFC_CtrlTheme_Bitmap_Control_Table_Renderer_Cell;											
 			.DragPanel							=	GFC_CtrlTheme_Bitmap_Control_Table_Renderer_DragPanel;
 			.InsertIndicator					=	GFC_CtrlTheme_Bitmap_Control_Table_Renderer_InsertIndicator;
 		}									
-												
+
 		with .Child								
 		{									
 			.OuterBorder						=	GFC_CtrlTheme_Bitmap_Control_Table_Child_OuterBorder;
@@ -53,7 +53,7 @@ with GFC_Control_Table
 			.DragPanel							=	GFC_CtrlTheme_Bitmap_Control_Table_Child_DragPanel;
 			.InsertIndicator					=	GFC_CtrlTheme_Bitmap_Control_Table_Child_InsertIndicator;	
 		}									
-												
+
 		with .StyleId								
 		{									
 			.OuterBorder						=	GPropertyId(GFC_Control_OutBorder_Style);
@@ -70,7 +70,7 @@ with GFC_Control_Table
 			//.InsertIndicator					=	0; //GPropertyId(GFC_CtrlTheme_Bitmap_Control_Table_Child_InsertIndicator);	
 		}
 
-											
+
 		with GFC_Control_Flag
 		{
 			// Base control flags					
@@ -84,7 +84,7 @@ with GFC_Control_Table
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-												
+
 			// Control flag change masks		
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -97,11 +97,11 @@ with GFC_Control_Table
 			.NoInnerBorder						=	0;	//GFlags(GTableCtrl, GFC_CF_TABLE_NOINNERBORDER);
 			.HGrid								=	0;	//GFlags(GTableCtrl, GFC_CF_TABLE_DRAW_HGRID);
 			.VGrid								=	0;	//GFlags(GTableCtrl, GFC_CF_TABLE_DRAW_VGRID);
-												
+
 			// Control flag change masks		
 			//.TableMask_InvalidateControl		=	GFlags(GTableCtrl);
 		}								
-											
+
 		with .Size							
 		{								
 			.Header								=	GSize(22,22);
@@ -110,7 +110,7 @@ with GFC_Control_Table
 			.CellTextMargin						=	GRectMargin(4,0,4,0);
 			.CellItemSpace						=	GFC_Control_Size_ItemSpace;
 			.CellHeight							=	GFC_Control_Size_ListItem;
-																
+
 			// Auto scroll							
 			.AutoScrollDelta					=	16;
 
@@ -129,7 +129,7 @@ with GFC_Control_Table
 			.ScrollDelay3						=	40;
 			.ScrollDelay4						=	20;
 		}									
-												
+
 		with .Cursor							
 		{									
 			.HResize							=	GFC_Control_Cursor_HSplit;
@@ -206,7 +206,7 @@ with GFC_Control_Table
 			.Image_InactiveSelect				=	GFC_Control_Color_Image_InactiveSelect;
 			.Image_InactiveOffselect			=	.Image_InactiveSelect;
 			.Image_InactiveMultiselect			=	.Image_InactiveSelect;
-													
+
 			.InsertIndicator					=	GColor(255,255,255);
 			.DragPanel_BottomLayer				=	GColor( 50,100,150, 128);
 		}
@@ -318,7 +318,7 @@ with GFC_Control_Table
 			.Image_InactiveOffselect_Factor			=	GFC_Control_Combine_Image_InactiveSelect_Factor;
 			.Image_InactiveMultiselect_Dest			=	GFC_Control_Combine_Image_InactiveSelect_Dest;
 			.Image_InactiveMultiselect_Factor		=	GFC_Control_Combine_Image_InactiveSelect_Factor;
-			
+
 			.InsertIndicator						=	GFC_Control_Combine_Inner_Default;
 			.DragPanel_BottomLayer_Dest				=	GColorCombine(BlendSource, Disable);
 			.DragPanel_BottomLayer_Factor			=	GColorCombine(Source, Factor);
@@ -538,7 +538,7 @@ with GFC_Control_Table
 style SF_CtrlTheme_Civ4_Control_Table_Standard_OuterBorder_Style
 {		
 	GFC_Control_Border_Size_Margin		=	GRectMargin(1,1,1,1);
-	
+
 	with GFC_CtrlTheme_Bitmap_Control_Border_Skin
 	{
 		.Full_Default
@@ -585,12 +585,12 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_HButtonStyle
 
 	GFC_Control_Button_Flag_Crop			=	GFlags(GButtonCtrl, GFC_CF_BUTTON_CROP_CHAR);
 	GFC_Control_Button_Flag_CropDotted		=	GFlags(GButtonCtrl, GFC_CF_BUTTON_CROP_DOTTED);
-	
+
 	GFC_Control_Button_Size_BorderMargin	= 	GRectMargin(2,3,2,1);
 	GFC_Control_Button_Size_ExtraMargin		= 	GRectMargin(4,0,0,0);
 
 	GFC_Control_Button_Size_Default			= 	GSize(64,31);
-	
+
 	// Image skins
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
 	{
@@ -661,7 +661,7 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_HButtonStyle
 		.Focus					= .Rollover;
 		.FocusRollover			= .Rollover;
 	}
-	
+
 	// Map the rest of the properties to default
 	map GFC_CtrlTheme_Bitmap_Control_Button		=	GFC_Control_DefaultButton_Style;
 	map GFC_Control								=	GFC_Control_DefaultButton_Style;
@@ -674,12 +674,12 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_VButtonStyle
 
 	GFC_Control_Button_Flag_Crop			=	GFlags(GButtonCtrl, GFC_CF_BUTTON_CROP_CHAR);
 	GFC_Control_Button_Flag_CropDotted		=	GFlags(GButtonCtrl, GFC_CF_BUTTON_CROP_DOTTED);
-	
+
 	GFC_Control_Button_Size_BorderMargin	= 	GRectMargin(2,2,2,2);
 	GFC_Control_Button_Size_ExtraMargin		= 	GRectMargin(4,0,0,0);
 
 	GFC_Control_Button_Size_Default			= 	GSize(64,31);
-	
+
 	// Image skins
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
 	{
@@ -750,7 +750,7 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_VButtonStyle
 		.Focus					= .Rollover;
 		.FocusRollover			= .Rollover;
 	}
-	
+
 	// Map the rest of the properties to default
 	map GFC_CtrlTheme_Bitmap_Control_Button		=	GFC_Control_DefaultButton_Style;
 	map GFC_Control								=	GFC_Control_DefaultButton_Style;
@@ -788,7 +788,7 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_HSortAscendButton_Style
 		map GFC_CtrlTheme_Bitmap_Control_Button		=	SF_CtrlTheme_Civ4_Control_Header_Table_HButtonStyle;
 		map GFC_Control								=	SF_CtrlTheme_Civ4_Control_Header_Table_HButtonStyle;
 	}
-	
+
 	style SF_CtrlTheme_Civ4_Control_Header_Table_VSortAscendButton_Style
 	{
 		with GFC_Control_Button_Image
@@ -798,13 +798,13 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_HSortAscendButton_Style
 			.Press					=	GBitmap("../../../../Resource/Civ4/table_sort_arrows.tga", HVGrid, 4, 1, 2, 0);
 			.Disable				=	GBitmap("../../../../Resource/Civ4/table_sort_arrows.tga", HVGrid, 4, 1, 2, 0);
 		}
-	
+
 		GFC_Control_Button_Flag_Text_HAlign			=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TEXT_LEFT);
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Button		=	SF_CtrlTheme_Civ4_Control_Header_Table_VButtonStyle;
 		map GFC_Control								=	SF_CtrlTheme_Civ4_Control_Header_Table_VButtonStyle;
 	}
-	
+
 	style SF_CtrlTheme_Civ4_Control_Header_Table_VSortDescendButton_Style
 	{
 		with GFC_Control_Button_Image
@@ -814,9 +814,9 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_HSortAscendButton_Style
 			.Press					=	GBitmap("../../../../Resource/Civ4/table_sort_arrows.tga", HVGrid, 4, 1, 3, 0);
 			.Disable				=	GBitmap("../../../../Resource/Civ4/table_sort_arrows.tga", HVGrid, 4, 1, 3, 0);
 		}
-	
+
 		GFC_Control_Button_Flag_Text_HAlign			=	GFlags(GButtonCtrl, GFC_CF_BUTTON_TEXT_LEFT);
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Button		=	SF_CtrlTheme_Civ4_Control_Header_Table_VButtonStyle;
 		map GFC_Control								=	SF_CtrlTheme_Civ4_Control_Header_Table_VButtonStyle;
 	}
@@ -828,9 +828,9 @@ style SF_CtrlTheme_Civ4_Control_Header_Table_HSortAscendButton_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_UpButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-	
+
 	GFC_Control_Button_Size_Default			=	GSize(16,19);
-	
+
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
 	{
 		.Default
@@ -931,7 +931,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_UpButton_Style
 		.Disable				=	GBitmap("../../../../Resource/Civ4/Table_Scrollarrows.tga", HVGrid, 4, 4, 3, 0);
 		}*/
 
-	
+
 	// Map the rest of the properties to default
 	map GFC_CtrlTheme_Bitmap_Control_Button		=	GFC_Control_DefaultButton_Style;
 	map GFC_Control								=	GFC_Control_DefaultButton_Style;
@@ -941,7 +941,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_UpButton_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_DownButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-	
+
 	GFC_Control_Button_Size_Default			=	GSize(16,19);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -1053,7 +1053,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_DownButton_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_LeftButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-	
+
 	GFC_Control_Button_Size_Default			=	GSize(19,16);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -1166,7 +1166,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_LeftButton_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_RightButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-	
+
 	GFC_Control_Button_Size_Default			= GSize(19,16);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -1492,7 +1492,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_scroll_table_hGrip_Style
 			Margin			=	GRectMargin(1,6,1,6);
 		}
 	}	
-		
+
 	// Vertical shaft skins
 	skin SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_Skin_VShaft_Default
 	{
@@ -1598,7 +1598,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_Style
 	map GFC_CtrlTheme_Bitmap_Control_Scroll		=	GFC_Control_DefaultScroll_Style;
 	map GFC_Control								=	GFC_Control_DefaultScroll_Style;
 }
-	
+
 
 // *** Table panel (corner) styles
 
@@ -1606,7 +1606,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_Scroll_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_LTCornerPanel_Style
 {
 	GFC_Control_Flag_Transparent			=	0;
-	
+
 	GFC_Control_Panel_Flag_NoInnerFill		=	0;
 	GFC_Control_Panel_Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
 
@@ -1661,7 +1661,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_LTCornerPanel_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_RTCornerPanel_Style
 {
 	GFC_Control_Flag_Transparent			=	0;
-	
+
 	GFC_Control_Panel_Flag_NoInnerFill		=	0;
 	GFC_Control_Panel_Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
 
@@ -1716,7 +1716,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_RTCornerPanel_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_LBCornerPanel_Style
 {
 	GFC_Control_Flag_Transparent			=	0;
-	
+
 	GFC_Control_Panel_Flag_NoInnerFill		=	0;
 	GFC_Control_Panel_Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
 
@@ -1771,7 +1771,7 @@ style SF_CtrlTheme_Civ4_Control_Table_Standard_LBCornerPanel_Style
 style SF_CtrlTheme_Civ4_Control_Table_Standard_RBCornerPanel_Style
 {
 	GFC_Control_Flag_Transparent			=	0;
-	
+
 	GFC_Control_Panel_Flag_NoInnerFill		=	0;
 	GFC_Control_Panel_Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
 
@@ -1831,7 +1831,7 @@ with GFC_Control_Header
 			.TopLayer						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap				=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -1840,7 +1840,7 @@ with GFC_Control_Header
 		{
 			// Header flags
 			.NoInnerFill					=	0;	//GFlags(GHeaderCtrl, GFC_CF_HEADER_NOINNERFILL);
-											
+
 			// Header flag change masks	
 			//.HeaderMask_InvalidateControl	=	GFlags(GHeaderCtrl);
 		}
@@ -1850,7 +1850,7 @@ with GFC_Control_Header
 			.HButton						=	GFC_CtrlTheme_Bitmap_Control_Header_Child_HButton;
 			.VButton						=	GFC_CtrlTheme_Bitmap_Control_Header_Child_VButton;
 		}
-			
+
 		with .StyleId							
 		{									
 			.HButton							=	GPropertyId(GFC_Control_StandardButton_Style);
@@ -1860,7 +1860,7 @@ with GFC_Control_Header
 			.VSortAscendButton					=	.VButton;
 			.VSortDescendButton					=	.VButton;
 		}
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Table_Skin
 		{
 			with .HInsertIndicator
@@ -1890,7 +1890,7 @@ with GFC_Control_Header
 				}			
 			} 
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Table		=	GFC_Control_DefaultTable_Style;
 		map GFC_Control								=	GFC_Control_DefaultTable_Style;
 	}
@@ -1918,7 +1918,7 @@ with GFC_Control_Header
 
 	style SF_CtrlTheme_Civ4_Control_HeaderTable_HStandard_Style
 	{		
-		
+
 		// Solid whole control inner skin
 		with GFC_CtrlTheme_Bitmap_Control_Table_Skin
 		{
@@ -1969,7 +1969,7 @@ with GFC_Control_Header
 
 	style SF_CtrlTheme_Civ4_Control_HeaderTable_VStandard_Style
 	{		
-		
+
 		// Solid whole control inner skin
 		with GFC_CtrlTheme_Bitmap_Control_Table_Skin
 		{
@@ -2017,9 +2017,9 @@ with GFC_Control_Header
 		map GFC_CtrlTheme_Bitmap_Control_Header		=	GFC_Control_StandardHeaderTable_Style;
 		map GFC_Control								=	GFC_Control_StandardHeaderTable_Style;
 	}
-									
+
 }								
-											
+
 
 
 	// *** Normal table style
@@ -2154,8 +2154,8 @@ with GFC_Control_Header
 				.InactiveOffselectRollover				= .Default;
 				.InactiveDisableOffselect				= .Default;
 				.InactiveDisableOffselectRollover		= .Default;
-				
-				
+
+
 				.Alt_Default
 				{
 					layer {
@@ -2252,7 +2252,7 @@ with GFC_Control_Header
 
 
 			//** Column **
-			
+
 			with .Col
 			{
 				.Default								= SF_CtrlTheme_Civ4_Control_Skin_Blank;
@@ -2337,7 +2337,7 @@ with GFC_Control_Header
 				.InactiveOffselectRollover				= .Default;
 				.InactiveDisableOffselect				= .Default;
 				.InactiveDisableOffselectRollover		= .Default;
-				
+
 				.Alt_Default							=	.Default;
 				.Alt_Rollover							=	.Rollover;
 				.Alt_Disable							=	.Disable;
@@ -2371,10 +2371,10 @@ with GFC_Control_Header
 				.Alt_InactiveDisableOffselect			=	.InactiveDisableOffselect;
 				.Alt_InactiveDisableOffselectRollover	=	.InactiveDisableOffselectRollover;				
 			}
-			
-						
+
+
 			//** Cell **
-			
+
 			with .Cell
 			{
 				.Default								= SF_CtrlTheme_Civ4_Control_Skin_Blank;
@@ -2460,7 +2460,7 @@ with GFC_Control_Header
 				.InactiveDisableOffselect				= .Default;
 				.InactiveDisableOffselectRollover		= .Default;
 			} 
-			
+
 			with .HInsertIndicator
 			{
 				.Default
