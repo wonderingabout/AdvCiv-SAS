@@ -335,7 +335,6 @@ class AStar:
 		self.iMovesLeft			= pUnit.movesLeft()
 		self.bIgnoreMovesLeft	= false
 
-
 		# calculates some values for the heuristic
 		self.calculateHeuristicFactors()
 
@@ -358,7 +357,6 @@ class AStar:
 		self.bResultValid = true
 
 		return iReturn
-
 
 #####################################################################
 # Class : AStarMoveArea
@@ -531,8 +529,6 @@ class AStarMoveArea:
 		CyEngine().clearColoredPlots(self.PLE_HIGHLIGHT_PLOTS)
 		return 1
 
-
-
 #####################################################################
 # Class : AStarPlot
 #####################################################################
@@ -581,7 +577,6 @@ class AStarPlot:
 		else:
 			return false
 
-
 #####################################################################
 # Class : AStarList
 #####################################################################
@@ -629,7 +624,6 @@ class AStarList:
 	# return: ((x,y), float, float, float)
 	def getPlotData(self, pAPlot):
 		return self.dList[pAPlot.getXY()]
-
 
 	# adds the complete plot to the list
 	# pThisPlot, pParentPlot : CyPlot

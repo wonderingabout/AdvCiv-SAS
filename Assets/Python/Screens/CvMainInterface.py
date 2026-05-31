@@ -3709,7 +3709,6 @@ class CvMainInterface:
 				break
 # BUG - Bars on single line for higher resolution screens - end
 
-
 # BUG - city specialist - start
 	def updateCitizenButtons_hide(self):
 		screen = self.screen

@@ -193,7 +193,6 @@ class Scoreboard:
 	def size(self):
 		return len(self._playerScores)
 
-
 	def setAlive(self):
 		self._set(ALIVE)
 
@@ -287,7 +286,6 @@ class Scoreboard:
 	def setWorstEnemy(self):
 		self._set(WORST_ENEMY)
 
-
 	def setWaiting(self):
 		self._set(WAITING)
 
@@ -331,7 +329,6 @@ class Scoreboard:
 	def _set(self, part, value=True, widget=None):
 		self._anyHas[part] = True
 		self._currPlayerScore.set(part, value, widget)
-
 
 	def assignRanks(self):
 		# Assigns a rank from 1 to N based on score.
@@ -389,7 +386,6 @@ class Scoreboard:
 					sName = "ScoreText%d-%d" %(iPlayer, iPart)
 					screen.show(sName)
 
-
 	# Both cut from CvMainInterface.updateScoreStrings
 	@staticmethod
 	def isShowTeamScore(iTeam):
@@ -416,8 +412,6 @@ class Scoreboard:
 		# BUG - Dead Civs:
 		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())
 	# </advc.085>
-
-
 
 	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False):
 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.

@@ -388,7 +388,6 @@ class DotMapLayer(StrategyLayer):
 	def onSwitchHotSeatPlayer(self, ePlayer):
 		self.hide()
 
-
 	def hasCities(self, ePlayer):
 		return ePlayer in self.cities
 
@@ -415,7 +414,6 @@ class DotMapLayer(StrategyLayer):
 		if self.hasCities(ePlayer):
 			for city in self.getCities(ePlayer).itervalues():
 				yield city
-
 
 	def addCityAt(self, point, color, layer):
 		# Sends a message to add a city for the active player at the given point.
@@ -445,7 +443,6 @@ class DotMapLayer(StrategyLayer):
 		if ePlayer == PlayerUtil.getActivePlayerID():
 			self.drawCity(city, self.CROSS_ALPHA, self.DOT_ALPHA)
 
-
 	def removeCityAt(self, point):
 		# Sends a message to remove the active player's city at the given point.
 		#
@@ -474,7 +471,6 @@ class DotMapLayer(StrategyLayer):
 				self.eraseDot(city, self.DOT_ALPHA)
 		else:
 			BugUtil.warn("City doesn't exist")
-
 
 	def highlightCity(self, point, color):
 		# Highlights the given city location by drawing it using the given color on the highlight layer.
@@ -513,7 +509,6 @@ class DotMapLayer(StrategyLayer):
 			if city is not None:
 				self.drawCity(city, self.CROSS_ALPHA, self.DOT_ALPHA)
 			self.highlightedCity = None
-
 
 	def redrawCities(self):
 		# Erases all city layers and draws all of the cities.
@@ -621,7 +616,6 @@ class DotMapLayer(StrategyLayer):
 
 	def percentToAlpha(self, percent):
 		return min(100, max(0, percent)) / 100.0
-
 
 	def readOptions(self):
 		self.CROSS_ALPHA = self.percentToAlpha(StratLayerOpt.getDotMapBrightness())

@@ -547,7 +547,6 @@ class PLE:
 		else:
 			return self.handleHoverPLEFilter(inputClass, "DOM", self.nPLEFilterModeDom)
 
-
 	# PLE Ownership Filters
 	def onClickPLEFilterOwn(self, inputClass):
 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED ):
@@ -1249,7 +1248,6 @@ class PLE:
 						self.lPLEUnitListTempNOK.remove(pLoopUnitNOK)
 						self.lPLEUnitListTempOK.append(pLoopUnitNOK)
 
-
 	# function saves all units not matching actual filter criteria in a temp list by domain
 	def saveFilteredUnitsByDomain(self, pCompareUnit):
 		self.lPLEUnitListTempOK = []
@@ -1700,7 +1698,6 @@ class PLE:
 		pUnit 		= self.listPLEButtons[idButton][0]
 		iPromo		= self.dUnitPromoList[idUnit][idPromo-1]
 		pUnit.promote(iPromo, -1)
-
 
 	# displays all the possible upgrade buttons for a unit 
 	def displayUnitUpgrades(self, screen, pUnit, nRow, nCol):
@@ -2180,7 +2177,6 @@ class PLE:
 	def dehighlightMoves(self):
 		if PleOpt.isShowMoveHighlighter():
 			self.ASMA.dehighlightMoveArea()
-
 
 	################## set / get PLE values ##################
 	def setPLEUnitList(self, bValue):

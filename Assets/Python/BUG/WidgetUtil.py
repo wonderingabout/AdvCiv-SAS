@@ -104,7 +104,6 @@ def _setWidgetHelp(widget, type, func):
 		BugUtil.debug("WidgetUtil - registering %s hover help for WidgetTypes %d: %s", type, widget, func)
 		g_widgetHelp[widget] = func
 
-
 def getWidgetHelp(argsList):
 	# Returns the hover help text for <eWidgetType> if registered, otherwise returns an empty string.
 	#

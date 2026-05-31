@@ -180,8 +180,6 @@ class LakesFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		if shift_plot_types:
 			self.shiftPlotTypes()
 
-
-
 		return self.plotTypes
 
 def generatePlotTypes():

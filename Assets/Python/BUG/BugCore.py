@@ -135,7 +135,6 @@ class Mod(object):
 					return lambda *ignored: False
 		raise AttributeError(id)
 
-
 	def _createParameterizedAccessorPair(self, id, getter=None, setter=None, values=None):
 		id = BugOptions.qualify(self._id, id)
 		if getter:

@@ -53,7 +53,6 @@ def getNumCustomMapOptionValues(argsList):
 		}
 	return option_values[iOption]
 
-
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {

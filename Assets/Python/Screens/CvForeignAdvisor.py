@@ -870,7 +870,6 @@ class CvForeignAdvisor:
 			iLeaderHeight = self.H_LEADER
 			iLeaderWidth = self.W_LEADER
 
-
 		screen = self.getScreen()
 
 		#screen.addPanel(self.getNextWidgetName(), "", "", False, False, 0, 50, self.W_SCREEN, 667, PanelStyles.PANEL_STYLE_MAIN_WHITE)
@@ -1074,7 +1073,6 @@ class CvForeignAdvisor:
 							szName = self.getNextLineName()
 							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), self.COLOR_WHITE )
 
-
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount * NUM_FOREIGN_SCREENS + self.iScreen)
 		self.nWidgetCount += 1
@@ -1096,7 +1094,6 @@ class CvForeignAdvisor:
 		for i in range(nLines):
 			screen.removeLineGFC(self.BACKGROUND_ID, self.getNextLineName())
 		self.nLineCount = 0	
-
 
 	def deleteAllWidgets(self):
 		screen = self.getScreen()
@@ -2052,7 +2049,6 @@ class CvForeignAdvisor:
 						self.resIconGrid.setText(currentRow, self.payingCol, labelText(str(amount)))
 				currentRow += 1
 		self.resIconGrid.refresh()
-
 
 	def scrollTradeTableUp(self):
 		if (self.iScreen == self.SCREEN_DICT["BONUS"]):

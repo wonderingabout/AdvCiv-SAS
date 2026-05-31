@@ -53,7 +53,6 @@ ASSIGN_CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*\s*=\s*[A-Za-z_][A
 RETURN_CALL_PREFIX_RE = re.compile(r"^return\s+[A-Za-z_][A-Za-z0-9_\.]*$")
 DEF_HEADER_PREFIX_RE = re.compile(r"^def\s+[A-Za-z_][A-Za-z0-9_]*$")
 
-
 def decode_bytes(raw):
     if raw.startswith(b"\xef\xbb\xbf"):
         return "utf-8-sig", raw.decode("utf-8-sig")
@@ -62,24 +61,19 @@ def decode_bytes(raw):
     except UnicodeDecodeError:
         return "latin-1", raw.decode("latin-1")
 
-
 def line_ending_from_bytes(raw):
     return "\r\n" if b"\r\n" in raw else "\n"
-
 
 def leading_indent(s):
     return s[:len(s) - len(s.lstrip(" \t"))]
 
-
 def strip_line_ending(s):
     return s.rstrip("\r\n")
-
 
 def parse_name_set(value):
     if not value:
         return set()
     return set(part.strip() for part in value.split(",") if part.strip())
-
 
 def join_parts(parts):
     body = ""
@@ -97,7 +91,6 @@ def join_parts(parts):
             body += " " + right
     return body
 
-
 def significant_tokens_from_text(text):
     # Tokenize does not require Python 3 parsing. It is usually enough for
     # Python 2.4-era code where ast.parse/py_compile would fail on old syntax.
@@ -113,7 +106,6 @@ def significant_tokens_from_text(text):
             continue
         result.append((tok.type, tok.string))
     return result
-
 
 def first_opener(text):
     in_str = None
@@ -149,7 +141,6 @@ def first_opener(text):
         i += 1
     return None, -1
 
-
 def prefix_call_name(prefix):
     # For assignment-call prefixes such as "x = Foo", use "Foo".
     if "=" in prefix:
@@ -158,13 +149,11 @@ def prefix_call_name(prefix):
         prefix = prefix[len("return "):].strip()
     return prefix
 
-
 def call_name_matches(call_name, allowed_names):
     if not call_name or not allowed_names:
         return False
     final_part = call_name.rsplit(".", 1)[-1]
     return call_name in allowed_names or final_part in allowed_names
-
 
 def is_def_header_statement(stripped):
     opener, idx = first_opener(stripped)
@@ -172,7 +161,6 @@ def is_def_header_statement(stripped):
         return False
     prefix = stripped[:idx].strip()
     return DEF_HEADER_PREFIX_RE.match(prefix) is not None and stripped.rstrip().endswith(":")
-
 
 def starts_with_container_argument(stripped):
     opener, idx = first_opener(stripped)
@@ -182,7 +170,6 @@ def starts_with_container_argument(stripped):
     while i < len(stripped) and stripped[i] in " \t":
         i += 1
     return i < len(stripped) and stripped[i] in "[{"
-
 
 def classify_statement(joined_body, long_call_names):
     stripped = joined_body.strip()
@@ -219,14 +206,12 @@ def classify_statement(joined_body, long_call_names):
 
     return None
 
-
 def max_len_for_kind(kind, max_line_len, def_header_max_line_len, long_call_max_line_len):
     if kind == "def_header":
         return def_header_max_line_len
     if kind == "long_named_call":
         return long_call_max_line_len
     return max_line_len
-
 
 def should_skip_group(lines, start, end, toks, joined_body, max_line_len, def_header_max_line_len, long_call_names, long_call_max_line_len):
     if end <= start:
@@ -258,7 +243,6 @@ def should_skip_group(lines, start, end, toks, joined_body, max_line_len, def_he
 
     return None
 
-
 def collect_logical_groups(text):
     groups = []
     cur = []
@@ -274,7 +258,6 @@ def collect_logical_groups(text):
                 groups.append((cur[0].start[0], cur[-1].end[0], cur[:]))
             cur = []
     return groups
-
 
 def transform_text(text, newline, max_line_len, def_header_max_line_len, long_call_names, long_call_max_line_len):
     lines = text.splitlines(True)
@@ -325,7 +308,6 @@ def transform_text(text, newline, max_line_len, def_header_max_line_len, long_ca
             i += 1
 
     return "".join(out), changed, removed_lines, skipped
-
 
 def main(argv):
     parser = argparse.ArgumentParser(description="Targeted second-pass multiline collapse helper.")
@@ -383,7 +365,6 @@ def main(argv):
     if not args.in_place and not args.output:
         print("dry_run_only=true")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

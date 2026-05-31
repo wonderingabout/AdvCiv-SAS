@@ -559,7 +559,6 @@ class HintedWorld(FractalWorld):
 					return False
 		return True
 
-
 	def findValid(self, x, y, dist=-1):
 		if (dist == -1):
 			dist = max(self.w, self.h)
@@ -1522,7 +1521,6 @@ class BonusBalancer:
 		type_string = self.gc.getBonusInfo(iBonusType).getType()
 
 		return ((type_string in self.resourcesToBalance) or (type_string in self.resourcesToEliminate))
-
 
 	def isBonusValid(self, eBonus, pPlot, bIgnoreUniqueRange, bIgnoreOneArea, bIgnoreAdjacent):
 		# Returns true if we can place a bonus here

@@ -156,7 +156,6 @@ def normalizeAddExtras():
 	if (CyMap().getCustomMapOption(1) >= 1):
 		balancer.normalizeAddExtras()
 
-
 	#BTG
 	# Moving from 4 to 8 because there are lots of tundras etc.
 	BTPForceResourceLand(100,True,getInfoTypeOrFail("BONUS_OIL"),10,False,getInfoTypeOrFail("TERRAIN_DESERT"))
@@ -181,7 +180,6 @@ def doUUCenter():
 	# <!-- custom: AdvCiv-SAS has no BONUS_SALT/BONUS_TEA/BONUS_OLIVES; use supported luxuries instead. (GPT-5.3-Codex) -->
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 
-
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_MARBLE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_STONE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 
@@ -190,7 +188,6 @@ def doUUCenter():
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SILVER"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GEMSTONES"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GOLD"),getInfoTypeOrFail("TERRAIN_PLAINS"))	
-
 
 	#2.23 Elephants every two players rather than 3
 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_ELEPHANTS"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
@@ -266,7 +263,6 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 		iCenterX = int(self.iNumPlotsX / 2)
 		iCenterY = int(self.iNumPlotsY / 2)
 
-
 		#Default Value work well with Grid Size 10, 10, which is the value of large map, which is 4
 		iShiftBias = 4
 		iShift = iShiftBias - (int(CyMap().getWorldSize()))
@@ -316,7 +312,6 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 					else:
 						self.plotTypes[i] = PlotTypes.PLOT_LAND
 
-
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
 				i = y*self.iNumPlotsX + x	
@@ -352,7 +347,6 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
 							iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
 							if (iProba < 95):
 								self.plotTypes[i] = PlotTypes.PLOT_HILLS					
-
 
 		if shift_plot_types:
 			self.shiftPlotTypes()
@@ -451,7 +445,6 @@ def addRivers():#Lagoon 2.26 -- Adding this because it's direct after Generate p
 				else:
 					p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"), True, True)	
 
-
 	#Need to finish by doing normal rivers
 	CyPythonMgr().allowDefaultImpl()				
 
@@ -474,7 +467,6 @@ def addFeatures():
 	featuregen = DonutFeatureGenerator()
 	featuregen.addFeatures()
 	return 0
-
 
 def beforeGeneration():
 	#copy /inspired by inland			
@@ -628,10 +620,7 @@ def beforeGeneration():
 		shuffledPlayers.append(player_list[iChoosePlayer])
 		del player_list[iChoosePlayer]
 
-
-
 	return None		
-
 
 def findStartingPlot(argsList):
 	# Set up for maximum of 18 players! If more, use default implementation.
@@ -700,7 +689,6 @@ def startHumansOnSameTile():
 def BTGSong():
 	return 0
 
-
 def BTPTopBottomTwoTeams(isBTG):							
 	gc = CyGlobalContext()	
 
@@ -730,7 +718,6 @@ def BTPTopBottomTwoTeams(isBTG):
 
 		#############################
 		#Spectator bit - not amazing if spectator is middle team
-
 
 		listTeams = []
 		#2.23 Improve for spectators
@@ -786,7 +773,6 @@ def BTPTopBottomTwoTeams(isBTG):
 					spotB = gc.getPlayer(iRoll).getStartingPlot()
 					gc.getPlayer(iI).setStartingPlot(spotB,True)
 					gc.getPlayer(iRoll).setStartingPlot(spotA,True)				
-
 
 def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bMakeHill,iForceTerrain):
 
@@ -886,13 +872,11 @@ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bM
 								has_resource = True
 								break				
 
-
 def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,iMinDistance,bMakeHill,iForceTerrain):		
 
 	gc = CyGlobalContext()
 	map = CyMap()
 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
-
 
 	for i in range(gc.getMAX_CIV_PLAYERS()):
 
@@ -934,7 +918,6 @@ def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,i
 										plotsboundaries.append(p)
 									else :
 										plotsboundariesSafe.append(p)#all the tiles are no bonus, this has priority								
-
 
 				if len(plotsboundariesSafe) > 0:
 
@@ -993,7 +976,6 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
 						plotsboundaries.append(p)
 					else :
 						plotsboundariesSafe.append(p)#all the tiles are no bonus, this has priority
-
 
 	if len(plotsboundariesSafe) > 0:
 

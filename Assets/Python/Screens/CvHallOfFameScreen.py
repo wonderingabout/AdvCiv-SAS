@@ -82,7 +82,6 @@ class CvHallOfFameScreen:
 
 		self.bAllowReplay = False
 
-
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 

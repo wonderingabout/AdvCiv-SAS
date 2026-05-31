@@ -188,7 +188,6 @@ class CvMilitaryAdvisor:
 
 		self.szMaybeButton = ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath()
 
-
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 

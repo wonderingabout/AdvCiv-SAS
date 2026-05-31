@@ -113,7 +113,6 @@ def applyBlessedSea2(argsList):
 					iBuilding = i
 					break
 
-
 	if (iBuilding == -1):
 		return
 
@@ -128,7 +127,6 @@ def applyBlessedSea2(argsList):
 
 		(loopCity, iter) = player.nextCity(iter, false)
 
-
 def canApplyBlessedSea2(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -141,7 +139,6 @@ def canApplyBlessedSea2(argsList):
 				if (gc.getBuildingInfo(i).getReligionType() == kTriggeredData.eReligion):
 					iBuilding = i
 					break
-
 
 	if (iBuilding == -1):
 		return false
@@ -476,7 +473,6 @@ def canApplyBardTale3(argsList):
 
 	return true
 
-
 def getHelpBardTale3(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -512,7 +508,6 @@ def canApplyLooters3(argsList):
 			iNumBuildings += 1
 
 	return (iNumBuildings > 0)
-
 
 def applyLooters3(argsList):
 	iEvent = argsList[0]
@@ -624,7 +619,6 @@ def canApplyHurricane1(argsList):
 def canApplyHurricane2(argsList):			
 	return (not canApplyHurricane1(argsList))
 
-
 def applyHurricane1(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -651,7 +645,6 @@ def applyHurricane1(argsList):
 		szBuffer = localText.getText("TXT_KEY_EVENT_CITY_IMPROVEMENT_DESTROYED", (gc.getBuildingInfo(iBuilding).getTextKey(), ))
 		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), getInfoTypeOrFail("COLOR_RED"), city.getX(), city.getY(), true, true)
 		city.setNumRealBuilding(iBuilding, 0)
-
 
 ######## CYCLONE ###########
 
@@ -704,7 +697,6 @@ def canApplyTsunami1(argsList):
 def canApplyTsunami2(argsList):			
 	return (not canApplyTsunami1(argsList))
 
-
 def applyTsunami1(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -734,7 +726,6 @@ def applyTsunami2(argsList):
 			city.setNumRealBuilding(iBuilding, 0)
 			listBuildings.remove(iBuilding)
 
-
 def getHelpTsunami2(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -744,7 +735,6 @@ def getHelpTsunami2(argsList):
 	szHelp = localText.getText("TXT_KEY_EVENT_TSUNAMI_2_HELP", (5, city.getNameKey()))
 
 	return szHelp
-
 
 ######## MONSOON ###########
 
@@ -1036,7 +1026,6 @@ def applyGreatDepression(argsList):
 				popupInfo.setText(szText)
 				popupInfo.addPopup(iPlayer)
 
-
 def getHelpGreatDepression(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -1135,7 +1124,6 @@ def canTriggerGoldRush(argsList):
 	if player.getCurrentEra() != iIndustrial:
 		return false
 
-
 	return true
 
 ######## INFLUENZA ###########
@@ -1187,7 +1175,6 @@ def applyInfluenza2(argsList):
 		loopCity.changePopulation(-2)
 		szBuffer = localText.getText("TXT_KEY_EVENT_INFLUENZA_HIT_CITY", (loopCity.getNameKey(), ))
 		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PILLAGE", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, getInfoTypeOrFail("COLOR_RED"), loopCity.getX(), loopCity.getY(), true, true)
-
 
 def getHelpInfluenza2(argsList):
 	iEvent = argsList[0]
@@ -1242,7 +1229,6 @@ def applySoloFlight(argsList):
 			loopTeam = gc.getTeam(loopPlayer.getTeam())
 			if loopTeam.isHasMet(gc.getPlayer(kTriggeredData.ePlayer).getTeam()):
 				loopPlayer.AI_changeAttitudeExtra(kTriggeredData.ePlayer, 1)
-
 
 ######## ANTELOPE ###########
 
@@ -1472,7 +1458,6 @@ def applyModernOlympics(argsList):
 			if loopTeam.isHasMet(gc.getPlayer(kTriggeredData.ePlayer).getTeam()):
 				loopPlayer.AI_changeAttitudeExtra(kTriggeredData.ePlayer, 1)
 
-
 ######## INTERSTATE ###########
 
 def canTriggerInterstate(argsList):
@@ -1535,7 +1520,6 @@ def canApplyEarthDay2(argsList):
 					if (loopPlayer.getTradeDenial(kTriggeredData.ePlayer, tradeData) == DenialTypes.NO_DENIAL):
 						return true
 	return false
-
 
 def applyEarthDay2(argsList):
 	iEvent = argsList[0]
@@ -1625,7 +1609,6 @@ def applyFreedomConcert2(argsList):
 							iBestDistance = iDistance
 
 				(loopCity, iter) = player.nextCity(iter, false)
-
 
 			if bestCity is not None:									
 				bestCity.setHasReligion(iReligion, true, true, true)
@@ -2548,7 +2531,6 @@ def applyBestDefenseDone2(argsList):
 			if loopTeam.isHasMet(gc.getPlayer(kTriggeredData.ePlayer).getTeam()):
 				loopPlayer.AI_changeAttitudeExtra(kTriggeredData.ePlayer, 3)
 
-
 def canApplyBestDefenseDone3(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -2909,7 +2891,6 @@ def canApplyPartisans1(argsList):
 					return true
 	return false
 
-
 def applyPartisans1(argsList):
 	iEvent = argsList[0]
 	kTriggeredData = argsList[1]
@@ -3090,7 +3071,6 @@ def getGreedUnit(player, plot):
 				iBestUnit = iUnit
 
 	return iBestUnit
-
 
 def getHelpGreedDone1(argsList):
 	iEvent = argsList[0]
@@ -3508,7 +3488,6 @@ def canTriggerCorporateExpansionDone(argsList):
 	if iNumCitiesRequired > gc.getGame().countCorporationLevels(kOrigTriggeredData.eCorporation):
 		return false
 
-
 	kActualTriggeredDataObject = player.getEventTriggered(kTriggeredData.iId)
 	kActualTriggeredDataObject.eCorporation = kOrigTriggeredData.eCorporation
 	kActualTriggeredDataObject.eBuilding = kOrigTriggeredData.eBuilding
@@ -3654,7 +3633,6 @@ def applyHostileTakeoverDone1(argsList):
 	city = player.getCity(kTriggeredData.iCityId)
 	if city is not None and not city.isNone():
 		city.setBuildingCommerceChange(gc.getBuildingInfo(kTriggeredData.eBuilding).getBuildingClassType(), CommerceTypes.COMMERCE_GOLD, 20)
-
 
 ######## Great Beast ########
 

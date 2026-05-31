@@ -1984,7 +1984,6 @@ class CvMilitaryAdvisor:
 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(iGreatPeopleThreshold))
 			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", sasFontTagLabel + self.TEXT_COMBAT_EXPERIENCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
 
-
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount)

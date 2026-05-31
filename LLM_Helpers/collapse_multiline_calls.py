@@ -43,7 +43,6 @@ CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*$")
 ASSIGN_CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*\s*=\s*[A-Za-z_][A-Za-z0-9_\.]*$")
 RETURN_CALL_PREFIX_RE = re.compile(r"^return\s+[A-Za-z_][A-Za-z0-9_\.]*$")
 
-
 def decode_bytes(raw):
     if raw.startswith(b"\xef\xbb\xbf"):
         return "utf-8-sig", raw.decode("utf-8-sig")
@@ -52,18 +51,14 @@ def decode_bytes(raw):
     except UnicodeDecodeError:
         return "latin-1", raw.decode("latin-1")
 
-
 def line_ending_from_bytes(raw):
     return "\r\n" if b"\r\n" in raw else "\n"
-
 
 def leading_indent(s):
     return s[:len(s) - len(s.lstrip(" \t"))]
 
-
 def strip_line_ending(s):
     return s.rstrip("\r\n")
-
 
 def join_parts(parts):
     body = ""
@@ -81,7 +76,6 @@ def join_parts(parts):
             body += " " + right
     return body
 
-
 def significant_tokens_from_text(text):
     # Tokenize does not require Python 3 parsing. It is usually enough for
     # Python 2.4-era code where ast.parse/py_compile would fail on old syntax.
@@ -97,7 +91,6 @@ def significant_tokens_from_text(text):
             continue
         result.append((tok.type, tok.string))
     return result
-
 
 def first_opener(text):
     in_str = None
@@ -133,7 +126,6 @@ def first_opener(text):
         i += 1
     return None, -1
 
-
 def looks_like_call_statement(joined_body):
     stripped = joined_body.strip()
     if not stripped:
@@ -157,7 +149,6 @@ def looks_like_call_statement(joined_body):
 
     return False
 
-
 def should_skip_group(lines, start, end, toks, joined_body, max_line_len):
     if end <= start:
         return "single_line"
@@ -177,7 +168,6 @@ def should_skip_group(lines, start, end, toks, joined_body, max_line_len):
         return "too_long"
     return None
 
-
 def collect_logical_groups(text):
     groups = []
     cur = []
@@ -193,7 +183,6 @@ def collect_logical_groups(text):
                 groups.append((cur[0].start[0], cur[-1].end[0], cur[:]))
             cur = []
     return groups
-
 
 def transform_text(text, newline, max_line_len):
     lines = text.splitlines(True)
@@ -244,7 +233,6 @@ def transform_text(text, newline, max_line_len):
 
     return "".join(out), changed, removed_lines, skipped
 
-
 def main(argv):
     parser = argparse.ArgumentParser(description="Collapse multiline call-like Python statements.")
     parser.add_argument("path", help="Python source file to process")
@@ -289,7 +277,6 @@ def main(argv):
     if not args.in_place and not args.output:
         print("dry_run_only=true")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

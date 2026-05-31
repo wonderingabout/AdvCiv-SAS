@@ -164,7 +164,6 @@ class Options(object):
 			for file in self.files.itervalues():
 				file.write()
 
-
 	def findOption(self, id):
 		# Returns the Option with the given ID or returns None of not found.
 		if (id in self.options):
@@ -196,7 +195,6 @@ class Options(object):
 		# Resets all options to their default values.
 		for option in self.options.itervalues():
 			option.resetValue()
-
 
 	def createFileGetter(self, file):
 		# Creates a getter for the given IniFile.
@@ -231,7 +229,6 @@ def read():
 
 def write():
 	g_options.write()
-
 
 class IniFile(object):
 	# Controls reading/writing an INI file and getting/setting Option values.
@@ -322,7 +319,6 @@ class IniFile(object):
 				BugUtil.error("BugOptions - Cannot locate settings folder")
 		else:
 			BugUtil.warn("BugOptions - INI file '%s' was never read", self.name)
-
 
 	def exists(self, section, key=None):
 		return self.config and section in self.config and (key is None or key in self.config[section])
@@ -481,7 +477,6 @@ class AbstractOption(object):
 	def getDefaultResetterName(self):
 		return "reset" + self.getTrimmedID()
 
-
 #	def getType(self):
 #		return NONE_TYPE
 
@@ -505,7 +500,6 @@ class AbstractOption(object):
 
 	def __str__(self):
 		return "<%s %s [%s]>" % (self.id, self.getType(), str(self.getDefault()))
-
 
 	def createAccessorPair(self, getter=None, setter=None):
 		# Creates a pair of plain accessors (getter and setter) for this Option.
@@ -605,7 +599,6 @@ class AbstractOption(object):
 
 	def bindAccessor(self, name, function):
 		setattr(self.mod, name, function)
-
 
 	def hasValue(self, *args):
 		return self.getRawValue() is not None
@@ -730,13 +723,11 @@ class BaseOption(AbstractOption):
 		if dirty:
 			self.addDirty(dirty)
 
-
 	def getType(self):
 		return self.type
 
 	def getDefault(self):
 		return self.default
-
 
 	def getTitle(self):
 		if (not self.translated):
@@ -786,7 +777,6 @@ class BaseOption(AbstractOption):
 	def clearTranslation(self):
 		"Marks this option so that it will be translated again the next time it is accessed"
 		self.translated = False
-
 
 	def onChanged(self, *args):
 		if not BugInit.g_initRunning:
@@ -901,7 +891,6 @@ class BaseListOption(BaseOption):
 	def __str__(self):
 		return "<%s %s [%s] list (%d %ss)>" % (self.id, self.type, str(self.default), len(self.values), self.listType)
 
-
 	def getValues(self):
 		return self.values
 
@@ -955,7 +944,6 @@ class BaseListOption(BaseOption):
 				# Munge values based on type or create different comparator functions
 				self.createComparer(name, values)
 
-
 	def getFormat(self):
 		return self.format
 
@@ -996,7 +984,6 @@ class BaseListOption(BaseOption):
 			else:
 				self.displayValues = self.values
 		super(BaseListOption, self).translate()
-
 
 	def isValid(self, value):
 		return value in self.values

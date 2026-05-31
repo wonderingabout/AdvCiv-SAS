@@ -363,7 +363,6 @@ def getPlotHealFactor(pUnit):
 	FRIENDLY_HEAL_RATE			= 15
 	CITY_HEAL_RATE				= 20
 
-
 	# set/reset some variables
 	pPlot = pUnit.plot()
 	iSameTileHealFactor 		= 0

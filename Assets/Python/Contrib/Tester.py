@@ -33,7 +33,6 @@ class Tester :
 
 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
 
-
 	def blankHandler( self, playerID, netUserData, popupReturn ) :
 		# Dummy handler to take the second event for popup
 		return

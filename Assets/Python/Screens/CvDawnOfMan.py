@@ -48,7 +48,6 @@ class CvDawnOfMan:
 		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
 		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
 
-
 		self.X_FANCY_ICON1 = self.X_HEADER_PANEL + 170
 		self.X_FANCY_ICON2 = self.X_HEADER_PANEL + (self.W_MAIN_PANEL - 120) # Was 430
 		self.Y_FANCY_ICON = (self.Y_HEADER_PANEL + self.iMarginSpace + 6) - 6
@@ -76,7 +75,6 @@ class CvDawnOfMan:
 
 		self.X_EXIT = (self.W_SCREEN/2) - (self.W_EXIT/2) # Was 460
 		self.Y_EXIT = self.Y_MAIN_PANEL + 440
-
 
 	def interfaceScreen(self):
 		'Use a popup to display the opening text'
@@ -276,7 +274,6 @@ class CvDawnOfMan:
 		self.Y_LEADER_ICON = self.Y_HEADER_PANEL + self.iMarginSpace
 		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
 		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
-
 
 		self.WH_FANCY_ICON = 64
 		self.X_FANCY_ICON1 = self.X_LEADER_ICON + self.W_LEADER_ICON + self.iMarginSpace

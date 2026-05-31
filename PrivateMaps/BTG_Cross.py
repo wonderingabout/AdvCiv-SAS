@@ -283,7 +283,6 @@ def beforeGeneration():
 	else:
 		iNumSpectators = 0		
 
-
 	# Number of regions
 	iRegionsBase = 5
 	if (CyMap().getCustomMapOption(3) == 0):
@@ -306,7 +305,6 @@ def beforeGeneration():
 		return None
 	# Keep legacy cross-region templates to preserve original map identity.
 	iNumRegions = iRegionsBase
-
 
 	# Some regions may go unused. We need to track the ones that have been used.
 	regions_in_use = []
@@ -455,7 +453,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                            False
                                            )
 
-
 		#2.21z - the 'Open part'
 		if (CyMap().getCustomMapOption(1) == 0):
 
@@ -589,7 +586,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				regions_in_use.append(thisRegion)
 				#del remaining_regions[region_roll]
 
-
 				# Region dimensions
 				[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
 				iWestX = int(self.iW * fWestLon)
@@ -670,7 +666,6 @@ def addFeatures():
 			# If a peak is along the coast, change to hills and recalc.
 			pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
 
-
 	# Now add the features.
 	featuregen = FeatureGenerator()
 
@@ -696,7 +691,6 @@ def addFeatures():
 		if pPlot.isWater():
 			pPlot.setFeatureType(-1, -1)# -1 is nothing
 	#2.10 end
-
 
 	return 0
 
@@ -1234,7 +1228,6 @@ def normalizeAddExtras():
 							if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
 								plotsboundaries.append(p)					
 
-
 			if (CyMap().getCustomMapOption(4) == 1):
 				if not has_oil:
 
@@ -1354,7 +1347,6 @@ def normalizeAddExtras():
 		'''p = map.plot(map.getGridWidth()/2+2,map.getGridHeight()/2-1)
 		p.setBonusType(gems)'''
 
-
 	#2.15
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()		
@@ -1471,7 +1463,6 @@ def mirrorizeMap():
                                 pPlot = map.plot(wX + dX, sY + dY)
                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
         			pPlot.setFeatureType(rPlot.getFeatureType(), -1)
-
 
 	map.recalculateAreas()
 

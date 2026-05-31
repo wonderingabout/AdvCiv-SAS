@@ -355,7 +355,6 @@ class BugOptionsTab:
 		else:
 			self.addMissingOption(screen, controlPanel, name)
 
-
 	def addCheckboxDropdown (self, screen, checkPanel, dropPanel, checkName, dropName, layout, elements, index, callback, spacer=False):
 		"Adds a dropdown with a checkbox for a label."
 		checkOption = self.getOption(checkName)
@@ -430,7 +429,6 @@ class BugOptionsTab:
 				self.addMissingOption(screen, checkPanel, checkName)
 			if (dropOption is None):
 				self.addMissingOption(screen, dropPanel, dropName)
-
 
 	def addSlider (self, screen, labelPanel, controlPanel, name, spacer=False, vertical=False, expanding=True, fill=None, min=0, max=100):
 		option = self.getOption(name)

@@ -37,7 +37,6 @@ OPENERS = "([{"
 CLOSERS = ")]}"
 MATCH_OPEN = {")": "(", "]": "[", "}": "{"}
 
-
 def decode_bytes(raw):
     if raw.startswith(b"\xef\xbb\xbf"):
         return "utf-8-sig", raw.decode("utf-8-sig")
@@ -46,14 +45,11 @@ def decode_bytes(raw):
     except UnicodeDecodeError:
         return "latin-1", raw.decode("latin-1")
 
-
 def leading_indent(line):
     return line[:len(line) - len(line.lstrip(" \t"))]
 
-
 def has_mixed_indent(prefix):
     return " " in prefix and "\t" in prefix
-
 
 def expanded_width(prefix, tabsize):
     col = 0
@@ -63,7 +59,6 @@ def expanded_width(prefix, tabsize):
         elif ch == " ":
             col += 1
     return col
-
 
 def strip_trailing_ws_keep_eol(line):
     eol = ""
@@ -75,7 +70,6 @@ def strip_trailing_ws_keep_eol(line):
         body = line[:-1]
         eol = "\n"
     return body.rstrip(" \t") + eol
-
 
 def significant_tokens_from_text(text):
     result = []
@@ -90,7 +84,6 @@ def significant_tokens_from_text(text):
             continue
         result.append((tok.type, tok.string))
     return result
-
 
 def find_assignment_opener(stripped):
     lhs = []
@@ -115,7 +108,6 @@ def find_assignment_opener(stripped):
     if i < n and stripped[i] in OPENERS:
         return i
     return -1
-
 
 def update_bracket_state(segment, stack, state):
     quote = state.get("quote")
@@ -168,7 +160,6 @@ def update_bracket_state(segment, stack, state):
     state["quote"] = quote
     state["triple"] = triple
 
-
 def find_matrix_assignment_blocks(lines):
     blocks = []
     i = 0
@@ -201,7 +192,6 @@ def find_matrix_assignment_blocks(lines):
 
     return blocks
 
-
 def transform_text(text, tabsize):
     lines = text.splitlines(True)
     blocks = find_matrix_assignment_blocks(lines)
@@ -228,7 +218,6 @@ def transform_text(text, tabsize):
             changed_blocks += 1
 
     return "".join(out), changed_blocks, changed_lines, blocks
-
 
 def main(argv):
     parser = argparse.ArgumentParser(description="Normalize mixed indent inside multiline matrix/data assignments.")
@@ -284,7 +273,6 @@ def main(argv):
     if not args.in_place and not args.output:
         print("dry_run_only=true")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

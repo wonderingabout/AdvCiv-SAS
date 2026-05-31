@@ -337,7 +337,6 @@ class Attitude:
 			return szText
 		return ""
 
-
 ## Worst Enemy
 ##
 ## Each non-human team has a worst enemy team.

@@ -198,7 +198,6 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES", ()), "", True, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
 
-
 		# Create a row container for horizontal layout
 		rowPanelName = self.top.getNextWidgetName()
 		screen.attachPanel(panelName, rowPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)

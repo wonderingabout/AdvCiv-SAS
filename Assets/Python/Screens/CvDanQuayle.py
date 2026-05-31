@@ -203,13 +203,11 @@ class CvDanQuayle:
 
 			screen.appendListBoxString(self.LIST_ID, sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
-
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):
 		szName = self.WIDGET_ID + str(self.nWidgetCount)
 		self.nWidgetCount += 1
 		return szName
-
 
 	# Will handle the input for this screen...
 	def handleInput (self, inputClass):

@@ -343,7 +343,6 @@ def initModName():
 		BugUtil.error("CvModName.py module has no modName setting")
 	_modNameInitDone = True
 
-
 ## Mod Directory
 
 _isMod = False

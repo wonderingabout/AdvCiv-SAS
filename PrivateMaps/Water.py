@@ -111,11 +111,8 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
 				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN and self.isSurroundedByLand(x, y):
 					self.plotTypes[i] = PlotTypes.PLOT_LAND	
 
-
 		if shift_plot_types:
 			self.shiftPlotTypes()
-
-
 
 		return self.plotTypes
 

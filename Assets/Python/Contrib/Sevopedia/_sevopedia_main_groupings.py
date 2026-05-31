@@ -2060,7 +2060,6 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
 
 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS", ()), civItems)
 
-
 	# Sound scripts (2D) - keep grouping/labels identical to the original SevoPediaMain implementation.
 	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
 	_SCRIPT_2D_OPENING = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OPENING_2D"

@@ -97,7 +97,6 @@ class CvPediaPromotion:
 
 		self.placeUnitGroups()
 
-
 	# Place Leads To...
 	def placeLeadsTo(self):
 

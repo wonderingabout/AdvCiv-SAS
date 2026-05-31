@@ -361,8 +361,6 @@ class CvCameraControls:
 #	def updateLookAt(self, fDeltaTime):
 #		if not bCyCamera().GetCurrentPosition() == CyCamera().GetDestinationPosition():
 
-
-
 ######################
 # Update / Input Handlers
 ######################

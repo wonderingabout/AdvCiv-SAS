@@ -226,7 +226,6 @@ class PyPopup:
 		"completes a Table and Adds it to the popup - iX,iY are for the Tables Location"
 		self.popup.completeTableAndAttach( iGroup )
 
-
 ############ G R O U P      T A B L E S #########################		
 
 	def addTitleData(self, TitleList, SizeYTitle = 34):

@@ -846,7 +846,6 @@ class Section(dict):
         """
         return float(self[key])
 
-
 class ConfigObj(Section):
     """
     An object to read, create, and write config files.

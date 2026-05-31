@@ -940,7 +940,6 @@ class CvEventManager:
 
 		return 0
 
-
 #################### TRIGGERED EVENTS ##################	
 
 	def __eventEditCityNameBegin(self, city, bRename):

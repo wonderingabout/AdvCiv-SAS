@@ -290,7 +290,6 @@ class UnitUpgradesGraph:
 					if (not mGraph.graph.has_key(u)):
 						node.upgradesFrom.remove(u)
 
-
 			nextDummy = -1
 			#For any upgrade path that crosses more than one level, insert dummy nodes in between
 			for (unitA, nodeA) in mGraph.graph.items():
@@ -316,7 +315,6 @@ class UnitUpgradesGraph:
 							nextDummy -= 1
 						nodeA.upgradesTo.add(unitB)
 						nodeB.upgradesFrom.add(nextDummy + 1)
-
 
 			#Now we can build the matrix from the order data
 			#make sure the matrix is <depth> deep

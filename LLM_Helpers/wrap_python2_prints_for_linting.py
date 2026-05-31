@@ -57,7 +57,6 @@ from pathlib import Path
 import sys
 import tokenize
 
-
 TEXT_ENCODINGS = ("utf-8-sig", "utf-8", "cp1252", "latin-1")
 DEFAULT_INCLUDES = ("*.py",)
 SANDBOX_SAMPLE_PATHS = (
@@ -68,7 +67,6 @@ SANDBOX_SAMPLE_PATHS = (
     "/mnt/data/PerfectMongoose.py",
     "/mnt/data/Planet_Generator_0_68.py",
 )
-
 
 class FileResult(object):
     def __init__(self, path, encoding, original, rewritten, changed_lines, skipped_reasons):
@@ -87,7 +85,6 @@ class FileResult(object):
     def skipped_lines(self):
         return sum(self.skipped_reasons.values())
 
-
 def decode_bytes(data):
     for encoding in TEXT_ENCODINGS:
         try:
@@ -99,7 +96,6 @@ def decode_bytes(data):
         return text, encoding
     return data.decode("latin-1"), "latin-1"
 
-
 def split_line_ending(line):
     if line.endswith("\r\n"):
         return line[:-2], "\r\n"
@@ -108,7 +104,6 @@ def split_line_ending(line):
     if line.endswith("\r"):
         return line[:-1], "\r"
     return line, ""
-
 
 def leading_print_statement(body):
     stripped = body.lstrip(" \t")
@@ -125,7 +120,6 @@ def leading_print_statement(body):
 
     return indent, after
 
-
 def find_comment_column(body):
     try:
         tokens = tokenize.generate_tokens(io.StringIO(body + "\n").readline)
@@ -135,7 +129,6 @@ def find_comment_column(body):
     except (tokenize.TokenError, IndentationError):
         return None
     return None
-
 
 def expression_skip_reason(expr):
     if not expr:
@@ -184,7 +177,6 @@ def expression_skip_reason(expr):
 
     return None
 
-
 def rewrite_line(line):
     body, eol = split_line_ending(line)
     parsed = leading_print_statement(body)
@@ -223,7 +215,6 @@ def rewrite_line(line):
 
     return new_code + eol, True, None
 
-
 def rewrite_text(text):
     rewritten_lines = []
     changed_lines = 0
@@ -240,13 +231,11 @@ def rewrite_text(text):
     rewritten = "".join(rewritten_lines)
     return rewritten, changed_lines, skipped_reasons
 
-
 def process_file(path):
     data = path.read_bytes()
     original, encoding = decode_bytes(data)
     rewritten, changed_lines, skipped_reasons = rewrite_text(original)
     return FileResult(path, encoding, original, rewritten, changed_lines, skipped_reasons)
-
 
 def unified_diff(result):
     old_lines = result.original.splitlines(True)
@@ -258,10 +247,8 @@ def unified_diff(result):
         tofile=str(result.path) + " (wrapped prints)",
     ))
 
-
 def write_text_preserving_encoding(path, text, encoding):
     path.write_bytes(text.encode(encoding))
-
 
 def write_result(result, output, in_place):
     if output is not None and in_place:
@@ -270,7 +257,6 @@ def write_result(result, output, in_place):
     if target is None:
         return
     write_text_preserving_encoding(target, result.rewritten, result.encoding)
-
 
 def result_summary_lines(results):
     total_changed = sum(result.changed_lines for result in results)
@@ -294,11 +280,9 @@ def result_summary_lines(results):
                     lines.append("  skipped %-24s %d" % (reason + ":", result.skipped_reasons[reason]))
     return lines
 
-
 def print_summary(results):
     for line in result_summary_lines(results):
         print(line)
-
 
 def normalize_include_patterns(patterns):
     if not patterns:
@@ -311,7 +295,6 @@ def normalize_include_patterns(patterns):
                 normalized.append(part)
     return normalized or list(DEFAULT_INCLUDES)
 
-
 def iter_directory_files(directory, include_patterns, recursive):
     seen = set()
     for pattern in include_patterns:
@@ -322,7 +305,6 @@ def iter_directory_files(directory, include_patterns, recursive):
                 if resolved not in seen:
                     seen.add(resolved)
                     yield path
-
 
 def expand_input_paths(raw_paths, include_patterns, recursive, sandbox_samples):
     paths = []
@@ -350,7 +332,6 @@ def expand_input_paths(raw_paths, include_patterns, recursive, sandbox_samples):
             unique.append(path)
     return unique
 
-
 def validate_paths(paths):
     missing = [path for path in paths if not path.exists()]
     directories = [path for path in paths if path.exists() and path.is_dir()]
@@ -360,7 +341,6 @@ def validate_paths(paths):
     for path in directories:
         errors.append("directory was not expanded: %s" % path)
     return errors
-
 
 def parse_args(argv):
     parser = argparse.ArgumentParser(description="Conservatively wrap easy Python 2 print statements as print(...) for Python 3 linters.")
@@ -374,7 +354,6 @@ def parse_args(argv):
     parser.add_argument("--report", help="Write the summary report to this path as well as stdout.")
     parser.add_argument("--check", action="store_true", help="Exit with status 1 if any file would change.")
     return parser.parse_args(argv)
-
 
 def main(argv):
     args = parse_args(argv)
@@ -422,7 +401,6 @@ def main(argv):
     if args.check and any(result.changed for result in results):
         return 1
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))

@@ -2074,7 +2074,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def isShortcutInfo(self, info):
 		return info.getType().find("SHORTCUTS") != -1
 
-
 	def placeItems(self, widget, info):
 		screen = self.getScreen()
 

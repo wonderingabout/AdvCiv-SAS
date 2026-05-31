@@ -333,7 +333,6 @@ def beforeGeneration():
 	except:
 		isBTPon = False
 
-
 	gc = CyGlobalContext()
 	map = CyMap()
 	dice = gc.getGame().getMapRand()
@@ -661,7 +660,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
                                            False
                                            )
 
-
 		#2.21z - the 'Open part'
 		if (CyMap().getCustomMapOption(1) == 0):
 
@@ -772,7 +770,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 						iWorldD = wholeworldYD*self.iW + wholeworldXD
 						self.wholeworldPlotTypes[iWorld] = self.wholeworldPlotTypes[iWorldD]
 
-
 		# Generate spokes
 		map = CyMap()
 		spoke_width = map.getCustomMapOption(2)
@@ -812,7 +809,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 						self.addLandPlot(i + 2)
 					if spoke_width > 4:#2.21z
 						self.addLandPlot(i - 2)				
-
 
 		return self.wholeworldPlotTypes
 
@@ -1224,7 +1220,6 @@ def assignStartingPlots():
 				else:
 					continue
 
-
 			[wX, eX, sY, nY] = region_data[reg][0:4]
 			# Only consider the inner part of the region
 			iWidth = eX - wX + 1
@@ -1389,7 +1384,6 @@ def normalizeAddExtras():
 							if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
 								plotsboundaries.append(p)						
 
-
 			if (CyMap().getCustomMapOption(4) == 1):
 				if not has_precious:
 
@@ -1406,13 +1400,9 @@ def normalizeAddExtras():
 						p.setFeatureType(-1,-1)#2.34 -- Because Sometimes Oil is on floodplain
 						p.setBonusType(silver)		
 
-
-
-
 	#2020 04 - After player's all stuff
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
-
 
 	if (CyMap().getCustomMapOption(8) >= 1):
 		for iX in range(iW):
@@ -1424,16 +1414,12 @@ def normalizeAddExtras():
 				#if pPlot.getTerrainType() == desert and pPlot.getBonusType(-1) == BonusTypes.NO_BONUS and pPlot.getFeatureType(-1) == FeatureTypes.NO_FEATURE:
 					pPlot.setTerrainType(grass, True, True)
 
-
 	# BTG Resources option removed: keep default behavior (no BTG extra-resource injections).
-
 
 	if (CyMap().getCustomMapOption(1) == 3):
 		mirrorizeMap() #2020 06 - BTP 2.15 - Restart feature
 
 	# BTG Resources option removed: no sulphur-on-capital mode.
-
-
 
 	CyMap().recalculateAreas()#2.21zz Mirror looks weird				
 
@@ -1552,7 +1538,6 @@ def mirrorizeMap():
                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
         			pPlot.setFeatureType(rPlot.getFeatureType(), -1)
 
-
 	map.recalculateAreas()
 
 	# mirrorize bonuses
@@ -1581,7 +1566,6 @@ def startHumansOnSameTile():
 	# BTG Forest Type option removed: keep default forest behavior.
 	if (CyMap().getCustomMapOption(9) == 1):
 		return True
-
 
 def normalizeStartingPlotLocations():#2.21z
 
@@ -1621,7 +1605,6 @@ def BTPTopBottomTwoTeams(isBTG):
 
 		#############################
 		#Spectator bit - not amazing if spectator is middle team
-
 
 		listTeams = []
 		#2.23 Improve for spectators

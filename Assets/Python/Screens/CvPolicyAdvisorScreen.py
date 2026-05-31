@@ -613,7 +613,6 @@ class CvPolicyAdvisorScreen:
 
 		return 0
 
-
 	def drawHelpText(self, iCivicOption):
 
 		activePlayer = gc.getPlayer(self.iActivePlayer)
@@ -643,7 +642,6 @@ class CvPolicyAdvisorScreen:
 		fY = self.HELP_TOP + 3 * self.TEXT_MARGIN
 		szHelpAreaID = self.HELP_AREA_NAME + str(iCivicOption)		
 		screen.addMultilineText(szHelpAreaID, sasFontTagLabel + szHelpText + SAS_FONT_TAG_CLOSE, fX+5, fY, self.HEADINGS_WIDTH-7, self.HELP_BOTTOM - fY-2, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
 
 	# Will draw the help text
 	def drawAllHelpText(self):

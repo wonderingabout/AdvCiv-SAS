@@ -43,7 +43,6 @@ def getCustomMapOptionName(argsList):
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 
-
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {

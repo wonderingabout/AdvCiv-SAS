@@ -46,7 +46,6 @@ class BugPleOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addColorDropdown(screen, leftL, leftR, "PLE__Wounded_Color", True)
 		self.addCheckbox(screen, left, "PLE__Hide_Health_Fighting")
 
-
 		#self.addSpacer(screen, left, "PLE_Tab") # advc.069: Not needed
 		#self.addSpacer(screen, left, "PLE__Spacing")
 		#self.addTextEdit(screen, left, left, "PLE__Horizontal_Spacing")

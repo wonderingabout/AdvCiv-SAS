@@ -852,7 +852,6 @@ class CvDiplomacy:
 		# <!-- custom: End - strict detector for accepted pure vassal/surrender offers with no added terms. (GPT-5.3-Codex) -->
 		return True
 
-
 	def getCommentID(self, strComment):
 		# int - ID for DiploCommentType
 		#
