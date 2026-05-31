@@ -588,6 +588,12 @@ PS C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
 | `E402` import position           |                    2 |                   2 |      0 | Skip unless inspecting context.                                                                                   |
 | **Total Ruff findings**          |                ~4248 |                3915 |  ~-333 | The helper did exactly its narrow job: reduce continuation-style indentation noise without touching logic/tables. |
 
+Or to catch them all, it seems this can be done on Git Bash for example (and according to GPT-5.5-Thinking):
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/ruff_all_py_${ts}.txt" && { py -m ruff check . --output-format=grouped > "$out" 2>&1 || true; } && echo "wrote $out"
+```
+
 ## How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash
 
 In CivilizationIV.ini (for example as for me in `C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini` path, update to your own windows user account path), there is an option that you can set to `generatecrashdumps = 1`.

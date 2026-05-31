@@ -4,7 +4,10 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 from pathlib import Path
-import re, difflib, tokenize, io
+import re
+import difflib
+import tokenize
+import io
 
 SRC = Path('/mnt/data/CvMainInterface.singleline3.py')
 DST = Path('/mnt/data/CvMainInterface.commentcleanup.py')

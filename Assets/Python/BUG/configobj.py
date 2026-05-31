@@ -48,7 +48,8 @@ INTP_VER = sys.version_info[:2]
 if INTP_VER < (2, 2):
     raise RuntimeError("Python v.2.2 or later needed")
 
-import os, re
+import os
+import re
 from types import StringTypes
 from warnings import warn
 from codecs import BOM_UTF8, BOM_UTF16, BOM_UTF16_BE, BOM_UTF16_LE
