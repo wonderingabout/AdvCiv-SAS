@@ -223,15 +223,6 @@ def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
 
-def getBTGCrossBaseGridSizes(iHugeW, iHugeH):
-	iAnchorPlayers = sas_huge_custom_max_players()
-	grid_sizes = {}
-	for iWorldSize in range(SAS_MAGIC_WORLDSIZE_HUGE + 1):
-		iTargetPlayers = sas_world_default_players(iWorldSize, sas_huge_custom_max_players())
-		grid_sizes[iWorldSize] = sas_calibrate_grid_from_anchor(iHugeW, iHugeH, iAnchorPlayers, iTargetPlayers)
-	grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE] = (iHugeW, iHugeH)
-	return grid_sizes
-
 def getGridSize(argsList):
 	# 2.23 - Simplified, enhanced
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -239,22 +230,55 @@ def getGridSize(argsList):
 	[eWorldSize] = argsList
 	iDistanceOption = CyMap().getCustomMapOption(9)
 	if (iDistanceOption == 0):
-		(iHugeW, iHugeH) = (20, 20)
+		# <!-- custom: BTG Cross dimensions were too small for each base world size in current tuning. Use direct grid rows instead of hiding the change behind a shifted calibration formula, so each base size is visible and tunable; SAS24+ calibrates from the explicit Huge row. (GPT-5.5) -->
+		grid_sizes = {
+			SAS_MAGIC_WORLDSIZE_ARENA: (7, 7),
+			SAS_MAGIC_WORLDSIZE_DUEL: (8, 8),
+			SAS_MAGIC_WORLDSIZE_TINY: (11, 11),
+			SAS_MAGIC_WORLDSIZE_SMALL: (13, 13),
+			SAS_MAGIC_WORLDSIZE_STANDARD: (16, 16),
+			SAS_MAGIC_WORLDSIZE_LARGE: (19, 19),
+			SAS_MAGIC_WORLDSIZE_HUGE: (24, 24),
+		}
 	elif (iDistanceOption == 1):
-		(iHugeW, iHugeH) = (25, 25)
+		grid_sizes = {
+			SAS_MAGIC_WORLDSIZE_ARENA: (8, 8),
+			SAS_MAGIC_WORLDSIZE_DUEL: (10, 10),
+			SAS_MAGIC_WORLDSIZE_TINY: (13, 13),
+			SAS_MAGIC_WORLDSIZE_SMALL: (17, 17),
+			SAS_MAGIC_WORLDSIZE_STANDARD: (20, 20),
+			SAS_MAGIC_WORLDSIZE_LARGE: (24, 24),
+			SAS_MAGIC_WORLDSIZE_HUGE: (30, 30),
+		}
 	elif (iDistanceOption == 2):
-		(iHugeW, iHugeH) = (15, 15)
+		grid_sizes = {
+			SAS_MAGIC_WORLDSIZE_ARENA: (5, 5),
+			SAS_MAGIC_WORLDSIZE_DUEL: (6, 6),
+			SAS_MAGIC_WORLDSIZE_TINY: (8, 8),
+			SAS_MAGIC_WORLDSIZE_SMALL: (10, 10),
+			SAS_MAGIC_WORLDSIZE_STANDARD: (12, 12),
+			SAS_MAGIC_WORLDSIZE_LARGE: (14, 14),
+			SAS_MAGIC_WORLDSIZE_HUGE: (18, 18),
+		}
 	else:
-		(iHugeW, iHugeH) = (10, 10)
+		grid_sizes = {
+			SAS_MAGIC_WORLDSIZE_ARENA: (3, 3),
+			SAS_MAGIC_WORLDSIZE_DUEL: (4, 4),
+			SAS_MAGIC_WORLDSIZE_TINY: (5, 5),
+			SAS_MAGIC_WORLDSIZE_SMALL: (7, 7),
+			SAS_MAGIC_WORLDSIZE_STANDARD: (8, 8),
+			SAS_MAGIC_WORLDSIZE_LARGE: (9, 9),
+			SAS_MAGIC_WORLDSIZE_HUGE: (12, 12),
+		}
 
 	iWorld = int(eWorldSize)
 	# <!-- custom: BTG Cross used the Huge grid for every world size of Huge and below, including our SAS ARENA size, so they collapsed to one effective map size such as 60x60 plots. Scale them from the Huge anchor and keep the existing SAS24+ formula below. See KI#137. (GPT-5.5) -->
 	if iWorld <= SAS_MAGIC_WORLDSIZE_HUGE:
-		grid_sizes = getBTGCrossBaseGridSizes(iHugeW, iHugeH)
 		return sas_lookup_world_size(eWorldSize, grid_sizes)
 
 	iDefaultPlayers = sas_world_default_players(iWorld, sas_huge_custom_max_players())
 	iTargetPlayers = int(math.ceil(float(iDefaultPlayers) * 1.5))
+	(iHugeW, iHugeH) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
 	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_huge_custom_max_players(), iTargetPlayers)
 
 def beforeGeneration():
