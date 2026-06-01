@@ -20,7 +20,7 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- By eliminating a civ early in the game, some of the unsettled land near it can be settled and exploited. Lebensraum if you will (and in Civ, it actually works).  -->
+		<!-- By eliminating a civ early in the game, some of the unsettled land near it can be settled and exploited. Lebensraum if you will (and in Civ, it actually works). -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_SPACE</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>

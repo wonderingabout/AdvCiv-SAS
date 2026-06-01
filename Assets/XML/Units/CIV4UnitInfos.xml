@@ -11290,7 +11290,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 65 in the advciv-sas generic crossbowman, as they were cheaper units and historically longbows were cheaper to produce or such  -->
+			<!-- custom: was 65 in the advciv-sas generic crossbowman, as they were cheaper units and historically longbows were cheaper to produce or such -->
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
@@ -11332,12 +11332,11 @@
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
-			<!-- custom: was 0 in the advciv-sas generic crossbowman -->
-			<iCityDefense>10</iCityDefense>
+			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: was 25/25 in the advciv-sas generic crossbowman -->
-			<iHillsAttack>15</iHillsAttack>
-			<iHillsDefense>15</iHillsDefense>
+			<!-- custom: 7 * 1.20 = 8.4 > 6 * 1.25 = 7.5, but on melee shock + hill 7 * (1 + 0.30 + 0.20) = 10.5 == 6 * (1 + 0.50 + 0.25) = 10.5 so seems more balanced as such as compared to the as of now sas generic crossbowman. Its as of now other perks (no iron (not that rare)) and cost reduction (5 hammer is not big in medieval) are not that strong to not buff it as such. -->
+			<iHillsAttack>20</iHillsAttack>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -11357,11 +11356,11 @@
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: see related comment at the babylon longbow, which as of now essential is more or less an ancient crossbow in terms of stats -->
-			<!-- custom: was UNITCOMBAT_MELEE_SHOCK 50 in the advciv-sas generic crossbowman -->
+			<!-- custom: with its as of now base str of 7, 7 * 1.30 = 9.1 > 6 * 1.50 = 9.0 so not weaker than sas generic crossbowman against melee (as per GPT-5.5-Thinking's explanation; see also docs) -->
 			<UnitCombatMods>
 				<UnitCombatMod>
 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
-					<iUnitCombatMod>25</iUnitCombatMod>
+					<iUnitCombatMod>30</iUnitCombatMod>
 				</UnitCombatMod>
 			</UnitCombatMods>
 			<UnitCombatCollateralImmunes/>
@@ -11395,13 +11394,7 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was empty in the advciv-sas generic crossbowman -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_SENTRY</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>

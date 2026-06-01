@@ -272,7 +272,7 @@
 		<Spanish>Si se activa, las gráficas son mostradas en el formato BUG.</Spanish>
 	</TEXT>
 
-	<!-- advc.004: was just "Wonders Tab"  -->
+	<!-- advc.004: was just "Wonders Tab" -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGINFOWONDERS_TEXT</Tag>
 		<English>BUG Wonders Tab</English>

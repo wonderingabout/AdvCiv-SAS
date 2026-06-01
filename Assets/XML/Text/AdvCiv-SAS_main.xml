@@ -1340,7 +1340,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
 		<English>[ICON_BULLET]%D1_Change%% from Handicap</English>
 	</TEXT>
-	<!-- custom: add year info in header so we don't need to copy it in headers or maintain it there, was "GAME SPEED"  -->
+	<!-- custom: add year info in header so we don't need to copy it in headers or maintain it there, was "GAME SPEED" -->
 	<TEXT>
 		<Tag>TXT_KEY_MAIN_MENU_SELECT_GAME_SPEED_TITLE</Tag>
 		<English>GAME SPEED (50 000 BC - 2105 AD)</English>

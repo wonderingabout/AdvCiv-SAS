@@ -3492,7 +3492,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 ----- Comment #223 -----
 
 <!-- custom: more recent change with the help of chatgpt thanks: also show iCollateralDamage not only max in doing so, also fix NUM1 to NUM3 according to chatgpt (would have been NUM2 without our change not NUM1 too as well and according to chatgpt too and if i understand it correctly) -->
-	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits.  -->
+	<!-- advc.004: From CIV4GameTextChanged_BTS.xml. State collateralDamageMaxUnits. -->
 
 ===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
 ----- Comment #224 -----

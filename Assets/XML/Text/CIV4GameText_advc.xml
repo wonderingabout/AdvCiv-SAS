@@ -3740,7 +3740,7 @@
 
 	<!-- Alternatives: e.c. in Italian
 		 n.u.Z. or n.d.Z. in German (or even the English CE instead, as secular
-		 dates aren't commonly used in German)  -->
+		 dates aren't commonly used in German) -->
 	<TEXT>
 		<Tag>TXT_KEY_TIME_CE</Tag>
 		<English>%d1_Date CE</English>
@@ -4476,7 +4476,7 @@
 	</TEXT>
 
 	<!-- advc.004w: Based on TXT_KEY_BONUS_AVAILABLE_PLAYER
-		 (CIV4GameText_BTS.xml).  -->
+		 (CIV4GameText_BTS.xml). -->
 	<TEXT>
 		<Tag>TXT_KEY_BONUS_AVAILABLE_US</Tag>
 		<English>[SPACE](we have %d1_num_bonus)[SPACE]</English>

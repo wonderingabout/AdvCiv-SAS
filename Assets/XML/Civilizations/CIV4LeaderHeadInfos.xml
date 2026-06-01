@@ -9,7 +9,7 @@ Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 -->
 <!-- Leader Infos and AI Settings -->
-<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown  -->
+<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
 		<LeaderHeadInfo> <!-- custom: Barbarian (useful for VS Code upper tree view while scrolling) -->
@@ -2425,7 +2425,7 @@ Created as part of AdvCiv-SAS improvements
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
-			<!-- advc.148: was  -->
+			<!-- advc.148: was -->
 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
 			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
 			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>

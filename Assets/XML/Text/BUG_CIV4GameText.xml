@@ -3,7 +3,7 @@
 	Various Interface Label Translations
 
 	Copyright (c) 2007 The BUG Mod.
-  -->
+ -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<!-- General -->
@@ -1242,7 +1242,7 @@
 		 Info Screen to be sure it looks okay. The CIVICOPTION
 		 abbreviations should be similar to the full words used in 
 		 the CIVICOPTION keys in CIV4GameTextInfos_Objects.xml 
-	  -->
+	 -->
 
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER</Tag>

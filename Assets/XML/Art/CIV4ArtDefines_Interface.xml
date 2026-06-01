@@ -1620,7 +1620,7 @@ Created as part of AdvCiv-SAS improvements
 
 <!-- BUG - Sevopedia - end -->
 
-<!-- BUG - specialists  - start  -->
+<!-- BUG - specialists  - start -->
 
 		<InterfaceArtInfo>
 			<Type>OVERLAY_CHEVRON5</Type>
@@ -1635,7 +1635,7 @@ Created as part of AdvCiv-SAS improvements
 			<Path>Art/Interface/screens/medallion_Chevron20.dds</Path>
 		</InterfaceArtInfo>	
 
-<!-- BUG - specialists  - end  -->
+<!-- BUG - specialists  - end -->
 
 <!-- BUG - Raw Yields - start -->
 

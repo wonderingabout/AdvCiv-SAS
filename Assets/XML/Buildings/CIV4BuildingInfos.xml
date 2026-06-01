@@ -28745,7 +28745,7 @@
 			<BuildingHappinessChanges/>
 			<!-- advc.310: i...Needed refers to Duel map size. Note that
 				 advc.054 changes the map-size adjustment so that 2 Walls are
-				 required on all map sizes above Tiny.  -->
+				 required on all map sizes above Tiny. -->
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>

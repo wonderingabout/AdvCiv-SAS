@@ -109,7 +109,7 @@ class CvForeignAdvisor:
 		self.GLANCE_BUTTON = "ForeignAdvisorPlusMinus"
 		self.X_LINK = 0
 
-		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks.  -->
+		# <!-- custom: remove these iExtraWidth and iExtraHeight-like as we don't want yellow margins: they are distracting and not not useful; channge with the help of gemini pro 3 thanks. -->
 		# self.X_GLANCE_OFFSET = 6 # advc.004: was 10
 		# self.Y_GLANCE_OFFSET = 3
 		self.X_GLANCE_OFFSET = 0

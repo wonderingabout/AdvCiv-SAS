@@ -242,7 +242,7 @@
 		<Spanish>Muestra los edificios que afectan a la cantidad de [ICON_HAPPY] y [ICON_UNHAPPY].</Spanish>
 	</TEXT>
 
-	<!-- advc.004: German abbreviated; it's in the widest row.  -->
+	<!-- advc.004: German abbreviated; it's in the widest row. -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BUILDINGADDITIONALGREATPEOPLE_TEXT</Tag>
 		<English>Great People</English>

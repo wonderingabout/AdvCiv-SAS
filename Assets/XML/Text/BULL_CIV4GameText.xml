@@ -3,7 +3,7 @@
 	Text strings for the BUG DLL
 
 	Copyright (c) 2009 The BUG Mod.
-  -->
+ -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 <!-- City Bar Hover -->
@@ -195,7 +195,7 @@
 <!-- BULL - Leaderhead Relations - end -->
 
 <!-- Tech Hover -->
-<!-- advc.910: Handled by Civ4GameText_advc.xml  -->
+<!-- advc.910: Handled by Civ4GameText_advc.xml -->
 
 <!-- Actual Effects -->
 	<TEXT>

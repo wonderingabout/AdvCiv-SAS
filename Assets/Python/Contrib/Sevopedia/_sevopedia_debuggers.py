@@ -200,7 +200,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	# <!-- custom: stop at 4 because there are only 5 attitudes (0 furious to 4 friendly is a total of 5 values), and trying to access the 6th non-existent in this case value returns this error:
 	# AttributeError: 'NoneType' object has no attribute 'getDescription'
 	# ERR: Python function pediaJumpToLeader failed, module CvScreensInterface
-	# , so stop at last value value/one  -->
+	# , so stop at last value value/one -->
 	NUM_ATTITUDE_TYPES_ASSESSED = 5
 	for i in range(NUM_ATTITUDE_TYPES_ASSESSED):
 		name = gc.getAttitudeInfo(i).getDescription()

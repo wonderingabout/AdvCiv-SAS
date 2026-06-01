@@ -3,14 +3,14 @@
 	Various Interface Label Translations
 
 	Copyright (c) 2007 The BUG Mod.
-  -->
+ -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<TEXT>
 		<!-- These are modified copies of TXT_KEY_RELIGION_FREE_XP 
 			 which remove the plus in front of the number and add
 			 parentheses around everything.
-		  -->
+		 -->
 		<Tag>TXT_KEY_CDA_BASE_XP</Tag>
 		<English>(%d1 XP)</English>
 		<French>(%d1 EXP)</French>

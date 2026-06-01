@@ -247,7 +247,7 @@ Created as part of AdvCiv-SAS improvements
 		 'BUG Core.xml') toggles the "show friendly moves" option.
 		 Recommended: 0; frequent toggling shouldn't be necessary anymore.
 		 (Also, the toggling isn't reflected by the player options screen and
-		 not stored in the user profile.)  -->
+		 not stored in the user profile.) -->
 	<Define>
 		<DefineName>ENABLE_HOTKEY_SHOW_FRIENDLY_MOVES</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1138,7 +1138,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 
 	<!-- [advc.700] Rise & Fall parameters. The first four are applied at game
-		 start; changing them in an ongoing game has no effect.  -->
+		 start; changing them in an ongoing game has no effect. -->
 	<!-- Base value for the number of chapters; recommended: 7. Has to be
 		 positive. The game adjusts the value based on game speed and start
 		 date. -->

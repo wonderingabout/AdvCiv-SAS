@@ -19,7 +19,7 @@
 	<Attribute Class="Scalar">szProductionBreakpoint:</Attribute>
 	<!-- when a production of this name is expanded, break -->
 	<Attribute Class="Scalar">szNodeBreakpoint:</Attribute>
-	<!-- when a node of this name is instantiated, break   -->
+	<!-- when a node of this name is instantiated, break  -->
 	<LNode Name="Node_6x6">
 		<Width>6</Width>
 		<Height>6</Height>

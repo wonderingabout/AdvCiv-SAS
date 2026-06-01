@@ -1293,7 +1293,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		else
 		{
 			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones. Helps avoid oscillation (workers changing their mind and overwriting a tile repeatedly based on fleeting conditions, which is very inefficient). Helps AI focus on one improvement and stick to it. (Claude code Sonnet 4.5 (summarized))
-			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect  -->
+			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect -->
 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 			// <!-- custom: first the absolutely holy improvements to never improve -->
 			if (ePlotCurrentImprovement == eImprovementHamlet ||
@@ -1718,7 +1718,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						{
 							eBestSupposedBuild = eBuildCottage;
 
-							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location)  -->
+							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->
 							iValue += 150;
 						}
 						else
@@ -3548,7 +3548,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	if (AI_safety())
 		return;
 
-	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate); note: refresh the value to another bWorkerSleeping2 variable in case it changed since then  -->
+	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate); note: refresh the value to another bWorkerSleeping2 variable in case it changed since then -->
 	// Bottom-of-function failsafe (“do something, anything")
 	// At the very end of AI_workerMove (just before returning with no action), add:
 	const bool bWorkerSleeping2 = (

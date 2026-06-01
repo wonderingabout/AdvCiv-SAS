@@ -311,7 +311,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #132 -->
 	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
-	Set to 0 to compute at runtime  -->
+	Set to 0 to compute at runtime -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1497,7 +1497,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: i have noticed AI spends a lot of turns and gold to upgrade units, sometimes for little gain. This is problematic especially in the late game where there are many units to upgrade; Long_Comments_XML.txt #178  -->
+	<!-- custom: i have noticed AI spends a lot of turns and gold to upgrade units, sometimes for little gain. This is problematic especially in the late game where there are many units to upgrade; Long_Comments_XML.txt #178 -->
 	<Define>
 		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
