@@ -177,6 +177,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#139---fixed-base-advciv-issue-foreign-advisor-bug-menu-made-glance-attitude-dropdown-look-attached-to-enhanced-info-tab)  
 [140 - (Fixed) Base AdvCiv issue: Foreign Advisor Glance tab showed incorrect and inconsistent +0 attitude display in self cells](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#140---fixed-base-advciv-issue-foreign-advisor-glance-tab-showed-incorrect-and-inconsistent-0-attitude-display-in-self-cells)  
 [141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game)  
+[142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5266,3 +5267,21 @@ Files changed:
 - [CvGameCoreDLL/CyGlobalContext.h](/CvGameCoreDLL/CyGlobalContext.h)
 - [CvGameCoreDLL/CyGlobalContextInterface1.cpp](/CvGameCoreDLL/CyGlobalContextInterface1.cpp)
 - [Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py)
+
+## 142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1DDd5g7JVnyMjDNqnSBjzzy0xvpuCAVWp?usp=sharing).
+
+While investigating why a Celt leader still had only one city around turn 100, the Military Advisor Map tab showed other players' units in the active player's known part of the minimap, but the Celt units could not be located from that tab. The missing settler was on another continent outside the active player's known map area.
+
+The unit visibility itself was already fine in debug mode. The issue was that the Map tab minimap was still drawn as the active player's known minimap section, even though debug mode exposes the full map and the Map tab leader bar can select alive players outside the active player's revealed area.
+
+Fix:
+
+- In normal play, keep drawing the active player's known minimap section.
+- In debug mode, draw the full minimap section with `screen.updateMinimapSection(gc.getGame().isDebugMode(), False)`.
+- This made the Celt settler visible on the Military Advisor Map tab and allowed its location to be diagnosed.
+
+File changed:
+
+- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)

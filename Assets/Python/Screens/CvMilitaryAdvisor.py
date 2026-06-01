@@ -524,7 +524,8 @@ class CvMilitaryAdvisor:
 			screen.addPanel(self.MAP_MINIMAP_PANEL_ID, u"", "", False, False, self.X_MAP_MINIMAP, self.Y_MAP_MINIMAP, self.W_MAP_MINIMAP, self.H_MAP_MINIMAP, PanelStyles.PANEL_STYLE_MAIN)
 			screen.initMinimap(self.X_MAP_MINIMAP + self.PANEL_MARGIN, self.X_MAP_MINIMAP + self.W_MAP_MINIMAP - self.PANEL_MARGIN, self.Y_MAP_MINIMAP + self.PANEL_MARGIN, self.Y_MAP_MINIMAP + self.H_MAP_MINIMAP - self.PANEL_MARGIN, self.Z_CONTROLS)
 			self.bMapMinimapInitDone = True
-		screen.updateMinimapSection(False, False)
+		# <!-- custom: In debug mode the Map tab leader bar can select alive players outside the active player's revealed map. Use the full minimap section then; otherwise a selected AI on another continent can have visible unit rows/overlays outside the drawn minimap area. Normal play keeps the active player's known minimap section. See KI#142. (GPT-5.5?) -->
+		screen.updateMinimapSection(gc.getGame().isDebugMode(), False)
 		screen.updateMinimapColorFromMap(MinimapModeTypes.MINIMAPMODE_TERRITORY, 0.6)
 		screen.setMinimapMode(MinimapModeTypes.MINIMAPMODE_MILITARY)
 

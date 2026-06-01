@@ -742,8 +742,6 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
 
 Map-script helper logic that is reused by several scripts lives in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py), not in `PrivateMaps`, because Civ4 treats imported top-level callback names such as `getGridSize` as part of the importing map script. `SAS_Simple_Flat_Grass.py` is the playable simple flat-grass sandbox map that uses that helper profile.
 
-Several inherited map scripts were also tuned after the shared-helper fix: RandomScriptMap is slightly trimmed and uses AdvCiv-SAS world-size constants for its internal legacy buckets; Medium and Small is slightly larger because lower islets often are not allocated to players; Pangaea Huge uses the intended Pangaea value again; Big and Small and Custom Continents are trimmed on larger tiers because Huge tested too large. See the Main Changes Guide for details.
-
 ### AdvCiv-SAS original mapscripts (e.g., SAS_Simple_Flat_Grass, SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
 
 #### SAS_Longworld
