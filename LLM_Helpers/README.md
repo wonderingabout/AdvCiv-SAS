@@ -20,6 +20,7 @@ Always review diffs before committing generated source changes.
   - [`collapse_multiline_calls2.py`](#collapse_multiline_calls2py)
   - [`collapse_multiline_parens_safe.py`](#collapse_multiline_parens_safepy)
   - [`fix_matrix_indent.py`](#fix_matrix_indentpy)
+  - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
 - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
@@ -162,6 +163,62 @@ PrivateMaps/Ring.py                  |  646 +++++++++---------
 PrivateMaps/Tectonics.py             |   22 +-
 PrivateMaps/Wheel.py                 |  786 +++++++++++-----------
 16 files changed, 2713 insertions(+), 2423 deletions(-)
+```
+
+### `collapse_flat_literals.py`
+
+Conservative flat-literal collapse helper.
+
+- Collapses simple flat multiline Python list/tuple assignment literals to one physical line.
+- Intended for small option lists, name lists, simple region-data arrays, GameFont-style flat token lists, and similar grep-friendly data.
+- Does not target matrix-like map templates, nested lists/dicts/tuples, comments inside literals, or large table-style data where one row per line is clearer.
+- Preserves trailing commas if they already exist; this keeps the rewrite mechanical and avoids unnecessary token/style changes.
+- Refuses risky edits when significant token sequence changes.
+- Default `--max-line-len` is intentionally fairly high because this helper targets grep-friendly flat data arrays, not normal prose/code wrapping.
+- This is not a general formatter. Review the staged diff before committing.
+
+Tested broad run workflow from Git Bash. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_flat_literals.py" "LLM_Helpers/collapse_flat_literals_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_flat_literals_TEMP_RUNNER.py" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && runlog="LLM_Helpers/outputs/run_collapse_flat_literals_${ts}.txt" && diff="LLM_Helpers/outputs/staged_collapse_flat_literals_${ts}.diff" && report="LLM_Helpers/outputs/check_collapse_flat_literals_${ts}.txt" && { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done > "$runlog" 2>&1; rc=$?; rm -f "$runner"; [ $rc -eq 0 ] || { cat "$runlog"; exit $rc; }; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add --; git diff --cached --ignore-space-at-eol > "$diff"; { echo "=== collapse_flat_literals run log ==="; cat "$runlog"; echo; echo "=== staged stat ==="; git diff --cached --ignore-space-at-eol --stat -- '*.py'; echo; echo "=== staged whitespace check ==="; git diff --cached --check -- '*.py'; echo; echo "runlog=$runlog"; echo "diff=$diff"; } > "$report" 2>&1 && cat "$report" && echo "wrote $report" && echo "wrote $diff"
+```
+
+Tested broad pass result with default line length 500:
+
+```text
+19 flat literals collapsed across 15 existing source files.
+One risky old vendored file, Assets\Python\BUG\configobj.py, was refused by the token-safety check.
+The pass caught the longer flat GameFontDisplay character-name list in addition to shorter option/name/region-data arrays.
+Run git diff --cached --check before committing.
+```
+
+Example intended rewrites:
+
+```python
+selection_names = [
+	"TXT_KEY_MAP_WRAP_FLAT",
+	"TXT_KEY_MAP_WRAP_CYLINDER",
+	"TXT_KEY_MAP_WRAP_TOROID",
+]
+```
+
+becomes:
+
+```python
+selection_names = ["TXT_KEY_MAP_WRAP_FLAT", "TXT_KEY_MAP_WRAP_CYLINDER", "TXT_KEY_MAP_WRAP_TOROID",]
+```
+
+```python
+phonetic_array = [
+	'Alpha', 'Bravo', 'Charlie',
+	'Delta', 'Echo', 'Foxtrot',
+]
+```
+
+becomes:
+
+```python
+phonetic_array = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot',]
 ```
 
 ### `wrap_python2_prints_for_linting.py`

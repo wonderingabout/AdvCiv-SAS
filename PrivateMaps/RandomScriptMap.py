@@ -183,29 +183,10 @@ def getNumCustomMapOptionValues(argsList):
 def getCustomMapOptionDescAt(argsList):
 	dummy = argsList[0]
 	iSelection = argsList[1]
-	genMethod_names = ["TXT_KEY_MAP_SCRIPT_RANDOM",
-		"Fractal",
-		"Terra",
-		"Hemispheres",
-		"Big_and_Small",
-		"Medium_and_Small",
-		"Archipelago",
-		"Pangaea"]
-	exclude_names = ["TXT_KEY_MAIN_MENU_NONE",
-		"Fractal",
-		"Terra",
-		"Hemispheres",
-		"Big_and_Small",
-		"Medium_and_Small",
-		"Archipelago",
-		"Pangaea"]
-	startAi_names = ["TXT_KEY_MAP_SCRIPT_NO_CONDITIONS",
-		"TXT_KEY_MAP_SCRIPT_DEFAULT",
-		"TXT_KEY_MAP_SCRIPT_ALL_IN_OLD_WORLD"]
-	startPl_names = ["TXT_KEY_MAP_SCRIPT_SAME_AS_AI",
-		"TXT_KEY_MAP_SCRIPT_NEAR_COAST",
-		"TXT_KEY_MAP_SCRIPT_LARGEST_CONTINENT",
-		"TXT_KEY_MAP_SCRIPT_COASTAL_LARGEST_CONTINENT"]
+	genMethod_names = ["TXT_KEY_MAP_SCRIPT_RANDOM", "Fractal", "Terra", "Hemispheres", "Big_and_Small", "Medium_and_Small", "Archipelago", "Pangaea"]
+	exclude_names = ["TXT_KEY_MAIN_MENU_NONE", "Fractal", "Terra", "Hemispheres", "Big_and_Small", "Medium_and_Small", "Archipelago", "Pangaea"]
+	startAi_names = ["TXT_KEY_MAP_SCRIPT_NO_CONDITIONS", "TXT_KEY_MAP_SCRIPT_DEFAULT", "TXT_KEY_MAP_SCRIPT_ALL_IN_OLD_WORLD"]
+	startPl_names = ["TXT_KEY_MAP_SCRIPT_SAME_AS_AI", "TXT_KEY_MAP_SCRIPT_NEAR_COAST", "TXT_KEY_MAP_SCRIPT_LARGEST_CONTINENT", "TXT_KEY_MAP_SCRIPT_COASTAL_LARGEST_CONTINENT"]
 	if (dummy == 0)  :
 		szName = genMethod_names[iSelection]
 	elif (dummy == 1):

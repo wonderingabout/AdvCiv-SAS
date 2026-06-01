@@ -566,10 +566,7 @@ ORDERS_BY_AUTOMATION = {
 	AutomateTypes.AUTOMATE_CITY: ORDER_AUTO_CITY,
 	AutomateTypes.AUTOMATE_RELIGION: ORDER_AUTO_RELIGION,
 }
-MOVE_TO_MISSIONS = [
-	MissionTypes.MISSION_MOVE_TO, 
-	MissionTypes.MISSION_MOVE_TO_UNIT,
-]
+MOVE_TO_MISSIONS = [MissionTypes.MISSION_MOVE_TO, MissionTypes.MISSION_MOVE_TO_UNIT,]
 
 def getOrder(unit):
 	group = unit.getGroup()

@@ -50,11 +50,7 @@ def getNumCustomMapOptionValues(argsList):
 
 def getCustomMapOptionDescAt(argsList):
 	iSelection = argsList[1]
-	selection_names = ["TXT_KEY_MAP_SCRIPT_RANDOM",
-                       "TXT_KEY_MAP_SCRIPT_WIDE_CONTINENTS",
-                       "TXT_KEY_MAP_SCRIPT_NARROW_CONTINENTS",
-                       "TXT_KEY_MAP_SCRIPT_ISLANDS",
-                       "TXT_KEY_MAP_SCRIPT_SMALL_ISLANDS"]
+	selection_names = ["TXT_KEY_MAP_SCRIPT_RANDOM", "TXT_KEY_MAP_SCRIPT_WIDE_CONTINENTS", "TXT_KEY_MAP_SCRIPT_NARROW_CONTINENTS", "TXT_KEY_MAP_SCRIPT_ISLANDS", "TXT_KEY_MAP_SCRIPT_SMALL_ISLANDS"]
 	translated_text = unicode(CyTranslator().getText(selection_names[iSelection], ()))
 	return translated_text
 

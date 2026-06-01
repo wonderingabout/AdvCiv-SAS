@@ -317,9 +317,7 @@ class CvCustomizableDomesticAdvisor:
 			}
 
 		# Values for whom coloring comparison is reversed; i.e. higher numbers are worse
-		self.COMPARISON_REVERSED = [
-			"HURRY_POP_ANGER",
-			]
+		self.COMPARISON_REVERSED = ["HURRY_POP_ANGER",]
 
 		# Dictionary of the coloring dictionaries!
 		self.COLOR_DICT_DICT = {

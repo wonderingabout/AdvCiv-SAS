@@ -15,16 +15,7 @@ SUMMARY_PREFIX = "Summary "
 INCREMENTS_YEARS_PREFIX = "Increments Years "
 INCREMENTS_MONTHS_PREFIX = "Increments Months "
 CHART_END_MARKER = "SAS_SEVOPEDIA_GAME_SPEED_CHART_END"
-FALLBACK_SPEED_ORDER = [
-    "Nitro",
-    "Turbo",
-    "Quick",
-    "Normal",
-    "Epic",
-    "Marathon",
-    "Slow",
-    "Very Slow",
-]
+FALLBACK_SPEED_ORDER = ["Nitro", "Turbo", "Quick", "Normal", "Epic", "Marathon", "Slow", "Very Slow",]
 CELL_RE = re.compile(r"^T(?P<turn>\d+)=(?P<year>[+-]?\d+)(?:m(?P<month>\d+))?\s*\((?P<inc>\d+)\)$")
 SUMMARY_RE = re.compile(r"^Summary\s+(?P<idx>\d+)\s*\((?P<pct>\d+)\)")
 INCREMENTS_RE = re.compile(r"^Increments\s+(?P<kind>Years|Months)\s+(?P<idx>\d+)")

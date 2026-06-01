@@ -161,10 +161,7 @@ def getCustomMapOptionDescAt(argsList):
                        "TXT_KEY_MAP_SCRIPT_TERRA",
                        "TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START"]
 
-	aridity_names = ["TXT_KEY_CLIMATE_ARID",
-                     "TXT_KEY_GAMESPEED_NORMAL",
-                     "TXT_KEY_MAP_SCRIPT_WET",
-                     "TXT_KEY_MAP_SCRIPT_NO_ICE"]
+	aridity_names = ["TXT_KEY_CLIMATE_ARID", "TXT_KEY_GAMESPEED_NORMAL", "TXT_KEY_MAP_SCRIPT_WET", "TXT_KEY_MAP_SCRIPT_NO_ICE"]
 
 	if (iOption == 0):
 		return unicode(CyTranslator().getText(selection_names[iSelection], ()))
