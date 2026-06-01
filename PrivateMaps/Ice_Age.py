@@ -15,7 +15,7 @@
 from CvPythonExtensions import *
 import CvUtil
 import CvMapGeneratorUtil
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator

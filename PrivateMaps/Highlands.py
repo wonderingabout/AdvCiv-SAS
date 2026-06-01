@@ -16,7 +16,7 @@ import CvUtil
 import CvMapGeneratorUtil
 import random
 import sys
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from math import sqrt
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator

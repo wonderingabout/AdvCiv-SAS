@@ -25,7 +25,7 @@ from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from CvMapGeneratorUtil import BonusBalancer
 from SASUtils import getInfoTypeOrFail
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 
 balancer = BonusBalancer()
 balancer.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")

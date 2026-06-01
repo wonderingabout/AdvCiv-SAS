@@ -11,7 +11,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 import sys
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 
 def getDescription():
 	"Description shown in the main menu"

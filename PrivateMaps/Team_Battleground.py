@@ -28,7 +28,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import HintedWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 
 from math import sqrt
 from math import cos

@@ -477,7 +477,7 @@ LIKELY-UNUSED: 16 | REVIEW (maybe dynamic): 28 | duplicate-defined: 0
 === LIKELY UNUSED (no reference in mod, base BTS, or vanilla; verify before deleting) ===
 
 [Assets/XML/Text/AdvCiv-SAS_main.xml]
-  TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR
+  TXT_KEY_MAP_SCRIPT_SAS_SIMPLE_FLAT_GRASS_DESCR
   TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT
   TXT_KEY_PEDIA_BUILD_IMPROVEMENT
   TXT_KEY_PEDIA_BUILD_REMOVE

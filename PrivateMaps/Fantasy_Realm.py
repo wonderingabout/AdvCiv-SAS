@@ -16,7 +16,7 @@ import CvUtil
 import CvMapGeneratorUtil
 import random
 import sys
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
@@ -625,4 +625,3 @@ def normalizeRemoveBadFeatures():
 
 def normalizeAddGoodTerrain():
 	return None
-

@@ -47,7 +47,7 @@
 # <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 
@@ -6150,7 +6150,7 @@ def getBottomLatitude():
 # 		WorldSizeTypes.WORLDSIZE_LARGE:					(30, 20),
 # 		WorldSizeTypes.WORLDSIZE_HUGE:					(36, 24)
 # 	}
-# <!-- custom: define getGridSize like the other SAS maps (base grid-unit profile -> calibrated helper) to shadow the compact almost-all-land one leaked by "from SAS_WorldSizes import *". The engine multiplies these grid units ~x4 to plots, so LARGE (20,14) -> ~80x56 effective (bumped up a bit since PerfectMongoose is water-heavy and needs more land; cf. Pangaea ~74x52); returning the full WorldInfo grid (47,34) blew up to 188x136. SAS24-48 calibrate from the Huge anchor. Verify/tune base values via the Victory Screen size readout. (Claude code Opus 4.7) -->
+# <!-- custom: Define getGridSize like the other SAS maps (base grid-unit profile -> calibrated helper). The engine multiplies these grid units ~x4 to plots, so LARGE (20,14) -> ~80x56 effective (bumped up a bit since PerfectMongoose is water-heavy and needs more land; cf. Pangaea ~74x52); returning the full WorldInfo grid (47,34) blew up to 188x136. SAS24-48 calibrate from the Huge anchor. Verify/tune base values via the Victory Screen size readout. (Claude code Opus 4.7) -->
 def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []

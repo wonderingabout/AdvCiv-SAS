@@ -21,7 +21,7 @@ from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from CvMapGeneratorUtil import BonusBalancer
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from SASUtils import getInfoTypeOrFail
 
 balancer = BonusBalancer()

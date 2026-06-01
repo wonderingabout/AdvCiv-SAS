@@ -13,7 +13,7 @@ from CvPythonExtensions import *
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 
 gc = CyGlobalContext()
 

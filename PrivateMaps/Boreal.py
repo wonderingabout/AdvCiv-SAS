@@ -23,7 +23,7 @@ from math import sqrt
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_BOREAL_DESCR"

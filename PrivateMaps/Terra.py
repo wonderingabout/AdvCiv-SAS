@@ -8,7 +8,7 @@
 #
 
 from CvPythonExtensions import *
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import MultilayeredFractal

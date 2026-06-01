@@ -661,7 +661,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>
-		<DefineTextVal>Boreal,Fantasy_Realm,Great_Plains,Highlands,Lakes,Mirror,Oasis,Rainforest,SAS_WorldSizes,Team_Battleground</DefineTextVal>
+		<DefineTextVal>Boreal,Fantasy_Realm,Great_Plains,Highlands,Lakes,Mirror,Oasis,Rainforest,SAS_Simple_Flat_Grass,Team_Battleground</DefineTextVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>

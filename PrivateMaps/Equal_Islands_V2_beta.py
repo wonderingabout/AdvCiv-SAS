@@ -12,7 +12,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 from CvPythonExtensions import *
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from SASUtils import getInfoTypeOrFail
 import CvUtil
 import CvMapGeneratorUtil
@@ -938,4 +938,3 @@ def addBonusType(argsList):
 
 def startHumansOnSameTile():
 	return True
-

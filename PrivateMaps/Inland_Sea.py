@@ -17,7 +17,7 @@ from CvPythonExtensions import *
 import CvUtil
 import CvMapGeneratorUtil
 import sys
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from CvMapGeneratorUtil import HintedWorld
 from CvMapGeneratorUtil import BonusBalancer
 

@@ -16,7 +16,7 @@ import CvUtil
 import CvMapGeneratorUtil
 import random
 import sys
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
@@ -80,7 +80,7 @@ def getGridSize(argsList):
 	# This map is almost 100% land with no ice.
 	# Sizes reduced MORE THAN two levels compared to global maps.
 	# Dimensions also pushed more toward being squarish.
-	# <!-- custom: Keep Great Plains as the source compact almost-all-land profile via SAS_WorldSizes helper (same ARENA/SAS dimensions, centralized for reuse). (GPT-5.3-Codex) -->
+	# <!-- custom: Keep Great Plains as the source compact almost-all-land profile via SAS_WorldSizeUtils helper (same ARENA/SAS dimensions, centralized for reuse). (GPT-5.3-Codex) -->
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []

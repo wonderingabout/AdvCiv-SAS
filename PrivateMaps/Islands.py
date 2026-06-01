@@ -13,7 +13,7 @@
 # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
 
 from CvPythonExtensions import *
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import FractalWorld

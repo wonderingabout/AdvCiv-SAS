@@ -32,7 +32,7 @@
 from CvPythonExtensions import *
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 
 sas_spiky_layout = None
 sas_slot_assignments = {}

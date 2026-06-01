@@ -19,7 +19,7 @@ import CvMapGeneratorUtil
 import math
 import sys
 from SASUtils import getInfoTypeOrFail
-from SAS_WorldSizes import sas_warn_simple_game_stale_option_once
+from SAS_WorldSizeUtils import sas_warn_simple_game_stale_option_once
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 

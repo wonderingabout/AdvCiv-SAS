@@ -21,7 +21,7 @@ import CvUtil
 from CvUtil import *
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import *
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from SASUtils import getInfoTypeOrFail
 import math
 import sys

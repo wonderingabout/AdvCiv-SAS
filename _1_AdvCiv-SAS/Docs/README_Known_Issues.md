@@ -5041,7 +5041,7 @@ Observed issue:
 Fix applied:
 
 - Retuned Global Highlands down by one old-size step while keeping the peak-heavy map larger than ordinary scripts; e.g. Huge now uses old Large's `(32,20)` instead of old Huge's `(38,24)`.
-- SAS24+ and larger still calibrate from the Huge anchor through the shared SAS world-size helper.
+- SAS24+ and larger still calibrate from the Huge anchor through the shared [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) helper.
 
 File changed:
 

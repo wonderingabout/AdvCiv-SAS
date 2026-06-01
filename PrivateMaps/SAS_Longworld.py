@@ -11,7 +11,7 @@
 from CvPythonExtensions import *
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 
 def getVersion():
 	return "1.00"

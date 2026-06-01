@@ -16,7 +16,7 @@ import CvMapGeneratorUtil
 import random
 import sys
 import math
-from SAS_WorldSizes import *
+from SAS_WorldSizeUtils import *
 from CvMapGeneratorUtil import FractalWorld
 from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
@@ -978,4 +978,3 @@ def addRivers():
 		addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, 5)
 
 	return 0
-
