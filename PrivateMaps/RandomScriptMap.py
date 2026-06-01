@@ -88,7 +88,7 @@ c_favWeight = 0       # Default: 0; Value not used. Change Weight Directly
 # c_spacePerCiv for some dicisions regarding start plot placement.
 # NOTE: Dont Choose both numbers too big - the conditions will be ignored, if
 # there is not enought space.
-# [Duell, Tiny, Small, Standard, Large, Huge] Unexpected defaults to Standard.
+# <!-- custom: Legacy 0..5 size-bucket arrays below are still in the original Duel..Huge order; use _sas_world_size_base_index before indexing them. (GPT-5.5?) -->
 c_minStartAreaSize = [6, 6, 8, 8, 10, 10]   # Default [6, 6, 8, 8, 10, 10]
 c_spacePerCiv = [40, 50, 50, 75, 75, 90]    # Default [40,50,50,75,75,90]
 #
@@ -117,13 +117,15 @@ STA_OLDWORLD = 2
 STA_OLDCOAST = 3
 
 def _sas_world_size_base_index(eWorldSize):
+	# <!-- custom: AdvCiv-SAS adds Arena before Duel, so runtime world-size IDs are shifted from the old BTS WorldSizeTypes enum. RandomScriptMap's tested Huge dimensions did not change from this fix, but its start-validation thresholds, fractal grain branches, and terrain-size branch were reading shifted size buckets; map them back to the original 0..5 Duel..Huge tuning arrays, with Arena using Duel and larger SAS sizes reusing Huge. (GPT-5.5?) -->
 	size_index_values = {
-		WorldSizeTypes.WORLDSIZE_DUEL: 0,
-		WorldSizeTypes.WORLDSIZE_TINY: 1,
-		WorldSizeTypes.WORLDSIZE_SMALL: 2,
-		WorldSizeTypes.WORLDSIZE_STANDARD: 3,
-		WorldSizeTypes.WORLDSIZE_LARGE: 4,
-		WorldSizeTypes.WORLDSIZE_HUGE: 5
+		SAS_MAGIC_WORLDSIZE_ARENA: 0,
+		SAS_MAGIC_WORLDSIZE_DUEL: 0,
+		SAS_MAGIC_WORLDSIZE_TINY: 1,
+		SAS_MAGIC_WORLDSIZE_SMALL: 2,
+		SAS_MAGIC_WORLDSIZE_STANDARD: 3,
+		SAS_MAGIC_WORLDSIZE_LARGE: 4,
+		SAS_MAGIC_WORLDSIZE_HUGE: 5
 	}
 	return sas_lookup_world_size(eWorldSize, size_index_values)
 
@@ -139,6 +141,25 @@ def getDescription():
 def isAdvancedMap():
 	"This map should not show up in simple mode"
 	return 1
+
+#-----------------------------------------------------------------------------
+#
+#
+def getNumPlotsPercent(argsList):
+	# <!-- custom: Huge tested slightly too large after fixing the leaked helper getGridSize; trim only larger tiers a little while leaving RandomScriptMap's internal generator choice logic intact. (GPT-5.5?) -->
+	[eWorldSize] = argsList
+	if eWorldSize < 0:
+		return 100
+	sizeModifiers = {
+		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+		SAS_MAGIC_WORLDSIZE_TINY: 100,
+		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+		SAS_MAGIC_WORLDSIZE_LARGE: 99,
+		SAS_MAGIC_WORLDSIZE_HUGE: 96
+	}
+	return sas_lookup_world_size(eWorldSize, sizeModifiers)
 
 #-----------------------------------------------------------------------------
 #
@@ -703,7 +724,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         print("Fractal Continental: cGrain: ", cGrain, "Water % ", iWater, "Subslots: ", subSlot1, subSlot2, subSlot3, subSlot4)
 
         # 0 Duell, 1 Tiny, 2 Small, 3 Standard, 4 Large, 5 Huge
-        sizekey = self.map.getWorldSize()
+        sizekey = _sas_world_size_base_index(self.map.getWorldSize())
         if ( sizekey > 3 ) :
             xExp = 8
             yExp = 7
@@ -812,7 +833,7 @@ class R_ArchipelagoMultilayeredFractal(R_MultilayeredFractal):
         iWater = 80 + sea
 
         # 0 Duell, 1 Tiny, 2 Small, 3 Standard, 4 Large, 5 Huge
-        sizekey = self.map.getWorldSize()
+        sizekey = _sas_world_size_base_index(self.map.getWorldSize())
         if ( sizekey > 3 ) :
             xExp = 8
             yExp = 7
@@ -853,12 +874,13 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # The following grain matrix is specific to Pangaea.py
         sizekey = self.map.getWorldSize()
         sizevalues = {
-            WorldSizeTypes.WORLDSIZE_DUEL:      3,
-            WorldSizeTypes.WORLDSIZE_TINY:      3,
-            WorldSizeTypes.WORLDSIZE_SMALL:     4,
-            WorldSizeTypes.WORLDSIZE_STANDARD:  4,
-            WorldSizeTypes.WORLDSIZE_LARGE:     4,
-            WorldSizeTypes.WORLDSIZE_HUGE:      5
+            SAS_MAGIC_WORLDSIZE_ARENA:     3,
+            SAS_MAGIC_WORLDSIZE_DUEL:      3,
+            SAS_MAGIC_WORLDSIZE_TINY:      3,
+            SAS_MAGIC_WORLDSIZE_SMALL:     4,
+            SAS_MAGIC_WORLDSIZE_STANDARD:  4,
+            SAS_MAGIC_WORLDSIZE_LARGE:     4,
+            SAS_MAGIC_WORLDSIZE_HUGE:      5
             }
         grain = sas_lookup_world_size(sizekey, sizevalues)
 
@@ -1003,12 +1025,13 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # The following grain matrix is specific to Terra.py
         sizekey = self.map.getWorldSize()
         sizevalues = {
-            WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1,2),
-            WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1,2),
-            WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1,2),
-            WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
-            WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
-            WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
+            SAS_MAGIC_WORLDSIZE_ARENA:     (3,2,1,2),
+            SAS_MAGIC_WORLDSIZE_DUEL:      (3,2,1,2),
+            SAS_MAGIC_WORLDSIZE_TINY:      (3,2,1,2),
+            SAS_MAGIC_WORLDSIZE_SMALL:     (4,2,1,2),
+            SAS_MAGIC_WORLDSIZE_STANDARD:  (4,2,1,2),
+            SAS_MAGIC_WORLDSIZE_LARGE:     (4,2,1,2),
+            SAS_MAGIC_WORLDSIZE_HUGE:      (5,2,1,2)
             }
         (archGrain, contGrain, gaeaGrain, eurasiaGrain) = sas_lookup_world_size(sizekey, sizevalues)
 
@@ -1334,7 +1357,7 @@ class R_BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         sea = max(sea, -5)
         iWater = 80 + sea
 
-        sizekey = self.map.getWorldSize()
+        sizekey = _sas_world_size_base_index(self.map.getWorldSize())
         if ( sizekey > 3 ) :
             xExp = 7
             yExp = 7
@@ -1838,7 +1861,7 @@ def generateTerrainTypes():
 	# sizekey = CyMap().getWorldSize()
 	# Using customized TerrainGenerator with lower dert grain (more
 	# coherent desert areas), hence the reduced amount.
-	if( map.getWorldSize() > 2 ) :
+	if( _sas_world_size_base_index(map.getWorldSize()) > 2 ) :
 		terraingen = R_TerrainGenerator(iDesertPercent = 27, fSnowLatitude = 0.8, fTundraLatitude = 0.68, fDesertBottomLatitude = 0.27, fDesertTopLatitude = 0.43)
 	else :
 		terraingen = R_TerrainGenerator(iDesertPercent = 27, fSnowLatitude = 0.78, fTundraLatitude = 0.68, fDesertBottomLatitude = 0.26, fDesertTopLatitude = 0.44)

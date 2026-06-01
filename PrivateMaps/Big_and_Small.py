@@ -27,6 +27,22 @@ def isAdvancedMap():
 	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
 	return 1
 
+def getNumPlotsPercent(argsList):
+	# <!-- custom: Huge tested roughly 10-15% too large after the shared world-size helper leak was fixed; reduce larger tiers without changing the generator's continent/island logic. (GPT-5.5?) -->
+	[eWorldSize] = argsList
+	if eWorldSize < 0:
+		return 100
+	sizeModifiers = {
+		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+		SAS_MAGIC_WORLDSIZE_TINY: 100,
+		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+		SAS_MAGIC_WORLDSIZE_LARGE: 95,
+		SAS_MAGIC_WORLDSIZE_HUGE: 88
+	}
+	return sas_lookup_world_size(eWorldSize, sizeModifiers)
+
 def getNumCustomMapOptions():
 	return 3
 

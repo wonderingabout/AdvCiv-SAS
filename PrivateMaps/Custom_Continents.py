@@ -26,6 +26,22 @@ balancer = BonusBalancer()
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_CUSTOM_CONTINENTS_DESCR"
 
+def getNumPlotsPercent(argsList):
+	# <!-- custom: Huge tested quite a bit too large after the shared world-size helper leak was fixed; trim larger tiers while preserving the script's chosen continent count. (GPT-5.5?) -->
+	[eWorldSize] = argsList
+	if eWorldSize < 0:
+		return 100
+	sizeModifiers = {
+		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+		SAS_MAGIC_WORLDSIZE_TINY: 100,
+		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+		SAS_MAGIC_WORLDSIZE_LARGE: 90,
+		SAS_MAGIC_WORLDSIZE_HUGE: 80
+	}
+	return sas_lookup_world_size(eWorldSize, sizeModifiers)
+
 def getNumCustomMapOptions():
 	return 3
 

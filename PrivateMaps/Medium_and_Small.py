@@ -27,6 +27,22 @@ def isAdvancedMap():
 	"This map should show up in simple mode"
 	return 0
 
+def getNumPlotsPercent(argsList):
+	# <!-- custom: Huge tested too crowded because bottom islets usually are not assigned to players, leaving the top continent-style area cramped; increase plot count modestly from Large onward. (GPT-5.5?) -->
+	[eWorldSize] = argsList
+	if eWorldSize < 0:
+		return 100
+	sizeModifiers = {
+		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+		SAS_MAGIC_WORLDSIZE_TINY: 100,
+		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+		SAS_MAGIC_WORLDSIZE_LARGE: 105,
+		SAS_MAGIC_WORLDSIZE_HUGE: 110
+	}
+	return sas_lookup_world_size(eWorldSize, sizeModifiers)
+
 def getNumCustomMapOptions():
 	return 3
 

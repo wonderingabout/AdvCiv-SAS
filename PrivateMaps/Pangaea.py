@@ -42,18 +42,17 @@ def getNumPlotsPercent(argsList):
 	[iWorldSize] = argsList
 	if iWorldSize < 0:
 		return 100
+	# <!-- custom: AdvCiv-SAS Arena shifts runtime world-size indices, so Huge was using the smaller fallback and tested slightly cramped; use SAS world-size keys and keep Huge at the old explicit Pangaea value. (GPT-5.5?) -->
 	sizeModifiers = {
-		WorldSizeTypes.WORLDSIZE_DUEL:		88,
-		WorldSizeTypes.WORLDSIZE_TINY:		83,
-		WorldSizeTypes.WORLDSIZE_SMALL:		78,
-		WorldSizeTypes.WORLDSIZE_STANDARD:	73,
-		WorldSizeTypes.WORLDSIZE_LARGE:		67,
-		WorldSizeTypes.WORLDSIZE_HUGE:		60
+		SAS_MAGIC_WORLDSIZE_ARENA: 88,
+		SAS_MAGIC_WORLDSIZE_DUEL: 88,
+		SAS_MAGIC_WORLDSIZE_TINY: 83,
+		SAS_MAGIC_WORLDSIZE_SMALL: 78,
+		SAS_MAGIC_WORLDSIZE_STANDARD: 73,
+		SAS_MAGIC_WORLDSIZE_LARGE: 67,
+		SAS_MAGIC_WORLDSIZE_HUGE: 60
 	}
-	if iWorldSize >= len(sizeModifiers):
-		r = 52
-	else:
-		r = sizeModifiers[iWorldSize]
+	r = sas_lookup_world_size(iWorldSize, sizeModifiers)
 	# Low sea level doesn't have as much impact on this map. Adjust the grid size in order to compensate.
 	if CyGlobalContext().getSeaLevelInfo(CyMap().getSeaLevel()).getSeaLevelChange() < 0:
 		r = (r * 6) // 5
