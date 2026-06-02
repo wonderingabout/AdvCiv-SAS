@@ -215,6 +215,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_FOREIGN_ADVISOR_GLANCE_MAX_PLAYERS_PER_PAGE</DefineName>
 		<iDefineIntVal>16</iDefineIntVal>
 	</Define>
+	<!-- custom: Foreign Advisor Espionage tab: switch the target-player list to compact single-line rows when met rivals are above this value. A value of 17 keeps the normal two-line layout for standard 18-player games, but compacts 18+ known rivals for SAS24/SAS48-style games. Set to 0 to always use compact rows. (GPT-5.5-Thinking + GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD</DefineName>
+		<iDefineIntVal>17</iDefineIntVal>
+	</Define>
 
 
 

@@ -174,6 +174,21 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+
+
+
+
+	<!-- custom: Foreign Advisor Espionage legend explains compact target-row fields after the crowded SAS48 layout removed repeated labels/icons. (GPT-5.5-Thinking + GPT-5.5?) -->
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Tag>
+		<English>Foreign Advisor Espionage Legend</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND_PEDIA</Tag>
+		<English>[H1]Foreign Advisor Espionage Legend[\H1][PARAGRAPH:2]The left list shows known rival civilizations and your espionage allocation against each team.[NEWLINE][NEWLINE][ICON_BULLET]+ / -: increases or decreases this rival's espionage spending weight. Right-clicking uses the larger min/max adjustment.[NEWLINE][ICON_BULLET]Name (%): leader name and current espionage mission cost modifier against that rival. Lower percentages mean missions are cheaper; higher percentages mean missions are more expensive. Extra * or + markers after the percentage come from active counterespionage effects.[NEWLINE][ICON_BULLET]Weight: relative share of your espionage spending assigned to that rival. Example: if two rivals have weights 3 and 1, the first gets about three times as many EPs per turn before rounding.[NEWLINE][ICON_BULLET]EPs: total espionage points accumulated against that rival.[NEWLINE][ICON_BULLET]+N per Turn: current espionage points assigned to that rival each turn.[PARAGRAPH:2]In large-player games, the target list uses compact rows so the controls stay visible and clickable. Compact rows omit the repeated espionage commerce icon, the repeated "Weight:" label, and the repeated "Cost" text because repeating them on every row makes the list harder to read and uses space needed by the + / - controls.[PARAGRAPH:2]The right side shows city selection, passive espionage thresholds, available missions, and mission costs for the selected rival.</English>
+	</TEXT>
+
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Tag>
 		<English>Sevopedia Leader Legend</English>

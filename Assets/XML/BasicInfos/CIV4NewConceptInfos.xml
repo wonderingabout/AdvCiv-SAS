@@ -33,6 +33,12 @@
 			<Description>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
+		<!-- custom: Foreign Advisor Espionage legend explains compact target-row fields after the crowded SAS48 layout removed repeated labels/icons. (GPT-5.5-Thinking + GPT-5.5?) -->
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
 		<NewConceptInfo>
 			<Type>CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Type>
 			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Description>

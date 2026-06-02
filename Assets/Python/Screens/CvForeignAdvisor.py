@@ -289,6 +289,8 @@ class CvForeignAdvisor:
 		self.ESP_TEXT_MARGIN = 15
 		self.ESP_Z_BACKGROUND = -2.1
 		self.ESP_Z_CONTROLS = self.ESP_Z_BACKGROUND - 0.2
+		# <!-- custom: placeAdvisorLegendLink expects the shared advisor Z_CONTROLS name; Foreign Advisor's Espionage tab uses ESP_Z_CONTROLS internally, so mirror it here instead of changing the shared helper. (GPT-5.5-Thinking + GPT-5.5?) -->
+		self.Z_CONTROLS = self.ESP_Z_CONTROLS
 		self.ESP_DZ = -0.2
 		# <!-- custom: Espionage tab fixed layout constants belong in init; only resolution-derived geometry is computed at screen open. (GPT-5.3-Codex) -->
 		self.ESP_OUTER_MARGIN = 0
@@ -299,6 +301,8 @@ class CvForeignAdvisor:
 		self.ESP_Y_MAIN_PANE_BASE = 54
 		self.ESP_LEFT_PANE_WIDTH_PERCENT = 38
 		self.ESP_LEFT_PANE_WIDTH_MIN = 380
+		self.ESP_COMPACT_LEFT_PANE_EXTRA = 200
+		self.ESP_COMPACT_RIGHT_PANE_WIDTH_MIN = 620
 		self.ESP_LEFT_PANE_HEIGHT_MIN = 420
 		self.ESP_SCROLL_WIDTH_MIN = 220
 		self.ESP_SCROLL_HEIGHT_MIN = 220
@@ -331,6 +335,20 @@ class CvForeignAdvisor:
 		self.ESP_ROW_Y_ICON = -3
 		self.ESP_ROW_X_BUTTON_PLUS = 21
 		self.ESP_ROW_X_BUTTON_MINUS = 37
+		# <!-- custom: With many met players, the old two-line Espionage target rows made +/- buttons, weight, EPs, and +per-turn text hard to see/click. Use compact single-line rows instead of pagination so all targets remain in one scroll list. Compact rows deliberately omit the repeated espionage commerce glyph, the per-row "Weight:" label, and the repeated cost label; these are obvious from context and would be better as a true header only if we ever need one. For now, no header keeps the display simpler; compact column anchors use the spare row width so weight, EPs, and per-turn text have clearer separation. (GPT-5.5-Thinking + GPT-5.5?) -->
+		self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD = None
+		self.ESP_COMPACT_LEADER_ICON_SIZE = 24
+		self.ESP_COMPACT_BUTTON_SIZE = 20
+		self.ESP_COMPACT_ROW_X_ICON = 8
+		self.ESP_COMPACT_ROW_X_BUTTON_PLUS = 34
+		self.ESP_COMPACT_ROW_X_BUTTON_MINUS = 56
+		self.ESP_COMPACT_ROW_X_NAME = 82
+		self.ESP_COMPACT_ROW_X_WEIGHT = 340
+		self.ESP_COMPACT_ROW_X_POINTS = 490
+		self.ESP_COMPACT_ROW_X_AMOUNT = 690
+		self.ESP_COMPACT_ROW_RIGHT_MARGIN = 6
+		self.ESP_COMPACT_ROW_Y_TEXT = 3
+		self.ESP_COMPACT_ROW_Y_BUTTON = 5
 		self.nEspionageWidgetCount = 0
 		self.ESP_iTargetPlayer = -1
 		self.ESP_iActiveCityID = -1
@@ -500,6 +518,30 @@ class CvForeignAdvisor:
 		self.ESP_Y_MISSION_BUTTON = self.ESP_Y_MISSIONS_LIST + self.ESP_H_MISSIONS_LIST + self.ESP_MISSION_BUTTON_TOP_GAP
 		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + self.ESP_EFFECTS_COSTS_GAP
 		self.ESP_H_MISSION_BUTTON = self.ESP_MISSION_BUTTON_HEIGHT
+		self.ESP_ROW_X_RIGHT = max(self.ESP_ROW_X_RIGHT_MIN, self.ESP_W_SCROLL - self.ESP_ROW_X_RIGHT_OFFSET)
+
+	def widenEspionageLeftPaneForCompactRows(self):
+		iLeftPaneWidth = min(self.ESP_W_LEFT_PANE + self.ESP_COMPACT_LEFT_PANE_EXTRA, max(self.ESP_W_LEFT_PANE, self.ESP_W_SCREEN - self.ESP_COMPACT_RIGHT_PANE_WIDTH_MIN - self.ESP_OUTER_MARGIN))
+		if iLeftPaneWidth == self.ESP_W_LEFT_PANE:
+			return
+		self.ESP_W_LEFT_PANE = iLeftPaneWidth
+		self.ESP_W_SCROLL = max(self.ESP_SCROLL_WIDTH_MIN, self.ESP_W_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
+		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + self.ESP_PANEL_GAP
+		self.ESP_W_TOTAL_PANE = max(self.ESP_TOTAL_PANE_WIDTH_MIN, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - self.ESP_OUTER_MARGIN)
+		self.ESP_X_RIGHT_PANE = self.ESP_X_TOTAL_PANE
+		self.ESP_W_RIGHT_PANE = self.ESP_W_TOTAL_PANE
+		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + self.ESP_INNER_MARGIN
+		self.ESP_W_CITY_LIST = max(self.ESP_CITY_LIST_WIDTH_MIN, self.ESP_W_RIGHT_PANE * self.ESP_CITY_LIST_WIDTH_PERCENT / 100)
+		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + self.ESP_INNER_MARGIN
+		self.ESP_W_EFFECTS_COSTS_LIST = max(self.ESP_EFFECTS_COSTS_WIDTH_MIN, self.ESP_W_RIGHT_PANE * self.ESP_EFFECTS_COSTS_WIDTH_PERCENT / 100)
+		self.ESP_W_EFFECTS_LIST = max(self.ESP_EFFECTS_WIDTH_MIN, self.ESP_W_RIGHT_PANE - (self.ESP_X_EFFECTS_LIST - self.ESP_X_RIGHT_PANE) - self.ESP_EFFECTS_COSTS_GAP - self.ESP_W_EFFECTS_COSTS_LIST - self.ESP_INNER_MARGIN)
+		self.ESP_X_EFFECTS_COSTS_LIST = self.ESP_X_EFFECTS_LIST + self.ESP_W_EFFECTS_LIST + self.ESP_EFFECTS_COSTS_GAP
+		self.ESP_X_MISSIONS_LIST = self.ESP_X_EFFECTS_LIST
+		self.ESP_W_MISSIONS_LIST = self.ESP_W_EFFECTS_LIST
+		self.ESP_X_MISSIONS_COSTS_LIST = self.ESP_X_MISSIONS_LIST + self.ESP_W_MISSIONS_LIST + self.ESP_EFFECTS_COSTS_GAP
+		self.ESP_W_MISSIONS_COSTS_LIST = self.ESP_W_EFFECTS_COSTS_LIST
+		self.ESP_X_MISSION_BUTTON = self.ESP_X_MISSIONS_LIST
+		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + self.ESP_EFFECTS_COSTS_GAP
 		self.ESP_ROW_X_RIGHT = max(self.ESP_ROW_X_RIGHT_MIN, self.ESP_W_SCROLL - self.ESP_ROW_X_RIGHT_OFFSET)
 
 	def updateRuntimeTabLinkWidths(self):
@@ -795,6 +837,8 @@ class CvForeignAdvisor:
 			self.ESP_iActiveCityID = -1
 			self.ESP_iSelectedMission = -1
 		self.drawEspionageContents()
+		# <!-- custom: compact Espionage rows remove repeated labels/icons to keep SAS48 controls readable, so keep a quiet Sevopedia legend link for the field meanings. (GPT-5.5-Thinking + GPT-5.5?) -->
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		self.refreshEspionageScreen()
 
 	#	RJG Start
@@ -2488,15 +2532,6 @@ class CvForeignAdvisor:
 		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
 		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
 
-		self.ESP_szMainPaneWidget = "EspionageMainPane"
-		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true, self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
-
-		self.ESP_szLeftPaneWidget = "LeftPane"
-		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true, self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
-
-		self.ESP_szScrollPanel = "ScrollPanel"
-		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true, self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
-
 		self.ESP_aiKnownPlayers = []
 		self.ESP_aiUnknownPlayers = []
 		self.ESP_iNumEntries= 0
@@ -2516,6 +2551,18 @@ class CvForeignAdvisor:
 		while(self.ESP_iNumEntries < 17):
 			self.ESP_iNumEntries = self.ESP_iNumEntries + 1
 			self.ESP_aiUnknownPlayers.append(self.ESP_iNumEntries)
+		bCompactLeaderRows = self.useCompactEspionageRows()
+		if bCompactLeaderRows:
+			self.widenEspionageLeftPaneForCompactRows()
+
+		self.ESP_szMainPaneWidget = "EspionageMainPane"
+		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true, self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
+
+		self.ESP_szLeftPaneWidget = "LeftPane"
+		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true, self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+
+		self.ESP_szScrollPanel = "ScrollPanel"
+		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true, self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
 
 		############################
 		#### Total EPs Per Turn Text
@@ -2572,8 +2619,7 @@ class CvForeignAdvisor:
 
 			wNamePanel = 220
 			hNamePanel = 30
-
-			iPlayerLoop = 0
+			iCompactXWeight, iCompactXPoints, iCompactXAmount = self.getCompactEspionageRowColumns()
 
 			for iPlayerID in self.ESP_aiKnownPlayers:
 
@@ -2582,7 +2628,7 @@ class CvForeignAdvisor:
 				iTargetTeam = pTargetPlayer.getTeam()
 
 				iX = 0
-				iY = 14 #+ (148 * iPlayerLoop)#(110 * iPlayerLoop)
+				iY = 14
 
 				attach = "LeaderContainer%d" % (iPlayerID)
 
@@ -2593,59 +2639,77 @@ class CvForeignAdvisor:
 
 				self.ESP_iLeaderImagesID = 456
 				szName = "LeaderImage%d" %(iPlayerID)
-
-				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+				if bCompactLeaderRows:
+					screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.ESP_COMPACT_ROW_X_ICON, 2, self.ESP_COMPACT_LEADER_ICON_SIZE, self.ESP_COMPACT_LEADER_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+				else:
+					screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
 				if (self.ESP_iTargetPlayer == iPlayerID):
 					screen.setState(szName, true)
 
-				szName = "LeaderNamePanel%d" %(iPlayerID)
-				screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN, iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				if not bCompactLeaderRows:
+					szName = "LeaderNamePanel%d" %(iPlayerID)
+					screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN, iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "NameText%d" %(iPlayerID)
-				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))
+				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID, bCompactLeaderRows))
 				szText = sasFontTagLabel + szTempBuffer + SAS_FONT_TAG_CLOSE
-				screen.setLabelAt( szName, attach, szText, 0, iX + self.ESP_ROW_X_NAME, iY + self.ESP_ROW_Y_TOP, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				if bCompactLeaderRows:
+					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_COMPACT_ROW_X_NAME, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				else:
+					screen.setLabelAt( szName, attach, szText, 0, iX + self.ESP_ROW_X_NAME, iY + self.ESP_ROW_Y_TOP, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "PointsText%d" %(iPlayerID)
 				szText = sasFontTagLabel + localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS", (pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam), )) + SAS_FONT_TAG_CLOSE
-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_TOP + 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				if bCompactLeaderRows:
+					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXPoints, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				else:
+					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_TOP + 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingText%d" %(iPlayerID)
-				szText = sasFontTagLabel + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				if bCompactLeaderRows:
+					szText = sasFontTagLabel + (u"%d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
+					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXWeight, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				else:
+					szText = sasFontTagLabel + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
+					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "AmountText%d" %(iPlayerID)
-				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-					szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+				szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
+
+				if bCompactLeaderRows:
+					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 				else:
-					szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-
-				szName = "SpendingIcon%d" %(iPlayerID)
-				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-					szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
-				else:
-					szText = u""
-
-				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				if not bCompactLeaderRows:
+					szName = "SpendingIcon%d" %(iPlayerID)
+					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+					else:
+						szText = u""
+					screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				iSize = 16
 				self.ESP_iIncreaseButtonID = 555
 				szName = "IncreaseButton%d" %(iPlayerID)
-				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+				if bCompactLeaderRows:
+					iSize = self.ESP_COMPACT_BUTTON_SIZE
+					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_COMPACT_ROW_X_BUTTON_PLUS, self.ESP_COMPACT_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+				else:
+					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
 				self.ESP_iDecreaseButtonID = 556
 				szName = "DecreaseButton%d" %(iPlayerID)
-				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
-
-				iPlayerLoop += 1
+				if bCompactLeaderRows:
+					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_COMPACT_ROW_X_BUTTON_MINUS, self.ESP_COMPACT_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+				else:
+					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
 
 			for iPlayerID in self.ESP_aiUnknownPlayers:
 				attach = "EmptyLeaderContainer%d" % (iPlayerID)
 				screen.attachPanel(self.ESP_szScrollPanel, attach, "", "", True, False, PanelStyles.PANEL_STYLE_STANDARD)
 				screen.attachSeparator(attach, "EmptyLeaderImageA%d" %(iPlayerID), true, 30)
 
-	def getEspionageMultiplierAgainstTarget(self, iTargetPlayer=-1):
+	def getEspionageMultiplierAgainstTarget(self, iTargetPlayer=-1, bCompact=False):
 
 		szMultiplier = ""
 
@@ -2657,7 +2721,11 @@ class CvForeignAdvisor:
 		pTargetPlayer = gc.getPlayer(iTargetPlayer)
 		pTargetTeam = gc.getTeam(pTargetPlayer.getTeam())
 
-		szMultiplier = localText.getText("TXT_KEY_ESPIONAGE_COST", (getEspionageModifier(pActivePlayer.getTeam(), pTargetPlayer.getTeam()), ))
+		iModifier = getEspionageModifier(pActivePlayer.getTeam(), pTargetPlayer.getTeam())
+		if bCompact:
+			szMultiplier = u"%d%%" %(iModifier)
+		else:
+			szMultiplier = localText.getText("TXT_KEY_ESPIONAGE_COST", (iModifier, ))
 
 		if (pActiveTeam.getCounterespionageTurnsLeftAgainstTeam(pTargetPlayer.getTeam()) > 0):
 			szMultiplier += u"*"
@@ -2666,6 +2734,27 @@ class CvForeignAdvisor:
 			szMultiplier += u"+"
 
 		return szMultiplier
+
+	def getEspionagePerTurnText(self, iEspionagePerTurn):
+		# <!-- custom: centralize the repeated EPs-per-turn formatting; compact rows still use the normal translated text because the widened left pane has enough room and the full label is clearer. (GPT-5.5-Thinking + GPT-5.5?) -->
+		szPerTurn = localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (iEspionagePerTurn, ))
+		if iEspionagePerTurn > 0:
+			return sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(szPerTurn)) + SAS_FONT_TAG_CLOSE
+		return sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(szPerTurn)) + SAS_FONT_TAG_CLOSE
+
+	def useCompactEspionageRows(self):
+		if self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD is None:
+			self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD = gc.getDefineINT("SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD")
+		return (self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD <= 0 or len(self.ESP_aiKnownPlayers) > self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD)
+
+	def getCompactEspionageRowColumns(self):
+		iCompactXAmount = min(self.ESP_COMPACT_ROW_X_AMOUNT, self.ESP_W_SCROLL - self.ESP_COMPACT_ROW_RIGHT_MARGIN)
+		iCompactXPoints = min(self.ESP_COMPACT_ROW_X_POINTS, iCompactXAmount - 80)
+		iCompactXWeight = min(self.ESP_COMPACT_ROW_X_WEIGHT, iCompactXPoints - 80)
+		iCompactXWeight = max(self.ESP_COMPACT_ROW_X_NAME + 150, iCompactXWeight)
+		iCompactXPoints = max(iCompactXWeight + 55, iCompactXPoints)
+		iCompactXAmount = max(iCompactXPoints + 70, iCompactXAmount)
+		return iCompactXWeight, iCompactXPoints, iCompactXAmount
 
 	def refreshEspionageScreen(self):
 
@@ -2682,12 +2771,15 @@ class CvForeignAdvisor:
 			# <!-- custom: disabled the Espionage slider draw here: global commerce sliders already exist on the right, so this duplicate control is redundant/noisy in the integrated Foreign tab. Keep drawEspionageSlider() code for possible future reuse. (GPT-5.3-Codex) -->
 			# self.drawEspionageSlider() # advc.120c
 
-			iPlayerLoop = 0
+			bCompactLeaderRows = self.useCompactEspionageRows()
+			aCompactColumns = self.getCompactEspionageRowColumns()
+			iCompactXWeight = aCompactColumns[0]
+			iCompactXAmount = aCompactColumns[2]
 
 			for iPlayerID in self.ESP_aiKnownPlayers:
 
 				iX = 0
-				iY = 15 #+ (148 * iPlayerLoop)#(110 * iPlayerLoop)
+				iY = 15
 
 				pTargetPlayer = gc.getPlayer(iPlayerID)
 				iTargetTeam = pTargetPlayer.getTeam()
@@ -2695,30 +2787,31 @@ class CvForeignAdvisor:
 				attach = "LeaderContainer%d" % (iPlayerID)
 
 				szName = "SpendingText%d" %(iPlayerID)
-				szText = sasFontTagLabel + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
 				screen.deleteWidget(szName)
-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				if bCompactLeaderRows:
+					szText = sasFontTagLabel + u"%d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
+					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXWeight, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				else:
+					szText = sasFontTagLabel + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
+					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "AmountText%d" %(iPlayerID)
-
-				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-					szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
-				else:
-					szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+				szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
 
 				screen.deleteWidget(szName)
-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				if bCompactLeaderRows:
+					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+				else:
+					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 				szName = "SpendingIcon%d" %(iPlayerID)
-				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-					szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
-				else:
-					szText = u""
-
 				screen.deleteWidget(szName)
-				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-
-				iPlayerLoop += 1
+				if not bCompactLeaderRows:
+					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+					else:
+						szText = u""
+					screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 			# Is there any other players which have been met?
 			if (self.ESP_iTargetPlayer != -1):
@@ -2923,6 +3016,7 @@ class CvForeignAdvisor:
 				CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
 		# advc.001d: Moved from above the Debug menu
 		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+		bCompactLeaderRows = self.useCompactEspionageRows()
 
 		if (self.ESP_iTargetPlayer != -1):
 
@@ -2966,20 +3060,22 @@ class CvForeignAdvisor:
 						CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, 1)
 					# K-Mod end
 
-					if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-						szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
-					else:
-						szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+					szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
 
-					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-
-					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+					if bCompactLeaderRows:
+						iCompactXAmount = self.getCompactEspionageRowColumns()[2]
+						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 					else:
-						szText = u""
-					attach = "LeaderContainer%d" % (iPlayerID)
-					iY = 15
-					screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+					if not bCompactLeaderRows:
+						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+							szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+						else:
+							szText = u""
+						attach = "LeaderContainer%d" % (iPlayerID)
+						iY = 15
+						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 					CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
 
@@ -2999,20 +3095,22 @@ class CvForeignAdvisor:
 							CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, -1)
 						# K-Mod end
 
-						if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
-							szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
-						else:
-							szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+						szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
 
-						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
-
-						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
-							szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+						if bCompactLeaderRows:
+							iCompactXAmount = self.getCompactEspionageRowColumns()[2]
+							screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 						else:
-							szText = u""
-						attach = "LeaderContainer%d" % (iPlayerID)
-						iY = 15
-						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+							screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+						if not bCompactLeaderRows:
+							if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+								szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+							else:
+								szText = u""
+							attach = "LeaderContainer%d" % (iPlayerID)
+							iY = 15
+							screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 						CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
 
