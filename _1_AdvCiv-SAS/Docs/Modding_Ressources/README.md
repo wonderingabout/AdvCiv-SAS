@@ -166,15 +166,15 @@ To create a git log based on past commits using a comand line, plus also anonymi
 
 ```shell
 # 1. Set your commit hashes here
-start=b421b9e33ff43349b4983398279c4f33dcfa94f3 # old (excluded): e.g. AdCiv-SAS 5500.
-end=1548510c785183e31222d43bd06dc1b2a919920a   # new (included), e.g.: AdCiv-SAS 5860.
+start=1548510c785183e31222d43bd06dc1b2a919920a # old (included), e.g.: AdvCiv-SAS 5860 Update (2026-05-27: 3 days after release).
+end=d005985125bc2ed497070ecc3246913121871821   # new (included), e.g.: AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release).
 
 # 2. Run the command (uses the variables above)
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
 git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso "$start".."$end" > git_log_anonymized_email.txt
 ```
 
-Note: since i cleared up the logs from verbosity, i recommend adding new comments on old text ratehr thn generating previous ones again.
+Note: since i cleared up the logs from verbosity, i recommend adding new comments on old text rather than generating previous ones again.
 
 For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/git_logs/](/_1_AdvCiv-SAS/git_logs/) folders.
 
@@ -251,7 +251,7 @@ git fetch origin
 # choose names
 # new tag
 TAG=5860
-SHA=1548510c785183e31222d43bd06dc1b2a919920a  # <- the TAG commit
+SHA=d005985125bc2ed497070ecc3246913121871821  # <- the TAG commit
 OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
 BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date

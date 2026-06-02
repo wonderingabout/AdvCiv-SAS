@@ -177,7 +177,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#139---fixed-base-advciv-issue-foreign-advisor-bug-menu-made-glance-attitude-dropdown-look-attached-to-enhanced-info-tab)  
 [140 - (Fixed) Base AdvCiv issue: Foreign Advisor Glance tab showed incorrect and inconsistent +0 attitude display in self cells](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#140---fixed-base-advciv-issue-foreign-advisor-glance-tab-showed-incorrect-and-inconsistent-0-attitude-display-in-self-cells)  
 [141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game)  
-[142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)
+[142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)  
 
 ## 1 - Redundant attribute values for all AI Civs
 

@@ -4619,7 +4619,7 @@ terrain +/- features, quite little bonus for the arabian civilization's civ-spec
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #332 -----
 
-, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later)
+, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans rather than pure war (even if they devolve back into war later)
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #333 -----

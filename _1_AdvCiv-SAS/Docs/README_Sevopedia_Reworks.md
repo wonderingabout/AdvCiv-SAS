@@ -575,7 +575,7 @@ More recently, also added a Cheats Section (from the [CFC thread: All Keyboard C
 
 This is also a very as of now recent refactor, beautification (moderate), and enhancement by adding as of now the free promotions (units) and place promotion (buildings) using the multilist code from previous Sevopedia reworks.
 
-The buttons are nicely displayed or an as of now "None" text as in other Sevopedia reworks. Done with the help of claude ai thanks as well as my own adjustments and prompts or such (htnkas too maybe).
+The buttons are nicely displayed or an as of now "None" text as in other Sevopedia reworks. Done with the help of claude ai thanks as well as my own adjustments and prompts or such (thanks too maybe).
 
 Output is really nice and nicely informative too, examples below:
 

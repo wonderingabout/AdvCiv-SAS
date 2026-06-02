@@ -1,3 +1,393 @@
+commit d005985125bc2ed497070ecc3246913121871821
+Author: wonderingabout <hidden>
+Date:   2026-06-01 23:12:35 +0200
+
+(Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section. See KI#142
+
+commit d4cf22da915f58626448f7a252fdf89af8a375df
+Author: wonderingabout <hidden>
+Date:   2026-06-01 23:10:28 +0200
+
+Adjust the grid size of several map scripts that are too big or too small
+- Tuned several inherited map scripts after the shared-helper fix made their real Huge scale visible again: [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py) is trimmed slightly and its internal legacy world-size buckets now use `SAS_MAGIC_WORLDSIZE_*` so Arena no longer shifts its start-validation/fractal/terrain tuning; [Medium_and_Small.py](/PrivateMaps/Medium_and_Small.py) is enlarged a little from Large onward because lower islets usually are not assigned to players, leaving the upper continent-style area cramped; [Pangaea.py](/PrivateMaps/Pangaea.py) now uses AdvCiv-SAS world-size keys so Huge uses the intended Pangaea value instead of a smaller fallback; [Big_and_Small.py](/PrivateMaps/Big_and_Small.py) and [Custom_Continents.py](/PrivateMaps/Custom_Continents.py) are trimmed on larger tiers because Huge tested too large.
+
+commit c20ef76a649ba50769231232ebd4e9fdd46f097c
+Author: wonderingabout <hidden>
+Date:   2026-06-01 18:58:08 +0200
+
+collapse simple flat Python literals (add collapse_flat_literals.py)
+
+commit 731d4fb5e99ebbbbd69ca68bb6bac6593ab50e83
+Author: wonderingabout <hidden>
+Date:   2026-06-01 17:21:10 +0200
+
+Fix RandomScriptMap.py, Archipelago, and possibly other mapscripts being too small at worldsize huge: separate helper logic to Assets/Python/SASWorldSizeUtils.py, and playable mapscript in PrivateMaps/SAS_Simple_Flat_Grass.py
+- Added shared Mapscript-related world-size helpers. Note: done in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) rather than in the [PrivateMaps](/PrivateMaps/) folder as a .py file. This is because such a previous design caused the helper-as-a-playable-mapscript related bug, in AdvCiv-SAS only, of RandomScriptMap and Archipelago, e.g. at Huge world size, being generated far too small (`60 x 44`). After the fix it returned to `120 x 84`, matching base AdvCiv visually at a glance, and not being overly cramped anymore. The same issue may also have affected other map scripts that imported the old helper. The old helper now only keeps the minimal new playable mapscript code, not imported by other mapscripts anymore, in the new **SAS_Simple_Flat_Grass**: a simple sandbox map with almost all land and mostly flat grass tiles. See [SAS_Simple_Flat_Grass.py](/PrivateMaps/SAS_Simple_Flat_Grass.py).
+
+commit 17fe7e53190042a880290f58f473ebd3bac645ef
+Author: wonderingabout <hidden>
+Date:   2026-06-01 14:12:41 +0200
+
+repair legacy map script indentation (manually using ChatGPT then user review) 2: RandomScriptMap.py
+
+commit b5bb7ef9ea8770ab46de8a8e6154801a3563ea25
+Author: wonderingabout <hidden>
+Date:   2026-06-01 12:31:45 +0200
+
+rebalance and buff the UNIT_ENGLISH_YEOMAN_ARCHER
+- as compared to previous AdvCiv-SAS 5860: city defense 10 ->0, free promotions SENTRY->None, melee_shock modifier 10->30, hill atk/def 10/10->20/20. Rationale (from README_Assets_Rebalancing.md): "Moves England's civ-specific unit from late Rifleman timing to the Crossbowman slot. As of now, 7 strength and +30% vs shock melee gives nearly the same anti-shock-melee value as the generic Crossbowman: 7 x 1.30 = 9.1 > 6 x 1.50 = 9.0. Hills modifiers are lower than the generic Crossbowman's, but the higher base strength still makes 7 x 1.20 = 8.4 stronger than 6 x 1.25 = 7.5 on hills, while the stacked hill + shock-melee value stays equal: 7 x 1.50 = 10.5 == 6 x 1.75 = 10.5 (so not weaker than generic sas crossbowman in these). No Iron, higher base strength, and lower cost make the Yeoman more versatile than the generic Crossbowman; the lower cost also fits the longbow/yeoman historical flavor. This fits England's more defensive/economic early profile while still allowing aggressive use for thematic and strategic variety.". See README_Assets_Rebalancing.md for more civ-specific unit changes rationales.
+
+commit 2e6aec7c6616f7c517a743a7fe91d3433bac52c4
+Author: wonderingabout <hidden>
+Date:   2026-06-01 10:59:54 +0200
+
+Fix Sevopedia 3D audio previews via DLL reverse lookup
+- Sevopedia 3D sound previews, notably tested civilization Select/Order sounds, played fine from main menu, but became much quieter after entering a game and stayed quiet even after going back to main menu, until civ4 was restarted. Fix: Add a DLL/Python helper to resolve 3D audio script IDs back to their AS3D script names, then play those previews through playGeneralSound. This keeps the correct sound and normal volume, and may also fix other 3D preview sounds that previously may have failed to or played incorrectly (would need to check). See KI#141.
+
+commit b35304c05b2d310f76a6a774051e4f030c8e757c
+Author: wonderingabout <hidden>
+Date:   2026-05-31 22:20:51 +0200
+
+Fix BTG_Cross Huge and several smaller base sizes being too cramped: Increase BTG_Cross grid dimensions with explicit per-world-size rows (instead of all derived from Huge only), and direct rows make the tuning adjustable.
+
+commit 0e6854abcde8d4d56f233ab6156dcec55b41d089
+Author: wonderingabout <hidden>
+Date:   2026-05-31 21:49:32 +0200
+
+repair legacy map script indentation (manually using ChatGPT then user review)
+
+commit e4893dee908641277f5f82a3cda3eea9cd984357
+Author: wonderingabout <hidden>
+Date:   2026-05-31 11:00:21 +0200
+
+add safer parenthesis collapse helper and apply broad Python cleanup
+E101 Indentation contains mixed spaces and tabs count: ~1068 -> 259
+total remaining Ruff E101 report errors: 349
+
+commit 10ebfdab4e96a7ca6154b4c66d5e939c913eaf51
+Author: wonderingabout <hidden>
+Date:   2026-05-31 09:03:50 +0200
+
+fix ruff E401 (multiple imports in one line)
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)import ([A-Za-z_][\w.]*),[ \t]*(.+)$
+
+to
+
+$1import $2
+$1import $3
+
+note: regexp repeated 3 times
+
+commit b2e6f3c8fcee18e41824280e49c6508221b94de5
+Author: wonderingabout <hidden>
+Date:   2026-05-31 08:46:08 +0200
+
+horizontal whitespace cleanup in *.XML, *.cpp, *.h (and any other remaining file)
+
+using the same regexp and VS Code
+Note from GPT-5.5-Thinking given DLL difference: "I rechecked the two uploaded DLLs: they are the same size, and differ in only 6 bytes. That strongly suggests timestamp/build metadata rather than code output. Combined with “game launches before and after DLL swap,” I’d call it good."
+
+commit 8327bb3398ef1e5955c8190d1af887f44eeec804
+Author: wonderingabout <hidden>
+Date:   2026-05-31 08:07:13 +0200
+
+buff the UNIT_ENGLISH_YEOMAN_ARCHER
+iUnitCombatMod vs UNITCOMBAT_MELEE_SHOCK: 10->25: now much closer to generic crossbowman (7 * 1.10 = 7.7 effective strength -> 7 * 1.25 = 8.75 effective strength), but keeps his other perks so overall stronger; was bit too weak otherwise
+
+commit b4f9056de49f2664001b325000c03f5b3f56cbad
+Author: wonderingabout <hidden>
+Date:   2026-05-31 07:07:40 +0200
+
+vertical whitespace cleanup to py files only using a regexp
+- with a `(\r?\n)(?:[ \t]*\r?\n){2,}` find to `$1$1` regexp on VS Code with the help of GPT-5.5-Thinking thanks
+- the previous non-regexp VS Code global cleanup did not catch all patters
+
+commit c8975926bbdf4e42a147a30d7605dd34e4302d30
+Author: wonderingabout <hidden>
+Date:   2026-05-31 06:50:48 +0200
+
+horizontal whitespace cleanup in *.txt, *.md, *.thm
+using the same regexp and VS Code
+
+commit 88f635ed1f662f06f5196082b5afc8f93b9b9707
+Author: wonderingabout <hidden>
+Date:   2026-05-30 21:59:16 +0200
+
+horizontal tab/space whitespace cleanup (py files)
+- "A later **horizontal whitespace** pass also **stripped spaces/tabs** from otherwise empty Python lines to reduce invisible diff/lint noise: done with the help of `^[\t ]+$` find regexp with replace all (to nothing) globally on VS Code."
+- fix docs seemingly incorrect main changes guide bullet: was about vertical whitespace
+
+commit c1758a63b39edfd752baa5d3bdbbd06b05113909
+Author: wonderingabout <hidden>
+Date:   2026-05-30 14:37:58 +0200
+
+fix ruff E701 - pass 9
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^(\t*)if (north|south|east|west): (choose\.append\(\[[^\n]+\]\))$
+
+to
+
+$1if $2:
+$1	$3
+
+for Maze.py, then Tectonics.py done manually
+
+commit 61f12eb6834e6cf7d474837555542230a6aaf6b7
+Author: wonderingabout <hidden>
+Date:   2026-05-30 14:24:30 +0200
+
+fix ruff E713 - pass 2
+- using ruff --fix. Note: here we use Ruff --fix only for reviewed safe rules, e.g. E713: not x in y -> x not in y.
+- update docs
+
+commit ca81ed7166bbfee75ff0632ac24ed33c4903667e
+Author: wonderingabout <hidden>
+Date:   2026-05-30 12:23:10 +0200
+
+add/use fix_matrix_indent.py for matrix E101 cleanup
+
+Add a targeted helper for mixed tab/space indentation in old map-script matrix/data blocks.
+
+This keeps matrices multiline, changes only whitespace, and greatly reduces Ruff E101 noise; for example, Wheel.py dropped from roughly 400 Ruff findings to 15.
+
+commit 882d6f2e3452d9a14a225983e30cd2b7d80a913d
+Author: wonderingabout <hidden>
+Date:   2026-05-30 11:46:20 +0200
+
+add/use targeted collapse_multiline_calls2.py
+
+commit 005b40a4dc680fe4f6cbea45d93f499f62494636
+Author: wonderingabout <hidden>
+Date:   2026-05-30 09:12:34 +0200
+
+add/use conservative collapse_multiline_calls.py (py files); update docs about ruff local checks, ruff error fixing, and LLM_Helpers
+E101 noise: ~3800 -> 3467
+total PrivateMaps Ruff findings: ~4248 -> 3915
+
+commit fee7a8170b7691567d3142db9e03980c0cc02717
+Author: wonderingabout <hidden>
+Date:   2026-05-29 22:43:40 +0200
+
+fix ruff E703 (Remove unnecessary semicolons)
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*[^#\r\n;][^#\r\n]*?);([ \t]*(?:#.*)?)$
+
+to
+
+$1$2
+
+- Note: Also remove one stray semicolon from helper docstring prose while touching the same lint category.
+
+commit 230e455497b304ffa137ce5de1a28d86e8bc36fd
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:53:39 +0200
+
+fix ruff E702 (a; b -> a \n b) - pass 1b
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+(same regexp as in pass 1a)
+
+commit ececa8d173bc8f28e447dd4b80579cc8cfcafa79
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:46:16 +0200
+
+fix ruff E702 (a; b -> a \n b) - pass 1a
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)([^#;"'\r\n]+(?:;[ \t]*[^#;"'\r\n]+)*);[ \t]*([A-Za-z_][A-Za-z0-9_\.]*[ \t]*(?:[-+*/%]?=)[^#;"'\r\n]+)([ \t]*(?:#.*)?)$
+
+to
+
+$1$2
+$1$3$4
+
+commit 9c8ec3e4020f015378b62dda9afdf9b9d31dac68
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:32:56 +0200
+
+fix ruff E701 - pass 8
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)else[ \t]*:[ \t]*(pass|continue|break)([ \t]*(?:#.*)?)$
+
+to
+
+$1else:
+$1	$2$3
+
+commit 172f280d90e1b5741b8eee20bffe1dcc0254c6a8
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:29:38 +0200
+
+fix ruff E701 - pass 7
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)(if|elif)(.+):[ \t]*(pass|continue|break)([ \t]*(?:#.*)?)$
+
+to
+
+$1$2$3:
+$1	$4$5
+
+commit b3232132c072dfbade7cd5584e31747b43357cfd
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:20:38 +0200
+
+fix ruff E701 - pass 6
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)(if|elif)([ \t]*(?:\([^#"'`\r\n]*\)|[^:#"'`\r\n]+))[ \t]*:[ \t]*([A-Za-z_][A-Za-z0-9_\.]*(?:\[[^\]\r\n#]*\])?[ \t]*(?:[-+*/%]?=)[^#;\r\n]+)([ \t]*(?:#.*)?)$
+
+to
+
+$1$2$3:
+$1	$4$5
+
+commit 16ae7e31a685cc222189272061cd7d77bfcf2851
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:17:39 +0200
+
+fix ruff E701 - pass 5
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)else[ \t]*:[ \t]*(return\b[^#;\r\n]*|[A-Za-z_][A-Za-z0-9_\.]*(?:\[[^\]\r\n#]*\])?[ \t]*(?:[-+*/%]?=)[^#;\r\n]+)([ \t]*(?:#.*)?)$
+
+to
+
+$1else:
+$1	$2$3
+
+commit 2645500bdfb1e40d3556df824b49e745e8c336a2
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:11:48 +0200
+
+fix ruff E701 - pass 4
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)(if|elif)\b([^#"'`\r\n]*):[ \t]*(return\b[^#;\r\n]*)([ \t]*(?:#.*)?)$
+
+to
+
+$1$2$3:
+$1	$4$5
+
+commit 0b6e67ef0e6b94cf798fd6ae784205e4bc58e9fe
+Author: wonderingabout <hidden>
+Date:   2026-05-29 21:02:30 +0200
+
+fix ruff E701 - pass 3
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)(if|elif) ([^:#"'`\r\n]+):[ \t]*([A-Za-z_][A-Za-z0-9_]*(?:\[[^\]\r\n#]*\])?[ \t]*(?:[-+*/%]?=)[^#;\r\n]+)([ \t]*(?:#.*)?)$
+
+to
+
+$1$2 $3:
+$1	$4$5
+
+commit 673092a70ea5a67ebda12e8190bb8d3f0df0e6f2
+Author: wonderingabout <hidden>
+Date:   2026-05-29 20:57:22 +0200
+
+fix ruff E701 - pass 2
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)(if|elif) ([^:#"'`\r\n]+):[ \t]*(pass|continue|break)([ \t]*(?:#.*)?)$
+
+to
+
+$1$2 $3:
+$1	$4$5
+
+commit 2933726ba00bbb39cc356a787a260bd31158a8fa
+Author: wonderingabout <hidden>
+Date:   2026-05-29 20:48:04 +0200
+
+fix ruff E701 (else: pass -> else: new line tabbed pass) - pass 1
+
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([ \t]*)(else|try|finally):[ \t]*pass([ \t]*(?:#.*)?)$
+
+to
+
+$1$2:
+$1	pass$3
+
+commit ea84ad64200432ec6a86af75d4ae71f7218d4798
+Author: wonderingabout <hidden>
+Date:   2026-05-29 20:27:50 +0200
+
+fix ruff E713 (not x in y -> x not in y)
+done with the help of GPT-5.5-Thinking with regexp thanks
+
+^([^\n#"']*?)\bnot\s+([A-Za-z_][A-Za-z0-9_\.]*(?:\[[^\]\n]*\])?)\s+in\b
+
+to
+
+$1$2 not in
+
+commit 452bbb8183205039d2494b36c592b8b0b09080f6
+Author: wonderingabout <hidden>
+Date:   2026-05-29 20:16:09 +0200
+
+fix ruff E711 (== None; != None -> is None; is not None)
+
+commit 54505f4c7c27af0c15854d47a38a59d5eb49070f
+Author: wonderingabout <hidden>
+Date:   2026-05-29 14:07:49 +0200
+
+Wrap simple Python 2 raise values for linter parsing
+note: VS Code/Ruff may still show remaining parser blockers from older except Error, e or True, False = 1, 0 patterns in some files. That is fine; this commit is deliberately not trying to solve those.
+
+commit fa6b78670d3a2483c3740ec96b942fa3492fae5a
+Author: wonderingabout <hidden>
+Date:   2026-05-29 12:32:54 +0200
+
+Wrap most Python 2 prints so modern linters can parse files; add wrap_python2_prints_for_linting.py
+- script + manual (LLM + me checking quick) pass
+
+commit 8e39ab6e0ade37d4a0678477d4a5c00a62451635
+Author: wonderingabout <hidden>
+Date:   2026-05-29 09:42:24 +0200
+
+centralize py magic numbers in SASMagicNumbers.py
+
+commit 83fc2e5005643aa6d25ac4c05ce5c7b86d3a0ad9
+Author: wonderingabout <hidden>
+Date:   2026-05-28 15:13:34 +0200
+
+Add Civ-specific units rework section in README_Assets_Rebalancing.md
+- Fix a few incorrect favorite religion doc entries: Mansa Musa, Mao, Peter
+
+commit 37774e8137b721ca29cf615fa6bebcdbadc8f044
+Author: wonderingabout <hidden>
+Date:   2026-05-27 23:24:07 +0200
+
+add compare_handicap_infos.py, handicap_infos_compared.md, and related files
+
+commit 4c2f880fadeb9dd574cf428c2a1fb07d798f2749
+Author: wonderingabout <hidden>
+Date:   2026-05-27 23:23:28 +0200
+
+update docs
+
 commit 1548510c785183e31222d43bd06dc1b2a919920a
 Author: wonderingabout <hidden>
 Date:   2026-05-24 15:29:34 +0200
@@ -6545,7 +6935,7 @@ Date:   2025-09-30 01:46:48 +0200
 - Update: since then, also added logic (untested) to move to lowest pop cities the most in `CvUnitAI::AI_nextCityToImprove` with more importance the lower pop they are. I didn't have a before/after save file to compare, but hopefully helps too (check/test to be sure, seems to run fine at least and code is simple enough if i'm not mistaken).
 - various bug fixes or tweaks
 - add more defines in sas defines, in particular Sevopedia ones, and choose unit ones
-- Update: now generalized the no excess very cheap units code/formula to a few later eras such as classical and medieval plus, to attempt to help trim units later as well when they are relatively very cheap for their era (e.g. archers at classical, longbows or trireme at medieval era), while making sure new era thresholds don't apply to old units tier (e.g. ancient maceman having very low threshold at ancient era but then when entering classical era suddenly it would benefit from the archers or such threshold that is larger and thus we'd overproduce ancient macemen then as happened in autoplay after i first refactored it), so units are ordered by tiers ratehr than by era, see `CvCityAI::AI_chooseUnit` or [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) for details. I don't know if it's for sure a result of these, but we seem to have really good results, with japan ai reducing its longbow output from +/- 75 longbows at turn 200 (way too much) to something more like 50-60 longbows but 10-15 camel archers or 20-27 samurais depending on runs and settings somehow it seems, but composition does seem quite a bit betetr if no just fluctuaiton, check to be sure.
+- Update: now generalized the no excess very cheap units code/formula to a few later eras such as classical and medieval plus, to attempt to help trim units later as well when they are relatively very cheap for their era (e.g. archers at classical, longbows or trireme at medieval era), while making sure new era thresholds don't apply to old units tier (e.g. ancient maceman having very low threshold at ancient era but then when entering classical era suddenly it would benefit from the archers or such threshold that is larger and thus we'd overproduce ancient macemen then as happened in autoplay after i first refactored it), so units are ordered by tiers rather than by era, see `CvCityAI::AI_chooseUnit` or [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) for details. I don't know if it's for sure a result of these, but we seem to have really good results, with japan ai reducing its longbow output from +/- 75 longbows at turn 200 (way too much) to something more like 50-60 longbows but 10-15 camel archers or 20-27 samurais depending on runs and settings somehow it seems, but composition does seem quite a bit betetr if no just fluctuaiton, check to be sure.
 
 commit 226e3f11a520aa6221936e6df510e836cfc87781
 Author: wonderingabout <hidden>
@@ -6746,7 +7136,7 @@ Author: wonderingabout <hidden>
 Date:   2025-09-18 20:24:50 +0200
 
 (Fixed and greatly enhanced) AI valuing for example pig (+1 health) at the same value than maize (+1 health and +1 health from granary = in total + 2 health, much more so should be valued more in trade), by adding a pre-check in CvPlayerAI::AI_bonusTradeVal, so we value these extra effects as soon as our buyer has the tech for these buildings
-- Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it and trade suepr aggressively junk or low-value bonuses for high gpt or other bonuses as easily as was (was quite broken tbh) or such. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather thna easy trade abuse/exploit)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify), so fish would be worth more than pig (with as of now harbor) but less than maize or wheat for example. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-but-anyways-etc) for details.
+- Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it and trade suepr aggressively junk or low-value bonuses for high gpt or other bonuses as easily as was (was quite broken tbh) or such. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather than easy trade abuse/exploit)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify), so fish would be worth more than pig (with as of now harbor) but less than maize or wheat for example. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-but-anyways-etc) for details.
 
 commit 1b88522f9c3a7dfd3df304393a2d553891278ebe
 Author: wonderingabout <hidden>
@@ -7126,7 +7516,7 @@ Date:   2025-08-20 19:21:23 +0200
 
 (Seemingly enhanced) Add prefiltering building choices rules to help AI choose more reponsively and efficiently buildings depending on war context and other factors for most buildings, rework AI ditching wonder if threatened logic with a seemingly tighter threshold now but didn't look too much exactly at how old code handled it (don't build wonders for our neighbours that would conquer us but use the hammer instead to defend or do anything else meaningful), remove main menu blue rectangle to better show the background, and color main menu text as black now for better contrast, balance changes and other changes as well
 - CvCityAI::AI_buildingValue: "// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc, hopefully this makes AI a lot stronger or sharperwith its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue -->"
-- UNITCLASS_TANK, UNITCLASS_MODERN_TANK, UNITCLASS_ROBOTIC_TANK: "<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans ratehr than pure war(even if they devolve back into war later), was NONE -->"
+- UNITCLASS_TANK, UNITCLASS_MODERN_TANK, UNITCLASS_ROBOTIC_TANK: "<!-- custom: be careful as this seems to not be about building class, may lead to imposible condition if some civ has a civ-specific version of this but i may be mistaken check to be sure, still as of now no civ has a civ-specific factory in our mod so shouldn't apply to us eevn if true / were the case if i may say in this case; as for the balance change itself i find it interesting, makes sense thematically, makes factories more important and avoids an early cavalry->tank snowball effect, plus makes indirectly cavalry relevant longer as a result due to no strong immediate replacement to them, it may also incentivize building factories which may help or rewrd long term economy / production plans rather than pure war(even if they devolve back into war later), was NONE -->"
 - TRAIT_EXPANSIVE: revert iHealth from 1 to as of now 2
 - bugfix missing Collateral Daage 5 promotion: don't use bLeader1 but keep otherwise as was <PromotionPrereq>PROMOTION_LEADER</PromotionPrereq>
 - PROMOTION_CITY_GARRISON3, PROMOTION_CITY_RAIDER3, PROMOTION_FIRST_STRIKE3: "<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far, was NONE -->"
@@ -7895,7 +8285,7 @@ finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 187
 - reworked or rebalanced some buildings
 - TECH_MUSIC: "<!-- custom: replace button from a historically more accurate one and also as per our reworked tech tree as well but even without that so this is also a more historically neutral and less western-centric one, ancient music did not use violins as these appeared so much later from very quick glances i did of it, button art import from c2c mod's TECH_FOLK_MUSIC -->"
 - tech_divine_right: "<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM", quite frankly i am not too sure about this tech name, but it seems most at least more if not most accurate, divine right happened much sooner in history around tech_monarchy if not sooner from what i remember of my search, and a tech name like "islamic golden age" or "islamic era" may be confused with the "golden age" concept or the "era" concept; also, some abrahamic religions appeared after islam, in the end they are all the same entity, so having islam the most famous of the later abrahamic religions represent it is hopefully accurate enough, quote is bit tedious to change so hopefully this one reflects it quite well while keeping same narrator; as for pedia entry not accurate anymore as the text is for divine right, plus i'd suspect civ4 devs or whoever writes these or whoever several or many people do not encessarily one if i may say in this case may add significant(ly) annoying clutter and polish instead of just being historically accurate and honest or neutral even if brief or long too, entry from https://en.wikipedia.org/wiki/Abrahamic_religions#Islam or such other related in same wikipedia page info/paragraphs quoted more exhaustively or less or not, and adjusted or not for advciv-sas -->" + "<!-- custom: art button import from ffh2 mod's tech_fanaticism -->"
-- "<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe notknowledge or guess i have/make on the topic, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or notresearch bit if not lot or noti have made on the topic, but in short mostly from pedia or reddit or and such or notor other website(s) or not or yes, what i learned or how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or what followed it, so i think christianity is a good representative of that and from the guesses, and reading i made online or and such; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas -->" + "<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thnkas a lot chatgpt"
+- "<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe notknowledge or guess i have/make on the topic, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or notresearch bit if not lot or noti have made on the topic, but in short mostly from pedia or reddit or and such or notor other website(s) or not or yes, what i learned or how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or what followed it, so i think christianity is a good representative of that and from the guesses, and reading i made online or and such; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas -->" + "<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thanks a lot chatgpt"
 - TECH_AESTHETICS: "<!-- custom: button import from c2c mod's TECH_CLASSICAL_LIFESTYLE, should be more historically at least quite accurate even though still a bit greek-roman centric but hopefully representative enough of that time-era -->"
 
 commit e9b665405044fce0facc2ea976c010bbcef89735
@@ -12205,7 +12595,7 @@ religion concept starts a bit lower, i don't know if it's because
 of the h1 in it, but at least it looks better now, may have to
 remove h1 from it but probably not worth it, or maybe not?
 
-In all cases not urgent and is so much better thna it was now i think
+In all cases not urgent and is so much better than it was now i think
 with these fixes, may or not revisit later or not
 about this at least or not, but not promised, about
 this at least, and is maybe as is or not or yes or
@@ -12244,7 +12634,7 @@ keeping the old TXT KEY "Reveals" for the civilopedia as it may fit
 better there (i think).
 Got the idea from a suggestion made to me to separate Sevopedia
 and civilopedia TXT KEY, which i was not aware of to even consider,
-i mean anwyys and am thnakful for, may not necessarily change all
+i mean anways and am thankful for, may not necessarily change all
 soon, but about this, but if i remember maybe i would,
 but would also need to want wish, as i don't maintain or care sadly
 as much about the civilopedia, i'd rather focus on the Sevopedia i

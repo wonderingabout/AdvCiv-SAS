@@ -934,6 +934,8 @@ For example, in our mod's github default branch's main page [our mod's github de
 
 Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
 
+Exception: when the latest stable release receives fixes or small tweaks after release, the stable release tag may keep the original stable version number even if it is moved forward to a later commit/version. For example, `AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release)` can keep the `5860` release tag and download link while pointing to commit/version `5900`. This keeps the same CFC/GitHub download link for the corrected stable build while preserving the intervening commit history for reference, cherry-picks, or future review.
+
 ## Copyright and Disclaimer
 
 See [Copyright and Disclaimer](/_1_AdvCiv-SAS/Docs/README_References.md#copyright-and-disclaimer).
