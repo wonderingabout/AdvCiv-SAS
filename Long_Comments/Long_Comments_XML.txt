@@ -4950,3 +4950,9 @@ humans would have little to gain from stacking them past a certain point fairly 
 ----- Comment #375 -----
 
 , so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this
+
+===== \Assets\XML\Buildings\GlobalDefines_advciv_sas.xml =====
+----- Comment #376 -----
+
+	<!-- custom: BBAI logging is useful for investigating AI decisions such as production, city founding, unit movement, diplomacy, map normalization, and similar behavior. These SAS defines tune which BBAI logs are sent. (GPT-5.5?) -->
+	<!-- custom: To use logging, Civ4 also requires LoggingEnabled=1 in CivilizationIV.ini. Then BBAI log files can be found in files like BBAI.log, for example (adjust to your Windows username/computer path) "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log". (GPT-5.5?) -->

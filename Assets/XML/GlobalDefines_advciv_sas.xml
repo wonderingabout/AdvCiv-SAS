@@ -1060,6 +1060,56 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: BBAI log levels were hidden in base AdvCiv's CvGameCoreDLL/BBAILog.h, so enabling BBAI logging (LOG_AI / LOG_FOUND_VALUE), disabling it again, or adjusting its detail required a DLL edit and recompile. AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply changes. (GPT-5.5?); Long_Comments_XML.txt #376. -->
+	<!-- custom: Master BBAI logging switch. 0 disables all BBAI logging regardless of the category levels below; 1 (enabled) uses the category levels below. This lets you keep a prepared logging profile and turn it off/on with one define. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_LOG_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_PLAYER_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_DEAL_CANCEL_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: BBAI player score-detail log interval in turns. Only used when SAS_BBAI_PLAYER_LOG_LEVEL > 0; clamped to at least 1 to avoid invalid modulo. Base AdvCiv BBAILog.h default: LOG_AI enabled 100; disabled fallback effectively 10000; advc.007 says this was hardcoded to 25 in CvPlayer::onTurnLogging before BBAILog.h. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: if score is equal or higher than this, it means our city has a low food BFC. Used to decide as of now if farms should be more valuable in such cities. -->
 	<!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
 	<Define>

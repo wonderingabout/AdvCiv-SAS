@@ -1795,12 +1795,18 @@ void CvCityAI::AI_chooseProduction()
 	// <!-- custom: the below code doesn't apply to barbarians, as they have no settler, produce no naval units as a result on pangea so they don't pirate anymore as they should, and should still be focused on their usual invade and such routine, but this is also proof our logic is working as intended nicely if i may say which is a good thing if i may say too-->
 	bool bNoSettler = false;
 	bool bWorkerReplacesSettler = false;
+	bool bSettlerGateFreeWindow = false;
+	bool bSettlerGateStagnant = false;
+	bool bSettlerGateDanger = false;
+	bool bSettlerGateDefenseMode = false;
+	bool bSettlerGateOffenseMode = false;
 
 	if (!bMinor && !bBarbarian)
 	{
 		// <!-- custom: add bNoSettler checks here rather than hardcoded in bestUnitAI with the old bNoGrow logic of base advciv +/- civ4 code, hopefully cleaner and we can contorl it better as well -->
 		//int const iFoodDifference = foodDifference(true, true);
 		bool const bStagnant = (!isFoodProduction() && foodDifference() <= 0);
+		bSettlerGateStagnant = bStagnant;
 
 		// CvArea* pWaterArea = waterArea(true);
 
@@ -1855,6 +1861,7 @@ void CvCityAI::AI_chooseProduction()
 		const int iBaseFreeTurns = 75; // @NORMAL speed
 		const int iFreeTurns = iBaseFreeTurns * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 		const bool bFreeSettlerEarlyWindow = (kGame.getElapsedGameTurns() < iFreeTurns);
+		bSettlerGateFreeWindow = bFreeSettlerEarlyWindow;
 
 		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too); note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger military or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for details -->
 		if (iCityPopulation <= 4)
@@ -1886,6 +1893,7 @@ void CvCityAI::AI_chooseProduction()
 				if (AI_isDanger())
 				{
 					bNoSettler = true;
+					bSettlerGateDanger = true;
 				}
 				else if (bFinancialTrouble)
 				{
@@ -1899,10 +1907,12 @@ void CvCityAI::AI_chooseProduction()
 				else if (bDefenseMode)
 				{
 					bNoSettler = true;
+					bSettlerGateDefenseMode = true;
 				}
 				else if (bOffenseMode)
 				{
 					bNoSettler = true;
+					bSettlerGateOffenseMode = true;
 				}
 			}
 		}
@@ -1958,6 +1968,12 @@ void CvCityAI::AI_chooseProduction()
 				// <advc.031b> Store the result for "build settler 2"
 				iSettlerPriority = AI_calculateSettlerPriority(iNumAreaCitySites,
 						iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
+				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion. This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5? + GPT-5.5-Thinking) -->
+				if (gCityLogLevel >= 2 && isCapital() && iNumCities == 1 && iNumSettlers == 0)
+				{
+					logBBAI("      City %S first-settler gate: pop=%d freeWindow=%d stagnant=%d danger=%d financial=%d defenseMode=%d offenseMode=%d noSettler=%d workerReplaces=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d minFound=%d settlers=%d/%d priority=%d plotSettlers=%d",
+							sCityName, iCityPopulation, bSettlerGateFreeWindow, bSettlerGateStagnant, bSettlerGateDanger, bFinancialTrouble, bSettlerGateDefenseMode, bSettlerGateOffenseMode, bNoSettler, bWorkerReplacesSettler, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
+				}
 				// <!-- custom: add a no barbarian check and also add our no settler check as well too here cleanly, as first parameter for computational efficiency-->
 				if (!isBarbarian() && !bNoSettler && AI_chooseUnit(UNITAI_SETTLE, //bLandWar ? 50 : -1))
 				// // </advc.031b>
@@ -11754,6 +11770,13 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
+	// <!-- custom: first-settler outer gate can allow UNITAI_SETTLE while the lower choose-unit layer still rejects it. Log the concrete best unit and odds path so the BBAI replay shows whether the failure is no trainable/value settler, random odds, or the later concrete-unit gate; this showed Bibracte had Settler available but was rejected later by bWarPlan. (GPT-5.5? + GPT-5.5-Thinking) -->
+	if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+	{
+		logBBAI("      City %S settler chooseUnit: bestUnit=%S odds=%d totalSettlers=%d",
+				getName().GetCString(), eBestUnit == NO_UNIT ? L"NO_UNIT" : GC.getInfo(eBestUnit).getDescription(), iOdds, GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_SETTLE));
+	}
+
 	if (eBestUnit != NO_UNIT)
 	{	// <advc.033> Don't build outdated pirates
 		if(!isBarbarian() && eUnitAI == UNITAI_PIRATE_SEA)
@@ -11780,8 +11803,19 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			// pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
 			// return true;
 			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
-			return AI_chooseUnit(eBestUnit, eUnitAI);
+			const bool bChosen = AI_chooseUnit(eBestUnit, eUnitAI);
+			if (!bChosen && eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+				logBBAI("      City %S settler chooseUnit rejected concrete unit %S", getName().GetCString(), GC.getInfo(eBestUnit).getDescription());
+			return bChosen;
 		}
+		else if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+		{
+			logBBAI("      City %S settler chooseUnit rejected by random odds", getName().GetCString());
+		}
+	}
+	else if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+	{
+		logBBAI("      City %S settler chooseUnit rejected: AI_bestUnitAI returned NO_UNIT", getName().GetCString());
 	}
 
 	return false;
@@ -12858,17 +12892,27 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					{
 						// <!-- custom: only one settler at a time and for efficiency -->
 						int iMaxUnits = 1;
+						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
+						const bool bEarlyExpansionSettler = (iNumCities < 3 && iTotalUnitAIs <= 0);
 
-						// <!-- custom: no time for expansion at war or danger or similar -->
-						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
+						if (gCityLogLevel >= 2)
 						{
+							logBBAI("      City %S settler land-unit gate: atWar=%d enemyStrong=%d danger=%d warPlan=%d earlyExpansion=%d totalSettlers=%d maxSettlers=%d",
+									getName().GetCString(), bAtWar, bEnemyStrong, bDanger, bWarPlan, bEarlyExpansionSettler, iTotalUnitAIs, iMaxUnits);
+						}
+
+						// <!-- custom: Bibracte's first settler was delayed until around turn 90 because the outer first-settler gate allowed expansion, but this lower concrete-unit gate rejected it only because bWarPlan was true despite no war, no strong enemy, and no local danger. Keep hard tactical blockers, but do not let a generic war plan alone block early expansion before the AI has at least 3 cities. This fixed the reproduced case: city 2 moved to around turn 40-50, city 3 followed soon after, and Brennus had 3 cities by turn 100. (GPT-5.5? + GPT-5.5-Thinking) -->
+						if (bAtWar || bEnemyStrong || bDanger || (bWarPlan && !bEarlyExpansionSettler))
+						{
+							if (gCityLogLevel >= 2)
+								logBBAI("      City %S rejects settler in AI_chooseUnit: threat gate", getName().GetCString());
 							return false;
 						}
 
-						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
-
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (gCityLogLevel >= 2)
+								logBBAI("      City %S rejects settler in AI_chooseUnit: settler cap %d/%d", getName().GetCString(), iTotalUnitAIs, iMaxUnits);
 							return false;
 						}
 					}

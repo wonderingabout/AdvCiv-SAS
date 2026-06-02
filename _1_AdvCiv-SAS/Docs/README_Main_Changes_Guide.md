@@ -4,7 +4,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
 
 Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
-- **Player-tunable options (SAS defines):** When this guide mentions DLL code locations (for example `CvUnitInfo::getTerrainAttackModifier`), that is just to document where the behavior comes from. **Players do not need to modify or recompile the DLL** to change the behavior; you can instead change/tune the corresponding **SAS defines** (in the above mentioned **XML** file): for example the `SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS` SAS define can be set to `0` to disable or `1` to enable this option.
+- **Player-tunable options (SAS defines):** When this guide mentions DLL code locations (for example `CvUnitInfo::getTerrainAttackModifier`), that is just to document where the behavior comes from. **Players do not need to modify or recompile the DLL** to change the behavior; you can instead change/tune the corresponding **SAS defines** (in the above mentioned **XML** file): for example the `SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS` SAS define can be set to `0` to disable or `1` to enable this option. Note: after modifying them, restart Civ4 to apply changes.
 - **Scope note:** The long-term goal is to make more gameplay options player-tunable via SAS defines when it is practical. Some changes are still hardcoded (or not worth exposing) due to complexity, risk, or limited value, so not everything is configurable.
 
 Note: The main changes guide serves as an index that covers concisely most AdvCiv-SAS changes since as of now base AdvCiv 1.12, but it may not be exhaustive, see the other AdvCiv-SAS supporting docs or files for further information.
@@ -135,6 +135,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
 - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
 - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+- (Requires AdvCiv-SAS 5903+) **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write `BBAI.log`. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis.
 
 ### 48 Civs DLL
 
@@ -148,7 +149,6 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 #### General changes (AI)
 
 - Global AI settings lean toward **pragmatic, opportunistic** play over role-play: religion weight adjustments, lower revolt chance, lower war anger, more willingness to demand tribute (and sometimes declare if refused), and less inclination to take bad wars (especially multi-front). For exact values, see [`AI_Variables_GlobalDefines.xml`](/Assets/XML/AI_Variables_GlobalDefines.xml), [`GlobalDefines_advc.xml`](/Assets/XML/GlobalDefines_advc.xml), and [`BBAI_Game_Options_GlobalDefines.xml`](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml).
-- **SAS global defines (no DLL recompile needed)**: Added [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) to host AdvCiv-SAS–specific knobs/tunables so they can be changed directly in XML instead of recompiling the DLL. More settings may be migrated here over time.
 
 #### Bonuses (AI)
 
