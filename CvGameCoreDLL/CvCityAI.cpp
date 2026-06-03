@@ -1968,7 +1968,7 @@ void CvCityAI::AI_chooseProduction()
 				// <advc.031b> Store the result for "build settler 2"
 				iSettlerPriority = AI_calculateSettlerPriority(iNumAreaCitySites,
 						iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
-				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion. This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5? + GPT-5.5-Thinking) -->
+				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion. This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5 + GPT-5.5-Thinking) -->
 				if (gCityLogLevel >= 2 && isCapital() && iNumCities == 1 && iNumSettlers == 0)
 				{
 					logBBAI("      City %S first-settler gate: pop=%d freeWindow=%d stagnant=%d danger=%d financial=%d defenseMode=%d offenseMode=%d noSettler=%d workerReplaces=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d minFound=%d settlers=%d/%d priority=%d plotSettlers=%d",
@@ -11769,9 +11769,11 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
+	// <!-- custom: Settler diagnostics use the same city-log gate several times; cache the combined condition so non-settler calls avoid repeated log-level checks and all settler logs stay category-gated. (GPT-5.5) -->
+	const bool bLogSettler = (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2);
 
-	// <!-- custom: first-settler outer gate can allow UNITAI_SETTLE while the lower choose-unit layer still rejects it. Log the concrete best unit and odds path so the BBAI replay shows whether the failure is no trainable/value settler, random odds, or the later concrete-unit gate; this showed Bibracte had Settler available but was rejected later by bWarPlan. (GPT-5.5? + GPT-5.5-Thinking) -->
-	if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+	// <!-- custom: first-settler outer gate can allow UNITAI_SETTLE while the lower choose-unit layer still rejects it. Log the concrete best unit and odds path so the BBAI replay shows whether the failure is no trainable/value settler, random odds, or the later concrete-unit gate; this showed Bibracte had Settler available but was rejected later by bWarPlan. (GPT-5.5 + GPT-5.5-Thinking) -->
+	if (bLogSettler)
 	{
 		logBBAI("      City %S settler chooseUnit: bestUnit=%S odds=%d totalSettlers=%d",
 				getName().GetCString(), eBestUnit == NO_UNIT ? L"NO_UNIT" : GC.getInfo(eBestUnit).getDescription(), iOdds, GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_SETTLE));
@@ -11804,16 +11806,16 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			// return true;
 			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
 			const bool bChosen = AI_chooseUnit(eBestUnit, eUnitAI);
-			if (!bChosen && eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+			if (!bChosen && bLogSettler)
 				logBBAI("      City %S settler chooseUnit rejected concrete unit %S", getName().GetCString(), GC.getInfo(eBestUnit).getDescription());
 			return bChosen;
 		}
-		else if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+		else if (bLogSettler)
 		{
 			logBBAI("      City %S settler chooseUnit rejected by random odds", getName().GetCString());
 		}
 	}
-	else if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
+	else if (bLogSettler)
 	{
 		logBBAI("      City %S settler chooseUnit rejected: AI_bestUnitAI returned NO_UNIT", getName().GetCString());
 	}
@@ -12894,24 +12896,26 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						int iMaxUnits = 1;
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
 						const bool bEarlyExpansionSettler = (iNumCities < 3 && iTotalUnitAIs <= 0);
+						// <!-- custom: Same local settler-log gate as the UnitAITypes overload; this concrete-unit branch already knows it is handling UNITAI_SETTLE. (GPT-5.5) -->
+						const bool bLogSettler = (gCityLogLevel >= 2);
 
-						if (gCityLogLevel >= 2)
+						if (bLogSettler)
 						{
 							logBBAI("      City %S settler land-unit gate: atWar=%d enemyStrong=%d danger=%d warPlan=%d earlyExpansion=%d totalSettlers=%d maxSettlers=%d",
 									getName().GetCString(), bAtWar, bEnemyStrong, bDanger, bWarPlan, bEarlyExpansionSettler, iTotalUnitAIs, iMaxUnits);
 						}
 
-						// <!-- custom: Bibracte's first settler was delayed until around turn 90 because the outer first-settler gate allowed expansion, but this lower concrete-unit gate rejected it only because bWarPlan was true despite no war, no strong enemy, and no local danger. Keep hard tactical blockers, but do not let a generic war plan alone block early expansion before the AI has at least 3 cities. This fixed the reproduced case: city 2 moved to around turn 40-50, city 3 followed soon after, and Brennus had 3 cities by turn 100. (GPT-5.5? + GPT-5.5-Thinking) -->
+						// <!-- custom: Bibracte's first settler was delayed until around turn 90 because the outer first-settler gate allowed expansion, but this lower concrete-unit gate rejected it only because bWarPlan was true despite no war, no strong enemy, and no local danger. Keep hard tactical blockers, but do not let a generic war plan alone block early expansion before the AI has at least 3 cities. This fixed the reproduced case: city 2 moved to around turn 40-50, city 3 followed soon after, and Brennus had 3 cities by turn 100. (GPT-5.5 + GPT-5.5-Thinking) -->
 						if (bAtWar || bEnemyStrong || bDanger || (bWarPlan && !bEarlyExpansionSettler))
 						{
-							if (gCityLogLevel >= 2)
+							if (bLogSettler)
 								logBBAI("      City %S rejects settler in AI_chooseUnit: threat gate", getName().GetCString());
 							return false;
 						}
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
-							if (gCityLogLevel >= 2)
+							if (bLogSettler)
 								logBBAI("      City %S rejects settler in AI_chooseUnit: settler cap %d/%d", getName().GetCString(), iTotalUnitAIs, iMaxUnits);
 							return false;
 						}

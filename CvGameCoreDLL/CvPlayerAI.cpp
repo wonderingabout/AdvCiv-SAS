@@ -1726,7 +1726,9 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 						DOMAIN_LAND, 3);
 				if(5 * iAttStr > 4 * iDefStr)
 					bRaze = true;
-				if(bRaze) logBBAI("  Razing enemy cultural victory city");
+				// <!-- custom: logBBAI now has only a global runtime gate, so player-AI conquest details still need player-log guards to avoid leaking into unrelated BBAI categories. (GPT-5.5 + ChatGPT 5.5) -->
+				if (bRaze && gPlayerLogLevel >= 1)
+					logBBAI("  Razing enemy cultural victory city");
 			}
 		} // </advc.116>
 	}  // <advc.ctr>
@@ -1984,11 +1986,13 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 				iRazeValue -= 5;
 			} // K-Mod end
 
+			// <!-- custom: The following conquest/raze details are player-AI diagnostics; guard them explicitly now that logBBAI itself only checks the global runtime BBAI switch. (GPT-5.5 + ChatGPT 5.5) -->
 			FOR_EACH_ENUM(Religion)
 			{
 				if (kCity.isHolyCity(eLoopReligion))
 				{
-					logBBAI("      Reduction for holy city");
+					if (gPlayerLogLevel >= 1)
+						logBBAI("      Reduction for holy city");
 					if(getStateReligion() == eLoopReligion)
 						iRazeValue -= 150;
 					else iRazeValue -= 5 + kGame.calculateReligionPercent(eLoopReligion);
@@ -2001,7 +2005,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 			{
 				if (kCity.isHeadquarters(eCorp))
 				{
-					logBBAI("      Reduction for corp headquarters");
+					if (gPlayerLogLevel >= 1)
+						logBBAI("      Reduction for corp headquarters");
 					iRazeValue -= 10 + 100 * kGame.countCorporationLevels(eCorp) /
 							kGame.getNumCities();
 				}
@@ -2113,7 +2118,9 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
 				}
 				if (bLiberate)
 				{
-					logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)", getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(), GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
+					// <!-- custom: same player-log category guard as the nearby conquest/raze diagnostics. (GPT-5.5 + ChatGPT 5.5) -->
+					if (gPlayerLogLevel >= 1)
+						logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)", getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(), GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
 					CvEventReporter::getInstance().cityAcquiredAndKept(getID(), &kCity);
 					kCity.liberate(true);
 				}
@@ -31147,6 +31154,10 @@ void CvPlayerAI::AI_setHuman(bool b)
 // advc.031c:
 void CvPlayerAI::logFoundValue(CvPlot const& kPlot, bool bStartingLoc) const
 {
+	// <!-- custom: most callers already check this; keep the guard here too so the helper never constructs the found-value logger when disabled. (ChatGPT 5.5) -->
+	if (gFoundLogLevel <= 0)
+		return;
+
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const int iMIN_BARBARIAN_CITY_STARTING_DISTANCE = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
 	CitySiteEvaluator eval(*this, isBarbarian() ?

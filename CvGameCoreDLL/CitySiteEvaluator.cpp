@@ -242,6 +242,10 @@ void CitySiteEvaluator::setDebug(bool b)
 // <advc.031c>
 int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
 {
+	// <!-- custom: avoid the logging pass and log-argument evaluation when found-value logging is disabled. (ChatGPT 5.5) -->
+	if (gFoundLogLevel <= 0)
+		return evaluate(kPlot);
+
 	AIFoundValue::setLoggingEnabled(true);
 	int r = evaluate(kPlot);
 	AIFoundValue::setLoggingEnabled(false);
@@ -251,6 +255,10 @@ int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
 
 void CitySiteEvaluator::log(CvPlot const& kPlot)
 {
+	// <!-- custom: callers normally check gFoundLogLevel already; keep this guard so this entry point stays cheap if reached directly. (ChatGPT 5.5) -->
+	if (gFoundLogLevel <= 0)
+		return;
+
 	/*  Important to ignore other city sites. Because, when CvPlayerAI::
 		AI_updateCitySites computes the found value of the best site,
 		none of the other sites are chosen yet. Here, all sites are chosen. */
@@ -3923,6 +3931,10 @@ bool AIFoundValue::isDeadlockedBonus(CvPlot const& kBonusPlot, int iMinRange) co
 // <advc.031c>
 void CitySiteEvaluator::logSettings() const
 {
+	// <!-- custom: These helpers are normally reached through IFLOG or log() guards; keep local guards too so future direct calls cannot leak found-value output into unrelated BBAI categories. (GPT-5.5 + ChatGPT 5.5) -->
+	if (gFoundLogLevel <= 0 || !AIFoundValue::isLoggingEnabled())
+		return;
+
 	logBBAI("Found parameters for %S:", isStartingLoc() ?
 			L"starting location" : getPlayer().getName());
 	logBBAI("Culture claim treshold: %d", getClaimThreshold());
@@ -3968,6 +3980,10 @@ void CitySiteEvaluator::logSettings() const
 
 void AIFoundValue::logSite() const
 {
+	// <!-- custom: same found-value logging self-guard as logSettings. (GPT-5.5 + ChatGPT 5.5) -->
+	if (gFoundLogLevel <= 0 || !isLoggingEnabled())
+		return;
+
 	logBBAI("Computing found value for %S", kPlot.debugStr());
 	if (bCoastal)
 		logBBAI("Site is coastal");
@@ -3981,6 +3997,10 @@ void AIFoundValue::logPlot(CvPlot const& p, int iPlotValue, int const* aiYield,
 	bool bCanSoonImproveBonus, bool bEasyAccess,
 	int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const
 {
+	// <!-- custom: same found-value logging self-guard as logSettings. (GPT-5.5 + ChatGPT 5.5) -->
+	if (gFoundLogLevel <= 0 || !isLoggingEnabled())
+		return;
+
 	int const F = YIELD_FOOD, P = YIELD_PRODUCTION, C = YIELD_COMMERCE;
 	if (isHome(p))
 		logBBAI("Home plot: val=%d, %dF%dP%dC", iPlotValue, aiYield[F], aiYield[P], aiYield[C]);
