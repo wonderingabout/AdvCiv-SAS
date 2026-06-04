@@ -13,7 +13,7 @@ def _getSASUIFontSize(szDefineName):
 	iSize = gc.getDefineINT(szDefineName)
 	if iSize < 1 or iSize > 4:
 		_SAS_UI_FONT_SIZE_CACHE[szDefineName] = None
-		raise RuntimeError("SASFontUtils: %s=%d out of [1,4] - check CIV4SASDefines.xml" % (szDefineName, iSize))
+		raise RuntimeError("SASFontUtils: %s=%d out of [1,4] - check GlobalDefines_advciv_sas.xml" % (szDefineName, iSize))
 	_SAS_UI_FONT_SIZE_CACHE[szDefineName] = iSize
 	print("SASFontUtils: initialized %s = %d" % (szDefineName, iSize))
 	return iSize

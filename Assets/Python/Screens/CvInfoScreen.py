@@ -1168,10 +1168,11 @@ class CvInfoScreen:
 		iAttW = iMinColW + 2
 		iAttNumW = iMinColW + 2
 		iColorW = iMinColW
-		iPidW = iMinColW - 10
-		iResearchPctW = iPidW + 8
+		# <!-- custom: avoid shriking ID below the normal compact column minimum: double-digit player IDs clip in the Civ4 table widget, e.g. "10" or "11" drawing as "1." or "1" (when font upscaled) with iPidW = iMinColW (42) - 10. (ChatGPT-5.5) -->
+		iPidW = iMinColW
+		iResearchPctW = iPidW
 		# <!-- custom: keep Tech width equal to '%' width because both are compact progress/count metrics and are near each other, so matched width reads cleaner; Tech is fine as 2-digit like '%' in AdvCiv-SAS (no 3-digit tech counts expected). (GPT-5.3-Codex) -->
-		iTechsW = iResearchPctW
+		iTechsW = iPidW
 		iNameW = 115
 		# <!-- custom: second pass tuning after 1665 screenshot: reduce Score/dSc slightly, widen Att/Att#, significantly widen Land% and final research %, and fund it mostly from V/M baseline. (GPT-5.3-Codex) -->
 		iScoreW = 69
@@ -1183,8 +1184,7 @@ class CvInfoScreen:
 		iLandPctW = iMinColW + 28
 		iVMW = iMinColW
 		iResearchW = iMinColW
-		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows.
-		# If space is tight, shrink Research first, then Leader, then V/M as last resort; keep total width exact. (GPT-5.3-Codex) -->
+		# <!-- custom: width equalization buffer goes into V/M so it grows when horizontal space allows. If needed, let V/M absorb the small width cost instead, since even accounting for double digit vassals/master and font upscaling, we rarely have that many, and if so they are still visible via Scoreboard. (GPT-5.3-Codex + ChatGPT-5.5) -->
 		iUsedW = (2 * iIconW + iScoreW + iDeltaW + iDipW + iPowerW + iPowerAbsW + iCitiesW + iPowerPerCityW + iLandPctW + iVMW + iTraitW + iTraitW + iAttNumW + iColorW + iResearchPctW + iTechsW + iAttW + 8 * iFlagW + iPidW + iNameW + iResearchW)
 		iExtraW = iW - iUsedW
 		iVMW += iExtraW
