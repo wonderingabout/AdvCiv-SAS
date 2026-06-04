@@ -1,9 +1,10 @@
 ## TechWindow
 ##
-## Originally by SirRethcir: Techanzeige hinzugefügt
+## Originally by SirRethcir: Techanzeige hinzugefÃ¼gt
 ## Enhanced by Roamty, Caesium, Guarav
 ##
 ## Copyright (c) 2008 The BUG Mod.
+## <!-- custom: Ruff reported E902 "stream did not contain valid UTF-8" at this legacy BUG TechWindow file start. Converting the file to UTF-8 in VS Code fixed the Ruff parser error while preserving the German comments and leaving runtime code unchanged. Credit: ChatGPT 5.5 and Ruff check. (GPT-5.5) -->
 
 from CvPythonExtensions import *
 import CvUtil
@@ -73,7 +74,7 @@ class CvTechSplashScreen:
 		self.W_QUOTE = 400
 		self.H_QUOTE = self.H_UPPER_PANEL - (self.iMarginSpace * 2) - 38
 
-#---Geändert START - siehe original Datei -----------------		
+#---GeÃ¤ndert START - siehe original Datei -----------------		
 		# Lower Panel
 
 		self.X_LOWER_PANEL = self.X_MAIN_PANEL + self.iMarginSpace
@@ -99,7 +100,7 @@ class CvTechSplashScreen:
 		self.W_ALLOWS_PANEL = self.W_LOWER_PANEL/2 - (self.iMarginSpace)
 		self.Y_ALLOWS_PANEL2 = self.Y_SPECIAL_PANEL + self.H_ALLOWS_PANEL + self.H_ALLOWS_SPACE
 		self.Y_ALLOWS_PANEL3 = self.Y_SPECIAL_PANEL + 2 * (self.H_ALLOWS_PANEL + self.H_ALLOWS_SPACE)
-#---Geändert ENDE ------------------------------------------
+#---GeÃ¤ndert ENDE ------------------------------------------
 
 		# Contents
 
@@ -164,19 +165,19 @@ class CvTechSplashScreen:
 		screen.addPanel( szSpecialPanel, "", "", true, true, self.X_SPECIAL_PANEL+self.iMarginSpace, self.Y_SPECIAL_PANEL, self.W_SPECIAL_PANEL-(self.iMarginSpace * 2), self.H_SPECIAL_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(szSpecialPanel, "Panel_Black25_Style")
 
-#---Eingefügt START - kann komplett gelöscht werden-----------------
+#---EingefÃ¼gt START - kann komplett gelÃ¶scht werden-----------------
 		# Allows PanelSIR
 		panelNameSIR = "SIR"
 		screen.addPanel( panelNameSIR, "", "", false, true, self.X_ALLOWS_PANELSIR+self.iMarginSpace, self.Y_ALLOWS_PANELSIR, self.W_ALLOWS_PANELSIR-(self.iMarginSpace * 2), self.H_ALLOWS_PANELSIR, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelNameSIR, "Panel_Black25_Style")
-#---Eingefügt ENDE -------------------------------------------------
+#---EingefÃ¼gt ENDE -------------------------------------------------
 
 		# Allows Panel
 		panelName = self.getNextWidgetName()
 		screen.addPanel( panelName, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelName, "Panel_Black25_Style")
 
-#---Eingefügt START - kann komplett gelöscht werden-----------------
+#---EingefÃ¼gt START - kann komplett gelÃ¶scht werden-----------------
 		# Allows Panel2
 		panelName2 = "SIR2"
 		screen.addPanel( panelName2, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL2, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
@@ -186,7 +187,7 @@ class CvTechSplashScreen:
 		panelName3 = "SIR3"
 		screen.addPanel( panelName3, "", "", false, true, self.X_ALLOWS_PANEL+self.iMarginSpace, self.Y_ALLOWS_PANEL3, self.W_ALLOWS_PANEL-(self.iMarginSpace * 2), self.H_ALLOWS_PANEL, PanelStyles.PANEL_STYLE_IN )
 		screen.setStyle(panelName3, "Panel_Black25_Style")
-#---Eingefügt ENDE -------------------------------------------------
+#---EingefÃ¼gt ENDE -------------------------------------------------
 
 		# Add Contents
 
@@ -216,7 +217,7 @@ class CvTechSplashScreen:
 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, True, -1)[1:]
 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANEL+10, self.Y_SPECIAL_PANEL+5, self.W_SPECIAL_PANEL-20, self.H_SPECIAL_PANEL-20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)	
 
-#---Eingefügt START - kann komplett gelöscht werden --------------
+#---EingefÃ¼gt START - kann komplett gelÃ¶scht werden --------------
 		# Allows -> LeadsTo
 		szAllowsTitleDescSIR = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()) + ":" + u"</font>"
 		szAllowsTitleWidgetSIR = "AllowsTitleSIR"
@@ -232,7 +233,7 @@ class CvTechSplashScreen:
 				iPrereq = CyGlobalContext().getTechInfo(j).getPrereqAndTechs(k)
 				if (iPrereq == self.iTech):
 					screen.attachImageButton( panelNameSIR, "", CyGlobalContext().getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False )
-#---Eingefügt ENDE ------------------------------------------------
+#---EingefÃ¼gt ENDE ------------------------------------------------
 
                 # Allows
 		# szAllowsTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_ALLOWS", ()) + ":" + u"</font>"
@@ -277,7 +278,7 @@ class CvTechSplashScreen:
 			if (CyGlobalContext().getPromotionInfo(j).getTechPrereq() == self.iTech):
 				screen.attachImageButton( panelName3, "", CyGlobalContext().getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False )
 
-#---Eingefügt START - kann komplett gelöscht werden --------------
+#---EingefÃ¼gt START - kann komplett gelÃ¶scht werden --------------
                 # Improvements
 		for j in range(CyGlobalContext().getNumBuildInfos()):
 				bTechFound = 0
@@ -305,7 +306,7 @@ class CvTechSplashScreen:
 		for j in range(CyGlobalContext().getNumCivicInfos()):
 			if (CyGlobalContext().getCivicInfo(j).getTechPrereq() == self.iTech):
 				screen.attachImageButton( panelName3, "", CyGlobalContext().getCivicInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, j, 1, False )
-#---Eingefügt ENDE ------------------------------------------------		
+#---EingefÃ¼gt ENDE ------------------------------------------------		
 
 	# returns a unique ID for a widget in this screen
 	def getNextWidgetName(self):
