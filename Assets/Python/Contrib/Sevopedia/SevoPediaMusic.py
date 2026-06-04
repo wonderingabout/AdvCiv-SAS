@@ -198,6 +198,11 @@ class SevoPediaMusic:
 					szText = szTitleText + u"\n" + szSoundId + u"\n" + szScript
 			else:
 				szText = szTitleText + u"\n" + szScript
+			# <!-- custom: Some 3D script previews are EXE/audio-asset flaky even when Sevopedia passes the correct AS3D_ script. Improvement animal scripts such as elephant empirically sometimes played no sound or another animal; ambience 3D scripts can have delayed starts, e.g. dog ambience began around 6 seconds. Add focused notes only for those 3D script groups. See KI#141. (GPT-5.5) -->
+			if szScript.startswith("AS3D_IMPROV"):
+				szText = szText + u"\n\n" + localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_3D_IMPROVEMENT_NOTE", ())
+			elif szScript.startswith("AS3D_SS_"):
+				szText = szText + u"\n\n" + localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_3D_AMBIENCE_NOTE", ())
 		szText = SASTextScale.labelText(szText)
 		textName = self.top.getNextWidgetName()
 		screen.addMultilineText(textName, szText, self.X_HISTORY + 10, self.Y_HISTORY + 10, self.W_HISTORY - 20, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -441,6 +446,12 @@ class SevoPediaMusic:
 			szNote = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_VARIANT_NOTE", ())
 			if szNote:
 				return szNote
+		elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+			szScript = self.top.SAS_getMusicSoundScript(iPacked)
+			if szScript.startswith("AS3D_IMPROV"):
+				return localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_3D_IMPROVEMENT_NOTE", ())
+			if szScript.startswith("AS3D_SS_"):
+				return localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_3D_AMBIENCE_NOTE", ())
 
 		return ""
 

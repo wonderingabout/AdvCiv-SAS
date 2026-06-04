@@ -5257,7 +5257,13 @@ Final solution:
 
 - Added DLL/Python API `gc.getAudio3DScriptName(iSoundId)` to resolve any 3D audio script ID back to its `AS3D_...` script name.
 - The DLL caches `Audio3DScripts.xml` once and exposes the reverse lookup to Python.
-- Sevopedia uses the script name with `CyInterface().playGeneralSound(...)` for 3D previews and falls back to the old 3D playback path only if the helper is unavailable or returns empty.
+- Sevopedia uses the script name with `CyAudioGame().Play3DSound(szScript, -1, -1, -1)` for 3D previews and falls back to the old quiet 3D playback path only if the helper is unavailable or returns empty.
+
+Update:
+
+- After the normal-volume fix, fast Next/Prev through generic 3D script-browser previews could stack long or looping `AS3D_...` sounds. These sounds persisted after leaving Sevopedia, including in the main menu and ingame. The issue was that `CyInterface().playGeneralSound("AS3D_...")` returns no sound handle, so `stopSound()` could not destroy that playback.
+- Handle-based `CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)` for generic `AS3D_...` script-name previews fixed the persistent stacked sound issue, but testing showed it could also break later normal ingame Select/Order and other sounds.
+- Final follow-up: `CyAudioGame().Play3DSound(szScript, -1, -1, -1)` fixed generic `AS3D_...` script-name previews too. It keeps normal volume and returns a handle, so `stopSound()` can call `Destroy3DSound()` before replay/Next/Prev and when leaving Sevopedia. (GPT-5.5)
 
 Note: untested, but as a side-effect might have also fixed some 3D sounds not playing correctly that now seemingly do (would need to check).
 
