@@ -13,8 +13,8 @@ localText = CyTranslator()
 
 def _SAS_getAudio3DScriptName(iSoundId):
 	# <!-- custom: The fix is only for Sevopedia's media player. The observed problem was that civilization Select/Order sounds previewed correctly from the main menu, but after entering a game the same Sevopedia previews became much quieter; returning to the main menu did not fix them, and the game had to be restarted.
-	# For 3D sounds, iSoundId is a 3D script index, not a normal 2D/general sound ID. CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0) plays the right 3D script but very quietly, while CyInterface().playGeneralSoundByID(iSoundId) plays the wrong sound because that ID belongs to a different audio namespace. Resolving the ID back to the script name, e.g. AS3D_AMERICA_SELECT, and calling CyInterface().playGeneralSound("AS3D_AMERICA_SELECT") fixed the volume.
-	# AdvCiv-SAS DLL exposes gc.getAudio3DScriptName(iSoundId), which caches Audio3DScripts.xml once in the DLL and returns the AS3D_... script name for any 3D script ID. If the helper is unavailable or returns empty, playSound falls back to the old quiet 3D path. See KI#141. (GPT-5.5?) -->
+	# For 3D sounds, iSoundId is a 3D script index, not a normal 2D/general sound ID. CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0) plays the right 3D script but very quietly, while CyInterface().playGeneralSoundByID(iSoundId) plays the wrong sound because that ID belongs to a different audio namespace.
+	# AdvCiv-SAS DLL exposes gc.getAudio3DScriptName(iSoundId), which caches Audio3DScripts.xml once in the DLL and returns the AS3D_... script name for any 3D script ID. playSound then calls CyAudioGame().Play3DSound(szScript, -1, -1, -1), which testing showed plays at normal volume and returns a Destroy3DSound-compatible handle; if the helper is unavailable or returns empty, playSound falls back to the old quiet 3D path. See KI#141. (GPT-5.5) -->
 	try:
 		return gc.getAudio3DScriptName(iSoundId)
 	except:
@@ -376,11 +376,9 @@ class SevoPediaMediaPlayer:
 				if bForce3D:
 					sz3DScript = _SAS_getAudio3DScriptName(iSoundId)
 					if sz3DScript:
-						CyInterface().playGeneralSound(sz3DScript)
-						# <!-- custom: playGeneralSound does not return a CyAudioGame sound handle, and the script has already been played.
-						# Return here so the generic fallback below does not replay szSoundScript / retry another audio path. See also KI#141. (GPT-5.5-Thinking + GPT-5.5?) -->
-						self.soundId = None
-						self.is3DSound = False
+						self.soundId = CyAudioGame().Play3DSound(sz3DScript, -1, -1, -1)
+						# <!-- custom: Python receives 3D audio script IDs for civ Select/Order previews. The old positional `Play3DSoundWithId(iSoundId, 0, 0, 0)` played very quietly after entering a game, while `playGeneralSound(sz3DScript)` fixed volume but returned no stop handle. `Play3DSound(sz3DScript, -1, -1, -1)` fixed volume too and returns a handle for `Destroy3DSound`, so use it as the general 3D preview path. See KI#141. (GPT-5.5) -->
+						self.is3DSound = True
 						return
 					self.soundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
 					self.is3DSound = True
@@ -389,12 +387,9 @@ class SevoPediaMediaPlayer:
 					self.soundId = CyAudioGame().Play2DSoundWithId(iSoundId)
 			else:
 				if szSoundScript.startswith("AS3D_"):
-					# self.soundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
-					# self.is3DSound = True
-					CyInterface().playGeneralSound(szSoundScript)
-					self.soundId = None
-					# <!-- custom: AS3D_ script-name playback is complete here; do not fall through to the generic fallback or it can play the same script twice. See also KI#141. (GPT-5.5-Thinking + GPT-5.5?) -->
-					self.is3DSound = False
+					self.soundId = CyAudioGame().Play3DSound(szSoundScript, -1, -1, -1)
+					# <!-- custom: Raw AS3D_ script-name previews use the same non-positional 3D playback as civ Select/Order IDs above. This fixed normal volume and returns a Destroy3DSound-compatible handle, avoiding the playGeneralSound no-handle persistence issue. See KI#141. (GPT-5.5) -->
+					self.is3DSound = True
 					return
 				else:
 					self.soundId = CyAudioGame().Play2DSound(szSoundScript)
