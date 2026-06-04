@@ -178,6 +178,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [140 - (Fixed) Base AdvCiv issue: Foreign Advisor Glance tab showed incorrect and inconsistent +0 attitude display in self cells](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#140---fixed-base-advciv-issue-foreign-advisor-glance-tab-showed-incorrect-and-inconsistent-0-attitude-display-in-self-cells)  
 [141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game)  
 [142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)  
+[143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5291,3 +5292,21 @@ Fix:
 File changed:
 
 - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+
+## 143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Bf5UFQRGomY2zIMehjmKAt6CLlp5cbQJ?usp=sharing).
+
+While cleaning old Python 2-style BUG syntax so modern Python 3 linters/parsers can inspect it while keeping Civ4 Python 2.4 compatibility, we replaced old comma-exception (`except Exception, e:`) binding with `except X:` plus `sys.exc_info()[1]` where the exception object was still needed. These old formatting/syntax patterns can prevent linters from analyzing later code and distract the lint output with parser noise instead of real runtime issues. In the same cleanup context, `configobj.py` also had a parser blocker at its very old `True, False = 1, 0` compatibility fallback. That fallback is kept, but the assignment is now run through `exec(...)` so modern parsers can continue through the file.
+
+After those parser blockers were removed, Ruff could inspect more of `configobj.py` and surfaced a real runtime bug in the comment-writing path: `_handle_comment` called `_a_to_u('# ')`, while the correct pattern is `self._a_to_u(...)` because `_a_to_u` is an instance method and nearby code consistently calls it that way. If that branch ran for a comment that did not already start with `#` or `;`, it would raise `NameError`.
+
+Fix:
+
+- Keep the old `True`/`False` compatibility fallback in parser-safe form.
+- Convert old comma-exception binding in touched BUG files in a Python 2.4-compatible way.
+- Change `_a_to_u('# ')` to `self._a_to_u('# ')`.
+
+File changed:
+
+- [Assets/Python/BUG/configobj.py](/Assets/Python/BUG/configobj.py)

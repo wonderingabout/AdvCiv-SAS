@@ -104,7 +104,8 @@ def getLocalRevision(path):
 			return rev
 		finally:
 			input.close()
-	except IOError, e:
+	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil for cases that still need the exception object, so this syntax cleanup is deemed safe. (GPT-5.5) -->
+	except IOError:
 		raise BugUtil.BugError("failed to read SVN entries file")
 
 def getRemoteRevision(url, callback=None):
@@ -134,7 +135,10 @@ class RemoteRevisionThread(threading.Thread):
 		try:
 			self._rev = _getRemoteRevision(self._url)
 			BugUtil.debug("RemoteRevisionThread.run - found revision %d", self._rev)
-		except BugError, e:
+		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe; also qualify BugError because this module imports BugUtil, not BugError directly. (GPT-5.5) -->
+		except BugUtil.BugError:
+			import sys
+			e = sys.exc_info()[1]
 			self._error = e
 			BugUtil.debug("RemoteRevisionThread.run - %s", self._error.message)
 		self._done = True
@@ -185,7 +189,10 @@ def _getRemoteRevision(url):
 						return None
 			finally:
 				web.close()
-		except IOError, e:
+		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+		except IOError:
+			import sys
+			e = sys.exc_info()[1]
 			raise BugUtil.BugError("failed to access SVN repository: %s" % str(e))
 		return None
 	finally:

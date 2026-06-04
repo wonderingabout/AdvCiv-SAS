@@ -589,8 +589,9 @@ def lookupModule(module, log=True):
 		debug("BugUtil - looking up %s", module)
 	try:
 		return __import__(module)
-	except ImportError, e:
-		#raise ConfigError("No such module '%s'", module)
+	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+	except ImportError:
+		e = sys.exc_info()[1]
 		# advc: Forward e (from MNAI)
 		raise ConfigError("Error while importing module '%s': %s", module, e)
 
@@ -599,8 +600,9 @@ def lookupFunction(module, functionOrClass, log=True):
 		debug("BugUtil - looking up %s.%s", module, functionOrClass)
 	try:
 		return getattr(lookupModule(module, False), functionOrClass)
-	except AttributeError, e:
-		#raise ConfigError("Module '%s' must define function or class '%s'", module, functionOrClass)
+	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+	except AttributeError:
+		e = sys.exc_info()[1]
 		# advc: Forward e (from MNAI)
 		raise ConfigError("Error while looking up function or class '%s' in module '%s': %s", functionOrClass, module, e)
 
@@ -608,8 +610,9 @@ def bindFunction(obj, functionOrAttribute):
 	debug("BugUtil - binding %s.%s to %s", obj.__class__, functionOrAttribute, obj)
 	try:
 		return getattr(obj, functionOrAttribute)
-	except AttributeError, e:
-		#raise ConfigError("Class '%s' must define function '%s'", obj.__class__, functionOrAttribute)
+	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+	except AttributeError:
+		e = sys.exc_info()[1]
 		# advc: Forward e (from MNAI)
 		raise ConfigError("Error while looking up function or attribute '%s' in object of type '%s': %s", functionOrAttribute, obj.__class__, e)
 

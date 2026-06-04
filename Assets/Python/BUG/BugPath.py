@@ -449,7 +449,10 @@ def initRootFolder():
 		BugUtil.debug("BugPath - CvAltRoot module not present")
 	except AttributeError:
 		BugUtil.error("CvAltRoot.py module has no rootDir setting")
-	except OSError, (errno, strerror):
+	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+	except OSError:
+		e = sys.exc_info()[1]
+		errno, strerror = e.args[:2]
 		BugUtil.trace("Error accessing directory from CvAltRoot.py: [%d] %s", errno, strerror)
 
 	# K-Mod. I'd like to set the user directory like this:

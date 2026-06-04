@@ -69,7 +69,10 @@ def loadMod(name):
 		try:
 			parser.parse(path)
 		# <advc.009b> Say which module failed
-		except Exception, e:
+		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+		except Exception:
+			import sys
+			e = sys.exc_info()[1]
 			BugUtil.error("BugInit - failed to parse module %s", name)
 			timer.log(name)
 			raise e # </advc.009b>

@@ -4927,10 +4927,12 @@ class StartingPlotFinder:
 			# #add bonuses due to player difficulty settings
 			# self.addHandicapBonus()
 			#
-		except Exception, e:
+		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil and temporarily tested through Sevopedia import probes. (ChatGPT-5.5 + GPT-5.5) -->
+		except Exception:
+			e = sys.exc_info()[1]
 			# advc: Removed "due to a rarely occurring bug" - could be any error, and not necessarily that rare. Added info about the exception. That said, for debugging, it may be better not to catch (and re-raise) the exception here because this obscures the specific origin.
 			errorPopUp("PerfectWorld's starting plot finder has failed; this map likely has unfair starting locations. You may wish to quit this game and generate a new map." + "\n\nAn exception of type " + e.__class__.__name__ + " occurred. Arguments:\n" + str(e.args))
-			raise Exception, e
+			raise
 
 	def setupOldWorldAreaList(self):
 		if mc.LandmassGenerator == 2:

@@ -112,7 +112,8 @@ except NameError:
 try:
     True, False
 except NameError:
-    True, False = 1, 0
+    # <!-- custom: Keep configobj's old True/False compatibility fallback, but run the assignment through exec so modern parsers do not flag invalid assignment targets. (GPT-5.5) -->
+    exec("True, False = 1, 0")
 
 __version__ = '4.2.0'
 
@@ -1685,11 +1686,15 @@ class ConfigObj(Section):
         # Parse the configspec.
         try:
             configspec = ConfigObj(configspec, raise_errors=True, file_error=True, list_values=False)
-        except ConfigObjError, e:
+        # <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+        except ConfigObjError:
+            e = sys.exc_info()[1]
             # FIXME: Should these errors have a reference
             # to the already parsed ConfigObj ?
             raise ConfigspecError('Parsing configspec failed: %s' % e)
-        except IOError, e:
+        # <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+        except IOError:
+            e = sys.exc_info()[1]
             raise IOError('Reading configspec failed: %s' % e)
         self._set_configspec_value(configspec, self)
 
@@ -1785,7 +1790,8 @@ class ConfigObj(Section):
         else:
             start = self._a_to_u(' ' * NUM_INDENT_SPACES)
         if not comment.startswith('#') and not comment.startswith(';'):
-            start += _a_to_u('# ')
+            # <!-- custom: Ruff surfaced this real runtime bug after the earlier configobj parser error was fixed: the correct pattern is self._a_to_u(...), while the unqualified _a_to_u name was undefined. See KI#143. (GPT-5.5) -->
+            start += self._a_to_u('# ')
         return (start + comment)
 
     def _compute_indent_string(self, depth):
@@ -2378,7 +2384,9 @@ class ConfigObj(Section):
                 val = section[entry]
             try:
                 check = validator.check(spec_section[entry], val, missing=missing)
-            except validator.baseErrorClass, e:
+            # <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+            except validator.baseErrorClass:
+                e = sys.exc_info()[1]
                 if not preserve_errors or isinstance(e, VdtMissingValue):
                     out[entry] = False
                 else:
