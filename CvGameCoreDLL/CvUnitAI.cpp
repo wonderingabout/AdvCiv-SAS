@@ -1049,6 +1049,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// By pre-crediting the food from in-progress farms, subsequent workers see a higher
 	// effective surplus and choose cottages/workshops instead. (Claude code Opus 4.6) -->
 	int iFoodFromFarmsBeingBuiltInBFC = 0;
+	int iBFCMineFoodSupportPressure = 0;
 
 	for (WorkablePlotIter itBFC(kCity); itBFC.hasNext(); ++itBFC)
 	{
@@ -1059,6 +1060,19 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// <!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
 		iBFCLowFoodScore += (iFoodConsumptionPerPop - iNatureFood);
 
+		// <!-- custom: Non-bonus farms can be the right support infrastructure in cities with many food-consuming hill mines. A +2 food farm can let the city work two grass hill mines (about 8 hammers), so count structural pressure from hills and especially low-food/strategic hill tiles rather than relying only on current surplus. This was visible in a mine-heavy Renaissance city where walls took too long despite strong hill mines. (GPT-5.5) -->
+		if (kBFCPlot.isHills())
+		{
+			int const iHillFoodDeficit = std::max(0, iFoodConsumptionPerPop - iNatureFood);
+			iBFCMineFoodSupportPressure += iHillFoodDeficit;
+			BonusTypes const eBFCBonus = kBFCPlot.getNonObsoleteBonusType(getTeam());
+			if (eBFCBonus != NO_BONUS)
+			{
+				iBFCMineFoodSupportPressure += std::min(3, std::max(0, GC.getBonusInfo(eBFCBonus).getAIObjective()) / 4);
+				iBFCMineFoodSupportPressure += std::max(0, GC.getBonusInfo(eBFCBonus).getYieldChange(YIELD_PRODUCTION));
+			}
+		}
+
 		if (kBFCPlot.getBuildProgress(eBuildFarm) > 0)
 			iFoodFromFarmsBeingBuiltInBFC += kBFCPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner());
 	}
@@ -1068,6 +1082,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 	// <!-- custom: base improvement yields ignore irrigation, tech and civic/owner modifiers. Use plot/player farm food from calculateImprovementYieldChange when pre-crediting in-progress farms, otherwise normal irrigated farms counted as 0 food and workers could still over-farm. (Claude code Opus 4.6 + GPT-5.5) -->
 	const int iAdjustedFoodDifference = iEstimatedCityFoodDifference + iFoodFromFarmsBeingBuiltInBFC;
+	int const iBFCStructuralFoodSupportPressure = iBFCLowFoodScore + iBFCMineFoodSupportPressure;
+	int const iCityFoodSupportPressure = iBFCStructuralFoodSupportPressure + (2 * std::max(0, 3 - iAdjustedFoodDifference));
+	bool const bCityStructuralFoodSupportNeed = (iBFCStructuralFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
+	bool const bCityHighFoodSupportNeed = (bCityLowFoodBFC || bCityStructuralFoodSupportNeed || iCityFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
 
 	const int penaltyForOverwritingPlot = 300;
 
@@ -1287,6 +1305,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones. Helps avoid oscillation (workers changing their mind and overwriting a tile repeatedly based on fleeting conditions, which is very inefficient). Helps AI focus on one improvement and stick to it. (Claude code Sonnet 4.5 (summarized))
 			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect -->
 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+
+			// <!-- custom: Treat non-bonus farms as support infrastructure, not only emergency anti-starvation. In low-food or hill-heavy cities, a strong farm can unlock food-consuming mines, faster growth, or specialists. After chain irrigation, a farm can also carry water from a river/freshwater tile to a dry tile behind it; if this plot gets a cottage/workshop instead, that later dry farm may not be possible without wasting worker turns and, for cottages, growth time. Score farms against cottages/workshops using actual plot/player farm food and irrigation state, and taper the bonus once the city already has healthy surplus so this remains targeted support rather than broad irrigation spam. (GPT-5.5) -->
+			bool const bCanBuildFarm = canBuild(kPlot, eBuildFarm);
+			int const iFarmFoodYieldChange = (bCanBuildFarm ? kPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner()) : 0);
+			bool const bFarmGetsStrongFood = (iFarmFoodYieldChange >= 2);
+			bool const bFarmGetsFood = (iFarmFoodYieldChange > 0);
+			bool const bFarmCanCarryIrrigation = (GET_TEAM(getTeam()).isIrrigation() && kPlot.canHavePotentialIrrigation() && kPlot.isIrrigationAvailable(true));
+			bool const bFarmGoodIrrigationTile = (bFarmCanCarryIrrigation || (kPlot.isFreshWater() && kPlot.canHavePotentialIrrigation()));
+			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && bCityHighFoodSupportNeed && (bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= 0 && bFarmGetsFood)));
+			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
+			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + (100 * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
+			int const iFoodSupportFarmValue = std::max(0, iRawFoodSupportFarmValue - (100 * std::max(0, iAdjustedFoodDifference - 3)));
+			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (!kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= 0));
+			int const iNonFoodIrrigationPathPenalty = ((iFoodSupportFarmValue > 0 && bFarmGoodIrrigationTile) ? 75 : 0);
+
 			// <!-- custom: first the absolutely holy improvements to never improve -->
 			if (ePlotCurrentImprovement == eImprovementHamlet ||
 				ePlotCurrentImprovement == eImprovementVillage ||
@@ -1311,7 +1344,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				);
 				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well-->
 
-				if (bLowFoodEnvironment && kPlot.getImprovementType() == eImprovementFarm)
+				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed) && kPlot.getImprovementType() == eImprovementFarm)
 				{
 					// <!-- custom: extra oscillation avoid cases, even with our system, for the better maybe, we respond dynamically to food surplus in city, in low-food environments, one has to win, it is likely will starve again, so if we built a farm once, do not cancel it ever again and consider it holy as well -->
 					continue;
@@ -1322,7 +1355,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: extra oscillation avoid cases, see above for details -->
 					continue;
 				}
-				else if ((eTerrain == eTerrainGrass) && ((kPlot.getImprovementType() == eImprovementCottage)))
+				else if ((eTerrain == eTerrainGrass) && (kPlot.getImprovementType() == eImprovementCottage) && !bAllowBasicCottageFoodSupportOverwrite)
 				{
 					// <!-- custom: extra oscillation avoid cases, see above for details -->
 					continue;
@@ -1459,12 +1492,19 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields -->
 					if (iAdjustedFoodDifference >= 2)
 					{
-						if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
+						if (bFoodSupportFarmCandidate)
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							// <!-- custom: In mine-heavy or otherwise food-support hungry cities, a strong non-bonus farm can be better than another grass cottage because it lets the city work food-consuming hill mines, grow quickly when fast growth is situationally valuable, or support a specialist economy. Use actual plot/player farm food so Civil Service/Biology/irrigation effects count, add only a small extra bias for irrigation-carrier tiles, and taper the farm-support bonus once the city already has surplus food so we preserve useful chains without reviving broad irrigation spam. (GPT-5.5) -->
+							iValue += 1550 + iFoodSupportFarmValue;
+						}
+						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
 							// <!-- custom: food-cost workshops unlocked early at Iron Working and were chosen before cottages on high-food flatland, so AI overbuilt them long before State Property. Use plot/player yield so State Property's +1 food is recognized (base workshop -1 food is very crippling early and prevents growth of cities, making it much worse than a cottage for example); prefer food-neutral workshops strongly, but only use a smaller Renaissance+ preparation value (State Property is quite soon then so worth starting to switch over to them) while they still cost food and the city has extra surplus. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 2650 : 1500);
+							iValue += (bWorkshopCostsNoFood ? 2650 : 1500) - iNonFoodIrrigationPathPenalty;
 						}
 						// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, -->
 						// High food terrain = can afford cottage
@@ -1472,7 +1512,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						{
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 1600;
+							iValue += 1600 - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
@@ -1492,18 +1532,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							iValue += 2000;
 						}
 						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (canBuild(kPlot, eBuildFarm))
+						else if (bCanBuildFarm)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
 							// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-							iValue += 1460 + (100 * (-1 * iAdjustedFoodDifference));
+							iValue += 1460 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 1300;
+							iValue += 1300 - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
@@ -1570,19 +1610,26 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 					if (iAdjustedFoodDifference >= 3 && !bCityLowFoodBFC)
 					{
-						if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
+						if (bFoodSupportFarmCandidate)
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							// <!-- custom: Same food-support logic as grass flatland: if this city has many food-consuming hills or low-food tiles, a farm on a suitable non-bonus flat tile can unlock more hammer tiles than an early cottage is worth. Keep the boost tied to actual farm food/irrigation value so ordinary plains are not farmed just because they can be. (GPT-5.5) -->
+							iValue += 950 + iFoodSupportFarmValue;
+						}
+						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
 							// <!-- custom: same workshop timing fix as flat grassland: early food-cost workshops should not preempt cottages, while food-neutral workshops are strong and Renaissance+ food-cost workshops are allowed only with extra city surplus as preparation. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 1800 : 550);
+							iValue += (bWorkshopCostsNoFood ? 1800 : 550) - iNonFoodIrrigationPathPenalty;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							// <!-- custom: still quite good but not ultimate best, delay if all higher potential food tiles especially unimproved ones have been improved already -->
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 600;
+							iValue += 600 - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
@@ -1603,18 +1650,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							iValue += 1600;
 						}
 						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (canBuild(kPlot, eBuildFarm))
+						else if (bCanBuildFarm)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							iValue += 900 + (100 * (-1 * iAdjustedFoodDifference));
+							iValue += 900 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
 
 							// <!-- custom: still quite good but not ultimate best, but if we're going to build a farm as relatively holy anyway in this low-food terrain, restrict the cottage by increasing its requirement further (i.e. lowering its iValue so it is more rarely built), making it even less likely to be built unless we have tons of food or if we can't build a farm and nothing or almost nothing else is good right now in city radius, for effiency -->
-							iValue += 500;
+							iValue += 500 - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
@@ -1663,12 +1710,19 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
 					if (iAdjustedFoodDifference >= 3 && !bCityLowFoodBFC)
 					{
-						if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
+						if (bFoodSupportFarmCandidate)
+						{
+							eBestSupposedBuild = eBuildFarm;
+
+							// <!-- custom: Same food-support logic as grass/plains flatland, with lower base value because tundra is usually developed later; a strong irrigated farm can still be the right support tile in a city that otherwise cannot work its hills. (GPT-5.5) -->
+							iValue += 650 + iFoodSupportFarmValue;
+						}
+						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
 							// <!-- custom: same workshop timing fix as flat grassland: early food-cost workshops should not preempt cottages, while food-neutral workshops are strong and Renaissance+ food-cost workshops are allowed only with extra city surplus as preparation. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 1575 : 500);
+							iValue += (bWorkshopCostsNoFood ? 1575 : 500) - iNonFoodIrrigationPathPenalty;
 						}
 						// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or tundra ones maybe too, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI-->
 						else if (canBuild(kPlot, eBuildCottage))
@@ -1676,7 +1730,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce, delay if all higher potential food tiles especially unimproved ones have been improved already. -->
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 550;
+							iValue += 550 - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
@@ -1697,18 +1751,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							iValue += 1600;
 						}
 						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (canBuild(kPlot, eBuildFarm))
+						else if (bCanBuildFarm)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							iValue += 500 + (100 * (-1 * iAdjustedFoodDifference));
+							iValue += 500 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
 
 							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->
-							iValue += 150;
+							iValue += 150 - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
