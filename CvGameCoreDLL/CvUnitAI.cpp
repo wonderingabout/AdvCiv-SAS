@@ -3373,8 +3373,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	/*	advc.001: The above tests !=0. Why should a Fort be given priority
 		80% of the time? */
 	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see the Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
+	// <!-- custom: Late-game AI workers still built forts outside BFC-focused worker logic. The active source appears to be the airbase branch below: once the AI has paradrop/air/missile units, AI_fortTerritory can choose outside-BFC fort-airbase plots even though BFC plots are already mostly protected by AdvCiv-SAS worker build logic. These forts usually spend worker turns for meagre defensive/airbase/canal benefits, can block future irrigation-chain paths, and cities usually serve aircraft better. Default-disable the old branch through the corresponding SAS define rather than just lowering its odds; if a future caller reaches AI_fortTerritory while the define is disabled, that function logs the attempted path. (GPT-5.5) -->
 	//if (SyncRandSuccess100(20))
-	if (SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
+	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
+	if (bAllowFortAirbaseWorkers && SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
 	{
 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
 		/*	K-Mod. The current AI for canals doesn't work anyway;
@@ -3464,10 +3466,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	{
 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
 		bool const bCanal = false; // K-Mod. The current AI for canals doesn't work anyway; so lets skip it to save time.
-		bool bAirbase = false;
-		bAirbase = (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) ||
-				kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) ||
-				kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR));
+		bool const bAirbase = (bAllowFortAirbaseWorkers && (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) || kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) || kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR))); // <!-- custom: Gate the second worker fallback through the corresponding SAS define too; see the earlier fort-airbase comment in this function. (GPT-5.5) -->
 		if (bCanal || bAirbase)
 		{
 			if (AI_fortTerritory(bCanal, bAirbase))
@@ -19929,6 +19928,15 @@ bool CvUnitAI::AI_irrigateTerritory()
 bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 {
 	PROFILE_FUNC();
+
+	// <!-- custom: Keep AI fort construction disabled at the fort helper too when the corresponding SAS define is 0, not only at the worker-move callers. Late-game outside-BFC fort-airbase selection reappeared after more workers were available; if another path calls this helper while the define is disabled, log the attempted source instead of silently building forts that spend worker turns for weak practical value or block irrigation chains. (GPT-5.5) -->
+	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
+	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
+	{
+		if (gUnitLogLevel >= 2)
+			logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);
+		return false;
+	}
 
 	/*	K-Mod. This function currently only handles canals and airbases.
 		So if we want neither, just abort. */
