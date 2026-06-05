@@ -166,8 +166,8 @@ To create a git log based on past commits using a comand line, plus also anonymi
 
 ```shell
 # 1. Set your commit hashes here
-start=1548510c785183e31222d43bd06dc1b2a919920a # old (included), e.g.: AdvCiv-SAS 5860 Update (2026-05-27: 3 days after release).
-end=d005985125bc2ed497070ecc3246913121871821   # new (included), e.g.: AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release).
+start=d005985125bc2ed497070ecc3246913121871821 # old (included), e.g.: AdvCiv-SAS 5860 Update 3 (2026-06-02: 9 days after release).
+end=82f042a44f4cd4bbc2b687444356d220b83131c1   # new (included), e.g.: AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release).
 
 # 2. Run the command (uses the variables above)
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
@@ -251,9 +251,9 @@ git fetch origin
 # choose names
 # new tag
 TAG=5860
-SHA=d005985125bc2ed497070ecc3246913121871821  # <- the TAG commit
+SHA=82f042a44f4cd4bbc2b687444356d220b83131c1  # <- the TAG commit (AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release))
 OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
-BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
+BASE=d005985125bc2ed497070ecc3246913121871821 # <- the OLDNAME commit (AdvCiv-SAS 5860 Update 3 (2026-06-02: 9 days after release))
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
 
 # replace the tag locally with correct date + message

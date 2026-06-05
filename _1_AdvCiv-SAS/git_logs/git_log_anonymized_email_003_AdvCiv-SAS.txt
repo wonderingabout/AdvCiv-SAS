@@ -1,3 +1,108 @@
+commit 82f042a44f4cd4bbc2b687444356d220b83131c1
+Author: wonderingabout <hidden>
+Date:   2026-06-04 19:20:56 +0200
+
+Improve AI worker farm support for low-food cities
+Value non-bonus farms more when a city has structural food pressure from low-food terrain, hills, or important hill tiles, using actual plot/player farm food and irrigation state.
+
+This helps workers build support farms for food-consuming mines, faster growth, and specialist economies instead of over-prioritizing cottages/workshops. Taper the farm-support bonus once surplus food is already healthy, and keep irrigation-path preservation as a small targeted bias rather than a broad farm spam rule.
+
+commit cfd9cb91124266e7201f4a64078125b24199c44a
+Author: wonderingabout <hidden>
+Date:   2026-06-04 17:58:56 +0200
+
+Reduce Donut.py grid size a bit in Huge and higher, and in Large worldsizes
+Were slightly too spaced; related to player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16956448
+
+commit 93ce591ae99a1fb034cbc3ca732c1ae4d72a1929
+Author: wonderingabout <hidden>
+Date:   2026-06-04 17:44:07 +0200
+
+Fix Ruff E902 (stream did not contain valid UTF-8)
+converting the files to UTF-8 with VS Code seems to solve this
+
+commit a1a6690eafe47d83697d75bfd1c2d25037ab6ac5
+Author: wonderingabout <hidden>
+Date:   2026-06-04 16:15:55 +0200
+
+Fix BUG configobj lookup and old exception syntax
+
+configobj used undefined _a_to_u instead of self._a_to_u when writing comments.
+Cleaning old BUG exception syntax made Ruff able to parse farther and reveal the real bug.
+
+Also updates old comma-exception bindings to Python 2.4-compatible sys.exc_info()[1]
+patterns that modern linters can parse. Temporarily tested the risky exec,
+sys.exc_info()[1], and e.args[:2] patterns through Sevopedia import probes.
+See KI#143.
+
+commit 3882dfe2611bd8b0cdb3adf3136676949e96b0fd
+Author: wonderingabout <hidden>
+Date:   2026-06-04 14:35:35 +0200
+
+Add notes about some 3D sounds not playing or needing a delay to start
+
+commit eb4862d7b4134172861adc5cc3a2c345d36a74a0
+Author: wonderingabout <hidden>
+Date:   2026-06-04 13:43:37 +0200
+
+Fix Sevopedia 3D audio preview handling
+Resolve ID-backed civ Select/Order 3D sounds to AS3D script names through the DLL helper, then play Sevopedia 3D previews with Play3DSound(script, -1, -1, -1).
+
+This replaces the earlier playGeneralSound workaround: that fixed civ Select/Order volume, but returned no handle and let generic AS3D previews persist after rapid navigation or leaving Sevopedia.
+
+This keeps normal volume after entering a game while still returning a Destroy3DSound-compatible handle, so Replay/Prev/Next and closing Sevopedia can stop prior 3D previews.
+
+Raw AS3D script-browser entries already have script names from Sevopedia's XML parser and now use the same stop-capable playback path.
+
+commit f39fd7c0b28551a882a798e5f1d2f37c34b3217c
+Author: wonderingabout <hidden>
+Date:   2026-06-04 12:00:09 +0200
+
+Fix AI farm and workshop yield valuation
+Commit message as per GPT-5.5 (on codex)'s commit message (including above title thanks):
+Use plot/player-adjusted improvement food yields instead of base XML yields in AI_bestCityBuild.
+
+This lets in-progress farms credit their actual food gain from irrigation, tech, civics and plot context, and lets State Property correctly make workshops food-neutral.
+
+Also stop early food-cost workshops from preempting cottages before Renaissance, while still allowing food-neutral workshops and limited Renaissance+ workshop preparation in high-surplus cities.
+
+Addresses player feedback at https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16956641
+
+commit 110672a12811d806756dc5c125ed61de15f9f021
+Author: wonderingabout <hidden>
+Date:   2026-06-04 10:22:41 +0200
+
+Fix Info Screen Score Tab's ID column being too small
+- ID was clipped (e.g., "1." if not upscaled or "1" if upscaled instead of "10" with now enough width). Increase the width of other columns, and take the space from V/M column which is not as important, already large enough, and even if not the info can be viewed in the Scoreboard as well
+- minor fix incorrect file name in error message
+
+commit 505f032cedab434a8a847c6ffae81e14d6829c00
+Author: wonderingabout <hidden>
+Date:   2026-06-03 12:07:16 +0200
+
+Perf opt: Guard runtime BBAI log call paths and related changes
+
+commit fb8304563cefcafb82c2a9a5d0d17c7e5034a851
+Author: wonderingabout <hidden>
+Date:   2026-06-03 01:08:06 +0200
+
+Move BBAI logging to SAS defines so it is tunable and accessible without DLL compile; use BBAI logging to surgically fix ingame AI having its first settler produce at ~t90 at normal game speed
+- now require at least 3 cities before bWarPlan can take precedence over the immediate need to early expand (fine if we are cramped and dont want to waste hammers for a settler, but, not fine if we have only our capital))
+
+Done with the help of GPT-5.5? (on codex) and GPT-5.5-Thinking thanks
+
+commit 72082dd7d8ae2f1fc50e4c7fedb6bb2fa7589131
+Author: wonderingabout <hidden>
+Date:   2026-06-02 15:29:54 +0200
+
+fix + - buttons not being visible and selectable in Espionage Tab when rivals met number is high (e.g., SAS48 world-size), and beautify the Tab (remove unneeded text), add legend link
+
+commit 4f19f97c37ec5582947b6c2232e2321a91d9437a
+Author: wonderingabout <hidden>
+Date:   2026-06-02 10:04:55 +0200
+
+update docs
+
 commit d005985125bc2ed497070ecc3246913121871821
 Author: wonderingabout <hidden>
 Date:   2026-06-01 23:12:35 +0200
