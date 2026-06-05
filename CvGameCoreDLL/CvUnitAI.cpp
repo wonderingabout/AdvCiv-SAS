@@ -1313,18 +1313,77 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			bool const bFarmGetsFood = (iFarmFoodYieldChange > 0);
 			bool const bFarmCanCarryIrrigation = (GET_TEAM(getTeam()).isIrrigation() && kPlot.canHavePotentialIrrigation() && kPlot.isIrrigationAvailable(true));
 			bool const bFarmGoodIrrigationTile = (bFarmCanCarryIrrigation || (kPlot.isFreshWater() && kPlot.canHavePotentialIrrigation()));
-			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && bCityHighFoodSupportNeed && (bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= 0 && bFarmGetsFood)));
+			int iAdjacentDryFarmsIrrigatedByThisFarm = 0;
+			if (!kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
+			{
+				// <!-- custom: Hunt concrete chain-irrigation fixes, not abstract irrigation paths. In the Nippur 2014 AD test save, existing farms stayed dry because the missing water-carrying farm could be in another city's BFC and that plot had a cottage/workshop instead. If farming this exact plot would irrigate adjacent existing dry farms, value it enough to replace basic non-food improvements; skip dry farms already reachable or already being fixed by another in-progress farm so workers do not pile onto irrigation speculation. (GPT-5.5) -->
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					CvPlot* pAdjacentDryFarm = plotDirection(kPlot.getX(), kPlot.getY(), (DirectionTypes)iI);
+					if (pAdjacentDryFarm == NULL || pAdjacentDryFarm->getOwner() != getOwner() || pAdjacentDryFarm->getImprovementType() != eImprovementFarm || pAdjacentDryFarm->isIrrigated() || pAdjacentDryFarm->isIrrigationAvailable(true))
+						continue;
+					bool bAdjacentDryFarmAlreadyGettingIrrigation = false;
+					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+					{
+						CvPlot* pOtherPossibleSource = plotDirection(pAdjacentDryFarm->getX(), pAdjacentDryFarm->getY(), (DirectionTypes)iJ);
+						if (pOtherPossibleSource != NULL && pOtherPossibleSource != &kPlot && pOtherPossibleSource->getBuildProgress(eBuildFarm) > 0 && pOtherPossibleSource->canHavePotentialIrrigation() && pOtherPossibleSource->isIrrigationAvailable(true))
+						{
+							bAdjacentDryFarmAlreadyGettingIrrigation = true;
+							break;
+						}
+					}
+					if (!bAdjacentDryFarmAlreadyGettingIrrigation)
+						iAdjacentDryFarmsIrrigatedByThisFarm++;
+				}
+			}
+			bool const bFarmIrrigatesExistingDryFarm = (iAdjacentDryFarmsIrrigatedByThisFarm > 0);
+			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && (bCityHighFoodSupportNeed || bFarmIrrigatesExistingDryFarm) && (bFarmIrrigatesExistingDryFarm || bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= 0 && bFarmGetsFood)));
 			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
-			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + (100 * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
-			int const iFoodSupportFarmValue = std::max(0, iRawFoodSupportFarmValue - (100 * std::max(0, iAdjustedFoodDifference - 3)));
-			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (!kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= 0));
+			int const iDryFarmIrrigationChainValue = 1400 * iAdjacentDryFarmsIrrigatedByThisFarm;
+			// <!-- custom: If this exact farm would irrigate existing dry farms, unholy the blocker but rank candidates by damage: unimproved plots first, then workshop/cottage, hamlet, village, town last. Even one newly irrigated farm can justify breaking a town because it may continue an irrigation chain beyond what this local check can see; the ranking steers workers to the least harmful viable chain breaker instead of forbidding mature blockers or making a one-farm town break net-negative. (GPT-5.5) -->
+			int const iDryFarmIrrigationOverwritePenalty = (
+				!bFarmIrrigatesExistingDryFarm ? 0 :
+				ePlotCurrentImprovement == eImprovementWorkshop ? 0 :
+				ePlotCurrentImprovement == eImprovementCottage ? 100 :
+				ePlotCurrentImprovement == eImprovementHamlet ? 350 :
+				ePlotCurrentImprovement == eImprovementVillage ? 650 :
+				ePlotCurrentImprovement == eImprovementTown ? 1000 :
+				0
+			);
+			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (100 * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
+			int const iFoodSupportFarmValue = std::max(iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty, iRawFoodSupportFarmValue - (100 * std::max(0, iAdjustedFoodDifference - 3)));
+			bool const bAllowDryFarmIrrigationChainOverwrite = (
+				bFarmIrrigatesExistingDryFarm &&
+				(
+					ePlotCurrentImprovement == eImprovementCottage ||
+					ePlotCurrentImprovement == eImprovementWorkshop ||
+					ePlotCurrentImprovement == eImprovementHamlet ||
+					ePlotCurrentImprovement == eImprovementVillage ||
+					ePlotCurrentImprovement == eImprovementTown
+				)
+			);
+			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= 0));
 			int const iNonFoodIrrigationPathPenalty = ((iFoodSupportFarmValue > 0 && bFarmGoodIrrigationTile) ? 75 : 0);
+			bool bFarmCarriesIrrigationToAdjacentFarm = false;
+			if (ePlotCurrentImprovement == eImprovementFarm && kPlot.isIrrigated())
+			{
+				// <!-- custom: Once the chain farm exists, keep it semi-holy too. Otherwise a later cottage/workshop pass could remove the carrier farm and recreate the same dry-farm problem we just fixed. This is a cheap adjacent-farm guard rather than full irrigation-network analysis; it protects irrigated farms next to owned irrigated farms that do not have direct fresh water. (GPT-5.5) -->
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					CvPlot* pAdjacentFarm = plotDirection(kPlot.getX(), kPlot.getY(), (DirectionTypes)iI);
+					if (pAdjacentFarm != NULL && pAdjacentFarm->getOwner() == getOwner() && pAdjacentFarm->getImprovementType() == eImprovementFarm && pAdjacentFarm->isIrrigated() && !pAdjacentFarm->isFreshWater())
+					{
+						bFarmCarriesIrrigationToAdjacentFarm = true;
+						break;
+					}
+				}
+			}
 
 			// <!-- custom: first the absolutely holy improvements to never improve -->
-			if (ePlotCurrentImprovement == eImprovementHamlet ||
-				ePlotCurrentImprovement == eImprovementVillage ||
-				ePlotCurrentImprovement == eImprovementTown ||
-				ePlotCurrentImprovement == eImprovementWorkshop ||
+			if ((ePlotCurrentImprovement == eImprovementHamlet && !bAllowDryFarmIrrigationChainOverwrite) ||
+				(ePlotCurrentImprovement == eImprovementVillage && !bAllowDryFarmIrrigationChainOverwrite) ||
+				(ePlotCurrentImprovement == eImprovementTown && !bAllowDryFarmIrrigationChainOverwrite) ||
+				(ePlotCurrentImprovement == eImprovementWorkshop && !bAllowDryFarmIrrigationChainOverwrite) ||
 				ePlotCurrentImprovement == eImprovementWindmill)
 			{
 				// This 'continue' will skip to the next build in the outer loop,
@@ -1344,7 +1403,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				);
 				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well-->
 
-				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed) && kPlot.getImprovementType() == eImprovementFarm)
+				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && kPlot.getImprovementType() == eImprovementFarm)
 				{
 					// <!-- custom: extra oscillation avoid cases, even with our system, for the better maybe, we respond dynamically to food surplus in city, in low-food environments, one has to win, it is likely will starve again, so if we built a farm once, do not cancel it ever again and consider it holy as well -->
 					continue;
