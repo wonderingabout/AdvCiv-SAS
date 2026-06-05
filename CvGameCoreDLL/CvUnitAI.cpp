@@ -19608,8 +19608,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// <!-- custom: note: for some reason we crash when only try to check AI_bestCityBuild function call and not AI_getBestBuild function call if i'm not mistaken. I don't know if it's related to my heavy changes in the function or not or if it wa already here before or not. My idea is since we handle all (land) improvements as we want now directly in AI_bestCityBuild, we maybe don't need anymore the old AI_getBestBuild that we disabled in our rewritten AI_bestCityBuild to compute value of each plot ourselves, but maybe this interferes or removes or doesn't handle some logic like workboats, roads, water tiles? I don't know enough nor did i check, so these are just guesses of me anyways, but since it seems to work as is, i'm adding this info just for reference or if useful to debug or such. -->
 		// <!-- custom: so after the update, now that the crash is fixed, trying to disable old interference of AI_getbestCityBuild since our funciton is more optimized in case the other function gives us too many NO_BUILD or bad improvements or such(is just a guess from me so check if accurate); result update: we don't crash anymore!!! Even if not relying on the old and most likely faulty AI_bestCityBuild, our logic is now reliable, and our city D or such are now improved much sooner as we want -->
 		// <!-- custom: update after all above code code comments: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, in how i did so -->
-        if (pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
-            !AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+        // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
+        if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
         {
             continue; // nothing useful to do in this city right now
         }
@@ -20118,9 +20118,15 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		}
 		else if (pWorkingCity != NULL)
 		{
-			// Let "best build" handle improvement replacements near cities.
-			BuildTypes eBuild = pWorkingCity->AI_getBestBuild(
-					pWorkingCity->getCityPlotIndex(kPlot));
+			// <!-- custom: Land city best-build data is intentionally disabled, so do not gate damaged BFC bonuses on AI_getBestBuild. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; using our bonus-specific land-build table fixed the in-game case so altered/pillaged BFC bonuses are re-improved promptly. (GPT-5.5) -->
+			BuildTypes eBuild = NO_BUILD;
+			if (getDomainType() == DOMAIN_LAND && !kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+				eBuild = getBonusSpecificLandBuild(eNonObsoleteBonus);
+			if (eBuild == NO_BUILD)
+			{
+				// Let "best build" handle improvement replacements near cities for non-land-worker cases.
+				eBuild = pWorkingCity->AI_getBestBuild(pWorkingCity->getCityPlotIndex(kPlot));
+			}
 			if (eBuild != NO_BUILD && kOwner.doesImprovementConnectBonus(
 				GC.getInfo(eBuild).getImprovement(), eNonObsoleteBonus) &&
 				canBuild(kPlot, eBuild))
