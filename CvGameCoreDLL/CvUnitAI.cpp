@@ -3583,9 +3583,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					if (GC.getGame().getGameTurn() - getGameTurnCreated() < 10) return;        // young unit
 					if (AI_getCityToImprove() != NULL) return;                                  // we have demand
 
-					// Also avoid scrapping when we don't exceed need:
+					// <!-- custom: Also avoid worker self-scrapping when the area does not exceed worker need or the shared AdvCiv-SAS minimum worker floor. (GPT-5.5) -->
 					if (GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <=
-						GET_PLAYER(getOwner()).AI_neededWorkers(getArea()))
+						std::max(GET_PLAYER(getOwner()).AI_neededWorkers(getArea()),
+						GET_PLAYER(getOwner()).AI_getSASMinimumAreaWorkers(getArea())))
 					{
 						return;
 					}

@@ -939,6 +939,17 @@ void CvCityAI::AI_chooseProduction()
 		}
 	}
 
+	// <!-- custom: Rebuild a minimum worker force before normal project/building/unit priorities can keep winning forever. In the 2039 Ciaco Canyon test save, the stuck last city already had a long production queue so this did not directly fix that city, but BBAI logs showed the floor firing often elsewhere. This guarantees more early workers after losses or underproduction; workers are high-value relative to cost, especially when larger cities convert food + hammers into them, and stronger early worker coverage makes AI development much stronger. Do not force only the capital/high-pop cities to rebuild workers: weaker or stagnant cities can sometimes produce one without interrupting the growth or key builds of stronger cities. AI_totalAreaUnitAIs includes workers already being trained, so this area-local floor gives 2 workers for the capital area and 1 per other city without making every city queue one at once. (GPT-5.5) -->
+	int const iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
+	if (!bDanger && iExistingWorkers < iMinimumAreaWorkers)
+	{
+		if (AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
+		{
+			if (gCityLogLevel >= 2) logBBAI("      City %S uses minimum area worker floor %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
+			return;
+		}
+	}
+
 	// K-Mod. Make room for a 'best project'. -1 indicates that we haven't yet calculated the best project.
 	// Well evaluate it soon if we are aiming for a space victory; otherwise we'll just leave it until the end.
 	ProjectTypes eBestProject = NO_PROJECT;

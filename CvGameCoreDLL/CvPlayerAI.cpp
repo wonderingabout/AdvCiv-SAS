@@ -15696,6 +15696,14 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 }
 
 
+int CvPlayerAI::AI_getSASMinimumAreaWorkers(CvArea const& kArea) const
+{
+	// <!-- custom: Shared AdvCiv-SAS worker floor used by worker production and worker-scrap guards so future tuning cannot make cities rebuild fewer workers than unit logic is allowed to remove. Keep the floor area-local: 1 worker per city in the land area, plus 1 extra if the capital is in that area. (GPT-5.5) -->
+	CvCity const* pCapital = getCapital();
+	return kArea.getCitiesPerPlayer(getID()) + ((pCapital != NULL && pCapital->isArea(kArea)) ? 1 : 0);
+}
+
+
 int CvPlayerAI::AI_neededMissionaries(CvArea const& kArea, ReligionTypes eReligion) const
 {
 	PROFILE_FUNC();

@@ -3588,6 +3588,12 @@ bool CvUnit::canScrap() const
 					int iTotalUnitAIs = 0;
 					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
 
+					// <!-- custom: Keep worker scrapping synchronized with the AdvCiv-SAS production floor, so future max-worker tuning cannot allow unit logic to remove workers below the minimum that city production immediately rebuilds. (GPT-5.5) -->
+					if (kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <= kPlayer.AI_getSASMinimumAreaWorkers(getArea()))
+					{
+						return false;
+					}
+
 					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly) -->
 					if (iTotalUnitAIs <= iMaxUnits)
 					{

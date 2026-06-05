@@ -366,6 +366,8 @@ public:
 		return (AI_countOwnedBonuses(eBonus, 1) > 0);
 	} // </advc.opt>
 	int AI_neededWorkers(CvArea const& kArea) const;
+	// <!-- custom: Shared AdvCiv-SAS worker-floor helper; see implementation for production/scrap synchronization rationale. (GPT-5.5) -->
+	int AI_getSASMinimumAreaWorkers(CvArea const& kArea) const;
 	int AI_neededMissionaries(CvArea const& kArea, ReligionTypes eReligion) const;
 	int AI_neededExecutives(CvArea const& kArea, CorporationTypes eCorporation) const;
 	int AI_unitCostPerMil() const; // K-Mod

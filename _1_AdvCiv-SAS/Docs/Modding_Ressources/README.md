@@ -174,7 +174,9 @@ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
 git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso "$start".."$end" > git_log_anonymized_email.txt
 ```
 
-Note: since i cleared up the logs from verbosity, i recommend adding new comments on old text rather than generating previous ones again.
+Note: since as of now git log text docs are updated incrementally unlike releases where we always like to compare vs last stable instead of vs last update of a stable (e.g., 5860 updated vs last 5500 for full git diff, but 5860 update 4 vs last 5860 which is update 3 for git log incremental last addition), the command may use different old and new tags than the git tag release one.
+
+Note 2: since i cleared up the logs from verbosity, i recommend adding new comments on old text rather than generating previous ones again.
 
 For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/git_logs/](/_1_AdvCiv-SAS/git_logs/) folders.
 
@@ -214,60 +216,35 @@ A more advanced version would allow to better control the date we set to the tag
 
 To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functionnal (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally if i may say just in case))
 
-##### example 1 with more advanced version (me totally not using it selfishly as storage. Or i am indeed xd i guess here)
-
-```cmd
-git fetch origin
-
-# choose names
-# new tag
-TAG=4986
-SHA=8d6bf6e0f61004e415aa3584e906fdb77275c1f8   # <- the 4986 commit
-OLDNAME="base AdvCiv 1.12"                     # quote because of spaces
-BASE=96790915238bdaf7d1ef38658e69fe1035129687
-WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
-
-# replace the tag locally with correct date + message
-GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
-git tag -fa "$TAG" "$SHA" \
-  -m "AdvCiv-SAS $TAG" \
-  -m "Commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/?since=2025-03-22&until=2025-09-05 or at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
-
-# force-push because we’re updating an existing remote tag object
-git push --force origin "$TAG"
-# if you’re not correcting an existing remote tag:
-# if not force pushing then before you'd need to rather do instead git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
-# and then next line you could do (no force push if new tag that did not existing before): 
-# git push origin "$TAG"
-```
-
 Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again for exhaustiveness) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful.
 
-##### example 2 with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)
+##### example with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)
+
+As of now, this is the command we use to make each new git tag release.
+
+For stable release updates, the update tag/label is the new download for that same stable release, not a separate parallel stable release. For example, `AdvCiv-SAS 5860 Update 1 (2 days after release)` replaces the first `AdvCiv-SAS 5860` release.
 
 ```cmd
 git fetch origin
 
 # choose names
-# new tag
+# stable release tag stays the same for concision; new name/message can show the update for consistency with cfc/moddb or such release version names and for clear full git diff compare link vs last stable too
 TAG=5860
-SHA=82f042a44f4cd4bbc2b687444356d220b83131c1  # <- the TAG commit (AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release))
+NEWNAME="AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release)"
+SHA=82f042a44f4cd4bbc2b687444356d220b83131c1  # <- the NEWNAME commit
 OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
-BASE=d005985125bc2ed497070ecc3246913121871821 # <- the OLDNAME commit (AdvCiv-SAS 5860 Update 3 (2026-06-02: 9 days after release))
+BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
 WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
 
 # replace the tag locally with correct date + message
 GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
 git tag -fa "$TAG" "$SHA" \
-  -m "AdvCiv-SAS $TAG" \
-  -m "Full Cumulative file changes and git commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
+  -m "$NEWNAME" \
+  -m "Full Cumulative file changes and git commit history from $OLDNAME to $NEWNAME viewable at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
 
-# force-push because we’re updating an existing remote tag object
+# force-push because we’re updating an existing remote tag object; <!-- custom: verify TAG first because this overwrites an existing remote tag when one exists. (GPT-5.5) -->
+# <!-- custom: this seems to be convenient both for new tag releases and for replacing an old tag with a new commit it seems so as of now always using force regardless of which case. -->
 git push --force origin "$TAG"
-# if you’re not correcting an existing remote tag:
-# if not force pushing then before you'd need to rather do instead git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so(but check if accurate)), so i put all comments here for reliability and clarity
-# and then next line you could do (no force push if new tag that did not existing before): 
-# git push origin "$TAG"
 ```
 
 ### manual(s) and docs in .txt
