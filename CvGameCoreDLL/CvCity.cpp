@@ -675,6 +675,35 @@ void CvCity::doTurn()
 	}
 	// --- end SAS rule ---
 
+	// <!-- custom: Mature coastal cities still stuck with low production or low food surplus need the Port-class water hammer building early; otherwise normal production can keep delaying the building that makes those cities build everything else more efficiently. Harbor/food still runs first through the block above, and danger keeps the emergency queue free for defense. (GPT-5.5) -->
+	static const bool bSAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING");
+	if (bSAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING && !bHuman && !bEmergencyBuilding && !bDanger)
+	{
+		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+		const bool bOceanCoastal = isCoastal(iOceanThresh);
+		if (bOceanCoastal)
+		{
+			static const int iMinPopulation = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MIN_POPULATION");
+			static const int iMaxProductionPerPop100 = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MAX_PRODUCTION_PER_POP_100");
+			static const int iFoodSurplusThreshold = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_FOOD_SURPLUS_THRESHOLD");
+			const int iCityPopulation = getPopulation();
+			const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
+			const int iFoodDiff = foodDifference();
+			// <!-- custom: Production-per-pop is stored per 100 to keep XML integer-only tuning precise enough: 300 means 3 hammers/pop. Port can take significant time, but low-yield coastal cities are not likely to contribute much short-term production anyway; if not in immediate danger, making their water tiles produce hammer first should make them more useful later. (GPT-5.5) -->
+			const bool bMatureLowYieldCoast = (iCityPopulation >= iMinPopulation && (iBaseHammersPerTurn * 100 < iCityPopulation * iMaxProductionPerPop100 || iFoodDiff < iFoodSurplusThreshold));
+
+			if (bMatureLowYieldCoast)
+			{
+				static const BuildingClassTypes eWaterHammerBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME"));
+				if (SASTryEmergencyBuilding(eWaterHammerBuildingClass))
+				{
+					bEmergencyBuilding = true;
+					if (gCityLogLevel >= 2) logBBAI("      City %S forces water hammer building. pop %d/%d, base hammers %d, food surplus %d/%d", getName().GetCString(), iCityPopulation, iMinPopulation, iBaseHammersPerTurn, iFoodDiff, iFoodSurplusThreshold);
+				}
+			}
+		}
+	}
+
 	// --- SAS: classify "mostly water inner ring" hammer-poor cities ---
 	// treat cities with very few inner-ring land tiles (non-water, non-peak) as hammer-poor, low-invasion-risk islands / peninsulas. These are usually bad places for Walls/Castles and for hard-forced fallback units; we may want to focus them on economy instead.
 	static const int iSAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY = GC.getDefineINT("SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY"); // e.g. 2

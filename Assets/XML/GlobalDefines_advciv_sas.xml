@@ -2151,6 +2151,24 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: force the water hammer building class above (Port in AdvCiv-SAS) for non-human coastal cities that are big enough but still have low production or low food surplus. Port can take significant time, but these cities are not likely to contribute much short-term production anyway; if not in immediate danger, making their water tiles produce hammer first should make them much more useful later. Defense emergencies still run earlier in CvCity::doTurn, so Castle/defense can still go before Port when needed. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MIN_POPULATION</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<!-- custom: Production-per-pop is stored per 100: 300 means 3 hammers/pop. Set enable to 0 to disable. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MAX_PRODUCTION_PER_POP_100</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_FOOD_SURPLUS_THRESHOLD</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
 
 
 
