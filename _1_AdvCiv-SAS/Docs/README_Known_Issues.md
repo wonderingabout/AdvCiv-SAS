@@ -179,6 +179,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game)  
 [142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)  
 [143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug)  
+[144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5310,3 +5311,47 @@ Fix:
 File changed:
 
 - [Assets/Python/BUG/configobj.py](/Assets/Python/BUG/configobj.py)
+
+## 144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1g0qHBH8Jk4fy5QrH4uOdakaVW8iGEwQT?usp=sharing).
+
+This was a base AdvCiv lineage issue and also an AdvCiv-SAS follow-up to our earlier extended first-city founding window.
+
+Observed problem:
+
+- Karakorum could settle a very weak tundra/plains-heavy capital despite a high visible bonus count, because nearby non-food bonuses could make the site look tempting even though the early capital would grow poorly.
+- A much stronger nearby capital existed after brief exploration: pig + corn + river + more grassland. This was much better for early growth and long-term snowballing.
+- After the first AdvCiv-SAS roaming/scouting fix, the settler could leave the very bad start, but then it could still stop at the first merely good-enough plot it reached instead of checking whether the newly revealed nearby plots were stronger.
+- Beijing, which originally had a good enough site at start, but not anymore after our first not high bad plot count fix: after the final fix, it moved to a stronger corn + river home plot rather than stopping at the first acceptable site.
+
+Why the earlier approach was incomplete:
+
+- The first-city roaming fix correctly let settlers briefly scout away from clearly bad BFC shapes instead of founding immediately.
+- However, once a scouted plot became heuristic-good-enough, the code could found there immediately.
+- That was too early: the whole point of scouting was to get better information, so after reaching a merely acceptable plot, the AI should still re-run first-city evaluation on nearby visible plots before founding.
+- Some direct first-city local checks also used non-starting `AI_foundValue(..., false)`, so first-city-specific valuation was not applied consistently to these local rechecks.
+
+Fix:
+
+- For first-city local rechecks in `CvUnitAI::AI_foundFirstCity`, use first-city scoring with `AI_foundValue(..., true)`.
+- When a settler reaches a heuristic-good-enough first-city plot after scouting, scan nearby visible reachable plots and compare them with first-city scoring before settling.
+- Keep this situational and brief instead of hard-requiring food bonuses or fresh water, because some unusual starts can still be good without them.
+- Add first-city-only scoring support in `CitySiteEvaluator`: food bonuses, fresh-water city tiles, and river support are valued more for the capital than for ordinary later city sites, because early capital growth snowballs into faster tile access, worker/settler production, whipping, and specialists.
+- Also added BBAI logging to track changes and results more easily.
+
+Result:
+
+- Karakorum moved to the stronger corn + pig + hill-plains river capital site.
+- Beijing moved again now to a slightly stronger but mostly identical corn + river capital site.
+- The behavior remains first-city-only as of now; later settlers usually know more of the map and can sensibly found strategic/semi-decent resource cities.
+
+To fix later on at this point:
+
+- Some cities spend a few turns to ultimately settle at same place, which is inefficient and weaker.
+
+Files changed:
+
+- [CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp)
+- [CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp)
+- [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)

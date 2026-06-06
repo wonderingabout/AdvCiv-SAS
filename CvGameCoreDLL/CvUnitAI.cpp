@@ -3024,6 +3024,7 @@ bool CvUnitAI::AI_foundFirstCity()
 		int iBestWeightedValue = -99999; // weighted score = raw * weight (0..100)
 		int iBestTurnToFound = 0;
 		// <!-- custom: Karakorum founded in-place in plains/tundra while nearby high-food sites existed. Log the starting settler's top three reachable first-city candidates so we can see whether site valuation or the movement window caused the decision. (GPT-5.5) -->
+		// <!-- custom: enhance and add logging for first-city found logic: add scouting, moving away from high bad plot count starts, and running again an evaluate city site scoring when a site is no longer bad instead of settling right away; also add logging. See KI#144. -->
 		const bool bLogFirstCityCandidates = (gUnitLogLevel >= 2);
 		int aiTopWeightedValue[3] = {-99999, -99999, -99999};
 		int aiTopValue[3] = {0, 0, 0};
@@ -3150,7 +3151,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				CvPlot& kLoopPlot = *itPlot;
 				if (!kLoopPlot.isRevealed(getTeam()))
 					continue;
-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, false);
+				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
 				if (iLoopValue <= 0)
 					continue;
 				int iLoopFoundTurn = -1;
@@ -3186,7 +3187,7 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 		}
 
-		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? kOwner.AI_foundValue(getX(), getY(), -1, false) : iBestValue);
+		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? kOwner.AI_foundValue(getX(), getY(), -1, true) : iBestValue);
 		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES");
 		static const int iBadLowFoodPlotsThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_LOW_FOOD_PLOTS");
 		int iCurrentFoodBonuses = 0;
@@ -3202,8 +3203,38 @@ bool CvUnitAI::AI_foundFirstCity()
 		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
 		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming)
 		{
-			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place. If the current foundable plot is not clearly low-food-heavy, stop roaming and found. (GPT-5.5) -->
-			if (gUnitLogLevel >= 2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d lowFoodPlots=%d badLowFoodThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentLowFoodPlots, iBadLowFoodPlotsThreshold, getPlot().isFreshWater(), kOwner.AI_foundValue(getX(), getY(), -1, false), kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			const int iCurrentFirstCityValue = kOwner.AI_foundValue(getX(), getY(), -1, true);
+			CvPlot* pBetterGoodEnoughFirstCityPlot = NULL;
+			int iBetterGoodEnoughFirstCityValue = iCurrentFirstCityValue;
+			int iBetterGoodEnoughFirstCityTurn = -1;
+			const int iRemainingFirstCityTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
+			const int iGoodEnoughRecheckRange = std::min(2, iRemainingFirstCityTurns);
+			for (SquareIter itGoodEnough(*this, iGoodEnoughRecheckRange, false); iGoodEnoughRecheckRange > 0 && itGoodEnough.hasNext(); ++itGoodEnough)
+			{
+				CvPlot& kLoopPlot = *itGoodEnough;
+				if (!kLoopPlot.isRevealed(getTeam()) || !canFound(&kLoopPlot))
+					continue;
+				int iLoopPathTurns = 0;
+				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, iGoodEnoughRecheckRange) || iLoopPathTurns > iGoodEnoughRecheckRange))
+					continue;
+				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
+				const int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
+				if (iLoopAdjustedValue > iBetterGoodEnoughFirstCityValue)
+				{
+					pBetterGoodEnoughFirstCityPlot = &kLoopPlot;
+					iBetterGoodEnoughFirstCityValue = iLoopAdjustedValue;
+					iBetterGoodEnoughFirstCityTurn = kGame.getElapsedGameTurns() + iLoopPathTurns;
+				}
+			}
+			if (pBetterGoodEnoughFirstCityPlot != NULL && !at(*pBetterGoodEnoughFirstCityPlot))
+			{
+				// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. But if the current plot is heuristic-good-enough, still re-run first-city found-value scoring on nearby visible candidates before founding; this keeps the gate situational and lets one-tile Karakorum/Beijing-style improvements win without hard-requiring food bonuses or fresh water. (GPT-5.5) -->
+				if (gUnitLogLevel >= 2) logBBAI("    Settler moving from heuristic-good-enough first-city site for %S player %d from %d,%d to nearby better site %d,%d; currentValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), iCurrentFirstCityValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				pushGroupMoveTo(*pBetterGoodEnoughFirstCityPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBetterGoodEnoughFirstCityPlot);
+				return true;
+			}
+			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place. If nearby first-city scoring does not find a better visible reachable plot, stop roaming and found. (GPT-5.5) -->
+			if (gUnitLogLevel >= 2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d lowFoodPlots=%d badLowFoodThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentLowFoodPlots, iBadLowFoodPlotsThreshold, getPlot().isFreshWater(), iCurrentFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			getGroup()->pushMission(MISSION_FOUND);
 			return true;
 		}
@@ -3230,7 +3261,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold);
 				if (bBadLoopFirstCity || (iGoodEnoughFoodBonuses > 0 && iLoopFoodBonuses < iGoodEnoughFoodBonuses && !kLoopPlot.isFreshWater()))
 					continue;
-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, false);
+				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
 				if (iLoopValue <= 0)
 					continue;
 				const int iLoopGoodEnoughValue = iLoopValue - 50 * iLoopPathTurns;
@@ -3277,7 +3308,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					if (!(*itReveal).isRevealed(getTeam()))
 						iExploreValue += 1000 / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
 				}
-				const int iEndTurnFoundValue = kOwner.AI_foundValue(kEndTurnPlot.getX(), kEndTurnPlot.getY(), -1, false);
+				const int iEndTurnFoundValue = kOwner.AI_foundValue(kEndTurnPlot.getX(), kEndTurnPlot.getY(), -1, true);
 				iExploreValue += std::max(0, iEndTurnFoundValue - iBestValue);
 				if (iExploreValue > iBestExploreValue)
 				{

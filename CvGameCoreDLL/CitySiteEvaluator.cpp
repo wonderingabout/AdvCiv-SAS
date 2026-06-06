@@ -478,6 +478,8 @@ int AIFoundValue::evaluate()
 	int iStealPercent = 0;
 	int iRiverTiles = 0;
 	int iGreenTiles = 0;
+	// <!-- custom: enhance and add logging for first-city found logic: add scouting, moving away from high bad plot count starts, and running again an evaluate city site scoring when a site is no longer bad instead of settling right away; also add logging. See KI#144. Additionally, add a stronger food and river/fresh water valuation for first city because it is more critical for it. -->
+	int iStartingRiverTiles = 0;
 	int iTotalFeatureProduction = 0; // </advc.031>
 	int iHealth = 0;
 
@@ -521,6 +523,10 @@ int AIFoundValue::evaluate()
 	static const int iValueHomeFlatlandSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW");
 
 	static const int iValueHomeWaterBonusNoCoast = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST");
+	static const int iStartingHomeFreshWaterValue = GC.getDefineINT("SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE");
+	static const int iStartingFoodBonusValuePercent = GC.getDefineINT("SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT");
+	static const int iStartingRiverTileValue = GC.getDefineINT("SAS_EVALUATE_STARTING_RIVER_TILE_VALUE");
+	static const int iStartingNonFoodBonusValuePercent = GC.getDefineINT("SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT");
 
 	static const int iExtraValueNotHomeAIObjectiveBonusExtraValueMultiplier = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER");
 
@@ -744,6 +750,11 @@ int AIFoundValue::evaluate()
 			if (!p.isWater())
 			{
 				iPlotValue += ((p.isRiver() || p.isFreshWater()) ? iExtraValueHomeFreshWaterRiver : 0);
+				if (kSet.isStartingLoc() && p.isFreshWater())
+				{
+					iPlotValue += iStartingHomeFreshWaterValue;
+					IFLOG if(iStartingHomeFreshWaterValue!=0) logBBAI("%d from starting home fresh water", iStartingHomeFreshWaterValue);
+				}
 			}
 		}
 		else
@@ -998,6 +1009,12 @@ int AIFoundValue::evaluate()
 
 		if (eBonus != NO_BONUS) // advc.040: Same-area checks moved into nonYieldBonusValue
 		{
+			// <!-- custom: For the first city, food bonuses and rivers snowball earlier than non-food bonuses because growth
+			// unlocks more tiles, whipping/specialists, and faster worker/settler development. Apply capital-only resource
+			// value percents and concrete river/fresh-water boosts so Karakorum/Beijing-like starts prefer nearby
+			// corn/fresh-water positions over slower commerce/hammer-resource positions. (GPT-5.5) -->
+			const bool bStartingFoodBonus = (kSet.isStartingLoc() && (GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 || aiBonusImprovementYield[YIELD_FOOD] > 0));
+
 			if (!bBarbarian && // advc.303: Barbarians don't care about resource trade
 				// advc.031: Otherwise we can already trade the resource
 				getRevealedOwner(p) != ePlayer)
@@ -1005,6 +1022,14 @@ int AIFoundValue::evaluate()
 				int iBonusValue = nonYieldBonusValue(p, eBonus,
 						bCanTradeBonus, bCanSoonTradeBonus, bEasyAccess,
 						bAnyGrowthBonus, &aiBonusCount, iCultureModifier);
+				if (kSet.isStartingLoc())
+				{
+					const int iStartingBonusValuePercent = (bStartingFoodBonus ? iStartingFoodBonusValuePercent : iStartingNonFoodBonusValuePercent);
+					const int iOldBonusValue = iBonusValue;
+					iBonusValue = (iBonusValue * iStartingBonusValuePercent) / 100;
+					IFLOG if(iBonusValue!=iOldBonusValue) logBBAI("Starting %S resource value x%d%%: %d -> %d (%S)",
+							bStartingFoodBonus ? L"food" : L"non-food", iStartingBonusValuePercent, iOldBonusValue, iBonusValue, GC.getInfo(eBonus).getDescription());
+				}
 				IFLOG if(iBonusValue!=0) logBBAI("+%d non-yield resource value (%S)",
 						iBonusValue, GC.getInfo(eBonus).getDescription());
 				//iValue += (iBonusValue + 10);
@@ -1035,6 +1060,12 @@ int AIFoundValue::evaluate()
 			{
 				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
 			}
+		}
+
+		if (kSet.isStartingLoc() && !bHome && !bSteal && p.isRiver())
+		{
+			iStartingRiverTiles++;
+			iValue += iStartingRiverTileValue;
 		}
 
 		if (!bHome) // (Home plot was handled upfront)
@@ -1137,6 +1168,8 @@ int AIFoundValue::evaluate()
 	iValue += sumUpPlotValues(aiPlotValues);
 	// A sensible order (CITY_HOME_PLOT first) isn't guaranteed anymore, hence:
 	aiPlotValues.clear();
+	IFLOG if(kSet.isStartingLoc() && iStartingRiverTiles > 0 && iStartingRiverTileValue != 0)
+		logBBAI("+%d from %d starting river BFC tiles", iStartingRiverTiles * iStartingRiverTileValue, iStartingRiverTiles);
 	// <!-- custom: disabled as part of the change there as well where this variable is used -->
 	// advc.031: Preserve this for later
 	// int iNonYieldResourceVal = std::max(0, iResourceValue);

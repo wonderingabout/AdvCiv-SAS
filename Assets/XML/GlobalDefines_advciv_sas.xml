@@ -860,6 +860,24 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>-400</iDefineIntVal>
 	</Define>
 
+	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food resource value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-resource starts, without changing later strategic/resource city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield resource-value component; normal tile yields are still evaluated separately. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>140</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>95</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_RIVER_TILE_VALUE</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+
 
 
 	<!-- custom: non-bonus non-home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
