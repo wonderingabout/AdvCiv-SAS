@@ -1097,7 +1097,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Master BBAI logging switch. 0 disables all BBAI logging regardless of the category levels below; 1 (enabled) uses the category levels below. This lets you keep a prepared logging profile and turn it off/on with one define. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_ENABLE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->

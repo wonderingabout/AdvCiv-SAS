@@ -5346,9 +5346,13 @@ Result:
 - Beijing moved again now to a slightly stronger but mostly identical corn + river capital site.
 - The behavior remains first-city-only as of now; later settlers usually know more of the map and can sensibly found strategic/semi-decent resource cities.
 
-To fix later on at this point:
+Follow-up fix after testing:
 
-- Some cities spend a few turns to ultimately settle at same place, which is inefficient and weaker.
+- The first version fixed bad-start roaming, but some already-decent starts could still waste turns roaming only to settle the same plot later. Example: London ultimately settled the same capital site, but much later (observed around 22 500 BC instead of 50 000 BC).
+- Added an anti-bounce/competitive-current-site guard: if the settler is already on a non-bad foundable first-city plot and the cached city-site target is only marginally better after the same small movement penalty, found instead of walking away and circling back.
+- Kept the Karakorum-style fix: clearly bad high-bad-plot starts can still scout/roam during the bounded first-city window, and after reaching a heuristic-good-enough recovery plot, the settler still rechecks nearby visible reachable plots before founding.
+- Added more BBAI logging, including high-detail BFC diagnostics at unit log level 3, to show candidate coordinates, found values, adjusted values, path turns, revealed/unrevealed BFC counts, food bonuses, bad plots, and per-tile BFC yields/terrain/feature/bonus data. ChatGPT 5.5 reviewed the logs and helped identify the final narrow anti-bounce/tie-breaker cleanup. Implementation and changes with the help of GPT-5.5 on codex too thanks.
+- Retesting preserved the good Karakorum result and fixed the London wasted-wandering case.
 
 Files changed:
 
