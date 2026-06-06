@@ -39,8 +39,11 @@ CvUnitAI::~CvUnitAI()
 // cap), no-bonus hills with natural food below 1 (e.g., hill plains/desert/tundra/snow but not hill grass which have
 // 1 food and very strong hammer source so good plot), and no-bonus flat land with natural food below 2. This keeps
 // grass hills, seafood, and useful low-food bonus tiles from making decent sites look bad, while still catching
-// tundra/plains/peak-heavy sites. (GPT-5.5 + ChatGPT 5.5) Note: oasis is unworkable but food and commerce rich (as of now 3 food
-// 2 commerce) so do not count as bad. -->
+// tundra/plains/peak-heavy sites. For the "good-enough food bonus" count, use the normal bonus improvement's food
+// yield for land bonuses: in AdvCiv-SAS, Elephants have +1 XML food but Camp adds no food, so they should not satisfy
+// the same first-city stop-roaming gate as Pig + Corn, whose improvements add strong food. Seafood keeps using XML
+// food because water improvements are not in the land bonus-improvement helper. (GPT-5.5 + ChatGPT 5.5) Note: oasis
+// is unworkable but food and commerce rich (as of now 3 food 2 commerce) so do not count as bad. -->
 static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamTypes eTeam, int& iFoodBonuses, int& iBadPlots)
 {
 	iFoodBonuses = 0;
@@ -53,8 +56,13 @@ static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamType
 		if (pLoopPlot == NULL || !pLoopPlot->isRevealed(eTeam))
 			continue;
 		BonusTypes const eBonus = pLoopPlot->getNonObsoleteBonusType(eTeam);
-		if (eBonus != NO_BONUS && GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0)
-			iFoodBonuses++;
+		if (eBonus != NO_BONUS)
+		{
+			const ImprovementTypes eBonusImprovement = CvUnitAI::getBonusSpecificLandImprovement(eBonus);
+			const bool bFoodBonus = (pLoopPlot->isWater() ? GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : eBonusImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD) > 0);
+			if (bFoodBonus)
+				iFoodBonuses++;
+		}
 		if (!pLoopPlot->hasYield())
 		{
 			iBadPlots++;

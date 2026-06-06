@@ -5354,6 +5354,14 @@ Follow-up fix after testing:
 - Added more BBAI logging, including high-detail BFC diagnostics at unit log level 3, to show candidate coordinates, found values, adjusted values, path turns, revealed/unrevealed BFC counts, food bonuses, bad plots, and per-tile BFC yields/terrain/feature/bonus data. ChatGPT 5.5 reviewed the logs and helped identify the final narrow anti-bounce/tie-breaker cleanup. Implementation and changes with the help of GPT-5.5 on codex too thanks.
 - Retesting preserved the good Karakorum result and fixed the London wasted-wandering case.
 
+Update 2: Fix AI Settler first-city gate treating low-food resources as food bonuses
+
+- The first-city stop-roaming gate counted any resource with natural/XML food as a food bonus. In AdvCiv-SAS, Elephants have +1 natural food but their Camp improvement adds no food, so they were incorrectly treated like Pig/Corn-tier food resources, and so 3 Elephants may be > Pig + Corn site despite the latter (Pig + Corn) giving much more food when improved and the former (3 Elephants) barely any
+- For land resources, count a first-city “good enough” food bonus only when the resource’s normal improvement adds food. Seafood still uses XML food because water improvements are outside the land bonus-improvement helper.
+- This changed London settling to one tile east (now takes the Plains Cow/Cattle too, and Athens moving away from Coast for some reason to a green land site (that may be better))
+
+Count land bonus
+
 Files changed:
 
 - [CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp)
