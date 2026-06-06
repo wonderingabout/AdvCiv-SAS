@@ -495,6 +495,26 @@ class CvMilitaryAdvisor:
 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
 		self.iAdvisorPerspectivePlayer = self.iActivePlayer
 
+	# <!-- custom: Map-tab tab switches and close/reopen used to reset the leader bar to the active player, which made debug comparisons and quick unit-count checks tedious. Keep selected leaders while they are still selectable; fall back to the active player only when selection is empty or invalid. (ChatGPT-5.5) -->
+	def isMapSelectedPlayerValid(self, iPlayer):
+		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
+			return False
+		pPlayer = gc.getPlayer(iPlayer)
+		if not pPlayer.isAlive():
+			return False
+		if gc.getGame().isDebugMode():
+			return True
+		iActiveTeam = gc.getPlayer(gc.getGame().getActivePlayer()).getTeam()
+		return gc.getTeam(pPlayer.getTeam()).isHasMet(iActiveTeam)
+
+	def restoreMapSelectedPlayers(self):
+		aOldSelectedPlayers = self.selectedPlayerList[:]
+		self.selectedPlayerList = [iPlayer for iPlayer in self.selectedPlayerList if self.isMapSelectedPlayerValid(iPlayer)]
+		if len(self.selectedPlayerList) == 0:
+			self.selectedPlayerList.append(self.iActivePlayer)
+		if self.selectedPlayerList != aOldSelectedPlayers:
+			self.selectedGroupList = []
+
 	def drawActivePage(self):
 		screen = self.getScreen()
 		self.drawTabs()
@@ -534,13 +554,7 @@ class CvMilitaryAdvisor:
 
 		self.unitsList = [(0, 0, [], 0)] * gc.getNumUnitInfos()
 		self.selectedUnitList = []
-		# <advc.004> Reset selected unit groups if a player other than the active player was selected
-		if len(self.selectedPlayerList) != 1 or self.selectedPlayerList[0] != self.iActivePlayer:
-			self.selectedGroupList = []
-		# Always reset the selected players
-		self.selectedPlayerList = []
-		# </advc.004>
-		self.selectedPlayerList.append(self.iActivePlayer)
+		self.restoreMapSelectedPlayers()
 
 		self.drawCombatExperience()
 

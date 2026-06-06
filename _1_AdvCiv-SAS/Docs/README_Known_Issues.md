@@ -180,6 +180,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)  
 [143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug)  
 [144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well)  
+[145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#145---implemented--needs-in-game-test-military-advisor-map-tab-lost-selected-leaders-after-tab-switch-or-closereopen)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5367,3 +5368,27 @@ Files changed:
 - [CvGameCoreDLL/CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp)
 - [CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp)
 - [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)
+
+## 145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen
+
+In the Military Advisor Map tab, selecting another leader was not preserved when switching to another Military Advisor tab, returning to the Map tab, or closing and reopening the advisor. The Map tab leader selection was reset to the active player each time.
+
+This was tedious in debug mode when comparing leaders, following unit production counts, or repeatedly checking a specific AI's units. It could also be useful in normal play when repeatedly inspecting a known rival from the Map tab.
+
+Cause:
+
+- `drawMap()` reset `selectedUnitList`, then always cleared `selectedPlayerList` and appended `iActivePlayer`.
+- The old path also cleared selected unit groups whenever the selected player list was not exactly the active player.
+- As a result, the leader bar could not preserve a valid non-active-player selection across tab redraws.
+
+Implemented fix:
+
+- Added `isMapSelectedPlayerValid(iPlayer)` to keep only players that are still selectable.
+- Added `restoreMapSelectedPlayers()` to preserve selected leaders while they remain valid.
+- Fall back to the active player only when the saved leader selection is empty or invalid.
+- Keep the existing `selectedUnitList` reset behavior unchanged.
+- Clear selected unit groups only when the preserved leader list had to be sanitized.
+
+File changed:
+
+- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)

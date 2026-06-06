@@ -6063,11 +6063,11 @@
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
@@ -6287,7 +6287,7 @@
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
@@ -6553,7 +6553,8 @@
 			<iCultureGarrison>4</iCultureGarrison>
 			<iExtraCost>0</iExtraCost>
 			<iAsset>2</iAsset>
-			<iPower>5</iPower>
+			<!-- custom: was 5 in generic axeman -->
+			<iPower>6</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -6571,10 +6572,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: Long_Comments_XML.txt #117, Was PROMOTION_WOODSMAN1 -->
+			<!-- custom: the jaguars are elite forces valued in society iirc and based on ChatGPT-5.5's info thanks; give an early enough, cheap enough, and widespread enough promotion, that this early unit may not be OP having (may have already have it) so maybe not OP while still being quite strong to have; Long_Comments_XML.txt #117, Was PROMOTION_WOODSMAN1 -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_SENTRY</PromotionType>
+					<PromotionType>PROMOTION_COMBAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -7140,10 +7141,11 @@
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
+			<!-- custom: this is still an offensive unit, so keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). -->
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
@@ -7197,9 +7199,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: see code comment as of now at samurai -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<PromotionType>PROMOTION_COMBAT2</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -7578,9 +7581,10 @@
 			<iCityAttack>10</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: was 0 and 0 (in the generic swordsman) -->
+			<!-- custom: was 0 in the generic swordsman -->
 			<iHillsAttack>25</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<!-- custom: do not overblow defensive bonus even though it is thematic, as would be unbalanced and identity spill (this is an attacker not a defender, similar reasoning as as of now the flying_column; was 0 in the generic swordsman -->
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks>
@@ -7600,7 +7604,7 @@
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
@@ -7649,10 +7653,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was empty -->
+			<!-- custom: decent synergy with the can walk peak profile/ability, at a late enough stage in the game where gaining vision/exploration is no longer as OP (and not as much from high plots i'm guessing too). -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
+					<PromotionType>PROMOTION_SENTRY</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -7722,7 +7726,7 @@
 			<UnitCombatDefenders/>
 			<FlankingStrikes/>
 			<!-- custom: by that time and as of now longbowmen or such are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai hereas of now -->
-			<!-- custom: removed UNITAI_CITY_COUNTER from here as macemen are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles -->
+			<!-- custom: removed UNITAI_CITY_COUNTER from here as macemen are not versatile enough to be reliable city defenders while still being good offense units; Long_Comments_XML.txt #377 -->
 			<UnitAIs>
 				<UnitAI>
 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
@@ -8091,10 +8095,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was PROMOTION_FIRST_STRIKE1 -->
+			<!-- custom: at this stage most units may already have COMBAT1 which is fairly ubiquitous, or we may inherit it from one of our upgraded units, or annoyingly purposely avoid to do so for human players: would make it too weak/useless; give a stronger one instead; was PROMOTION_FIRST_STRIKE1 -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<PromotionType>PROMOTION_COMBAT2</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -8255,6 +8259,7 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
+			<!-- custom: although vikings have strong a cold weather identity iirc, in terms of gameplay this is still an offensive unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
@@ -8262,17 +8267,17 @@
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
+					<iTerrainAttack>35</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainDefense>50</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks>
@@ -11689,7 +11694,7 @@
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 80 -->
-			<iCost>110</iCost>
+			<iCost>100</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -11714,7 +11719,7 @@
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 9 -->
-			<iCombat>14</iCombat>
+			<iCombat>12</iCombat>
 			<iCombatLimit>110</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -11781,7 +11786,7 @@
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
 			<!-- custom: was 9 -->
-			<iPower>14</iPower>
+			<iPower>13</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -11799,7 +11804,13 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
+			<!-- custom: give COMBAT2 rather than COMBAT1, same reasoning as of now as the samurai; also matches thematic power spike of this unit; was empty -->
+			<FreePromotions>
+				<FreePromotion>
+					<PromotionType>PROMOTION_COMBAT2</PromotionType>
+					<bFreePromotion>1</bFreePromotion>
+				</FreePromotion>
+			</FreePromotions>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
@@ -12005,7 +12016,7 @@
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
 			<!-- custom: was 9 -->
-			<iPower>13</iPower>
+			<iPower>12</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -12027,10 +12038,6 @@
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -12163,14 +12170,15 @@
 			<FeatureImpassables/>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
-			<!-- custom: was 9 -->
-			<iCombat>12</iCombat>
+			<!-- custom: was 9, and 12 in generic musketman -->
+			<iCombat>13</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>1</iFirstStrikes>
+			<!-- custom: was 1 in base advciv unit (keep the promotion rather than iFirstStrikes so later units can inherit it) -->
+			<iFirstStrikes>0</iFirstStrikes>
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
@@ -12231,7 +12239,7 @@
 			<iExtraCost>0</iExtraCost>
 			<iAsset>3</iAsset>
 			<!-- custom: was 9 -->
-			<iPower>12</iPower>
+			<iPower>13</iPower>
 			<UnitMeshGroups>
 				<iGroupSize>3</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -12514,7 +12522,8 @@
 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<bCanMoveImpassable>0</bCanMoveImpassable>
+			<!-- custom: guerilla thematic fit, and as of now same as the quechua but later in the game; was 0 in generic rifleman -->
+			<bCanMoveImpassable>1</bCanMoveImpassable>
 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
 			<bFlatMovementCost>0</bFlatMovementCost>
 			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
@@ -12616,14 +12625,15 @@
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>10</iWithdrawalProb>
+			<iWithdrawalProb>0</iWithdrawalProb>
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
+			<!-- custom: Note: not giving hill defense so it doesn't overlap with more defensive units, attack is a nice thematic guerilla fit already unlike defense i think too; was 0 in generic rifleman -->
+			<iHillsAttack>25</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
@@ -12803,7 +12813,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>120</iCost>
+			<!-- custom: Significant cost reduction better represents "No Taxation without Representation" and makes it a more unique perk of it costing same price as previous unit; indirectly buffs upgrades too that are now cheaper as well; was as of now 120 in SAS rifleman. -->
+			<iCost>100</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -13733,10 +13744,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost -->
+			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost; + robotic infantry is meant to feel advanced/mobile (ChatGPT-5.5) -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
+					<PromotionType>PROMOTION_MOBILITY_RANGE</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -15503,10 +15514,11 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
+			<!-- custom: base strength is high enough (similar reasoning as as of now for the Cataphract), and this is not an especially strong desert unit i'd say maybe, so do not increase them too much despite wanting to buff desert generally though -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>35</iTerrainAttack>
+					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
@@ -15516,7 +15528,7 @@
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>35</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
@@ -17087,10 +17099,11 @@
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
+			<!-- custom: Terrain modifiers: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. Plus, its base strength is already too or very high not needing a too high spike, and grass is strong in particular already so not needing a strong buff that may be unbalanced then. -->
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
@@ -17786,7 +17799,7 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
+					<iTerrainAttack>35</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
@@ -18224,6 +18237,7 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
+			<!-- custom: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
@@ -18233,7 +18247,7 @@
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details -->
@@ -18872,7 +18886,7 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: although i didn't check too much, russia seems a bit better at defense than offense based on some comments  found online, but it's also to not make tundra too op while making sure to buff it enough though-->
+			<!-- custom: although i didn't check too much, russia seems a bit better at defense than offense based on some comments  found online. Yet, in terms of gameplay this is still a mostly offensive/mobile unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan). -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
@@ -18880,17 +18894,17 @@
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainAttack>50</iTerrainAttack>
+					<iTerrainAttack>35</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>35</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainDefense>50</iTerrainDefense>
+					<iTerrainDefense>25</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details -->
@@ -19062,13 +19076,14 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 120 in the base advciv old unit -->
+			<!-- custom: was 120 in the base advciv old unit; lower than as of now the base Dragoon unit is a good thematic fit too iirc i mean and from asking ChatGPT-5.5 too thanks. -->
 			<iCost>140</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
-			<iMoves>2</iMoves>
+			<!-- custom: was 2 in SAS Dragoon: Increasing it is stronger, more unique, and a thematic fit based on ChatGPT-5.5's explanation when i asked it about it thanks. Also, reminds me of the Civ3 Cavalry has 3 move speed flavor which i think is nice and cool to have too, in terms of gameplay too also. -->
+			<iMoves>3</iMoves>
 			<bNoRevealMap>0</bNoRevealMap>
 			<iAirRange>0</iAirRange>
 			<iAirUnitCap>0</iAirUnitCap>

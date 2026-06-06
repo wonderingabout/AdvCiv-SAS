@@ -2457,13 +2457,13 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). 
 ----- Comment #116 -----
 
 			<!-- History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They weren’t inherently “fast” on foot (the 2-move in BtS is really a “dragoon flavor” abstraction). So your instinct to drop the extra move is spot-on. -->
-			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high so it seems we don't need to increase unit iCost and leave it as such otherwise -->
+			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high so it seems we don't need to increase unit iCost and leave it as such otherwise
+			Update: since then removed the collateral effect because the mounted one alone is already strong enough against popular mounted units -->
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #117 -----
 
-			if i am not mistaken from my memory i mean, the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. However, we don't need to do that here, as after other changes the unit is plenty strong now already; plus with the terrain/feature modifiers civ-specific units have in our mod, we don't need to keep the old woodsman specific identity redundantly here anymore. So, also as per chatgpt 5.2's recommendation (and as i had the idea too it seems but not totally sure) thanks, adding a non-combat promotion rather that fits here so it is a strong enough as of now axeman variant as as of now the dog soldier is
-			<!-- "UNITCOMBAT_MELEE_SHOCK 50% is too much, because it turns into “I don’t need metal and I still hard-win the metal line” too often (and it keeps scaling into later Shock units)." + It fits “jungle scouting / ambush / raiding.” + "You already said only Yeoman currently uses it, so it won’t feel spammy." -->
+			the jaguars are elite forces valued in society; since the unit is so weak, may be fine to buff it as such, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean, overall they should mostly be used for offense but this also allows some room for defense. -->
 
 ===== \Assets/XML/Units/CIV4UnitInfos.xml =====
 ----- Comment #118 -----
@@ -4956,3 +4956,8 @@ humans would have little to gain from stacking them past a certain point fairly 
 
 	<!-- custom: BBAI logging is useful for investigating AI decisions such as production, city founding, unit movement, diplomacy, map normalization, and similar behavior. These SAS defines tune which BBAI logs are sent. (GPT-5.5?) -->
 	<!-- custom: To use logging, Civ4 also requires LoggingEnabled=1 in CivilizationIV.ini. Then BBAI log files can be found in files like BBAI.log, for example (adjust to your Windows username/computer path) "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log". (GPT-5.5?) -->
+
+===== \Assets/XML/Units/CIV4UnitInfos.xml =====
+----- Comment #377 -----
+
+ (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles

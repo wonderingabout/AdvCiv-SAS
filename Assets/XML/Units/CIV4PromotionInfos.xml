@@ -4552,6 +4552,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Commando.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,3</Button>
 		</PromotionInfo>
+		<!-- custom: Note: iMoveDiscountChange reduces raw terrain/feature movement cost before CvPlot::movementCost caps cost to the unit's baseMoves. This is mostly useful for 2+ move units; on 1-move units it usually does not increase practical movement range, and can even interfere with double-move terrain checks because bHasTerrainCost is computed after the discount. Do not treat this as true +move mobility for 1-move units. (ChatGPT-5.5) -->
 		<PromotionInfo>
 			<Type>PROMOTION_MOBILITY_COST</Type>
 			<Description>TXT_KEY_PROMOTION_MOBILITY_COST</Description>
@@ -4627,6 +4628,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Mobility1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,4</Button>
 		</PromotionInfo>
+		<!-- custom: true +1 movement promotion. Unlike Mobility (Cost), this helps 1-move units directly, but it is much stronger and should not be used as a simple replacement for Mobility (Cost), especially on early peak-walking or enemy-route units. (ChatGPT-5.5) -->
 		<PromotionInfo>
 			<Type>PROMOTION_MOBILITY_RANGE</Type>
 			<Description>TXT_KEY_PROMOTION_MOBILITY_RANGE</Description>
