@@ -1047,6 +1047,21 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply. Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<!-- custom: during first-city roaming, stop wandering once the current foundable plot has this many revealed food bonuses in its BFC. This prevents the settler from walking through an already strong pig+corn/fresh-water-style capital while chasing more unknown information. Set to 0 to disable. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: first-city roaming treats a capital candidate as bad if its revealed BFC has at least this many bad plots: no-yield plots such as ordinary peaks/ice/desert, water with natural food below 1, no-bonus hills with natural food below 1, and no-bonus flat land with natural food below 2. Bonus tiles, seafood, grass hills, rich impassable plots, and workable water are not counted as bad. Set to 0 to disable. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_LOW_FOOD_PLOTS</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
 	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
 	<Define>
 		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
@@ -1064,7 +1079,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Master BBAI logging switch. 0 disables all BBAI logging regardless of the category levels below; 1 (enabled) uses the category levels below. This lets you keep a prepared logging profile and turn it off/on with one define. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_ENABLE</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
@@ -1080,12 +1095,12 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
+		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
 	<Define>
