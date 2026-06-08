@@ -14180,16 +14180,26 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 			iGrowthValue += 8 // in addition to other effects.
 					+ (AI_isStrongEmphasis() ? 3 : 0); // advc.131d
 		} // </k146>
-		// <!-- custom: we have a major bug or suboptimal behaviour of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34); both seem to come down to cities choosing production over food. Attempt for now in this change to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd -->
-		// Add a small boost for non-emphasized food to make it more valuable than production
-		else if (iFoodYield > 0 && !AI_isEmphasizeAvoidGrowth()) {
-			iGrowthValue += 2;
-		}
-
 		// <!-- custom: moved up if i may say in this case too at least so we can use these in our checks -->
 		int iHealthLevel = goodHealth() - badHealth();
 		int iHappinessLevel = (isNoUnhappiness() ?
 				std::max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
+		// <!-- custom: Mitigate SAS happy-growth food valuation when unhealthiness already consumes too much food.
+		// K-Mod already penalizes bad health, but only mildly; AdvCiv-SAS also added stronger happy-surplus growth
+		// incentives to fix stagnant cities. In late/high-pop cities such as York losing 11 food per turn to unhealthiness,
+		// those growth incentives remain inefficient even with spare happiness, so use the same food-loss threshold as
+		// AI_jobChangeValue to stop treating happiness alone as a green light for more growth. (ChatGPT-5.5) -->
+		static const int iSAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS = GC.getDefineINT("SAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS");
+		int const iUnhealthFoodLoss = std::max(0, -iHealthLevel);
+		bool const bSASSevereUnhealthFoodLoss = (!isHuman() && !bWorkerOptimization && !bFoodIsProduction &&
+				iUnhealthFoodLoss > iSAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS);
+
+		// <!-- custom: we have a major bug or suboptimal behaviour of cities being stagnant and allocating unimproved plains no bonus rather than improved sheep grassland (see "prague screenshots" and doc for details in as of now known issue 34 in docs), on top of the starving cities not allocating improved food tiles at all (see the "ulundi screenshots" for example and such as well as of now in example 34); both seem to come down to cities choosing production over food. Attempt for now in this change to reason cities that being stagnant is not good enough when there are nice yields to allocate, as provided and suggested by gemini ai thanks to my prompt and question about this issue i can't really or easily find the root of xd -->
+		// Add a small boost for non-emphasized food to make it more valuable than production, but do not apply it when
+		// severe unhealthiness already makes further growth inefficient.
+		if (!bEmphasizeFood && iFoodYield > 0 && !AI_isEmphasizeAvoidGrowth() && !bSASSevereUnhealthFoodLoss) {
+			iGrowthValue += 2;
+		}
 
 		// <!-- custom: actually even if food is production, food is just as valuable, i noticed in tundra cities workers would go before our reworked workers (didn't check since since they also settle elsewhere now but i assume would be different with the new priority system of builds) 4 food is just as good as 4 hammer to produce a settler, no reason to negate here i think if i understood it correctly; i seem to have solved the issue of 1 hammer being preferred over 5 food even if city has to starve for it (see known issue 34 for details with screenshots and documentation about it too), now ulundi is growing big, not starving while unallocating the food, and high food tiles are all allocated although production is a bit low though now so need to reduce the crazy * 100 multiplier i put as well as a test on top of removing the foodisproduction check to fix / enhance things -->
 		// tiny food factor, to ensure that even when we don't want to grow,
@@ -14198,7 +14208,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemingly done or at least bypassed at the cost of angry cities still growing and having lower production) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing -->
 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
 		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile; note 2: the issue happens still with this change but fixed itself right away the next turn, so i'd tend or like to think this is ideally solved, see known issue 34 appendix for details.
-		if (iHappinessLevel >= 0)
+		if (iHappinessLevel >= 0 && !bSASSevereUnhealthFoodLoss)
 		{
 			iValue += ((iFoodYieldTimes100+50)/100) * 3;
 		}
@@ -14346,7 +14356,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 				bool const bBarFull = (iFoodLevel + iAdjustedFoodPerTurn >
 						iFoodToGrow * 80 / 100);
 
-				int iPopToGrow = std::max(0, iHappinessLevel+iFutureHappy);
+				int iPopToGrow = (bSASSevereUnhealthFoodLoss ? 0 : std::max(0, iHappinessLevel+iFutureHappy));
 				int iGoodTiles = AI_countGoodTiles(iHealthLevel > 0, true, 50,
 						// K-Mod comment: so that we pretend the plots are already improved
 						// advc.121: Don't do that if no worker is assigned
@@ -14374,7 +14384,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 
 				// if we have growth pontential, then get the food bar close to full
 				bool bFillingBar = false;
-				if (iPopToGrow == 0 && iHappinessLevel >= 0 &&
+				if (iPopToGrow == 0 && iHappinessLevel >= 0 && !bSASSevereUnhealthFoodLoss &&
 					iGoodTiles >= 0 && iHealthLevel >= 0)
 				{
 					if (!bBarFull)
@@ -14685,6 +14695,14 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 	static const bool bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_JOB_CHANGE_VALUE_OPTIMIZE");
 
+	// <!-- custom: Do not let the SAS happy-surplus growth gate override severe unhealthiness.
+	// A happy city can still grow inefficiently when it is losing many food per turn to unhealthiness; at that point
+	// specialists or lower-food jobs can be better than forcing more growth. Share this threshold with AI_yieldValue so
+	// job assignment and food valuation agree. (ChatGPT-5.5) -->
+	static const int iSAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS = GC.getDefineINT("SAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS");
+	int const iUnhealthFoodLoss = std::max(0, badHealth() - goodHealth());
+	bool const bSASAllowHappySurplusGrowth = (isHuman() || iUnhealthFoodLoss <= iSAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS);
+
 	// <!-- custom: note: it seems based on autoplay results i mean that this block and function only apply to non-human players when trying to relax this and play manually the behaviour seemingly does not happen as implemented here vs if i autoplay with my player ai player in autoplay, but added the human check just to be safe and in case. Check if accurate as i don't know too much about these -->
 	if (bSAS_AI_JOB_CHANGE_VALUE_OPTIMIZE)
 	{
@@ -14834,7 +14852,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 			{
 				const int iHappySurplus = (happyLevel() - unhappyLevel(0));
 
-				if (!isFoodProduction() && (iHappySurplus >= 1))
+				if (!isFoodProduction() && (iHappySurplus >= 1) && bSASAllowHappySurplusGrowth)
 				{
 					int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
 

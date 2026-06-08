@@ -1097,7 +1097,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Master BBAI logging switch. 0 disables all BBAI logging regardless of the category levels below; 1 (enabled) uses the category levels below. This lets you keep a prepared logging profile and turn it off/on with one define. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_ENABLE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
@@ -2073,6 +2073,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN</DefineName>
 		<iDefineIntVal>-100000</iDefineIntVal>
+	</Define>
+	<!-- custom: Max food per turn lost to unhealthiness where happy surplus can still encourage AI city-governor growth. Higher values allow happy but unhealthy cities to keep prioritizing food/growth; lower values make them switch sooner to specialists or lower-food jobs. E.g., more than 2 food lost to unhealthiness is usually inefficient enough that happiness alone should not force more growth. (ChatGPT-5.5 + GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 
 
