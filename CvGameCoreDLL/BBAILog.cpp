@@ -3,6 +3,8 @@
 // <advc.133>
 #include "CvGameTextMgr.h"
 #include "CvGamePlay.h" // </advc.133>
+// <!-- custom: Added for UTC session timestamps in timestamped BBAI log filenames. (ChatGPT-5.5) -->
+#include <time.h>
 
 // AI decision making logging
 
@@ -78,6 +80,59 @@ int getSASBBAIScoreLogInterval()
 	return iInterval;
 }
 
+static CvString getSASBBAILogSessionTimestamp()
+{
+	static CvString szTimestamp;
+	if (szTimestamp.empty())
+	{
+		char szBuffer[32];
+		time_t kNow;
+		time(&kNow);
+		struct tm* pUtcTime = gmtime(&kNow);
+		if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
+		{
+			szTimestamp = szBuffer;
+		}
+		else
+		{
+			szTimestamp = "unknown_time";
+		}
+	}
+	return szTimestamp;
+}
+
+static CvString getSASBBAILogName()
+{
+	// <!-- custom: This function is only reached after BBAI logging is enabled. If enabled, each Civ4 launch/session writes to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. (ChatGPT-5.5) -->
+	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME") > 0);
+	CvString szLogName;
+	// <advc.007>
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		// For OOS debugging on one PC
+		if (bUseTimestampedFilename)
+		{
+			szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogSessionTimestamp().GetCString());
+		}
+		else
+		{
+			szLogName.Format("BBAI%d.log", (int)GC.getGame().getActivePlayer());
+		}
+	}
+	else
+	{
+		if (bUseTimestampedFilename)
+		{
+			szLogName.Format("BBAI_%s.log", getSASBBAILogSessionTimestamp().GetCString());
+		}
+		else
+		{
+			szLogName = "BBAI.log";
+		}
+	} // </advc.007>
+	return szLogName;
+}
+
 void logBBAI(TCHAR* format, ... )
 {
 	static const bool bEnabled = isSASBBAILogEnabled();
@@ -89,14 +144,7 @@ void logBBAI(TCHAR* format, ... )
 	va_start(args, format);
 	_vsnprintf(buf, 2048-4, format, args);
 	va_end(args); // kmodx
-	// <advc.007>
-	CvString szLogName;
-	if (GC.getGame().isNetworkMultiPlayer())
-	{
-		// For OOS debugging on one PC
-		szLogName.Format("BBAI%d.log", (int)GC.getGame().getActivePlayer());
-	}
-	else szLogName = "BBAI.log"; // </advc.007>
+	CvString szLogName = getSASBBAILogName();
 	gDLL->logMsg(szLogName.GetCString(), buf, /* advc.007: No time stamps */ false, false);
 }
 

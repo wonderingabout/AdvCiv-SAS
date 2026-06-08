@@ -1140,6 +1140,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
+	<!-- custom: If BBAI logging is enabled, write each Civ4 launch/session to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log filenaming behavior. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 
