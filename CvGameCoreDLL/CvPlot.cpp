@@ -16,6 +16,8 @@
 #include "CvDLLSymbolIFaceBase.h"
 #include "CvDLLPlotBuilderIFaceBase.h"
 #include "CvDLLFlagEntityIFaceBase.h"
+// <!-- custom: CvPlot::changeBuildProgress now logs completed worker improvement overwrites for oscillation diagnostics, so include BBAILog.h; this fixed the compile error from adding logBBAI here. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
+#include "BBAILog.h"
 
 /*	advc.make: I've added safeIntCast calls in a few places that looked at least
 	slightly hazardous. Beyond that, explicit casts would only add clutter.
@@ -6377,7 +6379,30 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
 	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
 
 	if (kBuild.getImprovement() != NO_IMPROVEMENT)
-		setImprovementType(kBuild.getImprovement());
+	{
+		ImprovementTypes const eOldImprovement = getImprovementType();
+		ImprovementTypes const eNewImprovement = kBuild.getImprovement();
+
+		// <!-- custom: Log completed worker builds that replace one improvement with another.
+		// This helps find real farm/cottage/workshop oscillation cases before changing worker logic. Credit: ChatGPT 5.5.  (GPT-5.5 review) -->
+		// <!-- custom: this fires 339 times in a ~421 turn sample at normal gamespeed large pangea, so fine to keep to level 2 and useful info deemed important enough for now. -->
+		if (gUnitLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement)
+		{
+			logBBAI("    WORKER-IMPROVEMENT overwrite: turn=%d elapsed=%d player=%S plot=%d,%d old=%S new=%S build=%S owner=%d bonus=%S route=%S",
+					GC.getGame().getGameTurn(),
+					GC.getGame().getElapsedGameTurns(),
+					GET_PLAYER(ePlayer).getCivilizationDescription(0),
+					getX(), getY(),
+					GC.getInfo(eOldImprovement).getDescription(),
+					GC.getInfo(eNewImprovement).getDescription(),
+					kBuild.getDescription(),
+					getOwner(),
+					getBonusType(eTeam) == NO_BONUS ? L"-" : GC.getInfo(getBonusType(eTeam)).getDescription(),
+					getRouteType() == NO_ROUTE ? L"-" : GC.getInfo(getRouteType()).getDescription());
+		}
+
+		setImprovementType(eNewImprovement);
+	}
 
 	if (kBuild.getRoute() != NO_ROUTE)
 		setRouteType(kBuild.getRoute());

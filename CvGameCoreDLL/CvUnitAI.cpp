@@ -2245,6 +2245,64 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			continue;
 		}
 
+		// <!-- custom: Reserve likely irrigation/farm connector plots from non-farm builds.
+		// BBAI autoplay logs showed repeated farm/cottage reversals on the same plots; this reduced back-and-forth farm
+		// overwrite cases by blocking many attempted Cottage/Workshop builds on plots reserved for Farm use, while still
+		// allowing Farms to replace existing improvements when food/irrigation logic chooses them. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
+		ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+		ImprovementTypes const eSupposedImprovement = GC.getInfo(eBestSupposedBuild).getImprovement();
+		if (GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && eSupposedImprovement != eImprovementFarm && !kPlot.isWater() && !kPlot.isHills() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
+		{
+			bool bReserveForIrrigationFarm = (ePlotCurrentImprovement == eImprovementFarm);
+			if (!bReserveForIrrigationFarm && bCityHighFoodSupportNeed && canBuild(kPlot, eBuildFarm) && (kPlot.isFreshWater() || kPlot.isIrrigationAvailable(true)))
+				bReserveForIrrigationFarm = true;
+			if (!bReserveForIrrigationFarm && canBuild(kPlot, eBuildFarm))
+			{
+				for (WorkablePlotIter itTarget(kCity, false); itTarget.hasNext(); ++itTarget)
+				{
+					CvPlot& kTargetPlot = *itTarget;
+					if (&kTargetPlot == &kPlot || kTargetPlot.getOwner() != getOwner() || kTargetPlot.isWater() || kTargetPlot.isHills() || kTargetPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kTargetPlot.canHavePotentialIrrigation())
+						continue;
+					bool const bTargetDryFarm = (kTargetPlot.getImprovementType() == eImprovementFarm && !kTargetPlot.isIrrigated() && !kTargetPlot.isIrrigationAvailable(true));
+					bool const bTargetLowFoodUnimproved = (bCityHighFoodSupportNeed && kTargetPlot.getImprovementType() == NO_IMPROVEMENT && kTargetPlot.calculateNatureYield(YIELD_FOOD, getTeam()) < iFoodConsumptionPerPop);
+					if (!bTargetDryFarm && !bTargetLowFoodUnimproved)
+						continue;
+					int const iChainStepDistance = stepDistance(&kPlot, &kTargetPlot);
+					if (iChainStepDistance <= 0 || iChainStepDistance > 4)
+						continue;
+					if (iChainStepDistance > 1)
+					{
+						bool bHasOwnedFarmableBridge = false;
+						for (SquareIter itBridge(kPlot, 1, false); itBridge.hasNext(); ++itBridge)
+						{
+							CvPlot& kBridgePlot = *itBridge;
+							if (&kBridgePlot == &kTargetPlot || kBridgePlot.getOwner() != getOwner() || kBridgePlot.isWater() || kBridgePlot.isHills() || kBridgePlot.isCity() || !kBridgePlot.isArea(getArea()) || kBridgePlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kBridgePlot.canHavePotentialIrrigation() || stepDistance(&kBridgePlot, &kTargetPlot) >= iChainStepDistance)
+								continue;
+							if (kBridgePlot.getImprovementType() == eImprovementFarm || canBuild(kBridgePlot, eBuildFarm))
+							{
+								bHasOwnedFarmableBridge = true;
+								break;
+							}
+						}
+						if (!bHasOwnedFarmableBridge)
+							continue;
+					}
+					bReserveForIrrigationFarm = true;
+					break;
+				}
+			}
+			if (bReserveForIrrigationFarm)
+			{
+				// <!-- custom: this fires 20k+ times so log level 3 -->
+				if (gUnitLogLevel >= 3)
+				{
+					wchar const* szCurrentImprovement = (ePlotCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(ePlotCurrentImprovement).getDescription());
+					logBBAI("    %S worker skips non-farm build on future irrigation-farm plot for city %S: plot=(%d,%d) build=%S improvement=%S currentImprovement=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), GC.getInfo(eBestSupposedBuild).getDescription(), GC.getInfo(eSupposedImprovement).getDescription(), szCurrentImprovement);
+				}
+				continue;
+			}
+		}
+
 		// <!-- custom: apply final penalties here, to account for edge cases where they are not relevant (badly needing a farm in a city full of flatland plains for example, then we may strongly consider overwriting, use bOverwriteCurrentImprovementHasPenalty to determine that). We could have applied it at first then cancel it for edge cases but is redundant and inefficient so do here rather i mean as seems ideal or more ideal if it is a word or way to say it-->
 
 		// <!-- custom: valorization for river tiles, we get one extra commerce, prioritize there if everything else is equal otherwise; but less than the penalty for overwriting as it should still be better to not overwrite just because there is a river; a river is otherwise sueful/valuable in this case at least if i may say i meanif all other conditions being equal, we can build there if i may say -->

@@ -226,6 +226,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions. Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
 - When doing performance optimizations, such as caching to `CvTeamAI const& kTeam = GET_TEAM(getTeam());` redundant definitions in a function, reuse existing variable names unless not relevant for our needs. It is fine if some functions have `kTeam` while others have `kOurTeam` in the same file, what matters is same function is consistent when using the same variable. This avoids errors too. Same reasoning with `kPlayer` and `kOwner`, etc.
 - Use `static const` for our defines whenever possible and relevant for computational efficiency (value is always the same, quick check it rather). Example `static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");`.
+- Gate BBAI logging (e.g., check `gUnitLogLevel`, or the relevant logging macro) before `logBBAI(...)` for perf opt (notably avoids computing unused arguments if relevant logging is disabled).
 
 ### Docs
 
