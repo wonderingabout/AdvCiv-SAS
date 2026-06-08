@@ -181,6 +181,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug)  
 [144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well)  
 [145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#145---implemented--needs-in-game-test-military-advisor-map-tab-lost-selected-leaders-after-tab-switch-or-closereopen)  
+[146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5396,3 +5397,19 @@ Implemented fix:
 File changed:
 
 - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+
+## 146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1OavgrKhta9YNPh4a6R7lM4LFqyWMC4Vv?usp=sharing).
+
+After adding naval-heavy map recognition logic in AdvCiv-SAS, another related weakness became easier to notice: on naval-heavy maps such as Archipelago, AI settler found-value logic could still prefer strong inland land-yield sites over strategically better coastal sites.
+
+This is probably a base AdvCiv +/- Civ4 issue or limitation, not only an AdvCiv-SAS issue: normal city-site evaluation does not fully account for the strategic value of coastal access on naval-heavy maps. Coastal capitals can be much stronger than their raw BFC score suggests because they enable early work boats, scouting/contact, coastal trade, first galleys, Moai, and other water-focused buildings or strategies.
+
+Observed example: Inca/Cuzco preferred a central 4-Sugar river grass site over a coastal Pig + Banana + 2-Sugar river site. The inland site was very strong by normal land evaluation, but on an Archipelago-style map the coastal site looks strategically better. Empirical testing showed that the first-city coastal extra value needed to be high in this case: 1700 was still not enough, while 1800 made Cuzco choose the coastal capital.
+
+Fixed/enhanced in `AIFoundValue::evaluate()` by adding tunable flat coastal found-value bonuses on naval-heavy maps.
+
+The first-city value is intentionally much higher because capital coastal access can define the whole opening on naval-heavy maps. The other-cities value is intentionally much lower: testing showed that a value of 200 could make Japan prefer tundra coast over a stronger grass/floodplains site, so the default was kept more moderate.
+
+Note: it seems they often would settle coastal anyway even without this fix/enhancement, but it doesn't seem to have been enforced or strengthened somewhere in the code at a glance before our fix and based on ChatGPT-5.5's review/solution.

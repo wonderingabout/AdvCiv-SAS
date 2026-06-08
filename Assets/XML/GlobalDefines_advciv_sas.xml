@@ -877,6 +877,17 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_STARTING_RIVER_TILE_VALUE</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
+	<!-- custom: flat coastal found-value bonus applied in CitySiteEvaluator on naval-heavy maps. This nudge toward coastal access, work boat scouting/contact, trade, and galleys, Moai or other key water buildings, etc.. Set to 0 to disable. (ChatGPT-5.5) -->
+	<!-- custom: Empirically Cuzco needed 1800 (1700 was not enough to make it stop prefer the central 4 sugar river grass site, instead of pig + banana + 2 sugar river coast), so prefer a fairly high value to mitigate these. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE</DefineName>
+		<iDefineIntVal>1800</iDefineIntVal>
+	</Define>
+	<!-- custom: Empirically 200 lead japan AI to settle on tundra for coast instead of a stronger grass/floodplains site so do not make this extra valuation too high for other cities. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
 
 
 

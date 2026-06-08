@@ -1532,6 +1532,27 @@ int AIFoundValue::evaluate()
 	if (kSet.isNormalizing())
 		iValue += evaluateGoodies(iGoody); // </advc.031>
 
+	// <!-- custom: On naval-heavy maps, give coastal city sites a small flat value bonus in the central
+	// CitySiteEvaluator path. This affects both cached found values and direct AI_foundValue calls, including first-city
+	// rechecks, without duplicating the adjustment in CvPlot::getFoundValue or CvUnitAI::AI_foundFirstCity. Use a flat
+	// bonus rather than a percent so this is a modest strategic nudge toward coastal access for work boat scouting, naval
+	// contact, trade, and galleys, not a multiplier that can over-amplify already-strong sites. (ChatGPT-5.5) -->
+	if (!kPlayer.isHuman() && !kSet.isNormalizing() && bCoastal &&
+			kGame.isNavalHeavyMapnameCached() && !kGame.isLandHeavyMapnameCached())
+	{
+		static const int iNavalHeavyFirstCityCoastalExtraValue =
+				GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE");
+		static const int iNavalHeavyLaterCoastalExtraValue =
+				GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE");
+		const int iNavalHeavyCoastalExtraValue = (kSet.isStartingLoc() ?
+				iNavalHeavyFirstCityCoastalExtraValue : iNavalHeavyLaterCoastalExtraValue);
+		if (iNavalHeavyCoastalExtraValue != 0)
+		{
+			iValue += iNavalHeavyCoastalExtraValue;
+			IFLOG logBBAI("+%d naval-heavy coastal site value", iNavalHeavyCoastalExtraValue);
+		}
+	}
+
 	// advc: BtS code (iDifferentAreaTile) deleted
 	// (disabled by K-Mod. This kind of stuff is already taken into account.)
 
