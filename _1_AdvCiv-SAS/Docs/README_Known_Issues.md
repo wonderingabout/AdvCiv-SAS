@@ -182,6 +182,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [144 - (Fixed) Base AdvCiv issue and AdvCiv-SAS settler free window follow-up: AI settlers sometimes do not move away from a high bad plot count start (e.g., high non-bonus tundra and plains): they now scout and hunt for better not very bad sites, and no longer stop at first good-enough site, but instead now rerun evaluate city site again on newly visible plots if a better site (e.g., more food/rivers/fresh water) exists nearby (which we now value more too for first city as well)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well)  
 [145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#145---implemented--needs-in-game-test-military-advisor-map-tab-lost-selected-leaders-after-tab-switch-or-closereopen)  
 [146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps)  
+[147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5413,3 +5414,36 @@ Fixed/enhanced in `AIFoundValue::evaluate()` by adding tunable flat coastal foun
 The first-city value is intentionally much higher because capital coastal access can define the whole opening on naval-heavy maps. The other-cities value is intentionally much lower: testing showed that a value of 200 could make Japan prefer tundra coast over a stronger grass/floodplains site, so the default was kept more moderate.
 
 Note: it seems they often would settle coastal anyway even without this fix/enhancement, but it doesn't seem to have been enforced or strengthened somewhere in the code at a glance before our fix and based on ChatGPT-5.5's review/solution.
+
+## 147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ZfQRFrKg1MAiIMc-hBczK-0OEXdMY2-T?usp=sharing).
+
+AI settlers could over-prefer locally strong duplicate-bonus sites instead of grabbing new bonus types the empire did not already own.
+
+According to ChatGPT-5.5:
+
+>old AdvCiv/K-Mod had partial resource valuation, but not this explicit rule.
+>
+>What old/current pre-change logic already did:
+>
+>- It valued each bonus through nonYieldBonusValue(...), based on AI_bonusVal(eBonus, 1, true).
+>- It had some duplicate/surplus handling: bSurplus = (kPlayer.getNumAvailableBonuses(eBonus) > 0), and it reduced value for repeated copies already seen in the same candidate BFC through aiBonusCount.
+>- So it was not completely blind to resource value or duplicates.
+>
+>What it did not have, as far as I can see:
+>
+>- No clear flat “this is a bonus type my own empire does not already own” nudge.
+>- No “count once per distinct unowned bonus type in the candidate BFC” rule.
+>- No explicit exclusion of temporary trade imports.
+>- No simple empire-diversity correction like: “new Maize > extra Wheat if Wheat is already owned.”
+
+However, a site with better raw local yields can be better for one city short-term, but a site with more unowned bonuses can be better for the whole empire long-term, and often for that city too once global effects apply. Example: **1 new Maize** (+1 health empire-wide, then another +1 health with Granary) can be much better than **2 more Wheat** if Wheat is already owned, even if the Wheat site has better local yields. The same idea applies to new happiness bonuses, strategic resources, Stone/Marble, corporation resources, trade value, or anything unlocked by owning the bonus.
+
+Fixed/enhanced in `AIFoundValue::evaluate()` and tunable with the corresponding SAS define.
+
+The value is applied once per distinct bonus type in the candidate BFC, only after the first city. Trade imports do not count as owned because they are not permanent.
+
+Observed Archipelago example: with a value of 250, Japan settled Osaka northeast for **unowned Molluscs + unowned Maize + unowned Stone** (iron was seemingly not known yet (and otherwise unowned as well)), instead of another site with **already-owned Sheep + unowned Maize + unowned Crab**.
+
+Observed Pangaea Large save 360 example: the change produced different settling points, and by turn 100 some players owned more distinct bonus types.

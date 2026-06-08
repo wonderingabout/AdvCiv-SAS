@@ -459,6 +459,8 @@ int AIFoundValue::evaluate()
 	std::vector<int> aiPlotValues(NUM_CITY_PLOTS, 0);
 
 	std::vector<int> aiBonusCount(GC.getNumBonusInfos(), 0);
+	// <!-- custom: add extra valuation for unowned bonuses. See KI#147. -->
+	std::vector<bool> abSASUnownedBonusExtraApplied(GC.getNumBonusInfos(), false);
 	int iResourceValue = 0;
 	int aiSpecialYield[NUM_YIELD_TYPES] = {0, 0, 0}; // advc: Instead of individual variables
 	/*  advc (comment): So that we can tell whether the city
@@ -529,6 +531,7 @@ int AIFoundValue::evaluate()
 	static const int iStartingNonFoodBonusValuePercent = GC.getDefineINT("SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT");
 
 	static const int iExtraValueNotHomeAIObjectiveBonusExtraValueMultiplier = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER");
+	static const int iUnownedBonusExtraValue = GC.getDefineINT("SAS_EVALUATE_UNOWNED_BONUS_EXTRA_VALUE");
 
 	static const int iValueNotHomeFloodPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS");
 	static const int iValueNotHomeFloodOasis = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_OASIS");
@@ -1036,6 +1039,32 @@ int AIFoundValue::evaluate()
 				iResourceValue += iBonusValue; // K-Mod
 			}
 
+			// <!-- custom: Add a small flat city-site value for each distinct bonus in this BFC that the AI does not
+			// already own from its own empire. Local bonus tile yields are already valued normally; this only nudges
+			// empire resource diversity, e.g. prefer new Maize over extra Wheat, or Whales over another Crab (e.g., allows to gain +1 health +1 with Granary again with a new Maize rather than no effect even with 2 new Wheat we already own, so a new Maize is more valuable). Trade
+			// imports do not count as owned here because they are not permanent. Apply it once per bonus type and only
+			// after the first city, so it does not disturb starting-location food/river/coast tuning. See KI#147. (ChatGPT-5.5) -->
+			if (iUnownedBonusExtraValue != 0 && !kSet.isStartingLoc() && !kSet.isNormalizing() &&
+					!abSASUnownedBonusExtraApplied[eBonus])
+			{
+				abSASUnownedBonusExtraApplied[eBonus] = true;
+				bool bAlreadyOwnedBonus = false;
+				FOR_EACH_CITYAI(pLoopCity, kPlayer)
+				{
+					if (pLoopCity->AI_countNumBonuses(eBonus, true, false, -1) > 0)
+					{
+						bAlreadyOwnedBonus = true;
+						break;
+					}
+				}
+				if (!bAlreadyOwnedBonus)
+				{
+					iResourceValue += iUnownedBonusExtraValue;
+					IFLOG logBBAI("+%d unowned resource diversity value (%S)",
+							iUnownedBonusExtraValue, GC.getInfo(eBonus).getDescription());
+				}
+			}
+
 			/*if (p.isWater())
 				iValue += (bCoastal ? 0 : -800);*/ // (was ? 100 : -800)
 			// <advc.031> Replacing the above
@@ -1536,7 +1565,7 @@ int AIFoundValue::evaluate()
 	// CitySiteEvaluator path. This affects both cached found values and direct AI_foundValue calls, including first-city
 	// rechecks, without duplicating the adjustment in CvPlot::getFoundValue or CvUnitAI::AI_foundFirstCity. Use a flat
 	// bonus rather than a percent so this is a modest strategic nudge toward coastal access for work boat scouting, naval
-	// contact, trade, and galleys, not a multiplier that can over-amplify already-strong sites. (ChatGPT-5.5) -->
+	// contact, trade, and galleys, not a multiplier that can over-amplify already-strong sites. See KI#146. (ChatGPT-5.5) -->
 	if (!kPlayer.isHuman() && !kSet.isNormalizing() && bCoastal &&
 			kGame.isNavalHeavyMapnameCached() && !kGame.isLandHeavyMapnameCached())
 	{

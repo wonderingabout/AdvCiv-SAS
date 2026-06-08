@@ -2537,7 +2537,7 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). 
 ===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #122 -----
 
-<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for exampel, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
+<!-- custom: art import from rfc doc mod's very very nice fpk (unlike in some other mods... see in readme for details xd... which helped me in other ways but still their of other mods fpk and unlike for example in mods like rfc doc, so in these other mods than rfc doc mod for example, were shit, big big shit, despite their other good things, so i am thankful some mods if i may or at least maybe rather i can use rfc doc mod's or some other nicely one fpk for all or similar design cleanly ordered and named assets and such) ART_DEF_UNIT_ZOROASTRIAN_MISSIONARY and adjusted or not for advciv-sas -->
 
 ===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #123 -----
