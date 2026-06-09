@@ -672,6 +672,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
 		<DefineTextVal>Archipelago,Equal_Islands_V2_beta,Islands,PerfectMongoose,SAS_Large_Facing_Islands,Tilted_Axis</DefineTextVal>
 	</Define>
+	<!-- custom: Map scripts listed here are intentionally not classified by the SAS map-script heaviness override defines above. This define is not read by the DLL and has as of now no gameplay effect; it exists for the GitHub map-script coverage check so every known map script is listed exactly once and intentionally unclassified scripts are not confused with forgotten scripts. This helps make sure we covered/reviewed all mapscripts files once. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED</DefineName>
+		<DefineTextVal>Big_and_Small,Hub,Medium_and_Small,RandomScriptMap,Shuffle,not_too_Big_or_Small</DefineTextVal>
+	</Define>
 
 
 
@@ -1134,7 +1139,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
 	<Define>

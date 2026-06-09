@@ -1,0 +1,30 @@
+name: Build checks
+
+on:
+  push:
+  pull_request:
+    # <!-- custom: PR #13 is a long-lived reference compare from tech-rework to 1.12.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5) -->
+    branches-ignore:
+      - "1.12"
+  workflow_dispatch:
+
+jobs:
+  build-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: python .github/workflows/build/launch_guard.py
+      - run: python .github/workflows/build/xml_comments.py
+      - run: python .github/workflows/build/xml_sas_text_english.py
+      - run: python .github/workflows/build/define_tag_refs.py
+      - run: python .github/workflows/build/define_int_bounds.py
+      - run: python .github/workflows/build/opening_music.py
+      - run: python .github/workflows/build/bbai_log.py
+      - run: python .github/workflows/build/fonts.py
+      - run: python .github/workflows/build/aip.py
+      - run: python .github/workflows/build/worldsizes.py
+      - run: python .github/workflows/build/mapscripts.py
