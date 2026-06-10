@@ -2552,7 +2552,7 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). 
 ===== \Assets/XML/Art/CIV4ArtDefines_Unit.xml =====
 ----- Comment #125 -----
 
-<!-- custom: the ART_DEF_UNIT_ARCHER_EURASIAN seems to be unused in base advciv (and in civ4 too?) remove it entirely and use the already existing and used in base advciv ART_DEF_UNIT_ARCHER_CHINESE now renamed to ART_DEF_UNIT_ARCHER_ASIAN for consistency or such, see also known issue as of now 18; (not skipping line in case it breaks art assets code, see known issues as well for examples about such behaviours); also rename ART_DEF_UNIT_SPEARMAN_EURASIAN to ART_DEF_UNIT_SPEARMAN_ASIAN -->
+Deleted.
 
 ===== \Assets/XML/BasicInfos/CIV4NewConceptInfos.xml =====
 ----- Comment #126 -----

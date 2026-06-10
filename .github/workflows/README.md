@@ -18,13 +18,14 @@ According to ChatGPT-5.5:
 - `build.yml` is the authoritative list of build checks
 - The `.github/` workflow folder is development infrastructure and should stay excluded from player release archives through `.gitattributes`.
 
-For example, this helped spot map scripts that were previously unclassified in SAS map-script heaviness defines; they are now listed explicitly for exhaustiveness.
+For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness. This also helped spot and fix duplicate parent XML keys [found by new GitHub workflow check](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) (See if needed [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)).
 
 ## Current build checks
 
 - `build/launch_guard.py`: verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
 - `build/xml_comments.py`: verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
 - `build/xml_sas_text_english.py`: verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
+- `build/xml_parent_duplicate_keys.py`: verifies parent-style XML objects are not defined twice with the same key, such as duplicate `*Info` `<Type>` values or duplicate audio `ScriptID` / `SoundID` entries. This intentionally does not check child/list duplicate semantics, which can be more context-dependent.
 - `build/define_tag_refs.py`: verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
 - `build/define_int_bounds.py`: verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except the launch-guard sentinel checked separately by `build/launch_guard.py`.
 - `build/opening_music.py`: verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
@@ -57,3 +58,5 @@ For example, as of 2026-06-09, this was added to help address the following GitH
 ```text
 build-checks
 Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-python@v5. Actions will be forced to run with Node.js 24 by default starting June 16th, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+Which it fixed here: [dependabot@PR#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24).

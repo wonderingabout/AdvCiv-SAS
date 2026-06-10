@@ -1326,13 +1326,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_WANGKON_EARLY</SoundID>
-			<Filename>Sounds/Diplomacy/Wangkon_Early</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>DIPLO_WANGKON_MIDDLE</SoundID>
 			<Filename>Sounds/Diplomacy/Wangkon_Middle</Filename>
 			<LoadType>STREAMED</LoadType>
@@ -2154,27 +2147,6 @@
 		<SoundData>
 			<SoundID>DIPLO_WINSTON_LATE</SoundID>
 			<Filename>Sounds/Diplomacy/Victoria_Late</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_HANNIBAL_EARLY</SoundID>
-			<Filename>Sounds/Diplomacy/Hannibal_Early</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_HANNIBAL_MIDDLE</SoundID>
-			<Filename>Sounds/Diplomacy/Hannibal_Middle</Filename>
-			<LoadType>STREAMED</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>DIPLO_HANNIBAL_LATE</SoundID>
-			<Filename>Sounds/Diplomacy/Hannibal_Late</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -4350,13 +4322,6 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_COMBAT</SoundID>
-			<Filename>Sounds/Combat</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
 			<SoundID>SND_REVOLTSTART</SoundID>
 			<Filename>Sounds/RevolutionStart</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
@@ -5129,13 +5094,6 @@
 		<SoundData>
 			<SoundID>SND_CBMN_ATTK_VOX</SoundID>
 			<Filename>Sounds/Units/CbmnAttkVox</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SND_CBMN_DIE_VOX</SoundID>
-			<Filename>Sounds/Units/CbmnDieVox</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -10736,13 +10694,6 @@
 		<SoundData>
 			<SoundID>SND_TUTORIAL_WAIT_FOR_RESEARCH_II_0</SoundID>
 			<Filename>Sounds/Tutorial/Tut_48A</Filename>
-			<LoadType>DYNAMIC_RES</LoadType>
-			<bIsCompressed>1</bIsCompressed>
-			<bInGeneric>1</bInGeneric>
-		</SoundData>
-		<SoundData>
-			<SoundID>SND_TUTORIAL_BUILD_QUARRY_0</SoundID>
-			<Filename>Sounds/Tutorial/Tut_49A</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

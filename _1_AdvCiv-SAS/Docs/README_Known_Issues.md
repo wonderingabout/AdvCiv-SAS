@@ -32,7 +32,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [17 - (now fixed) Missing BBAI getters for Sevopedia leader info](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display)  
 [17.5 - (now fixed) Missing AdvCiv-specific XML fields in Sevopedia leader](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---now-fixed-similarly-missing-base-advciv-if-i-am-not-mistaken-specific-xml-fields-in-gc-of-sevopedia-leader-now-exposed-there-as-well-these-new-getcityrefuseattitudethreshold-and-getnativecityrefuseattitudethreshold)  
 [18 - Very inconsistent naming in some assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#18---very-inconsistent-naming-in-some-assets)  
-[19 - (now removed) Unused art assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19---now-removed-for-the-onethose-i-spotted-unused-art-assets)  
+[19 - Unused or unclearly named art assets (e.g., _ASIAN/_CHINESE/_EURASIAN mixed up), and some are used while others are not](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19---unused-or-unclearly-named-art-assets-eg-_asian_chinese_eurasian-mixed-up-and-some-are-used-while-others-are-not)  
 [20 - Negative/inconsistent DLL-adjusted nowarattitudeprobs for some leaders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#20---negative-and-inconsistent-dll-ajusted-nowarattitudeprobs-for-some-leaders-like-leader_alexander-thatwho-has-nowarattitude-prob-furious-of--2-lower-than-furious-0-and-lower-than-cautious-14)  
 [21 - (now fixed) Missing "Cannot enter" terrain/feature info in map view of unit effects](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-now-added-this-info-as-well)  
 [21.5 - (Addressed / fixed) Removed giant configobj docstring in python code](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)  
@@ -183,6 +183,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#145---implemented--needs-in-game-test-military-advisor-map-tab-lost-selected-leaders-after-tab-switch-or-closereopen)  
 [146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps)  
 [147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring)  
+[148 - (Fixed) Base AdvCiv issue (and one AdvCiv-SAS issue) of duplicate parent XML keys found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -698,7 +699,7 @@ Now exposed(/exposing?) these to python as well of gc 's Sevopedia leader as wel
 
 For example _UTOPIA for `_COMMUNISM`, `_OBELISK` for monument sometimes and other times it means the actual `_OBELISK`, also for example `_CHINESE` being inconsistentlyunrelated to the chinese empire but instead in some cases to the default art asset of a unit for the asian civilizations in general, also using... `_GREAT_PALACE` instead of `_FORBIDDEN_PALACE` (as was hinted or rather i noticed from a base advciv code comment i am thankful for) i have renamed them as much as i found or could and wanted, actually a lot earlier in mod development than when i wrote this example issue, but solving them bit by bit as i see them and or want to ideally too but not guaranteed may or may not.., in all cases hopefully asset naming is a lot clearer or consistent at least for those i went through, probably did not do all as for remaining ones is wait and see....
 
-## 19 - (now removed for the one/those i spotted) Unused art assets
+## 19 - Unused or unclearly named art assets (e.g., _ASIAN/_CHINESE/_EURASIAN mixed up), and some are used while others are not
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Ie5Uln9-vquy601oCUex3QIsgWCGnUXl?usp=sharing)
 
@@ -709,6 +710,8 @@ The `ART_DEF_UNIT_ARCHER_EURASIAN` (see screenshots 6708, 6709, 6710, 6711 in dr
 Note: the `ART_DEF_UNIT_ARCHER_CHINESE` (see screenshot 6705 similarly) now renamed to `ART_DEF_UNIT_ARCHER_ASIAN` for consistency is used though as the asian civilizations spearman art asset, so keeping it and removing instead the unused in base advciv and in our mod too `ART_DEF_UNIT_ARCHER_EURASIAN` as said before in previous sentence/paragraph ...
 
 Also, if we want an art asset, we can import one another mod, but since we don't use the art asset and it seems to indeed be unused, remove it entirely, simpler and cleaner and more consistent with our code.
+
+Update: sorted it out and restored the deleted `ART_DEF_UNIT_ARCHER_EURASIAN` (still unused as of now though). We rename assets e.g., from `ART_DEF_UNIT_ARCHER_ASIAN` to `ART_DEF_UNIT_LONGBOWMAN_ASIAN` when relevant (as of now still unused though), keep `ART_DEF_UNIT_SPEARMAN_CHINESE` when relevant and as an `ART_DEF_UNIT_SPEARMAN_ASIAN` variant exists already (renamed from `ART_DEF_UNIT_SPEARMAN_EURASIAN`), and rename `ART_DEF_UNIT_SWORDSMAN_CHINESE` to `ART_DEF_UNIT_SWORDSMAN_ASIAN` when relevant (no asian swordsman seems to exist, so make its name reflect that it is used for all asian units and looks asian enough and not specifically chinese enough).
 
 ## 20 - Negative and inconsistent DLL ajusted nowarattitudeprobs for some leaders, like leader_alexander that/who has nowarattitude prob furious of -2 lower than furious 0 and lower than cautious 14
 
@@ -5447,3 +5450,43 @@ The value is applied once per distinct bonus type in the candidate BFC, only aft
 Observed Archipelago example: with a value of 250, Japan settled Osaka northeast for **unowned Molluscs + unowned Maize + unowned Stone** (iron was seemingly not known yet (and otherwise unowned as well)), instead of another site with **already-owned Sheep + unowned Maize + unowned Crab**.
 
 Observed Pangaea Large save 360 example: the change produced different settling points, and by turn 100 some players owned more distinct bonus types.
+
+## 148 - (Fixed) Base AdvCiv issue (and one AdvCiv-SAS issue) of duplicate parent XML keys found by new GitHub workflow check
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1L5ubYioq_8I4hejIZbdV0uRhSKj3FS38?usp=sharing).
+
+While adding `build/xml_parent_duplicate_keys.py` to the GitHub workflow checks, [the first CI run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) correctly failed and exposed several duplicate parent XML identifiers. This was a useful validation that the check works, because it caught both old inherited XML duplicates and one AdvCiv-SAS art duplicate.
+
+GitHub Actions output:
+
+```text
+Run python .github/workflows/build/xml_parent_duplicate_keys.py
+  
+FAIL XML duplicate parent keys
+  - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_SONG_DIP_AS_EARLY_PEACE for <Script2DSound> (2 entries)
+  - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_TUTORIAL_BUILD_QUARRY_0 for <Script2DSound> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_EARLY for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_LATE for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_MIDDLE for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_WANGKON_EARLY for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_CBMN_DIE_VOX for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_COMBAT for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_TUTORIAL_BUILD_QUARRY_0 for <SoundData> (2 entries)
+  - Assets/XML/Art/CIV4ArtDefines_Unit.xml: duplicate parent key <Type> ART_DEF_UNIT_ARCHER_ASIAN for <UnitArtInfo> (2 entries)
+Error: Process completed with exit code 1.
+```
+
+These were fixed by removing or correcting the duplicate parent entries.
+
+Note, they were all clear duplicates; as for `SND_TUTORIAL_BUILD_QUARRY_0`, it pointed to different sounds, played as such in sevopedia media player too. They are something like:
+
+- 49A "i am going to disable research once again while i explain the next lesson"
+- 50A "now build a quarry on this tile, it will take a few turns to complete"
+
+So 50A seems closer to guessedly intended sound, even though it is numerically ordered uncontinuously to other variants. But since we don't use the tutorial and this fixes a duplicate, maybe seems fine and best for this issue attemptedly accurately.
+
+The `ART_DEF_UNIT_ARCHER_ASIAN` case was especially useful because it was an AdvCiv-SAS-side duplicate caused by art-definition cleanup/renaming work (see [KI#19](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19---unused-or-unclearly-named-art-assets-eg-_asian_chinese_eurasian-mixed-up-and-some-are-used-while-others-are-not)).
+
+This is the kind of XML mistake that can be easy to miss manually because Civ4 XML files are large and repeated identifiers may not always produce an obvious startup error. The new workflow check now catches this class of issue automatically before release.
+
+Note: the workflow intentionally checks only parent-style XML identifiers, such as `*Info` `<Type>`, audio `<ScriptID>`, and audio `<SoundID>`. It does not check child/list duplicate semantics because those can be context-dependent and would risk false positives.

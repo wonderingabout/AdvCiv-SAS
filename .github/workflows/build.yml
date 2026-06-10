@@ -20,6 +20,7 @@ jobs:
       - run: python .github/workflows/build/launch_guard.py
       - run: python .github/workflows/build/xml_comments.py
       - run: python .github/workflows/build/xml_sas_text_english.py
+      - run: python .github/workflows/build/xml_parent_duplicate_keys.py
       - run: python .github/workflows/build/define_tag_refs.py
       - run: python .github/workflows/build/define_int_bounds.py
       - run: python .github/workflows/build/opening_music.py
