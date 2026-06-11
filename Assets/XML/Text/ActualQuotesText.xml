@@ -1865,17 +1865,7 @@
 		<Italian>[CT_CIV_SHORT:1] sta affrontando una battaglia contro i malvagi, i pagani e i barbari, [CT_NAME]. &#200; ora di mostrare apprezzamento.</Italian>
 		<Spanish>La poderosa [CT_CIV_SHORT] es el frente de batalla contra el mal, los ateos, los infieles y los b&#225;rbaros, [CT_NAME]. Es hora de que nos mostr&#233;is vuestro aprecio. </Spanish>
 	</TEXT>
-	<!-- advc.005f: This key was named "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED"
-		 in Warlords. I don't see how that will "correct" anything. Give it the same name as the
-		 Vanilla key instead (which says "think well or we'll re-evaluate our friendship"). -->
-	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1</Tag>
-		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
-		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
-		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
-		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
-		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
-	</TEXT>
+	<!-- custom: Removed duplicate AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1 block. CIV4DiplomacyInfos references AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED, so reverted the advc.005f change of removing the "_CORRECTED suffix", now present again. This allows to fix the _1 duplicate-tag workflow fail and remove this semeingly unused duplicate. See KI#149. (GPT-5.5) -->
 	<!-- spelling -->
 	<TEXT>
 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_5</Tag>
@@ -2053,15 +2043,7 @@
 		<Italian>Passa alla forma di governo: %s1, prima che sia troppo tardi!</Italian>
 		<Spanish>&#161;Adoptad [NUM1:el:la:los:las] %s1 antes de que sea demasiado tarde!</Spanish>
 	</TEXT>
-	<!-- double dash -->
-	<TEXT>
-		<Tag>AI_DIPLO_STOP_TRADING_1</Tag>
-		<English>It can no longer be tolerated -- we demand that you cancel your deals with the vile %s1!</English>
-		<French>C'est intol&#233;rable. Nous vous demandons d'annuler imm&#233;diatement tous vos accords avec les m&#233;prisables %s1 !</French>
-		<German>Das kann nicht l&#228;nger toleriert werden! Wir verlangen, dass Ihr Eure Handelsbeziehungen mit dem widerw&#228;rtigen %s1:2 Volk einstellt!</German>
-		<Italian>Questo atteggiamento non pu&#242; pi&#249; essere tollerato; ti chiediamo di annullare i tuoi accordi con [NUM1:il vile:la vile:i vili:le vili] %s1:3!</Italian>
-		<Spanish>Ya no podemos permitirnos ser tolerantes. &#161;Os exigimos que cancel&#233;is vuestro trato con [NUM1:el vil:la vil:los viles:las viles] %s1:3!</Spanish>
-	</TEXT>
+	<!-- custom: Removed duplicate AI_DIPLO_STOP_TRADING_1 block. CIV4GameText_advc.xml keeps the active AdvCiv wording with %s2 grammar; this older ActualQuotesText copy used %s1 and made the duplicate-tag workflow fail. See KI#149. (GPT-5.5) -->
 	<!-- reworded a bit -->
 	<TEXT>
 		<Tag>AI_DIPLO_UNIT_BRAG_2</Tag>

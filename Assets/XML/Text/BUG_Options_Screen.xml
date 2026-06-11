@@ -242,15 +242,7 @@
 		<Italian>Interno [F1]:</Italian>
 		<Spanish>Interior [F1]:</Spanish>
 	</TEXT>
-	<!-- custom: removed obsolete/duplicate advisor labels (Religion/Finance/Victory/Info/Sevopedia) from BUG base text after advisor control cleanup; active English overrides are in AdvCiv-SAS_main.xml where needed. (GPT-5.3-Codex) -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR</Tag>
-		<English>Foreign [F4]:</English>
-		<French>Etranger [F4]:</French>
-		<German>Ausland [F4]:</German>
-		<Italian>Estero [F4]:</Italian>
-		<Spanish>Asuntos Exteriores [F4]:</Spanish>
-	</TEXT>
+	<!-- custom: removed obsolete/duplicate advisor labels (Religion/Finance/Victory/Info/Sevopedia) from BUG base text after advisor control cleanup; active English overrides are in AdvCiv-SAS_main.xml where needed. See KI#149. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_MILITARY_ADVISOR</Tag>
 		<English>Military [F5]:</English>

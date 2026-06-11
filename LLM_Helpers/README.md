@@ -28,6 +28,7 @@ Always review diffs before committing generated source changes.
   - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
   - [`singleline_pass3_comments_and_long.py`](#singleline_pass3_comments_and_longpy)
   - [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py)
+  - [Comparison with Base AdvCiv 1.12's Main Interface processed similarly](#comparison-with-base-advciv-112s-main-interface-processed-similarly)
   - [Notes](#notes)
 - [Game speed helper scripts](#game-speed-helper-scripts)
   - [`compare_speed_summaries.py`](#compare_speed_summariespy)
@@ -37,6 +38,7 @@ Always review diffs before committing generated source changes.
 - [Static audit helpers](#static-audit-helpers)
   - [`audit_define_keys.py`](#audit_define_keyspy)
   - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
+- [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
@@ -287,6 +289,14 @@ The generated scripts were staged working scripts, not polished repo utilities:
 - Fixed minor comment typos and wording issues.
 - Intentionally left structured notes, custom XML-style comments, and commented-out code mostly alone.
 - This is separate from the single-line statement passes and should be reviewed as a comment-only cleanup.
+
+### Comparison with Base AdvCiv 1.12's Main Interface processed similarly
+
+For comparison purposes, we also applied the same scripts to Base AdvCiv 1.12's main interface (as of 2026-06-10), with the help of ChatGPT-5.5.
+
+The resulting file is stored in [CvMainInterface_1_12_singleline.py](/LLM_Helpers/examples/CvMainInterface_1_12_singleline.py). Before as of now adding our copyright a few heading comments, the diff was: Line count: 7279 -> 6021, so 1258 physical lines removed.
+
+We store an example of this as of now because this file has significantly deviated due to formatting change, because it is easier to read for agents or perhaps users too, because the file is large, and because some user seemingly mentioned the comparison is harder.
 
 ### Notes
 
@@ -601,6 +611,18 @@ TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY
 TXT_KEY_PEDIA_SAS_PLAY_MOVIE
 TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER
 ```
+
+## Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)
+
+`scan_xml_duplicates-3.3.py` is an older broad XML duplicate scanner kept here for reference and discovery work, on [AdvCiv-SAS@python-scripts branch's GitHub repository](https://github.com/wonderingabout/AdvCiv-SAS/blob/python-scripts/scan_xml_duplicates-3.3.py).
+
+This script scans `Assets/XML` recursively and reports repeated sibling XML entries based on a broad heuristic: if sibling tags repeat, it compares either their first child field/value or their direct text value. Because this is intentionally broad, it can find useful suspicious patterns, but it can also report valid Civ4 XML structures where repetition is intentional, weighted, or structurally normal.
+
+It should not be treated as a release gate or as proof that every reported duplicate is wrong. Instead, it is useful as an exploratory audit tool: run it when looking for possible XML cleanup targets, review the output manually, and then move high-confidence findings into the curated GitHub workflow checks.
+
+This legacy scanner notably helped inspire and calibrate the newer `.github/workflows/build` XML audits, including the parent duplicate-key checker, child/list duplicate checker, and duplicate text-tag checker. The newer workflow scripts are stricter and more conservative: they check reviewed XML patterns with clearer semantics, print source line numbers, and avoid known noisy cases such as weighted goody hut entries or reused world-picker UI art paths.
+
+In short: this script is kept as a historical and practical discovery helper, while the GitHub workflow checks are the maintained release-safety layer.
 
 ## Workflow rule for timeline tuning
 

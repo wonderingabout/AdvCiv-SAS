@@ -184,6 +184,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps)  
 [147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring)  
 [148 - (Fixed) Base AdvCiv issue (and one AdvCiv-SAS issue) of duplicate parent XML keys found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)  
+[149 - (Fixed) Base AdvCiv issue: Duplicate XML text tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check)  
+[150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5490,3 +5492,64 @@ The `ART_DEF_UNIT_ARCHER_ASIAN` case was especially useful because it was an Adv
 This is the kind of XML mistake that can be easy to miss manually because Civ4 XML files are large and repeated identifiers may not always produce an obvious startup error. The new workflow check now catches this class of issue automatically before release.
 
 Note: the workflow intentionally checks only parent-style XML identifiers, such as `*Info` `<Type>`, audio `<ScriptID>`, and audio `<SoundID>`. It does not check child/list duplicate semantics because those can be context-dependent and would risk false positives.
+
+## 149 - (Fixed) Base AdvCiv issue: Duplicate XML text tags found by new GitHub workflow check
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1IVfRbgHLfXdELtT5a6W20fFegfC1O1DG?usp=sharing).
+
+While adding `build/xml_text_duplicate_tags.py` to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) run found duplicate `<TEXT>/<Tag>` entries across the XML text files. This was useful because duplicate text keys can silently make one entry shadow another, and the active value can depend on XML load order rather than intent.
+
+GitHub Actions output included these duplicate text tags:
+
+```text
+Run python .github/workflows/build/xml_text_duplicate_tags.py
+FAIL XML text duplicate tags
+  - duplicate <TEXT>/<Tag> AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1 (2 entries): Assets/XML/Text/ActualQuotesText.xml: line 1872; Assets/XML/Text/ActualQuotesText.xml: line 1913
+  - duplicate <TEXT>/<Tag> AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2 (2 entries): Assets/XML/Text/ActualQuotesText_BtS.xml: line 272; Assets/XML/Text/ActualQuotesText_BtS.xml: line 280
+  - duplicate <TEXT>/<Tag> AI_DIPLO_STOP_TRADING_1 (2 entries): Assets/XML/Text/ActualQuotesText.xml: line 2058; Assets/XML/Text/CIV4GameText_advc.xml: line 6264
+  - duplicate <TEXT>/<Tag> TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR (2 entries): Assets/XML/Text/AdvCiv-SAS_main.xml: line 4110; Assets/XML/Text/BUG_Options_Screen.xml: line 247
+  - duplicate <TEXT>/<Tag> TXT_KEY_HINT_16 (2 entries): Assets/XML/Text/CIV4GameText_advc_hints.xml: line 29; Assets/XML/Text/CIV4GameText_advc_hints.xml: line 51
+  - duplicate <TEXT>/<Tag> TXT_KEY_HINT_56 (2 entries): Assets/XML/Text/CIV4GameText_advc_hints.xml: line 36; Assets/XML/Text/CIV4GameText_advc_hints.xml: line 326
+  - duplicate <TEXT>/<Tag> TXT_KEY_HINT_61 (2 entries): Assets/XML/Text/CIV4GameText_advc_hints.xml: line 81; Assets/XML/Text/CIV4GameText_advc_hints.xml: line 427
+  - duplicate <TEXT>/<Tag> TXT_KEY_SHORTCUTS_BUG (2 entries): Assets/XML/Text/AdvCiv-SAS_main.xml: line 4240; Assets/XML/Text/CIV4GameText_Shortcuts.xml: line 55
+Error: Process completed with exit code 1.
+```
+
+Fix notes:
+
+- `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1`: `CIV4DiplomacyInfos.xml` references `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED`, and `AdvCiv-SAS_main.xml` already carries that active key. The stale `_1` duplicate in `ActualQuotesText.xml` was removed so the later `_1` entry remains unique.
+- `AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2`: base BtS had two friendly de Gaulle greeting blocks with the same `_2` key. The modified overrides were moved to `AdvCiv-SAS_main.xml`; the cheese-profile quote stays `_2`, and the "Greatness..." quote is retagged as `_1`, matching the two entries in `CIV4DiplomacyInfos.xml`.
+- `AI_DIPLO_STOP_TRADING_1`: `CIV4GameText_advc.xml` keeps the active AdvCiv wording using `%s2` grammar. The older `ActualQuotesText.xml` copy used `%s1` and was removed.
+- `TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR` and `TXT_KEY_SHORTCUTS_BUG`: active AdvCiv-SAS English overrides are kept in `AdvCiv-SAS_main.xml`; duplicate base/BUG copies were removed where appropriate.
+- `TXT_KEY_HINT_16` and `TXT_KEY_HINT_56`: both duplicated useful text. The older AdvCiv/UWAI replacements were moved to active empty hint slots (`TXT_KEY_HINT_65` and `TXT_KEY_HINT_68`) so the later existing `TXT_KEY_HINT_16` and `TXT_KEY_HINT_56` entries remain unique.
+- `TXT_KEY_HINT_61`: the two English fighter-aircraft hints were very close. The later block has the refined "take damage" wording, and `CIV4GameText_advc_hints.xml` intentionally supports English only, so there were no non-English translations to preserve in that file. The older duplicate was removed.
+
+After these changes, `python .github/workflows/build/xml_text_duplicate_tags.py` passed.
+
+## 150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check
+
+After the text duplicate check was fixed, `build/xml_child_duplicate_report.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
+
+GitHub Actions output:
+
+```text
+Run python .github/workflows/build/xml_child_duplicate_report.py
+  
+FAIL XML priority child duplicates
+Priority duplicate child/list entries are treated as build errors.
+Priority findings
+  - Assets/XML/Civilizations/CIV4CivilizationInfos.xml: lines 1727, 1742: priority duplicate direct child text under <CivilizationInfo> CIVILIZATION_GREECE: <Cities>/<City> duplicate value TXT_KEY_CITY_NAME_SICYON (2 entries)
+  - Assets/XML/Civilizations/CIV4CivilizationInfos.xml: lines 3077, 3084: priority duplicate direct child text under <CivilizationInfo> CIVILIZATION_OTTOMAN: <Cities>/<City> duplicate value TXT_KEY_CITY_NAME_MARMARIS (2 entries)
+  - Assets/XML/Technologies/CIV4TechInfos.xml: lines 433, 437: priority duplicate child key under <TechInfo> TECH_MONARCHY: <Flavors>/<Flavor> duplicate <FlavorType> FLAVOR_CULTURE (2 entries)
+Report-only findings
+  - none
+Error: Process completed with exit code 1.
+```
+
+Fix notes:
+
+- Removed the later duplicate `TXT_KEY_CITY_NAME_SICYON` from the Greek city list.
+- Removed the later duplicate `TXT_KEY_CITY_NAME_MARMARIS` from the Ottoman city list.
+- Removed the duplicate `TECH_MONARCHY` `FLAVOR_CULTURE` child (AdvCiv-SAS-specific issue) old existing `FLAVOR_CULTURE` value `9`, keeping the `iFlavor` value `4`.
+
+After these changes, `python .github/workflows/build/xml_child_duplicate_report.py` passed, and the full local `.github/workflows/build/*.py` check set passed too.

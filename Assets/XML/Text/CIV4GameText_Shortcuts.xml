@@ -48,17 +48,6 @@
 		<Italian>Mouse</Italian>
 		<Spanish>Ratón</Spanish>
 	</TEXT>
-	<!-- advc.004y: Was "BUG Mod". Also K-Mod, AdvCiv shortcuts now. Boldface
-		 isn't applied by Sevopedia, but affects the alphabetic sorting
-		 and thus puts the Mods category on top. -->
-	<TEXT>
-		<Tag>TXT_KEY_SHORTCUTS_BUG</Tag>
-		<English>[BOLD]Mods[\BOLD]</English>
-		<French>[BOLD]Mods[\BOLD]</French>
-		<German>[BOLD]Mods[\BOLD]</German>
-		<Italian>[BOLD]Mods[\BOLD]</Italian>
-		<Spanish>[BOLD]Mods[\BOLD]</Spanish>
-	</TEXT>
 	<!-- advc.004y: "Map" is too unspecific -->
 	<TEXT>
 		<Tag>TXT_KEY_SHORTCUTS_MAP</Tag>

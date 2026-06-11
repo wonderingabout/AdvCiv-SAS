@@ -1365,7 +1365,7 @@ Created as part of AdvCiv-SAS improvements
 			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
-		<!-- custom: Long_Comments_XML.txt #345 -->
+			<!-- custom: Long_Comments_XML.txt #345 -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_EDO_CUSTOM</City>
 				<City>TXT_KEY_CITY_NAME_UGHOTON_CUSTOM</City>
@@ -1707,6 +1707,7 @@ Created as part of AdvCiv-SAS improvements
 			<UnitArtStyleType>UNIT_ARTSTYLE_GRECO_ROMAN</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
+			<!-- custom: Removed duplicate TXT_KEY_CITY_NAME_SICYON from this later city-list slot. See KI#150. (GPT-5.5) -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_ATHENS</City>
 				<City>TXT_KEY_CITY_NAME_SPARTA</City>
@@ -1739,7 +1740,6 @@ Created as part of AdvCiv-SAS improvements
 				<City>TXT_KEY_CITY_NAME_PYLOS</City>
 				<City>TXT_KEY_CITY_NAME_PELLA</City>
 				<City>TXT_KEY_CITY_NAME_NAXOS</City>
-				<City>TXT_KEY_CITY_NAME_SICYON</City>
 				<City>TXT_KEY_CITY_NAME_SMYRNA</City>
 				<City>TXT_KEY_CITY_NAME_LARISSA</City>
 				<City>TXT_KEY_CITY_NAME_APOLLONIA</City>
@@ -3045,6 +3045,7 @@ Created as part of AdvCiv-SAS improvements
 			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
 			<bAIPlayable>1</bAIPlayable>
+			<!-- custom: Removed duplicate TXT_KEY_CITY_NAME_MARMARIS from this later city-list slot. See KI#150. (GPT-5.5) -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_ISTANBUL</City>
 				<City>TXT_KEY_CITY_NAME_EDIRNE</City>
@@ -3081,7 +3082,6 @@ Created as part of AdvCiv-SAS improvements
 				<City>TXT_KEY_CITY_NAME_IZMIT</City>
 				<City>TXT_KEY_CITY_NAME_AFYON</City>
 				<City>TXT_KEY_CITY_NAME_BITLIS</City>
-				<City>TXT_KEY_CITY_NAME_MARMARIS</City>
 			</Cities>
 			<Buildings>
 				<Building>
@@ -4052,6 +4052,7 @@ Created as part of AdvCiv-SAS improvements
 			<ArtStyleType>ARTSTYLE_BARBARIAN</ArtStyleType>
 			<bPlayable>0</bPlayable>
 			<bAIPlayable>0</bAIPlayable>
+			<!-- advc: Duplicate removed TXT_KEY_CITY_NAME_HARAPPAN -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_CHEROKEE</City>
 				<City>TXT_KEY_CITY_NAME_ANASAZI</City>
@@ -4094,8 +4095,6 @@ Created as part of AdvCiv-SAS improvements
 				<City>TXT_KEY_CITY_NAME_HARAPPAN</City>
 				<City>TXT_KEY_CITY_NAME_MAURYAN</City>
 				<City>TXT_KEY_CITY_NAME_PARTHIAN</City>
-				<!-- advc: Duplicate removed -->
-				<!--City>TXT_KEY_CITY_NAME_HARAPPAN</City-->
 				<City>TXT_KEY_CITY_NAME_NUBIAN</City>
 				<City>TXT_KEY_CITY_NAME_BACTRIAN</City>
 				<City>TXT_KEY_CITY_NAME_CIRCASSIAN</City>
@@ -4189,6 +4188,7 @@ Created as part of AdvCiv-SAS improvements
 			<ArtStyleType>ARTSTYLE_BARBARIAN</ArtStyleType>
 			<bPlayable>0</bPlayable>
 			<bAIPlayable>0</bAIPlayable>
+			<!-- advc: Duplicate removed TXT_KEY_CITY_NAME_HARAPPAN -->
 			<Cities>
 				<City>TXT_KEY_CITY_NAME_CHEROKEE</City>
 				<City>TXT_KEY_CITY_NAME_ANASAZI</City>
@@ -4231,8 +4231,6 @@ Created as part of AdvCiv-SAS improvements
 				<City>TXT_KEY_CITY_NAME_HARAPPAN</City>
 				<City>TXT_KEY_CITY_NAME_MAURYAN</City>
 				<City>TXT_KEY_CITY_NAME_PARTHIAN</City>
-				<!-- advc: Duplicate removed -->
-				<!--City>TXT_KEY_CITY_NAME_HARAPPAN</City-->
 				<City>TXT_KEY_CITY_NAME_NUBIAN</City>
 				<City>TXT_KEY_CITY_NAME_BACTRIAN</City>
 				<City>TXT_KEY_CITY_NAME_CIRCASSIAN</City>

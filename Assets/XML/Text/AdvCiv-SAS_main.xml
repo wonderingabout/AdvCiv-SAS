@@ -3994,6 +3994,16 @@ Created as part of AdvCiv-SAS improvements
 		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
 		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
 	</TEXT>
+	<!-- advc.005f: Make this #2, i.e. preserve "admire my heroic profile". -->
+	<!-- custom: Moved these modified de Gaulle friendly greeting overrides from ActualQuotesText_BtS.xml. Base BtS had two AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2 blocks; AdvCiv-SAS keeps the cheese-profile greeting as _2 and retags the "Greatness..." greeting as _1 that was previously unassigned, and to match CIV4DiplomacyInfos and fix the duplicate-tag workflow failure. Keep only English in AdvCiv-SAS text XML and minor fix "Entré" to "Enter". (GPT-5.5) -->
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2</Tag>
+		<English>Enter, [CT_NAME]. Please sit. I wonder sometimes ... How can anyone govern a nation that has two hundred and forty-six different kinds of cheese? But enough about my problems. What can I do for you?</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_1</Tag>
+		<English>Greatness is a road leading towards the unknown, mon ami. I am glad we walk it together.</English>
+	</TEXT>
 
 
 
@@ -4108,7 +4118,7 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR</Tag>
-		<English>Foreign Trade [F4]:</English>
+		<English>Foreign Diplomacy/Trade [F3/F4]:</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_DIPLOMACY_ADVISOR</Tag>
@@ -4236,6 +4246,8 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_TEXT</Tag>
 		<English>Glance Tab Attitudes</English>
 	</TEXT>
+	<!-- advc.004y: Was "BUG Mod". Also K-Mod, AdvCiv shortcuts now. Boldface isn't applied by Sevopedia, but affects the alphabetic sorting and thus puts the Mods category on top. -->
+	<!-- custom: removed previous Base AdvCiv change since we don't care about alphabetical ordering (didn't check if it really applies it also). See KI#149. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_SHORTCUTS_BUG</Tag>
 		<English>Mods</English>

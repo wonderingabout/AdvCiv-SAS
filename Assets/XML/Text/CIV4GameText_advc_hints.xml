@@ -25,15 +25,17 @@
 	 it may still be smart to keep a unit on top of it, if only to find
 	 out who eventually is going to control it." Who does that? -->
 <!-- advc.012 -->
+<!-- custom: Changed from TXT_KEY_HINT_16 to active empty hint slot TXT_KEY_HINT_65 to keep this AdvCiv replacement text while fixing the duplicate with the later UWAI TXT_KEY_HINT_16 text. See KI#149. (GPT-5.5) -->
 <TEXT>
-	<Tag>TXT_KEY_HINT_16</Tag>
+	<Tag>TXT_KEY_HINT_65</Tag>
 	<English>(AdvCiv) There is no military reason for clearing the vegetation around your cities: When you attack invading units on a tile within your borders, they receive no defensive bonus from forest or jungle.</English>
 </TEXT>
 
 <!-- "Intercontinental trade routes now yield more gold than normal trade
 	 routes." Not news anymore. -->
+<!-- custom: Changed from TXT_KEY_HINT_56 to active empty hint slot TXT_KEY_HINT_68 to keep this UWAI text while fixing the duplicate with the later AdvCiv TXT_KEY_HINT_56 trade-route text. See KI#149. (GPT-5.5) -->
 <TEXT>
-	<Tag>TXT_KEY_HINT_56</Tag>
+	<Tag>TXT_KEY_HINT_68</Tag>
 	<English>(UWAI) Some leaders are known not to wage war against civs they're pleased with (+4 relations); however, don't depend on it if the target is a large civ that looks like very easy pickings.</English>
 </TEXT>
 
@@ -76,12 +78,7 @@
 	<English>(UWAI) If a war opponent refuses to negotiate peace, it's because everything you could offer them in trade wouldn't be enough. (Or because you're fighting the war on behalf of a third party.)</English>
 </TEXT>
 
-<!-- Minor improvements to the wording (En, Ger) -->
-<TEXT>
-	<Tag>TXT_KEY_HINT_61</Tag>
-	<English>Fighter aircraft can intercept multiple incoming planes per turn but become less effective at it as they get damaged. Take the time to repair your defensive planes.</English>
-</TEXT>
-
+<!-- custom: Removed older duplicate TXT_KEY_HINT_61 fighter text. The later TXT_KEY_HINT_61 block says nearly the same thing, uses the refined "take damage" wording, and this AdvCiv-SAS hints file intentionally supports English only, so there were no non-English translations to preserve here. See KI#149. (GPT-5.5) -->
 <!-- "Use your mouse wheel to zoom" duh -->
 <TEXT>
 	<Tag>TXT_KEY_HINT_INTERFACE_1</Tag>

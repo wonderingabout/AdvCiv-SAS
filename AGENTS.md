@@ -64,9 +64,9 @@ Compile errors (e.g., for a "Release" build) at:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Release\AdvCiv.log"
 
-## File reading from a non-global link
+## Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line
 
-- If you cannot read one of the files or links the user sends (not including web pages or such), specify it to the user instead of blindly proceeding, as the info like a screenshot may help you see and solve the issue.
+For comparison purposes, as of 2026-06-10 we have also processed with the help of ChatGPT-5.5 thanks Base AdvCiv 1.12's `CvMainInterface.py` to single-line: [CvMainInterface_1_12_singleline.py](/LLM_Helpers/examples/CvMainInterface_1_12_singleline.py). If you need to, you may find looking at this file much easier than the old multi-line/unprocessed file.
 
 ## Sevopedia debug dumps (Python API introspection)
 
@@ -124,31 +124,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 // Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.3-Codex) -->
 ```
 
-## Examples of Good Summarization
-
-**Before:**
-
-```python
-# <!-- custom: use "is" not "==" when checking none as per ruff rule and chatgpt's answer and my idea too -->
-```
-
-**After:**
-
-```python
-# <!-- custom: use "is" not "==" when checking None (ruff). Credit: ChatGPT. (GPT-5.3-Codex (summarized)) -->
-```
-
-**Before:**
-
-```python
-# <!-- custom: in the foreign advisor and similar screens, we can't see all info in one screen when there are too many players, yet the window does not use all the game window space. Make it larger, similarly to what we did for Sevopedia, so that we don't have to scroll or less so. Code added with the help of gemini 3 pro and then fixed with claude sonnet 4.5's review thanks ;check if accurate -->
-```
-
-**After:**
-
-```python
-# <!-- custom: expand the screen like Foreign Advisor/Sevopedia so crowded player lists require less scrolling. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.3-Codex (summarized)) -->
-```
+Note: as of now multi-line is fine for cpp files, we generally avoid it and prefer single-line for py for example.
 
 ## Coding Preferences
 
