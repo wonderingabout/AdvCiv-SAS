@@ -186,6 +186,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [148 - (Fixed) Base AdvCiv issue (and one AdvCiv-SAS issue) of duplicate parent XML keys found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)  
 [149 - (Fixed) Base AdvCiv issue: Duplicate XML text tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check)  
 [150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)  
+[151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5526,6 +5527,8 @@ Fix notes:
 
 After these changes, `python .github/workflows/build/xml_text_duplicate_tags.py` passed.
 
+Note: for the hint ones it's only in AdvCiv-SAS that we don't want them duplicated, but it seems some still had issues to some extent although i didn't check in detail because super tedious xd but seemed as such from quick look (more precisely iirc fighter thing was almost similar but not entirely so quite weird but minor maybe idk for sure would need to check to be sure).
+
 ## 150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check
 
 After the text duplicate check was fixed, `build/xml_child_duplicate_report.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
@@ -5553,3 +5556,32 @@ Fix notes:
 - Removed the duplicate `TECH_MONARCHY` `FLAVOR_CULTURE` child (AdvCiv-SAS-specific issue) old existing `FLAVOR_CULTURE` value `9`, keeping the `iFlavor` value `4`.
 
 After these changes, `python .github/workflows/build/xml_child_duplicate_report.py` passed, and the full local `.github/workflows/build/*.py` check set passed too.
+
+## 151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check
+
+While adding `build/xml_suspicious_angle_tags.py` to the GitHub workflow checks, the [first failing run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) found XML text entries with extra `>` characters near language tags. These are valid enough for a normal XML parser because the extra angle can be interpreted as text, but they are still almost certainly malformed text data and can show an unintended leading or trailing `>` in-game.
+
+GitHub Actions output:
+
+```text
+Run python .github/workflows/build/xml_suspicious_angle_tags.py
+FAIL XML suspicious angle tags
+  - Assets/XML/Text/ActualQuotesText_BtS.xml: line 241: extra closing angle after tag: <French>>Moi, [OUR_NAME], détenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
+  - Assets/XML/Text/ActualQuotesText_BtS.xml: line 249: extra closing angle after tag: <French>>Moi, [OUR_NAME], détenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
+  - Assets/XML/Text/ActualQuotesText_BtS.xml: line 265: extra closing angle after tag: <French>>Certainement pas ! L'honneur des [OUR_CIV_SHORT:3] exige que cette guerre continue jusqu'à ce que vous soyez réduits en bouillie.</French>
+  - Assets/XML/Text/BUG_CIV4GameText.xml: line 30: extra closing angle after tag: <English>Created by The BUG Mod.</English>>
+  - Assets/XML/Text/BUG_Main_Interface_Options.xml: line 110: extra closing angle after tag: <German>Textfarbe bei negativem Einkommen, das den Goldvorrat übersteigt.</German>>
+  - Assets/XML/Text/CIV4GameText_advc.xml: line 6054: extra closing angle after tag: <French>>Force les membres permanents à vous (!) déclarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
+  - Assets/XML/Text/CIV4GameText_advc_rf.xml: line 384: extra closing angle after tag: <German>Wir befinden uns im Krieg mit %s1_Civ!</German>>
+Error: Process completed with exit code 1.
+```
+
+Fix notes:
+
+- Removed the extra leading `>` from the three de Gaulle French diplomacy lines in `ActualQuotesText_BtS.xml`.
+- Removed the extra trailing `>` after the BUG "Created by" English text.
+- Removed the extra trailing `>` after the BUG main-interface German hover text.
+- Removed the extra leading `>` from the force-war vote French text in `CIV4GameText_advc.xml`.
+- Removed the extra trailing `>` after the German war-status text in `CIV4GameText_advc_rf.xml`.
+
+After these changes, `python .github/workflows/build/xml_suspicious_angle_tags.py` passed.

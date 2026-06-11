@@ -25,9 +25,10 @@
 		<Spanish>Pulsa [BOLD]ALT + CMD + O[\BOLD] para personalizar %s1</Spanish>
 	</TEXT>
 
+	<!-- custom: Fixed malformed XML angle marker found by workflow; see KI#151. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_CREATED_BY_HEADER</Tag>
-		<English>Created by The BUG Mod.</English>>
+		<English>Created by The BUG Mod.</English>
 		<German>Erstellt durch die BUG Mod.</German>
 		<Italian>Creato dal BUG Mod.</Italian>
 		<Spanish>Creado por el BUG Mod.</Spanish>

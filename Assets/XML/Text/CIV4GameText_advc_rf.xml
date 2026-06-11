@@ -378,10 +378,11 @@
 		<English>No. %d1</English>
 		<German>Nr. %d1</German>
 	</TEXT>
+	<!-- custom: Fixed malformed XML angle marker found by workflow; see KI#151. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_YOU_AT_WAR</Tag>
 		<English>You're at war with %s1_Civ!</English>
-		<German>Wir befinden uns im Krieg mit %s1_Civ!</German>>
+		<German>Wir befinden uns im Krieg mit %s1_Civ!</German>
 	</TEXT>
 	<!-- Translations: TXT_KEY_QUEST_MESSAGE_LOG in CIV4GameText_BTS.xml.
 		 fr. Qu&#234;tes, it. Imprese, sp. Misiones -->

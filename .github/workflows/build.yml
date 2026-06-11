@@ -19,6 +19,7 @@ jobs:
           python-version: "3.x"
       - run: python .github/workflows/build/launch_guard.py
       - run: python .github/workflows/build/xml_comments.py
+      - run: python .github/workflows/build/xml_suspicious_angle_tags.py
       - run: python .github/workflows/build/xml_sas_text_english.py
       - run: python .github/workflows/build/xml_text_duplicate_tags.py
       - run: python .github/workflows/build/xml_parent_duplicate_keys.py

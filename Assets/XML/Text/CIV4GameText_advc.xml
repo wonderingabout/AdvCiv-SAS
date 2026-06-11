@@ -6048,10 +6048,11 @@
 	<!-- kekm.25/advc: Based on TXT_KEY_POPUP_ELECTION_FORCE_WAR
 		 (CIV4GameText_BTS.xml). Make sure the player understands that he or she
 		 is the target and that this is not a mistake. -->
+	<!-- custom: Fixed malformed XML angle marker found by workflow; see KI#151. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_POPUP_ELECTION_FORCE_WAR_VS_YOU</Tag>
 		<English>Force the full members to declare war on you(!!) (Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
-		<French>>Force les membres permanents à vous (!) déclarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
+		<French>Force les membres permanents à vous (!) déclarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
 		<German>Zwingt die Vollmitglieder Ihnen(!) den Krieg zu erklären. (Erfordert %d1_ReqNum on insgesamt %d2_TotNum Stimmen.)</German>
 		<Italian>Costringe i membri a pieno titolo a dichiarare guerra a te(!!) (Richiede %d1_ReqNum su %d2_TotNum voti totali)</Italian>
 		<Spanish>Obliga a los miembros de pleno derecho a declararos la guerra(!!) (Requiere %d1_ReqNum de %d2_TotNum votos totales)</Spanish>
