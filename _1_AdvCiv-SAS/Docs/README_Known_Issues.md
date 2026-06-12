@@ -188,6 +188,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)  
 [151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)  
 [152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)  
+[153 - (Fixed) RFC DOC bug: Sevopedia Hill page did not show improvements valid through underlying terrain, feature, or hill-eligible bonus rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#153---fixed-rfc-doc-bug-sevopedia-hill-page-did-not-show-improvements-valid-through-underlying-terrain-feature-or-hill-eligible-bonus-rules)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5619,3 +5620,29 @@ Fix notes:
 - `Metsehaf Bet?a` was changed to `Metsehaf Bet - a`, treating the `?` as lost punctuation rather than a lost letter.
 
 After these changes, `python .github/workflows/build/xml_suspicious_text_chars.py` passed.
+
+## 153 - (Fixed) RFC DOC bug: Sevopedia Hill page did not show improvements valid through underlying terrain, feature, or hill-eligible bonus rules
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/17-N_e5lsVtNOIE3TrRs9OnNyjX_Q-oQG?usp=sharing).
+
+In the Sevopedia Terrain category, the Hill page showed only improvements that directly set `bHillsMakesValid`, such as Mine and Windmill. This was inaccurate in-game. For example, a plains hill Grapes tile can build a Plantation because `BONUS_GRAPES` is hill-eligible and Plantation trades/improves Grapes. Hills can also host terrain-valid Forts because a hill tile still has an underlying real terrain such as Plains, Grassland, Desert, Tundra, or Snow. The same problem was observed in RFC Dawn of Civilization's pedia screenshot and source: its `CvPediaTerrain.py` Hill branch also only accepted improvements with `isHillsMakesValid`, which matches the code we had imported from RFC DoC before adapting it for AdvCiv-SAS.
+
+The DLL already had the correct rule in `CvPlot::canHaveImprovement`: Hill is a plot shape layered over real terrain, not a normal terrain by itself like Plains or Tundra. A hill tile is effectively a combination such as:
+
+```text
+plot shape: Hill
+underlying terrain: Plains
+optional feature: Forest
+optional bonus: Grapes
+```
+
+The bug was only in Sevopedia's Python reconstruction of those rules. The Hill page now shows improvements that:
+
+- explicitly allow hills through `isHillsMakesValid`;
+- become valid through an underlying non-water terrain that can also be hilly, such as Fort on Plains/Grassland/etc.;
+- become valid through a feature that can appear on hills, such as Forest/Jungle-related improvements;
+- trade/improve a hill-eligible bonus, such as Plantation for hill Grapes.
+
+No DLL change was needed because the game rules were already correct; this was a UI/documentation display fix in `SevoPediaTerrain.py`.
+
+Fixed with the very nice help of GPT-5.5 on Codex thanks.

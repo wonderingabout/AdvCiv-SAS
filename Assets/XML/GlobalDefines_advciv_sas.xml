@@ -1175,6 +1175,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
 	</Define>
+	<!-- custom: maximum city population where workers may leave a city early just because it already has population + buffer improved BFC tiles. This keeps the original anti-overimprove behavior for small/early cities, but prevents medium and large cities from being declared "done" while useful blank BFC plots remain available for food/hammer/commerce flexibility. Set to 0 to disable this early-leave shortcut. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
 	<!-- custom: Enable old AI worker fort-airbase construction outside BFC-focused worker logic. Set to 0 to disable (default): BFC plots are already mostly protected by AdvCiv-SAS worker build logic, and outside-BFC forts usually spend worker turns for meagre defensive/airbase/canal utility the AI rarely uses well. They can also block future irrigation-chain paths; nearby cities usually serve aircraft better than scattered forts, and the fort canal/isthmus effect is rarely needed. Set to 1 to restore the Base AdvCiv late-game fort-airbase path for experiments. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_WORKER_FORT_AIRBASE_ENABLE</DefineName>

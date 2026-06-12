@@ -239,8 +239,7 @@ class SevoPediaTerrain:
 
 		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or for consistency, also exclude from display here -->
 		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
-			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
 
 		else:
 			for iFeature in xrange(gc.getNumFeatureInfos()):
@@ -250,6 +249,49 @@ class SevoPediaTerrain:
 					continue
 				elif FeatureInfo.isTerrain(self.iTerrain):
 					screen.attachImageButton(panel, "", FeatureInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+
+	# <!-- custom: TERRAIN_HILL is a pedia stand-in for a plot shape layered over a real terrain; the DLL rules are correct, but Sevopedia had to reconstruct them for display. In-game plains hill Grapes needs a Plantation, but the Hill page did not show Plantation; see KI#153 for this and other Hill improvement edge cases. (GPT-5.5) -->
+	def isImprovementValidThroughHillBonus(self, iImprovement):
+		ImprovementInfo = gc.getImprovementInfo(iImprovement)
+		for iBonus in xrange(gc.getNumBonusInfos()):
+			BonusInfo = gc.getBonusInfo(iBonus)
+			if BonusInfo.isGraphicalOnly() or not BonusInfo.isHills():
+				continue
+			if ImprovementInfo.isImprovementBonusTrade(iBonus):
+				return True
+		return False
+
+	def isImprovementValidThroughHillTerrain(self, iImprovement):
+		ImprovementInfo = gc.getImprovementInfo(iImprovement)
+		if ImprovementInfo.isRequiresFlatlands():
+			return False
+		for iTerrain in xrange(gc.getNumTerrainInfos()):
+			if iTerrain == self.I_TERRAIN_HILL or iTerrain == self.I_TERRAIN_PEAK:
+				continue
+			TerrainInfo = gc.getTerrainInfo(iTerrain)
+			if TerrainInfo.isWater():
+				continue
+			if ImprovementInfo.getTerrainMakesValid(iTerrain):
+				return True
+		return False
+
+	def isImprovementValidThroughHillFeature(self, iImprovement):
+		ImprovementInfo = gc.getImprovementInfo(iImprovement)
+		for iFeature in xrange(gc.getNumFeatureInfos()):
+			FeatureInfo = gc.getFeatureInfo(iFeature)
+			if FeatureInfo.isGraphicalOnly() or FeatureInfo.isRequiresFlatlands():
+				continue
+			if not ImprovementInfo.getFeatureMakesValid(iFeature):
+				continue
+			for iTerrain in xrange(gc.getNumTerrainInfos()):
+				if iTerrain == self.I_TERRAIN_HILL or iTerrain == self.I_TERRAIN_PEAK:
+					continue
+				TerrainInfo = gc.getTerrainInfo(iTerrain)
+				if TerrainInfo.isWater():
+					continue
+				if FeatureInfo.isTerrain(iTerrain):
+					return True
+		return False
 
 	def placeImprovements(self):
 		xPanel = self.X_IMPROVEMENTS
@@ -263,28 +305,18 @@ class SevoPediaTerrain:
 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panel, "", "  ")
 
-		# <!-- custom: exclude peak (no improvements), but show hills using improvement rules instead of skipping; hills were previously hidden because output was unreliable (forts missing, cottages conditional on food, forest preserve dependent on forest/jungle). Now we show improvements that explicitly allow hills (isHillsMakesValid) or that become valid via a feature that can appear on hills, which is closer to actual in-game placement while still avoiding false positives. (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: exclude peak (no improvements), but show hills using improvement rules instead of skipping; hills were previously hidden because output was unreliable (forts missing, cottages conditional on food, forest preserve dependent on forest/jungle). (GPT-5.2-Codex + GPT-5.5) -->
 		if self.iTerrain == self.I_TERRAIN_PEAK:
-			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
 
 		else:
 			isHillTerrain = (self.iTerrain == self.I_TERRAIN_HILL)
 			for iImprovement in xrange(gc.getNumImprovementInfos()):
 				ImprovementInfo = gc.getImprovementInfo(iImprovement)
-				if ImprovementInfo.isGoody():
+				if ImprovementInfo.isGraphicalOnly() or ImprovementInfo.isGoody():
 					continue
 				if isHillTerrain:
-					isValidOnHills = ImprovementInfo.isHillsMakesValid()
-					if not isValidOnHills:
-						for iFeature in xrange(gc.getNumFeatureInfos()):
-							FeatureInfo = gc.getFeatureInfo(iFeature)
-							if FeatureInfo.isGraphicalOnly():
-								continue
-							if ImprovementInfo.getFeatureMakesValid(iFeature) and FeatureInfo.isTerrain(self.iTerrain):
-								isValidOnHills = True
-								break
-					if isValidOnHills:
+					if ImprovementInfo.isHillsMakesValid() or self.isImprovementValidThroughHillTerrain(iImprovement) or self.isImprovementValidThroughHillFeature(iImprovement) or self.isImprovementValidThroughHillBonus(iImprovement):
 						screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain) or (ImprovementInfo.isWater() and (self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN)):
 					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
@@ -310,8 +342,7 @@ class SevoPediaTerrain:
 
 		# <!-- custom: not applicable for this plot type / terrain, so show an alternative text instead -->
 		if self.iTerrain == self.I_TERRAIN_PEAK:
-			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
@@ -340,8 +371,7 @@ class SevoPediaTerrain:
 		screen.attachLabel(panel, "", "  ")
 
 		if self.iTerrain == self.I_TERRAIN_HILL or self.iTerrain == self.I_TERRAIN_PEAK:
-			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
-			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
