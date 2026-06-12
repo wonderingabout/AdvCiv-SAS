@@ -187,6 +187,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [149 - (Fixed) Base AdvCiv issue: Duplicate XML text tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check)  
 [150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)  
 [151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)  
+[152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5559,6 +5560,8 @@ After these changes, `python .github/workflows/build/xml_child_duplicate_report.
 
 ## 151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check
 
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u_l6UkCpRFe0oGhf4Z_43FK-fP7pcEuW?usp=sharing).
+
 While adding `build/xml_suspicious_angle_tags.py` to the GitHub workflow checks, the [first failing run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) found XML text entries with extra `>` characters near language tags. These are valid enough for a normal XML parser because the extra angle can be interpreted as text, but they are still almost certainly malformed text data and can show an unintended leading or trailing `>` in-game.
 
 GitHub Actions output:
@@ -5585,3 +5588,34 @@ Fix notes:
 - Removed the extra trailing `>` after the German war-status text in `CIV4GameText_advc_rf.xml`.
 
 After these changes, `python .github/workflows/build/xml_suspicious_angle_tags.py` passed.
+
+## 152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check
+
+While adding `build/xml_suspicious_text_chars.py` to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) run found suspicious `?` characters inside word-like tokens in `AdvCiv-SAS_Sevopedia_Lengthy.xml`. This was an AdvCiv-SAS lengthy text issue, not a base AdvCiv inheritance issue. The check also reported 182 inherited non-English replacement-character findings as ignored by default, so the actionable failure stayed focused on active English/SAS text.
+
+GitHub Actions output:
+
+```text
+Run python .github/workflows/build/xml_suspicious_text_chars.py
+  
+FAIL XML suspicious text chars
+  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 181: suspicious question mark inside token: ...n his will, King Æthelstan leaves his cniht, Aelfmar, eight hides of land.[PARAGRAPH:1]A r?dcniht, "riding-servant", was a servant on horseback.[PARAGRAPH:1]A narrowing of the gener...
+  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 206: suspicious question mark inside token: ... effect in numerous battles, such as at the Battle of Damghan (1729), the Battle of Yeghev?rd, and the Battle of Karnal. A large number of zamburaks were also successfully employed ...
+  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 238: suspicious question mark inside token: ...rded to their officers. Recipients included the Hungarian generals Pal Werner and Ferenc K?szeghy, who received the highest Prussian military order, the "Pour le Mérite"; General Ti...
+  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 513: suspicious question mark inside token: ...n work on performance arts. The roots of the text extend at least as far back as the Natas?tras, dated to around the mid 1st millennium BCE.[PARAGRAPH:1]The Natasutras are mentioned...
+  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 1277: suspicious question mark inside token: ...ayo column under the command of Michael Kilroy.[PARAGRAPH:1]In 1919, Polish officer Stanis?aw Maczek created a flying company made of a battle-hardened infantry, using horses for mo...
+  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 1450: suspicious question mark inside token: ...iturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metse...
+Ignored 182 known inherited non-English replacement-character finding(s); rerun with --show-ignored to list them.
+Error: Process completed with exit code 1.
+```
+
+Fix notes:
+
+- `r?dcniht` was changed to plain ASCII `radcniht`.
+- `Yeghev?rd` was changed to plain ASCII `Yeghevard`.
+- `K?szeghy` was changed to plain ASCII `Koszeghy`.
+- `Natas?tras` was changed to plain ASCII `Natasutras`.
+- `Stanis?aw` was changed to plain ASCII `Stanislaw`.
+- `Metsehaf Bet?a` was changed to `Metsehaf Bet - a`, treating the `?` as lost punctuation rather than a lost letter.
+
+After these changes, `python .github/workflows/build/xml_suspicious_text_chars.py` passed.
