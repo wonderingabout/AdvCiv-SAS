@@ -24,7 +24,10 @@ jobs:
       - run: python .github/workflows/build/xml_sas_text_english.py
       - run: python .github/workflows/build/xml_text_duplicate_tags.py
       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
-      - run: python .github/workflows/build/xml_child_duplicate_report.py
+      - run: python .github/workflows/build/xml_child_duplicates.py
+      - run: python .github/workflows/build/tech_columns.py
+      - run: python .github/workflows/build/civ_specific_asset_techs.py
+      - run: python .github/workflows/build/civ_specific_not_weaker.py
       - run: python .github/workflows/build/define_tag_refs.py
       - run: python .github/workflows/build/define_int_bounds.py
       - run: python .github/workflows/build/opening_music.py

@@ -5193,7 +5193,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>4</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -5509,7 +5509,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>8</iAsset>
 			<!-- custom: previous: 0 -->
 			<iPower>2</iPower>
 			<bRepeat>0</bRepeat>

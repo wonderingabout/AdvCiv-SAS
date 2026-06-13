@@ -5533,12 +5533,12 @@ Note: for the hint ones it's only in AdvCiv-SAS that we don't want them duplicat
 
 ## 150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check
 
-After the text duplicate check was fixed, `build/xml_child_duplicate_report.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
+After the text duplicate check was fixed, `build/xml_child_duplicates.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
 
 GitHub Actions output:
 
 ```text
-Run python .github/workflows/build/xml_child_duplicate_report.py
+Run python .github/workflows/build/xml_child_duplicates.py
   
 FAIL XML priority child duplicates
 Priority duplicate child/list entries are treated as build errors.
@@ -5557,7 +5557,7 @@ Fix notes:
 - Removed the later duplicate `TXT_KEY_CITY_NAME_MARMARIS` from the Ottoman city list.
 - Removed the duplicate `TECH_MONARCHY` `FLAVOR_CULTURE` child (AdvCiv-SAS-specific issue) old existing `FLAVOR_CULTURE` value `9`, keeping the `iFlavor` value `4`.
 
-After these changes, `python .github/workflows/build/xml_child_duplicate_report.py` passed, and the full local `.github/workflows/build/*.py` check set passed too.
+After these changes, `python .github/workflows/build/xml_child_duplicates.py` passed, and the full local `.github/workflows/build/*.py` check set passed too.
 
 ## 151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check
 

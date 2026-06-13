@@ -4717,8 +4717,8 @@
 			<iWarWearinessModifier>0</iWarWearinessModifier>
 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
-			<!-- custom: was 10 -->
-			<iHealRateChange>15</iHealRateChange>
+			<!-- custom: seems pretty much useless with such a low value and not valuable enough to consider for this effect so increase it; was 10 -->
+			<iHealRateChange>30</iHealRateChange>
 			<!-- custom: was 3 -->
 			<iHealth>1</iHealth>
 			<iAreaHealth>0</iAreaHealth>
@@ -8711,7 +8711,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+			<!-- custom: TECH_BROADER_EDUCATION would be thematically closer but weaker than generic monument so do not do it, as detected with the new Github Workflow. -->
+			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -8750,7 +8751,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8787,7 +8788,7 @@
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>2</iHappiness>
+			<iHappiness>0</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
@@ -8814,10 +8815,11 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 1 in the generic monument -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>1</iCommerce>
+				<iCommerce>2</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -8830,10 +8832,11 @@
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
+			<!-- custom: technically they are builders/industrious too, and this allows some variety thematically and in terms of strategy too -->
 			<SpecialistCounts>
 				<SpecialistCount>
-					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
-					<iSpecialistCount>2</iSpecialistCount>
+					<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+					<iSpecialistCount>1</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
 			<FreeSpecialistCounts/>
@@ -8861,12 +8864,12 @@
 					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -8897,7 +8900,8 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_BANKING</ObsoleteTech>
+			<!-- custom: TECH_BANKING may have been (i'm guessing, idk for sure) thematically closer but weaker than generic monument so do not do it, as detected with the new Github Workflow. -->
+			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
@@ -8936,7 +8940,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>35</iCost>
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -8973,13 +8977,13 @@
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
-			<!-- custom: alternative effect than unit exp, less tedious, maybe makes
+			<!-- custom: update: now removed: old advciv-sas rationale: alternative effect than unit exp, less tedious, maybe makes
 			more sense too, also removed the trait-dependent happiness effect for
 			same reason, applied it directly here, so civ is free to change traits
 			without affecting this building (don't bind trait-specific/dependent
 			effects on civ-specific buildings i think makes more sense this way)
 			-->
-			<iHappiness>2</iHappiness>
+			<iHappiness>0</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
@@ -9017,17 +9021,19 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>15</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-			</CommerceModifiers>
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<SpecialistCounts/>
+			<!-- custom: new thematic effect tied to gold but more balance than previous advciv-sas aggressive early, quite unbalanced and plain commerce modifiers; also justifies reducing the building's cost which was quite high so early -->
+			<SpecialistCounts>
+				<SpecialistCount>
+					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+					<iSpecialistCount>1</iSpecialistCount>
+				</SpecialistCount>
+			</SpecialistCounts>
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
@@ -9053,7 +9059,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -9086,8 +9096,8 @@
 			<FreeStartEra>ERA_MODERN</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
-			<!-- custom: with our tech rework sacrificial_altar is now based on tech_calendar as per/according to the wikipedia info, much more relevant as calendar is much sooner in tech tree, see docs or tech tree view in docs as well for details -->
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<!-- custom: with our tech rework sacrificial_altar based on tech_calendar would be a nice thematic fit as per the wikipedia info, however it would make the building much weaker and missing critical early culture need or timing; or simply being needlessly weaker than generic building here so do not do it. -->
+			<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -9126,7 +9136,8 @@
 			<bCenterInCity>1</bCenterInCity>
 			<!-- custom: this should be very valuable for aztecs to build, make sure they build it, will also help their warmongering and such maybe too -->
 			<iAIWeight>0</iAIWeight>
-			<iCost>45</iCost>
+			<!-- custom: was 30 in generic monument -->
+			<iCost>35</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9163,6 +9174,7 @@
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
+			<!-- custom: note: high free happiness so early in the game is very strong, probably balance breaking, and generally avoided unless it meshes well with the building's effect, so as of now adjusted other civ-specific monuments accordingly. -->
 			<iHappiness>1</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
@@ -9194,7 +9206,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>2</iCommerce>
+				<iCommerce>1</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -9231,15 +9243,19 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
 					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -9271,9 +9287,9 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>ERA_MODERN</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
-			<ObsoleteTech>TECH_NATURALISM</ObsoleteTech>
-			<!-- custom: until we do and if we do at all our full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat -->
-			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
+			<!-- custom: while thematically more accurate i'm guessing, tech_construction or tech_polytheism are too far (similar reasoning as as of now for the BUILDING_AZTEC_SACRIFICIAL_ALTAR) -->
+			<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -9311,7 +9327,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>40</iCost>
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9348,7 +9364,7 @@
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
 			<iGlobalHealth>0</iGlobalHealth>
-			<iHappiness>1</iHappiness>
+			<iHappiness>0</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
@@ -9378,7 +9394,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>2</iCommerce>
+				<iCommerce>1</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -9395,12 +9411,12 @@
 			<StateReligionCommerces/>
 			<CommerceHappinesses/>
 			<ReligionChanges/>
-			<!-- custom: was 2 spy(ies), now with the rework is 2 priest(s) now -->
+			<!-- custom: was 2 spy(ies), now with the rework is 1 priest(s) now since the building is earlier -->
 			<!-- advc.911a: was 1 spy -->
 			<SpecialistCounts>
 				<SpecialistCount>
 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
-					<iSpecialistCount>2</iSpecialistCount>
+					<iSpecialistCount>1</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
 			<FreeSpecialistCounts/>
@@ -9428,15 +9444,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>3</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

@@ -786,7 +786,7 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_3D_AMBIENCE_NOTE</Tag>
-		<English>Note: Ambience 3D can start late; e.g;, dog begins around 6-9 seconds, and horn beings at around 8-13 seconds (They seem not to start right away, e.g., after entering city screen).</English>
+		<English>Note: Ambience 3D can start late; e.g;, dog begins around 5-20 seconds, and horn beings at around 8-20 seconds (They seem not to start right away, e.g., after entering city screen).</English>
 	</TEXT>
 	<!-- custom: script headers for music category (Claude code Sonnet 4.5) -->
 	<TEXT>
