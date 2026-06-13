@@ -41,9 +41,10 @@ CvUnitAI::~CvUnitAI()
 // grass hills, seafood, and useful low-food bonus tiles from making decent sites look bad, while still catching
 // tundra/plains/peak-heavy sites. For the "good-enough food bonus" count, use the normal bonus improvement's food
 // yield for land bonuses: in AdvCiv-SAS, Elephants have +1 XML food but Camp adds no food, so they should not satisfy
-// the same first-city stop-roaming gate as Pig + Corn, whose improvements add strong food. Seafood keeps using XML
-// food because water improvements are not in the land bonus-improvement helper. (GPT-5.5 + ChatGPT 5.5) Note: oasis
-// is unworkable but food and commerce rich (as of now 3 food 2 commerce) so do not count as bad. -->
+// the same first-city stop-roaming gate as Pig + Corn, whose improvements add strong food. Seafood counts only for
+// coastal candidate cities; Karakorum moved to a tundra-heavy inland site partly because fish inside the BFC was counted
+// as a food bonus even though the city could not use it like a coastal seafood capital. (GPT-5.5 + ChatGPT 5.5) Note:
+// oasis is unworkable but food and commerce rich (as of now 3 food 2 commerce) so do not count as bad. -->
 static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamTypes eTeam, int& iFoodBonuses, int& iBadPlots)
 {
 	iFoodBonuses = 0;
@@ -59,7 +60,7 @@ static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamType
 		if (eBonus != NO_BONUS)
 		{
 			const ImprovementTypes eBonusImprovement = CvUnitAI::getBonusSpecificLandImprovement(eBonus);
-			const bool bFoodBonus = (pLoopPlot->isWater() ? GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : eBonusImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD) > 0);
+			const bool bFoodBonus = (pLoopPlot->isWater() ? kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN)) && GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : eBonusImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD) > 0);
 			if (bFoodBonus)
 				iFoodBonuses++;
 		}
@@ -3452,8 +3453,11 @@ bool CvUnitAI::AI_foundFirstCity()
 		int iBestPlotLowFoodPlots = 0;
 		if (pBestPlot != NULL)
 			SAS_countBFCFoodBonusesAndBadPlots(*pBestPlot, getTeam(), iBestPlotFoodBonuses, iBestPlotLowFoodPlots);
-		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadLowFoodPlotsThreshold > 0 && iCurrentLowFoodPlots >= iBadLowFoodPlotsThreshold);
-		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadLowFoodPlotsThreshold > 0 && iBestPlotLowFoodPlots >= iBadLowFoodPlotsThreshold);
+		const bool bCurrentFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses);
+		const bool bBestKnownFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iBestPlotFoodBonuses >= iGoodEnoughFoodBonuses);
+		// <!-- custom: Maya started on a pig+maize+fresh-water BFC, but the bad-plot count alone marked it bad because it also had many plains/tundra/desert tiles; the settler then wandered into tundra and founded a much worse capital when the roam window expired. Enough real food bonuses make a first city strategically viable, so do not treat such starts as bad solely from low-food filler plots. (GPT-5.5) -->
+		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadLowFoodPlotsThreshold > 0 && iCurrentLowFoodPlots >= iBadLowFoodPlotsThreshold && !bCurrentFirstCityStrongFood);
+		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadLowFoodPlotsThreshold > 0 && iBestPlotLowFoodPlots >= iBadLowFoodPlotsThreshold && !bBestKnownFirstCityStrongFood);
 		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
 		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming)
 		{
@@ -3474,10 +3478,10 @@ bool CvUnitAI::AI_foundFirstCity()
 				int iLoopFoodBonuses = 0;
 				int iLoopLowFoodPlots = 0;
 				SAS_countBFCFoodBonusesAndBadPlots(kLoopPlot, getTeam(), iLoopFoodBonuses, iLoopLowFoodPlots);
-				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold);
+				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
+				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold && iLoopValue < iCurrentFirstCityValue);
 				if (bBadLoopFirstCity)
 					continue;
-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
 				int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
 				const bool bPostRoamOneStepRecheck = (kGame.getElapsedGameTurns() > 0 && !kOwner.AI_isPlotCitySite(getPlot()) && iLoopPathTurns == 1);
 				const int iCurrentWaterScore = (getPlot().isFreshWater() ? 1 : 0) + (getPlot().isRiver() ? 1 : 0);
@@ -3534,10 +3538,11 @@ bool CvUnitAI::AI_foundFirstCity()
 				int iLoopFoodBonuses = 0;
 				int iLoopLowFoodPlots = 0;
 				SAS_countBFCFoodBonusesAndBadPlots(kLoopPlot, getTeam(), iLoopFoodBonuses, iLoopLowFoodPlots);
-				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold);
-				if (bBadLoopFirstCity || (iGoodEnoughFoodBonuses > 0 && iLoopFoodBonuses < iGoodEnoughFoodBonuses && !kLoopPlot.isFreshWater()))
-					continue;
 				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
+				// <!-- custom: While roaming away from a clearly bad first-capital BFC, do not let the same bad cached site re-enter the visible-good-enough pool merely because its stale city-site value ties the known best. Karakorum moved from 49,43 back to the original tundra-heavy 47,43 (13 bad BFC plots) instead of continuing toward the visible 51,41 river/pig site (1 bad BFC plot). Keep using AI_foundValue for ranking, but require very bad candidates to be strictly better than the known site before they can compete. (GPT-5.5) -->
+				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots > iBadLowFoodPlotsThreshold && iLoopValue <= iBestKnownFirstCityValue);
+				if (bBadLoopFirstCity)
+					continue;
 				if (iLoopValue <= 0)
 					continue;
 				const int iLoopGoodEnoughValue = iLoopValue - 50 * iLoopPathTurns;

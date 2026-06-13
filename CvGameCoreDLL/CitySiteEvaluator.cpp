@@ -1016,7 +1016,11 @@ int AIFoundValue::evaluate()
 			// unlocks more tiles, whipping/specialists, and faster worker/settler development. Apply capital-only resource
 			// value percents and concrete river/fresh-water boosts so Karakorum/Beijing-like starts prefer nearby
 			// corn/fresh-water positions over slower commerce/hammer-resource positions. (GPT-5.5) -->
-			const bool bStartingFoodBonus = (kSet.isStartingLoc() && (GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 || aiBonusImprovementYield[YIELD_FOOD] > 0));
+			// <!-- custom: Raw XML food is not enough to classify a starting resource as food: AdvCiv-SAS Elephants have XML food
+			// but Camp adds no food, and seafood inside an inland BFC is not usable like coastal seafood. For capital-only
+			// food-resource scaling, use normal improved food on land and XML food only for water bonuses when the candidate
+			// city is coastal. This keeps AI_foundValue from treating inland fish or low-food bonuses like Pig + Corn. (GPT-5.5) -->
+			const bool bStartingFoodBonus = (kSet.isStartingLoc() && (p.isWater() ? bCoastal && GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : aiBonusImprovementYield[YIELD_FOOD] > 0));
 
 			if (!bBarbarian && // advc.303: Barbarians don't care about resource trade
 				// advc.031: Otherwise we can already trade the resource

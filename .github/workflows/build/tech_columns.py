@@ -130,18 +130,18 @@ def main() -> int:
 	try:
 		failures = check_tech_column_values(args.repo_root)
 	except RuntimeError as exc:
-		print("FAIL tech columns")
+		print("FAIL tech column value consistency")
 		print(f"  - {exc}")
 		return 1
 
 	if failures:
-		print("FAIL tech columns")
+		print("FAIL tech column value consistency")
 		for failure in failures:
 			print(f"  - {failure}")
 		print("  - Same iGridX means the techs are in the same tech-tree column; iGridY row differences are allowed, but core column values should normally match within that column.")
 		return 1
 
-	print("PASS tech columns")
+	print("PASS tech column value consistency")
 	return 0
 
 

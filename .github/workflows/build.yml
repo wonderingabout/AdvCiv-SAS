@@ -29,6 +29,7 @@ jobs:
       - run: python .github/workflows/build/civ_specific_asset_techs.py
       - run: python .github/workflows/build/civ_specific_not_weaker.py
       - run: python .github/workflows/build/define_tag_refs.py
+      - run: python .github/workflows/build/raw_getinfotype.py
       - run: python .github/workflows/build/define_int_bounds.py
       - run: python .github/workflows/build/opening_music.py
       - run: python .github/workflows/build/bbai_log.py

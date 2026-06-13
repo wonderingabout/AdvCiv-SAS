@@ -174,6 +174,13 @@ def getInfoTypeOrFail(tag):
 		raise ValueError("Missing XML tag: '%s'" % tag)
 	return iType
 
+# <!-- custom: strict variant of CvUtil.findInfoTypeNum for older Python callsites that pass info getter/count functions instead of using gc.getInfoTypeForString directly. Keep missing static XML tags loud like getInfoTypeOrFail. (GPT-5.5) -->
+def findInfoTypeNumOrFail(infoGetter, numInfosGetter, tag):
+	iType = CvUtil.findInfoTypeNum(infoGetter, numInfosGetter, tag)
+	if iType == -1:
+		raise ValueError("Missing XML tag: '%s'" % tag)
+	return iType
+
 # <!-- custom: shared helper to resolve NewConcept IDs by XML type (e.g. "CONCEPT_SAS_SCORE_TAB_COLUMNS" for the Score-tab Legend clickable Sevopedia/NewConcept entry). Returns -1 when missing so callers can skip optional links safely. (GPT-5.3-Codex) -->
 def getNewConceptID(szConceptType):
 	for i in range(gc.getNumNewConceptInfos()):

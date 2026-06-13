@@ -16,6 +16,7 @@ import CvTopCivs
 import CvUtil
 import PyHelpers
 import Popup as PyPopup
+from SASUtils import findInfoTypeNumOrFail
 
 import ChangePlayer
 import time # Erik (BM1)
@@ -231,7 +232,7 @@ class AIAutoPlay :
 			popup.launch()
 
 			#gc.getActivePlayer().setNewPlayerAlive( True )
-			iSettler = CvUtil.findInfoTypeNum(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
+			iSettler = findInfoTypeNumOrFail(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
 			gc.getActivePlayer().initUnit( iSettler, 0, 0, UnitAITypes.NO_UNITAI, DirectionTypes.DIRECTION_SOUTH )
 			#gc.getActivePlayer().setFoundedFirstCity( False )
 			gc.getActivePlayer().setIsHuman( True )
