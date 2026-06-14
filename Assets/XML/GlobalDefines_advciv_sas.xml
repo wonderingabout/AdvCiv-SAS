@@ -1641,6 +1641,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: AI upgrade ROI effective-price multiplier for sea-unit upgrades on land-heavy maps. The real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades, so low-value ship upgrades are less likely to spend limited AI upgrade gold before stronger land upgrades. 100 disables the domain penalty. (ChatGPT-5.2 + GPT-5.5); Empirically a too high value (e.g., 150 or 200 causes naval upgrades to be effectively always ignored, adjust as you see fit). -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<!-- custom: AI upgrade ROI effective-price multiplier for land-unit upgrades on naval-heavy maps. The real gold price is unchanged; this helps prioritize naval upgrades on maps where ships usually have higher strategic leverage. 100 disables the domain penalty. (ChatGPT-5.2 + ChatGPT-5.5 + GPT-5.5); (i'm guessing the same applies for land upgrades) -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
 	<!-- AI upgrade cost check: maximum gold per 10% strength gain. Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game). -->
 	<!-- custom: Long_Comments_XML.txt #105 -->
 	<Define>

@@ -7245,6 +7245,35 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 				int const iFromStrength = std::max(kFromUnit.getCombat(), kFromUnit.getAirCombat());
 				int const iToStrength   = std::max(kToUnit.getCombat(),   kToUnit.getAirCombat());
 				int const iStrengthGain = (iToStrength - iFromStrength);
+				int iEffectivePrice = iPrice;
+				int iDomainPricePercent = 100;
+				// <!-- custom: The real upgrade price stays unchanged; this only makes off-domain upgrades pass the AI ROI gates less often.
+				// On land-heavy maps, limited AI upgrade gold is usually better spent on land units than ships; on naval-heavy maps, ships are usually
+				// higher leverage than land upgrades. Keep this as an effective-price multiplier instead of a hard domain ban so experienced or
+				// high-impact off-domain upgrades can still pass when they are worth enough. (ChatGPT-5.2 + GPT-5.5) -->
+				{
+					CvGame const& kGame = GC.getGame();
+					if (kGame.isLandHeavyMapnameCached() && getDomainType() == DOMAIN_SEA)
+					{
+						static const int iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT");
+						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT);
+					}
+					else if (kGame.isNavalHeavyMapnameCached() && getDomainType() == DOMAIN_LAND)
+					{
+						static const int iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT");
+						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT);
+					}
+					if (iDomainPricePercent != 100)
+					{
+						iEffectivePrice = (iPrice * iDomainPricePercent + 50) / 100;
+						// <!-- custom: commented-out as (with a value of 200) it fires ~27k times on a ~T408 pangea large normal game speed autoplay (domain adjustments: 27,310, domain-adjusted blocked upgrades: 26,773, actual upgrades: 1,340, naval upgrades detected: 0) (according to ChatGPT-5.5's analysis of the corresponding BBAI log) -->
+						// if (gUnitLogLevel >= 3)
+						// {
+						// 	logBBAI("    %S AI upgrade domain ROI adjustment: %S -> %S domain=%d price=%d effectivePrice=%d domainPercent=%d",
+						// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), getDomainType(), iPrice, iEffectivePrice, iDomainPricePercent);
+						// }
+					}
+				}
 
 				// If there is no strength gain, do not block the upgrade (upgrades can also be valuable for non-strength reasons).
 				if (iFromStrength > 0 && iStrengthGain > 0)
@@ -7266,8 +7295,15 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 						{
 							// allowed gold = (gold per 10%) * (percent gain / 10%)
 							int const iAllowedGold = (iMaxGoldPer10Pct * iPercentStrengthGain + 5) / 10;
-							if (iPrice > iAllowedGold)
+							if (iEffectivePrice > iAllowedGold)
+							{
+								// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
+								// {
+								// 	logBBAI("    %S AI upgrade blocked by domain-adjusted percent ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
+								// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
+								// }
 								return false;
+							}
 						}
 					}
 
@@ -7283,8 +7319,15 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 
 						// allowed gold = (gold per +1 flat strength) * (flat strength gain)
 						int const iAllowedGold = iMaxGoldPerFlatStr * iStrengthGain;
-						if (iPrice > iAllowedGold)
+						if (iEffectivePrice > iAllowedGold)
+						{
+							// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
+							// {
+							// 	logBBAI("    %S AI upgrade blocked by domain-adjusted flat ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
+							// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
+							// }
 							return false;
+						}
 					}
 				}
 			}
