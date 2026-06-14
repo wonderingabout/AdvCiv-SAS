@@ -2102,31 +2102,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					// <!-- custom: should we chop this non-bonus plot? To decide that, take into account city population, and current health -->
 					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/pointwe can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure -->
 
-					// <!-- custom: chop as long as we have the health, else devalue it -->
-					// <!-- custom: here is some data from chatgpt 5 if helps (and helps me too balance it maybe xd, check if accurate and updated) -->
-					// Forest removal scoring
-					// healthDiff := iCityHealthCalculatedDifference  (>0 = surplus health, <0 = unhealth)
-					//
-					// Behavior in this block:
-					// • If pop >= 7: only consider chopping when healthDiff >= 1; otherwise we SKIP (continue).
-					//   Δ = 50 * healthDiff
-					// • If pop < 7: always consider chopping with
-					//   Δ = -100 + 50 * healthDiff   (i.e., needs at least +2 health to break even)
-					//
-					// Examples (Δ in iValue units):
-					//   pop 6,  health -2 → Δ = -100 + 50*(-2) = -200  (strongly discouraging early chop)
-					//   pop 6,  health +1 → Δ = -100 + 50*(1)  = -50   (still discouraging)
-					//   pop 6,  health +2 → Δ = -100 + 50*(2)  = 0     (neutral threshold)
-					//   pop 7,  health  0 → SKIP (not even evaluated)
-					//   pop 7,  health +1 → Δ = 50                         (encouraging)
-					//   pop 12, health +3 → Δ = 150                        (encouraging late chop)
-					//   pop 12, health -1 → SKIP                           (not evaluated)
-					//
-					// Notes / edge cases:
-					// • The hard SKIP for (pop >= 7 && healthDiff <= 0) prevents emergency forest chops from competing.
-					//   If you want “rare emergencies" to be possible, replace SKIP with a small negative Δ instead.
-					// • Early forests are broadly devalued (need +2 health to be neutral). This protects against
-					//   overchopping in the opening unless the city is clearly healthy.
+					// <!-- custom: Forest removal scoring for non-bonus city plots.
+					// Early/small cities still protect forests when health is tight. However, BBAI logs and screenshots
+					// suggested that medium/large cities could leave useful forested BFC tiles unimproved because this
+					// health gate used to hard-skip forest chops whenever healthDiff <= 0. That made those plots invisible
+					// to AI_bestCityBuild and therefore impossible for AI_nextCityToImprove to select. For larger cities,
+					// allow the candidate with a health-pressure penalty instead of a hard skip; the actual improvement
+					// value, chop value, pathing, reservations, and other candidates still decide whether it wins. (ChatGPT-5.5) -->
+					// <!-- custom: also later in the game we usually have many health sources (trade, owned, buildings or yields or such etc.), and improving plots is stronger due to extra yields from techs or such if any other source (e.g., farm -> +2 food), so improve all plots even if it costs health when cities are big enough) -->
+					static const int iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION");
 					if (iCityPopulation >= 7)
 					{
 						if (iCityHealthCalculatedDifference >= 1)
@@ -2136,6 +2120,14 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 							// <!-- custom: chop more generously, we should have the infrastructure and health and such to support it, and we want to use the tiles for our last citizens in city radius anyway rather than improving plains or such, plus the hammer is still good even if we chop late -->
 
 							iValue += 50 * iCityHealthCalculatedDifference;
+						}
+						else if (iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION > 0 && iCityPopulation >= iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION)
+						{
+							eBestSupposedBuild = eBuildRemoveForest;
+
+							// HealthDiff <= 0 here. Keep the tile visible for larger cities, but make unhealthy cities pay
+							// for the lost forest health. Examples: health 0 -> -50, health -1 -> -100, health -2 -> -150.
+							iValue += -50 * (1 - iCityHealthCalculatedDifference);
 						}
 						else
 						{

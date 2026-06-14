@@ -21,6 +21,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_SAS_ESPIONAGE_SHORT</Tag>
 		<English>Espionage</English>
 	</TEXT>
+	<!-- custom: ordinary plot hover coordinate line; keep numeric placeholders so BBAI.log coordinates can be matched directly in-game. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_PLOT_HELP_COORDINATES</Tag>
+		<English>%d1,%d2</English>
+	</TEXT>
 	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
