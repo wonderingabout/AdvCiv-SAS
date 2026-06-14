@@ -2334,7 +2334,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		}
 	}
 
-
 	// <!-- custom: Diagnostic logging for remaining large-city blank-plot cases.
 	// This logs the candidate layer, not only the final chosen mission. It helps distinguish:
 	// city not selected, blank BFC plot not considered, blank plot considered but losing, replacement skipped,
@@ -3962,13 +3961,55 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			iCityPopulation <= iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION &&
 			(countImprovedTiles(pCity) >= (iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities)))
 		{
-			if (gUnitLogLevel >= 2)
+			// <!-- custom: Keep the early-leave rule from making a worker abandon useful work it is already standing on.
+			// The small-city shortcut is good when it prevents over-improving city A while city B/C needs help, but BBAI
+			// tests showed a bad edge case: a worker on an owned, workable, unimproved BFC forest could decide the small
+			// city was already improved enough, route/leave toward another city, and leave the local forest/chop/improvement
+			// unfinished. With this define enabled, the shortcut is bypassed only when the current plot is this same city's
+			// non-home workable BFC plot and AI_bestCityBuild selects it as the current best local build. This preserves the
+			// broader city-rotation behavior while preventing the "stand on useful local work, road it, then walk away" pattern
+			// without hardcoding a separate build-priority list that could drift from worker valuation. (ChatGPT-5.5 + GPT-5.5) -->
+			// <!-- custom: empricially fixed Beijing and Persepolis having unimproved forests (but roaded only sometimes or not at all) by T200, and reduced it in other cities, so looks like a very nice change worth keeping (also based on diagnostic logging (now removed for concision and so code is lighter and as is unneeded now it seems)) -->
+			static const int iSAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT = GC.getDefineINT("SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT");
+			bool bKeepCurrentUnimprovedBFCPlot = false;
+			BuildTypes eKeepCurrentBuild = NO_BUILD;
+			if (iSAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT > 0)
 			{
-				logBBAI("    %S worker leaves small improved-enough city %S: pop=%d improved=%d target=%d maxPop=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION);
+				CvPlot const& kWorkerPlot = getPlot();
+				CityPlotTypes const eWorkerCityPlot = pCity->getCityPlotIndex(kWorkerPlot);
+				CvCityAI const* pWorkingCity = kWorkerPlot.AI_getWorkingCity();
+				if (eWorkerCityPlot != NO_CITYPLOT && eWorkerCityPlot != CITY_HOME_PLOT && pWorkingCity == pCity &&
+					kWorkerPlot.getOwner() == getOwner() && !kWorkerPlot.isWater() && !kWorkerPlot.isCity() &&
+					!GET_PLAYER(getOwner()).isAutomationSafe(kWorkerPlot))
+				{
+					CvPlot* pBestCurrentCityPlot = NULL;
+					BuildTypes eBestCurrentCityBuild = NO_BUILD;
+					if (AI_bestCityBuild(*pCity, &pBestCurrentCityPlot, &eBestCurrentCityBuild, NULL, this) &&
+						pBestCurrentCityPlot == &kWorkerPlot && eBestCurrentCityBuild != NO_BUILD)
+					{
+						bKeepCurrentUnimprovedBFCPlot = true;
+						eKeepCurrentBuild = eBestCurrentCityBuild;
+					}
+				}
 			}
-			if (AI_nextCityToImprove(pCity))   // go pick city B right now
-				return;
-			// If we couldn't find a better city, work here anyway
+			if (bKeepCurrentUnimprovedBFCPlot)
+			{
+				if (gUnitLogLevel >= 2)
+				{
+					CvPlot const& kWorkerPlot = getPlot();
+					logBBAI("    %S worker stays in small improved-enough city %S to handle current useful BFC plot: pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION, kWorkerPlot.getX(), kWorkerPlot.getY(), GC.getInfo(eKeepCurrentBuild).getDescription());
+				}
+			}
+			else
+			{
+				if (gUnitLogLevel >= 2)
+				{
+					logBBAI("    %S worker leaves small improved-enough city %S: pop=%d improved=%d target=%d maxPop=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION);
+				}
+				if (AI_nextCityToImprove(pCity))   // go pick city B right now
+					return;
+				// If we couldn't find a better city, work here anyway
+			}
 		}
 
 		// <!-- custom: as for this code we don't need it, we now have our own logic to decide if worker should go to city B or back to city A or to city C, make them more dynamic, so smaller cities get max chance to be improved, even if it means a bit back and forth, currently small cities take too long to be improved, we don't want workers to stay too long in a city when others could be waiting; in very short, don't give workers too many reasons to stay in same city; delaying improving other cities :), improve city B or other cities, then come back later to city A if/when needed -->

@@ -1185,6 +1185,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
+	<!-- custom: When the small-city anti-overimprove shortcut would send a worker to another city, keep it local instead if it is already standing on this same city's owned/workable non-home BFC plot and AI_bestCityBuild selects that plot as the current best local build. This preserves the city-rotation benefit while preventing the pattern where workers road a useful forested plot and then walk away without chopping/improving it. 1=enabled (Recommended), 0=disabled. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: minimum city population where AI_bestCityBuild may consider chopping a non-bonus forested BFC plot even when the city has no current health surplus. Early/small cities still use the old hard health gate to preserve forest health; medium/large cities keep the plot visible with a health-pressure penalty instead, so useful forested tiles do not stay unimproved forever (later in the game we usually have enough health, and improved yields are stronger, so improve plots rather than not). Set to 0 to restore the hard gate at all city sizes. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION</DefineName>
