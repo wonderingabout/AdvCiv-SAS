@@ -645,7 +645,9 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 									if (iCostPerMil > AI_maxUnitCostPerMil(pLoopUnit->area(), 100) +
 										2*iExp + 4*std::max(0, pPlotCity->AI_neededDefenders() - iDefenders))
 									{
-										if (gUnitLogLevel > 2) logBBAI("    %S scraps %S, with %d exp, and %d / %d spending.", getCivilizationDescription(0), pLoopUnit->getName(0).GetCString(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100));
+										// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
+										if (gUnitLogLevel > 2) logBBAI("    SCRAP_DECISION reason=upgrade-cleanup turn=%d player=%d (%S) unitId=%d unitType=%d name=%S at=(%d,%d) exp=%d unitCostPerMil=%d maxUnitCostPerMil=%d totalUnits=%d",
+											GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pLoopUnit->getID(), pLoopUnit->getUnitType(), pLoopUnit->getName(0).GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100), getNumUnits());
 										pLoopUnit->scrap();
 										/*	I could have just done kill(), but who knows
 											what extra work scrap() wants to do for us? */
@@ -20817,7 +20819,10 @@ void CvPlayerAI::AI_doMilitary()
 				{
 					CvWString szAITypeString;
 					getUnitAIString(szAITypeString, pDisbandUnit->AI_getUnitAIType());
-					logBBAI("    %S scraps '%S' %S, at (%d, %d), with value %d, due to financial trouble.", getCivilizationDescription(0), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(), pDisbandUnit->getX(), pDisbandUnit->getY(), unit_values[iDisbandCount].first);
+					// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
+					logBBAI("    SCRAP_DECISION reason=financial-trouble turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) value=%d disbandIndex=%d candidates=%d unitCostPerMil=%d maxUnitCostPerMil=%d goldRate=%d gold=%d totalUnits=%d",
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pDisbandUnit->getID(), pDisbandUnit->getUnitType(), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(), pDisbandUnit->getX(), pDisbandUnit->getY(),
+						unit_values[iDisbandCount].first, iDisbandCount, (int)unit_values.size(), iCost, iMaxCost, calculateGoldRate(), getGold(), getNumUnits());
 				}
 
 				pDisbandUnit->scrap();

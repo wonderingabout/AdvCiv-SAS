@@ -1526,7 +1526,26 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
-
+	<!-- custom: Absolute AI scrap kill switch. 0 preserves the normal AdvCiv-SAS scrap rules; 1 forbids AI scrapping entirely. This is intentionally separate from SAS_CAN_SCRAP_OPTIMIZE: if we disable optimization, we should not accidentally restore old broad scrapping. Scrapping is hammer-inefficient when a produced unit can defend, pressure rivals, or be spent in war; war can remove excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Softer near-absolute AI scrap mode. 0 preserves normal AdvCiv-SAS scrap rules; 1 blocks AI scrapping except for units with ObsoleteTech after the obsolete-era delay below. Cargo-capable units are still kept because an obsolete transport can remain our only practical way to move units. Obsolete candidates still pass through the existing domain/era XML-cost gates, so this narrows scrapping without making every obsolete unit disappear instantly. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum era delay for SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE, measured from the unit's ObsoleteTech era when that era is before Renaissance. Example: as of now an Axeman obsolete at Civil Service (Classical) is still reasonable to keep in Medieval, but not Renaissance; delay 2 allows scrapping from Renaissance onward. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum era delay for SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE, measured from the unit's ObsoleteTech era when that era is Renaissance or later. Example: as of now a Knight obsolete in Renaissance can remain useful through Renaissance, but not Industrial; delay 1 allows scrapping from Industrial onward. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 	<!-- custom: set to 1 (enable, recommended) to use advciv-sas' smart scrapping control/optimization -->
 	<!-- custom: Long_Comments_XML.txt #171 -->

@@ -3301,6 +3301,13 @@ bool CvUnit::canScrap() const
 	// 	return false;
 	// return true;
 
+	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
+	// <!-- custom: Absolute AI scrap kill switch for experiments and player preference. Scrapping is hammer-inefficient when a produced unit could instead defend, pressure rivals, or be spent in war; war also removes excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. Keep this separate from SAS_CAN_SCRAP_OPTIMIZE so disabling optimization never re-enables old broad scrapping. (GPT-5.5) -->
+	if (bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE && !isHuman())
+	{
+		return false;
+	}
+
 	static const bool bSAS_CAN_SCRAP_OPTIMIZE = GC.getDefineBOOL("SAS_CAN_SCRAP_OPTIMIZE");
 
 	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
@@ -3310,6 +3317,29 @@ bool CvUnit::canScrap() const
 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
 		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
+		static const bool bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE");
+		if (bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE)
+		{
+			// <!-- custom: Softer near-absolute AI scrap mode: keep normal units and allow only units with ObsoleteTech that are old enough by obsolete-era delay. Example: as of now an Axeman obsolete at Civil Service (Classical) is still reasonable to keep in Medieval, but not Renaissance; before-Renaissance delay 2 allows scrapping from Renaissance onward. A Knight obsolete in Renaissance stays until Industrial with Renaissance-plus delay 1. Existing obsolete-unit iXMLCost/domain gates below still decide whether the obsolete unit is cheap enough to scrap. Keep cargo-capable units too, because an obsolete transport can still be our only practical way to move units.
+			// In one autoplay test, this produced 3324 SCRAP_DECISION lines but only 94 SCRAP_EVENT lines, mostly old units with cargo 0/0, very few veteran scraps (only 1 with XP >= 7), and no obvious weaker-AI result at a glance. (ChatGPT-5.5 + GPT-5.5) -->
+			if (getCargo() > 0 || cargoSpace() > 0)
+			{
+				return false;
+			}
+			if (!bSAS_CAN_SCRAP_OBSOLETE_TECH || eObsoleteTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+			{
+				return false;
+			}
+			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE");
+			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS");
+			static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
+			int const iObsoleteEra = GC.getInfo(eObsoleteTech).getEra();
+			int const iObsoleteEraDelay = (iObsoleteEra >= eERA_RENAISSANCE ? iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS : iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE);
+			if (GET_PLAYER(getOwner()).getCurrentEra() < iObsoleteEra + iObsoleteEraDelay)
+			{
+				return false;
+			}
+		}
 		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
 		{
 			// <!-- custom: keep direct getDomainType() checks here. We had compile errors when testing era enums/cases (`ERA_ANCIENT` etc. undeclared / case expression not constant), so for safety we also avoid domain-enum caching here for now; the extra cost is tiny anyway. (GPT-5.3-Codex) -->
@@ -3719,6 +3749,17 @@ void CvUnit::scrap()
 {
 	if (!canScrap())
 		return;
+	if (gUnitLogLevel > 2 && !isHuman())
+	{
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+		CvWString szAITypeString;
+		getUnitAIString(szAITypeString, AI_getUnitAIType());
+		// <!-- custom: Central actual-scrap event log. Caller logs are decision/context lines and can repeat; this line fires once per successful CvUnit::scrap() call before kill(), with stable unit id and turn fields so long logs can be deduplicated reliably. (ChatGPT-5.5 + GPT-5.5) -->
+		logBBAI("    SCRAP_EVENT turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) area=%d age=%d exp=%d cargo=%d/%d totalUnitsBefore=%d unitCostPerMil=%d goldRate=%d gold=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getUnitType(), szAITypeString.GetCString(), getName(0).GetCString(),
+			getX(), getY(), (area() == NULL ? -1 : area()->getID()), GC.getGame().getGameTurn() - getGameTurnCreated(), getExperience(), getCargo(), cargoSpace(),
+			kOwner.getNumUnits(), kOwner.AI_unitCostPerMil(), kOwner.calculateGoldRate(), kOwner.getGold());
+	}
 	kill(true);
 }
 
