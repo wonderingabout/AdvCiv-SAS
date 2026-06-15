@@ -175,6 +175,32 @@ static bool SAS_isRemoteCapturedAttackCityTrap(CvCity const& kCity, PlayerTypes 
 	return (bForeignCapturedCity && bRemoteFromCore && bLargeStack);
 }
 
+// <!-- custom: Helper accepts CvUnit rather than CvUnitAI because FOR_EACH_UNIT_IN exposes base CvUnit pointers; pass the current attack-stack UnitAI separately so upgrade-wait logic can estimate best upgrade pressure for each unit in the group. (GPT-5.5) -->
+// 1>..\CvUnitAI.cpp(6075): error C2664: 'SAS_getBestUpgradeForLog' : cannot convert parameter 1 from 'const CvUnit' to 'const CvUnitAI &'
+// 1>          Reason: cannot convert from 'const CvUnit' to 'const CvUnitAI'
+// 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
+// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+// 1>  Stop.
+static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnitAI)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvArea* pArea = kUnit.area();
+	int iBestValue = kOwner.AI_unitValue(kUnit.getUnitType(), eUnitAI, pArea) * 100;
+	UnitTypes eBestUnit = NO_UNIT;
+	CvCivilization const& kCiv = kOwner.getCivilization();
+	for (int i = kCiv.getNumUnits() - 1; i >= 0; i--)
+	{
+		UnitTypes const eLoopUnit = kCiv.unitAt(i);
+		int const iValue = 90 * kOwner.AI_unitValue(eLoopUnit, eUnitAI, pArea);
+		if (iValue > iBestValue && kUnit.canUpgrade(eLoopUnit, true))
+		{
+			iBestValue = iValue;
+			eBestUnit = eLoopUnit;
+		}
+	}
+	return eBestUnit;
+}
+
 // <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
 // only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
 // to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
@@ -6040,8 +6066,52 @@ void CvUnitAI::AI_attackCityMove()
 							}
 							break;
 						}
+						// <!-- custom: After fixing the remote captured-city case, BBAI logs still showed very large ready attack stacks waiting many turns for hypothetical upgrades, usually with 0 units able to upgrade now. If a stack is already important, ready, and close to a valid target, attack instead of freezing the advantage: enemies may catch up while we wait, and attacking can spend obsolete units so they no longer need upgrades or future upkeep while captured cities improve economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5) -->
+						int iCanUpgradeNowUnits = 0;
+						FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
+						{
+							if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
+								continue;
+							UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit, AI_getUnitAIType());
+							if (eBestUpgradeForLog == NO_UNIT)
+								continue;
+							if (pUpgradeLogUnit->canUpgrade(eBestUpgradeForLog))
+								iCanUpgradeNowUnits++;
+						}
+						int iTargetPathTurns = -1;
+						generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns);
+						static const bool bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE = (GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE") > 0);
+						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS"));
+						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT"));
+						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS"));
+						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS);
 						if (bLogAttackCityParking)
-							SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, -1);
+						{
+							if (!bSkipUpgradeWaitForReadyAttack)
+								SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns);
+							int iEstimatedUpgradeCost = 0;
+							int iBestUpgradePriceMax = 0;
+							FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
+							{
+								if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
+									continue;
+								UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit, AI_getUnitAIType());
+								if (eBestUpgradeForLog == NO_UNIT)
+									continue;
+								int const iUpgradePrice = pUpgradeLogUnit->upgradePrice(eBestUpgradeForLog);
+								iEstimatedUpgradeCost += iUpgradePrice;
+								iBestUpgradePriceMax = std::max(iBestUpgradePriceMax, iUpgradePrice);
+							}
+							logBBAI("    ATTACK_CITY_UPGRADE_WAIT_DETAIL turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d maxSingleUpgradeCost=%d gold=%d goldRate=%d upgradeBudgetTarget=%d goldTarget=%d financialTrouble=%d targetPathTurns=%d ready=%d targetTooStrong=%d remoteCapturedTrap=%d skipReadyAttack=%d",
+								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits, iEstimatedUpgradeCost, iBestUpgradePriceMax, kOwner.getGold(), kOwner.calculateGoldRate(), kOwner.AI_goldTarget(true), kOwner.AI_goldTarget(false), kOwner.AI_isFinancialTrouble(), iTargetPathTurns, bReadyToAttack, bTargetTooStrong, bSkipUpgradeWaitForRemoteCapturedTrap, bSkipUpgradeWaitForReadyAttack);
+							if (bSkipUpgradeWaitForReadyAttack)
+							{
+								logBBAI("    ATTACK_CITY_UPGRADE_WAIT_BYPASS turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d gold=%d targetPathTurns=%d",
+									GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits, iEstimatedUpgradeCost, kOwner.getGold(), iTargetPathTurns);
+							}
+						}
+						if (bSkipUpgradeWaitForReadyAttack)
+							break;
 						getGroup()->pushMission(MISSION_SKIP);
 						return;
 					}

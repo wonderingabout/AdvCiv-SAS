@@ -191,6 +191,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [153 - (Fixed) RFC DOC bug: Sevopedia Hill page did not show improvements valid through underlying terrain, feature, or hill-eligible bonus rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#153---fixed-rfc-doc-bug-sevopedia-hill-page-did-not-show-improvements-valid-through-underlying-terrain-feature-or-hill-eligible-bonus-rules)  
 [154 - (Fixed) Base AdvCiv issue: Great People could wait too long for Golden Age partners instead of using lower but useful actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#154---fixed-base-advciv-issue-great-people-could-wait-too-long-for-golden-age-partners-instead-of-using-lower-but-useful-actions)  
 [155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target)  
+[156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5743,5 +5744,50 @@ Remaining `remoteCapturedTrap=1` parking lines were joiner/no-target cases such 
 Tuning is as of now exposed through the corresponding SAS defines for the core-distance, military-share, and absolute-stack-size gates.
 
 Follow-up diagnostic update: after adding `ATTACK_CITY_REMOTE_PARKING_DETAIL`, three different (save files) fresh autoplay/log samples were reviewed. The upgrade fix kept holding: `remoteCapturedTrap=1 + wait_upgrade` stayed at 0. The bypass also fired broadly, not only in the original Boston-style case; one later sample had 18 remote upgrade bypasses, including very large stacks. Remaining `ATTACK_CITY_REMOTE_PARKING_DETAIL` lines were rare and joiner-related, and looked like short-lived or plausible staging cases rather than a proven evacuation bug. Based on those logs, no joiner-wait bypass, evacuation rule, or broader catch-all parking logger was added as of now.
+
+Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+## 156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wk9367wjB0UK4zUQhdI7aLddY4CvWZIR?usp=sharing).
+
+After fixing the remote captured-city upgrade-wait trap in [KI#155](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target), BBAI logs still showed a broader related problem: large ready attack stacks could wait many turns because enough units had upgrade potential, even when none of those units could actually upgrade now.
+
+This is inefficient when the stack is already ready and the target is not too strong. Waiting can waste a current military advantage while enemies catch up. Attacking can also spend obsolete units so they no longer need upgrades or future upkeep, capture cities that increase economy and unit support, and punish rivals that expanded thinly before they can recover.
+
+We added `ATTACK_CITY_UPGRADE_WAIT_DETAIL` diagnostics around the generic upgrade-wait branch. The log records stack size, military share, target path turns, upgrade-potential unit count, units that can upgrade now, estimated upgrade cost, available gold, financial state, and whether the new bypass would fire.
+
+One reviewed log showed:
+
+- `ATTACK_CITY_UPGRADE_WAIT_DETAIL`: 155 lines.
+- `ATTACK_CITY_PARKING reason=wait_upgrade`: 155 lines.
+- `affordableUpgradeUnits` / later `canUpgradeNowUnits`: 0 in 154 / 155 lines.
+- `ATTACK_CITY_REMOTE_UPGRADE_BYPASS`: 8 lines.
+- `remoteCapturedTrap=1 + wait_upgrade`: 0 lines.
+
+The main suspicious cases were large non-remote stacks waiting for future upgrades despite close targets:
+
+- USA Washington: T147-T181, up to 59 units, up to 69% of total military, target 3-5 turns away.
+- Mali Gao: T233-T255, up to 42 units, up to 41% of total military, target mostly 4-9 turns away.
+- Mali Vienna: T160-T168, 24 units, up to 46% of total military, gold often already above estimated upgrade cost.
+- French Nuremberg: T231-T236, 33 units, up to 40% of total military, target 3-5 turns away.
+- English Oxford: T212-T219, 24 units, up to 45% of total military, target 2-4 turns away.
+
+Fix: when a city-attack stack is ready, the target is not too strong, no unit can upgrade now, the stack is important enough, and the target is within the configured path-turn gate, bypass the generic upgrade wait and continue into the existing target movement logic. This does not bypass waits when real upgrades are immediately available, and it does not force an attack against a too-strong target.
+
+Follow-up test with the bypass enabled showed:
+
+- `ATTACK_CITY_UPGRADE_WAIT_DETAIL`: 44 lines.
+- `ATTACK_CITY_UPGRADE_WAIT_BYPASS`: 40 lines.
+- `ATTACK_CITY_PARKING reason=wait_upgrade`: 4 lines.
+- `ATTACK_CITY_REMOTE_UPGRADE_BYPASS`: 6 lines.
+- `ATTACK_CITY_REMOTE_PARKING_DETAIL`: 5 lines.
+- `remoteCapturedTrap=1 + wait_upgrade`: 0 lines.
+
+The 4 remaining generic upgrade waits all had `canUpgradeNowUnits > 0`, so they were true immediate upgrade opportunities rather than future-upgrade parking. The clearest sanity case was the USA Seattle stack: it waited on T270-T272 while 6 units could upgrade now, then bypassed on T273 once `canUpgradeNowUnits=0`, and later continued from Nottingham with the same group.
+
+The generic `ATTACK_CITY_PARKING reason=wait_upgrade` log was then moved after the bypass decision, so bypassed cases are no longer counted as true parking. Bypassed cases remain visible through `ATTACK_CITY_UPGRADE_WAIT_DETAIL` and `ATTACK_CITY_UPGRADE_WAIT_BYPASS`.
+
+Tuning is as of now exposed through the corresponding SAS defines for enable/disable, minimum stack size, minimum military share, and maximum target path turns.
 
 Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.

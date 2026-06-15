@@ -1121,6 +1121,26 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
 		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
+	<!-- custom: Base AdvCiv can park ready city-attack stacks because enough units have upgrade potential, even when no unit can actually upgrade now. Allow important ready stacks with close targets to skip that wait: attacking can use the existing military advantage before enemies catch up, spend obsolete units so they no longer need upgrades or future upkeep, and capture cities that increase economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5); also if we wait our units risk becoming obsolete later so better use them now while they are strong and available. -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: i reduced it from GPT-5.5's value of 16 because i think we should always attack if we can, should be stronger and less costly than waiting. -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<!-- custom: i reduced it from GPT-5.5's value of 30 (same reasoning) -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum target path turns for bypassing upgrade waiting. Higher value = bypass upgrade waiting for farther targets too, more aggressive. Lower value = only bypass upgrade waiting for very close targets, more conservative. (ChatGPT-5.5 + GPT-5.5); i increased it it from GPT-5.5's value of 8 (same reasoning) -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS</DefineName>
+		<iDefineIntVal>99</iDefineIntVal>
+	</Define>
 
 
 
@@ -2238,17 +2258,17 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
 		<iDefineIntVal>9</iDefineIntVal>
 	</Define>
-	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
-		<iDefineIntVal>10</iDefineIntVal>
+		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
-	<!-- custom: Minimum percentage of the player's total military in a remote foreign-captured city stack before bypassing the upgrade wait; Boston-style logs showed 30%+ of the military freezing far from core. Set to 0 to disable this percent gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's suggested value of around ~25 or ~30 to encourage more aggression and flexibility too. -->
+	<!-- custom: Minimum percentage of the player's total military in a remote foreign-captured city stack before bypassing the upgrade wait; Boston-style logs showed 30%+ of the military freezing far from core. Set to 0 to disable this percent gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's suggested value of around ~25 or ~30 (same reasoning). -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_MILITARY_PERCENT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
-	<!-- custom: Absolute stack-size fallback for larger empires where a large remote captured-city army can be below the percentage threshold; Houston-style logs showed 28-29 units but only about 24-25% of total military. Set to 0 to disable this absolute unit-count gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's value of 24 to encourage more aggression and flexibility too. -->
+	<!-- custom: Absolute stack-size fallback for larger empires where a large remote captured-city army can be below the percentage threshold; Houston-style logs showed 28-29 units but only about 24-25% of total military. Set to 0 to disable this absolute unit-count gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's value of 24 (same reasoning). -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_STACK_UNITS</DefineName>
 		<iDefineIntVal>16</iDefineIntVal>
