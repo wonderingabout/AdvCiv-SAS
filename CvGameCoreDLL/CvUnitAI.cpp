@@ -133,6 +133,125 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlo
 	}
 }
 
+static bool SAS_isRemoteCapturedAttackCityTrap(CvCity const& kCity, PlayerTypes eOwner, int iGroupUnits, int iGroupMilitaryPercent, int* piOwnedCitiesSameArea = NULL, int* piOwnedCitiesWithin6 = NULL, int* piNearestOwnedCityDistanceSameArea = NULL, int* piNearestCoreCityDistanceSameArea = NULL)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
+	int iOwnedCitiesSameArea = 0;
+	int iOwnedCitiesWithin6 = 0;
+	int iNearestOwnedCityDistanceSameArea = MAX_INT;
+	int iNearestCoreCityDistanceSameArea = MAX_INT;
+	FOR_EACH_CITY(pLoopCity, kOwner)
+	{
+		if (pLoopCity == &kCity)
+			continue;
+		int const iDistance = ::plotDistance(kCity.plot(), pLoopCity->plot());
+		if (iDistance <= 6)
+			iOwnedCitiesWithin6++;
+		if (!pLoopCity->isArea(kCity.getArea()))
+			continue;
+		iOwnedCitiesSameArea++;
+		iNearestOwnedCityDistanceSameArea = std::min(iNearestOwnedCityDistanceSameArea, iDistance);
+		if (pLoopCity->getPreviousOwner() == NO_PLAYER || pLoopCity->getOriginalOwner() == eOwner)
+			iNearestCoreCityDistanceSameArea = std::min(iNearestCoreCityDistanceSameArea, iDistance);
+	}
+	if (iNearestOwnedCityDistanceSameArea == MAX_INT)
+		iNearestOwnedCityDistanceSameArea = -1;
+	if (iNearestCoreCityDistanceSameArea == MAX_INT)
+		iNearestCoreCityDistanceSameArea = -1;
+	if (piOwnedCitiesSameArea != NULL)
+		*piOwnedCitiesSameArea = iOwnedCitiesSameArea;
+	if (piOwnedCitiesWithin6 != NULL)
+		*piOwnedCitiesWithin6 = iOwnedCitiesWithin6;
+	if (piNearestOwnedCityDistanceSameArea != NULL)
+		*piNearestOwnedCityDistanceSameArea = iNearestOwnedCityDistanceSameArea;
+	if (piNearestCoreCityDistanceSameArea != NULL)
+		*piNearestCoreCityDistanceSameArea = iNearestCoreCityDistanceSameArea;
+	bool const bForeignCapturedCity = (kCity.getPreviousOwner() != NO_PLAYER && kCity.getOriginalOwner() != eOwner);
+	static int const iMinCoreDistance = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE");
+	static int const iMinMilitaryPercent = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_MILITARY_PERCENT");
+	static int const iMinStackUnits = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_STACK_UNITS");
+	bool const bRemoteFromCore = (iMinCoreDistance <= 0 || iNearestCoreCityDistanceSameArea < 0 || iNearestCoreCityDistanceSameArea >= iMinCoreDistance);
+	bool const bLargeStack = ((iMinMilitaryPercent > 0 && iGroupMilitaryPercent >= iMinMilitaryPercent) || (iMinStackUnits > 0 && iGroupUnits >= iMinStackUnits));
+	return (bForeignCapturedCity && bRemoteFromCore && bLargeStack);
+}
+
+// <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
+// only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
+// to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
+// waiting for upgrades, has no target, sees an over-strong target, or is otherwise falling through to skip before we
+// change behavior. The same remote captured-city test is used below to stop upgrade waits from freezing a ready stack
+// that has a valid target. Logs showed Boston-style false negatives when a nearby owned city was also a captured/front
+// city, so the behavior test is based on distance from core rather than any nearby owned city. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns)
+{
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	CvCity const* pCurrentCity = kUnit.getPlot().getPlotCity();
+	int const iTotalMilitaryUnits = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
+	int const iGroupMilitaryPercent = 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitaryUnits);
+	int iOwnedCitiesSameArea = 0;
+	int iOwnedCitiesWithin6 = 0;
+	int iNearestOwnedCityDistanceSameArea = MAX_INT;
+	int iNearestCoreCityDistanceSameArea = MAX_INT;
+	bool const bRemoteCapturedTrap = SAS_isRemoteCapturedAttackCityTrap(*pCurrentCity, kUnit.getOwner(), pGroup->getNumUnits(), iGroupMilitaryPercent, &iOwnedCitiesSameArea, &iOwnedCitiesWithin6, &iNearestOwnedCityDistanceSameArea, &iNearestCoreCityDistanceSameArea);
+	int iWoundedUnits = 0;
+	int iCanAttackUnits = 0;
+	int iCityCaptureUnits = 0;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+	{
+		if (pLoopUnit->getDamage() > 0)
+			iWoundedUnits++;
+		if (pLoopUnit->canAttack())
+		{
+			iCanAttackUnits++;
+			if (!pLoopUnit->isNoCityCapture())
+				iCityCaptureUnits++;
+		}
+	}
+	logBBAI("    ATTACK_CITY_PARKING turn=%d player=%d %S reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S city=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S target=(%d,%d) targetArea=%d ready=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitaryUnits, iGroupMilitaryPercent, iWoundedUnits, iCanAttackUnits, iCityCaptureUnits,
+		pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pCurrentCity->getArea().getID(), pCurrentCity->getPreviousOwner() != NO_PLAYER, pCurrentCity->getPreviousOwner() != NO_PLAYER && pCurrentCity->getOriginalOwner() != kUnit.getOwner(), bRemoteCapturedTrap, pCurrentCity->isConnectedToCapital(kUnit.getOwner()), GC.getGame().getGameTurn() - pCurrentCity->getGameTurnAcquired(), pCurrentCity->getPreviousOwner(), pCurrentCity->getOriginalOwner(), iOwnedCitiesSameArea, iOwnedCitiesWithin6, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea,
+		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getArea().getID()),
+		bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, GET_TEAM(kUnit.getTeam()).getNumWars(), iJoiners, iPathTurns, kUnit.AI_getGroup()->AI_getMissionAIType(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
+	if (bRemoteCapturedTrap)
+	{
+		// <!-- custom: Diagnostic-only follow-up for KI#155: upgrade-wait remote traps are fixed, but logs still showed remote captured stacks parking for joiners or with no target. Add city defense pressure, area target, and nearest revealed enemy-city distances so the next log review can distinguish useful staging from a stranded army before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
+		CvCityAI const* pCurrentCityAI = GET_PLAYER(kUnit.getOwner()).AI_getCity(pCurrentCity->getID());
+		int const iCityThreat = (pCurrentCityAI == NULL ? -1 : pCurrentCityAI->AI_cityThreat());
+		int const iNeededDefenders = (pCurrentCityAI == NULL ? -1 : pCurrentCityAI->AI_neededDefenders(true));
+		int const iPresentDefenders = pCurrentCity->getPlot().getNumDefenders(kUnit.getOwner());
+		CvCity const* pAreaTargetCity = pCurrentCity->getArea().AI_getTargetCity(kUnit.getOwner());
+		CvCity const* pNearestEnemyCity = NULL;
+		CvCity const* pNearestEnemyCitySameArea = NULL;
+		int iNearestEnemyDistanceSameArea = -1;
+		int iNearestEnemyDistanceAnyArea = -1;
+		for (PlayerIter<ALIVE,ENEMY_OF> itEnemy(kUnit.getTeam()); itEnemy.hasNext(); ++itEnemy)
+		{
+			FOR_EACH_CITY(pEnemyCity, *itEnemy)
+			{
+				if (!pEnemyCity->isRevealed(kUnit.getTeam()))
+					continue;
+				int const iEnemyDistance = ::plotDistance(pCurrentCity->plot(), pEnemyCity->plot());
+				if (iNearestEnemyDistanceAnyArea < 0 || iEnemyDistance < iNearestEnemyDistanceAnyArea)
+				{
+					iNearestEnemyDistanceAnyArea = iEnemyDistance;
+					pNearestEnemyCity = pEnemyCity;
+				}
+				if (pEnemyCity->isArea(pCurrentCity->getArea()) && (iNearestEnemyDistanceSameArea < 0 || iEnemyDistance < iNearestEnemyDistanceSameArea))
+				{
+					iNearestEnemyDistanceSameArea = iEnemyDistance;
+					pNearestEnemyCitySameArea = pEnemyCity;
+				}
+			}
+		}
+		logBBAI("    ATTACK_CITY_REMOTE_PARKING_DETAIL turn=%d player=%d %S reason=%s noTarget=%d cityThreat=%d defenders=%d neededDefenders=%d cityPop=%d areaTarget=%S areaTarget=(%d,%d) nearestEnemyAny=%S nearestEnemyAny=(%d,%d) nearestEnemySameArea=%S nearestEnemySameArea=(%d,%d) nearestEnemyDistAny=%d nearestEnemyDistSameArea=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d groupUnits=%d groupMilitaryPercent=%d canAttack=%d cityCapture=%d wounded=%d joiners=%d pathTurns=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason, pTargetCity == NULL, iCityThreat, iPresentDefenders, iNeededDefenders, pCurrentCity->getPopulation(),
+			(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()),
+			(pNearestEnemyCity == NULL ? L"-" : pNearestEnemyCity->getName().GetCString()), (pNearestEnemyCity == NULL ? -1 : pNearestEnemyCity->getX()), (pNearestEnemyCity == NULL ? -1 : pNearestEnemyCity->getY()),
+			(pNearestEnemyCitySameArea == NULL ? L"-" : pNearestEnemyCitySameArea->getName().GetCString()), (pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getX()), (pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getY()),
+			iNearestEnemyDistanceAnyArea, iNearestEnemyDistanceSameArea, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea, pGroup->getNumUnits(), iGroupMilitaryPercent, iCanAttackUnits, iCityCaptureUnits, iWoundedUnits, iJoiners, iPathTurns);
+	}
+}
+
 // Instead of having CvUnit::init call CvUnitAI::AI_init. finalizeInit split off.
 void CvUnitAI::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI,
 	PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection)
@@ -5268,6 +5387,7 @@ void CvUnitAI::AI_attackCityMove()
 	bool const bIgnoreFaster = (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ) &&
 			!bAssault && getArea().getCitiesPerPlayer(getOwner()) > 0);
 	bool const bInCity = getPlot().isCity();
+	bool const bLogAttackCityParking = (gUnitLogLevel >= 2 && bInCity && getPlot().getOwner() == getOwner() && getPlot().getPlotCity() != NULL && getGroup()->getNumUnits() >= 6);
 
 	if (bInCity && /* cdtw.9: */ getPlot().getTeam() == getTeam())
 	{
@@ -5789,6 +5909,8 @@ void CvUnitAI::AI_attackCityMove()
 
 			if (iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
 			{	// (the mission is just for debug feedback)
+				if (bLogAttackCityParking)
+					SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, iPathTurns);
 				getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 						false, false, MISSIONAI_GROUP);
 				return;
@@ -5827,6 +5949,8 @@ void CvUnitAI::AI_attackCityMove()
 						*this, &eMissionAIType, 1, getGroup(), 2);
 				if (iJoiners * 5 > getGroup()->getNumUnits())
 				{	// K-Mod (for debug feedback)
+					if (bLogAttackCityParking)
+						SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_not_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, -1);
 					getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 							false, false, MISSIONAI_GROUP);
 					return;
@@ -5896,6 +6020,9 @@ void CvUnitAI::AI_attackCityMove()
 				// Check if stack has units which can upgrade
 				int iNeedUpgradeCount = 0;
 				CvSelectionGroup const& kGroup = *getGroup();
+				CvCity const* pCurrentCity = getPlot().getPlotCity();
+				int const iGroupMilitaryPercent = 100 * kGroup.getNumUnits() / std::max(1, kOwner.getNumMilitaryUnits());
+				bool const bSkipUpgradeWaitForRemoteCapturedTrap = (pCurrentCity != NULL && pTargetCity != NULL && bReadyToAttack && !bTargetTooStrong && SAS_isRemoteCapturedAttackCityTrap(*pCurrentCity, getOwner(), kGroup.getNumUnits(), iGroupMilitaryPercent));
 				FOR_EACH_UNIT_IN(pLoopUnit, kGroup)
 				{
 					if (pLoopUnit->getUpgradeCity(false) == NULL)
@@ -5903,6 +6030,18 @@ void CvUnitAI::AI_attackCityMove()
 					iNeedUpgradeCount++;
 					if (5 * iNeedUpgradeCount > kGroup.getNumUnits()) // was 8*
 					{
+						if (bSkipUpgradeWaitForRemoteCapturedTrap)
+						{
+							// <!-- custom: BBAI logs showed remote captured-city attack stacks with valid targets and enough strength parking for many turns because the upgrade-wait rule fired. If such a stack is already ready and the target is not too strong, keep the offensive moving instead of freezing most of the army far from the core. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+							if (gUnitLogLevel >= 2)
+							{
+								logBBAI("    ATTACK_CITY_REMOTE_UPGRADE_BYPASS turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d",
+									GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount);
+							}
+							break;
+						}
+						if (bLogAttackCityParking)
+							SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, -1);
 						getGroup()->pushMission(MISSION_SKIP);
 						return;
 					}
@@ -6031,6 +6170,8 @@ void CvUnitAI::AI_attackCityMove()
 					*this, &eMissionAIType, 1, getGroup(), 2);
 			if (4*iNearbyJoiners > getGroup()->getNumUnits())
 			{
+				if (bLogAttackCityParking)
+					SAS_logAttackCityParking(*this, pTargetCity, "wait_nearby_joiners", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNearbyJoiners, -1);
 				getGroup()->pushMission(MISSION_SKIP);
 				return;
 			}
@@ -6103,6 +6244,8 @@ void CvUnitAI::AI_attackCityMove()
 	// K-Mod end
 	if (AI_safety())
 		return;
+	if (bLogAttackCityParking)
+		SAS_logAttackCityParking(*this, pTargetCity, "final_skip", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, -1, -1);
 	getGroup()->pushMission(MISSION_SKIP);
 }
 

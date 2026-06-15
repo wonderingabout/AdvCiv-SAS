@@ -2238,6 +2238,21 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
 		<iDefineIntVal>9</iDefineIntVal>
 	</Define>
+	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum percentage of the player's total military in a remote foreign-captured city stack before bypassing the upgrade wait; Boston-style logs showed 30%+ of the military freezing far from core. Set to 0 to disable this percent gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's suggested value of around ~25 or ~30 to encourage more aggression and flexibility too. -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_MILITARY_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: Absolute stack-size fallback for larger empires where a large remote captured-city army can be below the percentage threshold; Houston-style logs showed 28-29 units but only about 24-25% of total military. Set to 0 to disable this absolute unit-count gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's value of 24 to encourage more aggression and flexibility too. -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_STACK_UNITS</DefineName>
+		<iDefineIntVal>16</iDefineIntVal>
+	</Define>
 
 
 

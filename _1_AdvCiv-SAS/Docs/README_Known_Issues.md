@@ -190,6 +190,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)  
 [153 - (Fixed) RFC DOC bug: Sevopedia Hill page did not show improvements valid through underlying terrain, feature, or hill-eligible bonus rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#153---fixed-rfc-doc-bug-sevopedia-hill-page-did-not-show-improvements-valid-through-underlying-terrain-feature-or-hill-eligible-bonus-rules)  
 [154 - (Fixed) Base AdvCiv issue: Great People could wait too long for Golden Age partners instead of using lower but useful actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#154---fixed-base-advciv-issue-great-people-could-wait-too-long-for-golden-age-partners-instead-of-using-lower-but-useful-actions)  
+[155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5677,5 +5678,70 @@ Follow-up log with the cap set to 12 normal-speed turns:
 The capped cases were modest and reasonable: a Great Spy joined, a Great Engineer discovered Quantum Mechanics, and Persian Great People stopped being held indefinitely for a Golden Age. This fixed the long-hoarding pattern while preserving useful short waits.
 
 Note: this follow-up comparison also used extra diagnostic logging. Empirically, even diagnostic-only DLL changes can shift autoplay history, so not every broad score/tech/history difference in later screenshots or logs should be attributed to the Great Person wait-cap change itself. The main signal is the log pattern: Great People no longer wait past the configured Golden Age partner cap, while short useful waits remain.
+
+Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+## 155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/19IkuY_8Xvz3OsWvbnYGg6eHNk0JKYPXl?usp=sharing).
+
+While reviewing AI military behavior, we noticed a risky pattern: after conquering a faraway city, a large share of an AI empire's army could remain parked there instead of continuing the offensive or redeploying. This can leave the core empire under-defended, especially when the captured city is far from the original/core city cluster. Keeping a stack together near an active land front can be correct, so this needed logs before changing behavior.
+
+We added `ATTACK_CITY_PARKING` diagnostics around `AI_attackCityMove` waits/skips for large attack-city groups in owned cities. The log includes the turn, group id, unit count, total military share, wounded/capture-capable counts, current city, captured/foreign-captured status, capital connection, nearby/core-city distances, target city, readiness, target strength, war count, joiners, path turns, mission AI, and area AI.
+
+Initial logs showed that the main parking cause was not "no target". It was mostly the upgrade-wait branch:
+
+- `ATTACK_CITY_PARKING`: 470 lines in one analyzed log.
+- `wait_upgrade`: 370 lines.
+- `wait_joiners_not_ready`: 62 lines.
+- `wait_joiners_ready`: 38 lines.
+
+The clearest case was Celtic Boston:
+
+- captured foreign city;
+- seen in earlier diagnostics from T156 to T256, and in the stricter remote-trap diagnostic from T172 to T214;
+- no nearby owned city in the first diagnostic pass;
+- nearest core same-area city around 18 tiles away;
+- group size up to 41 units;
+- up to 62% of Celtic military;
+- valid targets such as Navajo, Machu Picchu, and Tiwanaku;
+- `ready=1`;
+- `targetTooStrong=0`;
+- repeated `reason=wait_upgrade`.
+
+Additional diagnostic fields confirmed that `connectedCapital` was not the useful distinction: remote captured traps could still have `connectedCapital=1`. The real shape was a foreign-captured city far from the core city cluster. A direct `remoteCapturedTrap` flag was then added to the log. One follow-up parse showed:
+
+- `ATTACK_CITY_PARKING`: 469 lines.
+- `wait_upgrade`: 378 lines.
+- `remoteCapturedTrap=1`: 42 lines.
+- every `remoteCapturedTrap=1` line was `wait_upgrade`;
+- every `remoteCapturedTrap=1` line had `ready=1` and `targetTooStrong=0`.
+
+Fix: for a remote foreign-captured city stack that is already ready, has a valid target, and whose target is not too strong, bypass only the upgrade-wait skip and continue into the existing target movement logic. This does not evacuate the army, does not alter joiner/no-target behavior, and does not force an attack. It only prevents the upgrade-wait rule from freezing a ready stack far from core.
+
+After the first fix, logs showed:
+
+- `ATTACK_CITY_REMOTE_UPGRADE_BYPASS`: 3 lines.
+- `remoteCapturedTrap=1 + wait_upgrade`: 0 lines.
+
+Boston still produced false negatives once another nearby owned city was also a captured/front city, so the trap test was adjusted from "no nearby owned city" to "far from core". A later test showed:
+
+- `ATTACK_CITY_REMOTE_UPGRADE_BYPASS`: 5 lines.
+- `remoteCapturedTrap=1 + wait_upgrade`: 0 lines.
+- bypasses occurred in plausible cases such as Celtic Boston, Mongol Antium, and Ethiopian Athens.
+
+Final reviewed bypass examples:
+
+- T170 Celtic Boston -> Machu Picchu: 10 units, 25% of Celtic military, 3 upgrade units.
+- T197 Celtic Boston -> Machu Picchu: 18 units, 36% of Celtic military, 4 upgrade units.
+- T265 Mongol Antium -> Cumae: 18 units, 33% of Mongol military, 4 upgrade units.
+- T311 Mongol Antium -> Ning-hsia: 19 units, 33% of Mongol military, 4 upgrade units.
+- T329 Ethiopian Athens -> Corinth: 29 units, 39% of Ethiopian military, 6 upgrade units.
+
+Remaining `remoteCapturedTrap=1` parking lines were joiner/no-target cases such as `wait_joiners_ready` or `wait_joiners_not_ready`; those are a separate future issue, not this upgrade-wait fix. The current fix is intentionally narrow.
+
+Tuning is as of now exposed through the corresponding SAS defines for the core-distance, military-share, and absolute-stack-size gates.
+
+Follow-up diagnostic update: after adding `ATTACK_CITY_REMOTE_PARKING_DETAIL`, three different (save files) fresh autoplay/log samples were reviewed. The upgrade fix kept holding: `remoteCapturedTrap=1 + wait_upgrade` stayed at 0. The bypass also fired broadly, not only in the original Boston-style case; one later sample had 18 remote upgrade bypasses, including very large stacks. Remaining `ATTACK_CITY_REMOTE_PARKING_DETAIL` lines were rare and joiner-related, and looked like short-lived or plausible staging cases rather than a proven evacuation bug. Based on those logs, no joiner-wait bypass, evacuation rule, or broader catch-all parking logger was added as of now.
 
 Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
