@@ -2435,6 +2435,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		}
 	}
 
+	int iDiagnosticVisibleEnemyRejects = 0;
+	int iDiagnosticNoPathRejects = 0;
+	int iDiagnosticPathableCandidates = 0;
+	int iDiagnosticReservedRejects = 0;
+	int iDiagnosticReplacementSkipRejects = 0;
+
 	// Loop through all candidate <!-- custom: plots -->
 	for (size_t i = 0; i < candidatePlots.size(); ++i)
 	{
@@ -2474,6 +2480,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				!bIrrigationFarmReplacement);
 			if (bNormalReplacementWhileBlankBFCRemains)
 			{
+				iDiagnosticReplacementSkipRejects++;
 				if (gUnitLogLevel >= 2)
 				{
 					logBBAI("    %S worker skips replacement while unimproved BFC plot remains for city %S: plot=(%d,%d) build=%S current=%S candidate=%S value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(), GC.getInfo(eB).getDescription(), GC.getInfo(eCurrentImprovement).getDescription(), GC.getInfo(eCandidateImprovement).getDescription(), candidatePlots[i].iValue);
@@ -2484,7 +2491,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 		// Check pathfinding <!-- custom: and other conditions such as worker safety militarily and any other if any -->.
 		if (pB->isVisibleEnemyUnit(this))
+		{
+			iDiagnosticVisibleEnemyRejects++;
 			continue;
+		}
 
 		/*int iPathTurns;
 		if (generatePath(pB, 0, true, &iPathTurns) && canBuild(pB, eB) &&
@@ -2502,6 +2512,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// K-Mod. basically the same thing, but using pathFinder.
 		if (pathFinder.generatePath(*pB))
 		{
+			iDiagnosticPathableCandidates++;
 			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
 			//int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
 			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pB, eB);
@@ -2542,6 +2553,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					logBBAI("    %S worker chooses irrigation-chain step at (%d,%d), value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pB->getX(), pB->getY(), candidatePlots[i].iValue);
 				break;
 			}
+			iDiagnosticReservedRejects++;
+		}
+		else
+		{
+			iDiagnosticNoPathRejects++;
 		}
 	}
 
@@ -2561,9 +2577,22 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// return (eBestBuild != NO_BUILD);
 
 	// Ensure outputs are consistent no matter how we exit
-	if (!bFound && gUnitLogLevel >= 3 && iCityPopulation >= 6)
+	if (!bFound && gUnitLogLevel >= 3 && iCityPopulation >= 6 && !candidatePlots.empty())
 	{
-		logBBAI("    %S worker finds no pathable city-build candidate for city %S despite %d raw candidates", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), (int)candidatePlots.size());
+		CvPlot* pTopCandidatePlot = candidatePlots[0].pPlot;
+		BuildTypes const eTopCandidateBuild = candidatePlots[0].eBuild;
+		ImprovementTypes const eTopCandidateCurrentImprovement = (pTopCandidatePlot == NULL ? NO_IMPROVEMENT : pTopCandidatePlot->getImprovementType());
+		ImprovementTypes const eTopCandidateImprovement = (eTopCandidateBuild == NO_BUILD ? NO_IMPROVEMENT : GC.getInfo(eTopCandidateBuild).getImprovement());
+		wchar const* szTopCandidateBuild = (eTopCandidateBuild == NO_BUILD ? L"-" : GC.getInfo(eTopCandidateBuild).getDescription());
+		wchar const* szTopCandidateCurrentImprovement = (eTopCandidateCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopCandidateCurrentImprovement).getDescription());
+		wchar const* szTopCandidateImprovement = (eTopCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopCandidateImprovement).getDescription());
+		// <!-- custom: The old worker no-path log spammed harmless cases with 0 raw candidates, hiding real failures. Log only raw-candidate failures, with worker/city/top-candidate context and rejection counters, so BBAI reviews can tell whether pathing, reservations, enemies, or replacement-skip policy blocked all work without changing behavior. Reservation-only failures are often normal worker coordination, so the tag says "no accepted" rather than implying no candidate was pathable. (ChatGPT-5.5 + GPT-5.5) -->
+		logBBAI("    WORKER_NO_ACCEPTED_CITY_BUILD turn=%d player=%d %S workerId=%d unit=%S worker=(%d,%d) workerArea=%d city=%S city=(%d,%d) cityArea=%d pop=%d rawCandidates=%d pathable=%d noPath=%d visibleEnemy=%d reserved=%d replacementSkip=%d hasBlank=%d pathableBlank=%d top=(%d,%d) topArea=%d topBuild=%S topCurrent=%S topImprovement=%S topValue=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), getX(), getY(), getPlot().getArea().getID(),
+			kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPlot().getArea().getID(), iCityPopulation, (int)candidatePlots.size(), iDiagnosticPathableCandidates,
+			iDiagnosticNoPathRejects, iDiagnosticVisibleEnemyRejects, iDiagnosticReservedRejects, iDiagnosticReplacementSkipRejects, bHasUnimprovedBFCImprovementCandidate, bHasPathableUnimprovedBFCImprovementCandidate,
+			(pTopCandidatePlot == NULL ? -1 : pTopCandidatePlot->getX()), (pTopCandidatePlot == NULL ? -1 : pTopCandidatePlot->getY()), (pTopCandidatePlot == NULL ? -1 : pTopCandidatePlot->getArea().getID()),
+			szTopCandidateBuild, szTopCandidateCurrentImprovement, szTopCandidateImprovement, candidatePlots[0].iValue);
 	}
 	if (ppBestPlot)  *ppBestPlot  = bFound ? pBestPlot  : NULL;
 	if (peBestBuild) *peBestBuild = bFound ? eBestBuild : NO_BUILD;
@@ -7567,6 +7596,8 @@ void CvUnitAI::AI_greatPersonMove()
 	}
 
 	CvGame const& kGame = GC.getGame();
+	int const iGreatPersonAge = kGame.getGameTurn() - getGameTurnCreated();
+	int const iGreatPersonAgeNormal = 100 * iGreatPersonAge / std::max(1, kGame.getSpeedPercent());
 	/*	SlowValue is meant to be a rough estimation of how much value we'll get
 		from doing the best join / build mission. To give this estimate,
 		I'm going to do a rough personality-based calculation of how many turns
@@ -7742,11 +7773,22 @@ void CvUnitAI::AI_greatPersonMove()
 
 				if (iMinTurns != MAX_INT)
 				{
-					int iRelativeWaitTime = iMinTurns + (kGame.getGameTurn() - getGameTurnCreated());
-					iRelativeWaitTime *= 100;
-					iRelativeWaitTime /= kGame.getSpeedPercent();
-					// lets say 1% per turn.
-					iScoreThreshold = std::max(iScoreThreshold, it->first * (100 - iRelativeWaitTime) / 100);
+					// <!-- custom: BBAI logs showed some Great People held for 29-32 turns because Golden Age partner reservation kept blocking weaker but useful actions. After the XML cap, stop raising the wait threshold for that reason and let the existing sorted mission list pick the best non-Golden action. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+					static const int iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL = GC.getDefineINT("SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL");
+					if (iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL <= 0 || iGreatPersonAgeNormal <= iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL)
+					{
+						int iRelativeWaitTime = iMinTurns + iGreatPersonAge;
+						iRelativeWaitTime *= 100;
+						iRelativeWaitTime /= kGame.getSpeedPercent();
+						// lets say 1% per turn.
+						iScoreThreshold = std::max(iScoreThreshold, it->first * (100 - iRelativeWaitTime) / 100);
+					}
+					else if (gUnitLogLevel > 2)
+					{
+						logBBAI("    GP_GOLDEN_WAIT_CAP turn=%d player=%d %S unitId=%d unit=%S age=%d ageNormal=%d capNormal=%d golden=%d threshold=%d",
+								kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+								iGreatPersonAge, iGreatPersonAgeNormal, iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL, it->first, iScoreThreshold);
+					}
 				}
 			}
 			break;
@@ -7831,7 +7873,13 @@ void CvUnitAI::AI_greatPersonMove()
 		if (AI_discover())
 			return;
 	}
-	if (gUnitLogLevel > 2) logBBAI("    %S chooses 'wait' with their %S (value: %d, dead time: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iScoreThreshold, kGame.getGameTurn() - getGameTurnCreated());
+	if (gUnitLogLevel > 2)
+	{
+		// <!-- custom: Great People sometimes logged repeated waits, but the old line lacked turn, unit id, plot, mission state, and the candidate values needed to tell whether the unit was truly stuck or waiting for a better action. Keep this diagnostic gated behind the existing unit log level for reviewing wait decisions. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+		logBBAI("    GP_WAIT turn=%d player=%d %S unitId=%d unit=%S type=%S plot=(%d,%d) age=%d ageNormal=%d threshold=%d slow=%d discover=%d golden=%d trade=%d culture=%d missionAI=%d",
+				kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), GC.getInfo(getUnitType()).getDescription(),
+				getX(), getY(), iGreatPersonAge, iGreatPersonAgeNormal, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIType());
+	}
 	if (AI_retreatToCity())
 		return;
 	// K-Mod

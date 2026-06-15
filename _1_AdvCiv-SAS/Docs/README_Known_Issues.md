@@ -189,6 +189,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)  
 [152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)  
 [153 - (Fixed) RFC DOC bug: Sevopedia Hill page did not show improvements valid through underlying terrain, feature, or hill-eligible bonus rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#153---fixed-rfc-doc-bug-sevopedia-hill-page-did-not-show-improvements-valid-through-underlying-terrain-feature-or-hill-eligible-bonus-rules)  
+[154 - (Fixed) Base AdvCiv issue: Great People could wait too long for Golden Age partners instead of using lower but useful actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#154---fixed-base-advciv-issue-great-people-could-wait-too-long-for-golden-age-partners-instead-of-using-lower-but-useful-actions)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5646,3 +5647,35 @@ The bug was only in Sevopedia's Python reconstruction of those rules. The Hill p
 No DLL change was needed because the game rules were already correct; this was a UI/documentation display fix in `SevoPediaTerrain.py`.
 
 Fixed with the very nice help of GPT-5.5 on Codex thanks.
+
+## 154 - (Fixed) Base AdvCiv issue: Great People could wait too long for Golden Age partners instead of using lower but useful actions
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/14yZ443u8V_YQKvVjI2cwiUVD8aPpmJ10?usp=sharing).
+
+While reviewing BBAI logs for AI strength issues, Great People sometimes showed repeated `chooses 'wait'` lines. The first log format only showed the player, Great Person name/type, value, and dead time, which was not enough to tell whether the unit was productively waiting or stuck. We added a temporary `GP_WAIT` diagnostic with turn, player, unit id, plot, age, normal-speed age, mission state, and candidate values for slow/join/build, discover, Golden Age, trade mission, and Great Work.
+
+Filtered `GP_WAIT` logs showed that short waits were often useful: several Greek Great People waited a few turns and then did sensible actions such as joining/settling, triggering a Golden Age, founding a corporation, building an Academy, or using Great Work. So a blunt "never wait" rule would be wrong.
+
+The bad pattern was narrower: some Great People were held for Golden Age pairing for too long. In the first analyzed log, Persia had:
+
+- a Great Prophet waiting from turn 391 to turn 422, max age 32;
+- a Great Engineer waiting from turn 426 to turn 454, max age 29;
+- Vasco da Gama (Great Merchant) waiting from turn 410 to turn 422, max age 13.
+
+These waits happened because Golden Age value stayed higher than the lower but usable alternatives, and Golden Age reservation kept raising the wait threshold. "Golden Age partner" here means another Great Person needed to start a Golden Age; later Civ4 Golden Ages can require more than one Great Person.
+
+Fix: added a corresponding SAS define and capped only the Golden Age partner reservation path. This does not force a specific fallback action. Once the cap is reached, the existing sorted Great Person mission logic can pick the best available non-Golden action naturally.
+
+Follow-up log with the cap set to 12 normal-speed turns:
+
+- `GP_WAIT` lines dropped from 153 to 133;
+- unique waiting Great People dropped from 20 to 19;
+- units waiting past 12 turns dropped from 3 to 0;
+- wait lines past 12 turns dropped from 38 to 0;
+- `GP_GOLDEN_WAIT_CAP` fired 8 times for 4 unique Great People.
+
+The capped cases were modest and reasonable: a Great Spy joined, a Great Engineer discovered Quantum Mechanics, and Persian Great People stopped being held indefinitely for a Golden Age. This fixed the long-hoarding pattern while preserving useful short waits.
+
+Note: this follow-up comparison also used extra diagnostic logging. Empirically, even diagnostic-only DLL changes can shift autoplay history, so not every broad score/tech/history difference in later screenshots or logs should be attributed to the Great Person wait-cap change itself. The main signal is the log pattern: Great People no longer wait past the configured Golden Age partner cap, while short useful waits remain.
+
+Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.

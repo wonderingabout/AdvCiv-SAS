@@ -1116,6 +1116,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
 
 
 
