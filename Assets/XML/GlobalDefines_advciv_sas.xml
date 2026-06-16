@@ -1215,6 +1215,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Minimum era index where AI workers stop replacing existing no-bonus improvements with lower-food alternatives. BBAI logs showed repeated food-threshold oscillation such as Farm -> Cottage -> Farm and Mine -> Windmill -> Mine. Default 2 = Medieval: before then, cities are often small/capped and early cottages still have time to mature; later, cities are usually larger, health sources and specialist yields are stronger, and rebuilt cottages/growth improvements have less time to pay back, so avoid throwing food away. Set to 0 to apply from Ancient onward, or very high to effectively disable. (ChatGPT-5.5 + GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 	<!-- custom: minimum city population where AI_bestCityBuild may consider chopping a non-bonus forested BFC plot even when the city has no current health surplus. Early/small cities still use the old hard health gate to preserve forest health; medium/large cities keep the plot visible with a health-pressure penalty instead, so useful forested tiles do not stay unimproved forever (later in the game we usually have enough health, and improved yields are stronger, so improve plots rather than not). Set to 0 to restore the hard gate at all city sizes. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION</DefineName>

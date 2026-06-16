@@ -2441,6 +2441,26 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			}
 		}
 
+		// <!-- custom: BBAI logs showed repeated non-bonus improvement oscillation such as Farm -> Cottage -> Farm and Mine -> Windmill -> Mine after food-support thresholds flipped back and forth. Before the configured era, cities are often small and health/happiness-capped, so extra food can be inefficient and early cottages still have time to mature.
+		// Later, cities are usually larger, health sources and specialist yields are stronger, and newly rebuilt cottages/growth improvements have less time to pay back. Block replacements that reduce plot food; this targets the observed food-direction reversals and also catches Cottage -> Workshop while workshops still cost food, without blocking equal-food retools, food-restoration changes such as Cottage -> Farm, or cleanup of City Ruins/obsolete Camps. (ChatGPT-5.5 + GPT-5.5); plus if we needed food once we are likely to prefer food again so prefer food anyway -->
+		// <!-- custom: In the tested BBAI log, old Mali plots that had repeated Farm -> Cottage -> Farm -> Cottage -> Farm loops now reached Farm again and then skipped later Farm -> Cottage attempts from about T128/T130 onward, stopping the repeated later loop. (ChatGPT-5.5 + GPT-5.5) -->
+		static const int iSAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA = GC.getDefineINT("SAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA");
+		if (GET_PLAYER(getOwner()).getCurrentEra() >= iSAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA && eBonus == NO_BONUS && ePlotCurrentImprovement != NO_IMPROVEMENT && ePlotCurrentImprovement != GC.getRUINS_IMPROVEMENT() && eSupposedImprovement != NO_IMPROVEMENT && ePlotCurrentImprovement != eSupposedImprovement)
+		{
+			int const iCurrentImprovementFood = kPlot.calculateImprovementYieldChange(ePlotCurrentImprovement, YIELD_FOOD, getOwner());
+			int const iSupposedImprovementFood = kPlot.calculateImprovementYieldChange(eSupposedImprovement, YIELD_FOOD, getOwner());
+			int const iReplacementFoodDelta = iSupposedImprovementFood - iCurrentImprovementFood;
+			if (iReplacementFoodDelta < 0)
+			{
+				if (gUnitLogLevel >= 3)
+				{
+					logBBAI("    %S worker skips lower-food replacement for city %S: turn=%d plot=(%d,%d) current=%S food=%d proposed=%S food=%d replacementFoodDelta=%d build=%S value=%d",
+						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), GC.getInfo(ePlotCurrentImprovement).getDescription(), iCurrentImprovementFood, GC.getInfo(eSupposedImprovement).getDescription(), iSupposedImprovementFood, iReplacementFoodDelta, GC.getInfo(eBestSupposedBuild).getDescription(), iValue);
+				}
+				continue;
+			}
+		}
+
 		// <!-- custom: apply final penalties here, to account for edge cases where they are not relevant (badly needing a farm in a city full of flatland plains for example, then we may strongly consider overwriting, use bOverwriteCurrentImprovementHasPenalty to determine that). We could have applied it at first then cancel it for edge cases but is redundant and inefficient so do here rather i mean as seems ideal or more ideal if it is a word or way to say it-->
 
 		// <!-- custom: valorization for river tiles, we get one extra commerce, prioritize there if everything else is equal otherwise; but less than the penalty for overwriting as it should still be better to not overwrite just because there is a river; a river is otherwise sueful/valuable in this case at least if i may say i meanif all other conditions being equal, we can build there if i may say -->
