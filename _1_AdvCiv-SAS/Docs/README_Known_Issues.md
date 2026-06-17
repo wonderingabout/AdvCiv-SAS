@@ -192,6 +192,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [154 - (Fixed) Base AdvCiv issue: Great People could wait too long for Golden Age partners instead of using lower but useful actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#154---fixed-base-advciv-issue-great-people-could-wait-too-long-for-golden-age-partners-instead-of-using-lower-but-useful-actions)  
 [155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target)  
 [156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now)  
+[157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5791,3 +5792,41 @@ The generic `ATTACK_CITY_PARKING reason=wait_upgrade` log was then moved after t
 Tuning is as of now exposed through the corresponding SAS defines for enable/disable, minimum stack size, minimum military share, and maximum target path turns.
 
 Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+## 157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1h4L2TK5pqCYLjVj81vFTW8xFKTKkE09z?usp=sharing).
+
+This follows the older Work Boat spam fixes in [KI#23](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#23---fixed-base-advciv-issue-of-major-ai-work-boat-producing--scraping-loop-worker-sea-ai-overproduction) and [KI#23.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---seemingly-mostly-fixed-base-advciv-issue-of-major-ai-work-boat-producing--scraping-loop-worker-sea-ai-overproduction), and is related to the broader naval overproduction/scrapping sanity work in [KI#53](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#53---fixed-ai-naval-dementia-naval-overproduction-and-naval-scrapping-mayhem). After those earlier changes, BBAI logs still showed many Work Boat pushes and finishes, especially through `choose worker sea 3`, while some seafood targets appeared repeatedly unimproved.
+
+We added targeted BBAI diagnostics:
+
+- `WORKER_SEA_CHOOSE_DETAIL`: every city-side Work Boat production source, including needed workers, existing relevant workers, queued workers, raw primary/second water-area availability, water danger, and financial trouble.
+- `WORKER_SEA_NEEDED_TARGET`: exact sea bonuses counted by `AI_neededSeaWorkers`.
+- `WORKER_SEA_MOVE_DETAIL`: what existing `UNITAI_WORKER_SEA` units did, such as improving a bonus, retreating, seeking safety, or skipping.
+- `WORKER_SEA_IMPROVEMENT_LOST`: when an owned water bonus lost a connecting sea improvement, so repeated replacement could be separated from production overqueue.
+
+The production-side fix was to compare `AI_neededSeaWorkers()` against the same raw primary + second water areas that `AI_neededSeaWorkers()` counts. The old branch used the strategically relevant `pWaterArea`, which can miss city-reachable targets in another local water area. A global queued-boat guard was tested and rejected because it can suppress valid Work Boats on unrelated seas. The current check uses `AI_totalWaterAreaUnitAIs` on the raw counted areas; that function already includes queued/in-training boats for that water area.
+
+The movement-side fix was to let sea workers resolve owned off-BFC sea bonuses that city production already counted. `AI_neededSeaWorkers()` can count those targets, but `AI_improveBonus()` had a land-worker-style guard that rejected no-working-city/no-route plots. For Work Boats, routing is normally irrelevant because the sea improvement itself connects the bonus, so this mismatch could produce a counted-target / boat-cannot-resolve loop. Sea workers now pass that guard, while later checks still require `AI_canConnectBonus`, `canBuild`, pathing, and target reservation.
+
+A stale-target guard was also added so a sea worker does not spend itself on a bonus that already has a connecting sea improvement. This covers cases where another Work Boat solved the target first.
+
+The reviewed log after these changes showed:
+
+- `WORKER_SEA_CHOOSE_DETAIL`: 262 lines.
+- `AI_chooseUnit final worker sea`: 131 lines.
+- `choose worker sea 3`: 130 lines.
+- `WORKER_SEA_MOVE_DETAIL`: 152 lines.
+- `improve bonus`: 125 lines.
+- `WORKER_SEA_IMPROVEMENT_LOST`: 55 lines.
+- 37 / 55 sea-improvement losses had `visibleEnemy=1`.
+- no pre-push case where `needed <= availableRawAreas`; when later choose logs showed that relation, it was because the Work Boat had already been queued.
+
+Repeated suspicious targets were then explained by real loss/replacement. Examples included Roman Fish `(57,6)` lost 5 times, Roman Crab `(54,6)` lost 5 times, Roman Whale `(48,10)` lost 4 times, Roman Crab `(59,12)` lost 4 times, Roman Crab `(60,14)` lost 4 times, French Molluscs `(21,37)` lost 4 times, and Zulu Whale `(13,34)` lost 4 times.
+
+Following this, Work Boat production is reduced (e.g., from 34 Work Boats before the fix to ~27-29 Work Boats for Augusts, remaining seeming to be due to heavy pillaging).
+
+Conclusion: the remaining high Work Boat count is largely genuine replacement after enemy or pirate pillaging/harassment, not the old produce/scrap or overqueue bug. Future work should therefore probably target naval defense or repeated sea-improvement loss response, not add broader Work Boat production suppression.
+
+Fixed/diagnosed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.

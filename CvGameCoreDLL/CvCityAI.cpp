@@ -12,6 +12,67 @@
 #include "CvInfo_Civics.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
+// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact sea-worker target bonuses when city logging is high. No behavior change. See KI#157. (GPT-5.5) -->
+static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	CvArea const* pCityWaterArea = kCity.waterArea(true);
+	CvArea const* pSecondWaterArea = kCity.secondWaterArea();
+	int const iCityWaterAreaTrain = (pCityWaterArea == NULL ? 0 : pCityWaterArea->getNumTrainAIUnits(kCity.getOwner(), UNITAI_WORKER_SEA));
+	int const iRelevantWaterAreaTrain = (pRelevantWaterArea == NULL ? 0 : pRelevantWaterArea->getNumTrainAIUnits(kCity.getOwner(), UNITAI_WORKER_SEA));
+	int const iSecondWaterAreaTrain = (pSecondWaterArea == NULL ? 0 : pSecondWaterArea->getNumTrainAIUnits(kCity.getOwner(), UNITAI_WORKER_SEA));
+	int iRawAreaAvailable = 0;
+	if (pCityWaterArea != NULL) iRawAreaAvailable += kPlayer.AI_totalWaterAreaUnitAIs(*pCityWaterArea, UNITAI_WORKER_SEA);
+	if (pSecondWaterArea != NULL && pSecondWaterArea != pCityWaterArea) iRawAreaAvailable += kPlayer.AI_totalWaterAreaUnitAIs(*pSecondWaterArea, UNITAI_WORKER_SEA);
+	logBBAI("      WORKER_SEA_CHOOSE_DETAIL branch=%s turn=%d player=%d %S city=%S cityId=%d pop=%d needed=%d existingRelevant=%d playerTrain=%d availableRawAreas=%d cityTrain=%d cityWaterArea=%d relevantWaterArea=%d secondWaterArea=%d cityWaterAreaTrain=%d relevantWaterAreaTrain=%d secondWaterAreaTrain=%d waterDanger=%d financialTrouble=%d",
+		szBranch, GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, kPlayer.AI_getNumTrainAIUnits(UNITAI_WORKER_SEA), iRawAreaAvailable, kCity.getNumTrainUnitAI(UNITAI_WORKER_SEA),
+		(pCityWaterArea == NULL ? -1 : pCityWaterArea->getID()), (pRelevantWaterArea == NULL ? -1 : pRelevantWaterArea->getID()), (pSecondWaterArea == NULL ? -1 : pSecondWaterArea->getID()), iCityWaterAreaTrain, iRelevantWaterAreaTrain, iSecondWaterAreaTrain, bWaterDanger, bFinancialTrouble);
+}
+
+static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot const& kPlot, CvPlot const& kFromPlot)
+{
+	if (kPlot.isCity())
+		return false;
+	BonusTypes const eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(kPlayer.getTeam());
+	if (eNonObsoleteBonus == NO_BONUS || kPlayer.doesImprovementConnectBonus(kPlot.getImprovementType(), eNonObsoleteBonus))
+		return false;
+	if (!gDLL->getFAStarIFace()->GeneratePath(&GC.getBorderFinder(), kFromPlot.getX(), kFromPlot.getY(), kPlot.getX(), kPlot.getY(), !kPlot.isWater(), kPlayer.getID(), true))
+		return false;
+	FOR_EACH_ENUM(Build)
+	{
+		if (kPlayer.doesImprovementConnectBonus(GC.getInfo(eLoopBuild).getImprovement(), eNonObsoleteBonus) && kPlayer.canBuild(kPlot, eLoopBuild, false, false))
+			return true;
+	}
+	return false;
+}
+
+static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pWaterArea, char const* szAreaLabel)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
+	int iLoggedTargets = 0;
+	CvMap const& kMap = GC.getMap();
+	for (int i = 0; i < kMap.numPlots(); i++)
+	{
+		CvPlot const& kPlot = kMap.getPlotByIndex(i);
+		if (kPlot.getOwner() != kCity.getOwner() || !kPlot.isArea(*pWaterArea))
+			continue;
+		if (!isSASUnimprovedSeaBonusForLog(kPlayer, kPlot, kCity.getPlot()))
+			continue;
+		BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kCity.getTeam());
+		ImprovementTypes const eImprovement = kPlot.getImprovementType();
+		CvCity const* pWorkingCity = kPlot.getWorkingCity();
+		CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
+		wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
+		wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
+		logBBAI("      WORKER_SEA_NEEDED_TARGET turn=%d player=%d %S city=%S cityId=%d areaLabel=%s waterArea=%d plot=(%d,%d) bonus=%S improvement=%S cityRadius=%d workingCity=%S workingCityId=%d revealed=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szAreaLabel, pWaterArea->getID(), kPlot.getX(), kPlot.getY(), szBonus, szImprovement, kPlot.isCityRadius(), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), kPlot.isRevealed(kCity.getTeam(), false));
+		iLoggedTargets++;
+	}
+	logBBAI("      WORKER_SEA_NEEDED_TARGET_SUMMARY turn=%d player=%d %S city=%S cityId=%d areaLabel=%s waterArea=%d loggedTargets=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szAreaLabel, pWaterArea->getID(), iLoggedTargets);
+}
+
 
 CvCityAI::CvCityAI() // advc.003u: Merged with AI_reset
 {
@@ -742,6 +803,12 @@ void CvCityAI::AI_chooseProduction()
 	int const iNeededSeaWorkers = (bMaybeWaterArea) ? AI_neededSeaWorkers() : 0;
 	int const iExistingSeaWorkers = (pWaterArea != NULL) ?
 			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA) : 0;
+	// <!-- custom: Compare Work Boat need against the same raw primary + second water areas that AI_neededSeaWorkers counts. Using the strategically relevant pWaterArea can miss city-reachable targets in another local water area, while adding global playerTrain can suppress valid Work Boats on unrelated seas. AI_totalWaterAreaUnitAIs already includes queued/in-training boats for that water area. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+	CvArea const* pPrimarySeaWorkerArea = waterArea(true);
+	CvArea const* pSecondSeaWorkerArea = secondWaterArea();
+	int iAvailableSeaWorkers = 0;
+	if (pPrimarySeaWorkerArea != NULL) iAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pPrimarySeaWorkerArea, UNITAI_WORKER_SEA);
+	if (pSecondSeaWorkerArea != NULL && pSecondSeaWorkerArea != pPrimarySeaWorkerArea) iAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pSecondSeaWorkerArea, UNITAI_WORKER_SEA);
 
 	int iAreaBestFoundValue=-1;
 	int const iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kArea, iAreaBestFoundValue);
@@ -1060,12 +1127,12 @@ void CvCityAI::AI_chooseProduction()
 		!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE))
 	{
 		if (!bWaterDanger && iCityPopulation < 3 &&
-			iNeededSeaWorkers > 0 && iExistingSeaWorkers <= 0)
+			iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
 		{
 			// Build Work Boat first since it doesn't stop growth
 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 1a", sCityName);
+				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 				return;
 			}
 		}
@@ -1104,11 +1171,11 @@ void CvCityAI::AI_chooseProduction()
 				bChooseWorker = true;
 			}
 
-			if (!bWaterDanger && iNeededSeaWorkers > iExistingSeaWorkers && iCityPopulation < 3)
+			if (!bWaterDanger && iNeededSeaWorkers > iAvailableSeaWorkers && iCityPopulation < 3)
 			{
 				if (AI_chooseUnit(UNITAI_WORKER_SEA))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 1", sCityName);
+					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 					return;
 				}
 			}
@@ -1461,7 +1528,7 @@ void CvCityAI::AI_chooseProduction()
 	// K-Mod, 10/sep/10: was "if (bDanger", I have changed it to "if (!bDanger" 
 	if (!bDanger && iExistingWorkers == 0 && (isCapital() ||
 		iMissingWorkers > 0 || // advc.113: was iNeededWorkers>0
-		iNeededSeaWorkers > iExistingSeaWorkers))
+		iNeededSeaWorkers > iAvailableSeaWorkers))
 	{
 		if (!(bDefenseWar && iWarSuccessRating < -30) &&
 			!kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE))
@@ -1478,12 +1545,12 @@ void CvCityAI::AI_chooseProduction()
 				bChooseWorker = true;
 			}
 
-			if (iNeededSeaWorkers > iExistingSeaWorkers)
+			if (iNeededSeaWorkers > iAvailableSeaWorkers)
 			{
 				if (AI_chooseUnit(UNITAI_WORKER_SEA,
 					60)) // advc.131: From MNAI; was -1.
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 2", sCityName);
+					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 2", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 					return;
 				}
 			}
@@ -1492,11 +1559,11 @@ void CvCityAI::AI_chooseProduction()
 
 	if (!(bDefenseWar && iWarSuccessRating < -30))
 	{
-		if (!bWaterDanger && iNeededSeaWorkers > iExistingSeaWorkers)
+		if (!bWaterDanger && iNeededSeaWorkers > iAvailableSeaWorkers)
 		{
 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker sea 3", sCityName);
+				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 3", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 				return;
 			}
 		}
@@ -9120,12 +9187,24 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 	iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pWaterArea, plot(), iLookAhead); // advc.042
 	// Check if second water area city can reach was any unimproved bonuses
 
-	pWaterArea = secondWaterArea();
-	if (pWaterArea != NULL)
+	CvArea* pPrimaryWaterArea = pWaterArea;
+	CvArea* pSecondWaterArea = secondWaterArea();
+	if (pSecondWaterArea != NULL)
 	{
-		iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pWaterArea, plot(), iLookAhead); // advc.042
+		iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pSecondWaterArea, plot(), iLookAhead); // advc.042
 	}
 	// BETTER_BTS_AI_MOD: END
+	if (gCityLogLevel >= 3 && iNeededSeaWorkers > 0)
+	{
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+		logBBAI("      WORKER_SEA_NEEDED_SUMMARY turn=%d player=%d %S city=%S cityId=%d needed=%d primaryWaterArea=%d secondWaterArea=%d primaryExisting=%d secondExisting=%d primaryTrain=%d secondTrain=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededSeaWorkers,
+			(pPrimaryWaterArea == NULL ? -1 : pPrimaryWaterArea->getID()), (pSecondWaterArea == NULL ? -1 : pSecondWaterArea->getID()),
+			(pPrimaryWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pPrimaryWaterArea, UNITAI_WORKER_SEA)), (pSecondWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pSecondWaterArea, UNITAI_WORKER_SEA)),
+			(pPrimaryWaterArea == NULL ? 0 : pPrimaryWaterArea->getNumTrainAIUnits(getOwner(), UNITAI_WORKER_SEA)), (pSecondWaterArea == NULL ? 0 : pSecondWaterArea->getNumTrainAIUnits(getOwner(), UNITAI_WORKER_SEA)));
+		if (pPrimaryWaterArea != NULL) logSASNeededSeaWorkerTargets(*this, pPrimaryWaterArea, "primary");
+		if (pSecondWaterArea != NULL) logSASNeededSeaWorkerTargets(*this, pSecondWaterArea, "second");
+	}
 	return iNeededSeaWorkers;
 }
 
@@ -13057,6 +13136,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
 		{
+			if (gCityLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
+			{
+				CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+				CvArea const* pWaterArea = waterArea(true);
+				int const iNeededSeaWorkers = (pWaterArea == NULL ? 0 : AI_neededSeaWorkers());
+				int const iExistingSeaWorkers = (pWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA));
+				logSASWorkerSeaChooseDetail("AI_chooseUnit final worker sea", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, kOwner.AI_isAnyWaterDanger(getPlot(), 4), kOwner.AI_isFinancialTrouble());
+			}
 			pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI);
 		}
 		return true;
@@ -16015,6 +16102,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 			iOdds /= 50 + (bLocalResource ? 3 : 5) * iBestBuildingValue;
 			if (AI_chooseUnit(UNITAI_WORKER_SEA, iOdds))
 			{
+				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("governor worker sea", *this, pWaterArea, getPopulation(), AI_neededSeaWorkers(), kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA), bDanger, kOwner.AI_isFinancialTrouble());
 				return;
 			}
 		}
@@ -16285,7 +16373,7 @@ void CvCityAI::AI_barbChooseProduction()
 		{
 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose worker sea 1", sCityName);
+				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("barb choose worker sea 1", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, kPlayer.AI_isFinancialTrouble());
 				return;
 			}
 		}

@@ -4772,6 +4772,21 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue,
 			GET_PLAYER(getOwner()).changeImprovementCount(eOldImprovement, -1);
 	}
 
+	// <!-- custom: Diagnostic-only log for repeated Work Boat replacement. BBAI logs showed Work Boats successfully improving the same seafood multiple times, then cities later counting the target as unimproved again; log when an owned water bonus loses a connecting sea improvement so we can distinguish pillage/destruction/ownership churn from production overqueue. No behavior change. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+	if ((gCityLogLevel >= 2 || gUnitLogLevel >= 2) && isWater() && isOwned() && eOldImprovement != NO_IMPROVEMENT)
+	{
+		CvPlayer const& kOwner = GET_PLAYER(getOwner());
+		BonusTypes const eBonus = getNonObsoleteBonusType(kOwner.getTeam());
+		if (eBonus != NO_BONUS && kOwner.doesImprovementConnectBonus(eOldImprovement, eBonus) &&
+			(eNewValue == NO_IMPROVEMENT || !kOwner.doesImprovementConnectBonus(eNewValue, eBonus)))
+		{
+			CvCity const* pWorkingCity = getWorkingCity();
+			CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
+			logBBAI("    WORKER_SEA_IMPROVEMENT_LOST turn=%d owner=%d %S plot=(%d,%d) area=%d bonus=%S oldImprovement=%S newImprovement=%S workingCity=%S workingCityId=%d visibleEnemy=%d",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getX(), getY(), getArea().getID(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eOldImprovement).getDescription(), (eNewValue == NO_IMPROVEMENT ? L"-" : GC.getInfo(eNewValue).getDescription()), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), isVisibleEnemyUnit(getOwner()));
+		}
+	}
+
 	updatePlotGroupBonus(false, /* advc.064d: */ false);
 	m_eImprovementType = eNewValue;
 	updatePlotGroupBonus(true);

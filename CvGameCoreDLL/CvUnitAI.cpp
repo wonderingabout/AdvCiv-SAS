@@ -32,6 +32,34 @@ CvUnitAI::~CvUnitAI()
 	//AI_uninit(); // Delete member pointers right here (but there are none)
 }
 
+// <!-- custom: Diagnostic-only Work Boat movement logging to pair with CvCityAI worker-sea production logs. Production logs showed many completed Work Boats while the same sea bonuses stayed unimproved, so record whether UNITAI_WORKER_SEA units improve, retreat, seek safety, or idle. No behavior change. See KI#157. (GPT-5.5) -->
+static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUnit)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kUnit.getOwner());
+	CvPlot const& kPlot = kUnit.getPlot();
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
+	int const iMissionQueue = (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue());
+	CvCity const* pCity = kPlot.getPlotCity();
+	CvCity const* pTargetWorkingCity = (pMissionPlot == NULL ? NULL : pMissionPlot->getWorkingCity());
+	BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kUnit.getTeam());
+	ImprovementTypes const eImprovement = kPlot.getImprovementType();
+	BonusTypes const eTargetBonus = (pMissionPlot == NULL ? NO_BONUS : pMissionPlot->getNonObsoleteBonusType(kUnit.getTeam()));
+	ImprovementTypes const eTargetImprovement = (pMissionPlot == NULL ? NO_IMPROVEMENT : pMissionPlot->getImprovementType());
+	CvWString const szCity = (pCity == NULL ? CvWString(L"-") : pCity->getName());
+	CvWString const szTargetWorkingCity = (pTargetWorkingCity == NULL ? CvWString(L"-") : pTargetWorkingCity->getName());
+	wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
+	wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
+	wchar const* szTargetBonus = (eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription());
+	wchar const* szTargetImprovement = (eTargetImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetImprovement).getDescription());
+	int const iTargetMissionAIsSkipSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, pGroup, 0, MAX_INT));
+	int const iTargetMissionAIsIncludingSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, NULL, 0, MAX_INT));
+	logBBAI("    WORKER_SEA_MOVE_DETAIL reason=%s turn=%d player=%d %S unitId=%d unit=%S plot=(%d,%d) area=%d owner=%d city=%S bonus=%S improvement=%S missionAI=%d missionPlot=(%d,%d) missionQueue=%d waterDanger=%d targetOwner=%d targetBonus=%S targetImprovement=%S targetWorkingCity=%S targetWorkingCityId=%d targetWaterDanger=%d targetMissionAIsSkipSelf=%d targetMissionAIsIncludingSelf=%d",
+		szReason, GC.getGame().getGameTurn(), kUnit.getOwner(), kPlayer.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), kPlot.getOwner(), szCity.GetCString(), szBonus, szImprovement, eMissionAI,
+		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionQueue, kPlayer.AI_isAnyWaterDanger(kPlot), (pMissionPlot == NULL ? NO_PLAYER : pMissionPlot->getOwner()), szTargetBonus, szTargetImprovement, szTargetWorkingCity.GetCString(), (pTargetWorkingCity == NULL ? -1 : pTargetWorkingCity->getID()), (pMissionPlot == NULL ? 0 : kPlayer.AI_isAnyWaterDanger(*pMissionPlot)), iTargetMissionAIsSkipSelf, iTargetMissionAIsIncludingSelf);
+}
+
 // <!-- custom: Count non-home BFC food bonuses and bad plots for first-city heuristics. The home plot is skipped
 // because settling consumes it as the city tile; a peak/desert/tundra hill under the city can still be a good settle
 // tile, and a food bonus under the city is not a normal workable food bonus. Bad non-home plots are: no-yield plots
@@ -8597,6 +8625,7 @@ void CvUnitAI::AI_workerSeaMove()
 		{
 			if (AI_retreatToCity())
 			{
+				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
 				return;
 			}
 		}
@@ -8610,6 +8639,7 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_improveBonus())
 	{
+		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
 		return;
 	}
 
@@ -8621,6 +8651,7 @@ void CvUnitAI::AI_workerSeaMove()
 			if (getPlot().getOwner() == getOwner() || !getPlot().isOwned())
 			{
 				getGroup()->pushMission(MISSION_SKIP);
+				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
 				return;
 			}
 		}
@@ -8632,6 +8663,7 @@ void CvUnitAI::AI_workerSeaMove()
 				if (isRevealedValidDomain(*pAdj)) // advc
 				{
 					getGroup()->pushMission(MISSION_SKIP);
+					if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
 					return;
 				}
 			}
@@ -8665,15 +8697,18 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_retreatToCity())
 	{
+		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
 		return;
 	}
 
 	if (AI_safety())
 	{
+		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
 		return;
 	}
 
 	getGroup()->pushMission(MISSION_SKIP);
+	if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
 }
 
 
@@ -21110,7 +21145,8 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 			continue;
 
 		bool bConnected = kPlot.isConnectedToCapital(getOwner());
-		if(kPlot.getWorkingCity() == NULL && !bConnected && !bCanRoute)
+		// <!-- custom: Work Boats can connect sea bonuses through the bonus improvement itself. Do not reject owned outside-BFC seafood merely because the plot has no working city and the unit cannot build routes; AI_neededSeaWorkers counts those targets, so rejecting them here can create a produce-boat / target-still-unimproved loop. Later checks still require AI_canConnectBonus, canBuild, pathing, and target reservation. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+		if(kPlot.getWorkingCity() == NULL && !bConnected && !bCanRoute && getDomainType() != DOMAIN_SEA)
 			continue;
 
 		// <advc.300> Barbarian workers shouldn't improve bonuses around remote cities
@@ -21136,6 +21172,9 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		// K-Mod. Simpler, and better.
 		bool bDoImprove = true;
 		ImprovementTypes eImprovement = kPlot.getImprovementType();
+		// <!-- custom: Sea workers should not spend themselves on a bonus that already has a connecting sea improvement. This guards stale Work Boats after another boat solved the target; unresolved repeated Work Boat production now appears more related to net loss/attrition than idle production. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+		if (getDomainType() == DOMAIN_SEA && eImprovement != NO_IMPROVEMENT && kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+			continue;
 		CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
 		BuildTypes eBestTempBuild = NO_BUILD;
 		if (eImprovement != NO_IMPROVEMENT &&
