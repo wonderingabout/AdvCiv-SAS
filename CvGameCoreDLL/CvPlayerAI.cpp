@@ -26,6 +26,11 @@
 #define RELIGION_CHANGE_DELAY			(15)
 #define iSINGLE_BONUS_TRADE_TOLERANCE	(20) // advc.036
 
+static std::map<int,int> g_sasWorkerSeaFirstSeenUnimprovedTurn;
+static std::map<int,int> g_sasWorkerSeaFirstSeenBuildableTurn;
+static std::map<int,int> g_sasWorkerSeaFirstSeenReachableTurn;
+static int g_iSASWorkerSeaAuditLastTurn = -1;
+
 // statics ... (advc.003u: Mostly moved to CvPlayer)
 
 bool CvPlayerAI::areStaticsInitialized()
@@ -448,6 +453,8 @@ void CvPlayerAI::AI_doTurnPost()
 	}
 	if (isHuman())
 		return;
+	if (gCityLogLevel >= 3)
+		AI_logWorkerSeaAudit();
 	AI_updateExpansionistHate(); // advc.130w (also updates our attitude cache)
 	// </advc.001>
 
@@ -15524,6 +15531,183 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFr
 		}
 	} // </advc.042>
 	return iCount;
+}
+
+void CvPlayerAI::AI_logWorkerSeaAudit() const
+{
+	// <!-- custom: Late-game advisor/log review still showed owned seafood staying unimproved after the old Work Boat produce/scrap and overqueue fixes. Once per AI player turn, log a compact audit of owned water bonuses so we can distinguish missing production, missing mission assignment, danger, buildability/reachability, and repeated sea-improvement loss without dumping every plot every city production check. Diagnostic only. (GPT-5.5 + ChatGPT-5.5) -->
+	if (isHuman() || isBarbarian())
+		return;
+
+	int const iTurn = GC.getGame().getGameTurn();
+	if (g_iSASWorkerSeaAuditLastTurn > iTurn)
+	{
+		g_sasWorkerSeaFirstSeenUnimprovedTurn.clear();
+		g_sasWorkerSeaFirstSeenBuildableTurn.clear();
+		g_sasWorkerSeaFirstSeenReachableTurn.clear();
+	}
+	g_iSASWorkerSeaAuditLastTurn = iTurn;
+	int const iPlotCount = GC.getMap().numPlots();
+	int iOwnedSeaBonuses = 0;
+	int iConnected = 0;
+	int iUnimprovedBFC = 0;
+	int iUnimprovedNonBFC = 0;
+	int iBuildableReachable = 0;
+	int iCountedReachable = 0;
+	int iUnassigned = 0;
+	int iUnassignedBuildableReachable = 0;
+	int iStaleBuildableReachable = 0;
+	int iStaleAssignedBuildableReachable = 0;
+	int iStaleUnassignedBuildableReachable = 0;
+	int iStaleUnassignedSafeBuildableReachable = 0;
+	int iOldestUnassignedSafeBuildableReachableAge = -1;
+	int iBlockedByTechOrBuild = 0;
+	int iVisibleEnemy = 0;
+	int iWaterDanger = 0;
+	int iLoggedTargets = 0;
+	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
+
+	CvMap const& kMap = GC.getMap();
+	for (int i = 0; i < iPlotCount; i++)
+	{
+		CvPlot const& kPlot = kMap.getPlotByIndex(i);
+		if (kPlot.getOwner() != getID() || !kPlot.isWater())
+			continue;
+		BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+		if (eBonus == NO_BONUS)
+			continue;
+
+		iOwnedSeaBonuses++;
+		ImprovementTypes const eImprovement = kPlot.getImprovementType();
+		bool const bConnected = (eImprovement != NO_IMPROVEMENT && doesImprovementConnectBonus(eImprovement, eBonus));
+		int const iKey = getID() * iPlotCount + (int)kPlot.plotNum();
+		if (bConnected)
+		{
+			iConnected++;
+			g_sasWorkerSeaFirstSeenUnimprovedTurn.erase(iKey);
+			g_sasWorkerSeaFirstSeenBuildableTurn.erase(iKey);
+			g_sasWorkerSeaFirstSeenReachableTurn.erase(iKey);
+			continue;
+		}
+
+		if (kPlot.isCityRadius()) iUnimprovedBFC++;
+		else iUnimprovedNonBFC++;
+
+		CvCityAI const* pNearestCoastalCity = NULL;
+		int iNearestCityDistance = MAX_INT;
+		FOR_EACH_CITYAI(pCity, *this)
+		{
+			if (!pCity->isCoastal())
+				continue;
+			if (pCity->waterArea(true) != &kPlot.getArea() && pCity->secondWaterArea() != &kPlot.getArea())
+				continue;
+			int const iDistance = plotDistance(pCity->getX(), pCity->getY(), kPlot.getX(), kPlot.getY());
+			if (iDistance < iNearestCityDistance)
+			{
+				iNearestCityDistance = iDistance;
+				pNearestCoastalCity = pCity;
+			}
+		}
+
+		bool bCanBuildSeaImprovement = false;
+		BuildTypes eBestBuild = NO_BUILD;
+		FOR_EACH_ENUM(Build)
+		{
+			ImprovementTypes const eBuildImprovement = GC.getInfo(eLoopBuild).getImprovement();
+			if (eBuildImprovement != NO_IMPROVEMENT && doesImprovementConnectBonus(eBuildImprovement, eBonus) && canBuild(kPlot, eLoopBuild, false, false))
+			{
+				bCanBuildSeaImprovement = true;
+				eBestBuild = eLoopBuild;
+				break;
+			}
+		}
+
+		bool const bCountedReachable = (pNearestCoastalCity != NULL && AI_isUnimprovedBonus(kPlot, &pNearestCoastalCity->getPlot(), true));
+		if (bCountedReachable)
+			iCountedReachable++;
+		if (!bCanBuildSeaImprovement)
+			iBlockedByTechOrBuild++;
+		int const iAssignedMissions = AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, NULL, 0, MAX_INT);
+		if (iAssignedMissions <= 0)
+			iUnassigned++;
+		bool const bVisibleEnemy = kPlot.isVisibleEnemyUnit(getID());
+		if (bVisibleEnemy)
+			iVisibleEnemy++;
+		bool const bWaterDanger = AI_isAnyWaterDanger(kPlot);
+		if (bWaterDanger)
+			iWaterDanger++;
+
+		std::map<int,int>::iterator posFirstSeen = g_sasWorkerSeaFirstSeenUnimprovedTurn.find(iKey);
+		if (posFirstSeen == g_sasWorkerSeaFirstSeenUnimprovedTurn.end())
+		{
+			g_sasWorkerSeaFirstSeenUnimprovedTurn[iKey] = iTurn;
+			posFirstSeen = g_sasWorkerSeaFirstSeenUnimprovedTurn.find(iKey);
+		}
+		int const iAge = iTurn - posFirstSeen->second;
+		int iFirstSeenBuildable = -1;
+		int iAgeBuildable = -1;
+		if (bCanBuildSeaImprovement)
+		{
+			std::map<int,int>::iterator posBuildable = g_sasWorkerSeaFirstSeenBuildableTurn.find(iKey);
+			if (posBuildable == g_sasWorkerSeaFirstSeenBuildableTurn.end())
+			{
+				g_sasWorkerSeaFirstSeenBuildableTurn[iKey] = iTurn;
+				posBuildable = g_sasWorkerSeaFirstSeenBuildableTurn.find(iKey);
+			}
+			iFirstSeenBuildable = posBuildable->second;
+			iAgeBuildable = iTurn - posBuildable->second;
+		}
+		else g_sasWorkerSeaFirstSeenBuildableTurn.erase(iKey);
+		int iFirstSeenReachable = -1;
+		int iAgeReachable = -1;
+		if (bCountedReachable)
+		{
+			std::map<int,int>::iterator posReachable = g_sasWorkerSeaFirstSeenReachableTurn.find(iKey);
+			if (posReachable == g_sasWorkerSeaFirstSeenReachableTurn.end())
+			{
+				g_sasWorkerSeaFirstSeenReachableTurn[iKey] = iTurn;
+				posReachable = g_sasWorkerSeaFirstSeenReachableTurn.find(iKey);
+			}
+			iFirstSeenReachable = posReachable->second;
+			iAgeReachable = iTurn - posReachable->second;
+		}
+		else g_sasWorkerSeaFirstSeenReachableTurn.erase(iKey);
+		if (bCanBuildSeaImprovement && bCountedReachable)
+		{
+			iBuildableReachable++;
+			if (iAssignedMissions <= 0)
+				iUnassignedBuildableReachable++;
+			if (iAgeBuildable >= 5 || iAgeReachable >= 5)
+			{
+				iStaleBuildableReachable++;
+				if (iAssignedMissions > 0)
+					iStaleAssignedBuildableReachable++;
+				else
+				{
+					iStaleUnassignedBuildableReachable++;
+					if (!bVisibleEnemy && !bWaterDanger)
+					{
+						iStaleUnassignedSafeBuildableReachable++;
+						iOldestUnassignedSafeBuildableReachableAge = std::max(iOldestUnassignedSafeBuildableReachableAge, std::max(iAgeBuildable, iAgeReachable));
+					}
+				}
+			}
+		}
+		if (iAgeBuildable < 5 && iAgeReachable < 5 && !kPlot.isCityRadius() && iAssignedMissions > 0 && !bVisibleEnemy && !bWaterDanger && bCanBuildSeaImprovement && bCountedReachable)
+			continue;
+
+		CvCity const* pWorkingCity = kPlot.getWorkingCity();
+		CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
+		CvWString const szNearestCity = (pNearestCoastalCity == NULL ? CvWString(L"-") : pNearestCoastalCity->getName());
+		wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
+		wchar const* szBestBuild = (eBestBuild == NO_BUILD ? L"-" : GC.getInfo(eBestBuild).getDescription());
+		logBBAI("    WORKER_SEA_AUDIT_TARGET turn=%d player=%d %S plot=(%d,%d) area=%d bonus=%S improvement=%S cityRadius=%d workingCity=%S workingCityId=%d nearestCoastalCity=%S nearestCityId=%d nearestCityDistance=%d firstSeenUnimproved=%d ageUnimproved=%d firstSeenBuildable=%d ageBuildable=%d firstSeenReachable=%d ageReachable=%d assignedMissions=%d visibleEnemy=%d waterDanger=%d canBuildSeaImprovement=%d bestBuild=%S countedReachable=%d areaWorkers=%d areaTrain=%d totalWorkers=%d totalTrain=%d",
+			iTurn, getID(), getCivilizationDescription(0), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), GC.getInfo(eBonus).getDescription(), szImprovement, kPlot.isCityRadius(), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), szNearestCity.GetCString(), (pNearestCoastalCity == NULL ? -1 : pNearestCoastalCity->getID()), (pNearestCoastalCity == NULL ? -1 : iNearestCityDistance), posFirstSeen->second, iAge, iFirstSeenBuildable, iAgeBuildable, iFirstSeenReachable, iAgeReachable, iAssignedMissions, bVisibleEnemy, bWaterDanger, bCanBuildSeaImprovement, szBestBuild, bCountedReachable, AI_totalWaterAreaUnitAIs(kPlot.getArea(), UNITAI_WORKER_SEA), kPlot.getArea().getNumTrainAIUnits(getID(), UNITAI_WORKER_SEA), AI_totalUnitAIs(UNITAI_WORKER_SEA), AI_getNumTrainAIUnits(UNITAI_WORKER_SEA));
+		iLoggedTargets++;
+	}
+
+	logBBAI("    WORKER_SEA_AUDIT_SUMMARY turn=%d player=%d %S ownedSeaBonuses=%d connected=%d unimprovedBFC=%d unimprovedNonBFC=%d buildableReachable=%d countedReachable=%d unassigned=%d unassignedBuildableReachable=%d staleBuildableReachable=%d staleAssignedBuildableReachable=%d staleUnassignedBuildableReachable=%d staleUnassignedSafeBuildableReachable=%d oldestUnassignedSafeBuildableReachableAge=%d blockedByTechOrBuild=%d visibleEnemyTargets=%d waterDangerTargets=%d loggedTargets=%d totalWorkers=%d totalTrain=%d",
+		iTurn, getID(), getCivilizationDescription(0), iOwnedSeaBonuses, iConnected, iUnimprovedBFC, iUnimprovedNonBFC, iBuildableReachable, iCountedReachable, iUnassigned, iUnassignedBuildableReachable, iStaleBuildableReachable, iStaleAssignedBuildableReachable, iStaleUnassignedBuildableReachable, iStaleUnassignedSafeBuildableReachable, iOldestUnassignedSafeBuildableReachableAge, iBlockedByTechOrBuild, iVisibleEnemy, iWaterDanger, iLoggedTargets, AI_totalUnitAIs(UNITAI_WORKER_SEA), AI_getNumTrainAIUnits(UNITAI_WORKER_SEA));
 }
 
 // advc.042: Cut from CvPlayer.cpp (w/o functional changes) b/c of the AI code at the end

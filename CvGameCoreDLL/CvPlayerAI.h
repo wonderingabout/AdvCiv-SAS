@@ -958,6 +958,8 @@ protected:
 	int AI_knownRankDifference(PlayerTypes eOther, scaled& rOutrankingBothRatio) const;
 	// advc.042: Relies on caller to reset GC.getBorderFinder()
 	bool AI_isUnimprovedBonus(CvPlot const& p, CvPlot const* pFromPlot, bool bCheckPath) const;
+	// <!-- custom: Diagnostic BBAI audit for owned water bonuses that remain unimproved, used to distinguish missing Work Boat production from pathing, danger, tech/buildability, and mission-assignment issues. (GPT-5.5 + ChatGPT-5.5) -->
+	void AI_logWorkerSeaAudit() const;
 	int AI_neededExplorers_bulk(CvArea const& kArea) const; // advc.opt
 	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/17/10, jdog5000: START
 	// (advc: moved here from the public section)

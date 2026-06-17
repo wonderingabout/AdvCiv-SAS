@@ -1247,6 +1247,22 @@ void CvCityAI::AI_chooseProduction()
 				UNITAI_EXPLORE_SEA);
 	} // </advc.124>
 
+	// <!-- custom: BBAI Work Boat audit found a real under-prioritization case after the overqueue fixes: Konya had a buildable/reachable BFC Whale with 0 Work Boats assigned or queued, but chose an early sea explorer Galleon first. Give actionable unmet seafood a narrow priority before early sea explore/settler-sea choices, while keeping the water-danger, financial-trouble, and already-available Work Boat guards. (GPT-5.5 + ChatGPT-5.5) -->
+	if (gCityLogLevel >= 2 && iNeededSeaWorkers > iAvailableSeaWorkers)
+	{
+		logBBAI("      WORKER_SEA_PRIORITY_CHECK turn=%d player=%d %S city=%S cityId=%d needed=%d available=%d pop=%d waterDanger=%d financialTrouble=%d defenseWar=%d warSuccess=%d danger=%d",
+			GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededSeaWorkers, iAvailableSeaWorkers, iCityPopulation, bWaterDanger, bFinancialTrouble, bDefenseWar, iWarSuccessRating, bDanger);
+	}
+	if (!bWaterDanger && !bFinancialTrouble && !(bDefenseWar && iWarSuccessRating < -30) &&
+		iNeededSeaWorkers > iAvailableSeaWorkers && (iCityPopulation >= 3 || iAvailableSeaWorkers <= 0))
+	{
+		if (AI_chooseUnit(UNITAI_WORKER_SEA))
+		{
+			if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before early sea", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+			return;
+		}
+	}
+
 	const bool bMinor = kPlayer.isMinorCiv();
 	const bool bBarbarian = kPlayer.isBarbarian();
 
@@ -12854,7 +12870,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER_SEA);
 
-						if (iTotalUnitAIs >= iMaxUnits)
+						// <!-- custom: After the overqueue fixes, BBAI logs showed the opposite failure mode: a city could correctly detect local buildable/reachable seafood need, then AI_chooseUnit rejected the Work Boat because the global player cap was already reached elsewhere. Keep the cap for idle/excess boats, but do not let it veto a city whose own primary/secondary water areas still have fewer Work Boats than AI_neededSeaWorkers() requires. (GPT-5.5 + ChatGPT-5.5) -->
+						CvArea const* pPrimarySeaWorkerArea = waterArea(true);
+						CvArea const* pSecondSeaWorkerArea = secondWaterArea();
+						int iLocalAvailableSeaWorkers = 0;
+						if (pPrimarySeaWorkerArea != NULL) iLocalAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pPrimarySeaWorkerArea, UNITAI_WORKER_SEA);
+						if (pSecondSeaWorkerArea != NULL && pSecondSeaWorkerArea != pPrimarySeaWorkerArea) iLocalAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pSecondSeaWorkerArea, UNITAI_WORKER_SEA);
+						int const iLocalNeededSeaWorkers = AI_neededSeaWorkers();
+						bool const bLocalSeaWorkerDeficit = (iLocalNeededSeaWorkers > iLocalAvailableSeaWorkers);
+						if (gCityLogLevel >= 2 && iTotalUnitAIs >= iMaxUnits && bLocalSeaWorkerDeficit)
+							logBBAI("      WORKER_SEA_CAP_BYPASS turn=%d player=%d %S city=%S cityId=%d total=%d cap=%d localNeeded=%d localAvailable=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iTotalUnitAIs, iMaxUnits, iLocalNeededSeaWorkers, iLocalAvailableSeaWorkers);
+						if (iTotalUnitAIs >= iMaxUnits && !bLocalSeaWorkerDeficit)
 						{
 							return false;
 						}
