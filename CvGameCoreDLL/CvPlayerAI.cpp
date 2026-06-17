@@ -17492,12 +17492,19 @@ int CvPlayerAI::AI_estimateBarbarianGarrisonSize() const
 // 0 means nothing worth attacking, 1 definitely something, can also go > 1.
 scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
 {
+	// <!-- custom: Diagnostic for late-game weak barbarian cities surviving near strong AI players. This production-side score only creates appetite for more city attackers; it does not by itself order existing stacks to clean up nearby barbarian cities, so log candidate distance/value gates before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
+	bool const bLogBarbTargets = (gPlayerLogLevel >= 2 && GET_PLAYER(BARBARIAN_PLAYER).getNumCities() > 0);
 	scaled rTotal;
 	FOR_EACH_CITY(pBarbarianCity, GET_PLAYER(BARBARIAN_PLAYER))
 	{
 		if (!pBarbarianCity->isArea(kArea) ||
 			!GET_TEAM(getTeam()).AI_deduceCitySite(*pBarbarianCity))
 		{
+			if (bLogBarbTargets && pBarbarianCity->isArea(kArea))
+			{
+				logBBAI("    BARB_CITY_SCORE_SKIP turn=%d player=%d %S area=%d target=%S target=(%d,%d) reason=not_deduced",
+					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY());
+			}
 			continue;
 		}
 		CvPlot const& kBarbarianCityPlot = pBarbarianCity->getPlot();
@@ -17508,7 +17515,14 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
 					plotDistance(pOurCity->plot(), &kBarbarianCityPlot));
 		}
 		if (iOurDist >= 15)
+		{
+			if (bLogBarbTargets)
+			{
+				logBBAI("    BARB_CITY_SCORE_SKIP turn=%d player=%d %S area=%d target=%S target=(%d,%d) pop=%d reason=distance ourDist=%d",
+					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(), iOurDist);
+			}
 			continue;
+		}
 		/*	"Other" can be on our team - if a teammate is better positioned
 			than we are, we want to hold back. */
 		int iOtherDist = MAX_INT;
@@ -17558,7 +17572,16 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
 		rScore /= std::max(fixp(0.6),
 				1 + per100(iDefModifier) + (iDefenders < 0 ? 0 : fixp(0.25) *
 				(iDefenders - AI_estimateBarbarianGarrisonSize())));
+		if (bLogBarbTargets)
+		{
+			logBBAI("    BARB_CITY_SCORE_TARGET turn=%d player=%d %S area=%d target=%S target=(%d,%d) pop=%d ourDist=%d otherDist=%d ourCulture=%d otherCulture=%d defModifier=%d defenders=%d estimatedGarrison=%d score=%d scorePercent=%d",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(), iOurDist, (iOtherDist == MAX_INT ? -1 : iOtherDist), iOurCulture, iOtherCulture, iDefModifier, iDefenders, AI_estimateBarbarianGarrisonSize(), rScore.round(), rScore.getPercent());
+		}
 		rTotal += rScore;
+	}
+	if (bLogBarbTargets && rTotal > 0)
+	{
+		logBBAI("    BARB_CITY_SCORE_SUMMARY turn=%d player=%d %S area=%d totalScore=%d totalScorePercent=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), rTotal.round(), rTotal.getPercent());
 	}
 	return rTotal;
 } // </advc.300>

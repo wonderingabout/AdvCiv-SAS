@@ -229,6 +229,132 @@ static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnit
 	return eBestUnit;
 }
 
+static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementFlags eMoveFlags, int iMaxPathTurns, int* piPathTurns = NULL, int* piTargetValue = NULL, int* piStepDistance = NULL, int* piDefenders = NULL, int* piValue = NULL, int* piCandidates = NULL, int* piPathableCandidates = NULL, CvCity const** ppBestOverallBarbCity = NULL, int* piBestOverallValue = NULL, int* piBestOverallTargetValue = NULL, int* piBestOverallStepDistance = NULL)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvCity const* pBestOverallBarbCity = NULL;
+	CvCity* pBestPathableBarbCity = NULL;
+	int iBestOverallValue = MIN_INT;
+	int iBestOverallStepDistance = -1;
+	int iBestOverallTargetValue = -1;
+	int iBestPathableValue = MIN_INT;
+	int iBestPathablePathTurns = -1;
+	int iBestPathableStepDistance = -1;
+	int iBestPathableDefenders = -1;
+	int iBestPathableTargetValue = -1;
+	int iCandidateCount = 0;
+	int iPathableCandidateCount = 0;
+	FOR_EACH_CITY(pBarbCity, GET_PLAYER(BARBARIAN_PLAYER))
+	{
+		if (!pBarbCity->isRevealed(kUnit.getTeam()) || !GET_TEAM(kUnit.getTeam()).AI_deduceCitySite(*pBarbCity))
+			continue;
+		iCandidateCount++;
+		int iPathTurns = -1;
+		bool const bPath = kUnit.generatePath(pBarbCity->getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns);
+		int const iStepDistance = stepDistance(kUnit.plot(), pBarbCity->plot());
+		int const iTargetValue = kOwner.AI_targetCityValue(*pBarbCity, false, true, NULL);
+		int const iOverallValue = iTargetValue * 100 - iStepDistance;
+		if (iOverallValue > iBestOverallValue)
+		{
+			iBestOverallValue = iOverallValue;
+			iBestOverallStepDistance = iStepDistance;
+			iBestOverallTargetValue = iTargetValue;
+			pBestOverallBarbCity = pBarbCity;
+		}
+		if (!bPath)
+			continue;
+		iPathableCandidateCount++;
+		int const iPathableValue = iTargetValue * 100 - 10 * iPathTurns - iStepDistance;
+		if (iPathableValue > iBestPathableValue)
+		{
+			iBestPathableValue = iPathableValue;
+			iBestPathablePathTurns = iPathTurns;
+			iBestPathableStepDistance = iStepDistance;
+			iBestPathableDefenders = pBarbCity->getPlot().plotCount(PUF_canDefend);
+			iBestPathableTargetValue = iTargetValue;
+			// <!-- custom: Note: pBestPathableBarbCity = pBarbCity; had the below compile error, fixed with the help of GPT-5.5 thanks -->
+			// 1>..\CvUnitAI.cpp(275): error C2440: '=' : cannot convert from 'const CvCity *' to 'CvCity *'
+			// 1>          Conversion loses qualifiers
+			// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+			pBestPathableBarbCity = GET_PLAYER(BARBARIAN_PLAYER).AI_getCity(pBarbCity->getID());
+		}
+	}
+	if (piPathTurns != NULL)
+		*piPathTurns = iBestPathablePathTurns;
+	if (piTargetValue != NULL)
+		*piTargetValue = iBestPathableTargetValue;
+	if (piStepDistance != NULL)
+		*piStepDistance = iBestPathableStepDistance;
+	if (piDefenders != NULL)
+		*piDefenders = iBestPathableDefenders;
+	if (piValue != NULL)
+		*piValue = iBestPathableValue;
+	if (piCandidates != NULL)
+		*piCandidates = iCandidateCount;
+	if (piPathableCandidates != NULL)
+		*piPathableCandidates = iPathableCandidateCount;
+	if (ppBestOverallBarbCity != NULL)
+		*ppBestOverallBarbCity = pBestOverallBarbCity;
+	if (piBestOverallValue != NULL)
+		*piBestOverallValue = iBestOverallValue;
+	if (piBestOverallTargetValue != NULL)
+		*piBestOverallTargetValue = iBestOverallTargetValue;
+	if (piBestOverallStepDistance != NULL)
+		*piBestOverallStepDistance = iBestOverallStepDistance;
+	return pBestPathableBarbCity;
+}
+
+// <!-- custom: Count actual attack/city-capture capability instead of only UNITAI_ATTACK_CITY labels. Broad attacker types can still capture barbarian cities, while pure collateral/no-city-capture units should not make a stack look sufficient by themselves. (GPT-5.5 + ChatGPT-5.5) -->
+static void SAS_countGroupCityAttackCapability(CvSelectionGroup const& kGroup, int& iCanAttack, int& iCityCapture)
+{
+	iCanAttack = 0;
+	iCityCapture = 0;
+	FOR_EACH_UNIT_IN(pLoopUnit, kGroup)
+	{
+		if (!pLoopUnit->canAttack())
+			continue;
+		iCanAttack++;
+		if (!pLoopUnit->isNoCityCapture())
+			iCityCapture++;
+	}
+}
+
+// <!-- custom: Diagnostic for late-game weak barbarian cities surviving near strong AI players. PlayerAI already has a production-side barbarian-city score, but existing attack stacks can still sit or follow normal war targets; log nearby revealed barbarian city opportunities from the stack's actual movement context before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
+static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTargetCity, bool bHuntBarbs, bool bReadyToAttack, bool bTargetTooStrong, MovementFlags eMoveFlags)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	int iCanAttack = 0;
+	int iCityCapture = 0;
+	SAS_countGroupCityAttackCapability(*pGroup, iCanAttack, iCityCapture);
+	int const iAttackCityUnitAI = pGroup->countNumUnitAIType(UNITAI_ATTACK_CITY);
+	CvCity const* pBestOverallBarbCity = NULL;
+	int iBestOverallValue = MIN_INT;
+	int iBestOverallStepDistance = -1;
+	int iBestOverallTargetValue = -1;
+	int iBestPathablePathTurns = -1;
+	int iBestPathableStepDistance = -1;
+	int iBestPathableDefenders = -1;
+	int iBestPathableTargetValue = -1;
+	int iBestPathableValue = MIN_INT;
+	int iCandidateCount = 0;
+	int iPathableCandidateCount = 0;
+	CvCity* pBestPathableBarbCity = SAS_pickPathableBarbCityForAttackStack(kUnit, eMoveFlags, 20, &iBestPathablePathTurns, &iBestPathableTargetValue, &iBestPathableStepDistance, &iBestPathableDefenders, &iBestPathableValue, &iCandidateCount, &iPathableCandidateCount, &pBestOverallBarbCity, &iBestOverallValue, &iBestOverallTargetValue, &iBestOverallStepDistance);
+	if (pBestOverallBarbCity == NULL)
+		return;
+	int iTargetPathTurns = -1;
+	int const iPickedTargetValue = (pTargetCity == NULL ? -1 : kOwner.AI_targetCityValue(*pTargetCity, false, true, NULL));
+	int const iPickedTargetDefenders = (pTargetCity == NULL ? -1 : pTargetCity->getPlot().plotCount(PUF_canDefend));
+	if (pTargetCity != NULL)
+		kUnit.generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns, 20);
+	logBBAI("    BARB_CITY_OPPORTUNITY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d attackCityUnitAI=%d canAttack=%d cityCapture=%d at=(%d,%d) huntBarbs=%d ready=%d targetTooStrong=%d pickedTarget=%S pickedTarget=(%d,%d) pickedTargetOwner=%d pickedTargetPop=%d pickedTargetDefenders=%d pickedTargetValue=%d pickedBarb=%d pickedPathTurns=%d candidates=%d pathableCandidates=%d bestOverallBarb=%S bestOverallBarb=(%d,%d) bestOverallValue=%d bestOverallTargetValue=%d bestOverallStepDistance=%d bestPathableBarb=%S bestPathableBarb=(%d,%d) bestPathablePop=%d bestPathableDefenders=%d bestPathableValue=%d bestPathableTargetValue=%d bestPathablePathTurns=%d bestPathableStepDistance=%d areaAI=%d wars=%d anyWarPlan=%d financialTrouble=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iAttackCityUnitAI, iCanAttack, iCityCapture, kUnit.getX(), kUnit.getY(), bHuntBarbs, bReadyToAttack, bTargetTooStrong,
+		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getOwner()), (pTargetCity == NULL ? -1 : pTargetCity->getPopulation()), iPickedTargetDefenders, iPickedTargetValue, (pTargetCity != NULL && pTargetCity->isBarbarian()), iTargetPathTurns,
+		iCandidateCount, iPathableCandidateCount,
+		pBestOverallBarbCity->getName().GetCString(), pBestOverallBarbCity->getX(), pBestOverallBarbCity->getY(), iBestOverallValue, iBestOverallTargetValue, iBestOverallStepDistance,
+		(pBestPathableBarbCity == NULL ? L"-" : pBestPathableBarbCity->getName().GetCString()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getX()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getY()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getPopulation()), iBestPathableDefenders, iBestPathableValue, iBestPathableTargetValue, iBestPathablePathTurns, iBestPathableStepDistance, kUnit.getArea().getAreaAIType(kUnit.getTeam()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), kOwner.AI_isFinancialTrouble());
+}
+
 // <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
 // only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
 // to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
@@ -5792,6 +5918,8 @@ void CvUnitAI::AI_attackCityMove()
 			}
 		}
 	}
+	if ((gUnitLogLevel >= 2 || gPlayerLogLevel >= 2) && !isBarbarian() && getGroup()->getNumUnits() >= 3)
+		SAS_logAttackCityBarbOpportunity(*this, pTargetCity, bHuntBarbs, bReadyToAttack, bTargetTooStrong, eMoveFlags);
 
 	/*	K-Mod. Lets have some slightly smarter stack vs. stack AI.
 		it would be nice to have some personality effection here...
@@ -6264,6 +6392,63 @@ void CvUnitAI::AI_attackCityMove()
 				}
 			}
 			// K-Mod end
+		}
+		if (!isBarbarian() && pTargetCity == NULL)
+		{
+			int iCanAttack = 0;
+			int iCityCapture = 0;
+			SAS_countGroupCityAttackCapability(*getGroup(), iCanAttack, iCityCapture);
+			bool const bLogBarbFallback = (gUnitLogLevel >= 2 || gPlayerLogLevel >= 2);
+			if (GET_TEAM(getTeam()).getNumWars() > 0)
+			{
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=active_war unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
+				}
+			}
+			else if (iCityCapture < 2)
+			{
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=too_few_city_capture unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
+				}
+			}
+			else
+			{
+				// <!-- custom: BBAI logs showed ready city-attack stacks with no picked target and no active war while pathable weak barbarian cities still existed; the useful cases often had a preparation war plan but no current target. Do not override normal targets or active wars, but if there is no target at all, use the same pathable barbarian-city picker as the diagnostic log so idle attack stacks can clean up barb cities. Barbarian cities are usually weak, have little/no diplomatic or war cost, and can add population, land, resources, unit support, and future growth instead of letting nearby rivals claim them later; capturing a close/profitable barb city also avoids spending a settler and slowing city growth or other projects. K-Mod disabled AI_goToTargetBarbCity, so explicitly pass the picked barbarian city through AI_goToTargetCity. See KI#158. (GPT-5.5 + ChatGPT-5.5) -->
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_TRY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
+				}
+				int iFallbackPickedPathTurns = -1;
+				int iFallbackPickedTargetValue = -1;
+				int iFallbackPickedStepDistance = -1;
+				int iFallbackPickedDefenders = -1;
+				int iFallbackPickedValue = MIN_INT;
+				// <!-- custom: note: if (AI_goToTargetBarbCity(12)) caused a compile error, fixed with the help of GPT-5.5 thanks -->
+				// 1>..\CvUnitAI.cpp(6341): error C3861: 'AI_goToTargetBarbCity': identifier not found, even with argument-dependent lookup
+				// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
+				if (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian() && AI_goToTargetCity(eMoveFlags, 12, pBarbTargetCity))
+				{
+					if (bLogBarbFallback)
+					{
+						logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SUCCESS turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) target=%S target=(%d,%d) pathTurns=%d targetValue=%d value=%d stepDistance=%d defenders=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
+							pBarbTargetCity->getName().GetCString(), pBarbTargetCity->getX(), pBarbTargetCity->getY(), iFallbackPickedPathTurns, iFallbackPickedTargetValue, iFallbackPickedValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
+					}
+					return;
+				}
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_FAIL turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) fallbackPickedTarget=%S fallbackPickedTarget=(%d,%d) fallbackPickedOwner=%d fallbackPickedBarb=%d fallbackPickedPathTurns=%d fallbackPickedValue=%d fallbackPickedTargetValue=%d fallbackPickedStepDistance=%d fallbackPickedDefenders=%d",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
+						(pBarbTargetCity == NULL ? L"-" : pBarbTargetCity->getName().GetCString()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getX()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getY()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getOwner()), (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian()), iFallbackPickedPathTurns, iFallbackPickedValue, iFallbackPickedTargetValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
+				}
+			}
 		}
 	}
 	else

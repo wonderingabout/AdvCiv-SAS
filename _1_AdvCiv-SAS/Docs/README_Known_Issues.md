@@ -193,6 +193,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [155 - (Fixed) Base AdvCiv issue: remote captured-city attack stacks could park for many turns because upgrade waiting overrode a ready offensive target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target)  
 [156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now)  
 [157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
+[158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5830,3 +5831,57 @@ Following this, Work Boat production is reduced (e.g., from 34 Work Boats before
 Conclusion: the remaining high Work Boat count is largely genuine replacement after enemy or pirate pillaging/harassment, not the old produce/scrap or overqueue bug. Future work should therefore probably target naval defense or repeated sea-improvement loss response, not add broader Work Boat production suppression.
 
 Fixed/diagnosed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+## 158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1aUU_p1Lv3apbNx34YpAnqy6JZSE7iAUc?usp=sharing).
+
+While reviewing late-game barbarian cities that stayed alive for too long, BBAI logs showed that the broad AI was able to capture barbarian cities eventually, but nearby players could still fail to use ready attack stacks against them for a long time.
+
+The initial symptom was that weak barbarian cities could remain near strong or nearby AI players until around T300-T400. In one comparison, Shaka was close to the barbarian cities for a long time but did not invade them early, and stayed one of the weaker players. After the fix, he invaded them around T140 and became one of the strongest players through much of the middle and late game, almost winning.
+
+The first diagnostics split the problem into two parts:
+
+- `BARB_CITY_SCORE_*` showed the production-side barbarian-city appetite was often skipped by distance or had very small scores. That explained why the AI often would not produce extra city attackers specifically for pop-1 or distant barbarian cities.
+- `BARB_CITY_OPPORTUNITY` showed what existing `AI_attackCityMove` stacks could see from their actual movement context.
+
+After adding target values to the opportunity log, most cases where a stack ignored a pathable barbarian city were not clearly wrong: the picked normal target was often higher value. The real bug class was narrower:
+
+- `pickedTarget=-`
+- `ready=1`
+- `targetTooStrong=0`
+- `wars=0`
+- `anyWarPlan=1`
+- `pathableCandidates>0`
+
+In other words, a stack could be ready, have no active war, have no picked city target, and have a pathable barbarian city nearby, but still skip the barbarian city because the team had a preparation/future war plan. This meant the AI could wait for a future war while cheap nearby barbarian conquest opportunities stayed open.
+
+Fix: in `CvUnitAI::AI_attackCityMove`, when a non-barbarian attack stack is ready, has no picked target, and has no active war, allow a fallback to a pathable barbarian city even if the team has a future war plan. This does not override normal targets and does not fire during active wars. It only fills a no-target idle gap.
+
+We added `SAS_pickPathableBarbCityForAttackStack` so the behavior uses the same best pathable barbarian-city candidate as the diagnostic log. This avoided an earlier mismatch where diagnostics found a pathable barbarian city, but a separate fallback call to `AI_pickTargetCity(..., true)` returned no target. K-Mod/AdvCiv disabled the old BBAI-style `AI_goToTargetBarbCity`, so the selected barbarian city is explicitly passed through `AI_goToTargetCity`.
+
+The stack gate uses actual group capability instead of only `UNITAI_ATTACK_CITY` labels. `SAS_countGroupCityAttackCapability` counts units that can attack and units that can actually capture cities, so broad attacker types such as attack, counter, reserve, or pillage units can help, while pure collateral/no-city-capture units do not make the stack look sufficient by themselves.
+
+Rationale: close/profitable barbarian cities are usually low-risk because they are often weak and have little/no diplomatic or war cost. Capturing them can add population, land, resources, unit support, and future growth. It can also avoid spending a settler and slowing city growth or other projects, while denying the opportunity to nearby rivals.
+
+After the final behavior and logging cleanup, the reviewed log showed:
+
+- `BARB_CITY_NO_TARGET_FALLBACK_TRY`: 487
+- `BARB_CITY_NO_TARGET_FALLBACK_FAIL`: 478
+- `BARB_CITY_NO_TARGET_FALLBACK_SUCCESS`: 9
+- `BARB_CITY_NO_TARGET_FALLBACK_SKIP`: 33, all `active_war`
+
+The fail count was not concerning because all failures had `fallbackPickedTarget=-` and `fallbackPickedPathTurns=-1`, meaning no pathable barbarian city existed within the fallback limit. The important signal was that the previously suspicious pattern was gone: there were 0 remaining cases of `pickedTarget=-`, `ready=1`, `wars=0`, and `pathableCandidates>0`.
+
+Behaviorally, the same broad situation improved from barbarian cities surviving around T300-T400 to early cleanup:
+
+- T121: France captures Alemanni.
+- T124: Barbarians recapture Alemanni.
+- T127: Zulu captures Hurrian.
+- T132: Zulu captures Alemanni.
+- T148: Zulu captures Visigoth.
+- T153: Zulu captures Gaul and razes it.
+
+The France recapture case is a separate possible post-capture garrison/retreat issue, not part of this fallback.
+
+Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
