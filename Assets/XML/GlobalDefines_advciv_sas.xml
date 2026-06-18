@@ -1230,6 +1230,123 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_FORT_AIRBASE_ENABLE</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: No-bonus worker build branch base values. CvUnitAI parses and caches these once, then still applies the existing dynamic checks for food pressure, workshop food cost, irrigation paths, and build availability. Note: as of now this is a partial implementation only: some builds persist even if not set here, the generic picker redundantly exists on top of it, and detailed customization is not yet possible. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Flood Plains with enough food:
+	- BUILD_COTTAGE: ideal high-food commerce tile; food is already good enough, so prioritize long-term commerce rather than extra food/production. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FLOOD_PLAINS</DefineName>
+		<DefineTextVal>BUILD_COTTAGE:2000</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flood Plains:
+	- BUILD_FARM: chosen first by current DLL branch order if buildable; rare but useful when the city is short on food.
+	- BUILD_FARM starts lower than Cottage so we do not broadly overfarm Flood Plains; the separate low-food deficit value is what makes it rise when the city is actually short on food.
+	- BUILD_COTTAGE: fallback when Farm cannot be built, or the stronger listed base if this branch is later converted to pure candidate competition; still keeps the high-food commerce tile productive.
+	- The low-food deficit value is added separately by the corresponding SAS define. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FLOOD_PLAINS_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_COTTAGE:2000,BUILD_FARM:1700</DefineTextVal>
+	</Define>
+	<!-- custom: Grass Hills with enough food:
+	- BUILD_MINE: strong early production while still having enough natural food to be workable; helps avoid overprioritizing flat Grass Cottages and neglecting production.
+	- CvUnitAI adds the old population adjustment: roughly pop 1=1540, pop 2=1590, pop 3+=1640, so early low-pop cities still prefer key 1600-value Cottages before Mines become competitive. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_GRASS_HILL</DefineName>
+		<DefineTextVal>BUILD_MINE:1590</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Grass Hills:
+	- BUILD_WINDMILL: acceptable lower-yield fallback when food pressure matters; helps the city keep growing or stop stagnating.
+	- BUILD_MINE: fallback when Windmill cannot be built; Grass Hill Mine is still strong production for cheap food. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_GRASS_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:1200,BUILD_MINE:1300</DefineTextVal>
+	</Define>
+	<!-- custom: Flat Grass with enough food:
+	- BUILD_COTTAGE: broadly strong default because flat Grass has enough food to grow commerce.
+	- BUILD_FARM: can beat Cottage for mine-heavy/food-support-hungry cities, fast growth, specialists, or concrete irrigation-chain needs; CvUnitAI adds actual plot/player farm food and chain value.
+	- BUILD_WORKSHOP: only wins when DLL timing/food-cost checks say it is acceptable; early food-cost Workshops should not preempt Cottages, but food-neutral or late-preparation Workshops can be strong. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT</DefineName>
+		<DefineTextVal>BUILD_FARM:1550,BUILD_COTTAGE:1600,BUILD_WORKSHOP:1500</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Grass:
+	- BUILD_WORKSHOP: very attractive if it no longer costs food.
+	- BUILD_FARM: practical food restoration, with extra value from the low-food deficit and food-support logic. Its base starts below the normal Cottage target to avoid overfarming Grass, but it can become good enough when the city actually needs food; later tech/irrigation can also make these farms stronger, and CvUnitAI accounts for actual plot/player farm food separately.
+	- BUILD_COTTAGE: fallback when better food/hammer options are unavailable. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WORKSHOP:2000,BUILD_FARM:1460,BUILD_COTTAGE:1300</DefineTextVal>
+	</Define>
+	<!-- custom: Plains Hills with enough food:
+	- BUILD_MINE: straightforward hammer tile when the city can afford the food cost. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_PLAINS_HILL</DefineName>
+		<DefineTextVal>BUILD_MINE:800</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Plains Hills:
+	- BUILD_WINDMILL: preferred because the tile costs food to work.
+	- BUILD_MINE: fallback when Windmill cannot be built; still useful production if the city has no better option. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_PLAINS_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:800,BUILD_MINE:700</DefineTextVal>
+	</Define>
+	<!-- custom: Flat Plains with enough food:
+	- BUILD_FARM: supports low-food or hill-heavy cities; ordinary Plains should not be farmed only because Farm is possible, so CvUnitAI adds food-support value separately.
+	- BUILD_COTTAGE: modest economy fallback, generally below stronger Grass/Flood Plains candidates; useful, but not the first place to spend worker turns when higher-potential tiles remain.
+	- BUILD_WORKSHOP: only favored when DLL timing/food-cost checks allow it. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT</DefineName>
+		<DefineTextVal>BUILD_FARM:950,BUILD_COTTAGE:600,BUILD_WORKSHOP:550</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Plains:
+	- BUILD_WORKSHOP: strong only if food-neutral and the city is not structurally low-food.
+	- BUILD_FARM: main low-food fix; gains low-food deficit and food-support value, and can become more valuable as farm yields improve later.
+	- BUILD_COTTAGE: deliberately weaker because this terrain often needs food first; still a fallback when Farm is unavailable or the city can afford slower growth. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WORKSHOP:1600,BUILD_FARM:900,BUILD_COTTAGE:500</DefineTextVal>
+	</Define>
+	<!-- custom: Tundra Hills:
+	- BUILD_WINDMILL: usually preferred because tundra cities are often food-poor and production is already scarce.
+	- BUILD_MINE: fallback when Windmill is unavailable. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TUNDRA_HILL</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:500,BUILD_MINE:350</DefineTextVal>
+	</Define>
+	<!-- custom: Flat Tundra with enough food:
+	- BUILD_FARM: can support scarce food or hill use, though lower than better terrains because tundra is usually developed later.
+	- BUILD_COTTAGE: uses the AdvCiv-SAS tundra commerce change and can be a reasonable economy tile.
+	- BUILD_WORKSHOP: allowed only through the DLL timing/food-cost checks.
+	- BUILD_WATERMILL is intentionally not listed as of now: these tiles are low-production and often surrounded by other economy/scarce tundra tiles, so we currently prefer the simpler Farm/Cottage/Workshop competition unless XML tuning later makes Watermills worth testing. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT</DefineName>
+		<DefineTextVal>BUILD_FARM:650,BUILD_COTTAGE:550,BUILD_WORKSHOP:500</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Tundra:
+	- BUILD_WORKSHOP: strong only if food-neutral and the city is not structurally low-food.
+	- BUILD_FARM: often the practical food fix in scarce terrain; tundra cities commonly need food more than another slow economy tile.
+	- BUILD_COTTAGE: weak fallback when Farm cannot be built and better options are unavailable, but still useful with the AdvCiv-SAS tundra commerce change if the city has enough food from elsewhere. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WORKSHOP:1600,BUILD_FARM:500,BUILD_COTTAGE:150</DefineTextVal>
+	</Define>
+	<!-- custom: Snow/Desert Hills with enough food:
+	- BUILD_MINE: low-value last-ditch action, but can still be the only productive move in poor starts or already-developed cities. Example: if the worker has Mining but cannot yet chop/mine a forested gem and no better city tile is ready, a Desert Hill Mine can be the least-bad productive build rather than doing nothing. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL</DefineName>
+		<DefineTextVal>BUILD_MINE:200</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Snow/Desert Hills:
+	- BUILD_WINDMILL: preferred because the tile is otherwise very hard to work.
+	- BUILD_MINE: fallback; still useful when there is truly nothing better, but deliberately kept low because food is usually the bottleneck on these tiles. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:250,BUILD_MINE:200</DefineTextVal>
+	</Define>
+	<!-- custom: Extra value per missing city food surplus point when a no-bonus worker branch is in its low-food mode. This used to be hardcoded as 100 in CvUnitAI; exposing it keeps the branch base values focused on terrain/build preference while this one define controls how aggressively low-food branches react to worsening city food pressure. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
 
 
 

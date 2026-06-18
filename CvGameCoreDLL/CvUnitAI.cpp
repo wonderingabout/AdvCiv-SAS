@@ -1324,6 +1324,139 @@ struct CandidatePlot
 	}
 };
 
+struct SASWorkerNoBonusBuildCandidate
+{
+	BuildTypes eBuild;
+	ImprovementTypes eImprovement;
+	int iBaseValue;
+};
+
+struct SASWorkerNoBonusBranchCache
+{
+	char const* szDefineNameLiteral;
+	CvString szDefineName;
+	std::vector<SASWorkerNoBonusBuildCandidate> aCandidates;
+};
+
+// <!-- custom: Start externalizing no-bonus worker build branch base values without rewriting the dynamic worker AI rules. The XML text define lists candidate builds as BUILD_TAG:value; this parser resolves each build once, stores its resulting improvement when there is one, drops non-positive entries, and caches the result. Existing terrain branches keep their food-pressure, workshop-timing, irrigation, and canBuild checks while making the old hardcoded base preferences tunable; converted picker branches can also let newly listed builds such as Watermills, Forest Preserves, or later route/feature builds compete. (GPT-5.5) -->
+static CvString SAS_trimWorkerNoBonusBranchToken(CvString szText)
+{
+	while (!szText.empty() && (szText[0] == ' ' || szText[0] == '\t' || szText[0] == '\r' || szText[0] == '\n'))
+		szText = szText.substr(1);
+	while (!szText.empty() && (szText[szText.length() - 1] == ' ' || szText[szText.length() - 1] == '\t' || szText[szText.length() - 1] == '\r' || szText[szText.length() - 1] == '\n'))
+		szText = szText.substr(0, szText.length() - 1);
+	return szText;
+}
+
+static void SAS_initWorkerNoBonusBranchCandidates(std::vector<SASWorkerNoBonusBuildCandidate>& aCandidates, char const* szDefineName)
+{
+	aCandidates.clear();
+	char const* szDefineText = GC.getDefineSTRING(szDefineName);
+	FAssertMsg(szDefineText != NULL, szDefineName);
+	if (szDefineText == NULL)
+		return;
+	CvString szRemaining(szDefineText);
+	while (!szRemaining.empty())
+	{
+		int const iComma = szRemaining.find(',');
+		CvString const szRawEntry = (iComma < 0 ? szRemaining : szRemaining.substr(0, iComma));
+		szRemaining = (iComma < 0 ? CvString("") : szRemaining.substr(iComma + 1));
+		CvString const szEntry = SAS_trimWorkerNoBonusBranchToken(szRawEntry);
+		if (szEntry.empty())
+			continue;
+		int const iColon = szEntry.find(':');
+		FAssertMsg(iColon > 0, szEntry.c_str());
+		if (iColon <= 0)
+			continue;
+		CvString const szBuild = SAS_trimWorkerNoBonusBranchToken(szEntry.substr(0, iColon));
+		CvString const szValue = SAS_trimWorkerNoBonusBranchToken(szEntry.substr(iColon + 1));
+		int const iBaseValue = atoi(szValue.c_str());
+		if (iBaseValue <= 0)
+			continue;
+		BuildTypes const eBuild = (BuildTypes)GC.getInfoTypeForString(szBuild.c_str());
+		FAssertMsg(eBuild != NO_BUILD, szBuild.c_str());
+		if (eBuild == NO_BUILD)
+			continue;
+		SASWorkerNoBonusBuildCandidate kCandidate;
+		kCandidate.eBuild = eBuild;
+		kCandidate.eImprovement = GC.getInfo(eBuild).getImprovement();
+		kCandidate.iBaseValue = iBaseValue;
+		aCandidates.push_back(kCandidate);
+	}
+}
+
+static std::vector<SASWorkerNoBonusBuildCandidate> const& SAS_getWorkerNoBonusBranchCandidates(char const* szDefineName)
+{
+	static std::vector<SASWorkerNoBonusBranchCache> aCaches;
+	// <!-- custom: Current callers pass stable string literals; pointer matching avoids repeated CvString comparisons in the worker plot hot path. Keep the CvString copy as the authoritative key so equivalent future callers can still resolve correctly when their pointer differs. (GPT-5.5 + ChatGPT-5.5) -->
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineNameLiteral == szDefineName)
+			return aCaches[i].aCandidates;
+	}
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineName == szDefineName)
+			return aCaches[i].aCandidates;
+	}
+	SASWorkerNoBonusBranchCache kCache;
+	kCache.szDefineNameLiteral = szDefineName;
+	kCache.szDefineName = szDefineName;
+	SAS_initWorkerNoBonusBranchCandidates(kCache.aCandidates, szDefineName);
+	aCaches.push_back(kCache);
+	return aCaches[aCaches.size() - 1].aCandidates;
+}
+
+static int SAS_getWorkerNoBonusBranchBaseValue(char const* szDefineName, BuildTypes eBuild)
+{
+	std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(szDefineName);
+	for (size_t i = 0; i < aCandidates.size(); ++i)
+	{
+		if (aCandidates[i].eBuild == eBuild)
+			return aCandidates[i].iBaseValue;
+	}
+	FErrorMsg(CvString::format("Missing worker branch build value: %s", szDefineName).c_str());
+	return MIN_INT / 4;
+}
+
+static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, char const* szDefineName, BuildTypes eBuildFarm, BuildTypes eBuildCottage, BuildTypes eBuildWorkshop, BuildTypes eBuildMine, BuildTypes eBuildWindmill, bool bAllowFarm, bool bAllowWorkshop, int iFarmValueAdjustment, int iCottageValueAdjustment, int iWorkshopValueAdjustment, int iMineValueAdjustment, int iWindmillValueAdjustment, BuildTypes& eBestBuild, int& iValue)
+{
+	std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(szDefineName);
+	BuildTypes eBestCandidateBuild = NO_BUILD;
+	int iBestCandidateValue = MIN_INT;
+	for (size_t i = 0; i < aCandidates.size(); ++i)
+	{
+		SASWorkerNoBonusBuildCandidate const& kCandidate = aCandidates[i];
+		if (kCandidate.eBuild == eBuildFarm && !bAllowFarm)
+			continue;
+		if (kCandidate.eBuild == eBuildWorkshop && !bAllowWorkshop)
+			continue;
+		if (!kUnit.canBuild(kPlot, kCandidate.eBuild))
+			continue;
+		int iCandidateValue = kCandidate.iBaseValue;
+		if (kCandidate.eBuild == eBuildFarm)
+			iCandidateValue += iFarmValueAdjustment;
+		else if (kCandidate.eBuild == eBuildCottage)
+			iCandidateValue += iCottageValueAdjustment;
+		else if (kCandidate.eBuild == eBuildWorkshop)
+			iCandidateValue += iWorkshopValueAdjustment;
+		else if (kCandidate.eBuild == eBuildMine)
+			iCandidateValue += iMineValueAdjustment;
+		else if (kCandidate.eBuild == eBuildWindmill)
+			iCandidateValue += iWindmillValueAdjustment;
+		if (iCandidateValue > iBestCandidateValue)
+		{
+			iBestCandidateValue = iCandidateValue;
+			eBestCandidateBuild = kCandidate.eBuild;
+		}
+	}
+	if (eBestCandidateBuild == NO_BUILD)
+		return false;
+	eBestBuild = eBestCandidateBuild;
+	iValue += iBestCandidateValue;
+	return true;
+}
+
 // Returns true if the unit found a build for this city...
 // <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further -->
 // <!-- custom: rewrite to handle/optimize terrain improvement choice - don't build cottage on flatland plains if flatland grass tiles (much better candidates) are available. For bonuses, simplify logic to always improve them regardless of terrain (high-food bonuses first). Partially based on settling priorities code in CitySiteEvaluator.cpp. Credit: Gemini AI (original); ChatGPT 5 (polishing). (Claude code Sonnet 4.5 (summarized)) -->
@@ -1397,6 +1530,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 	static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 	bool const bRenaissancePlus = (eERA_RENAISSANCE != NO_ERA && GET_PLAYER(getOwner()).getCurrentEra() >= eERA_RENAISSANCE);
+	static const int iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -1910,106 +2044,68 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// Priority 1: Special terrain/feature combinations
 			if (eFeature == eFeatureFloodPlains)
 			{
-				// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
 				if (iAdjustedFoodDifference >= 1)
 				{
-					// Floodplains: Great for cottages (high food + commerce potential)
-					// High food terrain = can afford cottage
-					if (canBuild(kPlot, eBuildCottage))
-					{
-						// <!-- custom: the absolute best and ideal, if we can build it and conditions are good, no need to think further -->
-						eBestSupposedBuild = eBuildCottage;
-
-						// <!-- custom: the ideal plot to start improving first, high food; do not worry about production for now, the food is good enough and more often than not always gonna be worth it, at least we hope so. -->
-						iValue += 2000;
-					}
-					else
-					{
-						// <!-- custom: wait for right time, do nothing (yet) -->
+					if (!SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, "SAS_WORKER_AI_BASE_BRANCH_FLOOD_PLAINS", eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, false, false, 0, 0, 0, 0, 0, eBestSupposedBuild, iValue))
 						continue;
-					}
 				}
-				// <!-- custom: but in some rare cases farm on flood plains can be quite good.. if we can build it -->
 				else
 				{
-					// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case; note: see code comment at iEstimatedCityFoodDifference for details -->
 					if (canBuild(kPlot, eBuildFarm))
 					{
 						eBestSupposedBuild = eBuildFarm;
 
-						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-						iValue += 1700 + (100 * (-1 * iAdjustedFoodDifference));
+						iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_FLOOD_PLAINS_LOW_FOOD", eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference));
 					}
-					// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
 					else if (canBuild(kPlot, eBuildCottage))
 					{
 						eBestSupposedBuild = eBuildCottage;
 
-						iValue += 2000;
+						iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_FLOOD_PLAINS_LOW_FOOD", eBuildCottage);
 					}
 					else
 					{
-						// <!-- custom: wait for right time, do nothing (yet) -->
 						continue;
 					}
 				}
 			}
-			// <!-- custom: feature floodplains can effectively be considered a terrain as it spawns only on desert in our mod as in base advciv +/- civ4, so use else if for computational effiency -->
 			else if (eTerrain == eTerrainGrass)
 			{
 				if (kPlot.isHills())
 				{
-					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
 					if (iAdjustedFoodDifference >= -1)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: hill grassland very strong early, even later in game maybe too; we get nice production and quite nice food as well, great starter, a bit less than flood plains as lower food, but really nice tile overall; the build may also still be better even than windmill due to base food higher yield of grassland -->
 							eBestSupposedBuild = eBuildMine;
 
-							// <!-- custom: improve these first before cottages to not neglect our production as well, generally they are few in cities anyway but we tend to neglect them quite a bit for grass cottages, attempt to address that as well as valuing them in general. But also make sure we grow first, so give first populations to cottages or such rather, then say from pop 3+ or such focus more on mines on hill grass instead for example -->
-							// <!-- custom: data analysis. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-							// That yields:
-							// pop 1 → 1540
-							// pop 2 → 1590
-							// pop ≥3 → 1640
-							// Given flat-grass cottage = 1600, this enforces:
-							// pop 1–2: cottage (1600) > mine (1540/1590)
-							// pop ≥3: mine (1640) > cottage (1600)
-							// …which matches your rule perfectly.
-							iValue += ((-100 + (50 * std::min(3, iCityPopulation))) + 1590);
+							iValue += ((-100 + (50 * std::min(3, iCityPopulation))) + SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_HILL", eBuildMine));
 						}
 						else
 						{
-							// <!-- custom: wait for right time, do nothing (yet) -->
 							continue;
 						}
 					}
-					// <!-- custom: low food, can't be too picky if i may say in this case at least maybe-->
 					else
 					{
 						if (canBuild(kPlot, eBuildWindmill))
 						{
-							// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case) -->
 							eBestSupposedBuild = eBuildWindmill;
 
-							iValue += 1200 + (100 * (-1 * iAdjustedFoodDifference));
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_HILL_LOW_FOOD", eBuildWindmill) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference));
 						}
 						else if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall production for cheap food -->
 							eBestSupposedBuild = eBuildMine;
 
-							iValue += 1300;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_HILL_LOW_FOOD", eBuildMine);
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, look and contemplate this tile until we starve xd, maybe the stars look good at night there... Xd or to rest calm and in peace if i may say maybe if i may say in this case hehe-->
 							continue;
 						}
 					}
 				}
-				// <!-- custom: many things could be good on flatland grass, but statistically, cottage would be best and most universally possible to build, then when we have workshops, switch over if cottage didn't grow yet, else keep cottage (logic to not overwrite which or which not to overwrite improvement handled outside of this function, for now simply pick ideal supposed best regardless of plot condition (existing improvements or such other conditions as well not taken into account here)) -->
 				else
 				{
 					bool const bCanBuildWorkshop = canBuild(kPlot, eBuildWorkshop);
@@ -2017,118 +2113,95 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
 					bool const bWorkshopReadyToPreferOverCottage = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= 4));
 
-					// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields -->
 					if (iAdjustedFoodDifference >= 2)
 					{
 						if (bFoodSupportFarmCandidate)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							// <!-- custom: In mine-heavy or otherwise food-support hungry cities, a strong non-bonus farm can be better than another grass cottage because it lets the city work food-consuming hill mines, grow quickly when fast growth is situationally valuable, or support a specialist economy. Use actual plot/player farm food so Civil Service/Biology/irrigation effects count, add only a small extra bias for irrigation-carrier tiles, and taper the farm-support bonus once the city already has surplus food so we preserve useful chains without reviving broad irrigation spam. (GPT-5.5) -->
-							iValue += 1550 + iFoodSupportFarmValue;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT", eBuildFarm) + iFoodSupportFarmValue;
 						}
 						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
-							// <!-- custom: food-cost workshops unlocked early at Iron Working and were chosen before cottages on high-food flatland, so AI overbuilt them long before State Property. Use plot/player yield so State Property's +1 food is recognized (base workshop -1 food is very crippling early and prevents growth of cities, making it much worse than a cottage for example); prefer food-neutral workshops strongly, but only use a smaller Renaissance+ preparation value (State Property is quite soon then so worth starting to switch over to them) while they still cost food and the city has extra surplus. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 2650 : 1500) - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT", eBuildWorkshop) + (bWorkshopCostsNoFood ? 1150 : 0) - iNonFoodIrrigationPathPenalty;
 						}
-						// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, -->
-						// High food terrain = can afford cottage
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 1600 - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT", eBuildCottage) - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
-							// <!-- custom: wait for right time, do nothing (yet) -->
 							continue;
 						}
 					}
-					// <!-- custom: else if short on food, make sure city can grow, a farm can be quite good even on grassland in some circumstances, but generally avoid -->
 					else
 					{
-						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
 						if (bWorkshopCostsNoFood && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
-							// <!-- custom: extremely attractive on this terrain if no food cost -->
-							iValue += 2000;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT_LOW_FOOD", eBuildWorkshop);
 						}
-						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
 						else if (bCanBuildFarm)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-							iValue += 1460 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT_LOW_FOOD", eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 1300 - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_GRASS_FLAT_LOW_FOOD", eBuildCottage) - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
-							// <!-- custom: out of luck, ask claude ai or such other AIs what one can do on grass flatland before we run out of food and assuming we can't improve the tile, play some music maybe with some wind xd or lsten to it or sing maybe.. But wait wouldn't that be at a camp, but is noisy though maybe, or not?... -->
 							continue;
 						}
 					}
 				}
 			}
-			// <!-- custom: lower food terrain as of now -->
 			else if (eTerrain == eTerrainPlains)
 			{
-				// <!-- custom: on hills the problem is more straightforward, build mines until we can afford windmills, then let iValue despite outside of this function if we should build the best build or not vs other tiles (i.e. as of now due to the penalty of overwriting plots, windmills would not be considered until high enough value city plots have been improved first, our build mine on plains would be delayed until then) -->
 				if (kPlot.isHills())
 				{
-					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more -->
 					if (iAdjustedFoodDifference >= 0)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: still good and solid choice if i may say in this case, but costs food -->
 							eBestSupposedBuild = eBuildMine;
 
-							iValue += 800;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_HILL", eBuildMine);
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
-					// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
 					else
 					{
 						if (canBuild(kPlot, eBuildWindmill))
 						{
-							// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
 							eBestSupposedBuild = eBuildWindmill;
 
-							iValue += 800;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_HILL_LOW_FOOD", eBuildWindmill);
 						}
 						else if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: get the best we can before we starve -->
 							eBestSupposedBuild = eBuildMine;
 
-							iValue += 700;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_HILL_LOW_FOOD", eBuildMine);
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
 				}
-				// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
-				// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
 				else
 				{
 					bool const bCanBuildWorkshop = canBuild(kPlot, eBuildWorkshop);
@@ -2142,91 +2215,73 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							// <!-- custom: Same food-support logic as grass flatland: if this city has many food-consuming hills or low-food tiles, a farm on a suitable non-bonus flat tile can unlock more hammer tiles than an early cottage is worth. Keep the boost tied to actual farm food/irrigation value so ordinary plains are not farmed just because they can be. (GPT-5.5) -->
-							iValue += 950 + iFoodSupportFarmValue;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT", eBuildFarm) + iFoodSupportFarmValue;
 						}
 						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
-							// <!-- custom: same workshop timing fix as flat grassland: early food-cost workshops should not preempt cottages, while food-neutral workshops are strong and Renaissance+ food-cost workshops are allowed only with extra city surplus as preparation. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 1800 : 550) - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT", eBuildWorkshop) + (bWorkshopCostsNoFood ? 1250 : 0) - iNonFoodIrrigationPathPenalty;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
-							// <!-- custom: still quite good but not ultimate best, delay if all higher potential food tiles especially unimproved ones have been improved already -->
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 600 - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT", eBuildCottage) - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
-					// <!-- custom: if low on food on a flatland plains, do what we can to raise food if no other plots are good, else get what we can if we can before we starve -->
 					else
 					{
-						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
-						// <!-- custom: but not in low-food BFC cities, where we want farm for food even over free workshops on low-food terrains (Claude code Opus 4.6) -->
 						if (bWorkshopCostsNoFood && !bCityLowFoodBFC && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
-							// <!-- custom: extremely attractive on this terrain if no food cost -->
-							iValue += 1600;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT_LOW_FOOD", eBuildWorkshop);
 						}
-						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
 						else if (bCanBuildFarm)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							iValue += 900 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT_LOW_FOOD", eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
 
-							// <!-- custom: still quite good but not ultimate best, but if we're going to build a farm as relatively holy anyway in this low-food terrain, restrict the cottage by increasing its requirement further (i.e. lowering its iValue so it is more rarely built), making it even less likely to be built unless we have tons of food or if we can't build a farm and nothing or almost nothing else is good right now in city radius, for effiency -->
-							iValue += 500 - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_PLAINS_FLAT_LOW_FOOD", eBuildCottage) - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
-							// <!-- custom: out of luck, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
 				}
 			}
-			// <!-- custom: for tundra prioritize developping the other food tiles, develop tundra last or among last terrains, or only if we are surrounded by it, then prefer farms or cottages depending on our food supply on flatland, else and in general as well see below logic for details -->
 			else if (eTerrain == eTerrainTundra)
 			{
-				// <!-- custom: on hills the problem is more straightforward similarly to plains, but they yield less production, so less valuable, still as tundra is lower production overall, production is valuable itself, so make it worth a bit less than plains so that plains prevail but not by a lot so... -->
 				if (kPlot.isHills())
 				{
-					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more; also as tundra tends to have less food around it, so consistently (i.e. regardless of food difference) favour the windmill instead -->
 					if (canBuild(kPlot, eBuildWindmill))
 					{
-						// <!-- custom: on tundra the windmill may be slightly more valuable than on plains, i don't know exactly why i feel or seem to think so, but maybe since production is low anyway, capitalize on food rather, or maybe because tundra overall has less food in its environment so value food morewindmill, go for it anyway etc -->
 						eBestSupposedBuild = eBuildWindmill;
 
-						iValue += 500;
+						iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_HILL", eBuildWindmill);
 					}
 					else if (canBuild(kPlot, eBuildMine))
 					{
-						// <!-- custom: if nothing better to do, grab what we can -->
 						eBestSupposedBuild = eBuildMine;
 
-						iValue += 350;
+						iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_HILL", eBuildMine);
 					}
 					else
 					{
-						// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 						continue;
 					}
 				}
-				// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
 				else
 				{
 					bool const bCanBuildWorkshop = canBuild(kPlot, eBuildWorkshop);
@@ -2234,161 +2289,130 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
 					bool const bWorkshopReadyToPreferOverCottage = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= 5));
 
-					// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more -->
-					// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
 					if (iAdjustedFoodDifference >= 3 && !bCityLowFoodBFC)
 					{
 						if (bFoodSupportFarmCandidate)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							// <!-- custom: Same food-support logic as grass/plains flatland, with lower base value because tundra is usually developed later; a strong irrigated farm can still be the right support tile in a city that otherwise cannot work its hills. (GPT-5.5) -->
-							iValue += 650 + iFoodSupportFarmValue;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT", eBuildFarm) + iFoodSupportFarmValue;
 						}
 						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
-							// <!-- custom: same workshop timing fix as flat grassland: early food-cost workshops should not preempt cottages, while food-neutral workshops are strong and Renaissance+ food-cost workshops are allowed only with extra city surplus as preparation. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 1575 : 500) - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT", eBuildWorkshop) + (bWorkshopCostsNoFood ? 1075 : 0) - iNonFoodIrrigationPathPenalty;
 						}
-						// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or tundra ones maybe too, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI-->
 						else if (canBuild(kPlot, eBuildCottage))
 						{
-							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce, delay if all higher potential food tiles especially unimproved ones have been improved already. -->
 							eBestSupposedBuild = eBuildCottage;
 
-							iValue += 550 - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT", eBuildCottage) - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
-					// <!-- custom: if low on food on a flatland tundra, a farm is good if we can get it especially considering the scarce environment, do what we can to raise food if no other plots are good, else get what we can if we can before we starve -->
 					else
 					{
-						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
-						// <!-- custom: but not in low-food BFC cities, where we want farm for food even over free workshops on low-food terrains (Claude code Opus 4.6) -->
 						if (bWorkshopCostsNoFood && !bCityLowFoodBFC && bCanBuildWorkshop)
 						{
 							eBestSupposedBuild = eBuildWorkshop;
 
-							// <!-- custom: extremely attractive on this terrain if no food cost -->
-							iValue += 1600;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT_LOW_FOOD", eBuildWorkshop);
 						}
-						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
 						else if (bCanBuildFarm)
 						{
 							eBestSupposedBuild = eBuildFarm;
 
-							iValue += 500 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT_LOW_FOOD", eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
 						}
 						else if (canBuild(kPlot, eBuildCottage))
 						{
 							eBestSupposedBuild = eBuildCottage;
 
-							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->
-							iValue += 150 - iNonFoodIrrigationPathPenalty;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_TUNDRA_FLAT_LOW_FOOD", eBuildCottage) - iNonFoodIrrigationPathPenalty;
 						}
 						else
 						{
-							// <!-- custom: out of luck, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
 				}
 			}
-			// <!-- custom: on snow, i think the only thing we can do is build a mine or something similar on hills, and it shoudn't be too high priority unless we have lots of food (but even then should we waste it on a snow tile or use this scarce advantage in cold environment for other tiles, ideally tundra maybe?) -->
 			else if (eTerrain == eTerrainSnow)
 			{
 				if (kPlot.isHills())
 				{
-					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
 					if (iAdjustedFoodDifference >= 4)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: if nothing better to do, grab what we can -->
 							eBestSupposedBuild = eBuildMine;
 
-							iValue += 200;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL", eBuildMine);
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
-					// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd -->
 					else
 					{
 						if (canBuild(kPlot, eBuildWindmill))
 						{
-							// <!-- custom: if nothing better to do, grab what we can -->
 							eBestSupposedBuild = eBuildWindmill;
 
-							iValue += 250;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL_LOW_FOOD", eBuildWindmill);
 						}
 						else if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: if nothing better to do, grab what we can -->
 							eBestSupposedBuild = eBuildMine;
 
-							iValue += 200;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL_LOW_FOOD", eBuildMine);
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
 				}
 				// <!-- custom: else nothing to do on flatland snow, that would raise our yields at all (we DON'T want forts...) -->
 			}
-			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml (although i didn't check too much if at all but it seems to function as such ingame) -->
 			else if (eTerrain == eTerrainDesert)
 			{
 				if (kPlot.isHills())
 				{
-					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
 					if (iAdjustedFoodDifference >= 4)
 					{
 						if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: if nothing better to do, grab what we can -->
 							eBestSupposedBuild = eBuildMine;
 
-							iValue += 200;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL", eBuildMine);
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
-					// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd -->
 					else
 					{
 						if (canBuild(kPlot, eBuildWindmill))
 						{
-							// <!-- custom: if nothing better to do, grab what we can -->
 							eBestSupposedBuild = eBuildWindmill;
 
-							iValue += 250;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL_LOW_FOOD", eBuildWindmill);
 						}
 						else if (canBuild(kPlot, eBuildMine))
 						{
-							// <!-- custom: if nothing better to do, grab what we can -->
 							eBestSupposedBuild = eBuildMine;
 
-							// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case, even though the value is really low, in some cases we may have nothing else better to do at all (not counting roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
-							iValue += 200;
+							iValue += SAS_getWorkerNoBonusBranchBaseValue("SAS_WORKER_AI_BASE_BRANCH_SNOW_DESERT_HILL_LOW_FOOD", eBuildMine);
 						}
 						else
 						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
 							continue;
 						}
 					}
