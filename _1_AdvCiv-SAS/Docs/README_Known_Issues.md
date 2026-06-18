@@ -197,6 +197,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#159---improved-ai-civic-switch-damping-paid-anarchy-civic-churn-and-direct-reversals-after-the-civic-timer-expired)  
 [160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)  
 [161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
+[162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5990,7 +5991,7 @@ Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
 
 ## 161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CcRoDInd1w6DzgF9e0yDVnnEPvOpnX31).
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CcRoDInd1w6DzgF9e0yDVnnEPvOpnX31?usp=sharing).
 
 After fixing the much more frequent `CvSelectionGroup::plot` crash and several other earlier crash sources, long autoplay runs are now usually much more stable. In recent testing, most turn 0 to around turn 400/500 autoplay runs finished in one go, but two rare non-reproducible crashes still appeared around turn 145 and turn 348.
 
@@ -6013,4 +6014,24 @@ Conservative hardening was added around the city-name path:
 
 These changes should not alter normal city-name behavior. They only prevent unsafe lookups or string construction when data is invalid, unexpectedly empty, or memory state is already abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix. If similar crashes continue, keep linker `.map` files or PDBs for the matching DLL build so future dump offsets can be mapped to real source lines instead of relying on misleading nearest-symbol names.
 
-Addressed with the very nice help of ChatGPT-5.5 thanks.
+Addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
+
+## 162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sf0TZF1uSYlPds8bFjtoYwv7cA6hQ06u?usp=sharing).
+
+After KI#102 and KI#103 had already addressed two earlier `CvCity::getProductionBarPercentages` crash variants, another rare non-reproducible autoplay crash appeared around turn 243.
+
+The crash log again points to `CvCity::getProductionBarPercentages`, this time at `+0x502`, with an access violation while reading memory address `000001b8`. The stack is not fully reliable without matching line symbols / PDB information, but it still places the crash in the city production-bar path and near broader UI / selection / turn-transition context. This looks related to the old production-bar crash family, but different enough from KI#102 and KI#103 to document as a separate later variant rather than silently extending those older entries.
+
+The suspected weakness is that `CvCity::canBeSelected` could return true through early city-visibility paths such as `m_bInvestigate`, `isActiveTeam`, or debug mode before checking whether `GC.getGame().getActivePlayer()` was valid. During autoplay or turn transitions, the EXE can sometimes still ask for city UI bars while no active player exists. Letting those early paths bypass the `NO_PLAYER` guard could allow `CvCity::getProductionBarPercentages` to run in an unsafe UI state.
+
+Conservative hardening was added:
+
+- `CvCity::canBeSelected` now checks `NO_PLAYER` before any early selectable-city return.
+- `CvCity::getProductionBarPercentages` now reuses one validated `getProductionNeeded` value before doing production-bar math.
+- The production-bar path now rejects invalid production-needed values such as `<= 0` or `MAX_INT`.
+
+This should not alter normal production or city UI behavior. It only prevents city production-bar display math when the active-player/UI state or production denominator is abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix. If this still crashes, keep matching linker `.map` files or PDBs for the DLL build so the `CvGameCoreDLL` offset can be mapped to a real source line.
+
+Tentatively addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.

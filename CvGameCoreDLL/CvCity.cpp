@@ -1381,6 +1381,12 @@ bool CvCity::canBeSelected() const
 {
 	CvGame const& kGame = GC.getGame();
 
+	// <!-- custom: Check for NO_PLAYER before any early selectable-city return. During autoplay/turn transitions, the EXE can still ask for city UI bars while no active player exists; allowing isActiveTeam/debug/investigate to bypass this guard can re-enter CvCity::getProductionBarPercentages in an unsafe UI state. See KI#162. (Claude code Opus 4.5 + ChatGPT-5.5) -->
+	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+	if (eActivePlayer == NO_PLAYER)
+		return false;
+	// <!-- custom: End -->
+
 	if (m_bInvestigate || // advc.103
 		isActiveTeam() || kGame.isDebugMode())
 	{
@@ -1389,11 +1395,6 @@ bool CvCity::canBeSelected() const
 	TeamTypes const eActiveTeam = kGame.getActiveTeam();
 	if (eActiveTeam != NO_TEAM && getPlot().isInvestigate(eActiveTeam))
 		return true;
-
-	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
-	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
-	if (eActivePlayer == NO_PLAYER)
-		return false;
 
 	FOR_EACH_ENUM(EspionageMission)
 	{
@@ -8857,7 +8858,7 @@ const CvWString CvCity::getName(uint uiForm) const
 
 void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool bInitial)
 {
-	// <!-- custom: Avoid constructing CvWString from an invalid city-name pointer. See KI 161. (ChatGPT-5.5) -->
+	// <!-- custom: Avoid constructing CvWString from an invalid city-name pointer. See KI#161. (ChatGPT-5.5 + GPT-5.5 for quick review of the solution) -->
 	if (szNewValue == NULL || szNewValue[0] == L'\0')
 	{
 		FAssertMsg(false, "Invalid city name");
@@ -12583,13 +12584,19 @@ bool CvCity::getProductionBarPercentages(std::vector<float>& afPercentages) cons
 
 	if (!isProductionProcess())
 	{
+		// <!-- custom: Reuse one validated production target and reject invalid denominators before doing production-bar math. See KI#162. (ChatGPT-5.5) -->
+		int const iProductionNeeded = getProductionNeeded();
+		if (iProductionNeeded <= 0 || iProductionNeeded == MAX_INT)
+			return false;
+		// <!-- custom: End -->
+
 		afPercentages.resize(NUM_INFOBAR_TYPES, 0.0f);
 		int iProductionDiffNoFood = getCurrentProductionDifference(true, true);
 		int iProductionDiffJustFood = getCurrentProductionDifference(false, true)
 				- iProductionDiffNoFood;
-		afPercentages[INFOBAR_STORED] = getProduction() / (float) getProductionNeeded();
-		afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float) getProductionNeeded();
-		afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float) getProductionNeeded();
+		afPercentages[INFOBAR_STORED] = getProduction() / (float)iProductionNeeded;
+		afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float)iProductionNeeded;
+		afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float)iProductionNeeded;
 	}
 
 	return true;

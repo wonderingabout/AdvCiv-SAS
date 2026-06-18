@@ -2129,7 +2129,7 @@ CvWString CvPlayer::getNewCityName() const
 	for (CLLNode<CvWString>* pNode = headCityNameNode();
 		pNode != NULL && szName.empty(); pNode = nextCityNameNode(pNode))
 	{
-		// <!-- custom: Guard against invalid explicit city-name entries before text lookup. See KI 161. (ChatGPT-5.5) -->
+		// <!-- custom: Guard against invalid explicit city-name entries before text lookup. See KI#161. (ChatGPT-5.5 + GPT-5.5 for quick review of the solution) -->
 		if (pNode->m_data.empty())
 		{
 			FAssertMsg(false, "Empty explicit city-name key");
@@ -2170,7 +2170,7 @@ CvWString CvPlayer::getNewCityName() const
 
 void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const
 {
-	// <!-- custom: Defensive city-name text lookup hardening after rare heap/string crash signatures. See KI 161. (ChatGPT-5.5) -->
+	// <!-- custom: Defensive city-name text lookup hardening after rare heap/string crash signatures. See KI#161. (ChatGPT-5.5) -->
 	if (eCivilization == NO_CIVILIZATION || eCivilization < 0 ||
 		eCivilization >= GC.getNumCivilizationInfos())
 	{
