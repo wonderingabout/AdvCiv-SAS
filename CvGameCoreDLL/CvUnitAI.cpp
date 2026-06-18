@@ -1462,41 +1462,13 @@ struct SASWorkerNoBonusKnownBranches
 
 	SASWorkerNoBonusKnownBranches()
 	{
-		SAS_initWorkerNoBonusBranchSet(kFeatureFloodPlains,
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT",
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT_LOW_FOOD",
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL",
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL_LOW_FOOD");
-		SAS_initWorkerNoBonusBranchSet(kFeatureOasis,
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT",
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT_LOW_FOOD",
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL",
-				"SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL_LOW_FOOD");
-		SAS_initWorkerNoBonusBranchSet(kTerrainGrass,
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT_LOW_FOOD",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL_LOW_FOOD");
-		SAS_initWorkerNoBonusBranchSet(kTerrainPlains,
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT_LOW_FOOD",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL_LOW_FOOD");
-		SAS_initWorkerNoBonusBranchSet(kTerrainTundra,
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT_LOW_FOOD",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL_LOW_FOOD");
-		SAS_initWorkerNoBonusBranchSet(kTerrainSnow,
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT_LOW_FOOD",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL_LOW_FOOD");
-		SAS_initWorkerNoBonusBranchSet(kTerrainDesert,
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT_LOW_FOOD",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL",
-				"SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kFeatureFloodPlains, "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kFeatureOasis, "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainGrass, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainPlains, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainTundra, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainSnow, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainDesert, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL_LOW_FOOD");
 	}
 };
 
@@ -1505,23 +1477,6 @@ static SASWorkerNoBonusKnownBranches const& SAS_getWorkerNoBonusKnownBranches()
 {
 	static SASWorkerNoBonusKnownBranches kBranches;
 	return kBranches;
-}
-
-static int SAS_getWorkerNoBonusBranchBaseValue(char const* szDefineName, BuildTypes eBuild)
-{
-	std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(szDefineName);
-	for (size_t i = 0; i < aCandidates.size(); ++i)
-	{
-		if (aCandidates[i].eBuild == eBuild)
-			return aCandidates[i].iBaseValue;
-	}
-	FErrorMsg(CvString::format("Missing worker branch build value: %s", szDefineName).c_str());
-	return MIN_INT / 4;
-}
-
-static int SAS_getWorkerNoBonusBranchBaseValue(SASWorkerNoBonusBranch const& kBranch, BuildTypes eBuild)
-{
-	return SAS_getWorkerNoBonusBranchBaseValue(kBranch.szDefineName, eBuild);
 }
 
 static int SAS_getImprovementUpgradeChainLevel(ImprovementTypes eImprovement, ImprovementTypes eChainStart)
@@ -2186,91 +2141,42 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: PHASE 1 - estimate plot value (i.e. priority for the next plot to improve first) and best build on said plot, for all plots in our loop -->
 
 			// <!-- custom: PHASE 1.1: general for non-bonus plots terrain/feature (not choppable ones) analysis -->
-			SASWorkerNoBonusBranch const* pFeatureBranch = NULL;
-			if (eFeatureFloodPlains != NO_FEATURE && eFeature == eFeatureFloodPlains)
-			{
-				pFeatureBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureFloodPlains, kPlot.isHills(), iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS);
-			}
-			else if (eFeatureOasis != NO_FEATURE && eFeature == eFeatureOasis)
-			{
-				pFeatureBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureOasis, kPlot.isHills(), iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS);
-			}
-			bool const bUseFeatureBranch = (pFeatureBranch != NULL);
+			SASWorkerNoBonusBranch const* pNoBonusBranch = NULL;
+			bool bNoBonusLowFoodBranch = false;
+			bool bAllowNoBonusFarm = true;
+			bool bAllowNoBonusWorkshop = true;
+			int iNoBonusFarmValueAdjustment = 0;
+			int iNoBonusCottageValueAdjustment = 0;
+			int iNoBonusWorkshopValueAdjustment = 0;
+			int iNoBonusMineValueAdjustment = 0;
+			int iNoBonusWindmillValueAdjustment = 0;
 
-			// Priority 1: Special terrain/feature combinations
-			if (bUseFeatureBranch && eFeature == eFeatureFloodPlains)
-			{
-				if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS)
-				{
-					if (!SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pFeatureBranch, eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, false, false, 0, 0, 0, 0, 0, eBestSupposedBuild, iValue))
-					{
-						continue;
-					}
-				}
-				else
-				{
-					if (canBuild(kPlot, eBuildFarm))
-					{
-						eBestSupposedBuild = eBuildFarm;
+			// <!-- custom: Pass 3: choose no-bonus worker builds through the generic XML branch picker instead of terrain-local if/else build order. Terrain/feature code now selects the branch and adds context adjustments; the picker then lets all valid listed candidates compete after canBuild filtering. This keeps special food/workshop/irrigation heuristics while making XML base values the real ranking source. Flattened so feature override branches and terrain fallback branches share the same pipeline; each context is checked only while no usable branch has been found. (ChatGPT-5.5) -->
+			bool bNoBonusBranchSelected = false;
 
-						iValue += SAS_getWorkerNoBonusBranchBaseValue(*pFeatureBranch, eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference));
-					}
-					else if (canBuild(kPlot, eBuildCottage))
-					{
-						eBestSupposedBuild = eBuildCottage;
-
-						iValue += SAS_getWorkerNoBonusBranchBaseValue(*pFeatureBranch, eBuildCottage);
-					}
-					else
-					{
-						continue;
-					}
-				}
-			}
-			else if (bUseFeatureBranch && eFeature == eFeatureOasis)
+			if (!bNoBonusBranchSelected && eFeatureFloodPlains != NO_FEATURE && eFeature == eFeatureFloodPlains)
 			{
-				// <!-- custom: Keep feature branches as optional XML overrides. Feature branch sets use the same flat/hill and normal/low-food selector as terrain branches; empty feature branches fall through to terrain logic. (ChatGPT-5.5) -->
-				if (!SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pFeatureBranch, eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, false, false, 0, 0, 0, 0, 0, eBestSupposedBuild, iValue))
-				{
-					continue;
-				}
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS);
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureFloodPlains, kPlot.isHills(), bNoBonusLowFoodBranch);
+				iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) + iFoodSupportFarmValue : iFoodSupportFarmValue);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			else if (eTerrain == eTerrainGrass)
+			if (!bNoBonusBranchSelected && eFeatureOasis != NO_FEATURE && eFeature == eFeatureOasis)
+			{
+				// <!-- custom: Oasis feature branches are optional XML overrides. They are NONE by default and fall through to terrain logic; if a modmod fills them, listed builds compete normally through canBuild. (ChatGPT-5.5) -->
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS);
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureOasis, kPlot.isHills(), bNoBonusLowFoodBranch);
+				iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) + iFoodSupportFarmValue : iFoodSupportFarmValue);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainGrass)
 			{
 				if (kPlot.isHills())
 				{
-					if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += ((-100 + (50 * std::min(3, iCityPopulation))) + SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kHill, eBuildMine));
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kHillLowFood, eBuildWindmill) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference));
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kHillLowFood, eBuildMine);
-						}
-						else
-						{
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, true, bNoBonusLowFoodBranch);
+					iNoBonusMineValueAdjustment = (!bNoBonusLowFoodBranch ? -100 + (50 * std::min(3, iCityPopulation)) : 0);
+					iNoBonusWindmillValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0);
 				}
 				else
 				{
@@ -2279,95 +2185,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
 					int const iFoodCostWorkshopFoodThreshold = iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT + iSAS_WORKER_AI_FOOD_COST_WORKSHOP_EXTRA_SURPLUS;
 					bool const bWorkshopAllowedInEnoughFoodBranch = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= iFoodCostWorkshopFoodThreshold));
-
-					if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT)
-					{
-						if (bFoodSupportFarmCandidate)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kFlat, eBuildFarm) + iFoodSupportFarmValue;
-						}
-						else if (bWorkshopAllowedInEnoughFoodBranch && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kFlat, eBuildWorkshop) + (bWorkshopCostsNoFood ? 1150 : 0) - iNonFoodIrrigationPathPenalty;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kFlat, eBuildCottage) - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if (bWorkshopCostsNoFood && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kFlatLowFood, eBuildWorkshop);
-						}
-						else if (bCanBuildFarm)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kFlatLowFood, eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainGrass.kFlatLowFood, eBuildCottage) - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, false, bNoBonusLowFoodBranch);
+					bAllowNoBonusWorkshop = (bNoBonusLowFoodBranch ? bWorkshopCostsNoFood : bWorkshopAllowedInEnoughFoodBranch);
+					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
+					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
+					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? 1150 : 0) - iNonFoodIrrigationPathPenalty);
 				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			else if (eTerrain == eTerrainPlains)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainPlains)
 			{
 				if (kPlot.isHills())
 				{
-					if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kHill, eBuildMine);
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kHillLowFood, eBuildWindmill);
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kHillLowFood, eBuildMine);
-						}
-						else
-						{
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainPlains, true, bNoBonusLowFoodBranch);
 				}
 				else
 				{
@@ -2376,80 +2208,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
 					int const iFoodCostWorkshopFoodThreshold = iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT + iSAS_WORKER_AI_FOOD_COST_WORKSHOP_EXTRA_SURPLUS;
 					bool const bWorkshopAllowedInEnoughFoodBranch = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= iFoodCostWorkshopFoodThreshold));
-
-					if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT && !bCityLowFoodBFC)
-					{
-						if (bFoodSupportFarmCandidate)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kFlat, eBuildFarm) + iFoodSupportFarmValue;
-						}
-						else if (bWorkshopAllowedInEnoughFoodBranch && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kFlat, eBuildWorkshop) + (bWorkshopCostsNoFood ? 1250 : 0) - iNonFoodIrrigationPathPenalty;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kFlat, eBuildCottage) - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if (bWorkshopCostsNoFood && !bCityLowFoodBFC && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kFlatLowFood, eBuildWorkshop);
-						}
-						else if (bCanBuildFarm)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kFlatLowFood, eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainPlains.kFlatLowFood, eBuildCottage) - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT || bCityLowFoodBFC);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainPlains, false, bNoBonusLowFoodBranch);
+					bAllowNoBonusWorkshop = (bNoBonusLowFoodBranch ? bWorkshopCostsNoFood && !bCityLowFoodBFC : bWorkshopAllowedInEnoughFoodBranch);
+					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
+					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
+					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? 1250 : 0) - iNonFoodIrrigationPathPenalty);
 				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			else if (eTerrain == eTerrainTundra)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainTundra)
 			{
 				if (kPlot.isHills())
 				{
-					SASWorkerNoBonusBranch const& kTundraHillBranch = (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL ? kWorkerBranches.kTerrainTundra.kHill : kWorkerBranches.kTerrainTundra.kHillLowFood);
-					if (canBuild(kPlot, eBuildWindmill))
-					{
-						eBestSupposedBuild = eBuildWindmill;
-
-						iValue += SAS_getWorkerNoBonusBranchBaseValue(kTundraHillBranch, eBuildWindmill);
-					}
-					else if (canBuild(kPlot, eBuildMine))
-					{
-						eBestSupposedBuild = eBuildMine;
-
-						iValue += SAS_getWorkerNoBonusBranchBaseValue(kTundraHillBranch, eBuildMine);
-					}
-					else
-					{
-						continue;
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainTundra, true, bNoBonusLowFoodBranch);
 				}
 				else
 				{
@@ -2458,150 +2231,35 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
 					int const iFoodCostWorkshopFoodThreshold = iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT + iSAS_WORKER_AI_FOOD_COST_WORKSHOP_EXTRA_SURPLUS;
 					bool const bWorkshopAllowedInEnoughFoodBranch = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= iFoodCostWorkshopFoodThreshold));
-
-					if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT && !bCityLowFoodBFC)
-					{
-						if (bFoodSupportFarmCandidate)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainTundra.kFlat, eBuildFarm) + iFoodSupportFarmValue;
-						}
-						else if (bWorkshopAllowedInEnoughFoodBranch && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainTundra.kFlat, eBuildWorkshop) + (bWorkshopCostsNoFood ? 1075 : 0) - iNonFoodIrrigationPathPenalty;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainTundra.kFlat, eBuildCottage) - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if (bWorkshopCostsNoFood && !bCityLowFoodBFC && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainTundra.kFlatLowFood, eBuildWorkshop);
-						}
-						else if (bCanBuildFarm)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainTundra.kFlatLowFood, eBuildFarm) + (iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainTundra.kFlatLowFood, eBuildCottage) - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT || bCityLowFoodBFC);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainTundra, false, bNoBonusLowFoodBranch);
+					bAllowNoBonusWorkshop = (bNoBonusLowFoodBranch ? bWorkshopCostsNoFood && !bCityLowFoodBFC : bWorkshopAllowedInEnoughFoodBranch);
+					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
+					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
+					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? 1075 : 0) - iNonFoodIrrigationPathPenalty);
 				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			else if (eTerrain == eTerrainSnow)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainSnow)
 			{
-				if (kPlot.isHills())
-				{
-					if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainSnow.kHill, eBuildMine);
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainSnow.kHillLowFood, eBuildWindmill);
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainSnow.kHillLowFood, eBuildMine);
-						}
-						else
-						{
-							continue;
-						}
-					}
-				}
-				else
-				{
-					SASWorkerNoBonusBranch const* pSnowFlatBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainSnow, false, iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT);
-					if (pSnowFlatBranch == NULL || !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pSnowFlatBranch, eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, true, true, 0, 0, 0, 0, 0, eBestSupposedBuild, iValue))
-					{
-						continue;
-					}
-				}
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT));
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainSnow, kPlot.isHills(), bNoBonusLowFoodBranch);
+				if (!kPlot.isHills())
+					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			else if (eTerrain == eTerrainDesert)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainDesert)
 			{
-				if (kPlot.isHills())
-				{
-					if (iAdjustedFoodDifference >= iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT));
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainDesert, kPlot.isHills(), bNoBonusLowFoodBranch);
+				if (!kPlot.isHills())
+					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
 
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainDesert.kHill, eBuildMine);
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainDesert.kHillLowFood, eBuildWindmill);
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += SAS_getWorkerNoBonusBranchBaseValue(kWorkerBranches.kTerrainDesert.kHillLowFood, eBuildMine);
-						}
-						else
-						{
-							continue;
-						}
-					}
-				}
-				else
-				{
-					SASWorkerNoBonusBranch const* pDesertFlatBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainDesert, false, iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT);
-					if (pDesertFlatBranch == NULL || !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pDesertFlatBranch, eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, true, true, 0, 0, 0, 0, 0, eBestSupposedBuild, iValue))
-					{
-						continue;
-					}
-				}
+			if (pNoBonusBranch != NULL && !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pNoBonusBranch, eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, bAllowNoBonusFarm, bAllowNoBonusWorkshop, iNoBonusFarmValueAdjustment, iNoBonusCottageValueAdjustment, iNoBonusWorkshopValueAdjustment, iNoBonusMineValueAdjustment, iNoBonusWindmillValueAdjustment, eBestSupposedBuild, iValue))
+			{
+				continue;
 			}
 
 			// <!-- custom: PHASE 1.2 - adjust based on features to chop then (chop first before building a non-bonus farm or mine for example -->
