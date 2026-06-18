@@ -1220,10 +1220,45 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: minimum city population where AI_bestCityBuild may consider chopping a non-bonus forested BFC plot even when the city has no current health surplus. Early/small cities still use the old hard health gate to preserve forest health; medium/large cities keep the plot visible with a health-pressure penalty instead, so useful forested tiles do not stay unimproved forever (later in the game we usually have enough health, and improved yields are stronger, so improve plots rather than not). Set to 0 to restore the hard gate at all city sizes. (ChatGPT-5.5) -->
+	<!-- custom: minimum city population, within the large-city Forest chop path, where AI_bestCityBuild may consider chopping a non-bonus forested BFC plot even when the city has no current health surplus. Effective threshold is max(this define, SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION), because the C++ relax check is inside the large-city branch. Early/small cities still use the old negative scoring formula rather than the large-city relaxed path. Set to 0 to disable the relaxed no-health-surplus large-city path. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
 	<Define>
 		<DefineName>SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION</DefineName>
-		<iDefineIntVal>6</iDefineIntVal>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<!-- custom: non-bonus Forest chop feature scoring used by CvUnitAI::AI_bestCityBuild. Early/small cities preserve Forest health through the old small-city formula (-100 + 50 * healthDiff by default), so pop 6 / health 0 still remains a low-priority candidate rather than using the relaxed large-city path. Medium/large cities keep Forest chop candidates visible instead of hard-skipping them, because otherwise useful forested BFC tiles can stay unimproved forever even when later health sources and stronger improved yields make chopping reasonable. LARGE_CITY_MIN_POPULATION selects the large-city health-aware path. UNHEALTH_PENALTY_PER_POINT preserves the old larger-city no-health-surplus penalty (health 0 -> -50, health -1 -> -100, etc.). (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE</DefineName>
+		<iDefineIntVal>-100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: non-bonus Jungle clear feature scoring used by CvUnitAI::AI_bestCityBuild. Jungle is normally worth clearing when possible because it reduces health and blocks normal improvements; scoring only decides priority among candidate worker tasks. LARGE_CITY_MIN_POPULATION selects the population/health-pressure formula: PRESSURE_VALUE_PER_POINT * ((population - (threshold - 1)) - healthDiff). With defaults, pop 7 / health 0 gives +75, pop 7 / health +2 gives -75, and pop 10 / health -2 gives +450. Small cities use max(0, SMALL_CITY_UNHEALTH_VALUE_PER_POINT * -healthDiff), so healthy small cities do not get an artificial penalty while unhealthy small cities are pushed to clear Jungle. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: value added when scrubbing non-bonus Fallout in CvUnitAI::AI_bestCityBuild. Fallout has severe yield penalties, so keep this much higher than normal tile-improvement values. If Fallout cannot be scrubbed yet, CvUnitAI skips ordinary non-bonus builds on that plot rather than improving through the Fallout. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE</DefineName>
+		<iDefineIntVal>100000</iDefineIntVal>
 	</Define>
 	<!-- custom: Enable old AI worker fort-airbase construction outside BFC-focused worker logic. Set to 0 to disable (default): BFC plots are already mostly protected by AdvCiv-SAS worker build logic, and outside-BFC forts usually spend worker turns for meagre defensive/airbase/canal utility the AI rarely uses well. They can also block future irrigation-chain paths; nearby cities usually serve aircraft better than scattered forts, and the fort canal/isthmus effect is rarely needed. Set to 1 to restore the Base AdvCiv late-game fort-airbase path for experiments. (GPT-5.5) -->
 	<Define>

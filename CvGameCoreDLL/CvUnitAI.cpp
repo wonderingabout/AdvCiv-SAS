@@ -1691,6 +1691,14 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 	bool const bRenaissancePlus = (eERA_RENAISSANCE != NO_ERA && GET_PLAYER(getOwner()).getCurrentEra() >= eERA_RENAISSANCE);
 	static const int iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -2331,60 +2339,38 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				continue;
 			}
 
-			// <!-- custom: PHASE 1.2 - adjust based on features to chop then (chop first before building a non-bonus farm or mine for example -->
-			// Priority 1: Handle features that need removal or special treatment
-
+			// <!-- custom: PHASE 1.2 - feature removal overlay for non-bonus plots. The normal no-bonus branch picker chooses ordinary improvements first; this overlay then lets Forest/Jungle/Fallout removal adjust or override that choice when the feature itself is the main worker problem. Detailed scoring rationale and default values live in GlobalDefines_advciv_sas.xml. (ChatGPT-5.5 temporary review + GPT-5.5 review) -->
 			if (eFeature == eFeatureForest)
 			{
 				if (canBuild(kPlot, eBuildRemoveForest))
 				{
-					// <!-- custom: should we chop this non-bonus plot? To decide that, take into account city population, and current health -->
-					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/pointwe can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure -->
-
-					// <!-- custom: Forest removal scoring for non-bonus city plots.
-					// Early/small cities still protect forests when health is tight. However, BBAI logs and screenshots
-					// suggested that medium/large cities could leave useful forested BFC tiles unimproved because this
-					// health gate used to hard-skip forest chops whenever healthDiff <= 0. That made those plots invisible
-					// to AI_bestCityBuild and therefore impossible for AI_nextCityToImprove to select. For larger cities,
-					// allow the candidate with a health-pressure penalty instead of a hard skip; the actual improvement
-					// value, chop value, pathing, reservations, and other candidates still decide whether it wins. (ChatGPT-5.5) -->
-					// <!-- custom: also later in the game we usually have many health sources (trade, owned, buildings or yields or such etc.), and improving plots is stronger due to extra yields from techs or such if any other source (e.g., farm -> +2 food), so improve all plots even if it costs health when cities are big enough) -->
+					// <!-- custom: Forest: do not blindly chop health-providing Forests in small/unhealthy cities. Small cities use the old negative scoring formula; the no-health-surplus relax check applies only inside the large-city branch, so its effective threshold is also gated by SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
 					static const int iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION");
-					if (iCityPopulation >= 7)
+					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION)
 					{
 						if (iCityHealthCalculatedDifference >= 1)
 						{
-							// <!-- custom: chop first, think later about which build to do or not do -->
 							eBestSupposedBuild = eBuildRemoveForest;
-							// <!-- custom: chop more generously, we should have the infrastructure and health and such to support it, and we want to use the tiles for our last citizens in city radius anyway rather than improving plains or such, plus the hammer is still good even if we chop late -->
-
-							iValue += 50 * iCityHealthCalculatedDifference;
+							iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference;
 						}
 						else if (iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION > 0 && iCityPopulation >= iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION)
 						{
 							eBestSupposedBuild = eBuildRemoveForest;
-
-							// HealthDiff <= 0 here. Keep the tile visible for larger cities, but make unhealthy cities pay
-							// for the lost forest health. Examples: health 0 -> -50, health -1 -> -100, health -2 -> -150.
-							iValue += -50 * (1 - iCityHealthCalculatedDifference);
+							iValue -= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT * (1 - iCityHealthCalculatedDifference);
 						}
 						else
 						{
-							// <!-- custom: do not chop yet (avoid overchopping) -->
 							continue;
 						}
 					}
 					else
 					{
 						eBestSupposedBuild = eBuildRemoveForest;
-
-						iValue += -100 + (50 * iCityHealthCalculatedDifference);
+						iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE + (iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference);
 					}
 				}
-				// <!-- custom: if no good candidate was found in general non-bonus terrain/feature phase, plus no plot to chop on top of that, then nothing to do here for now at least if not always or not and -->
 				else if (eBestSupposedBuild == NO_BUILD)
 				{
-					// <!-- custom: wait for right time, do nothing (yet) -->
 					continue;
 				}
 			}
@@ -2392,70 +2378,34 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			{
 				if (canBuild(kPlot, eBuildRemoveJungle))
 				{
-					// <!-- custom: should we chop this non-bonus plot? To decide that, take into account city population, and current health -->
-					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/pointwe can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure -->
-
-					// <!-- custom: here is some data from chatgpt 5 if helps (and helps me too balance it maybe xd, check if accurate and updated) -->
-					// Jungle removal scoring (assumes iCityHealthCalculatedDifference >0 = surplus health, <0 = unhealth)
-					//
-					// Action: we always set eBestSupposedBuild = eBuildRemoveJungle; scoring decides priority.
-					//
-					// pop >= 7:
-					//   Δ = 75 * ((pop - 6) - healthDiff)
-					//   • Positive when (pop - 6) > healthDiff
-					//   • Zero when (pop - 6) == healthDiff
-					//   • Negative when (pop - 6) < healthDiff  (i.e., very healthy big city → less urgency)
-					//
-					// pop < 7:
-					//   Δ = max(0, 50 * (-healthDiff))   // non-negative; only rises with unhealth
-					//
-					// Examples (Δ in iValue units):
-					//   pop 4,  health +2 → Δ = max(0, 50 * -2)     = 0        (healthy small city → not urgent)
-					//   pop 4,  health -1 → Δ = max(0, 50 * 1)      = 50       (encouraging early clear)
-					//   pop 6,  health -3 → Δ = max(0, 50 * 3)      = 150      (strong push to clear)
-					//   pop 7,  health  0 → Δ = 75 * ((1) - 0)      = 75       (moderately encouraging)
-					//   pop 7,  health +1 → Δ = 75 * (1 - 1)        = 0        (neutral)
-					//   pop 7,  health +2 → Δ = 75 * (1 - 2)        = -75      (discouraging; other tiles likely win)
-					//   pop 10, health +3 → Δ = 75 * (4 - 3)        = 75       (still okay to clear)
-					//   pop 10, health -2 → Δ = 75 * (4 - (-2))     = 450      (very strong push to clear)
-					//
-					// Notes:
-					// • The pop<7 path now never yields negative Δ, preventing “always chop" from losing to other plots purely due to positivity.
-					// • Large healthy cities can still deprioritize jungle if they have better improvements to do first.
-					if (iCityPopulation >= 7)
+					// <!-- custom: Jungle: usually clear because it blocks normal improvements and adds unhealth; XML-tunable population and health-pressure scoring only controls priority among possible worker jobs. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION)
 					{
-						// <!-- custom: chop first, think later -->
 						eBestSupposedBuild = eBuildRemoveJungle;
-						// <!-- custom: encourage chopping jungle the more city pop and unhealthy or unhealthiness (i.e. difference) we have); the health pressure to grow population would need to optimize unhealthiness as we can, and good builds should already have been handled: grab the last unhealthy points we can to grow further, in our mod gives production too so all nice -->
-						iValue += (75 * (-1 * iCityHealthCalculatedDifference)) + (75 * (iCityPopulation - 6));
+						int const iJungleLargeCityPopulationPressure = iCityPopulation - std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION - 1);
+						iValue += iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT * (iJungleLargeCityPopulationPressure - iCityHealthCalculatedDifference);
 					}
 					else
 					{
-						// <!-- custom: always chop, but more if health is low since it's jungle, very nice if we could solve health issue, plus i mistakenly put a check >= 1 here without handling the else case so we had a city unimproved at turn 175, spotted by chatgpt o3 thanks and now fixed and adjusted with this logic, but also proof our system works nicely as intended without interference if i'm not mistakena t least in this case, which is ideal functioning of this system i mean; if low pop prioritize chopping jungle as is very worth it (less health, and in our mod we gain production too) -->
 						eBestSupposedBuild = eBuildRemoveJungle;
-
-						iValue += std::max(0, 50 * (-1 * iCityHealthCalculatedDifference));
+						iValue += std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT * (-1 * iCityHealthCalculatedDifference));
 					}
 				}
-				// <!-- custom: even if plot is not a bonus one, removing/clearing/scrubing feature_fallout is more important than anything else for AI workers to tell them, due to the strong yield and such penalties of this. Also, because if we don't do it here, it might never be done by any other function or very rarely if at all in city radius. But since there is so few feature_fallout during the game and generally in the late game if ever, put this check last to save some computation, and with a small reduction so it is slightly less than fallout on a bonus, but still more than improving any bonus -->
-				else if (eFeature == eFeatureFallout)
-				{
-					if (canBuild(kPlot, eBuildScrubFallout))
-					{
-						eBestSupposedBuild = eBuildScrubFallout;
-
-						iValue += 100000;
-					}
-					else
-					{
-						// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
-						continue;
-					}
-				}
-				// <!-- custom: if no good candidate was found in general non-bonus terrain/feature phase, plus no plot to chop on top of that, then nothing to do here for now at least if not always or not and -->
 				else if (eBestSupposedBuild == NO_BUILD)
 				{
-					// <!-- custom: wait for right time, do nothing (yet) -->
+					continue;
+				}
+			}
+			else if (eFeature == eFeatureFallout)
+			{
+				// <!-- custom: Fallout: scrub before ordinary non-bonus worker builds; if scrubbing is unavailable, skip the plot so workers do not improve through Fallout. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+				if (canBuild(kPlot, eBuildScrubFallout))
+				{
+					eBestSupposedBuild = eBuildScrubFallout;
+					iValue += iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE;
+				}
+				else
+				{
 					continue;
 				}
 			}
