@@ -22,7 +22,8 @@ public:
 
 	bool AI_update();
 	bool AI_follow(/* K-Mod: */ bool bFirst = true);
-	void AI_upgrade();
+	// <!-- custom: Add an optional max price so emergency calls stay uncapped by default, while upgrade-budget code can reject unaffordable candidates without changing the old candidate iteration/random calls for affordable upgrades. See corresponding .cpp function and KI#160. (ChatGPT-5.5 + GPT-5.5) -->
+	bool AI_upgrade(int iMaxUpgradePrice = MAX_INT);
 	void AI_promote();
 
 	int AI_groupFirstVal() const;

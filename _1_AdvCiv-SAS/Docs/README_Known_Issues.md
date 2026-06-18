@@ -195,6 +195,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
 [158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war)  
 [159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#159---improved-ai-civic-switch-damping-paid-anarchy-civic-churn-and-direct-reversals-after-the-civic-timer-expired)  
+[160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5928,3 +5929,60 @@ The final reviewed run improved strongly:
 This should make AI turns more efficient because excessive anarchy downtime is costly, especially with the current AdvCiv-SAS anarchy duration of 2 turns. If the damping is too sticky, reduce the corresponding timer/slack values; if oscillation returns, increase them. Keep the diagnostics useful for future tuning because civic valuation is sensitive to other AI changes.
 
 Fixed/improved with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+## 160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1p033n4oF_v-btMYwng7iJzowNaXtu2sC?usp=sharing).
+
+This looks likely inherited from base/K-Mod/AdvCiv-style upgrade flow because the old logic in `CvPlayerAI::AI_doTurnUnitsPost` already used a 4-pass upgrade loop and checked only whether spending so far was below the upgrade budget before attempting the next upgrade.
+
+The initial aggregate BBAI log showed suspicious upgrade spending:
+
+- 305 upgrade-spend events.
+- 23 events overspent the listed upgrade budget.
+- 49 events left the AI with <= 10 gold.
+- 110 events left the AI with <= 25 gold.
+- 183 events left the AI with <= 50 gold.
+- 17 events both overspent the budget and left <= 50 gold.
+- No-active-war upgrades were especially suspicious: 151 events, 20 budget overspends, 62 ending with <= 25 gold, and 29 ending with <= 10 gold.
+
+The old aggregate line did not show which pass or unit caused the spending, so diagnostics were added:
+
+- `UPGRADE_BUDGET_DETAIL`: starting gold, gold targets, upgrade budget, total upgrade need, focus-war, war-plan, financial-trouble, city/unit count, and era.
+- `UPGRADE_SPEND_DETAIL`: one line per paid upgrade, including pass name, unit id/type/AI/domain, plot/city, best-defender and danger flags, cost, gold before/after, budget, and context.
+- `UPGRADE_PASS_SUMMARY`: per-pass eligible units, paid upgrades, rough budget skips, and pass spending.
+- `UPGRADE_BUDGET_RESULT`: final spending result paired with the old aggregate line.
+
+The diagnostic run showed the main problem was not emergency defense upgrades:
+
+- Pass 0 `impassable`: 18 upgrades, 2777 gold, 1 overspent-after upgrade.
+- Pass 1 `city_defender_or_danger`: 168 upgrades, 16107 gold, 2 overspent-after upgrades.
+- Pass 2 `transport_or_escort_sea`: 1 upgrade, 197 gold, 0 overspent-after upgrades.
+- Pass 3 `normal`: 787 upgrades, 82937 gold, 37 overspent-after upgrades.
+
+The specific bug-like pattern was that pass 3 only checked `spent so far < budget`. If spending was still below budget before an upgrade, the AI could start another expensive normal upgrade even when that upgrade could not fit inside the remaining budget. Example from the reviewed log: England on T342 had 499 gold and a 279 budget, upgraded twice for 237 each, spent 474 total, and ended at 25 gold.
+
+Financial-trouble cases confirmed the same pattern. Example: England on T346 had `financialTrouble=1`, spent 237 with budget 59, and went from 246 gold to 9 gold on a pass 3 normal upgrade.
+
+Fix:
+
+- Keep pass 0/1 emergency-ish upgrades uncapped.
+- For pass 2/3, pass a maximum allowed upgrade price into `CvUnitAI::AI_upgrade`, equal to the remaining upgrade budget.
+- `CvUnitAI::AI_upgrade` now ignores upgrade candidates whose `upgradePrice` exceeds that max price, while otherwise preserving the old candidate iteration and value logic for affordable upgrades.
+- Skip pass 3 normal upgrades entirely if the AI started in financial trouble and is not focus-war.
+
+Follow-up BBAI comparison showed the intended result:
+
+- Upgrade-spend turns: 362 -> 355.
+- Individual paid upgrades: 974 -> 915.
+- Total upgrade gold spent: 102018 -> 84095.
+- Overspent budget turns: 40 -> 1.
+- Pass 3 overspent upgrades: 37 -> 0.
+- Financial-trouble spends: 33 -> 4.
+- Financial-trouble overspend: 7 -> 0.
+
+The single remaining overspend was pass 0 impassable: Mali on T176 spent 408 against a 365 budget and still kept 165 gold. Since pass 0 is intentionally uncapped and this did not match the old pass 3 low-gold pattern, it was accepted.
+
+Low final gold can still happen in focus-war / any-war-plan contexts. That is a separate possible follow-up about preserving a cash reserve during war preparation, not the same bug as pass 3 normal upgrades overshooting their remaining budget.
+
+Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.

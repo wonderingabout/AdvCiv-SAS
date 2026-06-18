@@ -885,7 +885,8 @@ bool CvUnitAI::AI_follow(bool bFirst)
 }
 
 // K-Mod. This function has been completely rewritten to improve efficiency and intelligence.
-void CvUnitAI::AI_upgrade()
+// <!-- custom: Optional max price lets AI upgrade-budget code keep normal emergency upgrades uncapped while preventing non-emergency upgrades from overshooting the remaining budget. Keep candidate iteration/random calls otherwise unchanged so the old choice logic is preserved for affordable upgrades. See KI#160. (ChatGPT-5.5 + GPT-5.5) -->
+bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
 {
 	PROFILE_FUNC();
 
@@ -893,7 +894,7 @@ void CvUnitAI::AI_upgrade()
 	FAssert(AI_getUnitAIType() != NO_UNITAI);
 
 	if (!isReadyForUpgrade())
-		return;
+		return false;
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	UnitAITypes eUnitAI = AI_getUnitAIType();
@@ -924,7 +925,8 @@ void CvUnitAI::AI_upgrade()
 				bFirst ? "AI Upgrade" : NULL);
 		bFirst = false; // </advc.007>
 		// (believe it or not, AI_unitValue is faster than canUpgrade.)
-		if (iValue > iBestValue && canUpgrade(eLoopUnit))
+		if (iValue > iBestValue && canUpgrade(eLoopUnit) &&
+			upgradePrice(eLoopUnit) <= iMaxUpgradePrice)
 		{
 			iBestValue = iValue;
 			eBestUnit = eLoopUnit;
@@ -952,7 +954,9 @@ void CvUnitAI::AI_upgrade()
 						pGroup->getHeadUnit());
 			}
 		}
+		return true;
 	}
+	return false;
 }
 
 

@@ -527,8 +527,9 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		the components of AI_goldTarget() */
 	int iCostPerMil = AI_unitCostPerMil(); // used for scrap decisions.
 	int iUpgradeBudget = 0;
+	bool const bUpgradeFocusWar = AI_isFocusWar();
 	//if(GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0)
-	if (AI_isFocusWar()) // advc.105
+	if (bUpgradeFocusWar) // advc.105
 	{
 		// when at war, upgrades get priority
 		iUpgradeBudget = std::min(getGold(), AI_goldTarget(true));
@@ -545,13 +546,46 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	iUpgradeBudget = std::max(iUpgradeBudget,1);
 	// BETTER_BTS_AI_MOD: END
 
+	// <!-- custom: Upgrade spending logs showed overspending and peacetime upgrades leaving 1-10 gold, but the old aggregate line did not identify which upgrade pass or unit caused it. Add diagnostics for budget context, per-pass spending, and per-upgrade spend details; follow-up logs showed pass 3 normal upgrades were the main culprit, so cap non-emergency upgrade prices against the remaining budget below. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
+	bool const bUpgradeFinancialTroubleStart = AI_isFinancialTrouble();
+	bool const bLogUpgradeDiagnostics = (gPlayerLogLevel > 2);
+	int iUpgradeLogWars = 0;
+	bool bUpgradeLogAnyWarPlan = false;
+	if (bLogUpgradeDiagnostics)
+	{
+		// <!-- custom: Compile-fix notes for these diagnostics: this DLL has no public CvTeamAI::getAtWarCount/getAnyWarPlanCount, and CvTeam::countWarEnemies is protected, so count public isAtWar teams under the log gate and cache AI_isAnyWarPlan instead. CvUnit::getArea returns a CvArea, so log getArea().getID() rather than assigning getArea() to an int. (GPT-5.5) -->
+		CvTeamAI const& kUpgradeLogTeam = GET_TEAM(getTeam());
+		for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(getTeam()); it.hasNext(); ++it)
+		{
+			if (kUpgradeLogTeam.isAtWar(it->getID()))
+				iUpgradeLogWars++;
+		}
+		bUpgradeLogAnyWarPlan = kUpgradeLogTeam.AI_isAnyWarPlan();
+		logBBAI("    UPGRADE_BUDGET_DETAIL turn=%d player=%d %S goldStart=%d goldRate=%d goldTargetUpgrade=%d goldTargetTotal=%d upgradeBudget=%d goldToUpgradeAllUnits=%d focusWar=%d wars=%d anyWarPlan=%d financialTrouble=%d cities=%d units=%d era=%d",
+			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold, calculateGoldRate(), AI_goldTarget(true), AI_goldTarget(false), iUpgradeBudget, AI_getGoldToUpgradeAllUnits(), bUpgradeFocusWar, iUpgradeLogWars, bUpgradeLogAnyWarPlan, bUpgradeFinancialTroubleStart, getNumCities(), getNumUnits(), getCurrentEra());
+	}
+
 	CvPlot const* pLastUpgradePlot = NULL;
 	for (int iPass = 0; iPass < 4; iPass++)
 	{
+		char const* szPassName = "";
+		switch (iPass)
+		{
+		case 0: szPassName = "impassable"; break;
+		case 1: szPassName = "city_defender_or_danger"; break;
+		case 2: szPassName = "transport_or_escort_sea"; break;
+		case 3: szPassName = "normal"; break;
+		default: FAssert(false); break;
+		}
+		int const iPassGoldBefore = getGold();
+		int iPassEligibleUnits = 0;
+		int iPassUpgradedUnits = 0;
+		int iPassSkippedBudget = 0;
 		FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
 		{
 			bool bNoDisband = false;
 			bool bValid = false;
+			bool bSkippedBudget = false;
 
 			switch (iPass)
 			{
@@ -592,23 +626,32 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 					pLoopUnit->specialCargo() == NO_SPECIALUNIT)
 				{
 					bValid = iStartingGold - getGold() < iUpgradeBudget;
+					bSkippedBudget = !bValid;
 				}
 				// Also upgrade escort ships
 				if (pLoopUnit->AI_getUnitAIType() == UNITAI_ESCORT_SEA)
+				{
 					bValid = iStartingGold - getGold() < iUpgradeBudget;
+					bSkippedBudget = !bValid;
+				}
 
 				break;
 			case 3:
 				//bValid = true; // BtS
-				bValid = iStartingGold - getGold() < iUpgradeBudget;
+				// <!-- custom: Diagnostics showed pass 3 normal upgrades caused most budget overspending and low-gold peacetime upgrades, while pass 1 defender/danger upgrades were mostly not the culprit. In financial trouble outside focus-war, skip normal upgrades and keep gold for economy/emergencies. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
+				bValid = (!bUpgradeFinancialTroubleStart || bUpgradeFocusWar) && iStartingGold - getGold() < iUpgradeBudget;
+				bSkippedBudget = !bValid;
 				break;
 			default:
 				FAssert(false);
 				break;
 			}
 
+			if (bSkippedBudget)
+				iPassSkippedBudget++;
 			if (!bValid)
 				continue;
+			iPassEligibleUnits++;
 
 			bool bKilled = false;
 			if (!bNoDisband)
@@ -670,7 +713,47 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 				}
 			}
 			if (!bKilled)
-				pLoopUnit->AI_upgrade(); // CAN DELETE UNIT!!!
+			{
+				// <!-- custom: Passes 2 and 3 were budget-gated only by "spent so far < budget", so one expensive normal upgrade could overshoot the remaining budget and leave the AI almost broke. Keep emergency pass 0/1 upgrades uncapped, but make transport/escort and normal upgrades fit within the remaining budget. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
+				int const iMaxUpgradePrice = (iPass >= 2 ? std::max(0, iUpgradeBudget - (iStartingGold - getGold())) : MAX_INT);
+				if (bLogUpgradeDiagnostics)
+				{
+					CvPlot const& kUnitPlot = pLoopUnit->getPlot();
+					CvCity const* pUnitCity = kUnitPlot.getPlotCity();
+					CvWString szCityName = (pUnitCity == NULL ? CvWString(L"-") : pUnitCity->getName());
+					bool const bBestCityDefender = (kUnitPlot.isCity() && kUnitPlot.getBestDefender(getID()) == pLoopUnit);
+					bool const bPlotDanger = AI_isAnyPlotDanger(kUnitPlot, 1, false);
+					int const iGoldBeforeUpgrade = getGold();
+					int const iSpentBeforeUpgrade = iStartingGold - getGold();
+					int const iUnitID = pLoopUnit->getID();
+					UnitTypes const eOldUnit = pLoopUnit->getUnitType();
+					UnitAITypes const eUnitAI = pLoopUnit->AI_getUnitAIType();
+					DomainTypes const eDomain = pLoopUnit->getDomainType();
+					int const iUnitArea = pLoopUnit->getArea().getID();
+					int const iUnitX = pLoopUnit->getX();
+					int const iUnitY = pLoopUnit->getY();
+					int const iUnitExp = pLoopUnit->getExperience();
+					int const iUnitLevel = pLoopUnit->getLevel();
+					pLoopUnit->AI_upgrade(iMaxUpgradePrice); // CAN DELETE UNIT!!!
+					int const iGoldAfterUpgrade = getGold();
+					int const iUpgradeSpend = iGoldBeforeUpgrade - iGoldAfterUpgrade;
+					if (iUpgradeSpend > 0)
+					{
+						iPassUpgradedUnits++;
+						logBBAI("    UPGRADE_SPEND_DETAIL turn=%d player=%d %S pass=%d passName=%s unitId=%d oldUnitType=%d unitAI=%d domain=%d area=%d plot=(%d,%d) city=%S bestCityDefender=%d plotDanger=%d noDisband=%d exp=%d level=%d upgradeCost=%d maxUpgradePrice=%d goldBefore=%d goldAfter=%d spentSoFarBefore=%d spentSoFarAfter=%d budget=%d overspentAfter=%d focusWar=%d financialTrouble=%d wars=%d anyWarPlan=%d",
+							GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iUnitID, eOldUnit, eUnitAI, eDomain, iUnitArea, iUnitX, iUnitY, szCityName.GetCString(), bBestCityDefender, bPlotDanger, bNoDisband, iUnitExp, iUnitLevel, iUpgradeSpend, iMaxUpgradePrice, iGoldBeforeUpgrade, iGoldAfterUpgrade, iSpentBeforeUpgrade, iStartingGold - getGold(), iUpgradeBudget, iStartingGold - getGold() > iUpgradeBudget, bUpgradeFocusWar, AI_isFinancialTrouble(), iUpgradeLogWars, bUpgradeLogAnyWarPlan);
+					}
+				}
+				else
+				{
+					pLoopUnit->AI_upgrade(iMaxUpgradePrice); // CAN DELETE UNIT!!!
+				}
+			}
+		}
+		if (bLogUpgradeDiagnostics)
+		{
+			logBBAI("    UPGRADE_PASS_SUMMARY turn=%d player=%d %S pass=%d passName=%s eligibleUnits=%d upgradedUnits=%d skippedBudget=%d spentBefore=%d spentAfter=%d budget=%d goldBefore=%d goldAfter=%d overspentAfter=%d",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iPassEligibleUnits, iPassUpgradedUnits, iPassSkippedBudget, iStartingGold - iPassGoldBefore, iStartingGold - getGold(), iUpgradeBudget, iPassGoldBefore, getGold(), iStartingGold - getGold() > iUpgradeBudget);
 		}
 	}
 
@@ -679,7 +762,11 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 
 	// BETTER_BTS_AI_MOD, AI Logging, 02/24/10, jdog5000
 	if (gPlayerLogLevel > 2 && iStartingGold - getGold() > 0)
+	{
 		logBBAI("    %S spends %d on unit upgrades out of budget of %d, %d gold remaining", getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, getGold());
+		logBBAI("    UPGRADE_BUDGET_RESULT turn=%d player=%d %S spent=%d budget=%d goldStart=%d goldEnd=%d overspent=%d financialTroubleAfter=%d",
+			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, iStartingGold, getGold(), iStartingGold - getGold() > iUpgradeBudget, AI_isFinancialTrouble());
+	}
 
 	// <advc.mnai> Promotions for AI civs moved down
 	FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
