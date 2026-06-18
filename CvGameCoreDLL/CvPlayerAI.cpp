@@ -21650,6 +21650,8 @@ void CvPlayerAI::AI_doCivics()
 
 	// FAssert(AI_getCivicTimer() == 0); // Disabled by K-Mod
 
+	CivicMap aeOldCivic;
+	getCivics(aeOldCivic);
 	CivicMap aeBestCivic;
 	getCivics(aeBestCivic);
 	EagerEnumMap<CivicOptionTypes,int> aiCurrentValue; // advc.enum
@@ -21658,13 +21660,22 @@ void CvPlayerAI::AI_doCivics()
 		aiCurrentValue.set(eLoopCivicOption,
 				AI_civicValue(aeBestCivic.get(eLoopCivicOption)));
 	}
+	// <!-- custom: Civic churn is costly with 2-turn anarchy, and earlier logs only showed repeated switch lines without enough context to tell whether the AI was reversing the same option, paying anarchy for tiny gains, switching during war/financial trouble, or bundling good changes. Add structured diagnostics before changing behavior further. Accepted switches and final revolution bundles log at player log level 2+; rejected candidates log at 3+ to keep normal logs smaller. (ChatGPT-5.5 + GPT-5.5) -->
+	bool const bLogCivicDecision = (gPlayerLogLevel >= 2);
+	bool const bLogCivicCandidate = (gPlayerLogLevel >= 3);
+	bool const bFinancialTrouble = AI_isFinancialTrouble();
+	bool const bAnyWarPlan = GET_TEAM(getTeam()).AI_isAnyWarPlan();
+	int const iNumWars = GET_TEAM(getTeam()).getNumWars();
 
 	// <!-- custom: we seem to have excessive civic oscillation, see below for details -->
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
 	// --- Hysteresis knobs (tunable in XML if you like) ---
-	static const int iSlackMin   = GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK");        // e.g. 5
-	static const int iSlackPct   = GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT");    // e.g. 10
+	static const int iSlackMin = GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK");        // e.g. 5
+	static const int iSlackPct = GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT");    // e.g. 10
+	static const int iPaidAnarchySlackMin = std::max(0, GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK_WITH_ANARCHY"));
+	static const int iPaidAnarchySlackPerTurn = std::max(0, GC.getDefineINT("SAS_AI_DO_CIVICS_SWITCH_SLACK_PER_ANARCHY_TURN"));
+	static const int iExtraTimerPerAnarchyTurn = std::max(0, GC.getDefineINT("SAS_AI_DO_CIVICS_EXTRA_TIMER_PER_ANARCHY_TURN"));
 
 	int iAnarchyLength = 0;
 	bool bWillSwitch;
@@ -21728,15 +21739,29 @@ void CvPlayerAI::AI_doCivics()
 			const int iRHS = (100 + ((iBestValue >= 0) ? 1 : -1) * iThreshold) * iCurrent;
 
 			// Absolute margin scaled by current magnitude (handles negatives safely)
-			const int iAbsSlack = std::max(iSlackMin, (int)(std::abs(iCurrent) * iSlackPct) / 100);
+			int iAbsSlack = std::max(iSlackMin, (int)(std::abs(iCurrent) * iSlackPct) / 100);
+			int const iAnarchyDelta = std::max(0, iTestAnarchy - iAnarchyLength);
+			if (iAnarchyDelta > 0)
+			{
+				// <!-- custom: BBAI diagnostics showed paid-anarchy civic switches for tiny value gains. Free/no-extra-anarchy bundle changes can stay responsive, but a candidate that adds anarchy must clear a larger absolute gain before freezing the empire. See KI#159. (GPT-5.5 + ChatGPT-5.5) -->
+				iAbsSlack = std::max(iAbsSlack, iPaidAnarchySlackMin + iAnarchyDelta * iPaidAnarchySlackPerTurn);
+			}
+			bool const bPassPercent = (iLHS > iRHS);
+			bool const bPassSlack = ((iBestValue - iCurrent) > iAbsSlack);
 
-			if (iLHS > iRHS && (iBestValue - iCurrent) > iAbsSlack)
+			if (bPassPercent && bPassSlack)
 			{
 				FAssert(aeBestCivic.get(eLoopCivicOption) != NO_CIVIC);
 				if (gPlayerLogLevel > 0) logBBAI(
 					"    %S switches to %S (value: %d vs %d, slack %d, thr %d)%s",
 					getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0),
 					iBestValue, iCurrent, iAbsSlack, iThreshold, bFirstPass ? "" : ", recheck");
+				if (bLogCivicDecision)
+				{
+					logBBAI("    CIVIC_SWITCH_DETAIL turn=%d player=%d %S status=ACCEPT option=%S old=%S new=%S currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(),
+						iCurrent, iBestValue, iBestValue - iCurrent, iTestAnarchy, iAnarchyLength, iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate());
+				}
 
 				iAnarchyLength = iTestAnarchy;
 				aeBestCivic.set(eLoopCivicOption, eNewCivic);
@@ -21746,8 +21771,15 @@ void CvPlayerAI::AI_doCivics()
 			else
 			{
 				// Not enough margin to commit; still remember we’d like to switch.
-				if (iBestValue > iCurrent)
+				bool const bWouldLikeSwitch = (iBestValue > iCurrent);
+				if (bWouldLikeSwitch)
 					bWantSwitch = true;
+				if (bLogCivicCandidate)
+				{
+					logBBAI("    CIVIC_SWITCH_DETAIL turn=%d player=%d %S status=%s option=%S old=%S new=%S currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), (bWouldLikeSwitch ? "WANT_REJECT" : "REJECT"), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(),
+						iCurrent, iBestValue, iBestValue - iCurrent, iTestAnarchy, iAnarchyLength, iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate());
+				}
 			}
 			// End - Civic switch hysteresis (anti flip-flop)
 		}
@@ -21806,9 +21838,35 @@ void CvPlayerAI::AI_doCivics()
 
 	if (canRevolution(aeBestCivic))
 	{
+		int const iFinalAnarchyLength = getCivicAnarchyLength(aeBestCivic);
+		int const iBaseCivicTimer = (getMaxAnarchyTurns() != 0 ? CIVIC_CHANGE_DELAY : GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS) * 2);
+		int const iFinalCivicTimer = iBaseCivicTimer + iFinalAnarchyLength * iExtraTimerPerAnarchyTurn;
+		if (bLogCivicDecision)
+		{
+			int iChangedCivics = 0;
+			FOR_EACH_ENUM(CivicOption)
+			{
+				if (aeOldCivic.get(eLoopCivicOption) != aeBestCivic.get(eLoopCivicOption))
+					iChangedCivics++;
+			}
+			logBBAI("    CIVIC_REVOLUTION_DETAIL turn=%d player=%d %S changes=%d anarchy=%d oldCivicTimer=%d newCivicTimer=%d baseCivicTimer=%d extraTimerPerAnarchyTurn=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d research=%d",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iChangedCivics, iFinalAnarchyLength, AI_getCivicTimer(), iFinalCivicTimer, iBaseCivicTimer, iExtraTimerPerAnarchyTurn, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate(), getCurrentResearch());
+			FOR_EACH_ENUM(CivicOption)
+			{
+				CivicTypes const eOldCivic = aeOldCivic.get(eLoopCivicOption);
+				CivicTypes const eNewCivic = aeBestCivic.get(eLoopCivicOption);
+				if (eOldCivic != eNewCivic)
+				{
+					int const iOldValue = AI_civicValue(eOldCivic);
+					int const iNewValue = AI_civicValue(eNewCivic);
+					logBBAI("    CIVIC_REVOLUTION_CHANGE turn=%d player=%d %S option=%S old=%S new=%S oldValue=%d newValue=%d delta=%d",
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOldCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(), iOldValue, iNewValue, iNewValue - iOldValue);
+				}
+			}
+		}
 		revolution(aeBestCivic);
-		AI_setCivicTimer(getMaxAnarchyTurns() != 0 ? CIVIC_CHANGE_DELAY :
-				GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS) * 2);
+		// <!-- custom: Paid-anarchy civic reversals often happened right when the old civic timer expired. Keep no-anarchy switches responsive, but after paid anarchy wait longer before reevaluating civics so a temporary value swing is less likely to immediately undo the revolution. See KI#159. (GPT-5.5 + ChatGPT-5.5) -->
+		AI_setCivicTimer(iFinalCivicTimer);
 	}
 }
 

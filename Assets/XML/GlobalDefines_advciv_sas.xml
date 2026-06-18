@@ -2135,6 +2135,20 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
+	<!-- custom: BBAI civic diagnostics showed many free civic switches, but the expensive problem was paid-anarchy switches and direct reversals, including 2-turn anarchy for tiny value gains such as delta 6-9. When a candidate civic increases the current revolution bundle's anarchy length, require a larger absolute value gain before accepting it. Base + per-turn are added only for the extra anarchy turns this candidate introduces, preserving free/no-extra-anarchy bundle changes. See KI#159. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK_WITH_ANARCHY</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_SLACK_PER_ANARCHY_TURN</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: BBAI civic diagnostics after the paid-anarchy slack fix still showed many direct reversals around the normal civic timer expiry (~21 turns), suggesting the AI could pay anarchy, wait until allowed again, then flip back. Add extra civic cooldown only after paid-anarchy revolutions; 0 disables. Default 5 means a 2-turn-anarchy civic bundle waits about 10 extra turns before reconsidering civics. See KI#159. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_EXTRA_TIMER_PER_ANARCHY_TURN</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
 
 
 

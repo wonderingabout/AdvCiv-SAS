@@ -194,6 +194,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [156 - (Fixed) Base AdvCiv issue: ready city-attack stacks could park for future upgrades even when no unit could upgrade now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now)  
 [157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
 [158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war)  
+[159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#159---improved-ai-civic-switch-damping-paid-anarchy-civic-churn-and-direct-reversals-after-the-civic-timer-expired)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5885,3 +5886,45 @@ Behaviorally, the same broad situation improved from barbarian cities surviving 
 The France recapture case is a separate possible post-capture garrison/retreat issue, not part of this fallback.
 
 Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+## 159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tczEbJf6nrD8I0zE4qpVf5BQEpXRVDYH?usp=sharing).
+
+This is framed as a civic-tuning follow-up rather than as a base AdvCiv bug or an AdvCiv-SAS-specific bug. The behavior was observed in our current AdvCiv-SAS tuning state, but the root cause could be base behavior, our broader civic valuation changes, our anti-oscillation changes, or an interaction between them. BBAI diagnostics showed many civic changes were free/no-anarchy switches, but the expensive part was paid-anarchy churn, especially direct reversals soon after the normal civic timer expired.
+
+The diagnostic pass added structured logs:
+
+- `CIVIC_SWITCH_DETAIL`: accepted and rejected civic candidates, including old/new civic, values, delta, slack, anarchy length, anarchy delta, war/financial context, and pass flags.
+- `CIVIC_REVOLUTION_DETAIL`: final revolution bundles, timer values, and whether the bundle paid anarchy.
+- `CIVIC_REVOLUTION_CHANGE`: each civic option changed by the final bundle.
+
+The first reviewed run showed:
+
+- 242 civic revolution bundles.
+- 574 civic changes.
+- 52 paid-anarchy revolutions.
+- 174 total anarchy turns.
+- 15 single-civic paid revolutions.
+- 388 direct reversals total, including 376 within 30 turns.
+- 66 direct reversals where at least one side paid anarchy, and 49 where both sides paid anarchy.
+
+Fix part 1: when a civic candidate increases the current revolution bundle's anarchy length, require a larger absolute value gain before accepting it. Free/no-extra-anarchy bundle changes remain responsive, but the AI should not freeze the empire for tiny volatile gains.
+
+Fix part 2: after paid-anarchy revolutions, extend the civic timer by an amount based on the paid anarchy length. This addresses the pattern where the AI paid anarchy, waited until the old timer expired, and then flipped back soon after.
+
+The final reviewed run improved strongly:
+
+- Civic revolution bundles: 242 -> 180.
+- Civic changes: 574 -> 424.
+- Paid-anarchy revolutions: 52 -> 23.
+- Total anarchy turns: 174 -> 81.
+- Single-civic paid revolutions: 15 -> 5.
+- Direct reversals total: 388 -> 250.
+- Direct reversals within 30 turns: 376 -> 221.
+- Direct reversals with at least one paid side: 66 -> 27.
+- Direct reversals where both sides paid anarchy: 49 -> 17.
+
+This should make AI turns more efficient because excessive anarchy downtime is costly, especially with the current AdvCiv-SAS anarchy duration of 2 turns. If the damping is too sticky, reduce the corresponding timer/slack values; if oscillation returns, increase them. Keep the diagnostics useful for future tuning because civic valuation is sensitive to other AI changes.
+
+Fixed/improved with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
