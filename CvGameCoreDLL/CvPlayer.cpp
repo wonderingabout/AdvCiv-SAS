@@ -2129,6 +2129,13 @@ CvWString CvPlayer::getNewCityName() const
 	for (CLLNode<CvWString>* pNode = headCityNameNode();
 		pNode != NULL && szName.empty(); pNode = nextCityNameNode(pNode))
 	{
+		// <!-- custom: Guard against invalid explicit city-name entries before text lookup. See KI 161. (ChatGPT-5.5) -->
+		if (pNode->m_data.empty())
+		{
+			FAssertMsg(false, "Empty explicit city-name key");
+			continue;
+		}
+
 		szName = gDLL->getText(pNode->m_data); // (temp use of the buffer)
 		if (isCityNameValid(szName, true))
 			szName = pNode->m_data;
@@ -2163,25 +2170,48 @@ CvWString CvPlayer::getNewCityName() const
 
 void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const
 {
+	// <!-- custom: Defensive city-name text lookup hardening after rare heap/string crash signatures. See KI 161. (ChatGPT-5.5) -->
+	if (eCivilization == NO_CIVILIZATION || eCivilization < 0 ||
+		eCivilization >= GC.getNumCivilizationInfos())
+	{
+		FAssertMsg(false, "Invalid civilization type for city-name lookup");
+		return;
+	}
+
+	CvCivilizationInfo const& kCiv = GC.getInfo(eCivilization);
+	int const iNumCityNames = kCiv.getNumCityNames();
+	if (iNumCityNames <= 0)
+	{
+		FAssertMsg(false, "Civilization has no city names");
+		return;
+	}
+
 	int iRandOffset=-1;
 	/*if (isBarbarian() || isMinorCiv())
 		iRandOffset = SyncRandNum(GC.getInfo(eCivilization).getNumCityNames());
 	else iRandOffset = 0;*/ // BtS
 	// K-Mod
 	if (eCivilization != getCivilizationType() || isBarbarian() || isMinorCiv())
-		iRandOffset = SyncRandNum(GC.getInfo(eCivilization).getNumCityNames());
+		iRandOffset = SyncRandNum(iNumCityNames);
 	else
 	{	// note: the explicit city names list is checked before this function is called.
 		iRandOffset = std::max(0, getPlayerRecord()->getNumCitiesBuilt() - getNumCityNames());
 	} // K-Mod end
 
-	for (int i = 0; i < GC.getInfo(eCivilization).getNumCityNames(); i++)
+	for (int i = 0; i < iNumCityNames; i++)
 	{
-		int iLoopName = (i + iRandOffset) % GC.getInfo(eCivilization).getNumCityNames();
-		CvWString szName = gDLL->getText(GC.getInfo(eCivilization).getCityNames(iLoopName));
+		int const iLoopName = (i + iRandOffset) % iNumCityNames;
+		std::string const szCityNameKey = kCiv.getCityNames(iLoopName);
+		if (szCityNameKey.empty())
+		{
+			FAssertMsg(false, "Empty civilization city-name key");
+			continue;
+		}
+
+		CvWString szName = gDLL->getText(szCityNameKey);
 		if (isCityNameValid(szName, true))
 		{
-			szBuffer = GC.getInfo(eCivilization).getCityNames(iLoopName);
+			szBuffer = szCityNameKey;
 			break;
 		}
 	}

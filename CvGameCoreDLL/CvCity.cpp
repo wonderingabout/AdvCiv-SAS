@@ -8857,6 +8857,13 @@ const CvWString CvCity::getName(uint uiForm) const
 
 void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool bInitial)
 {
+	// <!-- custom: Avoid constructing CvWString from an invalid city-name pointer. See KI 161. (ChatGPT-5.5) -->
+	if (szNewValue == NULL || szNewValue[0] == L'\0')
+	{
+		FAssertMsg(false, "Invalid city name");
+		return;
+	}
+
 	CvWString szName(szNewValue);
 	gDLL->stripSpecialCharacters(szName);
 	// K-Mod. stripSpecialCharacters apparently doesn't count '%' as a special character

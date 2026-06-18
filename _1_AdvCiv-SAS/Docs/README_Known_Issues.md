@@ -195,7 +195,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
 [158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war)  
 [159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#159---improved-ai-civic-switch-damping-paid-anarchy-civic-churn-and-direct-reversals-after-the-civic-timer-expired)  
-[160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)
+[160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)  
+[161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5986,3 +5987,30 @@ The single remaining overspend was pass 0 impassable: Mali on T176 spent 408 aga
 Low final gold can still happen in focus-war / any-war-plan contexts. That is a separate possible follow-up about preserving a cash reserve during war preparation, not the same bug as pass 3 normal upgrades overshooting their remaining budget.
 
 Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+## 161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CcRoDInd1w6DzgF9e0yDVnnEPvOpnX31).
+
+After fixing the much more frequent `CvSelectionGroup::plot` crash and several other earlier crash sources, long autoplay runs are now usually much more stable. In recent testing, most turn 0 to around turn 400/500 autoplay runs finished in one go, but two rare non-reproducible crashes still appeared around turn 145 and turn 348.
+
+The two crash logs looked related enough to treat as one crash pattern rather than two unrelated issues:
+
+- Both were access violations while reading memory (`c0000005`).
+- Both failed inside `CvGameCoreDLL.dll` at almost the same relative offset.
+- Both were reported by WinDbg as `CvCity::cheat+0x15c3`, but this is probably only the nearest available symbol name because the dump did not have proper line symbols / PDB information. It should not be trusted as proof that real `CvCity::cheat` logic was involved.
+- Both showed the same failure bucket/hash, which strongly suggests the same crash signature.
+- Both had heap allocation / string-looking stack context.
+- The raw stack data looked like city text keys, for example `TXT_KEY_CITY_NAME_MASTER_ADAM` in one crash and `TXT_KEY_CITY_NAME_PARIS` in the other. Since `PARIS` is an ordinary city-name key, the evidence points less toward a single malformed XML text key and more toward a fragile city-name/text lookup path or an earlier memory problem surfacing during that path.
+
+This was not reproducible from the save, so the exact root cause is not proven. The safest interpretation is that the crash was probably happening near city-name selection, city-name text lookup, city founding/naming, or heap/string allocation connected to those systems. It could also still be earlier unrelated memory corruption that merely became visible when a city-name string was allocated or translated.
+
+Conservative hardening was added around the city-name path:
+
+- `CvPlayer::getNewCityName` now skips empty explicit city-name queue entries before calling `gDLL->getText`.
+- `CvPlayer::getCivilizationCityName` now guards invalid civilization ids, civilizations with zero city-name entries, and empty city-name keys before random selection or `gDLL->getText`.
+- `CvCity::setName` now rejects null or empty city-name pointers before constructing a `CvWString`.
+
+These changes should not alter normal city-name behavior. They only prevent unsafe lookups or string construction when data is invalid, unexpectedly empty, or memory state is already abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix. If similar crashes continue, keep linker `.map` files or PDBs for the matching DLL build so future dump offsets can be mapped to real source lines instead of relying on misleading nearest-symbol names.
+
+Addressed with the very nice help of ChatGPT-5.5 thanks.
