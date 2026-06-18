@@ -1493,6 +1493,86 @@ static int SAS_getImprovementUpgradeChainLevel(ImprovementTypes eImprovement, Im
 	return 0;
 }
 
+struct SASWorkerImprovementListCache
+{
+	char const* szDefineNameLiteral;
+	CvString szDefineName;
+	std::vector<ImprovementTypes> aImprovements;
+};
+
+// <!-- custom: Parse comma-separated IMPROVEMENT_* define lists once for worker protection/holy-improvement rules. NONE follows the same sentinel convention as music and branch defines; invalid names are skipped after asserting, so modmods can tune protected improvement sets from XML without changing the worker AI logic. (ChatGPT-5.5) -->
+static void SAS_initWorkerImprovementList(std::vector<ImprovementTypes>& aImprovements, char const* szDefineName)
+{
+	aImprovements.clear();
+	char const* szDefineText = GC.getDefineSTRING(szDefineName);
+	FAssertMsg(szDefineText != NULL, szDefineName);
+	if (szDefineText == NULL)
+		return;
+	CvString szRemaining = SAS_trimWorkerNoBonusBranchToken(szDefineText);
+	if (SAS_isWorkerNoBonusBranchNoneToken(szRemaining))
+		return;
+	while (!szRemaining.empty())
+	{
+		int const iComma = szRemaining.find(',');
+		CvString const szRawEntry = (iComma < 0 ? szRemaining : szRemaining.substr(0, iComma));
+		szRemaining = (iComma < 0 ? CvString("") : szRemaining.substr(iComma + 1));
+		CvString const szEntry = SAS_trimWorkerNoBonusBranchToken(szRawEntry);
+		if (SAS_isWorkerNoBonusBranchNoneToken(szEntry))
+			continue;
+		ImprovementTypes const eImprovement = (ImprovementTypes)GC.getInfoTypeForString(szEntry.c_str());
+		FAssertMsg(eImprovement != NO_IMPROVEMENT, szEntry.c_str());
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+		aImprovements.push_back(eImprovement);
+	}
+}
+
+static std::vector<ImprovementTypes> const& SAS_getWorkerImprovementList(char const* szDefineName)
+{
+	static std::vector<SASWorkerImprovementListCache> aCaches;
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineNameLiteral == szDefineName)
+			return aCaches[i].aImprovements;
+	}
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineName == szDefineName)
+			return aCaches[i].aImprovements;
+	}
+	SASWorkerImprovementListCache kCache;
+	kCache.szDefineNameLiteral = szDefineName;
+	kCache.szDefineName = szDefineName;
+	SAS_initWorkerImprovementList(kCache.aImprovements, szDefineName);
+	aCaches.push_back(kCache);
+	return aCaches[aCaches.size() - 1].aImprovements;
+}
+
+static bool SAS_isWorkerImprovementInDefineList(char const* szDefineName, ImprovementTypes eImprovement)
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return false;
+	std::vector<ImprovementTypes> const& aImprovements = SAS_getWorkerImprovementList(szDefineName);
+	for (size_t i = 0; i < aImprovements.size(); ++i)
+	{
+		if (aImprovements[i] == eImprovement)
+			return true;
+	}
+	return false;
+}
+
+// <!-- custom: Return the XML upgrade-chain level of an improvement for any configured worker growth-improvement chain start. Default XML lists IMPROVEMENT_COTTAGE, which preserves Cottage/Hamlet/Village/Town behavior; modmods can add or replace starts for shorter/longer chains or hammer/commerce growth chains without hardcoding them here. (ChatGPT-5.5) -->
+static int SAS_getWorkerGrowthImprovementLevel(ImprovementTypes eImprovement)
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return 0;
+	std::vector<ImprovementTypes> const& aChainStarts = SAS_getWorkerImprovementList("SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES");
+	int iBestLevel = 0;
+	for (size_t i = 0; i < aChainStarts.size(); ++i)
+		iBestLevel = std::max(iBestLevel, SAS_getImprovementUpgradeChainLevel(eImprovement, aChainStarts[i]));
+	return iBestLevel;
+}
+
 static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, char const* szDefineName, BuildTypes eBuildFarm, BuildTypes eBuildCottage, BuildTypes eBuildWorkshop, BuildTypes eBuildMine, BuildTypes eBuildWindmill, bool bAllowFarm, bool bAllowWorkshop, int iFarmValueAdjustment, int iCottageValueAdjustment, int iWorkshopValueAdjustment, int iMineValueAdjustment, int iWindmillValueAdjustment, BuildTypes& eBestBuild, int& iValue)
 {
 	std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(szDefineName);
@@ -1602,10 +1682,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
     static const BuildTypes eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
 
 	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under some conditions only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely. -->
-	static const ImprovementTypes eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
-	static const ImprovementTypes eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
-	static const ImprovementTypes eImprovementTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TOWN");
-	static const ImprovementTypes eImprovementWindmill = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WINDMILL");
 	static const ImprovementTypes eImprovementWorkshop = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WORKSHOP");
 
 	// <!-- custom: semi-holy improvements as of now -->
@@ -1716,7 +1792,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL");
 	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT");
 	static const int iSAS_WORKER_AI_FOOD_COST_WORKSHOP_EXTRA_SURPLUS = GC.getDefineINT("SAS_WORKER_AI_FOOD_COST_WORKSHOP_EXTRA_SURPLUS");
-	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_COTTAGE_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_COTTAGE_LEVEL_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_NO_FOOD_COST_WORKSHOP_VALUE_ADJUSTMENT = GC.getDefineINT("SAS_WORKER_AI_NO_FOOD_COST_WORKSHOP_VALUE_ADJUSTMENT");
+	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY");
 	SASWorkerNoBonusKnownBranches const& kWorkerBranches = SAS_getWorkerNoBonusKnownBranches();
 	bool const bCityLowFoodBFC = (iBFCLowFoodScore >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH);
 
@@ -1770,11 +1848,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				}
 
 				ImprovementTypes const eConnectorImprovement = kConnectorPlot.getImprovementType();
-				int const iConnectorCottageLevel = SAS_getImprovementUpgradeChainLevel(eConnectorImprovement, eImprovementCottage);
+				int const iConnectorGrowthLevel = SAS_getWorkerGrowthImprovementLevel(eConnectorImprovement);
 				int const iConnectorOverwritePenalty = (
 					eConnectorImprovement == NO_IMPROVEMENT ? 0 :
 					eConnectorImprovement == eImprovementWorkshop ? 150 :
-					iConnectorCottageLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_CHAIN_COTTAGE_LEVEL_OVERWRITE_PENALTY * iConnectorCottageLevel :
+					iConnectorGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY * iConnectorGrowthLevel :
 					2200
 				);
 				CandidatePlot candidatePlot;
@@ -2043,27 +2121,21 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && (bCityHighFoodSupportNeed || bFarmIrrigatesExistingDryFarm) && (bFarmIrrigatesExistingDryFarm || bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD && bFarmGetsFood)));
 			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
 			int const iDryFarmIrrigationChainValue = 1400 * iAdjacentDryFarmsIrrigatedByThisFarm;
-			// <!-- custom: If this exact farm would irrigate existing dry farms, unholy the blocker but rank candidates by damage: unimproved plots first, then workshop/cottage, hamlet, village, town last. Even one newly irrigated farm can justify breaking a town because it may continue an irrigation chain beyond what this local check can see; the ranking steers workers to the least harmful viable chain breaker instead of forbidding mature blockers or making a one-farm town break net-negative. (GPT-5.5) -->
+			int const iPlotGrowthLevel = SAS_getWorkerGrowthImprovementLevel(ePlotCurrentImprovement);
+			bool const bProtectedImprovementCanBeBrokenForIrrigation = SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK", ePlotCurrentImprovement);
+			bool const bNonProtectedImprovementCanBeBrokenForIrrigation = SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_NON_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK", ePlotCurrentImprovement);
+			// <!-- custom: If this exact farm would irrigate existing dry farms, unholy the blocker but rank candidates by damage: unimproved/workshop first, then configured growth-chain improvements by XML growth level. This local same-plot penalty is lower than the broader irrigation connector penalty because the farm itself may solve a food/irrigation problem for the city; canBuild and the generic branch picker still decide whether the final value is worth it. (GPT-5.5 + ChatGPT-5.5) -->
 			int const iDryFarmIrrigationOverwritePenalty = (
 				!bFarmIrrigatesExistingDryFarm ? 0 :
 				ePlotCurrentImprovement == eImprovementWorkshop ? 0 :
-				ePlotCurrentImprovement == eImprovementCottage ? 100 :
-				ePlotCurrentImprovement == eImprovementHamlet ? 350 :
-				ePlotCurrentImprovement == eImprovementVillage ? 650 :
-				ePlotCurrentImprovement == eImprovementTown ? 1000 :
+				iPlotGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY * iPlotGrowthLevel :
 				0
 			);
 			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
 			int const iFoodSupportFarmValue = std::max(iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty, iRawFoodSupportFarmValue - (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, iAdjustedFoodDifference - iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS)));
 			bool const bAllowDryFarmIrrigationChainOverwrite = (
 				bFarmIrrigatesExistingDryFarm &&
-				(
-					ePlotCurrentImprovement == eImprovementCottage ||
-					ePlotCurrentImprovement == eImprovementWorkshop ||
-					ePlotCurrentImprovement == eImprovementHamlet ||
-					ePlotCurrentImprovement == eImprovementVillage ||
-					ePlotCurrentImprovement == eImprovementTown
-				)
+				(bProtectedImprovementCanBeBrokenForIrrigation || bNonProtectedImprovementCanBeBrokenForIrrigation)
 			);
 			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD));
 			int const iNonFoodIrrigationPathPenalty = ((iFoodSupportFarmValue > 0 && bFarmGoodIrrigationTile) ? 75 : 0);
@@ -2083,11 +2155,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			}
 
 			// <!-- custom: first the absolutely holy improvements to never improve -->
-			if ((ePlotCurrentImprovement == eImprovementHamlet && !bAllowDryFarmIrrigationChainOverwrite) ||
-				(ePlotCurrentImprovement == eImprovementVillage && !bAllowDryFarmIrrigationChainOverwrite) ||
-				(ePlotCurrentImprovement == eImprovementTown && !bAllowDryFarmIrrigationChainOverwrite) ||
-				(ePlotCurrentImprovement == eImprovementWorkshop && !bAllowDryFarmIrrigationChainOverwrite) ||
-				ePlotCurrentImprovement == eImprovementWindmill)
+			if (SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALWAYS", ePlotCurrentImprovement) ||
+				(bProtectedImprovementCanBeBrokenForIrrigation && !bAllowDryFarmIrrigationChainOverwrite))
 			{
 				// This 'continue' will skip to the next build in the outer loop,
 				// preventing the AI from ever considering destroying a high-level non-bonus improvement.
@@ -2106,18 +2175,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				);
 				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well-->
 
-				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && kPlot.getImprovementType() == eImprovementFarm)
+				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_LOW_FOOD", ePlotCurrentImprovement))
 				{
 					// <!-- custom: extra oscillation avoid cases, even with our system, for the better maybe, we respond dynamically to food surplus in city, in low-food environments, one has to win, it is likely will starve again, so if we built a farm once, do not cancel it ever again and consider it holy as well -->
 					continue;
 				}
 				// <!-- custom: high-food environments 's semi-holy improvement(s) -->
-				else if ((eFeature == eFeatureFloodPlains) && kPlot.getImprovementType() == eImprovementCottage)
+				else if ((eFeature == eFeatureFloodPlains) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_FLOOD_PLAINS", ePlotCurrentImprovement))
 				{
 					// <!-- custom: extra oscillation avoid cases, see above for details -->
 					continue;
 				}
-				else if ((eTerrain == eTerrainGrass) && (kPlot.getImprovementType() == eImprovementCottage) && !bAllowBasicCottageFoodSupportOverwrite)
+				else if ((eTerrain == eTerrainGrass) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_GRASS", ePlotCurrentImprovement) && !bAllowBasicCottageFoodSupportOverwrite)
 				{
 					// <!-- custom: extra oscillation avoid cases, see above for details -->
 					continue;
@@ -2190,7 +2259,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bAllowNoBonusWorkshop = (bNoBonusLowFoodBranch ? bWorkshopCostsNoFood : bWorkshopAllowedInEnoughFoodBranch);
 					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
 					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
-					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? 1150 : 0) - iNonFoodIrrigationPathPenalty);
+					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? iSAS_WORKER_AI_NO_FOOD_COST_WORKSHOP_VALUE_ADJUSTMENT : 0) - iNonFoodIrrigationPathPenalty);
 				}
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
@@ -2213,7 +2282,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bAllowNoBonusWorkshop = (bNoBonusLowFoodBranch ? bWorkshopCostsNoFood && !bCityLowFoodBFC : bWorkshopAllowedInEnoughFoodBranch);
 					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
 					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
-					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? 1250 : 0) - iNonFoodIrrigationPathPenalty);
+					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? iSAS_WORKER_AI_NO_FOOD_COST_WORKSHOP_VALUE_ADJUSTMENT : 0) - iNonFoodIrrigationPathPenalty);
 				}
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
@@ -2236,7 +2305,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					bAllowNoBonusWorkshop = (bNoBonusLowFoodBranch ? bWorkshopCostsNoFood && !bCityLowFoodBFC : bWorkshopAllowedInEnoughFoodBranch);
 					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
 					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
-					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? 1075 : 0) - iNonFoodIrrigationPathPenalty);
+					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : (bWorkshopCostsNoFood ? iSAS_WORKER_AI_NO_FOOD_COST_WORKSHOP_VALUE_ADJUSTMENT : 0) - iNonFoodIrrigationPathPenalty);
 				}
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}

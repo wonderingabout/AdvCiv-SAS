@@ -1484,10 +1484,56 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_WORKER_AI_FOOD_COST_WORKSHOP_EXTRA_SURPLUS</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: Irrigation-chain connector penalty per Cottage growth level when farming over a Cottage-chain improvement to reach dry farms. CvUnitAI infers the level by following the XML ImprovementUpgrade chain from Cottage, then multiplies by this value. (GPT-5.5 + ChatGPT-5.5); e.g., if value is 400, cottage is 1 * 400 = 400, hamlet is 2 * 400 = 800, village is 3 * 400 = 1200, and town is 4 * 400 = 1600. Note: value kept not too high, so food is a bit more important than keeping growth improvements especially higher level ones and later in the game where we have more specialist or such yields -->
+	<!-- custom: Value bonus for Workshops that no longer cost food in normal enough-food branches. This is a value adjustment added to the XML branch base value, not a forced pick; Farm/Cottage/etc. can still win if their adjusted value is higher. Set lower if late food should compete more strongly against food-neutral Workshops. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_COTTAGE_LEVEL_OVERWRITE_PENALTY</DefineName>
+		<DefineName>SAS_WORKER_AI_NO_FOOD_COST_WORKSHOP_VALUE_ADJUSTMENT</DefineName>
+		<iDefineIntVal>1000</iDefineIntVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* chain starts whose XML ImprovementUpgrade chains should count as growth improvements for worker overwrite penalties. Default preserves the Cottage -> Hamlet -> Village -> Town chain. Modmods can add shorter/longer chains or other growth-style chains without changing CvUnitAI. Use NONE for no growth-chain penalty levels. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
+	</Define>
+	<!-- custom: Irrigation-chain connector penalty per configured growth-improvement level when farming over a growth-chain improvement to reach dry farms. CvUnitAI infers the level by following XML ImprovementUpgrade chains from SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES, then multiplies by this value. e.g., with default Cottage chain and value 400, cottage is 1 * 400 = 400, hamlet is 2 * 400 = 800, village is 3 * 400 = 1200, and town is 4 * 400 = 1600. Note: value kept not too high, so food is a bit more important than keeping growth improvements especially higher level ones and later in the game where we have more specialist or such yields. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY</DefineName>
 		<iDefineIntVal>400</iDefineIntVal>
+	</Define>
+	<!-- custom: Local same-plot penalty per configured growth-improvement level when farming over a growth-chain improvement to irrigate adjacent existing dry farms. This is lower than the broader connector penalty above because the farm itself may solve a city food/irrigation problem. CvUnitAI infers the level from SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES, then multiplies by this value. e.g., with default Cottage chain and value 150, cottage is 1 * 150 = 150, hamlet is 2 * 150 = 300, village is 3 * 150 = 450, and town is 4 * 150 = 600. Note: as of now not kept too high (same reasoning). (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+	<!-- custom: Comma-separated IMPROVEMENT_* names that AI_bestCityBuild treats as fully protected on no-bonus plots. These are never overwritten by the generic worker candidate picker. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALWAYS</DefineName>
+		<DefineTextVal>IMPROVEMENT_WINDMILL</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected like holy improvements, except they may be overwritten when farming this exact plot would irrigate adjacent existing dry farms. This preserves the old behavior for Hamlet/Village/Town/Workshop while making the list tunable and expandable. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK</DefineName>
+		<DefineTextVal>IMPROVEMENT_HAMLET,IMPROVEMENT_VILLAGE,IMPROVEMENT_TOWN,IMPROVEMENT_WORKSHOP</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names that are not otherwise holy/protected, but may still be overwritten when farming this exact plot would irrigate adjacent existing dry farms. Default keeps basic Cottage eligible for the irrigation-chain exception without making ordinary Cottages globally protected. Use NONE for no entries. (ChatGPT-5.5 temporary + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_NON_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected on low-food no-bonus plots, structural food-support cities, or farms carrying irrigation to adjacent farms. This keeps support farms from being oscillated away. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_LOW_FOOD</DefineName>
+		<DefineTextVal>IMPROVEMENT_FARM</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected on Flood Plains no-bonus plots. This keeps the old anti-oscillation Cottage protection while making the set tunable. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_FLOOD_PLAINS</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected on Grass no-bonus plots, unless the local food-support farm overwrite exception allows a basic Cottage to be replaced. This keeps high-food Grass Cottage anti-oscillation tunable. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_GRASS</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
 	</Define>
 
 
