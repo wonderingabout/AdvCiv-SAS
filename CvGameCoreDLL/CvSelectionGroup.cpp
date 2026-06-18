@@ -3916,9 +3916,19 @@ bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
 
 void CvSelectionGroup::clearUnits()
 {
-	for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
-		pNode = deleteUnitNode(pNode))
-	{} // advc
+	// <!-- custom: Full group teardown should not repeatedly use deleteUnitNode, setAutomateType, clearMissionQueue, or setActivityType, because those normal single-unit-removal helpers can inspect the head unit, plot, cargo, selection state, and mission callbacks while the unit list is being destroyed. Directly reset the small group-owned state here, then clear the list once. See KI#163. (ChatGPT-5.5 + GPT-5.5); (commented-out old code for reference). -->
+	// for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
+	// 	pNode = deleteUnitNode(pNode))
+	// {} // advc
+	if (getOwner() != NO_PLAYER)
+	{
+		m->eAutomateType = NO_AUTOMATE;
+		m_missionQueue.clear();
+		m_iMissionTimer = 0;
+		m_eActivityType = ACTIVITY_AWAKE;
+	}
+	m_units.clear();
+	// <!-- custom: End -->
 }
 
 
@@ -3991,6 +4001,13 @@ void CvSelectionGroup::removeUnit(CvUnit* pUnit)
 
 CLLNode<IDInfo>* CvSelectionGroup::deleteUnitNode(CLLNode<IDInfo>* pNode)
 {
+	// <!-- custom: Keep normal single-unit removal behavior, but make this exported helper tolerate an unexpected null node instead of dereferencing it during rare group/unit teardown edge cases. See KI#163. (ChatGPT-5.5 + GPT-5.5) -->
+	if (pNode == NULL)
+	{
+		FAssert(pNode != NULL);
+		return NULL;
+	}
+
 	CLLNode<IDInfo>* pNextUnitNode;
 	if (getOwner() != NO_PLAYER)
 	{

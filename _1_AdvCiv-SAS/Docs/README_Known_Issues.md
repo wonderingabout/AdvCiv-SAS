@@ -198,6 +198,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)  
 [161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
 [162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages)  
+[163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -4117,6 +4118,8 @@ Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot, as p
 
 See [commit/d2500dc40107815d6a0afef5b481b9d2073c1743](https://github.com/wonderingabout/AdvCiv-SAS/commit/d2500dc40107815d6a0afef5b481b9d2073c1743) and files for details about the fix.
 
+See also [KI#163](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits).
+
 ## 101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemingly counting them for the total GP calculation
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tzj-F2YcMUAbu1ltKkNM0l8vYZWQ-Xf8?usp=sharing).
@@ -4144,6 +4147,8 @@ Running an autplay of 500 turns with the 48 civs DLL after generating the map, w
 After Claude code Opus 4.5 fixed it, the new DLL doesn't crash and game plays end to end so looks solved.
 
 See [commit/24cfc0803db7251f521f0b9b6df1c620109ae3a8](https://github.com/wonderingabout/AdvCiv-SAS/commit/24cfc0803db7251f521f0b9b6df1c620109ae3a8).
+
+See also [KI#162](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages).
 
 ## 103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash
 
@@ -4191,6 +4196,8 @@ WARNING: Stack unwind information not available. Following frames may be wrong.
 Asked GPT-5.2-Codex to fix it, and then its solution was reviewed and made more compact with the very nice help too thanks a lot of Claude code Opus 4.5.
 
 Loading save file at turn 0 and autoplaying 500 turns in one go as was done the first time at map generation, no crash happens and game finishes successfully end to end at t500, so looks fixed.
+
+See also [KI#162](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages).
 
 ## 104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient
 
@@ -6012,7 +6019,7 @@ Conservative hardening was added around the city-name path:
 - `CvPlayer::getCivilizationCityName` now guards invalid civilization ids, civilizations with zero city-name entries, and empty city-name keys before random selection or `gDLL->getText`.
 - `CvCity::setName` now rejects null or empty city-name pointers before constructing a `CvWString`.
 
-These changes should not alter normal city-name behavior. They only prevent unsafe lookups or string construction when data is invalid, unexpectedly empty, or memory state is already abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix. If similar crashes continue, keep linker `.map` files or PDBs for the matching DLL build so future dump offsets can be mapped to real source lines instead of relying on misleading nearest-symbol names.
+These changes should not alter normal city-name behavior. They only prevent unsafe lookups or string construction when data is invalid, unexpectedly empty, or memory state is already abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix.
 
 Addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
 
@@ -6032,6 +6039,28 @@ Conservative hardening was added:
 - `CvCity::getProductionBarPercentages` now reuses one validated `getProductionNeeded` value before doing production-bar math.
 - The production-bar path now rejects invalid production-needed values such as `<= 0` or `MAX_INT`.
 
-This should not alter normal production or city UI behavior. It only prevents city production-bar display math when the active-player/UI state or production denominator is abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix. If this still crashes, keep matching linker `.map` files or PDBs for the DLL build so the `CvGameCoreDLL` offset can be mapped to a real source line.
+This should not alter normal production or city UI behavior. It only prevents city production-bar display math when the active-player/UI state or production denominator is abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix.
 
 Tentatively addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
+
+## 163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_3YWkViHtODB341EGe5UbfIwwTGrFtKe?usp=sharing).
+
+After KI#161 and KI#162, autoplay stability looked much better again, with the current test already reaching around turn 330. One remaining recent crash from turn 318 did not match the city-name text lookup crash pattern from KI#161 and did not match the production-bar path from KI#162. Instead, the dump pointed into the `CvSelectionGroup` unit-list teardown family.
+
+The crash log showed an access violation while reading memory address `00000520`. WinDbg reported the nearest symbol as `CyPlot::CyPlot+0x186d0`, but the stack immediately below it went through `CvSelectionGroup::deleteUnitNode`, `CvSelectionGroup::clearUnits`, `CvUnit::getGroup`, and `CvSelectionGroup::getHeadUnit`. Without matching PDB / map-file symbols this is not a precise source line, but it strongly suggests a stale group/unit/plot lifetime edge case while a selection group is being emptied.
+
+This looks closer to the old `CvSelectionGroup::plot` crash family than to KI#161 or KI#162. That older crash family had already been improved through several iterations, fixing the most common variants, but this dump may represent a rarer remaining variant around group teardown rather than ordinary movement or plot lookup.
+
+The suspicious code pattern was that `CvSelectionGroup::clearUnits` emptied the whole group by repeatedly calling `deleteUnitNode`. However, `deleteUnitNode` is the normal single-unit removal path: before deleting a node, it cancels automation through `setAutomateType`, clears the mission queue through `clearMissionQueue`, and may wake the group through `setActivityType`. Those helpers can inspect the head unit, group plot, cargo groups, UI selection state, activity state, and mission callbacks such as `deactivateHeadMission`. Doing that repeatedly while `clearUnits` is actively tearing down the whole unit list is unnecessarily re-entrant and fragile.
+
+The defensive change is therefore deliberately narrow:
+
+- `CvSelectionGroup::clearUnits` now performs direct full-teardown cleanup: reset automation, clear the mission queue, clear the mission timer, reset activity to awake, and clear the unit list once.
+- `clearUnits` intentionally bypasses `deleteUnitNode`, `setAutomateType`, `clearMissionQueue`, and `setActivityType` during full group teardown, because those helper callbacks are designed for normal single-unit removal and can inspect group state while the list is being destroyed.
+- `CvSelectionGroup::deleteUnitNode` keeps its existing normal single-unit removal behavior but now tolerates an unexpected null node.
+
+This should preserve normal behavior for ordinary unit removal while avoiding repeated mission/activity/plot/UI side effects during full group clearing. It is still only a tentative hardening because the crash was rare and non-reproducible, and the exact source line is not known without matching symbols.
+
+Tentatively addressed with the very nice help of ChatGPT-5.5 and GPT-5.5 thanks.
