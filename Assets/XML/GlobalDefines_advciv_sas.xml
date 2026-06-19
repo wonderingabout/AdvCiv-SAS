@@ -1318,7 +1318,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_FORT_AIRBASE_ENABLE</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: No-bonus worker build branch base values. Branch define names include FEATURE_ or TERRAIN_ plus the XML info suffix and FLAT/HILL context. CvUnitAI parses and caches these once, then still applies the existing dynamic checks for food pressure, workshop food cost, irrigation paths, and build availability. Note: as of now this is a partial implementation only: some builds persist even if not set here, the generic picker redundantly exists on top of it, and detailed customization is not yet possible. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: No-bonus worker build branch base values. Branch define names include FEATURE_ or TERRAIN_ plus the XML info suffix and FLAT/HILL context. CvUnitAI parses and caches these once, then applies generic dynamic checks in the picker: low-food pressure rewards the buildable candidate with the best food outcome on the plot, configured food-cost improvements can gain recovered-food value, irrigation paths penalize candidates that do not carry irrigation, and canBuild still filters invalid builds. XML therefore controls candidate lists and base preferences while C++ handles contextual pressure. (GPT-5.5 + ChatGPT-5.5) -->
 	<!-- custom: Flood Plains with enough food:
 	- BUILD_COTTAGE: ideal high-food commerce tile; food is already good enough, so prioritize long-term commerce rather than extra food/production. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
@@ -1500,12 +1500,12 @@ Created as part of AdvCiv-SAS improvements
 		<DefineTextVal>BUILD_FARM:60,BUILD_WORKSHOP:30,BUILD_COTTAGE:20</DefineTextVal>
 	</Define>
 
-	<!-- custom: Extra value per missing city food surplus point when a no-bonus worker branch is in its low-food mode. This used to be hardcoded as 100 in CvUnitAI; exposing it keeps the branch base values focused on terrain/build preference while this one define controls how aggressively low-food branches react to worsening city food pressure. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Extra value per missing city food surplus point when a no-bonus worker branch is in its low-food mode. CvUnitAI now applies this improvement-independently to whichever buildable branch candidate gives the best food outcome on the exact plot, so Farm/Windmill/other future food improvements can benefit without hardcoded build names. Exposing it keeps branch base values focused on terrain/build preference while this one define controls how aggressively low-food branches react to worsening city food pressure. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: Master switch for the empirically tuned non-bonus food-support Farm value in CvUnitAI. This keeps the formula as one coherent heuristic for now instead of exposing every internal term; set to 0 for quick A/B testing if the support-farm logic overfarms. (GPT-5.5) -->
+	<!-- custom: Master switch for the empirically tuned non-bonus food-support Farm value in CvUnitAI. The heuristic is still computed from Farm/irrigation-chain context, but the generic picker applies its resulting pressure to the buildable candidate with the best food outcome on the exact plot. This keeps the formula coherent for now instead of exposing every internal term; set to 0 for quick A/B testing if the support-food logic overfarms. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

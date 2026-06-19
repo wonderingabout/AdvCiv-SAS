@@ -1591,13 +1591,35 @@ static int SAS_getWorkerRecoveredFoodCostImprovementValue(CvPlot const& kPlot, I
 	return iSAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN * iRecoveredFood;
 }
 
-static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, char const* szDefineName, BuildTypes eBuildFarm, BuildTypes eBuildCottage, BuildTypes eBuildWorkshop, BuildTypes eBuildMine, BuildTypes eBuildWindmill, int iFarmValueAdjustment, int iCottageValueAdjustment, int iWorkshopValueAdjustment, int iMineValueAdjustment, int iWindmillValueAdjustment, BuildTypes& eBestBuild, int& iValue)
+static bool SAS_isWorkerNoBonusIrrigationCarrierCandidate(CvPlot const& kPlot, ImprovementTypes eImprovement, TeamTypes eTeam)
+{
+	return (eImprovement != NO_IMPROVEMENT && GET_TEAM(eTeam).isIrrigation() && kPlot.canHavePotentialIrrigation() && GC.getInfo(eImprovement).isCarriesIrrigation());
+}
+
+static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, char const* szDefineName, bool bLowFoodBranch, int iAdjustedFoodDifference, int iLowFoodValuePerFood, int iFoodSupportValue, int iIrrigationBlockingPenalty, std::vector<int> const& aBuildValueAdjustments, BuildTypes& eBestBuild, int& iValue)
 {
 	std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(szDefineName);
 	if (aCandidates.empty())
 	{
 		return false;
 	}
+	int iBestCandidateFoodYieldChange = MIN_INT;
+	int iBuildableCandidateCount = 0;
+	for (size_t i = 0; i < aCandidates.size(); ++i)
+	{
+		SASWorkerNoBonusBuildCandidate const& kCandidate = aCandidates[i];
+		if (!kUnit.canBuild(kPlot, kCandidate.eBuild))
+			continue;
+		iBuildableCandidateCount++;
+		if (kCandidate.eImprovement == NO_IMPROVEMENT)
+			continue;
+		iBestCandidateFoodYieldChange = std::max(iBestCandidateFoodYieldChange, kPlot.calculateImprovementYieldChange(kCandidate.eImprovement, YIELD_FOOD, kUnit.getOwner()));
+	}
+	if (iBuildableCandidateCount <= 0)
+		return false;
+	int const iLowFoodDeficitValue = (bLowFoodBranch ? iLowFoodValuePerFood * std::max(0, -iAdjustedFoodDifference) : 0);
+	int const iFoodPressureValue = iLowFoodDeficitValue + iFoodSupportValue;
+	bool const bHasPositiveFoodCandidate = (iBestCandidateFoodYieldChange > 0);
 	BuildTypes eBestCandidateBuild = NO_BUILD;
 	int iBestCandidateValue = MIN_INT;
 	for (size_t i = 0; i < aCandidates.size(); ++i)
@@ -1607,16 +1629,14 @@ static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlo
 			continue;
 		int iCandidateValue = kCandidate.iBaseValue;
 		iCandidateValue += SAS_getWorkerRecoveredFoodCostImprovementValue(kPlot, kCandidate.eImprovement, kUnit.getOwner());
-		if (kCandidate.eBuild == eBuildFarm)
-			iCandidateValue += iFarmValueAdjustment;
-		else if (kCandidate.eBuild == eBuildCottage)
-			iCandidateValue += iCottageValueAdjustment;
-		else if (kCandidate.eBuild == eBuildWorkshop)
-			iCandidateValue += iWorkshopValueAdjustment;
-		else if (kCandidate.eBuild == eBuildMine)
-			iCandidateValue += iMineValueAdjustment;
-		else if (kCandidate.eBuild == eBuildWindmill)
-			iCandidateValue += iWindmillValueAdjustment;
+		// <!-- custom: Improvement-independent food pressure: when this city/plot wants food, reward whichever buildable no-bonus candidate gives the best food outcome on this exact plot, rather than hardcoding Farm or Windmill as the answer. (ChatGPT-5.5 + GPT-5.5) -->
+		if (iFoodPressureValue > 0 && bHasPositiveFoodCandidate && kCandidate.eImprovement != NO_IMPROVEMENT && kPlot.calculateImprovementYieldChange(kCandidate.eImprovement, YIELD_FOOD, kUnit.getOwner()) == iBestCandidateFoodYieldChange)
+			iCandidateValue += iFoodPressureValue;
+		// <!-- custom: Improvement-independent irrigation pressure: if this plot is useful as an irrigation carrier, penalize buildable candidates that do not carry irrigation instead of hardcoding only Cottage/Workshop as blockers. (ChatGPT-5.5 + GPT-5.5) -->
+		if (iIrrigationBlockingPenalty > 0 && !SAS_isWorkerNoBonusIrrigationCarrierCandidate(kPlot, kCandidate.eImprovement, kUnit.getTeam()))
+			iCandidateValue -= iIrrigationBlockingPenalty;
+		if ((int)kCandidate.eBuild >= 0 && (int)kCandidate.eBuild < (int)aBuildValueAdjustments.size())
+			iCandidateValue += aBuildValueAdjustments[kCandidate.eBuild];
 		if (iCandidateValue > iBestCandidateValue)
 		{
 			iBestCandidateValue = iCandidateValue;
@@ -1630,11 +1650,11 @@ static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlo
 	return true;
 }
 
-static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, SASWorkerNoBonusBranch const& kBranch, BuildTypes eBuildFarm, BuildTypes eBuildCottage, BuildTypes eBuildWorkshop, BuildTypes eBuildMine, BuildTypes eBuildWindmill, int iFarmValueAdjustment, int iCottageValueAdjustment, int iWorkshopValueAdjustment, int iMineValueAdjustment, int iWindmillValueAdjustment, BuildTypes& eBestBuild, int& iValue)
+static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, SASWorkerNoBonusBranch const& kBranch, bool bLowFoodBranch, int iAdjustedFoodDifference, int iLowFoodValuePerFood, int iFoodSupportValue, int iIrrigationBlockingPenalty, std::vector<int> const& aBuildValueAdjustments, BuildTypes& eBestBuild, int& iValue)
 {
 	if (!kBranch.bHasCandidates)
 		return false;
-	return SAS_pickWorkerNoBonusBranchBuild(kUnit, kPlot, kBranch.szDefineName, eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, iFarmValueAdjustment, iCottageValueAdjustment, iWorkshopValueAdjustment, iMineValueAdjustment, iWindmillValueAdjustment, eBestBuild, iValue);
+	return SAS_pickWorkerNoBonusBranchBuild(kUnit, kPlot, kBranch.szDefineName, bLowFoodBranch, iAdjustedFoodDifference, iLowFoodValuePerFood, iFoodSupportValue, iIrrigationBlockingPenalty, aBuildValueAdjustments, eBestBuild, iValue);
 }
 
 // Returns true if the unit found a build for this city...
@@ -1678,8 +1698,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
     static const BuildTypes eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
     static const BuildTypes eBuildMine = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-    static const BuildTypes eBuildCottage = (BuildTypes)GC.getInfoTypeForString("BUILD_COTTAGE");
-
     static const BuildTypes eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
     static const BuildTypes eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
 
@@ -1736,6 +1754,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// <!-- custom: rewrite addresses suboptimal behavior - old code pathfinding-recomputed best plot even after pass 1 computation. More efficient to compute decrementally from best candidate to worse until one is found, then early return, rather than compute all plots including ones that won't be best. New code is cleaner and easier to customize. Credit: Gemini AI. (Claude code Sonnet 4.5 (summarized)) -->
 
 	std::vector<CandidatePlot> candidatePlots;
+	std::vector<int> aNoBonusBuildValueAdjustments(GC.getNumBuildInfos(), 0);
 
 	// <!-- custom: note: performance/logic optimization: it seems faster to not check pathfinding at all and loop over all tiles rather than check pathfinding at same time as we check candidate plots (check if accurate) -->
 
@@ -2205,11 +2224,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: PHASE 1.1: general for non-bonus plots terrain/feature (not choppable ones) analysis -->
 			SASWorkerNoBonusBranch const* pNoBonusBranch = NULL;
 			bool bNoBonusLowFoodBranch = false;
-			int iNoBonusFarmValueAdjustment = 0;
-			int iNoBonusCottageValueAdjustment = 0;
-			int iNoBonusWorkshopValueAdjustment = 0;
-			int iNoBonusMineValueAdjustment = 0;
-			int iNoBonusWindmillValueAdjustment = 0;
+			// <!-- custom: Most no-bonus dynamic scoring is now improvement-independent inside the generic picker: low-food pressure rewards the buildable candidate with the best food yield, and irrigation pressure penalizes candidates that do not carry irrigation. Keep this small BuildTypes-indexed vector only for rare residual build-specific tweaks, e.g. the old Grass Hill Mine population adjustment. (ChatGPT-5.5 + GPT-5.5) -->
+			for (size_t iBuildAdjustment = 0; iBuildAdjustment < aNoBonusBuildValueAdjustments.size(); ++iBuildAdjustment)
+				aNoBonusBuildValueAdjustments[iBuildAdjustment] = 0;
 
 			// <!-- custom: Pass 3: choose no-bonus worker builds through the generic XML branch picker instead of terrain-local if/else build order. Terrain/feature code now selects the branch and adds context adjustments; the picker then lets all valid listed candidates compete after canBuild filtering. This keeps special food/workshop/irrigation heuristics while making XML base values the real ranking source. Flattened so feature override branches and terrain fallback branches share the same pipeline; each context is checked only while no usable branch has been found. (ChatGPT-5.5) -->
 			bool bNoBonusBranchSelected = false;
@@ -2218,7 +2235,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			{
 				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS);
 				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureFloodPlains, kPlot.isHills(), bNoBonusLowFoodBranch);
-				iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) + iFoodSupportFarmValue : iFoodSupportFarmValue);
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
 			if (!bNoBonusBranchSelected && eFeatureOasis != NO_FEATURE && eFeature == eFeatureOasis)
@@ -2226,7 +2242,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				// <!-- custom: Oasis feature branches are optional XML overrides. They are NONE by default and fall through to terrain logic; if a modmod fills them, listed builds compete normally through canBuild. (ChatGPT-5.5) -->
 				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS);
 				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureOasis, kPlot.isHills(), bNoBonusLowFoodBranch);
-				iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) + iFoodSupportFarmValue : iFoodSupportFarmValue);
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
 			if (!bNoBonusBranchSelected && eTerrain == eTerrainGrass)
@@ -2235,16 +2250,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				{
 					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL);
 					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, true, bNoBonusLowFoodBranch);
-					iNoBonusMineValueAdjustment = (!bNoBonusLowFoodBranch ? -100 + (50 * std::min(3, iCityPopulation)) : 0);
-					iNoBonusWindmillValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0);
+					if (eBuildMine != NO_BUILD && (int)eBuildMine < (int)aNoBonusBuildValueAdjustments.size())
+						aNoBonusBuildValueAdjustments[eBuildMine] = (!bNoBonusLowFoodBranch ? -100 + (50 * std::min(3, iCityPopulation)) : 0);
 				}
 				else
 				{
 					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT);
 					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, false, bNoBonusLowFoodBranch);
-					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
-					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
-					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : -iNonFoodIrrigationPathPenalty);
 				}
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
@@ -2259,9 +2271,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				{
 					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT || bCityLowFoodBFC);
 					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainPlains, false, bNoBonusLowFoodBranch);
-					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
-					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
-					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : -iNonFoodIrrigationPathPenalty);
 				}
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
@@ -2276,9 +2285,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				{
 					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT || bCityLowFoodBFC);
 					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainTundra, false, bNoBonusLowFoodBranch);
-					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
-					iNoBonusCottageValueAdjustment = -iNonFoodIrrigationPathPenalty;
-					iNoBonusWorkshopValueAdjustment = (bNoBonusLowFoodBranch ? 0 : -iNonFoodIrrigationPathPenalty);
 				}
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
@@ -2286,20 +2292,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			{
 				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT));
 				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainSnow, kPlot.isHills(), bNoBonusLowFoodBranch);
-				if (!kPlot.isHills())
-					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
 			if (!bNoBonusBranchSelected && eTerrain == eTerrainDesert)
 			{
 				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT));
 				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainDesert, kPlot.isHills(), bNoBonusLowFoodBranch);
-				if (!kPlot.isHills())
-					iNoBonusFarmValueAdjustment = (bNoBonusLowFoodBranch ? iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD * std::max(0, -iAdjustedFoodDifference) : 0) + iFoodSupportFarmValue;
 				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
 
-			if (pNoBonusBranch != NULL && !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pNoBonusBranch, eBuildFarm, eBuildCottage, eBuildWorkshop, eBuildMine, eBuildWindmill, iNoBonusFarmValueAdjustment, iNoBonusCottageValueAdjustment, iNoBonusWorkshopValueAdjustment, iNoBonusMineValueAdjustment, iNoBonusWindmillValueAdjustment, eBestSupposedBuild, iValue))
+			if (pNoBonusBranch != NULL && !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pNoBonusBranch, bNoBonusLowFoodBranch, iAdjustedFoodDifference, iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD, iFoodSupportFarmValue, iNonFoodIrrigationPathPenalty, aNoBonusBuildValueAdjustments, eBestSupposedBuild, iValue))
 			{
 				continue;
 			}
