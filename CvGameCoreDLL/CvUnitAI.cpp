@@ -1657,23 +1657,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure-->
 	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
 
-	// <!-- custom: modify these if needed in your mod -->
-    // Hardcoded BuildTypes for common feature removals for efficiency.
+	// <!-- custom: Hardcoded BuildTypes for common feature removals and worker build candidates used by the custom AI_bestCityBuild worker logic. (GPT-5.5) -->
     static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
     static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
-	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure-->
 	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
-
-	// <!-- custom:, camps (possibly other builds? But lazy to check xdhopefully accurate enough) can be built without removing feature forest or jungle, so handle them a bit differently here -->
-    static const BuildTypes eBuildCamp = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
-
-	// All Civ4 <!-- custom: as per our mod's xml most importantly i mean thanks still really i mean claude ai hehe for this sample and such --> bonuses that require camps
-	static const BonusTypes eBonusDeer = (BonusTypes)GC.getInfoTypeForString("BONUS_DEER");
-	static const BonusTypes eBonusElephants = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
-	static const BonusTypes eBonusFur = (BonusTypes)GC.getInfoTypeForString("BONUS_FUR");
-
-    // Define the BuildType constant for clarity.
-    // This directly refers to the action a worker takes.
     static const BuildTypes eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
     static const BuildTypes eBuildMine = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
     static const BuildTypes eBuildCottage = (BuildTypes)GC.getInfoTypeForString("BUILD_COTTAGE");
@@ -1699,6 +1686,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT");
 	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT");
 	static const int iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE");
+	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD");
+	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -1911,29 +1908,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 		if (eBonus != NO_BONUS)
 		{
+			BuildTypes const eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
+			bool const bCanBuildBonusSpecificBeforeFeatureRemoval = (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && (eFeature == NO_FEATURE || !GC.getInfo(eBonusSpecificBuild).isFeatureRemove(eFeature)));
 			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units -->
 			if (eFeature == eFeatureForest)
 			{
-				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection if a river or route or such is already there luckily/conveniently as well -->
-				if ((eBonus == eBonusDeer) || (eBonus == eBonusElephants) || (eBonus == eBonusFur))
+				// <!-- custom: Try the XML-inferred bonus-specific build before removing Forest/Jungle only when that build preserves the current feature. This keeps feature-preserving bonus builds like Camp generic while preventing Mine/Plantation/etc. from skipping the explicit feature-removal step merely because canBuild can remove the feature as part of the build. (GPT-5.5 + ChatGPT-5.5) -->
+				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
 				{
-					if (canBuild(kPlot, eBuildCamp))
-					{
-						eBestSupposedBuild = eBuildCamp;
-
-						iValue += 19000;
-					}
-					else if (canBuild(kPlot, eBuildRemoveForest))
-					{
-						eBestSupposedBuild = eBuildRemoveForest;
-
-						iValue += 19000;
-					}
-					else
-					{
-						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
-						continue;
-					}
+					eBestSupposedBuild = eBonusSpecificBuild;
+					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 				}
 				// <!-- custom: also handle silver or other bonuses on forest as well; we need to remove the forest else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
 				else
@@ -1941,8 +1925,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (canBuild(kPlot, eBuildRemoveForest))
 					{
 						eBestSupposedBuild = eBuildRemoveForest;
-
-						iValue += 19000;
+						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 					}
 					else
 					{
@@ -1953,26 +1936,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			}
 			else if (eFeature == eFeatureJungle)
 			{
-				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection if a river or route or such is already there luckily/conveniently as well -->
-				if ((eBonus == eBonusDeer) || (eBonus == eBonusElephants) || (eBonus == eBonusFur))
+				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
 				{
-					if (canBuild(kPlot, eBuildCamp))
-					{
-						eBestSupposedBuild = eBuildCamp;
-
-						iValue += 19000;
-					}
-					else if (canBuild(kPlot, eBuildRemoveJungle))
-					{
-						eBestSupposedBuild = eBuildRemoveJungle;
-
-						iValue += 19000;
-					}
-					else
-					{
-						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
-						continue;
-					}
+					eBestSupposedBuild = eBonusSpecificBuild;
+					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 				}
 				// <!-- custom: also handle gemstones or other bonuses on jungle as well; we need to remove the jungle else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
 				else
@@ -1980,8 +1947,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (canBuild(kPlot, eBuildRemoveJungle))
 					{
 						eBestSupposedBuild = eBuildRemoveJungle;
-
-						iValue += 19000;
+						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 					}
 					else
 					{
@@ -1998,7 +1964,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					eBestSupposedBuild = eBuildScrubFallout;
 
 					// <!-- custom: more important than improving any bonus, and add some value so it is also more important than scrubing non-bonus fallout tiles (not sure it makes a difference since we want to clear all fallout anyway before improving any bonus but maybe the distinction helps if we change the code someday or someone does it or such) -->
-					iValue += 150000;
+					iValue += iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE;
 				}
 				else
 				{
@@ -2010,7 +1976,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			else
 			{
 				// <!-- custom: find the bonus's bonus-specific build first -->
-				BuildTypes const eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
 				if (eBonusSpecificBuild == NO_BUILD)
 				{
 					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or ineffective way worked aorund patched in a bad way i'd say-->
@@ -2040,32 +2005,32 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					int const bonusCommerceYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_COMMERCE);
 					int const bonusProductionYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_PRODUCTION);
 
-					// Give a <!-- custom: very high value (avoid multiplying for any weird bug or such, addition by a big number would produce more consistent or reliable results i think if i may say and) --> for any unimproved bonus.
-					iValue += 20000;
+					// <!-- custom: Bonus-specific build priorities now use SAS defines, preserving the old strong base bonus value and food/production/commerce ordering while making the weights tunable from XML. (GPT-5.5) -->
+					iValue += iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE;
 
 					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too), so multiply it even further than the base any unimproved bonus multiplier -->
 					// Give an even bigger multiplier if the bonus is a FOOD bonus.
 					if (bonusFoodYieldChange > 0)
-						iValue += (8 * bonusFoodYieldChange * 500);
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD * bonusFoodYieldChange;
 					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such, i hope in most cases it would make AI more efficient -->
 					if (bonusProductionYieldChange > 0)
-						iValue += (4 * bonusProductionYieldChange * 500);
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION * bonusProductionYieldChange;
 					// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe, but it needs to be a lot and more generally i would say -->
 					if (bonusCommerceYieldChange > 0)
-						iValue += (2 * bonusCommerceYieldChange * 500);
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE * bonusCommerceYieldChange;
 				}
 				// The bonus-specific improvement is not yet available and there was no feature to chop.
-				// <!-- custom: one exception to the general ignore rule below as of now, an irrigated farm for example on banana is quite attractive, even if inefficient, is not too long to build, and the yields are good; but if food is low such as in plains or tundra terrains, we may also build a farm if tile has enough food; also since farms only give food yield and 1 food as of now early in particular, aim for at least 4+ total plot food to consider building it, so for grass + 2 extra total food yield (one from farm early, one at least from bonus), but for plains to reach +3 total extra food, we'd need one from farm early as well, plus 2 at least from bonus yield to make it worth our while if i may say too in this case, food is very worth it especially early overall, so consider this to be a good move for the AI, leaving an unusually high food plot even if weirdly/unefficiently improved may not be good, hopefully this makes AI stronger -->
+				// <!-- custom: One exception to the general ignore rule below: a temporary Farm can be worthwhile on a high-food bonus before its bonus-specific build is available, e.g. irrigated Bananas. Require the configured total bonus + Farm food threshold so workers do not waste turns on weak temporary farms. (GPT-5.5) -->
 				else if (canBuild(kPlot, eBuildFarm))
 				{
 					int const totalFarmBonusFoodYield = bonusFoodYieldChange + kPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner());
 
-					if (((eTerrain == eTerrainGrass) && (totalFarmBonusFoodYield >= 3)) ||
-					(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && (totalFarmBonusFoodYield >= 3)))
+					if (((eTerrain == eTerrainGrass) && (totalFarmBonusFoodYield >= iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD)) ||
+					(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && (totalFarmBonusFoodYield >= iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD)))
 					{
 						eBestSupposedBuild = eBuildFarm;
 
-						iValue += 18000;
+						iValue += iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE;
 					}
 				}
 				// <!-- custom: else fall back to general rule: ignore until better conditions, we can't build bonus specific build nor the farm alternatively, ignore for now -->
@@ -2080,10 +2045,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 			// <!-- custom: if current iValue is high enough, most likely it means that we are improving this bonus, if so, increase value if it's one of the iAIObjective bonuses -->
 			// <!-- custom: avoid 1 just in case it creates weird issues -->
-			if (iValue >= 10000)
+			if (iValue >= iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE)
 			{
 				// <!-- custom: make sure we improve it first before anything else -->
-				iValue += (2000 * iAIObjectiveBonus);
+				iValue += iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT * iAIObjectiveBonus;
 			}
 		}
 
@@ -21193,6 +21158,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 	CvPlot const* pBestPlot = NULL;
 	int iBestValue = 0;
 	bool bCanRoute = canBuildRoute();
+	static const int iSAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
@@ -21328,7 +21294,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		}
 		// <!-- custom: improve iron before stone -->
 		// iValue += std::max(0, 100 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
-		iValue += std::max(0, 20000 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+		iValue += std::max(0, iSAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT * GC.getInfo(eNonObsoleteBonus).getAIObjective());
 
 
 		if(kOwner.getNumTradeableBonuses(eNonObsoleteBonus) == 0)
