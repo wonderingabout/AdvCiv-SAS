@@ -13,8 +13,7 @@ public:
 	DllExport static void freeInstance();
 
 	//	This will parse the help for the widget
-	DllExport void parseHelp(CvWStringBuffer &szBuffer,
-			CvWidgetDataStruct &widgetDataExternal);
+	DllExport void parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &widgetDataExternal);
 	//	This will execute the action for the widget
 	DllExport bool executeAction(CvWidgetDataStruct &widgetDataStructExternal);
 	//	This will execute an alternate action for the widget
@@ -74,8 +73,7 @@ protected:
 	void parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseActionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	// <advc>
-	void parseActionHelp_Mission(CvActionInfo const& kAction, CvUnit const& kUnit,
-			MissionTypes eMission, CvWStringBuffer& szBuffer); // </advc>
+	void parseActionHelp_Mission(CvActionInfo const& kAction, CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer); // </advc>
 	void parseCitizenHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFreeCitizenHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseDisabledCitizenHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
@@ -215,8 +213,7 @@ protected:
 	void parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	// K-Mod end  <advc.ctr>
-	bool parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity,
-			PlayerTypes& eWhoTo) const; // </advc.ctr>
+	bool parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity, PlayerTypes& eWhoTo) const; // </advc.ctr>
 };
 
 #endif

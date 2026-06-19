@@ -76,8 +76,7 @@ public:
 		return true;
 	}
 	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const;
-	int cost(CvPlot const& kFrom, CvPlot const& kTo,
-		PathNode const& kParentNode) const
+	int cost(CvPlot const& kFrom, CvPlot const& kTo, PathNode const& kParentNode) const
 	{
 		return cost(kFrom, kTo); // disregard kParentNode
 	}
@@ -101,8 +100,7 @@ public:
 	/*	ctor allowing m_pTeam to be set later so that different teams
 		can use the same node map w/o memory reallocation */
 	TeamPathFinder() : m_pTeam(NULL), m_iHeuristicWeight(-1) {}
-	void init(CvTeam const& kTeam, CvTeam const* pWarTarget = NULL,
-		int iMaxPath = -1)
+	void init(CvTeam const& kTeam, CvTeam const* pWarTarget = NULL, int iMaxPath = -1)
 	{
 		m_pTeam = &kTeam;
 		if (eMODE == TeamPath::LAND)

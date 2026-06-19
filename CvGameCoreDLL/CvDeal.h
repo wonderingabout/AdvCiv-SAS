@@ -21,13 +21,11 @@ public:
 	{
 		kill(bKillTeam, NO_PLAYER);
 	}
-	void kill(bool bKillTeam, PlayerTypes eCancelPlayer, // </advc.130p>
-			bool bNoSound = false); // advc.002l
+	// </advc.130p> <!-- custom: hoisted from multiline signature between `eCancelPlayer` and `bNoSound` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void kill(bool bKillTeam, PlayerTypes eCancelPlayer, bool bNoSound = false); // advc.002l
 	// advc.036:
-	void killSilent(bool bKillTeam = true, bool bUpdateAttitude = true,
-			PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
-	void addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData>& kSecondList,
-			bool bCheckAllowed);
+	void killSilent(bool bKillTeam = true, bool bUpdateAttitude = true, PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
+	void addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData>& kSecondList, bool bCheckAllowed);
 
 	void doTurn();
 	void verify();
@@ -151,16 +149,14 @@ protected:
 		return m_secondList;
 	} // </advc>
 
-	bool startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
-			bool bPeace, bool& bPeaceTreatyImplied); // advc.ctr
-	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam,
-			bool bUpdateAttitude = true, // advc.036
-			PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
+	bool startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bPeace, bool& bPeaceTreatyImplied); // advc.ctr
+	// advc.036 <!-- custom: hoisted from multiline signature between `bUpdateAttitude` and `eCancelPlayer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, bool bUpdateAttitude = true, PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
 	void startTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam, bool bDual);
 	void endTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam);
-	void announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther, // advc
-			bool bForce, // advc.106j
-			bool bNoSound) const; // advc.002l
+	// advc <!-- custom: hoisted from multiline signature between `eOther` and `bForce` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.106j <!-- custom: hoisted from multiline signature between `bForce` and `bNoSound` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther, bool bForce, bool bNoSound) const; // advc.002l
 	bool verify(PlayerTypes eRecipient, PlayerTypes eGiver);
 	// advc: was public
 	bool isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReason = NULL) const;

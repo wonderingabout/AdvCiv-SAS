@@ -305,8 +305,7 @@ bool MilitaryBranch::isValidDomain(DomainTypes eDomain) const
 }
 
 
-scaled MilitaryBranch::HomeGuard::initTotals(int iNonNavalUnits,
-	scaled rNonNavalPower)
+scaled MilitaryBranch::HomeGuard::initTotals(int iNonNavalUnits, scaled rNonNavalPower)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	// Akin to list in CvUnitAI::AI_isCityAIType

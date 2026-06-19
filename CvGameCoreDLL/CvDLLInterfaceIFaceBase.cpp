@@ -27,11 +27,7 @@ namespace
 	}
 }
 
-void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
-	int iLength, CvWString szString, LPCTSTR pszSound,
-	InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor,
-	int iFlashX, int iFlashY, bool bShowOffScreenArrows,
-	bool bShowOnScreenArrows)
+void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor, int iFlashX, int iFlashY, bool bShowOffScreenArrows, bool bShowOnScreenArrows)
 {
 	// <advc>
 	if (iLength == -1)
@@ -87,10 +83,7 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
 			bShowOffScreenArrows, bShowOnScreenArrows);
 }
 
-void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
-	int iLength, CvWString szString, CvPlot const& kPlot,
-	LPCTSTR pszSound, InterfaceMessageTypes eType, LPCSTR pszIcon,
-	ColorTypes eFlashColor, bool bShowOffScreenArrows, bool bShowOnScreenArrows)
+void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, CvPlot const& kPlot, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor, bool bShowOffScreenArrows, bool bShowOnScreenArrows)
 {
 	addMessage(ePlayer, bForce, iLength, szString, pszSound, eType, pszIcon,
 			eFlashColor, kPlot.getX(), kPlot.getY(),

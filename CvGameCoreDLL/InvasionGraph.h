@@ -83,9 +83,7 @@ public:
 		PlyrSet const& getTargetedBy() const { return m_targetedBy; }
 		/*	To be called on the attacker. Caller needs to delete the result.
 			Last two parameters only for clash steps */
-		SimulationStep* step(scaled rArmyPortionDefender = 0,
-				scaled rArmyPortionAttacker = 1, bool bClashOnly = false,
-				bool bUniformGarrisons = false) const;
+		SimulationStep* step(scaled rArmyPortionDefender = 0, scaled rArmyPortionAttacker = 1, bool bClashOnly = false, bool bUniformGarrisons = false) const;
 		void applyStep(SimulationStep const& kStep); // To be called on the defender
 		void setEliminated(bool b) { m_bEliminated = b; }
 		bool isEliminated() const { return m_bEliminated; }

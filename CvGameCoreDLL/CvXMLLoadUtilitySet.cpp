@@ -1204,8 +1204,7 @@ void CvXMLLoadUtility::SetGlobalAnimationPathInfo(CvAnimationPathInfo** ppAnimat
 
 
 // Reads game text info from XML and adds it to the translation manager
-void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagName,
-	std::string const& sLanguageName) // K-Mod
+void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagName, std::string const& sLanguageName) // K-Mod
 {
 	PROFILE_FUNC();
 	logMsg("SetGameText %s\n", szTagName);
@@ -1238,9 +1237,8 @@ void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagNam
 	Takes the szTagName parameter and loads the ppszString with the text values
 	under the tags. This will be the hints displayed during game initialization and load. */
 template <class T>
-void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName,
-	bool bPassTwo, // advc.rh: Renamed from bTwoPass
-	bool bFinalCall) // advc.xmldefault
+// advc.rh: Renamed from bTwoPass <!-- custom: hoisted from multiline signature between `bPassTwo` and `bFinalCall` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bPassTwo, bool bFinalCall) // advc.xmldefault
 {
 	char szLog[256];
 	sprintf(szLog, "SetGlobalClassInfo (%s)", szTagName);
@@ -1386,10 +1384,7 @@ void CvXMLLoadUtility::SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfo
 }
 
 template <class T>
-void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
-	const char* szFileRoot, const char* szFileDirectory,
-	const char* szXmlPath, bool bTwoPass,
-	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
+void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, bool bTwoPass, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
 {
 	//GC.addToInfosVectors(aInfos); // advc.enum (no longer needed)
 	#if ENABLE_XML_FILE_CACHE
@@ -1506,9 +1501,7 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
 }
 
 
-void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos,
-	const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath,
-	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
+void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
 {
 	#if ENABLE_XML_FILE_CACHE
 	bool bLoaded = false;
@@ -1781,8 +1774,7 @@ void CvXMLLoadUtility::XMLTagPairIteratorBase::setToParent()
 }
 
 template<typename T>
-CvXMLLoadUtility::XMLTagPairIterator<T>::XMLTagPairIterator(
-	CvXMLLoadUtility& kUtil, TCHAR const* szRootTagName)
+CvXMLLoadUtility::XMLTagPairIterator<T>::XMLTagPairIterator(CvXMLLoadUtility& kUtil, TCHAR const* szRootTagName)
 :	XMLTagPairIteratorBase(kUtil), m_iSiblingIndex(0), m_iSiblings(0)
 {
 	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pParser, szRootTagName))
@@ -1850,9 +1842,7 @@ DO_FOR_EACH_STATIC_INFO_TYPE(INSTANTIATE_XML_TAG_PAIR_ITERATOR);
 // </advc.003t>
 // <advc.enum>
 template<class EncodableMap>
-CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::XMLTagPairRateIterator(
-	CvXMLLoadUtility& kUtil, TCHAR const* szTagName,
-	TCHAR const* szKeyTagName, TCHAR const* szRateTagName)
+CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::XMLTagPairRateIterator(CvXMLLoadUtility& kUtil, TCHAR const* szTagName, TCHAR const* szKeyTagName, TCHAR const* szRateTagName)
 :	XMLTagPairIteratorBase(kUtil), m_iSiblingIndex(0), m_iSiblings(0), m_aiRates(NULL)
 {
 	/*	The flat structure is used by Civ4EventInfos.xml. I'd like to change that to the
@@ -1955,8 +1945,7 @@ template CvXMLLoadUtility::XMLTagPairRateIterator<CommerceChangeMap>;
 template CvXMLLoadUtility::XMLTagPairRateIterator<CommercePercentMap>;
 // </advc.enum>
 
-void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
-	TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal)
+void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList, TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal)
 {
 	// <advc.xmldefault>
 	if (*ppszList != NULL)
@@ -2027,8 +2016,7 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
 }
 
 // allocate and initialize a list from a tag pair in the xml for audio scripts
-void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName,
-	int iInfoBaseLength, int iDefaultListVal)
+void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName, int iInfoBaseLength, int iDefaultListVal)
 {
 	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szRootTagName))
 	{

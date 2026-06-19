@@ -52,14 +52,9 @@ public:
 	void updateYield();
 	void updateVisibility();
 
-	void createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold,								// Exposed to Python
-			 bool bIncrementExperience) const;
-	void doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false,						// Exposed to Python
-			bool bAlt = false, bool bShift = false, bool bCtrl = false);
-	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT,														// Exposed to Python
-			BuildingTypes eConstructBuilding = NO_BUILDING,
-			ProjectTypes eCreateProject = NO_PROJECT,
-			bool bFinish = false, bool bFront = false);
+	void createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold, bool bIncrementExperience) const; // Exposed to Python
+	void doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false); // Exposed to Python
+	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false); // Exposed to Python
 	// <advc.003u> Moved from CvCityAI b/c it's also used to trigger human choose-production popups
 	bool isChooseProductionDirty() const
 	{
@@ -86,8 +81,7 @@ public:
 	int findYieldRateRank(YieldTypes eYield) const;																// Exposed to Python
 	int findCommerceRateRank(CommerceTypes eCommerce) const;													// Exposed to Python
 
-	UnitTypes allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount = 0,										// Exposed to Python
-			BonusTypes eAssumeVailable = NO_BONUS) const; // advc.001u
+	UnitTypes allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount = 0, BonusTypes eAssumeVailable = NO_BONUS) const; // advc.001u; Exposed to Python
 	bool isWorldWondersMaxed() const;																			// Exposed to Python
 	bool isTeamWondersMaxed() const;																			// Exposed to Python
 	bool isNationalWondersMaxed() const;																		// Exposed to Python
@@ -95,15 +89,11 @@ public:
 	bool isBuildingsMaxed() const;																				// Exposed to Python
 
 	void verifyProduction(); // advc.064d: public wrapper for doCheckProduction
-	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false,							// Exposed to Python
-			bool bIgnoreCost = false, bool bIgnoreUpgrades = false,
-			bool bCheckAirUnitCap = true, // advc.001b
-			BonusTypes eAssumeVailable = NO_BONUS) const; // advc.001u
+	// advc.001b <!-- custom: hoisted from multiline signature between `bCheckAirUnitCap` and `eAssumeVailable` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUpgrades = false, bool bCheckAirUnitCap = true, BonusTypes eAssumeVailable = NO_BONUS) const; // advc.001u; Exposed to Python
 	bool canUpgradeTo(UnitTypes eUnit) const; // advc.001b
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
-	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false,											// Exposed to Python
-			bool bTestVisible = false, bool bIgnoreCost = false,
-			bool bIgnoreTech = false) const; // K-Mod
+	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreTech = false) const; // K-Mod; Exposed to Python
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;				// Exposed to Python
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;										// Exposed to Python
 	bool canJoin() const;																						// Exposed to Python
@@ -117,8 +107,7 @@ public:
 	bool isProductionProcess() const;																			// Exposed to Python
 
 	bool canContinueProduction(OrderData order);																// Exposed to Python
-	int getProductionExperience(UnitTypes eUnit = NO_UNIT,														// Exposed to Python
-			bool bScore = false) const; // advc.002f
+	int getProductionExperience(UnitTypes eUnit = NO_UNIT, bool bScore = false) const; // advc.002f; Exposed to Python
 	void addProductionExperience(CvUnit* pUnit, bool bConscript = false);										// Exposed to Python
 
 	UnitTypes getProductionUnit() const;																		// Exposed to Python
@@ -146,10 +135,8 @@ public:
 	int getProductionTurnsLeft(UnitTypes eUnit, int iNum) const;												// Exposed to Python
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;										// Exposed to Python
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;											// Exposed to Python
-	int getProductionTurnsLeft(int iProductionNeeded, int iProduction,
-			int iFirstProductionDifference, int iProductionDifference) const;
-	int sanitizeProductionTurns(int iTurns, OrderTypes eOrder = NO_ORDER,
-			int iData = -1, bool bAssert = false) const; // advc.004x
+	int getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iFirstProductionDifference, int iProductionDifference) const;
+	int sanitizeProductionTurns(int iTurns, OrderTypes eOrder = NO_ORDER, int iData = -1, bool bAssert = false) const; // advc.004x
 	void setProduction(int iNewValue);																			// Exposed to Python
 	void changeProduction(int iChange);																			// Exposed to Python
 
@@ -159,16 +146,11 @@ public:
 	int getProductionModifier(ProjectTypes eProject) const;														// Exposed to Python
 	// advc.003j: Vanilla Civ 4 declaration that never had an implementation
 	//int getOverflowProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, int iDiff, int iModifiedProduction) const;
-	int getProductionDifference(int iProductionNeeded, int iProduction,
-			int iProductionModifier, bool bFoodProduction, bool bOverflow,
-			// <advc.064bc>
-			bool bIgnoreFeatureProd = false, bool bIgnoreYieldRate = false,
-			bool bForceFeatureProd = false, int* piFeatureProd = NULL) const;
+	// <advc.064bc> <!-- custom: hoisted from multiline signature between `bOverflow` and `bIgnoreFeatureProd` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int getProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, bool bOverflow, bool bIgnoreFeatureProd = false, bool bIgnoreYieldRate = false, bool bForceFeatureProd = false, int* piFeatureProd = NULL) const;
 			// </advc.064bc>
-	int getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow,										// Exposed to Python
-			// <advc.064bc>
-			bool bIgnoreFeatureProd = false, bool bIgnoreYieldRate = false,
-			bool bForceFeatureProd = false, int* iFeatureProdReturn = NULL) const;
+	// <advc.064bc> <!-- custom: hoisted from multiline signature between `bOverflow` and `bIgnoreFeatureProd` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow, bool bIgnoreFeatureProd = false, bool bIgnoreYieldRate = false, bool bForceFeatureProd = false, int* iFeatureProdReturn = NULL) const; // Exposed to Python
 			// </advc.064bc>
 	int getExtraProductionDifference(int iExtra) const															// Exposed to Python
 	{
@@ -179,15 +161,12 @@ public:
 	void hurry(HurryTypes eHurry);																				// Exposed to Python
 	// <advc.064b>
 	int overflowCapacity(int iProductionModifier, int iPopulationChange = 0) const;
-	int computeOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType,
-			int* piProductionGold = NULL, int* piLostProduction = NULL,
-			int iPopulationChange = 0) const;
+	int computeOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType, int* piProductionGold = NULL, int* piLostProduction = NULL, int iPopulationChange = 0) const;
 	int minPlotProduction() const
 	{	// Let pop-hurry ignore guaranteed production
 		return 0;/*GC.getInfo(YIELD_PRODUCTION).getMinCity()*/
 	} // (exposed to Python) </advc.064b>  <advc.064>
-	bool hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold,
-			bool bCountThisTurn = false) const;		// (exposed to Python)
+	bool hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold, bool bCountThisTurn = false) const; // (exposed to Python)
 	// </advc.064>
 	// <advc.912d>
 	bool canPopRush() const;
@@ -280,8 +259,7 @@ public:
 	int healthRate(bool bNoAngry = false, int iExtra = 0) const;												// Exposed to Python
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;											// Exposed to Python
 	int foodDifference(bool bBottom = true, bool bIgnoreProduction = false) const;	// Exposed to Python, K-Mod added bIgnoreProduction
-	int growthThreshold(/* <advc.064b> */int iPopulationChange = 0,												// Exposed to Python
-			bool bIgnoreModifiers = false) const; // </advc.064b>
+	int growthThreshold(/* <advc.064b> */int iPopulationChange = 0, bool bIgnoreModifiers = false) const; // </advc.064b>; Exposed to Python
 
 	int productionLeft() const { return (getProductionNeeded() - getProduction()); }							// Exposed to Python
 	int hurryCost(bool bExtra) const																			// Exposed to Python
@@ -305,9 +283,8 @@ public:
 
 	static int cultureDistance(int iDX, int iDY); // advc: static												// Exposed to Python
 	enum GrievanceTypes { GRIEVANCE_HURRY, GRIEVANCE_CONSCRIPT, GRIEVANCE_RELIGION }; // advc.101
-	int cultureStrength(PlayerTypes ePlayer,																	// Exposed to Python
-			bool bIgnoreWar = false, bool bIgnoreOccupation = false, // advc.023
-			std::vector<GrievanceTypes>* paGrievances = NULL) const; // advc.101
+	// advc.023 <!-- custom: hoisted from multiline signature between `bIgnoreOccupation` and `paGrievances` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int cultureStrength(PlayerTypes ePlayer, bool bIgnoreWar = false, bool bIgnoreOccupation = false, std::vector<GrievanceTypes>* paGrievances = NULL) const; // advc.101; Exposed to Python
 	int cultureGarrison(PlayerTypes ePlayer) const;																// Exposed to Python
 	PlayerTypes calculateCulturalOwner() const; // advc.099c
 
@@ -319,8 +296,7 @@ public:
 		return (getNumActiveWorldWonders(1) > 0); // advc
 	}
 	// UNOFFICIAL_PATCH, Bugfix, 03/04/10, Mongoose & jdog5000:
-	int getNumActiveWorldWonders(/* advc: */ int iStopCountAt = MAX_INT,
-			PlayerTypes eOwner = NO_PLAYER) const; // advc.104d: Hypothetical owner
+	int getNumActiveWorldWonders(/* advc: */ int iStopCountAt = MAX_INT, PlayerTypes eOwner = NO_PLAYER) const; // advc.104d: Hypothetical owner
 
 	int getReligionCount() const { return m_abHasReligion.numNonDefault(); } // advc.opt							// Exposed to Python
 	int getCorporationCount() const { return m_abHasCorporation.numNonDefault(); } // advc.opt					// Exposed to Python
@@ -433,19 +409,14 @@ public:
 	int calculateNumCitiesMaintenanceTimes100(PlayerTypes eOwner = NO_PLAYER) const;							// Exposed to Python
 	// </advc.104>
 	// <advc.004b> A projection for cities yet to be founded
-	static int calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot,
-			PlayerTypes eOwner, int iPopulation = -1,
-			bool bNoPlayerModifiers = false);
-	static int calculateNumCitiesMaintenanceTimes100(CvPlot const& kCityPlot,
-			PlayerTypes eOwner, int iPopulation = -1, int iExtraCities = 0);
-	static int calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
-			PlayerTypes eOwner, int iPopulation = -1, int iExtraCities = 0);
+	static int calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot, PlayerTypes eOwner, int iPopulation = -1, bool bNoPlayerModifiers = false);
+	static int calculateNumCitiesMaintenanceTimes100(CvPlot const& kCityPlot, PlayerTypes eOwner, int iPopulation = -1, int iExtraCities = 0);
+	static int calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot, PlayerTypes eOwner, int iPopulation = -1, int iExtraCities = 0);
 	static int initialPopulation();
 	// </advc.004b>
 	int calculateCorporationMaintenanceTimes100(CorporationTypes eCorporation) const;							// Exposed to Python
 	int calculateCorporationMaintenanceTimes100() const;														// Exposed to Python
-	int calculateBaseMaintenanceTimes100(
-			PlayerTypes eOwner = NO_PLAYER) const; // advc.ctr
+	int calculateBaseMaintenanceTimes100(PlayerTypes eOwner = NO_PLAYER) const; // advc.ctr
 	int getMaintenanceModifier() const { return m_iMaintenanceModifier; }										// Exposed to Python
 	void changeMaintenanceModifier(int iChange);
 
@@ -470,13 +441,8 @@ public:
 	int getSurroundingBadHealth() const { return m_iSurroundingBadHealth; }										// Exposed to Python
 	void updateSurroundingHealthHappiness();
 	// <advc.901>
-	void calculateHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNewImprov,
-			ImprovementTypes eOldImprov, bool bRemoveFeature, int& iHappyChange,
-			int& iHealthChange, int& iHealthPercentChange) const;
-	void goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNewImprov,
-			ImprovementTypes eOldImprov, bool bRemoveFeature, int& iHappyChange,
-			int& iUnhappyChange, int& iGoodHealthChange, int& iBadHealthChange,
-			int& iGoodHealthPercentChange, int& iBadHealthPercentChange) const;
+	void calculateHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNewImprov, ImprovementTypes eOldImprov, bool bRemoveFeature, int& iHappyChange, int& iHealthChange, int& iHealthPercentChange) const;
+	void goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNewImprov, ImprovementTypes eOldImprov, bool bRemoveFeature, int& iHappyChange, int& iUnhappyChange, int& iGoodHealthChange, int& iBadHealthChange, int& iGoodHealthPercentChange, int& iBadHealthPercentChange) const;
 	// </advc.901>
 	// BUG - Actual Effects - start
 	int getAdditionalAngryPopuplation(int iGood, int iBad) const;
@@ -526,8 +492,7 @@ public:
 	void updateExtraBuildingHealth();
 
 	// BETTER_BTS_AI_MOD, from BUG, 02/24/10, EmperorFool:
-	int getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad,
-			bool bAssumeStrategicBonuses = false) const; // advc.001h
+	int getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad, bool bAssumeStrategicBonuses = false) const; // advc.001h
 
 	int getSurroundingGoodHappiness() const { return m_iSurroundingGoodHappiness; }								// Exposed to Python
 	int getSurroundingBadHappiness() const { return m_iSurroundingBadHappiness; }								// Exposed to Python
@@ -769,8 +734,7 @@ public:
 	int calculateTradeProfitTimes100(CvCity const* pCity) const; // advc.004
 	int calculateTradeYield(YieldTypes eYield, int iTradeProfit) const;											// Exposed to Python
 	// BULL - Trade Hover - start
-	void calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes,
-			int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer = NO_PLAYER) const;
+	void calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer = NO_PLAYER) const;
 	// BULL - Trade Hover - end
 	void setTradeYield(YieldTypes eYield, int iNewValue);
 
@@ -817,25 +781,21 @@ public:
 	}
 	void changeSpecialistCommerce(CommerceTypes eCommerce, int iChange);										// Exposed to Python
 	// BUG - Specialist Additional Commerce - start
-	int getAdditionalCommerceBySpecialist(CommerceTypes eCommerce,												// Exposed to Python
-		SpecialistTypes eSpecialist, int iChange = 1) const
+	// Exposed to Python <!-- custom: hoisted from multiline signature between `eCommerce` and `eSpecialist` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int getAdditionalCommerceBySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const
 	{
 		return getAdditionalCommerceTimes100BySpecialist(eCommerce, eSpecialist, iChange) / 100;
 	}
-	int getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce,										// Exposed to Python
-			SpecialistTypes eSpecialist, int iChange = 1) const;
-	int getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce,										// Exposed to Python
-			SpecialistTypes eSpecialist, int iChange = 1) const;
-	int getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce,
-			SpecialistTypes eSpecialist, int iChange = 1) const;
+	int getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const; // Exposed to Python
+	int getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const; // Exposed to Python
+	int getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const;
 	// BUG - Specialist Additional Commerce - end
 
 	int getReligionCommerce(CommerceTypes eCommerce) const														// Exposed to Python
 	{
 		return m_aiReligionCommerce.get(eCommerce);
 	}
-	int getReligionCommerceByReligion(CommerceTypes eCommerce,													// Exposed to Python
-			ReligionTypes eReligion, bool bForce = false) const; //advc
+	int getReligionCommerceByReligion(CommerceTypes eCommerce, ReligionTypes eReligion, bool bForce = false) const; // advc; Exposed to Python
 	void updateReligionCommerce(CommerceTypes eCommerce);
 	void updateReligionCommerce();
 
@@ -889,13 +849,11 @@ public:
 	int countTotalCultureTimes100() const;																		// Exposed to Python
 	PlayerTypes findHighestCulture() const;																		// Exposed to Python
 	// advc.101:  (advc.ctr: exposed to Python)
-	scaled revoltProbability( // <advc.023>
-			bool bIgnoreWar = false, bool biIgnoreGarrison = false,
-			bool bIgnoreOccupation = false) const;
+	// <advc.023> <!-- custom: hoisted from multiline signature before `bIgnoreWar` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	scaled revoltProbability(bool bIgnoreWar = false, bool biIgnoreGarrison = false, bool bIgnoreOccupation = false) const;
 	scaled probabilityOccupationDecrement() const; // </advc.023>
 	// K-Mod: (advc.ctr: exposed to Python)
-	bool canCultureFlip(PlayerTypes eToPlayer /* <advc.101> */ = NO_PLAYER,
-			bool bCheckPriorRevolts = true) const; // </advc.101>
+	bool canCultureFlip(PlayerTypes eToPlayer /* <advc.101> */ = NO_PLAYER, bool bCheckPriorRevolts = true) const; // </advc.101>
 	bool isMartialLaw(PlayerTypes eRevoltPlayer) const; // advc.023
 	int calculateCulturePercent(PlayerTypes ePlayer) const;														// Exposed to Python
 	int calculateTeamCulturePercent(TeamTypes eTeam) const;														// Exposed to Python
@@ -947,8 +905,7 @@ public:
 
 	DllExport const CvWString getName(uint uiForm = 0) const;													// Exposed to Python
 	DllExport const wchar* getNameKey() const;																	// Exposed to Python
-	void setName(const wchar* szNewValue, bool bFound = false,													// Exposed to Python
-			bool bInitial = false); // advc.106k
+	void setName(const wchar* szNewValue, bool bFound = false, bool bInitial = false); // advc.106k; Exposed to Python
 	void doFoundMessage();
 
 	// Script data needs to be a narrow string for pickling in Python
@@ -969,8 +926,7 @@ public:
 	{
 		return (getNumBonuses(eBonus) > 0);
 	}
-	void changeNumBonuses(BonusTypes eBonus, int iChange,
-			bool bVerifyProduction = true); // advc.064d
+	void changeNumBonuses(BonusTypes eBonus, int iChange, bool bVerifyProduction = true); // advc.064d
 	int countUniqueBonuses() const; // advc.149
 	int getNumCorpProducedBonuses(BonusTypes eBonus) const
 	{
@@ -1151,10 +1107,8 @@ public:
 		return m_aiNumRealBuilding.get(eBuilding);
 	}
 	int getNumRealBuilding(BuildingClassTypes eBuildingClass) const; // advc.003w
-	void setNumRealBuilding(BuildingTypes eBuilding, int iNewValue,												// Exposed to Python
-			bool bEndOfTurn = false); // advc.001x
-	void setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, bool bFirst,
-			PlayerTypes eOriginalOwner, int iOriginalTime, /* advc.001x */ bool bEndOfTurn = false);
+	void setNumRealBuilding(BuildingTypes eBuilding, int iNewValue, bool bEndOfTurn = false); // advc.001x; Exposed to Python
+	void setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, /* advc.001x */ bool bEndOfTurn = false);
 	//bool isValidBuildingLocation(BuildingTypes eBuilding) const; // advc: Replaced by CvPlot::canConstruct
 
 	int getNumFreeBuilding(BuildingTypes eBuilding) const														// Exposed to Python
@@ -1170,15 +1124,13 @@ public:
 	{
 		return m_abHasReligion.get(eReligion);
 	}
-	void setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnounce, bool bArrows = true,
-			PlayerTypes eSpreadPlayer = NO_PLAYER); // advc.106e
+	void setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnounce, bool bArrows = true, PlayerTypes eSpreadPlayer = NO_PLAYER); // advc.106e
 	int getReligionGrip(ReligionTypes eReligion) const; // K-Mod
 	bool isHasCorporation(CorporationTypes eCorp) const															// Exposed to Python
 	{
 		return m_abHasCorporation.get(eCorp);
 	}
-	void setHasCorporation(CorporationTypes eCorp, bool bNewValue,
-			bool bAnnounce, bool bArrows = true);
+	void setHasCorporation(CorporationTypes eCorp, bool bNewValue, bool bAnnounce, bool bArrows = true);
 
 	CvCity* getTradeCity(int iIndex) const;																		// Exposed to Python
 	int getTradeRoutes() const;																					// Exposed to Python
@@ -1188,11 +1140,9 @@ public:
 	void clearOrderQueue();																						// Exposed to Python
 	//void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bForce = false);
 	// K-Mod. (the old version is still exposed to Python)
-	void pushOrder(OrderTypes eOrder, int iData1, int iData2 = -1, bool bSave = false,
-			bool bPop = false, int iPosition = 0, bool bForce = false);
+	void pushOrder(OrderTypes eOrder, int iData1, int iData2 = -1, bool bSave = false, bool bPop = false, int iPosition = 0, bool bForce = false);
 	enum ChooseProductionPlayers { NONE_CHOOSE, HUMAN_CHOOSE, AI_CHOOSE, ALL_CHOOSE }; // advc.064d
-	void popOrder(int iNum, bool bFinish = false, ChooseProductionPlayers eChoose = NONE_CHOOSE,				// Exposed to Python
-			bool bEndOfTurn = true); // advc.001x
+	void popOrder(int iNum, bool bFinish = false, ChooseProductionPlayers eChoose = NONE_CHOOSE, bool bEndOfTurn = true); // advc.001x; Exposed to Python
 	void startHeadOrder();
 	void stopHeadOrder();
 	int getOrderQueueLength() /* advc: */ const																	// Exposed to Python
@@ -1232,8 +1182,7 @@ public:
 	DllExport bool isStarCity() const;
 
 	// Exposed to Python
-	void setWallOverridePoints(const std::vector< std::pair<float, float> >&
-			kPoints); // points are given in world space ... i.e. PlotXToPointX, etc
+	void setWallOverridePoints(const std::vector< std::pair<float, float> >& kPoints); // points are given in world space ... i.e. PlotXToPointX, etc
 	DllExport const std::vector< std::pair<float, float> >& getWallOverridePoints() const;
 
 	int getTriggerValue(EventTriggerTypes eTrigger) const;
@@ -1316,8 +1265,7 @@ protected:
 	CvCity();
 	/*  Subclasses need to call this; not called by base.
 		May also want to override it. </advc.003u> */
-	virtual void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,
-			int iOccupationTimer); // advc.ctr
+	virtual void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups, int iOccupationTimer); // advc.ctr
 
 	// <advc> Moved here for quicker inspection in debugger
 	CvWString m_szName;
@@ -1526,8 +1474,7 @@ protected:
 	bool doCheckProduction();
 	// <advc.064d>
 	void upgradeProduction();
-	bool checkCanContinueProduction(bool bCheckUpgrade = true,
-			ChooseProductionPlayers eChoose = ALL_CHOOSE);
+	bool checkCanContinueProduction(bool bCheckUpgrade = true, ChooseProductionPlayers eChoose = ALL_CHOOSE);
 	// </advc.064d>
 	void doProduction(bool bAllowNoProduction);
 	void doDecay();
@@ -1571,8 +1518,7 @@ protected:
 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
 	// <advc.310>
 	void addGreatWall(int iAttempt = 0); // Wrapper for CvEngine::AddGreatWall
-	bool needsGreatWallSegment(CvPlot const& kInside, CvPlot const& kOutside,
-			int iAttempt) const;
+	bool needsGreatWallSegment(CvPlot const& kInside, CvPlot const& kOutside, int iAttempt) const;
 	// </advc.310>
 	void updateBuildingDefense(); // advc.004c
 	scaled defensiveGarrison(scaled stopCountingAt = -1) const; // advc.500b
@@ -1586,8 +1532,7 @@ protected:
 	void handleOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType);
 	int failGoldPercent(OrderTypes eOrder) const; // also used by 123f
 	void payOverflowGold(int iLostProduction, int iGoldChange);
-	int getProductionTurnsLeft(int iProductionNeeded, int iProduction,
-			int iProductionModifier, bool bFoodProduction, int iNum) const;
+	int getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, int iNum) const;
 	// </advc.064b
 	void doPopOrder(CLLNode<OrderData>* pOrder); // advc.064d
 	// advc.901:

@@ -118,8 +118,7 @@ public:
 				iY + GC.getPlotDirectionY()[eDirection]);
 	}
 
-	CvPlot* plotCardinalDirection(int iX, int iY,
-		CardinalDirectionTypes eCardinalDirection) const
+	CvPlot* plotCardinalDirection(int iX, int iY, CardinalDirectionTypes eCardinalDirection) const
 	{
 		// advc.opt: Don't check for INVALID_PLOT_COORD
 		return plotValidXY(
@@ -300,33 +299,23 @@ public: // advc: made several functions const
 	// </advc.enum>
 
 	void verifyUnitValidPlot();
-	void combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2,
-			bool bVerifyProduction = true); // advc.064d
-	CvPlot* syncRandPlot(RandPlotFlags eFlags = RANDPLOT_ANY,								// Exposed to Python
-			CvArea const* pArea = NULL, // advc: was iArea
-			int iMinCivUnitDistance = -1,
-			// <advc.304> Default timeout was 100
-			int iTimeout = -1, int* piValidCount = NULL,
-			// NULL means uniform
-			RandPlotWeightMap const* pWeights = NULL); // </advc.304>
+	void combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2, bool bVerifyProduction = true); // advc.064d
+	// advc: was iArea <!-- custom: hoisted from multiline signature between `pArea` and `iMinCivUnitDistance` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// <advc.304> Default timeout was 100 <!-- custom: hoisted from multiline signature between `iMinCivUnitDistance` and `iTimeout` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// NULL means uniform <!-- custom: hoisted from multiline signature between `piValidCount` and `pWeights` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	CvPlot* syncRandPlot(RandPlotFlags eFlags = RANDPLOT_ANY, CvArea const* pArea = NULL, int iMinCivUnitDistance = -1, int iTimeout = -1, int* piValidCount = NULL, RandPlotWeightMap const* pWeights = NULL); // </advc.304>; Exposed to Python
 	// <advc>
-	bool isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
-			CvArea const* pArea, int iMinCivUnitDistance) const; // </advc>
+	bool isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags, CvArea const* pArea, int iMinCivUnitDistance) const; // </advc>
 
-	DllExport CvCity* findCity(int iX, int iY,												// Exposed to Python
-		PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM,
-		bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM,
-		DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL)
+	// Exposed to Python <!-- custom: hoisted from multiline signature between `iY` and `eOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL)
 	{	// <advc.004r>
 		return findCity(iX, iY, eOwner, eTeam, bSameArea, bCoastalOnly,
 				eTeamAtWarWith, eDirection, pSkipCity, NO_TEAM);
 	}
-	CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM,
-			bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM,
-			DirectionTypes eDirection = NO_DIRECTION, CvCity const* pSkipCity = NULL, TeamTypes eObserver = NO_TEAM) const;
+	CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity const* pSkipCity = NULL, TeamTypes eObserver = NO_TEAM) const;
 	// </advc.004r>
-	CvSelectionGroup* findSelectionGroup(int iX, int iY, PlayerTypes eOwner = NO_PLAYER,					// Exposed to Python
-			bool bReadyToSelect = false, bool bWorkers = false) const;
+	CvSelectionGroup* findSelectionGroup(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, bool bReadyToSelect = false, bool bWorkers = false) const; // Exposed to Python
 
 	CvArea* findBiggestArea(bool bWater);																						// Exposed to Python
 
@@ -444,10 +433,8 @@ public: // advc: made several functions const
 	CustomMapOptionTypes getCustomMapOption(int iOption) const;											// Exposed to Python
 	CvWString getNonDefaultCustomMapOptionDesc(int iOption) const; // advc.190b (exposed to Python)
 	// <advc.108b>
-	bool isCustomMapOption(char const* szOptionsValue, bool bCheckContains = false,
-			bool bIgnoreCase = true) const;
-	bool isCustomMapOption(CvWString szOptionsValue, bool bCheckContains = false,
-		bool bIgnoreCase = true) const; // </advc.108b>
+	bool isCustomMapOption(char const* szOptionsValue, bool bCheckContains = false, bool bIgnoreCase = true) const;
+	bool isCustomMapOption(CvWString szOptionsValue, bool bCheckContains = false, bool bIgnoreCase = true) const; // </advc.108b>
 
 	int getNumBonuses(BonusTypes eIndex) const;																	// Exposed to Python
 	void changeNumBonuses(BonusTypes eIndex, int iChange);
@@ -543,10 +530,7 @@ public: // advc: made several functions const
 	virtual void read(FDataStreamBase* pStream);
 	virtual void write(FDataStreamBase* pStream);
 
-	void rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitude,			 			// Exposed to Python
-			bool bWrapX, bool bWrapY, WorldSizeTypes eWorldSize,
-			ClimateTypes eClimate, SeaLevelTypes eSeaLevel,
-			int iNumCustomMapOptions, CustomMapOptionTypes* eCustomMapOptions);
+	void rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitude, bool bWrapX, bool bWrapY, WorldSizeTypes eWorldSize, ClimateTypes eClimate, SeaLevelTypes eSeaLevel, int iNumCustomMapOptions, CustomMapOptionTypes* eCustomMapOptions); // Exposed to Python
 	// <advc.108c>
 	void setBonusBalanced(BonusTypes eBonus) { m_aebBalancedBonuses.set(eBonus, true); }
 	bool isBonusBalanced(BonusTypes eBonus) const { return m_aebBalancedBonuses.get(eBonus); }

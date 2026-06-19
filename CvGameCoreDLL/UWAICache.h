@@ -151,9 +151,7 @@ public:
 	void cacheCitiesAfterRead();
 	void reportUnitCreated(UnitTypes eUnit);
 	void reportUnitDestroyed(UnitTypes eUnit);
-	void reportWarEnding(TeamTypes eEnemy,
-			CLinkList<TradeData> const* pWeReceive = NULL,
-			CLinkList<TradeData> const* pWeGive = NULL);
+	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void reportCityCreated(CvCity& kCity);
 	void reportCityDestroyed(CvCity const& kCity)
 	{	// No checks upfront; make sure we're not keeping any dangling pointer.
@@ -161,8 +159,7 @@ public:
 	}
 	/*	Would prefer to pass a CvDeal instance, but no suitable one is available
 		at the call location */
-	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive,
-			PlayerTypes eSponsor, TeamTypes eTarget);
+	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget);
 	bool isReadyToCapitulate(TeamTypes eMaster) const;
 	void setReadyToCapitulate(TeamTypes eMaster, bool b);
 	 // When forming a Permanent Alliance

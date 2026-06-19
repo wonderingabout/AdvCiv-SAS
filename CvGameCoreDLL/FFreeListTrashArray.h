@@ -223,11 +223,9 @@ protected:
 
 // Serialization helper templates - use when list contains streamable types
 template<class T, class AIType>
-void ReadStreamableFFreeListTrashArray(
-	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream);
+void ReadStreamableFFreeListTrashArray(FFreeListTrashArray<T, AIType>& flist, FDataStreamBase* pStream);
 
 template<class T, class AIType>
-void WriteStreamableFFreeListTrashArray(
-	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream);
+void WriteStreamableFFreeListTrashArray(FFreeListTrashArray<T, AIType>& flist, FDataStreamBase* pStream);
 
 #endif

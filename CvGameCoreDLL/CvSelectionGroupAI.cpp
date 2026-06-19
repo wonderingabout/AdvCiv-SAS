@@ -425,10 +425,8 @@ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialE
 }
 
 
-CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
-	bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz,
-	// <advc.048>
-	bool bSacrifice, bool bMaxSurvival, bool bPreferLowPower) const
+// <advc.048> <!-- custom: hoisted from multiline signature between `bNoBlitz` and `bSacrifice` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz, bool bSacrifice, bool bMaxSurvival, bool bPreferLowPower) const
 {
 	int const iOddsThresh = 68; // Should this be lower if bHuman?
 	FAssert(!bMaxSurvival || !bSacrifice); // </advc.048>
@@ -577,8 +575,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 }
 
 
-CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
-	bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
+CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
 {
 	int iBestValue = -1; // advc.048: was 0
 	CvUnitAI* pBestUnit = NULL;
@@ -638,8 +635,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
 /*	Returns ratio of strengths of stacks times 100
 	(so 100 is an even ratio, numbers over 100 mean that
 	this group is more powerful than the stack on a plot) */
-int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack,
-	bool bConstCache) const // advc.001n
+int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack, bool bConstCache) const // advc.001n
 {
 	FAssert(pPlot != NULL);
 
@@ -692,8 +688,7 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAtta
 	for moves, and for hasAlreadyAttacked / blitz */
 /*  advc.159: No longer simply a sum of combat strength values; see the comment
 	above CvPlayerAI::AI_localDefenceStrength. */
-int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot,
-	DomainTypes eDomainType, bool bCheckCanAttack) const
+int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack) const
 {
 	FAssert(eDomainType != DOMAIN_AIR && eDomainType != DOMAIN_IMMOBILE); // advc: Air combat strength isn't counted
 	// <K-Mod>
@@ -766,8 +761,7 @@ namespace
 /*	advc.004c: (Not const b/c it needs to return a non-const unit.
 	Ideally, there would be a const version returning a const unit,
 	but that would lead to a lot of duplicate code.) */
-CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission,
-	CvPlot const* pMissionPlot, std::vector<int> const* pUnitsToSkip)
+CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot const* pMissionPlot, std::vector<int> const* pUnitsToSkip)
 {
 	PROFILE_FUNC(); // advc (neither frequently called nor expensive)
 	CvPlot const& kAt = getPlot();
@@ -945,8 +939,7 @@ void CvSelectionGroupAI::AI_queueGroupAttack(int iX, int iY)
 }
 
 
-bool CvSelectionGroupAI::AI_isDeclareWar(
-	CvPlot const& kPlot) const // advc: param no longer optional
+bool CvSelectionGroupAI::AI_isDeclareWar(CvPlot const& kPlot) const // advc: param no longer optional
 {
 	FAssert(getHeadUnit() != NULL);
 
@@ -1068,8 +1061,7 @@ int CvSelectionGroupAI::AI_getBombardTurns(CvCity const* pCity) const
 }
 
 // advc: Param renamed from bIgnoreMinors b/c it also causes Barbarians to be ignored
-bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
-	MovementFlags eFlags, int iMaxPathTurns) const
+bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly, MovementFlags eFlags, int iMaxPathTurns) const
 {
 	PROFILE_FUNC();
 	//int iPass = 0; // advc: unused
@@ -1087,8 +1079,7 @@ bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
 }
 
 
-bool CvSelectionGroupAI::AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer,
-	MovementFlags eFlags, int iMaxPathTurns) const
+bool CvSelectionGroupAI::AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer, MovementFlags eFlags, int iMaxPathTurns) const
 {
 	PROFILE_FUNC();
 	// <advc> Instead of relying on the area checks to fail when the group has no area
@@ -1135,8 +1126,7 @@ bool CvSelectionGroupAI::AI_isForceSeparate() const
 }
 
 
-void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI,
-	CvPlot const* pNewPlot, CvUnit const* pNewUnit)
+void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot const* pNewPlot, CvUnit const* pNewUnit)
 {
 	//PROFILE_FUNC();
 

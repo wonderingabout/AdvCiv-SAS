@@ -291,8 +291,7 @@ CvNetDoTask::CvNetDoTask() :
 {
 }
 
-CvNetDoTask::CvNetDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask,
-	int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl) :
+CvNetDoTask::CvNetDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl) :
 	CvMessageData(GAMEMESSAGE_DO_TASK),
 	m_ePlayer(ePlayer),
 	m_iCityID(iCityID),
@@ -396,8 +395,7 @@ CvNetResearch::CvNetResearch() :
 {
 }
 
-CvNetResearch::CvNetResearch(PlayerTypes ePlayer, TechTypes eTech,
-	int iDiscover, bool bShift) :
+CvNetResearch::CvNetResearch(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift) :
 	CvMessageData(GAMEMESSAGE_RESEARCH),
 	m_ePlayer(ePlayer),
 	m_iDiscover(iDiscover),
@@ -468,8 +466,7 @@ CvNetEspionageChange::CvNetEspionageChange() :
 {
 }
 
-CvNetEspionageChange::CvNetEspionageChange(PlayerTypes ePlayer,
-	TeamTypes eTargetTeam, int iChange) :
+CvNetEspionageChange::CvNetEspionageChange(PlayerTypes ePlayer, TeamTypes eTargetTeam, int iChange) :
 	CvMessageData(GAMEMESSAGE_ESPIONAGE_CHANGE),
 	m_ePlayer(ePlayer),
 	m_eTargetTeam(eTargetTeam),
@@ -505,8 +502,7 @@ void CvNetEspionageChange::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read(&m_iChange);
 }
 
-CvNetAdvancedStartAction::CvNetAdvancedStartAction(AdvancedStartActionTypes eAction,
-	PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd) :
+CvNetAdvancedStartAction::CvNetAdvancedStartAction(AdvancedStartActionTypes eAction, PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd) :
 	CvMessageData(GAMEMESSAGE_ADVANCED_START_ACTION),
 	m_eAction(eAction),
 	m_ePlayer(ePlayer),
@@ -548,8 +544,7 @@ void CvNetAdvancedStartAction::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read(&m_bAdd);
 }
 
-CvNetModNetMessage::CvNetModNetMessage(int iData1, int iData2, int iData3,
-	int iData4, int iData5) :
+CvNetModNetMessage::CvNetModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5) :
 	CvMessageData(GAMEMESSAGE_MOD_NET_MESSAGE),
 	m_iData1(iData1), m_iData2(iData2), m_iData3(iData3), m_iData4(iData4), m_iData5(iData5)
 {
@@ -646,8 +641,7 @@ void CvNetEmpireSplit::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read(&m_iAreaId);
 }
 
-CvNetFoundReligion::CvNetFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion,
-	ReligionTypes eSlotReligion) :
+CvNetFoundReligion::CvNetFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, ReligionTypes eSlotReligion) :
 	CvMessageData(GAMEMESSAGE_FOUND_RELIGION),
 	m_ePlayer(ePlayer),
 	m_eReligion(eReligion),
@@ -714,8 +708,7 @@ void CvNetLaunchSpaceship::SetFromBuffer(FDataStreamBase* pStream)
 	pStream->Read((int*)&m_eVictory);
 }
 
-CvNetEventTriggered::CvNetEventTriggered(PlayerTypes ePlayer, EventTypes eEvent,
-	int iEventTriggeredId) :
+CvNetEventTriggered::CvNetEventTriggered(PlayerTypes ePlayer, EventTypes eEvent, int iEventTriggeredId) :
 	CvMessageData(GAMEMESSAGE_EVENT_TRIGGERED),
 	m_ePlayer(ePlayer), m_eEvent(eEvent),
 	m_iEventTriggeredId(iEventTriggeredId)
@@ -805,10 +798,7 @@ CvNetPushMission::CvNetPushMission() :
 	m_bModified(false) // advc.011b
 {}
 
-CvNetPushMission::CvNetPushMission(PlayerTypes ePlayer, int iUnitID,
-	MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags,
-	bool bShift,
-	bool bModified) // advc.011b
+CvNetPushMission::CvNetPushMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bShift, bool bModified) // advc.011b
 :	CvMessageData(GAMEMESSAGE_PUSH_MISSION), m_ePlayer(ePlayer), m_iUnitID(iUnitID),
 	m_eMission(eMission), m_iData1(iData1), m_iData2(iData2), m_eFlags(eFlags),
 	m_bShift(bShift),
@@ -915,8 +905,7 @@ CvNetDoCommand::CvNetDoCommand() :
 {
 }
 
-CvNetDoCommand::CvNetDoCommand(PlayerTypes ePlayer, int iUnitID,
-	CommandTypes eCommand, int iData1, int iData2, bool bAlt) :
+CvNetDoCommand::CvNetDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt) :
 	CvMessageData(GAMEMESSAGE_DO_COMMAND),
 	m_ePlayer(ePlayer),
 	m_iUnitID(iUnitID),
@@ -990,8 +979,7 @@ CvNetPercentChange::CvNetPercentChange() :
 {
 }
 
-CvNetPercentChange::CvNetPercentChange(PlayerTypes ePlayer,
-	CommerceTypes eCommerce, int iChange) :
+CvNetPercentChange::CvNetPercentChange(PlayerTypes ePlayer, CommerceTypes eCommerce, int iChange) :
 	CvMessageData(GAMEMESSAGE_PERCENT_CHANGE),
 	m_ePlayer(ePlayer),
 	m_iChange(iChange),
@@ -1035,8 +1023,7 @@ CvNetChangeVassal::CvNetChangeVassal() :
 {
 }
 
-CvNetChangeVassal::CvNetChangeVassal(PlayerTypes ePlayer, TeamTypes eMasterTeam,
-	bool bVassal, bool bCapitulated) :
+CvNetChangeVassal::CvNetChangeVassal(PlayerTypes ePlayer, TeamTypes eMasterTeam, bool bVassal, bool bCapitulated) :
 	CvMessageData(GAMEMESSAGE_CHANGE_VASSAL),
 	m_ePlayer(ePlayer),
 	m_eMasterTeam(eMasterTeam),
@@ -1276,8 +1263,7 @@ void CvNetFPTest::Execute()
 	GC.getGame().doFPCheck(m_iResult, m_ePlayer);
 } // </advc.003g>
 // <advc.190c>
-CvNetCivLeaderSetup::CvNetCivLeaderSetup(PlayerTypes ePlayer,
-	CvInitCore const* pInitCore)
+CvNetCivLeaderSetup::CvNetCivLeaderSetup(PlayerTypes ePlayer, CvInitCore const* pInitCore)
 :	CvMessageData(GAMEMESSAGE_CIV_LEADER_SETUP),
 	m_ePlayer(ePlayer)
 {

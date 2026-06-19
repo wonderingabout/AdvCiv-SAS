@@ -48,11 +48,7 @@ public:
 
 	void playActionSound();
 
-	void pushMission(MissionTypes eMission, int iData1 = -1, int iData2 = -1,							// Exposed to Python
-			MovementFlags eFlags = NO_MOVEMENT_FLAGS,
-			bool bAppend = false, bool bManual = false, MissionAITypes eMissionAI = NO_MISSIONAI,
-			CvPlot const* pMissionAIPlot = NULL, CvUnit const* pMissionAIUnit = NULL,
-			bool bModified = false); // advc.011b
+	void pushMission(MissionTypes eMission, int iData1 = -1, int iData2 = -1, MovementFlags eFlags = NO_MOVEMENT_FLAGS, bool bAppend = false, bool bManual = false, MissionAITypes eMissionAI = NO_MISSIONAI, CvPlot const* pMissionAIPlot = NULL, CvUnit const* pMissionAIUnit = NULL, bool bModified = false); // advc.011b; Exposed to Python
 	void popMission();																																										// Exposed to Python
 	//DllExport void autoMission();
 	bool autoMission(); // K-Mod. (No 'DllExport'? Are you serious!?)
@@ -64,9 +60,7 @@ public:
 	}
 	CvPlot* lastMissionPlot() const; // </advc>
 
-	bool canStartMission(MissionTypes eMission, int iData1, int iData2,									// Exposed to Python
-			CvPlot const* pPlot = NULL, bool bTestVisible = false,
-			bool bUseCache = false) const;
+	bool canStartMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot = NULL, bool bTestVisible = false, bool bUseCache = false) const; // Exposed to Python
 	void startMission();
 	//void continueMission(int iSteps = 0);
 	// K-Mod: Split continueMission into two functions to remove the recursion.
@@ -119,10 +113,8 @@ public:
 	{
 		return canMoveOrAttackInto(*pPlot, bDeclareWar, false);
 	} // K-Mod. (Avoid breaking the DllExport; EXE calls the above for NumPad help.)
-	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false,
-			bool bCheckMoves = false, bool bAssumeVisible = true) const;
-	bool canMoveThrough(CvPlot const& kPlot,																			// Exposed to Python
-			bool bDeclareWar = false, bool bAssumeVisible = true) const; // K-Mod
+	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false, bool bCheckMoves = false, bool bAssumeVisible = true) const;
+	bool canMoveThrough(CvPlot const& kPlot, bool bDeclareWar = false, bool bAssumeVisible = true) const; // K-Mod; Exposed to Python
 	bool canFight() const;																																										// Exposed to Python
 	bool canDefend() const;																																										// Exposed to Python
 	bool canBombard(CvPlot const& kPlot) const;
@@ -164,15 +156,13 @@ public:
 	RouteTypes getBestBuildRoute(CvPlot const& kPlot, BuildTypes* peBestBuild = NULL) const;	// Exposed to Python
 
 	//bool groupDeclareWar(CvPlot* pPlot, bool bForce = false); // deleted by K-Mod
-	bool groupAttack(int iX, int iY, MovementFlags eFlags, bool& bFailedAlreadyFighting,
-			bool bMaxSurvival = false); // advc.048
+	bool groupAttack(int iX, int iY, MovementFlags eFlags, bool& bFailedAlreadyFighting, bool bMaxSurvival = false); // advc.048
 	void groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit = NULL, bool bEndMove = false);
 	bool groupPathTo(int iX, int iY, MovementFlags eFlags);
 	bool groupRoadTo(int iX, int iY, MovementFlags eFlags);
 	bool groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFinish = true);
 
-	void setTransportUnit(CvUnit* pTransportUnit,
-			CvSelectionGroup** pOtherGroup = NULL); // BBAI
+	void setTransportUnit(CvUnit* pTransportUnit, CvSelectionGroup** pOtherGroup = NULL); // BBAI
 	//void setRemoteTransportUnit(CvUnit* pTransportUnit); // BBAI; deleted by K-Mod.
 
 	bool isAmphibPlot(CvPlot const* pPlot) const;																																		// Exposed to Python
@@ -183,8 +173,7 @@ public:
 	bool readyToAuto() const; // Exposed to Python
 	// K-Mod.
 	bool readyForMission() const;
-	bool canDoMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot,
-			bool bTestVisible, bool bCheckMoves) /* advc.002i: */ const;
+	bool canDoMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) /* advc.002i: */ const;
 	// K-Mod end
 
 	int getID() const { return m_iID; }															// Exposed to Python
@@ -217,11 +206,8 @@ public:
 	// FAStarNode* getPathLastNode() const; // disabled by K-Mod. Use pathFinder() instead.
 	CvPlot& getPathFirstPlot() const;																																		// Exposed to Python
 	CvPlot& getPathEndTurnPlot() const;																																	// Exposed to Python
-	bool generatePath(CvPlot const& kFrom, CvPlot const& kTo,										// Exposed to Python
-			MovementFlags eFlags = NO_MOVEMENT_FLAGS,
-			bool bReuse = false, int* piPathTurns = NULL,
-			int iMaxPath = -1, // K-Mod
-			bool bUseTempFinder = false) const; // advc.128
+	// K-Mod <!-- custom: hoisted from multiline signature between `iMaxPath` and `bUseTempFinder` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool generatePath(CvPlot const& kFrom, CvPlot const& kTo, MovementFlags eFlags = NO_MOVEMENT_FLAGS, bool bReuse = false, int* piPathTurns = NULL, int iMaxPath = -1, bool bUseTempFinder = false) const; // advc.128; Exposed to Python
 
 	DllExport void clearUnits();
 	DllExport bool addUnit(CvUnit* pUnit, bool bMinimalChange);
@@ -379,20 +365,15 @@ private: // advc.003u: (See comments in the private section of CvPlayer.h)
 	virtual void AI_separateExternal();
 	virtual bool AI_updateExternal();
 	virtual int AI_attackOddsExternal(CvPlot* pPlot, bool bPotentialEnemy);
-	virtual CvUnit* AI_getBestGroupAttackerExternal(CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds,
-			bool bForce = false, bool bNoBlitz = false);
-	virtual CvUnit* AI_getBestGroupSacrificeExternal(CvPlot* pPlot, bool bPotentialEnemy,
-			bool bForce = false, bool bNoBlitz = false);
-	virtual int AI_compareStacksExternal(CvPlot* pPlot, bool bPotentialEnemy,
-			bool bCheckCanAttack = false, bool bCheckCanMove = false);
-	virtual int AI_sumStrengthExternal(
-			CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false);
+	virtual CvUnit* AI_getBestGroupAttackerExternal(CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false);
+	virtual CvUnit* AI_getBestGroupSacrificeExternal(CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false);
+	virtual int AI_compareStacksExternal(CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false);
+	virtual int AI_sumStrengthExternal(CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false);
 	virtual void AI_queueGroupAttackExternal(int iX, int iY);
 	virtual void AI_cancelGroupAttackExternal();
 	virtual bool AI_isGroupAttackExternal();
 	virtual bool AI_isControlledExternal();
-	virtual bool AI_isDeclareWarExternal(
-			CvPlot* pPlot = NULL);
+	virtual bool AI_isDeclareWarExternal(CvPlot* pPlot = NULL);
 	virtual CvPlot* AI_getMissionAIPlotExternal();
 	virtual bool AI_isForceSeparateExternal();
 	virtual void AI_makeForceSeparateExternal();

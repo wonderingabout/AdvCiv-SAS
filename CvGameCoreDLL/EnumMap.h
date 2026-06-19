@@ -298,8 +298,7 @@ public:
 		derived().writeArray<ValueType>(pStream);
 	}
 	template<typename SizeType, typename ValueType>
-	void readLazyArray(FDataStreamBase* pStream,
-		int iSubtrahend = 0) // (Could also get this from sz)
+	void readLazyArray(FDataStreamBase* pStream, int iSubtrahend = 0) // (Could also get this from sz)
 	{
 		SizeType sz;
 		pStream->Read(&sz);
@@ -1940,8 +1939,7 @@ public:
 				pInnerMap->write(pStream);
 		}
 	}
-	void read(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
+	void read(FDataStreamBase* pStream, uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
 	{
 	#ifdef ENUM_MAP_EXTRA_ASSERTS
 		FAssert(!isAnyNonDefault());
@@ -1976,8 +1974,7 @@ public:
 		}
 	}
 	template<typename OuterSizeType, typename InnerSizeType, typename ValueType>
-	void readLazyArray(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
+	void readLazyArray(FDataStreamBase* pStream, uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
 	{
 	#ifdef ENUM_MAP_EXTRA_ASSERTS
 		FAssert(!isAnyNonDefault());
@@ -2015,8 +2012,7 @@ public:
 		}
 	}
 	template<typename ValueType>
-	void readArray(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
+	void readArray(FDataStreamBase* pStream, uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
 	{
 	#ifdef ENUM_MAP_EXTRA_ASSERTS
 		FAssert(!isAnyNonDefault());
@@ -2226,8 +2222,7 @@ public:
 			lookup(eOuterKey).writeLazyArray<SizeType,ValueType>(pStream);
 	}
 	template<typename OuterSizeType, typename InnerSizeType, typename ValueType>
-	void readLazyArray(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend, uint uiInnerSubtrahend)
+	void readLazyArray(FDataStreamBase* pStream, uint uiOuterSubtrahend, uint uiInnerSubtrahend)
 	{
 		for (EOuter eOuterKey = enum_traits<EOuter>::first;
 			eOuterKey < getLength() - (int)uiOuterSubtrahend; ++eOuterKey)

@@ -408,8 +408,7 @@ protected:
 	void recalculateHeuristics();
 	bool processNode();
 	// <advc> Cut out of process node
-	void processChild(Node& kParentNode,
-			CvPlot const& kParentPlot, CvPlot& kChildPlot); // </advc>
+	void processChild(Node& kParentNode, CvPlot const& kParentPlot, CvPlot& kChildPlot); // </advc>
 	void forwardPropagate(Node& kHead, int iCostDelta);
 	//void addStartNode(); // advc: Better not to put that in a subroutine
 	// advc: Moved into NodeMap

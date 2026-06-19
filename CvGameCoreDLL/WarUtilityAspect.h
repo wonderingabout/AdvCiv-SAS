@@ -80,14 +80,12 @@ protected:
 		Update: Now also subtracts score for assets conquered by them from eTo
 		(or from any player); i.e. calculates a net loss (or gain) of assets.
 		Gains from team eIgnoreGains aren't counted. */
-	 scaled netLostRivalAssetScore(PlayerTypes eTo = NO_PLAYER,
-			scaled* prTotalScore = NULL, // out-param
-			TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
+	 // out-param <!-- custom: hoisted from multiline signature between `prTotalScore` and `eIgnoreGainsFrom` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	 scaled netLostRivalAssetScore(PlayerTypes eTo = NO_PLAYER, scaled* prTotalScore = NULL, TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
 	 scaled lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo) const;
 	 scaled lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSource) const;
 	 // <advc.035>
-	 scaled lossesFromFlippedTiles(PlayerTypes eVictim,
-			PlayerTypes eTo = NO_PLAYER) const; // </advc.035>
+	 scaled lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo = NO_PLAYER) const; // </advc.035>
 	 /* Score for assets conquered by the agent player from the rival player
 		(as set by evaluate(void)). bMute disables logging within the function body. */
 	 scaled conqAssetScore(bool bMute = true) const;
@@ -234,8 +232,7 @@ private:
 	scaled progressRatingConquest() const;
 	scaled progressRatingDomination() const;
 	scaled progressRatingDiplomacy() const;
-	void addConquestsByPartner(std::map<PlotNumTypes,scaled>& kWeightedConquests,
-			AttitudeTypes eAttitudeThresh, scaled rWeight) const;
+	void addConquestsByPartner(std::map<PlotNumTypes, scaled>& kWeightedConquests, AttitudeTypes eAttitudeThresh, scaled rWeight) const;
 };
 
 
@@ -336,10 +333,8 @@ private:
 	std::set<PlayerTypes> m_winningFuture;
 	std::set<PlayerTypes> m_winningPresent;
 	void addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) const;
-	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage,
-			bool bPredict = true) const;
-	void addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin,
-			bool bPredict = true) const;
+	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict = true) const;
+	void addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict = true) const;
 	scaled theirRelativeLoss() const;
 };
 

@@ -131,11 +131,7 @@ private:
 	static bool bLoggingEnabled;
 	static wchar const* cityName(CvCity const& kCity);
 	void logSite() const;
-	void logPlot(CvPlot const& p, int iPlotValue, int const* aiYield,
-			int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement,
-			bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus,
-			bool bCanSoonImproveBonus, bool bEasyAccess,
-			int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const;
+	void logPlot(CvPlot const& p, int iPlotValue, int const* aiYield, int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement, bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus, bool bCanSoonImproveBonus, bool bEasyAccess, int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const;
 	// </advc.031c>
 	int evaluate();
 	// Subroutines of evaluate ...
@@ -143,57 +139,37 @@ private:
 	bool isSiteValid() const;
 	bool computeOverlap();
 	bool isPrioritizeAsFirstColony() const; // advc.040
-	int countBadTiles(int& iInner, int& iUnrevealed, int& iLand,
-			int& iRevealedDecentLand) const;
+	int countBadTiles(int& iInner, int& iUnrevealed, int& iLand, int& iRevealedDecentLand) const;
 	bool isTooManyBadTiles(int iBadTiles, int iInnerBadTiles) const;
 	int baseCityValue() const;
-	bool isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCityRadius,
-			bool& bForeignOwned, bool& bAnyForeignOwned, bool& bShare, bool& bSteal) const;
-	bool isRemovableFeature(CvPlot const& p, bool& bPersistent,
-			int& iFeatureProduction) const;
+	bool isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCityRadius, bool& bForeignOwned, bool& bAnyForeignOwned, bool& bShare, bool& bSteal) const;
+	bool isRemovableFeature(CvPlot const& p, bool& bPersistent, int& iFeatureProduction) const;
 	bool isRevealed(CvPlot const& p) const;
 	PlayerTypes getRevealedOwner(CvPlot const& p) const;
 	TeamTypes getRevealedTeam(CvPlot const& p) const;
 	BonusTypes getBonus(CvPlot const& p) const;
-	ImprovementTypes getBonusImprovement(BonusTypes eBonus, CvPlot const& p,
-			bool& bCanTrade, bool& bCanTradeSoon, int* aiImprovementYield,
-			bool& bCanImprove, bool& bCanImproveSoon, bool& bRemoveFeature) const;
+	ImprovementTypes getBonusImprovement(BonusTypes eBonus, CvPlot const& p, bool& bCanTrade, bool& bCanTradeSoon, int* aiImprovementYield, bool& bCanImprove, bool& bCanImproveSoon, bool& bRemoveFeature) const;
 	bool isNearTech(TechTypes eTech) const;
-	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare,
-			bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl,
-			int& iTakenTiles, int& iStealPercent) const;
-	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature,
-			bool bBonus) const;
+	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl, int& iTakenTiles, int& iStealPercent) const;
+	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature, bool bBonus) const;
 	scaled estimateImprovementProduction(CvPlot const& p, bool bPersistentFeature) const;
-	int evaluateYield(int const* aiYield, CvPlot const* p = NULL,
-			bool bCanNeverImprove = false) const;
-	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal,
-			int& iRiverTiles, int& iGreenTiles) const;
+	int evaluateYield(int const* aiYield, CvPlot const* p = NULL, bool bCanNeverImprove = false) const;
+	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal, int& iRiverTiles, int& iGreenTiles) const;
 	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
 	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;
-	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier,
-			bool bShare) const;
-	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade,
-			bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus,
-			std::vector<int>* paiBonusCount, int iCultureModifier) const;
-	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess,
-			bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
-	void calculateSpecialYields(CvPlot const& p,
-			int const* aiBonusImprovementYield, int const* aiNatureYield,
-			int iModifier, int* aiSpecialYield,
-			int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
-	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield,
-			int* aiBuildingYield) const;
+	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier, bool bShare) const;
+	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus, std::vector<int>* paiBonusCount, int iCultureModifier) const;
+	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
+	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
+	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
 	int sumUpPlotValues(std::vector<int>& aiPlotValues) const;
-	int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles,
-			int iSpecialFoodPlus, int iSpecialFoodMinus) const;
+	int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const;
 	// <!-- custom: simplify logic and attempt to spread cities more, currently they are way too crowded which is inefficient -->
 	// bool isTooManyTakenTiles(int iTaken, int iResourceValue, bool bLowValue) const;
 	bool isTooManyTakenTiles(int iTaken, int iResourceValue) const;
 	int evaluateLongTermHealth(int& iHealthPercent) const;
 	int evaluateFeatureProduction(int iProduction) const;
-	int evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier,
-			int iLandTiles) const;
+	int evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier, int iLandTiles) const;
 	// int evaluateDefense() const;
 	int evaluateGoodies(int iGoodies) const;
 	int adjustToLandAreaBoundary(int iValue) const;

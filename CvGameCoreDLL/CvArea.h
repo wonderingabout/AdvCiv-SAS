@@ -79,8 +79,7 @@ public:
 	// advc: Unused; removed.
 	/*int getAnimalsPerPlayer(PlayerTypes eIndex) const;												// Exposed to Python
 	void changeAnimalsPerPlayer(PlayerTypes eIndex, int iChange);*/
-	int getCitiesPerPlayer(PlayerTypes eIndex,															// Exposed to Python
-			bool bCheckAdjacentCoast = false) const; // advc.030b
+	int getCitiesPerPlayer(PlayerTypes eIndex, bool bCheckAdjacentCoast = false) const; // advc.030b; Exposed to Python
 	void changeCitiesPerPlayer(PlayerTypes eIndex, int iChange);
 	int getTotalPopulation() const { return m_iTotalPopulation; }										// Exposed to Python
 	int getPopulationPerPlayer(PlayerTypes eIndex) const												// Exposed to Python

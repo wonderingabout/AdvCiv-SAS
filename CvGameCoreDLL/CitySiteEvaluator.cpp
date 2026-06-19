@@ -20,8 +20,7 @@ static int const iDEFAULT_BARB_DISCOURAGED_RANGE = 8; // advc.303
 #define IFLOG if (gFoundLogLevel > 0 && AIFoundValue::isLoggingEnabled()) // advc.031c
 
 // Body cut from K-Mod's CvPlayerAI::CvFoundSettings::CvFoundSettings
-CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRange,
-	bool bStartingLoc, /* advc.031e: */ bool bNormalize)
+CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRange, bool bStartingLoc, /* advc.031e: */ bool bNormalize)
 :	m_kPlayer(kPlayer), m_iMinRivalRange(iMinRivalRange), m_bStartingLoc(bStartingLoc),
 	m_bNormalize(bNormalize),
 	m_bScenario(false), m_bAmbitious(false), m_bExtraYieldThresh(false),
@@ -1760,9 +1759,7 @@ bool AIFoundValue::isPrioritizeAsFirstColony() const
 } // </advc.040>
 
 
-int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius,
-	int& iUnrevealed, /* advc.031: */ int& iLand,
-	int& iRevealedDecentLand) const // advc.040
+int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius, int& iUnrevealed, /* advc.031: */ int& iLand, int& iRevealedDecentLand) const // advc.040
 {
 	int iBadTiles = 0;
 	FOR_EACH_ENUM(CityPlot)
@@ -1865,8 +1862,7 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius,
 }
 
 // Returns true if the site should be disregarded
-bool AIFoundValue::isTooManyBadTiles(int iBadTiles,
-	int iInnerBadTiles) const // advc.031
+bool AIFoundValue::isTooManyBadTiles(int iBadTiles, int iInnerBadTiles) const // advc.031
 {
 	if (kSet.isStartingLoc() /* advc.031e: */ || kSet.isNormalizing())
 		return false;
@@ -1951,8 +1947,7 @@ int AIFoundValue::baseCityValue() const
 }
 
 
-bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCityRadius,
-	bool& bForeignOwned, bool& bAnyForeignOwned, bool& bShare, bool& bSteal) const
+bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCityRadius, bool& bForeignOwned, bool& bAnyForeignOwned, bool& bShare, bool& bSteal) const
 {
 	CvPlot const* p = plotCity(iX, iY, ePlot);
 	if (p == NULL)
@@ -2079,8 +2074,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 }
 
 // based on K-Mod code
-bool AIFoundValue::isRemovableFeature(CvPlot const& p, bool& bPersistent,
-	int& iFeatureProduction) const // advc.031
+bool AIFoundValue::isRemovableFeature(CvPlot const& p, bool& bPersistent, int& iFeatureProduction) const // advc.031
 {
 	bPersistent = false;
 	iFeatureProduction = 0;
@@ -2189,9 +2183,7 @@ BonusTypes AIFoundValue::getBonus(CvPlot const& p) const
 
 /*  advc.031: Rewritten. K-Mod had added a crucial isImprovementBonusTrade check, but
 	other important checks were still missing. */
-ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot const& p,
-	bool& bCanTrade, bool& bCanTradeSoon, int* aiYield,
-	bool& bCanImprove, bool& bCanImproveSoon, bool& bRemoveFeature) const
+ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot const& p, bool& bCanTrade, bool& bCanTradeSoon, int* aiYield, bool& bCanImprove, bool& bCanImproveSoon, bool& bRemoveFeature) const
 {
 	bCanTrade = bCanTradeSoon = bCanImprove = bCanImproveSoon = bRemoveFeature = false;
 	if (eBonus == NO_BONUS)
@@ -2332,9 +2324,7 @@ bool AIFoundValue::isNearTech(TechTypes eTech) const
 }
 
 // (not much pre-AdvCiv code left)
-int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
-	bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl,
-	int& iTakenTiles, int& iStealPercent) const
+int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl, int& iTakenTiles, int& iStealPercent) const
 {
 	scaled r = 100;
 	/*  K-Mod note: iClaimThreshold is bigger for bEasyCulture and bAmbitious civs.
@@ -2454,8 +2444,7 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
 }
 
 // K-Mod: adjust for removable features (advc: moved into a subroutine)
-int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature,
-	bool bRemovableFeature, bool bBonus) const
+int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature, bool bBonus) const
 {
 	int iR = 0;
 	CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
@@ -2479,8 +2468,7 @@ int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature,
 	Note: Any additional production from improving a bonus resource
 	is counted as iSpecialProduction elsewhere. This function ignores
 	bonus resources. */
-scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p,
-	bool bPersistentFeature) const
+scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p, bool bPersistentFeature) const
 {
 	if (p.isWater())
 	{
@@ -2539,8 +2527,7 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p,
 }
 
 
-int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p,
-	bool bCanNeverImprove) const
+int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNeverImprove) const
 {
 	int r = 0;
 	int aiWeight[NUM_YIELD_TYPES] = {15, 15, 8 };
@@ -2605,8 +2592,7 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p,
 }
 
 
-int AIFoundValue::evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal,
-	int& iRiverTiles, int& iGreenTiles) const
+int AIFoundValue::evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal, int& iRiverTiles, int& iGreenTiles) const
 {
 	int iR = 0;
 	// <advc.053>
@@ -2670,8 +2656,7 @@ int AIFoundValue::evaluateFreshWater(CvPlot const& p, int const* aiYield, bool b
 }
 
 
-int AIFoundValue::applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier,
-	bool bShare) const
+int AIFoundValue::applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier, bool bShare) const
 {
 	scaled r = iPlotValue;
 	r *= per100(iCultureModifier);
@@ -2683,9 +2668,7 @@ int AIFoundValue::applyCultureModifier(CvPlot const& p, int iPlotValue, int iCul
 }
 
 // Note: aiBonusCount is only a partial count (resources evaluated up to this point)
-int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus,
-	bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus,
-	std::vector<int>* paiBonusCount, int iCultureModifier) const
+int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus, std::vector<int>* paiBonusCount, int iCultureModifier) const
 {
 	/*int r = kPlayer.AI_bonusVal(eBonus, 1, true) * (!kSet.isStartingLoc() &&
 			kPlayer.getNumTradeableBonuses(eBonus) == 0 && aiBonusCount[eBonus] == 1 ?
@@ -2837,8 +2820,7 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus,
 }
 
 
-int AIFoundValue::calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess,
-	bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const
+int AIFoundValue::calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const
 {
 	scaled r = iCultureModifier;
 	// </advc.040>
@@ -2859,10 +2841,7 @@ int AIFoundValue::calculateSpecialYieldModifier(int iCultureModifier, bool bEasy
 }
 
 
-void AIFoundValue::calculateSpecialYields(CvPlot const& p,
-	int const* aiBonusImprovementYield, int const* aiNatureYield,
-	int iModifier, int* aiSpecialYield,
-	int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const
+void AIFoundValue::calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const
 {
 	int aiBuildingYield[NUM_YIELD_TYPES];
 	calculateBuildingYields(p, aiNatureYield, aiBuildingYield);
@@ -2912,8 +2891,7 @@ void AIFoundValue::calculateSpecialYields(CvPlot const& p,
 }
 
 // advc: Function for K-Mod's "lighthouse kludge"
-void AIFoundValue::calculateBuildingYields(CvPlot const& p, int const* aiNatureYield,
-	int* aiBuildingYield) const
+void AIFoundValue::calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const
 {
 	FOR_EACH_ENUM(Yield)
 		aiBuildingYield[eLoopYield] = 0;
@@ -2967,8 +2945,7 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues) const
 	once in evaluateYield, a second time in evaluateSpecialYield. This was already
 	the case in BtS and it might work out more or less correctly on the bottom line,
 	but it's messy. */
-int AIFoundValue::evaluateSpecialYields(int const* aiSpecialYield,
-	int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const
+int AIFoundValue::evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const
 {
 	/*return iSpecialFood*50+iSpecialProduction*50+iSpecialCommerce*50;
 	if (kSet.isStartingLoc())
@@ -3110,8 +3087,7 @@ int AIFoundValue::evaluateFeatureProduction(int iProduction) const
 }
 
 
-int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier,
-	int iLandTiles) const
+int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier, int iLandTiles) const
 {
 	int iR = 0;
 	// <advc.303>
@@ -3852,8 +3828,7 @@ int AIFoundValue::adjustToCitiesPerArea(int iValue) const
 }
 
 
-int AIFoundValue::adjustToBonusCount(int iValue,
-	std::vector<int> const& aiBonusCount) const
+int AIFoundValue::adjustToBonusCount(int iValue, std::vector<int> const& aiBonusCount) const
 {
 	if (iCities > 0)
 	{
@@ -4078,11 +4053,7 @@ void AIFoundValue::logSite() const
 		logBBAI("%d other %S cities in the area, %d in total", iAreaCities, kPlayer.getCivilizationShortDescription(), iCities);
 }
 
-void AIFoundValue::logPlot(CvPlot const& p, int iPlotValue, int const* aiYield,
-	int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement,
-	bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus,
-	bool bCanSoonImproveBonus, bool bEasyAccess,
-	int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const
+void AIFoundValue::logPlot(CvPlot const& p, int iPlotValue, int const* aiYield, int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement, bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus, bool bCanSoonImproveBonus, bool bEasyAccess, int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const
 {
 	// <!-- custom: same found-value logging self-guard as logSettings. (GPT-5.5 + ChatGPT 5.5) -->
 	if (gFoundLogLevel <= 0 || !isLoggingEnabled())

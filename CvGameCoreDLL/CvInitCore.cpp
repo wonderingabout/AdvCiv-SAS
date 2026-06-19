@@ -605,8 +605,7 @@ void CvInitCore::resetPlayers(CvInitCore * pSource, bool bClear, bool bSaveSlotI
 	}
 }
 
-void CvInitCore::resetPlayer(PlayerTypes eID,
-	bool bBeforeRead) // advc.enum
+void CvInitCore::resetPlayer(PlayerTypes eID, bool bBeforeRead) // advc.enum
 {
 	FAssertBounds(0, MAX_PLAYERS, eID);
 
@@ -975,8 +974,7 @@ void CvInitCore::updatePangaea()
 	m_bPangaea = (getMapScriptName().compare(L"Pangaea") == 0);
 }
 
-void CvInitCore::setCustomMapOptions(int iNumCustomMapOptions,
-	CustomMapOptionTypes const* aeCustomMapOptions)
+void CvInitCore::setCustomMapOptions(int iNumCustomMapOptions, CustomMapOptionTypes const* aeCustomMapOptions)
 {
 	clearCustomMapOptions();
 	if (iNumCustomMapOptions > 0)

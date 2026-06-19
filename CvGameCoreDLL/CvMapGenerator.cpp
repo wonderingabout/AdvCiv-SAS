@@ -19,8 +19,8 @@ CvMapGenerator& CvMapGenerator::GetInstance() // singleton accessor
 }
 
 
-bool CvMapGenerator::canPlaceBonusAt(BonusTypes eBonus, int iX, int iY,  // refactored
-	bool bIgnoreLatitude, /* advc.129: */ bool bCheckRange) const
+// refactored <!-- custom: hoisted from multiline signature between `iY` and `bIgnoreLatitude` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvMapGenerator::canPlaceBonusAt(BonusTypes eBonus, int iX, int iY, bool bIgnoreLatitude, /* advc.129: */ bool bCheckRange) const
 {
 	PROFILE_FUNC();
 
@@ -298,9 +298,7 @@ void CvMapGenerator::addRivers()
 }
 
 // pStartPlot = the plot at whose SE corner the river is starting
-void CvMapGenerator::doRiver(CvPlot* pStartPlot,
-	CardinalDirectionTypes eLastCardinalDirection,
-	CardinalDirectionTypes eOriginalCardinalDirection, short iThisRiverID)
+void CvMapGenerator::doRiver(CvPlot* pStartPlot, CardinalDirectionTypes eLastCardinalDirection, CardinalDirectionTypes eOriginalCardinalDirection, short iThisRiverID)
 {
 	if (iThisRiverID == -1)
 	{
@@ -804,8 +802,7 @@ void CvMapGenerator::addNonUniqueBonusType(BonusTypes eBonus)
 }
 
 // advc.129:
-int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
-	bool bIgnoreLatitude, int iLimit)
+int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter, bool bIgnoreLatitude, int iLimit)
 {
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	// The one in the center is already placed, but that doesn't count here.

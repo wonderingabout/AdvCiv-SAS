@@ -200,8 +200,7 @@ int CvTeamAI::AI_countMilitaryWeight(CvArea const* pArea) const
 	return iCount;
 }
 
-scaled CvTeamAI::AI_estimateDemographic(PlayerTypes ePlayer,
-	PlayerHistoryTypes eDemographic, int iSamples) const
+scaled CvTeamAI::AI_estimateDemographic(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic, int iSamples) const
 {
 	//PROFILE_FUNC(); // Called very frequently; about 1.5% of the turn times (July 2019).
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -232,8 +231,7 @@ scaled CvTeamAI::AI_estimateDemographic(PlayerTypes ePlayer,
 /*	advc.104: Replacing AI_estimateTotalYieldRate. This is a team function
 	so that we could check for visible demographics. (But we don't b/c the AI
 	routinely cheats in that respect.) */
-scaled CvTeamAI::AI_estimateYieldRate(PlayerTypes ePlayer,
-	YieldTypes eYield, int iSamples) const
+scaled CvTeamAI::AI_estimateYieldRate(PlayerTypes ePlayer, YieldTypes eYield, int iSamples) const
 {
 	PlayerHistoryTypes eHistory = NO_PLAYER_HISTORY;
 	switch (eYield)
@@ -691,8 +689,7 @@ bool CvTeamAI::AI_isWarPossible() const
 
 /*	This function has been completely rewritten for K-Mod.
 	The original BtS and BBAI code have been deleted. */
-bool CvTeamAI::AI_isLandTarget(TeamTypes eTarget,
-	bool bCheckAlliesOfTarget) const // advc
+bool CvTeamAI::AI_isLandTarget(TeamTypes eTarget, bool bCheckAlliesOfTarget) const // advc
 {
 	PROFILE_FUNC();
 
@@ -785,8 +782,7 @@ bool CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom, bool bIgnoreBarb) co
 }
 
 // advc: Was "isHasPathToPlayerCity" and was only used for debug info
-bool CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom,
-	CvTeam const& kEnemy) const
+bool CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom, CvTeam const& kEnemy) const
 {
 	PROFILE_FUNC();
 	// Imitate instatiation of irrigated finder ...
@@ -946,8 +942,7 @@ int CvTeamAI::AI_chooseElection(VoteSelectionData const& kVoteSelectionData) con
 }
 
 // advc: Body cut from CvTeam::declareWar in order to reduce entanglement of AI and game rule code
-void CvTeamAI::AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW,
-	PlayerTypes eSponsor) // advc.100
+void CvTeamAI::AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor) // advc.100
 {
 	CvTeamAI& kTarget = GET_TEAM(eTarget);
 	/*  <advc.104q> At this point, the state counter says how long war has been
@@ -1124,8 +1119,7 @@ void CvTeamAI::AI_postMakePeace(TeamTypes eTarget)
 
 // K-Mod. New war evaluation functions. WIP
 // Very rough estimate of what would be gained by conquering the target - in units of Gold/turn (kind of).
-int CvTeamAI::AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan,
-	bool bConstCache) const // advc.001n
+int CvTeamAI::AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bConstCache) const // advc.001n
 {
 	PROFILE_FUNC();
 
@@ -1428,8 +1422,7 @@ bool CvTeamAI::isFutureWarEnemy(TeamTypes eTeam, TeamTypes eTarget, bool bDefens
 			GET_TEAM(kEnemy.getMasterTeam()).isDefensivePact(eTargetMaster)));
 }
 
-int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan,
-	bool bConstCache) const // advc.001n
+int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bConstCache) const // advc.001n
 {
 	PROFILE_FUNC();
 	// Things to consider:
@@ -1749,8 +1742,7 @@ int CvTeamAI::AI_warDiplomacyCost(TeamTypes eTarget) const
 	The returned value should be compared against other possible targets
 	to pick the best target. */ // advc.104: UWAI bypasses this function
 // K-Mod: Complete remake of the function.
-int CvTeamAI::AI_startWarVal(TeamTypes eTarget, WarPlanTypes eWarPlan,
-	bool bConstCache) const // advc.001n
+int CvTeamAI::AI_startWarVal(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bConstCache) const // advc.001n
 {
 	PROFILE_FUNC(); // advc.opt
 	TeamTypes eTargetMaster = GET_TEAM(eTarget).getMasterTeam(); // we need this for checking defensive pacts.
@@ -1955,9 +1947,8 @@ scaled CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const
 }
 
 // advc (comment): How much this CvTeam is willing to pay to eFromTeam for eTech
-int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
-	bool bIgnoreDiscount, // advc.550a
-	bool bPeaceDeal) const // advc.140h
+// advc.550a <!-- custom: hoisted from multiline signature between `bIgnoreDiscount` and `bPeaceDeal` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnoreDiscount, bool bPeaceDeal) const // advc.140h
 {
 	PROFILE_FUNC(); // advc.550: Still seems completely harmless wrt. performance
 	FAssert(eFromTeam != getID());
@@ -2453,8 +2444,7 @@ int CvTeamAI::AI_surrenderTradeVal(TeamTypes eTeam) const
 /*  advc (note): This function is called for both voluntary vassal agreements and capitulation.
 	In the latter case, this team and eMasterTeam will be at war.
 	It's also called when considering to cancel a vassal agreement. */
-DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultiplier,
-	bool bCheckAccept) const // advc.104o
+DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultiplier, bool bCheckAccept) const // advc.104o
 {
 	//PROFILE_FUNC(); // advc.003o (Not called often and tends to return early)
 
@@ -3945,9 +3935,8 @@ int CvTeamAI::AI_declareWarTradeVal(TeamTypes eTarget, TeamTypes eSponsor) const
 }
 
 
-DenialTypes CvTeamAI::AI_declareWarTrade(
-	// advc: params renamed
-	TeamTypes eTarget, TeamTypes eSponsor, bool bConsiderPower) const
+// advc: params renamed <!-- custom: hoisted from multiline signature before `eTarget` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+DenialTypes CvTeamAI::AI_declareWarTrade(TeamTypes eTarget, TeamTypes eSponsor, bool bConsiderPower) const
 {
 	PROFILE_FUNC();
 
@@ -4347,8 +4336,7 @@ void CvTeamAI::AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateTradeMemory)
 /*	Conditions for enemy trade moved into a separate function b/c they're getting
 	more complicated and so that other AI code can anticipate enemy trade penalties
 	(will use this for advc.ctr). */
-scaled CvTeamAI::AI_enemyTradeResentmentFactor(TeamTypes eTo, TeamTypes eFrom,
-	TeamTypes eWarTradeTarget, TeamTypes ePeaceTradeTarget, bool bPeaceDeal) const
+scaled CvTeamAI::AI_enemyTradeResentmentFactor(TeamTypes eTo, TeamTypes eFrom, TeamTypes eWarTradeTarget, TeamTypes ePeaceTradeTarget, bool bPeaceDeal) const
 {
 	bool const bToWorstEnemy = (AI_getWorstEnemy() == eTo);
 	// Special treatment for war enemies trading among each other
@@ -4570,10 +4558,9 @@ void CvTeamAI::AI_changeWarSuccess(TeamTypes eTeam, scaled rChange)
 	Either eWarAlly has inflicted a war success on eEnemy or vice versa.
 	This team is being informed about the war success, and
 	rIntensity says how significant the war success was. */
-void CvTeamAI::AI_reportSharedWarSuccess(scaled rIntensity, TeamTypes eWarAlly,
-	TeamTypes eEnemy, // (doesn't currently matter)
-	// True means: don't check if this team needs the assistance
-	bool bIgnoreDistress)
+// (doesn't currently matter) <!-- custom: hoisted from multiline signature between `eEnemy` and `bIgnoreDistress` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// True means: don't check if this team needs the assistance <!-- custom: hoisted from multiline signature between `eEnemy` and `bIgnoreDistress` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvTeamAI::AI_reportSharedWarSuccess(scaled rIntensity, TeamTypes eWarAlly, TeamTypes eEnemy, bool bIgnoreDistress)
 {
 	/*  War success against us as a measure of how distressed we are, i.e. how
 		much we need the assistance from agentId. Counts all our enemies,
@@ -4622,8 +4609,7 @@ void CvTeamAI::AI_setSharedWarSuccess(TeamTypes eWarAlly, int iWS)
 } // </advc.130m>
 
 
-void CvTeamAI::AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue,
-	bool bUpdateAttitude) // advc.130p
+void CvTeamAI::AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue, bool bUpdateAttitude) // advc.130p
 {
 	m_aiEnemyPeacetimeTradeValue.set(eIndex, iNewValue);
 	FAssert(AI_getEnemyPeacetimeTradeValue(eIndex) >= 0);
@@ -4632,8 +4618,7 @@ void CvTeamAI::AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue,
 }
 
 
-void CvTeamAI::AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange,
-	bool bUpdateAttitude) // advc.130p
+void CvTeamAI::AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange, bool bUpdateAttitude) // advc.130p
 {
 	AI_setEnemyPeacetimeTradeValue(eIndex, AI_getEnemyPeacetimeTradeValue(eIndex) + iChange,
 			bUpdateAttitude); // advc.130p
@@ -4659,8 +4644,7 @@ scaled CvTeamAI::AI_recentlyMetMultiplier(TeamTypes eOther) const
 } // </advc.130p>
 
 
-void CvTeamAI::AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue,
-	bool bUpdateAttitude) // advc.130p
+void CvTeamAI::AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue, bool bUpdateAttitude) // advc.130p
 {
 	m_aiEnemyPeacetimeGrantValue.set(eIndex, iNewValue);
 	FAssert(AI_getEnemyPeacetimeGrantValue(eIndex) >= 0);
@@ -4669,8 +4653,7 @@ void CvTeamAI::AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue,
 }
 
 
-void CvTeamAI::AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange,
-	bool bUpdateAttitude) // advc.130p
+void CvTeamAI::AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange, bool bUpdateAttitude) // advc.130p
 {
 	AI_setEnemyPeacetimeGrantValue(eIndex, AI_getEnemyPeacetimeGrantValue(eIndex) + iChange,
 			bUpdateAttitude); // advc.130p
@@ -5049,9 +5032,8 @@ bool CvTeamAI::AI_wasRecentlyNuked(CvPlot const& kPlot) const
 
 /*	if this number is over 0 the teams are "close"
 	this may be expensive to run, kinda O(N^2)... */
-int CvTeamAI::AI_teamCloseness(TeamTypes eIndex, int iMaxDistance,
-	bool bConsiderLandTarget, // advc.104o
-	bool bConstCache) const // advc.001n
+// advc.104o <!-- custom: hoisted from multiline signature between `bConsiderLandTarget` and `bConstCache` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvTeamAI::AI_teamCloseness(TeamTypes eIndex, int iMaxDistance, bool bConsiderLandTarget, bool bConstCache) const // advc.001n
 {
 	//PROFILE_FUNC(); // advc.003o (the cache seems to be very effective)
 	FAssert(eIndex != getID());
@@ -5184,8 +5166,7 @@ void CvTeamAI::write(FDataStreamBase* pStream)
 }
 
 // advc.012:
-int CvTeamAI::AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding,
-	bool bGarrisonStrength) const // advc.500b
+int CvTeamAI::AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding, bool bGarrisonStrength) const // advc.500b
 {
 	TeamTypes eAttacker = NO_TEAM;
 	/*  We could also be attacked in p by a second war enemy that doesn't own the plot;
@@ -5863,8 +5844,7 @@ bool CvTeamAI::AI_isOkayVassalTarget(TeamTypes eTeam) const
 }
 
 // advc: Cut from doWar; only relevant if UWAI disabled.
-void CvTeamAI::AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier,
-	TeamTypes eTarget, bool bLimited, int iEnemyPowerPercent)
+void CvTeamAI::AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier, TeamTypes eTarget, bool bLimited, int iEnemyPowerPercent)
 {
 	FAssert(canEventuallyDeclareWar(eTarget));
 	bool bActive = false;

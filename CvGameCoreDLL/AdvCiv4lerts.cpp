@@ -22,8 +22,7 @@ AdvCiv4lert::AdvCiv4lert(PlayerTypes eOwner) : m_eOwner(eOwner)
 }
 
 
-void AdvCiv4lert::showMessage(CvWString szMsg, char const* szIcon, int iX, int iY,
-	ColorTypes eColor) const
+void AdvCiv4lert::showMessage(CvWString szMsg, char const* szIcon, int iX, int iY, ColorTypes eColor) const
 {
 	if (m_bSilent)
 		return;
@@ -121,8 +120,7 @@ void WarTradeAlert::check()
 }
 
 
-void WarTradeAlert::showMessage(TeamTypes eHireling, std::vector<TeamTypes> aeTargets,
-	bool bTrade) const
+void WarTradeAlert::showMessage(TeamTypes eHireling, std::vector<TeamTypes> aeTargets, bool bTrade) const
 {
 	if (aeTargets.empty())
 		return;
@@ -289,8 +287,7 @@ void BonusThirdPartiesAlert::check()
 }
 
 
-void BonusThirdPartiesAlert::getExportData(CLinkList<TradeData> const& kList,
-	PlayerTypes eTo, std::vector<int>& kResult) const
+void BonusThirdPartiesAlert::getExportData(CLinkList<TradeData> const& kList, PlayerTypes eTo, std::vector<int>& kResult) const
 {
 	FOR_EACH_TRADE_ITEM(kList)
 	{
@@ -300,8 +297,7 @@ void BonusThirdPartiesAlert::getExportData(CLinkList<TradeData> const& kList,
 }
 
 
-void BonusThirdPartiesAlert::showMessage(PlayerTypes eFrom, int iData,
-	int iNewQuantity, int iOldQuantity)
+void BonusThirdPartiesAlert::showMessage(PlayerTypes eFrom, int iData, int iNewQuantity, int iOldQuantity)
 {
 	BonusTypes const eBonus = (BonusTypes)(iData % GC.getNumBonusInfos());
 	PlayerTypes const eTo = (PlayerTypes)((iData - eBonus) / GC.getNumBonusInfos());
@@ -497,8 +493,7 @@ void CityTradeAlert::check()
 }
 
 
-void CityTradeAlert::msgWilling(std::vector<CvCity const*> const& kCities,
-	PlayerTypes ePlayer, bool bCede) const
+void CityTradeAlert::msgWilling(std::vector<CvCity const*> const& kCities, PlayerTypes ePlayer, bool bCede) const
 {
 	if (kCities.empty())
 		return;
@@ -522,8 +517,7 @@ void CityTradeAlert::msgWilling(std::vector<CvCity const*> const& kCities,
 }
 
 
-void CityTradeAlert::msgLiberate(std::vector<CvCity const*> const& kCities,
-	PlayerTypes ePlayer) const
+void CityTradeAlert::msgLiberate(std::vector<CvCity const*> const& kCities, PlayerTypes ePlayer) const
 {
 	if (kCities.empty())
 		return;

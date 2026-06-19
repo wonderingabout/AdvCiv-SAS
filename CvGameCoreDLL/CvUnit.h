@@ -29,8 +29,7 @@ public:
 
 	void doTurn();
 	void doTurnPost(); // advc.029
-	void updateCombat(bool bQuick = false, /* advc.004c: */ bool* pbIntercepted = NULL,
-			bool bSeaPatrol = false); // advc.004k
+	void updateCombat(bool bQuick = false, /* advc.004c: */ bool* pbIntercepted = NULL, bool bSeaPatrol = false); // advc.004k
 	void updateAirCombat(bool bQuick = false);
 	bool updateAirStrike(CvPlot& kPlot, bool bQuick, bool bFinish);
 
@@ -40,33 +39,22 @@ public:
 
 	bool isUnowned() const; // advc.061
 
-	bool canDoCommand(CommandTypes eCommand, int iData1, int iData2,										// Exposed to Python
-			bool bTestVisible = false, bool bTestBusy = true) const;
+	bool canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible = false, bool bTestBusy = true) const; // Exposed to Python
 	void doCommand(CommandTypes eCommand, int iData1, int iData2);											// Exposed to Python
 
 	//FAStarNode* getPathLastNode() const; // disabled by K-Mod
 	CvPlot& getPathEndTurnPlot() const;																		// Exposed to Python
-	bool generatePath(CvPlot const& kTo, MovementFlags eFlags = NO_MOVEMENT_FLAGS,							// Exposed to Python
-			bool bReuse = false,
-			int* piPathTurns = NULL,
-			int iMaxPath = -1, // K-Mod
-			bool bUseTempFinder = false) const; // advc.128
+	// K-Mod <!-- custom: hoisted from multiline signature between `iMaxPath` and `bUseTempFinder` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool generatePath(CvPlot const& kTo, MovementFlags eFlags = NO_MOVEMENT_FLAGS, bool bReuse = false, int* piPathTurns = NULL, int iMaxPath = -1, bool bUseTempFinder = false) const; // advc.128; Exposed to Python
 	GroupPathFinder& getPathFinder() const; // K-Mod
 	// <advc>
-	void pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags = NO_MOVEMENT_FLAGS,
-			bool bAppend = false, bool bManual = false, MissionAITypes eMissionAI = NO_MISSIONAI,
-			CvPlot const* pMissionAIPlot = NULL, CvUnit const* pMissionAIUnit = NULL,
-			bool bModified = false); // </advc>
+	void pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags = NO_MOVEMENT_FLAGS, bool bAppend = false, bool bManual = false, MissionAITypes eMissionAI = NO_MISSIONAI, CvPlot const* pMissionAIPlot = NULL, CvUnit const* pMissionAIUnit = NULL, bool bModified = false); // </advc>
 
-	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false,								// Exposed to Python
-			CvArea const* pArea = NULL) const; // advc: canEnterArea merged into canEnterTerritory
+	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false, CvArea const* pArea = NULL) const; // advc: canEnterArea merged into canEnterTerritory; Exposed to Python
 	TeamTypes getDeclareWarMove(const CvPlot* pPlot) const;													// Exposed to Python
-	bool canMoveInto(CvPlot const& kPlot, bool bAttack = false, bool bDeclareWar = false,					// Exposed to Python
-			bool bIgnoreLoad = false,
-			bool bAssumeVisible = true, // K-Mod
-			bool bDangerCheck = false) const; // advc.001k
-	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false,									// Exposed to Python
-			bool bDangerCheck = false) const; // advc.001k
+	// K-Mod <!-- custom: hoisted from multiline signature between `bAssumeVisible` and `bDangerCheck` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool canMoveInto(CvPlot const& kPlot, bool bAttack = false, bool bDeclareWar = false, bool bIgnoreLoad = false, bool bAssumeVisible = true, bool bDangerCheck = false) const; // advc.001k; Exposed to Python
+	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false, bool bDangerCheck = false) const; // advc.001k; Exposed to Python
 	// bool canMoveThrough(const CvPlot* pPlot, bool bDeclareWar = false) const; // disabled by K-Mod (was exposed to Python)
 	bool canEnterArea(CvArea const& kArea) const; // advc.030
 	// <advc>
@@ -90,15 +78,13 @@ public:
 	bool isPlotValid(CvPlot const& kPlot) const;											// Exposed to Python (via CyPlot::isFriendlyCity)
 	bool isRevealedPlotValid(CvPlot const& kPlot) const; // </advc>
 	bool isInvasionMove(CvPlot const& kFrom, CvPlot const& kTo) const; // advc.162
-	void attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted = NULL,
-			bool bSeaPatrol = false); // advc
+	void attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted = NULL, bool bSeaPatrol = false); // advc
 	void attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange);
 	void fightInterceptor(CvPlot const& kPlot, bool bQuick);
-	void move(CvPlot& kPlot, bool bShow, // advc: 1st param was CvPlot* (not const b/c of possible feature change)
-			bool bJump = false, bool bGroup = true); // advc.163
+	// advc: 1st param was CvPlot* (not const b/c of possible feature change) <!-- custom: hoisted from multiline signature between `bShow` and `bJump` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void move(CvPlot& kPlot, bool bShow, bool bJump = false, bool bGroup = true); // advc.163
 	// K-Mod added bForceMove and bGroup
-	bool jumpToNearestValidPlot(bool bGroup = false, bool bForceMove = false,								// Exposed to Python
-			bool bFreeMove = false); // advc.163
+	bool jumpToNearestValidPlot(bool bGroup = false, bool bForceMove = false, bool bFreeMove = false); // advc.163; Exposed to Python
 
 	bool canAutomate(AutomateTypes eAutomate) const;														// Exposed to Python
 	void automate(AutomateTypes eAutomate);
@@ -109,11 +95,9 @@ public:
 	bool canGift(bool bTestVisible = false, bool bTestTransport = true) const;								// Exposed to Python
 	void gift(bool bTestTransport = true);
 
-	bool canLoadOnto(CvUnit const& kUnit, CvPlot const& kPlot,	 											// Exposed to Python
-			bool bCheckMoves = false) const; // advc.123c
+	bool canLoadOnto(CvUnit const& kUnit, CvPlot const& kPlot, bool bCheckMoves = false) const; // advc.123c; Exposed to Python
 	void loadOnto(CvUnit& kUnit);
-	bool canLoadOntoAnyUnit(CvPlot const& kPlot,															// Exposed to Python
-			bool bCheckMoves = false) const; // advc.123c
+	bool canLoadOntoAnyUnit(CvPlot const& kPlot, bool bCheckMoves = false) const; // advc.123c; Exposed to Python
 	void load();
 	bool shouldLoadOnMove(const CvPlot* pPlot) const;
 
@@ -129,8 +113,7 @@ public:
 	bool canAirPatrol(const CvPlot* pPlot) const;															// Exposed to Python
 	void airCircle(bool bStart);
 
-	bool canSeaPatrol(CvPlot const* pPlot																	// Exposed to Python
-			= NULL, bool bCheckActivity = false) const; // advc
+	bool canSeaPatrol(CvPlot const* pPlot = NULL, bool bCheckActivity = false) const; // advc; Exposed to Python
 	bool isSeaPatrolling() const; // advc
 	bool canReachBySeaPatrol(CvPlot const& kDest, CvPlot const* pFrom = NULL) const; // advc.004k
 
@@ -138,8 +121,7 @@ public:
 	bool canSentryHeal(const CvPlot* pPlot) const; // advc.004l
 	bool canSentry(const CvPlot* pPlot) const;																// Exposed to Python
 
-	int healRate(/* K-Mod: */ bool bLocation = true, bool bUnits = true,
-			CvPlot const* pAt /* advc: */ = NULL) const;
+	int healRate(/* K-Mod: */ bool bLocation = true, bool bUnits = true, CvPlot const* pAt /* advc: */ = NULL) const;
 	int healTurns(CvPlot const* pAt /* advc: */ = NULL) const;
 	void doHeal();
 
@@ -148,16 +130,12 @@ public:
 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;											// Exposed to Python
 	bool airlift(int iX, int iY);
 
-	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,													// Exposed to Python
-			TeamTypes eObs = NO_TEAM) const; // kekm.7 (advc)
+	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam, TeamTypes eObs = NO_TEAM) const; // kekm.7 (advc); Exposed to Python
 	bool canNuke(CvPlot const* pFrom) const { return (nukeRange() != -1); }									// Exposed to Python
-	bool canNukeAt(CvPlot const& kFrom, int iX, int iY,														// Exposed to Python
-			TeamTypes eObs = NO_TEAM) const; // kekm.7 (advc)
+	bool canNukeAt(CvPlot const& kFrom, int iX, int iY, TeamTypes eObs = NO_TEAM) const; // kekm.7 (advc); Exposed to Python
 	bool nuke(int iX, int iY);
 	// <advc.650>
-	int nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs = NO_TEAM,
-			TeamTypes* pBestTeam = NULL,
-			EagerEnumMap<TeamTypes,bool> const* pTeamsAffected = NULL) const;
+	int nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs = NO_TEAM, TeamTypes* pBestTeam = NULL, EagerEnumMap<TeamTypes, bool> const* pTeamsAffected = NULL) const;
 	// <advc.650>
 	bool canRecon(const CvPlot* pPlot) const;																// Exposed to Python
 	bool canReconAt(const CvPlot* pPlot, int iX, int iY) const;												// Exposed to Python
@@ -167,12 +145,10 @@ public:
 	bool canAirBombAt(CvPlot const& kTarget, CvPlot const* pFrom = NULL) const; // </advc>					// Exposed to Python
 	// <advc.255>
 	enum StructureTypes { NO_STRUCTURE, STRUCTURE_IMPROVEMENT, STRUCTURE_ROUTE };
-	StructureTypes getDestructibleStructureAt(CvPlot const& kTarget,
-			bool bTestVisibility, // </advc.255>
-			bool bForceImprovement = false) const; // advc.111
+	// </advc.255> <!-- custom: hoisted from multiline signature between `bTestVisibility` and `bForceImprovement` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	StructureTypes getDestructibleStructureAt(CvPlot const& kTarget, bool bTestVisibility, bool bForceImprovement = false) const; // advc.111
 	int airBombDefenseDamage(CvCity const& kCity) const; // advc
-	bool airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted = NULL,
-			bool bForceImprovement = false); // advc.111
+	bool airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted = NULL, bool bForceImprovement = false); // advc.111
 
 	bool canAirStrike(CvPlot const& kPlot) const; // (advc.004c: was protected)
 
@@ -191,8 +167,8 @@ public:
 	bool canPlunder(CvPlot const& kPlot, bool bTestVisible = false) const;									// Exposed to Python
 	bool plunder();
 	void updatePlunder(int iChange, bool bUpdatePlotGroups);
-	void blockadeRange(std::vector<CvPlot*>& r, int iExtra = 0, // advc
-			bool bCheckCanPlunder = true) const; // advc.033
+	// advc <!-- custom: hoisted from multiline signature between `iExtra` and `bCheckCanPlunder` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void blockadeRange(std::vector<CvPlot*>& r, int iExtra = 0, bool bCheckCanPlunder = true) const; // advc.033
 
 	int sabotageCost(const CvPlot* pPlot) const;															// Exposed to Python
 	int sabotageProb(const CvPlot* pPlot, ProbabilityTypes eProbStyle = PROBABILITY_REAL) const;			// Exposed to Python
@@ -215,8 +191,7 @@ public:
 	bool canSpread(const CvPlot* pPlot, ReligionTypes eReligion, bool bTestVisible = false) const;			// Exposed to Python
 	bool spread(ReligionTypes eReligion);
 
-	bool canSpreadCorporation(const CvPlot* pPlot, CorporationTypes eCorporation,							// Exposed to Python
-			bool bTestVisible = false) const;
+	bool canSpreadCorporation(const CvPlot* pPlot, CorporationTypes eCorporation, bool bTestVisible = false) const; // Exposed to Python
 	bool spreadCorporation(CorporationTypes eCorporation);
 	int spreadCorporationCost(CorporationTypes eCorporation, CvCity const* pCity) const;
 
@@ -240,8 +215,7 @@ public:
 	bool canTrade(const CvPlot* pPlot, bool bTestVisible = false) const;									// Exposed to Python
 	bool trade();
 
-	int getGreatWorkCulture(const CvPlot* pPlot,															// Exposed to Python
-			int* piPerEra = NULL) const; // advc.251
+	int getGreatWorkCulture(const CvPlot* pPlot, int* piPerEra = NULL) const; // advc.251; Exposed to Python
 	bool canGreatWork(const CvPlot* pPlot) const;															// Exposed to Python
 	bool greatWork();
 
@@ -258,14 +232,11 @@ public:
 	bool canGoldenAge(const CvPlot* pPlot, bool bTestVisible = false) const;								// Exposed to Python
 	bool goldenAge();
 
-	bool canBuild(CvPlot const& pPlot, BuildTypes eBuild,													// Exposed to Python
-			bool bTestVisible = false, /* advc.181: */ bool bIgnoreFoW = true) const;
+	bool canBuild(CvPlot const& pPlot, BuildTypes eBuild, bool bTestVisible = false, /* advc.181: */ bool bIgnoreFoW = true) const; // Exposed to Python
 	bool build(BuildTypes eBuild);
 
-	bool canPromote(PromotionTypes ePromotion,																// Exposed to Python
-			int iLeaderUnitId /* advc: */ = FFreeList::INVALID_INDEX) const;
-	void promote(PromotionTypes ePromotion,																	// Exposed to Python
-			int iLeaderUnitId /* advc: */ = FFreeList::INVALID_INDEX);
+	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId /* advc: */ = FFreeList::INVALID_INDEX) const; // Exposed to Python
+	void promote(PromotionTypes ePromotion, int iLeaderUnitId /* advc: */ = FFreeList::INVALID_INDEX); // Exposed to Python
 	int promotionHeal(PromotionTypes ePromotion = NO_PROMOTION) const; // advc
 
 	int canLead(const CvPlot* pPlot, int iUnitId) const;
@@ -448,11 +419,9 @@ public:
 	{
 		return m_iBaseCombat;
 	}  // advc: Default values - to make clear that these can be NULL.
-	int maxCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL,							// Exposed to Python
-			CombatDetails* pCombatDetails = NULL,
-			bool bGarrisonStrength = false) const; // advc.500b
-	int currCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL,							// Exposed to Python
-		CombatDetails* pCombatDetails = NULL) const
+	int maxCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL, bool bGarrisonStrength = false) const; // advc.500b; Exposed to Python
+	// Exposed to Python <!-- custom: hoisted from multiline signature between `pAttacker` and `pCombatDetails` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int currCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL) const
 	{
 		return ((maxCombatStr(pPlot, pAttacker, pCombatDetails) * currHitPoints()) / maxHitPoints());
 	}
@@ -460,15 +429,11 @@ public:
 	{
 		return ((maxCombatStr(pPlot, pAttacker) + currCombatStr(pPlot, pAttacker) + 1) / 2);
 	}
-	int currEffectiveStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL,
-			CombatDetails* pCombatDetails = NULL,
-			int iCurrentHP = -1) const; // advc.139
+	int currEffectiveStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL, int iCurrentHP = -1) const; // advc.139
 	DllExport float maxCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;					// Exposed to Python
 	DllExport float currCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;					// Exposed to Python
 	// advc: was protected
-	void getDefenderCombatValues(CvUnit const& kDefender, const CvPlot* pPlot,
-			int iOurStrength, int iOurFirepower, int& iTheirOdds, int& iTheirStrength,
-			int& iOurDamage, int& iTheirDamage, CombatDetails* pTheirDetails = NULL) const;
+	void getDefenderCombatValues(CvUnit const& kDefender, const CvPlot* pPlot, int iOurStrength, int iOurFirepower, int& iTheirOdds, int& iTheirStrength, int& iOurDamage, int& iTheirDamage, CombatDetails* pTheirDetails = NULL) const;
 
 	DllExport bool canFight() const																			// Exposed to Python
 	{
@@ -480,9 +445,7 @@ public:
 	bool canAttack(const CvUnit& kDefender) const;
 	bool canDefend(const CvPlot* pPlot = NULL) const;														// Exposed to Python
 	// <advc>
-	bool canBeAttackedBy(PlayerTypes eAttackingPlayer,
-			CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy,
-			bool bTestVisible, bool bTestCanAttack) const; // </advc>
+	bool canBeAttackedBy(PlayerTypes eAttackingPlayer, CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy, bool bTestVisible, bool bTestCanAttack) const; // </advc>
 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;						// Exposed to Python
 
 	int airBaseCombatStr() const																			// Exposed to Python
@@ -511,8 +474,7 @@ public:
 	bool canAirDefend(CvPlot const* pPlot = NULL) const;													// Exposed to Python
 	int airCombatDamage(const CvUnit* pDefender) const;														// Exposed to Python
 	int rangeCombatDamage(const CvUnit* pDefender) const;													// Exposed to Python
-	CvUnit* bestInterceptor(CvPlot const& kPlot,															// Exposed to Python
-			bool bOdds = false) const; // advc.004c
+	CvUnit* bestInterceptor(CvPlot const& kPlot, bool bOdds = false) const; // advc.004c; Exposed to Python
 	CvUnit* bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const;								// Exposed to Python
 
 	bool isAutomated() const;																				// Exposed to Python
@@ -641,12 +603,10 @@ public:
 	int cargoSpace() const { return m_iCargoCapacity; }														// Exposed to Python
 	void changeCargoSpace(int iChange);																		// Exposed to Python
 	bool isFull() const { return (getCargo() >= cargoSpace()); }											// Exposed to Python
-	int cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT,								// Exposed to Python
-			DomainTypes eDomainCargo = NO_DOMAIN) const;
+	int cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT, DomainTypes eDomainCargo = NO_DOMAIN) const; // Exposed to Python
 	bool hasCargo() const { return (getCargo() > 0); }														// Exposed to Python
 	//bool canCargoAllMove() const; // disabled by K-Mod (was exposed to Python)
-	bool canCargoEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage,
-			CvArea const& kArea) const;
+	bool canCargoEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, CvArea const& kArea) const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;															// Exposed to Python
 
 	static CvUnit* fromIDInfo(IDInfo id); // advc
@@ -673,8 +633,7 @@ public:
 
 	DllExport int getX() const { return m_iX; } // advc.inl: was "getX_INLINE"								// Exposed to Python
 	DllExport int getY() const { return m_iY; } // advc.inl: was "getY_INLINE"								// Exposed to Python
-	void setXY(int iX, int iY, bool bGroup = false, bool bUpdate = true, bool bShow = false,				// Exposed to Python
-			bool bCheckPlotVisible = false);
+	void setXY(int iX, int iY, bool bGroup = false, bool bUpdate = true, bool bShow = false, bool bCheckPlotVisible = false); // Exposed to Python
 
 	bool at(int iX, int iY) const { return (getX() == iX && getY() == iY); }								// Exposed to Python
 	bool at(CvPlot const& kPlot) const { return atPlot(&kPlot); }
@@ -710,9 +669,8 @@ public:
 
 	int getExperience() const { return m_iExperience; }														// Exposed to Python
 	void setExperience(int iNewValue, int iMax = -1);														// Exposed to Python
-	void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false,								// Exposed to Python
-			bool bInBorders = false, //bool bUpdateGlobal = false
-			int iGlobalPercent = 0); // advc.312
+	// bool bUpdateGlobal = false <!-- custom: hoisted from multiline signature between `bInBorders` and `iGlobalPercent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, int iGlobalPercent = 0); // advc.312; Exposed to Python
 	int getGlobalXPPercent() const; // advc.312
 
 	int getLevel() const { return m_iLevel; }																// Exposed to Python
@@ -1077,10 +1035,8 @@ public:
 
 	bool isWorker() const; // advc.154  (Exposed to Python)
 
-	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
-	// Lead From Behind (UncutDragon, edited for K-Mod): START
-			int* pBestDefenderRank,
-			bool bPreferUnowned = false) const; // advc.061
+	// Lead From Behind (UncutDragon, edited for K-Mod): START <!-- custom: hoisted from multiline signature between `pAttacker` and `pBestDefenderRank` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank, bool bPreferUnowned = false) const; // advc.061
 	int LFBgetAttackerRank(const CvUnit* pDefender, int& iUnadjustedRank) const;
 	int LFBgetDefenderRank(const CvUnit* pAttacker) const;
 	// unprotected by K-Mod. (I want to use the LFB value for some AI stuff)
@@ -1115,8 +1071,7 @@ protected:
 	CvUnit();
 	/*  Subclasses need to call these two init functions; not called by base.
 		May also want to override them. */
-	virtual void init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY,
-			DirectionTypes eFacingDirection);
+	virtual void init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection);
 	virtual void finalizeInit(); // </advc.003u>
 
 	int m_iID;
@@ -1231,31 +1186,25 @@ protected:
 	// </advc.111>
 	bool canAdvance(const CvPlot* pPlot, int iThreshold) const;
 	void collateralCombat(const CvPlot* pPlot, CvUnit const* pSkipUnit = NULL);
-	void flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
-			int iAttackerFirepower, int iDefenderOdds, int iDefenderDamage,
-			CvUnit const* pSkipUnit = NULL);
+	void flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength, int iAttackerFirepower, int iDefenderOdds, int iDefenderDamage, CvUnit const* pSkipUnit = NULL);
 
 	bool interceptTest(CvPlot const& kPlot, /* advc.004c: */ IDInfo* pInterceptorID = NULL);
 	CvUnit* airStrikeTarget(CvPlot const& kPlot) const;
 	bool airStrike(CvPlot& kPlot, /* advc.004c: */ bool* pbIntercepted = NULL);
 
-	int planBattle(CvBattleDefinition& kBattle,
-			const std::vector<int>& combat_log) const; // K-Mod
-	int computeUnitsToDie(const CvBattleDefinition & kDefinition, bool bRanged,
-			BattleUnitTypes iUnit) const;
+	int planBattle(CvBattleDefinition& kBattle, const std::vector<int>& combat_log) const; // K-Mod
+	int computeUnitsToDie(const CvBattleDefinition & kDefinition, bool bRanged, BattleUnitTypes iUnit) const;
 	bool verifyRoundsValid(const CvBattleDefinition & battleDefinition) const;
 	void increaseBattleRounds(CvBattleDefinition & battleDefinition) const;
 	int computeWaveSize(bool bRangedRound, int iAttackerMax, int iDefenderMax) const;
-	bool isCombatVisible(const CvUnit* pDefender,
-			bool bSeaPatrol = false) const; // advc.004k
+	bool isCombatVisible(const CvUnit* pDefender, bool bSeaPatrol = false) const; // advc.004k
 	//void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, CvBattleDefinition& kBattle);
 	void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible); // K-Mod
 	void addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const; // advc.010
 	void addDefenseSuccessMessages(CvUnit const& kDefender) const; // advc
 	void addWithdrawalMessages(CvUnit const& kDefender) const; // advc
 	// <advc.048c>
-	void setHasBeenDefendedAgainstMessage(CvWString& kBuffer, CvUnit const& kDefender,
-			int iAttackSuccess) const; // </advc.048c>
+	void setHasBeenDefendedAgainstMessage(CvWString& kBuffer, CvUnit const& kDefender, int iAttackSuccess) const; // </advc.048c>
 	bool suppressStackAttackSound(CvUnit const& kDefender) const; // advc.002l
 	void resolveAirCombat(CvUnit* pInterceptor, CvPlot* pPlot, CvAirMissionDefinition& kBattle);
 	void checkRemoveSelectionAfterAttack();

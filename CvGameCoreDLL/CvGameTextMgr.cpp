@@ -57,8 +57,7 @@ int CvGameTextMgr::getCurrentLanguage()
 }
 
 
-void CvGameTextMgr::setYearStr(CvWString& szString, int iGameTurn, bool bSave,
-	CalendarTypes eCalendar, int iStartYear, GameSpeedTypes eSpeed)
+void CvGameTextMgr::setYearStr(CvWString& szString, int iGameTurn, bool bSave, CalendarTypes eCalendar, int iStartYear, GameSpeedTypes eSpeed)
 {
 	int iTurnYear = getTurnYearForGame(iGameTurn, iStartYear, eCalendar, eSpeed);
 	// <advc.002k>
@@ -110,8 +109,7 @@ void CvGameTextMgr::setYearStr(CvWString& szString, int iGameTurn, bool bSave,
 }
 
 
-void CvGameTextMgr::setDateStr(CvWString& szString, int iGameTurn, bool bSave,
-	CalendarTypes eCalendar, int iStartYear, GameSpeedTypes eSpeed)
+void CvGameTextMgr::setDateStr(CvWString& szString, int iGameTurn, bool bSave, CalendarTypes eCalendar, int iStartYear, GameSpeedTypes eSpeed)
 {
 	CvWString szYearBuffer;
 	setYearStr(szYearBuffer, iGameTurn, bSave, eCalendar, iStartYear, eSpeed);
@@ -1370,8 +1368,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
 /*	advc.004: Based on code cut from setUnitHelp.
 	Avoids showing units that are very slightly damaged at full strength
 	or units that are barely alive at 0 strength. */
-void CvGameTextMgr::setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit,
-	/* <advc.048c> */ int iHP)
+void CvGameTextMgr::setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit, /* <advc.048c> */ int iHP)
 {
 	if (iHP < 0)
 		iHP = kUnit.currHitPoints(); // </advc.048c>
@@ -1484,8 +1481,7 @@ bool CvGameTextMgr::listFirstUnitTypeBeforeSecond(UnitTypes eFirst, UnitTypes eS
 	return eFirst > eSecond;
 }
 
-void CvGameTextMgr::appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerTypes eOwner,
-	int iArmy, int iNavy, int iAir, int iTotal, bool bCollapsed)
+void CvGameTextMgr::appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerTypes eOwner, int iArmy, int iNavy, int iAir, int iTotal, bool bCollapsed)
 {
 	int iOther = iTotal - iArmy - iNavy; // Don't display iAir separately for now
 	// Don't distinguish categories when there are few units in each
@@ -1540,9 +1536,7 @@ void CvGameTextMgr::appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerType
 }
 
 // Reuses bits and pieces from setPlotListHelp
-void CvGameTextMgr::appendUnitTypeAggregated(CvWStringBuffer& szString,
-	std::vector<CvUnit const*> const& ownerUnits, UnitTypes eUnit,
-	CvPlot const& kPlot, bool bIndicator) // advc.007
+void CvGameTextMgr::appendUnitTypeAggregated(CvWStringBuffer& szString, std::vector<CvUnit const*> const& ownerUnits, UnitTypes eUnit, CvPlot const& kPlot, bool bIndicator) // advc.007
 {
 	CvUnit* pCenterUnit = kPlot.getCenterUnit();
 	int iCount = 0;
@@ -1615,8 +1609,7 @@ void CvGameTextMgr::appendUnitTypeAggregated(CvWStringBuffer& szString,
 }
 
 // Cut and pasted (and refactored) from setPlotListHelp
-void CvGameTextMgr::appendAverageStrength(CvWStringBuffer& szString,
-	int iSumMaxStrengthTimes100, int iSumStrengthTimes100, int iUnits)
+void CvGameTextMgr::appendAverageStrength(CvWStringBuffer& szString, int iSumMaxStrengthTimes100, int iSumStrengthTimes100, int iUnits)
 {
 	if(iUnits > 1) // advc: This condition is new
 		szString.append(CvWString::format(L" (%d)", iUnits));
@@ -1640,8 +1633,7 @@ void CvGameTextMgr::appendAverageStrength(CvWStringBuffer& szString,
 }
 
 
-void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
-	CvPlot const& kPlot, bool bIndicator, bool bShort)
+void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString, CvPlot const& kPlot, bool bIndicator, bool bShort)
 {
 	if(kPlot.getCenterUnit() == NULL)
 		return;
@@ -1978,9 +1970,8 @@ void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
 } // </advc.061>
 
 
-void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPlot, // advc: was CvPlot*
-	bool bOneLine, bool bShort,
-	bool bIndicator) // advc.061, advc.007
+// advc: was CvPlot* <!-- custom: hoisted from multiline signature between `kPlot` and `bOneLine` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPlot, bool bOneLine, bool bShort, bool bIndicator) // advc.061, advc.007
 {
 	PROFILE_FUNC();
 	TeamTypes const eActiveTeam = getActiveTeam();
@@ -2605,8 +2596,7 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
 // advc.004c:
 namespace
 {
-	CvUnit const* bestInterceptor(CvUnit const& kUnit, CvPlot const& kMissionPlot,
-		scaled& rOdds)
+	CvUnit const* bestInterceptor(CvUnit const& kUnit, CvPlot const& kMissionPlot, scaled& rOdds)
 	{
 		rOdds = 0;
 		int const iEvasionPercent = kUnit.evasionProbability();
@@ -2624,8 +2614,7 @@ namespace
 }
 
 // advc.004c
-void CvGameTextMgr::setInterceptPlotHelp(CvPlot const& kPlot, CvUnit const& kUnit,
-	CvWString& szHelp, bool bNewline)
+void CvGameTextMgr::setInterceptPlotHelp(CvPlot const& kPlot, CvUnit const& kUnit, CvWString& szHelp, bool bNewline)
 {
 	scaled rInterceptProb;
 	CvUnit const* pBestInterceptor = bestInterceptor(kUnit, kPlot, rInterceptProb);
@@ -2980,8 +2969,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
 
 /*	advc.089: Help text for the conditions checked by CvUnit::canAttack.
 	Only damage limit so far. */
-void CvGameTextMgr::setCannotAttackHelp(CvWStringBuffer& szHelp,
-	CvUnit const& kAttacker, CvUnit const& kDefender)
+void CvGameTextMgr::setCannotAttackHelp(CvWStringBuffer& szHelp, CvUnit const& kAttacker, CvUnit const& kDefender)
 {
 	// List the units upfront (can't attack any of these)
 	setPlotListHelp(szHelp, *kDefender.plot(), true, true);
@@ -3789,8 +3777,7 @@ void CvGameTextMgr::setPlotHealthHappyHelp(CvWStringBuffer& szBuffer, CvPlot con
 }
 
 // Replacing code originally in CvWidgetData::parseActionHelp
-void CvGameTextMgr::setHealthHappyBuildActionHelp(CvWStringBuffer& szBuffer,
-	CvPlot const& kPlot, BuildTypes eBuild) const
+void CvGameTextMgr::setHealthHappyBuildActionHelp(CvWStringBuffer& szBuffer, CvPlot const& kPlot, BuildTypes eBuild) const
 {
 	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
 	ImprovementTypes const eNewImprov = kBuild.getImprovement();
@@ -3851,8 +3838,7 @@ void CvGameTextMgr::setHealthHappyBuildActionHelp(CvWStringBuffer& szBuffer,
 }
 
 
-void CvGameTextMgr::setHealthChangeBuildActionHelp(CvWStringBuffer& szBuffer,
-	int iChange, int iChangePercent, int iIcon) const
+void CvGameTextMgr::setHealthChangeBuildActionHelp(CvWStringBuffer& szBuffer, int iChange, int iChangePercent, int iIcon) const
 {
 	char const* szSign = (iChangePercent > 0 ? "+" : "");
 	CvWString szFraction;
@@ -5302,8 +5288,7 @@ void CvGameTextMgr::getActiveTeamRelationsString(CvWStringBuffer& szString, Team
 	}*/
 }
 
-void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString,
-		PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
 {
 	if(eThisPlayer == NO_PLAYER || eOtherPlayer == NO_PLAYER)
 		return;
@@ -5316,9 +5301,7 @@ void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString,
 /*  advc: This BULL function replaces CvGameTextMgr::getOtherRelationsString(
 	CvWStringBuffer&, PlayerTypes, PlayerTypes). I've merged just one K-Mod
 	change from the latter. */
-void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString,
-	TeamTypes eThisTeam, /* (advc: unused) */ TeamTypes eOtherTeam,
-	TeamTypes eSkipTeam)
+void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam, /* (advc: unused) */ TeamTypes eOtherTeam, TeamTypes eSkipTeam)
 {
 	if(eThisTeam == NO_TEAM)
 		return;
@@ -5366,9 +5349,8 @@ void CvGameTextMgr::getOtherRelationsString(CvWStringBuffer& szString,
 	}
 } // BULL - Leaderhead Relations - end
 
-void CvGameTextMgr::setCityPlotYieldValueString(CvWStringBuffer &szString,
-	CvCityAI* pCity, // advc.003u: Was CvCity*; this function is for AI debugging.
-	int iPlotIndex, bool bIgnoreFood, int iGrowthValue) 
+// advc.003u: Was CvCity*; this function is for AI debugging. <!-- custom: hoisted from multiline signature between `pCity` and `iPlotIndex` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvGameTextMgr::setCityPlotYieldValueString(CvWStringBuffer &szString, CvCityAI* pCity, int iPlotIndex, bool bIgnoreFood, int iGrowthValue)
 {
 	PROFILE_FUNC();
 
@@ -5387,8 +5369,7 @@ void CvGameTextMgr::setCityPlotYieldValueString(CvWStringBuffer &szString,
 	else setYieldValueString(szString, 0, /*bActive*/ false, /*bMakeWhitespace*/ true);
 }
 
-void CvGameTextMgr::setYieldValueString(CvWStringBuffer &szString,
-	int iValue, bool bActive, bool bMakeWhitespace)
+void CvGameTextMgr::setYieldValueString(CvWStringBuffer &szString, int iValue, bool bActive, bool bMakeWhitespace)
 {
 	PROFILE_FUNC();
 
@@ -5997,8 +5978,7 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
 
 
 // <!-- custom: pass bCivilopediaText through so Civilopedia can render free promotions in a single compact line; the old multi-line bullets remain elsewhere, while this avoids needless vertical sprawl on the leader page. (GPT-5.2-Codex) -->
-void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait,
-	CivilizationTypes eCivilization, bool bDawnOfMan, bool bCivilopediaText)
+void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait, CivilizationTypes eCivilization, bool bDawnOfMan, bool bCivilopediaText)
 {
 	PROFILE_FUNC();
 
@@ -6383,8 +6363,7 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
 }
 
 // parseLeaderTraits - SimpleCivPicker
-void CvGameTextMgr::parseLeaderTraits(CvWStringBuffer &szHelpString, LeaderHeadTypes eLeader,
-	CivilizationTypes eCivilization, bool bDawnOfMan, bool bCivilopediaText)
+void CvGameTextMgr::parseLeaderTraits(CvWStringBuffer &szHelpString, LeaderHeadTypes eLeader, CivilizationTypes eCivilization, bool bDawnOfMan, bool bCivilopediaText)
 {
 	PROFILE_FUNC();
 
@@ -6425,8 +6404,7 @@ void CvGameTextMgr::parseLeaderTraits(CvWStringBuffer &szHelpString, LeaderHeadT
 }
 
 // parseLeaderTraits - SimpleCivPicker
-void CvGameTextMgr::parseLeaderShortTraits(CvWStringBuffer &szHelpString,
-	LeaderHeadTypes eLeader)
+void CvGameTextMgr::parseLeaderShortTraits(CvWStringBuffer &szHelpString, LeaderHeadTypes eLeader)
 {
 	PROFILE_FUNC();
 
@@ -6451,8 +6429,7 @@ void CvGameTextMgr::parseLeaderShortTraits(CvWStringBuffer &szHelpString,
 }
 
 // Build Civilization Info Help Text
-void CvGameTextMgr::parseCivInfos(CvWStringBuffer &szInfoText, CivilizationTypes eCivilization,
-	bool bDawnOfMan, bool bLinks)
+void CvGameTextMgr::parseCivInfos(CvWStringBuffer &szInfoText, CivilizationTypes eCivilization, bool bDawnOfMan, bool bLinks)
 {
 	PROFILE_FUNC();
 
@@ -6582,8 +6559,7 @@ void CvGameTextMgr::parseCivInfos(CvWStringBuffer &szInfoText, CivilizationTypes
 }
 
 // advc: Cut from parseCivInfos
-void CvGameTextMgr::appendUniqueDesc(CvWStringBuffer& szBuffer, bool bSeparator, bool bDawnOfMan,
-	bool bLinks, wchar const* szUniqueDesc, wchar const* szDefaultDesc)
+void CvGameTextMgr::appendUniqueDesc(CvWStringBuffer& szBuffer, bool bSeparator, bool bDawnOfMan, bool bLinks, wchar const* szUniqueDesc, wchar const* szDefaultDesc)
 {
 	CvWString szTmp;
 	if (bDawnOfMan)
@@ -6612,8 +6588,7 @@ void CvGameTextMgr::appendUniqueDesc(CvWStringBuffer& szBuffer, bool bSeparator,
 }
 
 
-void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString,
-	SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText)
+void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString, SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText)
 {
 	PROFILE_FUNC();
 
@@ -6739,8 +6714,7 @@ void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString,
 	}
 }
 
-void CvGameTextMgr::parseFreeSpecialistHelp(CvWStringBuffer &szHelpString,
-	CvCity const& kCity)
+void CvGameTextMgr::parseFreeSpecialistHelp(CvWStringBuffer &szHelpString, CvCity const& kCity)
 {
 	PROFILE_FUNC();
 
@@ -6785,8 +6759,7 @@ void CvGameTextMgr::parseFreeSpecialistHelp(CvWStringBuffer &szHelpString,
 }
 
 
-void CvGameTextMgr::parsePromotionHelp(CvWStringBuffer &szBuffer,
-	PromotionTypes ePromo, const wchar* pcNewline)
+void CvGameTextMgr::parsePromotionHelp(CvWStringBuffer &szBuffer, PromotionTypes ePromo, const wchar* pcNewline)
 {
 	PROFILE_FUNC();
 
@@ -7235,8 +7208,7 @@ void CvGameTextMgr::parseSingleCivicRevealHelp(CvWStringBuffer& szBuffer, CivicT
 }
 
 
-void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivic, bool bCivilopediaText,
-	bool bPlayerContext, bool bSkipName)
+void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivic, bool bCivilopediaText, bool bPlayerContext, bool bSkipName)
 {
 	PROFILE_FUNC();
 
@@ -8069,8 +8041,7 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
 }
 
 
-void CvGameTextMgr::setTechHelp(CvWStringBuffer &szBuffer, TechTypes eTech, bool bCivilopediaText,
-	bool bPlayerContext, bool bStrategyText, bool bTreeInfo, TechTypes eFromTech)
+void CvGameTextMgr::setTechHelp(CvWStringBuffer &szBuffer, TechTypes eTech, bool bCivilopediaText, bool bPlayerContext, bool bStrategyText, bool bTreeInfo, TechTypes eFromTech)
 {
 	// BULL - Trade Denial - start
 	setTechTradeHelp(szBuffer, eTech, NO_PLAYER, bCivilopediaText, bPlayerContext,
@@ -8078,8 +8049,7 @@ void CvGameTextMgr::setTechHelp(CvWStringBuffer &szBuffer, TechTypes eTech, bool
 }
 
 
-void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech, PlayerTypes eTradePlayer,
-	bool bCivilopediaText, bool bPlayerContext, bool bStrategyText, bool bTreeInfo, TechTypes eFromTech)
+void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech, PlayerTypes eTradePlayer, bool bCivilopediaText, bool bPlayerContext, bool bStrategyText, bool bTreeInfo, TechTypes eFromTech)
 // BULL - Trade Denial - end
 {
 	PROFILE_FUNC();
@@ -8792,8 +8762,7 @@ void CvGameTextMgr::setDiscoverPathHelp(CvWStringBuffer& szBuffer, UnitTypes eUn
 }
 
 // advc.ctr:
-void CvGameTextMgr::setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
-	PlayerTypes eWhoTo, bool bListMore, bool bReason)
+void CvGameTextMgr::setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity, PlayerTypes eWhoTo, bool bListMore, bool bReason)
 {
 	PlayerTypes eActivePlayer = getActivePlayer();
 	/*	For the debug menu on the Cities tab. Don't really know which
@@ -9853,8 +9822,7 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 }
 
 
-void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
-	bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CvCity* pCity)
+void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CvCity* pCity)
 {
 	PROFILE_FUNC();
 	if (eUnit == NO_UNIT)
@@ -10381,8 +10349,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 
 /*	BUG - Building Actual Effects - start
 	Appends the actual (i.e. absolute) effects of adding eBuilding to pCity */
-void CvGameTextMgr::setBuildingNetEffectsHelp(CvWStringBuffer &szBuffer,
-	BuildingTypes eBuilding, CvCity const* pCity)
+void CvGameTextMgr::setBuildingNetEffectsHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, CvCity const* pCity)
 {
 	if (pCity == NULL)
 		return; // advc
@@ -10451,16 +10418,13 @@ void CvGameTextMgr::setBuildingNetEffectsHelp(CvWStringBuffer &szBuffer,
 }
 
 
-void CvGameTextMgr::setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding,
-	bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CvCity* pCity)
+void CvGameTextMgr::setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CvCity* pCity)
 {	// Call new function below without displaying actual effects.
 	setBuildingHelpActual(szBuffer, eBuilding, bCivilopediaText, bStrategyText, bTechChooserText, pCity, false);
 }
 
 // New function, with option to display actual effects.
-void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
-	BuildingTypes eBuilding, bool bCivilopediaText, bool bStrategyText,
-	bool bTechChooserText, CvCity* pCity, bool bActual)
+void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CvCity* pCity, bool bActual)
 // BUG - Building Actual Effects - end
 {
 	PROFILE_FUNC();
@@ -12151,8 +12115,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
 }
 
 
-void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
-	BuildingTypes eBuilding, bool bCivilopediaText, bool bTechChooserText, const CvCity* pCity)
+void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, BuildingTypes eBuilding, bool bCivilopediaText, bool bTechChooserText, const CvCity* pCity)
 {
 	if (pCity != NULL && pCity->canConstruct(eBuilding))
 		return;
@@ -12571,8 +12534,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer,
 }
 
 // advc.179:
-void CvGameTextMgr::buildBuildingReligionYieldString(CvWStringBuffer& szBuffer,
-	CvBuildingInfo const& kBuilding)
+void CvGameTextMgr::buildBuildingReligionYieldString(CvWStringBuffer& szBuffer, CvBuildingInfo const& kBuilding)
 {
 	if (kBuilding.getVoteSourceType() == NO_VOTESOURCE)
 		return;
@@ -12583,8 +12545,7 @@ void CvGameTextMgr::buildBuildingReligionYieldString(CvWStringBuffer& szBuffer,
 }
 
 
-void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProject,
-	bool bCivilopediaText, CvCity* pCity)
+void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProject, bool bCivilopediaText, CvCity* pCity)
 {
 	PROFILE_FUNC();
 
@@ -12939,8 +12900,7 @@ void CvGameTextMgr::setProcessHelp(CvWStringBuffer &szBuffer, ProcessTypes eProc
 }
 
 // BULL - Production Decay: (advc.094)
-void CvGameTextMgr::setProductionDecayHelp(CvWStringBuffer &szBuffer,
-	int iTurnsLeft, int iThreshold, int iDecay, bool bProducing)
+void CvGameTextMgr::setProductionDecayHelp(CvWStringBuffer &szBuffer, int iTurnsLeft, int iThreshold, int iDecay, bool bProducing)
 {
 	if (iTurnsLeft <= 1)
 	{
@@ -12982,8 +12942,7 @@ namespace
 {
 	/*	If all health from surroundings of iSign can be attributed to one type
 		of feature, return that feature type, otherwise NO_FEATURE. */
-	FeatureTypes getSurroundingHealthFeature(CvCity const& kCity, int iSign,
-		bool& bOnlyFeatureHealth)
+	FeatureTypes getSurroundingHealthFeature(CvCity const& kCity, int iSign, bool& bOnlyFeatureHealth)
 	{
 		bOnlyFeatureHealth = false;
 		FeatureTypes eHealthFeature = NO_FEATURE;
@@ -13883,8 +13842,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 }
 
 // BUG - Building Additional Happiness - start
-bool CvGameTextMgr::setBuildingAdditionalHappinessHelp(CvWStringBuffer &szBuffer,
-	const CvCity& kCity, const CvWString& szStart, bool bStarted)
+bool CvGameTextMgr::setBuildingAdditionalHappinessHelp(CvWStringBuffer &szBuffer, const CvCity& kCity, const CvWString& szStart, bool bStarted)
 {
 	CvWString szLabel;
 
@@ -13938,9 +13896,7 @@ void CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer &szBuffer, const CvWSt
 	Adding the ability to pass in and get back the value of bStarted so that
 	set...ChangeHelp can be combined on a single line. */
 template<class YieldChanges> // advc.003t
-bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer &szBuffer,
-	const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-	YieldChanges aiYieldChange, bool bPercent, bool bNewLine, bool bStarted)
+bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, YieldChanges aiYieldChange, bool bPercent, bool bNewLine, bool bStarted)
 {
 	CvWString szTempBuffer;
 
@@ -13985,9 +13941,7 @@ template bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer&,
 		YieldChangeMap const&, bool, bool, bool); // </advc.003t>
 
 template<class CommerceChanges> // advc.003t
-bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer &szBuffer,
-	const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-	CommerceChanges aiCommerceChange, bool bPercent, bool bNewLine, bool bStarted)
+bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, CommerceChanges aiCommerceChange, bool bPercent, bool bNewLine, bool bStarted)
 {
 	CvWString szTempBuffer;
 
@@ -14030,9 +13984,7 @@ template bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer&,
 
 // Displays float values by dividing each value by 100
 template<class CommercePercentChanges> // advc.003t
-bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer &szBuffer,
-	const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-	CommercePercentChanges aiCommerceChange, bool bNewLine, bool bStarted)
+bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, CommercePercentChanges aiCommerceChange, bool bNewLine, bool bStarted)
 {
 	CvWString szTempBuffer;
 
@@ -14085,10 +14037,7 @@ template bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer&,
 		CvWString const&, CvWString const&, CvWString const&,
 		CommercePercentMap const&, bool, bool); // </advc.003t>
 
-bool CvGameTextMgr::setGoodBadChangeHelp(CvWStringBuffer &szBuffer,
-	const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-	int iGood, int iGoodSymbol, int iBad, int iBadSymbol, bool bPercent,
-	bool bNewLine, bool bStarted)
+bool CvGameTextMgr::setGoodBadChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iGood, int iGoodSymbol, int iBad, int iBadSymbol, bool bPercent, bool bNewLine, bool bStarted)
 {
 	bStarted = setValueChangeHelp(szBuffer, szStart, szSpace, szEnd,
 			iGood, iGoodSymbol, bPercent, bNewLine, bStarted);
@@ -14098,9 +14047,7 @@ bool CvGameTextMgr::setGoodBadChangeHelp(CvWStringBuffer &szBuffer,
 	return bStarted;
 }
 
-bool CvGameTextMgr::setValueChangeHelp(CvWStringBuffer &szBuffer,
-	const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-	int iValue, int iSymbol, bool bPercent, bool bNewLine, bool bStarted)
+bool CvGameTextMgr::setValueChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iValue, int iSymbol, bool bPercent, bool bNewLine, bool bStarted)
 {
 	if (iValue == 0)
 		return bStarted;
@@ -14126,9 +14073,7 @@ bool CvGameTextMgr::setValueChangeHelp(CvWStringBuffer &szBuffer,
 	return bStarted;
 }
 
-bool CvGameTextMgr::setValueTimes100ChangeHelp(CvWStringBuffer &szBuffer,
-	const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-	int iValue, int iSymbol, bool bNewLine, bool bStarted)
+bool CvGameTextMgr::setValueTimes100ChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iValue, int iSymbol, bool bNewLine, bool bStarted)
 {
 	if (iValue == 0)
 		return bStarted;
@@ -14172,10 +14117,8 @@ void CvGameTextMgr::setBonusHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, b
 }
 
 // This function has been effectly rewritten for K-Mod. (there were a lot of things to change.)
-void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
-	bool bCivilopediaText, PlayerTypes eTradePlayer,
-  // BULL - Trade Denial - end
-	bool bImport, bool bForeignAdvisor) // advc.073
+// BULL - Trade Denial - end <!-- custom: hoisted from multiline signature between `eTradePlayer` and `bImport` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport, bool bForeignAdvisor) // advc.073
 {
 	if (eBonus == NO_BONUS)
 		return;
@@ -14432,8 +14375,7 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
 }
 
 // advc.004w: Some code cut from setBonusHelp, but mostly new code.
-void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
-	bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo, CvCity const* pCity)
+void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo, CvCity const* pCity)
 {
 	PROFILE_FUNC();
 	CvGame const& kGame = GC.getGame();
@@ -14867,8 +14809,7 @@ void CvGameTextMgr::setReligionHelp(CvWStringBuffer &szBuffer, ReligionTypes eRe
 	}
 }
 
-void CvGameTextMgr::setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes eReligion,
-	CvCity* pCity, bool bCityScreen, bool bForceReligion, bool bForceState, bool bNoStateReligion)
+void CvGameTextMgr::setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes eReligion, CvCity* pCity, bool bCityScreen, bool bForceReligion, bool bForceState, bool bNoStateReligion)
 {
 	if(pCity == NULL)
 		return;
@@ -15023,8 +14964,7 @@ void CvGameTextMgr::setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes
 	}
 }
 
-void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer,
-	CorporationTypes eCorporation, bool bCivilopedia)
+void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer, CorporationTypes eCorporation, bool bCivilopedia)
 {
 	if (eCorporation == NO_CORPORATION)
 		return;
@@ -15191,8 +15131,7 @@ void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::setCorporationHelpCity(CvWStringBuffer &szBuffer,
-	CorporationTypes eCorporation, CvCity *pCity, bool bCityScreen, bool bForceCorporation)
+void CvGameTextMgr::setCorporationHelpCity(CvWStringBuffer &szBuffer, CorporationTypes eCorporation, CvCity *pCity, bool bCityScreen, bool bForceCorporation)
 {
 	if (pCity == NULL)
 		return;
@@ -15356,8 +15295,7 @@ void CvGameTextMgr::buildObsoleteSpecialString(CvWStringBuffer &szBuffer, int iI
 			GC.getInfo((SpecialBuildingTypes)iItem).getTextKeyWide()));
 }
 
-void CvGameTextMgr::buildMoveString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildMoveString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	FOR_EACH_ENUM(Route)
 	{
@@ -15382,8 +15320,7 @@ void CvGameTextMgr::buildMoveString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildFreeUnitString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildFreeUnitString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	UnitTypes eFreeUnit = NO_UNIT;
 	if (getActivePlayer() != NO_PLAYER)
@@ -15409,8 +15346,7 @@ void CvGameTextMgr::buildFreeUnitString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildFeatureProductionString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildFeatureProductionString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).getFeatureProductionModifier() != 0)
 	{
@@ -15421,8 +15357,7 @@ void CvGameTextMgr::buildFeatureProductionString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildWorkerRateString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildWorkerRateString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).getWorkerSpeedModifier() != 0)
 	{
@@ -15433,8 +15368,7 @@ void CvGameTextMgr::buildWorkerRateString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildTradeRouteString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildTradeRouteString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).getTradeRoutes() != 0)
 	{
@@ -15445,8 +15379,7 @@ void CvGameTextMgr::buildTradeRouteString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildHealthRateString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildHealthRateString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).getHealth() != 0)
 	{
@@ -15460,8 +15393,7 @@ void CvGameTextMgr::buildHealthRateString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildHappinessRateString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildHappinessRateString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).getHappiness() != 0)
 	{
@@ -15474,8 +15406,7 @@ void CvGameTextMgr::buildHappinessRateString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildFreeTechString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildFreeTechString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).getFirstFreeTechs() > 0)
 	{
@@ -15495,8 +15426,7 @@ void CvGameTextMgr::buildFreeTechString(CvWStringBuffer &szBuffer,
 }
 
 // advc.500c:
-void CvGameTextMgr::buildNoFearForSafetyString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildNoFearForSafetyString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (!GC.getInfo(eTech).get(CvTechInfo::NoFearForSafety))
 		return;
@@ -15505,8 +15435,7 @@ void CvGameTextMgr::buildNoFearForSafetyString(CvWStringBuffer &szBuffer,
 	szBuffer.append(gDLL->getText("TXT_KEY_TECH_NO_FEAR_FOR_SAFETY"));
 }
 
-void CvGameTextMgr::buildLOSString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildLOSString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isExtraWaterSeeFrom() &&
 		(!bPlayerContext || !(GET_TEAM(getActiveTeam()).isExtraWaterSeeFrom())))
@@ -15517,8 +15446,7 @@ void CvGameTextMgr::buildLOSString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildMapCenterString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildMapCenterString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isMapCentering() &&
 		(!bPlayerContext || !(GET_TEAM(getActiveTeam()).isMapCentering())))
@@ -15529,8 +15457,7 @@ void CvGameTextMgr::buildMapCenterString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildMapRevealString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList)
+void CvGameTextMgr::buildMapRevealString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList)
 {
 	if (GC.getInfo(eTech).isMapVisible())
 	{
@@ -15540,8 +15467,7 @@ void CvGameTextMgr::buildMapRevealString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildMapTradeString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildMapTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isMapTrading() &&
 		(!bPlayerContext || !(GET_TEAM(getActiveTeam()).isMapTrading())))
@@ -15552,8 +15478,7 @@ void CvGameTextMgr::buildMapTradeString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildTechTradeString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildTechTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isTechTrading() &&
 		(!bPlayerContext || !(GET_TEAM(getActiveTeam()).isTechTrading())))
@@ -15564,8 +15489,7 @@ void CvGameTextMgr::buildTechTradeString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildGoldTradeString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildGoldTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isGoldTrading() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isGoldTrading()))
@@ -15576,8 +15500,7 @@ void CvGameTextMgr::buildGoldTradeString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildOpenBordersString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildOpenBordersString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isOpenBordersTrading() &&
 		(!bPlayerContext || !(GET_TEAM(getActiveTeam()).isOpenBordersTrading())))
@@ -15588,8 +15511,7 @@ void CvGameTextMgr::buildOpenBordersString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildDefensivePactString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildDefensivePactString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isDefensivePactTrading() &&
 		(!bPlayerContext || !(GET_TEAM(getActiveTeam()).isDefensivePactTrading())))
@@ -15600,8 +15522,7 @@ void CvGameTextMgr::buildDefensivePactString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildPermanentAllianceString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildPermanentAllianceString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isPermanentAllianceTrading() &&
 		(!bPlayerContext ||
@@ -15614,8 +15535,7 @@ void CvGameTextMgr::buildPermanentAllianceString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildVassalStateString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildVassalStateString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isVassalStateTrading() &&
 		(!bPlayerContext ||
@@ -15628,8 +15548,7 @@ void CvGameTextMgr::buildVassalStateString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isBridgeBuilding() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isBridgeBuilding()))
@@ -15641,8 +15560,7 @@ void CvGameTextMgr::buildBridgeString(CvWStringBuffer &szBuffer,
 }
 
 // <!-- custom: add the <bTrade> tech info xml flag in sevopedia tech's placeSpecial -->
-void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (!GC.getTechInfo(eTech).isTrade() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isHasTech(eTech)))
@@ -15654,8 +15572,7 @@ void CvGameTextMgr::buildBTradeString(CvWStringBuffer &szBuffer,
 }
 
 // <!-- custom: quite similarly but displaying the positive condition this time (not negative one like in bTrade) also add the <bRepeat> tech info xml flag in sevopedia tech's placeSpecial -->
-void CvGameTextMgr::buildBRepeatString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildBRepeatString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getTechInfo(eTech).isRepeat() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isHasTech(eTech)))
@@ -15666,8 +15583,7 @@ void CvGameTextMgr::buildBRepeatString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildIrrigationString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildIrrigationString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isIrrigation() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isIrrigation()))
@@ -15678,8 +15594,7 @@ void CvGameTextMgr::buildIrrigationString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildIgnoreIrrigationString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildIgnoreIrrigationString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isIgnoreIrrigation() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isIgnoreIrrigation()))
@@ -15690,8 +15605,7 @@ void CvGameTextMgr::buildIgnoreIrrigationString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildWaterWorkString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildWaterWorkString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isWaterWork() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isWaterWork()))
@@ -15702,8 +15616,7 @@ void CvGameTextMgr::buildWaterWorkString(CvWStringBuffer &szBuffer,
 	}
 }
 
-void CvGameTextMgr::buildImprovementString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	BuildTypes eBuild, bool bList, bool bPlayerContext) // advc: eBuild param was 'int iImprovement'
+void CvGameTextMgr::buildImprovementString(CvWStringBuffer &szBuffer, TechTypes eTech, BuildTypes eBuild, bool bList, bool bPlayerContext) // advc: eBuild param was 'int iImprovement'
 {
 	bool bTechFound = false;
 
@@ -15730,8 +15643,7 @@ void CvGameTextMgr::buildImprovementString(CvWStringBuffer &szBuffer, TechTypes 
 	}
 }
 
-void CvGameTextMgr::buildDomainExtraMovesString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	DomainTypes eDomain, bool bList, bool bPlayerContext) // advc: domain param was int
+void CvGameTextMgr::buildDomainExtraMovesString(CvWStringBuffer &szBuffer, TechTypes eTech, DomainTypes eDomain, bool bList, bool bPlayerContext) // advc: domain param was int
 {
 	if (GC.getInfo(eTech).getDomainExtraMoves(eDomain) != 0)
 	{
@@ -15743,8 +15655,7 @@ void CvGameTextMgr::buildDomainExtraMovesString(CvWStringBuffer &szBuffer, TechT
 	}
 }
 
-void CvGameTextMgr::buildAdjustString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	CommerceTypes eCommerce, bool bList, bool bPlayerContext) // advc: commerce param was int
+void CvGameTextMgr::buildAdjustString(CvWStringBuffer &szBuffer, TechTypes eTech, CommerceTypes eCommerce, bool bList, bool bPlayerContext) // advc: commerce param was int
 {
 	if (GC.getInfo(eTech).isCommerceFlexible(eCommerce) &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isCommerceFlexible(eCommerce)))
@@ -15762,8 +15673,7 @@ void CvGameTextMgr::buildAdjustString(CvWStringBuffer &szBuffer, TechTypes eTech
 	}
 }
 
-void CvGameTextMgr::buildTerrainTradeString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	TerrainTypes eTerrain, bool bList, bool bPlayerContext) // advc: terrain param was int
+void CvGameTextMgr::buildTerrainTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, TerrainTypes eTerrain, bool bList, bool bPlayerContext) // advc: terrain param was int
 {
 	if (GC.getInfo(eTech).isTerrainTrade(eTerrain) &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isTerrainTrade(eTerrain)))
@@ -15776,8 +15686,7 @@ void CvGameTextMgr::buildTerrainTradeString(CvWStringBuffer &szBuffer, TechTypes
 	}
 }
 
-void CvGameTextMgr::buildRiverTradeString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	bool bList, bool bPlayerContext)
+void CvGameTextMgr::buildRiverTradeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList, bool bPlayerContext)
 {
 	if (GC.getInfo(eTech).isRiverTrade() &&
 		(!bPlayerContext || !GET_TEAM(getActiveTeam()).isRiverTrade()))
@@ -15790,8 +15699,7 @@ void CvGameTextMgr::buildRiverTradeString(CvWStringBuffer &szBuffer, TechTypes e
 	}
 }
 
-void CvGameTextMgr::buildSpecialBuildingString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	SpecialBuildingTypes eSpecial, bool bList, bool bPlayerContext) // special param was 'int iBuildingType'
+void CvGameTextMgr::buildSpecialBuildingString(CvWStringBuffer &szBuffer, TechTypes eTech, SpecialBuildingTypes eSpecial, bool bList, bool bPlayerContext) // special param was 'int iBuildingType'
 {
 	if (GC.getInfo(eSpecial).getTechPrereq() == eTech)
 	{
@@ -15810,8 +15718,7 @@ void CvGameTextMgr::buildSpecialBuildingString(CvWStringBuffer &szBuffer, TechTy
 	}
 }
 
-void CvGameTextMgr::buildYieldChangeString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	ImprovementTypes eImprov, bool bList, bool bPlayerContext) // advc: improv param was 'int iYieldType'
+void CvGameTextMgr::buildYieldChangeString(CvWStringBuffer &szBuffer, TechTypes eTech, ImprovementTypes eImprov, bool bList, bool bPlayerContext) // advc: improv param was 'int iYieldType'
 {
 	CvWString szTempBuffer;
 	CvImprovementInfo const& kImprov = GC.getInfo(eImprov);
@@ -15826,8 +15733,7 @@ void CvGameTextMgr::buildYieldChangeString(CvWStringBuffer &szBuffer, TechTypes 
 			kImprov.getTechYieldChangesArray(eTech), false, bList);
 }
 
-bool CvGameTextMgr::buildBonusRevealString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	BonusTypes eBonus, bool bFirst, bool bList, bool bPlayerContext) // advc: bonus param was int
+bool CvGameTextMgr::buildBonusRevealString(CvWStringBuffer &szBuffer, TechTypes eTech, BonusTypes eBonus, bool bFirst, bool bList, bool bPlayerContext) // advc: bonus param was int
 {
 	if (GC.getInfo(eBonus).getTechReveal() == eTech)
 	{
@@ -15843,8 +15749,7 @@ bool CvGameTextMgr::buildBonusRevealString(CvWStringBuffer &szBuffer, TechTypes 
 	return bFirst;
 }
 
-bool CvGameTextMgr::buildCivicRevealString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	CivicTypes eCivic, bool bFirst, bool bList, bool bPlayerContext) // advc: civic param was int
+bool CvGameTextMgr::buildCivicRevealString(CvWStringBuffer &szBuffer, TechTypes eTech, CivicTypes eCivic, bool bFirst, bool bList, bool bPlayerContext) // advc: civic param was int
 {
 
 	if (GC.getInfo(eCivic).getTechPrereq() == eTech)
@@ -15861,8 +15766,7 @@ bool CvGameTextMgr::buildCivicRevealString(CvWStringBuffer &szBuffer, TechTypes 
 	return bFirst;
 }
 
-bool CvGameTextMgr::buildProcessInfoString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	ProcessTypes eProcess, bool bFirst, bool bList, bool bPlayerContext) // advc: process param was int
+bool CvGameTextMgr::buildProcessInfoString(CvWStringBuffer &szBuffer, TechTypes eTech, ProcessTypes eProcess, bool bFirst, bool bList, bool bPlayerContext) // advc: process param was int
 {
 
 	if (GC.getInfo(eProcess).getTechPrereq() == eTech)
@@ -15879,8 +15783,7 @@ bool CvGameTextMgr::buildProcessInfoString(CvWStringBuffer &szBuffer, TechTypes 
 	return bFirst;
 }
 
-bool CvGameTextMgr::buildFoundReligionString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	ReligionTypes eReligion, bool bFirst, bool bList, bool bPlayerContext) // advc: religion param was int
+bool CvGameTextMgr::buildFoundReligionString(CvWStringBuffer &szBuffer, TechTypes eTech, ReligionTypes eReligion, bool bFirst, bool bList, bool bPlayerContext) // advc: religion param was int
 {
 	if (GC.getInfo(eReligion).getTechPrereq() != eTech)
 		return bFirst; // advc
@@ -15903,8 +15806,7 @@ bool CvGameTextMgr::buildFoundReligionString(CvWStringBuffer &szBuffer, TechType
 	return bFirst;
 }
 
-bool CvGameTextMgr::buildFoundCorporationString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	CorporationTypes eCorp, bool bFirst, bool bList, bool bPlayerContext) // advc: corp param was int
+bool CvGameTextMgr::buildFoundCorporationString(CvWStringBuffer &szBuffer, TechTypes eTech, CorporationTypes eCorp, bool bFirst, bool bList, bool bPlayerContext) // advc: corp param was int
 {
 	if (GC.getInfo(eCorp).getTechPrereq() != eTech)
 		return bFirst; // advc
@@ -15922,8 +15824,7 @@ bool CvGameTextMgr::buildFoundCorporationString(CvWStringBuffer &szBuffer, TechT
 	return bFirst;
 }
 
-bool CvGameTextMgr::buildPromotionString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	PromotionTypes ePromo, bool bFirst, bool bList, bool bPlayerContext) // advc: promo param was int
+bool CvGameTextMgr::buildPromotionString(CvWStringBuffer &szBuffer, TechTypes eTech, PromotionTypes ePromo, bool bFirst, bool bList, bool bPlayerContext) // advc: promo param was int
 {
 	if (GC.getInfo(ePromo).getTechPrereq() != eTech)
 		return bFirst; // advc
@@ -15939,8 +15840,7 @@ bool CvGameTextMgr::buildPromotionString(CvWStringBuffer &szBuffer, TechTypes eT
 }
 
 // advc.910: Not much BtS code left unchanged here
-void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer,
-	TechTypes eTech, bool bPlayerContext)
+void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bPlayerContext)
 {
 	FAssert(eTech != NO_TECH);
 	/*  Separate containers for
@@ -16117,8 +16017,7 @@ void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer,
 }
 
 // Information about other prerequisite technologies to eTech besides eFromTech
-void CvGameTextMgr::buildTechTreeString(CvWStringBuffer &szBuffer, TechTypes eTech,
-	bool bPlayerContext, TechTypes eFromTech)
+void CvGameTextMgr::buildTechTreeString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bPlayerContext, TechTypes eFromTech)
 {
 	CvWString szTempBuffer;	// Formatting
 
@@ -16214,8 +16113,7 @@ void CvGameTextMgr::buildTechTreeString(CvWStringBuffer &szBuffer, TechTypes eTe
 }
 
 // advc.034:
-void CvGameTextMgr::buildDisengageString(CvWString& szString, PlayerTypes ePlayer,
-	PlayerTypes eOther)
+void CvGameTextMgr::buildDisengageString(CvWString& szString, PlayerTypes ePlayer, PlayerTypes eOther)
 {
 	int iTurns = 0;
 	FOR_EACH_DEAL(d)
@@ -16233,8 +16131,7 @@ void CvGameTextMgr::buildDisengageString(CvWString& szString, PlayerTypes ePlaye
 }
 
 
-void CvGameTextMgr::setPromotionHelp(CvWStringBuffer &szBuffer,
-	PromotionTypes ePromotion, bool bCivilopediaText)
+void CvGameTextMgr::setPromotionHelp(CvWStringBuffer &szBuffer, PromotionTypes ePromotion, bool bCivilopediaText)
 {
 	if (!bCivilopediaText)
 	{
@@ -16458,9 +16355,8 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
 }
 
 // advc: Merge of two getDealString functions. One was just a wrapper.
-void CvGameTextMgr::getDealString(CvWStringBuffer& szBuffer, CvDeal const& kDeal,
-	PlayerTypes ePlayerPerspective,  // <advc.004w>
-	bool bCancel)
+// <advc.004w> <!-- custom: hoisted from multiline signature between `ePlayerPerspective` and `bCancel` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvGameTextMgr::getDealString(CvWStringBuffer& szBuffer, CvDeal const& kDeal, PlayerTypes ePlayerPerspective, bool bCancel)
 {
 	int const iTurnsToCancel = (bCancel ? -1 : kDeal.turnsToCancel()); // </advc.004w>
 	CvPlayer const& kFirstPlayer = GET_PLAYER(kDeal.getFirstPlayer());
@@ -16584,8 +16480,7 @@ void CvGameTextMgr::getWarplanString(CvWStringBuffer& szString, WarPlanTypes eWa
 }
 
 // advc: Auxiliary function; cut from getAttitudeString.
-void CvGameTextMgr::appendToAttitudeBreakdown(CvWStringBuffer& szBreakdown, int iPass,
-	int iAttitudeChange, int& iTotal, char const* szTextKey, char const* szTextKeyAlt)
+void CvGameTextMgr::appendToAttitudeBreakdown(CvWStringBuffer& szBreakdown, int iPass, int iAttitudeChange, int& iTotal, char const* szTextKey, char const* szTextKeyAlt)
 {
 	if ((iPass == 0) ? (iAttitudeChange > 0) : (iAttitudeChange < 0))
 	{
@@ -16602,8 +16497,7 @@ void CvGameTextMgr::appendToAttitudeBreakdown(CvWStringBuffer& szBreakdown, int 
 }
 
 
-void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer,
-	PlayerTypes eTargetPlayer, /* advc.sha: */ bool bConstCache)
+void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer, /* advc.sha: */ bool bConstCache)
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	if (kPlayer.isHuman()) 
@@ -16854,8 +16748,7 @@ void CvGameTextMgr::getVassalInfoString(CvWStringBuffer& szBuffer, PlayerTypes e
 }
 
 // K-Mod:
-void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer,
-	PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const
+void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const
 {
 	FAssert(ePlayer != NO_PLAYER);
 	/*	Show ePlayer's war weariness towards eTargetPlayer.
@@ -16915,9 +16808,7 @@ void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer,
 }*/ // advc: Obsolete according to a K-Mod comment
 
 
-void CvGameTextMgr::getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData,
-	PlayerTypes ePlayer1, PlayerTypes ePlayer2,
-	int iTurnsToCancel) // advc.004w
+void CvGameTextMgr::getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2, int iTurnsToCancel) // advc.004w
 {
 	switch (tradeData.m_eItemType)
 	{
@@ -17784,8 +17675,7 @@ void CvGameTextMgr::parsePlayerTraits(CvWStringBuffer &szBuffer, PlayerTypes ePl
 }
 
 // K-Mod. I've rewritten most of this function.
-void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer,
-	PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
 {
 	if (eThisPlayer == NO_PLAYER)
 		return;
@@ -17882,8 +17772,7 @@ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer,
 }
 
 // advc.152:
-void CvGameTextMgr::parseWarTradesHelp(CvWStringBuffer& szBuffer,
-	PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+void CvGameTextMgr::parseWarTradesHelp(CvWStringBuffer& szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
 {
 	/*  Same checks as in getAttitudeText (AttitudeUtil.py), which displays
 		the fist icon. */
@@ -17906,8 +17795,7 @@ void CvGameTextMgr::parseWarTradesHelp(CvWStringBuffer& szBuffer,
 }
 
 
-void CvGameTextMgr::parseLeaderLineHelp(CvWStringBuffer &szBuffer,
-	PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+void CvGameTextMgr::parseLeaderLineHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
 {
 	// advc: This is apparently dead code
 	FErrorMsg("Just checking if this function is ever even called");
@@ -17960,8 +17848,7 @@ void CvGameTextMgr::parseLeaderLineHelp(CvWStringBuffer &szBuffer,
 }
 
 
-void CvGameTextMgr::getActiveDealsString(CvWStringBuffer &szBuffer,
-	PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer, /* advc.087: */ bool bExludeDual)
+void CvGameTextMgr::getActiveDealsString(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer, /* advc.087: */ bool bExludeDual)
 {
 	FOR_EACH_DEAL(pDeal)
 	{
@@ -18000,8 +17887,7 @@ void CvGameTextMgr::buildHintsList(CvWStringBuffer& szBuffer)
 	}
 }
 
-void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity const& kCity,
-	CommerceTypes eCommerce)
+void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity const& kCity, CommerceTypes eCommerce)
 {
 	// BUG - Building Additional Commerce - start
 	bool const bBuildingAdditionalCommerce =
@@ -18701,8 +18587,7 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity const
 }
 
 // BUG - Building Additional Great People - start
-bool CvGameTextMgr::setBuildingAdditionalGreatPeopleHelp(CvWStringBuffer
-	&szBuffer, const CvCity& city, const CvWString& szStart, bool bStarted)
+bool CvGameTextMgr::setBuildingAdditionalGreatPeopleHelp(CvWStringBuffer &szBuffer, const CvCity& city, const CvWString& szStart, bool bStarted)
 {
 	CvWString szLabel;
 
@@ -19109,8 +18994,7 @@ void CvGameTextMgr::setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer)
 }
 
 
-void CvGameTextMgr::setEventHelp(CvWStringBuffer& szBuffer,
-	EventTypes eEvent, int iEventTriggeredId, PlayerTypes ePlayer)
+void CvGameTextMgr::setEventHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, int iEventTriggeredId, PlayerTypes ePlayer)
 {
 	if (eEvent == NO_EVENT || ePlayer == NO_PLAYER)
 		return;
@@ -19877,9 +19761,7 @@ void CvGameTextMgr::setEventHelp(CvWStringBuffer& szBuffer,
 	}
 }
 
-void CvGameTextMgr::eventTechHelp(CvWStringBuffer& szBuffer,
-	EventTypes eEvent, TechTypes eTech,
-	PlayerTypes eActivePlayer, PlayerTypes eOtherPlayer)
+void CvGameTextMgr::eventTechHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, TechTypes eTech, PlayerTypes eActivePlayer, PlayerTypes eOtherPlayer)
 {
 	CvEventInfo& kEvent = GC.getInfo(eEvent);
 
@@ -20168,9 +20050,7 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
 	szBuffer.append(gDLL->getText("TXT_KEY_TRADE_ROUTE_TOTAL", iProfit));
 }
 
-void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer,
-	EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-	CvPlot const* pPlot, int iExtraData, CvUnit const* pSpyUnit)
+void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, CvUnit const* pSpyUnit)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(getActivePlayer());
 	CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
@@ -20643,8 +20523,7 @@ void CvGameTextMgr::getTradeScreenIcons(std::vector< std::pair<CvString, CvWidge
 
 }
 
-void CvGameTextMgr::getTradeScreenHeader(CvWString& szHeader, PlayerTypes ePlayer,
-	PlayerTypes eOtherPlayer, bool bAttitude)
+void CvGameTextMgr::getTradeScreenHeader(CvWString& szHeader, PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bAttitude)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 	szHeader.Format(L"%s - %s", CvWString(kPlayer.getName()).GetCString(),
@@ -20656,8 +20535,7 @@ void CvGameTextMgr::getTradeScreenHeader(CvWString& szHeader, PlayerTypes ePlaye
 	}
 }
 // BULL - Finance Advisor - start
-void CvGameTextMgr::buildFinanceSpecialistGoldString(CvWStringBuffer& szBuffer,
-	PlayerTypes ePlayer)
+void CvGameTextMgr::buildFinanceSpecialistGoldString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
 {
 	if(ePlayer == NO_PLAYER)
 		return;
@@ -20732,8 +20610,7 @@ void CvGameTextMgr::buildForeignTradeString(CvWStringBuffer& szBuffer, PlayerTyp
 	} // </advc.086>
 } // BULL - Finance Advisor - end
 // BULL - Trade Hover - start  // advc: _MOD_FRACTRADE removed
-void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer,
-	PlayerTypes eWithPlayer, bool bDomestic, bool bForeign, bool bHeading)
+void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eWithPlayer, bool bDomestic, bool bForeign, bool bHeading)
 {
 	if(ePlayer == NO_PLAYER)
 		return;
@@ -20848,8 +20725,7 @@ void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePla
 } // BULL - Trade Hover - end
 // BULL - Leaderhead Relations - start
 // Displays the relations between two leaders only. This is used by the F4:GLANCE and F5:SIT-REP tabs.
-void CvGameTextMgr::parseLeaderHeadRelationsHelp(CvWStringBuffer &szBuffer,
-	PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+void CvGameTextMgr::parseLeaderHeadRelationsHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
 {
 	if(eThisPlayer == NO_PLAYER)
 		return;
@@ -21057,8 +20933,7 @@ void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 	} // BULL - Building Additional Food - end
 } // BULL - Food Rate Hover - end
 // advc.154:
-void CvGameTextMgr::setCycleUnitHelp(CvWStringBuffer &szBuffer,
-	bool bWorkers, CvUnit const& kUnit)
+void CvGameTextMgr::setCycleUnitHelp(CvWStringBuffer &szBuffer, bool bWorkers, CvUnit const& kUnit)
 {
 	CvWString szHotKey(GC.getInfo(bWorkers ?
 			CONTROL_CYCLEWORKER : CONTROL_CYCLEUNIT_ALT).
@@ -21166,8 +21041,7 @@ void CvGameTextMgr::getGlobeLayerName(GlobeLayerTypes eType, int iOption, CvWStr
 	}
 }
 
-void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
-	CvCity* pCity, CvPlot* pFlagPlot, bool bAlt, CvWStringBuffer& strHelp)
+void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* pFlagPlot, bool bAlt, CvWStringBuffer& strHelp)
 {
 	TeamTypes const eActiveTeam = getActiveTeam();
 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
@@ -21318,8 +21192,7 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
 	}
 }
 
-void CvGameTextMgr::getRebasePlotHelp(CvPlot const& kPlot,
-	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
+void CvGameTextMgr::getRebasePlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp)
 {
 	CvCity const* pCity = kPlot.getPlotCity();
 	if (pCity == NULL)
@@ -21340,8 +21213,7 @@ void CvGameTextMgr::getRebasePlotHelp(CvPlot const& kPlot,
 	szHelp += NEWLINE;
 }
 
-void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
-	CvUnit& kNuke, CvWString& szHelp)
+void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot, CvUnit& kNuke, CvWString& szHelp)
 {
 	if (kNuke.canNukeAt(kNuke.getPlot(), kPlot.getX(), kPlot.getY(),
 		kNuke.getTeam())) // kekm.7 (advc)
@@ -21423,8 +21295,7 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
 
 /*	advc.004c: (Beginning based on getNukePlotHelp; the defense damage part is akin
 	to the MISSION_BOMBARD case in CvDLLWidgetData::parseActionHelp_Mission.) */
-void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot,
-	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
+void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp)
 {
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
 	// <!-- custom: guard null selection list so air-bomb help does not call into AI on a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
@@ -21507,8 +21378,7 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot,
 }
 
 // advc.004c:
-void CvGameTextMgr::getAirStrikePlotHelp(CvPlot const& kPlot,
-	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
+void CvGameTextMgr::getAirStrikePlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp)
 {
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
 	// <!-- custom: guard null selection list so air-strike help does not query AI on a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
@@ -21527,8 +21397,7 @@ void CvGameTextMgr::getAirStrikePlotHelp(CvPlot const& kPlot,
 }
 
 // advc.004c:
-void CvGameTextMgr::getParadropPlotHelp(CvPlot const& kPlot,
-	CvUnit& kHeadSelectedUnit, CvWString& szHelp)
+void CvGameTextMgr::getParadropPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp)
 {
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
 	// <!-- custom: guard null selection list so paradrop help does not iterate a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
@@ -21677,8 +21546,7 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
 	}
 }
 
-void CvGameTextMgr::getFontSymbols(std::vector< std::vector<wchar> >& aacSymbols,
-	std::vector<int>& aiMaxNumRows)
+void CvGameTextMgr::getFontSymbols(std::vector< std::vector<wchar> >& aacSymbols, std::vector<int>& aiMaxNumRows)
 {
 	std::vector<wchar> acEmpty; // advc (will get copied)
 
@@ -21804,8 +21672,7 @@ void CvGameTextMgr::assignFontIds(int iFirstSymbolCode, int iRowLen)
 	}
 }
 
-void CvGameTextMgr::getCityDataForAS(std::vector<CvWBData>& mapCityList,
-	std::vector<CvWBData>& mapBuildingList, std::vector<CvWBData>& mapAutomateList)
+void CvGameTextMgr::getCityDataForAS(std::vector<CvWBData>& mapCityList, std::vector<CvWBData>& mapBuildingList, std::vector<CvWBData>& mapAutomateList)
 {
 	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
 
@@ -21895,8 +21762,7 @@ void CvGameTextMgr::getUnitDataForAS(std::vector<CvWBData>& mapUnitList)
 	}
 }
 
-void CvGameTextMgr::getImprovementDataForAS(std::vector<CvWBData>& mapImprovementList,
-	std::vector<CvWBData>& mapRouteList)
+void CvGameTextMgr::getImprovementDataForAS(std::vector<CvWBData>& mapImprovementList, std::vector<CvWBData>& mapRouteList)
 {
 	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
 
@@ -21988,9 +21854,7 @@ void CvGameTextMgr::getBuildingDataForWB(bool bStickyButton, std::vector<CvWBDat
 	}
 }
 
-void CvGameTextMgr::getTerrainDataForWB(std::vector<CvWBData>& mapTerrainData,
-	std::vector<CvWBData>& mapFeatureData, std::vector<CvWBData>& mapPlotData,
-	std::vector<CvWBData>& mapRouteData)
+void CvGameTextMgr::getTerrainDataForWB(std::vector<CvWBData>& mapTerrainData, std::vector<CvWBData>& mapFeatureData, std::vector<CvWBData>& mapPlotData, std::vector<CvWBData>& mapRouteData)
 {
 	CvWStringBuffer szBuffer;
 
@@ -22170,10 +22034,7 @@ int CvGameTextMgr::getHelpFontSize() const
 } // </advc.002b>
 
 // <advc> Based on BtS and ACO code originally in setCombatPlotHelp
-void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
-	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
-	bool bAttackModifiers, bool bACOEnabled,
-	bool bOnlyGeneric, bool bOnlyNonGeneric)
+void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, bool bAttackModifiers, bool bACOEnabled, bool bOnlyGeneric, bool bOnlyNonGeneric)
 {
 	CombatModifierOutputParams params;
 	params.m_bACOEnabled = bACOEnabled;
@@ -22356,9 +22217,7 @@ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
 }
 
 
-void CvGameTextMgr::appendCombatModifier(CvWStringBuffer& szBuffer,
-	int iModifier, CombatModifierOutputParams const& kParams,
-	char const* szTextKey, wchar const* szTextArg)
+void CvGameTextMgr::appendCombatModifier(CvWStringBuffer& szBuffer, int iModifier, CombatModifierOutputParams const& kParams, char const* szTextKey, wchar const* szTextArg)
 {
 	if (iModifier == 0)
 		return;
@@ -22384,8 +22243,7 @@ void CvGameTextMgr::appendCombatModifier(CvWStringBuffer& szBuffer,
 }
 
 
-void CvGameTextMgr::appendFirstStrikes(CvWStringBuffer& szBuffer,
-	CvUnit const& kFirstStriker, CvUnit const& kOther, bool bNegativeColor)
+void CvGameTextMgr::appendFirstStrikes(CvWStringBuffer& szBuffer, CvUnit const& kFirstStriker, CvUnit const& kOther, bool bNegativeColor)
 {
 	if (kOther.immuneToFirstStrikes() || kFirstStriker.maxFirstStrikes() <= 0)
 		return;
@@ -22417,9 +22275,7 @@ void CvGameTextMgr::appendFirstStrikes(CvWStringBuffer& szBuffer,
 /*  advc.004w: Based on code cut from setUnitHelp and setBasicUnitHelp (and deleted from
 	setBuildingHelpActual). Units and buildings have the same production speed bonuses. */
 template<OrderTypes eORDER, typename ORDER_DATA1, typename ORDER_DATA2>
-void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
-	ORDER_DATA1 eData1, ORDER_DATA2 eData2,
-	CvCity const* pCity, bool bCivilopediaText)
+void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer, ORDER_DATA1 eData1, ORDER_DATA2 eData2, CvCity const* pCity, bool bCivilopediaText)
 {
 	BOOST_STATIC_ASSERT(eORDER == ORDER_TRAIN || eORDER == ORDER_CONSTRUCT);
 	BOOST_STATIC_ASSERT((eORDER == ORDER_TRAIN) == (is_same_type<ORDER_DATA1,UnitTypes>::value));
@@ -22532,8 +22388,7 @@ void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
 
 /*	advc.001: Need to link explicitly to the specialist type so that SPECIALIST_SPY
 	gets used and not UNIT_SPY. */
-void CvGameTextMgr::setSpecialistLink(CvWString& szBuffer, SpecialistTypes eSpecialist,
-	bool bPlural)
+void CvGameTextMgr::setSpecialistLink(CvWString& szBuffer, SpecialistTypes eSpecialist, bool bPlural)
 {
 	CvWString szSpecialistType = GC.getInfo(eSpecialist).getType();
 	wchar const* szSpecialistDescr = GC.getInfo(eSpecialist).getDescription();

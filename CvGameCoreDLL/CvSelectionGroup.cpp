@@ -551,10 +551,8 @@ void CvSelectionGroup::playActionSound()  // advc: refactored
 }
 
 
-void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2,
-	MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI,
-	CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, // advc: 2x const
-	bool bModified) // advc.011b
+// advc: 2x const <!-- custom: hoisted from multiline signature between `pMissionAIUnit` and `bModified` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, bool bModified) // advc.011b
 {
 	PROFILE_FUNC();
 
@@ -710,10 +708,8 @@ CvPlot* CvSelectionGroup::lastMissionPlot() const
 }
 
 
-bool CvSelectionGroup::canStartMission(
-	MissionTypes eMission, // advc: was int
-	int iData1, int iData2,
-	CvPlot const* pPlot, bool bTestVisible, bool bUseCache) /* advc: */ const
+// advc: was int <!-- custom: hoisted from multiline signature between `eMission` and `iData1` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvSelectionGroup::canStartMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot, bool bTestVisible, bool bUseCache) /* advc: */ const
 {
 	if (bUseCache)
 	{
@@ -1762,8 +1758,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 }
 
 
-bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bUseCache)
+bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bUseCache)
 {
 	PROFILE_FUNC();
 
@@ -1797,8 +1792,7 @@ bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData
 	return (eCommand == COMMAND_LOAD); // advc.123c: instead of false
 }
 
-bool CvSelectionGroup::canEverDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bUseCache)
+bool CvSelectionGroup::canEverDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bUseCache)
 {
 	if(eCommand == COMMAND_LOAD)
 	{
@@ -2257,8 +2251,7 @@ int CvSelectionGroup::getCargoSpace() const
 }
 
 // K-Mod:
-int CvSelectionGroup::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo,
-	DomainTypes eDomainCargo) const
+int CvSelectionGroup::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDomainCargo) const
 {
 	int iSpace = 0;
 	FOR_EACH_UNIT_IN(pUnit, *this)
@@ -2333,8 +2326,7 @@ bool CvSelectionGroup::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPas
 	return true;
 }
 
-bool CvSelectionGroup::canEnterArea(TeamTypes eTeam, CvArea const& kArea,
-	bool bIgnoreRightOfPassage) const
+bool CvSelectionGroup::canEnterArea(TeamTypes eTeam, CvArea const& kArea, bool bIgnoreRightOfPassage) const
 {
 	if(getNumUnits() <= 0)
 		return false;
@@ -2360,8 +2352,7 @@ bool CvSelectionGroup::canMoveInto(CvPlot const& kPlot, bool bAttack) const
 }
 
 
-bool CvSelectionGroup::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar,
-	bool bCheckMoves, bool bAssumeVisible) const // K-Mod
+bool CvSelectionGroup::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar, bool bCheckMoves, bool bAssumeVisible) const // K-Mod
 {
 	if (getNumUnits() <= 0)
 		return false;
@@ -2621,8 +2612,7 @@ DomainTypes CvSelectionGroup::getDomainType() const
 }
 
 
-RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot,
-	BuildTypes* peBestBuild) const
+RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot, BuildTypes* peBestBuild) const
 {
 	PROFILE_FUNC();
 
@@ -2655,9 +2645,8 @@ RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot,
 }
 
 // Returns true if attack was made...
-bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
-	bool& bFailedAlreadyFighting, // advc (note): out-parameter
-	bool bMaxSurvival) // advc.048
+// advc (note): out-parameter <!-- custom: hoisted from multiline signature between `bFailedAlreadyFighting` and `bMaxSurvival` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags, bool& bFailedAlreadyFighting, bool bMaxSurvival) // advc.048
 {
 	PROFILE_FUNC();
 
@@ -3120,8 +3109,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 }
 
 
-void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit,
-	CvSelectionGroup** pOtherGroup) // BETTER_BTS_AI_MOD, General AI, 04/18/10, jdog5000
+void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit, CvSelectionGroup** pOtherGroup) // BETTER_BTS_AI_MOD, General AI, 04/18/10, jdog5000
 {
 	if (pTransportUnit != NULL) // if we are loading
 	{
@@ -3323,8 +3311,7 @@ bool CvSelectionGroup::readyForMission() const
 }
 
 
-bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData2,
-	CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const
+bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const
 {
 	if (pPlot == NULL)
 		pPlot = plot();
@@ -3720,8 +3707,8 @@ void CvSelectionGroup::changeMissionTimer(int iChange)
 }
 
 
-void CvSelectionGroup::updateMissionTimer(int iSteps,  // advc: refactored
-	CvPlot* pFromPlot) // advc.102
+// advc: refactored <!-- custom: hoisted from multiline signature between `iSteps` and `pFromPlot` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvSelectionGroup::updateMissionTimer(int iSteps, CvPlot* pFromPlot) // advc.102
 {
 	CvGame const& kGame = GC.getGame();
 	if (headMissionQueueNode() == NULL || 
@@ -3874,9 +3861,7 @@ CvPlot& CvSelectionGroup::getPathEndTurnPlot() const
 }
 
 
-bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
-	MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath,
-	bool bUseTempFinder) const // advc.128
+bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo, MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath, bool bUseTempFinder) const // advc.128
 {
 	PROFILE_FUNC();
 	/*	K-Mod - if I can stop the UI from messing with this pathfinder,
@@ -4083,8 +4068,7 @@ void CvSelectionGroup::mergeIntoGroup(CvSelectionGroup* pSelectionGroup)
 /*  K-Mod. I've rewritten most of this function. The new version is faster,
 	gives a more even split, and does not create a dummy group.
 	(unless I've made a mistake.) */
-CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize,
-	CvUnit* pNewHeadUnit, CvSelectionGroup** ppOtherGroup)
+CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize, CvUnit* pNewHeadUnit, CvSelectionGroup** ppOtherGroup)
 {
 	FAssert(pNewHeadUnit == 0 || pNewHeadUnit->getGroup() == this);
 

@@ -126,8 +126,7 @@ void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
 }
 
 // advc: Cut from CvUnit::resolveCombat
-void CvEventReporter::combatLogHit(CombatDetails const& kAttackerDetails,
-	CombatDetails const& kDefenderDetails, int iDamage, bool bAttackerTakesHit)
+void CvEventReporter::combatLogHit(CombatDetails const& kAttackerDetails, CombatDetails const& kDefenderDetails, int iDamage, bool bAttackerTakesHit)
 {
 	CyArgsList pyArgs;
 	pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&kAttackerDetails));

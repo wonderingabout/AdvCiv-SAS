@@ -56,20 +56,12 @@ private:
 	CitySiteEvaluator* createSiteEvaluator(bool bNormalize = false) const;
 	void evaluateCurrPosition(SolutionAttributes& kResult, bool bLog = false) const;
 	// <!-- custom: found values stored as int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
-	void computeStartValues(EagerEnumMap<PlayerTypes,int> const& kFoundValues,
-			SolutionAttributes& kResult, bool bLog = false) const;
-	scaled computeRivalDistFactors(EagerEnumMap<PlayerTypes,scaled>& kResult,
-			bool bSameArea) const;
-	scaled outlierValue(EagerEnumMap<PlayerTypes,scaled> const& kStartValues,
-			PlayerTypes eIndex, scaled& rPercentage,
-			scaled rNegativeOutlierExtraWeight = 0,
-			scaled const* pMedian = NULL, bool* pbNegativeOutlier = NULL) const;
+	void computeStartValues(EagerEnumMap<PlayerTypes, int> const& kFoundValues, SolutionAttributes& kResult, bool bLog = false) const;
+	scaled computeRivalDistFactors(EagerEnumMap<PlayerTypes, scaled>& kResult, bool bSameArea) const;
+	scaled outlierValue(EagerEnumMap<PlayerTypes, scaled> const& kStartValues, PlayerTypes eIndex, scaled& rPercentage, scaled rNegativeOutlierExtraWeight = 0, scaled const* pMedian = NULL, bool* pbNegativeOutlier = NULL) const;
 	scaled startingPositionValue(SolutionAttributes& kResult) const;
-	void currAltSites(PlayerTypes eCurrSitePlayer,
-			std::vector<std::pair<short,PlotNumTypes> >& kAltSitesByPriority,
-			bool bIncludeRemote = false, PlotNumTypes eTakenSite = NO_PLOT_NUM) const;
-	void logStep(Step const& kStep, SolutionAttributes const& kOldSolution,
-			SolutionAttributes& kNewSolution, bool bStepTaken) const;
+	void currAltSites(PlayerTypes eCurrSitePlayer, std::vector<std::pair<short, PlotNumTypes> >& kAltSitesByPriority, bool bIncludeRemote = false, PlotNumTypes eTakenSite = NO_PLOT_NUM) const;
+	void logStep(Step const& kStep, SolutionAttributes const& kOldSolution, SolutionAttributes& kNewSolution, bool bStepTaken) const;
 	bool considerStep(Step& kStep, SolutionAttributes& kCurrSolutionAttribs) const;
 	void doIterations(PotentialSites& kPotentialSites);
 	void assignSitesToTeams();
@@ -90,8 +82,7 @@ private:
 		void getPlots(std::vector<CvPlot const*>& r) const;
 		VoronoiCell* getCell(PlayerTypes eCurrSite) const;
 		PlotNumTypes getRemoteSite(int iIndex) const;
-		void getCurrFoundValues(
-				EagerEnumMap<PlayerTypes,int>& kFoundValuesPerPlayer) const;
+		void getCurrFoundValues(EagerEnumMap<PlayerTypes, int>& kFoundValuesPerPlayer) const;
 
 	private:
 		CitySiteEvaluator const& m_kEval;
@@ -101,8 +92,7 @@ private:
 		std::vector<std::pair<int,PlotNumTypes> > m_remoteSitesByAreaSize;
 
 		scaled computeMinFoundValue();
-		void recordSite(CvPlot const& kPlot, int iFoundValue, bool bAdd,
-				EagerEnumMap<PlotNumTypes,scaled>& kVicinityPenaltiesPerPlot);
+		void recordSite(CvPlot const& kPlot, int iFoundValue, bool bAdd, EagerEnumMap<PlotNumTypes, scaled>& kVicinityPenaltiesPerPlot);
 		void closestPlayers(CvPlot const& kPlot, std::vector<PlayerTypes>& kResult) const;
 		int fewestPotentialSites() const;
 	};
@@ -155,8 +145,7 @@ private:
 		short m_iSecondFrontierCost;
 
 		void computeDistances(CvPlot const& kSource);
-		void setDistance(CvPlot const& kSource, CvPlot const& kDestination,
-				short iDistance);
+		void setDistance(CvPlot const& kSource, CvPlot const& kDestination, short iDistance);
 		short stepDist(CvPlot const& kFrom, CvPlot const& kTo, bool bSourceCoastal) const;
 	};
 
@@ -214,8 +203,7 @@ private:
 	};
 	std::map<PlotNumTypes,StartValBreakdown> m_startValData;
 
-	bool isReached(CvPlot const& kStartSite,
-			bool bNearlyReached, bool bClearlyExeeded = false) const;
+	bool isReached(CvPlot const& kStartSite, bool bNearlyReached, bool bClearlyExeeded = false) const;
 	StartValBreakdown const* getBreakdown(CvPlot const& kSite) const;
 };
 

@@ -328,8 +328,7 @@ public:
 	const TCHAR* getHotKey() const; // Exposed to Python
 
 	std::wstring getHotKeyDescription() const;
-	void setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey,
-			const wchar* szHotKeyString);
+	void setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey, const wchar* szHotKeyString);
 	std::wstring getHotKeyShortDesc() const; // advc.154
 
 protected:

@@ -302,8 +302,7 @@ void FFreeListTrashArray<T,AIType>::Write(FDataStreamBase* pStream)
 
 
 template<class T,class AIType>
-void ReadStreamableFFreeListTrashArray(
-	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream)
+void ReadStreamableFFreeListTrashArray(FFreeListTrashArray<T, AIType>& flist, FDataStreamBase* pStream)
 {
 	int iTemp;
 	pStream->Read(&iTemp);
@@ -334,8 +333,7 @@ void ReadStreamableFFreeListTrashArray(
 }
 
 template<class T,class AIType>
-void WriteStreamableFFreeListTrashArray(
-	FFreeListTrashArray<T,AIType>& flist, FDataStreamBase* pStream)
+void WriteStreamableFFreeListTrashArray(FFreeListTrashArray<T, AIType>& flist, FDataStreamBase* pStream)
 {
 	pStream->Write(flist.getNumSlots());
 	pStream->Write(flist.getLastIndex());

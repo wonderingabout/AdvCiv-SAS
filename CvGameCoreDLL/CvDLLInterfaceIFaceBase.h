@@ -86,24 +86,15 @@ public:
 	virtual CLLNode<IDInfo>* headSelectedCitiesNode() = 0;
 	// <advc.127> Renamed from "addMessage", protected, default values removed.
 protected:
-	virtual void addMessageExternal(PlayerTypes, bool, int, CvWString, LPCTSTR,
-			InterfaceMessageTypes, LPCSTR, ColorTypes, int, int, bool, bool) = 0;
+	virtual void addMessageExternal(PlayerTypes, bool, int, CvWString, LPCTSTR, InterfaceMessageTypes, LPCSTR, ColorTypes, int, int, bool, bool) = 0;
 public:
 	/*	K-Mod - block messages from being send to AI players
 		(because the game doesn't ever clear AI messages). */
 	/*	(Had been named "addHumanMessage" in K-Mod;
 		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
-	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString,
-			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
-			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
-			int iFlashX = -1, int iFlashY = -1,
-			bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
 	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
-	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength,
-			CvWString szString, CvPlot const& kPlot,
-			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
-			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
-			bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, CvPlot const& kPlot, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
 
 	virtual void addCombatMessage(PlayerTypes ePlayer, CvWString szString) = 0;
 	virtual void addQuestMessage(PlayerTypes ePlayer, CvWString szString, int iQuestId) = 0;
@@ -207,11 +198,9 @@ public:
 
 	virtual void popupAddSeparator(CvPopup* pPopup, int iSpace = 0) = 0;
 
-	virtual void popupAddGenericButton(CvPopup* pPopup, CvWString szText, const char* szIcon = 0, int iButtonId = -1, WidgetTypes eWidgetType = WIDGET_GENERAL, int iData1 = MAX_INT, int iData2 = MAX_INT,
-		bool bOption = true, PopupControlLayout ctrlLayout = POPUP_LAYOUT_CENTER, unsigned int textJustifcation = DLL_FONT_LEFT_JUSTIFY) = 0;
+	virtual void popupAddGenericButton(CvPopup* pPopup, CvWString szText, const char* szIcon = 0, int iButtonId = -1, WidgetTypes eWidgetType = WIDGET_GENERAL, int iData1 = MAX_INT, int iData2 = MAX_INT, bool bOption = true, PopupControlLayout ctrlLayout = POPUP_LAYOUT_CENTER, unsigned int textJustifcation = DLL_FONT_LEFT_JUSTIFY) = 0;
 
-	virtual void popupCreateEditBox(CvPopup* pPopup, CvWString szDefaultString = "", WidgetTypes eWidgetType = WIDGET_GENERAL, CvWString szHelpText = "", int iGroup = 0,
-		PopupControlLayout ctrlLayout = POPUP_LAYOUT_STRETCH, unsigned int preferredCharWidth = 0, unsigned int maxCharCount = 256) = 0;
+	virtual void popupCreateEditBox(CvPopup* pPopup, CvWString szDefaultString = "", WidgetTypes eWidgetType = WIDGET_GENERAL, CvWString szHelpText = "", int iGroup = 0, PopupControlLayout ctrlLayout = POPUP_LAYOUT_STRETCH, unsigned int preferredCharWidth = 0, unsigned int maxCharCount = 256) = 0;
 	virtual void popupEnableEditBox(CvPopup* pPopup, int iGroup = 0, bool bEnable = false) = 0;
 
 	virtual void popupCreateRadioButtons(CvPopup * pPopup, int iNumButtons, int iGroup = 0, WidgetTypes eWidgetType = WIDGET_GENERAL, PopupControlLayout ctrlLayout = POPUP_LAYOUT_CENTER) = 0;

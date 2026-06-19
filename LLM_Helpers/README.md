@@ -24,6 +24,8 @@ Always review diffs before committing generated source changes.
   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
   - [`fix_line_endings.py`](#fix_line_endingspy)
+- [C++ source cleanup helpers](#c-source-cleanup-helpers)
+  - [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy)
 - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
   - [`singleline_pass.py`](#singleline_passpy)
   - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
@@ -279,6 +281,127 @@ python LLM_Helpers\fix_line_endings.py --in-place
 python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --diff
 python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --in-place
 ```
+
+## C++ source cleanup helpers
+
+### `collapse_cpp_signatures.py`
+
+Conservative signature-only source-rewrite helper for C/C++ files.
+
+- Collapses safe multiline function declarations/definitions to one physical line, mainly to make signatures easier to scan, grep, and compare.
+- Signature-only by design: ordinary multiline calls, logging statements, and constructor-like local statements are left alone. If call cleanup is wanted later, use a separate helper such as `collapse_cpp_calls.py` with separate rules.
+- Skips control-flow statements, comments that would become misleading, block-comment boundaries, and candidates that do not look like function headers.
+- Allows trailing end-of-signature `//` comments (for example `) const // advc.031`) and inline one-line `/* ... */` tail comments; comments inside the parameter list are skipped unless a trace-hoisting mode below handles them.
+- Uses a generous default `--max-line-len 600` and `--max-span-lines 16` because this helper is meant to make safe signatures one-line-first; lower them for a narrower review.
+- `--hoist-comments` can move whole-line comments from inside a collapsed signature above the signature, while still skipping inline comments inside the parameter list.
+- `--trace-hoisted-comments` also appends a custom trace note to hoisted comments, recording whether the comment was before, after, or between specific parameters. Use `--trace-credit "GPT-5.5 (reviewed script output)"` or similar when the generated comments were externally reviewed.
+- `--trace-inline-comments` similarly hoists inline `//` comments and extractable multiline `/* ... */` comments from inside the parameter list, strips them from the collapsed signature line, and appends trace metadata for their original parameter position.
+- `--tail-exposed-to-python-comments` handles the common header-only case where `// Exposed to Python` was placed inside a multiline declaration; it moves that metadata to the final tail comment, after any existing tail comment.
+- Defaults to tracked C/C++ files under `CvGameCoreDLL`; you can also pass one or more files/folders for a narrower review.
+- `--diff-file` writes the review diff to a file. Without an explicit path, it creates a timestamped file under `LLM_Helpers/outputs/`.
+- `--ignored-file` writes a separate review report of skipped signature-like multiline candidates and the reason they were left alone, such as unsafe comments, line length, or unsupported tail syntax. Use `--include-nonsignature-ignored` only when you also want the very noisy/exhaustive ordinary-call/local-statement candidates.
+- Empirically idempotent after the first full DLL pass: rerunning with the default broad scan reported `Scanned 350 C/C++ file(s). No safe C++ signature collapses found.`
+- Always review the diff before committing. This is not a general C++ formatter. External review in ChatGPT or another non-agentic context can be useful for long generated diff/report files before applying the changes locally.
+
+Example diagnostic run with output files and no source changes (Git Bash):
+
+```Bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --diff-file --ignored-file
+```
+
+This writes timestamped files like `LLM_Helpers/outputs/collapse_cpp_signatures_20260619T150412Z.diff.txt` and `LLM_Helpers/outputs/collapse_cpp_signatures_20260619T150412Z_ignored.txt`.
+
+Example apply run (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --in-place
+```
+
+Example apply run with traceable hoisted comments (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --trace-hoisted-comments --trace-credit "GPT-5.5 (reviewed script output)" --in-place
+```
+
+Example apply run with traceable whole-line and inline hoisted comments (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --trace-inline-comments --trace-hoisted-comments --tail-exposed-to-python-comments --trace-credit "GPT-5.5 (reviewed script output)" --in-place
+```
+
+Example apply run for `// Exposed to Python` declaration metadata (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --tail-exposed-to-python-comments --in-place
+```
+
+Example results:
+
+- First full pass: 118 files changed, 1360 insertions, and 2662 deletions.
+- A follow-up comment-hoisting pass, amended into the same commit because it seemed small and contained, collapsed 31 more signatures across 23 files.
+- A later pass improved old comment text preservation and appended trace notes for where each hoisted comment had originally been placed: it was 66 insertions and 117 deletions.
+- Another `// Exposed to Python` metadata pass collapsed 102 more header declarations across 13 files.
+- A broad inline-comment trace pass collapsed 125 more signatures across 37 files.
+- A multiline block-comment trace pass collapsed 21 more signatures across 13 files.
+
+Example (nested simple comments) (before):
+
+```cpp
+void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+	PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude,
+	PlayerTypes eCancelPlayer) // advc.130p
+```
+
+Example (nested simple comments) (after):
+
+```cpp
+void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p
+```
+
+Example 2 (overloaded signatures) (before) :
+
+```cpp
+	/*	(Had been named "addHumanMessage" in K-Mod;
+		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString,
+			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
+			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+			int iFlashX = -1, int iFlashY = -1,
+			bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength,
+			CvWString szString, CvPlot const& kPlot,
+			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
+			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+			bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
+```
+
+Example 2 (overloaded signatures) (after):
+
+```cpp
+	/*	(Had been named "addHumanMessage" in K-Mod;
+		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, CvPlot const& kPlot, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
+```
+
+Example 3 (traceable hoisted comment) (before):
+
+```cpp
+bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
+	// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15)
+	MovementFlags eFlags, bool bFollow)
+```
+
+Example 3 (traceable hoisted comment) (after):
+
+```cpp
+// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15) <!-- custom: hoisted from multiline signature between `iOddsThreshold` and `eFlags` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, bool bFollow)
+```
+
+Done with the very nice help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.
 
 ## CvMainInterface cleanup reference scripts
 

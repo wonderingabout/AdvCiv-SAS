@@ -57,16 +57,14 @@ public:
 	enum StartingPlotNormalizationLevel {
 		NORMALIZE_DEFAULT, NORMALIZE_LOW, NORMALIZE_MEDIUM, NORMALIZE_HIGH };
 	StartingPlotNormalizationLevel getStartingPlotNormalizationLevel() const;
-	void setStartingPlotNormalizationLevel(
-			StartingPlotNormalizationLevel eLevel = NORMALIZE_DEFAULT);
+	void setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eLevel = NORMALIZE_DEFAULT);
 	// </advc.108>
 	int getStartingPlotRange() const; // advc.opt (exposed to Python via CyPlayer)
 
 	DllExport void update();
 	void updateScore(bool bForce = false);
 	// <advc.003y>
-	int getScoreComponent(int iRawScore, int iInitial, int iMax, int iMultiplier,
-			bool bExponential, bool bFinal, bool bVictory) const; // </advc.003y>
+	int getScoreComponent(int iRawScore, int iInitial, int iMax, int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const; // </advc.003y>
 	int getDifficultyForEndScore() const; // advc.250 (exposed to Python; hence public)
 	void updateAIHandicap(); // advc.127
 
@@ -97,36 +95,26 @@ public:
 
 	DllExport void cycleCities(bool bForward = true, bool bAdd = false) const;							// Exposed to Python
 	// <advc.154>
-	CvSelectionGroup* getNextGroupInCycle(bool bForward, bool bWorkers,
-			bool& bWrap, CvUnit*& pCycleUnit, std::set<int>* pCycledGroups = NULL) const;
+	CvSelectionGroup* getNextGroupInCycle(bool bForward, bool bWorkers, bool& bWrap, CvUnit*& pCycleUnit, std::set<int>* pCycledGroups = NULL) const;
 	CvUnit* getCycleButtonUnit(bool bForward, bool bWorkers) const; // </advc.154>						// Exposed to Python
-	void cycleSelectionGroups(bool bClear,																// Exposed to Python
-			bool bForward = true, bool bWorkers = false);
+	void cycleSelectionGroups(bool bClear, bool bForward = true, bool bWorkers = false); // Exposed to Python
 	// K-Mod:
 	void cycleSelectionGroups_delayed(int iDelay, bool bIncremental, bool bDelayOnly = false);
-	DllExport bool cyclePlotUnits(CvPlot* pPlot,														// Exposed to Python
-			bool bForward = true, bool bAuto = false, int iCount = -1) const;
+	DllExport bool cyclePlotUnits(CvPlot* pPlot, bool bForward = true, bool bAuto = false, int iCount = -1) const; // Exposed to Python
 	DllExport bool selectCity(CvCity* pSelectCity, bool bCtrl, bool bAlt, bool bShift) const;
 
 	DllExport void selectionListMove(CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;												// Exposed to Python
-	DllExport void selectionListGameNetMessage(int eMessage,											// Exposed to Python
-			int iData2 = -1, int iData3 = -1, int iData4 = -1, int iFlags = 0,
-			bool bAlt = false, bool bShift = false) const;
-	DllExport void selectedCitiesGameNetMessage(int eMessage,											// Exposed to Python
-			int iData2 = -1, int iData3 = -1, int iData4 = -1, bool bOption = false,
-			bool bAlt = false, bool bShift = false, bool bCtrl = false) const;
-	void cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData,										// Exposed to Python
-			bool bAlt = false, bool bShift = false, bool bCtrl = false) const;
+	DllExport void selectionListGameNetMessage(int eMessage, int iData2 = -1, int iData3 = -1, int iData4 = -1, int iFlags = 0, bool bAlt = false, bool bShift = false) const; // Exposed to Python
+	DllExport void selectedCitiesGameNetMessage(int eMessage, int iData2 = -1, int iData3 = -1, int iData4 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false) const; // Exposed to Python
+	void cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAlt = false, bool bShift = false, bool bCtrl = false) const; // Exposed to Python
 
-	DllExport void selectUnit(CvUnit* pUnit, bool bClear, bool bToggle = false,
-			bool bSound = false) const;
+	DllExport void selectUnit(CvUnit* pUnit, bool bClear, bool bToggle = false, bool bSound = false) const;
 	DllExport void selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) const;
 	DllExport void selectAll(CvPlot* pPlot) const;
 
 	DllExport bool selectionListIgnoreBuildingDefense() const;
 
-	DllExport bool canHandleAction(int iAction, CvPlot* pPlot = NULL,
-			bool bTestVisible = false, bool bUseCache = false) const;
+	DllExport bool canHandleAction(int iAction, CvPlot* pPlot = NULL, bool bTestVisible = false, bool bUseCache = false) const;
 	DllExport void setupActionCache() const;
 	DllExport void handleAction(int iAction);
 
@@ -138,21 +126,14 @@ public:
 	void exitToMenu(); // advc
 	void setGlobeView(bool b); // advc
 
-	DllExport void implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-			CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList,
-			bool bForce = false);
-	void implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-			// advc (note): Not const; callee may perform in-place preprocessing.
-			CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-			bool bForce = false);
+	DllExport void implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce = false);
+	// advc (note): Not const; callee may perform in-place preprocessing. <!-- custom: hoisted from multiline signature between `eOtherWho` and `kOurList` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce = false);
 	// <advc.036>
-	CvDeal* implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-			CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-			bool bForce = false); // </advc.036>
+	CvDeal* implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce = false); // </advc.036>
 	void verifyDeals();
 
-	DllExport void getGlobeviewConfigurationParameters(TeamTypes eTeam,
-			bool& bStarsVisible, bool& bWorldIsRound);
+	DllExport void getGlobeviewConfigurationParameters(TeamTypes eTeam, bool& bStarsVisible, bool& bWorldIsRound);
 
 	int getSymbolID(int iSymbol)																		// Exposed to Python
 	{
@@ -193,8 +174,7 @@ public:
 	int getNumFreeBonuses(BuildingTypes eBuilding) const;												// Exposed to Python
 
 	int countReligionLevels(ReligionTypes eReligion) const;												// Exposed to Python
-	int calculateReligionPercent(ReligionTypes eReligion,												// Exposed to Python
-			bool bIgnoreOtherReligions = false) const; // advc.115b
+	int calculateReligionPercent(ReligionTypes eReligion, bool bIgnoreOtherReligions = false) const; // advc.115b; Exposed to Python
 	int countCorporationLevels(CorporationTypes eCorporation) const;									// Exposed to Python
 	void replaceCorporation(CorporationTypes eOldCorp, CorporationTypes eNewCorp);
 
@@ -493,10 +473,8 @@ public:
 		return m_aiDiploVote.get(eVoteSource);
 	}
 	void changeDiploVote(VoteSourceTypes eVoteSource, int iChange);																					// Exposed to Python
-	bool canDoResolution(VoteSourceTypes eVoteSource,
-			VoteSelectionSubData const& kData) const;
-	bool isValidVoteSelection(VoteSourceTypes eVoteSource,
-			VoteSelectionSubData const& kData) const;
+	bool canDoResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const;
+	bool isValidVoteSelection(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const;
 
 	DllExport bool isDebugMode() const																	// Exposed to Python
 	{
@@ -719,8 +697,7 @@ public:
 	{
 		return m_abSpecialBuildingValid.get(eSpecialBuilding);
 	}
-	void makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding,								// Exposed to Python
-			bool bAnnounce = false);
+	void makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding, bool bAnnounce = false); // Exposed to Python
 
 	bool isNukesValid() const																			// Exposed to Python
 	{
@@ -803,8 +780,7 @@ public:
 		return m_deals.nextIter(pIterIdx); // advc.opt
 	}
 	// <advc.072>
-	CvDeal* nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
-			TradeableItems eItemType, int iData = -1, bool bWidget = false);
+	CvDeal* nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer, TradeableItems eItemType, int iData = -1, bool bWidget = false);
 	// </advc.072>
 	VoteSelectionData* getVoteSelection(int iID) const
 	{
@@ -815,8 +791,7 @@ public:
 
 	VoteTriggeredData* getVoteTriggered(int iID) const;
 	VoteTriggeredData* addVoteTriggered(VoteSelectionData const& kData, int iChoice);
-	VoteTriggeredData* addVoteTriggered(VoteSourceTypes eVoteSource,
-			VoteSelectionSubData const& kOptionData);
+	VoteTriggeredData* addVoteTriggered(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kOptionData);
 	void deleteVoteTriggered(int iID);
 
 	CvRandom& getMapRand()																				// Exposed to Python
@@ -832,8 +807,7 @@ public:
 		return m_sorenRand;
 	}
 	//  Returns a value from the half-closed interval [0,iNum)
-	int getSorenRandNum(int iNum, const char* pszLog,
-		int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.007
+	int getSorenRandNum(int iNum, const char* pszLog, int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.007
 	{
 		return m_sorenRand.getInt(iNum, pszLog, /* advc.007: */ iData1, iData2);
 	}
@@ -845,15 +819,9 @@ public:
 	bool checkInSync(); // advc.001n
 	void doFPCheck(int iChecksum, PlayerTypes ePlayer); // advc.003g
 
-	void addReplayMessage(ReplayMessageTypes eType = NO_REPLAY_MESSAGE,
-			PlayerTypes ePlayer = NO_PLAYER, CvWString szText = L"",
-			// <advc> Move coords to the end - or to the start.
-			ColorTypes eColor = NO_COLOR,
-			int iPlotX = INVALID_PLOT_COORD, int iPlotY = INVALID_PLOT_COORD);
-	void addReplayMessage(CvPlot const& kPlot,
-			ReplayMessageTypes eType = NO_REPLAY_MESSAGE,
-			PlayerTypes ePlayer = NO_PLAYER, CvWString szText = L"",
-			ColorTypes eColor = NO_COLOR); // </advc>
+	// <advc> Move coords to the end - or to the start. <!-- custom: hoisted from multiline signature between `szText` and `eColor` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void addReplayMessage(ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER, CvWString szText = L"", ColorTypes eColor = NO_COLOR, int iPlotX = INVALID_PLOT_COORD, int iPlotY = INVALID_PLOT_COORD);
+	void addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER, CvWString szText = L"", ColorTypes eColor = NO_COLOR); // </advc>
 	void clearReplayMessageMap();
 	int getReplayMessageTurn(uint i) const;
 	ReplayMessageTypes getReplayMessageType(uint i) const;
@@ -906,8 +874,7 @@ public:
 	{
 		return m_aeVoteSourceReligion.get(eVoteSource);
 	}
-	void setVoteSourceReligion(VoteSourceTypes eVoteSource,												// Exposed to Python
-			ReligionTypes eReligion, bool bAnnounce = false);
+	void setVoteSourceReligion(VoteSourceTypes eVoteSource, ReligionTypes eReligion, bool bAnnounce = false); // Exposed to Python
 
 	bool isEventActive(EventTriggerTypes eTrigger) const												// Exposed to Python
 	{
@@ -924,8 +891,7 @@ public:
 	//bool pythonIsBonusIgnoreLatitudes() const; // advc.003y: Moved to CvPythonCaller
 
 	DllExport void getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const;
-	DllExport void startFlyoutMenu(CvPlot const* pPlot,
-			std::vector<CvFlyoutMenuData>& aFlyoutItems) const;
+	DllExport void startFlyoutMenu(CvPlot const* pPlot, std::vector<CvFlyoutMenuData>& aFlyoutItems) const;
 	DllExport void applyFlyoutMenu(CvFlyoutMenuData const& kItem);
 	DllExport CvPlot* getNewHighlightPlot() const;
 	DllExport ColorTypes getPlotHighlightColor(CvPlot* pPlot) const;
@@ -961,14 +927,10 @@ public:
 	DllExport EndTurnButtonStates getEndTurnState() const;
 
 	void setCityBarWidth(bool bWide); // advc.095 (exposed to Python)
-	DllExport void handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
-			bool bAlt, bool bShift, bool bCtrl) const;
-	DllExport void handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot,
-			bool bAlt, bool bShift, bool bCtrl) const;
-	DllExport void handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-			bool bAlt, bool bShift, bool bCtrl) const;
-	DllExport void handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-			bool bAlt, bool bShift, bool bCtrl) const;
+	DllExport void handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
+	DllExport void handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
+	DllExport void handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
+	DllExport void handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;
 	DllExport void handleMiddleMouse(bool bCtrl, bool bAlt, bool bShift);
 	DllExport void handleDiplomacySetAIComment(DiploCommentTypes eComment) const;
 	void setHelpTextAreaWidth(float fWidth); // advc.092c (exposed to Python)
@@ -992,8 +954,7 @@ public:
 	std::pair<int,int> getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver,
 			bool bDebug = false) const;
 	BuildingTypes getVoteSourceBuilding(VoteSourceTypes eVS) const;
-	CvCity* getVoteSourceCity(VoteSourceTypes eVS, TeamTypes eObserver,
-			bool bDebug = false) const;
+	CvCity* getVoteSourceCity(VoteSourceTypes eVS, TeamTypes eObserver, bool bDebug = false) const;
 	// </advc.127b>
 	bool isFreeStartEraBuilding(BuildingTypes eBuilding) const; // advc
 	/*  advc.250b: Used for exposing a StartPointsAsHandicap member function
@@ -1208,14 +1169,10 @@ protected:
 	void createAnimals();
 	// <advc.300>
 	void createBarbarianCity(bool bNoCivCities, int iProbModifierPercent = 100);
-	int numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
-			int iUnitsPresent);
-	int createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea,
-			Shelf* pShelf = NULL, bool bCargoAllowed = false, bool bOnlyCargo = false);
-	CvPlot* randomBarbarianPlot(int& iValid, CvArea const& kArea,
-			Shelf const* pShelf = NULL);
-	bool killBarbarian(int iUnitsPresent, int iTiles, int iPop,
-			CvArea& kArea, Shelf* pShelf = NULL);
+	int numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned, int iUnitsPresent);
+	int createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea, Shelf* pShelf = NULL, bool bCargoAllowed = false, bool bOnlyCargo = false);
+	CvPlot* randomBarbarianPlot(int& iValid, CvArea const& kArea, Shelf const* pShelf = NULL);
+	bool killBarbarian(int iUnitsPresent, int iTiles, int iPop, CvArea& kArea, Shelf* pShelf = NULL);
 	UnitTypes randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot);
 	scaled barbarianPeakLandRatio() const;
 	// </advc.300>
@@ -1239,16 +1196,12 @@ protected:
 
 	//void normalizeStartingPlotLocations();
 	// <advc.108b>
-	void rearrangeTeamStarts(
-			bool bOnlyWithinArea = false, scaled rInertia = 0); // advc.027
+	void rearrangeTeamStarts(bool bOnlyWithinArea = false, scaled rInertia = 0); // advc.027
 	void applyStartingLocHandicaps(/* advc.027: */ NormalizationTarget const* pStartValues);
 	template<class Agent>
-	void sortByStartingLocHandicap(
-			std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
-			std::vector<Agent*>& kResult); // </advc.108b>
-	int getTeamClosenessScore( // <advc>
-			ArrayEnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
-			std::vector<PlayerTypes> const& kStartingLocs); // </advc>
+	void sortByStartingLocHandicap(std::vector<std::pair<Agent*, int> > const& kStartingLocPercentPerAgent, std::vector<Agent*>& kResult); // </advc.108b>
+	// <advc> <!-- custom: hoisted from multiline signature before `kDistances` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int getTeamClosenessScore(ArrayEnumMap2D<PlayerTypes, PlayerTypes, int> const& kDistances, std::vector<PlayerTypes> const& kStartingLocs); // </advc>
 	void normalizeAddRiver();
 	void normalizeRemovePeaks();
 	void normalizeAddLakes();
@@ -1258,22 +1211,17 @@ protected:
 	void normalizeAddGoodTerrain();
 	void normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarget = NULL);
 	// <advc>
-	bool placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
-			bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature,
-			bool bNoFood); // advc.108
-	bool isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer, CvPlot const& kPlot,
-			bool bCheckCanPlace, bool bIgnoreLatitude) const; // </advc>
+	bool placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature, bool bNoFood); // advc.108
+	bool isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer, CvPlot const& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude) const; // </advc>
 	CvPlot* normalizeFindLakePlot(PlayerTypes ePlayer);
 	// <advc.108>
 	bool normalizeCanAddLakeTo(CvPlot const& kPlot) const;
-	bool skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot,
-			BonusTypes eBonus, bool bSecondPass = false);
+	bool skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot, BonusTypes eBonus, bool bSecondPass = false);
 	bool isPowerfulStartingBonus(CvPlot const& kPlot, PlayerTypes eStartPlayer) const;
 	bool isWeakStartingFoodBonus(CvPlot const& kPlot, PlayerTypes eStartPlayer) const;
 	// </advc.108>  <advc>
 	void doUpdateCacheOnTurn();
-	CvUnit* getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits,
-			int iIndex = -1) const; // </advc>
+	CvUnit* getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits, int iIndex = -1) const; // </advc>
 
 private: // advc.003u: (See comments in the private section of CvPlayer.h)
 	//virtual void AI_initExternal();

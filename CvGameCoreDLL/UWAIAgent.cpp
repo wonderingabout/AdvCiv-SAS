@@ -73,9 +73,7 @@ void UWAI::Team::addTeam(PlayerTypes eOtherLeader)
 }
 
 
-void UWAI::Team::reportWarEnding(TeamTypes eEnemy,
-	CLinkList<TradeData> const* pWeReceive,
-	CLinkList<TradeData> const* pWeGive)
+void UWAI::Team::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
 {
 	/*  This isn't team-level data b/c each member can have its
 		own interpretation of whether the war was successful. */
@@ -772,8 +770,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 }
 
 
-bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
-	int iMasterReluctancePeace)
+bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace)
 {
 	{
 		int const iUtilityThresh = -75;
@@ -1035,8 +1032,7 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
 }
 
 
-bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
@@ -1099,8 +1095,7 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
 }
 
 
-bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
@@ -1170,8 +1165,7 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
 }
 
 
-bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
@@ -1344,8 +1338,7 @@ int UWAI::Team::reluctanceToPeace(TeamTypes eEnemy, bool bNonNegative) const
 }
 
 
-bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
-	bool bCheckDefensivePacts) const
+bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan, bool bCheckDefensivePacts) const
 {
 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
 	if (eTarget == NO_TEAM || eTarget == BARBARIAN_TEAM || eTarget == kAgent.getID())
@@ -2665,10 +2658,8 @@ bool UWAI::Player::isPeaceDealPossible(PlayerTypes eHuman) const
 }
 
 
-bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
-	int* piAvailableTradeVal,
-	// (advc.ctr: Now unused b/c the AI will always accept cities as payment)
-	bool bIgnoreCities) const
+// (advc.ctr: Now unused b/c the AI will always accept cities as payment) <!-- custom: hoisted from multiline signature between `piAvailableTradeVal` and `bIgnoreCities` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman, int* piAvailableTradeVal, bool bIgnoreCities) const
 {
 	if (piAvailableTradeVal != NULL)
 		*piAvailableTradeVal = iTargetTradeVal;
@@ -2786,8 +2777,7 @@ scaled UWAI::Player::estimateBuildUpRate(PlayerTypes ePlayer, int iTurns) const
 }
 
 
-scaled UWAI::Player::estimateDemographicGrowthRate(PlayerTypes ePlayer,
-	PlayerHistoryTypes eDemographic, int iTurns) const
+scaled UWAI::Player::estimateDemographicGrowthRate(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic, int iTurns) const
 {
 	if (GC.getGame().getElapsedGameTurns() < iTurns + 1)
 		return 0;
@@ -2880,8 +2870,7 @@ scaled UWAI::Player::distrustRating() const
 }
 
 
-scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal,
-	PlayerTypes eTarget) const
+scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal, PlayerTypes eTarget) const
 {
 	/*	AI assumes that human confidence depends on difficulty. NB: This doesn't
 		mean that the AI thinks that humans are good at warfare - this is handled
@@ -2923,8 +2912,7 @@ scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal,
 }
 
 
-scaled UWAI::Player::warConfidenceLearned(PlayerTypes eTarget,
-	bool bIgnoreDefOnly) const
+scaled UWAI::Player::warConfidenceLearned(PlayerTypes eTarget, bool bIgnoreDefOnly) const
 {
 
 	scaled rFromWarSuccess = confidenceFromWarSuccess(TEAMID(eTarget));

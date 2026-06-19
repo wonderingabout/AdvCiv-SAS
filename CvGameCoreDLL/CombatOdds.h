@@ -8,15 +8,13 @@
 class CvUnit;
 
 // advc: Renamed from "getCombatOdds"
-int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, // Exposed to Python
-		bool bHideFreeWins = true); // advc.048c
+int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, bool bHideFreeWins = true); // advc.048c; Exposed to Python
 
 // <advc>
 namespace combat_odds
 {
 class Combatant;
-void initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
-		Combatant& att, Combatant& def, bool bHideFreeWins);
+void initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender, Combatant& att, Combatant& def, bool bHideFreeWins);
 class Combatant // Replacing local iAttacker..., iDefender... variables
 {
 public:
@@ -72,8 +70,7 @@ private:
 	int m_iDamagePerRound;
 };
 // From CvGameTextMgr.cpp (ACO helper function)
-float getCombatOddsSpecific(CvUnit const& kAttacker, CvUnit const& kDefender,
-		int iHitsByDef, int iHitsByAtt);
+float getCombatOddsSpecific(CvUnit const& kAttacker, CvUnit const& kDefender, int iHitsByDef, int iHitsByAtt);
 } // </advc>
 
 __int64 getBinomialCoefficient(int iN, int iK);

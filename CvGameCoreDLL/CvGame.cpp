@@ -1371,8 +1371,7 @@ namespace
 }
 
 // advc.108b: Cut from assignStartingPlots
-void CvGame::applyStartingLocHandicaps(
-	NormalizationTarget const* pStartValues) // advc.027
+void CvGame::applyStartingLocHandicaps(NormalizationTarget const* pStartValues) // advc.027
 {
 	/*	Replace all this. Don't want to ignore StartingLocPercent
 		in multiplayer games, and the BtS random assignment of human starts
@@ -1533,9 +1532,7 @@ void CvGame::applyStartingLocHandicaps(
 	The Agent type can be either CvPlayer or CvTeam. The agents have to be
 	alive and non-Barbarian. kResult should be empty before the call. */
 template<class Agent>
-void CvGame::sortByStartingLocHandicap(
-	std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
-	std::vector<Agent*>& kResult)
+void CvGame::sortByStartingLocHandicap(std::vector<std::pair<Agent*, int> > const& kStartingLocPercentPerAgent, std::vector<Agent*>& kResult)
 {
 	int const iAgents = kStartingLocPercentPerAgent.size();
 	int iHumanAgents = 0;
@@ -1718,9 +1715,8 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
 	the players' starting locations are.
 	Note: for the purposes of this function, player i will be assumed to start
 	in the location of player kStartingLocs[i] */
-int CvGame::getTeamClosenessScore( // advc: params used to be arrays
-	ArrayEnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
-	std::vector<PlayerTypes> const& kStartingLocs)
+// advc: params used to be arrays <!-- custom: hoisted from multiline signature before `kDistances` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvGame::getTeamClosenessScore(ArrayEnumMap2D<PlayerTypes, PlayerTypes, int> const& kDistances, std::vector<PlayerTypes> const& kStartingLocs)
 {
 	int iScore = 0;
 	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
@@ -2813,9 +2809,7 @@ void CvGame::updateStartingPlotRange() const
 }
 
 // advc: Cut, refactored from normalizeAddExtras
-bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
-		bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature,
-		bool bNoFood) // advc.108
+bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature, bool bNoFood) // advc.108
 {
 	CvPlot const& kStartPlot = *GET_PLAYER(eStartPlayer).getStartingPlot();
 	// <advc.108>
@@ -2857,8 +2851,7 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
 
 /*	advc.108: May probabilistically return false when there is already a resource
 	of type eBonus near kStartPlot */
-bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot,
-	BonusTypes eBonus, bool bSecondPass)
+bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot, BonusTypes eBonus, bool bSecondPass)
 {
 	scaled rSkipPr = fixp(1/3.);
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
@@ -2879,8 +2872,7 @@ bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot co
 }
 
 // advc: Cut, pasted, refactored from normalizeAddExtras
-bool CvGame::isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer,
-	CvPlot const& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude) const
+bool CvGame::isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer, CvPlot const& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude) const
 {
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	if (!kBonus.isNormalize())
@@ -3155,8 +3147,7 @@ void CvGame::updateScore(bool bForce)
 }
 
 // advc.003y: Ported from CvUtil.py
-int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax,
-	int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
+int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax, int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
 {
 	if (getEstimateEndTurn() <= 0)
 		return 0;
@@ -3304,8 +3295,7 @@ void CvGame::testExtendedGame()
 }
 
 
-void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity->getProduction() > 0)
 	{
@@ -3554,9 +3544,7 @@ bool CvGame::selectionListIgnoreBuildingDefense() const
 }
 
 
-void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList,
-	bool bForce)
+void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce)
 {
 	// <advc> Not sure if the EXE ever calls implementDeal with a NULL list
 	CLinkList<TradeData> emptyList;
@@ -3567,18 +3555,14 @@ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
 }
 
 
-void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-	bool bForce)
+void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce)
 {
 	// </advc>  <advc.036>
 	implementAndReturnDeal(eWho, eOtherWho, kOurList, kTheirList, bForce);
 }
 
 
-CvDeal* CvGame::implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-	bool bForce) // </advc.036>
+CvDeal* CvGame::implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce) // </advc.036>
 {
 	FAssert(eWho != NO_PLAYER);
 	FAssert(eOtherWho != NO_PLAYER);
@@ -3606,8 +3590,7 @@ void CvGame::verifyDeals()
 	If bStarsVisible, then there will be stars visible behind the globe when it is on.
 	If bWorldIsRound, then the world will bend into a globe;
 	otherwise, it will show up as a plane. */
-void CvGame::getGlobeviewConfigurationParameters(TeamTypes eTeam,
-	bool& bStarsVisible, bool& bWorldIsRound)
+void CvGame::getGlobeviewConfigurationParameters(TeamTypes eTeam, bool& bStarsVisible, bool& bWorldIsRound)
 {
 	if (GET_TEAM(eTeam).isMapCentering() || isCircumnavigated())
 	{
@@ -4137,8 +4120,7 @@ void CvGame::replaceCorporation(CorporationTypes eOldCorp, CorporationTypes eNew
 }
 
 
-int CvGame::calculateReligionPercent(ReligionTypes eReligion,
-	bool bIgnoreOtherReligions) const // advc.115b: Param added
+int CvGame::calculateReligionPercent(ReligionTypes eReligion, bool bIgnoreOtherReligions) const // advc.115b: Param added
 {
 	if (getTotalPopulation() == 0)
 		return 0;
@@ -4993,8 +4975,7 @@ void CvGame::changeDiploVote(VoteSourceTypes eVoteSource, int iChange)
 }
 
 
-bool CvGame::canDoResolution(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvGame::canDoResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
 	CvVoteInfo const& kVote = GC.getInfo(kData.eVote);
 	if (kVote.isVictory())
@@ -5039,8 +5020,7 @@ bool CvGame::canDoResolution(VoteSourceTypes eVoteSource,
 }
 
 // advc (note): Needs to be consistent with processVote
-bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
 	if (kData.ePlayer!= NO_PLAYER)
 	{
@@ -5704,8 +5684,7 @@ void CvGame::setForceControl(ForceControlTypes eIndex, bool bEnabled)
 }
 
 // advc: Mostly cut from CvPlayer::canConstruct
-bool CvGame::canConstruct(BuildingTypes eBuilding,
-	bool bIgnoreCost, bool bTestVisible) const
+bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const
 {
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 
@@ -5964,8 +5943,7 @@ void CvGame::makeSpecialUnitValid(SpecialUnitTypes eSpecialUnit)
 }
 
 
-void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding,
-	bool bAnnounce)
+void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding, bool bAnnounce)
 {
 	if (m_abSpecialBuildingValid.get(eSpecialBuilding))
 		return;
@@ -7565,8 +7543,7 @@ int CvGame::getBarbarianStartTurn() const
 }
 
 // Based on code originally in createBarbarianUnits, but modified beyond recognition.
-int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
-	int iUnitsPresent)
+int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned, int iUnitsPresent)
 {
 	int const iOwned = iTiles - iUnowned;
 	scaled const rPeakRatio = barbarianPeakLandRatio();
@@ -7631,8 +7608,7 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
 
 /*	Returns the number of land units spawned (possibly in cargo).
 	The first half is new code. */
-int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
-	CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
+int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
 {
 	/*	<advc.306> Spawn cargo load before ships. Otherwise, the newly placed ship
 		would always be an eligible target and too many ships would carry cargo. */
@@ -7740,8 +7716,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 }
 
 // <advc.300>
-CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid,
-	CvArea const& kArea, Shelf const* pShelf)
+CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid, CvArea const& kArea, Shelf const* pShelf)
 {
 	RandPlotFlags const eFlags = (RANDPLOT_NOT_VISIBLE_TO_CIV |
 			/*	Shelves already ensure this and one-tile islands
@@ -7771,8 +7746,7 @@ CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid,
 }
 
 
-bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop,
-	CvArea& kArea, Shelf* pShelf)
+bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop, CvArea& kArea, Shelf* pShelf)
 {
 	if (iUnitsPresent <= 5) // 5 is never a crowd
 		return false;
@@ -8517,8 +8491,7 @@ CvDeal* CvGame::addDeal()
 
 /*	advc.072: All the FAssert(false) in this function mean that we're somehow
 	out of step with the iteration that happens in the EXE. */
-CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
-	TradeableItems eItemType, int iData, bool bWidget)
+CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer, TradeableItems eItemType, int iData, bool bWidget)
 {
 	if (!m_bShowingCurrentDeals)
 	{
@@ -8883,8 +8856,7 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
 }
 
 
-void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
-	CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY)
+void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY)
 {
 	int iGameTurn = getGameTurn();
 	CvReplayMessage* pMessage = new CvReplayMessage(iGameTurn, eType, ePlayer);
@@ -8901,8 +8873,7 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
 }
 
 // advc: Wrapper with CvPlot param
-void CvGame::addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType,
-	PlayerTypes ePlayer, CvWString szText, ColorTypes eColor)
+void CvGame::addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor)
 {
 	addReplayMessage(eType, ePlayer, szText, eColor, kPlot.getX(), kPlot.getY());
 }
@@ -9637,8 +9608,7 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 
 /*	BETTER_BTS_AI_MOD, Debug, 8/1/08, jdog5000: START
 	(advc: Merged with code from nextActivePlayer) */
-void CvGame::changeHumanPlayer(PlayerTypes eNewHuman,
-	bool bSetTurnActive) // advc
+void CvGame::changeHumanPlayer(PlayerTypes eNewHuman, bool bSetTurnActive) // advc
 {
 	PlayerTypes const eCurHuman = getActivePlayer();
 	/*	<advc.001> For BUG dot map update and Civ4lerts (when switching to
@@ -9714,8 +9684,7 @@ bool CvGame::isCompetingCorporation(CorporationTypes eCorp1, CorporationTypes eC
 }
 
 
-void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
-	ReligionTypes eReligion, bool bAnnounce)
+void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource, ReligionTypes eReligion, bool bAnnounce)
 {
 	m_aeVoteSourceReligion.set(eVoteSource, eReligion);
 	if (bAnnounce && eReligion != NO_RELIGION)
@@ -10000,8 +9969,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSelectionData const& kData, int 
 }
 
 
-VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kOptionData)
+VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kOptionData)
 {
 	VoteTriggeredData* pData = m_votesTriggered.add();
 	FAssert(pData != NULL); // advc
@@ -10575,11 +10543,8 @@ void CvGame::processBuilding(BuildingTypes eBuilding, int iChange)
 }
 
 // advc.314: Between 0 and GOODY_BUFF_PEAK_MULTIPLIER, depending on game turn.
-scaled CvGame::goodyHutEffectFactor(
-	/*	Use true when a goody hut effect is supposed to increase with
-		the game speed. When set to false, the turn numbers in this
-		function are still game-speed adjusted. */
-	bool bSpeedAdjust) const
+// Use true when a goody hut effect is supposed to increase with the game speed. When set to false, the turn numbers in this function are still game-speed adjusted. <!-- custom: hoisted from multiline signature before `bSpeedAdjust` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+scaled CvGame::goodyHutEffectFactor(bool bSpeedAdjust) const
 {
 	static int const iGOODY_BUFF_START_TURN = GC.getDefineINT("GOODY_BUFF_START_TURN");
 	static int const iGOODY_BUFF_PEAK_TURN = GC.getDefineINT("GOODY_BUFF_PEAK_TURN");

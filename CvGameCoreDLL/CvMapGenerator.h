@@ -13,8 +13,7 @@ public:
 	DllExport static CvMapGenerator& GetInstance();
 	DllExport static void FreeInstance() { SAFE_DELETE(m_pInst); }
 
-	bool canPlaceBonusAt(BonusTypes eBonus, int iX, int iY,						// Exposed to Python
-			bool bIgnoreLatitude, bool bCheckRange = true) const; // advc.129
+	bool canPlaceBonusAt(BonusTypes eBonus, int iX, int iY, bool bIgnoreLatitude, bool bCheckRange = true) const; // advc.129; Exposed to Python
 	bool canPlaceGoodyAt(ImprovementTypes eGoody, int iX, int iY) const;		// Exposed to Python
 
 	// does all of the below "add..." functions:
@@ -22,10 +21,7 @@ public:
 
 	void addLakes();																			// Exposed to Python
 	DllExport void addRivers();														// Exposed to Python
-	void doRiver(CvPlot* pStartPlot,												// Exposed to Python
-			CardinalDirectionTypes eLastCardinalDirection = NO_CARDINALDIRECTION,
-			CardinalDirectionTypes eOriginalCardinalDirection = NO_CARDINALDIRECTION,
-			short iThisRiverID = -1); // advc.opt: was int
+	void doRiver(CvPlot* pStartPlot, CardinalDirectionTypes eLastCardinalDirection = NO_CARDINALDIRECTION, CardinalDirectionTypes eOriginalCardinalDirection = NO_CARDINALDIRECTION, short iThisRiverID = -1); // advc.opt: was int; Exposed to Python
 	bool addRiver(CvPlot *pFreshWaterPlot);
 	DllExport void addFeatures();													// Exposed to Python
 	DllExport void addBonuses();													// Exposed to Python
@@ -52,8 +48,7 @@ protected:
 	int getRiverValueAtPlot(CvPlot const& kPlot) const;
 	int calculateNumBonusesToAdd(BonusTypes eBonus);
 	// advc.129: To avoid duplicate code in addUniqueBonus and addNonUniqueBonus
-	int placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
-			bool bIgnoreLatitude, int iLimit = 100);
+	int placeGroup(BonusTypes eBonus, CvPlot const& kCenter, bool bIgnoreLatitude, int iLimit = 100);
 	ClimateTypes findStandardClimate() const; // advc.194
 	SeaLevelTypes findStandardSeaLevel() const; // advc.194
 

@@ -22,8 +22,7 @@ bool GroupStepMetric::canReuseInitialPathData(GroupPathNode const& kStart) const
 }
 
 // "pathValid_join" in K-Mod
-bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
-	CvSelectionGroup const& kGroup, MovementFlags eFlags)
+bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	return (kGroup.getDomainType() != DOMAIN_SEA ||
 			!GC.getMap().isSeparatedByIsthmus(kFrom, kTo) ||
@@ -31,8 +30,7 @@ bool GroupStepMetric::isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
 }
 
 // "pathValid_source" in K-Mod
-bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-	MovementFlags eFlags)
+bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	//PROFILE_FUNC(); // advc.003o
 
@@ -115,8 +113,7 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
 	(that is: to close off plots entirely after visiting from only one neighbor),
 	it mustn't take into account path data. Doing so had lead to rare pathfinding
 	failures in K-Mod. */
-bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-	MovementFlags eFlags, int iMoves, int iPathTurns)
+bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iMoves, int iPathTurns)
 {
 	if ((iPathTurns > 1 || iMoves == 0) &&
 		kGroup.isAIControlled() &&
@@ -131,8 +128,7 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
 }
 
 // "pathDestValid" in BtS/ K-Mod
-bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-	MovementFlags eFlags)
+bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	PROFILE_FUNC();
 
@@ -253,10 +249,8 @@ bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& k
 // "pathCost" in BtS/ K-Mod
 /*	This function has been completely rewritten for K-Mod.
 	(the rewrite includes some bug fixes as well as some new features) */
-int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
-	CvSelectionGroup const& kGroup, MovementFlags eFlags,
-	int iCurrMoves, // (advc: Moves left when at kFrom)
-	bool bAtStart) // (advc: True if kFrom is the start of the path)
+// (advc: Moves left when at kFrom) <!-- custom: hoisted from multiline signature between `iCurrMoves` and `bAtStart` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iCurrMoves, bool bAtStart) // (advc: True if kFrom is the start of the path)
 {
 	//PROFILE_FUNC(); // advc.003o
 
@@ -631,8 +625,7 @@ int GroupStepMetric::initialMoves(CvSelectionGroup const& kGroup, MovementFlags 
 
 // "pathAdd" in BtS/ K-Mod
 template<class Node>
-bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent,
-	CvSelectionGroup const& kGroup, MovementFlags eFlags)
+bool GroupStepMetric::updatePathData(Node& kNode, Node const& kParent, CvSelectionGroup const& kGroup, MovementFlags eFlags)
 {
 	//PROFILE_FUNC(); // advc.003o
 	FAssert(kGroup.getNumUnits() > 0);
@@ -744,8 +737,7 @@ template bool GroupStepMetric::updatePathData<FAStarNode>(FAStarNode&, FAStarNod
 		CvSelectionGroup const&, MovementFlags);
 
 
-void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup,
-	MovementFlags eFlags, int iMaxPath, int iHeuristicWeight)
+void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup, MovementFlags eFlags, int iMaxPath, int iHeuristicWeight)
 {	// <advc.test>
 	#if VERIFY_PATHF
 	kLegacyPathf.SetSettings(&kGroup, eFlags, iMaxPath, iHeuristicWeight);

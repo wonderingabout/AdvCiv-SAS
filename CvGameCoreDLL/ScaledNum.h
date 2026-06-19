@@ -308,8 +308,7 @@ public:
 	}
 
 	// Bernoulli trial (coin flip) with success probability equal to m_i/SCALE
-	bool randSuccess(CvRandom& kRand, char const* szLog,
-			int iLogData1 = MIN_INT, int iLogData2 = MIN_INT) const;
+	bool randSuccess(CvRandom& kRand, char const* szLog, int iLogData1 = MIN_INT, int iLogData2 = MIN_INT) const;
 
 	ScaledNum pow(int iExp) const;
 	ScaledNum pow(ScaledNum rExp) const
@@ -789,8 +788,7 @@ private:
 					[iLastBaseTimes64-1][rExpFrac.m_i-1] + 1; // Table and values are shifted by 1
 			// Ex.: Position [41][12] is 244, i.e. rLastFactor=245/256. Approximation of (5.2/8)^0.1
 		}
-		ScaledNum r(ScaledNum<iSCALE,uint>(pow(nExpInt)) *
-				rProductOfPowersOfTwo * ScaledNum<iSCALE,uint>(rLastFactor));
+		ScaledNum r(ScaledNum<iSCALE, uint>(pow(nExpInt)) * rProductOfPowersOfTwo * ScaledNum<iSCALE, uint>(rLastFactor));
 		return r;
 		/*	Ex.: First factor is 27691/1024, approximating 5.2^2,
 			second factor: 1270/1024, approximating (2^0.1)^3,
@@ -896,8 +894,7 @@ int ScaledNum_T::uceil() const
 
 
 template<ScaledNum_PARAMS>
-bool ScaledNum_T::randSuccess(CvRandom& kRand, char const* szLog,
-	int iLogData1, int iLogData2) const
+bool ScaledNum_T::randSuccess(CvRandom& kRand, char const* szLog, int iLogData1, int iLogData2) const
 {
 	// Guards for better performance and to avoid unnecessary log output
 	if (m_i <= 0)

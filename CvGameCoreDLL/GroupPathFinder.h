@@ -44,17 +44,11 @@ class GroupStepMetric : public StepMetricBase<GroupPathNode>
 public:
 /*	static interface so that GroupStepMetric can share code with the
 	FAStar pathfinder in the EXE */
-	static bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
-			CvSelectionGroup const& kGroup, MovementFlags eFlags);
-	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup,
-			MovementFlags eFlags);
-	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup,
-			MovementFlags eFlags, int iMoves, int iPathTurns);
-	static bool isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-			MovementFlags eFlags);
-	static int cost(CvPlot const& kFrom, CvPlot const& kTo,
-			CvSelectionGroup const& kGroup, MovementFlags eFlags,
-			int iCurrMoves, bool bAtStart);
+	static bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iMoves, int iPathTurns);
+	static bool isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static int cost(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iCurrMoves, bool bAtStart);
 	static int heuristicStepCost(int iFromX, int iFromY, int iToX, int iToY)
 	{
 		return stepDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT;
@@ -62,8 +56,7 @@ public:
 	/*	The K-Mod code for updating path data is pretty intrusive; needs to
 		have access to the node objects. */
 	template<class Node> // GroupPathNode or FAStarNode
-	static bool updatePathData(Node& kNode, Node const& kParent,
-			CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static bool updatePathData(Node& kNode, Node const& kParent, CvSelectionGroup const& kGroup, MovementFlags eFlags);
 	static int initialMoves(CvSelectionGroup const& kGroup, MovementFlags eFlags);
 
 // Non-static interface ...
@@ -102,8 +95,7 @@ public:
 	{
 		return isValidDest(kDest, *m_pGroup, m_eFlags);
 	}
-	int cost(CvPlot const& kFrom, CvPlot const& kTo,
-		GroupPathNode const& kParentNode) const
+	int cost(CvPlot const& kFrom, CvPlot const& kTo, GroupPathNode const& kParentNode) const
 	{
 		return cost(kFrom, kTo, *m_pGroup, m_eFlags,
 				kParentNode.getMoves(), kParentNode.m_iKnownCost == 0);
@@ -136,10 +128,8 @@ class GroupPathFinder : public KmodPathFinder<GroupStepMetric, GroupPathNode>,
 {
 public:
 	void invalidateGroup(CvSelectionGroup const& kGroup);
-	void setGroup( // was "SetSettings"
-			CvSelectionGroup const& kGroup,
-			MovementFlags eFlags = NO_MOVEMENT_FLAGS,
-			int iMaxPath = -1, int iHeuristicWeight = -1);
+	// was "SetSettings" <!-- custom: hoisted from multiline signature before `kGroup` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void setGroup(CvSelectionGroup const& kGroup, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPath = -1, int iHeuristicWeight = -1);
 	bool generatePath(CvPlot const& kTo);
 	#if VERIFY_PATHF == 0 // advc.test
 	// Unhide 2-argument version

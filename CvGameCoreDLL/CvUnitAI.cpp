@@ -433,8 +433,7 @@ static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTarge
 }
 
 // Instead of having CvUnit::init call CvUnitAI::AI_init. finalizeInit split off.
-void CvUnitAI::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI,
-	PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection)
+void CvUnitAI::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection)
 {
 	CvUnit::init(iID, eUnit, eOwner, iX, iY, eFacingDirection);
 	m_eUnitAIType = eUnitAI;
@@ -1666,9 +1665,7 @@ static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlo
 // features, and yield potential, similar to city founding logic.
 // It aims to fix issues like building farms on valuable bonus tiles <!-- custom: like spices instead of a plantation (wait to improve it at all ideally) -->
 // and inefficiently clearing forests or improving low-yield tiles.
-bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
-	CvPlot** ppBestPlot, BuildTypes* peBestBuild,
-	CvPlot* pIgnorePlot, CvUnit* pUnit) const
+bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, BuildTypes* peBestBuild, CvPlot* pIgnorePlot, CvUnit* pUnit) const
 {
 	PROFILE_FUNC();
 
@@ -2906,9 +2903,7 @@ void CvUnitAI::AI_setUnitAIType(UnitAITypes eNewValue)
 /*  advc.159: Like CvUnit::currEffectiveStr, but takes into account first strikes,
 	collateral damage and that combat odds increase superlinearly with combat strength.
 	The scale is arbitrary, i.e. one should only compare the returned values with each other. */
-int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther,
-	bool bCountCollateral, int iBaseCollateral, bool bCheckCanAttack,
-	int iCurrentHP, bool bAssumePromotion) const // advc.139
+int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther, bool bCountCollateral, int iBaseCollateral, bool bCheckCanAttack, int iCurrentHP, bool bAssumePromotion) const // advc.139
 {
 	PROFILE_FUNC(); // Called frequently but not extremely so; fine as it is.
 	int iCombatStrengthPercent = currEffectiveStr(pPlot, pOther, NULL, iCurrentHP);
@@ -3083,8 +3078,8 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
 }
 
 // Lead From Behind, by UncutDragon, edited for K-Mod
-void CvUnitAI::LFBgetBetterAttacker(CvUnitAI** ppAttacker, // advc.003u: param was CvUnit**
-	CvPlot const* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue)
+// advc.003u: param was CvUnit** <!-- custom: hoisted from multiline signature between `ppAttacker` and `pPlot` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvUnitAI::LFBgetBetterAttacker(CvUnitAI** ppAttacker, CvPlot const* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue)
 {
 	CvUnit const* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), this,
 			!bPotentialEnemy, bPotentialEnemy);
@@ -12691,8 +12686,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 }
 
 
-bool CvUnitAI::AI_shadow(UnitAITypes eUnitAI, int iMax, int iMaxRatio,
-	bool bWithCargoOnly, bool bOutsideCityOnly, int iMaxPath)
+bool CvUnitAI::AI_shadow(UnitAITypes eUnitAI, int iMax, int iMaxRatio, bool bWithCargoOnly, bool bOutsideCityOnly, int iMaxPath)
 {
 	PROFILE_FUNC();
 
@@ -12763,10 +12757,7 @@ bool CvUnitAI::AI_shadow(UnitAITypes eUnitAI, int iMax, int iMaxRatio,
 }
 
 // K-Mod. One group function to rule them all.
-bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI,
-	bool bStackOfDoom, MovementFlags eFlags, int iMaxPath, bool bMergeGroups, bool bSafeOnly,
-	bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bBiggerOnly, int iMinUnitAI,
-	bool bWithCargoOnly, bool bIgnoreBusyTransports)
+bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, bool bStackOfDoom, MovementFlags eFlags, int iMaxPath, bool bMergeGroups, bool bSafeOnly, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bBiggerOnly, int iMinUnitAI, bool bWithCargoOnly, bool bIgnoreBusyTransports)
 {
 	PROFILE_FUNC();
 
@@ -12929,12 +12920,8 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 } // K-Mod end
 
 // Returns true if a group was joined or a mission was pushed...
-bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI,
-	int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom,
-	int iMaxPath, bool bAllowRegrouping,
-	/*  BETTER_BTS_AI_MOD, Unit AI, 02/22/10, jdog5000:
-		Added new options to aid transport grouping */
-	bool bWithCargoOnly, bool bInCityOnly, MissionAITypes eIgnoreMissionAIType)
+// BETTER_BTS_AI_MOD, Unit AI, 02/22/10, jdog5000: Added new options to aid transport grouping <!-- custom: hoisted from multiline signature between `bAllowRegrouping` and `bWithCargoOnly` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom, int iMaxPath, bool bAllowRegrouping, bool bWithCargoOnly, bool bInCityOnly, MissionAITypes eIgnoreMissionAIType)
 {
 	// K-Mod. I've completely gutted this function. It's now basically just a wrapper for AI_omniGroup.
 	// This is part of the process of phasing the function out.
@@ -12984,9 +12971,7 @@ bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iMaxRange, bool bBigg
 	Look for the nearest suitable transport. Return a pointer to the transport unit.
 	(the bulk of this function was moved straight out of AI_load.
 	I've fixed it up a bit, but I didn't write most of it.) */
-CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags,
-	int iMaxPath, UnitAITypes ePassengerAI, int iMinCargo, int iMinCargoSpace,
-	int iMaxCargoSpace, int iMaxCargoOurUnitAI)
+CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags, int iMaxPath, UnitAITypes ePassengerAI, int iMinCargo, int iMinCargoSpace, int iMaxCargoSpace, int iMaxCargoOurUnitAI)
 {
 	PROFILE_FUNC(); // advc.opt
 	/*if (getDomainType() == DOMAIN_LAND && !canMoveAllTerrain()) {
@@ -13081,13 +13066,9 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags,
 } // K-Mod end
 
 // Returns true if we loaded onto a transport or a mission was pushed...
-bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI,
-	UnitAITypes eTransportedUnitAI, int iMinCargo, int iMinCargoSpace,
-	int iMaxCargoSpace, int iMaxCargoOurUnitAI, MovementFlags eFlags, 
-	int iMaxPath,
-	/*  BETTER_BTS_AI_MOD, War tactics AI, Unit AI, 04/18/10, jdog5000
-		(and various changes in the body) */  // advc: Restructured (untangled) the body a bit
-	int iMaxTransportPath)
+// BETTER_BTS_AI_MOD, War tactics AI, Unit AI, 04/18/10, jdog5000 (and various changes in the body) <!-- custom: hoisted from multiline signature between `iMaxPath` and `iMaxTransportPath` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc: Restructured (untangled) the body a bit <!-- custom: hoisted from multiline signature between `iMaxPath` and `iMaxTransportPath` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITypes eTransportedUnitAI, int iMinCargo, int iMinCargoSpace, int iMaxCargoSpace, int iMaxCargoOurUnitAI, MovementFlags eFlags, int iMaxPath, int iMaxTransportPath)
 {
 	PROFILE_FUNC();
 
@@ -13417,9 +13398,8 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 	and duplicated code and double-counting mistakes...
 	I've deleted the bulk of the old code, and rewritten it
 	to be much much simpler - and also better. */
-bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFlags eFlags,
-	// <advc.300> Go up to this much beyond defensive needs if no city needs defenders
-	int iExtraDefenders)
+// <advc.300> Go up to this much beyond defensive needs if no city needs defenders <!-- custom: hoisted from multiline signature between `eFlags` and `iExtraDefenders` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFlags eFlags, int iExtraDefenders)
 {
 	// Only affects the city search
 	FAssert(iExtraDefenders >= 0 && bSearch || iExtraDefenders == 0); // </advc.300>
@@ -13832,8 +13812,7 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
 }
 
 // advc.028b:
-void CvUnitAI::AI_getGuardedPlots(CvPlot const& kFrom,
-	std::vector<CvPlot*>& kResult) const
+void CvUnitAI::AI_getGuardedPlots(CvPlot const& kFrom, std::vector<CvPlot*>& kResult) const
 {
 	for (SquareIter itGuardPlot(kFrom,
 		canSeaPatrol(&kFrom) ? GC.getMAX_SEA_PATROL_RANGE() : 0);
@@ -16478,8 +16457,7 @@ bool CvUnitAI::AI_exploreRange(int iRange)
 
 /*	BETTER_BTS_AI_MOD, 03/29/10, jdog5000 (War tactics AI, Efficiency):
 	Returns target city. K-Mod: heavily edited */
-CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
-	bool bHuntBarbs)
+CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, bool bHuntBarbs)
 {
 	PROFILE_FUNC();
 
@@ -16746,8 +16724,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 
 /*	BETTER_BTS_AI_MOD, 03/29/10, jdog5000 (War tactics AI, Efficiency):
 	(K-Mod has apparently merged BBAI's AI_goToTargetBarbCity into this) */
-bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns,
-	CvCity* pTargetCity)
+bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns, CvCity* pTargetCity)
 {
 	PROFILE_FUNC();
 
@@ -16887,8 +16864,7 @@ bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 	return true;
 }
 
-bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshold,
-	MovementFlags eFlags, int iMaxPathTurns)
+bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshold, MovementFlags eFlags, int iMaxPathTurns)
 {
 	PROFILE_FUNC();
 	// K-Mod
@@ -17050,9 +17026,8 @@ bool CvUnitAI::AI_bombardCity()
 }
 
 // This function has been been heavily edited for K-Mod.
-bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
-	// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15)
-	MovementFlags eFlags, bool bFollow)
+// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15) <!-- custom: hoisted from multiline signature between `iOddsThreshold` and `eFlags` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, bool bFollow)
 {
 	PROFILE_FUNC();
 
@@ -17122,8 +17097,7 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
 	(it started getting messy, so I deleted most of the old code)
 	bFollow implies AI_follow conditions - ie. not everyone in the group can move,
 	and this unit might not be the group leader. */
-bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags,
-	int iMinStack, bool bAllowCities, bool bFollow)
+bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, int iMinStack, bool bAllowCities, bool bFollow)
 {
 	PROFILE_FUNC();
 
@@ -17568,8 +17542,7 @@ bool CvUnitAI::AI_evacuateCity()
 /*	bLocal is just to help with the efficiency of this function for short-range checks.
 	It means that we should look only in nearby plots.
 	the default (bLocal == false) is to look at every plot on the map! */
-bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
-	int iMaxPathTurns, bool bLocal)
+bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags, int iMaxPathTurns, bool bLocal)
 {
 	PROFILE_FUNC();
 
@@ -17672,8 +17645,7 @@ bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
 	note: iSearchRange is /not/ the number of turns.
 	It is the number of steps. iSearchRange < 1 means 'automatic'
 	Only 1-turn moves are considered here. */
-bool CvUnitAI::AI_stackVsStack(int iSearchRange, int iAttackThreshold, int iRiskThreshold,
-	MovementFlags eFlags)
+bool CvUnitAI::AI_stackVsStack(int iSearchRange, int iAttackThreshold, int iRiskThreshold, MovementFlags eFlags)
 {
 	PROFILE_FUNC();
 
@@ -18568,8 +18540,8 @@ bool CvUnitAI::AI_foundFollow()
 namespace
 {
 	// K-Mod. helper function for AI_assaultSeaTransport. (just to avoid code duplication)
-	int estimateAndCacheCityDefence(CvPlayerAI& kPlayer, CvCityAI const* pCity, // advc.003u: was CvCity*
-		std::map<CvCityAI const*, int>& city_defence_cache)
+	// advc.003u: was CvCity* <!-- custom: hoisted from multiline signature between `pCity` and `city_defence_cache` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int estimateAndCacheCityDefence(CvPlayerAI& kPlayer, CvCityAI const* pCity, std::map<CvCityAI const*, int>& city_defence_cache)
 	{
 		// calculate the city's defences, or read from the cache if we've already done it.
 		std::map<CvCityAI const*,int>::iterator city_it = city_defence_cache.find(pCity);
@@ -18601,8 +18573,7 @@ namespace
 }
 
 // This function has been mostly rewritten for K-Mod.
-bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal,
-	int iMaxAreaCities) // advc.082
+bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal, int iMaxAreaCities) // advc.082
 {
 	PROFILE_FUNC();
 
@@ -19290,8 +19261,7 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
 }
 
 // K-Mod. General function for moving assault groups - to reduce code duplication.
-bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTargetPlot,
-	MovementFlags eFlags, MissionAITypes eMissionAI)
+bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTargetPlot, MovementFlags eFlags, MissionAITypes eMissionAI)
 {
 	FAssert(!kEndTurnPlot.isImpassable());
 	CvPlot const* pNewEndTurnPlot = &kEndTurnPlot; // advc (Take param by reference)
@@ -20336,9 +20306,8 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange) // advc: 1st para
 }
 
 // advc: Cut from AI_improveCity to reduce code duplication
-bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest,
-	MovementFlags& eFlags, // in-out param
-	CvCity const* pDestCity) const
+// in-out param <!-- custom: hoisted from multiline signature between `eFlags` and `pDestCity` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest, MovementFlags& eFlags, CvCity const* pDestCity) const
 {
 	bool bRoute = false;
 	if (pDestCity != NULL && getPlot().getWorkingCity() != pDestCity /*||
@@ -20367,8 +20336,7 @@ bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest,
 }
 
 // advc.pf: Don't route through foreign territory
-bool CvUnitAI::AI_canRouteThroughSafeTerritory(CvPlot const& kDest,
-	MovementFlags& eFlags) const // in-out param
+bool CvUnitAI::AI_canRouteThroughSafeTerritory(CvPlot const& kDest, MovementFlags& eFlags) const // in-out param
 {
 	PROFILE_FUNC(); // (Should be just a few calls per turn or a few dozen)
 	bool bRoute = true;
@@ -20419,8 +20387,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 }
 
 
-bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity,
-	int iMissingWorkersInArea) // advc.117
+bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iMissingWorkersInArea) // advc.117
 {
 	PROFILE_FUNC();
 
@@ -21149,8 +21116,8 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 
 // <!-- custom: i have noticed that commenting out this function entirely in the inner body i mean in this caseand returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had; i didn't see an easy way to selectively do this with AIs like chatgpt o3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient); update: i have tried and now added in `CvUnitAI::AI_improveBonus`to replace the ebuild code here with our bonus specific finding and algorithm code, but it seems issue persisted, so to not needlessly conflict with what this code could do, leave it as is although not optimal but maybe fine or yes or other or etc-->
 //bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* peBestBuild, int* piBestValue)
-bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anyway.)
-	int iMissingWorkersInArea) // advc.121
+// K-Mod. (all that junk wasn't being used anyway.) <!-- custom: hoisted from multiline signature before `iMissingWorkersInArea` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 {
 	PROFILE_FUNC();
 
@@ -22296,9 +22263,8 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 }
 
 
-bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI,
-	// BETTER_BTS_AI_MOD, Naval AI, 01/15/09, jdog5000:
-	bool bCountProduction, int iMaxPath)
+// BETTER_BTS_AI_MOD, Naval AI, 01/15/09, jdog5000: <!-- custom: hoisted from multiline signature between `eUnitAI` and `bCountProduction` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI, bool bCountProduction, int iMaxPath)
 {
 	PROFILE_FUNC();
 
@@ -23843,8 +23809,7 @@ bool CvUnitAI::AI_nuke()
 /*	K-Mod: Return the value of the best nuke target in the range specified,
 	and set pBestTarget to be the specific target plot. The return value is
 	roughly in units of production. */
-int CvUnitAI::AI_nukeValue(CvPlot const& kCenterPlot, int iSearchRange,
-	CvPlot const*& pBestTarget, int iCivilianTargetWeight) const
+int CvUnitAI::AI_nukeValue(CvPlot const& kCenterPlot, int iSearchRange, CvPlot const*& pBestTarget, int iCivilianTargetWeight) const
 {
 	PROFILE_FUNC();
 

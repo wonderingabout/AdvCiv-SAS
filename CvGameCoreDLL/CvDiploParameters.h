@@ -13,8 +13,7 @@ public:
 	DllExport void setWhoTalkingTo(PlayerTypes eWhoTalkingTo);
 	DllExport PlayerTypes getWhoTalkingTo() const;
 
-	void setDiploComment(DiploCommentTypes eCommentType,
-			std::vector<FVariable> const* pArgs = NULL);
+	void setDiploComment(DiploCommentTypes eCommentType, std::vector<FVariable> const* pArgs = NULL);
 
 	// allow 3 args either int or string.  can't really use va_argslist here
 	void setDiploComment(DiploCommentTypes eCommentType, CvWString  arg1, CvWString  arg2="", CvWString  arg3="");

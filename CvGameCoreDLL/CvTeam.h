@@ -29,8 +29,7 @@ public:
 	static void freeStatics(); // </advc.003u>
 
 	// <kekm.26>
-	static void queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
-			bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW = true);
+	static void queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW = true);
 	static void triggerWars(/* advc: */ bool bForceUpdateAttitude = false);
 	// </kekm.26>
 
@@ -65,19 +64,14 @@ public:
 	bool canChangeWarPeace(TeamTypes eTeam, bool bAllowVassal = false) const;																			// Exposed to Python
 	DllExport bool canDeclareWar(TeamTypes eTeam) const;																// Exposed to Python
 	bool canEventuallyDeclareWar(TeamTypes eTeam) const; // bbai, Exposed to Python
-	void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
-			bool bPrimaryDoW = true, // K-Mod added bPrimaryDoW, Exposed to Python
-			PlayerTypes eSponsor = NO_PLAYER, // advc.100
-			bool bRandomEvent = false); // advc.106g
-	void makePeace(TeamTypes eTarget, bool bBumpUnits = true,																		// Exposed to Python
-			TeamTypes eBroker = NO_TEAM, // advc.100b
-			bool bCapitulate = false, // advc.034
-			CLinkList<TradeData> const* pReparations = NULL, // advc.039
-			bool bRandomEvent = false); // advc.106g
-	bool canContact(TeamTypes eTeam,
-			bool bCheckWillingness = false) const; // K-Mod, Exposed to Python
-	void meet(TeamTypes eTeam, bool bNewDiplo,																			// Exposed to Python
-			FirstContactData* pData = NULL); // advc.071
+	// advc.100 <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW = true, PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false); // advc.106g; K-Mod added bPrimaryDoW, Exposed to Python
+	// advc.100b <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.034 <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.039 <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void makePeace(TeamTypes eTarget, bool bBumpUnits = true, TeamTypes eBroker = NO_TEAM, bool bCapitulate = false, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false); // advc.106g; Exposed to Python
+	bool canContact(TeamTypes eTeam, bool bCheckWillingness = false) const; // K-Mod, Exposed to Python
+	void meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData = NULL); // advc.071; Exposed to Python
 	void signPeaceTreaty(TeamTypes eTeam, bool bForce = false); // K-Mod (advc: bForce)
 	void signOpenBorders(TeamTypes eTeam, /* advc.032: */ bool bProlong = false);																				// Exposed to Python
 	void signDisengage(TeamTypes otherId); // advc.034
@@ -101,18 +95,16 @@ public:
 	//int getWarPlanCount(WarPlanTypes eWarPlan, bool bIgnoreMinors = true) const;
 	int getHasMetCivCount(bool bIgnoreMinors = true) const;												// Exposed to Python
 
-	bool allWarsShared(TeamTypes eOther, // kekm.3
-			/*  advc.130f: If false, check only if the war enemies of this team
-				are included in those of otherId (set inclusion). */
-			bool bCheckBothWays = true) const;
+	// kekm.3 <!-- custom: hoisted from multiline signature between `eOther` and `bCheckBothWays` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.130f: If false, check only if the war enemies of this team are included in those of otherId (set inclusion). <!-- custom: hoisted from multiline signature between `eOther` and `bCheckBothWays` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool allWarsShared(TeamTypes eOther, bool bCheckBothWays = true) const;
 	bool hasMetHuman() const;																			// Exposed to Python
 	bool isInContactWithBarbarians() const; // advc.302
 	int getDefensivePactCount(TeamTypes eObs = NO_TEAM) const;											// Exposed to Python
 	int getVassalCount(TeamTypes eObs = NO_TEAM) const;
 	// advc.opt:
 	bool isAVassal() const { return (m_eMaster != NO_TEAM); }											// Exposed to Python
-	bool canVassalRevolt(TeamTypes eMaster,
-			bool bCheckLosses = true, int iExtraLand = 0, int iExtraPop = 0) const; // advc.ctr
+	bool canVassalRevolt(TeamTypes eMaster, bool bCheckLosses = true, int iExtraLand = 0, int iExtraPop = 0) const; // advc.ctr
 	bool isLossesAllowRevolt(TeamTypes eMaster) const; // advc.112
 	int getUnitClassMaking(UnitClassTypes eUnitClass) const;											// Exposed to Python
 	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const										// Exposed to Python
@@ -139,10 +131,9 @@ public:
 	// K-Mod:
 	int getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain = NO_DOMAIN) const;
 
-	int getResearchCost(TechTypes eTech,																// Exposed to Python
-			//bool bGlobalModifiers = true, // K-Mod
-			bool bFreeBarbarianResearch = false, // advc.301
-			bool bTeamSizeModifiers = true) const; // K-Mod
+	// bool bGlobalModifiers = true, // K-Mod <!-- custom: hoisted from multiline signature between `eTech` and `bFreeBarbarianResearch` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.301 <!-- custom: hoisted from multiline signature between `bFreeBarbarianResearch` and `bTeamSizeModifiers` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch = false, bool bTeamSizeModifiers = true) const; // K-Mod; Exposed to Python
 	int getResearchLeft(TechTypes eTech) const;																// Exposed to Python
 
 	bool hasHolyCity(ReligionTypes eReligion) const;																		// Exposed to Python
@@ -265,8 +256,7 @@ public:
 	void setStolenVisibilityTimer(TeamTypes eIndex, int iNewValue);
 	void changeStolenVisibilityTimer(TeamTypes eIndex, int iChange);
 
-	int getWarWeariness(TeamTypes eIndex,																// Exposed to Python
-			bool bUseEnemyModifer = false) const; // K-Mod
+	int getWarWeariness(TeamTypes eIndex, bool bUseEnemyModifer = false) const; // K-Mod; Exposed to Python
 	void setWarWeariness(TeamTypes eIndex, int iNewValue);												// Exposed to Python
 	void changeWarWeariness(TeamTypes eIndex, int iChange);												// Exposed to Python
 	/*	<advc> (for kekm.38) Params changed to PlayerTypes; were named "eIndex".
@@ -474,8 +464,7 @@ public:
 	bool isParent(TeamTypes eChildTeam) const;
 
 	bool isHasTech(TechTypes eIndex) const;																																			// Exposed to Python
-	void setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,				// Exposed to Python
-			bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn = false);
+	void setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn = false); // Exposed to Python
 	/* advc.004a: A hack that allows other classes to pretend that a team knows
 	   a tech for some computation. Should be toggled back afterwards. */
 	void setHasTechTemporarily(TechTypes eTech, bool b) { m_abHasTech.set(eTech, b); }
@@ -712,22 +701,16 @@ protected:
 	// New name for isMinorCiv (uncached)
 	bool checkMinorCiv() const; // </advc.003m>
 	// <advc.039>
-	CvWString const tradeItemString(TradeableItems eItem, int iData,
-			TeamTypes eFrom) const; // </advc.039>
+	CvWString const tradeItemString(TradeableItems eItem, int iData, TeamTypes eFrom) const; // </advc.039>
 	bool isTechSplash() const; // advc
-	void announceTechToPlayers(TechTypes eIndex,
-			PlayerTypes eDiscoverPlayer, // advc.156
-			bool bPartial = false);
+	// advc.156 <!-- custom: hoisted from multiline signature between `eDiscoverPlayer` and `bPartial` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void announceTechToPlayers(TechTypes eIndex, PlayerTypes eDiscoverPlayer, bool bPartial = false);
 	// <advc>
-	void announceWar(TeamTypes eTarget, bool bPrimaryDoW,
-			PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false);
-	void announcePeace(TeamTypes eTarget, TeamTypes eBroker = NO_TEAM,
-			CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false);
+	void announceWar(TeamTypes eTarget, bool bPrimaryDoW, PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false);
+	void announcePeace(TeamTypes eTarget, TeamTypes eBroker = NO_TEAM, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false);
 	// </advc>  <advc.106o>
-	void setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget,
-			CvWString& szAgents, CvWString& szTargets, bool bReplay = false);
-	void setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay,
-			bool bCapitalize);
+	void setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget, CvWString& szAgents, CvWString& szTargets, bool bReplay = false);
+	void setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay, bool bCapitalize);
 	// </advc.106o>
 
 private: // advc.003u: (See comments in the private section of CvPlayer.h)
@@ -736,8 +719,7 @@ private: // advc.003u: (See comments in the private section of CvPlayer.h)
 	virtual void AI_doTurnPreExternal();*/
 	virtual void AI_doTurnPostExternal();
 	virtual void AI_makeAssignWorkDirtyExternal();
-	virtual void AI_updateAreaStrategiesExternal(
-			bool bTargets = true);
+	virtual void AI_updateAreaStrategiesExternal(bool bTargets = true);
 	virtual bool AI_shareWarExternal(TeamTypes eTeam);
 	virtual void AI_updateWorstEnemyExternal();
 	virtual int AI_getAtWarCounterExternal(TeamTypes eIndex);
@@ -763,8 +745,7 @@ private: // advc.003u: (See comments in the private section of CvPlayer.h)
 	virtual bool AI_isChosenWarExternal(TeamTypes eIndex);
 	virtual bool AI_isSneakAttackPreparingExternal(TeamTypes eIndex);
 	virtual bool AI_isSneakAttackReadyExternal(TeamTypes eIndex);
-	virtual void AI_setWarPlanExternal(TeamTypes eIndex, WarPlanTypes eNewValue,
-			bool bWar = true);
+	virtual void AI_setWarPlanExternal(TeamTypes eIndex, WarPlanTypes eNewValue, bool bWar = true);
 	virtual void readExternal(FDataStreamBase* pStream);
 	virtual void writeExternal(FDataStreamBase* pStream);
 };

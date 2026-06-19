@@ -147,8 +147,7 @@ CvCity::~CvCity() // advc.003u: Merged with the deleted uninit function
 }
 
 
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
-	bool bUpdatePlotGroups, /* advc.ctr: */ int iOccupationTimer)
+void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups, /* advc.ctr: */ int iOccupationTimer)
 {
 	//reset(iID, eOwner, kPlot.getX(), kPlot.getY());
 	// <advc.003u> Reset merged into constructor
@@ -1455,16 +1454,14 @@ void CvCity::updateVisibility()
 }
 
 
-void CvCity::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold,
-	bool bIncrementExperience) /* advc: */ const
+void CvCity::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold, bool bIncrementExperience) /* advc: */ const
 {
 	GET_PLAYER(getOwner()).createGreatPeople(eGreatPersonUnit, bIncrementThreshold,
 			bIncrementExperience, getPlot());
 }
 
 
-void CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOption,
-	bool bAlt, bool bShift, bool bCtrl)
+void CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
 {
 	bool bCede = false; // advc.ctr
 	switch (eTask)
@@ -1544,8 +1541,7 @@ void CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOption,
 }
 
 
-void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuilding,
-	ProjectTypes eCreateProject, bool bFinish, bool bFront)
+void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuilding, ProjectTypes eCreateProject, bool bFinish, bool bFront)
 {
 	// K-Mod. don't create the popup if the city is in disorder
 	FAssert(isHuman() && !isProductionAutomated());
@@ -1854,8 +1850,7 @@ int CvCity::findCommerceRateRank(CommerceTypes eCommerce) const
 }
 
 // Returns one of the upgrades
-UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount,
-	BonusTypes eAssumeAvailable) const // advc.001u
+UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount, BonusTypes eAssumeAvailable) const // advc.001u
 {
 	PROFILE_FUNC(); // advc
 
@@ -1982,9 +1977,8 @@ void CvCity::verifyProduction()
 }
 
 
-bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades,
-	bool bCheckAirUnitCap, // advc.001b
-	BonusTypes eAssumeAvailable) const // advc.001u
+// advc.001b <!-- custom: hoisted from multiline signature between `bCheckAirUnitCap` and `eAssumeAvailable` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades, bool bCheckAirUnitCap, BonusTypes eAssumeAvailable) const // advc.001u
 {
 	//PROFILE_FUNC(); // advc.003o
 	FAssert(eUnit != NO_UNIT); // advc
@@ -2034,8 +2028,7 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
 }
 
 // advc: Refactored
-bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue,
-	bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const
+bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreTech) const
 {
 	FAssert(eBuilding != NO_BUILDING); // advc
 
@@ -2330,8 +2323,7 @@ bool CvCity::canContinueProduction(OrderData order)
 }
 
 
-int CvCity::getProductionExperience(UnitTypes eUnit, /* <advc.002f> */
-	bool bScore) const
+int CvCity::getProductionExperience(UnitTypes eUnit, /* <advc.002f> */ bool bScore) const
 {
 	FAssert(!bScore || eUnit == NO_UNIT); // </advc.002f>
 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
@@ -2804,8 +2796,7 @@ int CvCity::getProductionTurnsLeft(ProjectTypes eProject, int iNum) const
 /*  <advc.064b> New auxiliary function; some code cut from
 	getProductionTurnsLeft(UnitTypes,int). Added a bit of code to predict
 	overflow for queued orders (iNum>0); BtS never did that. */
-int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction,
-	int iProductionModifier, bool bFoodProduction, int iNum) const
+int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, int iNum) const
 {
 	int iFirstProductionDifference = 0;
 	// Per-turn production assuming no overflow and feature production
@@ -3011,10 +3002,8 @@ int CvCity::getProductionModifier(ProjectTypes eProject) const
 }
 
 
-int CvCity::getProductionDifference(int iProductionNeeded, int iProduction,
-	int iProductionModifier, bool bFoodProduction, bool bOverflow,  // <advc.064bc>
-	bool bIgnoreFeatureProd, bool bIgnoreYieldRate,
-	bool bForceFeatureProd, int* piFeatureProd) const // </advc.064bc>
+// <advc.064bc> <!-- custom: hoisted from multiline signature between `bOverflow` and `bIgnoreFeatureProd` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvCity::getProductionDifference(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, bool bOverflow, bool bIgnoreFeatureProd, bool bIgnoreYieldRate, bool bForceFeatureProd, int* piFeatureProd) const // </advc.064bc>
 {
 	if (isDisorder() /* advc.004x: */ && !bForceFeatureProd)
 		return 0;
@@ -3061,9 +3050,8 @@ int CvCity::getProductionDifference(int iProductionNeeded, int iProduction,
 }
 
 
-int CvCity::getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow,  // <advc.064bc>
-	bool bIgnoreFeatureProd, bool bIgnoreYieldRate,
-	bool bForceFeatureProd, int* piFeatureProd) const // </advc.064bc>
+// <advc.064bc> <!-- custom: hoisted from multiline signature between `bOverflow` and `bIgnoreFeatureProd` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvCity::getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow, bool bIgnoreFeatureProd, bool bIgnoreYieldRate, bool bForceFeatureProd, int* piFeatureProd) const // </advc.064bc>
 {
 	return getProductionDifference(getProductionNeeded(), getProduction(),
 			getProductionModifier(), !bIgnoreFood && isFoodProduction(), bOverflow,
@@ -3203,9 +3191,7 @@ int CvCity::overflowCapacity(int iProductionModifier, int iPopulationChange) con
 }
 
 // Based on code (BtS/unoffical patch) cut from popOrder
-int CvCity::computeOverflow(int iRawOverflow, int iProductionModifier,
-	OrderTypes eOrderType, int* piProductionGold, int* piLostProduction,
-	int iPopulationChange) const
+int CvCity::computeOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType, int* piProductionGold, int* piLostProduction, int iPopulationChange) const
 {
 	LOCAL_REF(int, iProductionGold, piProductionGold, 0);
 	LOCAL_REF(int, iLostProduction, piLostProduction, 0);
@@ -4427,8 +4413,7 @@ int CvCity::foodDifference(bool bBottom, bool bIgnoreProduction) const
 }
 
 
-int CvCity::growthThreshold(/* <advc.064b> */ int iPopulationChange,
-	bool bIgnoreModifiers) const // </advc.064b>
+int CvCity::growthThreshold(/* <advc.064b> */ int iPopulationChange, bool bIgnoreModifiers) const // </advc.064b>
 {
 	return (GET_PLAYER(getOwner()).getGrowthThreshold(getPopulation()
 			+ iPopulationChange, bIgnoreModifiers)); // advc.064b
@@ -4616,9 +4601,8 @@ int CvCity::cultureDistance(int iDX, int iDY)
 }
 
 // advc.101: Replaced most of the code, but it's still the same structure as in BtS.
-int CvCity::cultureStrength(PlayerTypes ePlayer,
-	bool bIgnoreWar, bool bIgnoreOccupation, // advc.023
-	std::vector<GrievanceTypes>* paGrievances) const // Out parameter for UI support
+// advc.023 <!-- custom: hoisted from multiline signature between `bIgnoreOccupation` and `paGrievances` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvCity::cultureStrength(PlayerTypes ePlayer, bool bIgnoreWar, bool bIgnoreOccupation, std::vector<GrievanceTypes>* paGrievances) const // Out parameter for UI support
 {
 	//int iStrength = 1 + getHighestPopulation() * 2; // BtS
 	scaled rPopulation = getPopulation();
@@ -4883,8 +4867,8 @@ int CvCity::getNumActiveBuilding(BuildingTypes eBuilding) const
 }
 
 // UNOFFICIAL_PATCH, War tactics AI, 03/04/10, Mongoose & jdog5000:
-int CvCity::getNumActiveWorldWonders(int iStopCountAt, // advc
-	PlayerTypes eOwner) const // advc.104d
+// advc <!-- custom: hoisted from multiline signature between `iStopCountAt` and `eOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvCity::getNumActiveWorldWonders(int iStopCountAt, PlayerTypes eOwner) const // advc.104d
 {
 	PROFILE_FUNC(); // advc.opt (tbd.): Cache the return value
 	// advc.104d:
@@ -5464,8 +5448,7 @@ int CvCity::calculateCorporationMaintenanceTimes100(CorporationTypes eCorporatio
 }
 
 
-int CvCity::calculateBaseMaintenanceTimes100(
-	/* <advc.ctr> */ PlayerTypes eOwner) const
+int CvCity::calculateBaseMaintenanceTimes100(/* <advc.ctr> */ PlayerTypes eOwner) const
 {
 	if (eOwner == NO_PLAYER)
 		eOwner = getOwner(); // </advc.ctr>
@@ -5660,9 +5643,7 @@ std::pair<int,int> CvCity::calculateSurroundingHealth(int iGoodExtraPercent, int
 	removing kPlot's feature.
 	This function is for AI purposes (no need to tally good and bad effects
 	separately), the one below is for UI purposes. */
-void CvCity::calculateHealthHappyChange(CvPlot const& kPlot,
-	ImprovementTypes eNewImprov, ImprovementTypes eOldImprov, bool bRemoveFeature,
-	int& iHappyChange, int& iHealthChange, int& iHealthPercentChange) const
+void CvCity::calculateHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNewImprov, ImprovementTypes eOldImprov, bool bRemoveFeature, int& iHappyChange, int& iHealthChange, int& iHealthPercentChange) const
 {
 	int iGoodHappyChange, iBadHappyChange, iGoodHealthChange, iBadHealthChange,
 			iGoodHealthPercentChange, iBadHealthPercentChange;
@@ -5677,10 +5658,7 @@ void CvCity::calculateHealthHappyChange(CvPlot const& kPlot,
 /*  Positive and negative effects need to be tallied separately for "correct"
 	rounding - as in BtS: bad jungle health and good forest health are rounded
 	separately. */
-void CvCity::goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNewImprov,
-	ImprovementTypes eOldImprov, bool bRemoveFeature, int& iHappyChange,
-	int& iUnhappyChange, int& iGoodHealthChange, int& iBadHealthChange,
-	int& iGoodHealthPercentChange, int& iBadHealthPercentChange) const
+void CvCity::goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNewImprov, ImprovementTypes eOldImprov, bool bRemoveFeature, int& iHappyChange, int& iUnhappyChange, int& iGoodHealthChange, int& iBadHealthChange, int& iGoodHealthPercentChange, int& iBadHealthPercentChange) const
 {
 	iHappyChange = iUnhappyChange = iGoodHealthChange = iBadHealthChange =
 			iGoodHealthPercentChange = iBadHealthPercentChange = 0;
@@ -6192,8 +6170,7 @@ int CvCity::getAdditionalHappinessByBuilding(BuildingTypes eBuilding, int& iGood
 	will provide and sets the good and bad levels individually.
 	Doesn't reset iGood or iBad to zero.
 	Doesn't check if the building can be constructed in this city. */
-int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad,
-	bool bAssumeStrategicBonuses) const // advc.001h
+int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad, bool bAssumeStrategicBonuses) const // advc.001h
 {
 	CvBuildingInfo& kBuilding = GC.getInfo(eBuilding);
 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
@@ -7355,8 +7332,7 @@ int CvCity::getAdditionalYieldByBuilding(YieldTypes eYield, BuildingTypes eBuild
 /*	Returns the additional yield rate that adding one of the given buildings will provide.
 	Doesn't check if the building can be constructed in this city.
 	advc: _MOD_FRACTRADE removed */
-int CvCity::getAdditionalBaseYieldRateByBuilding(YieldTypes eYield,
-	BuildingTypes eBuilding) const
+int CvCity::getAdditionalBaseYieldRateByBuilding(YieldTypes eYield, BuildingTypes eBuilding) const
 {
 	if (GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
 		return 0;
@@ -7454,8 +7430,7 @@ int CvCity::getAdditionalBaseYieldRateByBuilding(YieldTypes eYield,
 /*	Returns the additional yield rate modifier that adding one of
 	the given buildings will provide. Doesn't check if the building can be
 	constructed in this city. */
-int CvCity::getAdditionalYieldRateModifierByBuilding(YieldTypes eYield,
-	BuildingTypes eBuilding) const
+int CvCity::getAdditionalYieldRateModifierByBuilding(YieldTypes eYield, BuildingTypes eBuilding) const
 {
 	if (GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
 		return 0; // advc
@@ -7726,8 +7701,7 @@ int CvCity::calculateTradeYield(YieldTypes eYield, int iTradeProfit) const
 // BULL - Trade Hover:  (advc: simplified a bit, _MOD_FRACTRADE removed)
 /*  Adds the yield and count for each trade route with eWithPlayer to the
 	int references (out parameters). */
-void CvCity::calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes,
-	int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer) const
+void CvCity::calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer) const
 {
 	if(isDisorder())
 		return;
@@ -8027,8 +8001,7 @@ void CvCity::updateBuildingCommerce(CommerceTypes eCommerce)
 	adding one of the given buildings will provide.
 	Doesn't check if the building can be constructed in this city.
 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
-int CvCity::getAdditionalCommerceTimes100ByBuilding(CommerceTypes eCommerce,
-	BuildingTypes eBuilding) const
+int CvCity::getAdditionalCommerceTimes100ByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const
 {
 	int iExtraRate = getAdditionalBaseCommerceRateByBuilding(eCommerce, eBuilding);
 	int iExtraModifier = getAdditionalCommerceRateModifierByBuilding(eCommerce, eBuilding);
@@ -8047,8 +8020,7 @@ int CvCity::getAdditionalCommerceTimes100ByBuilding(CommerceTypes eCommerce,
 /*  Returns the additional base commerce rate constructing the given building will provide.
 	Doesn't check if the building can be constructed in this city.
 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
-int CvCity::getAdditionalBaseCommerceRateByBuilding(CommerceTypes eCommerce,
-	BuildingTypes eBuilding) const
+int CvCity::getAdditionalBaseCommerceRateByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const
 {
 	bool bNoEspionage = GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE);
 	if (bNoEspionage && eCommerce == COMMERCE_ESPIONAGE)
@@ -8065,8 +8037,7 @@ int CvCity::getAdditionalBaseCommerceRateByBuilding(CommerceTypes eCommerce,
 
 /*  Returns the additional base commerce rate constructing the given building will provide.
 	Doesn't check if the building can be constructed in this city. */
-int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eCommerce,
-	BuildingTypes eBuilding) const
+int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eCommerce, BuildingTypes eBuilding) const
 {
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 
@@ -8114,8 +8085,7 @@ int CvCity::getAdditionalBaseCommerceRateByBuildingImpl(CommerceTypes eCommerce,
 
 /*  Doesn't check if the building can be constructed in this city.
 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
-int CvCity::getAdditionalCommerceRateModifierByBuilding(CommerceTypes eCommerce,
-	BuildingTypes eBuilding) const
+int CvCity::getAdditionalCommerceRateModifierByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const
 {
 	bool const bNoEspionage = GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE);
 	if (bNoEspionage && eCommerce == COMMERCE_ESPIONAGE)
@@ -8133,8 +8103,7 @@ int CvCity::getAdditionalCommerceRateModifierByBuilding(CommerceTypes eCommerce,
 
 /*  Returns the additional commerce rate modifier constructing the given building will provide.
 	Doesn't check if the building can be constructed in this city. */
-int CvCity::getAdditionalCommerceRateModifierByBuildingImpl(CommerceTypes eCommerce,
-	BuildingTypes eBuilding) const
+int CvCity::getAdditionalCommerceRateModifierByBuildingImpl(CommerceTypes eCommerce, BuildingTypes eBuilding) const
 {
 	if (!GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
 	{
@@ -8160,8 +8129,7 @@ void CvCity::changeSpecialistCommerce(CommerceTypes eCommerce, int iChange)
 /*  Returns the total additional commerce times 100 that changing the number
 	of given specialists will provide/remove.
 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
-int CvCity::getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce,
-	SpecialistTypes eSpecialist, int iChange) const
+int CvCity::getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange) const
 {
 	int iExtraRate = getAdditionalBaseCommerceRateBySpecialist(
 			eCommerce, eSpecialist, iChange);
@@ -8179,8 +8147,7 @@ int CvCity::getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce,
 /*  Returns the additional base commerce rate that changing the number
 	of given specialists will provide/remove.
 	Takes the NO_ESPIONAGE game option into account for CULTURE and ESPIONAGE. */
-int CvCity::getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce,
-	SpecialistTypes eSpecialist, int iChange) const
+int CvCity::getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange) const
 {
 	bool const bNoEspionage = GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE);
 	if (bNoEspionage && eCommerce == COMMERCE_ESPIONAGE)
@@ -8198,16 +8165,14 @@ int CvCity::getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce,
 
 /*	Returns the additional base commerce rate that changing the number
 	of given specialists will provide/remove. */
-int CvCity::getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce,
-	SpecialistTypes eSpecialist, int iChange) const
+int CvCity::getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange) const
 {
 	// advc: Forward to CvPlayer (based on MNAI - lfgr fix 01/2022)
 	return iChange * GET_PLAYER(getOwner()).specialistCommerce(eSpecialist, eCommerce);
 }
 // BUG - Specialist Additional Commerce - end
 
-int CvCity::getReligionCommerceByReligion(CommerceTypes eCommerce,
-	ReligionTypes eReligion, /* advc: */ bool bForce) const
+int CvCity::getReligionCommerceByReligion(CommerceTypes eCommerce, ReligionTypes eReligion, /* advc: */ bool bForce) const
 {
 	int iCommerceRate = 0;
 	// advc.172: Commented out
@@ -8261,8 +8226,7 @@ void CvCity::setCorporationYield(YieldTypes eYield, int iNewValue)
 }
 
 
-int CvCity::getCorporationYieldByCorporation(YieldTypes eYield,
-	CorporationTypes eCorporation) const
+int CvCity::getCorporationYieldByCorporation(YieldTypes eYield, CorporationTypes eCorporation) const
 {
 	int iYieldRate = 0;
 	if (isActiveCorporation(eCorporation) && !isDisorder())
@@ -8281,8 +8245,7 @@ int CvCity::getCorporationYieldByCorporation(YieldTypes eYield,
 	return intdiv::uceil(iYieldRate, 100);
 }
 
-int CvCity::getCorporationCommerceByCorporation(CommerceTypes eCommerce,
-	CorporationTypes eCorporation) const
+int CvCity::getCorporationCommerceByCorporation(CommerceTypes eCommerce, CorporationTypes eCorporation) const
 {
 	int iCommerceRate = 0;
 	if (isActiveCorporation(eCorporation) && !isDisorder())
@@ -8507,8 +8470,7 @@ PlayerTypes CvCity::findHighestCulture() const
 	If bIgnoreGarrison is set, culture garrison strength is treated as 0.
 	If bIgnoreOccupation is set, the probability is computed assuming that the city
 	isn't in occupation. */
-scaled CvCity::revoltProbability(bool bIgnoreWar,
-	bool bIgnoreGarrison, bool bIgnoreOccupation) const // advc.023
+scaled CvCity::revoltProbability(bool bIgnoreWar, bool bIgnoreGarrison, bool bIgnoreOccupation) const // advc.023
 {
 	PlayerTypes eCulturalOwner = calculateCulturalOwner(); // advc.099c
 	static bool const bBARBS_REVOLT = GC.getDefineBOOL("BARBS_REVOLT");
@@ -8567,8 +8529,7 @@ scaled CvCity::probabilityOccupationDecrement() const
 }
 
 // K-Mod: Whether or not the city is allowed to flip to the given player
-bool CvCity::canCultureFlip(PlayerTypes eToPlayer,
-	bool bCheckPriorRevolts) const // advc.101
+bool CvCity::canCultureFlip(PlayerTypes eToPlayer, bool bCheckPriorRevolts) const // advc.101
 {
 	/*if (isBarbarian())
 		return true;*/ // advc.101: Commented out
@@ -8622,15 +8583,13 @@ int CvCity::calculateTeamCulturePercent(TeamTypes eTeam) const
 }
 
 
-void CvCity::setCulture(PlayerTypes ePlayer, int iNewValue, bool bPlots,
-	bool bUpdatePlotGroups)
+void CvCity::setCulture(PlayerTypes ePlayer, int iNewValue, bool bPlots, bool bUpdatePlotGroups)
 {
 	setCultureTimes100(ePlayer, 100 * iNewValue, bPlots, bUpdatePlotGroups);
 }
 
 // K-Mod, 26/sep/10: fixed so that plots actually get the culture difference
-void CvCity::setCultureTimes100(PlayerTypes ePlayer, int iNewValue, bool bPlots,
-	bool bUpdatePlotGroups)
+void CvCity::setCultureTimes100(PlayerTypes ePlayer, int iNewValue, bool bPlots, bool bUpdatePlotGroups)
 {
 	int const iOldValue = getCultureTimes100(ePlayer);
 	if (iNewValue == iOldValue)
@@ -8652,16 +8611,14 @@ void CvCity::setCultureTimes100(PlayerTypes ePlayer, int iNewValue, bool bPlots,
 }
 
 
-void CvCity::changeCulture(PlayerTypes ePlayer, int iChange, bool bPlots,
-	bool bUpdatePlotGroups)
+void CvCity::changeCulture(PlayerTypes ePlayer, int iChange, bool bPlots, bool bUpdatePlotGroups)
 {
 	setCultureTimes100(ePlayer, getCultureTimes100(ePlayer) + 100 * iChange,
 			bPlots, bUpdatePlotGroups);
 }
 
 
-void CvCity::changeCultureTimes100(PlayerTypes ePlayer, int iChange, bool bPlots,
-	bool bUpdatePlotGroups)
+void CvCity::changeCultureTimes100(PlayerTypes ePlayer, int iChange, bool bPlots, bool bUpdatePlotGroups)
 {
 	setCultureTimes100(ePlayer, getCultureTimes100(ePlayer) + iChange,
 			bPlots, bUpdatePlotGroups);
@@ -8978,8 +8935,7 @@ int CvCity::getNumBonuses(BonusTypes eBonus) const
 }
 
 
-void CvCity::changeNumBonuses(BonusTypes eBonus, int iChange,
-	bool bVerifyProduction) // advc.064d
+void CvCity::changeNumBonuses(BonusTypes eBonus, int iChange, bool bVerifyProduction) // advc.064d
 {
 	if (iChange == 0)
 		return;
@@ -9608,16 +9564,14 @@ int CvCity::getNumRealBuilding(BuildingClassTypes eBuildingClass) const
 }
 
 
-void CvCity::setNumRealBuilding(BuildingTypes eBuilding, int iNewValue,
-	bool bEndOfTurn) // advc.001x
+void CvCity::setNumRealBuilding(BuildingTypes eBuilding, int iNewValue, bool bEndOfTurn) // advc.001x
 {
 	setNumRealBuildingTimed(eBuilding, iNewValue, true, getOwner(),
 			GC.getGame().getGameTurnYear(), /* advc.001x: */ bEndOfTurn);
 }
 
 
-void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, bool bFirst,
-	PlayerTypes eOriginalOwner, int iOriginalTime, /* advc.001x: */ bool bEndOfTurn)
+void CvCity::setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, /* advc.001x: */ bool bEndOfTurn)
 {
 
 	int const iChange = iNewValue - getNumRealBuilding(eBuilding);
@@ -9836,8 +9790,7 @@ void CvCity::setNumFreeBuilding(BuildingTypes eBuilding, int iNewValue)
 }
 
 
-void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnounce, bool bArrows,
-	PlayerTypes eSpreadPlayer) // advc.106e
+void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnounce, bool bArrows, PlayerTypes eSpreadPlayer) // advc.106e
 {
 	if (isHasReligion(eReligion) == bNewValue)
 		return;
@@ -10306,8 +10259,7 @@ void CvCity::clearOrderQueue()
 }
 
 
-void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave,
-	bool bPop, int iPosition, bool bForce)
+void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, int iPosition, bool bForce)
 {
 	OrderData order;
 	bool bBuildingUnit = false;
@@ -10447,9 +10399,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave,
 }
 
 
-void CvCity::popOrder(int iNum, bool bFinish,
-	ChooseProductionPlayers eChoose, // advc.064d (was bool bChoose)
-	bool bEndOfTurn) // advc.001x
+// advc.064d (was bool bChoose) <!-- custom: hoisted from multiline signature between `eChoose` and `bEndOfTurn` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, bool bEndOfTurn) // advc.001x
 {
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	bool const bWasFoodProduction = isFoodProduction();
@@ -10984,8 +10935,7 @@ void CvCity::addGreatWall(int iAttempt)
 }
 
 // Helper function for placing Great Wall segments
-bool CvCity::needsGreatWallSegment(/* not currently used: */CvPlot const& kInside,
-	CvPlot const& kOutside, int iAttempt) const
+bool CvCity::needsGreatWallSegment(/* not currently used: */CvPlot const& kInside, CvPlot const& kOutside, int iAttempt) const
 {
 	if(!isArea(kOutside.getArea()) || kOutside.isImpassable() ||
 		!kOutside.isHabitable(true))
@@ -11106,8 +11056,7 @@ void CvCity::doCulture()
 
 /*	This function has essentially been rewritten for K-Mod.
 	(and it used to not be 'times 100') */
-void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
-	int iCultureRateTimes100, bool bCityCulture)
+void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultureRateTimes100, bool bCityCulture)
 {
 	PROFILE_FUNC(); // advc: Let's keep an eye on this
 	if (GC.getPythonCaller()->doPlotCultureTimes100(*this, ePlayer, bUpdate, iCultureRateTimes100))
@@ -11341,8 +11290,7 @@ void CvCity::upgradeProduction()
 }
 
 // advc.064d: Cut from doCheckProduction
-bool CvCity::checkCanContinueProduction(bool bCheckUpgrade,
-	ChooseProductionPlayers eChoose)
+bool CvCity::checkCanContinueProduction(bool bCheckUpgrade, ChooseProductionPlayers eChoose)
 {
 	bool bAllContinued = true;
 	for (int i = getOrderQueueLength() - 1; i >= 0; i--)
@@ -12290,8 +12238,7 @@ public:
 /*	Fill the kVisible array with buildings that you want shown in city,
 	as well as the number of generics
 	This function is called whenever CvCity::setLayoutDirty() is called. */
-void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
-	int& iChosenNumGenerics)
+void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible, int& iChosenNumGenerics)
 {
 	// <advc.045>
 	TeamTypes const eActiveTeam = GC.getGame().getActiveTeam();
@@ -12396,8 +12343,7 @@ bool CvCity::isAllBuildingsVisible(TeamTypes eTeam, bool bDebug) const
 /*	Fill the kEffectNames array with references to effects in CIV4EffectInfos.xml
 	to have a city play a given set of effects. This is called whenever the interface
 	updates the city billboard or when the zoom level changes. */
-void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom,
-	std::vector<const TCHAR*>& kEffectNames)
+void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom, std::vector<const TCHAR*>& kEffectNames)
 {
 	if (isOccupation() && isVisible(getTeam()) == true)
 	{
@@ -12808,8 +12754,7 @@ bool CvCity::canApplyEvent(EventTypes eEvent, const EventTriggeredData& kTrigger
 }
 
 
-void CvCity::applyEvent(EventTypes eEvent,
-	EventTriggeredData const& kTriggeredData, bool bClear)
+void CvCity::applyEvent(EventTypes eEvent, EventTriggeredData const& kTriggeredData, bool bClear)
 {
 	if (!canApplyEvent(eEvent, kTriggeredData))
 		return;
@@ -13074,8 +13019,7 @@ void CvCity::invalidateCommerceRankCache(CommerceTypes eCommerce)
 }
 
 
-void CvCity::setBuildingYieldChange(BuildingClassTypes eBuildingClass,
-	YieldTypes eYield, int iChange)
+void CvCity::setBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange)
 {
 	BuildingTypes eBuilding = getCivilization().getBuilding(eBuildingClass); // advc.003w
 	// advc: Simplified this function a lot
@@ -13093,16 +13037,14 @@ void CvCity::setBuildingYieldChange(BuildingClassTypes eBuildingClass,
 }
 
 
-void CvCity::changeBuildingYieldChange(BuildingClassTypes eBuildingClass,
-	YieldTypes eYield, int iChange)
+void CvCity::changeBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange)
 {
 	setBuildingYieldChange(eBuildingClass, eYield,
 			getBuildingYieldChange(eBuildingClass, eYield) + iChange);
 }
 
 
-void CvCity::setBuildingCommerceChange(BuildingClassTypes eBuildingClass,
-	CommerceTypes eCommerce, int iChange)
+void CvCity::setBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce, int iChange)
 {	// advc: Simplified this function a lot
 	BuildingTypes eBuilding = getCivilization().getBuilding(eBuildingClass);
 	if (eBuilding == NO_BUILDING)
@@ -13116,8 +13058,7 @@ void CvCity::setBuildingCommerceChange(BuildingClassTypes eBuildingClass,
 }
 
 
-void CvCity::changeBuildingCommerceChange(BuildingClassTypes eBuildingClass,
-	CommerceTypes eCommerce, int iChange)
+void CvCity::changeBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce, int iChange)
 {
 	setBuildingCommerceChange(eBuildingClass, eCommerce,
 			getBuildingCommerceChange(eBuildingClass, eCommerce) + iChange);
@@ -13467,8 +13408,7 @@ int CvCity::initialPopulation()
 }
 
 // advc.004b, advc.104: Parameters added
-int CvCity::calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot,
-	PlayerTypes eOwner, int iPopulation, bool bNoPlayerModifiers)
+int CvCity::calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot, PlayerTypes eOwner, int iPopulation, bool bNoPlayerModifiers)
 {
 	if(iPopulation < 0)
 		iPopulation = initialPopulation();
@@ -13538,9 +13478,8 @@ int CvCity::calculateMaintenanceDistance(CvPlot const* pCityPlot, PlayerTypes eO
 }
 
 // advc.004b, advc.104: Parameters added
-int CvCity::calculateNumCitiesMaintenanceTimes100(
-	CvPlot const& kCityPlot, // (unused - not relevant for NumCitiesMaintenance)
-	PlayerTypes eOwner, int iPopulation, int iExtraCities)
+// (unused - not relevant for NumCitiesMaintenance) <!-- custom: hoisted from multiline signature between `kCityPlot` and `eOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvCity::calculateNumCitiesMaintenanceTimes100(CvPlot const& kCityPlot, PlayerTypes eOwner, int iPopulation, int iExtraCities)
 {
 	if(iPopulation < 0)
 		iPopulation = initialPopulation();
@@ -13584,8 +13523,7 @@ int CvCity::calculateNumCitiesMaintenanceTimes100(
 }
 
 // advc.004b, advc.104: Parameters added
-int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
-	PlayerTypes eOwner, int iPopulation, int iExtraCities)
+int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot, PlayerTypes eOwner, int iPopulation, int iExtraCities)
 {
 	if(iPopulation < 0)
 		iPopulation = initialPopulation();
@@ -13637,8 +13575,7 @@ int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
 }
 
 // advc.500b:
-scaled CvCity::defensiveGarrison(
-	scaled rStopCountingAt) const // Param important for performance
+scaled CvCity::defensiveGarrison(scaled rStopCountingAt) const // Param important for performance
 {
 	/*  Time is acceptable - but not negligible (slightly above 1% of an AI turn) -
 		with rOUTDATED_PERCENT < 1. Perhaps fine if I keep it at 1 in XML.

@@ -58,10 +58,9 @@ public:
 	int AI_countFinancialTrouble() const; // addvc.003j (comment): unused
 	int AI_countMilitaryWeight(CvArea const* pArea = NULL) const;
 	// <advc.104>, advc.038, advc.132:
-	scaled AI_estimateDemographic(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic,
-			int iSamples = 5) const;
-	scaled AI_estimateYieldRate(PlayerTypes ePlayer, YieldTypes eYield, // (exposed to Python)
-			 int iSamples = 5) const; // </advc.104>
+	scaled AI_estimateDemographic(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic, int iSamples = 5) const;
+	// (exposed to Python) <!-- custom: hoisted from multiline signature between `eYield` and `iSamples` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	scaled AI_estimateYieldRate(PlayerTypes ePlayer, YieldTypes eYield, int iSamples = 5) const; // </advc.104>
 	int AI_estimateTotalYieldRate(YieldTypes eYield) const; // K-Mod
 	bool AI_deduceCitySite(CvCity const& kCity) const; // K-Mod
 	// <advc.erai>
@@ -95,25 +94,22 @@ public:
 	 // advc, advc.130e:
 	void AI_updateAttitude(TeamTypes eTeam, bool bUpdateWorstEnemy = true);
 	AttitudeTypes AI_getAttitude(TeamTypes eTeam, bool bForced = true) const;
-	int AI_getAttitudeVal(TeamTypes eTeam, bool bForced = true,
-			bool bAssert = true) const; // advc
+	int AI_getAttitudeVal(TeamTypes eTeam, bool bForced = true, bool bAssert = true) const; // advc
 	int AI_getMemoryCount(TeamTypes eTeam, MemoryTypes eMemory) const;
 	// <advc>
-	void AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW,
-			PlayerTypes eSponsor); // advc.100
+	void AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor); // advc.100
 	void AI_postDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan);
 	void AI_preMakePeace(TeamTypes eTarget, CLinkList<TradeData> const* pReparations);
 	void AI_postMakePeace(TeamTypes eTarget);
 	//int AI_startWarVal(TeamTypes eTeam) const;
-	int AI_startWarVal(TeamTypes eTarget, WarPlanTypes eWarPlan, // K-Mod
-			bool bConstCache = false) const; // advc.001n
+	// K-Mod <!-- custom: hoisted from multiline signature between `eWarPlan` and `bConstCache` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int AI_startWarVal(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bConstCache = false) const; // advc.001n
 	int AI_endWarVal(TeamTypes eTeam) const;
 
 	scaled CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const; // K-Mod
 
-	int AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
-			bool bIgnoreDiscount = false, // advc.550a
-			bool bPeaceDeal = false) const; // advc.140h
+	// advc.550a <!-- custom: hoisted from multiline signature between `bIgnoreDiscount` and `bPeaceDeal` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnoreDiscount = false, bool bPeaceDeal = false) const; // advc.140h
 	DenialTypes AI_techTrade(TechTypes eTech, TeamTypes eToTeam) const;
 
 	int AI_mapTradeVal(TeamTypes eFromTeam) const;
@@ -123,8 +119,7 @@ public:
 	DenialTypes AI_vassalTrade(TeamTypes eMasterTeam) const;
 
 	int AI_surrenderTradeVal(TeamTypes eTeam) const;
-	DenialTypes AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier = 100,
-			bool bCheckAccept = true) const; // advc.104o
+	DenialTypes AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier = 100, bool bCheckAccept = true) const; // advc.104o
 	/*  advc.104o: Previously a magic number in CvPlayer::getTradeDenial; needed
 		in additional places now. */
 	static int const VASSAL_POWER_MOD_SURRENDER = 140;
@@ -183,9 +178,7 @@ public:
 	TeamTypes AI_getWorstEnemy() const { return m_eWorstEnemy; } 
 	void AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateTradeMemory = true);
 	// <advc.130p>
-	scaled AI_enemyTradeResentmentFactor(TeamTypes eTo, TeamTypes eFrom,
-			TeamTypes eWarTradeTarget = NO_TEAM, TeamTypes ePeaceTradeTarget = NO_TEAM,
-			bool bPeaceDeal = false) const;
+	scaled AI_enemyTradeResentmentFactor(TeamTypes eTo, TeamTypes eFrom, TeamTypes eWarTradeTarget = NO_TEAM, TeamTypes ePeaceTradeTarget = NO_TEAM, bool bPeaceDeal = false) const;
 	// 0 or less if eEnemy isn't an enemy at all
 	int AI_enmityValue(TeamTypes eEnemy) const;
 	scaled AI_getDiploDecay() const;
@@ -251,8 +244,7 @@ public:
 	void AI_changeWarSuccess(TeamTypes eITeam, scaled rChange);
 	scaled AI_countEnemyWarSuccess() const; // advc
 	// <advc.130m>
-	void AI_reportSharedWarSuccess(scaled rIntensity, TeamTypes eWarAlly,
-			TeamTypes eEnemy, bool bIgnoreDistress = false);
+	void AI_reportSharedWarSuccess(scaled rIntensity, TeamTypes eWarAlly, TeamTypes eEnemy, bool bIgnoreDistress = false);
 	/*  The war success of our war ally against a shared enemy, plus the war success
 		of shared enemies against our war ally. This is quite different from AI_getWarSuccess,
 		which counts our success against team eIndex. Also on a different scale. */
@@ -265,18 +257,14 @@ public:
 	{
 		return m_aiEnemyPeacetimeTradeValue.get(eIndex);
 	}
-	void AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue,
-			bool bUpdateAttitude = true); // advc.130p
-	void AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange,
-			bool bUpdateAttitude = true); // advc.130p
+	void AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue, bool bUpdateAttitude = true); // advc.130p
+	void AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange, bool bUpdateAttitude = true); // advc.130p
 	int AI_getEnemyPeacetimeGrantValue(TeamTypes eIndex) const
 	{
 		return m_aiEnemyPeacetimeGrantValue.get(eIndex);
 	}
-	void AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue,
-			bool bUpdateAttitude = true); // advc.130p
-	void AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange,
-			bool bUpdateAttitude = true); // advc.130p
+	void AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue, bool bUpdateAttitude = true); // advc.130p
+	void AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange, bool bUpdateAttitude = true); // advc.130p
 
 	// advc: countEnemy... functions moved from CvTeam
 	int AI_countEnemyPowerByArea(CvArea const& kArea) const;												// Exposed to Python
@@ -291,8 +279,7 @@ public:
 	bool AI_isAnyChosenWar() const; // advc.105
 	int AI_countChosenWars(bool bIgnoreMinors = true) const; // advc: Moved from CvTeam; unused.			// Exposed to Python
 	// <advc> Replacing the deleted CvTeam::getWarPlanCount and getAnyWarPlanCount
-	int AI_countWarPlans(WarPlanTypes eWarPlanType = NUM_WARPLAN_TYPES, bool bIgnoreMinors = true,			// Exposed to Python (through getWarPlanCount, getAnyWarPlanCount)
-			unsigned int iMaxCount = MAX_PLAYERS) const; // </advc>
+	int AI_countWarPlans(WarPlanTypes eWarPlanType = NUM_WARPLAN_TYPES, bool bIgnoreMinors = true, unsigned int iMaxCount = MAX_PLAYERS) const; // </advc>; Exposed to Python (through getWarPlanCount, getAnyWarPlanCount)
 	// <advc.opt> Less flexible (ignores minors, vassals) but much faster
 	int AI_getNumWarPlans(WarPlanTypes eWarPlanType) const
 	{
@@ -316,10 +303,8 @@ public:
 	// advc.158:
 	AIStrengthMemoryMap& AI_strengthMemory() const { return m_strengthMemory; }
 	// advc.104:
-	int AI_teamCloseness(TeamTypes eIndex,
-			int iMaxDistance = DEFAULT_PLAYER_CLOSENESS,
-			bool bConsiderLandTarget = false, // advc.104o
-			bool bConstCache = false) const; // advc.001n
+	// advc.104o <!-- custom: hoisted from multiline signature between `bConsiderLandTarget` and `bConstCache` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int AI_teamCloseness(TeamTypes eIndex, int iMaxDistance = DEFAULT_PLAYER_CLOSENESS, bool bConsiderLandTarget = false, bool bConstCache = false) const; // advc.001n
 
 	// <advc.104>
 	UWAI::Team& uwai() { return *m_pUWAI; }
@@ -341,8 +326,7 @@ public:
 	// </advc.104y>
 	bool AI_performNoWarRolls(TeamTypes eTeam);
 	// advc.012:
-	int AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding = false,
-			bool bGarrisonStrength = false) const; // advc.500b
+	int AI_plotDefense(CvPlot const& kPlot, bool bIgnoreBuilding = false, bool bGarrisonStrength = false) const; // advc.500b
 	// advc.104, advc.651:
 	bool AI_isExpectingToTrain(PlayerTypes eTrainPlayer, UnitTypes eUnit) const;
 
@@ -386,18 +370,15 @@ protected:
 	void AI_doCounter();
 	void AI_doWar();
 	// K-Mod
-	int AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan,
-			bool bConstCache) const; // advc.001n
-	int AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan,
-			bool bConstCache) const; // advc.001n
+	int AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bConstCache) const; // advc.001n
+	int AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan, bool bConstCache) const; // advc.001n
 	// advc:
 	bool isFutureWarEnemy(TeamTypes eTeam, TeamTypes eTarget, bool bDefensivePacts) const;
 	int AI_warDiplomacyCost(TeamTypes eTarget) const;
 	// K-Mod end
 
 	// advc: Chunk of code that occured twice in doWar
-	void AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier, TeamTypes eTarget,
-			bool bLimited, int iEnemyPowerPercent);
+	void AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier, TeamTypes eTarget, bool bLimited, int iEnemyPowerPercent);
 	// advc.opt:
 	void AI_updateWarPlanCounts(TeamTypes eTarget, WarPlanTypes eOldPlan, WarPlanTypes eNewPlan);
 	// advc.104o:

@@ -245,9 +245,7 @@ bool CvPythonCaller::updateColoredPlots() const
 	return toBool(lResult);
 }
 
-void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
-	long& lResult, char const* szModuleName, bool bAssertSuccess,
-	bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList, long& lResult, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	/*	Not sure how expensive this check is; otherwise, I'd just always perform it.
 		bLoadIfNecessary: Generally won't help I think, except after having run
@@ -264,8 +262,7 @@ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
 	FAssert(!bAssertSuccess || m_bLastCallSuccessful);
 }
 
-void CvPythonCaller::call(char const* szFunctionName, long& lResult,
-	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, long& lResult, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
 		m_bLastCallSuccessful = false;
@@ -277,8 +274,7 @@ void CvPythonCaller::call(char const* szFunctionName, long& lResult,
 	FAssert(!bAssertSuccess || m_bLastCallSuccessful);
 }
 
-void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
-	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
 		m_bLastCallSuccessful = false;
@@ -290,8 +286,7 @@ void CvPythonCaller::call(char const* szFunctionName, CyArgsList& kArgsList,
 	FAssert(!bAssertSuccess || m_bLastCallSuccessful);
 }
 
-void CvPythonCaller::call(char const* szFunctionName,
-	char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
+void CvPythonCaller::call(char const* szFunctionName, char const* szModuleName, bool bAssertSuccess, bool bCheckExists) const
 {
 	if (bCheckExists && !m_python.moduleExists(szModuleName, true))
 		m_bLastCallSuccessful = false;
@@ -378,8 +373,7 @@ bool CvPythonCaller::canPickRevealedPlot(CvPlot const& kPlot) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	ARGSLIST(false);
 	CyPlot* pyPlot = new CyPlot(kPlot);
@@ -392,8 +386,7 @@ bool CvPythonCaller::cannotSelectionListMoveOverride(CvPlot const& kPlot,
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage,
-	int aiData[3], int iFlags, bool bAlt, bool bShift) const
+bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage, int aiData[3], int iFlags, bool bAlt, bool bShift) const
 {
 	ARGSLIST(false);
 	argsList.add(eMessage);
@@ -406,8 +399,7 @@ bool CvPythonCaller::cannotSelectionListNetOverride(GameMessageTypes eMessage,
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotHandleActionOverride(CvPlot* pPlot, int iAction,
-	bool bTestVisible) const
+bool CvPythonCaller::cannotHandleActionOverride(CvPlot* pPlot, int iAction, bool bTestVisible) const
 {
 	if (!isUse(CANNOT_HANDLE_ACTION))
 		return false;
@@ -496,10 +488,7 @@ CvWString CvPythonCaller::eventHelp(EventTypes eEvent, EventTriggeredData const*
 	return szResult;
 }
 
-bool CvPythonCaller::doEventTrigger(PlayerTypes ePlayer, EventTriggeredData const& kTriggered,
-	CvCity*& pCity, CvPlot*& pPlot, CvUnit*& pUnit, PlayerTypes& eOtherPlayer,
-	CvCity*& pOtherPlayerCity, ReligionTypes& eReligion,
-	CorporationTypes& eCorporation, BuildingTypes& eBuilding) const
+bool CvPythonCaller::doEventTrigger(PlayerTypes ePlayer, EventTriggeredData const& kTriggered, CvCity*& pCity, CvPlot*& pPlot, CvUnit*& pUnit, PlayerTypes& eOtherPlayer, CvCity*& pOtherPlayerCity, ReligionTypes& eReligion, CorporationTypes& eCorporation, BuildingTypes& eBuilding) const
 {
 	char const* szFunctionName = GC.getInfo(kTriggered.m_eTrigger).
 			getPythonCanDo();
@@ -585,8 +574,7 @@ bool CvPythonCaller::isCitiesDestroyFeatures(int iX, int iY) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
+bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
 {
 	if (!isUse(CAN_TRAIN))
 		return false;
@@ -605,8 +593,7 @@ bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit,
 /*  Could easily combine the "can" and "cannot" functions into a single function
 	with a bool& parameter, but then a Python modder who just needs either function
 	would have to "pay" for two DLL-to-Python calls instead of one. */
-bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
+bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
 {
 	if (!isUse(CANNOT_TRAIN))
 		return false;
@@ -623,8 +610,7 @@ bool CvPythonCaller::cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit,
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost) const
 {
 	if (!isUse(CAN_CONSTRUCT))
 		return false;
@@ -640,8 +626,7 @@ bool CvPythonCaller::canConstructOverride(CvCity const& kCity, BuildingTypes eBu
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes eBuilding,
-	bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost) const
 {
 	if (!isUse(CANNOT_CONSTRUCT))
 		return false;
@@ -657,8 +642,7 @@ bool CvPythonCaller::cannotConstructOverride(CvCity const& kCity, BuildingTypes 
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProject,
-	bool bContinue, bool bTestVisible) const
+bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue, bool bTestVisible) const
 {
 	if (!isUse(CAN_CREATE))
 		return false;
@@ -673,8 +657,7 @@ bool CvPythonCaller::canCreateOverride(CvCity const& kCity, ProjectTypes eProjec
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes eProject,
-	bool bContinue, bool bTestVisible) const
+bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue, bool bTestVisible) const
 {
 	if (!isUse(CANNOT_CREATE))
 		return false;
@@ -689,8 +672,7 @@ bool CvPythonCaller::cannotCreateOverride(CvCity const& kCity, ProjectTypes ePro
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProcess,
-	bool bContinue) const
+bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProcess, bool bContinue) const
 {
 	if (!isUse(CAN_MAINTAIN))
 		return false;
@@ -704,8 +686,7 @@ bool CvPythonCaller::canMaintainOverride(CvCity const& kCity, ProcessTypes eProc
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::cannotMaintainOverride(CvCity const& kCity, ProcessTypes eProcess,
-	bool bContinue) const
+bool CvPythonCaller::cannotMaintainOverride(CvCity const& kCity, ProcessTypes eProcess, bool bContinue) const
 {
 	if (!isUse(CANNOT_MAINTAIN))
 		return false;
@@ -765,8 +746,7 @@ bool CvPythonCaller::doCulture(CvCity const& kCity) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::doPlotCultureTimes100(CvCity const& kCity, PlayerTypes ePlayer,
-	bool bUpdate,int iCultureRateTimes100) const
+bool CvPythonCaller::doPlotCultureTimes100(CvCity const& kCity, PlayerTypes ePlayer, bool bUpdate, int iCultureRateTimes100) const
 {
 	if (!isUse(DO_PLOT_CULTURE))
 		return false;
@@ -875,8 +855,7 @@ bool CvPythonCaller::canRaze(CvCity const& kCity, PlayerTypes eNewOwner) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::canBuild(CvPlot const& kPlot, BuildTypes eBuild, PlayerTypes ePlayer,
-	bool& bOverride) const
+bool CvPythonCaller::canBuild(CvPlot const& kPlot, BuildTypes eBuild, PlayerTypes ePlayer, bool& bOverride) const
 {
 	bOverride = false;
 	if (!isUse(CAN_BUILD))
@@ -1078,8 +1057,7 @@ bool CvPythonCaller::AI_doWar(TeamTypes eTeam) const
 	return toBool(lResult);
 }
 
-bool CvPythonCaller::doOrganizationTech(TeamTypes eTechTeam, PlayerTypes eTechPlayer,
-	TechTypes eTech) const
+bool CvPythonCaller::doOrganizationTech(TeamTypes eTechTeam, PlayerTypes eTechPlayer, TechTypes eTech) const
 {
 	if (!isUse(DO_HOLY_CITY_TECH))
 		return false;
@@ -1236,8 +1214,7 @@ CustomMapOptionTypes CvPythonCaller::customMapOptionDefault(char const* szMapScr
 	return (CustomMapOptionTypes)toInt(lResult);
 }
 // advc.004:
-CvWString CvPythonCaller::customMapOptionDescription(char const* szMapScriptName,
-	int iOption, CustomMapOptionTypes eOptionValue) const
+CvWString CvPythonCaller::customMapOptionDescription(char const* szMapScriptName, int iOption, CustomMapOptionTypes eOptionValue) const
 {
 	CvWString szResult;
 	CyArgsList argsList;
@@ -1316,8 +1293,7 @@ void CvPythonCaller::mapWraps(bool& bWrapX, bool& bWrapY) const
 }
 
 // advc.194:
-void CvPythonCaller::mapDefaultOptionAvailability(bool& bClimateFlexible,
-	bool& bSeaLevelFlexible) const
+void CvPythonCaller::mapDefaultOptionAvailability(bool& bClimateFlexible, bool& bSeaLevelFlexible) const
 {
 	long lResult = 1;
 	call("isClimateMap", lResult, m_python.getMapScriptModule(), false);
@@ -1460,8 +1436,7 @@ bool CvPythonCaller::addRivers() const
 	return isOverride();
 }
 
-void CvPythonCaller::riverStartCardinalDirection(CvPlot const& kPlot,
-	CardinalDirectionTypes& r) const
+void CvPythonCaller::riverStartCardinalDirection(CvPlot const& kPlot, CardinalDirectionTypes& r) const
 {
 	ARGSLIST(NO_CARDINALDIRECTION);
 	CyPlot* pyPlot = new CyPlot(kPlot);

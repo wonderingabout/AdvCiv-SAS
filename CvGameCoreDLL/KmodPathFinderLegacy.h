@@ -74,9 +74,7 @@ public:
 	KmodPathFinderLegacy();
 	~KmodPathFinderLegacy();
 	void Reset();
-	void SetSettings(CvSelectionGroup const* pGroup,
-		MovementFlags eFlags = NO_MOVEMENT_FLAGS,
-		int iMaxPath = -1, int iHeuristicWeight = -1)
+	void SetSettings(CvSelectionGroup const* pGroup, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPath = -1, int iHeuristicWeight = -1)
 	{
 		SetSettings(CvPathSettings(pGroup, eFlags, iMaxPath, iHeuristicWeight));
 	}

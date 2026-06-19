@@ -127,8 +127,7 @@ public:
 	int getNumHiddenCustomMapOptions() const { return m_iNumHiddenCustomMapOptions; }
 
 	CustomMapOptionTypes const* getCustomMapOptions() const { return m_aeCustomMapOptions; }
-	DllExport void setCustomMapOptions(int iNumCustomMapOptions,
-			CustomMapOptionTypes const* aeCustomMapOptions);
+	DllExport void setCustomMapOptions(int iNumCustomMapOptions, CustomMapOptionTypes const* aeCustomMapOptions);
 
 	DllExport CustomMapOptionTypes getCustomMapOption(int iOptionID) const;
 	DllExport void setCustomMapOption(int iOptionID, CustomMapOptionTypes eCustomMapOption);

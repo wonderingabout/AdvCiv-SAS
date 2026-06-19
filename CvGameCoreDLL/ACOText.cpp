@@ -12,9 +12,7 @@
 using namespace combat_odds;
 
 // advc: Cut from setCombatPlotHelp
-void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
-	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
-	int iView, /* advc.048: */ bool bBestOddsHelp)
+void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, int iView, /* advc.048: */ bool bBestOddsHelp)
 {
 	CvWString szTempBuffer;
 	CvWString szTempBuffer2;
@@ -1234,9 +1232,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
 }
 
 // advc: Cut from setCombatPlotHelp
-void CvGameTextMgr::setACOModifiersPlotHelp(CvWStringBuffer &szString,
-	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
-	int iView)
+void CvGameTextMgr::setACOModifiersPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, int iView)
 {
 	if (!szString.isEmpty()) // advc.001: for right click hover with air unit
 		szString.append(NEWLINE);
