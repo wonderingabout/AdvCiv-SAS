@@ -1497,6 +1497,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
+	<!-- custom: Master switch for the empirically tuned non-bonus food-support Farm value in CvUnitAI. This keeps the formula as one coherent heuristic for now instead of exposing every internal term; set to 0 for quick A/B testing if the support-farm logic overfarms. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Master switch for concrete chain-irrigation rescue farms in CvUnitAI. This covers the outside-BFC connector hunt, reservation of likely irrigation-farm plots from non-farm builds, local adjacent-dry-farm rescue value, selected improvement overwrite for those fixes, and protection of resulting carrier farms. Separate from the broader food-support Farm value so the Nippur/Chaco/Harappan-style irrigation fixes can be tested independently. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Food-support farm value tuning separate from branch selection. Target surplus says when extra adjusted food starts reducing emergency farm value; zero-surplus threshold says when even weak farm food is still useful; value per surplus controls how quickly farm support fades above target surplus. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS</DefineName>

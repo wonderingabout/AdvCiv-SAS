@@ -1794,6 +1794,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	}
 
 	static const int iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH");
+	static const bool bSAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE");
+	static const bool bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE");
 	static const int iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS");
 	static const int iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD");
 	static const int iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS");
@@ -1825,7 +1827,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 	const int penaltyForOverwritingPlot = 300;
 
-	if (GET_TEAM(getTeam()).isIrrigation())
+	if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation())
 	{
 		// <!-- custom: AI_bestCityBuild normally scans only the city's BFC. The first outside-BFC connector attempt produced log noise and sometimes chose connector-looking plots, but did not fix Chaco Canyon/Harappan-style dry-farm cities. Instead, start from concrete city BFC targets: existing non-bonus dry farms, plus low-food unimproved non-bonus tiles when the city has high food-support pressure. Then choose a farmable owned plot that can receive irrigation now and moves water toward that target through a short owned farm chain. This fixed the Chaco Canyon and Harappan test cases by making workers find the first link toward water; imperfectly, Harappan's worker then wandered after irrigating the first link instead of immediately finishing the full chain to the BFC. This keeps the old broad AI_irrigateTerritory spam disabled while making the chain goal explicit. (GPT-5.5) -->
 		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
@@ -2081,7 +2083,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			bool const bFarmCanCarryIrrigation = (GET_TEAM(getTeam()).isIrrigation() && kPlot.canHavePotentialIrrigation() && kPlot.isIrrigationAvailable(true));
 			bool const bFarmGoodIrrigationTile = (bFarmCanCarryIrrigation || (kPlot.isFreshWater() && kPlot.canHavePotentialIrrigation()));
 			int iAdjacentDryFarmsIrrigatedByThisFarm = 0;
-			if (!kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
+			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
 			{
 				// <!-- custom: Hunt concrete chain-irrigation fixes, not abstract irrigation paths. In the Nippur 2014 AD test save, existing farms stayed dry because the missing water-carrying farm could be in another city's BFC and that plot had a cottage/workshop instead. If farming this exact plot would irrigate adjacent existing dry farms, value it enough to replace basic non-food improvements; skip dry farms already reachable or already being fixed by another in-progress farm so workers do not pile onto irrigation speculation. (GPT-5.5) -->
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -2104,8 +2106,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				}
 			}
 			bool const bFarmIrrigatesExistingDryFarm = (iAdjacentDryFarmsIrrigatedByThisFarm > 0);
-			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && (bCityHighFoodSupportNeed || bFarmIrrigatesExistingDryFarm) && (bFarmIrrigatesExistingDryFarm || bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD && bFarmGetsFood)));
-			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
+			bool const bFoodSupportFarmCandidate = (bSAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bCityHighFoodSupportNeed && (bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD && bFarmGetsFood)));
+			bool const bIrrigationChainFarmCandidate = (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmIrrigatesExistingDryFarm);
+			bool const bSupportFarmCandidate = (bFoodSupportFarmCandidate || bIrrigationChainFarmCandidate);
+			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
 			int const iDryFarmIrrigationChainValue = 1400 * iAdjacentDryFarmsIrrigatedByThisFarm;
 			int const iPlotGrowthLevel = SAS_getWorkerGrowthImprovementLevel(ePlotCurrentImprovement);
 			bool const bProtectedImprovementCanBeBrokenForIrrigation = SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK", ePlotCurrentImprovement);
@@ -2117,16 +2121,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				iPlotGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY * iPlotGrowthLevel :
 				0
 			);
-			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
+			int const iRawFoodSupportFarmValue = (bSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
 			int const iFoodSupportFarmValue = std::max(iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty, iRawFoodSupportFarmValue - (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, iAdjustedFoodDifference - iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS)));
 			bool const bAllowDryFarmIrrigationChainOverwrite = (
 				bFarmIrrigatesExistingDryFarm &&
 				(bProtectedImprovementCanBeBrokenForIrrigation || bNonProtectedImprovementCanBeBrokenForIrrigation)
 			);
-			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD));
+			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD));
 			int const iNonFoodIrrigationPathPenalty = ((iFoodSupportFarmValue > 0 && bFarmGoodIrrigationTile) ? 75 : 0);
 			bool bFarmCarriesIrrigationToAdjacentFarm = false;
-			if (ePlotCurrentImprovement == eImprovementFarm && kPlot.isIrrigated())
+			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && ePlotCurrentImprovement == eImprovementFarm && kPlot.isIrrigated())
 			{
 				// <!-- custom: Once the chain farm exists, keep it semi-holy too. Otherwise a later cottage/workshop pass could remove the carrier farm and recreate the same dry-farm problem we just fixed. This is a cheap adjacent-farm guard rather than full irrigation-network analysis; it protects irrigated farms next to owned irrigated farms that do not have direct fresh water. (GPT-5.5) -->
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -2391,7 +2395,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// allowing Farms to replace existing improvements when food/irrigation logic chooses them. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 		ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 		ImprovementTypes const eSupposedImprovement = GC.getInfo(eBestSupposedBuild).getImprovement();
-		if (GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && eSupposedImprovement != eImprovementFarm && !kPlot.isWater() && !kPlot.isHills() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
+		if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && eSupposedImprovement != eImprovementFarm && !kPlot.isWater() && !kPlot.isHills() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
 		{
 			bool bReserveForIrrigationFarm = (ePlotCurrentImprovement == eImprovementFarm);
 			if (!bReserveForIrrigationFarm && bCityHighFoodSupportNeed && canBuild(kPlot, eBuildFarm) && (kPlot.isFreshWater() || kPlot.isIrrigationAvailable(true)))
@@ -2634,6 +2638,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
 			BonusTypes const eCandidateBonus = pB->getNonObsoleteBonusType(getTeam());
 			bool const bIrrigationFarmReplacement = (
+				bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE &&
 				eCandidateImprovement == eImprovementFarm &&
 				GET_TEAM(getTeam()).isIrrigation() &&
 				!pB->isWater() && !pB->isHills() && !pB->isCity() &&
