@@ -1324,6 +1324,339 @@ struct CandidatePlot
 	}
 };
 
+struct SASWorkerNoBonusBuildCandidate
+{
+	BuildTypes eBuild;
+	ImprovementTypes eImprovement;
+	int iBaseValue;
+};
+
+struct SASWorkerNoBonusBranchCache
+{
+	char const* szDefineNameLiteral;
+	CvString szDefineName;
+	std::vector<SASWorkerNoBonusBuildCandidate> aCandidates;
+};
+
+// <!-- custom: Start externalizing no-bonus worker build branch base values without rewriting the dynamic worker AI rules. The XML text define lists candidate builds as BUILD_TAG:value or NONE for an intentionally empty branch; this parser resolves each build once, stores its resulting improvement when there is one, drops non-positive entries, treats NONE like the existing SAS music/string sentinel, and caches the result. Existing terrain branches keep their food-pressure, workshop-timing, irrigation, and canBuild checks while making the old hardcoded base preferences tunable; converted picker branches can also let newly listed builds such as Watermills, Forest Preserves, or later route/feature builds compete. (GPT-5.5 + ChatGPT-5.5) -->
+static CvString SAS_trimWorkerNoBonusBranchToken(CvString szText)
+{
+	while (!szText.empty() && (szText[0] == ' ' || szText[0] == '\t' || szText[0] == '\r' || szText[0] == '\n'))
+		szText = szText.substr(1);
+	while (!szText.empty() && (szText[szText.length() - 1] == ' ' || szText[szText.length() - 1] == '\t' || szText[szText.length() - 1] == '\r' || szText[szText.length() - 1] == '\n'))
+		szText = szText.substr(0, szText.length() - 1);
+	return szText;
+}
+
+static bool SAS_isWorkerNoBonusBranchNoneToken(CvString const& szText)
+{
+	return (szText.empty() || szText.CompareNoCase("NONE") == 0);
+}
+
+static void SAS_initWorkerNoBonusBranchCandidates(std::vector<SASWorkerNoBonusBuildCandidate>& aCandidates, char const* szDefineName)
+{
+	aCandidates.clear();
+	char const* szDefineText = GC.getDefineSTRING(szDefineName);
+	FAssertMsg(szDefineText != NULL, szDefineName);
+	if (szDefineText == NULL)
+		return;
+	CvString szRemaining = SAS_trimWorkerNoBonusBranchToken(szDefineText);
+	if (SAS_isWorkerNoBonusBranchNoneToken(szRemaining))
+		return;
+	while (!szRemaining.empty())
+	{
+		int const iComma = szRemaining.find(',');
+		CvString const szRawEntry = (iComma < 0 ? szRemaining : szRemaining.substr(0, iComma));
+		szRemaining = (iComma < 0 ? CvString("") : szRemaining.substr(iComma + 1));
+		CvString const szEntry = SAS_trimWorkerNoBonusBranchToken(szRawEntry);
+		if (SAS_isWorkerNoBonusBranchNoneToken(szEntry))
+			continue;
+		int const iColon = szEntry.find(':');
+		FAssertMsg(iColon > 0, szEntry.c_str());
+		if (iColon <= 0)
+			continue;
+		CvString const szBuild = SAS_trimWorkerNoBonusBranchToken(szEntry.substr(0, iColon));
+		CvString const szValue = SAS_trimWorkerNoBonusBranchToken(szEntry.substr(iColon + 1));
+		int const iBaseValue = atoi(szValue.c_str());
+		if (iBaseValue <= 0)
+			continue;
+		BuildTypes const eBuild = (BuildTypes)GC.getInfoTypeForString(szBuild.c_str());
+		FAssertMsg(eBuild != NO_BUILD, szBuild.c_str());
+		if (eBuild == NO_BUILD)
+			continue;
+		SASWorkerNoBonusBuildCandidate kCandidate;
+		kCandidate.eBuild = eBuild;
+		kCandidate.eImprovement = GC.getInfo(eBuild).getImprovement();
+		kCandidate.iBaseValue = iBaseValue;
+		aCandidates.push_back(kCandidate);
+	}
+}
+
+static std::vector<SASWorkerNoBonusBuildCandidate> const& SAS_getWorkerNoBonusBranchCandidates(char const* szDefineName)
+{
+	static std::vector<SASWorkerNoBonusBranchCache> aCaches;
+	// <!-- custom: Current callers pass stable string literals; pointer matching avoids repeated CvString comparisons in the worker plot hot path. Keep the CvString copy as the authoritative key so equivalent future callers can still resolve correctly when their pointer differs. (GPT-5.5 + ChatGPT-5.5) -->
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineNameLiteral == szDefineName)
+			return aCaches[i].aCandidates;
+	}
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineName == szDefineName)
+			return aCaches[i].aCandidates;
+	}
+	SASWorkerNoBonusBranchCache kCache;
+	kCache.szDefineNameLiteral = szDefineName;
+	kCache.szDefineName = szDefineName;
+	SAS_initWorkerNoBonusBranchCandidates(kCache.aCandidates, szDefineName);
+	aCaches.push_back(kCache);
+	return aCaches[aCaches.size() - 1].aCandidates;
+}
+
+struct SASWorkerNoBonusBranch
+{
+	char const* szDefineName;
+	bool bHasCandidates;
+};
+
+static SASWorkerNoBonusBranch SAS_makeWorkerNoBonusBranch(char const* szDefineName)
+{
+	SASWorkerNoBonusBranch kBranch;
+	kBranch.szDefineName = szDefineName;
+	kBranch.bHasCandidates = !SAS_getWorkerNoBonusBranchCandidates(szDefineName).empty();
+	return kBranch;
+}
+
+struct SASWorkerNoBonusBranchSet
+{
+	SASWorkerNoBonusBranch kFlat;
+	SASWorkerNoBonusBranch kFlatLowFood;
+	SASWorkerNoBonusBranch kHill;
+	SASWorkerNoBonusBranch kHillLowFood;
+};
+
+static void SAS_initWorkerNoBonusBranchSet(SASWorkerNoBonusBranchSet& kSet, char const* szFlat, char const* szFlatLowFood, char const* szHill, char const* szHillLowFood)
+{
+	kSet.kFlat = SAS_makeWorkerNoBonusBranch(szFlat);
+	kSet.kFlatLowFood = SAS_makeWorkerNoBonusBranch(szFlatLowFood);
+	kSet.kHill = SAS_makeWorkerNoBonusBranch(szHill);
+	kSet.kHillLowFood = SAS_makeWorkerNoBonusBranch(szHillLowFood);
+}
+
+static SASWorkerNoBonusBranch const* SAS_getWorkerNoBonusBranch(SASWorkerNoBonusBranchSet const& kSet, bool bHill, bool bLowFood)
+{
+	SASWorkerNoBonusBranch const& kBranch = (bHill ? (bLowFood ? kSet.kHillLowFood : kSet.kHill) : (bLowFood ? kSet.kFlatLowFood : kSet.kFlat));
+	return (kBranch.bHasCandidates ? &kBranch : NULL);
+}
+
+struct SASWorkerNoBonusKnownBranches
+{
+	SASWorkerNoBonusBranchSet kFeatureFloodPlains;
+	SASWorkerNoBonusBranchSet kFeatureOasis;
+	SASWorkerNoBonusBranchSet kTerrainGrass;
+	SASWorkerNoBonusBranchSet kTerrainPlains;
+	SASWorkerNoBonusBranchSet kTerrainTundra;
+	SASWorkerNoBonusBranchSet kTerrainSnow;
+	SASWorkerNoBonusBranchSet kTerrainDesert;
+
+	SASWorkerNoBonusKnownBranches()
+	{
+		SAS_initWorkerNoBonusBranchSet(kFeatureFloodPlains, "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kFeatureOasis, "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainGrass, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainPlains, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainTundra, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainSnow, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainDesert, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL_LOW_FOOD");
+	}
+};
+
+// <!-- custom: Cache the known manual no-bonus worker branch sets once as small handles. The define names now include FEATURE_/TERRAIN_ plus the XML info suffix and FLAT/HILL context, so rare feature-on-hill cases such as a modded Oasis Hill can use the same selector without special C++ shape changes. Empty branches are cached as unavailable and fall through to the next terrain/feature path. (ChatGPT-5.5) -->
+static SASWorkerNoBonusKnownBranches const& SAS_getWorkerNoBonusKnownBranches()
+{
+	static SASWorkerNoBonusKnownBranches kBranches;
+	return kBranches;
+}
+
+static int SAS_getImprovementUpgradeChainLevel(ImprovementTypes eImprovement, ImprovementTypes eChainStart)
+{
+	if (eImprovement == NO_IMPROVEMENT || eChainStart == NO_IMPROVEMENT)
+		return 0;
+	ImprovementTypes eLoopImprovement = eChainStart;
+	for (int iLevel = 1; eLoopImprovement != NO_IMPROVEMENT && iLevel <= GC.getNumImprovementInfos(); ++iLevel)
+	{
+		if (eImprovement == eLoopImprovement)
+			return iLevel;
+		eLoopImprovement = GC.getInfo(eLoopImprovement).getImprovementUpgrade();
+	}
+	return 0;
+}
+
+struct SASWorkerImprovementListCache
+{
+	char const* szDefineNameLiteral;
+	CvString szDefineName;
+	std::vector<ImprovementTypes> aImprovements;
+};
+
+// <!-- custom: Parse comma-separated IMPROVEMENT_* define lists once for worker protection/holy-improvement rules. NONE follows the same sentinel convention as music and branch defines; invalid names are skipped after asserting, so modmods can tune protected improvement sets from XML without changing the worker AI logic. (ChatGPT-5.5) -->
+static void SAS_initWorkerImprovementList(std::vector<ImprovementTypes>& aImprovements, char const* szDefineName)
+{
+	aImprovements.clear();
+	char const* szDefineText = GC.getDefineSTRING(szDefineName);
+	FAssertMsg(szDefineText != NULL, szDefineName);
+	if (szDefineText == NULL)
+		return;
+	CvString szRemaining = SAS_trimWorkerNoBonusBranchToken(szDefineText);
+	if (SAS_isWorkerNoBonusBranchNoneToken(szRemaining))
+		return;
+	while (!szRemaining.empty())
+	{
+		int const iComma = szRemaining.find(',');
+		CvString const szRawEntry = (iComma < 0 ? szRemaining : szRemaining.substr(0, iComma));
+		szRemaining = (iComma < 0 ? CvString("") : szRemaining.substr(iComma + 1));
+		CvString const szEntry = SAS_trimWorkerNoBonusBranchToken(szRawEntry);
+		if (SAS_isWorkerNoBonusBranchNoneToken(szEntry))
+			continue;
+		ImprovementTypes const eImprovement = (ImprovementTypes)GC.getInfoTypeForString(szEntry.c_str());
+		FAssertMsg(eImprovement != NO_IMPROVEMENT, szEntry.c_str());
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+		aImprovements.push_back(eImprovement);
+	}
+}
+
+static std::vector<ImprovementTypes> const& SAS_getWorkerImprovementList(char const* szDefineName)
+{
+	static std::vector<SASWorkerImprovementListCache> aCaches;
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineNameLiteral == szDefineName)
+			return aCaches[i].aImprovements;
+	}
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineName == szDefineName)
+			return aCaches[i].aImprovements;
+	}
+	SASWorkerImprovementListCache kCache;
+	kCache.szDefineNameLiteral = szDefineName;
+	kCache.szDefineName = szDefineName;
+	SAS_initWorkerImprovementList(kCache.aImprovements, szDefineName);
+	aCaches.push_back(kCache);
+	return aCaches[aCaches.size() - 1].aImprovements;
+}
+
+static bool SAS_isWorkerImprovementInDefineList(char const* szDefineName, ImprovementTypes eImprovement)
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return false;
+	std::vector<ImprovementTypes> const& aImprovements = SAS_getWorkerImprovementList(szDefineName);
+	for (size_t i = 0; i < aImprovements.size(); ++i)
+	{
+		if (aImprovements[i] == eImprovement)
+			return true;
+	}
+	return false;
+}
+
+// <!-- custom: Return the XML upgrade-chain level of an improvement for any configured worker growth-improvement chain start. Default XML lists IMPROVEMENT_COTTAGE, which preserves Cottage/Hamlet/Village/Town behavior; modmods can add or replace starts for shorter/longer chains or hammer/commerce growth chains without hardcoding them here. (ChatGPT-5.5) -->
+static int SAS_getWorkerGrowthImprovementLevel(ImprovementTypes eImprovement)
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return 0;
+	std::vector<ImprovementTypes> const& aChainStarts = SAS_getWorkerImprovementList("SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES");
+	int iBestLevel = 0;
+	for (size_t i = 0; i < aChainStarts.size(); ++i)
+		iBestLevel = std::max(iBestLevel, SAS_getImprovementUpgradeChainLevel(eImprovement, aChainStarts[i]));
+	return iBestLevel;
+}
+
+static int SAS_getWorkerRecoveredFoodCostImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement, PlayerTypes ePlayer)
+{
+	if (eImprovement == NO_IMPROVEMENT || !SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_NAMES", eImprovement))
+		return 0;
+	int const iBaseFoodYieldChange = GC.getInfo(eImprovement).getYieldChange(YIELD_FOOD);
+	if (iBaseFoodYieldChange >= 0)
+		return 0;
+	int const iCurrentFoodYieldChange = kPlot.calculateImprovementYieldChange(eImprovement, YIELD_FOOD, ePlayer);
+	// <!-- custom: Only reward configured food-cost improvements after current plot/player rules make them food-neutral or better. Partial recovery, e.g. -2 food to -1 food, still costs food and should not receive this bonus. (ChatGPT-5.5 + GPT-5.5) -->
+	if (iCurrentFoodYieldChange < 0)
+		return 0;
+	int const iRecoveredFood = iCurrentFoodYieldChange - iBaseFoodYieldChange;
+	if (iRecoveredFood <= 0)
+		return 0;
+	static const int iSAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN = GC.getDefineINT("SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN");
+	return iSAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN * iRecoveredFood;
+}
+
+static bool SAS_isWorkerNoBonusIrrigationCarrierCandidate(CvPlot const& kPlot, ImprovementTypes eImprovement, TeamTypes eTeam)
+{
+	return (eImprovement != NO_IMPROVEMENT && GET_TEAM(eTeam).isIrrigation() && kPlot.canHavePotentialIrrigation() && GC.getInfo(eImprovement).isCarriesIrrigation());
+}
+
+static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, char const* szDefineName, bool bLowFoodBranch, int iAdjustedFoodDifference, int iLowFoodValuePerFood, int iFoodSupportValue, int iIrrigationBlockingPenalty, std::vector<int> const& aBuildValueAdjustments, BuildTypes& eBestBuild, int& iValue)
+{
+	std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(szDefineName);
+	if (aCandidates.empty())
+	{
+		return false;
+	}
+	int iBestCandidateFoodYieldChange = MIN_INT;
+	int iBuildableCandidateCount = 0;
+	for (size_t i = 0; i < aCandidates.size(); ++i)
+	{
+		SASWorkerNoBonusBuildCandidate const& kCandidate = aCandidates[i];
+		if (!kUnit.canBuild(kPlot, kCandidate.eBuild))
+			continue;
+		iBuildableCandidateCount++;
+		if (kCandidate.eImprovement == NO_IMPROVEMENT)
+			continue;
+		iBestCandidateFoodYieldChange = std::max(iBestCandidateFoodYieldChange, kPlot.calculateImprovementYieldChange(kCandidate.eImprovement, YIELD_FOOD, kUnit.getOwner()));
+	}
+	if (iBuildableCandidateCount <= 0)
+		return false;
+	int const iLowFoodDeficitValue = (bLowFoodBranch ? iLowFoodValuePerFood * std::max(0, -iAdjustedFoodDifference) : 0);
+	int const iFoodPressureValue = iLowFoodDeficitValue + iFoodSupportValue;
+	bool const bHasPositiveFoodCandidate = (iBestCandidateFoodYieldChange > 0);
+	BuildTypes eBestCandidateBuild = NO_BUILD;
+	int iBestCandidateValue = MIN_INT;
+	for (size_t i = 0; i < aCandidates.size(); ++i)
+	{
+		SASWorkerNoBonusBuildCandidate const& kCandidate = aCandidates[i];
+		if (!kUnit.canBuild(kPlot, kCandidate.eBuild))
+			continue;
+		int iCandidateValue = kCandidate.iBaseValue;
+		iCandidateValue += SAS_getWorkerRecoveredFoodCostImprovementValue(kPlot, kCandidate.eImprovement, kUnit.getOwner());
+		// <!-- custom: Improvement-independent food pressure: when this city/plot wants food, reward whichever buildable no-bonus candidate gives the best food outcome on this exact plot, rather than hardcoding Farm or Windmill as the answer. (ChatGPT-5.5 + GPT-5.5) -->
+		if (iFoodPressureValue > 0 && bHasPositiveFoodCandidate && kCandidate.eImprovement != NO_IMPROVEMENT && kPlot.calculateImprovementYieldChange(kCandidate.eImprovement, YIELD_FOOD, kUnit.getOwner()) == iBestCandidateFoodYieldChange)
+			iCandidateValue += iFoodPressureValue;
+		// <!-- custom: Improvement-independent irrigation pressure: if this plot is useful as an irrigation carrier, penalize buildable candidates that do not carry irrigation instead of hardcoding only Cottage/Workshop as blockers. (ChatGPT-5.5 + GPT-5.5) -->
+		if (iIrrigationBlockingPenalty > 0 && !SAS_isWorkerNoBonusIrrigationCarrierCandidate(kPlot, kCandidate.eImprovement, kUnit.getTeam()))
+			iCandidateValue -= iIrrigationBlockingPenalty;
+		if ((int)kCandidate.eBuild >= 0 && (int)kCandidate.eBuild < (int)aBuildValueAdjustments.size())
+			iCandidateValue += aBuildValueAdjustments[kCandidate.eBuild];
+		if (iCandidateValue > iBestCandidateValue)
+		{
+			iBestCandidateValue = iCandidateValue;
+			eBestCandidateBuild = kCandidate.eBuild;
+		}
+	}
+	if (eBestCandidateBuild == NO_BUILD)
+		return false;
+	eBestBuild = eBestCandidateBuild;
+	iValue += iBestCandidateValue;
+	return true;
+}
+
+static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, SASWorkerNoBonusBranch const& kBranch, bool bLowFoodBranch, int iAdjustedFoodDifference, int iLowFoodValuePerFood, int iFoodSupportValue, int iIrrigationBlockingPenalty, std::vector<int> const& aBuildValueAdjustments, BuildTypes& eBestBuild, int& iValue)
+{
+	if (!kBranch.bHasCandidates)
+		return false;
+	return SAS_pickWorkerNoBonusBranchBuild(kUnit, kPlot, kBranch.szDefineName, bLowFoodBranch, iAdjustedFoodDifference, iLowFoodValuePerFood, iFoodSupportValue, iIrrigationBlockingPenalty, aBuildValueAdjustments, eBestBuild, iValue);
+}
+
 // Returns true if the unit found a build for this city...
 // <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further -->
 // <!-- custom: rewrite to handle/optimize terrain improvement choice - don't build cottage on flatland plains if flatland grass tiles (much better candidates) are available. For bonuses, simplify logic to always improve them regardless of terrain (high-food bonuses first). Partially based on settling priorities code in CitySiteEvaluator.cpp. Credit: Gemini AI (original); ChatGPT 5 (polishing). (Claude code Sonnet 4.5 (summarized)) -->
@@ -1353,50 +1686,49 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
 
 	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
-	// <!-- custom: note: as of now we cannot improve them but just in case: update: as of now this is not really suported so commented out for clarity -->
-	// static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
+	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
 	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
 	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
 	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure-->
 	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
 
-	// <!-- custom: modify these if needed in your mod -->
-    // Hardcoded BuildTypes for common feature removals for efficiency.
+	// <!-- custom: Hardcoded BuildTypes for common feature removals and worker build candidates used by the custom AI_bestCityBuild worker logic. (GPT-5.5) -->
     static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
     static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
-	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure-->
 	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
-
-	// <!-- custom:, camps (possibly other builds? But lazy to check xdhopefully accurate enough) can be built without removing feature forest or jungle, so handle them a bit differently here -->
-    static const BuildTypes eBuildCamp = (BuildTypes)GC.getInfoTypeForString("BUILD_CAMP");
-
-	// All Civ4 <!-- custom: as per our mod's xml most importantly i mean thanks still really i mean claude ai hehe for this sample and such --> bonuses that require camps
-	static const BonusTypes eBonusDeer = (BonusTypes)GC.getInfoTypeForString("BONUS_DEER");
-	static const BonusTypes eBonusElephants = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
-	static const BonusTypes eBonusFur = (BonusTypes)GC.getInfoTypeForString("BONUS_FUR");
-
-    // Define the BuildType constant for clarity.
-    // This directly refers to the action a worker takes.
     static const BuildTypes eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
     static const BuildTypes eBuildMine = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
-    static const BuildTypes eBuildCottage = (BuildTypes)GC.getInfoTypeForString("BUILD_COTTAGE");
-
     static const BuildTypes eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
     static const BuildTypes eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
 
 	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under some conditions only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely. -->
-	static const ImprovementTypes eImprovementHamlet = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HAMLET");
-	static const ImprovementTypes eImprovementVillage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_VILLAGE");
-	static const ImprovementTypes eImprovementTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TOWN");
-	static const ImprovementTypes eImprovementWindmill = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WINDMILL");
 	static const ImprovementTypes eImprovementWorkshop = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WORKSHOP");
 
 	// <!-- custom: semi-holy improvements as of now -->
 	static const ImprovementTypes eImprovementFarm = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FARM");
 	static const ImprovementTypes eImprovementCottage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_COTTAGE");
 
-	static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
-	bool const bRenaissancePlus = (eERA_RENAISSANCE != NO_ERA && GET_PLAYER(getOwner()).getCurrentEra() >= eERA_RENAISSANCE);
+	static const int iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE");
+	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD");
+	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE");
+	static const bool bSAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE");
+	static const EraTypes eSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA = (EraTypes)GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -1422,6 +1754,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	// <!-- custom: rewrite addresses suboptimal behavior - old code pathfinding-recomputed best plot even after pass 1 computation. More efficient to compute decrementally from best candidate to worse until one is found, then early return, rather than compute all plots including ones that won't be best. New code is cleaner and easier to customize. Credit: Gemini AI. (Claude code Sonnet 4.5 (summarized)) -->
 
 	std::vector<CandidatePlot> candidatePlots;
+	std::vector<int> aNoBonusBuildValueAdjustments(GC.getNumBuildInfos(), 0);
 
 	// <!-- custom: note: performance/logic optimization: it seems faster to not check pathfinding at all and loop over all tiles rather than check pathfinding at same time as we check candidate plots (check if accurate) -->
 
@@ -1482,18 +1815,40 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	}
 
 	static const int iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH");
+	static const bool bSAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE");
+	static const bool bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE");
+	static const int iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS");
+	static const int iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD");
+	static const int iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT");
+	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY");
+	SASWorkerNoBonusKnownBranches const& kWorkerBranches = SAS_getWorkerNoBonusKnownBranches();
 	bool const bCityLowFoodBFC = (iBFCLowFoodScore >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH);
 
 	// <!-- custom: base improvement yields ignore irrigation, tech and civic/owner modifiers. Use plot/player farm food from calculateImprovementYieldChange when pre-crediting in-progress farms, otherwise normal irrigated farms counted as 0 food and workers could still over-farm. (Claude code Opus 4.6 + GPT-5.5) -->
 	const int iAdjustedFoodDifference = iEstimatedCityFoodDifference + iFoodFromFarmsBeingBuiltInBFC;
 	int const iBFCStructuralFoodSupportPressure = iBFCLowFoodScore + iBFCMineFoodSupportPressure;
-	int const iCityFoodSupportPressure = iBFCStructuralFoodSupportPressure + (2 * std::max(0, 3 - iAdjustedFoodDifference));
+	int const iCityFoodSupportPressure = iBFCStructuralFoodSupportPressure + (2 * std::max(0, iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS - iAdjustedFoodDifference));
 	bool const bCityStructuralFoodSupportNeed = (iBFCStructuralFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
 	bool const bCityHighFoodSupportNeed = (bCityLowFoodBFC || bCityStructuralFoodSupportNeed || iCityFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
 
 	const int penaltyForOverwritingPlot = 300;
 
-	if (GET_TEAM(getTeam()).isIrrigation())
+	if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation())
 	{
 		// <!-- custom: AI_bestCityBuild normally scans only the city's BFC. The first outside-BFC connector attempt produced log noise and sometimes chose connector-looking plots, but did not fix Chaco Canyon/Harappan-style dry-farm cities. Instead, start from concrete city BFC targets: existing non-bonus dry farms, plus low-food unimproved non-bonus tiles when the city has high food-support pressure. Then choose a farmable owned plot that can receive irrigation now and moves water toward that target through a short owned farm chain. This fixed the Chaco Canyon and Harappan test cases by making workers find the first link toward water; imperfectly, Harappan's worker then wandered after irrigating the first link instead of immediately finishing the full chain to the BFC. This keeps the old broad AI_irrigateTerritory spam disabled while making the chain goal explicit. (GPT-5.5) -->
 		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
@@ -1534,14 +1889,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				}
 
 				ImprovementTypes const eConnectorImprovement = kConnectorPlot.getImprovementType();
+				int const iConnectorGrowthLevel = SAS_getWorkerGrowthImprovementLevel(eConnectorImprovement);
 				int const iConnectorOverwritePenalty = (
 					eConnectorImprovement == NO_IMPROVEMENT ? 0 :
-					eConnectorImprovement == eImprovementWorkshop ? 150 :
-					eConnectorImprovement == eImprovementCottage ? 250 :
-					eConnectorImprovement == eImprovementHamlet ? 700 :
-					eConnectorImprovement == eImprovementVillage ? 1200 :
-					eConnectorImprovement == eImprovementTown ? 1800 :
-					2200
+					eConnectorImprovement == eImprovementWorkshop ? iSAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY :
+					iConnectorGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY * iConnectorGrowthLevel :
+					iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY
 				);
 				CandidatePlot candidatePlot;
 				candidatePlot.iValue = (bTargetDryFarm ? 11500 : 8500) - (350 * (iChainStepDistance - 1)) - iConnectorOverwritePenalty;
@@ -1591,29 +1944,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 		if (eBonus != NO_BONUS)
 		{
+			BuildTypes const eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
+			bool const bCanBuildBonusSpecificBeforeFeatureRemoval = (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && (eFeature == NO_FEATURE || !GC.getInfo(eBonusSpecificBuild).isFeatureRemove(eFeature)));
 			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units -->
 			if (eFeature == eFeatureForest)
 			{
-				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection if a river or route or such is already there luckily/conveniently as well -->
-				if ((eBonus == eBonusDeer) || (eBonus == eBonusElephants) || (eBonus == eBonusFur))
+				// <!-- custom: Try the XML-inferred bonus-specific build before removing Forest/Jungle only when that build preserves the current feature. This keeps feature-preserving bonus builds like Camp generic while preventing Mine/Plantation/etc. from skipping the explicit feature-removal step merely because canBuild can remove the feature as part of the build. (GPT-5.5 + ChatGPT-5.5) -->
+				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
 				{
-					if (canBuild(kPlot, eBuildCamp))
-					{
-						eBestSupposedBuild = eBuildCamp;
-
-						iValue += 19000;
-					}
-					else if (canBuild(kPlot, eBuildRemoveForest))
-					{
-						eBestSupposedBuild = eBuildRemoveForest;
-
-						iValue += 19000;
-					}
-					else
-					{
-						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
-						continue;
-					}
+					eBestSupposedBuild = eBonusSpecificBuild;
+					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 				}
 				// <!-- custom: also handle silver or other bonuses on forest as well; we need to remove the forest else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
 				else
@@ -1621,8 +1961,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (canBuild(kPlot, eBuildRemoveForest))
 					{
 						eBestSupposedBuild = eBuildRemoveForest;
-
-						iValue += 19000;
+						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 					}
 					else
 					{
@@ -1633,26 +1972,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			}
 			else if (eFeature == eFeatureJungle)
 			{
-				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection if a river or route or such is already there luckily/conveniently as well -->
-				if ((eBonus == eBonusDeer) || (eBonus == eBonusElephants) || (eBonus == eBonusFur))
+				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
 				{
-					if (canBuild(kPlot, eBuildCamp))
-					{
-						eBestSupposedBuild = eBuildCamp;
-
-						iValue += 19000;
-					}
-					else if (canBuild(kPlot, eBuildRemoveJungle))
-					{
-						eBestSupposedBuild = eBuildRemoveJungle;
-
-						iValue += 19000;
-					}
-					else
-					{
-						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
-						continue;
-					}
+					eBestSupposedBuild = eBonusSpecificBuild;
+					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 				}
 				// <!-- custom: also handle gemstones or other bonuses on jungle as well; we need to remove the jungle else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
 				else
@@ -1660,8 +1983,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					if (canBuild(kPlot, eBuildRemoveJungle))
 					{
 						eBestSupposedBuild = eBuildRemoveJungle;
-
-						iValue += 19000;
+						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 					}
 					else
 					{
@@ -1678,7 +2000,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					eBestSupposedBuild = eBuildScrubFallout;
 
 					// <!-- custom: more important than improving any bonus, and add some value so it is also more important than scrubing non-bonus fallout tiles (not sure it makes a difference since we want to clear all fallout anyway before improving any bonus but maybe the distinction helps if we change the code someday or someone does it or such) -->
-					iValue += 150000;
+					iValue += iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE;
 				}
 				else
 				{
@@ -1690,7 +2012,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			else
 			{
 				// <!-- custom: find the bonus's bonus-specific build first -->
-				BuildTypes const eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
 				if (eBonusSpecificBuild == NO_BUILD)
 				{
 					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or ineffective way worked aorund patched in a bad way i'd say-->
@@ -1720,32 +2041,33 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					int const bonusCommerceYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_COMMERCE);
 					int const bonusProductionYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_PRODUCTION);
 
-					// Give a <!-- custom: very high value (avoid multiplying for any weird bug or such, addition by a big number would produce more consistent or reliable results i think if i may say and) --> for any unimproved bonus.
-					iValue += 20000;
+					// <!-- custom: Bonus-specific build priorities now use SAS defines, preserving the old strong base bonus value and food/production/commerce ordering while making the weights tunable from XML. (GPT-5.5) -->
+					iValue += iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE;
 
 					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too), so multiply it even further than the base any unimproved bonus multiplier -->
 					// Give an even bigger multiplier if the bonus is a FOOD bonus.
 					if (bonusFoodYieldChange > 0)
-						iValue += (8 * bonusFoodYieldChange * 500);
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD * bonusFoodYieldChange;
 					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such, i hope in most cases it would make AI more efficient -->
 					if (bonusProductionYieldChange > 0)
-						iValue += (4 * bonusProductionYieldChange * 500);
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION * bonusProductionYieldChange;
 					// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe, but it needs to be a lot and more generally i would say -->
 					if (bonusCommerceYieldChange > 0)
-						iValue += (2 * bonusCommerceYieldChange * 500);
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE * bonusCommerceYieldChange;
 				}
 				// The bonus-specific improvement is not yet available and there was no feature to chop.
-				// <!-- custom: one exception to the general ignore rule below as of now, an irrigated farm for example on banana is quite attractive, even if inefficient, is not too long to build, and the yields are good; but if food is low such as in plains or tundra terrains, we may also build a farm if tile has enough food; also since farms only give food yield and 1 food as of now early in particular, aim for at least 4+ total plot food to consider building it, so for grass + 2 extra total food yield (one from farm early, one at least from bonus), but for plains to reach +3 total extra food, we'd need one from farm early as well, plus 2 at least from bonus yield to make it worth our while if i may say too in this case, food is very worth it especially early overall, so consider this to be a good move for the AI, leaving an unusually high food plot even if weirdly/unefficiently improved may not be good, hopefully this makes AI stronger -->
-				else if (canBuild(kPlot, eBuildFarm))
+				// <!-- custom: One exception to the general ignore rule below: a temporary Farm can be worthwhile on a high-food bonus if the real bonus-specific build unlocks late enough. Do not spend early worker turns on temporary farms when the real improvement is close, but avoid leaving strong food bonuses idle for many eras. (GPT-5.5) -->
+				else if (bSAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE && canBuild(kPlot, eBuildFarm))
 				{
 					int const totalFarmBonusFoodYield = bonusFoodYieldChange + kPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner());
+					TechTypes const eBonusSpecificBuildTech = GC.getInfo(eBonusSpecificBuild).getTechPrereq();
+					bool const bBonusSpecificBuildUnlocksLateEnough = (eBonusSpecificBuildTech != NO_TECH && GC.getInfo(eBonusSpecificBuildTech).getEra() >= eSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA);
 
-					if (((eTerrain == eTerrainGrass) && (totalFarmBonusFoodYield >= 3)) ||
-					(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && (totalFarmBonusFoodYield >= 3)))
+					if (bBonusSpecificBuildUnlocksLateEnough && ((eTerrain == eTerrainGrass) || (eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && totalFarmBonusFoodYield >= iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD)
 					{
 						eBestSupposedBuild = eBuildFarm;
 
-						iValue += 18000;
+						iValue += iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE;
 					}
 				}
 				// <!-- custom: else fall back to general rule: ignore until better conditions, we can't build bonus specific build nor the farm alternatively, ignore for now -->
@@ -1760,10 +2082,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 
 			// <!-- custom: if current iValue is high enough, most likely it means that we are improving this bonus, if so, increase value if it's one of the iAIObjective bonuses -->
 			// <!-- custom: avoid 1 just in case it creates weird issues -->
-			if (iValue >= 10000)
+			if (iValue >= iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE)
 			{
 				// <!-- custom: make sure we improve it first before anything else -->
-				iValue += (2000 * iAIObjectiveBonus);
+				iValue += iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT * iAIObjectiveBonus;
 			}
 		}
 
@@ -1783,7 +2105,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			bool const bFarmCanCarryIrrigation = (GET_TEAM(getTeam()).isIrrigation() && kPlot.canHavePotentialIrrigation() && kPlot.isIrrigationAvailable(true));
 			bool const bFarmGoodIrrigationTile = (bFarmCanCarryIrrigation || (kPlot.isFreshWater() && kPlot.canHavePotentialIrrigation()));
 			int iAdjacentDryFarmsIrrigatedByThisFarm = 0;
-			if (!kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
+			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
 			{
 				// <!-- custom: Hunt concrete chain-irrigation fixes, not abstract irrigation paths. In the Nippur 2014 AD test save, existing farms stayed dry because the missing water-carrying farm could be in another city's BFC and that plot had a cottage/workshop instead. If farming this exact plot would irrigate adjacent existing dry farms, value it enough to replace basic non-food improvements; skip dry farms already reachable or already being fixed by another in-progress farm so workers do not pile onto irrigation speculation. (GPT-5.5) -->
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -1806,35 +2128,31 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 				}
 			}
 			bool const bFarmIrrigatesExistingDryFarm = (iAdjacentDryFarmsIrrigatedByThisFarm > 0);
-			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && (bCityHighFoodSupportNeed || bFarmIrrigatesExistingDryFarm) && (bFarmIrrigatesExistingDryFarm || bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= 0 && bFarmGetsFood)));
-			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
+			bool const bFoodSupportFarmCandidate = (bSAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bCityHighFoodSupportNeed && (bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD && bFarmGetsFood)));
+			bool const bIrrigationChainFarmCandidate = (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmIrrigatesExistingDryFarm);
+			bool const bSupportFarmCandidate = (bFoodSupportFarmCandidate || bIrrigationChainFarmCandidate);
+			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
 			int const iDryFarmIrrigationChainValue = 1400 * iAdjacentDryFarmsIrrigatedByThisFarm;
-			// <!-- custom: If this exact farm would irrigate existing dry farms, unholy the blocker but rank candidates by damage: unimproved plots first, then workshop/cottage, hamlet, village, town last. Even one newly irrigated farm can justify breaking a town because it may continue an irrigation chain beyond what this local check can see; the ranking steers workers to the least harmful viable chain breaker instead of forbidding mature blockers or making a one-farm town break net-negative. (GPT-5.5) -->
+			int const iPlotGrowthLevel = SAS_getWorkerGrowthImprovementLevel(ePlotCurrentImprovement);
+			bool const bProtectedImprovementCanBeBrokenForIrrigation = SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK", ePlotCurrentImprovement);
+			bool const bNonProtectedImprovementCanBeBrokenForIrrigation = SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_NON_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK", ePlotCurrentImprovement);
+			// <!-- custom: If this exact farm would irrigate existing dry farms, unholy the blocker but rank candidates by damage: unimproved/workshop first, then configured growth-chain improvements by XML growth level. This local same-plot penalty is lower than the broader irrigation connector penalty because the farm itself may solve a food/irrigation problem for the city; canBuild and the generic branch picker still decide whether the final value is worth it. (GPT-5.5 + ChatGPT-5.5) -->
 			int const iDryFarmIrrigationOverwritePenalty = (
 				!bFarmIrrigatesExistingDryFarm ? 0 :
 				ePlotCurrentImprovement == eImprovementWorkshop ? 0 :
-				ePlotCurrentImprovement == eImprovementCottage ? 100 :
-				ePlotCurrentImprovement == eImprovementHamlet ? 350 :
-				ePlotCurrentImprovement == eImprovementVillage ? 650 :
-				ePlotCurrentImprovement == eImprovementTown ? 1000 :
+				iPlotGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY * iPlotGrowthLevel :
 				0
 			);
-			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (100 * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
-			int const iFoodSupportFarmValue = std::max(iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty, iRawFoodSupportFarmValue - (100 * std::max(0, iAdjustedFoodDifference - 3)));
+			int const iRawFoodSupportFarmValue = (bSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
+			int const iFoodSupportFarmValue = std::max(iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty, iRawFoodSupportFarmValue - (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, iAdjustedFoodDifference - iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS)));
 			bool const bAllowDryFarmIrrigationChainOverwrite = (
 				bFarmIrrigatesExistingDryFarm &&
-				(
-					ePlotCurrentImprovement == eImprovementCottage ||
-					ePlotCurrentImprovement == eImprovementWorkshop ||
-					ePlotCurrentImprovement == eImprovementHamlet ||
-					ePlotCurrentImprovement == eImprovementVillage ||
-					ePlotCurrentImprovement == eImprovementTown
-				)
+				(bProtectedImprovementCanBeBrokenForIrrigation || bNonProtectedImprovementCanBeBrokenForIrrigation)
 			);
-			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= 0));
+			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD));
 			int const iNonFoodIrrigationPathPenalty = ((iFoodSupportFarmValue > 0 && bFarmGoodIrrigationTile) ? 75 : 0);
 			bool bFarmCarriesIrrigationToAdjacentFarm = false;
-			if (ePlotCurrentImprovement == eImprovementFarm && kPlot.isIrrigated())
+			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && ePlotCurrentImprovement == eImprovementFarm && kPlot.isIrrigated())
 			{
 				// <!-- custom: Once the chain farm exists, keep it semi-holy too. Otherwise a later cottage/workshop pass could remove the carrier farm and recreate the same dry-farm problem we just fixed. This is a cheap adjacent-farm guard rather than full irrigation-network analysis; it protects irrigated farms next to owned irrigated farms that do not have direct fresh water. (GPT-5.5) -->
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -1849,11 +2167,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			}
 
 			// <!-- custom: first the absolutely holy improvements to never improve -->
-			if ((ePlotCurrentImprovement == eImprovementHamlet && !bAllowDryFarmIrrigationChainOverwrite) ||
-				(ePlotCurrentImprovement == eImprovementVillage && !bAllowDryFarmIrrigationChainOverwrite) ||
-				(ePlotCurrentImprovement == eImprovementTown && !bAllowDryFarmIrrigationChainOverwrite) ||
-				(ePlotCurrentImprovement == eImprovementWorkshop && !bAllowDryFarmIrrigationChainOverwrite) ||
-				ePlotCurrentImprovement == eImprovementWindmill)
+			if (SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALWAYS", ePlotCurrentImprovement) ||
+				(bProtectedImprovementCanBeBrokenForIrrigation && !bAllowDryFarmIrrigationChainOverwrite))
 			{
 				// This 'continue' will skip to the next build in the outer loop,
 				// preventing the AI from ever considering destroying a high-level non-bonus improvement.
@@ -1868,22 +2183,22 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 					(eTerrain == eTerrainPlains) ||
 					(eTerrain == eTerrainTundra) ||
 					(eTerrain == eTerrainSnow) ||
-					((eTerrain == eTerrainDesert) && (eFeature != eFeatureFloodPlains) /*&& (eFeature != eFeatureOasis)*/)
+					((eTerrain == eTerrainDesert) && (eFeature != eFeatureFloodPlains) && (eFeature != eFeatureOasis))
 				);
 				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well-->
 
-				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && kPlot.getImprovementType() == eImprovementFarm)
+				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_LOW_FOOD", ePlotCurrentImprovement))
 				{
 					// <!-- custom: extra oscillation avoid cases, even with our system, for the better maybe, we respond dynamically to food surplus in city, in low-food environments, one has to win, it is likely will starve again, so if we built a farm once, do not cancel it ever again and consider it holy as well -->
 					continue;
 				}
 				// <!-- custom: high-food environments 's semi-holy improvement(s) -->
-				else if ((eFeature == eFeatureFloodPlains) && kPlot.getImprovementType() == eImprovementCottage)
+				else if ((eFeature == eFeatureFloodPlains) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_FLOOD_PLAINS", ePlotCurrentImprovement))
 				{
 					// <!-- custom: extra oscillation avoid cases, see above for details -->
 					continue;
 				}
-				else if ((eTerrain == eTerrainGrass) && (kPlot.getImprovementType() == eImprovementCottage) && !bAllowBasicCottageFoodSupportOverwrite)
+				else if ((eTerrain == eTerrainGrass) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_GRASS", ePlotCurrentImprovement) && !bAllowBasicCottageFoodSupportOverwrite)
 				{
 					// <!-- custom: extra oscillation avoid cases, see above for details -->
 					continue;
@@ -1907,548 +2222,122 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			// <!-- custom: PHASE 1 - estimate plot value (i.e. priority for the next plot to improve first) and best build on said plot, for all plots in our loop -->
 
 			// <!-- custom: PHASE 1.1: general for non-bonus plots terrain/feature (not choppable ones) analysis -->
-			// Priority 1: Special terrain/feature combinations
-			if (eFeature == eFeatureFloodPlains)
-			{
-				// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-				if (iAdjustedFoodDifference >= 1)
-				{
-					// Floodplains: Great for cottages (high food + commerce potential)
-					// High food terrain = can afford cottage
-					if (canBuild(kPlot, eBuildCottage))
-					{
-						// <!-- custom: the absolute best and ideal, if we can build it and conditions are good, no need to think further -->
-						eBestSupposedBuild = eBuildCottage;
+			SASWorkerNoBonusBranch const* pNoBonusBranch = NULL;
+			bool bNoBonusLowFoodBranch = false;
+			// <!-- custom: Most no-bonus dynamic scoring is now improvement-independent inside the generic picker: low-food pressure rewards the buildable candidate with the best food yield, and irrigation pressure penalizes candidates that do not carry irrigation. Keep this small BuildTypes-indexed vector only for rare residual build-specific tweaks, e.g. the old Grass Hill Mine population adjustment. (ChatGPT-5.5 + GPT-5.5) -->
+			for (size_t iBuildAdjustment = 0; iBuildAdjustment < aNoBonusBuildValueAdjustments.size(); ++iBuildAdjustment)
+				aNoBonusBuildValueAdjustments[iBuildAdjustment] = 0;
 
-						// <!-- custom: the ideal plot to start improving first, high food; do not worry about production for now, the food is good enough and more often than not always gonna be worth it, at least we hope so. -->
-						iValue += 2000;
-					}
-					else
-					{
-						// <!-- custom: wait for right time, do nothing (yet) -->
-						continue;
-					}
+			// <!-- custom: Pass 3: choose no-bonus worker builds through the generic XML branch picker instead of terrain-local if/else build order. Terrain/feature code now selects the branch and adds context adjustments; the picker then lets all valid listed candidates compete after canBuild filtering. This keeps special food/workshop/irrigation heuristics while making XML base values the real ranking source. Flattened so feature override branches and terrain fallback branches share the same pipeline; each context is checked only while no usable branch has been found. (ChatGPT-5.5) -->
+			bool bNoBonusBranchSelected = false;
+
+			if (!bNoBonusBranchSelected && eFeatureFloodPlains != NO_FEATURE && eFeature == eFeatureFloodPlains)
+			{
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS);
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureFloodPlains, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eFeatureOasis != NO_FEATURE && eFeature == eFeatureOasis)
+			{
+				// <!-- custom: Oasis feature branches are optional XML overrides. They are NONE by default and fall through to terrain logic; if a modmod fills them, listed builds compete normally through canBuild. (ChatGPT-5.5) -->
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS);
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureOasis, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainGrass)
+			{
+				if (kPlot.isHills())
+				{
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, true, bNoBonusLowFoodBranch);
+					if (eBuildMine != NO_BUILD && (int)eBuildMine < (int)aNoBonusBuildValueAdjustments.size())
+						aNoBonusBuildValueAdjustments[eBuildMine] = (!bNoBonusLowFoodBranch ? -100 + (50 * std::min(3, iCityPopulation)) : 0);
 				}
-				// <!-- custom: but in some rare cases farm on flood plains can be quite good.. if we can build it -->
 				else
 				{
-					// <!-- custom: in such urgent cases, make extra sure we can actually build the farm we dream so bad of if i may say in this case; note: see code comment at iEstimatedCityFoodDifference for details -->
-					if (canBuild(kPlot, eBuildFarm))
-					{
-						eBestSupposedBuild = eBuildFarm;
-
-						// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-						iValue += 1700 + (100 * (-1 * iAdjustedFoodDifference));
-					}
-					// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
-					else if (canBuild(kPlot, eBuildCottage))
-					{
-						eBestSupposedBuild = eBuildCottage;
-
-						iValue += 2000;
-					}
-					else
-					{
-						// <!-- custom: wait for right time, do nothing (yet) -->
-						continue;
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, false, bNoBonusLowFoodBranch);
 				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			// <!-- custom: feature floodplains can effectively be considered a terrain as it spawns only on desert in our mod as in base advciv +/- civ4, so use else if for computational effiency -->
-			else if (eTerrain == eTerrainGrass)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainPlains)
 			{
 				if (kPlot.isHills())
 				{
-					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
-					if (iAdjustedFoodDifference >= -1)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: hill grassland very strong early, even later in game maybe too; we get nice production and quite nice food as well, great starter, a bit less than flood plains as lower food, but really nice tile overall; the build may also still be better even than windmill due to base food higher yield of grassland -->
-							eBestSupposedBuild = eBuildMine;
-
-							// <!-- custom: improve these first before cottages to not neglect our production as well, generally they are few in cities anyway but we tend to neglect them quite a bit for grass cottages, attempt to address that as well as valuing them in general. But also make sure we grow first, so give first populations to cottages or such rather, then say from pop 3+ or such focus more on mines on hill grass instead for example -->
-							// <!-- custom: data analysis. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-							// That yields:
-							// pop 1 → 1540
-							// pop 2 → 1590
-							// pop ≥3 → 1640
-							// Given flat-grass cottage = 1600, this enforces:
-							// pop 1–2: cottage (1600) > mine (1540/1590)
-							// pop ≥3: mine (1640) > cottage (1600)
-							// …which matches your rule perfectly.
-							iValue += ((-100 + (50 * std::min(3, iCityPopulation))) + 1590);
-						}
-						else
-						{
-							// <!-- custom: wait for right time, do nothing (yet) -->
-							continue;
-						}
-					}
-					// <!-- custom: low food, can't be too picky if i may say in this case at least maybe-->
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							// <!-- custom: the windmill may be a fine alternative then, hopefully the food helps, that we'd get even on a hill, quite nice, yields are not too great, but at least city grows hopefully or doesn't stop growing too much (use what we can mindset xd if i may say at least for me and in this case) -->
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += 1200 + (100 * (-1 * iAdjustedFoodDifference));
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: we are out of luck, get the hill grassland mine is really good, but we'll starve in a few citizens or sooner if our conditions change, still this is quite good overall production for cheap food -->
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += 1300;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, look and contemplate this tile until we starve xd, maybe the stars look good at night there... Xd or to rest calm and in peace if i may say maybe if i may say in this case hehe-->
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainPlains, true, bNoBonusLowFoodBranch);
 				}
-				// <!-- custom: many things could be good on flatland grass, but statistically, cottage would be best and most universally possible to build, then when we have workshops, switch over if cottage didn't grow yet, else keep cottage (logic to not overwrite which or which not to overwrite improvement handled outside of this function, for now simply pick ideal supposed best regardless of plot condition (existing improvements or such other conditions as well not taken into account here)) -->
 				else
 				{
-					bool const bCanBuildWorkshop = canBuild(kPlot, eBuildWorkshop);
-					int const iWorkshopFoodYieldChange = (bCanBuildWorkshop ? kPlot.calculateImprovementYieldChange(eImprovementWorkshop, YIELD_FOOD, getOwner()) : -1);
-					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
-					bool const bWorkshopReadyToPreferOverCottage = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= 4));
-
-					// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields -->
-					if (iAdjustedFoodDifference >= 2)
-					{
-						if (bFoodSupportFarmCandidate)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							// <!-- custom: In mine-heavy or otherwise food-support hungry cities, a strong non-bonus farm can be better than another grass cottage because it lets the city work food-consuming hill mines, grow quickly when fast growth is situationally valuable, or support a specialist economy. Use actual plot/player farm food so Civil Service/Biology/irrigation effects count, add only a small extra bias for irrigation-carrier tiles, and taper the farm-support bonus once the city already has surplus food so we preserve useful chains without reviving broad irrigation spam. (GPT-5.5) -->
-							iValue += 1550 + iFoodSupportFarmValue;
-						}
-						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							// <!-- custom: food-cost workshops unlocked early at Iron Working and were chosen before cottages on high-food flatland, so AI overbuilt them long before State Property. Use plot/player yield so State Property's +1 food is recognized (base workshop -1 food is very crippling early and prevents growth of cities, making it much worse than a cottage for example); prefer food-neutral workshops strongly, but only use a smaller Renaissance+ preparation value (State Property is quite soon then so worth starting to switch over to them) while they still cost food and the city has extra surplus. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 2650 : 1500) - iNonFoodIrrigationPathPenalty;
-						}
-						// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, -->
-						// High food terrain = can afford cottage
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += 1600 - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							// <!-- custom: wait for right time, do nothing (yet) -->
-							continue;
-						}
-					}
-					// <!-- custom: else if short on food, make sure city can grow, a farm can be quite good even on grassland in some circumstances, but generally avoid -->
-					else
-					{
-						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
-						if (bWorkshopCostsNoFood && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							// <!-- custom: extremely attractive on this terrain if no food cost -->
-							iValue += 2000;
-						}
-						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (bCanBuildFarm)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
-							iValue += 1460 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += 1300 - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							// <!-- custom: out of luck, ask claude ai or such other AIs what one can do on grass flatland before we run out of food and assuming we can't improve the tile, play some music maybe with some wind xd or lsten to it or sing maybe.. But wait wouldn't that be at a camp, but is noisy though maybe, or not?... -->
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT || bCityLowFoodBFC);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainPlains, false, bNoBonusLowFoodBranch);
 				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			// <!-- custom: lower food terrain as of now -->
-			else if (eTerrain == eTerrainPlains)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainTundra)
 			{
-				// <!-- custom: on hills the problem is more straightforward, build mines until we can afford windmills, then let iValue despite outside of this function if we should build the best build or not vs other tiles (i.e. as of now due to the penalty of overwriting plots, windmills would not be considered until high enough value city plots have been improved first, our build mine on plains would be delayed until then) -->
 				if (kPlot.isHills())
 				{
-					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more -->
-					if (iAdjustedFoodDifference >= 0)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: still good and solid choice if i may say in this case, but costs food -->
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += 800;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-					// <!-- custom: if low on food on a hill consider windmill with a higher priority -->
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							// <!-- custom: windmill on plains is not too bad, but unless we are starved, this is not a so good build -->
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += 800;
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: get the best we can before we starve -->
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += 700;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainTundra, true, bNoBonusLowFoodBranch);
 				}
-				// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
-				// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
 				else
 				{
-					bool const bCanBuildWorkshop = canBuild(kPlot, eBuildWorkshop);
-					int const iWorkshopFoodYieldChange = (bCanBuildWorkshop ? kPlot.calculateImprovementYieldChange(eImprovementWorkshop, YIELD_FOOD, getOwner()) : -1);
-					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
-					bool const bWorkshopReadyToPreferOverCottage = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= 5));
-
-					if (iAdjustedFoodDifference >= 3 && !bCityLowFoodBFC)
-					{
-						if (bFoodSupportFarmCandidate)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							// <!-- custom: Same food-support logic as grass flatland: if this city has many food-consuming hills or low-food tiles, a farm on a suitable non-bonus flat tile can unlock more hammer tiles than an early cottage is worth. Keep the boost tied to actual farm food/irrigation value so ordinary plains are not farmed just because they can be. (GPT-5.5) -->
-							iValue += 950 + iFoodSupportFarmValue;
-						}
-						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							// <!-- custom: same workshop timing fix as flat grassland: early food-cost workshops should not preempt cottages, while food-neutral workshops are strong and Renaissance+ food-cost workshops are allowed only with extra city surplus as preparation. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 1800 : 550) - iNonFoodIrrigationPathPenalty;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							// <!-- custom: still quite good but not ultimate best, delay if all higher potential food tiles especially unimproved ones have been improved already -->
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += 600 - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-					// <!-- custom: if low on food on a flatland plains, do what we can to raise food if no other plots are good, else get what we can if we can before we starve -->
-					else
-					{
-						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
-						// <!-- custom: but not in low-food BFC cities, where we want farm for food even over free workshops on low-food terrains (Claude code Opus 4.6) -->
-						if (bWorkshopCostsNoFood && !bCityLowFoodBFC && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							// <!-- custom: extremely attractive on this terrain if no food cost -->
-							iValue += 1600;
-						}
-						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (bCanBuildFarm)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += 900 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							// <!-- custom: still quite good but not ultimate best, but if we're going to build a farm as relatively holy anyway in this low-food terrain, restrict the cottage by increasing its requirement further (i.e. lowering its iValue so it is more rarely built), making it even less likely to be built unless we have tons of food or if we can't build a farm and nothing or almost nothing else is good right now in city radius, for effiency -->
-							iValue += 500 - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							// <!-- custom: out of luck, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT || bCityLowFoodBFC);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainTundra, false, bNoBonusLowFoodBranch);
 				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			// <!-- custom: for tundra prioritize developping the other food tiles, develop tundra last or among last terrains, or only if we are surrounded by it, then prefer farms or cottages depending on our food supply on flatland, else and in general as well see below logic for details -->
-			else if (eTerrain == eTerrainTundra)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainSnow)
 			{
-				// <!-- custom: on hills the problem is more straightforward similarly to plains, but they yield less production, so less valuable, still as tundra is lower production overall, production is valuable itself, so make it worth a bit less than plains so that plains prevail but not by a lot so... -->
-				if (kPlot.isHills())
-				{
-					// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains, prefer the mine, yields slightly more; also as tundra tends to have less food around it, so consistently (i.e. regardless of food difference) favour the windmill instead -->
-					if (canBuild(kPlot, eBuildWindmill))
-					{
-						// <!-- custom: on tundra the windmill may be slightly more valuable than on plains, i don't know exactly why i feel or seem to think so, but maybe since production is low anyway, capitalize on food rather, or maybe because tundra overall has less food in its environment so value food morewindmill, go for it anyway etc -->
-						eBestSupposedBuild = eBuildWindmill;
-
-						iValue += 500;
-					}
-					else if (canBuild(kPlot, eBuildMine))
-					{
-						// <!-- custom: if nothing better to do, grab what we can -->
-						eBestSupposedBuild = eBuildMine;
-
-						iValue += 350;
-					}
-					else
-					{
-						// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-						continue;
-					}
-				}
-				// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
-				else
-				{
-					bool const bCanBuildWorkshop = canBuild(kPlot, eBuildWorkshop);
-					int const iWorkshopFoodYieldChange = (bCanBuildWorkshop ? kPlot.calculateImprovementYieldChange(eImprovementWorkshop, YIELD_FOOD, getOwner()) : -1);
-					bool const bWorkshopCostsNoFood = (iWorkshopFoodYieldChange >= 0);
-					bool const bWorkshopReadyToPreferOverCottage = (bWorkshopCostsNoFood || (bRenaissancePlus && iAdjustedFoodDifference >= 5));
-
-					// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more -->
-					// <!-- custom: in low-food BFC cities, skip cottage/workshop to force farm on low-food terrains (Claude code Opus 4.6) -->
-					if (iAdjustedFoodDifference >= 3 && !bCityLowFoodBFC)
-					{
-						if (bFoodSupportFarmCandidate)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							// <!-- custom: Same food-support logic as grass/plains flatland, with lower base value because tundra is usually developed later; a strong irrigated farm can still be the right support tile in a city that otherwise cannot work its hills. (GPT-5.5) -->
-							iValue += 650 + iFoodSupportFarmValue;
-						}
-						else if (bWorkshopReadyToPreferOverCottage && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							// <!-- custom: same workshop timing fix as flat grassland: early food-cost workshops should not preempt cottages, while food-neutral workshops are strong and Renaissance+ food-cost workshops are allowed only with extra city surplus as preparation. (GPT-5.5) -->
-							iValue += (bWorkshopCostsNoFood ? 1575 : 500) - iNonFoodIrrigationPathPenalty;
-						}
-						// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or tundra ones maybe too, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI-->
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce, delay if all higher potential food tiles especially unimproved ones have been improved already. -->
-							eBestSupposedBuild = eBuildCottage;
-
-							iValue += 550 - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-					// <!-- custom: if low on food on a flatland tundra, a farm is good if we can get it especially considering the scarce environment, do what we can to raise food if no other plots are good, else get what we can if we can before we starve -->
-					else
-					{
-						// <!-- custom: consider the workshop first if it doesn't cost any food anymore), else don't build it at least not yet -->
-						// <!-- custom: but not in low-food BFC cities, where we want farm for food even over free workshops on low-food terrains (Claude code Opus 4.6) -->
-						if (bWorkshopCostsNoFood && !bCityLowFoodBFC && bCanBuildWorkshop)
-						{
-							eBestSupposedBuild = eBuildWorkshop;
-
-							// <!-- custom: extremely attractive on this terrain if no food cost -->
-							iValue += 1600;
-						}
-						// <!-- custom: try our luck with a farm... if we can ideally. This is not ideal but more than good enough, later farms would even yield more, but to simplify do not account for that and simply use fresh water for an overall midgame expected extra food advantage -->
-						else if (bCanBuildFarm)
-						{
-							eBestSupposedBuild = eBuildFarm;
-
-							iValue += 500 + (100 * (-1 * iAdjustedFoodDifference)) + iFoodSupportFarmValue;
-						}
-						else if (canBuild(kPlot, eBuildCottage))
-						{
-							eBestSupposedBuild = eBuildCottage;
-
-							// <!-- custom: but the general rule still applies, low food, farm first unless lot of food (e.g. if coastal location) -->
-							iValue += 150 - iNonFoodIrrigationPathPenalty;
-						}
-						else
-						{
-							// <!-- custom: out of luck, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-				}
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT));
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainSnow, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			// <!-- custom: on snow, i think the only thing we can do is build a mine or something similar on hills, and it shoudn't be too high priority unless we have lots of food (but even then should we waste it on a snow tile or use this scarce advantage in cold environment for other tiles, ideally tundra maybe?) -->
-			else if (eTerrain == eTerrainSnow)
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainDesert)
 			{
-				if (kPlot.isHills())
-				{
-					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-					if (iAdjustedFoodDifference >= 4)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: if nothing better to do, grab what we can -->
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += 200;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-					// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd -->
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							// <!-- custom: if nothing better to do, grab what we can -->
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += 250;
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: if nothing better to do, grab what we can -->
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += 200;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-				}
-				// <!-- custom: else nothing to do on flatland snow, that would raise our yields at all (we DON'T want forts...) -->
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT));
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainDesert, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
 			}
-			// <!-- custom: on desert, except from hills, i don't think we can build anything at all as per xml (although i didn't check too much if at all but it seems to function as such ingame) -->
-			else if (eTerrain == eTerrainDesert)
+
+			if (pNoBonusBranch != NULL && !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pNoBonusBranch, bNoBonusLowFoodBranch, iAdjustedFoodDifference, iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD, iFoodSupportFarmValue, iNonFoodIrrigationPathPenalty, aNoBonusBuildValueAdjustments, eBestSupposedBuild, iValue))
 			{
-				if (kPlot.isHills())
-				{
-					// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
-					if (iAdjustedFoodDifference >= 4)
-					{
-						if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: if nothing better to do, grab what we can -->
-							eBestSupposedBuild = eBuildMine;
-
-							iValue += 200;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-					// <!-- custom: count on the windmill but not too much, this is really last ditch and quite desperate xd -->
-					else
-					{
-						if (canBuild(kPlot, eBuildWindmill))
-						{
-							// <!-- custom: if nothing better to do, grab what we can -->
-							eBestSupposedBuild = eBuildWindmill;
-
-							iValue += 250;
-						}
-						else if (canBuild(kPlot, eBuildMine))
-						{
-							// <!-- custom: if nothing better to do, grab what we can -->
-							eBestSupposedBuild = eBuildMine;
-
-							// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case, even though the value is really low, in some cases we may have nothing else better to do at all (not counting roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
-							iValue += 200;
-						}
-						else
-						{
-							// <!-- custom: we are doomed xd, leave the plot as is, at least for now -->
-							continue;
-						}
-					}
-				}
+				continue;
 			}
 
-			// <!-- custom: PHASE 1.2 - adjust based on features to chop then (chop first before building a non-bonus farm or mine for example -->
-			// Priority 1: Handle features that need removal or special treatment
-
+			// <!-- custom: PHASE 1.2 - feature removal overlay for non-bonus plots. The normal no-bonus branch picker chooses ordinary improvements first; this overlay then lets Forest/Jungle/Fallout removal adjust or override that choice when the feature itself is the main worker problem. Detailed scoring rationale and default values live in GlobalDefines_advciv_sas.xml. (ChatGPT-5.5 temporary review + GPT-5.5 review) -->
 			if (eFeature == eFeatureForest)
 			{
 				if (canBuild(kPlot, eBuildRemoveForest))
 				{
-					// <!-- custom: should we chop this non-bonus plot? To decide that, take into account city population, and current health -->
-					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/pointwe can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure -->
-
-					// <!-- custom: Forest removal scoring for non-bonus city plots.
-					// Early/small cities still protect forests when health is tight. However, BBAI logs and screenshots
-					// suggested that medium/large cities could leave useful forested BFC tiles unimproved because this
-					// health gate used to hard-skip forest chops whenever healthDiff <= 0. That made those plots invisible
-					// to AI_bestCityBuild and therefore impossible for AI_nextCityToImprove to select. For larger cities,
-					// allow the candidate with a health-pressure penalty instead of a hard skip; the actual improvement
-					// value, chop value, pathing, reservations, and other candidates still decide whether it wins. (ChatGPT-5.5) -->
-					// <!-- custom: also later in the game we usually have many health sources (trade, owned, buildings or yields or such etc.), and improving plots is stronger due to extra yields from techs or such if any other source (e.g., farm -> +2 food), so improve all plots even if it costs health when cities are big enough) -->
+					// <!-- custom: Forest: do not blindly chop health-providing Forests in small/unhealthy cities. Small cities use the old negative scoring formula; the no-health-surplus relax check applies only inside the large-city branch, so its effective threshold is also gated by SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
 					static const int iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION");
-					if (iCityPopulation >= 7)
+					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION)
 					{
 						if (iCityHealthCalculatedDifference >= 1)
 						{
-							// <!-- custom: chop first, think later about which build to do or not do -->
 							eBestSupposedBuild = eBuildRemoveForest;
-							// <!-- custom: chop more generously, we should have the infrastructure and health and such to support it, and we want to use the tiles for our last citizens in city radius anyway rather than improving plains or such, plus the hammer is still good even if we chop late -->
-
-							iValue += 50 * iCityHealthCalculatedDifference;
+							iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference;
 						}
 						else if (iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION > 0 && iCityPopulation >= iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION)
 						{
 							eBestSupposedBuild = eBuildRemoveForest;
-
-							// HealthDiff <= 0 here. Keep the tile visible for larger cities, but make unhealthy cities pay
-							// for the lost forest health. Examples: health 0 -> -50, health -1 -> -100, health -2 -> -150.
-							iValue += -50 * (1 - iCityHealthCalculatedDifference);
+							iValue -= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT * (1 - iCityHealthCalculatedDifference);
 						}
 						else
 						{
-							// <!-- custom: do not chop yet (avoid overchopping) -->
 							continue;
 						}
 					}
 					else
 					{
 						eBestSupposedBuild = eBuildRemoveForest;
-
-						iValue += -100 + (50 * iCityHealthCalculatedDifference);
+						iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE + (iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference);
 					}
 				}
-				// <!-- custom: if no good candidate was found in general non-bonus terrain/feature phase, plus no plot to chop on top of that, then nothing to do here for now at least if not always or not and -->
 				else if (eBestSupposedBuild == NO_BUILD)
 				{
-					// <!-- custom: wait for right time, do nothing (yet) -->
 					continue;
 				}
 			}
@@ -2456,70 +2345,34 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			{
 				if (canBuild(kPlot, eBuildRemoveJungle))
 				{
-					// <!-- custom: should we chop this non-bonus plot? To decide that, take into account city population, and current health -->
-					// <!-- custom: past a certain size, we can get health from buildings or such, and maybe game would have devlopped enough that by that time/pointwe can also traded health bonuses if needed, ideally and hopefully AI does so although i didn't check too much, check to be sure -->
-
-					// <!-- custom: here is some data from chatgpt 5 if helps (and helps me too balance it maybe xd, check if accurate and updated) -->
-					// Jungle removal scoring (assumes iCityHealthCalculatedDifference >0 = surplus health, <0 = unhealth)
-					//
-					// Action: we always set eBestSupposedBuild = eBuildRemoveJungle; scoring decides priority.
-					//
-					// pop >= 7:
-					//   Δ = 75 * ((pop - 6) - healthDiff)
-					//   • Positive when (pop - 6) > healthDiff
-					//   • Zero when (pop - 6) == healthDiff
-					//   • Negative when (pop - 6) < healthDiff  (i.e., very healthy big city → less urgency)
-					//
-					// pop < 7:
-					//   Δ = max(0, 50 * (-healthDiff))   // non-negative; only rises with unhealth
-					//
-					// Examples (Δ in iValue units):
-					//   pop 4,  health +2 → Δ = max(0, 50 * -2)     = 0        (healthy small city → not urgent)
-					//   pop 4,  health -1 → Δ = max(0, 50 * 1)      = 50       (encouraging early clear)
-					//   pop 6,  health -3 → Δ = max(0, 50 * 3)      = 150      (strong push to clear)
-					//   pop 7,  health  0 → Δ = 75 * ((1) - 0)      = 75       (moderately encouraging)
-					//   pop 7,  health +1 → Δ = 75 * (1 - 1)        = 0        (neutral)
-					//   pop 7,  health +2 → Δ = 75 * (1 - 2)        = -75      (discouraging; other tiles likely win)
-					//   pop 10, health +3 → Δ = 75 * (4 - 3)        = 75       (still okay to clear)
-					//   pop 10, health -2 → Δ = 75 * (4 - (-2))     = 450      (very strong push to clear)
-					//
-					// Notes:
-					// • The pop<7 path now never yields negative Δ, preventing “always chop" from losing to other plots purely due to positivity.
-					// • Large healthy cities can still deprioritize jungle if they have better improvements to do first.
-					if (iCityPopulation >= 7)
+					// <!-- custom: Jungle: usually clear because it blocks normal improvements and adds unhealth; XML-tunable population and health-pressure scoring only controls priority among possible worker jobs. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION)
 					{
-						// <!-- custom: chop first, think later -->
 						eBestSupposedBuild = eBuildRemoveJungle;
-						// <!-- custom: encourage chopping jungle the more city pop and unhealthy or unhealthiness (i.e. difference) we have); the health pressure to grow population would need to optimize unhealthiness as we can, and good builds should already have been handled: grab the last unhealthy points we can to grow further, in our mod gives production too so all nice -->
-						iValue += (75 * (-1 * iCityHealthCalculatedDifference)) + (75 * (iCityPopulation - 6));
+						int const iJungleLargeCityPopulationPressure = iCityPopulation - std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION - 1);
+						iValue += iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT * (iJungleLargeCityPopulationPressure - iCityHealthCalculatedDifference);
 					}
 					else
 					{
-						// <!-- custom: always chop, but more if health is low since it's jungle, very nice if we could solve health issue, plus i mistakenly put a check >= 1 here without handling the else case so we had a city unimproved at turn 175, spotted by chatgpt o3 thanks and now fixed and adjusted with this logic, but also proof our system works nicely as intended without interference if i'm not mistakena t least in this case, which is ideal functioning of this system i mean; if low pop prioritize chopping jungle as is very worth it (less health, and in our mod we gain production too) -->
 						eBestSupposedBuild = eBuildRemoveJungle;
-
-						iValue += std::max(0, 50 * (-1 * iCityHealthCalculatedDifference));
+						iValue += std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT * (-1 * iCityHealthCalculatedDifference));
 					}
 				}
-				// <!-- custom: even if plot is not a bonus one, removing/clearing/scrubing feature_fallout is more important than anything else for AI workers to tell them, due to the strong yield and such penalties of this. Also, because if we don't do it here, it might never be done by any other function or very rarely if at all in city radius. But since there is so few feature_fallout during the game and generally in the late game if ever, put this check last to save some computation, and with a small reduction so it is slightly less than fallout on a bonus, but still more than improving any bonus -->
-				else if (eFeature == eFeatureFallout)
-				{
-					if (canBuild(kPlot, eBuildScrubFallout))
-					{
-						eBestSupposedBuild = eBuildScrubFallout;
-
-						iValue += 100000;
-					}
-					else
-					{
-						// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
-						continue;
-					}
-				}
-				// <!-- custom: if no good candidate was found in general non-bonus terrain/feature phase, plus no plot to chop on top of that, then nothing to do here for now at least if not always or not and -->
 				else if (eBestSupposedBuild == NO_BUILD)
 				{
-					// <!-- custom: wait for right time, do nothing (yet) -->
+					continue;
+				}
+			}
+			else if (eFeature == eFeatureFallout)
+			{
+				// <!-- custom: Fallout: scrub before ordinary non-bonus worker builds; if scrubbing is unavailable, skip the plot so workers do not improve through Fallout. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+				if (canBuild(kPlot, eBuildScrubFallout))
+				{
+					eBestSupposedBuild = eBuildScrubFallout;
+					iValue += iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE;
+				}
+				else
+				{
 					continue;
 				}
 			}
@@ -2547,7 +2400,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		// allowing Farms to replace existing improvements when food/irrigation logic chooses them. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 		ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 		ImprovementTypes const eSupposedImprovement = GC.getInfo(eBestSupposedBuild).getImprovement();
-		if (GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && eSupposedImprovement != eImprovementFarm && !kPlot.isWater() && !kPlot.isHills() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
+		if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && eSupposedImprovement != eImprovementFarm && !kPlot.isWater() && !kPlot.isHills() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
 		{
 			bool bReserveForIrrigationFarm = (ePlotCurrentImprovement == eImprovementFarm);
 			if (!bReserveForIrrigationFarm && bCityHighFoodSupportNeed && canBuild(kPlot, eBuildFarm) && (kPlot.isFreshWater() || kPlot.isIrrigationAvailable(true)))
@@ -2790,6 +2643,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
 			BonusTypes const eCandidateBonus = pB->getNonObsoleteBonusType(getTeam());
 			bool const bIrrigationFarmReplacement = (
+				bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE &&
 				eCandidateImprovement == eImprovementFarm &&
 				GET_TEAM(getTeam()).isIrrigation() &&
 				!pB->isWater() && !pB->isHills() && !pB->isCity() &&
@@ -21307,6 +21161,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 	CvPlot const* pBestPlot = NULL;
 	int iBestValue = 0;
 	bool bCanRoute = canBuildRoute();
+	static const int iSAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
@@ -21442,7 +21297,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		}
 		// <!-- custom: improve iron before stone -->
 		// iValue += std::max(0, 100 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
-		iValue += std::max(0, 20000 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+		iValue += std::max(0, iSAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT * GC.getInfo(eNonObsoleteBonus).getAIObjective());
 
 
 		if(kOwner.getNumTradeableBonuses(eNonObsoleteBonus) == 0)
