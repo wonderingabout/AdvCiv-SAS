@@ -43,10 +43,14 @@
 # <!-- custom: LLM helpers are not needed in released archives of the mod -->
 /LLM_Helpers/         export-ignore
 
-# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5) -->
+# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
 /.github/             export-ignore
 /.gitattributes       export-ignore
 /.gitignore           export-ignore
+
+# <!-- custom: keep the compiler temp_files placeholder in repo for sanity checks, but exclude it from GitHub Download ZIP / git archive release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
+/CvGameCoreDLL/Project/temp_files     export-ignore
+/CvGameCoreDLL/Project/temp_files/**  export-ignore
 
 /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                export-ignore
 /_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                export-ignore

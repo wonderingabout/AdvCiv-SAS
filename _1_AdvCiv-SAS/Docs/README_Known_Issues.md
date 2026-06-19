@@ -1290,6 +1290,8 @@ At this point, or in general, i'd say my best guess would be a cosmic ray fell o
 
 But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [README_Known_Issues.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe?? Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed. So adding this info for reference if helps.
 
+Update: added a GitHub workflow sanity check for `CvGameCoreDLL/Project/temp_files/` (see [`build/temp_files.py`](/.github/workflows/README.md#buildtemp_filespy)). Git cannot track an empty folder directly, so the folder is kept visible with a zero-byte tracked placeholder file inside it. `.gitignore` no longer hides the folder, `.gitattributes` keeps it out of GitHub Download ZIP / git archive release archives, and the workflow fails if any other temp file or subfolder appears there. This does not prove a compiled DLL is good, but it makes stale fast-compile leftovers harder to miss. We check this because we suspect fast compiles can be unreliable, and it also helps catch forgetting to replace the committed DLL after compiling.
+
 ## 38.2 - (Weird DLL XML errors at launch, solved by recompiling) The exact same DLL (cosmic ray 2? Or something else maybe or whatever maybe)
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BnMPUrCSNI2q_yBj6ooC-xhoWT-vguxm?usp=sharing).
@@ -5476,7 +5478,7 @@ Observed Pangaea Large save 360 example: the change produced different settling 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1L5ubYioq_8I4hejIZbdV0uRhSKj3FS38?usp=sharing).
 
-While adding `build/xml_parent_duplicate_keys.py` to the GitHub workflow checks, [the first CI run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) correctly failed and exposed several duplicate parent XML identifiers. This was a useful validation that the check works, because it caught both old inherited XML duplicates and one AdvCiv-SAS art duplicate.
+While adding [`build/xml_parent_duplicate_keys.py`](/.github/workflows/README.md#buildxml_parent_duplicate_keyspy) to the GitHub workflow checks, [the first CI run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) correctly failed and exposed several duplicate parent XML identifiers. This was a useful validation that the check works, because it caught both old inherited XML duplicates and one AdvCiv-SAS art duplicate.
 
 GitHub Actions output:
 
@@ -5516,7 +5518,7 @@ Note: the workflow intentionally checks only parent-style XML identifiers, such 
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1IVfRbgHLfXdELtT5a6W20fFegfC1O1DG?usp=sharing).
 
-While adding `build/xml_text_duplicate_tags.py` to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) run found duplicate `<TEXT>/<Tag>` entries across the XML text files. This was useful because duplicate text keys can silently make one entry shadow another, and the active value can depend on XML load order rather than intent.
+While adding [`build/xml_text_duplicate_tags.py`](/.github/workflows/README.md#buildxml_text_duplicate_tagspy) to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) run found duplicate `<TEXT>/<Tag>` entries across the XML text files. This was useful because duplicate text keys can silently make one entry shadow another, and the active value can depend on XML load order rather than intent.
 
 GitHub Actions output included these duplicate text tags:
 
@@ -5549,7 +5551,7 @@ Note: for the hint ones it's only in AdvCiv-SAS that we don't want them duplicat
 
 ## 150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check
 
-After the text duplicate check was fixed, `build/xml_child_duplicates.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
+After the text duplicate check was fixed, [`build/xml_child_duplicates.py`](/.github/workflows/README.md#buildxml_child_duplicatespy) [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
 
 GitHub Actions output:
 
@@ -5579,7 +5581,7 @@ After these changes, `python .github/workflows/build/xml_child_duplicates.py` pa
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u_l6UkCpRFe0oGhf4Z_43FK-fP7pcEuW?usp=sharing).
 
-While adding `build/xml_suspicious_angle_tags.py` to the GitHub workflow checks, the [first failing run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) found XML text entries with extra `>` characters near language tags. These are valid enough for a normal XML parser because the extra angle can be interpreted as text, but they are still almost certainly malformed text data and can show an unintended leading or trailing `>` in-game.
+While adding [`build/xml_suspicious_angle_tags.py`](/.github/workflows/README.md#buildxml_suspicious_angle_tagspy) to the GitHub workflow checks, the [first failing run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) found XML text entries with extra `>` characters near language tags. These are valid enough for a normal XML parser because the extra angle can be interpreted as text, but they are still almost certainly malformed text data and can show an unintended leading or trailing `>` in-game.
 
 GitHub Actions output:
 
@@ -5608,7 +5610,7 @@ After these changes, `python .github/workflows/build/xml_suspicious_angle_tags.p
 
 ## 152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check
 
-While adding `build/xml_suspicious_text_chars.py` to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) run found suspicious `?` characters inside word-like tokens in `AdvCiv-SAS_Sevopedia_Lengthy.xml`. This was an AdvCiv-SAS lengthy text issue, not a base AdvCiv inheritance issue. The check also reported 182 inherited non-English replacement-character findings as ignored by default, so the actionable failure stayed focused on active English/SAS text.
+While adding [`build/xml_suspicious_text_chars.py`](/.github/workflows/README.md#buildxml_suspicious_text_charspy) to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) run found suspicious `?` characters inside word-like tokens in `AdvCiv-SAS_Sevopedia_Lengthy.xml`. This was an AdvCiv-SAS lengthy text issue, not a base AdvCiv inheritance issue. The check also reported 182 inherited non-English replacement-character findings as ignored by default, so the actionable failure stayed focused on active English/SAS text.
 
 GitHub Actions output:
 

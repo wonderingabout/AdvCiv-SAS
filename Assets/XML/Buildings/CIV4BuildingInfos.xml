@@ -8815,11 +8815,10 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: was 1 in the generic monument -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>2</iCommerce>
+				<iCommerce>1</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -8844,7 +8843,13 @@
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
 			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
+			<!-- custom: new effect with the help of ChatGPT-5.5 thanks. Fits thematic builder profile and helps having varied civ-specific monument buildings, that here preserves some early happiness without making it too OP. Nice thematic fit i think too but anyway. -->
+			<BonusHappinessChanges>
+				<BonusHappinessChange>
+					<BonusType>BONUS_STONE</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
+			</BonusHappinessChanges>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>
@@ -8861,15 +8866,15 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>6</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>4</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -9011,10 +9016,11 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
+			<!-- custom: was 1 in the generic monument -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>1</iCommerce>
+				<iCommerce>2</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -9134,10 +9140,9 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>1</bCenterInCity>
-			<!-- custom: this should be very valuable for aztecs to build, make sure they build it, will also help their warmongering and such maybe too -->
-			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 30 in generic monument -->
-			<iCost>35</iCost>
+			<!-- custom: this should be very valuable for aztecs to build, help increase likeliness they build it; will also help their warmongering and such maybe too -->
+			<iAIWeight>20</iAIWeight>
+			<iCost>30</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9251,11 +9256,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>1</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -9401,11 +9406,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>1000</iCommerce>
 			</CommerceChangeDoubleTimes>
-			<CommerceModifiers>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>10</iCommerce>
-			</CommerceModifiers>
+			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
 			<StateReligionCommerces/>
@@ -9423,7 +9424,13 @@
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
-			<BonusHealthChanges/>
+			<!-- custom: new effect for variety and balance; ChatGPT-5.5 also says this about it thanks: "Yes, Sheep is probably the most relevant Civ4 bonus for a Ziggurat-style Mesopotamian temple economy, mostly because Civ4 has no Goat. The historical hook is not “ziggurats magically make sheep healthy,” but temple livestock administration, offerings, and redistribution. A University of Chicago dissertation on the Eanna temple at Uruk notes that the temple controlled herds of tens of thousands of sheep and goats in the 7th-6th centuries BCE" -->
+			<BonusHealthChanges>
+				<BonusHealthChange>
+					<BonusType>BONUS_SHEEP</BonusType>
+					<iHealthChange>1</iHealthChange>
+				</BonusHealthChange>
+			</BonusHealthChanges>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -9444,7 +9451,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>

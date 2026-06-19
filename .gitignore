@@ -15,7 +15,7 @@
 /CvGameCoreDLL/Project/Profile-fast/
 /CvGameCoreDLL/Project/Release/
 /CvGameCoreDLL/Project/_Release-fast/
-/CvGameCoreDLL/Project/temp_files/
+# <!-- custom: do not ignore /CvGameCoreDLL/Project/temp_files/; keep only a tracked placeholder file inside it so workflow/local status checks can catch stale fast-compile temp files before commit; `.gitattributes` may export-ignore this marker from release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
 *.opensdf
 *.sdf
 *.suo
