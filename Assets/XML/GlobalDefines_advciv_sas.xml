@@ -1260,7 +1260,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE</DefineName>
 		<iDefineIntVal>100000</iDefineIntVal>
 	</Define>
-	<!-- custom: Bonus worker scoring mostly used by CvUnitAI::AI_bestCityBuild. These values preserve previous AdvCiv-SAS bonus-branch behavior while making the custom hardcoded priorities tunable. FEATURE_STEP_VALUE covers feature-preserving bonus builds on Forest/Jungle and feature removal before the final bonus-specific build. FALLOUT_SCRUB_VALUE is higher because Fallout should be scrubbed before ordinary bonus improvement. SPECIFIC_BUILD_BASE_VALUE is the base priority once the bonus-specific build is available. Yield and AIObjective values then order high-food, strategic/production, commerce, and XML-marked critical bonuses against each other. IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT is for CvUnitAI::AI_improveBonus target selection across the map, so it keeps the larger previous AdvCiv-SAS scale. FARM_FALLBACK applies to high-food bonuses, such as Bananas, before the bonus-specific build is available; it requires enough total bonus + Farm food to avoid wasting worker turns on weak temporary farms. (GPT-5.5) -->
+	<!-- custom: Bonus worker scoring mostly used by CvUnitAI::AI_bestCityBuild. These values preserve previous AdvCiv-SAS bonus-branch behavior while making the custom hardcoded priorities tunable. FEATURE_STEP_VALUE covers feature-preserving bonus builds on Forest/Jungle and feature removal before the final bonus-specific build. FALLOUT_SCRUB_VALUE is higher because Fallout should be scrubbed before ordinary bonus improvement. SPECIFIC_BUILD_BASE_VALUE is the base priority once the bonus-specific build is available. Yield and AIObjective values then order high-food, strategic/production, commerce, and XML-marked critical bonuses against each other. IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT is for CvUnitAI::AI_improveBonus target selection across the map, so it keeps the larger previous AdvCiv-SAS scale. FARM_FALLBACK applies to high-food bonuses before the bonus-specific build is available; it requires enough total bonus + Farm food, and by default only applies when the real bonus improvement unlocks in Medieval or later eras (2 = ERA_MEDIEVAL), so workers do not spend early turns on temporary farms when the real improvement is close. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE</DefineName>
 		<iDefineIntVal>19000</iDefineIntVal>
@@ -1304,6 +1304,14 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE</DefineName>
 		<iDefineIntVal>18000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Enable old AI worker fort-airbase construction outside BFC-focused worker logic. Set to 0 to disable (default): BFC plots are already mostly protected by AdvCiv-SAS worker build logic, and outside-BFC forts usually spend worker turns for meagre defensive/airbase/canal utility the AI rarely uses well. They can also block future irrigation-chain paths; nearby cities usually serve aircraft better than scattered forts, and the fort canal/isthmus effect is rarely needed. Set to 1 to restore the Base AdvCiv late-game fort-airbase path for experiments. (GPT-5.5) -->
 	<Define>

@@ -1709,6 +1709,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
 	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD");
 	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE");
+	static const bool bSAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE");
+	static const EraTypes eSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA = (EraTypes)GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -2035,13 +2037,14 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE * bonusCommerceYieldChange;
 				}
 				// The bonus-specific improvement is not yet available and there was no feature to chop.
-				// <!-- custom: One exception to the general ignore rule below: a temporary Farm can be worthwhile on a high-food bonus before its bonus-specific build is available, e.g. irrigated Bananas. Require the configured total bonus + Farm food threshold so workers do not waste turns on weak temporary farms. (GPT-5.5) -->
-				else if (canBuild(kPlot, eBuildFarm))
+				// <!-- custom: One exception to the general ignore rule below: a temporary Farm can be worthwhile on a high-food bonus if the real bonus-specific build unlocks late enough. Do not spend early worker turns on temporary farms when the real improvement is close, but avoid leaving strong food bonuses idle for many eras. (GPT-5.5) -->
+				else if (bSAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE && canBuild(kPlot, eBuildFarm))
 				{
 					int const totalFarmBonusFoodYield = bonusFoodYieldChange + kPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner());
+					TechTypes const eBonusSpecificBuildTech = GC.getInfo(eBonusSpecificBuild).getTechPrereq();
+					bool const bBonusSpecificBuildUnlocksLateEnough = (eBonusSpecificBuildTech != NO_TECH && GC.getInfo(eBonusSpecificBuildTech).getEra() >= eSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA);
 
-					if (((eTerrain == eTerrainGrass) && (totalFarmBonusFoodYield >= iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD)) ||
-					(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && (totalFarmBonusFoodYield >= iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD)))
+					if (bBonusSpecificBuildUnlocksLateEnough && ((eTerrain == eTerrainGrass) || (eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && totalFarmBonusFoodYield >= iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD)
 					{
 						eBestSupposedBuild = eBuildFarm;
 
