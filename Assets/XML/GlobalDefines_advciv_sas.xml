@@ -1370,18 +1370,18 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Flat Grass with enough food:
 	- BUILD_COTTAGE: broadly strong default because flat Grass has enough food to grow commerce.
 	- BUILD_FARM: can beat Cottage for mine-heavy/food-support-hungry cities, fast growth, specialists, or concrete irrigation-chain needs; CvUnitAI adds actual plot/player farm food and chain value.
-	- BUILD_WORKSHOP: only wins when DLL timing/food-cost checks say it is acceptable; early food-cost Workshops should not preempt Cottages, but food-neutral or late-preparation Workshops can be strong. (GPT-5.5 + ChatGPT-5.5) -->
+	- BUILD_WORKSHOP: conservative base value; CvUnitAI adds a generic recovered-food-cost bonus when current rules make a configured food-cost improvement food-neutral or better, so early food-cost Workshops do not need a separate C++ allow gate. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT</DefineName>
 		<DefineTextVal>BUILD_FARM:1550,BUILD_COTTAGE:1600,BUILD_WORKSHOP:1500</DefineTextVal>
 	</Define>
 	<!-- custom: Low-food Flat Grass:
-	- BUILD_WORKSHOP: very attractive if it no longer costs food.
+	- BUILD_WORKSHOP: deliberately low base value while food still matters; CvUnitAI can add recovered-food-cost value later, so Workshop does not need to sit first or bypass the ordinary branch competition.
 	- BUILD_FARM: practical food restoration, with extra value from the low-food deficit and food-support logic. Its base starts below the normal Cottage target to avoid overfarming Grass, but it can become good enough when the city actually needs food; later tech/irrigation can also make these farms stronger, and CvUnitAI accounts for actual plot/player farm food separately.
 	- BUILD_COTTAGE: fallback when better food/hammer options are unavailable. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT_LOW_FOOD</DefineName>
-		<DefineTextVal>BUILD_WORKSHOP:2000,BUILD_FARM:1460,BUILD_COTTAGE:1300</DefineTextVal>
+		<DefineTextVal>BUILD_FARM:1460,BUILD_COTTAGE:1300,BUILD_WORKSHOP:600</DefineTextVal>
 	</Define>
 	<!-- custom: Plains Hills with enough food:
 	- BUILD_MINE: straightforward hammer tile when the city can afford the food cost. (GPT-5.5 + ChatGPT-5.5) -->
@@ -1399,18 +1399,18 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Flat Plains with enough food:
 	- BUILD_FARM: supports low-food or hill-heavy cities; ordinary Plains should not be farmed only because Farm is possible, so CvUnitAI adds food-support value separately.
 	- BUILD_COTTAGE: modest economy fallback, generally below stronger Grass/Flood Plains candidates; useful, but not the first place to spend worker turns when higher-potential tiles remain.
-	- BUILD_WORKSHOP: only favored when DLL timing/food-cost checks allow it. (GPT-5.5 + ChatGPT-5.5) -->
+	- BUILD_WORKSHOP: conservative base value; CvUnitAI adds recovered-food-cost value if current rules make it food-neutral or better. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT</DefineName>
 		<DefineTextVal>BUILD_FARM:950,BUILD_COTTAGE:600,BUILD_WORKSHOP:550</DefineTextVal>
 	</Define>
 	<!-- custom: Low-food Flat Plains:
-	- BUILD_WORKSHOP: strong only if food-neutral and the city is not structurally low-food.
+	- BUILD_WORKSHOP: low base value because low-food Plains usually need food first; recovered-food-cost value can make it competitive later without a special C++ gate.
 	- BUILD_FARM: main low-food fix; gains low-food deficit and food-support value, and can become more valuable as farm yields improve later.
 	- BUILD_COTTAGE: deliberately weaker because this terrain often needs food first; still a fallback when Farm is unavailable or the city can afford slower growth. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT_LOW_FOOD</DefineName>
-		<DefineTextVal>BUILD_WORKSHOP:1600,BUILD_FARM:900,BUILD_COTTAGE:500</DefineTextVal>
+		<DefineTextVal>BUILD_FARM:900,BUILD_COTTAGE:500,BUILD_WORKSHOP:250</DefineTextVal>
 	</Define>
 	<!-- custom: Tundra Hills with enough food:
 	- BUILD_WINDMILL: usually preferred because tundra cities are often food-poor and production is already scarce.
@@ -1430,19 +1430,19 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Flat Tundra with enough food:
 	- BUILD_FARM: can support scarce food or hill use, though lower than better terrains because tundra is usually developed later.
 	- BUILD_COTTAGE: uses the AdvCiv-SAS tundra commerce change and can be a reasonable economy tile.
-	- BUILD_WORKSHOP: allowed only through the DLL timing/food-cost checks.
+	- BUILD_WORKSHOP: conservative base value; recovered-food-cost value can make it competitive when it no longer costs food.
 	- BUILD_WATERMILL is intentionally not listed as of now: these tiles are low-production and often surrounded by other economy/scarce tundra tiles, so we currently prefer the simpler Farm/Cottage/Workshop competition unless XML tuning later makes Watermills worth testing. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT</DefineName>
 		<DefineTextVal>BUILD_FARM:650,BUILD_COTTAGE:550,BUILD_WORKSHOP:500</DefineTextVal>
 	</Define>
 	<!-- custom: Low-food Flat Tundra:
-	- BUILD_WORKSHOP: strong only if food-neutral and the city is not structurally low-food.
+	- BUILD_WORKSHOP: low base value because low-food Tundra usually needs food first; recovered-food-cost value can make it competitive later without a special C++ gate.
 	- BUILD_FARM: often the practical food fix in scarce terrain; tundra cities commonly need food more than another slow economy tile.
 	- BUILD_COTTAGE: weak fallback when Farm cannot be built and better options are unavailable, but still useful with the AdvCiv-SAS tundra commerce change if the city has enough food from elsewhere. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT_LOW_FOOD</DefineName>
-		<DefineTextVal>BUILD_WORKSHOP:1600,BUILD_FARM:500,BUILD_COTTAGE:150</DefineTextVal>
+		<DefineTextVal>BUILD_FARM:500,BUILD_WORKSHOP:250,BUILD_COTTAGE:150</DefineTextVal>
 	</Define>
 	<!-- custom: Snow Hills with enough food:
 	- BUILD_MINE: low-value last-ditch action, but can still be the only productive move in poor starts or already-developed cities. Separate from Desert for cleaner tuning if modmods make either terrain more useful. (GPT-5.5 + ChatGPT-5.5) -->
@@ -1559,14 +1559,14 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: Extra adjusted food surplus required before a food-cost Workshop can compete in an enough-food flatland branch. This is added to the terrain's normal food branch threshold; no-food Workshops use the normal threshold directly. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Comma-separated IMPROVEMENT_* names whose base XML food yield is negative and should receive a value bonus if tech/civics/plot context later make them food-neutral or food-positive. Default preserves Workshop behavior, but modmods can add other food-cost improvements without changing CvUnitAI. This is not meant for Farm/Plantation-style positive future food gains; Farm food is already handled by food-support heuristics, and generic positive future food would risk double counting. Use NONE to disable this improvement-family adjustment. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_WORKER_AI_FOOD_COST_WORKSHOP_EXTRA_SURPLUS</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
+		<DefineName>SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_NAMES</DefineName>
+		<DefineTextVal>IMPROVEMENT_WORKSHOP</DefineTextVal>
 	</Define>
-	<!-- custom: Value bonus for Workshops that no longer cost food in normal enough-food branches. This is a value adjustment added to the XML branch base value, not a forced pick; Farm/Cottage/etc. can still win if their adjusted value is higher. Set lower if late food should compete more strongly against food-neutral Workshops. (ChatGPT-5.5) -->
+	<!-- custom: Value bonus per food gained beyond a configured improvement's base XML food cost. Example: if Workshop is -1 food in XML and current plot/player rules make it 0 food, add 1 * this value; if a modded food-cost improvement goes from -1 to +2, add 3 * this value. This is a value adjustment added to the XML branch base value, not a forced pick. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_WORKER_AI_NO_FOOD_COST_WORKSHOP_VALUE_ADJUSTMENT</DefineName>
+		<DefineName>SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN</DefineName>
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 	<!-- custom: Comma-separated IMPROVEMENT_* chain starts whose XML ImprovementUpgrade chains should count as growth improvements for worker overwrite penalties. Default preserves the Cottage -> Hamlet -> Village -> Town chain. Modmods can add shorter/longer chains or other growth-style chains without changing CvUnitAI. Use NONE for no growth-chain penalty levels. (ChatGPT-5.5) -->
@@ -1578,6 +1578,16 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY</DefineName>
 		<iDefineIntVal>400</iDefineIntVal>
+	</Define>
+	<!-- custom: Irrigation-chain connector penalty when farming over a Workshop to reach dry farms. Workshops are cheap to rebuild and, unlike growth-chain improvements, do not lose accumulated growth, so this is intentionally far below the generic other-improvement penalty. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: Irrigation-chain connector penalty when farming over a non-growth, non-Workshop improvement to reach dry farms. Keep this high so workers prefer unimproved plots, Workshops, or low-level growth improvements before destroying miscellaneous finished improvements. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY</DefineName>
+		<iDefineIntVal>2200</iDefineIntVal>
 	</Define>
 	<!-- custom: Local same-plot penalty per configured growth-improvement level when farming over a growth-chain improvement to irrigate adjacent existing dry farms. This is lower than the broader connector penalty above because the farm itself may solve a city food/irrigation problem. CvUnitAI infers the level from SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES, then multiplies by this value. e.g., with default Cottage chain and value 150, cottage is 1 * 150 = 150, hamlet is 2 * 150 = 300, village is 3 * 150 = 450, and town is 4 * 150 = 600. Note: as of now not kept too high (same reasoning). (ChatGPT-5.5) -->
 	<Define>
