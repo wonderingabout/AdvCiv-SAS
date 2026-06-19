@@ -23,6 +23,7 @@ For example, this helped spot [map scripts that were previously unclassified in 
 ## Current build checks
 
 - [`build/temp_files.py`](#buildtemp_filespy)
+- [`build/line_endings.py`](#buildline_endingspy)
 - [`build/assets_dlls.py`](#buildassets_dllspy)
 - [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
 - [`build/launch_guard.py`](#buildlaunch_guardpy)
@@ -50,6 +51,14 @@ For example, this helped spot [map scripts that were previously unclassified in 
 ### `build/temp_files.py`
 
 Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder file and is otherwise empty, verifies `.gitignore` does not hide it, and allows only the matching `.gitattributes` `export-ignore` rules used to keep it out of GitHub Download ZIP / git archive release archives. This helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)).
+
+### `build/line_endings.py`
+
+Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/fix_line_endings.py`](/LLM_Helpers/fix_line_endings.py). Generated/reference helper folders such as `LLM_Helpers/outputs` are excluded to avoid noise from old reports/diffs.
+
+Before the first cleanup, this checker found 79 local worktree issues, while GitHub Actions reported only 19. Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., `BugInit.py`) while true CI failures stayed mixed in both (e.g., `Pangaea.py`).
+
+Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set.
 
 ### `build/assets_dlls.py`
 

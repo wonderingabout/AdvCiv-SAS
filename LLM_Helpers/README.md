@@ -23,6 +23,7 @@ Always review diffs before committing generated source changes.
   - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
   - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
   - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
+  - [`fix_line_endings.py`](#fix_line_endingspy)
 - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
   - [`singleline_pass.py`](#singleline_passpy)
   - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
@@ -255,6 +256,28 @@ Example:
 
 ```powershell
 python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+```
+
+### `fix_line_endings.py`
+
+External cleanup helper for line-ending hygiene.
+
+- Reports or fixes mixed CRLF/LF line endings and missing final newlines.
+- Does not run automatically in GitHub Actions; the workflow check only reports/fails.
+- Defaults to active repo text-like files and excludes generated/reference helper folders such as `LLM_Helpers/outputs` and `LLM_Helpers/examples`.
+- Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
+- Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
+- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
+- Always review the diff before committing generated source changes.
+
+Examples:
+
+```powershell
+python LLM_Helpers\fix_line_endings.py
+python LLM_Helpers\fix_line_endings.py --diff
+python LLM_Helpers\fix_line_endings.py --in-place
+python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --diff
+python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --in-place
 ```
 
 ## CvMainInterface cleanup reference scripts

@@ -18,6 +18,7 @@ jobs:
         with:
           python-version: "3.x"
       - run: python .github/workflows/build/temp_files.py
+      - run: python .github/workflows/build/line_endings.py
       - run: python .github/workflows/build/assets_dlls.py
       - run: python .github/workflows/build/global_defines_nonempty.py
       - run: python .github/workflows/build/launch_guard.py
