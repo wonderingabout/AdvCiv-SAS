@@ -123,10 +123,7 @@ protected:
 	// <advc> Python may modify - not the lists themselves - but the items
 	friend class CyDeal;
 	CLinkList<TradeData>& getFirstListVar() { return m_firstList; }
-	CLinkList<TradeData>& getSecondListVar()
-	{
-		return m_secondList;
-	} // </advc>
+	CLinkList<TradeData>& getSecondListVar() { return m_secondList; } // </advc>
 
 	bool startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bPeace, bool& bPeaceTreatyImplied); // advc.ctr
 	// advc.036 <!-- custom: hoisted from multiline signature between `bUpdateAttitude` and `eCancelPlayer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->

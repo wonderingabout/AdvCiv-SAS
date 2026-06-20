@@ -204,10 +204,8 @@ public:
 	bool isNoMaintenance() const; //advc
 	bool isHolyCity(ReligionTypes eReligion) const;																// Exposed to Python
 	bool isHolyCity() const;																					// Exposed to Python
-	bool hasShrine(ReligionTypes eReligion) const
-	{	// advc.enum: Replacing implementation based on a cache at CvGame
-		return (m_aiShrine.get(eReligion) > 0);
-	}
+	// advc.enum: Replacing implementation based on a cache at CvGame
+	bool hasShrine(ReligionTypes eReligion) const { return (m_aiShrine.get(eReligion) > 0); }
 	bool isHeadquarters(CorporationTypes eCorp) const;															// Exposed to Python
 	bool isHeadquarters() const;																				// Exposed to Python
 	void setHeadquarters(CorporationTypes eCorp);
@@ -288,14 +286,8 @@ public:
 	DllExport int getY() const { return m_iY; } // advc.inl: was "getY_INLINE"									// Exposed to Python
 
 	bool at(int iX, int iY) const  { return (getX() == iX && getY() == iY); }									// Exposed to Python
-	bool at(CvPlot const* pPlot) const // advc: const CvPlot*													// Exposed to Python as atPlot
-	{
-		return (plot() == pPlot);
-	}  // <advc>
-	bool at(CvPlot const& kPlot) const
-	{
-		return (plot() == &kPlot);
-	} // </advc>
+	bool at(CvPlot const* pPlot) const { return (plot() == pPlot); } // advc: const CvPlot*													// Exposed to Python as atPlot // <advc>
+	bool at(CvPlot const& kPlot) const { return (plot() == &kPlot); } // </advc>
 	DllExport CvPlot* plot() const { return m_pPlot; } // advc.opt: cached										// Exposed to Python
 	CvPlot& getPlot() const { return *m_pPlot; } // advc
 	void updatePlot(); // advc.opt
@@ -768,10 +760,8 @@ public:
 	int getDomainProductionModifier(DomainTypes eDomain) const { return m_aiDomainProductionModifier.get(eDomain); } // Exposed to Python
 	void changeDomainProductionModifier(DomainTypes eDomain, int iChange);
 
-	int getCulture(PlayerTypes ePlayer) const																	// Exposed to Python
-	{	// advc: Delegate to the Times100 function
-		return getCultureTimes100(ePlayer) / 100;
-	}
+	// advc: Delegate to the Times100 function
+	int getCulture(PlayerTypes ePlayer) const { return getCultureTimes100(ePlayer) / 100; } // Exposed to Python
 	int getCultureTimes100(PlayerTypes ePlayer) const { return m_aiCulture.get(ePlayer); } // Exposed to Python
 	int countTotalCultureTimes100() const;																		// Exposed to Python
 	PlayerTypes findHighestCulture() const;																		// Exposed to Python
@@ -808,10 +798,8 @@ public:
 	void setRevealed(TeamTypes eTeam, bool bNewValue);															// Exposed to Python
 
 	bool getEspionageVisibility(TeamTypes eTeam) const { return m_abEspionageVisibility.get(eTeam); } // Exposed to Python
-	bool isAnyEspionageVisibility() const
-	{	// advc.opt:
-		return m_abEspionageVisibility.isAnyNonDefault();
-	}
+	// advc.opt:
+	bool isAnyEspionageVisibility() const { return m_abEspionageVisibility.isAnyNonDefault(); }
 	void setEspionageVisibility(TeamTypes eTeam, bool bVisible, bool bUpdatePlotGroups);
 	void updateEspionageVisibility(bool bUpdatePlotGroups);
 
@@ -824,14 +812,8 @@ public:
 	std::string getScriptData() const;																			// Exposed to Python
 	void setScriptData(std::string szNewValue);																	// Exposed to Python
 
-	int getFreeBonus(BonusTypes eBonus) const																	// Exposed to Python
-	{
-		return m_aiFreeBonus.get(eBonus);
-	}  // <advc.opt>
-	bool isAnyFreeBonus() const
-	{
-		return m_aiFreeBonus.isAnyNonDefault();
-	} // </advc.opt>
+	int getFreeBonus(BonusTypes eBonus) const { return m_aiFreeBonus.get(eBonus); } // Exposed to Python // <advc.opt>
+	bool isAnyFreeBonus() const { return m_aiFreeBonus.isAnyNonDefault(); } // </advc.opt>
 	void changeFreeBonus(BonusTypes eBonus, int iChange);														// Exposed to Python
 	int getNumBonuses(BonusTypes eBonus) const;																	// Exposed to Python
 	bool hasBonus(BonusTypes eBonus) const { return (getNumBonuses(eBonus) > 0); } // Exposed to Python
@@ -905,10 +887,8 @@ public:
 	int getAddedFreeSpecialistCount(SpecialistTypes eSpecialist) const;											// Exposed to Python
 
 	int getImprovementFreeSpecialists(ImprovementTypes eImprov) const { return m_aiImprovementFreeSpecialists.get(eImprov); } // Exposed to Python
-	bool isAnyImprovementFreeSpecialist() const
-	{	// advc.opt:
-		return m_aiImprovementFreeSpecialists.isAnyNonDefault();
-	}
+	// advc.opt:
+	bool isAnyImprovementFreeSpecialist() const { return m_aiImprovementFreeSpecialists.isAnyNonDefault(); }
 	void changeImprovementFreeSpecialists(ImprovementTypes eImprov, int iChange);								// Exposed to Python
 
 	int getReligionInfluence(ReligionTypes eReligion) const { return m_aiReligionInfluence.get(eReligion); } // Exposed to Python
@@ -923,10 +903,8 @@ public:
 
 	int getFreePromotionCount(PromotionTypes ePromo) const { return m_aiFreePromotionCount.get(ePromo); } // Exposed to Python
 	bool isFreePromotion(PromotionTypes ePromo) const { return (getFreePromotionCount(ePromo) > 0); } // Exposed to Python
-	bool isAnyFreePromotion() const
-	{	// advc.opt:
-		return m_aiFreePromotionCount.isAnyNonDefault();
-	}
+	// advc.opt:
+	bool isAnyFreePromotion() const { return m_aiFreePromotionCount.isAnyNonDefault(); }
 	void changeFreePromotionCount(PromotionTypes ePromo, int iChange);
 
 	int getSpecialistFreeExperience() const { return m_iSpecialistFreeExperience; } // Exposed to Python
@@ -975,14 +953,8 @@ public:
 	void stopHeadOrder();
 	int getOrderQueueLength() /* advc: */ const { return m_orderQueue.getLength(); } // Exposed to Python
 	OrderData* getOrderFromQueue(int iIndex) const;																// Exposed to Python
-	CLLNode<OrderData>* nextOrderQueueNode(CLLNode<OrderData>* pNode) const
-	{
-		return m_orderQueue.next(pNode);
-	}  // <advc.003s>
-	CLLNode<OrderData> const* nextOrderQueueNode(CLLNode<OrderData> const* pNode) const
-	{
-		return m_orderQueue.next(pNode);
-	} // </advc.003s>
+	CLLNode<OrderData>* nextOrderQueueNode(CLLNode<OrderData>* pNode) const { return m_orderQueue.next(pNode); } // <advc.003s>
+	CLLNode<OrderData> const* nextOrderQueueNode(CLLNode<OrderData> const* pNode) const { return m_orderQueue.next(pNode); } // </advc.003s>
 	CLLNode<OrderData>* headOrderQueueNode() const { return m_orderQueue.head(); }
 	DllExport int getNumOrdersQueued() const { return m_orderQueue.getLength(); }
 	DllExport OrderData getOrderData(int iIndex) const;
@@ -1053,10 +1025,8 @@ public:
 			that CvCityAI is derived from CvCity */
 		return *reinterpret_cast<CvCityAI*>(this);
 	}
-	CvCityAI const& AI() const
-	{	//return *static_cast<CvCityAI const*>(this);
-		return *reinterpret_cast<CvCityAI const*>(this);
-	}
+	//return *static_cast<CvCityAI const*>(this);
+	CvCityAI const& AI() const { return *reinterpret_cast<CvCityAI const*>(this); }
 	/*  Keep one pure virtual function to make the class abstract; remove all
 		the others - the EXE doesn't call them. */ // </advc.003u>
 	virtual void AI_setAssignWorkDirty(bool bNewValue) = 0;

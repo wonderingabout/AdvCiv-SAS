@@ -181,10 +181,8 @@ public:
 		a get function and a lookup function template.
 		Derived classes with bARITHMETIC=false can implement setUnsafe
 		(or setCompact) instead of lookup.*/
-	V get(E eKey) const
-	{	// Derived classes can assert that eKey is within its bounds here
-		return derived().getUnsafe(eKey);
-	}
+	// Derived classes can assert that eKey is within its bounds here
+	V get(E eKey) const { return derived().getUnsafe(eKey); }
 	void set(E eKey, V vValue)
 	{
 		derived().changeValue<OP_ASSIGN>(eKey, vValue);
@@ -372,10 +370,8 @@ protected:
 	template<Operation eOP> CompactV& lookup(E eKey, CompactV cvOperand) { return derived().lookupUnsafe<eOP>(eKey, cvOperand); }
 	template<Operation eOP> CompactV& lookupUnsafe(E eKey, CompactV cvOperand) { return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand); }
 	template<Operation eOP>
-	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue)
-	{	// (Derived classes have to override one of the lookup function templates)
-		return derived().lookupCompact<eOP>(ceKey, cvValue);
-	}
+	// (Derived classes have to override one of the lookup function templates)
+	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue) { return derived().lookupCompact<eOP>(ceKey, cvValue); }
 
 	template<Operation eOP>
 	void changeValueUnsafe(E eKey, V vOperand)
@@ -514,10 +510,8 @@ protected:
 
 	// (Can't overload these two under the name "compact" b/c E and V can coincide)
 	static CompactE compactKey(E eKey) { return compactEnum(eKey); }
-	static CompactV compactValue(V vValue)
-	{	// Specialize for bool
-		return _compact<CompactV,V>(vValue);
-	}
+	// Specialize for bool
+	static CompactV compactValue(V vValue) { return _compact<CompactV,V>(vValue); }
 	template<class ToType, class FromType>
 	static ToType _compact(FromType fValue)
 	{
@@ -528,16 +522,12 @@ protected:
 	#endif
 	}
 	template<>
-	static BitBlock _compact<BitBlock,bool>(bool bValue)
-	{	// Bit block of all ones or all zeros
-		return (bValue ? integer_limits<BitBlock>::max : 0);
-	}
+	// Bit block of all ones or all zeros
+	static BitBlock _compact<BitBlock,bool>(bool bValue) { return (bValue ? integer_limits<BitBlock>::max : 0); }
 	// (Can't overload these two b/c CompactE and CompactV can coincide)
 	static E uncompactKey(CompactE ceKey) { return static_cast<E>(ceKey); }
-	static V uncompactValue(CompactV cvVal)
-	{	// The one-argument version can't work for bBIT_BLOCKS
-		return _uncompactValue<V,CompactV>(cvVal);
-	}
+	// The one-argument version can't work for bBIT_BLOCKS
+	static V uncompactValue(CompactV cvVal) { return _uncompactValue<V,CompactV>(cvVal); }
 	template<class ToType, class FromType> static ToType _uncompactValue(FromType fValue) { return (ToType)fValue; }
 	template<>
 	static bool _uncompactValue<bool,BitBlock>(BitBlock uiBlock)
@@ -1307,10 +1297,8 @@ public:
 			only internally). */
 		return subscript<is_same_type<V,CompactV>::value>(eKey);
 	}
-	V operator[](E eKey) const
-	{	// (I don't think we can unhide this through a using declaration)
-		return ArrayEnumMapBase::operator[](eKey);
-	}
+	// (I don't think we can unhide this through a using declaration)
+	V operator[](E eKey) const { return ArrayEnumMapBase::operator[](eKey); }
 
 	template<class DataStream>
 	void write(DataStream pStream) const
@@ -1516,10 +1504,8 @@ public:
 	EncodeT encode() const { return reinterpret_cast<EncodeT const*>(values())[0]; }
 
 	compact_t& operator[](E eKey) { return lookupUnsafe<OP_UNKNOWN>(eKey, 0); }
-	V operator[](E eKey) const
-	{	// (I don't think we can unhide this through a using declaration)
-		return IntegerEncodableMapBase::operator[](eKey);
-	}
+	// (I don't think we can unhide this through a using declaration)
+	V operator[](E eKey) const { return IntegerEncodableMapBase::operator[](eKey); }
 };
 
 #define YieldChangeMapBase \

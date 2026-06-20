@@ -117,10 +117,7 @@ public:
 	bool GetNextXmlVal(T& r, T tDefault = (T)-1);
 	// Need to make these casts explicit to avoid matching the template
 	bool GetNextXmlVal(CvString& r, char const* szDefault = NULL) { return GetNextXmlVal(static_cast<std::string&>(r), szDefault); }
-	bool GetNextXmlVal(CvWString& r, wchar const* szDefault = NULL)
-	{
-		return GetNextXmlVal(static_cast<std::wstring&>(r), szDefault);
-	} // </advc.enum>
+	bool GetNextXmlVal(CvWString& r, wchar const* szDefault = NULL) { return GetNextXmlVal(static_cast<std::wstring&>(r), szDefault); } // </advc.enum>
 
 	bool GetChildXmlVal(std::string& r, char const* szDefault = NULL);
 	bool GetChildXmlVal(std::wstring& r, wchar const* szDefault = NULL);

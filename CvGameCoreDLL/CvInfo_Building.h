@@ -70,10 +70,7 @@ public:
 		RaiseDefense = base_t::NUM_INT_ELEMENT_TYPES, // advc.004c
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	/*	All the const functions are exposed to Python.
 		Integers in signatures replaced with enum types. */
@@ -259,10 +256,7 @@ public:
 	bool isWorldWonder() const { return GC.getInfo(getBuildingClassType()).isWorldWonder(); }
 	bool isTeamWonder() const { return GC.getInfo(getBuildingClassType()).isTeamWonder(); }
 	bool isNationalWonder() const { return GC.getInfo(getBuildingClassType()).isNationalWonder(); }
-	bool isLimited() const
-	{
-		return GC.getInfo(getBuildingClassType()).isLimited();
-	} // </advc.003w>
+	bool isLimited() const { return GC.getInfo(getBuildingClassType()).isLimited(); } // </advc.003w>
 
 	// Other
 

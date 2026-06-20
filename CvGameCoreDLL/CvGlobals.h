@@ -105,10 +105,7 @@ public:
 	CvGameAI& getGameExternal(); // advc.inl: Exported through .def file
 	DllExport CvGameAI* getGamePointer();
 	// <advc.003y>
-	CvPythonCaller const* getPythonCaller() const
-	{
-		return m_pPythonCaller;
-	} // </advc.003y>
+	CvPythonCaller const* getPythonCaller() const { return m_pPythonCaller; } // </advc.003y>
 	DllExport CvRandom& getASyncRand() { return *m_asyncRand; }
 	CvRandom& getASyncRand() const { return *m_asyncRand; } // advc
 	DllExport CMessageQueue& getMessageQueue();
@@ -144,10 +141,7 @@ public:
 	bool isSynchLogging() const { return m_bSynchLogging; }
 	bool isOverwriteLogs() const { return m_bOverwriteLogs; }
 	// <advc>
-	CvDLLLogger& getLogger() const
-	{
-		return *m_pLogger;
-	} // </advc>
+	CvDLLLogger& getLogger() const { return *m_pLogger; } // </advc>
 
 	// advc: Inlined and constified
 	DllExport int* getPlotDirectionX() { return m_aiPlotDirectionX; }
@@ -396,10 +390,7 @@ public:
 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000:
 	int getDefineINT(char const* szName, int iDefault) const;
 	// <advc>
-	bool getDefineBOOL(char const* szName, bool bDefault = false) const
-	{
-		return (getDefineINT(szName, (int)bDefault) > 0);
-	} // </advc>
+	bool getDefineBOOL(char const* szName, bool bDefault = false) const { return (getDefineINT(szName, (int)bDefault) > 0); } // </advc>
 	DllExport float getDefineFLOAT(char const* szName) const;
 	/*	advc (note): Global TextVals loaded by CvXMLLoadUtility::
 		SetPostGlobalsGlobalDefines need to be accessed through getDefineINT instead. */

@@ -124,17 +124,12 @@ public:
 	// advc  <advc.104> <!-- custom: hoisted from multiline signature between `iLimit` and `bCheckBorder` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	int AI_getPlotDanger(CvPlot const& kPlot, int iRange = -1, bool bTestMoves = true, int iLimit = MAX_INT, bool bCheckBorder = true, PlayerTypes eAttackPlayer = NO_PLAYER) const;
 			// </advc.104>
-	bool AI_isAnyPlotDanger(CvPlot const& kPlot, int iRange = -1, bool bTestMoves = true, bool bCheckBorder = true) const // K-Mod
-	{	// advc: Merged with the plot danger counting function
-		return (AI_getPlotDanger(kPlot, iRange, bTestMoves, 1, bCheckBorder) > 0);
-	}
+	// advc: Merged with the plot danger counting function
+	bool AI_isAnyPlotDanger(CvPlot const& kPlot, int iRange = -1, bool bTestMoves = true, bool bCheckBorder = true) const { return (AI_getPlotDanger(kPlot, iRange, bTestMoves, 1, bCheckBorder) > 0); } // K-Mod
 	//int AI_getUnitDanger(CvUnit* pUnit, int iRange = -1, bool bTestMoves = true, bool bAnyDanger = true) const;
 	// BETTER_BTS_AI_MOD: END
 	int AI_getWaterDanger(CvPlot const& kPlot, int iRange = DANGER_RANGE, /* <advc.opt> */ int iMaxCount = MAX_INT) const;
-	bool AI_isAnyWaterDanger(CvPlot const& kPlot, int iRange = DANGER_RANGE) const
-	{
-		return (AI_getWaterDanger(kPlot, iRange, 1) >= 1);
-	} // </advc.opt>
+	bool AI_isAnyWaterDanger(CvPlot const& kPlot, int iRange = DANGER_RANGE) const { return (AI_getWaterDanger(kPlot, iRange, 1) >= 1); } // </advc.opt>
 
 	bool AI_avoidScience() const;
 	int AI_financialTroubleMargin() const; // advc.110
@@ -303,10 +298,7 @@ public:
 	int AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFromPlot = NULL, int iLookAhead = 0) const; // Exposed to Python
 	int AI_countOwnedBonuses(BonusTypes eBonus, /* <advc.opt> */ int iMaxCount = MAX_INT) const; // </advc.042>											// Exposed to Python
 	int AI_countCityFeatures(FeatureTypes eFeature) const; // advc.042									// Exposed to Python
-	bool AI_isAnyOwnedBonus(BonusTypes eBonus) const
-	{
-		return (AI_countOwnedBonuses(eBonus, 1) > 0);
-	} // </advc.opt>
+	bool AI_isAnyOwnedBonus(BonusTypes eBonus) const { return (AI_countOwnedBonuses(eBonus, 1) > 0); } // </advc.opt>
 	int AI_neededWorkers(CvArea const& kArea) const;
 	// <!-- custom: Shared AdvCiv-SAS worker-floor helper; see implementation for production/scrap synchronization rationale. (GPT-5.5) -->
 	int AI_getSASMinimumAreaWorkers(CvArea const& kArea) const;
@@ -335,10 +327,7 @@ public:
 	int AI_adjacentPotentialAttackers(CvPlot const& kPlot, bool bTestCanMove = false) const;
 	//int AI_totalMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const; // advc.003j
 	int AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, /* <advc.opt> */ int iMaxCount = MAX_INT) const;
-	bool AI_isAnyAreaMissionAI(CvArea const& kArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const
-	{
-		return (AI_areaMissionAIs(kArea, eMissionAI, pSkipSelectionGroup, 1) >= 1);
-	} // </advc.opt>
+	bool AI_isAnyAreaMissionAI(CvArea const& kArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const { return (AI_areaMissionAIs(kArea, eMissionAI, pSkipSelectionGroup, 1) >= 1); } // </advc.opt>
 	// advc: TargetMissionAI counting: const CvPlot&. advc.opt: iMaxCount params added.
 	int AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup const* pSkipSelectionGroup = NULL, int iRange = 0, int iMaxCount = MAX_INT) const { return AI_plotTargetMissionAIs(kPlot, &eMissionAI, 1, pSkipSelectionGroup, iRange, iMaxCount); }
 	// advc: Unused (out-)param iClosestTargetRange removed
@@ -346,21 +335,14 @@ public:
 	// <advc.opt>
 	bool AI_isAnyPlotTargetMissionAI(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const { return (AI_plotTargetMissionAIs(kPlot, eMissionAI, pSkipSelectionGroup, iRange, 1) >= 1); }
 	bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const { return (AI_unitTargetMissionAIs(kUnit, eMissionAI, pSkipSelectionGroup, 1) >= 1); }
-	bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxPathTurns = -1) const
-	{
-		return (AI_unitTargetMissionAIs(kUnit, aeMissionAI, iMissionAICount,
-				pSkipSelectionGroup, iMaxPathTurns, 1) >= 1);
-	} // </advc.opt>
+	bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxPathTurns = -1) const { return (AI_unitTargetMissionAIs(kUnit, aeMissionAI, iMissionAICount, pSkipSelectionGroup, iMaxPathTurns, 1) >= 1); } // </advc.opt>
 	int AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const { return AI_unitTargetMissionAIs(kUnit, &eMissionAI, 1, pSkipSelectionGroup, -1, iMaxCount); }
 	// BBAI (advc: merged into the BtS function) <!-- custom: hoisted from multiline signature between `iMaxPathTurns` and `iMaxCount` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	int AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxPathTurns = -1, int iMaxCount = MAX_INT) const;
 	// BBAI start
 	// <advc.opt> <!-- custom: hoisted from multiline signature between `pSkipSelectionGroup` and `iMaxCount` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	int AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const; // BBAI end
-	bool AI_isAnyEnemyTargetMission(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL) const
-	{
-		return (AI_enemyTargetMissions(eTargetTeam, pSkipSelectionGroup, 1) >= 1);
-	} // </advc.opt>
+	bool AI_isAnyEnemyTargetMission(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL) const { return (AI_enemyTargetMissions(eTargetTeam, pSkipSelectionGroup, 1) >= 1); } // </advc.opt>
 	// advc.003j: unused
 	/*int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI,
 			CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const;

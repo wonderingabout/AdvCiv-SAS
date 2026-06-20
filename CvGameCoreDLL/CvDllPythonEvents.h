@@ -108,10 +108,7 @@ private:
 	// <advc.003y>
 	bool* m_abUseCallback;
 
-	bool isUse(CallbackDefines eCallback) const
-	{
-		return (m_abUseCallback == NULL ? false : m_abUseCallback[eCallback]);
-	} // </advc.003y>
+	bool isUse(CallbackDefines eCallback) const { return (m_abUseCallback == NULL ? false : m_abUseCallback[eCallback]); } // </advc.003y>
 	bool preEvent();
 	bool postEvent(CyArgsList& eventData);
 };

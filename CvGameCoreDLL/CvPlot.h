@@ -306,10 +306,8 @@ public:
 	void setImprovementDuration(int iNewValue);														// Exposed to Python
 	void changeImprovementDuration(int iChange);													// Exposed to Python
 
-	int getUpgradeProgress() const																	// Exposed to Python
-	{	// advc.912f (note): Now times 100, divisions at call locations not commented.
-		return m_iUpgradeProgress;
-	}
+	// advc.912f (note): Now times 100, divisions at call locations not commented.
+	int getUpgradeProgress() const { return m_iUpgradeProgress; } // Exposed to Python
 	int getUpgradeTimeLeft(ImprovementTypes eImprovement, PlayerTypes ePlayer) const;				// Exposed to Python
 	void setUpgradeProgress(int iNewValue);															// Exposed to Python
 	void changeUpgradeProgress(int iChange);														// Exposed to Python
@@ -352,10 +350,8 @@ public:
 	bool isFlagDirty() const;																		// Exposed to Python
 	void setFlagDirty(bool bNewValue);																// Exposed to Python
 
-	TeamTypes getTeam() const																																	// Exposed to Python
-	{	// <advc.opt> Now cached
-		return (TeamTypes)m_eTeam;
-	}
+	// <advc.opt> Now cached
+	TeamTypes getTeam() const { return (TeamTypes)m_eTeam; } // Exposed to Python
 	void updateTeam(); // </advc.opt>
 	DllExport PlayerTypes getOwner() const { return (PlayerTypes)m_eOwner; } // advc.inl: was "getOwnerINLINE"						// Exposed to Python
 	void setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotGroup);
@@ -376,14 +372,8 @@ public:
 	void setPlotType(PlotTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true); // Exposed to Python
 	DllExport TerrainTypes getTerrainType() const { return (TerrainTypes)m_eTerrainType; } // Exposed to Python
 	void setTerrainType(TerrainTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true); // Exposed to Python
-	DllExport FeatureTypes getFeatureType() const													// Exposed to Python
-	{
-		return (FeatureTypes)m_eFeatureType;
-	}  // <advc>
-	bool isFeature() const
-	{
-		return (getFeatureType() != NO_FEATURE);
-	} // </advc>
+	DllExport FeatureTypes getFeatureType() const { return (FeatureTypes)m_eFeatureType; } // Exposed to Python // <advc>
+	bool isFeature() const { return (getFeatureType() != NO_FEATURE); } // </advc>
 	void setFeatureType(FeatureTypes eNewValue, int iVariety = -1);									// Exposed to Python
 	void setFeatureDummyVisibility(const char *dummyTag, bool show);								// Exposed to Python
 	void addFeatureDummyModel(const char *dummyTag, const char *modelTag);
@@ -395,14 +385,8 @@ public:
 	BonusTypes getNonObsoleteBonusType(TeamTypes eTeam = NO_TEAM, bool bCheckConnected = false) const; // Exposed to Python
 	void setBonusType(BonusTypes eNewValue);														// Exposed to Python
 
-	DllExport ImprovementTypes getImprovementType() const											// Exposed to Python
-	{
-		return (ImprovementTypes)m_eImprovementType;
-	}  // <advc>
-	bool isImproved() const
-	{
-		return (getImprovementType() != NO_IMPROVEMENT);
-	} // </advc>
+	DllExport ImprovementTypes getImprovementType() const { return (ImprovementTypes)m_eImprovementType; } // Exposed to Python // <advc>
+	bool isImproved() const { return (getImprovementType() != NO_IMPROVEMENT); } // </advc>
 	void setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW = false); // advc.055; Exposed to Python
 	RouteTypes getRouteType() const { return (RouteTypes)m_eRouteType; } // Exposed to Python
 	void setRouteType(RouteTypes eNewValue, bool bUpdatePlotGroup /*advc:*/= true);					// Exposed to Python

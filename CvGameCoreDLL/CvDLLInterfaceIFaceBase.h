@@ -63,10 +63,7 @@ public:
 	virtual CLLNode<IDInfo>* deleteSelectionListNode(CLLNode<IDInfo>* pNode) = 0;
 	virtual CLLNode<IDInfo>* nextSelectionListNode(CLLNode<IDInfo>* pNode) = 0;
 	// <advc.003s> Workaround for missing const qualifiers
-	CLLNode<IDInfo> const* nextSelectionListNode(CLLNode<IDInfo> const* pNode) const
-	{
-		return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectionListNode(const_cast<CLLNode<IDInfo>*>(pNode));
-	} // </advc.003s>
+	CLLNode<IDInfo> const* nextSelectionListNode(CLLNode<IDInfo> const* pNode) const { return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectionListNode(const_cast<CLLNode<IDInfo>*>(pNode)); } // </advc.003s>
 	virtual int getLengthSelectionList() = 0;
 	virtual CLLNode<IDInfo>* headSelectionListNode() = 0;
 
@@ -79,10 +76,7 @@ public:
 	virtual bool isCitySelection() = 0;
 	virtual CLLNode<IDInfo>* nextSelectedCitiesNode(CLLNode<IDInfo>* pNode) = 0;
 	// <advc> Workaround for missing const qualifiers
-	CLLNode<IDInfo> const* nextSelectedCitiesNode(CLLNode<IDInfo> const* pNode) const
-	{
-		return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectedCitiesNode(const_cast<CLLNode<IDInfo>*>(pNode));
-	} // </advc>
+	CLLNode<IDInfo> const* nextSelectedCitiesNode(CLLNode<IDInfo> const* pNode) const { return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectedCitiesNode(const_cast<CLLNode<IDInfo>*>(pNode)); } // </advc>
 	virtual CLLNode<IDInfo>* headSelectedCitiesNode() = 0;
 	// <advc.127> Renamed from "addMessage", protected, default values removed.
 protected:

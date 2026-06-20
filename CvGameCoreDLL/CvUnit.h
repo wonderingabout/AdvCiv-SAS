@@ -331,10 +331,7 @@ public:
 	bool isLethalDamage(int iDamage) { return (currHitPoints() - iDamage <= 0); }
 
 	void setBaseCombatStr(int iCombat);																		// Exposed to Python
-	int baseCombatStr() const																				// Exposed to Python
-	{
-		return m_iBaseCombat;
-	}  // advc: Default values - to make clear that these can be NULL.
+	int baseCombatStr() const { return m_iBaseCombat; } // Exposed to Python // advc: Default values - to make clear that these can be NULL.
 	int maxCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL, bool bGarrisonStrength = false) const; // advc.500b; Exposed to Python
 	// Exposed to Python <!-- custom: hoisted from multiline signature between `pAttacker` and `pCombatDetails` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	int currCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL) const { return ((maxCombatStr(pPlot, pAttacker, pCombatDetails) * currHitPoints()) / maxHitPoints()); }
@@ -396,10 +393,8 @@ public:
 	bool getFeatureImpassable(FeatureTypes eFeature) const { return m_pUnitInfo->getFeatureImpassable(eFeature); }
 	bool canMoveImpassable() const { return m_pUnitInfo->canMoveImpassable(); } // Exposed to Python
 	bool canMoveAllTerrain() const { return m_pUnitInfo->isCanMoveAllTerrain(); } // Exposed to Python
-	bool flatMovementCost() const																			// Exposed to Python
-	{	// advc.opt: Now also true for all air units
-		return m_bFlatMovement;
-	}
+	// advc.opt: Now also true for all air units
+	bool flatMovementCost() const { return m_bFlatMovement; } // Exposed to Python
 	bool ignoreTerrainCost() const { return m_pUnitInfo->isIgnoreTerrainCost(); } // Exposed to Python
 	bool isNeverInvisible() const;																			// Exposed to Python
 	DllExport bool isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo = true) const;				// Exposed to Python
@@ -410,10 +405,8 @@ public:
 	int evasionProbability() const { return std::max(0, m_pUnitInfo->getEvasionProbability() + getExtraEvasion()); } // Exposed to Python
 	int withdrawalProbability() const;																		// Exposed to Python
 
-	int collateralDamage() const																			// Exposed to Python
-	{	// advc.159 (note): getExtraCollateralDamage works multiplicatively since BtS 3.17
-		return std::max(0, m_pUnitInfo->getCollateralDamage());
-	}
+	// advc.159 (note): getExtraCollateralDamage works multiplicatively since BtS 3.17
+	int collateralDamage() const { return std::max(0, m_pUnitInfo->getCollateralDamage()); } // Exposed to Python
 	int collateralDamageLimit() const { return std::max(0, m_pUnitInfo->getCollateralDamageLimit() * GC.getMAX_HIT_POINTS() / 100); } // Exposed to Python
 	int collateralDamageMaxUnits() const																	// Exposed to Python
 	{	// advc: Never negative in XML
@@ -842,10 +835,8 @@ public:
 			that CvUnitAI is derived from CvUnit */
 		return *reinterpret_cast<CvUnitAI*>(this);
 	}
-	CvUnitAI const& AI() const
-	{	//return *static_cast<CvUnitAI const*>(this);
-		return *reinterpret_cast<CvUnitAI const*>(this);
-	}
+	//return *static_cast<CvUnitAI const*>(this);
+	CvUnitAI const& AI() const { return *reinterpret_cast<CvUnitAI const*>(this); }
 	/*  Keep one pure virtual function to make the class abstract; remove all
 		the others - the EXE doesn't call them. */ // </advc.003u>
 	virtual UnitAITypes AI_getUnitAIType() const = 0;

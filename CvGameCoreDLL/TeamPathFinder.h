@@ -67,10 +67,8 @@ public:
 		return true;
 	}
 	bool canStepThrough(CvPlot const& kPlot) const;
-	bool canStepThrough(CvPlot const& kPlot, PathNode const& kNode) const
-	{	// No path data to be taken into account
-		return true;
-	}
+	// No path data to be taken into account
+	bool canStepThrough(CvPlot const& kPlot, PathNode const& kNode) const { return true; }
 	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const;
 	int cost(CvPlot const& kFrom, CvPlot const& kTo, PathNode const& kParentNode) const
 	{

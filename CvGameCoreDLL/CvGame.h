@@ -210,10 +210,7 @@ public:
 	{	CvGame const& kThis = *this;
 		return kThis.getGameTurn();
 	}
-	int getGameTurn() const
-	{
-		return GC.getInitCore().getGameTurn();
-	} // </advc>
+	int getGameTurn() const { return GC.getInitCore().getGameTurn(); } // </advc>
 	void setGameTurn(int iNewValue);																	// Exposed to Python
 	void incrementGameTurn();
 
@@ -362,10 +359,7 @@ public:
 	// Unused so far (x3)
 	void cancelUpdateTimer(UpdateTimerTypes eTimerType) { setUpdateTimer(eTimerType, -1); }
 	int getUpdateTimer(UpdateTimerTypes eTimerType) const;
-	bool isUpdatePending(UpdateTimerTypes eTimerType) const
-	{
-		return (getUpdateTimer(eTimerType) >= 0);
-	} // </advc.003r>
+	bool isUpdatePending(UpdateTimerTypes eTimerType) const { return (getUpdateTimer(eTimerType) >= 0); } // </advc.003r>
 
 	bool isCircumnavigated() const { return m_bCircumnavigated; }										// Exposed to Python
 	void makeCircumnavigated();																			// Exposed to Python
@@ -620,10 +614,8 @@ public:
 	BuildingTypes getShrineBuilding(int eIndex, ReligionTypes eReligion = NO_RELIGION);
 	void changeShrineBuilding(BuildingTypes eBuilding, ReligionTypes eReligion, bool bRemove = false);*/
 
-	bool culturalVictoryValid() const
-	{	// (advc, note: Important not to call culturalVictoryNumCultureCities here.)
-		return (m_iNumCultureVictoryCities > 0);
-	}
+	// (advc, note: Important not to call culturalVictoryNumCultureCities here.)
+	bool culturalVictoryValid() const { return (m_iNumCultureVictoryCities > 0); }
 	int culturalVictoryNumCultureCities() const;
 	CultureLevelTypes culturalVictoryCultureLevel() const;
 	int getCultureThreshold(CultureLevelTypes eLevel) const;
@@ -740,10 +732,8 @@ public:
 			that CvGameAI is derived from CvGame */
 		return *reinterpret_cast<CvGameAI*>(this);
 	}
-	CvGameAI const& AI() const
-	{	//return *static_cast<CvGameAI const*>(this);
-		return *reinterpret_cast<CvGameAI const*>(this);
-	} // </advc.003u>
+	//return *static_cast<CvGameAI const*>(this);
+	CvGameAI const& AI() const { return *reinterpret_cast<CvGameAI const*>(this); } // </advc.003u>
 
 protected:
 	int m_iElapsedGameTurns;

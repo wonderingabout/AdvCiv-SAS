@@ -279,10 +279,7 @@ public:
 	void makeHasSeen(TeamTypes eOther) { m_abHasSeen.set(eOther, true); }; // K-Mod
 	// <advc.134a>
 	bool isAtWarExternal(TeamTypes eIndex) const; // Exported through .def file
-	bool isAtWar(TeamTypes eIndex) const																	// Exposed to Python
-	{
-		return m_abAtWar.get(eIndex);
-	} // </advc.134a>
+	bool isAtWar(TeamTypes eIndex) const { return m_abAtWar.get(eIndex); } // Exposed to Python // </advc.134a>
 	void setAtWar(TeamTypes eIndex, bool bNewValue);
 	/*  advc.162: "Just" meaning on the current turn. Don't want to rely on
 		AI code (AI_getWarPlanStateCounter) for this.
@@ -327,14 +324,8 @@ public:
 	void assignVassal(TeamTypes eVassal, bool bSurrender) const;											// Exposed to Python
 	void freeVassal(TeamTypes eVassal) const;																// Exposed to Python
 
-	bool isCapitulated() const // advc.130v: Exposed to Python
-	{
-		return m_bCapitulated;
-	}  // <advc>
-	bool isCapitulated(TeamTypes eMaster)
-	{
-		return (isCapitulated() && isVassal(eMaster));
-	} // </advc>
+	bool isCapitulated() const { return m_bCapitulated; } // advc.130v: Exposed to Python // <advc>
+	bool isCapitulated(TeamTypes eMaster) { return (isCapitulated() && isVassal(eMaster)); } // </advc>
 	int getCapitulationTurn() const; // advc.130w
 	int getRouteChange(RouteTypes eIndex) const { return m_aiRouteChange.get(eIndex); } // Exposed to Python
 	void changeRouteChange(RouteTypes eIndex, int iChange);												// Exposed to Python
@@ -493,10 +484,8 @@ public:
 			that CvTeamAI is derived from CvTeam */
 		return *reinterpret_cast<CvTeamAI*>(this);
 	}
-	CvTeamAI const& AI() const
-	{	//return *static_cast<CvTeamAI const*>(this);
-		return *reinterpret_cast<CvTeamAI const*>(this);
-	} // </advc.003u>
+	//return *static_cast<CvTeamAI const*>(this);
+	CvTeamAI const& AI() const { return *reinterpret_cast<CvTeamAI const*>(this); } // </advc.003u>
 
 protected:
 	virtual void read(FDataStreamBase* pStream);

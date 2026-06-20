@@ -94,10 +94,7 @@ public:
 	virtual void updateGraphicEra(CvRoute* pRoute) = 0;
 	// <advc>
 private:
-	static CvSymbol* base(CvRoute* pRoute)
-	{
-		return reinterpret_cast<CvSymbol*>(pRoute);
-	} // </advc>
+	static CvSymbol* base(CvRoute* pRoute) { return reinterpret_cast<CvSymbol*>(pRoute); } // </advc>
 };
 
 class CvDLLRiverIFaceBase
@@ -125,10 +122,7 @@ public:
 	}
 	// <advc>
 private:
-	static CvRoute* base(CvRiver* pRiver)
-	{
-		return reinterpret_cast<CvRoute*>(pRiver);
-	} // </advc>
+	static CvRoute* base(CvRiver* pRiver) { return reinterpret_cast<CvRoute*>(pRiver); } // </advc>
 };
 
 #endif

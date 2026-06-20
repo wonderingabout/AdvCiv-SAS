@@ -90,10 +90,8 @@ public:
 	// 3 | 3 | 3 | 3 | 3 | 3 | 3
 	//
 	// Returns the distance between plots according to the pattern above...
-	int stepDistance(int iX1, int iY1, int iX2, int iY2) const
-	{	// std::opt: Was std::max. inline keyword removed; cf. plotDistance.
-		return branchless::max(xDistance(iX1, iX2), yDistance(iY1, iY2));
-	}
+	// std::opt: Was std::max. inline keyword removed; cf. plotDistance.
+	int stepDistance(int iX1, int iY1, int iX2, int iY2) const { return branchless::max(xDistance(iX1, iX2), yDistance(iY1, iY2)); }
 
 	// K-Mod, plot-to-plot alias for convenience:
 	int stepDistance(const CvPlot* plot1, const CvPlot* plot2) const { return stepDistance(plot1->getX(), plot1->getY(), plot2->getX(), plot2->getY()); }
@@ -266,11 +264,8 @@ public: // advc: made several functions const
 	bool isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags, CvArea const* pArea, int iMinCivUnitDistance) const; // </advc>
 
 	// Exposed to Python <!-- custom: hoisted from multiline signature between `iY` and `eOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL)
-	{	// <advc.004r>
-		return findCity(iX, iY, eOwner, eTeam, bSameArea, bCoastalOnly,
-				eTeamAtWarWith, eDirection, pSkipCity, NO_TEAM);
-	}
+	// <advc.004r>
+	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL) { return findCity(iX, iY, eOwner, eTeam, bSameArea, bCoastalOnly, eTeamAtWarWith, eDirection, pSkipCity, NO_TEAM); }
 	CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity const* pSkipCity = NULL, TeamTypes eObserver = NO_TEAM) const;
 	// </advc.004r>
 	CvSelectionGroup* findSelectionGroup(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, bool bReadyToSelect = false, bool bWorkers = false) const; // Exposed to Python
@@ -320,10 +315,8 @@ public: // advc: made several functions const
 	float getWidthCoords() const;
 	float getHeightCoords() const;
 
-	int maxPlotDistance() const																			// Exposed to Python
-	{	// <advc.tsl>
-		return maxPlotDistance(getGridWidth(), getGridHeight());
-	}
+	// <advc.tsl>
+	int maxPlotDistance() const { return maxPlotDistance(getGridWidth(), getGridHeight()); } // Exposed to Python
 	int maxPlotDistance(int iGridWidth, int iGridHeight) const; // </advc.tsl>
 	int maxStepDistance() const;																		// Exposed to Python
 	// <advc.140>
@@ -359,10 +352,7 @@ public: // advc: made several functions const
 		CvMap const& kThis = *this;
 		return kThis.getWorldSize();
 	}
-	WorldSizeTypes getWorldSize() const
-	{
-		return GC.getInitCore().getWorldSize();
-	} // </advc>
+	WorldSizeTypes getWorldSize() const { return GC.getInitCore().getWorldSize(); } // </advc>
 	ClimateTypes getClimate() const { return GC.getInitCore().getClimate(); }								// Exposed to Python
 	SeaLevelTypes getSeaLevel() const { return GC.getInitCore().getSeaLevel(); }							// Exposed to Python
 
@@ -381,10 +371,7 @@ public: // advc: made several functions const
 
 	CvPlot* plotByIndexExternal(int iIndex) const; // advc.inl: Exported through .def file						// Exposed to Python
 	// advc.enum (tbd.): Change param to PlotNumTypes
-	CvPlot* plotByIndex(int iIndex) const // advc.inl: was "plotByIndexINLINE"
-	{
-		return ((iIndex >= 0 && iIndex < numPlots()) ? &(m_pMapPlots[iIndex]) : NULL);
-	} // <advc.inl> Faster (w/o branching)
+	CvPlot* plotByIndex(int iIndex) const { return ((iIndex >= 0 && iIndex < numPlots()) ? &(m_pMapPlots[iIndex]) : NULL); } // advc.inl: was "plotByIndexINLINE" // <advc.inl> Faster (w/o branching)
 	CvPlot& getPlotByIndex(int iIndex) const
 	{
 		FAssertBounds(0, numPlots(), iIndex);

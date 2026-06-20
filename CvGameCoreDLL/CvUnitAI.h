@@ -315,15 +315,10 @@ protected:
 	int AI_searchRange(int iRange);
 	bool AI_plotValid(CvPlot /* advc: */ const* pPlot) const;
 	// <advc> Allow a reference to be used
-	bool AI_plotValid(CvPlot const& kPlot) const
-	{
-		return AI_plotValid(&kPlot);
-	} // </advc>
+	bool AI_plotValid(CvPlot const& kPlot) const { return AI_plotValid(&kPlot); } // </advc>
 	// advc.030:
-	bool AI_canEnterByLand(CvArea const& kArea) const
-	{	// Not checked (to save time): unused canMoveAllTerrain
-		return (isArea(kArea) || (canMoveImpassable() && canEnterArea(kArea)));
-	}
+	// Not checked (to save time): unused canMoveAllTerrain
+	bool AI_canEnterByLand(CvArea const& kArea) const { return (isArea(kArea) || (canMoveImpassable() && canEnterArea(kArea))); }
 
 	//int AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold); // disabled by K-Mod
 	unsigned AI_unitBirthmarkHash(int iExtra = 0) const; // K-Mod

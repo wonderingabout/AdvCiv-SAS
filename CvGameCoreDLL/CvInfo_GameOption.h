@@ -92,10 +92,7 @@ public:
 		NUM_BOOL_ELEMENT_TYPES
 	};
 	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
-	int get(BoolElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
-	} // </advc.tag>
+	int get(BoolElementTypes e) const { return base_t::get(static_cast<base_t::BoolElementTypes>(e)); } // </advc.tag>
 
 	// All the const functions are exposed to Python except those added by mods
 	CvEraInfo();
@@ -277,10 +274,7 @@ public:
 		ExtraFreeOutsideUnits, // </advc.252>
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	// All the const functions are exposed to Python except those added by mods
 	CvGameSpeedInfo();
@@ -410,10 +404,7 @@ public:
 		LandPercentLead = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.254
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	CvVictoryInfo();
 	// The const functions are exposed to Python ...
@@ -482,10 +473,7 @@ public:
 		BarbarianCityAttackBonus, SeaBarbarianBonus, SeaBarbarianExtraMoves, // advc.313
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	CvHandicapInfo();
 	~CvHandicapInfo();
@@ -692,10 +680,7 @@ public:
 		UnitCostPercent = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.252
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	CvWorldInfo();
 	// All the const functions are exposed to Python ...

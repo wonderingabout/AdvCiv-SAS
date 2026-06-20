@@ -101,15 +101,10 @@ public:
 	bool hasMoved() const; // Exposed to Python
 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
 	bool canEnterArea(TeamTypes eTeam, CvArea const& kArea, bool bIgnoreRightOfPassage = false) const;					// Exposed to Python
-	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false)														// Exposed to Python
-	{	// <advc>
-		return canMoveInto(*pPlot, bAttack);
-	}
+	// <advc>
+	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false) { return canMoveInto(*pPlot, bAttack); } // Exposed to Python
 	bool canMoveInto(CvPlot const& kPlot, bool bAttack = false) const; // </advc>
-	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false)											// Exposed to Python
-	{
-		return canMoveOrAttackInto(*pPlot, bDeclareWar, false);
-	} // K-Mod. (Avoid breaking the DllExport; EXE calls the above for NumPad help.)
+	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false) { return canMoveOrAttackInto(*pPlot, bDeclareWar, false); } // Exposed to Python // K-Mod. (Avoid breaking the DllExport; EXE calls the above for NumPad help.)
 	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false, bool bCheckMoves = false, bool bAssumeVisible = true) const;
 	bool canMoveThrough(CvPlot const& kPlot, bool bDeclareWar = false, bool bAssumeVisible = true) const; // K-Mod; Exposed to Python
 	bool canFight() const;																																										// Exposed to Python
@@ -136,10 +131,7 @@ public:
 	{
 		return(getX() == iX && getY() == iY);
 	}
-	bool atPlot(CvPlot const* pPlot) const																									// Exposed to Python
-	{
-		return (plot() == pPlot);
-	}  // advc.inl:
+	bool atPlot(CvPlot const* pPlot) const { return (plot() == pPlot); } // Exposed to Python // advc.inl:
 	bool at(CvPlot const& kPlot) const { return atPlot(&kPlot); }
 	DllExport CvPlot* plot() const;																											// Exposed to Python
 	CvPlot& getPlot() const { return *plot(); } // advc
@@ -252,10 +244,8 @@ public:
 			that CvSelectionGroupAI is derived from CvSelectionGroup */
 		return *reinterpret_cast<CvSelectionGroupAI*>(this);
 	}
-	CvSelectionGroupAI const& AI() const
-	{	//return *static_cast<CvSelectionGroupAI const*>(this);
-		return *reinterpret_cast<CvSelectionGroupAI const*>(this);
-	} // </advc.003u>
+	//return *static_cast<CvSelectionGroupAI const*>(this);
+	CvSelectionGroupAI const& AI() const { return *reinterpret_cast<CvSelectionGroupAI const*>(this); } // </advc.003u>
 
 	virtual void read(FDataStreamBase* pStream);
 	virtual void write(FDataStreamBase* pStream);

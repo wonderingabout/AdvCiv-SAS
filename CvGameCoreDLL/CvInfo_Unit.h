@@ -298,10 +298,7 @@ public: /*  All const functions are exposed to Python except some related to art
 	#endif
 	bool read(CvXMLLoadUtility* pXML);
 	// <advc.315>
-	bool isMostlyDefensive() const
-	{
-		return isOnlyDefensive() || isOnlyAttackAnimals() || isOnlyAttackBarbarians();
-	} // </advc.315>
+	bool isMostlyDefensive() const { return isOnlyDefensive() || isOnlyAttackAnimals() || isOnlyAttackBarbarians(); } // </advc.315>
 	// advc.opt:
 	static bool canAnyMoveAllTerrain() { return m_bCanAnyMoveAllTerrain; }
 

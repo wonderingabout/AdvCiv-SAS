@@ -17,6 +17,8 @@
 #   }
 # becomes:
 #   T f(...) const { return expr; }
+# Opening-brace comments are hoisted above the collapsed function; closing-brace
+# tail comments are preserved after the collapsed body.
 # and, when safe:
 #   template<class T>
 #   T f() { return value; }
@@ -106,7 +108,18 @@ def split_tail_comment(text: str) -> tuple[str, str | None]:
 	index = line_comment_index(text)
 	if index < 0:
 		return text.rstrip(), None
-	return text[:index].rstrip(), text[index + 2 :].strip()
+	return text[:index].rstrip(), text[index + 2 :].rstrip()
+
+
+def append_line_comment(text: str, comment: str | None) -> str:
+	if comment is None:
+		return text
+	return text + " //" + comment
+
+
+def brace_line_comment(text: str, brace: str) -> tuple[bool, str | None]:
+	code, comment = split_tail_comment(text)
+	return code.strip() == brace, comment
 
 
 def block_comment_start_flags(bodies: list[str]) -> list[bool]:
@@ -208,7 +221,8 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		if any(block_flags[index : return_end + 2]):
 			return None
 		close_brace = bodies[return_end + 1]
-		if close_brace.strip() != "}":
+		close_ok, close_comment = brace_line_comment(close_brace, "}")
+		if not close_ok:
 			return None
 		if leading_ws(close_brace) != leading_ws(signature):
 			return None
@@ -216,8 +230,8 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		if not signature_start_is_safe(signature_before_brace):
 			return None
 		collapsed = signature_before_brace.strip() + " { " + return_payload + " }"
-		if signature_comment is not None:
-			collapsed += " // " + signature_comment
+		collapsed = append_line_comment(collapsed, signature_comment)
+		collapsed = append_line_comment(collapsed, close_comment)
 		if len(stripped_for_length(collapsed)) > max_line_len:
 			return None
 		return Rewrite(index, return_end + 1, [leading_ws(signature) + collapsed + eols[index]])
@@ -233,20 +247,26 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 	if any(block_flags[index : return_end + 2]):
 		return None
 	close_brace = bodies[return_end + 1]
-	if leading_ws(open_brace) != leading_ws(signature) or open_brace.strip() != "{":
+	open_ok, open_comment = brace_line_comment(open_brace, "{")
+	if leading_ws(open_brace) != leading_ws(signature) or not open_ok:
 		return None
-	if close_brace.strip() != "}":
+	close_ok, close_comment = brace_line_comment(close_brace, "}")
+	if not close_ok:
 		return None
 	if leading_ws(close_brace) != leading_ws(signature):
 		return None
 	if not signature_start_is_safe(signature_code):
 		return None
 	collapsed = signature_code.strip() + " { " + return_payload + " }"
-	if signature_comment is not None:
-		collapsed += " // " + signature_comment
+	collapsed = append_line_comment(collapsed, signature_comment)
+	collapsed = append_line_comment(collapsed, close_comment)
 	if len(stripped_for_length(collapsed)) > max_line_len:
 		return None
-	return Rewrite(index, return_end + 1, [leading_ws(signature) + collapsed + eols[index]])
+	replacement = []
+	if open_comment is not None:
+		replacement.append(leading_ws(signature) + "//" + open_comment + eols[index])
+	replacement.append(leading_ws(signature) + collapsed + eols[index])
+	return Rewrite(index, return_end + 1, replacement)
 
 
 def is_template_prefix_line(text: str) -> bool:

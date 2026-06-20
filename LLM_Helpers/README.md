@@ -419,7 +419,8 @@ Conservative header-only helper for simple inline C++ functions.
 - Collapses inline functions whose body is exactly one `return ...;` statement to one physical line, including wrapped return expressions and signatures that already have `{` on the signature line.
 - Joins a one-line `template<...>` prefix onto the collapsed inline function when the combined line stays below `--max-line-len`.
 - Signature tail comments such as `// Exposed to Python` are preserved after the collapsed body.
-- Skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and lines exceeding `--max-line-len`.
+- Opening-brace comments such as `{	// advc: ...` are hoisted above the collapsed function; closing-brace tail comments such as `} // </advc.opt>` are preserved after the collapsed body.
+- Skips constructors/destructors, multi-statement bodies, non-brace body comments, multiline signatures, and lines exceeding `--max-line-len`.
 - Separate from `collapse_cpp_signatures.py` because it rewrites function bodies, not just signatures.
 - Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
 
@@ -440,6 +441,7 @@ Reviewed passes used this to collapse:
 - simple inline return helpers such as `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`
 - wrapped-return helpers such as `template<bool bCHECK_HAS_MET> int countFreeRivals() const { return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ? KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::count(m_kAgentTeam.getID()); }`
 - and brace-on-signature wrappers such as `CvCityAI* AI_getCapital() const { return AI_getCity(m_iCapitalCityID); }`.
+- comment-bearing wrappers such as `bool AI_isAnyWaterDanger(CvPlot const& kPlot, int iRange = DANGER_RANGE) const { return (AI_getWaterDanger(kPlot, iRange, 1) >= 1); } // </advc.opt>`.
 
 Example (before):
 

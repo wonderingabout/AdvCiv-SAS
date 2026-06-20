@@ -217,10 +217,8 @@ public:
 	bool doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const; // K-Mod
 	bool isSpeedBonusAvailable(BonusTypes eBonus, CvPlot const& kAt) const; // advc.905b
 
-	DllExport bool canContact(PlayerTypes ePlayer) const															// Exposed to Python
-	{	// <advc> To match CvTeam::canContact
-		return canContact(ePlayer, false);
-	}
+	// <advc> To match CvTeam::canContact
+	DllExport bool canContact(PlayerTypes ePlayer) const { return canContact(ePlayer, false); } // Exposed to Python
 	// </advc> <!-- custom: hoisted from multiline signature between `ePlayer` and `bCheckWillingness` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	bool canContact(PlayerTypes ePlayer, bool bCheckWillingness) const; // K-Mod. this checks willingness to talk on both sides
 	void contact(PlayerTypes ePlayer);																				// Exposed to Python
@@ -860,10 +858,7 @@ public:
 	int getExtraYieldThreshold(YieldTypes eYield) const { return m_aiExtraYieldThreshold.get(eYield); }				// Exposed to Python
 	void updateExtraYieldThresholds(YieldTypes eYield);
 	// <advc.908a>
-	int getExtraYieldNaturalThreshold(YieldTypes eYield) const														// Exposed to Python
-	{
-		return m_aiExtraYieldNaturalThreshold.get(eYield);
-	} // </advc.908a>
+	int getExtraYieldNaturalThreshold(YieldTypes eYield) const { return m_aiExtraYieldNaturalThreshold.get(eYield); } // Exposed to Python // </advc.908a>
 
 	int getTradeYieldModifier(YieldTypes eYield) const { return m_aiTradeYieldModifier.get(eYield); }				// Exposed to Python
 	void changeTradeYieldModifier(YieldTypes eYield, int iChange);
@@ -1058,10 +1053,7 @@ public:
 	}
 	// <advc.opt> Backwards traversal Moved into separate functions (needed for city cycling)
 	CvCity* lastCity(int* pIterIdx) const { return m_cities.endIter(pIterIdx); }
-	CvCity* prevCity(int* pIterIdx) const
-	{
-		return m_cities.prevIter(pIterIdx);
-	} // </advc.opt>
+	CvCity* prevCity(int* pIterIdx) const { return m_cities.prevIter(pIterIdx); } // </advc.opt>
 	DllExport int getNumCities() const { return m_cities.getCount(); } // Exposed to Python
 	DllExport CvCity* getCity(int iID) const { return m_cities.getAt(iID); } // Exposed to Python
 	//CvCity* addCity(); // advc.003u: removed
@@ -1073,10 +1065,8 @@ public:
 		FAssert(!bRev);
 		return m_units.beginIter(pIterIdx); // advc.opt
 	}
-	DllExport CvUnit* nextUnit(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_units.nextIter(pIterIdx) : m_units.prevIter(pIterIdx));
-		return m_units.nextIter(pIterIdx);
-	}
+	//return (!bRev ? m_units.nextIter(pIterIdx) : m_units.prevIter(pIterIdx));
+	DllExport CvUnit* nextUnit(int *pIterIdx, bool bRev=false) const { return m_units.nextIter(pIterIdx); } // Exposed to Python
 	DllExport int getNumUnits() const { return m_units.getCount(); } // Exposed to Python
 	CvUnit* getUnit(int iID) const { return m_units.getAt(iID); } // Exposed to Python
 	//CvUnit* addUnit(); // advc.003u: removed
@@ -1088,10 +1078,8 @@ public:
 		FAssert(!bRev);
 		return m_selectionGroups.beginIter(pIterIdx);
 	}
-	CvSelectionGroup* nextSelectionGroup(int *pIterIdx, bool bRev=false) const										// Exposed to Python
-	{	//return (!bRev ? m_selectionGroups.nextIter(pIterIdx) : m_selectionGroups.prevIter(pIterIdx));
-		return m_selectionGroups.nextIter(pIterIdx);
-	}
+	//return (!bRev ? m_selectionGroups.nextIter(pIterIdx) : m_selectionGroups.prevIter(pIterIdx));
+	CvSelectionGroup* nextSelectionGroup(int *pIterIdx, bool bRev=false) const { return m_selectionGroups.nextIter(pIterIdx); } // Exposed to Python
 	int getNumSelectionGroups() const { return m_selectionGroups.getCount(); } // Exposed to Python
 	CvSelectionGroup* getSelectionGroup(int iID) const { return m_selectionGroups.getAt(iID); } // Exposed to Python
 	CvSelectionGroup* addSelectionGroup();
@@ -1250,10 +1238,8 @@ public:
 			that CvPlayerAI is derived from CvPlayer */
 		return *reinterpret_cast<CvPlayerAI*>(this);
 	}
-	CvPlayerAI const& AI() const
-	{	//return *static_cast<CvPlayerAI const*>(this);
-		return *reinterpret_cast<CvPlayerAI const*>(this);
-	} // </advc.003u>	
+	//return *static_cast<CvPlayerAI const*>(this);
+	CvPlayerAI const& AI() const { return *reinterpret_cast<CvPlayerAI const*>(this); } // </advc.003u>
 
 protected:  // <advc.210>
 	void initAlerts(bool bSilentCheck = false);
