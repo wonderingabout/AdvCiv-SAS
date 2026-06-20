@@ -532,10 +532,8 @@ public:
 	void changeFortifyTurns(int iChange);
 
 	int getBlitzCount() const { return m_iBlitzCount; }
-	bool isBlitz() const																					// Exposed to Python
-	{
-		return (getBlitzCount() != 0); // advc.164: was > 0
-	}
+	// advc.164: was > 0
+	bool isBlitz() const { return (getBlitzCount() != 0); } // Exposed to Python
 	void changeBlitzCount(int iChange);
 
 	int getAmphibCount() const { return m_iAmphibCount; }
@@ -650,12 +648,9 @@ public:
 	DllExport bool isSuicide() const;																		// Exposed to Python
 	int getDropRange() const { return m_pUnitInfo->getDropRange(); }
 
-	bool isMadeAttack() const																				// Exposed to Python
-	{
-		//return m_bMadeAttack;
-		// advc.164: Keep the boolean interface in place
-		return (m_iMadeAttacks > 0);
-	}
+	//return m_bMadeAttack;
+	// advc.164: Keep the boolean interface in place
+	bool isMadeAttack() const { return (m_iMadeAttacks > 0); } // Exposed to Python
 	void setMadeAttack(bool bNewValue);																		// Exposed to Python
 	bool isMadeAllAttacks() const; // advc.164
 
@@ -682,11 +677,8 @@ public:
 
 	DllExport PlayerTypes getOwner() const { return m_eOwner; } // advc.inl: was "getOwnerINLINE"								// Exposed to Python
 	DllExport PlayerTypes getVisualOwner(TeamTypes eForTeam = NO_TEAM) const;								// Exposed to Python
-	PlayerTypes getCombatOwner(TeamTypes eForTeam, CvPlot const& kPlot) const								// Exposed to Python
-	{
-		// advc.inl: Split this function up so that part of it can be inlined
-		return (isAlwaysHostile() ? getCombatOwner_bulk(eForTeam, kPlot) : getOwner());
-	}
+	// advc.inl: Split this function up so that part of it can be inlined
+	PlayerTypes getCombatOwner(TeamTypes eForTeam, CvPlot const& kPlot) const { return (isAlwaysHostile() ? getCombatOwner_bulk(eForTeam, kPlot) : getOwner()); } // Exposed to Python
 	// advc (for convenience)
 	PlayerTypes getCombatOwner(TeamTypes eForTeam) const { return getCombatOwner(eForTeam, getPlot()); }
 	DllExport TeamTypes getTeam() const;																	// Exposed to Python
@@ -710,11 +702,10 @@ public:
 
 	CvUnit const* getTransportUnit() const;																	// Exposed to Python
 	CvUnit* getTransportUnit(); // advc
-	bool isCargo() const																					// Exposed to Python
-	{	// advc.test: (Should perhaps simply turn m_transportUnit into a CvUnit pointer.)
-		//FAssert((getTransportUnit() == NULL) == (m_transportUnit.iID == NO_PLAYER));
-		return (m_transportUnit.iID != NO_PLAYER); // advc.opt: avoid ::getUnit call
-	}
+	// advc.test: (Should perhaps simply turn m_transportUnit into a CvUnit pointer.)
+	//FAssert((getTransportUnit() == NULL) == (m_transportUnit.iID == NO_PLAYER));
+	// advc.opt: avoid ::getUnit call
+	bool isCargo() const { return (m_transportUnit.iID != NO_PLAYER); } // Exposed to Python
 	void setTransportUnit(CvUnit* pTransportUnit);															// Exposed to Python
 
 	int getExtraDomainModifier(DomainTypes eDomain) const { return m_aiExtraDomainModifier.get(eDomain); } // Exposed to Python
@@ -829,12 +820,9 @@ public:
 	// virtual for FFreeListTrashArray
 	virtual void read(FDataStreamBase* pStream);
 	virtual void write(FDataStreamBase* pStream);
-	CvUnitAI& AI()
-	{	//return *static_cast<CvUnitAI*>(const_cast<CvUnit*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvUnitAI is derived from CvUnit */
-		return *reinterpret_cast<CvUnitAI*>(this);
-	}
+	//return *static_cast<CvUnitAI*>(const_cast<CvUnit*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvUnitAI is derived from CvUnit */
+	CvUnitAI& AI() { return *reinterpret_cast<CvUnitAI*>(this); }
 	//return *static_cast<CvUnitAI const*>(this);
 	CvUnitAI const& AI() const { return *reinterpret_cast<CvUnitAI const*>(this); }
 	/*  Keep one pure virtual function to make the class abstract; remove all

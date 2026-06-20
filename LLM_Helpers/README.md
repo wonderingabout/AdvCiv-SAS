@@ -421,7 +421,9 @@ Conservative header-only helper for simple inline C++ functions.
 - Joins a one-line `template<...>` prefix onto the collapsed inline function when the combined line stays below `--max-line-len`.
 - Signature tail comments such as `// Exposed to Python` are preserved after the collapsed body.
 - Opening-brace comments such as `{	// advc: ...` are hoisted above the collapsed function; closing-brace tail comments such as `} // </advc.opt>` are preserved after the collapsed body.
-- Skips constructors/destructors, multi-statement bodies, non-brace body comments, multiline signatures, and lines exceeding `--max-line-len`.
+- Leading `// ...` and `/* ... */` body comments are hoisted above the collapsed function; multiline block comments are normalized to one line.
+- Return-line tail comments such as `return x; // advc.opt` are hoisted above the collapsed function so the code line stays focused on the greppable function.
+- Skips constructors/destructors, multi-statement bodies, mid-body comments after the return statement, multiline signatures, and lines exceeding `--max-line-len`.
 - Separate from `collapse_cpp_signatures.py` because it rewrites function bodies, not just signatures.
 - Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
 
@@ -464,7 +466,7 @@ Example (after):
 Conservative header-only helper for simple inline C++ functions whose body is exactly one non-return statement.
 
 - Complements `collapse_cpp_inline_returns.py`; use this for simple setters, wrapper calls, assignment helpers, `BOOST_STATIC_ASSERT(false);` stubs, and similar one-statement bodies.
-- Hoists whole-line body comments above the collapsed function, and joins one-line `template<...>` prefixes when safe.
+- Hoists whole-line body comments and statement tail comments above the collapsed function, and joins one-line `template<...>` prefixes when safe.
 - Skips constructors/destructors, initializer-list bodies, `return` bodies, control-flow bodies, delete/throw/SAFE_DELETE bodies, block comments, multi-statement bodies, multiline signatures, and lines exceeding `--max-line-len`.
 - Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
 

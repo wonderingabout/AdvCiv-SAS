@@ -199,14 +199,8 @@ public:
 		0 to 1 means that the leader is rather self-reliant, above means
 		he or she likes dogpile wars. */
 	scaled warConfidenceAllies() const;
-	scaled confidenceAgainstHuman() const
-	{
-		/*  Doesn't seem necessary so far; AI rather too reluctant to attack humans
-			due to human diplomacy, and other special treatment of humans; e.g.
-			can't get a capitulation from human.
-			(I've left an older implementation commented out in the .cpp file.) */
-		return 1;
-	}
+	/* Doesn't seem necessary so far; AI rather too reluctant to attack humans due to human diplomacy, and other special treatment of humans; e.g. can't get a capitulation from human. (I've left an older implementation commented out in the .cpp file.) */
+	scaled confidenceAgainstHuman() const { return 1; }
 	/*	How willing our leader is to go after players that he or she really dislikes.
 		Between 0 (Gandhi) and 10 (Montezuma). */
 	int vengefulness() const;

@@ -261,12 +261,8 @@ public:
 
 	uint AI_unitImpassables(UnitTypes eUnit) const;
 	// advc.057:
-	bool AI_isAnyImpassable(UnitTypes eUnit) const
-	{
-		/*	BBAI note [moved from some call location]: For galleys, triremes, ironclads ...
-			unit types which are limited in what terrain they can operate in. */
-		return (AI_unitImpassables(eUnit) != 0u);
-	}
+	/* BBAI note [moved from some call location]: For galleys, triremes, ironclads ... unit types which are limited in what terrain they can operate in. */
+	bool AI_isAnyImpassable(UnitTypes eUnit) const { return (AI_unitImpassables(eUnit) != 0u); }
 
 	int AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const* pArea = NULL) const;			// Exposed to Python
 

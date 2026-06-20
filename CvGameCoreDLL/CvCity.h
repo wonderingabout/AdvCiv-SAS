@@ -261,10 +261,8 @@ public:
 	int getNumBuilding(BuildingTypes eBuilding) const;															// Exposed to Python
 	int getNumBuilding(BuildingClassTypes eBuildingClass) const; // advc.003w
 	int getNumActiveBuilding(BuildingTypes eBuilding) const;													// Exposed to Python
-	bool hasActiveWorldWonder() const																			// Exposed to Python
-	{
-		return (getNumActiveWorldWonders(1) > 0); // advc
-	}
+	// advc
+	bool hasActiveWorldWonder() const { return (getNumActiveWorldWonders(1) > 0); } // Exposed to Python
 	// UNOFFICIAL_PATCH, Bugfix, 03/04/10, Mongoose & jdog5000:
 	int getNumActiveWorldWonders(/* advc: */ int iStopCountAt = MAX_INT, PlayerTypes eOwner = NO_PLAYER) const; // advc.104d: Hypothetical owner
 
@@ -871,10 +869,8 @@ public:
 	void changeMaxSpecialistCount(SpecialistTypes eSpecialist, int iChange);
 
 	int getForceSpecialistCount(SpecialistTypes eSpecialist) const { return m_aiForceSpecialistCount.get(eSpecialist); } // Exposed to Python
-	bool isSpecialistForced() const																				// Exposed to Python
-	{
-		return m_aiForceSpecialistCount.isAnyNonDefault(); // advc.opt
-	}
+	// advc.opt
+	bool isSpecialistForced() const { return m_aiForceSpecialistCount.isAnyNonDefault(); } // Exposed to Python
 	void setForceSpecialistCount(SpecialistTypes eSpecialist, int iNewValue);									// Exposed to Python
 	void changeForceSpecialistCount(SpecialistTypes eSpecialist, int iChange);									// Exposed to Python
 
@@ -1016,12 +1012,9 @@ public:
 	// virtual for FFreeListTrashArray
 	virtual void read(FDataStreamBase* pStream); 
 	virtual void write(FDataStreamBase* pStream);
-	CvCityAI& AI()
-	{	//return *static_cast<CvCityAI*>(const_cast<CvCity*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvCityAI is derived from CvCity */
-		return *reinterpret_cast<CvCityAI*>(this);
-	}
+	//return *static_cast<CvCityAI*>(const_cast<CvCity*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvCityAI is derived from CvCity */
+	CvCityAI& AI() { return *reinterpret_cast<CvCityAI*>(this); }
 	//return *static_cast<CvCityAI const*>(this);
 	CvCityAI const& AI() const { return *reinterpret_cast<CvCityAI const*>(this); }
 	/*  Keep one pure virtual function to make the class abstract; remove all

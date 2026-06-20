@@ -98,12 +98,8 @@ class AgentIterator : ExplicitAgentIterator<AgentType, eSTATUS, eRELATION, Agent
 public:
 	bool hasNext() const { return (m_pNext != NULL); }
 
-	AgentType& operator*() const
-	{
-		/*	This is, at worst, an up-cast. But the compiler doesn't know this
-			b/c the AI headers aren't included here. */
-		return *(AgentType*)m_pNext;
-	}
+	/* This is, at worst, an up-cast. But the compiler doesn't know this b/c the AI headers aren't included here. */
+	AgentType& operator*() const { return *(AgentType*)m_pNext; }
 
 	AgentType* operator->() const
 	{	// See above

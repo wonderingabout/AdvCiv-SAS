@@ -365,10 +365,9 @@ public:
 	ReligionTypes getFavoriteReligion() const;
 	bool isFavoriteReligionKnown() const;
 	// </advc.130n>
-	bool canDoReligion(ReligionTypes eReligion) const																// Exposed to Python
-	{	//return (GET_TEAM(getTeam()).getHasReligionCount(eReligion) != 0);
-		return (getHasReligionCount(eReligion) > 0); // advc.132c
-	}
+	//return (GET_TEAM(getTeam()).getHasReligionCount(eReligion) != 0);
+	// advc.132c
+	bool canDoReligion(ReligionTypes eReligion) const { return (getHasReligionCount(eReligion) > 0); } // Exposed to Python
 	bool canChangeReligion() const;																					// Exposed to Python
 	bool canConvert(ReligionTypes eReligion) const;																	// Exposed to Python
 	void convert(ReligionTypes eReligion, bool bForce = false); // advc.001v										// Exposed to Python
@@ -868,10 +867,8 @@ public:
 	bool setCommercePercent(CommerceTypes eCommerce, int iNewValue, bool bForce = false);							// Exposed to Python
 	bool changeCommercePercent(CommerceTypes eCommerce, int iChange) { return setCommercePercent(eCommerce, getCommercePercent(eCommerce) + iChange); } // K-Mod end									// Exposed to Python
 
-	int getCommerceRate(CommerceTypes eCommerce) const																// Exposed to Python
-	{
-		return m_aiCommerceRate.get(eCommerce); // advc.157: cached
-	}
+	// advc.157: cached
+	int getCommerceRate(CommerceTypes eCommerce) const { return m_aiCommerceRate.get(eCommerce); } // Exposed to Python
 	void updateCommerceRates(); // advc.157
 	// advc.157: Renamed from "changeCommerceRate"
 	void changeCommerceRateTimes100(CommerceTypes eCommerce, int iChange);
@@ -1041,10 +1038,9 @@ public:
 		FAssert(!bRev);
 		return m_cities.beginIter(pIterIdx); // advc.opt
 	}
-	DllExport CvCity* nextCity(int* pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_cities.nextIter(pIterIdx) : m_cities.prevIter(pIterIdx));
-		return m_cities.nextIter(pIterIdx); // advc.opt
-	}
+	//return (!bRev ? m_cities.nextIter(pIterIdx) : m_cities.prevIter(pIterIdx));
+	// advc.opt
+	DllExport CvCity* nextCity(int* pIterIdx, bool bRev=false) const { return m_cities.nextIter(pIterIdx); } // Exposed to Python
 	// <advc.opt> Backwards traversal Moved into separate functions (needed for city cycling)
 	CvCity* lastCity(int* pIterIdx) const { return m_cities.endIter(pIterIdx); }
 	CvCity* prevCity(int* pIterIdx) const { return m_cities.prevIter(pIterIdx); } // </advc.opt>
@@ -1226,12 +1222,9 @@ public:
 	void announceGameNameChange(CvWString szOldName, CvWString szNewName); // advc.135c
 	bool showGoodyOnResourceLayer() const; // advc.004z
 	// <advc.003u>
-	CvPlayerAI& AI()
-	{	//return *static_cast<CvPlayerAI*>(const_cast<CvPlayer*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvPlayerAI is derived from CvPlayer */
-		return *reinterpret_cast<CvPlayerAI*>(this);
-	}
+	//return *static_cast<CvPlayerAI*>(const_cast<CvPlayer*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvPlayerAI is derived from CvPlayer */
+	CvPlayerAI& AI() { return *reinterpret_cast<CvPlayerAI*>(this); }
 	//return *static_cast<CvPlayerAI const*>(this);
 	CvPlayerAI const& AI() const { return *reinterpret_cast<CvPlayerAI const*>(this); } // </advc.003u>
 

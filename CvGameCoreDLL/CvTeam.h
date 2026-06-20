@@ -268,10 +268,8 @@ public:
 	int getExtraMoves(DomainTypes eIndex) const;																				// Exposed to Python
 	void changeExtraMoves(DomainTypes eIndex, int iChange);								// Exposed to Python
 
-	bool isHasMet(TeamTypes eOther) const												// Exposed to Python
-	{
-		return (m_aiHasMetTurn.get(eOther) >= 0); // advc.091
-	}
+	// advc.091
+	bool isHasMet(TeamTypes eOther) const { return (m_aiHasMetTurn.get(eOther) >= 0); } // Exposed to Python
 	int getHasMetTurn(TeamTypes eOther) const { return m_aiHasMetTurn.get(eOther); } // advc.091  (exposed to Python)
 	// advc.071: Return value, 2nd param added.
 	CvPlot* makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* pData = NULL);
@@ -309,15 +307,12 @@ public:
 	void setForcePeace(TeamTypes eIndex, bool bNewValue);
 	int turnsOfForcedPeaceRemaining(TeamTypes eOther) const; // advc.104
 
-	bool isVassal(TeamTypes eMaster) const																// Exposed to Python
-	{
-		return (m_eMaster == eMaster); // advc.opt
-	}
+	// advc.opt
+	bool isVassal(TeamTypes eMaster) const { return (m_eMaster == eMaster); } // Exposed to Python
 	void setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated);
-	TeamTypes getMasterTeam() const // advc.155: Exposed to Python
-	{	// K-Mod. Return the team which is the master of this team. (if this team is free, return getID())
-		return (m_eMaster == NO_TEAM ? getID() : m_eMaster); // advc.opt
-	}
+	// K-Mod. Return the team which is the master of this team. (if this team is free, return getID())
+	// advc.opt
+	TeamTypes getMasterTeam() const { return (m_eMaster == NO_TEAM ? getID() : m_eMaster); } // advc.155: Exposed to Python
 	void assignVassal(TeamTypes eVassal, bool bSurrender) const;											// Exposed to Python
 	void freeVassal(TeamTypes eVassal) const;																// Exposed to Python
 
@@ -365,11 +360,9 @@ public:
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);
 
 	int getRiverTradeCount() const { return m_iRiverTradeCount; }
-	bool isRiverTrade() const																			// Exposed to Python
-	{
-		//return (getRiverTradeCount() > 0);
-		return true; // advc.124
-	}
+	//return (getRiverTradeCount() > 0);
+	// advc.124
+	bool isRiverTrade() const { return true; } // Exposed to Python
 	void changeRiverTradeCount(int iChange);
 	// advc.500c:
 	int getNoMilitaryAnger() const { return (m_iNoFearForSafetyCount > 0 ? 0 : GC.getDefineINT(CvGlobals::NO_MILITARY_PERCENT_ANGER)); }
@@ -475,12 +468,9 @@ public:
 	// </advc.127b>
 	void finalizeInit(); // advc.003m
 	// <advc.003u>
-	CvTeamAI& AI()
-	{	//return *static_cast<CvTeamAI*>(const_cast<CvTeam*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvTeamAI is derived from CvTeam */
-		return *reinterpret_cast<CvTeamAI*>(this);
-	}
+	//return *static_cast<CvTeamAI*>(const_cast<CvTeam*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvTeamAI is derived from CvTeam */
+	CvTeamAI& AI() { return *reinterpret_cast<CvTeamAI*>(this); }
 	//return *static_cast<CvTeamAI const*>(this);
 	CvTeamAI const& AI() const { return *reinterpret_cast<CvTeamAI const*>(this); } // </advc.003u>
 

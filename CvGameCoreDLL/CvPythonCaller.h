@@ -172,10 +172,8 @@ private:
 	bool isOverride() const;
 	bool canPlaceItemAt(char const* szItemName, CvPlot const& kPlot, bool& bOverride) const;
 	bool isUse(CallbackDefines eCallback) const { return m_abUseCallback[eCallback]; }
-	static int toInt(long l)
-	{
-		return static_cast<int>(l); // They're the same in MSVC03 x086
-	}
+	// They're the same in MSVC03 x086
+	static int toInt(long l) { return static_cast<int>(l); }
 	static bool toBool(long l)
 	{
 		FAssert(l >= 0);

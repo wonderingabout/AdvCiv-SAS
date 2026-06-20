@@ -235,12 +235,9 @@ public:
 	/*	Was CvSelectionGroupAI::AI_isControlled. Makes at least as much sense at
 		the base class, and non-virtual will be faster (frequently called). */
 	bool isAIControlled() const { return (!isHuman() || isAutomated()); }
-	CvSelectionGroupAI& AI()
-	{	//return *static_cast<CvSelectionGroupAI*>(const_cast<CvSelectionGroup*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvSelectionGroupAI is derived from CvSelectionGroup */
-		return *reinterpret_cast<CvSelectionGroupAI*>(this);
-	}
+	//return *static_cast<CvSelectionGroupAI*>(const_cast<CvSelectionGroup*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvSelectionGroupAI is derived from CvSelectionGroup */
+	CvSelectionGroupAI& AI() { return *reinterpret_cast<CvSelectionGroupAI*>(this); }
 	//return *static_cast<CvSelectionGroupAI const*>(this);
 	CvSelectionGroupAI const& AI() const { return *reinterpret_cast<CvSelectionGroupAI const*>(this); } // </advc.003u>
 

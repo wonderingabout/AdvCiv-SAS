@@ -381,10 +381,8 @@ public:
 	bool isCachingDone() const { return (m_aiGlobalDefinesCache != NULL); } // advc.003c
 
 	// ***** EXPOSED TO PYTHON *****
-	int getDefineINT(char const* szName) const
-	{
-		return getDefineINT(szName, 0); // advc.opt: Call the BBAI version
-	}
+	// advc.opt: Call the BBAI version
+	int getDefineINT(char const* szName) const { return getDefineINT(szName, 0); }
 	// advc: Separate function for external calls (exported through .def file)
 	int getDefineINTExternal(char const* szName) const;
 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000:

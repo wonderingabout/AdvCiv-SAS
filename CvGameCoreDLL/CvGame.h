@@ -82,14 +82,10 @@ public:
 	void autoSave(bool bInitial = false); // advc.106l
 	DllExport void testExtendedGame();
 
-	DllExport CvUnit* getPlotUnit(const CvPlot* pPlot, int iIndex) const
-	{
-		return getPlotUnits(pPlot, NULL, iIndex); // advc
-	}
-	DllExport void getPlotUnits(const CvPlot *pPlot, std::vector<CvUnit*>& kPlotUnits) const
-	{
-		getPlotUnits(pPlot, &kPlotUnits, -1); // advc
-	}
+	// advc
+	DllExport CvUnit* getPlotUnit(const CvPlot* pPlot, int iIndex) const { return getPlotUnits(pPlot, NULL, iIndex); }
+	// advc
+	DllExport void getPlotUnits(const CvPlot *pPlot, std::vector<CvUnit*>& kPlotUnits) const { getPlotUnits(pPlot, &kPlotUnits, -1); }
 
 	DllExport void cycleCities(bool bForward = true, bool bAdd = false) const;							// Exposed to Python
 	// <advc.154>
@@ -188,10 +184,8 @@ public:
 	EraTypes getHighestEra() const; // advc
 	scaled groundbreakingNormalizationModifier(TechTypes eTech) const; // advc.groundbr
 
-	DllExport TeamTypes getActiveTeam() const															// Exposed to Python
-	{
-		return GC.getInitCore().getActiveTeam(); // advc.opt (cached)
-	}
+	// advc.opt (cached)
+	DllExport TeamTypes getActiveTeam() const { return GC.getInitCore().getActiveTeam(); } // Exposed to Python
 	CivilizationTypes getActiveCivilizationType() const;												// Exposed to Python
 	CvCivilization const* getActiveCivilization() const; // advc.003w
 
@@ -546,10 +540,9 @@ public:
 		FAssert(!bRev);
 		return m_deals.beginIter(pIterIdx); // advc.opt
 	}
-	CvDeal* nextDeal(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_deals.nextIter(pIterIdx) : m_deals.prevIter(pIterIdx));
-		return m_deals.nextIter(pIterIdx); // advc.opt
-	}
+	//return (!bRev ? m_deals.nextIter(pIterIdx) : m_deals.prevIter(pIterIdx));
+	// advc.opt
+	CvDeal* nextDeal(int *pIterIdx, bool bRev=false) const { return m_deals.nextIter(pIterIdx); } // Exposed to Python
 	// <advc.072>
 	CvDeal* nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer, TradeableItems eItemType, int iData = -1, bool bWidget = false);
 	// </advc.072>
@@ -722,12 +715,9 @@ public:
 	void setHallOfFame(CvHallOfFameInfo* pHallOfFame); // advc.106i
 	std::set<int>& getActivePlayerCycledGroups(); // advc
 	// <advc.003u>
-	CvGameAI& AI()
-	{	//return *static_cast<CvGameAI*>(const_cast<CvGame*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvGameAI is derived from CvGame */
-		return *reinterpret_cast<CvGameAI*>(this);
-	}
+	//return *static_cast<CvGameAI*>(const_cast<CvGame*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvGameAI is derived from CvGame */
+	CvGameAI& AI() { return *reinterpret_cast<CvGameAI*>(this); }
 	//return *static_cast<CvGameAI const*>(this);
 	CvGameAI const& AI() const { return *reinterpret_cast<CvGameAI const*>(this); } // </advc.003u>
 

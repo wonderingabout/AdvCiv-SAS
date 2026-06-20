@@ -68,10 +68,8 @@ public:
 	// No path data to be taken into account
 	bool canStepThrough(CvPlot const& kPlot, PathNode const& kNode) const { return true; }
 	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const;
-	int cost(CvPlot const& kFrom, CvPlot const& kTo, PathNode const& kParentNode) const
-	{
-		return cost(kFrom, kTo); // disregard kParentNode
-	}
+	// disregard kParentNode
+	int cost(CvPlot const& kFrom, CvPlot const& kTo, PathNode const& kParentNode) const { return cost(kFrom, kTo); }
 	int cost(CvPlot const& kFrom, CvPlot const& kTo) const;
 protected:
 	CvTeam const* m_pTeam;

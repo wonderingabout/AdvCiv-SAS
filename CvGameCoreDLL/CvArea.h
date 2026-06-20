@@ -28,31 +28,23 @@ public:
 	void setID(int iID);
 
 	bool isWater() const { return m_bWater; }															// Exposed to Python
-	bool isLake() const																					// Exposed to Python
-	{	// <advc.030>
-		//return (isWater() && (getNumTiles() <= GC.getLAKE_MAX_AREA_SIZE()));
-		return m_bLake;		
-	}
+	// <advc.030>
+	//return (isWater() && (getNumTiles() <= GC.getLAKE_MAX_AREA_SIZE()));
+	bool isLake() const { return m_bLake; } // Exposed to Python
 	void updateLake(bool bCheckRepr = true);
 	void setRepresentativeArea(int iArea);
 	int getRepresentativeArea() const { return m_iRepresentativeArea; }
 	bool canBeEntered(CvArea const& kFrom, CvUnit const* u = NULL) const;
 	// </advc.030>
 
-	PlotNumTypes getNumTiles() const																	// Exposed to Python
-	{
-		return (PlotNumTypes)m_iNumTiles; // advc.enum: Return type was int
-	}
+	// advc.enum: Return type was int
+	PlotNumTypes getNumTiles() const { return (PlotNumTypes)m_iNumTiles; } // Exposed to Python
 	void changeNumTiles(int iChange);
 	void changeNumOwnedTiles(int iChange);
-	PlotNumTypes getNumOwnedTiles() const																// Exposed to Python
-	{
-		return (PlotNumTypes)m_iNumOwnedTiles; // advc.enum
-	}
-	PlotNumTypes getNumUnownedTiles() const																// Exposed to Python
-	{
-		return (PlotNumTypes)(getNumTiles() - getNumOwnedTiles()); // advc.enum
-	}
+	// advc.enum
+	PlotNumTypes getNumOwnedTiles() const { return (PlotNumTypes)m_iNumOwnedTiles; } // Exposed to Python
+	// advc.enum
+	PlotNumTypes getNumUnownedTiles() const { return (PlotNumTypes)(getNumTiles() - getNumOwnedTiles()); } // Exposed to Python
 	// <advc.300>
 	std::pair<int,int> countOwnedUnownedHabitableTiles(bool bIgnoreBarb = false) const; // advc.021b: Exposed to Python as getNumHabitableTiles
 	int getNumCivCities() const { return getNumCities() - getCitiesPerPlayer(BARBARIAN_PLAYER); }

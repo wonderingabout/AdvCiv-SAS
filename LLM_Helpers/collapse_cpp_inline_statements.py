@@ -84,7 +84,12 @@ def is_whole_line_comment(text: str) -> bool:
 
 def is_simple_statement(text: str) -> bool:
 	stripped = text.strip()
-	if not stripped or not stripped.endswith(";"):
+	if not stripped:
+		return False
+	code, comment = split_tail_comment(stripped)
+	if comment is not None:
+		stripped = code.strip()
+	if not stripped.endswith(";"):
 		return False
 	if stripped.startswith(("return ", "if ", "if(", "for ", "for(", "while ", "while(", "switch ", "switch(", "else", "do ", "try", "catch", "case ", "default:")):
 		return False
@@ -118,7 +123,10 @@ def collect_comments_and_statement(bodies: list[str], start_index: int) -> tuple
 		index += 1
 	if index >= len(bodies) or not is_simple_statement(bodies[index]):
 		return None
-	return comments, bodies[index].strip(), index
+	code, comment = split_tail_comment(bodies[index].strip())
+	if comment is not None:
+		comments.append("//" + comment)
+	return comments, code.strip(), index
 
 
 def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], index: int, max_line_len: int) -> Rewrite | None:

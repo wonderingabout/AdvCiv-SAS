@@ -122,6 +122,53 @@ def brace_line_comment(text: str, brace: str) -> tuple[bool, str | None]:
 	return code.strip() == brace, comment
 
 
+def one_line_block_comment(text: str) -> str:
+	body = text.strip()
+	if body.startswith("/*"):
+		body = body[2:]
+	if body.endswith("*/"):
+		body = body[:-2]
+	return "/* " + " ".join(body.split()) + " */"
+
+
+def collect_leading_body_comments(bodies: list[str], start_index: int) -> tuple[list[str], int] | None:
+	comments: list[str] = []
+	index = start_index
+	while index < len(bodies):
+		stripped = bodies[index].strip()
+		if stripped.startswith("//"):
+			comments.append(stripped)
+			index += 1
+			continue
+		if stripped.startswith("/*"):
+			block_lines = [stripped]
+			while not block_lines[-1].endswith("*/"):
+				index += 1
+				if index >= len(bodies):
+					return None
+				next_line = bodies[index].strip()
+				if line_comment_index(next_line) >= 0:
+					return None
+				block_lines.append(next_line)
+			comments.append(one_line_block_comment(" ".join(block_lines)))
+			index += 1
+			continue
+		break
+	return comments, index
+
+
+def open_brace_comments(text: str) -> tuple[bool, list[str] | None]:
+	code, line_comment = split_tail_comment(text)
+	if code.strip() == "{":
+		return True, ["//" + line_comment] if line_comment is not None else []
+	stripped = text.strip()
+	if stripped.startswith("{"):
+		after_brace = stripped[1:].strip()
+		if after_brace.startswith("/*"):
+			return True, [after_brace]
+	return False, None
+
+
 def block_comment_start_flags(bodies: list[str]) -> list[bool]:
 	flags: list[bool] = []
 	in_block = False
@@ -182,7 +229,11 @@ def join_cpp_fragments(parts: list[str]) -> str:
 	return result
 
 
-def return_payload_from_lines(bodies: list[str], start_index: int) -> tuple[str, int] | None:
+def return_payload_from_lines(bodies: list[str], start_index: int) -> tuple[list[str], str, int] | None:
+	comment_result = collect_leading_body_comments(bodies, start_index)
+	if comment_result is None:
+		return None
+	comments, start_index = comment_result
 	parts: list[str] = []
 	index = start_index
 	while index < len(bodies):
@@ -194,11 +245,16 @@ def return_payload_from_lines(bodies: list[str], start_index: int) -> tuple[str,
 				return None
 		elif stripped.startswith(("return ", "{", "}")):
 			return None
-		if line_comment_index(stripped) >= 0 or "/*" in stripped or "*/" in stripped:
+		code, comment = split_tail_comment(stripped)
+		if "/*" in code or "*/" in code:
 			return None
-		parts.append(stripped)
-		if stripped.endswith(";"):
-			return join_cpp_fragments(parts), index
+		if comment is not None and not code.endswith(";"):
+			return None
+		if comment is not None:
+			comments.append("//" + comment)
+		parts.append(code.strip())
+		if code.strip().endswith(";"):
+			return comments, join_cpp_fragments(parts), index
 		index += 1
 	return None
 
@@ -215,7 +271,7 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		return_result = return_payload_from_lines(bodies, index + 1)
 		if return_result is None:
 			return None
-		return_payload, return_end = return_result
+		return_comments, return_payload, return_end = return_result
 		if return_end + 1 >= len(bodies):
 			return None
 		if any(block_flags[index : return_end + 2]):
@@ -234,22 +290,39 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		collapsed = append_line_comment(collapsed, close_comment)
 		if len(stripped_for_length(collapsed)) > max_line_len:
 			return None
-		return Rewrite(index, return_end + 1, [leading_ws(signature) + collapsed + eols[index]])
+		replacement = [leading_ws(signature) + comment + eols[index] for comment in return_comments]
+		replacement.append(leading_ws(signature) + collapsed + eols[index])
+		return Rewrite(index, return_end + 1, replacement)
 	if index + 3 >= len(bodies):
 		return None
 	open_brace = bodies[index + 1]
 	return_result = return_payload_from_lines(bodies, index + 2)
 	if return_result is None:
 		return None
-	return_payload, return_end = return_result
+	return_comments, return_payload, return_end = return_result
+	open_ok, open_comments = open_brace_comments(open_brace)
+	if leading_ws(open_brace) != leading_ws(signature) or not open_ok or open_comments is None:
+		return None
+	if open_comments and open_comments[0].startswith("/*") and not open_comments[0].endswith("*/"):
+		comment_lines = [open_comments[0]]
+		comment_index = index + 2
+		while not comment_lines[-1].strip().endswith("*/"):
+			if comment_index >= len(bodies):
+				return None
+			comment_lines.append(bodies[comment_index].strip())
+			comment_index += 1
+		open_comments = [one_line_block_comment(" ".join(comment_lines))]
+		return_result = return_payload_from_lines(bodies, comment_index)
+		if return_result is None:
+			return None
+		return_comments, return_payload, return_end = return_result
+	else:
+		return_comments, return_payload, return_end = return_result
 	if return_end + 1 >= len(bodies):
 		return None
-	if any(block_flags[index : return_end + 2]):
+	if block_flags[index] or block_flags[return_end] or block_flags[return_end + 1]:
 		return None
 	close_brace = bodies[return_end + 1]
-	open_ok, open_comment = brace_line_comment(open_brace, "{")
-	if leading_ws(open_brace) != leading_ws(signature) or not open_ok:
-		return None
 	close_ok, close_comment = brace_line_comment(close_brace, "}")
 	if not close_ok:
 		return None
@@ -263,8 +336,8 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 	if len(stripped_for_length(collapsed)) > max_line_len:
 		return None
 	replacement = []
-	if open_comment is not None:
-		replacement.append(leading_ws(signature) + "//" + open_comment + eols[index])
+	for comment in open_comments + return_comments:
+		replacement.append(leading_ws(signature) + comment + eols[index])
 	replacement.append(leading_ws(signature) + collapsed + eols[index])
 	return Rewrite(index, return_end + 1, replacement)
 

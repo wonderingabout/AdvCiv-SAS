@@ -166,13 +166,8 @@ public:
 		static const enum variable is initialized through another static variable;
 		doesn't reliably get initialized that way. See also a comment about
 		enum_traits<E>::len being of type int instead of E.*/
-	static E endKey()
-	{
-		/*	Marking the end of the key sequence with a value greater than
-			any valid key is arithmetically more helpful than using a
-			"NO_..." enumerator (-1). */
-		return static_cast<E>(enum_traits<E>::len);
-	}
+	/* Marking the end of the key sequence with a value greater than any valid key is arithmetically more helpful than using a "NO_..." enumerator (-1). */
+	static E endKey() { return static_cast<E>(enum_traits<E>::len); }
 protected:
 	static CompactE ceEndKey() { return compactKey(endKey()); }
 
@@ -224,11 +219,8 @@ public:
 		return derived()._nextNonDefaultPair<ValueType>(iIter, kPair);
 	}
 	// End of sequence signaled by returning endKey()
-	E nextNonDefaultKey(int& iIter) const
-	{
-		// Indirection only to be consistent with nextNonDefaultPair
-		return derived()._nextNonDefaultKey(iIter);
-	}
+	// Indirection only to be consistent with nextNonDefaultPair
+	E nextNonDefaultKey(int& iIter) const { return derived()._nextNonDefaultKey(iIter); }
 
 	void insert(int iKey, V vValue)
 	{
@@ -331,11 +323,8 @@ protected:
 	// (Derived classes have to override one of the lookup function templates)
 	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue) { return derived().lookupCompact<eOP>(ceKey, cvValue); }
 
-	template<Operation eOP>
-	void changeValueUnsafe(E eKey, V vOperand)
-	{
-		BOOST_STATIC_ASSERT(false); // eOP not supported
-	}
+	// eOP not supported
+	template<Operation eOP> void changeValueUnsafe(E eKey, V vOperand) { BOOST_STATIC_ASSERT(false); }
 	template<>
 	void changeValueUnsafe<OP_ASSIGN>(E eKey, V vValue)
 	{

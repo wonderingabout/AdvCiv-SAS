@@ -34,11 +34,8 @@ class ScaledNumBase
 protected:
 	static CvString szBuf;
 	template<typename OtherIntType>
-	static int safeToInt(OtherIntType n)
-	{
-		// NB: uint is the only problematic OtherIntType that can occur here
-		return safeIntCast<int>(n);
-	}
+	// NB: uint is the only problematic OtherIntType that can occur here
+	static int safeToInt(OtherIntType n) { return safeIntCast<int>(n); }
 };
 template<typename Dummy>
 CvString ScaledNumBase<Dummy>::szBuf = "";

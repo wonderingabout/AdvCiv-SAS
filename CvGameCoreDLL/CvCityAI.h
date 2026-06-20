@@ -49,11 +49,8 @@ public:
 
 	int AI_neededSeaWorkers() const;
 
-	bool AI_isDefended(int iExtra = 0) const
-	{
-		// <advc.110>
-		return (AI_countExcessDefenders() + iExtra >= 0);
-	}
+	// <advc.110>
+	bool AI_isDefended(int iExtra = 0) const { return (AI_countExcessDefenders() + iExtra >= 0); }
 	int AI_countExcessDefenders() const; // </advc.110>
 	//bool AI_isAirDefended(int iExtra = 0);
 	// BETTER_BTS_AI_MOD, Air AI, 9/19/08, jdog5000:

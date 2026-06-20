@@ -36,10 +36,8 @@ public:
 	void playerDefeated(PlayerTypes ePlayer);
 	void colonyCreated(PlayerTypes eNewPlayer);
 	void playerRevived(PlayerTypes ePlayer);
-	void teamCapitulated(TeamTypes eVassal, TeamTypes eMaster)
-	{
-		updateVassal(eVassal, eMaster, true); // sufficient for now
-	}
+	// sufficient for now
+	void teamCapitulated(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, true); }
 	void voluntaryVassalAgreementSigned(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, true); }
 	void vassalFreed(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, false); }
 	void allianceFormed() { updateAllCachedSequences(); }

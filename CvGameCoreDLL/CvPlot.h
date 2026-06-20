@@ -221,10 +221,8 @@ public:
 	void removeGoody();																				// Exposed to Python
 
 	// advc.inl:
-	bool isCity() const
-	{
-		return m_plotCity.isIDSet(); // avoid ::getCity call
-	}
+	// avoid ::getCity call
+	bool isCity() const { return m_plotCity.isIDSet(); }
 	/*	advc: Deprecated; exported through .def file. Should use more specific checks
 		such as isCity (inline) or (CvTeam) isBase, isCityTrade, isCityDefense, isCityHeal. */
 	bool isCityExternal(bool bCheckImprovement, TeamTypes eForTeam = NO_TEAM) const;				// Exposed to Python
@@ -595,11 +593,8 @@ public:
 
 	/*	<advc.003s> No assertion of iAt being within array bounds; should
 		call this only via a FOR_EACH_ADJ_PLOT macro (PlotAdjListTraversal.h). */
-	CvPlot* getAdjacentPlotUnchecked(int iAt) const
-	{
-		//FAssertBounds(0, numAdjacentPlots(), iAt);
-		return m_paAdjList[iAt];
-	}
+	//FAssertBounds(0, numAdjacentPlots(), iAt);
+	CvPlot* getAdjacentPlotUnchecked(int iAt) const { return m_paAdjList[iAt]; }
 	int numAdjacentPlots() const { return m_iAdjPlots; }
 	// </advc.003s>
 

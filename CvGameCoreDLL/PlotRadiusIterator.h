@@ -87,12 +87,8 @@ public:
 		return *this;
 	}
 
-	int currXDist() const
-	{
-		/*	World-wrap isn't applied to m_iCurrX (i.e. it can be off the map),
-			hence no need to check world wrap (CvMap::xDistance) here. */
-		return abs(m_pCenter->getX() - m_iCurrX);
-	}
+	/* World-wrap isn't applied to m_iCurrX (i.e. it can be off the map), hence no need to check world wrap (CvMap::xDistance) here. */
+	int currXDist() const { return abs(m_pCenter->getX() - m_iCurrX); }
 
 	int currYDist() const { return abs(m_pCenter->getY() - m_iCurrY); }
 
