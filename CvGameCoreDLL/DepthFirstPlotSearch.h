@@ -51,15 +51,9 @@ protected:
 
 public:
 	bool isVisited(CvPlot const& kPlot) const { return m_abVisited.get(kPlot.plotNum()); }
-	void setVisited(CvPlot const& kPlot)
-	{
-		m_abVisited.set(kPlot.plotNum(), true);
-	}
+	void setVisited(CvPlot const& kPlot) { m_abVisited.set(kPlot.plotNum(), true); }
 	// Needs to be called when using the same instance for multiple searches
-	void reset()
-	{
-		m_abVisited.reset();
-	}
+	void reset() { m_abVisited.reset(); }
 };
 
 // V should be derived from PlotVisitor

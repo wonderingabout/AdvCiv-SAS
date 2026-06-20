@@ -59,10 +59,7 @@ public:
 	void setCannotAttackHelp(CvWStringBuffer& szHelp, CvUnit const& kAttacker, CvUnit const& kDefender); // </advc.089>
 	void setPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot);
 	// <advc.099f> (only for legacy saves)
-	void setAlwaysShowPlotCulture(bool bAlwaysShowPlotCulture)
-	{
-		m_bAlwaysShowPlotCulture = bAlwaysShowPlotCulture;
-	} // </advc.099f>
+	void setAlwaysShowPlotCulture(bool bAlwaysShowPlotCulture) { m_bAlwaysShowPlotCulture = bAlwaysShowPlotCulture; } // </advc.099f>
 	void setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCity);
 	void setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity); // advc.101
 	void setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer);

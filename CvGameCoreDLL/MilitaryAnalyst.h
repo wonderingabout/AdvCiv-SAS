@@ -97,16 +97,10 @@ private:
 		void addNukesFired(scaled rNukes) { m_rNukesFired += rNukes; }
 		scaled getNukesFired() const { return m_rNukesFired; }
 		void setDoWOn(PlayerTypes eAggressor) { m_DoWOn.insert(eAggressor); }
-		void setDoWOn(PlyrSetIter const& itFirst, PlyrSetIter const& itLast)
-		{
-			m_DoWOn.insert(itFirst, itLast);
-		}
+		void setDoWOn(PlyrSetIter const& itFirst, PlyrSetIter const& itLast) { m_DoWOn.insert(itFirst, itLast); }
 		PlyrSet const& getDoWOn() const { return m_DoWOn; }
 		void setDoWBy(PlayerTypes eTarget) { m_DoWBy.insert(eTarget); }
-		void setDoWBy(PlyrSetIter const& itFirst, PlyrSetIter const& itLast)
-		{
-			m_DoWBy.insert(itFirst, itLast);
-		}
+		void setDoWBy(PlyrSetIter const& itFirst, PlyrSetIter const& itLast) { m_DoWBy.insert(itFirst, itLast); }
 		PlyrSet const& getDoWBy() const { return m_DoWBy; }
 		void setWarContinued(PlayerTypes eEnemy) { m_warsCont.insert(eEnemy); }
 		PlyrSet const& getWarsContinued() const { return m_warsCont; }

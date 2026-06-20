@@ -40,10 +40,8 @@ public:
 	DllExport void reset(HandicapTypes eHandicap, bool bConstructorCall = false);
 
 	DllExport void setInitialItems();
-	DllExport void regenerateMap() // call from WorldBuilder
-	{	// <advc.tsl>
-		regenerateMap(false);
-	}
+	// <advc.tsl>
+	DllExport void regenerateMap() { regenerateMap(false); } // call from WorldBuilder
 	void regenerateMap(bool bAutomated); // </advc.tsl>
 	void showDawnOfMan(); // advc.004j
 	DllExport void initDiplomacy();
@@ -315,10 +313,8 @@ public:
 	DllExport void initScoreCalculation();
 
 	int getAIAutoPlay() const { return m_iAIAutoPlay; } // Exposed to Python
-	DllExport void setAIAutoPlay(int iNewValue)															// Exposed to Python
-	{	// <advc.127>
-		setAIAutoPlay(iNewValue, true);
-	}
+	// <advc.127>
+	DllExport void setAIAutoPlay(int iNewValue) { setAIAutoPlay(iNewValue, true); } // Exposed to Python
 	void setAIAutoPlay(int iNewValue, bool bChangePlayerStatus); // </advc.127>
 	void changeAIAutoPlay(int iChange, /* advc.127: */ bool bChangePlayerStatus = true);
 	// <advc.opt>

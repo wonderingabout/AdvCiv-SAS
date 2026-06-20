@@ -51,10 +51,7 @@ public:
 	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false); // Exposed to Python
 	// <advc.003u> Moved from CvCityAI b/c it's also used to trigger human choose-production popups
 	bool isChooseProductionDirty() const { return m_bChooseProductionDirty; }
-	void setChooseProductionDirty(bool bNewValue)
-	{
-		m_bChooseProductionDirty = bNewValue;
-	} // </advc.003u>
+	void setChooseProductionDirty(bool bNewValue) { m_bChooseProductionDirty = bNewValue; } // </advc.003u>
 
 	CityPlotTypes getCityPlotIndex(CvPlot const& kPlot) const;													// Exposed to Python
 	CvPlot* getCityIndexPlot(CityPlotTypes ePlot) const;														// Exposed to Python

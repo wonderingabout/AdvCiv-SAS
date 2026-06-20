@@ -141,10 +141,8 @@ public:
 	void reportUnitDestroyed(UnitTypes eUnit);
 	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void reportCityCreated(CvCity& kCity);
-	void reportCityDestroyed(CvCity const& kCity)
-	{	// No checks upfront; make sure we're not keeping any dangling pointer.
-		remove(kCity);
-	}
+	// No checks upfront; make sure we're not keeping any dangling pointer.
+	void reportCityDestroyed(CvCity const& kCity) { remove(kCity); }
 	/*	Would prefer to pass a CvDeal instance, but no suitable one is available
 		at the call location */
 	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget);

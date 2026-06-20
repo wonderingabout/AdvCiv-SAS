@@ -40,18 +40,9 @@ public:
 	{
 		updateVassal(eVassal, eMaster, true); // sufficient for now
 	}
-	void voluntaryVassalAgreementSigned(TeamTypes eVassal, TeamTypes eMaster)
-	{
-		updateVassal(eVassal, eMaster, true);
-	}
-	void vassalFreed(TeamTypes eVassal, TeamTypes eMaster)
-	{
-		updateVassal(eVassal, eMaster, false);
-	}
-	void allianceFormed()
-	{
-		updateAllCachedSequences();
-	}
+	void voluntaryVassalAgreementSigned(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, true); }
+	void vassalFreed(TeamTypes eVassal, TeamTypes eMaster) { updateVassal(eVassal, eMaster, false); }
+	void allianceFormed() { updateAllCachedSequences(); }
 
 	// Might be needed in the future
 	//void bordersOpened(TeamTypes eFirst, TeamTypes eSecond);

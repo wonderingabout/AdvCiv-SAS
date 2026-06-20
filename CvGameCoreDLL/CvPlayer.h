@@ -440,10 +440,7 @@ public:
 
 	int getEspionageSpendingWeightAgainstTeam(TeamTypes eTeam) const { return m_aiEspionageSpendingWeightAgainstTeam.get(eTeam); } // Exposed to Python
 	void setEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iValue);										// Exposed to Python
-	void changeEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iChange)										// Exposed to Python
-	{
-		setEspionageSpendingWeightAgainstTeam(eTeam, getEspionageSpendingWeightAgainstTeam(eTeam) + iChange);
-	}
+	void changeEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iChange) { setEspionageSpendingWeightAgainstTeam(eTeam, getEspionageSpendingWeightAgainstTeam(eTeam) + iChange); } // Exposed to Python
 
 	bool canStealTech(PlayerTypes eTarget, TechTypes eTech) const;
 	bool canForceCivics(PlayerTypes eTarget, CivicTypes eCivic) const;
@@ -1036,10 +1033,7 @@ public:
 	int getNumPlotGroups() const { return m_plotGroups.getCount(); }
 	CvPlotGroup* getPlotGroup(int iID) const { return m_plotGroups.getAt(iID); }
 	CvPlotGroup* addPlotGroup() { return m_plotGroups.add(); }
-	void deletePlotGroup(int iID)
-	{
-		m_plotGroups.removeAt(iID);
-	}
+	void deletePlotGroup(int iID) { m_plotGroups.removeAt(iID); }
 
 	// city iteration (advc.inl: inlined)
 	DllExport CvCity* firstCity(int *pIterIdx, bool bRev=false) const												// Exposed to Python

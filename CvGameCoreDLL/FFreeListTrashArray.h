@@ -62,20 +62,11 @@ public:
 
 	int getNumSlots() const { return m_iNumSlots; }
 	int getLastIndex() const { return m_iLastIndex; }
-	void setLastIndex(int iNewValue)
-	{
-		m_iLastIndex = iNewValue;
-	}
+	void setLastIndex(int iNewValue) { m_iLastIndex = iNewValue; }
 	int getFreeListHead() const { return m_iFreeListHead; }
-	void setFreeListHead(int iNewValue)
-	{
-		m_iFreeListHead = iNewValue;
-	}
+	void setFreeListHead(int iNewValue) { m_iFreeListHead = iNewValue; }
 	int getFreeListCount() const { return m_iFreeListCount; }
-	void setFreeListCount(int iNewValue)
-	{
-		m_iFreeListCount = iNewValue;
-	}
+	void setFreeListCount(int iNewValue) { m_iFreeListCount = iNewValue; }
 	int getCurrentID() { return m_iCurrentID; }
 	void setCurrentID(int iNewValue)
 	{

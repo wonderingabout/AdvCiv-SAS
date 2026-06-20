@@ -77,11 +77,8 @@ public:
 	bool GetChildXmlValByName(bool* r, TCHAR const* szName, bool bMandatory = true, bool bDefault = false);
 	/*	advc.006j: Had required int type; can now work with enum types too,
 		and will assert their bounds. */
-	template<typename T>
-	void SetInfoIDFromChildXmlVal(T& tResult, TCHAR const* szName)
-	{	// Needs to go through a struct b/c functions can't be partially specialized
-		InfoIDFromChild<T>::set(*this, tResult, szName);
-	}
+	// Needs to go through a struct b/c functions can't be partially specialized
+	template<typename T> void SetInfoIDFromChildXmlVal(T& tResult, TCHAR const* szName) { InfoIDFromChild<T>::set(*this, tResult, szName); }
 	// <advc.xmldefault>
 	void SetGlobalTypeFromChildXmlVal(int& iR, TCHAR const* szName, bool bInfoType = false);
 	int GetChildTypeIndex(); // </advc.xmldefault>
@@ -365,16 +362,8 @@ public:
 			delete[] piArray;
 		}
 	}
-	template<typename MapType>
-	void SetYieldList(MapType& kMap, TCHAR const* szTagName)
-	{
-		SetRateTagList<true>(kMap, szTagName);
-	}
-	template<typename MapType>
-	void SetCommerceList(MapType& kMap, TCHAR const* szTagName)
-	{
-		SetRateTagList<false>(kMap, szTagName);
-	}
+	template<typename MapType> void SetYieldList(MapType& kMap, TCHAR const* szTagName) { SetRateTagList<true>(kMap, szTagName); }
+	template<typename MapType> void SetCommerceList(MapType& kMap, TCHAR const* szTagName) { SetRateTagList<false>(kMap, szTagName); }
 	// </advc.003t>
 
 private:
@@ -401,10 +390,8 @@ private:
 	template<typename T>
 	struct InfoIDFromChild<T, false>
 	{
-		static void set(CvXMLLoadUtility& kUtil, T& tValue, TCHAR const* szName)
-		{	// advc.xmldefault:
-			kUtil.SetGlobalTypeFromChildXmlVal(static_cast<int&>(tValue), szName, true);
-		}
+		// advc.xmldefault:
+		static void set(CvXMLLoadUtility& kUtil, T& tValue, TCHAR const* szName) { kUtil.SetGlobalTypeFromChildXmlVal(static_cast<int&>(tValue), szName, true); }
 	};
 	template<typename T>
 	struct InfoIDFromChild<T, true>

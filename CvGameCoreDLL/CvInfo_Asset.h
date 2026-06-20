@@ -404,10 +404,7 @@ public:
 			m_aFeatureArtPieces.push_back(FeatureArtPiece(connectionMask));
 			return m_aFeatureArtPieces.back();
 		}
-		void createFeatureDummyNode(const CvString &tagName, const CvString &nodeName)
-		{
-			m_aFeatureDummyNodes.push_back(FeatureDummyNode(tagName, nodeName));
-		}
+		void createFeatureDummyNode(const CvString &tagName, const CvString &nodeName) { m_aFeatureDummyNodes.push_back(FeatureDummyNode(tagName, nodeName)); }
 	private:
 		std::vector<FeatureArtPiece> m_aFeatureArtPieces;
 		std::vector<FeatureDummyNode> m_aFeatureDummyNodes;

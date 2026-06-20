@@ -108,20 +108,11 @@ public:
 
 	void append(const wchar *szCharacters); // advc: Definition moved into implementation file
 
-	void append(const CvWString &szString)
-	{
-		append(szString.GetCString());
-	}
+	void append(const CvWString &szString) { append(szString.GetCString()); }
 
-	void append(const CvWStringBuffer &szStringBuffer)
-	{
-		append(szStringBuffer.m_pBuffer);
-	}
+	void append(const CvWStringBuffer &szStringBuffer) { append(szStringBuffer.m_pBuffer); }
 
-	void assign(const CvWString &szString)
-	{
-		assign(szString.GetCString());
-	}
+	void assign(const CvWString &szString) { assign(szString.GetCString()); }
 
 	void assign(const wchar *szCharacters)
 	{

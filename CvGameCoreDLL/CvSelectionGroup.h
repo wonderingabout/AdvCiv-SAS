@@ -127,10 +127,7 @@ public:
 
 	int getX() const;
 	int getY() const;
-	bool at(int iX, int iY) const																											// Exposed to Python
-	{
-		return(getX() == iX && getY() == iY);
-	}
+	bool at(int iX, int iY) const { return(getX() == iX && getY() == iY); } // Exposed to Python
 	bool atPlot(CvPlot const* pPlot) const { return (plot() == pPlot); } // Exposed to Python // advc.inl:
 	bool at(CvPlot const& kPlot) const { return atPlot(&kPlot); }
 	DllExport CvPlot* plot() const;																											// Exposed to Python

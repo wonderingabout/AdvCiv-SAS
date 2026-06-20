@@ -17,10 +17,7 @@ public:
 	void uninit();
 	void reset(int iID = 0, PlayerTypes eFirstPlayer = NO_PLAYER, PlayerTypes eSecondPlayer = NO_PLAYER);
 
-	DllExport void kill(bool bKillTeam = true)  // <advc.130p>
-	{
-		kill(bKillTeam, NO_PLAYER);
-	}
+	DllExport void kill(bool bKillTeam = true) { kill(bKillTeam, NO_PLAYER); } // <advc.130p>
 	// </advc.130p> <!-- custom: hoisted from multiline signature between `eCancelPlayer` and `bNoSound` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	void kill(bool bKillTeam, PlayerTypes eCancelPlayer, bool bNoSound = false); // advc.002l
 	// advc.036:
@@ -86,14 +83,8 @@ public:
 	//void clearSecondTrades(); // </advc.003j>
 	int getLengthFirst() const { return m_firstList.getLength(); }
 	int getLengthSecond() const { return m_secondList.getLength(); }
-	void insertAtEndFirst(TradeData item) // (currently only used internally)
-	{
-		m_firstList.insertAtEnd(item);
-	}
-	void insertAtEndSecond(TradeData item) // (currently only used internally)
-	{
-		m_secondList.insertAtEnd(item);
-	}
+	void insertAtEndFirst(TradeData item) { m_firstList.insertAtEnd(item); } // (currently only used internally)
+	void insertAtEndSecond(TradeData item) { m_secondList.insertAtEnd(item); } // (currently only used internally)
 
 	DllExport bool isCancelable(PlayerTypes eByPlayer = NO_PLAYER, CvWString* pszReason = NULL)
 	// <advc> Need a const version

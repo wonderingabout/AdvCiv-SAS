@@ -27,6 +27,7 @@ Always review diffs before committing generated source changes.
 - [C++ source cleanup helpers](#c-source-cleanup-helpers)
   - [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy)
   - [`collapse_cpp_inline_returns.py`](#collapse_cpp_inline_returnspy)
+  - [`collapse_cpp_inline_statements.py`](#collapse_cpp_inline_statementspy)
 - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
   - [`singleline_pass.py`](#singleline_passpy)
   - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
@@ -456,6 +457,43 @@ Example (after):
 
 ```cpp
 	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python
+```
+
+### `collapse_cpp_inline_statements.py`
+
+Conservative header-only helper for simple inline C++ functions whose body is exactly one non-return statement.
+
+- Complements `collapse_cpp_inline_returns.py`; use this for simple setters, wrapper calls, assignment helpers, `BOOST_STATIC_ASSERT(false);` stubs, and similar one-statement bodies.
+- Hoists whole-line body comments above the collapsed function, and joins one-line `template<...>` prefixes when safe.
+- Skips constructors/destructors, initializer-list bodies, `return` bodies, control-flow bodies, delete/throw/SAFE_DELETE bodies, block comments, multi-statement bodies, multiline signatures, and lines exceeding `--max-line-len`.
+- Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
+
+Example diagnostic run with output file and no source changes:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_statements.py ./CvGameCoreDLL --diff-file
+```
+
+Example apply run:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_statements.py ./CvGameCoreDLL --in-place
+```
+
+Example (before):
+
+```cpp
+	template<>
+	void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier)
+	{
+		cvValue = static_cast<CompactV>(cvValue * cvMultiplier);
+	}
+```
+
+Example (after):
+
+```cpp
+	template<> void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier) { cvValue = static_cast<CompactV>(cvValue * cvMultiplier); }
 ```
 
 Done with the very nice help of GPT-5.5 (on Codex) thanks.

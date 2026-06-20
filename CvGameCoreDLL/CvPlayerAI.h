@@ -727,10 +727,7 @@ protected:
 	void AI_roundTradeValBounds(int& iTradeVal, bool bPreferRoundingUp = false, int iLower = MIN_INT, int iUpper = MAX_INT) const; // </advc.026>
 	/*  <advc> Overlaps with CvTeamAI::roundTradeVal. Could call that function,
 		but don't want to include CvTeamAI.h here. (And want inlining.) */
-	void AI_roundTradeVal(int& iTradeVal) const
-	{
-		iTradeVal -= iTradeVal % GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER);
-	}
+	void AI_roundTradeVal(int& iTradeVal) const { iTradeVal -= iTradeVal % GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER); }
 	bool AI_proposeJointWar(PlayerTypes eHuman);
 	void AI_proposeWarTrade(PlayerTypes eAIPlayer); // </advc>
 

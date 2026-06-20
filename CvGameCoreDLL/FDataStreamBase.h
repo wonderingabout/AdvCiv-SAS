@@ -254,30 +254,20 @@ public:
 		So these wrappers aren't needed, but, somehow, if I remove them and
 		rename the respective virtual functions back to "Write", I get a crash
 		when calling Write(bool). */
-	void Write(float value)
-	{
-		WriteExternal(value);
-	}
+	void Write(float value) { WriteExternal(value); }
 	void Write(int iCount, const float values[])
 	{
 		SANITIZE_WRITE_COUNT();
 		WriteExternal(iCount, values);
 	}
-	void Write(double value)
-	{
-		WriteExternal(value);
-	}
+	void Write(double value) { WriteExternal(value); }
 	void Write(int iCount, const double values[])
 	{
 		SANITIZE_WRITE_COUNT();
 		WriteExternal(iCount, values);
 	} // <advc.repro>
 	// <advc.fract>
-	template<int iSCALE, typename IntType, typename EnumType>
-	void Read(ScaledNum<iSCALE,IntType,EnumType>* arValues)
-	{
-		arValues->read(this);
-	}
+	template<int iSCALE, typename IntType, typename EnumType> void Read(ScaledNum<iSCALE,IntType,EnumType>* arValues) { arValues->read(this); }
 	template<int iSCALE, typename IntType, typename EnumType>
 	void Read(int iCount, ScaledNum<iSCALE,IntType,EnumType> arValues[])
 	{

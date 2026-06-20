@@ -18,16 +18,10 @@ private:
 	int m_iMoves; // (short would suffice - but wouldn't help currently b/c of padding)
 public:
 	int getMoves() const { return m_iMoves; }
-	void setMoves(int iMoves)
-	{
-		m_iMoves = iMoves;
-	}
+	void setMoves(int iMoves) { m_iMoves = iMoves; }
 	// Aliases; to give path length a more specific name.
 	int getPathTurns() const { return getPathLength(); }
-	void setPathTurns(int iPathTurns)
-	{
-		setPathLength(iPathTurns);
-	}
+	void setPathTurns(int iPathTurns) { setPathLength(iPathTurns); }
 };
 
 class CvSelectionGroup;

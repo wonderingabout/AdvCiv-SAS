@@ -263,19 +263,10 @@ public:
 		return szBuf;
 	} // No overloaded operator<< b/c there isn't a good default display format
 
-	void write(FDataStreamBase* pStream) const
-	{
-		pStream->Write(m_i);
-	}
-	void read(FDataStreamBase* pStream)
-	{
-		pStream->Read(&m_i);
-	}
+	void write(FDataStreamBase* pStream) const { pStream->Write(m_i); }
+	void read(FDataStreamBase* pStream) { pStream->Read(&m_i); }
 
-	void mulDiv(int iMultiplier, int iDivisor)
-	{
-		m_i = safeCast(mulDiv(m_i, iMultiplier, iDivisor));
-	}
+	void mulDiv(int iMultiplier, int iDivisor) { m_i = safeCast(mulDiv(m_i, iMultiplier, iDivisor)); }
 
 	// Bernoulli trial (coin flip) with success probability equal to m_i/SCALE
 	bool randSuccess(CvRandom& kRand, char const* szLog, int iLogData1 = MIN_INT, int iLogData2 = MIN_INT) const;
@@ -288,14 +279,8 @@ public:
 		return powNonNegative(fromRational<1,2>());
 	}
 	ScaledNum exp() const { return fromRational<27182818,10000000>().pow(*this); }
-	void exponentiate(int iExp)
-	{
-		*this = pow(iExp);
-	}
-	void exponentiate(ScaledNum rExp)
-	{
-		*this = pow(rExp);
-	}
+	void exponentiate(int iExp) { *this = pow(iExp); }
+	void exponentiate(ScaledNum rExp) { *this = pow(rExp); }
 
 	ScaledNum abs() const { return _abs<bSIGNED>(); }
 

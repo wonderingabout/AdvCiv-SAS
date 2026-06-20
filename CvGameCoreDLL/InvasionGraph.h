@@ -167,10 +167,7 @@ public:
 		// Default: based on m_pPrimaryTarget <!-- custom: hoisted from multiline signature before `eTargetOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 		UWAICache::City const* targetCity(PlayerTypes eTargetOwner = NO_PLAYER) const;
 		void addConquest(UWAICache::City const& kConqCity);
-		void addCityLoss(UWAICache::City const& kLostCity)
-		{
-			m_cityLosses.insert(kLostCity.getID());
-		}
+		void addCityLoss(UWAICache::City const& kLostCity) { m_cityLosses.insert(kLostCity.getID()); }
 		// (Vassals that break free are not modeled)
 		void setCapitulated(TeamTypes eMaster);
 		scaled clashDistance(Node const& kOther) const;

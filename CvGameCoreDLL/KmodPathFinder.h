@@ -32,22 +32,13 @@ class PathNodeBase
 public:
 	PathNodeBase(); // public - to avoid a compiler warning (c4610), but w/o implementation.
 	bool isState(PathNodeState eState) const { return (m_iState == eState); }
-	void setState(PathNodeState eState)
-	{
-		m_iState = static_cast<char>(eState);
-	}
+	void setState(PathNodeState eState) { m_iState = static_cast<char>(eState); }
 	/*	Consistent with a getPlot function added to FAStarNode.
 		To make PathNodes and FAStarNodes interchangeable as template parameters. */
 	CvPlot& getPlot() const { return *m_pPlot; }
-	void setPlot(CvPlot& kPlot)
-	{
-		m_pPlot = &kPlot;
-	}
+	void setPlot(CvPlot& kPlot) { m_pPlot = &kPlot; }
 	int getPathLength() const { return m_iPathLength; }
-	void setPathLength(int iPathLength)
-	{
-		m_iPathLength = iPathLength;
-	}
+	void setPathLength(int iPathLength) { m_iPathLength = iPathLength; }
 protected:
 	CvPlot* m_pPlot; // FAStarNode::m_iX, m_iY in K-Mod
 	int m_iPathLength; // FAStarNode::m_iData2 in K-Mod
@@ -191,10 +182,7 @@ public:
 		Note that the initialPathLength call is not polymorphic,
 		so derived classes that wish to change the initial path length will
 		have to replace both initialPathLength and initializePathData. */
-	void initializePathData(Node& kNode) const
-	{
-		kNode.setPathLength(initialPathLength());
-	}
+	void initializePathData(Node& kNode) const { kNode.setPathLength(initialPathLength()); }
 	/*	Called before generating a path if the start node is already initialized
 		from a previous pathfinder call. Returning false will cause the
 		pathfinder's node data to be reset. Don't check kStart.getPathLength();
@@ -236,10 +224,7 @@ protected:
 		{
 			return m_nodes.rend();
 		}*/
-		void reserve(int iCapacity)
-		{
-			m_nodes.reserve(iCapacity);
-		}
+		void reserve(int iCapacity) { m_nodes.reserve(iCapacity); }
 		void clear() // Does not change the state of any nodes
 		{
 			/*	This erases every element. So does resize(0).
@@ -315,10 +300,7 @@ protected:
 			}
 			m_bDirty = false;
 		}
-		void setDirty(bool bDirty)
-		{
-			m_bDirty = bDirty;
-		}
+		void setDirty(bool bDirty) { m_bDirty = bDirty; }
 	private:
 		byte* m_data;
 		PlotNumTypes m_eMaxPlots;

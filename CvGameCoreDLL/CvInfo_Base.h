@@ -192,22 +192,10 @@ protected:
 			for (size_t i = 0; i < m_boolElements.size(); i++)
 				delete m_boolElements[i];
 		}
-		void addMandatoryInt(int iID, char const* szName)
-		{
-			m_intElements.push_back(new IntElement(iID, szName));
-		}
-		void addInt(int iID, char const* szName, int iDefault = 0)
-		{
-			m_intElements.push_back(new IntElement(iID, szName, iDefault));
-		}
-		void addMandatoryBool(int iID, char const* szName)
-		{
-			m_boolElements.push_back(new BoolElement(iID, szName));
-		}
-		void addBool(int iID, char const* szName, bool bDefault = false)
-		{
-			m_boolElements.push_back(new BoolElement(iID, szName, bDefault));
-		}
+		void addMandatoryInt(int iID, char const* szName) { m_intElements.push_back(new IntElement(iID, szName)); }
+		void addInt(int iID, char const* szName, int iDefault = 0) { m_intElements.push_back(new IntElement(iID, szName, iDefault)); }
+		void addMandatoryBool(int iID, char const* szName) { m_boolElements.push_back(new BoolElement(iID, szName)); }
+		void addBool(int iID, char const* szName, bool bDefault = false) { m_boolElements.push_back(new BoolElement(iID, szName, bDefault)); }
 		int numIntElements() const { return (int)m_intElements.size(); }
 		int numBoolElements() const { return (int)m_boolElements.size(); }
 		IntElement const& intElementAt(int iPos) const { return *m_intElements.at(iPos); }
@@ -271,10 +259,7 @@ class CvHotkeyInfo : public /* <advc.tag> */ CvXMLInfo
 	typedef CvXMLInfo base_t;
 protected:
 	// All unused here, just to exemplify the pattern.
-	void addElements(ElementList& kElements) const
-	{
-		base_t::addElements(kElements);
-	}
+	void addElements(ElementList& kElements) const { base_t::addElements(kElements); }
 public:
 	enum IntElementTypes
 	{

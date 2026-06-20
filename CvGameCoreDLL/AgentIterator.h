@@ -135,10 +135,8 @@ public:
 	}
 
 protected:
-	void setNextFromCache()
-	{	// static polymorphism
-		static_cast<Derived*>(this)->setNextFromCache();
-	}
+	// static polymorphism
+	void setNextFromCache() { static_cast<Derived*>(this)->setNextFromCache(); }
 
 	AgentIterator(TeamTypes eTeam = NO_TEAM)
 	:	ExplicitAgentIterator<AgentType,eSTATUS,eRELATION,AgentAIType>(eTeam)
@@ -269,10 +267,7 @@ protected:
 		delete[] m_aiShuffledIndices;
 	}
 
-	void setNextFromCache() // override
-	{
-		m_pNext = (*m_pCache)[m_aiShuffledIndices[m_iPos]];
-	}
+	void setNextFromCache() { m_pNext = (*m_pCache)[m_aiShuffledIndices[m_iPos]]; } // override
 };
 #undef RandAgentIteratorBase
 
@@ -290,10 +285,7 @@ protected:
 		generateNext();
 	}
 
-	void setNextFromCache() // override
-	{
-		m_pNext = (*m_pCache)[m_iPos];
-	}
+	void setNextFromCache() { m_pNext = (*m_pCache)[m_iPos]; } // override
 };
 #undef FwdAgentIteratorBase
 

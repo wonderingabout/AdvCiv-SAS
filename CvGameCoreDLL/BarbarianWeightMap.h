@@ -12,10 +12,7 @@ class FDataStreamBase;
 class BarbarianActivityMap
 {
 public:
-	void reset()
-	{
-		m_map.reset();
-	}
+	void reset() { m_map.reset(); }
 	void read(FDataStreamBase* pStream) { m_map.read(pStream); }
 	void write(FDataStreamBase* pStream) const { m_map.write(pStream); }
 	int get(CvPlot const& kPlot) const { return m_map.get(kPlot.plotNum()); }

@@ -287,10 +287,7 @@ public:
 	bool hasJustDeclaredWar(TeamTypes eIndex) const { return m_abJustDeclaredWar.get(eIndex); }
 	// <advc.130k> Replacing CvTeamAI::m_aiAtPeaceCounter, which is now randomized.
 	int getTurnsAtPeace(TeamTypes eTeam) const { return m_aiTurnsAtPeace.get(eTeam); }
-	void changeTurnsAtPeace(TeamTypes eTeam, int iChange)
-	{
-		setTurnsAtPeace(eTeam, getTurnsAtPeace(eTeam) + iChange);
-	}
+	void changeTurnsAtPeace(TeamTypes eTeam, int iChange) { setTurnsAtPeace(eTeam, getTurnsAtPeace(eTeam) + iChange); }
 	void setTurnsAtPeace(TeamTypes eTeam, int iTurns); // </advc.130k>
 
 	bool isPermanentWarPeace(TeamTypes eIndex) const { return m_abPermanentWarPeace.get(eIndex); } // Exposed to Python

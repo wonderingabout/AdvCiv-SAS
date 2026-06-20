@@ -183,16 +183,10 @@ public:
 	/*	BETTER_BTS_AI_MOD, Efficiency, 08/21/09, jdog5000: START
 		Plot danger cache (rewritten for K-Mod to fix bugs and improvement performance) */
 	int getActivePlayerSafeRangeCache() const { return m_iActivePlayerSafeRangeCache; }
-	void setActivePlayerSafeRangeCache(int iRange) const
-	{
-		// advc.opt: char (Probably OK to do nothing here if indeed iRange > MAX_CHAR.)
-		m_iActivePlayerSafeRangeCache = safeIntCast<char>(iRange);
-	}
+	// advc.opt: char (Probably OK to do nothing here if indeed iRange > MAX_CHAR.)
+	void setActivePlayerSafeRangeCache(int iRange) const { m_iActivePlayerSafeRangeCache = safeIntCast<char>(iRange); }
 	bool getBorderDangerCache(TeamTypes eTeam) const { return m_abBorderDangerCache.get(eTeam); }
-	void setBorderDangerCache(TeamTypes eTeam, bool bNewValue) const
-	{
-		m_abBorderDangerCache.set(eTeam, bNewValue);
-	}
+	void setBorderDangerCache(TeamTypes eTeam, bool bNewValue) const { m_abBorderDangerCache.set(eTeam, bNewValue); }
 	void invalidateBorderDangerCache();
 	// BETTER_BTS_AI_MOD: END
 	// advc.099c <!-- custom: hoisted from multiline signature between `bIgnoreCultureRange` and `bOwnExclusiveRadius` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
