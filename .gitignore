@@ -23,6 +23,8 @@
 *.vcxproj.user
 *.opensdf
 __pycache__
+/.agents/
+/.ruff_cache/
 /Logs/
 /Assets/CvGameCoreDLL_d.dll
 /LLM_Helpers/outputs/

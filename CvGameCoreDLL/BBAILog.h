@@ -19,6 +19,8 @@ int getSASBBAIPlayerLogLevel();
 int getSASBBAITeamLogLevel();
 int getSASBBAICityLogLevel();
 int getSASBBAIUnitLogLevel();
+int getSASBBAIWorkerLogLevel();
+int getSASBBAIWorkerSeaLogLevel();
 int getSASBBAIMapLogLevel();
 int getSASBBAIFoundLogLevel();
 int getSASBBAIDealCancelLogLevel();
@@ -30,6 +32,8 @@ int getSASBBAIScoreLogInterval();
 #define gTeamLogLevel getSASBBAITeamLogLevel()
 #define gCityLogLevel getSASBBAICityLogLevel()
 #define gUnitLogLevel getSASBBAIUnitLogLevel()
+#define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: New Land-worker BBAI log level for Worker AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+#define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: New Worker-sea/Work Boat BBAI log level for WORKER_SEA AI. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod
 #define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
 #define gDealCancelLogLevel getSASBBAIDealCancelLogLevel() // advc.133

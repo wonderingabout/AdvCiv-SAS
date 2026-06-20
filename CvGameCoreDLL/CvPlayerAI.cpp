@@ -453,7 +453,7 @@ void CvPlayerAI::AI_doTurnPost()
 	}
 	if (isHuman())
 		return;
-	if (gCityLogLevel >= 3)
+	if (gWorkerSeaLogLevel >= 3)
 		AI_logWorkerSeaAudit();
 	AI_updateExpansionistHate(); // advc.130w (also updates our attitude cache)
 	// </advc.001>
@@ -15552,7 +15552,7 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFr
 void CvPlayerAI::AI_logWorkerSeaAudit() const
 {
 	// <!-- custom: Late-game advisor/log review still showed owned seafood staying unimproved after the old Work Boat produce/scrap and overqueue fixes. Once per AI player turn, log a compact audit of owned water bonuses so we can distinguish missing production, missing mission assignment, danger, buildability/reachability, and repeated sea-improvement loss without dumping every plot every city production check. Diagnostic only. (GPT-5.5 + ChatGPT-5.5) -->
-	if (isHuman() || isBarbarian())
+	if (isHuman() || isBarbarian() || gWorkerSeaLogLevel < 3)
 		return;
 
 	int const iTurn = GC.getGame().getGameTurn();

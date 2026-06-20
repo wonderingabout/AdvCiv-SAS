@@ -35,6 +35,8 @@ CvUnitAI::~CvUnitAI()
 // <!-- custom: Diagnostic-only Work Boat movement logging to pair with CvCityAI worker-sea production logs. Production logs showed many completed Work Boats while the same sea bonuses stayed unimproved, so record whether UNITAI_WORKER_SEA units improve, retreat, seek safety, or idle. No behavior change. See KI#157. (GPT-5.5) -->
 static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUnit)
 {
+	if (gWorkerSeaLogLevel < 2)
+		return;
 	CvPlayerAI const& kPlayer = GET_PLAYER(kUnit.getOwner());
 	CvPlot const& kPlot = kUnit.getPlot();
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
@@ -1900,7 +1902,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				candidatePlot.eBuild = eBuildFarm;
 				if (candidatePlot.iValue > 0)
 				{
-					if (gUnitLogLevel >= 3)
+					if (gWorkerLogLevel >= 3)
 						logBBAI("    %S worker considers irrigation-chain step for city %S: build farm at (%d,%d) toward target (%d,%d), value=%d, distance=%d, dryFarm=%d, overwritePenalty=%d, foodPressure=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kConnectorPlot.getX(), kConnectorPlot.getY(), kTargetPlot.getX(), kTargetPlot.getY(), candidatePlot.iValue, iChainStepDistance, bTargetDryFarm, iConnectorOverwritePenalty, iCityFoodSupportPressure);
 					candidatePlots.push_back(candidatePlot);
 				}
@@ -2440,7 +2442,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (bReserveForIrrigationFarm)
 			{
 				// <!-- custom: this fires 20k+ times so log level 3 -->
-				if (gUnitLogLevel >= 3)
+				if (gWorkerLogLevel >= 3)
 				{
 					wchar const* szCurrentImprovement = (ePlotCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(ePlotCurrentImprovement).getDescription());
 					logBBAI("    %S worker skips non-farm build on future irrigation-farm plot for city %S: plot=(%d,%d) build=%S improvement=%S currentImprovement=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), GC.getInfo(eBestSupposedBuild).getDescription(), GC.getInfo(eSupposedImprovement).getDescription(), szCurrentImprovement);
@@ -2460,7 +2462,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			int const iReplacementFoodDelta = iSupposedImprovementFood - iCurrentImprovementFood;
 			if (iReplacementFoodDelta < 0)
 			{
-				if (gUnitLogLevel >= 3)
+				if (gWorkerLogLevel >= 3)
 				{
 					logBBAI("    %S worker skips lower-food replacement for city %S: turn=%d plot=(%d,%d) current=%S food=%d proposed=%S food=%d replacementFoodDelta=%d build=%S value=%d",
 						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), GC.getInfo(ePlotCurrentImprovement).getDescription(), iCurrentImprovementFood, GC.getInfo(eSupposedImprovement).getDescription(), iSupposedImprovementFood, iReplacementFoodDelta, GC.getInfo(eBestSupposedBuild).getDescription(), iValue);
@@ -2511,7 +2513,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	// This logs the candidate layer, not only the final chosen mission. It helps distinguish:
 	// city not selected, blank BFC plot not considered, blank plot considered but losing, replacement skipped,
 	// path failure, or plot reservation. Keep this temporary while testing Beijing-style unimproved large-city cases. (ChatGPT-5.5) -->
-	if (gUnitLogLevel >= 3 && iCityPopulation >= 6)
+	if (gWorkerLogLevel >= 3 && iCityPopulation >= 6)
 	{
 		int iUnimprovedImprovementCandidates = 0;
 		int iReplacementImprovementCandidates = 0;
@@ -2655,7 +2657,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (bNormalReplacementWhileBlankBFCRemains)
 			{
 				iDiagnosticReplacementSkipRejects++;
-				if (gUnitLogLevel >= 2)
+				if (gWorkerLogLevel >= 2)
 				{
 					logBBAI("    %S worker skips replacement while unimproved BFC plot remains for city %S: plot=(%d,%d) build=%S current=%S candidate=%S value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(), GC.getInfo(eB).getDescription(), GC.getInfo(eCurrentImprovement).getDescription(), GC.getInfo(eCandidateImprovement).getDescription(), candidatePlots[i].iValue);
 				}
@@ -2713,7 +2715,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				pBestPlot  = pB;
 				eBestBuild = eB;
 				bFound     = true;
-				if (gUnitLogLevel >= 2 && iCityPopulation >= 6)
+				if (gWorkerLogLevel >= 2 && iCityPopulation >= 6)
 				{
 					int const iDiagnosticPathTurns = pathFinder.getPathTurns();
 					ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
@@ -2723,7 +2725,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					logBBAI("    %S worker accepts city-build candidate for city %S: plot=(%d,%d) build=%S current=%S improvement=%S value=%d pathTurns=%d reserved=%d/%d",
 						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(), GC.getInfo(eB).getDescription(), szCurrentImprovement, szCandidateImprovement, candidatePlots[i].iValue, iDiagnosticPathTurns, iReservedPlot, iMaxWorkers);
 				}
-				if (gUnitLogLevel >= 2 && candidatePlots[i].ePlot == NO_CITYPLOT && eB == eBuildFarm)
+				if (gWorkerLogLevel >= 2 && candidatePlots[i].ePlot == NO_CITYPLOT && eB == eBuildFarm)
 					logBBAI("    %S worker chooses irrigation-chain step at (%d,%d), value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pB->getX(), pB->getY(), candidatePlots[i].iValue);
 				break;
 			}
@@ -2751,7 +2753,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	// return (eBestBuild != NO_BUILD);
 
 	// Ensure outputs are consistent no matter how we exit
-	if (!bFound && gUnitLogLevel >= 3 && iCityPopulation >= 6 && !candidatePlots.empty())
+	if (!bFound && gWorkerLogLevel >= 3 && iCityPopulation >= 6 && !candidatePlots.empty())
 	{
 		CvPlot* pTopCandidatePlot = candidatePlots[0].pPlot;
 		BuildTypes const eTopCandidateBuild = candidatePlots[0].eBuild;
@@ -4221,7 +4223,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			}
 			if (bKeepCurrentUnimprovedBFCPlot)
 			{
-				if (gUnitLogLevel >= 2)
+				if (gWorkerLogLevel >= 2)
 				{
 					CvPlot const& kWorkerPlot = getPlot();
 					logBBAI("    %S worker stays in small improved-enough city %S to handle current useful BFC plot: pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION, kWorkerPlot.getX(), kWorkerPlot.getY(), GC.getInfo(eKeepCurrentBuild).getDescription());
@@ -4229,7 +4231,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			}
 			else
 			{
-				if (gUnitLogLevel >= 2)
+				if (gWorkerLogLevel >= 2)
 				{
 					logBBAI("    %S worker leaves small improved-enough city %S: pop=%d improved=%d target=%d maxPop=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION);
 				}
@@ -8663,7 +8665,7 @@ void CvUnitAI::AI_workerSeaMove()
 		{
 			if (AI_retreatToCity())
 			{
-				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
 				return;
 			}
 		}
@@ -8677,7 +8679,7 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_improveBonus())
 	{
-		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
+		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
 		return;
 	}
 
@@ -8689,7 +8691,7 @@ void CvUnitAI::AI_workerSeaMove()
 			if (getPlot().getOwner() == getOwner() || !getPlot().isOwned())
 			{
 				getGroup()->pushMission(MISSION_SKIP);
-				if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
 				return;
 			}
 		}
@@ -8701,7 +8703,7 @@ void CvUnitAI::AI_workerSeaMove()
 				if (isRevealedValidDomain(*pAdj)) // advc
 				{
 					getGroup()->pushMission(MISSION_SKIP);
-					if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
+					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
 					return;
 				}
 			}
@@ -8735,18 +8737,18 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_retreatToCity())
 	{
-		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
+		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
 		return;
 	}
 
 	if (AI_safety())
 	{
-		if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
+		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
 		return;
 	}
 
 	getGroup()->pushMission(MISSION_SKIP);
-	if (gUnitLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
+	if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
 }
 
 
@@ -20653,7 +20655,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
         if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
         {
-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d no AI_bestCityBuild candidate", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation());
             continue; // nothing useful to do in this city right now
         }
@@ -20661,7 +20663,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
 		if (pPlot == NULL || eBuild == NO_BUILD)
 		{
-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d invalid AI_bestCityBuild output plot=%d build=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
 			continue;
 		}
@@ -20675,7 +20677,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
                 getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers);
         if (iReservedCityTargetPlot >= iMaxWorkers)
         {
-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected reserved plot=(%d,%d) build=%S reserved=%d/%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), iReservedCityTargetPlot, iMaxWorkers);
             continue;
         }
@@ -20683,7 +20685,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
         if (!pf.generatePath(*pPlot))
         {
-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected no path plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription());
             continue;
 		}
@@ -20701,7 +20703,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 			bSelfImprovable = true;
 			pSelfPlot  = pPlot;
 			eSelfBuild = eBuild;
-			if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
 				logBBAI("    %S worker city-target scan: self city=%S pop=%d stored fallback plot=(%d,%d) build=%S pathTurns=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), pf.getPathTurns());
 			continue; // still let the loop look for better (other-city) jobs
 		}
@@ -20739,7 +20741,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		const int q = score / 1000, r = score - q * 1000;
 		score = q * factorPermille + (r * factorPermille) / 1000;
 
-        if (gUnitLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+        if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
         {
 			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
 			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
@@ -20796,7 +20798,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// if (!canBuild(*pBestPlot, eBestBuild))
 	// 	return false;
 	FAssertEnumBounds(eBestBuild);
-	if (gUnitLogLevel >= 2)
+	if (gWorkerLogLevel >= 2)
 	{
 		CvCity const* pChosenWorkingCity = pBestPlot->getWorkingCity();
 		logBBAI("    %S worker next-city chosen: from=(%d,%d) targetCity=%S plot=(%d,%d) build=%S selfFallback=%d bestScore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), getX(), getY(), (pChosenWorkingCity == NULL ? L"-" : pChosenWorkingCity->getName().GetCString()), pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), (pBestPlot == pSelfPlot && eBestBuild == eSelfBuild), bestScore);
@@ -21001,7 +21003,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
 	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
 	{
-		if (gUnitLogLevel >= 2)
+		if (gWorkerLogLevel >= 2)
 			logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);
 		return false;
 	}

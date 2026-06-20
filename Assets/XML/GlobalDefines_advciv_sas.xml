@@ -1171,6 +1171,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_BBAI_WORKER_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>

@@ -4750,7 +4750,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW) /
 	}
 
 	// <!-- custom: Diagnostic-only log for repeated Work Boat replacement. BBAI logs showed Work Boats successfully improving the same seafood multiple times, then cities later counting the target as unimproved again; log when an owned water bonus loses a connecting sea improvement so we can distinguish pillage/destruction/ownership churn from production overqueue. No behavior change. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
-	if ((gCityLogLevel >= 2 || gUnitLogLevel >= 2) && isWater() && isOwned() && eOldImprovement != NO_IMPROVEMENT)
+	if (gWorkerSeaLogLevel >= 2 && isWater() && isOwned() && eOldImprovement != NO_IMPROVEMENT)
 	{
 		CvPlayer const& kOwner = GET_PLAYER(getOwner());
 		BonusTypes const eBonus = getNonObsoleteBonusType(kOwner.getTeam());
@@ -6365,7 +6365,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
 		// <!-- custom: Log completed worker builds that replace one improvement with another.
 		// This helps find real farm/cottage/workshop oscillation cases before changing worker logic. Credit: ChatGPT 5.5.  (GPT-5.5 review) -->
 		// <!-- custom: this fires 339 times in a ~421 turn sample at normal gamespeed large pangea, so fine to keep to level 2 and useful info deemed important enough for now. -->
-		if (gUnitLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement)
+		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement)
 		{
 			logBBAI("    WORKER-IMPROVEMENT overwrite: turn=%d elapsed=%d player=%S plot=%d,%d old=%S new=%S build=%S owner=%d bonus=%S route=%S",
 					GC.getGame().getGameTurn(),

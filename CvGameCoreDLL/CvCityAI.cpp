@@ -12,9 +12,11 @@
 #include "CvInfo_Civics.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
-// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact sea-worker target bonuses when city logging is high. No behavior change. See KI#157. (GPT-5.5) -->
+// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
 static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
 {
+	if (gWorkerSeaLogLevel < 2)
+		return;
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
 	CvArea const* pCityWaterArea = kCity.waterArea(true);
 	CvArea const* pSecondWaterArea = kCity.secondWaterArea();
@@ -48,6 +50,8 @@ static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot cons
 
 static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pWaterArea, char const* szAreaLabel)
 {
+	if (gWorkerSeaLogLevel < 3)
+		return;
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
 	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
 	int iLoggedTargets = 0;
@@ -1011,7 +1015,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses minimum area worker floor %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
+			if (gWorkerLogLevel >= 2) logBBAI("      City %S uses minimum area worker floor %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
 			return;
 		}
 	}
@@ -1131,7 +1135,7 @@ void CvCityAI::AI_chooseProduction()
 			// Build Work Boat first since it doesn't stop growth
 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
 			{
-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 				return;
 			}
 		}
@@ -1141,7 +1145,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 1a", sCityName);
+				if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 1a", sCityName);
 				return;
 			}
 			bChooseWorker = true;
@@ -1164,7 +1168,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 1", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 1", sCityName);
 					return;
 				}
 				bChooseWorker = true;
@@ -1174,7 +1178,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_WORKER_SEA))
 				{
-					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 					return;
 				}
 			}
@@ -1183,7 +1187,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 2", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 2", sCityName);
 					return;
 				}
 				bChooseWorker = true;
@@ -1247,7 +1251,7 @@ void CvCityAI::AI_chooseProduction()
 	} // </advc.124>
 
 	// <!-- custom: BBAI Work Boat audit found a real under-prioritization case after the overqueue fixes: Konya had a buildable/reachable BFC Whale with 0 Work Boats assigned or queued, but chose an early sea explorer Galleon first. Give actionable unmet seafood a narrow priority before early sea explore/settler-sea choices, while keeping the water-danger, financial-trouble, and already-available Work Boat guards. (GPT-5.5 + ChatGPT-5.5) -->
-	if (gCityLogLevel >= 2 && iNeededSeaWorkers > iAvailableSeaWorkers)
+	if (gWorkerSeaLogLevel >= 2 && iNeededSeaWorkers > iAvailableSeaWorkers)
 	{
 		logBBAI("      WORKER_SEA_PRIORITY_CHECK turn=%d player=%d %S city=%S cityId=%d needed=%d available=%d pop=%d waterDanger=%d financialTrouble=%d defenseWar=%d warSuccess=%d danger=%d",
 			GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededSeaWorkers, iAvailableSeaWorkers, iCityPopulation, bWaterDanger, bFinancialTrouble, bDefenseWar, iWarSuccessRating, bDanger);
@@ -1257,7 +1261,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit(UNITAI_WORKER_SEA))
 		{
-			if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before early sea", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+			if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before early sea", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 			return;
 		}
 	}
@@ -1384,7 +1388,7 @@ void CvCityAI::AI_chooseProduction()
 			if ((iExistingWorkers < ((iNeededWorkers + 1) / 2))) {
 				if (iCityPopulation > 3 || (iProductionRank < (iNumCities + 1) / 2)) {
 					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER)) {
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 3", sCityName);
+						if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 3", sCityName);
 						return;
 					}
 					bChooseWorker = true;
@@ -1424,7 +1428,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 6", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 6", sCityName);
 					return;
 				}
 				bChooseWorker = true;
@@ -1530,7 +1534,7 @@ void CvCityAI::AI_chooseProduction()
 					(bPrimaryArea || SyncRandSuccess100(15 * iMissingWorkers)) &&
 					AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose worker 4", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 4", sCityName);
 					return;
 				}
 				bChooseWorker = true;
@@ -1554,7 +1558,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gCityLogLevel >= 2) logBBAI(" 	 City %S uses choose worker 5", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAI(" 	 City %S uses choose worker 5", sCityName);
 					return;
 				}
 				bChooseWorker = true;
@@ -1565,7 +1569,7 @@ void CvCityAI::AI_chooseProduction()
 				if (AI_chooseUnit(UNITAI_WORKER_SEA,
 					60)) // advc.131: From MNAI; was -1.
 				{
-					if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 2", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 2", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 					return;
 				}
 			}
@@ -1578,7 +1582,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
 			{
-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 3", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 3", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 				return;
 			}
 		}
@@ -2087,7 +2091,7 @@ void CvCityAI::AI_chooseProduction()
 				}
 				else if (bWorkerReplacesSettler && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 				{
-					if (gCityLogLevel >= 2)
+					if (gWorkerLogLevel >= 2)
 						logBBAI("      City %S replaces Settler 1 with Worker", sCityName);
 					return;
 				}
@@ -3047,7 +3051,7 @@ void CvCityAI::AI_chooseProduction()
 				// <!-- custom: also add a barbarian check here (with also our worker replaces settler new logic too) as our logic doesn't apply to barbarians as well at least not as of now-->
 				else if (!isBarbarian() && bWorkerReplacesSettler && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 				{
-					if (gCityLogLevel >= 2)
+					if (gWorkerLogLevel >= 2)
 						logBBAI("      City %S replaces Settler 2 with Worker", sCityName);
 					return;
 				}
@@ -9203,7 +9207,7 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 		iNeededSeaWorkers += GET_PLAYER(getOwner()).AI_countUnimprovedBonuses(*pSecondWaterArea, plot(), iLookAhead); // advc.042
 	}
 	// BETTER_BTS_AI_MOD: END
-	if (gCityLogLevel >= 3 && iNeededSeaWorkers > 0)
+	if (gWorkerSeaLogLevel >= 3 && iNeededSeaWorkers > 0)
 	{
 		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 		logBBAI("      WORKER_SEA_NEEDED_SUMMARY turn=%d player=%d %S city=%S cityId=%d needed=%d primaryWaterArea=%d secondWaterArea=%d primaryExisting=%d secondExisting=%d primaryTrain=%d secondTrain=%d",
@@ -12848,7 +12852,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						if (pSecondSeaWorkerArea != NULL && pSecondSeaWorkerArea != pPrimarySeaWorkerArea) iLocalAvailableSeaWorkers += kPlayer.AI_totalWaterAreaUnitAIs(*pSecondSeaWorkerArea, UNITAI_WORKER_SEA);
 						int const iLocalNeededSeaWorkers = AI_neededSeaWorkers();
 						bool const bLocalSeaWorkerDeficit = (iLocalNeededSeaWorkers > iLocalAvailableSeaWorkers);
-						if (gCityLogLevel >= 2 && iTotalUnitAIs >= iMaxUnits && bLocalSeaWorkerDeficit)
+						if (gWorkerSeaLogLevel >= 2 && iTotalUnitAIs >= iMaxUnits && bLocalSeaWorkerDeficit)
 							logBBAI("      WORKER_SEA_CAP_BYPASS turn=%d player=%d %S city=%S cityId=%d total=%d cap=%d localNeeded=%d localAvailable=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iTotalUnitAIs, iMaxUnits, iLocalNeededSeaWorkers, iLocalAvailableSeaWorkers);
 						if (iTotalUnitAIs >= iMaxUnits && !bLocalSeaWorkerDeficit)
 						{
@@ -13132,7 +13136,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
 		{
-			if (gCityLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
+			if (gWorkerSeaLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
 			{
 				CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 				CvArea const* pWaterArea = waterArea(true);
@@ -16088,7 +16092,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 			iOdds /= 50 + (bLocalResource ? 3 : 5) * iBestBuildingValue;
 			if (AI_chooseUnit(UNITAI_WORKER_SEA, iOdds))
 			{
-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("governor worker sea", *this, pWaterArea, getPopulation(), AI_neededSeaWorkers(), kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA), bDanger, kOwner.AI_isFinancialTrouble());
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("governor worker sea", *this, pWaterArea, getPopulation(), AI_neededSeaWorkers(), kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA), bDanger, kOwner.AI_isFinancialTrouble());
 				return;
 			}
 		}
@@ -16342,7 +16346,7 @@ void CvCityAI::AI_barbChooseProduction()
 		{
 			if (AI_chooseUnit(UNITAI_WORKER))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose worker 1", sCityName);
+				if (gWorkerLogLevel >= 2) logBBAI("      City %S uses barb choose worker 1", sCityName);
 				return;
 			}
 		}
@@ -16359,7 +16363,7 @@ void CvCityAI::AI_barbChooseProduction()
 		{
 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
 			{
-				if (gCityLogLevel >= 2) logSASWorkerSeaChooseDetail("barb choose worker sea 1", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, kPlayer.AI_isFinancialTrouble());
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("barb choose worker sea 1", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, kPlayer.AI_isFinancialTrouble());
 				return;
 			}
 		}
@@ -16458,7 +16462,7 @@ void CvCityAI::AI_barbChooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose worker 2", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses barb choose worker 2", sCityName);
 					return;
 				}
 			}

@@ -44,6 +44,8 @@ Always review diffs before committing generated source changes.
   - [`audit_define_keys.py`](#audit_define_keyspy)
   - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
 - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
+- [Source packaging helper](#source-packaging-helper)
+  - [`make_light_source_zip.py`](#make_light_source_zippy)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
@@ -866,6 +868,43 @@ It should not be treated as a release gate or as proof that every reported dupli
 This legacy scanner notably helped inspire and calibrate the newer `.github/workflows/build` XML audits, including the parent duplicate-key checker, child/list duplicate checker, and duplicate text-tag checker. The newer workflow scripts are stricter and more conservative: they check reviewed XML patterns with clearer semantics, print source line numbers, and avoid known noisy cases such as weighted goody hut entries or reused world-picker UI art paths.
 
 In short: this script is kept as a historical and practical discovery helper, while the GitHub workflow checks are the maintained release-safety layer.
+
+## Source packaging helper
+
+### `make_light_source_zip.py`
+
+- Creates a timestamped light source ZIP for a Civ4 mod, mainly for compact local/LLM/code-agent review handoffs.
+- Uses repo-relative archive paths and `ZIP_STORED` / no compression. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review.
+- Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
+- Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
+- Includes small source/data/docs folders useful for review: root lone files, selected `Assets` folders, root helper/doc/config folders, top-level `CvGameCoreDLL` files, and top-level `CvGameCoreDLL/Project` files under 1 MB, plus `_1_AdvCiv-SAS/Docs` and `_1_AdvCiv-SAS/git_logs`.
+- Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
+- Skips generated/helper outputs by default, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
+- Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
+- Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP.
+- Created/refined with help of ChatGPT-5.5 and Codex.
+
+Tools like here WizTree helped find which folders/files are heavy to exclude.
+
+Example to write to Downloads (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/make_light_source_zip.py --output-dir "C:\Users\PC\Downloads"
+```
+
+Example of output (Git Bash):
+
+```text
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-
+SAS
+Mod name:  AdvCiv-SAS
+Prefix:    AdvCiv-SAS_light_source
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260620T124720.zip
+Files:     944
+Size:      43,264,448 bytes before ZIP container overhead
+Mode:      ZIP_STORED / no compression
+Wrote:     944 file(s)
+```
 
 ## Workflow rule for timeline tuning
 
