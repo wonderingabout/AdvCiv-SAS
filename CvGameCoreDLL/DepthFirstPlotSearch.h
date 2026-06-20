@@ -50,10 +50,7 @@ protected:
 	EagerEnumMap<PlotNumTypes,bool> m_abVisited;
 
 public:
-	bool isVisited(CvPlot const& kPlot) const
-	{
-		return m_abVisited.get(kPlot.plotNum());
-	}
+	bool isVisited(CvPlot const& kPlot) const { return m_abVisited.get(kPlot.plotNum()); }
 	void setVisited(CvPlot const& kPlot)
 	{
 		m_abVisited.set(kPlot.plotNum(), true);

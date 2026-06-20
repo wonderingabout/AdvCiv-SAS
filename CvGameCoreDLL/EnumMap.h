@@ -153,10 +153,7 @@ protected:
 
 public:
 	// Externally visible statics ...
-	static E getLength()
-	{
-		return enum_traits<E>::length();
-	}
+	static E getLength() { return enum_traits<E>::length(); }
 	typedef E EnumType;
 	typedef V ValueType;
 	static V const defaultValue;
@@ -177,10 +174,7 @@ public:
 		return static_cast<E>(enum_traits<E>::len);
 	}
 protected:
-	static CompactE ceEndKey()
-	{
-		return compactKey(endKey());
-	}
+	static CompactE ceEndKey() { return compactKey(endKey()); }
 
 public:
 	/*	At a minimum, derived classes need to define a reset function,
@@ -235,14 +229,8 @@ public:
 		}
 		return iCount;
 	}
-	bool isAnyNonDefault() const
-	{
-		return (derived().numNonDefault() > 0);
-	}
-	V operator[](E eKey) const
-	{
-		return derived().getUnsafe(eKey);
-	}
+	bool isAnyNonDefault() const { return (derived().numNonDefault() > 0); }
+	V operator[](E eKey) const { return derived().getUnsafe(eKey); }
 
 	// For FOR_EACH_NON_DEFAULT_... macros
 	template<typename ValueType>
@@ -343,14 +331,8 @@ public:
 	}
 
 protected:
-	V getUnsafe(E eKey) const
-	{
-		return uncompactValue<V,CompactV>(derived().getCompact(compactKey(eKey)), eKey);
-	}
-	CompactV getCompact(CompactE ceKey) const
-	{
-		return derived().getCompact(ceKey);
-	}
+	V getUnsafe(E eKey) const { return uncompactValue<V,CompactV>(derived().getCompact(compactKey(eKey)), eKey); }
+	CompactV getCompact(CompactE ceKey) const { return derived().getCompact(ceKey); }
 	void setUnsafe(E eKey, V vValue)
 	{
 		derived().changeValueUnsafe<OP_ASSIGN>(eKey, vValue);
@@ -388,15 +370,9 @@ protected:
 		In that case cvDummy() should be returned, which means that any write
 		operation of the caller will have no effect. */
 	template<Operation eOP>
-	CompactV& lookup(E eKey, CompactV cvOperand)
-	{
-		return derived().lookupUnsafe<eOP>(eKey, cvOperand);
-	}
+	CompactV& lookup(E eKey, CompactV cvOperand) { return derived().lookupUnsafe<eOP>(eKey, cvOperand); }
 	template<Operation eOP>
-	CompactV& lookupUnsafe(E eKey, CompactV cvOperand)
-	{
-		return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand);
-	}
+	CompactV& lookupUnsafe(E eKey, CompactV cvOperand) { return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand); }
 	template<Operation eOP>
 	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue)
 	{	// (Derived classes have to override one of the lookup function templates)
@@ -506,30 +482,15 @@ protected:
 		result in the default value? To help derived classes avoid unnecessary
 		memory allocation when implementing lookup. */
 	template<Operation eOP>
-	bool isNeutralToDefaultVal(CompactV)
-	{
-		return false;
-	}
+	bool isNeutralToDefaultVal(CompactV) { return false; }
 	template<>
-	bool isNeutralToDefaultVal<OP_ASSIGN>(CompactV cvOperand)
-	{
-		return (cvOperand == cvDEFAULT);
-	}
+	bool isNeutralToDefaultVal<OP_ASSIGN>(CompactV cvOperand) { return (cvOperand == cvDEFAULT); }
 	template<>
-	bool isNeutralToDefaultVal<OP_ADD>(CompactV cvOperand)
-	{
-		return (cvOperand == 0);
-	}
+	bool isNeutralToDefaultVal<OP_ADD>(CompactV cvOperand) { return (cvOperand == 0); }
 	template<>
-	bool isNeutralToDefaultVal<OP_MULT>(CompactV cvOperand)
-	{
-		return (cvDEFAULT == 0 || cvOperand == static_cast<CompactV>(1));
-	}
+	bool isNeutralToDefaultVal<OP_MULT>(CompactV cvOperand) { return (cvDEFAULT == 0 || cvOperand == static_cast<CompactV>(1)); }
 	template<>
-	bool isNeutralToDefaultVal<OP_DIV>(CompactV cvOperand)
-	{
-		return isNeutralToDefaultVal<OP_MULT>(cvOperand);
-	}
+	bool isNeutralToDefaultVal<OP_DIV>(CompactV cvOperand) { return isNeutralToDefaultVal<OP_MULT>(cvOperand); }
 
 	template<typename ValueType>
 	bool _nextNonDefaultPair(int& iIter, std::pair<E,ValueType>& kPair) const
@@ -559,10 +520,7 @@ protected:
 	}
 
 	// (Can't overload these two under the name "compact" b/c E and V can coincide)
-	static CompactE compactKey(E eKey)
-	{
-		return compactEnum(eKey);
-	}
+	static CompactE compactKey(E eKey) { return compactEnum(eKey); }
 	static CompactV compactValue(V vValue)
 	{	// Specialize for bool
 		return _compact<CompactV,V>(vValue);
@@ -582,19 +540,13 @@ protected:
 		return (bValue ? integer_limits<BitBlock>::max : 0);
 	}
 	// (Can't overload these two b/c CompactE and CompactV can coincide)
-	static E uncompactKey(CompactE ceKey)
-	{
-		return static_cast<E>(ceKey);
-	}
+	static E uncompactKey(CompactE ceKey) { return static_cast<E>(ceKey); }
 	static V uncompactValue(CompactV cvVal)
 	{	// The one-argument version can't work for bBIT_BLOCKS
 		return _uncompactValue<V,CompactV>(cvVal);
 	}
 	template<class ToType, class FromType>
-	static ToType _uncompactValue(FromType fValue)
-	{
-		return (ToType)fValue;
-	}
+	static ToType _uncompactValue(FromType fValue) { return (ToType)fValue; }
 	template<>
 	static bool _uncompactValue<bool,BitBlock>(BitBlock uiBlock)
 	{
@@ -602,15 +554,9 @@ protected:
 		return false;
 	}
 	template<class ToType, class FromType>
-	static ToType uncompactValue(FromType fValue, E eKey)
-	{
-		return uncompactValue(fValue);
-	}
+	static ToType uncompactValue(FromType fValue, E eKey) { return uncompactValue(fValue); }
 	template<>
-	static bool uncompactValue<bool,BitBlock>(BitBlock block, E eKey)
-	{
-		return BitUtil::GetBit(block, eKey % BITSIZE(BitBlock));
-	}
+	static bool uncompactValue<bool,BitBlock>(BitBlock block, E eKey) { return BitUtil::GetBit(block, eKey % BITSIZE(BitBlock)); }
 	template<class ToType, class FromType>
 	static void assignVal(ToType& to, FromType fValue, E eKey)
 	{
@@ -622,10 +568,7 @@ protected:
 		BitUtil::SetBit(block, eKey % BITSIZE(BitBlock), bValue);
 	}
 	template<typename ToType, typename FromType>
-	static ToType safeCast(FromType fVal)
-	{
-		return int_cast<ToType,FromType,true,false,/*allow ptr*/true>::safe(fVal);
-	}
+	static ToType safeCast(FromType fVal) { return int_cast<ToType,FromType,true,false,/*allow ptr*/true>::safe(fVal); }
 	/*	Derived classes should use these wrappers for writing values. To ensure
 		that no compact values that encode pointers get stored in savegames.
 		Will unfortunately have to turn all write functions into templates -
@@ -791,10 +734,7 @@ public:
 			m_aValues[eKey] = cvValue;
 		}
 	}
-	int numNonDefault() const
-	{
-		return m_iNonDefault;
-	}
+	int numNonDefault() const { return m_iNonDefault; }
 	template<class DataStream>
 	void write(DataStream pStream) const
 	{
@@ -907,10 +847,7 @@ protected:
 				iFreePos, m_aValues, m_iSize);
 		m_iSize++;
 	}
-	short capacity() const
-	{
-		return m_iSize + (bEND_MARKER ? 1 : 0);
-	}
+	short capacity() const { return m_iSize + (bEND_MARKER ? 1 : 0); }
 	void allocate()
 	{
 		FAssertBounds(0, getLength() + 1, m_iSize);
@@ -927,10 +864,7 @@ protected:
 		}
 	}
 
-	CompactV getCompact(CompactE ceKey) const
-	{
-		return _getCompact<!bEND_MARKER>(ceKey);
-	}
+	CompactV getCompact(CompactE ceKey) const { return _getCompact<!bEND_MARKER>(ceKey); }
 	template<bool bCHECK_SIZE>
 	CompactV _getCompact(CompactE) const;
 	template<>
@@ -1122,10 +1056,7 @@ public:
 		uninit();
 		allocate();
 	}
-	int numNonDefault() const
-	{
-		return m_iSize;
-	}
+	int numNonDefault() const { return m_iSize; }
 
 	template<class DataStream>
 	void write(DataStream* pStream) const
@@ -1278,14 +1209,8 @@ protected:
 		CompactV* m_aValues;
 		byte m_aBytes[iSTATIC_BYTES];
 	};
-	CompactV* values()
-	{
-		return (bSTATIC_MEMORY ? reinterpret_cast<CompactV*>(m_aBytes) : m_aValues);
-	}
-	CompactV const* values() const
-	{
-		return (bSTATIC_MEMORY ? reinterpret_cast<CompactV const*>(m_aBytes) : m_aValues);
-	}
+	CompactV* values() { return (bSTATIC_MEMORY ? reinterpret_cast<CompactV*>(m_aBytes) : m_aValues); }
+	CompactV const* values() const { return (bSTATIC_MEMORY ? reinterpret_cast<CompactV const*>(m_aBytes) : m_aValues); }
 	static int const iSTATIC_ARRAY_SIZE = (!bBIT_BLOCKS ? enum_traits<E>::len :
 			(enum_traits<E>::len + BITSIZE(BitBlock) - 1) / BITSIZE(BitBlock)); // round up
 	static int arraySize()
@@ -1475,10 +1400,7 @@ protected:
 		}
 		return values()[keyToIndex(ceKey)];
 	}
-	bool isAllocated() const
-	{
-		return (!bLAZY_ALLOC || values() != NULL);
-	}
+	bool isAllocated() const { return (!bLAZY_ALLOC || values() != NULL); }
 	void init(V vValue = vDEFAULT)
 	{
 		allocate();
@@ -1531,10 +1453,7 @@ protected:
 		return vDummy();
 	}
 	template<>
-	V& subscript<true>(E eKey) // When V and CompactV coincide
-	{
-		return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0);
-	}
+	V& subscript<true>(E eKey) { return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0); } // When V and CompactV coincide
 };
 #undef ArrayEnumMapBase
 
@@ -1606,15 +1525,9 @@ public:
 		reinterpret_cast<EncodeT*>(values())[0] = ui;
 	}
 
-	EncodeT encode() const
-	{
-		return reinterpret_cast<EncodeT const*>(values())[0];
-	}
+	EncodeT encode() const { return reinterpret_cast<EncodeT const*>(values())[0]; }
 
-	compact_t& operator[](E eKey)
-	{
-		return lookupUnsafe<OP_UNKNOWN>(eKey, 0);
-	}
+	compact_t& operator[](E eKey) { return lookupUnsafe<OP_UNKNOWN>(eKey, 0); }
 	V operator[](E eKey) const
 	{	// (I don't think we can unhide this through a using declaration)
 		return IntegerEncodableMapBase::operator[](eKey);
@@ -1697,10 +1610,7 @@ public:
 	using SubSeqEnumMapBase::multiply;
 	using SubSeqEnumMapBase::divide;
 	using SubSeqEnumMapBase::toggle;
-	V get(SuperE eKey) const
-	{
-		return get(subKey(eKey));
-	}
+	V get(SuperE eKey) const { return get(subKey(eKey)); }
 	void set(SuperE eKey, V vValue)
 	{
 		set(subKey(eKey), vValue);
@@ -2054,10 +1964,7 @@ public:
 	}
 
 protected:
-	InnerEnumMap* getUnsafe(EOuter eOuterKey) const
-	{
-		return m_outer.get(eOuterKey);
-	}
+	InnerEnumMap* getUnsafe(EOuter eOuterKey) const { return m_outer.get(eOuterKey); }
 	void setUnsafe(EOuter eOuterKey, InnerEnumMap* pInnerMap)
 	{
 		m_outer.set(eOuterKey, pInnerMap);
@@ -2078,10 +1985,7 @@ protected:
 		BOOST_STATIC_ASSERT((is_same_type<ValueType,InnerMap*>::value));
 		return m_outer.nextNonDefaultPair(iIter, kPair);
 	}
-	EOuter _nextNonDefaultKey(int& iIter) const
-	{
-		return m_outer.nextNonDefaultKey(iIter);
-	}
+	EOuter _nextNonDefaultKey(int& iIter) const { return m_outer.nextNonDefaultKey(iIter); }
 };
 
 template<typename EOuter, typename EInner, class V,
@@ -2130,10 +2034,7 @@ public:
 	using OuterEnumMap::isAnyNonDefault;
 	using OuterEnumMap::insert;
 
-    VInner get(EOuter eOuterKey, EInner eInnerKey) const
-    {
-		return lookup(eOuterKey).get(eInnerKey);
-    }
+    VInner get(EOuter eOuterKey, EInner eInnerKey) const { return lookup(eOuterKey).get(eInnerKey); }
 	void set(EOuter eOuterKey, EInner eInnerKey, VInner vValue)
 	{
 		InnerEncodableMap innerMap(get(eOuterKey));
@@ -2173,10 +2074,7 @@ public:
 		innerMap.setAll(vValue);
 		set(eOuterKey, innerMap.encode());
 	}
-	bool isAnyNonDefault(EOuter eOuterKey) const
-	{
-		return lookup(eOuterKey).isAnyNonDefault();
-	}
+	bool isAnyNonDefault(EOuter eOuterKey) const { return lookup(eOuterKey).isAnyNonDefault(); }
 	int numNonDefault() const
 	{
 		int iSum = 0;
@@ -2184,10 +2082,7 @@ public:
 			iSum += numNonDefault(eOuterKey);
 		return iSum;
 	}
-	int numNonDefault(EOuter eOuterKey) const
-	{
-		return lookup(eOuterKey).numNonDefault();
-	}
+	int numNonDefault(EOuter eOuterKey) const { return lookup(eOuterKey).numNonDefault(); }
 	void insert(int iOuterKey, int iInnerKey, VInner vValue)
 	{
 		EOuter eOuterKey = static_cast<EOuter>(iOuterKey);
@@ -2253,10 +2148,7 @@ public:
 	}
 
 protected:
-	InnerEncodableMap lookup(EOuter eOuterKey) const
-	{
-		return InnerEncodableMap(get(eOuterKey));
-	}
+	InnerEncodableMap lookup(EOuter eOuterKey) const { return InnerEncodableMap(get(eOuterKey)); }
 	template<typename ValueType>
 	bool _nextNonDefaultPair(int& iIter, std::pair<EOuter,ValueType>& kPair) const
 	{

@@ -68,10 +68,7 @@ public:
 	// Prep. time, if any, plus time horizon
 	int turnsSimulated() const { return m_iTurnsSimulated; }
 	// Does ePlayer have a node in the InvasionGraph?
-	bool isPartOfAnalysis(PlayerTypes ePlayer) const
-	{
-		return (m_partOfAnalysis.count(ePlayer) > 0);
-	}
+	bool isPartOfAnalysis(PlayerTypes ePlayer) const { return (m_partOfAnalysis.count(ePlayer) > 0); }
 	void logResults(PlayerTypes ePlayer); // for debugging
 	// (There's another public and private section below)
 private:

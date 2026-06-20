@@ -58,24 +58,12 @@ public:
 	CLLNode<TradeData>* headSecondTradesNodeExternal() const;
 	CLLNode<TradeData>* nextSecondTradesNodeExternal(CLLNode<TradeData>* pNode) const;
 	// </advc.003s> 
-	DllExport PlayerTypes getFirstPlayer() const
-	{
-		return m_eFirstPlayer;
-	}
+	DllExport PlayerTypes getFirstPlayer() const { return m_eFirstPlayer; }
 	// advc: Renamed from "getFirstTrades"
-	CLinkList<TradeData> const& getFirstList() const
-	{
-		return m_firstList;
-	}
-	DllExport PlayerTypes CvDeal::getSecondPlayer() const
-	{
-		return m_eSecondPlayer;
-	}
+	CLinkList<TradeData> const& getFirstList() const { return m_firstList; }
+	DllExport PlayerTypes CvDeal::getSecondPlayer() const { return m_eSecondPlayer; }
 	// advc: Renamed from "getSecondTrades"
-	CLinkList<TradeData> const& getSecondList() const
-	{
-		return m_secondList;
-	}
+	CLinkList<TradeData> const& getSecondList() const { return m_secondList; }
 
 	// <advc> More convenient interface for iteration
 	/*  Want to make all the CLLNodes const - should generally not modify deal lists
@@ -122,14 +110,8 @@ public:
 	DllExport static bool isDual(TradeableItems eItem, bool bExcludePeace = false);
 	DllExport static bool hasData(TradeableItems eItem);
 	DllExport static bool isEndWar(TradeableItems eItem);
-	DllExport static bool isGold(TradeableItems eItem)
-	{
-		return (eItem == getGoldItem() || eItem == getGoldPerTurnItem());
-	}
-	static bool isVassal(TradeableItems eItem)
-	{
-		return (eItem == TRADE_VASSAL || eItem == TRADE_SURRENDER);
-	}
+	DllExport static bool isGold(TradeableItems eItem) { return (eItem == getGoldItem() || eItem == getGoldPerTurnItem()); }
+	static bool isVassal(TradeableItems eItem) { return (eItem == TRADE_VASSAL || eItem == TRADE_SURRENDER); }
 	DllExport static TradeableItems getPeaceItem() { return TRADE_PEACE_TREATY; }
 	DllExport static TradeableItems getGoldItem() { return TRADE_GOLD; }
 	DllExport static TradeableItems getGoldPerTurnItem() { return TRADE_GOLD_PER_TURN; }
@@ -140,10 +122,7 @@ public:
 protected:
 	// <advc> Python may modify - not the lists themselves - but the items
 	friend class CyDeal;
-	CLinkList<TradeData>& getFirstListVar()
-	{
-		return m_firstList;
-	}
+	CLinkList<TradeData>& getFirstListVar() { return m_firstList; }
 	CLinkList<TradeData>& getSecondListVar()
 	{
 		return m_secondList;

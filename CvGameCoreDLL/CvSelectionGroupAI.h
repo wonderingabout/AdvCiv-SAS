@@ -62,10 +62,7 @@ public:
 	//void AI_makeForceSeparate();
 	void AI_setForceSeparate(bool bNewValue = true) { m_bForceSeparate = bNewValue; } // K-Mod
 
-	MissionAITypes AI_getMissionAIType() /* K-Mod: */ const
-	{
-		return m_eMissionAIType;
-	}
+	MissionAITypes AI_getMissionAIType() /* K-Mod: */ const { return m_eMissionAIType; }
 	void AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot const* pNewPlot, CvUnit const* pNewUnit);
 	// advc.003u: These two had returned CvUnit*
 	CvUnitAI* AI_ejectBestDefender(CvPlot* pTargetPlot);

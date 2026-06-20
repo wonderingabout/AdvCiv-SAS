@@ -88,10 +88,7 @@ inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir, int i45DegRota
 {
 	return rotateDirClockw(eDir, -i45DegRotations);
 } // </advc>
-inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir)		// Exposed to Python
-{
-	return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES);
-}
+inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir) { return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES); } // Exposed to Python
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard);					// Exposed to Python
 DllExport inline bool isCardinalDirection(DirectionTypes eDirection)						// Exposed to Python
 {

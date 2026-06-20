@@ -91,10 +91,7 @@ public:
 		AllGoodyTechs, // advc.314
 		NUM_BOOL_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	int get(BoolElementTypes e) const
 	{
 		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
@@ -160,34 +157,13 @@ public:
 	/*	NB: The "age" functions return ERA_NEVER instead of NO_ERA.
 		Not MAX_INT b/c we don't want callers to get in trouble with overflow. */
 	#define ERA_NEVER ((EraTypes)100)
-	static EraTypes AI_getAgeOfExploration()
-	{
-		return m_eAIAgeOfExploration;
-	}
-	static EraTypes AI_getAgeOfPestilence()
-	{
-		return m_eAIAgeOfPestilence;
-	}
-	static EraTypes AI_getAgeOfPollution()
-	{
-		return m_eAIAgeOfPollution;
-	}
-	static EraTypes AI_getAgeOfFertility()
-	{
-		return m_eAIAgeOfFertility;
-	}
-	static EraTypes AI_getAgeOfGuns()
-	{
-		return m_eAIAgeOfGuns;
-	}
-	static EraTypes AI_getAtomicAge()
-	{
-		return m_eAIAtomicAge;
-	}
-	static EraTypes AI_getAgeOfProduction()
-	{
-		return m_eAIAgeOfProduction;
-	}
+	static EraTypes AI_getAgeOfExploration() { return m_eAIAgeOfExploration; }
+	static EraTypes AI_getAgeOfPestilence() { return m_eAIAgeOfPestilence; }
+	static EraTypes AI_getAgeOfPollution() { return m_eAIAgeOfPollution; }
+	static EraTypes AI_getAgeOfFertility() { return m_eAIAgeOfFertility; }
+	static EraTypes AI_getAgeOfGuns() { return m_eAIAgeOfGuns; }
+	static EraTypes AI_getAtomicAge() { return m_eAIAtomicAge; }
+	static EraTypes AI_getAgeOfProduction() { return m_eAIAgeOfProduction; }
 	// Akin to normalizeEraFactor in Kek-Mod (CvGameCoreUtils)
 	static scaled normalizeEraNum(int iEra)
 	{

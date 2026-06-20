@@ -132,10 +132,7 @@ public:
 		return plotValidXY(iX + iDX, iY + iDY);
 	}
 	// K-Mod:
-	CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) const
-	{
-		return plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
-	}
+	CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) const { return plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY); }
 
 	DirectionTypes directionXY(int iDX, int iDY) const
 	{
@@ -153,25 +150,13 @@ public:
 				dyWrap(kToPlot.getY() - kFromPlot.getY()));
 	}
 
-	int dxWrap(int iDX) const
-	{
-		return wrapCoordDifference(iDX, getGridWidth(), isWrapX());
-	}
+	int dxWrap(int iDX) const { return wrapCoordDifference(iDX, getGridWidth(), isWrapX()); }
 
-	int dyWrap(int iDY) const
-	{
-		return wrapCoordDifference(iDY, getGridHeight(), isWrapY());
-	}
+	int dyWrap(int iDY) const { return wrapCoordDifference(iDY, getGridHeight(), isWrapY()); }
 
-	int xDistance(int iFromX, int iToX) const
-	{
-		return coordDistance(iFromX, iToX, getGridWidth(), isWrapX());
-	}
+	int xDistance(int iFromX, int iToX) const { return coordDistance(iFromX, iToX, getGridWidth(), isWrapX()); }
 
-	int yDistance(int iFromY, int iToY) const
-	{
-		return coordDistance(iFromY, iToY, getGridHeight(), isWrapY());
-	}
+	int yDistance(int iFromY, int iToY) const { return coordDistance(iFromY, iToY, getGridHeight(), isWrapY()); }
 
 	CvPlot* plotCity(int iX, int iY, CityPlotTypes ePlot) const								// Exposed to Python (CyGameCoreUtils.py)
 	{	// advc.enum: 3rd param was int
@@ -186,15 +171,9 @@ public:
 		return GC.getXYCityPlot(iDX + CITY_PLOTS_RADIUS, iDY + CITY_PLOTS_RADIUS);
 	}
 	// advc: 1st param (CvCity*) replaced with two ints - to allow hypothetical city sites
-	CityPlotTypes plotCityXY(int iCityX, int iCityY, CvPlot const& kPlot) const				// Exposed to Python (CyGameCoreUtils.py)
-	{
-		return plotCityXY(dxWrap(kPlot.getX() - iCityX), dyWrap(kPlot.getY() - iCityY));
-	}
+	CityPlotTypes plotCityXY(int iCityX, int iCityY, CvPlot const& kPlot) const { return plotCityXY(dxWrap(kPlot.getX() - iCityX), dyWrap(kPlot.getY() - iCityY)); } // Exposed to Python (CyGameCoreUtils.py)
 	// advc:
-	bool adjacentOrSame(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot) const
-	{
-		return (stepDistance(&kFirstPlot, &kSecondPlot) <= 1);
-	}
+	bool adjacentOrSame(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot) const { return (stepDistance(&kFirstPlot, &kSecondPlot) <= 1); }
 	// advc.opt: Check cache at CvPlot before doing the computation
 	bool isSeparatedByIsthmus(CvPlot const& kFrom, CvPlot const& kTo) const
 	{
@@ -282,15 +261,9 @@ public: // advc: made several functions const
 	void updateMinOriginalStartDist(CvArea const& kArea);										// Exposed to Python
 	void updateYield();
 	// <advc.enum> Moved from CvGame
-	int getPlotExtraYield(CvPlot const& kPlot, YieldTypes eYield) const // K-Mod: Exposed to Python
-	{
-		return m_aeiPlotExtraYield.get(kPlot.plotNum(), eYield);
-	}
+	int getPlotExtraYield(CvPlot const& kPlot, YieldTypes eYield) const { return m_aeiPlotExtraYield.get(kPlot.plotNum(), eYield); } // K-Mod: Exposed to Python
 	void setPlotExtraYield(CvPlot& kPlot, YieldTypes eYield, int iChange);					// Exposed to Python
-	int getPlotExtraCost(CvPlot const& kPlot) const
-	{
-		return m_aiPlotExtraCost.get(kPlot.plotNum());
-	}
+	int getPlotExtraCost(CvPlot const& kPlot) const { return m_aiPlotExtraCost.get(kPlot.plotNum()); }
 	void changePlotExtraCost(CvPlot& kPlot, int iChange);									// Exposed to Python
 	void resetPlotExtraData();
 	// (Just for save-compatibility)
@@ -323,10 +296,7 @@ public: // advc: made several functions const
 	bool findWater(CvPlot const* pPlot, int iRange, bool bFreshWater);										// Exposed to Python
 
 	// advc.inl: Was "isPlotINLINE", return type was int.
-	DllExport bool isPlot(int iX, int iY) const 													// Exposed to Python
-	{
-		return (iX >= 0 && iX < getGridWidth() && iY >= 0 && iY < getGridHeight());
-	}
+	DllExport bool isPlot(int iX, int iY) const { return (iX >= 0 && iX < getGridWidth() && iY >= 0 && iY < getGridHeight()); } // Exposed to Python
 	int numPlotsExternal() const; // advc.inl: Exported through .def file							// Exposed to Python
 	PlotNumTypes numPlots() const // advc.inl: was "numPlotsINLINE"
 	{
@@ -372,20 +342,11 @@ public: // advc: made several functions const
 	int maxPlotDistance(int iGridWidth, int iGridHeight) const; // </advc.tsl>
 	int maxStepDistance() const;																		// Exposed to Python
 	// <advc.140>
-	int maxMaintenanceDistance() const
-	{
-		return (1 + intdiv::uround(maxTypicalDistance() * 10, 25));
-	}
+	int maxMaintenanceDistance() const { return (1 + intdiv::uround(maxTypicalDistance() * 10, 25)); }
 	int maxTypicalDistance() const; // </advc.140>
 
-	DllExport int getGridWidth() const // advc.inl: was "getGridWidthINLINE"							// Exposed to Python
-	{
-		return m_iGridWidth;
-	}
-	DllExport int getGridHeight() const // advc.inl: was "getGridHeightINLINE"							// Exposed to Python
-	{
-		return m_iGridHeight;
-	}
+	DllExport int getGridWidth() const { return m_iGridWidth; } // advc.inl: was "getGridWidthINLINE"							// Exposed to Python
+	DllExport int getGridHeight() const { return m_iGridHeight; } // advc.inl: was "getGridHeightINLINE"							// Exposed to Python
 
 	int getLandPlots() const { return m_iLandPlots; }												// Exposed to Python
 	void changeLandPlots(int iChange);
@@ -394,14 +355,8 @@ public: // advc: made several functions const
 	int getOwnedPlots() const { return m_iOwnedPlots; }														// Exposed to Python
 	void changeOwnedPlots(int iChange);
 
-	int getTopLatitude() const																									// Exposed to Python
-	{
-		return m_iTopLatitude;
-	}
-	int getBottomLatitude() const																							// Exposed to Python
-	{
-		return m_iBottomLatitude;
-	}
+	int getTopLatitude() const { return m_iTopLatitude; } // Exposed to Python
+	int getBottomLatitude() const { return m_iBottomLatitude; } // Exposed to Python
 	void setLatitudeLimits(int iTop, int iBottom); // advc.tsl
 
 	short getNextRiverID() const;																									// Exposed to Python
@@ -412,10 +367,7 @@ public: // advc: made several functions const
 	bool isWrapYExternal(); // advc.inl: Exported through .def file							// Exposed to Python
 	bool isWrapY() const { return m_bWrapY; } // advc.inl: was "isWrapYINLINE"
 	bool isWrapExternal(); // advc.inl: Exported through .def file
-	bool isWrap() const // advc.inl: Renamed from isWrapINLINE
-	{
-		return m_bWrapX || m_bWrapY;
-	}
+	bool isWrap() const { return m_bWrapX || m_bWrapY; } // advc.inl: Renamed from isWrapINLINE
 
 	DllExport WorldSizeTypes getWorldSize() // <advc> const version									// Exposed to Python
 	{
@@ -489,15 +441,9 @@ public: // advc: made several functions const
 	DllExport CvPlot* pointToPlot(float fX, float fY);												// Exposed to Python
 
 	int getIndexAfterLastArea() const;																// Exposed to Python
-	int getNumAreas() const																			// Exposed to Python
-	{
-		return m_areas.getCount();
-	}
+	int getNumAreas() const { return m_areas.getCount(); } // Exposed to Python
 	int getNumLandAreas() const;
-	CvArea* getArea(int iID) const																	// Exposed to Python
-	{
-		return m_areas.getAt(iID);
-	}
+	CvArea* getArea(int iID) const { return m_areas.getAt(iID); } // Exposed to Python
 	CvArea* addArea();
 	void deleteArea(int iID);
 	// iteration
@@ -614,10 +560,7 @@ public:
 // advc.enum:
 namespace plot_num_traits
 {
-	inline PlotNumTypes getNumMapPlots()
-	{
-		return GC.getMap().numPlots();
-	}
+	inline PlotNumTypes getNumMapPlots() { return GC.getMap().numPlots(); }
 }
 
 /* <advc.make> Global wrappers for distance functions. The int versions are

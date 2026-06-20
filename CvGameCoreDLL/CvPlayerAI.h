@@ -368,14 +368,8 @@ public:
 	// advc: Unused (out-)param iClosestTargetRange removed
 	int AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup const* pSkipSelectionGroup = NULL, int iRange = 0, int iMaxCount = MAX_INT) const;
 	// <advc.opt>
-	bool AI_isAnyPlotTargetMissionAI(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const
-	{
-		return (AI_plotTargetMissionAIs(kPlot, eMissionAI, pSkipSelectionGroup, iRange, 1) >= 1);
-	}
-	bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const
-	{
-		return (AI_unitTargetMissionAIs(kUnit, eMissionAI, pSkipSelectionGroup, 1) >= 1);
-	}
+	bool AI_isAnyPlotTargetMissionAI(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0) const { return (AI_plotTargetMissionAIs(kPlot, eMissionAI, pSkipSelectionGroup, iRange, 1) >= 1); }
+	bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const { return (AI_unitTargetMissionAIs(kUnit, eMissionAI, pSkipSelectionGroup, 1) >= 1); }
 	bool AI_isAnyUnitTargetMissionAI(CvUnit const& kUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxPathTurns = -1) const
 	{
 		return (AI_unitTargetMissionAIs(kUnit, aeMissionAI, iMissionAICount,
@@ -527,10 +521,7 @@ public:
 	bool AI_atVictoryStage3() const;
 	AIVictoryStage AI_getVictoryStageHash() const { return m_eVictoryStageHash; }
 	// advc.115f:
-	int AI_getVictoryWeight(VictoryTypes eVictory) const
-	{
-		return m_aiVictoryWeights.get(eVictory);
-	}
+	int AI_getVictoryWeight(VictoryTypes eVictory) const { return m_aiVictoryWeights.get(eVictory); }
 	void AI_updateVictoryWeights(); // advc.115f
 	void AI_updateVictoryStageHash(); // K-Mod
 	void AI_initStrategyRand(); // K-Mod
@@ -619,10 +610,7 @@ public:
 	int AI_bestAreaUnitAIValue(UnitAITypes eUnitAI, CvArea const* pArea = NULL, UnitTypes* peBestUnitType = NULL) const;
 	int AI_bestCityUnitAIValue(UnitAITypes eUnitAI, CvCity const* pCity, UnitTypes* peBestUnitType = NULL) const;
 	// advc.opt:
-	bool AI_isDomainBombard(DomainTypes eDomain) const
-	{
-		return (AI_calculateTotalBombard(eDomain, 1) > 0);
-	}
+	bool AI_isDomainBombard(DomainTypes eDomain) const { return (AI_calculateTotalBombard(eDomain, 1) > 0); }
 	int AI_calculateTotalBombard(DomainTypes eDomain, int iMaxCount = MAX_INT) const; // advc.opt
 
 	void AI_updateBonusValue(BonusTypes eBonus);

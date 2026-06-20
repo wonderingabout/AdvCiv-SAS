@@ -20,46 +20,16 @@ class CvBuildingClassInfo : public CvInfoBase
 public: // All the const functions are exposed to Python
 	CvBuildingClassInfo();
 
-	int getMaxGlobalInstances() const
-	{
-		return m_iMaxGlobalInstances;
-	}
-	bool isWorldWonder() const // advc.003w: Replacing global isWorldWonderClass
-	{
-		return (getMaxGlobalInstances() != -1);
-	}
-	int getMaxTeamInstances() const
-	{
-		return m_iMaxTeamInstances;
-	}
-	bool isTeamWonder() const // advc.003w: Replacing global isTeamWonderClass
-	{
-		return (getMaxTeamInstances() != -1);
-	}
-	int getMaxPlayerInstances() const
-	{
-		return m_iMaxPlayerInstances;
-	}
-	bool isNationalWonder() const // advc.003w: Replacing global isNationalWonderClass
-	{
-		return (getMaxPlayerInstances() != -1);
-	}
-	bool isLimited() const // advc.003w: Replacing global isLimitedWonderClass
-	{
-		return (isWorldWonder() || isTeamWonder() || isNationalWonder());
-	}
-	int getExtraPlayerInstances() const
-	{
-		return m_iExtraPlayerInstances;
-	}
-	BuildingTypes getDefaultBuilding() const // advc.003x: Renamed from getDefaultBuildingIndex
-	{
-		return (BuildingTypes)m_iDefaultBuildingIndex;
-	}
-	bool isNoLimit() const
-	{
-		return m_bNoLimit;
-	}
+	int getMaxGlobalInstances() const { return m_iMaxGlobalInstances; }
+	bool isWorldWonder() const { return (getMaxGlobalInstances() != -1); } // advc.003w: Replacing global isWorldWonderClass
+	int getMaxTeamInstances() const { return m_iMaxTeamInstances; }
+	bool isTeamWonder() const { return (getMaxTeamInstances() != -1); } // advc.003w: Replacing global isTeamWonderClass
+	int getMaxPlayerInstances() const { return m_iMaxPlayerInstances; }
+	bool isNationalWonder() const { return (getMaxPlayerInstances() != -1); } // advc.003w: Replacing global isNationalWonderClass
+	bool isLimited() const { return (isWorldWonder() || isTeamWonder() || isNationalWonder()); } // advc.003w: Replacing global isLimitedWonderClass
+	int getExtraPlayerInstances() const { return m_iExtraPlayerInstances; }
+	BuildingTypes getDefaultBuilding() const { return (BuildingTypes)m_iDefaultBuildingIndex; } // advc.003x: Renamed from getDefaultBuildingIndex
+	bool isNoLimit() const { return m_bNoLimit; }
 	int getLimit() const; // advc.003w: Replacing global limitedWonderClassLimit
 
 	bool isMonument() const { return m_bMonument; }
@@ -109,10 +79,7 @@ public:
 		Integers in signatures replaced with enum types. */
 	CvBuildingInfo();
 
-	BuildingClassTypes getBuildingClassType() const
-	{
-		return m_eBuildingClassType;
-	}
+	BuildingClassTypes getBuildingClassType() const { return m_eBuildingClassType; }
 	VictoryTypes getVictoryPrereq() const { return m_eVictoryPrereq; }
 	EraTypes getFreeStartEra() const { return m_eFreeStartEra; }
 	EraTypes getMaxStartEra() const { return m_eMaxStartEra; }
@@ -171,31 +138,16 @@ public:
 	int getForeignTradeRouteModifier() const { return m_iForeignTradeRouteModifier; }
 	int getAssetValue() const { return m_iAssetValue; }
 	int getPowerValue() const { return m_iPowerValue; }
-	SpecialBuildingTypes getSpecialBuildingType() const
-	{
-		return m_eSpecialBuildingType;
-	}
+	SpecialBuildingTypes getSpecialBuildingType() const { return m_eSpecialBuildingType; }
 	AdvisorTypes getAdvisorType() const { return m_eAdvisorType; }
 	ReligionTypes getHolyCity() const { return m_eHolyCity; }
 	ReligionTypes getReligionType() const { return m_eReligionType; }
 	ReligionTypes getStateReligion() const { return m_eStateReligion; }
 	ReligionTypes getPrereqReligion() const { return m_ePrereqReligion; }
-	CorporationTypes getPrereqCorporation() const
-	{
-		return m_ePrereqCorporation;
-	}
-	CorporationTypes getFoundsCorporation() const
-	{
-		return m_eFoundsCorporation;
-	}
-	ReligionTypes getGlobalReligionCommerce() const
-	{
-		return m_eGlobalReligionCommerce;
-	}
-	CorporationTypes getGlobalCorporationCommerce() const
-	{
-		return m_eGlobalCorporationCommerce;
-	}
+	CorporationTypes getPrereqCorporation() const { return m_ePrereqCorporation; }
+	CorporationTypes getFoundsCorporation() const { return m_eFoundsCorporation; }
+	ReligionTypes getGlobalReligionCommerce() const { return m_eGlobalReligionCommerce; }
+	CorporationTypes getGlobalCorporationCommerce() const { return m_eGlobalCorporationCommerce; }
 	BonusTypes getPrereqAndBonus() const { return m_ePrereqAndBonus; }
 	UnitClassTypes getGreatPeopleUnitClass() const { return m_eGreatPeopleUnitClass; }
 	int getGreatPeopleRateChange() const { return m_iGreatPeopleRateChange; }
@@ -234,10 +186,7 @@ public:
 	bool isMapCentering() const { return m_bMapCentering; }
 	bool isNoUnhappiness() const { return m_bNoUnhappiness; }
 	//bool isNoUnhealthyPopulation() const;
-	int getUnhealthyPopulationModifier() const // K-Mod, Exposed to Python
-	{
-		return m_iUnhealthyPopulationModifier;
-	}
+	int getUnhealthyPopulationModifier() const { return m_iUnhealthyPopulationModifier; } // K-Mod, Exposed to Python
 	bool isBuildingOnlyHealthy() const { return m_bBuildingOnlyHealthy; }
 	bool isNeverCapture() const { return m_bNeverCapture; }
 	bool isNukeImmune() const { return m_bNukeImmune; }
@@ -307,18 +256,9 @@ public:
 	DEF_INFO_ENUM2SHORT_MAP(SpecialistYieldChange, Specialist, Yield, YieldChangeMap, NonDefaultEnumMap);
 	DEF_INFO_ENUM2SHORT_MAP(BonusYieldModifier, Bonus, Yield, YieldPercentMap, NonDefaultEnumMap);
 	// <advc.003w> for convenience
-	bool isWorldWonder() const
-	{
-		return GC.getInfo(getBuildingClassType()).isWorldWonder();
-	}
-	bool isTeamWonder() const
-	{
-		return GC.getInfo(getBuildingClassType()).isTeamWonder();
-	}
-	bool isNationalWonder() const
-	{
-		return GC.getInfo(getBuildingClassType()).isNationalWonder();
-	}
+	bool isWorldWonder() const { return GC.getInfo(getBuildingClassType()).isWorldWonder(); }
+	bool isTeamWonder() const { return GC.getInfo(getBuildingClassType()).isTeamWonder(); }
+	bool isNationalWonder() const { return GC.getInfo(getBuildingClassType()).isNationalWonder(); }
 	bool isLimited() const
 	{
 		return GC.getInfo(getBuildingClassType()).isLimited();
@@ -592,75 +532,24 @@ class CvProjectInfo : public CvInfoBase
 public: // All const functions are exposed to Python
 	CvProjectInfo();
 
-	VictoryTypes getVictoryPrereq() const
-	{
-		return m_eVictoryPrereq;
-	}
-	TechTypes getTechPrereq() const
-	{
-		return m_eTechPrereq;
-	}
-	ProjectTypes getAnyoneProjectPrereq() const
-	{
-		return m_eAnyoneProjectPrereq;
-	}
-	int getMaxGlobalInstances() const
-	{
-		return m_iMaxGlobalInstances;
-	}
-	bool isWorldProject() const // advc.003w: Replacing global isWorldProject(ProjectTypes)
-	{
-		return (getMaxGlobalInstances() != -1);
-	}
-	int getMaxTeamInstances() const
-	{
-		return m_iMaxTeamInstances;
-	}
-	bool isTeamProject() const // advc.003w: Replacing global isTeamProject(ProjectTypes)
-	{
-		return (getMaxTeamInstances() != -1);
-	}
-	bool isLimited() const // advc.003w: Replacing global isLimitedProject(ProjectTypes)
-	{
-		return (isWorldProject() || isTeamProject());
-	} 
-	int getProductionCost() const
-	{
-		return m_iProductionCost;
-	}
-	int getNukeInterception() const
-	{
-		return m_iNukeInterception;
-	}
+	VictoryTypes getVictoryPrereq() const { return m_eVictoryPrereq; }
+	TechTypes getTechPrereq() const { return m_eTechPrereq; }
+	ProjectTypes getAnyoneProjectPrereq() const { return m_eAnyoneProjectPrereq; }
+	int getMaxGlobalInstances() const { return m_iMaxGlobalInstances; }
+	bool isWorldProject() const { return (getMaxGlobalInstances() != -1); } // advc.003w: Replacing global isWorldProject(ProjectTypes)
+	int getMaxTeamInstances() const { return m_iMaxTeamInstances; }
+	bool isTeamProject() const { return (getMaxTeamInstances() != -1); } // advc.003w: Replacing global isTeamProject(ProjectTypes)
+	bool isLimited() const { return (isWorldProject() || isTeamProject()); } // advc.003w: Replacing global isLimitedProject(ProjectTypes)
+	int getProductionCost() const { return m_iProductionCost; }
+	int getNukeInterception() const { return m_iNukeInterception; }
 	// advc/ kekm38 (note): This returns a player count (not a player id)
-	int getTechShare() const
-	{
-		return m_iTechShare;
-	}
-	SpecialUnitTypes getEveryoneSpecialUnit() const
-	{
-		return m_eEveryoneSpecialUnit;
-	}
-	SpecialBuildingTypes getEveryoneSpecialBuilding() const
-	{
-		return m_eEveryoneSpecialBuilding;
-	}
-	int getVictoryDelayPercent() const
-	{
-		return m_iVictoryDelayPercent;
-	}
-	int getSuccessRate() const
-	{
-		return m_iSuccessRate;
-	}
-	bool isSpaceship() const
-	{
-		return m_bSpaceship;
-	}
-	bool isAllowsNukes() const
-	{
-		return m_bAllowsNukes;
-	}
+	int getTechShare() const { return m_iTechShare; }
+	SpecialUnitTypes getEveryoneSpecialUnit() const { return m_eEveryoneSpecialUnit; }
+	SpecialBuildingTypes getEveryoneSpecialBuilding() const { return m_eEveryoneSpecialBuilding; }
+	int getVictoryDelayPercent() const { return m_iVictoryDelayPercent; }
+	int getSuccessRate() const { return m_iSuccessRate; }
+	bool isSpaceship() const { return m_bSpaceship; }
+	bool isAllowsNukes() const { return m_bAllowsNukes; }
 
 	const char* getMovieArtDef() const;
 	const TCHAR* getCreateSound() const;

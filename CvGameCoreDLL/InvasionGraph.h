@@ -73,10 +73,7 @@ public:
 		size_t findCycle(std::vector<Node*>& kPath);
 		// Won't terminate when called on a Node that's part of a cycle
 		Node& findSink();
-		bool hasLost(PlotNumTypes eCityPlot) const
-		{
-			return (m_cityLosses.count(eCityPlot) > 0);
-		}
+		bool hasLost(PlotNumTypes eCityPlot) const { return (m_cityLosses.count(eCityPlot) > 0); }
 		// Updates adjacency lists. NULL deletes an edge.
 		void changePrimaryTarget(Node* pNewTarget);
 		InvasionGraph::Node* getPrimaryTarget() const { return m_pPrimaryTarget; }
@@ -98,15 +95,9 @@ public:
 		/*	The rest of the public functions are not to be used
 			until the simulation has finished ... */
 		// Lost power minus shifted power
-		scaled getLostPower(MilitaryBranchTypes eBranch) const
-		{
-			return m_arLostPower[eBranch] - m_arShiftedPower[eBranch];
-		}
+		scaled getLostPower(MilitaryBranchTypes eBranch) const { return m_arLostPower[eBranch] - m_arShiftedPower[eBranch]; }
 		// Power after simulation minus initial power
-		scaled getGainedPower(MilitaryBranchTypes eBranch) const
-		{
-			return m_military[eBranch]->power() - m_arCurrentPow[eBranch];
-		}
+		scaled getGainedPower(MilitaryBranchTypes eBranch) const { return m_military[eBranch]->power() - m_arCurrentPow[eBranch]; }
 		// Invested during the build-up phases
 		scaled getProductionInvested() const { return m_rProductionInvested; }
 		/*	City plots included in the conquest and loss sets are guaranteed to exist
@@ -192,10 +183,7 @@ public:
 			Losses from city attack. */
 		static scaled const m_rClashPortion;
 		static std::pair<scaled,scaled> clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity = true, bool bNaval = false);
-		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef)
-		{
-			return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3;
-		}
+		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef) { return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3; }
 		static scaled stake(scaled rPowAtt, scaled rPowDef)
 		{
 			return m_rClashPortion * scaled::min(1, fixp(1.6) *

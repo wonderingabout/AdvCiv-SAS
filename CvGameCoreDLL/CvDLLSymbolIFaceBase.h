@@ -55,20 +55,14 @@ public:
 	{
 		gDLL->getSymbolIFace()->Hide(base(pFeature), bHide);
 	}
-	virtual bool IsHidden(CvFeature* pFeature)
-	{
-		return gDLL->getSymbolIFace()->IsHidden(base(pFeature));
-	}
+	virtual bool IsHidden(CvFeature* pFeature) { return gDLL->getSymbolIFace()->IsHidden(base(pFeature)); }
 	virtual void updatePosition(CvFeature* pFeature)
 	{
 		gDLL->getSymbolIFace()->updatePosition(base(pFeature));
 	}
 private:
 	// advc: Put the (up-)casts in one place
-	static CvSymbol* base(CvFeature* pFeature)
-	{
-		return reinterpret_cast<CvSymbol*>(pFeature);
-	}
+	static CvSymbol* base(CvFeature* pFeature) { return reinterpret_cast<CvSymbol*>(pFeature); }
 };
 
 class CvDLLRouteIFaceBase
@@ -91,10 +85,7 @@ public:
 	{
 		gDLL->getSymbolIFace()->Hide(base(pRoute), bHide);
 	}
-	virtual bool IsHidden(CvRoute* pRoute)
-	{
-		return gDLL->getSymbolIFace()->IsHidden(base(pRoute));
-	}
+	virtual bool IsHidden(CvRoute* pRoute) { return gDLL->getSymbolIFace()->IsHidden(base(pRoute)); }
 	virtual void updatePosition(CvRoute* pRoute)
 	{
 		gDLL->getSymbolIFace()->updatePosition(base(pRoute));
@@ -127,10 +118,7 @@ public:
 	{
 		gDLL->getRouteIFace()->Hide(base(pRiver), bHide);
 	}
-	virtual bool IsHidden(CvRiver* pRiver)
-	{
-		return gDLL->getRouteIFace()->IsHidden(base(pRiver));
-	}
+	virtual bool IsHidden(CvRiver* pRiver) { return gDLL->getRouteIFace()->IsHidden(base(pRiver)); }
 	virtual void updatePosition(CvRiver* pRiver)
 	{
 		gDLL->getRouteIFace()->updatePosition(base(pRiver));

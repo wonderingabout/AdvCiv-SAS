@@ -36,10 +36,7 @@ public:
 	{
 		SAFE_DELETE_ARRAY(m_data);
 	}
-	FAStarNode& get(int iX, int iY)
-	{
-		return reinterpret_cast<FAStarNode*>(m_data)[iY * m_iWidth + iX];
-	}
+	FAStarNode& get(int iX, int iY) { return reinterpret_cast<FAStarNode*>(m_data)[iY * m_iWidth + iX]; }
 	void reset()
 	{
 		memset(m_data, 0, sizeof(FAStarNode) * m_iWidth * m_iHeight);

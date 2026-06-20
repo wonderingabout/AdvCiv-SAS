@@ -113,14 +113,8 @@ private:
 	void setPlayerWeightsPerPlot(PlotNumTypes ePlot, EagerEnumMap<PlayerTypes, scaled>& kPlayerWeights, scaled rHumanMult = 1) const;
 	void calculatePlotWeights(CvPlayer const& kPlayer);
 	std::auto_ptr<PlotCircleIter> getSurroundings(CvPlayer const& kPlayer) const;
-	bool isBonusDiscouraged(CvPlot const& kPlot, CivilizationTypes eCiv, BonusTypes eBonus = NO_BONUS) const
-	{
-		return isTruBonusDiscouraged(getTruBonus(kPlot, eBonus), eCiv);
-	}
-	bool isBonusEncouraged(CvPlot const& kPlot, CivilizationTypes eCiv, BonusTypes eBonus = NO_BONUS) const
-	{
-		return isTruBonusEncouraged(getTruBonus(kPlot, eBonus), eCiv);
-	}
+	bool isBonusDiscouraged(CvPlot const& kPlot, CivilizationTypes eCiv, BonusTypes eBonus = NO_BONUS) const { return isTruBonusDiscouraged(getTruBonus(kPlot, eBonus), eCiv); }
+	bool isBonusEncouraged(CvPlot const& kPlot, CivilizationTypes eCiv, BonusTypes eBonus = NO_BONUS) const { return isTruBonusEncouraged(getTruBonus(kPlot, eBonus), eCiv); }
 	CvTruBonusInfo const* getTruBonus(CvPlot const& kPlot, BonusTypes eBonus = NO_BONUS) const;
 	bool isTruBonusDiscouraged(CvTruBonusInfo const* pTruBonus, CivilizationTypes eCiv) const;
 	bool isTruBonusEncouraged(CvTruBonusInfo const* pTruBonus, CivilizationTypes eCiv) const;

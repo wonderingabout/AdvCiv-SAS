@@ -255,14 +255,8 @@ public:
 		it specifically does not check whether the unit can move, whether the current plot is owned, enough gold
 		those are checked in canUpgrade()
 		does not search all cities, only checks the closest one */
-	bool hasUpgrade(bool bSearch = false) const																// Exposed to Python
-	{
-		return (getUpgradeCity(bSearch) != NULL);
-	}
-	bool hasUpgrade(UnitTypes eUnit, bool bSearch = false) const
-	{
-		return (getUpgradeCity(eUnit, bSearch) != NULL);
-	}
+	bool hasUpgrade(bool bSearch = false) const { return (getUpgradeCity(bSearch) != NULL); } // Exposed to Python
+	bool hasUpgrade(UnitTypes eUnit, bool bSearch = false) const { return (getUpgradeCity(eUnit, bSearch) != NULL); }
 	CvCity* getUpgradeCity(bool bSearch = false) const;
 	CvCity* getUpgradeCity(UnitTypes eUnit, bool bSearch = false, int* iSearchValue = NULL) const;
 	//void upgrade(UnitTypes eUnit);
@@ -271,37 +265,16 @@ public:
 	HandicapTypes getHandicapType() const;																	// Exposed to Python
 	CivilizationTypes getCivilizationType() const;															// Exposed to Python
 	const wchar* getVisualCivAdjective(TeamTypes eForTeam) const;
-	SpecialUnitTypes getSpecialUnitType() const																// Exposed to Python
-	{
-		return m_pUnitInfo->getSpecialUnitType();
-	}
+	SpecialUnitTypes getSpecialUnitType() const { return m_pUnitInfo->getSpecialUnitType(); } // Exposed to Python
 	UnitTypes getCaptureUnitType(CivilizationTypes eCivilization) const;									// Exposed to Python
 	int getCaptureOdds(CvUnit const& kDefender) const; // advc.010
-	UnitCombatTypes getUnitCombatType() const																// Exposed to Python
-	{
-		return m_pUnitInfo->getUnitCombatType();
-	}
-	DllExport DomainTypes getDomainType() const																// Exposed to Python
-	{
-		return m_pUnitInfo->getDomainType();
-	}
-	InvisibleTypes getInvisibleType() const																	// Exposed to Python
-	{
-		return m_pUnitInfo->getInvisibleType();
-	}
-	int getNumSeeInvisibleTypes() const																		// Exposed to Python
-	{
-		return m_pUnitInfo->getNumSeeInvisibleTypes();
-	}
-	InvisibleTypes getSeeInvisibleType(int i) const															// Exposed to Python
-	{
-		return m_pUnitInfo->getSeeInvisibleType(i);
-	}
+	UnitCombatTypes getUnitCombatType() const { return m_pUnitInfo->getUnitCombatType(); } // Exposed to Python
+	DllExport DomainTypes getDomainType() const { return m_pUnitInfo->getDomainType(); } // Exposed to Python
+	InvisibleTypes getInvisibleType() const { return m_pUnitInfo->getInvisibleType(); } // Exposed to Python
+	int getNumSeeInvisibleTypes() const { return m_pUnitInfo->getNumSeeInvisibleTypes(); } // Exposed to Python
+	InvisibleTypes getSeeInvisibleType(int i) const { return m_pUnitInfo->getSeeInvisibleType(i); } // Exposed to Python
 
-	int flavorValue(FlavorTypes eFlavor) const																// Exposed to Python
-	{
-		return m_pUnitInfo->getFlavorValue(eFlavor);
-	}
+	int flavorValue(FlavorTypes eFlavor) const { return m_pUnitInfo->getFlavorValue(eFlavor); } // Exposed to Python
 
 	bool isBarbarian() const;																				// Exposed to Python
 	// advc.313:
@@ -316,103 +289,46 @@ public:
 	int visibilityRange() const;																			// Exposed to Python
 
 	int baseMoves() const;																					// Exposed to Python
-	int maxMoves() const																					// Exposed to Python
-	{
-		return (baseMoves() * GC.getMOVE_DENOMINATOR());
-	}
-	int movesLeft() const																					// Exposed to Python
-	{
-		return std::max(0, maxMoves() - getMoves());
-	}
+	int maxMoves() const { return (baseMoves() * GC.getMOVE_DENOMINATOR()); } // Exposed to Python
+	int movesLeft() const { return std::max(0, maxMoves() - getMoves()); } // Exposed to Python
 	DllExport bool canMove() const;																			// Exposed to Python
-	DllExport bool hasMoved() const																			// Exposed to Python
-	{
-		return (getMoves() > 0);
-	}
+	DllExport bool hasMoved() const { return (getMoves() > 0); } // Exposed to Python
 
-	int airRange() const																					// Exposed to Python
-	{
-		return (m_pUnitInfo->getAirRange() + getExtraAirRange());
-	}
-	int nukeRange() const																					// Exposed to Python
-	{
-		return m_pUnitInfo->getNukeRange();
-	}
+	int airRange() const { return (m_pUnitInfo->getAirRange() + getExtraAirRange()); } // Exposed to Python
+	int nukeRange() const { return m_pUnitInfo->getNukeRange(); } // Exposed to Python
 	bool isNuke() const { return m_pUnitInfo->isNuke(); } // advc
 
 	bool canBuildRoute() const;																				// Exposed to Python
 	DllExport BuildTypes getBuildType() const;																// Exposed to Python
 	int workRate(bool bMax) const;																			// Exposed to Python
 
-	bool isAnimal() const																					// Exposed to Python
-	{
-		return m_pUnitInfo->isAnimal();
-	}
-	bool isNoBadGoodies() const																				// Exposed to Python
-	{
-		return m_pUnitInfo->isNoBadGoodies();
-	}
-	bool isOnlyDefensive() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->isOnlyDefensive();
-	}
+	bool isAnimal() const { return m_pUnitInfo->isAnimal(); } // Exposed to Python
+	bool isNoBadGoodies() const { return m_pUnitInfo->isNoBadGoodies(); } // Exposed to Python
+	bool isOnlyDefensive() const { return m_pUnitInfo->isOnlyDefensive(); } // Exposed to Python
 	bool isNoCityCapture() const;																			// Exposed to Python
 	bool isNoUnitCapture() const; // advc.315b
-	bool isRivalTerritory() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->isRivalTerritory();
-	}
+	bool isRivalTerritory() const { return m_pUnitInfo->isRivalTerritory(); } // Exposed to Python
 	bool isMilitaryHappiness() const;																		// Exposed to Python
 	bool isGarrisonInTeamCity() const; // advc.184
 	int garrisonStrength() const; // advc.101
-	bool isInvestigate() const																				// Exposed to Python
-	{
-		return m_pUnitInfo->isInvestigate();
-	}
-	bool isCounterSpy() const																				// Exposed to Python
-	{
-		return m_pUnitInfo->isCounterSpy();
-	}
-	bool isSpy() const
-	{
-		return m_pUnitInfo->isSpy();
-	}
-	bool isFound() const																					// Exposed to Python
-	{
-		return m_pUnitInfo->isFound();
-	}
+	bool isInvestigate() const { return m_pUnitInfo->isInvestigate(); } // Exposed to Python
+	bool isCounterSpy() const { return m_pUnitInfo->isCounterSpy(); } // Exposed to Python
+	bool isSpy() const { return m_pUnitInfo->isSpy(); }
+	bool isFound() const { return m_pUnitInfo->isFound(); } // Exposed to Python
 	bool isGoldenAge() const;																				// Exposed to Python
 	bool canCoexistWithEnemyUnit(TeamTypes eTeam) const;													// Exposed to Python
 
-	DllExport bool isFighting() const																		// Exposed to Python
-	{
-		return (getCombatUnit() != NULL);
-	}
+	DllExport bool isFighting() const { return (getCombatUnit() != NULL); } // Exposed to Python
 	DllExport bool isAttacking() const;																		// Exposed to Python
 	DllExport bool isDefending() const;																		// Exposed to Python
 	bool isInCombat() const;																				// Exposed to Python
 
-	DllExport int maxHitPoints() const																		// Exposed to Python
-	{
-		return GC.getMAX_HIT_POINTS();
-	}
-	int currHitPoints() const																				// Exposed to Python
-	{
-		return (maxHitPoints() - getDamage());
-	}
-	bool isHurt() const																						// Exposed to Python
-	{
-		return (getDamage() > 0);
-	}
-	DllExport bool isDead() const																			// Exposed to Python
-	{
-		return (getDamage() >= maxHitPoints());
-	}
+	DllExport int maxHitPoints() const { return GC.getMAX_HIT_POINTS(); } // Exposed to Python
+	int currHitPoints() const { return (maxHitPoints() - getDamage()); } // Exposed to Python
+	bool isHurt() const { return (getDamage() > 0); } // Exposed to Python
+	DllExport bool isDead() const { return (getDamage() >= maxHitPoints()); } // Exposed to Python
 	// advc:
-	bool isLethalDamage(int iDamage)
-	{
-		return (currHitPoints() - iDamage <= 0);
-	}
+	bool isLethalDamage(int iDamage) { return (currHitPoints() - iDamage <= 0); }
 
 	void setBaseCombatStr(int iCombat);																		// Exposed to Python
 	int baseCombatStr() const																				// Exposed to Python
@@ -421,24 +337,15 @@ public:
 	}  // advc: Default values - to make clear that these can be NULL.
 	int maxCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL, bool bGarrisonStrength = false) const; // advc.500b; Exposed to Python
 	// Exposed to Python <!-- custom: hoisted from multiline signature between `pAttacker` and `pCombatDetails` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	int currCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL) const
-	{
-		return ((maxCombatStr(pPlot, pAttacker, pCombatDetails) * currHitPoints()) / maxHitPoints());
-	}
-	int currFirepower(const CvPlot* pPlot = NULL, const CvUnit* pAttacker = NULL) const						// Exposed to Python
-	{
-		return ((maxCombatStr(pPlot, pAttacker) + currCombatStr(pPlot, pAttacker) + 1) / 2);
-	}
+	int currCombatStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL) const { return ((maxCombatStr(pPlot, pAttacker, pCombatDetails) * currHitPoints()) / maxHitPoints()); }
+	int currFirepower(const CvPlot* pPlot = NULL, const CvUnit* pAttacker = NULL) const { return ((maxCombatStr(pPlot, pAttacker) + currCombatStr(pPlot, pAttacker) + 1) / 2); } // Exposed to Python
 	int currEffectiveStr(CvPlot const* pPlot = NULL, CvUnit const* pAttacker = NULL, CombatDetails* pCombatDetails = NULL, int iCurrentHP = -1) const; // advc.139
 	DllExport float maxCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;					// Exposed to Python
 	DllExport float currCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;					// Exposed to Python
 	// advc: was protected
 	void getDefenderCombatValues(CvUnit const& kDefender, const CvPlot* pPlot, int iOurStrength, int iOurFirepower, int& iTheirOdds, int& iTheirStrength, int& iOurDamage, int& iTheirDamage, CombatDetails* pTheirDetails = NULL) const;
 
-	DllExport bool canFight() const																			// Exposed to Python
-	{
-		return (baseCombatStr() > 0);
-	}
+	DllExport bool canFight() const { return (baseCombatStr() > 0); } // Exposed to Python
 	bool canSiege(TeamTypes eTeam) const;																	// Exposed to Python
 	bool canCombat() const; // kekm.8
 	bool canAttack() const;																					// Exposed to Python
@@ -448,29 +355,14 @@ public:
 	bool canBeAttackedBy(PlayerTypes eAttackingPlayer, CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy, bool bTestVisible, bool bTestCanAttack) const; // </advc>
 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;						// Exposed to Python
 
-	int airBaseCombatStr() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->getAirCombat();
-	}
+	int airBaseCombatStr() const { return m_pUnitInfo->getAirCombat(); } // Exposed to Python
 	int airMaxCombatStr(const CvUnit* pOther) const;														// Exposed to Python
-	int airCurrCombatStr(const CvUnit* pOther) const														// Exposed to Python
-	{
-		return ((airMaxCombatStr(pOther) * currHitPoints()) / maxHitPoints());
-	}
+	int airCurrCombatStr(const CvUnit* pOther) const { return ((airMaxCombatStr(pOther) * currHitPoints()) / maxHitPoints()); } // Exposed to Python
 	DllExport float airMaxCombatStrFloat(const CvUnit* pOther) const;										// Exposed to Python
 	DllExport float airCurrCombatStrFloat(const CvUnit* pOther) const;										// Exposed to Python
-	int combatLimit() const																					// Exposed to Python
-	{
-		return m_pUnitInfo->getCombatLimit();
-	}
-	int airCombatLimit() const																				// Exposed to Python
-	{
-		return m_pUnitInfo->getAirCombatLimit();
-	}
-	DllExport bool canAirAttack() const																		// Exposed to Python
-	{
-		return (airBaseCombatStr() > 0);
-	}
+	int combatLimit() const { return m_pUnitInfo->getCombatLimit(); } // Exposed to Python
+	int airCombatLimit() const { return m_pUnitInfo->getAirCombatLimit(); } // Exposed to Python
+	DllExport bool canAirAttack() const { return (airBaseCombatStr() > 0); } // Exposed to Python
 	bool canAirDefend(CvPlot const* pPlot = NULL) const;													// Exposed to Python
 	int airCombatDamage(const CvUnit* pDefender) const;														// Exposed to Python
 	int rangeCombatDamage(const CvUnit* pDefender) const;													// Exposed to Python
@@ -487,100 +379,49 @@ public:
 	int defenseXPValue() const;																				// Exposed to Python
 	int maxXPValue() const;																					// Exposed to Python
 
-	int firstStrikes() const																				// Exposed to Python
-	{
-		return std::max(0, m_pUnitInfo->getFirstStrikes() + getExtraFirstStrikes());
-	}
-	int chanceFirstStrikes() const																			// Exposed to Python
-	{
-		return std::max(0, m_pUnitInfo->getChanceFirstStrikes() + getExtraChanceFirstStrikes());
-	}
+	int firstStrikes() const { return std::max(0, m_pUnitInfo->getFirstStrikes() + getExtraFirstStrikes()); } // Exposed to Python
+	int chanceFirstStrikes() const { return std::max(0, m_pUnitInfo->getChanceFirstStrikes() + getExtraChanceFirstStrikes()); } // Exposed to Python
 	int maxFirstStrikes() const { return firstStrikes() + chanceFirstStrikes(); }							// Exposed to Python
 	DllExport bool isRanged() const;																		// Exposed to Python
 
-	bool alwaysInvisible() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->isInvisible();
-	}
+	bool alwaysInvisible() const { return m_pUnitInfo->isInvisible(); } // Exposed to Python
 	bool immuneToFirstStrikes() const;																		// Exposed to Python
-	bool noDefensiveBonus() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->isNoDefensiveBonus();
-	}
-	bool ignoreBuildingDefense() const																		// Exposed to Python
-	{
-		return m_pUnitInfo->isIgnoreBuildingDefense();
-	}
+	bool noDefensiveBonus() const { return m_pUnitInfo->isNoDefensiveBonus(); } // Exposed to Python
+	bool ignoreBuildingDefense() const { return m_pUnitInfo->isIgnoreBuildingDefense(); } // Exposed to Python
 	// <!-- custom: add these so we can show TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW ingame in map view of a unit. -->
-	bool isAnyTerrainImpassable() const																	
-	{
-		return m_pUnitInfo->isAnyTerrainImpassable();
-	}
-	bool isAnyFeatureImpassable() const																	
-	{
-		return m_pUnitInfo->isAnyFeatureImpassable();
-	}
+	bool isAnyTerrainImpassable() const { return m_pUnitInfo->isAnyTerrainImpassable(); }
+	bool isAnyFeatureImpassable() const { return m_pUnitInfo->isAnyFeatureImpassable(); }
 	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables and according to chatgpt's explanation. -->
-	bool getTerrainImpassable(TerrainTypes eTerrain) const
-	{
-		return m_pUnitInfo->getTerrainImpassable(eTerrain);
-	}
-	bool getFeatureImpassable(FeatureTypes eFeature) const
-	{
-		return m_pUnitInfo->getFeatureImpassable(eFeature);
-	}
-	bool canMoveImpassable() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->canMoveImpassable();
-	}
-	bool canMoveAllTerrain() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->isCanMoveAllTerrain();
-	}
+	bool getTerrainImpassable(TerrainTypes eTerrain) const { return m_pUnitInfo->getTerrainImpassable(eTerrain); }
+	bool getFeatureImpassable(FeatureTypes eFeature) const { return m_pUnitInfo->getFeatureImpassable(eFeature); }
+	bool canMoveImpassable() const { return m_pUnitInfo->canMoveImpassable(); } // Exposed to Python
+	bool canMoveAllTerrain() const { return m_pUnitInfo->isCanMoveAllTerrain(); } // Exposed to Python
 	bool flatMovementCost() const																			// Exposed to Python
 	{	// advc.opt: Now also true for all air units
 		return m_bFlatMovement;
 	}
-	bool ignoreTerrainCost() const																			// Exposed to Python
-	{
-		return m_pUnitInfo->isIgnoreTerrainCost();
-	}
+	bool ignoreTerrainCost() const { return m_pUnitInfo->isIgnoreTerrainCost(); } // Exposed to Python
 	bool isNeverInvisible() const;																			// Exposed to Python
 	DllExport bool isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo = true) const;				// Exposed to Python
-	bool isNukeImmune() const																				// Exposed to Python
-	{
-		return m_pUnitInfo->isNukeImmune();
-	}
+	bool isNukeImmune() const { return m_pUnitInfo->isNukeImmune(); } // Exposed to Python
 
 	int maxInterceptionProbability() const;																	// Exposed to Python
 	int currInterceptionProbability() const;																// Exposed to Python
-	int evasionProbability() const																			// Exposed to Python
-	{
-		return std::max(0, m_pUnitInfo->getEvasionProbability() + getExtraEvasion());
-	}
+	int evasionProbability() const { return std::max(0, m_pUnitInfo->getEvasionProbability() + getExtraEvasion()); } // Exposed to Python
 	int withdrawalProbability() const;																		// Exposed to Python
 
 	int collateralDamage() const																			// Exposed to Python
 	{	// advc.159 (note): getExtraCollateralDamage works multiplicatively since BtS 3.17
 		return std::max(0, m_pUnitInfo->getCollateralDamage());
 	}
-	int collateralDamageLimit() const																		// Exposed to Python
-	{
-		return std::max(0, m_pUnitInfo->getCollateralDamageLimit() * GC.getMAX_HIT_POINTS() / 100);
-	}
+	int collateralDamageLimit() const { return std::max(0, m_pUnitInfo->getCollateralDamageLimit() * GC.getMAX_HIT_POINTS() / 100); } // Exposed to Python
 	int collateralDamageMaxUnits() const																	// Exposed to Python
 	{	// advc: Never negative in XML
 		return /*std::max(0,*/m_pUnitInfo->getCollateralDamageMaxUnits();
 	}
 
-	int cityAttackModifier() const																			// Exposed to Python
-	{
-		return (m_pUnitInfo->getCityAttackModifier() + getExtraCityAttackPercent());
-	}
-	int cityDefenseModifier() const																			// Exposed to Python
-	{
-		return (m_pUnitInfo->getCityDefenseModifier() + getExtraCityDefensePercent());
-	}
+	int cityAttackModifier() const { return (m_pUnitInfo->getCityAttackModifier() + getExtraCityAttackPercent()); } // Exposed to Python
+	int cityDefenseModifier() const { return (m_pUnitInfo->getCityDefenseModifier() + getExtraCityDefensePercent()); } // Exposed to Python
 	int animalCombatModifier() const;																		// Exposed to Python
 	int barbarianCombatModifier() const; // advc.315c
 	int hillsAttackModifier() const;																		// Exposed to Python
@@ -825,10 +666,7 @@ public:
 	void setMadeAttack(bool bNewValue);																		// Exposed to Python
 	bool isMadeAllAttacks() const; // advc.164
 
-	bool isMadeInterception() const																			// Exposed to Python
-	{
-		return m_bMadeInterception;
-	}
+	bool isMadeInterception() const { return m_bMadeInterception; } // Exposed to Python
 	void setMadeInterception(bool bNewValue);																// Exposed to Python
 
 	bool isPromotionReadyExternal() const; // advc.002e: exported through .def file
@@ -845,17 +683,11 @@ public:
 	DllExport bool isInfoBarDirty() const;
 	DllExport void setInfoBarDirty(bool bNewValue);
 
-	bool isBlockading() const
-	{
-		return m_bBlockading;
-	}
+	bool isBlockading() const { return m_bBlockading; }
 	void setBlockading(bool bNewValue);
 	void collectBlockadeGold();
 
-	DllExport PlayerTypes getOwner() const // advc.inl: was "getOwnerINLINE"								// Exposed to Python
-	{
-		return m_eOwner;
-	}
+	DllExport PlayerTypes getOwner() const { return m_eOwner; } // advc.inl: was "getOwnerINLINE"								// Exposed to Python
 	DllExport PlayerTypes getVisualOwner(TeamTypes eForTeam = NO_TEAM) const;								// Exposed to Python
 	PlayerTypes getCombatOwner(TeamTypes eForTeam, CvPlot const& kPlot) const								// Exposed to Python
 	{
@@ -863,10 +695,7 @@ public:
 		return (isAlwaysHostile() ? getCombatOwner_bulk(eForTeam, kPlot) : getOwner());
 	}
 	// advc (for convenience)
-	PlayerTypes getCombatOwner(TeamTypes eForTeam) const
-	{
-		return getCombatOwner(eForTeam, getPlot());
-	}
+	PlayerTypes getCombatOwner(TeamTypes eForTeam) const { return getCombatOwner(eForTeam, getPlot()); }
 	DllExport TeamTypes getTeam() const;																	// Exposed to Python
 	// <advc>
 	bool isActiveOwned() const { return (GC.getInitCore().getActivePlayer() == getOwner()); }
@@ -877,15 +706,9 @@ public:
 
 	DllExport const UnitTypes getUnitType() const { return m_eUnitType; }									// Exposed to Python
 	CvUnitInfo& getUnitInfo() const { return *m_pUnitInfo; }
-	UnitClassTypes getUnitClassType() const	// Exposed to Python
-	{
-		return m_pUnitInfo->getUnitClassType();
-	}
+	UnitClassTypes getUnitClassType() const { return m_pUnitInfo->getUnitClassType(); } // Exposed to Python
 
-	DllExport const UnitTypes getLeaderUnitType() const
-	{
-		return m_eLeaderUnitType;
-	}
+	DllExport const UnitTypes getLeaderUnitType() const { return m_eLeaderUnitType; }
 	void setLeaderUnitType(UnitTypes leaderUnitType);
 
 	DllExport CvUnit* getCombatUnit() const;
@@ -901,10 +724,7 @@ public:
 	}
 	void setTransportUnit(CvUnit* pTransportUnit);															// Exposed to Python
 
-	int getExtraDomainModifier(DomainTypes eDomain) const													// Exposed to Python
-	{
-		return m_aiExtraDomainModifier.get(eDomain);
-	}
+	int getExtraDomainModifier(DomainTypes eDomain) const { return m_aiExtraDomainModifier.get(eDomain); } // Exposed to Python
 	void changeExtraDomainModifier(DomainTypes eDomain, int iChange);
 
 	DllExport const CvWString getName(uint uiForm = 0) const;												// Exposed to Python
@@ -918,60 +738,30 @@ public:
 	std::string getScriptData() const;																		// Exposed to Python
 	void setScriptData(std::string szNewValue);																// Exposed to Python
 
-	int getTerrainDoubleMoveCount(TerrainTypes eTerrain) const
-	{
-		return m_aiTerrainDoubleMoveCount.get(eTerrain);
-	}
-	bool isTerrainDoubleMove(TerrainTypes eTerrain) const													// Exposed to Python
-	{
-		return (getTerrainDoubleMoveCount(eTerrain) > 0);
-	}
+	int getTerrainDoubleMoveCount(TerrainTypes eTerrain) const { return m_aiTerrainDoubleMoveCount.get(eTerrain); }
+	bool isTerrainDoubleMove(TerrainTypes eTerrain) const { return (getTerrainDoubleMoveCount(eTerrain) > 0); } // Exposed to Python
 	void changeTerrainDoubleMoveCount(TerrainTypes eTerrain, int iChange);
 
-	int getFeatureDoubleMoveCount(FeatureTypes eFeature) const
-	{
-		return m_aiFeatureDoubleMoveCount.get(eFeature);
-	}
-	bool isFeatureDoubleMove(FeatureTypes eFeature) const													// Exposed to Python
-	{
-		return (getFeatureDoubleMoveCount(eFeature) > 0);
-	}
+	int getFeatureDoubleMoveCount(FeatureTypes eFeature) const { return m_aiFeatureDoubleMoveCount.get(eFeature); }
+	bool isFeatureDoubleMove(FeatureTypes eFeature) const { return (getFeatureDoubleMoveCount(eFeature) > 0); } // Exposed to Python
 	void changeFeatureDoubleMoveCount(FeatureTypes eFeature, int iChange);
 
-	int getExtraTerrainAttackPercent(TerrainTypes eTerrain) const											// Exposed to Python
-	{
-		return m_aiExtraTerrainAttackPercent.get(eTerrain);
-	}
+	int getExtraTerrainAttackPercent(TerrainTypes eTerrain) const { return m_aiExtraTerrainAttackPercent.get(eTerrain); } // Exposed to Python
 	void changeExtraTerrainAttackPercent(TerrainTypes eTerrain, int iChange);
-	int getExtraTerrainDefensePercent(TerrainTypes eTerrain) const											// Exposed to Python
-	{
-		return m_aiExtraTerrainDefensePercent.get(eTerrain);
-	}
+	int getExtraTerrainDefensePercent(TerrainTypes eTerrain) const { return m_aiExtraTerrainDefensePercent.get(eTerrain); } // Exposed to Python
 	void changeExtraTerrainDefensePercent(TerrainTypes eTerrain, int iChange);
-	int getExtraFeatureAttackPercent(FeatureTypes eFeature) const											// Exposed to Python
-	{
-		return m_aiExtraFeatureAttackPercent.get(eFeature);
-	}
+	int getExtraFeatureAttackPercent(FeatureTypes eFeature) const { return m_aiExtraFeatureAttackPercent.get(eFeature); } // Exposed to Python
 	void changeExtraFeatureAttackPercent(FeatureTypes eFeature, int iChange);
-	int getExtraFeatureDefensePercent(FeatureTypes eFeature) const											// Exposed to Python
-	{
-		return m_aiExtraFeatureDefensePercent.get(eFeature);
-	}
+	int getExtraFeatureDefensePercent(FeatureTypes eFeature) const { return m_aiExtraFeatureDefensePercent.get(eFeature); } // Exposed to Python
 	void changeExtraFeatureDefensePercent(FeatureTypes eFeature, int iChange);
 
-	int getExtraUnitCombatModifier(UnitCombatTypes eUnitCombat) const										// Exposed to Python
-	{
-		return m_aiExtraUnitCombatModifier.get(eUnitCombat);
-	}
+	int getExtraUnitCombatModifier(UnitCombatTypes eUnitCombat) const { return m_aiExtraUnitCombatModifier.get(eUnitCombat); } // Exposed to Python
 	void changeExtraUnitCombatModifier(UnitCombatTypes eUnitCombat, int iChange);
 
 	bool canAcquirePromotion(PromotionTypes ePromotion) const;												// Exposed to Python
 	bool canAcquirePromotionAny() const;																	// Exposed to Python
 	bool isPromotionValid(PromotionTypes ePromotion) const;													// Exposed to Python
-	bool isHasPromotion(PromotionTypes ePromotion) const													// Exposed to Python
-	{
-		return m_abHasPromotion.get(ePromotion);
-	}
+	bool isHasPromotion(PromotionTypes ePromotion) const { return m_abHasPromotion.get(ePromotion); } // Exposed to Python
 	void setHasPromotion(PromotionTypes ePromotion, bool bNewValue);										// Exposed to Python
 
 	int getSubUnitCount() const;
@@ -981,10 +771,7 @@ public:
 	bool isTargetOf(CvUnit const& kAttacker) const;
 	bool isEnemy(TeamTypes eTeam, CvPlot const& kPlot) const;
 	// advc.opt: Instead of allowing pPlot==NULL
-	__inline bool isEnemy(TeamTypes eTeam) const
-	{
-		return isEnemy(eTeam, getPlot());
-	}
+	__inline bool isEnemy(TeamTypes eTeam) const { return isEnemy(eTeam, getPlot()); }
 	// advc.opt: Instead of allowing eTeam==NO_TEAM above
 	bool isEnemy(CvPlot const& kPlot) const;
 	// (advc: isPotentialEnemy moved to CvUnitAI)
@@ -1005,10 +792,7 @@ public:
 	bool willRevealAnyPlotFrom(CvPlot const& kFrom) const;
 	bool isAlwaysHostile(CvPlot const& kPlot) const;
 	// advc.opt: Faster version for unknown plot
-	bool isAlwaysHostile() const
-	{
-		return m_pUnitInfo->isAlwaysHostile();
-	}
+	bool isAlwaysHostile() const { return m_pUnitInfo->isAlwaysHostile(); }
 
 	bool verifyStackValid();
 

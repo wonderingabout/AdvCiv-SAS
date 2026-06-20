@@ -16,14 +16,8 @@
 
 namespace CoreAI
 {
-	__forceinline CvTeamAI& getTeam(TeamTypes eTeam)
-	{
-		return CvTeamAI::AI_getTeam(eTeam);
-	}
-	__forceinline CvTeamAI& getTeam(PlayerTypes ePlayer)
-	{
-		return CvTeamAI::AI_getTeam(TEAMID(ePlayer));
-	}
+	__forceinline CvTeamAI& getTeam(TeamTypes eTeam) { return CvTeamAI::AI_getTeam(eTeam); }
+	__forceinline CvTeamAI& getTeam(PlayerTypes ePlayer) { return CvTeamAI::AI_getTeam(TEAMID(ePlayer)); }
 } // </advc.003u>
 
 #endif

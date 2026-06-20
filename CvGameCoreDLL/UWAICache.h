@@ -71,10 +71,7 @@ public:
 	void update(bool bNewPlayer = false);
 	void write(FDataStreamBase* pStream) const;
 	void read(FDataStreamBase* pStream);
-	int numReachableCities(PlayerTypes ePlayer) const
-	{
-		return m_aiReachableCities.get(ePlayer);
-	}
+	int numReachableCities(PlayerTypes ePlayer) const { return m_aiReachableCities.get(ePlayer); }
 	int numCities() const { return (int)m_cityList.size(); }
 	void sortCitiesByAttackPriority();
 	City& cityAt(int iAt) const
@@ -98,10 +95,7 @@ public:
 	bool hasDefensiveTrait() const { return m_bDefensiveTrait; }
 	bool canScrubFallout() const { return m_bCanScrub; }
 	// Units of the cache owner targeting the territory of ePlayer
-	int targetMissionCount(PlayerTypes ePlayer) const
-	{
-		return m_aiTargetMissions.get(ePlayer);
-	}
+	int targetMissionCount(PlayerTypes ePlayer) const { return m_aiTargetMissions.get(ePlayer); }
 	/*	Long-term military threat by ePlayer between 0 and 1. Can see it as
 		the probability of them hurting the cache owner substantially with
 		an invasion sometime within the next 50 to 100 turns. */
@@ -122,15 +116,9 @@ public:
 	int bountyAgainst(TeamTypes eTeam) const { return m_aiBounty.get(eTeam); }
 	// Identity of the sponsor who made the above payment
 	PlayerTypes sponsorAgainst(TeamTypes eTeam) const { return m_aeSponsorPerTarget.get(eTeam); }
-	int warUtilityIgnoringDistraction(TeamTypes eTeam) const
-	{
-		return leaderCache().m_aiWarUtilityIgnoringDistraction.get(eTeam);
-	}
+	int warUtilityIgnoringDistraction(TeamTypes eTeam) const { return leaderCache().m_aiWarUtilityIgnoringDistraction.get(eTeam); }
 	// Necessary (but not sufficient) condition for agreeing to a joint war
-	bool canBeHiredAgainst(TeamTypes eTeam) const
-	{
-		return leaderCache().m_abCanBeHiredAgainst.get(eTeam);
-	}
+	bool canBeHiredAgainst(TeamTypes eTeam) const { return leaderCache().m_abCanBeHiredAgainst.get(eTeam); }
 	void setCanBeHiredAgainst(TeamTypes eTeam, bool b);
 	void updateCanBeHiredAgainst(TeamTypes eTeam, int iWarUtility, int iUtilityThresh);
 	bool canTrainDeepSeaCargo() const { return m_bHaveDeepSeaTransports; }

@@ -77,10 +77,7 @@ public:
 			delete[] m_aiShuffledIndices;
 	}
 
-	bool hasNext() const
-	{
-		return (m_pNext != NULL);
-	}
+	bool hasNext() const { return (m_pNext != NULL); }
 
 	CityPlotIterator& operator++()
 	{
@@ -88,10 +85,7 @@ public:
 		return *this;
 	}
 
-	CvPlot& operator*() const
-	{
-		return *m_pNext;
-	}
+	CvPlot& operator*() const { return *m_pNext; }
 
 	CvPlot* operator->() const
 	{
@@ -167,10 +161,7 @@ private:
 		}
 	}
 
-	CityPlotTypes shuffledID() const
-	{
-		return static_cast<CityPlotTypes>(m_aiShuffledIndices[m_ePos]);
-	}
+	CityPlotTypes shuffledID() const { return static_cast<CityPlotTypes>(m_aiShuffledIndices[m_ePos]); }
 
 	CvPlot* nextCityPlot() const
 	{
@@ -263,10 +254,7 @@ public:
 
 	~NearbyCityIter() { delete &m_kCityPlots; }
 
-	bool hasNext() const
-	{
-		return (m_pNext != NULL);
-	}
+	bool hasNext() const { return (m_pNext != NULL); }
 
 	NearbyCityIter& operator++()
 	{
@@ -274,10 +262,7 @@ public:
 		return *this;
 	}
 
-	CvCity& operator*() const
-	{
-		return *m_pNext;
-	}
+	CvCity& operator*() const { return *m_pNext; }
 
 	CvCity* operator->() const
 	{

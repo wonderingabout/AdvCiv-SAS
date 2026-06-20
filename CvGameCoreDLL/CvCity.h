@@ -34,15 +34,9 @@ public:
 	void doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultureRateTimes100, bool bCityCulture);
 	/*	advc.120j: Was 10 as a local variable (doPlotCultureTimes100).
 		Should still be 10. */
-	static int plotCultureScale()
-	{
-		return GC.getNumCultureLevelInfos() + plotCultureExtraRange();
-	}
+	static int plotCultureScale() { return GC.getNumCultureLevelInfos() + plotCultureExtraRange(); }
 	// advc.ctr: Replacing local variable in doPlotCultureTimes100
-	static int plotCultureExtraRange()
-	{
-		return 3;
-	}
+	static int plotCultureExtraRange() { return 3; }
 
 	bool isCitySelected();
 	DllExport bool canBeSelected() const;
@@ -56,10 +50,7 @@ public:
 	void doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false); // Exposed to Python
 	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false); // Exposed to Python
 	// <advc.003u> Moved from CvCityAI b/c it's also used to trigger human choose-production popups
-	bool isChooseProductionDirty() const
-	{
-		return m_bChooseProductionDirty;
-	}
+	bool isChooseProductionDirty() const { return m_bChooseProductionDirty; }
 	void setChooseProductionDirty(bool bNewValue)
 	{
 		m_bChooseProductionDirty = bNewValue;
@@ -152,10 +143,7 @@ public:
 	// <advc.064bc> <!-- custom: hoisted from multiline signature between `bOverflow` and `bIgnoreFeatureProd` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	int getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow, bool bIgnoreFeatureProd = false, bool bIgnoreYieldRate = false, bool bForceFeatureProd = false, int* iFeatureProdReturn = NULL) const; // Exposed to Python
 			// </advc.064bc>
-	int getExtraProductionDifference(int iExtra) const															// Exposed to Python
-	{
-		return getExtraProductionDifference(iExtra, getProductionModifier());
-	}
+	int getExtraProductionDifference(int iExtra) const { return getExtraProductionDifference(iExtra, getProductionModifier()); } // Exposed to Python
 
 	bool canHurry(HurryTypes eHurry, bool bTestVisible = false) const;											// Exposed to Python
 	void hurry(HurryTypes eHurry);																				// Exposed to Python
@@ -205,10 +193,7 @@ public:
 	bool isHuman() const;																						// Exposed to Python
 	DllExport bool isVisible(TeamTypes eTeam, bool bDebug) const;												// Exposed to Python
 	// advc: Make bDebug=false the default
-	bool isVisible(TeamTypes eTeam) const
-	{
-		return isVisible(eTeam, false);
-	}
+	bool isVisible(TeamTypes eTeam) const { return isVisible(eTeam, false); }
 
 	bool isCapital() const;																						// Exposed to Python
 	bool isPrereqBonusSea() const; // advc
@@ -268,14 +253,8 @@ public:
 				getHurryCostModifier(), getProductionModifier());
 	}
 	int getHurryCostModifier(bool bIgnoreNew = false) const;
-	int hurryGold(HurryTypes eHurry) const																		// Exposed to Python
-	{
-		return getHurryGold(eHurry, hurryCost(false));
-	}
-	int hurryPopulation(HurryTypes eHurry) const																// Exposed to Python
-	{
-		return getHurryPopulation(eHurry, hurryCost(true));
-	}
+	int hurryGold(HurryTypes eHurry) const { return getHurryGold(eHurry, hurryCost(false)); } // Exposed to Python
+	int hurryPopulation(HurryTypes eHurry) const { return getHurryPopulation(eHurry, hurryCost(true)); } // Exposed to Python
 	int hurryProduction(HurryTypes eHurry) const;																// Exposed to Python
 	int flatHurryAngerLength() const;																			// Exposed to Python
 	int hurryAngerLength(HurryTypes eHurry) const;																// Exposed to Python
@@ -702,35 +681,23 @@ public:
 
 	int getBaseYieldRate(YieldTypes eYield) const { return m_aiBaseYieldRate.get(eYield); }						// Exposed to Python
 	int getBaseYieldRateModifier(YieldTypes eYield, int iExtra = 0) const;										// Exposed to Python
-	int getYieldRate(YieldTypes eYield) const																	// Exposed to Python
-	{
-		return (getBaseYieldRate(eYield) * getBaseYieldRateModifier(eYield)) / 100;
-	}
+	int getYieldRate(YieldTypes eYield) const { return (getBaseYieldRate(eYield) * getBaseYieldRateModifier(eYield)) / 100; } // Exposed to Python
 	void setBaseYieldRate(YieldTypes eYield, int iNewValue);													// Exposed to Python
 	void changeBaseYieldRate(YieldTypes eYield, int iChange);													// Exposed to Python
 	int calculateBaseYieldRate(YieldTypes eYield); // advc.104u
 	int getYieldRateModifier(YieldTypes eYield) const { return m_aiYieldRateModifier.get(eYield); }				// Exposed to Python
 	void changeYieldRateModifier(YieldTypes eYield, int iChange);
 
-	int getPowerYieldRateModifier(YieldTypes eYield) const														// Exposed to Python
-	{
-		return m_aiPowerYieldRateModifier.get(eYield);
-	}
+	int getPowerYieldRateModifier(YieldTypes eYield) const { return m_aiPowerYieldRateModifier.get(eYield); } // Exposed to Python
 	void changePowerYieldRateModifier(YieldTypes eYield, int iChange);
-	int getBonusYieldRateModifier(YieldTypes eYield) const														// Exposed to Python
-	{
-		return m_aiBonusYieldRateModifier.get(eYield);
-	}
+	int getBonusYieldRateModifier(YieldTypes eYield) const { return m_aiBonusYieldRateModifier.get(eYield); } // Exposed to Python
 	void changeBonusYieldRateModifier(YieldTypes eYield, int iChange);
 	int getTradeYield(YieldTypes eYield) const { return m_aiTradeYield.get(eYield); }							// Exposed to Python
 	int totalTradeModifier(CvCity const* pOtherCity = NULL) const;												// Exposed to Python
 	int getPopulationTradeModifier() const;
 	int getPeaceTradeModifier(TeamTypes eTeam) const;
 	int getBaseTradeProfit(CvCity const* pCity) const;
-	int calculateTradeProfit(CvCity const* pCity) const															// Exposed to Python
-	{
-		return calculateTradeProfitTimes100(pCity) / 100;
-	}
+	int calculateTradeProfit(CvCity const* pCity) const { return calculateTradeProfitTimes100(pCity) / 100; } // Exposed to Python
 	int calculateTradeProfitTimes100(CvCity const* pCity) const; // advc.004
 	int calculateTradeYield(YieldTypes eYield, int iTradeProfit) const;											// Exposed to Python
 	// BULL - Trade Hover - start
@@ -738,10 +705,7 @@ public:
 	// BULL - Trade Hover - end
 	void setTradeYield(YieldTypes eYield, int iNewValue);
 
-	int getExtraSpecialistYield(YieldTypes eYield) const														// Exposed to Python
-	{
-		return m_aiExtraSpecialistYield.get(eYield);
-	}
+	int getExtraSpecialistYield(YieldTypes eYield) const { return m_aiExtraSpecialistYield.get(eYield); } // Exposed to Python
 	int getExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpecialist) const;							// Exposed to Python
 	void updateExtraSpecialistYield(YieldTypes eYield);
 	void updateExtraSpecialistYield();
@@ -749,19 +713,13 @@ public:
 	int getCommerceRate(CommerceTypes eCommerce) const;															// Exposed to Python
 	int getCommerceRateTimes100(CommerceTypes eCommerce) const;													// Exposed to Python
 	int getCommerceFromPercent(CommerceTypes eCommerce, int iYieldRate) const;									// Exposed to Python
-	int getBaseCommerceRate(CommerceTypes eCommerce) const														// Exposed to Python
-	{
-		return (getBaseCommerceRateTimes100(eCommerce) / 100);
-	}
+	int getBaseCommerceRate(CommerceTypes eCommerce) const { return (getBaseCommerceRateTimes100(eCommerce) / 100); } // Exposed to Python
 	int getBaseCommerceRateTimes100(CommerceTypes eCommerce) const;												// Exposed to Python
 	int getTotalCommerceRateModifier(CommerceTypes eCommerce) const;											// Exposed to Python
 	void updateCommerce(CommerceTypes eCommerce);
 	void updateCommerce();
 
-	int getProductionToCommerceModifier(CommerceTypes eCommerce) const											// Exposed to Python
-	{
-		return m_aiProductionToCommerceModifier.get(eCommerce);
-	}
+	int getProductionToCommerceModifier(CommerceTypes eCommerce) const { return m_aiProductionToCommerceModifier.get(eCommerce); } // Exposed to Python
 	void changeProductionToCommerceModifier(CommerceTypes eCommerce, int iChange);
 
 	int getBuildingCommerce(CommerceTypes eCommerce) const { return m_aiBuildingCommerce.get(eCommerce); }		// Exposed to Python
@@ -775,35 +733,23 @@ public:
 	int getAdditionalCommerceRateModifierByBuilding(CommerceTypes eCommerce, BuildingTypes eBuilding) const;
 	int getAdditionalCommerceRateModifierByBuildingImpl(CommerceTypes eCommerce, BuildingTypes eBuilding) const;
 	// BUG - Building Additional Commerce - end
-	int getSpecialistCommerce(CommerceTypes eCommerce) const													// Exposed to Python
-	{
-		return m_aiSpecialistCommerce.get(eCommerce);
-	}
+	int getSpecialistCommerce(CommerceTypes eCommerce) const { return m_aiSpecialistCommerce.get(eCommerce); } // Exposed to Python
 	void changeSpecialistCommerce(CommerceTypes eCommerce, int iChange);										// Exposed to Python
 	// BUG - Specialist Additional Commerce - start
 	// Exposed to Python <!-- custom: hoisted from multiline signature between `eCommerce` and `eSpecialist` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	int getAdditionalCommerceBySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const
-	{
-		return getAdditionalCommerceTimes100BySpecialist(eCommerce, eSpecialist, iChange) / 100;
-	}
+	int getAdditionalCommerceBySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const { return getAdditionalCommerceTimes100BySpecialist(eCommerce, eSpecialist, iChange) / 100; }
 	int getAdditionalCommerceTimes100BySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const; // Exposed to Python
 	int getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const; // Exposed to Python
 	int getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce, SpecialistTypes eSpecialist, int iChange = 1) const;
 	// BUG - Specialist Additional Commerce - end
 
-	int getReligionCommerce(CommerceTypes eCommerce) const														// Exposed to Python
-	{
-		return m_aiReligionCommerce.get(eCommerce);
-	}
+	int getReligionCommerce(CommerceTypes eCommerce) const { return m_aiReligionCommerce.get(eCommerce); } // Exposed to Python
 	int getReligionCommerceByReligion(CommerceTypes eCommerce, ReligionTypes eReligion, bool bForce = false) const; // advc; Exposed to Python
 	void updateReligionCommerce(CommerceTypes eCommerce);
 	void updateReligionCommerce();
 
 	void setCorporationYield(YieldTypes eYield, int iNewValue);
-	int getCorporationCommerce(CommerceTypes eCommerce) const													// Exposed to Python
-	{
-		return m_aiCorporationCommerce.get(eCommerce);
-	}
+	int getCorporationCommerce(CommerceTypes eCommerce) const { return m_aiCorporationCommerce.get(eCommerce); } // Exposed to Python
 	int getCorporationCommerceByCorporation(CommerceTypes eCommerce, CorporationTypes eCorporation) const;		// Exposed to Python
 	int getCorporationYield(YieldTypes eYield) const { return m_aiCorporationYield.get(eYield); }				// Exposed to Python
 	int getCorporationYieldByCorporation(YieldTypes eYield, CorporationTypes eCorporation) const;				// Exposed to Python
@@ -812,40 +758,25 @@ public:
 	void updateCorporationYield(YieldTypes eYield);
 	void updateCorporationBonus(/* advc.064d: */ bool bVerifyProduction = true);
 
-	int getCommerceRateModifier(CommerceTypes eCommerce) const													// Exposed to Python
-	{
-		return m_aiCommerceRateModifier.get(eCommerce);
-	}
+	int getCommerceRateModifier(CommerceTypes eCommerce) const { return m_aiCommerceRateModifier.get(eCommerce); } // Exposed to Python
 	void changeCommerceRateModifier(CommerceTypes eCommerce, int iChange);
 
-	int getCommerceHappinessPer(CommerceTypes eCommerce) const													// Exposed to Python
-	{
-		return m_aiCommerceHappinessPer.get(eCommerce);
-	}
+	int getCommerceHappinessPer(CommerceTypes eCommerce) const { return m_aiCommerceHappinessPer.get(eCommerce); } // Exposed to Python
 	int getCommerceHappinessByType(CommerceTypes eCommerce) const;												// Exposed to Python
 	int getCommerceHappiness() const;																			// Exposed to Python
 	void changeCommerceHappinessPer(CommerceTypes eCommerce, int iChange);
 
-	int getDomainFreeExperience(DomainTypes eDomain) const														// Exposed to Python
-	{
-		return m_aiDomainFreeExperience.get(eDomain);
-	}
+	int getDomainFreeExperience(DomainTypes eDomain) const { return m_aiDomainFreeExperience.get(eDomain); } // Exposed to Python
 	void changeDomainFreeExperience(DomainTypes eDomain, int iChange);
 
-	int getDomainProductionModifier(DomainTypes eDomain) const													// Exposed to Python
-	{
-		return m_aiDomainProductionModifier.get(eDomain);
-	}
+	int getDomainProductionModifier(DomainTypes eDomain) const { return m_aiDomainProductionModifier.get(eDomain); } // Exposed to Python
 	void changeDomainProductionModifier(DomainTypes eDomain, int iChange);
 
 	int getCulture(PlayerTypes ePlayer) const																	// Exposed to Python
 	{	// advc: Delegate to the Times100 function
 		return getCultureTimes100(ePlayer) / 100;
 	}
-	int getCultureTimes100(PlayerTypes ePlayer) const															// Exposed to Python
-	{
-		return m_aiCulture.get(ePlayer);
-	}
+	int getCultureTimes100(PlayerTypes ePlayer) const { return m_aiCulture.get(ePlayer); } // Exposed to Python
 	int countTotalCultureTimes100() const;																		// Exposed to Python
 	PlayerTypes findHighestCulture() const;																		// Exposed to Python
 	// advc.101:  (advc.ctr: exposed to Python)
@@ -862,40 +793,25 @@ public:
 	void changeCulture(PlayerTypes ePlayer, int iChange, bool bPlots, bool bUpdatePlotGroups);					// Exposed to Python
 	void changeCultureTimes100(PlayerTypes ePlayer, int iChange, bool bPlots, bool bUpdatePlotGroups);			// Exposed to Python
 
-	int getNumRevolts(PlayerTypes ePlayer) const
-	{
-		return m_aiNumRevolts.get(ePlayer);
-	}
+	int getNumRevolts(PlayerTypes ePlayer) const { return m_aiNumRevolts.get(ePlayer); }
 	int getNumRevolts() const; // advc.099c
 	void changeNumRevolts(PlayerTypes ePlayer, int iChange);
 	scaled getRevoltTestProbability() const; // advc.101: between 0 and 1
 	int getRevoltProtection() const; // advc.101
 	void addRevoltFreeUnits(); // advc
 
-	bool isTradeRoute(PlayerTypes ePlayer) const																// Exposed to Python
-	{
-		return m_abTradeRoute.get(ePlayer);
-	}
+	bool isTradeRoute(PlayerTypes ePlayer) const { return m_abTradeRoute.get(ePlayer); } // Exposed to Python
 	void setTradeRoute(PlayerTypes ePlayer, bool bNewValue);
 
-	bool isEverOwned(PlayerTypes ePlayer) const																	// Exposed to Python
-	{
-		return m_abEverOwned.get(ePlayer);
-	}
+	bool isEverOwned(PlayerTypes ePlayer) const { return m_abEverOwned.get(ePlayer); } // Exposed to Python
 	void setEverOwned(PlayerTypes ePlayer, bool bNewValue);
 
 	DllExport bool isRevealed(TeamTypes eTeam, bool bDebug) const;												// Exposed to Python
 	// advc.inl: Faster implementation for non-UI code
-	bool isRevealed(TeamTypes eToTeam) const
-	{
-		return m_abRevealed.get(eToTeam);
-	}
+	bool isRevealed(TeamTypes eToTeam) const { return m_abRevealed.get(eToTeam); }
 	void setRevealed(TeamTypes eTeam, bool bNewValue);															// Exposed to Python
 
-	bool getEspionageVisibility(TeamTypes eTeam) const															// Exposed to Python
-	{
-		return m_abEspionageVisibility.get(eTeam);
-	}
+	bool getEspionageVisibility(TeamTypes eTeam) const { return m_abEspionageVisibility.get(eTeam); } // Exposed to Python
 	bool isAnyEspionageVisibility() const
 	{	// advc.opt:
 		return m_abEspionageVisibility.isAnyNonDefault();
@@ -922,60 +838,33 @@ public:
 	} // </advc.opt>
 	void changeFreeBonus(BonusTypes eBonus, int iChange);														// Exposed to Python
 	int getNumBonuses(BonusTypes eBonus) const;																	// Exposed to Python
-	bool hasBonus(BonusTypes eBonus) const																		// Exposed to Python
-	{
-		return (getNumBonuses(eBonus) > 0);
-	}
+	bool hasBonus(BonusTypes eBonus) const { return (getNumBonuses(eBonus) > 0); } // Exposed to Python
 	void changeNumBonuses(BonusTypes eBonus, int iChange, bool bVerifyProduction = true); // advc.064d
 	int countUniqueBonuses() const; // advc.149
-	int getNumCorpProducedBonuses(BonusTypes eBonus) const
-	{
-		return m_aiNumCorpProducedBonuses.get(eBonus);
-	}
+	int getNumCorpProducedBonuses(BonusTypes eBonus) const { return m_aiNumCorpProducedBonuses.get(eBonus); }
 	bool isCorporationBonus(BonusTypes eBonus) const;
 	bool isActiveCorporation(CorporationTypes eCorporation) const;
 
-	int getBuildingProduction(BuildingTypes eBuilding) const													// Exposed to Python
-	{
-		return m_aiBuildingProduction.get(eBuilding);
-	}
+	int getBuildingProduction(BuildingTypes eBuilding) const { return m_aiBuildingProduction.get(eBuilding); } // Exposed to Python
 	void setBuildingProduction(BuildingTypes eBuilding, int iNewValue);											// Exposed to Python
 	void changeBuildingProduction(BuildingTypes eBuilding, int iChange);										// Exposed to Python
 
-	int getBuildingProductionTime(BuildingTypes eBuilding) const												// Exposed to Python
-	{
-		return m_aiBuildingProductionTime.get(eBuilding);
-	}
+	int getBuildingProductionTime(BuildingTypes eBuilding) const { return m_aiBuildingProductionTime.get(eBuilding); } // Exposed to Python
 	void setBuildingProductionTime(BuildingTypes eBuilding, int iNewValue);										// Exposed to Python
 	void changeBuildingProductionTime(BuildingTypes eBuilding, int iChange);									// Exposed to Python
 
-	int getProjectProduction(ProjectTypes eProject) const														// Exposed to Python
-	{
-		return m_aiProjectProduction.get(eProject);
-	}
+	int getProjectProduction(ProjectTypes eProject) const { return m_aiProjectProduction.get(eProject); } // Exposed to Python
 	void setProjectProduction(ProjectTypes eProject, int iNewValue);
 	void changeProjectProduction(ProjectTypes eProject, int iChange);
 
-	PlayerTypes getBuildingOriginalOwner(BuildingTypes eBuilding) const											// Exposed to Python
-	{
-		return m_aeBuildingOriginalOwner.get(eBuilding);
-	}
-	int getBuildingOriginalTime(BuildingTypes eBuilding) const													// Exposed to Python
-	{
-		return m_aiBuildingOriginalTime.get(eBuilding);
-	}
+	PlayerTypes getBuildingOriginalOwner(BuildingTypes eBuilding) const { return m_aeBuildingOriginalOwner.get(eBuilding); } // Exposed to Python
+	int getBuildingOriginalTime(BuildingTypes eBuilding) const { return m_aiBuildingOriginalTime.get(eBuilding); } // Exposed to Python
 
-	int getUnitProduction(UnitTypes eUnit) const																// Exposed to Python
-	{
-		return m_aiUnitProduction.get(eUnit);
-	}
+	int getUnitProduction(UnitTypes eUnit) const { return m_aiUnitProduction.get(eUnit); } // Exposed to Python
 	void setUnitProduction(UnitTypes eUnit, int iNewValue);														// Exposed to Python
 	void changeUnitProduction(UnitTypes eUnit, int iChange);													// Exposed to Python
 
-	int getUnitProductionTime(UnitTypes eUnit) const								// Exposed to Python (for BULL - Production Decay)
-	{
-		return m_aiUnitProductionTime.get(eUnit);
-	}
+	int getUnitProductionTime(UnitTypes eUnit) const { return m_aiUnitProductionTime.get(eUnit); } // Exposed to Python (for BULL - Production Decay)
 	void setUnitProductionTime(UnitTypes eUnit, int iNewValue);
 	void changeUnitProductionTime(UnitTypes eUnit, int iChange);
 	/*	BULL - Production Decay - start (advc.094 -
@@ -989,39 +878,24 @@ public:
 	// BULL - Production Decay - end
 	bool isAnyProductionProgress(OrderTypes eOrder) const; // advc.opt
 
-	int getGreatPeopleUnitRate(UnitTypes eUnit) const															// Exposed to Python
-	{
-		return m_aiGreatPeopleUnitRate.get(eUnit);
-	}
+	int getGreatPeopleUnitRate(UnitTypes eUnit) const { return m_aiGreatPeopleUnitRate.get(eUnit); } // Exposed to Python
 	void setGreatPeopleUnitRate(UnitTypes eUnit, int iNewValue);
 	void changeGreatPeopleUnitRate(UnitTypes eUnit, int iChange);
 
-	int getGreatPeopleUnitProgress(UnitTypes eUnit) const														// Exposed to Python
-	{
-		return m_aiGreatPeopleUnitProgress.get(eUnit);
-	}
+	int getGreatPeopleUnitProgress(UnitTypes eUnit) const { return m_aiGreatPeopleUnitProgress.get(eUnit); } // Exposed to Python
 	void setGreatPeopleUnitProgress(UnitTypes eUnit, int iNewValue);											// Exposed to Python
 	void changeGreatPeopleUnitProgress(UnitTypes eUnit, int iChange);											// Exposed to Python
 
-	int getSpecialistCount(SpecialistTypes eSpecialist) const													// Exposed to Python
-	{
-		return m_aiSpecialistCount.get(eSpecialist);
-	}
+	int getSpecialistCount(SpecialistTypes eSpecialist) const { return m_aiSpecialistCount.get(eSpecialist); } // Exposed to Python
 	void setSpecialistCount(SpecialistTypes eSpecialist, int iNewValue);
 	void changeSpecialistCount(SpecialistTypes eSpecialist, int iChange);
 	void alterSpecialistCount(SpecialistTypes eSpecialist, int iChange);										// Exposed to Python
 
-	int getMaxSpecialistCount(SpecialistTypes eSpecialist) const												// Exposed to Python
-	{
-		return m_aiMaxSpecialistCount.get(eSpecialist);
-	}
+	int getMaxSpecialistCount(SpecialistTypes eSpecialist) const { return m_aiMaxSpecialistCount.get(eSpecialist); } // Exposed to Python
 	bool isSpecialistValid(SpecialistTypes eSpecialist, int iExtra = 0) const;									// Exposed to Python
 	void changeMaxSpecialistCount(SpecialistTypes eSpecialist, int iChange);
 
-	int getForceSpecialistCount(SpecialistTypes eSpecialist) const												// Exposed to Python
-	{
-		return m_aiForceSpecialistCount.get(eSpecialist);
-	}
+	int getForceSpecialistCount(SpecialistTypes eSpecialist) const { return m_aiForceSpecialistCount.get(eSpecialist); } // Exposed to Python
 	bool isSpecialistForced() const																				// Exposed to Python
 	{
 		return m_aiForceSpecialistCount.isAnyNonDefault(); // advc.opt
@@ -1029,107 +903,65 @@ public:
 	void setForceSpecialistCount(SpecialistTypes eSpecialist, int iNewValue);									// Exposed to Python
 	void changeForceSpecialistCount(SpecialistTypes eSpecialist, int iChange);									// Exposed to Python
 
-	int getFreeSpecialistCount(SpecialistTypes eSpecialist) const												// Exposed to Python
-	{
-		return m_aiFreeSpecialistCount.get(eSpecialist);
-	}
+	int getFreeSpecialistCount(SpecialistTypes eSpecialist) const { return m_aiFreeSpecialistCount.get(eSpecialist); } // Exposed to Python
 	void setFreeSpecialistCount(SpecialistTypes eSpecialist, int iNewValue);									// Exposed to Python
 	void changeFreeSpecialistCount(SpecialistTypes eSpecialist, int iChange);									// Exposed to Python
 	int getAddedFreeSpecialistCount(SpecialistTypes eSpecialist) const;											// Exposed to Python
 
-	int getImprovementFreeSpecialists(ImprovementTypes eImprov) const											// Exposed to Python
-	{
-		return m_aiImprovementFreeSpecialists.get(eImprov);
-	}
+	int getImprovementFreeSpecialists(ImprovementTypes eImprov) const { return m_aiImprovementFreeSpecialists.get(eImprov); } // Exposed to Python
 	bool isAnyImprovementFreeSpecialist() const
 	{	// advc.opt:
 		return m_aiImprovementFreeSpecialists.isAnyNonDefault();
 	}
 	void changeImprovementFreeSpecialists(ImprovementTypes eImprov, int iChange);								// Exposed to Python
 
-	int getReligionInfluence(ReligionTypes eReligion) const														// Exposed to Python
-	{
-		return m_aiReligionInfluence.get(eReligion);
-	}
+	int getReligionInfluence(ReligionTypes eReligion) const { return m_aiReligionInfluence.get(eReligion); } // Exposed to Python
 	void changeReligionInfluence(ReligionTypes eReligion, int iChange);											// Exposed to Python
 
 	int getCurrentStateReligionHappiness() const;																// Exposed to Python
-	int getStateReligionHappiness(ReligionTypes eReligion) const												// Exposed to Python
-	{
-		return m_aiStateReligionHappiness.get(eReligion);
-	}
+	int getStateReligionHappiness(ReligionTypes eReligion) const { return m_aiStateReligionHappiness.get(eReligion); } // Exposed to Python
 	void changeStateReligionHappiness(ReligionTypes eReligion, int iChange);									// Exposed to Python
 
-	int getUnitCombatFreeExperience(UnitCombatTypes eUnitCombat) const											// Exposed to Python
-	{
-		return m_aiUnitCombatFreeExperience.get(eUnitCombat);
-	}
+	int getUnitCombatFreeExperience(UnitCombatTypes eUnitCombat) const { return m_aiUnitCombatFreeExperience.get(eUnitCombat); } // Exposed to Python
 	void changeUnitCombatFreeExperience(UnitCombatTypes eUnitCombat, int iChange);
 
-	int getFreePromotionCount(PromotionTypes ePromo) const														// Exposed to Python
-	{
-		return m_aiFreePromotionCount.get(ePromo);
-	}
-	bool isFreePromotion(PromotionTypes ePromo) const															// Exposed to Python
-	{
-		return (getFreePromotionCount(ePromo) > 0);
-	}
+	int getFreePromotionCount(PromotionTypes ePromo) const { return m_aiFreePromotionCount.get(ePromo); } // Exposed to Python
+	bool isFreePromotion(PromotionTypes ePromo) const { return (getFreePromotionCount(ePromo) > 0); } // Exposed to Python
 	bool isAnyFreePromotion() const
 	{	// advc.opt:
 		return m_aiFreePromotionCount.isAnyNonDefault();
 	}
 	void changeFreePromotionCount(PromotionTypes ePromo, int iChange);
 
-	int getSpecialistFreeExperience() const																		// Exposed to Python
-	{
-		return m_iSpecialistFreeExperience;
-	}
+	int getSpecialistFreeExperience() const { return m_iSpecialistFreeExperience; } // Exposed to Python
 	void changeSpecialistFreeExperience(int iChange);
 
-	int getEspionageDefenseModifier() const																		// Exposed to Python
-	{
-		return m_iEspionageDefenseModifier;
-	}
+	int getEspionageDefenseModifier() const { return m_iEspionageDefenseModifier; } // Exposed to Python
 	void changeEspionageDefenseModifier(int iChange);
 	int cultureTimes100InsertedByMission(EspionageMissionTypes eMission) const; // advc
 
-	bool isWorkingPlot(CityPlotTypes ePlot) const																// Exposed to Python
-	{
-		return m_abWorkingPlot.get(ePlot);
-	}
+	bool isWorkingPlot(CityPlotTypes ePlot) const { return m_abWorkingPlot.get(ePlot); } // Exposed to Python
 	bool isWorkingPlot(CvPlot const& kPlot) const;																// Exposed to Python
 	void setWorkingPlot(CityPlotTypes ePlot, bool bNewValue);
 	void setWorkingPlot(CvPlot& kPlot, bool bNewValue);
 	void alterWorkingPlot(CityPlotTypes ePlot);																	// Exposed to Python
 
-	int getNumRealBuilding(BuildingTypes eBuilding) const														// Exposed to Python
-	{
-		return m_aiNumRealBuilding.get(eBuilding);
-	}
+	int getNumRealBuilding(BuildingTypes eBuilding) const { return m_aiNumRealBuilding.get(eBuilding); } // Exposed to Python
 	int getNumRealBuilding(BuildingClassTypes eBuildingClass) const; // advc.003w
 	void setNumRealBuilding(BuildingTypes eBuilding, int iNewValue, bool bEndOfTurn = false); // advc.001x; Exposed to Python
 	void setNumRealBuildingTimed(BuildingTypes eBuilding, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, /* advc.001x */ bool bEndOfTurn = false);
 	//bool isValidBuildingLocation(BuildingTypes eBuilding) const; // advc: Replaced by CvPlot::canConstruct
 
-	int getNumFreeBuilding(BuildingTypes eBuilding) const														// Exposed to Python
-	{
-		return m_aiNumFreeBuilding.get(eBuilding);
-	}
+	int getNumFreeBuilding(BuildingTypes eBuilding) const { return m_aiNumFreeBuilding.get(eBuilding); } // Exposed to Python
 	void setNumFreeBuilding(BuildingTypes eBuilding, int iNewValue);
 
 	bool isMeltdownBuilding(BuildingTypes eBuilding) const; // advc.652
 	bool isMeltdownBuildingSuperseded(BuildingTypes eBuilding) const; // advc.652
 
-	bool isHasReligion(ReligionTypes eReligion) const															// Exposed to Python
-	{
-		return m_abHasReligion.get(eReligion);
-	}
+	bool isHasReligion(ReligionTypes eReligion) const { return m_abHasReligion.get(eReligion); } // Exposed to Python
 	void setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnounce, bool bArrows = true, PlayerTypes eSpreadPlayer = NO_PLAYER); // advc.106e
 	int getReligionGrip(ReligionTypes eReligion) const; // K-Mod
-	bool isHasCorporation(CorporationTypes eCorp) const															// Exposed to Python
-	{
-		return m_abHasCorporation.get(eCorp);
-	}
+	bool isHasCorporation(CorporationTypes eCorp) const { return m_abHasCorporation.get(eCorp); } // Exposed to Python
 	void setHasCorporation(CorporationTypes eCorp, bool bNewValue, bool bAnnounce, bool bArrows = true);
 
 	CvCity* getTradeCity(int iIndex) const;																		// Exposed to Python
@@ -1145,10 +977,7 @@ public:
 	void popOrder(int iNum, bool bFinish = false, ChooseProductionPlayers eChoose = NONE_CHOOSE, bool bEndOfTurn = true); // advc.001x; Exposed to Python
 	void startHeadOrder();
 	void stopHeadOrder();
-	int getOrderQueueLength() /* advc: */ const																	// Exposed to Python
-	{
-		return m_orderQueue.getLength();
-	}
+	int getOrderQueueLength() /* advc: */ const { return m_orderQueue.getLength(); } // Exposed to Python
 	OrderData* getOrderFromQueue(int iIndex) const;																// Exposed to Python
 	CLLNode<OrderData>* nextOrderQueueNode(CLLNode<OrderData>* pNode) const
 	{
@@ -1158,14 +987,8 @@ public:
 	{
 		return m_orderQueue.next(pNode);
 	} // </advc.003s>
-	CLLNode<OrderData>* headOrderQueueNode() const
-	{
-		return m_orderQueue.head();
-	}
-	DllExport int getNumOrdersQueued() const
-	{
-		return m_orderQueue.getLength();
-	}
+	CLLNode<OrderData>* headOrderQueueNode() const { return m_orderQueue.head(); }
+	DllExport int getNumOrdersQueued() const { return m_orderQueue.getLength(); }
 	DllExport OrderData getOrderData(int iIndex) const;
 
 	DllExport void getVisibleBuildings(std::list<BuildingTypes>& kVisible, int& iNumGenerics);
@@ -1192,27 +1015,15 @@ public:
 	void setEventOccured(EventTypes eEvent, bool bOccured);
 	void doPartisans(); // advc.003y
 
-	int getBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const						// Exposed to Python
-	{
-		return m_aeiiBuildingYieldChange.get(eBuildingClass, eYield);
-	}
+	int getBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const { return m_aeiiBuildingYieldChange.get(eBuildingClass, eYield); } // Exposed to Python
 	void setBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);				// Exposed to Python
 	void changeBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);
-	int getBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce) const				// Exposed to Python
-	{
-		return m_aeiiBuildingCommerceChange.get(eBuildingClass, eCommerce);
-	}
+	int getBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce) const { return m_aeiiBuildingCommerceChange.get(eBuildingClass, eCommerce); } // Exposed to Python
 	void setBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce, int iChange);	// Exposed to Python
 	void changeBuildingCommerceChange(BuildingClassTypes eBuildingClass, CommerceTypes eCommerce, int iChange);
-	int getBuildingHappyChange(BuildingClassTypes eBuildingClass) const											// Exposed to Python
-	{
-		return m_aeiBuildingHappyChange.get(eBuildingClass);
-	}
+	int getBuildingHappyChange(BuildingClassTypes eBuildingClass) const { return m_aeiBuildingHappyChange.get(eBuildingClass); } // Exposed to Python
 	void setBuildingHappyChange(BuildingClassTypes eBuildingClass, int iChange);								// Exposed to Python
-	int getBuildingHealthChange(BuildingClassTypes eBuildingClass) const										// Exposed to Python
-	{
-		return m_aeiBuildingHealthChange.get(eBuildingClass);
-	}
+	int getBuildingHealthChange(BuildingClassTypes eBuildingClass) const { return m_aeiBuildingHealthChange.get(eBuildingClass); } // Exposed to Python
 	void setBuildingHealthChange(BuildingClassTypes eBuildingClass, int iChange);								// Exposed to Python
 
 	PlayerTypes getLiberationPlayer(bool bConquest /* advc: */ = false) const;									// Exposed to Python
@@ -1220,14 +1031,8 @@ public:
 	void meetNewOwner(TeamTypes eOtherTeam, TeamTypes eNewOwner) const; // advc.071
 
 	void changeNoBonusCount(BonusTypes eBonus, int iChange);													// Exposed to Python
-	int getNoBonusCount(BonusTypes eBonus) const
-	{
-		return m_aiNoBonus.get(eBonus);
-	}
-	bool isNoBonus(BonusTypes eBonus) const																		// Exposed to Python
-	{
-		return (getNoBonusCount(eBonus) > 0);
-	}
+	int getNoBonusCount(BonusTypes eBonus) const { return m_aiNoBonus.get(eBonus); }
+	bool isNoBonus(BonusTypes eBonus) const { return (getNoBonusCount(eBonus) > 0); } // Exposed to Python
 
 	bool isAutoRaze(/* advc: */ PlayerTypes eConqueror = NO_PLAYER) const;
 
@@ -1485,27 +1290,12 @@ protected:
 	// <advc>
 	void changeCommerceRateTimes100(CommerceTypes eCommerce, int iChange);
 	void setCommerceRateTimes100(CommerceTypes eCommerce, int iRate); // </advc>
-	int getExtraProductionDifference(int iExtra, UnitTypes eUnit) const
-	{
-		return getExtraProductionDifference(iExtra, getProductionModifier(eUnit));
-	}
-	int getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const
-	{
-		return getExtraProductionDifference(iExtra, getProductionModifier(eBuilding));
-	}
-	int getExtraProductionDifference(int iExtra, ProjectTypes eProject) const
-	{
-		return getExtraProductionDifference(iExtra, getProductionModifier(eProject));
-	}
-	int getExtraProductionDifference(int iExtra, int iModifier) const
-	{
-		return (iExtra * getBaseYieldRateModifier(YIELD_PRODUCTION, iModifier)) / 100;
-	}
+	int getExtraProductionDifference(int iExtra, UnitTypes eUnit) const { return getExtraProductionDifference(iExtra, getProductionModifier(eUnit)); }
+	int getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const { return getExtraProductionDifference(iExtra, getProductionModifier(eBuilding)); }
+	int getExtraProductionDifference(int iExtra, ProjectTypes eProject) const { return getExtraProductionDifference(iExtra, getProductionModifier(eProject)); }
+	int getExtraProductionDifference(int iExtra, int iModifier) const { return (iExtra * getBaseYieldRateModifier(YIELD_PRODUCTION, iModifier)) / 100; }
 	// advc.001: For accurate calculation of hurry cost
-	int getInverseProductionDifference(int iExtra, int iModifier) const
-	{
-		return intdiv::uceil(iExtra * 100, getBaseYieldRateModifier(YIELD_PRODUCTION, iModifier));
-	}
+	int getInverseProductionDifference(int iExtra, int iModifier) const { return intdiv::uceil(iExtra * 100, getBaseYieldRateModifier(YIELD_PRODUCTION, iModifier)); }
 	int getHurryCostModifier(UnitTypes eUnit, bool bIgnoreNew) const;
 	int getHurryCostModifier(BuildingTypes eBuilding, bool bIgnoreNew) const;
 	int getHurryCostModifier(int iBaseModifier, int iProduction, bool bIgnoreNew) const;

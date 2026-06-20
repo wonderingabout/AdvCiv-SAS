@@ -116,10 +116,7 @@ public:
 	template<typename T>
 	bool GetNextXmlVal(T& r, T tDefault = (T)-1);
 	// Need to make these casts explicit to avoid matching the template
-	bool GetNextXmlVal(CvString& r, char const* szDefault = NULL)
-	{
-		return GetNextXmlVal(static_cast<std::string&>(r), szDefault);
-	}
+	bool GetNextXmlVal(CvString& r, char const* szDefault = NULL) { return GetNextXmlVal(static_cast<std::string&>(r), szDefault); }
 	bool GetNextXmlVal(CvWString& r, wchar const* szDefault = NULL)
 	{
 		return GetNextXmlVal(static_cast<std::wstring&>(r), szDefault);
@@ -217,10 +214,7 @@ public:
 		int m_iSiblingIndex;
 		int m_iSiblings;
 		TCHAR m_acTextVal[256]; // (Tbd.: Could we just use a CvString?)
-		static std::pair<int,T> noPair()
-		{
-			return std::pair<int,T>(iNO_KEY, (T)0);
-		}
+		static std::pair<int,T> noPair() { return std::pair<int,T>(iNO_KEY, (T)0); }
 	};
 	/*	advc.enum: Load mapping from an enum key to a list of yield or commerce rates.
 		Based on BtS code repeated in the CvInfo classes, e.g. CvInfo_Building. */
@@ -245,10 +239,7 @@ public:
 		CvString m_szRateTagName;
 		CvString m_szTextVal;
 		int* m_aiRates;
-		static std::pair<int,typename EncodableMap::enc_t> noPair()
-		{
-			return std::pair<int,typename EncodableMap::enc_t>(iNO_KEY, 0);
-		}
+		static std::pair<int,typename EncodableMap::enc_t> noPair() { return std::pair<int,typename EncodableMap::enc_t>(iNO_KEY, 0); }
 	};
 	/*  advc.003t (note): Will set the array that pptList points to to NULL if
 		tDefaultListVal is 0 and no pairs are found or if all (index,value) pairs

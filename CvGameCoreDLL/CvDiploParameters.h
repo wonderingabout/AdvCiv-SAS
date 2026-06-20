@@ -25,10 +25,7 @@ public:
 	void setDiploComment(DiploCommentTypes eCommentType, int arg1, int arg2=MAX_INT, CvWString  arg3="");
 	void setDiploComment(DiploCommentTypes eCommentType, int arg1, int arg2, int arg3=MAX_INT);
 
-	DllExport DiploCommentTypes getDiploComment() const
-	{
-		return m_eCommentType;
-	}
+	DllExport DiploCommentTypes getDiploComment() const { return m_eCommentType; }
 	DllExport void setOurOfferList(CLinkList<TradeData> const& kOurOffer);
 	DllExport const CLinkList<TradeData>& getOurOfferList() const;
 	DllExport void setTheirOfferList(CLinkList<TradeData> const& kTheirOffer);

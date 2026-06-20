@@ -31,28 +31,19 @@ class PathNodeBase
 {
 public:
 	PathNodeBase(); // public - to avoid a compiler warning (c4610), but w/o implementation.
-	bool isState(PathNodeState eState) const
-	{
-		return (m_iState == eState);
-	}
+	bool isState(PathNodeState eState) const { return (m_iState == eState); }
 	void setState(PathNodeState eState)
 	{
 		m_iState = static_cast<char>(eState);
 	}
 	/*	Consistent with a getPlot function added to FAStarNode.
 		To make PathNodes and FAStarNodes interchangeable as template parameters. */
-	CvPlot& getPlot() const
-	{
-		return *m_pPlot;
-	}
+	CvPlot& getPlot() const { return *m_pPlot; }
 	void setPlot(CvPlot& kPlot)
 	{
 		m_pPlot = &kPlot;
 	}
-	int getPathLength() const
-	{
-		return m_iPathLength;
-	}
+	int getPathLength() const { return m_iPathLength; }
 	void setPathLength(int iPathLength)
 	{
 		m_iPathLength = iPathLength;
@@ -208,10 +199,7 @@ public:
 		from a previous pathfinder call. Returning false will cause the
 		pathfinder's node data to be reset. Don't check kStart.getPathLength();
 		KmodPathFinder handles that. */
-	bool canReuseInitialPathData(Node const& kStart) const
-	{
-		return true;
-	}
+	bool canReuseInitialPathData(Node const& kStart) const { return true; }
 };
 
 /*	The first parameter should be derived from StepMetricBase,
@@ -232,39 +220,18 @@ protected:
 		typedef std::vector<Node*> container_t;
 		typedef typename container_t::iterator iterator;
 		typedef typename container_t::const_iterator const_iterator;
-		const_iterator begin() const
-		{
-			return m_nodes.begin();
-		}
-		const_iterator end() const
-		{
-			return m_nodes.end();
-		}
-		iterator begin()
-		{
-			return m_nodes.begin();
-		}
-		iterator end()
-		{
-			return m_nodes.end();
-		}
+		const_iterator begin() const { return m_nodes.begin(); }
+		const_iterator end() const { return m_nodes.end(); }
+		iterator begin() { return m_nodes.begin(); }
+		iterator end() { return m_nodes.end(); }
 		/*	Backwards traversal doesn't seem to help with branch prediction.
 			Was worth a try. NB: Will have to call close(--it.base())
 			when using a reverse iterator. */
 		/*typedef typename container_t::reverse_iterator reverse_iterator;
 		typedef typename container_t::const_reverse_iterator const_reverse_iterator;
-		const_reverse_iterator rbegin() const
-		{
-			return m_nodes.rbegin();
-		}
-		const_reverse_iterator rend() const
-		{
-			return m_nodes.rend();
-		}
-		reverse_iterator rbegin()
-		{
-			return m_nodes.rbegin();
-		}
+		const_reverse_iterator rbegin() const { return m_nodes.rbegin(); }
+		const_reverse_iterator rend() const { return m_nodes.rend(); }
+		reverse_iterator rbegin() { return m_nodes.rbegin(); }
 		reverse_iterator rend()
 		{
 			return m_nodes.rend();
@@ -331,10 +298,7 @@ protected:
 		{
 			delete[] m_data;
 		}
-		Node& get(PlotNumTypes ePlot)
-		{
-			return reinterpret_cast<Node*>(m_data)[ePlot];
-		}
+		Node& get(PlotNumTypes ePlot) { return reinterpret_cast<Node*>(m_data)[ePlot]; }
 		void reset()
 		{
 			if (!m_bDirty)
@@ -360,10 +324,7 @@ protected:
 		PlotNumTypes m_eMaxPlots;
 		bool m_bDirty; // advc.opt: Make sure we're not resetting unnecessarily
 
-		int numBytes()
-		{
-			return sizeof(Node) * m_eMaxPlots;
-		}
+		int numBytes() { return sizeof(Node) * m_eMaxPlots; }
 	};
 
 	StepMetric m_stepMetric;
@@ -384,10 +345,7 @@ public:
 	void reset();
 	bool generatePath(CvPlot const& kStart, CvPlot const& kDest);
 	bool isPathComplete() const { return (m_pEndNode != NULL); }
-	int getPathLength() const // advc: Was "getPathTurns"; too specific.
-	{
-		return m_pEndNode->getPathLength();
-	}
+	int getPathLength() const { return m_pEndNode->getPathLength(); } // advc: Was "getPathTurns"; too specific.
 	CvPlot& getPathFirstPlot() const;
 	// Both group and team pathfinder need this, so I'll keep it at the base class.
 	static void initHeuristicWeights(int iMinMovementCost, int iMinFlatMovementCost);

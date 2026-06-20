@@ -20,10 +20,7 @@ public:
 	CvProcessInfo();
 	~CvProcessInfo();
 
-	TechTypes getTechPrereq() const // Exposed to Python
-	{
-		return m_eTechPrereq;
-	}
+	TechTypes getTechPrereq() const { return m_eTechPrereq; } // Exposed to Python
 	int getProductionToCommerceModifier(CommerceTypes eCommerce) const; // Exposed to Python
 	iPY_WRAP(ProductionToCommerceModifier, Commerce);
 	bool read(CvXMLLoadUtility* pXML);

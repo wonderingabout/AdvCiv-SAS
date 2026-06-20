@@ -171,19 +171,10 @@ public:
 	NormalizationTarget(CitySiteEvaluator& kEval,
 			StartingPositionIteration::SolutionAttributes const& kSolution);
 	~NormalizationTarget();
-	bool isReached(CvPlot const& kStartSite) const
-	{
-		return isReached(kStartSite, false);
-	}
-	bool isNearlyReached(CvPlot const& kStartSite) const
-	{
-		return isReached(kStartSite, true);
-	}
+	bool isReached(CvPlot const& kStartSite) const { return isReached(kStartSite, false); }
+	bool isNearlyReached(CvPlot const& kStartSite) const { return isReached(kStartSite, true); }
 	// (currently unused)
-	bool isClearlyExceeded(CvPlot const& kStartSite) const
-	{
-		return isReached(kStartSite, false, true);
-	}
+	bool isClearlyExceeded(CvPlot const& kStartSite) const { return isReached(kStartSite, false, true); }
 	scaled getStartValue(CvPlot const& kStartSite) const;
 	scaled getVolatilityValue(CvPlot const& kStartSite) const;
 

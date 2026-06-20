@@ -15,10 +15,7 @@ class CvSelectionGroup /* advc.003k: */ : private boost::noncopyable
 {
 public:
 	// <advc.pf>
-	static GroupPathFinder& pathFinder()
-	{
-		return *m_pPathFinder;
-	}
+	static GroupPathFinder& pathFinder() { return *m_pPathFinder; }
 	static GroupPathFinder& getClearPathFinder(); // advc.opt
 	static void initPathFinder();
 	static void uninitPathFinder(); // </advc.pf>
@@ -143,10 +140,7 @@ public:
 	{
 		return (plot() == pPlot);
 	}  // advc.inl:
-	bool at(CvPlot const& kPlot) const
-	{
-		return atPlot(&kPlot);
-	}
+	bool at(CvPlot const& kPlot) const { return atPlot(&kPlot); }
 	DllExport CvPlot* plot() const;																											// Exposed to Python
 	CvPlot& getPlot() const { return *plot(); } // advc
 	//int getArea() const; // advc: removed
@@ -223,29 +217,14 @@ public:
 	CLLNode<IDInfo>* headUnitNodeExternal() const;
 	CvUnit* getHeadUnitExternal() const;
 	// Safer to use const/ non-const pairs of functions
-	CLLNode<IDInfo> const* nextUnitNode(CLLNode<IDInfo> const* pNode) const
-	{
-		return m_units.next(pNode);
-	} 
-	CLLNode<IDInfo>* nextUnitNode(CLLNode<IDInfo>* pNode)
-	{
-		return m_units.next(pNode);
-	}
-	CLLNode<IDInfo> const* headUnitNode() const
-	{
-		return m_units.head();
-	}
-	CLLNode<IDInfo>* headUnitNode()
-	{
-		return m_units.head();
-	}
+	CLLNode<IDInfo> const* nextUnitNode(CLLNode<IDInfo> const* pNode) const { return m_units.next(pNode); }
+	CLLNode<IDInfo>* nextUnitNode(CLLNode<IDInfo>* pNode) { return m_units.next(pNode); }
+	CLLNode<IDInfo> const* headUnitNode() const { return m_units.head(); }
+	CLLNode<IDInfo>* headUnitNode() { return m_units.head(); }
 	CvUnit const* getHeadUnit() const;
 	CvUnit* getHeadUnit();
 	// </advc.003s>
-	DllExport int getNumUnits() const														// Exposed to Python
-	{
-		return m_units.getLength();
-	}
+	DllExport int getNumUnits() const { return m_units.getLength(); } // Exposed to Python
 	DllExport int getUnitIndex(CvUnit* pUnit, int iMaxIndex = -1) const;
 	UnitAITypes getHeadUnitAIType() const; // advc.003u: renamed from "getHeadUnitAI"
 	PlayerTypes getHeadOwner() const;
@@ -256,14 +235,8 @@ public:
 	MissionData* getMissionFromQueue(int iIndex) const;												// Exposed to Python
 	void insertAtEndMissionQueue(MissionData mission, bool bStart = true);
 	CLLNode<MissionData>* deleteMissionQueueNode(CLLNode<MissionData>* pNode);
-	DllExport CLLNode<MissionData>* nextMissionQueueNode(CLLNode<MissionData>* pNode) const
-	{
-		return m_missionQueue.next(pNode);
-	}
-	CLLNode<MissionData>* prevMissionQueueNode(CLLNode<MissionData>* pNode) const
-	{
-		return m_missionQueue.prev(pNode);
-	}
+	DllExport CLLNode<MissionData>* nextMissionQueueNode(CLLNode<MissionData>* pNode) const { return m_missionQueue.next(pNode); }
+	CLLNode<MissionData>* prevMissionQueueNode(CLLNode<MissionData>* pNode) const { return m_missionQueue.prev(pNode); }
 	DllExport CLLNode<MissionData>* headMissionQueueNode() const { return m_missionQueue.head(); }
 	CLLNode<MissionData>* tailMissionQueueNode() const { return m_missionQueue.tail(); }
 	MissionTypes getMissionType(int iNode) const;																														// Exposed to Python

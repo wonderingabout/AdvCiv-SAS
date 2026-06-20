@@ -18,10 +18,7 @@ public:
 	}
 	void read(FDataStreamBase* pStream) { m_map.read(pStream); }
 	void write(FDataStreamBase* pStream) const { m_map.write(pStream); }
-	int get(CvPlot const& kPlot) const
-	{
-		return m_map.get(kPlot.plotNum());
-	}
+	int get(CvPlot const& kPlot) const { return m_map.get(kPlot.plotNum()); }
 	void decay();
 	void change(CvPlot const& kPlot, int iChange = iMAX_STR, int iPlotRange = 5);
 	static int maxStrength() { return iMAX_STR; }
@@ -36,10 +33,7 @@ private:
 class BarbarianWeightMap : public RandPlotWeightMap
 {
 public:
-	int getProbWeight(CvPlot const& kPlot) const // override
-	{
-		return get(kPlot);
-	}
+	int getProbWeight(CvPlot const& kPlot) const { return get(kPlot); } // override
 	int get(CvPlot const& kPlot) const;
 	BarbarianActivityMap& getActivityMap() { return m_activityMap; }
 	BarbarianActivityMap const& getActivityMap() const { return m_activityMap; }

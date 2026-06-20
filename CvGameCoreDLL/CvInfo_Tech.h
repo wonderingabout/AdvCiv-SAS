@@ -20,20 +20,14 @@ public:
 		BarbarianFreeTechModifier = base_t::NUM_INT_ELEMENT_TYPES, // advc.301
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	enum BoolElementTypes
 	{
 		NoFearForSafety = base_t::NUM_BOOL_ELEMENT_TYPES, // advc.500c
 		NUM_BOOL_ELEMENT_TYPES
 	};
 	PY_IS_ELEMENT(NoFearForSafety)
-	bool get(BoolElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
-	}
+	bool get(BoolElementTypes e) const { return base_t::get(static_cast<base_t::BoolElementTypes>(e)); }
 	// </advc.tag>
 	friend class CvXMLLoadUtility;
 public: // advc: All the const functions are exposed to Python except those added by mods

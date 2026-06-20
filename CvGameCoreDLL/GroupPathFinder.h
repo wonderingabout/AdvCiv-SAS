@@ -17,19 +17,13 @@ private:
 		Corresponds to FAStarNode::m_iData1 in K-Mod. */
 	int m_iMoves; // (short would suffice - but wouldn't help currently b/c of padding)
 public:
-	int getMoves() const
-	{
-		return m_iMoves;
-	}
+	int getMoves() const { return m_iMoves; }
 	void setMoves(int iMoves)
 	{
 		m_iMoves = iMoves;
 	}
 	// Aliases; to give path length a more specific name.
-	int getPathTurns() const
-	{
-		return getPathLength();
-	}
+	int getPathTurns() const { return getPathLength(); }
 	void setPathTurns(int iPathTurns)
 	{
 		setPathLength(iPathTurns);
@@ -49,10 +43,7 @@ public:
 	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iMoves, int iPathTurns);
 	static bool isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags);
 	static int cost(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iCurrMoves, bool bAtStart);
-	static int heuristicStepCost(int iFromX, int iFromY, int iToX, int iToY)
-	{
-		return stepDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT;
-	}
+	static int heuristicStepCost(int iFromX, int iFromY, int iToX, int iToY) { return stepDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT; }
 	/*	The K-Mod code for updating path data is pretty intrusive; needs to
 		have access to the node objects. */
 	template<class Node> // GroupPathNode or FAStarNode
@@ -66,35 +57,17 @@ public:
 	:	StepMetricBase<GroupPathNode>(iMaxPath), m_pGroup(pGroup),
 		m_eFlags(eFlags), m_iHeuristicWeight(iHeuristicWeight)
 	{}
-	CvSelectionGroup const* getGroup() const
-	{
-		return m_pGroup;
-	}
-	MovementFlags getFlags() const
-	{
-		return m_eFlags;
-	}
-	int getHeuristicWeight() const
-	{
-		return m_iHeuristicWeight;
-	}
-	bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const
-	{
-		return isValidStep(kFrom, kTo, *m_pGroup, m_eFlags);
-	}
-	bool canStepThrough(CvPlot const& kPlot) const
-	{
-		return canStepThrough(kPlot, *m_pGroup, m_eFlags);
-	}
+	CvSelectionGroup const* getGroup() const { return m_pGroup; }
+	MovementFlags getFlags() const { return m_eFlags; }
+	int getHeuristicWeight() const { return m_iHeuristicWeight; }
+	bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const { return isValidStep(kFrom, kTo, *m_pGroup, m_eFlags); }
+	bool canStepThrough(CvPlot const& kPlot) const { return canStepThrough(kPlot, *m_pGroup, m_eFlags); }
 	bool canStepThrough(CvPlot const& kPlot, GroupPathNode const& kNode) const
 	{
 		return canStepThrough(kPlot, *m_pGroup, m_eFlags,
 				kNode.getMoves(), kNode.getPathTurns());
 	}
-	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const
-	{
-		return isValidDest(kDest, *m_pGroup, m_eFlags);
-	}
+	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const { return isValidDest(kDest, *m_pGroup, m_eFlags); }
 	int cost(CvPlot const& kFrom, CvPlot const& kTo, GroupPathNode const& kParentNode) const
 	{
 		return cost(kFrom, kTo, *m_pGroup, m_eFlags,
@@ -105,10 +78,7 @@ public:
 		return heuristicStepCost(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) *
 				m_iHeuristicWeight;
 	}
-	bool updatePathData(GroupPathNode& kNode, GroupPathNode const& kParent) const
-	{
-		return updatePathData(kNode, kParent, *m_pGroup, m_eFlags);
-	}
+	bool updatePathData(GroupPathNode& kNode, GroupPathNode const& kParent) const { return updatePathData(kNode, kParent, *m_pGroup, m_eFlags); }
 	void initializePathData(GroupPathNode& kNode) const
 	{
 		StepMetricBase<GroupPathNode>::initializePathData(kNode);

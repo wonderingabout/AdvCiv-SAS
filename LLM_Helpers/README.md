@@ -26,6 +26,7 @@ Always review diffs before committing generated source changes.
   - [`fix_line_endings.py`](#fix_line_endingspy)
 - [C++ source cleanup helpers](#c-source-cleanup-helpers)
   - [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy)
+  - [`collapse_cpp_inline_returns.py`](#collapse_cpp_inline_returnspy)
 - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
   - [`singleline_pass.py`](#singleline_passpy)
   - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
@@ -411,7 +412,48 @@ Example 3 (traceable hoisted comment) (after):
 bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, bool bFollow)
 ```
 
-Done with the very nice help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.
+### `collapse_cpp_inline_returns.py`
+
+Conservative header-only helper for simple inline C++ functions.
+
+- Collapses four-line inline functions whose body is exactly one `return ...;` statement to one physical line.
+- Signature tail comments such as `// Exposed to Python` are preserved after the collapsed body.
+- Skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and lines exceeding `--max-line-len`.
+- Separate from `collapse_cpp_signatures.py` because it rewrites function bodies, not just signatures.
+- Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
+
+Example diagnostic run with output file and no source changes:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_returns.py ./CvGameCoreDLL --diff-file
+```
+
+Example apply run:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_returns.py ./CvGameCoreDLL --in-place
+```
+
+Example result:
+
+- First broad pass collapsed 722 simple inline return functions across 64 header-like files, including `CvPlayer::getGoldPerTurnByPlayer`.
+
+Example (before):
+
+```cpp
+	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const															// Exposed to Python
+	{
+		return m_aiGoldPerTurnByPlayer.get(ePlayer);
+	}
+```
+
+Example (after):
+
+```cpp
+	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python
+```
+
+Done with the very nice help of GPT-5.5 (on Codex) thanks.
 
 ## CvMainInterface cleanup reference scripts
 

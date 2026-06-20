@@ -61,20 +61,11 @@ public:
 	void Read(FDataStreamBase* pStream);
 	void Write(FDataStreamBase* pStream) const;
 
-	int getLength() const
-	{
-		return m_iLength;
-	}
+	int getLength() const { return m_iLength; }
 
-	CLLNode<tVARTYPE>* head() const
-	{
-		return m_pHead;
-	}
+	CLLNode<tVARTYPE>* head() const { return m_pHead; }
 
-	CLLNode<tVARTYPE>* tail() const
-	{
-		return m_pTail;
-	}
+	CLLNode<tVARTYPE>* tail() const { return m_pTail; }
 
 protected:
 	int m_iLength;

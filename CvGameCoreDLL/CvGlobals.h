@@ -311,14 +311,8 @@ public:
 		FAssertBounds(0, getNumWorldInfos(), eWorld);
 		return *m_paWorldInfo[eWorld];
 	}
-	int getNumWorldInfos() const
-	{
-		return (int)m_paWorldInfo.size();
-	}
-	CvWorldInfo& getWorldInfo(int iWorld) const
-	{
-		return getInfo(static_cast<WorldSizeTypes>(iWorld));
-	}
+	int getNumWorldInfos() const { return (int)m_paWorldInfo.size(); }
+	CvWorldInfo& getWorldInfo(int iWorld) const { return getInfo(static_cast<WorldSizeTypes>(iWorld)); }
 #pragma endregion InfoAccessors
 	// </advc.enum>
 
@@ -573,14 +567,8 @@ public:
 		DO_FOR_EACH_GLOBAL_DEFINE(MAKE_ENUMERATOR)
 		NUM_GLOBAL_DEFINES
 	};
-	int getDefineINT(GlobalDefines eVarName) const
-	{
-		return m_aiGlobalDefinesCache[eVarName];
-	}
-	bool getDefineBOOL(GlobalDefines eVarName) const
-	{
-		return (getDefineINT(eVarName) > 0);
-	}
+	int getDefineINT(GlobalDefines eVarName) const { return m_aiGlobalDefinesCache[eVarName]; }
+	bool getDefineBOOL(GlobalDefines eVarName) const { return (getDefineINT(eVarName) > 0); }
 	// Keep these as wrappers; too many call locations to change, or DllExport.
 	// These are all exposed to Python
 	int getMOVE_DENOMINATOR() const { return getDefineINT(MOVE_DENOMINATOR); }
@@ -675,10 +663,7 @@ public:
 	/*	K-Mod: more reliable versions of the 'gDLL->xxxKey' functions
 		NOTE: I've replaced all calls to the gDLL key functions with calls to these functions. */
 	// advc: Helper function (let's make it public; why not).
-	bool isKeyDown(int iVirtualKey) const
-	{
-		return (GetKeyState(iVirtualKey) & 0x8000);
-	}
+	bool isKeyDown(int iVirtualKey) const { return (GetKeyState(iVirtualKey) & 0x8000); }
 	bool altKey() const { return isKeyDown(VK_MENU); }
 	bool ctrlKey() const { return isKeyDown(VK_CONTROL); }
 	bool shiftKey() const { return isKeyDown(VK_SHIFT); }
@@ -977,15 +962,9 @@ extern CvGlobals gGlobals;	// for debugging
 
 // inlines ...
 
-__inline CvGlobals& CvGlobals::getInstance()
-{
-	return gGlobals;
-}
+__inline CvGlobals& CvGlobals::getInstance() { return gGlobals; }
 // advc:
-__inline CvGlobals const& CvGlobals::getConstInstance()
-{
-	return gGlobals;
-}
+__inline CvGlobals const& CvGlobals::getConstInstance() { return gGlobals; }
 
 
 // helpers ...

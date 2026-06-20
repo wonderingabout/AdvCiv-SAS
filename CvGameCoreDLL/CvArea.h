@@ -55,10 +55,7 @@ public:
 	}
 	// <advc.300>
 	std::pair<int,int> countOwnedUnownedHabitableTiles(bool bIgnoreBarb = false) const; // advc.021b: Exposed to Python as getNumHabitableTiles
-	int getNumCivCities() const
-	{
-		return getNumCities() - getCitiesPerPlayer(BARBARIAN_PLAYER);
-	}
+	int getNumCivCities() const { return getNumCities() - getCitiesPerPlayer(BARBARIAN_PLAYER); }
 	bool hasAnyAreaPlayerBonus(BonusTypes eBonus) const;
 	int getBarbarianCitiesEverCreated() const;
 	void reportBarbarianCityCreated();
@@ -81,111 +78,57 @@ public:
 	int getCitiesPerPlayer(PlayerTypes eIndex, bool bCheckAdjacentCoast = false) const; // advc.030b; Exposed to Python
 	void changeCitiesPerPlayer(PlayerTypes eIndex, int iChange);
 	int getTotalPopulation() const { return m_iTotalPopulation; }										// Exposed to Python
-	int getPopulationPerPlayer(PlayerTypes eIndex) const												// Exposed to Python
-	{
-		return m_aiPopulationPerPlayer.get(eIndex);
-	}
+	int getPopulationPerPlayer(PlayerTypes eIndex) const { return m_aiPopulationPerPlayer.get(eIndex); } // Exposed to Python
 	void changePopulationPerPlayer(PlayerTypes eIndex, int iChange);
 
-	int getBuildingGoodHealth(PlayerTypes eIndex) const													// Exposed to Python
-	{
-		return m_aiBuildingGoodHealth.get(eIndex);
-	}
+	int getBuildingGoodHealth(PlayerTypes eIndex) const { return m_aiBuildingGoodHealth.get(eIndex); } // Exposed to Python
 	void changeBuildingGoodHealth(PlayerTypes eIndex, int iChange);
-	int getBuildingBadHealth(PlayerTypes eIndex) const													// Exposed to Python
-	{
-		return m_aiBuildingBadHealth.get(eIndex);
-	}
+	int getBuildingBadHealth(PlayerTypes eIndex) const { return m_aiBuildingBadHealth.get(eIndex); } // Exposed to Python
 	void changeBuildingBadHealth(PlayerTypes eIndex, int iChange);
-	int getBuildingHappiness(PlayerTypes eIndex) const													// Exposed to Python
-	{
-		return m_aiBuildingHappiness.get(eIndex);
-	}
+	int getBuildingHappiness(PlayerTypes eIndex) const { return m_aiBuildingHappiness.get(eIndex); } // Exposed to Python
 	void changeBuildingHappiness(PlayerTypes eIndex, int iChange);
 	// <advc.310>
-	int getTradeRoutes(PlayerTypes eIndex) const														// Exposed to Python
-	{
-		return m_aiTradeRoutes.get(eIndex);
-	}
+	int getTradeRoutes(PlayerTypes eIndex) const { return m_aiTradeRoutes.get(eIndex); } // Exposed to Python
 	void changeTradeRoutes(PlayerTypes eIndex, int iChange);
 	// </advc.310>
-	int getFreeSpecialist(PlayerTypes eIndex) const														// Exposed to Python
-	{
-		return m_aiFreeSpecialist.get(eIndex);
-	}
+	int getFreeSpecialist(PlayerTypes eIndex) const { return m_aiFreeSpecialist.get(eIndex); } // Exposed to Python
 	void changeFreeSpecialist(PlayerTypes eIndex, int iChange);
 
-	int getPower(PlayerTypes eIndex) const																// Exposed to Python
-	{
-		return m_aiPower.get(eIndex);
-	}
+	int getPower(PlayerTypes eIndex) const { return m_aiPower.get(eIndex); } // Exposed to Python
 	void changePower(PlayerTypes eIndex, int iChange);
 
-	int getBestFoundValue(PlayerTypes eIndex) const														// Exposed to Python
-	{
-		return m_aiBestFoundValue.get(eIndex);
-	}
+	int getBestFoundValue(PlayerTypes eIndex) const { return m_aiBestFoundValue.get(eIndex); } // Exposed to Python
 	void setBestFoundValue(PlayerTypes eIndex, int iNewValue);
 
-	int getNumUnrevealedTiles(TeamTypes eIndex) const													// Exposed to Python
-	{
-		return getNumTiles() - getNumRevealedTiles(eIndex);
-	}
-	int getNumRevealedTiles(TeamTypes eIndex) const														// Exposed to Python
-	{
-		return m_aiNumRevealedTiles.get(eIndex);
-	}
+	int getNumUnrevealedTiles(TeamTypes eIndex) const { return getNumTiles() - getNumRevealedTiles(eIndex); } // Exposed to Python
+	int getNumRevealedTiles(TeamTypes eIndex) const { return m_aiNumRevealedTiles.get(eIndex); } // Exposed to Python
 	void changeNumRevealedTiles(TeamTypes eIndex, int iChange);
 
-	int getCleanPowerCount(TeamTypes eIndex) const
-	{
-		return m_aiCleanPowerCount.get(eIndex);
-	}
-	bool isCleanPower(TeamTypes eIndex) const															// Exposed to Python
-	{
-		return (getCleanPowerCount(eIndex) > 0);
-	}
+	int getCleanPowerCount(TeamTypes eIndex) const { return m_aiCleanPowerCount.get(eIndex); }
+	bool isCleanPower(TeamTypes eIndex) const { return (getCleanPowerCount(eIndex) > 0); } // Exposed to Python
 	void changeCleanPowerCount(TeamTypes eIndex, int iChange);
 
-	int getBorderObstacleCount(TeamTypes eIndex) const
-	{
-		return m_aiBorderObstacleCount.get(eIndex);
-	}
-	bool isBorderObstacle(TeamTypes eIndex) const														// Exposed to Python
-	{
-		return (getBorderObstacleCount(eIndex) > 0);
-	}
+	int getBorderObstacleCount(TeamTypes eIndex) const { return m_aiBorderObstacleCount.get(eIndex); }
+	bool isBorderObstacle(TeamTypes eIndex) const { return (getBorderObstacleCount(eIndex) > 0); } // Exposed to Python
 	void changeBorderObstacleCount(TeamTypes eIndex, int iChange);
 
-	AreaAITypes getAreaAIType(TeamTypes eIndex) const													// Exposed to Python
-	{
-		return m_aeAreaAIType.get(eIndex);
-	}
+	AreaAITypes getAreaAIType(TeamTypes eIndex) const { return m_aeAreaAIType.get(eIndex); } // Exposed to Python
 	void setAreaAIType(TeamTypes eIndex, AreaAITypes eNewValue);
 	/*	advc.003u: Renamed these two from get/setTargetCity
 		and changed types to CvCityAI. Target cities are an AI thing. */
 	CvCityAI* AI_getTargetCity(PlayerTypes eIndex) const;												// Exposed to Python
 	void AI_setTargetCity(PlayerTypes eIndex, CvCity* pNewValue);
 
-	int getYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2) const								// Exposed to Python
-	{
-		return m_aaiYieldRateModifier.get(eIndex1, eIndex2);
-	}
+	int getYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2) const { return m_aaiYieldRateModifier.get(eIndex1, eIndex2); } // Exposed to Python
 	void changeYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-	int getNumTrainAIUnits(PlayerTypes eIndex1, UnitAITypes eIndex2) const								// Exposed to Python
-	{
-		return m_aaiNumTrainAIUnits.get(eIndex1, eIndex2);
-	}
+	int getNumTrainAIUnits(PlayerTypes eIndex1, UnitAITypes eIndex2) const { return m_aaiNumTrainAIUnits.get(eIndex1, eIndex2); } // Exposed to Python
 	void changeNumTrainAIUnits(PlayerTypes eIndex1, UnitAITypes eIndex2, int iChange);
 
 	int getNumAIUnits(PlayerTypes eIndex1, UnitAITypes eIndex2) const;									// Exposed to Python
 	void changeNumAIUnits(PlayerTypes eIndex1, UnitAITypes eIndex2, int iChange);
 
-	int getNumBonuses(BonusTypes eBonus) const															// Exposed to Python
-	{
-		return m_aiBonuses.get(eBonus);
-	}
+	int getNumBonuses(BonusTypes eBonus) const { return m_aiBonuses.get(eBonus); } // Exposed to Python
 	int getNumTotalBonuses() const;																		// Exposed to Python
 	bool isAnyBonus() const { return m_aiBonuses.isAnyNonDefault(); } // advc.opt
 	void changeNumBonuses(BonusTypes eBonus, int iChange);

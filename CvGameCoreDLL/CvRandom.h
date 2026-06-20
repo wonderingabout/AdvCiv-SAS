@@ -60,10 +60,7 @@ public:
 	// </advc.006>
 	// advc.190c: Exported through .def file
 	unsigned short getExternal(unsigned short usNum, TCHAR const* szMsg = NULL);
-	DllExport float getFloat()
-	{
-		return get(MAX_UNSIGNED_SHORT) / (float)MAX_UNSIGNED_SHORT;
-	}
+	DllExport float getFloat() { return get(MAX_UNSIGNED_SHORT) / (float)MAX_UNSIGNED_SHORT; }
 
 	void reseed(unsigned int uiNewValue);
 	unsigned int getSeed();
@@ -115,10 +112,7 @@ protected:
 };
 
 // advc: Moved from CvGameCoreUtils, exported through .def file.
-int* shuffleExternal(int iNum, CvRandom& kRand)
-{
-	return kRand.shuffle(iNum);
-}
+int* shuffleExternal(int iNum, CvRandom& kRand) { return kRand.shuffle(iNum); }
 
 // advc.304:
 template<class ItemType>

@@ -171,10 +171,7 @@ protected:
 		virtual ~XMLElement() {};
 		int getID() const { return m_iID; }
 		CvString getName() const { return m_sName; }
-		ContentType getDefaultValue() const
-		{
-			return m_defaultValue;
-		}
+		ContentType getDefaultValue() const { return m_defaultValue; }
 		bool isMandatory() const { return m_bMandatory; }
 	private:
 		CvString m_sName;
@@ -213,14 +210,8 @@ protected:
 		}
 		int numIntElements() const { return (int)m_intElements.size(); }
 		int numBoolElements() const { return (int)m_boolElements.size(); }
-		IntElement const& intElementAt(int iPos) const
-		{
-			return *m_intElements.at(iPos);
-		}
-		BoolElement const& boolElementAt(int iPos) const
-		{
-			return *m_boolElements.at(iPos);
-		}
+		IntElement const& intElementAt(int iPos) const { return *m_intElements.at(iPos); }
+		BoolElement const& boolElementAt(int iPos) const { return *m_boolElements.at(iPos); }
 	private:
 		std::vector<IntElement*> m_intElements;
 		std::vector<BoolElement*> m_boolElements;
@@ -293,10 +284,7 @@ public:
 	{
 		NUM_BOOL_ELEMENT_TYPES = base_t::NUM_BOOL_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	int get(BoolElementTypes e) const
 	{
 		return base_t::get(static_cast<base_t::BoolElementTypes>(e));

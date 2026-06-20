@@ -96,10 +96,7 @@ template<class Derived, // CRT pattern (just for the setNextFromCache function)
 class AgentIterator : ExplicitAgentIterator<AgentType, eSTATUS, eRELATION, AgentAIType>
 {
 public:
-	bool hasNext() const
-	{
-		return (m_pNext != NULL);
-	}
+	bool hasNext() const { return (m_pNext != NULL); }
 
 	AgentType& operator*() const
 	{
@@ -117,10 +114,7 @@ public:
 		returned by a subsequent call to next [i.e. computeNext], or
 		list size [sequence length] if the list iterator [AgentIterator] is at the end
 		of the list [sequence]" */
-	int nextIndex() const
-	{
-		return (bAPPLY_FILTERS ? m_iPos - m_iSkipped : m_iPos);
-	}
+	int nextIndex() const { return (bAPPLY_FILTERS ? m_iPos - m_iSkipped : m_iPos); }
 
 	static int count(TeamTypes eTeam = NO_TEAM)
 	{
@@ -241,23 +235,14 @@ private:
 	short m_iSkipped;
 
 	// Don't want to assume that BARBARIAN_PLAYER==BARBARIAN_TEAM
-	static AgentAIType* getBarbarianAgent()
-	{
-		return _getBarbarianAgent<AgentAIType>();
-	}
+	static AgentAIType* getBarbarianAgent() { return _getBarbarianAgent<AgentAIType>(); }
 	// Don't want to include an AI header for GET_PLAYER
 	template<class T>
 	static T* _getBarbarianAgent();
 	template<>
-	static CvPlayerAI* _getBarbarianAgent<CvPlayerAI>()
-	{
-		return (*m_pAgents->getAgentSeqCache<CvPlayerAI>(CvAgents::ALL))[BARBARIAN_PLAYER];
-	}
+	static CvPlayerAI* _getBarbarianAgent<CvPlayerAI>() { return (*m_pAgents->getAgentSeqCache<CvPlayerAI>(CvAgents::ALL))[BARBARIAN_PLAYER]; }
 	template<>
-	static CvTeamAI* _getBarbarianAgent<CvTeamAI>()
-	{
-		return (*m_pAgents->getAgentSeqCache<CvTeamAI>(CvAgents::ALL))[BARBARIAN_TEAM];
-	}
+	static CvTeamAI* _getBarbarianAgent<CvTeamAI>() { return (*m_pAgents->getAgentSeqCache<CvTeamAI>(CvAgents::ALL))[BARBARIAN_TEAM]; }
 };
 #undef bAPPLY_FILTERS
 #undef bADD_BARBARIANS

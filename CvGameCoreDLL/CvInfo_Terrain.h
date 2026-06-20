@@ -328,10 +328,7 @@ public:
 		AirBombDefense = base_t::NUM_INT_ELEMENT_TYPES, // advc.255
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	// </advc.tag>
 public: // All the const functions are exposed to Python except those added by mods
 	CvRouteInfo();
@@ -396,10 +393,7 @@ public:
 		GWFeatureProtection, // advc.055
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	// </advc.tag>
 	/*  All the const functions are exposed to Python except those dealing with sound,
 		Advanced Start and those added by mods */
@@ -450,10 +444,7 @@ public:
 	int getHillsYieldChange(int i) const;
 	int const* getHillsYieldChangeArray() const { return m_piHillsYieldChange; }
 	int getIrrigatedYieldChange(int i) const;
-	int const* getIrrigatedYieldChangeArray() const // For Moose - CvWidgetData XXX
-	{
-		return m_piIrrigatedChange;
-	}
+	int const* getIrrigatedYieldChangeArray() const { return m_piIrrigatedChange; } // For Moose - CvWidgetData XXX
 
 	bool getTerrainMakesValid(int i) const;
 	bool isAnyTerrainMakesValid() const { return (m_pbTerrainMakesValid != NULL); } // advc.003t

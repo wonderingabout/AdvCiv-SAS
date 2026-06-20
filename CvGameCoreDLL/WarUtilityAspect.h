@@ -113,10 +113,7 @@ protected:
 	/*	For brevity, these function names refer to the agent as "we"/ "us"
 		and to the rival player as "them". */
 	UWAICache const& ourCache() const { return *m_pAgentCache; }
-	std::vector<PlotNumTypes> const& ourConquestsFromThem() const
-	{
-		return m_aeAgentConquersFromRival;
-	}
+	std::vector<PlotNumTypes> const& ourConquestsFromThem() const { return m_aeAgentConquersFromRival; }
 	// Agent player's current attitude toward the rival player and vice versa
 	AttitudeTypes towardThem() const { return m_eTowardRival; }
 	AttitudeTypes towardUs() const { return m_eTowardAgent; }

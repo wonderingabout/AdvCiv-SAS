@@ -22,42 +22,15 @@ class CvUnitClassInfo : public CvInfoBase
 public: // All the const functions are exposed to Python. advc:inl: All inlined.
 	CvUnitClassInfo();
 
-	int getMaxGlobalInstances() const
-	{
-		return m_iMaxGlobalInstances;
-	}
-	bool isWorldUnit() const // advc.003w: Replacing global isWorldUnitClass
-	{
-		return (getMaxGlobalInstances() != -1);
-	}
-	int getMaxTeamInstances() const
-	{
-		return m_iMaxTeamInstances;
-	}
-	bool isTeamUnit() const // advc.003w: Replacing global isTeamUnitClass
-	{
-		return (getMaxTeamInstances() != -1);
-	}
-	int getMaxPlayerInstances() const
-	{
-		return m_iMaxPlayerInstances;
-	}
-	bool isNationalUnit() const // advc.003w: Replacing global isNationalUnitClass
-	{
-		return (getMaxPlayerInstances() != -1);
-	}
-	bool isLimited() const // advc.003w: Replacing global isLimitedUnitClass
-	{
-		return (isWorldUnit() || isTeamUnit() || isNationalUnit());
-	}
-	int getInstanceCostModifier() const
-	{
-		return m_iInstanceCostModifier;
-	}
-	UnitTypes getDefaultUnit() const // advc.003x: Renamed from getDefaultUnitIndex
-	{
-		return (UnitTypes)m_iDefaultUnitIndex;
-	}
+	int getMaxGlobalInstances() const { return m_iMaxGlobalInstances; }
+	bool isWorldUnit() const { return (getMaxGlobalInstances() != -1); } // advc.003w: Replacing global isWorldUnitClass
+	int getMaxTeamInstances() const { return m_iMaxTeamInstances; }
+	bool isTeamUnit() const { return (getMaxTeamInstances() != -1); } // advc.003w: Replacing global isTeamUnitClass
+	int getMaxPlayerInstances() const { return m_iMaxPlayerInstances; }
+	bool isNationalUnit() const { return (getMaxPlayerInstances() != -1); } // advc.003w: Replacing global isNationalUnitClass
+	bool isLimited() const { return (isWorldUnit() || isTeamUnit() || isNationalUnit()); } // advc.003w: Replacing global isLimitedUnitClass
+	int getInstanceCostModifier() const { return m_iInstanceCostModifier; }
+	UnitTypes getDefaultUnit() const { return (UnitTypes)m_iDefaultUnitIndex; } // advc.003x: Renamed from getDefaultUnitIndex
 
 	bool read(CvXMLLoadUtility* pXML);
 	bool readPass3();
@@ -120,10 +93,7 @@ public: /*  All const functions are exposed to Python except some related to art
 	int getCityAttackModifier() const { return m_iCityAttackModifier; }
 	int getCityDefenseModifier() const { return m_iCityDefenseModifier; }
 	int getAnimalCombatModifier() const { return m_iAnimalCombatModifier; }
-	int getBarbarianCombatModifier() const // advc.315c
-	{
-		return m_iBarbarianCombatModifier;
-	}
+	int getBarbarianCombatModifier() const { return m_iBarbarianCombatModifier; } // advc.315c
 	int getHillsAttackModifier() const { return m_iHillsAttackModifier; }
 	int getHillsDefenseModifier() const { return m_iHillsDefenseModifier; }
 	int getBombRate() const { return m_iBombRate; }
@@ -175,14 +145,8 @@ public: /*  All const functions are exposed to Python except some related to art
 	bool isFoodProduction() const { return m_bFoodProduction; }
 	bool isNoBadGoodies() const { return m_bNoBadGoodies; }
 	bool isOnlyDefensive() const { return m_bOnlyDefensive; }
-	bool isOnlyAttackAnimals() const // advc.315a
-	{
-		return m_bOnlyAttackAnimals;
-	}
-	bool isOnlyAttackBarbarians() const // advc.315b
-	{
-		return m_bOnlyAttackBarbarians;
-	}
+	bool isOnlyAttackAnimals() const { return m_bOnlyAttackAnimals; } // advc.315a
+	bool isOnlyAttackBarbarians() const { return m_bOnlyAttackBarbarians; } // advc.315b
 	bool isNoCapture() const { return m_bNoCapture; }
 	bool isQuickCombat() const { return m_bQuickCombat; }
 	bool isRivalTerritory() const { return m_bRivalTerritory; }
@@ -308,18 +272,9 @@ public: /*  All const functions are exposed to Python except some related to art
 
 	// <advc.003w>
 	// Wrappers around CvUnitClass; for convenience.
-	bool isWorldUnit() const
-	{
-		return GC.getInfo(getUnitClassType()).isWorldUnit();
-	}
-	bool isTeamUnit() const
-	{
-		return GC.getInfo(getUnitClassType()).isTeamUnit();
-	}
-	bool isLimited() const
-	{
-		return GC.getInfo(getUnitClassType()).isLimited();
-	}
+	bool isWorldUnit() const { return GC.getInfo(getUnitClassType()).isWorldUnit(); }
+	bool isTeamUnit() const { return GC.getInfo(getUnitClassType()).isTeamUnit(); }
+	bool isLimited() const { return GC.getInfo(getUnitClassType()).isLimited(); }
 	// Moved from CvGameCoreUtils.h. Still exposed to Python through CyGameCoreUtils.
 	bool isPromotionValid(PromotionTypes ePromotion, bool bLeader) const;
 	// </advc.003w>
@@ -753,10 +708,7 @@ public:
 	//int getStealTreasuryTypes() const;
 	/*	Use a less confusing name at least in the DLL
 		(not going to rename the XML tag) */
-	int getStolenGoldPercent() const
-	{
-		return m_iStolenGoldPercent;
-	}
+	int getStolenGoldPercent() const { return m_iStolenGoldPercent; }
 	int getCityInsertCultureAmountFactor() const;
 	int getCityInsertCultureCostFactor() const;
 	int getCityPoisonWaterCounter() const;

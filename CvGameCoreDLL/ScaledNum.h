@@ -147,14 +147,8 @@ public:
 		return r;
 	}
 
-	static ScaledNum max(ScaledNum r1, ScaledNum r2)
-	{
-		return std::max(r1, r2);
-	}
-	static ScaledNum min(ScaledNum r1, ScaledNum r2)
-	{
-		return std::min(r1, r2);
-	}
+	static ScaledNum max(ScaledNum r1, ScaledNum r2) { return std::max(r1, r2); }
+	static ScaledNum min(ScaledNum r1, ScaledNum r2) { return std::min(r1, r2); }
 	template<typename LoType, typename HiType>
 	static ScaledNum clamp(ScaledNum r, LoType lo, HiType hi)
 	{
@@ -238,45 +232,21 @@ public:
 		but only works on non-negative numbers. Asserts non-negativity, so using
 		this over round may also help uncover bugs. */
 	int uround() const;
-	int floor() const
-	{
-		return static_cast<int>(m_i / SCALE);
-	}
+	int floor() const { return static_cast<int>(m_i / SCALE); }
 	int ceil() const
 	{
 		int iR = floor();
 		return iR + ((m_i >= 0 && m_i - iR * SCALE > 0) ? 1 : 0);
 	}
 	int uceil() const;
-	bool isInt() const
-	{
-		return (m_i % SCALE == 0);
-	}
+	bool isInt() const { return (m_i % SCALE == 0); }
 
-	int getPercent() const
-	{
-		return safeToInt(mulDivRound(m_i, 100, SCALE));
-	}
-	int getPermille() const
-	{
-		return safeToInt(mulDivRound(m_i, 1000, SCALE));
-	}
-	int roundToMultiple(int iMultiple) const
-	{
-		return mulDivRound(m_i, 1, SCALE * iMultiple) * iMultiple;
-	}
-	int toMultipleFloor(int iMultiple) const
-	{
-		return (m_i / (SCALE * iMultiple)) * iMultiple;
-	}
-	double getDouble() const
-	{
-		return m_i / static_cast<double>(SCALE);
-	}
-	float getFloat() const
-	{
-		return m_i / static_cast<float>(SCALE);
-	}
+	int getPercent() const { return safeToInt(mulDivRound(m_i, 100, SCALE)); }
+	int getPermille() const { return safeToInt(mulDivRound(m_i, 1000, SCALE)); }
+	int roundToMultiple(int iMultiple) const { return mulDivRound(m_i, 1, SCALE * iMultiple) * iMultiple; }
+	int toMultipleFloor(int iMultiple) const { return (m_i / (SCALE * iMultiple)) * iMultiple; }
+	double getDouble() const { return m_i / static_cast<double>(SCALE); }
+	float getFloat() const { return m_i / static_cast<float>(SCALE); }
 	/*	Tbd.: A static cache returned by reference doesn't work when
 		inserting into a stream, e.g.
 		out << r1.str() << "," << r2.str()
@@ -311,19 +281,13 @@ public:
 	bool randSuccess(CvRandom& kRand, char const* szLog, int iLogData1 = MIN_INT, int iLogData2 = MIN_INT) const;
 
 	ScaledNum pow(int iExp) const;
-	ScaledNum pow(ScaledNum rExp) const
-	{
-		return _pow<rExp.bSIGNED>(rExp);
-	}
+	ScaledNum pow(ScaledNum rExp) const { return _pow<rExp.bSIGNED>(rExp); }
 	ScaledNum sqrt() const
 	{
 		FAssert(!isNegative());
 		return powNonNegative(fromRational<1,2>());
 	}
-	ScaledNum exp() const
-	{
-		return fromRational<27182818,10000000>().pow(*this);
-	}
+	ScaledNum exp() const { return fromRational<27182818,10000000>().pow(*this); }
 	void exponentiate(int iExp)
 	{
 		*this = pow(iExp);
@@ -333,10 +297,7 @@ public:
 		*this = pow(rExp);
 	}
 
-	ScaledNum abs() const
-	{
-		return _abs<bSIGNED>();
-	}
+	ScaledNum abs() const { return _abs<bSIGNED>(); }
 
 	template<typename LoType, typename HiType>
 	void clamp(LoType lo, HiType hi)
@@ -402,14 +363,8 @@ public:
 	bool operator>=(ScaledNum<iOTHER_SCALE,OtherIntType,OtherEnumType> rOther) const;
 
 	// Exact comparisons with int - to be consistent with int-float comparisons.
-	bool operator<(int i) const
-	{
-		return (m_i < scaleForComparison(i));
-	}
-	bool operator>(int i) const
-	{
-		return (m_i > scaleForComparison(i));
-	}
+	bool operator<(int i) const { return (m_i < scaleForComparison(i)); }
+	bool operator>(int i) const { return (m_i > scaleForComparison(i)); }
 	bool operator==(int i) const
 	{
 		return (m_i == scaleForComparison(i));
@@ -426,14 +381,8 @@ public:
 	{
 		return (m_i >= scaleForComparison(i));
 	}
-	bool operator<(uint i) const
-	{
-		return (m_i < scaleForComparison(u));
-	}
-	bool operator>(uint u) const
-	{
-		return (m_i > scaleForComparison(u));
-	}
+	bool operator<(uint i) const { return (m_i < scaleForComparison(u)); }
+	bool operator>(uint u) const { return (m_i > scaleForComparison(u)); }
 	bool operator==(uint u) const
 	{
 		return (m_i == scaleForComparison(u));
@@ -688,10 +637,7 @@ private:
 	}
 
 	template<typename OtherIntType>
-	static IntType safeCast(OtherIntType n)
-	{
-		return safeIntCast<IntType>(n);
-	}
+	static IntType safeCast(OtherIntType n) { return safeIntCast<IntType>(n); }
 
 	/*	Specialize b/c the sign inversion code wouldn't compile for
 		unsigned IntType. */
@@ -706,10 +652,7 @@ private:
 		return powNonNegative(rExp);
 	}
 	template<>
-	ScaledNum _pow<false>(ScaledNum rExp) const
-	{
-		return powNonNegative(rExp);
-	}
+	ScaledNum _pow<false>(ScaledNum rExp) const { return powNonNegative(rExp); }
 
 	ScaledNum powNonNegative(int iExp) const
 	{
@@ -823,15 +766,9 @@ private:
 	template<bool bSigned>
 	ScaledNum _abs() const;
 	template<>
-	ScaledNum _abs<false>() const
-	{
-		return *this;
-	}
+	ScaledNum _abs<false>() const { return *this; }
 	template<>
-	ScaledNum _abs<true>() const
-	{
-		return (isNegative() ? -(*this) : *this);
-	}
+	ScaledNum _abs<true>() const { return (isNegative() ? -(*this) : *this); }
 };
 #pragma pack(pop)
 
@@ -1157,10 +1094,7 @@ operator/(
 // Commutativity ...
 
 template<ScaledNum_PARAMS>
-ScaledNum_T operator+(int i, ScaledNum_T r)
-{
-	return r + i;
-}
+ScaledNum_T operator+(int i, ScaledNum_T r) { return r + i; }
 /*	As we don't implement an int cast operator, assignment to int
 	should be forbidden as well. (No implicit getInt.) */
 /*template<ScaledNum_PARAMS>
@@ -1170,10 +1104,7 @@ int& operator+=(int& i, ScaledNum_T r)
 	return i;
 }*/
 template<ScaledNum_PARAMS>
-ScaledNum_T operator-(int i, ScaledNum_T r)
-{
-	return ScaledNum_T(i) - r;
-}
+ScaledNum_T operator-(int i, ScaledNum_T r) { return ScaledNum_T(i) - r; }
 /*template<ScaledNum_PARAMS>
 int& operator-=(int& i, ScaledNum_T r)
 {
@@ -1181,10 +1112,7 @@ int& operator-=(int& i, ScaledNum_T r)
 	return i;
 }*/
 template<ScaledNum_PARAMS>
-ScaledNum_T operator*(int i, ScaledNum_T r)
-{
-	return r * i;
-}
+ScaledNum_T operator*(int i, ScaledNum_T r) { return r * i; }
 /*template<ScaledNum_PARAMS>
 int& operator*=(int& i, ScaledNum_T r)
 {
@@ -1192,10 +1120,7 @@ int& operator*=(int& i, ScaledNum_T r)
 	return i;
 }*/
 template<ScaledNum_PARAMS>
-ScaledNum_T operator/(int i, ScaledNum_T r)
-{
-	return ScaledNum_T(i) / r;
-}
+ScaledNum_T operator/(int i, ScaledNum_T r) { return ScaledNum_T(i) / r; }
 /*template<ScaledNum_PARAMS>
 int& operator/=(int& i, ScaledNum_T r)
 {
@@ -1203,35 +1128,17 @@ int& operator/=(int& i, ScaledNum_T r)
 	return i;
 }*/
 template<ScaledNum_PARAMS>
-ScaledNum_T operator+(uint u, ScaledNum_T r)
-{
-	return r + u;
-}
+ScaledNum_T operator+(uint u, ScaledNum_T r) { return r + u; }
 template<ScaledNum_PARAMS>
-ScaledNum_T operator-(uint u, ScaledNum_T r)
-{
-	return r - u;
-}
+ScaledNum_T operator-(uint u, ScaledNum_T r) { return r - u; }
 template<ScaledNum_PARAMS>
-ScaledNum_T operator*(uint ui, ScaledNum_T r)
-{
-	return r * ui;
-}
+ScaledNum_T operator*(uint ui, ScaledNum_T r) { return r * ui; }
 template<ScaledNum_PARAMS>
-ScaledNum_T operator/(uint u, ScaledNum_T r)
-{
-	return r / u;
-}
+ScaledNum_T operator/(uint u, ScaledNum_T r) { return r / u; }
 template<ScaledNum_PARAMS>
-bool operator<(int i, ScaledNum_T r)
-{
-	return (r > i);
-}
+bool operator<(int i, ScaledNum_T r) { return (r > i); }
 template<ScaledNum_PARAMS>
-bool operator>(int i, ScaledNum_T r)
-{
-	return (r < i);
-}
+bool operator>(int i, ScaledNum_T r) { return (r < i); }
 template<ScaledNum_PARAMS>
 bool operator==(int i, ScaledNum_T r)
 {
@@ -1255,10 +1162,7 @@ bool operator>=(int i, ScaledNum_T r)
 /*	Couldn't guarantee here that only const expressions are used.
 	So floating-point operands will have to be wrapped in fixp. */
 /*template<ScaledNum_PARAMS>
-bool operator<(double d, ScaledNum_T r)
-{
-	return (r > d);
-}
+bool operator<(double d, ScaledNum_T r) { return (r > d); }
 template<ScaledNum_PARAMS>
 bool operator>(double d, ScaledNum_T r)
 {
@@ -1276,30 +1180,12 @@ typedef ScaledNum<2048,uint> uscaled;
 /*	Note that the uint versions will not be called when
 	the caller passes a positive signed int literal (e.g. 5);
 	will have to be an unsigned literal (e.g. 5u). */
-inline uscaled per100(uint uiNum)
-{
-	return uscaled(uiNum, 100u);
-}
-inline scaled per100(int iNum)
-{
-	return scaled(iNum, 100);
-}
-inline uscaled per1000(uint uiNum)
-{
-	return uscaled(uiNum, 1000u);
-}
-inline scaled per1000(int iNum)
-{
-	return scaled(iNum, 1000);
-}
-inline uscaled per10000(uint uiNum)
-{
-	return uscaled(uiNum, 10000u);
-}
-inline scaled per10000(int iNum)
-{
-	return scaled(iNum, 10000);
-}
+inline uscaled per100(uint uiNum) { return uscaled(uiNum, 100u); }
+inline scaled per100(int iNum) { return scaled(iNum, 100); }
+inline uscaled per1000(uint uiNum) { return uscaled(uiNum, 1000u); }
+inline scaled per1000(int iNum) { return scaled(iNum, 1000); }
+inline uscaled per10000(uint uiNum) { return uscaled(uiNum, 10000u); }
+inline scaled per10000(int iNum) { return scaled(iNum, 10000); }
 /*	'scaled' construction from double. Only const expressions are allowed.
 	Can only make sure of that through a macro (as we want to spare the caller
 	the use of angle brackets). Tbd.: Could return a uscaled

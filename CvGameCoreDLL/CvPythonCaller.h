@@ -171,10 +171,7 @@ private:
 	void call(char const* szFunctionName, CyArgsList& kArgsList, char const* szModuleName = PYGameModule, bool bAssertSuccess = true, bool bCheckExists = false) const;
 	bool isOverride() const;
 	bool canPlaceItemAt(char const* szItemName, CvPlot const& kPlot, bool& bOverride) const;
-	bool isUse(CallbackDefines eCallback) const
-	{
-		return m_abUseCallback[eCallback];
-	}
+	bool isUse(CallbackDefines eCallback) const { return m_abUseCallback[eCallback]; }
 	static int toInt(long l)
 	{
 		return static_cast<int>(l); // They're the same in MSVC03 x086

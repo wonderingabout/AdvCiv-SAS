@@ -107,15 +107,9 @@ public:
 	bool canVassalRevolt(TeamTypes eMaster, bool bCheckLosses = true, int iExtraLand = 0, int iExtraPop = 0) const; // advc.ctr
 	bool isLossesAllowRevolt(TeamTypes eMaster) const; // advc.112
 	int getUnitClassMaking(UnitClassTypes eUnitClass) const;											// Exposed to Python
-	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const										// Exposed to Python
-	{
-		return getUnitClassCount(eIndex) + getUnitClassMaking(eIndex);
-	}
+	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const { return getUnitClassCount(eIndex) + getUnitClassMaking(eIndex); } // Exposed to Python
 	int getBuildingClassMaking(BuildingClassTypes eBuildingClass) const;								// Exposed to Python
-	int getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const								// Exposed to Python
-	{
-		return getBuildingClassCount(eIndex) + getBuildingClassMaking(eIndex);
-	}
+	int getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const { return getBuildingClassCount(eIndex) + getBuildingClassMaking(eIndex); } // Exposed to Python
 	int getHasReligionCount(ReligionTypes eReligion) const;												// Exposed to Python
 	int getHasCorporationCount(CorporationTypes eCorporation) const;									// Exposed to Python
 
@@ -262,14 +256,8 @@ public:
 	/*	<advc> (for kekm.38) Params changed to PlayerTypes; were named "eIndex".
 		NB: This function says how many team members have a tech share effect
 		that gets triggered when eSharePlayers other players know a tech. */
-	int getTechShareCount(PlayerTypes eSharePlayers) const												// Exposed to Python
-	{
-		return m_aiTechShareCount.get(eSharePlayers);
-	}
-	bool isTechShare(PlayerTypes eSharePlayers) const													// Exposed to Python
-	{
-		return (getTechShareCount(eSharePlayers) > 0);
-	}
+	int getTechShareCount(PlayerTypes eSharePlayers) const { return m_aiTechShareCount.get(eSharePlayers); } // Exposed to Python
+	bool isTechShare(PlayerTypes eSharePlayers) const { return (getTechShareCount(eSharePlayers) > 0); } // Exposed to Python
 	bool isAnyTechShare() const { return m_aiTechShareCount.isAnyNonDefault(); } // advc.opt
 	void changeTechShareCount(PlayerTypes eSharePlayers, int iChange); // </advc>						// Exposed to Python
 
@@ -299,33 +287,21 @@ public:
 	/*  advc.162: "Just" meaning on the current turn. Don't want to rely on
 		AI code (AI_getWarPlanStateCounter) for this.
 		Also used for advc.010. */
-	bool hasJustDeclaredWar(TeamTypes eIndex) const
-	{
-		return m_abJustDeclaredWar.get(eIndex);
-	}
+	bool hasJustDeclaredWar(TeamTypes eIndex) const { return m_abJustDeclaredWar.get(eIndex); }
 	// <advc.130k> Replacing CvTeamAI::m_aiAtPeaceCounter, which is now randomized.
-	int getTurnsAtPeace(TeamTypes eTeam) const
-	{
-		return m_aiTurnsAtPeace.get(eTeam);
-	}
+	int getTurnsAtPeace(TeamTypes eTeam) const { return m_aiTurnsAtPeace.get(eTeam); }
 	void changeTurnsAtPeace(TeamTypes eTeam, int iChange)
 	{
 		setTurnsAtPeace(eTeam, getTurnsAtPeace(eTeam) + iChange);
 	}
 	void setTurnsAtPeace(TeamTypes eTeam, int iTurns); // </advc.130k>
 
-	bool isPermanentWarPeace(TeamTypes eIndex) const												// Exposed to Python
-	{
-		return m_abPermanentWarPeace.get(eIndex);
-	}
+	bool isPermanentWarPeace(TeamTypes eIndex) const { return m_abPermanentWarPeace.get(eIndex); } // Exposed to Python
 	void setPermanentWarPeace(TeamTypes eIndex, bool bNewValue);									// Exposed to Python
 
 	bool canTradeWith(TeamTypes eWhoTo) const; // advc
 	bool isFreeTrade(TeamTypes eIndex) const;																	// Exposed to Python
-	bool isOpenBorders(TeamTypes eIndex) const																// Exposed to Python
-	{
-		return m_abOpenBorders.get(eIndex);
-	}
+	bool isOpenBorders(TeamTypes eIndex) const { return m_abOpenBorders.get(eIndex); } // Exposed to Python
 	void setOpenBorders(TeamTypes eIndex, bool bNewValue);
 	// <advc.034>
 	bool isDisengage(TeamTypes eIndex) const { return m_abDisengage.get(eIndex); }
@@ -360,16 +336,10 @@ public:
 		return (isCapitulated() && isVassal(eMaster));
 	} // </advc>
 	int getCapitulationTurn() const; // advc.130w
-	int getRouteChange(RouteTypes eIndex) const																// Exposed to Python
-	{
-		return m_aiRouteChange.get(eIndex);
-	}
+	int getRouteChange(RouteTypes eIndex) const { return m_aiRouteChange.get(eIndex); } // Exposed to Python
 	void changeRouteChange(RouteTypes eIndex, int iChange);												// Exposed to Python
 
-	int getProjectCount(ProjectTypes eIndex) const														// Exposed to Python
-	{
-		return m_aiProjectCount.get(eIndex);
-	}
+	int getProjectCount(ProjectTypes eIndex) const { return m_aiProjectCount.get(eIndex); } // Exposed to Python
 	DllExport int getProjectDefaultArtType(ProjectTypes eIndex) const;
 	DllExport void setProjectDefaultArtType(ProjectTypes eIndex, int iValue);
 	DllExport int getProjectArtType(ProjectTypes eProject, int iIndex) const;
@@ -378,34 +348,19 @@ public:
 	DllExport bool isProjectAndArtMaxedOut(ProjectTypes eProject) const;
 	void changeProjectCount(ProjectTypes eProject, int iChange);							// Exposed to Python
 	DllExport void finalizeProjectArtTypes();
-	int getProjectMaking(ProjectTypes eProject) const												// Exposed to Python
-	{
-		return m_aiProjectMaking.get(eProject);
-	}
+	int getProjectMaking(ProjectTypes eProject) const { return m_aiProjectMaking.get(eProject); } // Exposed to Python
 	void changeProjectMaking(ProjectTypes eProject, int iChange);
 
-	int getUnitClassCount(UnitClassTypes eIndex) const												// Exposed to Python
-	{
-		return m_aiUnitClassCount.get(eIndex);
-	}
+	int getUnitClassCount(UnitClassTypes eIndex) const { return m_aiUnitClassCount.get(eIndex); } // Exposed to Python
 	bool isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra = 0) const;							// Exposed to Python
 	void changeUnitClassCount(UnitClassTypes eIndex, int iChange);
 
-	int getBuildingClassCount(BuildingClassTypes eIndex) const													// Exposed to Python
-	{
-		return m_aiBuildingClassCount.get(eIndex);
-	}
+	int getBuildingClassCount(BuildingClassTypes eIndex) const { return m_aiBuildingClassCount.get(eIndex); } // Exposed to Python
 	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0) const;			// Exposed to Python
 	void changeBuildingClassCount(BuildingClassTypes eIndex, int iChange);
 
-	int getObsoleteBuildingCount(BuildingTypes eIndex) const
-	{
-		return m_aiObsoleteBuildingCount.get(eIndex);
-	}
-	bool isObsoleteBuilding(BuildingTypes eIndex) const																// Exposed to Python
-	{
-		return (getObsoleteBuildingCount(eIndex) > 0);
-	}
+	int getObsoleteBuildingCount(BuildingTypes eIndex) const { return m_aiObsoleteBuildingCount.get(eIndex); }
+	bool isObsoleteBuilding(BuildingTypes eIndex) const { return (getObsoleteBuildingCount(eIndex) > 0); } // Exposed to Python
 	void changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange);
 
 	int getResearchProgress(TechTypes eIndex) const;																						// Exposed to Python
@@ -417,20 +372,11 @@ public:
 	// BETTER_BTS_AI_MOD, General AI, 07/27/09, jdog5000:
 	int getBestKnownTechScorePercent() const;
 
-	int getTerrainTradeCount(TerrainTypes eIndex) const
-	{
-		return m_aiTerrainTradeCount.get(eIndex);
-	}
-	bool isTerrainTrade(TerrainTypes eIndex) const															// Exposed to Python
-	{
-		return (getTerrainTradeCount(eIndex) > 0);
-	}
+	int getTerrainTradeCount(TerrainTypes eIndex) const { return m_aiTerrainTradeCount.get(eIndex); }
+	bool isTerrainTrade(TerrainTypes eIndex) const { return (getTerrainTradeCount(eIndex) > 0); } // Exposed to Python
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);
 
-	int getRiverTradeCount() const
-	{
-		return m_iRiverTradeCount;
-	}
+	int getRiverTradeCount() const { return m_iRiverTradeCount; }
 	bool isRiverTrade() const																			// Exposed to Python
 	{
 		//return (getRiverTradeCount() > 0);
@@ -444,16 +390,10 @@ public:
 				NO_MILITARY_PERCENT_ANGER));
 	}
 
-	int getVictoryCountdown(VictoryTypes eVictory) const													// Exposed to Python
-	{
-		return m_aiVictoryCountdown.get(eVictory);
-	}
+	int getVictoryCountdown(VictoryTypes eVictory) const { return m_aiVictoryCountdown.get(eVictory); } // Exposed to Python
 	void setVictoryCountdown(VictoryTypes eVictory, int iTurnsLeft);
 	void changeVictoryCountdown(VictoryTypes eVictory, int iChange);
-	bool isAnyVictoryCountdown() const // advc.opt
-	{
-		return m_aiVictoryCountdown.isAnyNonDefault();
-	}
+	bool isAnyVictoryCountdown() const { return m_aiVictoryCountdown.isAnyNonDefault(); } // advc.opt
 	int getVictoryDelay(VictoryTypes eVictory) const;
 	bool canLaunch(VictoryTypes eVictory) const;									// Exposed to Python
 	void setCanLaunch(VictoryTypes eVictory, bool bCan);
@@ -476,10 +416,7 @@ public:
 	bool isNoTradeTech(TechTypes eIndex) const;																														// Exposed to Python
 	void setNoTradeTech(TechTypes eIndex, bool bNewValue);																					// Exposed to Python
 
-	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const										// Exposed to Python
-	{
-		return m_aaiImprovementYieldChange.get(eIndex1, eIndex2);
-	}
+	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const { return m_aaiImprovementYieldChange.get(eIndex1, eIndex2); } // Exposed to Python
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);		// Exposed to Python
 
 	bool doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const; // K-Mod
@@ -528,10 +465,7 @@ public:
 	void verifySpyUnitsValidPlot();
 
 	void setForceRevealedBonus(BonusTypes eBonus, bool bRevealed);
-	bool isForceRevealedBonus(BonusTypes eBonus) const
-	{
-		return m_abRevealedBonuses.get(eBonus);
-	}
+	bool isForceRevealedBonus(BonusTypes eBonus) const { return m_abRevealedBonuses.get(eBonus); }
 	bool isBonusRevealed(BonusTypes eBonus) const; // K-Mod. (the definitive answer)
 	bool canDiscoverBonus(BonusTypes eBonus) const; // advc
 

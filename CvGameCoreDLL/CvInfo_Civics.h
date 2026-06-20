@@ -202,14 +202,8 @@ class CvUpkeepInfo : public CvInfoBase
 public:
 	CvUpkeepInfo();
 
-	int getPopulationPercent() const //	Exposed to Python
-	{
-		return m_iPopulationPercent;
-	}
-	int getCityPercent() const	//	Exposed to Python
-	{
-		return m_iCityPercent;
-	}
+	int getPopulationPercent() const { return m_iPopulationPercent; } // Exposed to Python
+	int getCityPercent() const { return m_iCityPercent; } // Exposed to Python
 	bool read(CvXMLLoadUtility* pXML);
 
 protected:
