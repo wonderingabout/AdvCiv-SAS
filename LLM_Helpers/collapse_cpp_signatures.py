@@ -297,11 +297,33 @@ def find_matching_close_line(bodies: list[str], start_index: int, open_column: i
 def collapse_whitespace(text: str) -> str:
 	text = " ".join(text.strip().split())
 	text = text.replace("( ", "(").replace(" )", ")")
-	text = text.replace(" ,", ",").replace(",", ", ")
+	text = text.replace(" ,", ",")
+	text = normalize_top_level_commas(text)
 	text = text.replace(" ;", ";").replace(" {", " {")
 	text = re.sub(r"\s+", " ", text).strip()
 	text = text.replace(",  ", ", ")
 	return text
+
+
+def normalize_top_level_commas(text: str) -> str:
+	parts: list[str] = []
+	angle_depth = 0
+	index = 0
+	while index < len(text):
+		ch = text[index]
+		if ch == "<":
+			angle_depth += 1
+		elif ch == ">" and angle_depth > 0:
+			angle_depth -= 1
+		if ch == "," and angle_depth == 0:
+			parts.append(", ")
+			index += 1
+			while index < len(text) and text[index] == " ":
+				index += 1
+			continue
+		parts.append(ch)
+		index += 1
+	return "".join(parts)
 
 
 def stripped_for_length(text: str) -> str:
@@ -358,6 +380,64 @@ def brace_depths_before(bodies: list[str]) -> list[int]:
 		depths.append(depth)
 		depth = max(0, depth + brace_delta(body))
 	return depths
+
+
+def classify_open_brace_context(text_before_open: str, previous_nonblank: str) -> str:
+	context = text_before_open.strip()
+	if re.search(r"\b(class|struct)\b", context) or re.match(r"(class|struct)\b", previous_nonblank):
+		return "class"
+	if ")" in context or ")" in previous_nonblank:
+		return "function"
+	return "other"
+
+
+def function_scope_states_before(bodies: list[str]) -> list[bool]:
+	states: list[bool] = []
+	stack: list[str] = []
+	previous_nonblank = ""
+	for body in bodies:
+		states.append("function" in stack)
+		in_string = None
+		escaped = False
+		in_block_comment = False
+		i = 0
+		while i < len(body):
+			ch = body[i]
+			next_ch = body[i + 1] if i + 1 < len(body) else ""
+			if in_block_comment:
+				if ch == "*" and next_ch == "/":
+					in_block_comment = False
+					i += 2
+					continue
+				i += 1
+				continue
+			if in_string is not None:
+				if escaped:
+					escaped = False
+				elif ch == "\\":
+					escaped = True
+				elif ch == in_string:
+					in_string = None
+				i += 1
+				continue
+			if ch == "/" and next_ch == "/":
+				break
+			if ch == "/" and next_ch == "*":
+				in_block_comment = True
+				i += 2
+				continue
+			if ch in ('"', "'"):
+				in_string = ch
+				i += 1
+				continue
+			if ch == "{":
+				stack.append(classify_open_brace_context(body[:i], previous_nonblank))
+			elif ch == "}" and stack:
+				stack.pop()
+			i += 1
+		if body.strip():
+			previous_nonblank = body.strip()
+	return states
 
 
 def block_comment_states_before(bodies: list[str]) -> list[bool]:
@@ -433,6 +513,23 @@ def first_word(text: str) -> str:
 	return match.group(1) if match else ""
 
 
+def has_top_level_comma(text: str) -> bool:
+	angle_depth = 0
+	for ch in text:
+		if ch == "<":
+			angle_depth += 1
+		elif ch == ">" and angle_depth > 0:
+			angle_depth -= 1
+		elif ch == "," and angle_depth == 0:
+			return True
+	return False
+
+
+def final_prefix_token(text: str) -> str:
+	parts = text.rstrip().split()
+	return parts[-1] if parts else ""
+
+
 def looks_like_signature_start(text: str) -> bool:
 	stripped = text.strip()
 	if not stripped or stripped.startswith(("//", "/*", "*", "#")):
@@ -446,11 +543,11 @@ def looks_like_signature_start(text: str) -> bool:
 		return False
 	prefix, _open_column = prefix_info
 	prefix = prefix.rstrip()
-	if not prefix or "=" in prefix or "," in prefix or "." in prefix or "->" in prefix:
+	if not prefix or "=" in prefix or has_top_level_comma(prefix) or "." in prefix or "->" in prefix:
 		return False
 	if prefix.endswith(("+", "-", "/", "%", "?", ":", "||", "&&")):
 		return False
-	if "::" in prefix and leading_ws(text):
+	if "::" in final_prefix_token(prefix) and leading_ws(text):
 		# Most member definitions are flush-left in this codebase; indented :: forms
 		# are usually calls such as std::max/std::partial_sort inside a function.
 		return False
@@ -458,7 +555,13 @@ def looks_like_signature_start(text: str) -> bool:
 		# Avoid treating ordinary calls such as foo(\n...) as signatures.
 		# Class constructors/destructors without :: are intentionally skipped.
 		return False
+	if re.search(r"~?[A-Za-z_][A-Za-z0-9_]*<[^()]*>$", prefix):
+		return "::" in prefix
 	return bool(re.search(r"(?:~?[A-Za-z_][A-Za-z0-9_]*|operator\s*[^\s(]+)$", prefix))
+
+
+def is_unindented_root_cpp_declaration_candidate(text: str, depth: int, suffix: str) -> bool:
+	return suffix in {".c", ".cpp"} and depth == 0 and leading_ws(text) == ""
 
 
 def tail_after_close(bodies: list[str], close_index: int) -> str:
@@ -475,8 +578,6 @@ def range_has_unsafe_comments(bodies: list[str], start: int, end: int, hoist_com
 		line = bodies[index]
 		if is_whole_line_comment(line):
 			if not hoist_comments:
-				return True
-			if trace_hoisted_comments and is_existing_custom_comment_payload(stripped_comment_payload(line)):
 				return True
 			continue
 		if contains_lone_line_comment(line):
@@ -783,6 +884,7 @@ def try_signature_rewrite(
 	bodies: list[str],
 	eols: list[str],
 	brace_depths: list[int],
+	function_scope_states: list[bool],
 	block_comment_states: list[bool],
 	index: int,
 	suffix: str,
@@ -831,21 +933,27 @@ def try_signature_rewrite(
 	tail = tail_after_close(bodies, close_index)
 	following = next_nonblank_code_body(bodies, close_index + 1)
 	depth = brace_depths[index]
+	inside_function_scope = function_scope_states[index]
 	suffix = suffix.lower()
 	is_header = suffix in {".h", ".hpp", ".inl"}
 	is_definition = tail_allows_signature_definition(tail, following)
 	is_declaration = tail_allows_signature_declaration(tail)
+	is_root_cpp_declaration = is_unindented_root_cpp_declaration_candidate(body, depth, suffix)
 
-	# <!-- custom: Default mode must not rewrite ordinary local calls/constructors such as logBBAI(...), scaled r(...), or CvWString szMsg(...). Function definitions are normally top-level, namespace-level, or inline inside a class; declarations ending in ';' are only safe enough in headers/class declarations. Trailing end-of-signature // comments are allowed, but comments inside the parameter list are still skipped. (GPT-5.5) -->
+	# <!-- custom: Default mode must not rewrite ordinary local calls/constructors such as logBBAI(...), scaled r(...), or CvWString szMsg(...). Function definitions are normally top-level, namespace-level, or inline inside a class; declarations ending in ';' are safe enough in headers/class declarations and unindented root-scope .cpp declarations. Trailing end-of-signature // comments are allowed, but comments inside the parameter list are still skipped unless trace-hoisted. (GPT-5.5) -->
 	if is_definition:
 		if depth > 2:
 			reject(f"definition-like candidate is inside nested scope (brace depth {depth})", close_index)
 			return None
 	elif is_declaration:
-		if not is_header:
+		if not is_header and not is_root_cpp_declaration:
+			if depth > 0:
+				if include_nonsignature_ignored:
+					reject(f"declaration-like candidate is inside nested scope (brace depth {depth})", close_index)
+				return None
 			reject("declaration-like candidate is outside a header-like file", close_index)
 			return None
-		if depth > 2:
+		if depth > 2 or (depth > 1 and inside_function_scope):
 			reject(f"declaration-like candidate is inside nested scope (brace depth {depth})", close_index)
 			return None
 	else:
@@ -872,12 +980,13 @@ def rewrite_lines(lines: list[str], suffix: str, max_line_len: int, max_span_lin
 		eols.append(eol)
 
 	brace_depths = brace_depths_before(bodies)
+	function_scope_states = function_scope_states_before(bodies)
 	block_comment_states = block_comment_states_before(bodies)
 	stats = Stats()
 	new_lines: list[str] = []
 	index = 0
 	while index < len(lines):
-		rewrite = try_signature_rewrite(bodies, eols, brace_depths, block_comment_states, index, suffix, max_line_len, max_span_lines, hoist_comments, relative_path, ignored, include_nonsignature_ignored, trace_hoisted_comments, trace_credit, tail_exposed_to_python_comments, trace_inline_comments)
+		rewrite = try_signature_rewrite(bodies, eols, brace_depths, function_scope_states, block_comment_states, index, suffix, max_line_len, max_span_lines, hoist_comments, relative_path, ignored, include_nonsignature_ignored, trace_hoisted_comments, trace_credit, tail_exposed_to_python_comments, trace_inline_comments)
 		if rewrite is None:
 			new_lines.append(lines[index])
 			index += 1

@@ -2400,8 +2400,7 @@ scaled SimulationStep::getLostPower(PlayerTypes ePlayer, MilitaryBranchTypes eBr
 	(in addition to lossesWinner). */
 scaled const InvasionGraph::Node::m_rClashPortion = fixp(0.65);
 
-std::pair<scaled,scaled> InvasionGraph::Node::clashLossesWinnerLoser(
-	scaled rPowAtt, scaled rPowDef, bool bNearCity, bool bNaval)
+std::pair<scaled,scaled> InvasionGraph::Node::clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity, bool bNaval)
 {
 	scaled rLesserPow = std::min(rPowAtt, rPowDef);
 	scaled rGreaterPow = std::max(rPowAtt, rPowDef);

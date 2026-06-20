@@ -401,13 +401,11 @@ void CvGameTextMgr::setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvU
 }
 
 
-void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
-	bool bOneLine, bool bShort,
-	bool bColorAllegiance, // advc.048
-	bool bOmitOwner, // advc.061
-	bool bIndicator, // advc.007
-	// <!-- custom: Promotion icon size was formerly hardcoded as 16; pass it through so external UI wrappers can control the generated image markup cleanly. (GPT-5.5) -->
-	int iPromotionIconSize)
+// advc.048 <!-- custom: hoisted from multiline signature between `bColorAllegiance` and `bOmitOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.061 <!-- custom: hoisted from multiline signature between `bOmitOwner` and `bIndicator` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.007 <!-- custom: hoisted from multiline signature between `bIndicator` and `iPromotionIconSize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// <!-- custom: Promotion icon size was formerly hardcoded as 16; pass it through so external UI wrappers can control the generated image markup cleanly. (GPT-5.5) --> <!-- custom: hoisted from multiline signature between `bIndicator` and `iPromotionIconSize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine, bool bShort, bool bColorAllegiance, bool bOmitOwner, bool bIndicator, int iPromotionIconSize)
 {
 	PROFILE_FUNC();
 
@@ -13933,12 +13931,8 @@ bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer &szBuffer, const CvWStrin
 	return bStarted;
 }
 // <advc.003t> Explicit instantiations
-template bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer&,
-		CvWString const&, CvWString const&, CvWString const&,
-		int const*, bool, bool, bool);
-template bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer&,
-		CvWString const&, CvWString const&, CvWString const&,
-		YieldChangeMap const&, bool, bool, bool); // </advc.003t>
+template bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer&, CvWString const&, CvWString const&, CvWString const&, int const*, bool, bool, bool);
+template bool CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer&, CvWString const&, CvWString const&, CvWString const&, YieldChangeMap const&, bool, bool, bool); // </advc.003t>
 
 template<class CommerceChanges> // advc.003t
 bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, CommerceChanges aiCommerceChange, bool bPercent, bool bNewLine, bool bStarted)
@@ -13975,12 +13969,8 @@ bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer &szBuffer, const CvWSt
 	return bStarted;
 }
 // <advc.003t>
-template bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer&,
-		CvWString const&, CvWString const&, CvWString const&,
-		int const*, bool, bool, bool);
-template bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer&,
-		CvWString const&, CvWString const&, CvWString const&,
-		CommerceChangeMap const&, bool, bool, bool); // </advc.003t>
+template bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer&, CvWString const&, CvWString const&, CvWString const&, int const*, bool, bool, bool);
+template bool CvGameTextMgr::setCommerceChangeHelp(CvWStringBuffer&, CvWString const&, CvWString const&, CvWString const&, CommerceChangeMap const&, bool, bool, bool); // </advc.003t>
 
 // Displays float values by dividing each value by 100
 template<class CommercePercentChanges> // advc.003t
@@ -14030,12 +14020,8 @@ bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer &szBuffer, con
 	return bStarted;
 }
 // <advc.003t>
-template bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer&,
-		CvWString const&, CvWString const&, CvWString const&,
-		int const*, bool, bool);
-template bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer&,
-		CvWString const&, CvWString const&, CvWString const&,
-		CommercePercentMap const&, bool, bool); // </advc.003t>
+template bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer&, CvWString const&, CvWString const&, CvWString const&, int const*, bool, bool);
+template bool CvGameTextMgr::setCommerceTimes100ChangeHelp(CvWStringBuffer&, CvWString const&, CvWString const&, CvWString const&, CommercePercentMap const&, bool, bool); // </advc.003t>
 
 bool CvGameTextMgr::setGoodBadChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iGood, int iGoodSymbol, int iBad, int iBadSymbol, bool bPercent, bool bNewLine, bool bStarted)
 {

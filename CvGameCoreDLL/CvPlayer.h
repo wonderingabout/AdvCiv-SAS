@@ -77,8 +77,8 @@ public:
 	bool startingPlotWithinRange(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange, int iPass) const;			// Exposed to Python
 	int startingPlotDistanceFactor(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange) const;
 	//int findStartingArea() const;
-	std::vector<std::pair<int,int> > findStartingAreas( // kekm.35
-			bool* pbFoundByMapScript = NULL) const; // advc.027
+	// kekm.35 <!-- custom: hoisted from multiline signature before `pbFoundByMapScript` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	std::vector<std::pair<int,int> > findStartingAreas(bool* pbFoundByMapScript = NULL) const; // advc.027
 	// advc.027: New auxiliary function (public only for Debug mode info)
 	int coastRiverStartingAreaScore(CvArea const& a) const;
 	CvPlot* findStartingPlot(bool* pbPlotFoundByMapScript = NULL, bool* pbAreaFoundByMapScript = NULL); // advc.027; Exposed to Python

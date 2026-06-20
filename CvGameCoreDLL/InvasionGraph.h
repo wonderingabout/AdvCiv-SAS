@@ -173,9 +173,8 @@ public:
 		scaled m_rDistractionByDefense;
 
 		scaled productionPortion() const; // Remaining production capacity after losses
-		UWAICache::City const* targetCity(
-				// Default: based on m_pPrimaryTarget
-				PlayerTypes eTargetOwner = NO_PLAYER) const;
+		// Default: based on m_pPrimaryTarget <!-- custom: hoisted from multiline signature before `eTargetOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+		UWAICache::City const* targetCity(PlayerTypes eTargetOwner = NO_PLAYER) const;
 		void addConquest(UWAICache::City const& kConqCity);
 		void addCityLoss(UWAICache::City const& kLostCity)
 		{
@@ -192,9 +191,7 @@ public:
 		/*	Tbd.: Should create a small class for this stuff. Related:
 			Losses from city attack. */
 		static scaled const m_rClashPortion;
-		static std::pair<scaled,scaled> clashLossesWinnerLoser(
-				scaled rPowAtt, scaled rPowDef,
-				bool bNearCity = true, bool bNaval = false);
+		static std::pair<scaled,scaled> clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity = true, bool bNaval = false);
 		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef)
 		{
 			return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3;

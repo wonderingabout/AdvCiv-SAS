@@ -10599,8 +10599,7 @@ void CvGame::reportCurrentLayer(GlobeLayerTypes eLayer)
 } // </advc.004m>
 
 // <advc.127b>
-std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver,
-	bool bDebug) const
+std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver, bool bDebug) const
 {
 	CvCity const* pVSCity = getVoteSourceCity(eVS, eObserver, bDebug);
 	std::pair<int,int> r = std::make_pair(-1,-1);

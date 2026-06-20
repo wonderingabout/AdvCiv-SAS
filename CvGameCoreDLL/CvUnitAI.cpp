@@ -24769,8 +24769,7 @@ bool CvUnitAI::AI_followBombard()
 
 /*  <advc.033> Counts units in kPlot that this unit could attack and returns
 	the defender count and total unit count as a pair (iDefenders,iUnits). */
-std::pair<int,int> CvUnitAI::AI_countPiracyTargets(CvPlot const& kPlot,
-	bool bStopIfAnyTarget) const
+std::pair<int,int> CvUnitAI::AI_countPiracyTargets(CvPlot const& kPlot, bool bStopIfAnyTarget) const
 {
 	std::pair<int,int> iiDefTotal(0, 0);
 	if(!isAlwaysHostile(kPlot))

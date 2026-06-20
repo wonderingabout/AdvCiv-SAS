@@ -422,9 +422,8 @@ template<class StepMetric, class Node>
 int KmodPathFinder<StepMetric,Node>::iAdmissibleScaledWeight = 1;
 
 template<class StepMetric, class Node>
-void KmodPathFinder<StepMetric,Node>::initHeuristicWeights(
-	// advc: Let CvMap compute these; don't want to include CvInfo_Terrain.h here.
-	int iMinMovementCost, int iMinFlatMovementCost)
+// advc: Let CvMap compute these; don't want to include CvInfo_Terrain.h here. <!-- custom: hoisted from multiline signature before `iMinMovementCost` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void KmodPathFinder<StepMetric,Node>::initHeuristicWeights(int iMinMovementCost, int iMinFlatMovementCost)
 {
 	iAdmissibleBaseWeight = std::min(GC.getMOVE_DENOMINATOR() / 2, iMinMovementCost);
 	iAdmissibleScaledWeight = std::min(GC.getMOVE_DENOMINATOR() / 2, iMinFlatMovementCost);
@@ -447,8 +446,7 @@ KmodPathFinder<StepMetric,Node>::~KmodPathFinder()
 }
 
 template<class StepMetric, class Node>
-bool KmodPathFinder<StepMetric,Node>::generatePath(
-	CvPlot const& kStart, CvPlot const& kDest)
+bool KmodPathFinder<StepMetric,Node>::generatePath(CvPlot const& kStart, CvPlot const& kDest)
 {
 	PROFILE_FUNC();
 
@@ -633,8 +631,7 @@ template<class StepMetric, class Node>
 #ifndef _DEBUG
 	__forceinline
 #endif
-void KmodPathFinder<StepMetric,Node>::processChild(
-	Node& kParent, CvPlot const& kParentPlot, CvPlot& kChildPlot)
+void KmodPathFinder<StepMetric,Node>::processChild(Node& kParent, CvPlot const& kParentPlot, CvPlot& kChildPlot)
 {
 	if (kParent.m_pParent != NULL && &kChildPlot == &kParent.m_pParent->getPlot())
 		return; // don't backtrack

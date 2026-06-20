@@ -299,8 +299,7 @@ protected:
 	bool AI_followBombard();
 
 	// <advc.033>
-	std::pair<int,int> AI_countPiracyTargets(CvPlot const& kPlot,
-			bool bStopIfAnyTarget = false) const;
+	std::pair<int,int> AI_countPiracyTargets(CvPlot const& kPlot, bool bStopIfAnyTarget = false) const;
 	bool AI_isAnyPiracyTarget(CvPlot const& p) const;
 	// </advc.033>
 	bool AI_defendPlot(CvPlot* pPlot);

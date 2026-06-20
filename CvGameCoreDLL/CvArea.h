@@ -54,8 +54,7 @@ public:
 		return (PlotNumTypes)(getNumTiles() - getNumOwnedTiles()); // advc.enum
 	}
 	// <advc.300>
-	std::pair<int,int> countOwnedUnownedHabitableTiles( // advc.021b: Exposed to Python as getNumHabitableTiles
-			bool bIgnoreBarb = false) const;
+	std::pair<int,int> countOwnedUnownedHabitableTiles(bool bIgnoreBarb = false) const; // advc.021b: Exposed to Python as getNumHabitableTiles
 	int getNumCivCities() const
 	{
 		return getNumCities() - getCitiesPerPlayer(BARBARIAN_PLAYER);

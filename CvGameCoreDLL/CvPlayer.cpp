@@ -1242,8 +1242,7 @@ public:
 	(instead of one best starting area)."
 	Caveat: I've duplicated much of the body in CvGameTextMgr::setPlotHelpDebug_Ctrl
 	for a Debug-mode breakdown of the area values. */
-std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(
-	bool* pbFoundByMapScript) const // advc.027
+std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(bool* pbFoundByMapScript) const // advc.027
 {
 	PROFILE_FUNC();
 	// <advc.027>

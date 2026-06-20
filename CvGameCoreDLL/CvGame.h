@@ -951,8 +951,7 @@ public:
 	// </advc.052>  <advc.127b>
 	/*  Returns (-1,-1) if 'vs' doesn't exist in any city or (eObserver!=NO_TEAM)
 		isn't revealed to eObserver */
-	std::pair<int,int> getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver,
-			bool bDebug = false) const;
+	std::pair<int,int> getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver, bool bDebug = false) const;
 	BuildingTypes getVoteSourceBuilding(VoteSourceTypes eVS) const;
 	CvCity* getVoteSourceCity(VoteSourceTypes eVS, TeamTypes eObserver, bool bDebug = false) const;
 	// </advc.127b>

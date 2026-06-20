@@ -291,11 +291,16 @@ Conservative signature-only source-rewrite helper for C/C++ files.
 - Collapses safe multiline function declarations/definitions to one physical line, mainly to make signatures easier to scan, grep, and compare.
 - Signature-only by design: ordinary multiline calls, logging statements, and constructor-like local statements are left alone. If call cleanup is wanted later, use a separate helper such as `collapse_cpp_calls.py` with separate rules.
 - Skips control-flow statements, comments that would become misleading, block-comment boundaries, and candidates that do not look like function headers.
+- Unindented root-scope declarations in `.cpp` files are treated like safe declarations; nested constructor-like local statements are omitted from the normal ignored report unless `--include-nonsignature-ignored` is used.
+- Qualified `::` signatures are also detected when the prefix contains template commas such as `std::pair<int,int>` or `KmodPathFinder<StepMetric,Node>`.
+- Indented header declarations may use qualified return types such as `std::pair<int,int>`; only indented qualified callable names are treated as likely local calls.
+- Nested class/struct declarations are handled, while declaration-shaped local constructor calls inside inline function bodies stay skipped.
 - Allows trailing end-of-signature `//` comments (for example `) const // advc.031`) and inline one-line `/* ... */` tail comments; comments inside the parameter list are skipped unless a trace-hoisting mode below handles them.
 - Uses a generous default `--max-line-len 600` and `--max-span-lines 16` because this helper is meant to make safe signatures one-line-first; lower them for a narrower review.
 - `--hoist-comments` can move whole-line comments from inside a collapsed signature above the signature, while still skipping inline comments inside the parameter list.
 - `--trace-hoisted-comments` also appends a custom trace note to hoisted comments, recording whether the comment was before, after, or between specific parameters. Use `--trace-credit "GPT-5.5 (reviewed script output)"` or similar when the generated comments were externally reviewed.
 - `--trace-inline-comments` similarly hoists inline `//` comments and extractable multiline `/* ... */` comments from inside the parameter list, strips them from the collapsed signature line, and appends trace metadata for their original parameter position.
+- Existing whole-line `<!-- custom: ... -->` comments inside signatures receive the same hoist-position trace note as other whole-line comments.
 - `--tail-exposed-to-python-comments` handles the common header-only case where `// Exposed to Python` was placed inside a multiline declaration; it moves that metadata to the final tail comment, after any existing tail comment.
 - Defaults to tracked C/C++ files under `CvGameCoreDLL`; you can also pass one or more files/folders for a narrower review.
 - `--diff-file` writes the review diff to a file. Without an explicit path, it creates a timestamped file under `LLM_Helpers/outputs/`.
@@ -343,6 +348,11 @@ Example results:
 - Another `// Exposed to Python` metadata pass collapsed 102 more header declarations across 13 files.
 - A broad inline-comment trace pass collapsed 125 more signatures across 37 files.
 - A multiline block-comment trace pass collapsed 21 more signatures across 13 files.
+- A root-scope `.cpp` declaration pass collapsed 6 explicit-template-instantiation signatures in `CvGameTextMgr.cpp`.
+- An existing-custom-comment pass collapsed 2 more `setUnitHelp` signatures while preserving their custom rationale comments and adding hoist-position trace notes.
+- A qualified-template-prefix pass collapsed 8 more `::` signatures with template commas in the prefix.
+- A qualified-return-type header pass collapsed 4 more declarations using `std::` return types.
+- A nested-class declaration pass collapsed 2 more `InvasionGraph::Node` declarations while keeping inline-function local constructor calls skipped.
 
 Example (nested simple comments) (before):
 
