@@ -369,10 +369,8 @@ protected:
 		not to allocate memory based on isNeutralToDefaultVal or other criteria.
 		In that case cvDummy() should be returned, which means that any write
 		operation of the caller will have no effect. */
-	template<Operation eOP>
-	CompactV& lookup(E eKey, CompactV cvOperand) { return derived().lookupUnsafe<eOP>(eKey, cvOperand); }
-	template<Operation eOP>
-	CompactV& lookupUnsafe(E eKey, CompactV cvOperand) { return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand); }
+	template<Operation eOP> CompactV& lookup(E eKey, CompactV cvOperand) { return derived().lookupUnsafe<eOP>(eKey, cvOperand); }
+	template<Operation eOP> CompactV& lookupUnsafe(E eKey, CompactV cvOperand) { return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand); }
 	template<Operation eOP>
 	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue)
 	{	// (Derived classes have to override one of the lookup function templates)
@@ -481,16 +479,11 @@ protected:
 	/*	Will applying eOP to the default value and the given operand
 		result in the default value? To help derived classes avoid unnecessary
 		memory allocation when implementing lookup. */
-	template<Operation eOP>
-	bool isNeutralToDefaultVal(CompactV) { return false; }
-	template<>
-	bool isNeutralToDefaultVal<OP_ASSIGN>(CompactV cvOperand) { return (cvOperand == cvDEFAULT); }
-	template<>
-	bool isNeutralToDefaultVal<OP_ADD>(CompactV cvOperand) { return (cvOperand == 0); }
-	template<>
-	bool isNeutralToDefaultVal<OP_MULT>(CompactV cvOperand) { return (cvDEFAULT == 0 || cvOperand == static_cast<CompactV>(1)); }
-	template<>
-	bool isNeutralToDefaultVal<OP_DIV>(CompactV cvOperand) { return isNeutralToDefaultVal<OP_MULT>(cvOperand); }
+	template<Operation eOP> bool isNeutralToDefaultVal(CompactV) { return false; }
+	template<> bool isNeutralToDefaultVal<OP_ASSIGN>(CompactV cvOperand) { return (cvOperand == cvDEFAULT); }
+	template<> bool isNeutralToDefaultVal<OP_ADD>(CompactV cvOperand) { return (cvOperand == 0); }
+	template<> bool isNeutralToDefaultVal<OP_MULT>(CompactV cvOperand) { return (cvDEFAULT == 0 || cvOperand == static_cast<CompactV>(1)); }
+	template<> bool isNeutralToDefaultVal<OP_DIV>(CompactV cvOperand) { return isNeutralToDefaultVal<OP_MULT>(cvOperand); }
 
 	template<typename ValueType>
 	bool _nextNonDefaultPair(int& iIter, std::pair<E,ValueType>& kPair) const
@@ -545,18 +538,15 @@ protected:
 	{	// The one-argument version can't work for bBIT_BLOCKS
 		return _uncompactValue<V,CompactV>(cvVal);
 	}
-	template<class ToType, class FromType>
-	static ToType _uncompactValue(FromType fValue) { return (ToType)fValue; }
+	template<class ToType, class FromType> static ToType _uncompactValue(FromType fValue) { return (ToType)fValue; }
 	template<>
 	static bool _uncompactValue<bool,BitBlock>(BitBlock uiBlock)
 	{
 		BOOST_STATIC_ASSERT(false);
 		return false;
 	}
-	template<class ToType, class FromType>
-	static ToType uncompactValue(FromType fValue, E eKey) { return uncompactValue(fValue); }
-	template<>
-	static bool uncompactValue<bool,BitBlock>(BitBlock block, E eKey) { return BitUtil::GetBit(block, eKey % BITSIZE(BitBlock)); }
+	template<class ToType, class FromType> static ToType uncompactValue(FromType fValue, E eKey) { return uncompactValue(fValue); }
+	template<> static bool uncompactValue<bool,BitBlock>(BitBlock block, E eKey) { return BitUtil::GetBit(block, eKey % BITSIZE(BitBlock)); }
 	template<class ToType, class FromType>
 	static void assignVal(ToType& to, FromType fValue, E eKey)
 	{
@@ -567,8 +557,7 @@ protected:
 	{
 		BitUtil::SetBit(block, eKey % BITSIZE(BitBlock), bValue);
 	}
-	template<typename ToType, typename FromType>
-	static ToType safeCast(FromType fVal) { return int_cast<ToType,FromType,true,false,/*allow ptr*/true>::safe(fVal); }
+	template<typename ToType, typename FromType> static ToType safeCast(FromType fVal) { return int_cast<ToType,FromType,true,false,/*allow ptr*/true>::safe(fVal); }
 	/*	Derived classes should use these wrappers for writing values. To ensure
 		that no compact values that encode pointers get stored in savegames.
 		Will unfortunately have to turn all write functions into templates -
@@ -1452,8 +1441,7 @@ protected:
 		BOOST_STATIC_ASSERT(false);
 		return vDummy();
 	}
-	template<>
-	V& subscript<true>(E eKey) { return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0); } // When V and CompactV coincide
+	template<> V& subscript<true>(E eKey) { return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0); } // When V and CompactV coincide
 };
 #undef ArrayEnumMapBase
 

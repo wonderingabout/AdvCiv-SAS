@@ -70,18 +70,12 @@ public:
 	template<class AgentType> std::vector<AgentType*> const* getNoAgents() const; // Currently unused
 	typedef std::vector<CvPlayerAI*> PlayerVector;
 	typedef std::vector<CvTeamAI*> TeamVector;
-	template<>
-	PlayerVector const* getAgentSeqCache<CvPlayerAI>(AgentSeqCache eCacheID) const { return &playerSeqCache(eCacheID); }
-	template<>
-	PlayerVector const* getPerTeamSeqCache<CvPlayerAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const { return &memberSeqCache(eCacheID, eTeam); }
-	template<>
-	PlayerVector const* getNoAgents<CvPlayerAI>() const { return &m_noPlayers; }
-	template<>
-	TeamVector const* getAgentSeqCache<CvTeamAI>(AgentSeqCache eCacheID) const { return &teamSeqCache(eCacheID); }
-	template<>
-	TeamVector const* getPerTeamSeqCache<CvTeamAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const { return &teamPerTeamSeqCache(eCacheID, eTeam); }
-	template<>
-	TeamVector const* getNoAgents<CvTeamAI>() const { return &m_noTeams; }
+	template<> PlayerVector const* getAgentSeqCache<CvPlayerAI>(AgentSeqCache eCacheID) const { return &playerSeqCache(eCacheID); }
+	template<> PlayerVector const* getPerTeamSeqCache<CvPlayerAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const { return &memberSeqCache(eCacheID, eTeam); }
+	template<> PlayerVector const* getNoAgents<CvPlayerAI>() const { return &m_noPlayers; }
+	template<> TeamVector const* getAgentSeqCache<CvTeamAI>(AgentSeqCache eCacheID) const { return &teamSeqCache(eCacheID); }
+	template<> TeamVector const* getPerTeamSeqCache<CvTeamAI>(AgentSeqCache eCacheID, TeamTypes eTeam) const { return &teamPerTeamSeqCache(eCacheID, eTeam); }
+	template<> TeamVector const* getNoAgents<CvTeamAI>() const { return &m_noTeams; }
 
 
 	// For testing (see AgentIteratorTest) and other purposes perhaps ...

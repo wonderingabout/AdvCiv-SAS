@@ -359,11 +359,7 @@ public:
 	bool canDoAnyRevolution() const; // advc.enum, exposed to Python as canRevolution(0).
 	void revolution(CivicMap const& kNewCivics, bool bForce = false);												// Exposed to Python
 	// advc: Cut from the body of the revolution function above
-	int getMinTurnsBetweenRevolutions() const
-	{
-		return std::max(1, ((100 + getAnarchyModifier()) *
-				GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS)) / 100);
-	}
+	int getMinTurnsBetweenRevolutions() const { return std::max(1, ((100 + getAnarchyModifier()) * GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS)) / 100); }
 	int getCivicPercentAnger(CivicTypes eCivic, bool bIgnore = false) const;										// Exposed to Python
 	// <advc.130n> (all four exposed to Python)
 	CivicTypes getFavoriteCivic() const;

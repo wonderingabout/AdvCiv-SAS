@@ -184,16 +184,8 @@ public:
 		static scaled const m_rClashPortion;
 		static std::pair<scaled,scaled> clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity = true, bool bNaval = false);
 		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef) { return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3; }
-		static scaled stake(scaled rPowAtt, scaled rPowDef)
-		{
-			return m_rClashPortion * scaled::min(1, fixp(1.6) *
-					powRatio(rPowAtt, rPowDef));
-		}
-		static scaled powRatio(scaled rFirstPow, scaled rSecondPow)
-		{
-			return std::min(rFirstPow, rSecondPow) /
-					std::max(std::max(rFirstPow, rSecondPow), scaled::epsilon());
-		}
+		static scaled stake(scaled rPowAtt, scaled rPowDef) { return m_rClashPortion * scaled::min(1, fixp(1.6) * powRatio(rPowAtt, rPowDef)); }
+		static scaled powRatio(scaled rFirstPow, scaled rSecondPow) { return std::min(rFirstPow, rSecondPow) / std::max(std::max(rFirstPow, rSecondPow), scaled::epsilon()); }
 	};
 
 public:

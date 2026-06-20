@@ -73,12 +73,7 @@ public:
 	}
 
 	// K-Mod, plot-to-plot alias for convenience:
-	int plotDistance(const CvPlot* plot1, const CvPlot* plot2) const
-	{
-		return plotDistance(
-				plot1->getX(), plot1->getY(),
-				plot2->getX(), plot2->getY());
-	}
+	int plotDistance(const CvPlot* plot1, const CvPlot* plot2) const { return plotDistance(plot1->getX(), plot1->getY(), plot2->getX(), plot2->getY()); }
 
 	// 3 | 3 | 3 | 3 | 3 | 3 | 3
 	// -------------------------
@@ -101,12 +96,7 @@ public:
 	}
 
 	// K-Mod, plot-to-plot alias for convenience:
-	int stepDistance(const CvPlot* plot1, const CvPlot* plot2) const
-	{
-		return stepDistance(
-				plot1->getX(), plot1->getY(),
-				plot2->getX(), plot2->getY());
-	}
+	int stepDistance(const CvPlot* plot1, const CvPlot* plot2) const { return stepDistance(plot1->getX(), plot1->getY(), plot2->getX(), plot2->getY()); }
 
 	CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection) const
 	{
@@ -143,12 +133,7 @@ public:
 		return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS);
 	}
 
-	DirectionTypes directionXY(CvPlot const& kFromPlot, CvPlot const& kToPlot) const
-	{
-		return directionXY(
-				dxWrap(kToPlot.getX() - kFromPlot.getX()),
-				dyWrap(kToPlot.getY() - kFromPlot.getY()));
-	}
+	DirectionTypes directionXY(CvPlot const& kFromPlot, CvPlot const& kToPlot) const { return directionXY(dxWrap(kToPlot.getX() - kFromPlot.getX()), dyWrap(kToPlot.getY() - kFromPlot.getY())); }
 
 	int dxWrap(int iDX) const { return wrapCoordDifference(iDX, getGridWidth(), isWrapX()); }
 
@@ -565,46 +550,22 @@ namespace plot_num_traits
 
 /* <advc.make> Global wrappers for distance functions. The int versions are
 	exposed to Python */
-inline int plotDistance(int iX1, int iY1, int iX2, int iY2) {
-	return GC.getMap().plotDistance(iX1, iY1, iX2, iY2);
-}
-inline int plotDistance(const CvPlot* plot1, const CvPlot* plot2) {
-	return GC.getMap().plotDistance(plot1, plot2);
-}
-inline int stepDistance(int iX1, int iY1, int iX2, int iY2) {
-	return GC.getMap().stepDistance(iX1, iY1, iX2, iY2);
-}
-inline int stepDistance(const CvPlot* plot1, const CvPlot* plot2) {
-	return GC.getMap().stepDistance(plot1, plot2);
-}
-inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection) {
-	return GC.getMap().plotDirection(iX, iY, eDirection);
-}
-inline CvPlot* plotCardinalDirection(int iX, int iY, CardinalDirectionTypes eCardinalDirection)	{
-	return GC.getMap().plotCardinalDirection(iX, iY, eCardinalDirection);
-}
-inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)	{
-	return GC.getMap().plotXY(iX, iY, iDX, iDY);
-}
-inline CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) {
-	return GC.getMap().plotXY(pPlot, iDX, iDY);
-}
-inline DirectionTypes directionXY(int iDX, int iDY)	{
-	return GC.getMap().directionXY(iDX, iDY);
-}
+inline int plotDistance(int iX1, int iY1, int iX2, int iY2) { return GC.getMap().plotDistance(iX1, iY1, iX2, iY2); }
+inline int plotDistance(const CvPlot* plot1, const CvPlot* plot2) { return GC.getMap().plotDistance(plot1, plot2); }
+inline int stepDistance(int iX1, int iY1, int iX2, int iY2) { return GC.getMap().stepDistance(iX1, iY1, iX2, iY2); }
+inline int stepDistance(const CvPlot* plot1, const CvPlot* plot2) { return GC.getMap().stepDistance(plot1, plot2); }
+inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection) { return GC.getMap().plotDirection(iX, iY, eDirection); }
+inline CvPlot* plotCardinalDirection(int iX, int iY, CardinalDirectionTypes eCardinalDirection) { return GC.getMap().plotCardinalDirection(iX, iY, eCardinalDirection); }
+inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY) { return GC.getMap().plotXY(iX, iY, iDX, iDY); }
+inline CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) { return GC.getMap().plotXY(pPlot, iDX, iDY); }
+inline DirectionTypes directionXY(int iDX, int iDY) { return GC.getMap().directionXY(iDX, iDY); }
 inline DirectionTypes directionXY(CvPlot const& kFromPlot, CvPlot const& kToPlot) {
 	// advc: params changed to references
 	return GC.getMap().directionXY(kFromPlot, kToPlot);
 }
-inline CvPlot* plotCity(int iX, int iY, CityPlotTypes ePlot) {
-	return GC.getMap().plotCity(iX, iY, ePlot);
-}
-inline CityPlotTypes plotCityXY(int iCityX, int iCityY, CvPlot const& kPlot) {
-	return GC.getMap().plotCityXY(iCityX, iCityY, kPlot);
-}
-inline bool adjacentOrSame(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot) { // advc
-	return GC.getMap().adjacentOrSame(kFirstPlot, kSecondPlot);
-}
+inline CvPlot* plotCity(int iX, int iY, CityPlotTypes ePlot) { return GC.getMap().plotCity(iX, iY, ePlot); }
+inline CityPlotTypes plotCityXY(int iCityX, int iCityY, CvPlot const& kPlot) { return GC.getMap().plotCityXY(iCityX, iCityY, kPlot); }
+inline bool adjacentOrSame(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot) { return GC.getMap().adjacentOrSame(kFirstPlot, kSecondPlot); } // advc
 // (Moved from CvGameCoreUtils.h)
 #ifndef _USRDLL // use non inline functions when not in the dll
 	#define getMap	getMapExternal

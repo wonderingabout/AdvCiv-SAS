@@ -48,36 +48,16 @@ public:
 	void AI_updatePersonality(); // advc.104
 
 	// <advc.003u> Access to AI-type members. Code mostly duplicated from CvPlayer.
-	CvCityAI* AI_getCapital() const {
-		return AI_getCity(m_iCapitalCityID);
-	}
-	CvCityAI* AI_firstCity(int *pIterIdx) const {
-		return m_cities.AI_beginIter(pIterIdx);
-	}
-	CvCityAI* AI_nextCity(int *pIterIdx) const {
-		return m_cities.AI_nextIter(pIterIdx);
-	}
-	CvCityAI* AI_getCity(int iID) const {
-		return m_cities.AI_getAt(iID);
-	}
-	CvUnitAI* AI_firstUnit(int *pIterIdx) const {
-		return m_units.AI_beginIter(pIterIdx);
-	}
-	CvUnitAI* AI_nextUnit(int *pIterIdx) const {
-		return m_units.AI_nextIter(pIterIdx);
-	}
-	CvUnitAI* AI_getUnit(int iID) const {
-		return m_units.AI_getAt(iID);
-	}
-	CvSelectionGroupAI* AI_firstSelectionGroup(int *pIterIdx) const {
-		return m_selectionGroups.AI_beginIter(pIterIdx);
-	}
-	CvSelectionGroupAI* AI_nextSelectionGroup(int *pIterIdx) const {
-		return m_selectionGroups.AI_nextIter(pIterIdx);
-	}
-	CvSelectionGroupAI* AI_getSelectionGroup(int iID) const {
-		return m_selectionGroups.AI_getAt(iID);
-	}
+	CvCityAI* AI_getCapital() const { return AI_getCity(m_iCapitalCityID); }
+	CvCityAI* AI_firstCity(int *pIterIdx) const { return m_cities.AI_beginIter(pIterIdx); }
+	CvCityAI* AI_nextCity(int *pIterIdx) const { return m_cities.AI_nextIter(pIterIdx); }
+	CvCityAI* AI_getCity(int iID) const { return m_cities.AI_getAt(iID); }
+	CvUnitAI* AI_firstUnit(int *pIterIdx) const { return m_units.AI_beginIter(pIterIdx); }
+	CvUnitAI* AI_nextUnit(int *pIterIdx) const { return m_units.AI_nextIter(pIterIdx); }
+	CvUnitAI* AI_getUnit(int iID) const { return m_units.AI_getAt(iID); }
+	CvSelectionGroupAI* AI_firstSelectionGroup(int *pIterIdx) const { return m_selectionGroups.AI_beginIter(pIterIdx); }
+	CvSelectionGroupAI* AI_nextSelectionGroup(int *pIterIdx) const { return m_selectionGroups.AI_nextIter(pIterIdx); }
+	CvSelectionGroupAI* AI_getSelectionGroup(int iID) const { return m_selectionGroups.AI_getAt(iID); }
 	// </advc.003u>
 	int AI_getFlavorValue(FlavorTypes eFlavor) const;
 
@@ -360,11 +340,7 @@ public:
 		return (AI_areaMissionAIs(kArea, eMissionAI, pSkipSelectionGroup, 1) >= 1);
 	} // </advc.opt>
 	// advc: TargetMissionAI counting: const CvPlot&. advc.opt: iMaxCount params added.
-	int AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup const* pSkipSelectionGroup = NULL, int iRange = 0, int iMaxCount = MAX_INT) const
-	{
-		return AI_plotTargetMissionAIs(kPlot, &eMissionAI, 1, pSkipSelectionGroup,
-				iRange, iMaxCount);
-	}
+	int AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup const* pSkipSelectionGroup = NULL, int iRange = 0, int iMaxCount = MAX_INT) const { return AI_plotTargetMissionAIs(kPlot, &eMissionAI, 1, pSkipSelectionGroup, iRange, iMaxCount); }
 	// advc: Unused (out-)param iClosestTargetRange removed
 	int AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup const* pSkipSelectionGroup = NULL, int iRange = 0, int iMaxCount = MAX_INT) const;
 	// <advc.opt>
@@ -375,11 +351,7 @@ public:
 		return (AI_unitTargetMissionAIs(kUnit, aeMissionAI, iMissionAICount,
 				pSkipSelectionGroup, iMaxPathTurns, 1) >= 1);
 	} // </advc.opt>
-	int AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const
-	{
-		return AI_unitTargetMissionAIs(kUnit, &eMissionAI, 1, pSkipSelectionGroup,
-				-1, iMaxCount);
-	}
+	int AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxCount = MAX_INT) const { return AI_unitTargetMissionAIs(kUnit, &eMissionAI, 1, pSkipSelectionGroup, -1, iMaxCount); }
 	// BBAI (advc: merged into the BtS function) <!-- custom: hoisted from multiline signature between `iMaxPathTurns` and `iMaxCount` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	int AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL, int iMaxPathTurns = -1, int iMaxCount = MAX_INT) const;
 	// BBAI start

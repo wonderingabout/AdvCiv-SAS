@@ -55,10 +55,8 @@ public:
 				(bALLOW_POINTER && bPOINTER)>(f);
 	}
 private:
-	template<bool bCHECK_LIMITS, bool bPOINTER>
-	static ToType _safe(FromType f) { return reinterpret_cast<ToType>(f); }
-	template<>
-	static ToType _safe<false,false>(FromType f) { return static_cast<ToType>(f); }
+	template<bool bCHECK_LIMITS, bool bPOINTER> static ToType _safe(FromType f) { return reinterpret_cast<ToType>(f); }
+	template<> static ToType _safe<false,false>(FromType f) { return static_cast<ToType>(f); }
 
 	template<>
 	static ToType _safe<true,false>(FromType f)
@@ -115,17 +113,14 @@ private:
 	}
 };
 
-template<typename ToType, typename FromType>
-__inline static ToType safeIntCast(FromType iVal) { return int_cast<ToType,FromType,true,false>::safe(iVal); }
+template<typename ToType, typename FromType> __inline static ToType safeIntCast(FromType iVal) { return int_cast<ToType,FromType,true,false>::safe(iVal); }
 
 /*	Don't know about the function names here ...
 	truncIntCast will clamp (i.e. safely enforce the limits of ToType)
 	but also assert that clamping isn't necessary,
 	clampIntCast will treat clamping as acceptable (no assertion). */
-template<typename ToType, typename FromType>
-__inline static ToType truncIntCast(FromType iVal) { return int_cast<ToType,FromType,true,true>::safe(iVal); }
+template<typename ToType, typename FromType> __inline static ToType truncIntCast(FromType iVal) { return int_cast<ToType,FromType,true,true>::safe(iVal); }
 
-template<typename ToType, typename FromType>
-__inline static ToType clampIntCast(FromType iVal) { return int_cast<ToType,FromType,false,true>::safe(iVal); }
+template<typename ToType, typename FromType> __inline static ToType clampIntCast(FromType iVal) { return int_cast<ToType,FromType,false,true>::safe(iVal); }
 
 #endif

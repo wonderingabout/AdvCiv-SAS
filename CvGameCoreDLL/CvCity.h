@@ -247,11 +247,7 @@ public:
 	int growthThreshold(/* <advc.064b> */int iPopulationChange = 0, bool bIgnoreModifiers = false) const; // </advc.064b>; Exposed to Python
 
 	int productionLeft() const { return (getProductionNeeded() - getProduction()); }							// Exposed to Python
-	int hurryCost(bool bExtra) const																			// Exposed to Python
-	{
-		return getHurryCost(bExtra, productionLeft(),
-				getHurryCostModifier(), getProductionModifier());
-	}
+	int hurryCost(bool bExtra) const { return getHurryCost(bExtra, productionLeft(), getHurryCostModifier(), getProductionModifier()); } // Exposed to Python
 	int getHurryCostModifier(bool bIgnoreNew = false) const;
 	int hurryGold(HurryTypes eHurry) const { return getHurryGold(eHurry, hurryCost(false)); } // Exposed to Python
 	int hurryPopulation(HurryTypes eHurry) const { return getHurryPopulation(eHurry, hurryCost(true)); } // Exposed to Python

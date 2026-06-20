@@ -62,22 +62,10 @@ public:
 	int getHeuristicWeight() const { return m_iHeuristicWeight; }
 	bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const { return isValidStep(kFrom, kTo, *m_pGroup, m_eFlags); }
 	bool canStepThrough(CvPlot const& kPlot) const { return canStepThrough(kPlot, *m_pGroup, m_eFlags); }
-	bool canStepThrough(CvPlot const& kPlot, GroupPathNode const& kNode) const
-	{
-		return canStepThrough(kPlot, *m_pGroup, m_eFlags,
-				kNode.getMoves(), kNode.getPathTurns());
-	}
+	bool canStepThrough(CvPlot const& kPlot, GroupPathNode const& kNode) const { return canStepThrough(kPlot, *m_pGroup, m_eFlags, kNode.getMoves(), kNode.getPathTurns()); }
 	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const { return isValidDest(kDest, *m_pGroup, m_eFlags); }
-	int cost(CvPlot const& kFrom, CvPlot const& kTo, GroupPathNode const& kParentNode) const
-	{
-		return cost(kFrom, kTo, *m_pGroup, m_eFlags,
-				kParentNode.getMoves(), kParentNode.m_iKnownCost == 0);
-	}
-	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const
-	{
-		return heuristicStepCost(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) *
-				m_iHeuristicWeight;
-	}
+	int cost(CvPlot const& kFrom, CvPlot const& kTo, GroupPathNode const& kParentNode) const { return cost(kFrom, kTo, *m_pGroup, m_eFlags, kParentNode.getMoves(), kParentNode.m_iKnownCost == 0); }
+	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const { return heuristicStepCost(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) * m_iHeuristicWeight; }
 	bool updatePathData(GroupPathNode& kNode, GroupPathNode const& kParent) const { return updatePathData(kNode, kParent, *m_pGroup, m_eFlags); }
 	void initializePathData(GroupPathNode& kNode) const
 	{

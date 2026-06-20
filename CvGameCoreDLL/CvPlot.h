@@ -243,19 +243,11 @@ public:
 	bool isUnit() const { return (getNumUnits() > 0); }												// Exposed to Python
 	bool isInvestigate(TeamTypes eTeam) const { return (plotCheck(PUF_isInvestigate, -1, -1, NO_PLAYER, eTeam) != NULL); } // Exposed to Python
 	bool isVisibleEnemyDefender(const CvUnit* pUnit) const;											// Exposed to Python
-	CvUnit *getVisibleEnemyDefender(PlayerTypes ePlayer) const
-	{
-		return plotCheck(PUF_canDefendEnemy, ePlayer, false,
-				NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer);
-	}
+	CvUnit *getVisibleEnemyDefender(PlayerTypes ePlayer) const { return plotCheck(PUF_canDefendEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer); }
 	int getNumDefenders(PlayerTypes ePlayer) const { return plotCount(PUF_canDefend, -1, -1, ePlayer); } // Exposed to Python
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;										// Exposed to Python
 	// (advc: getNumVisiblePotentialEnemyDefenders has become CvUnitAI::AI_countEnemyDefenders)
-	DllExport bool isVisibleEnemyUnit(PlayerTypes ePlayer) const									// Exposed to Python
-	{
-		return (plotCheck(PUF_isEnemy, ePlayer, false,
-				NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer) != NULL);
-	}
+	DllExport bool isVisibleEnemyUnit(PlayerTypes ePlayer) const { return (plotCheck(PUF_isEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer) != NULL); } // Exposed to Python
 	// <advc.ctr>
 	bool isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace = NO_TEAM, int iRange = 0) const; // </advc.ctr>
 	// (advc: isVisiblePotentialEnemyUnit has become CvTeamAI::AI_mayAttack(CvPlot const&))
@@ -263,11 +255,7 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	// advc.004l:
 	bool isVisibleEnemyUnit(CvUnit const* pUnit, CvUnit const* pPotentialEnemy) const;
-	bool isVisibleOtherUnit(PlayerTypes ePlayer) const												// Exposed to Python
-	{
-		return (plotCheck(PUF_isOtherTeam, ePlayer, -1,
-				NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer) != NULL);
-	}
+	bool isVisibleOtherUnit(PlayerTypes ePlayer) const { return (plotCheck(PUF_isOtherTeam, ePlayer, -1, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer) != NULL); } // Exposed to Python
 	DllExport bool isFighting() const { return (plotCheck(PUF_isFighting) != NULL); } // Exposed to Python
 
 	bool canHaveFeature(FeatureTypes eFeature, bool bIgnoreCurrentFeature = false) const; // advc.055; Exposed to Python

@@ -636,8 +636,7 @@ private:
 		return mulDiv(multiplicand, multiplier, divisor);
 	}
 
-	template<typename OtherIntType>
-	static IntType safeCast(OtherIntType n) { return safeIntCast<IntType>(n); }
+	template<typename OtherIntType> static IntType safeCast(OtherIntType n) { return safeIntCast<IntType>(n); }
 
 	/*	Specialize b/c the sign inversion code wouldn't compile for
 		unsigned IntType. */
@@ -651,8 +650,7 @@ private:
 			return 1 / powNonNegative(-rExp);
 		return powNonNegative(rExp);
 	}
-	template<>
-	ScaledNum _pow<false>(ScaledNum rExp) const { return powNonNegative(rExp); }
+	template<> ScaledNum _pow<false>(ScaledNum rExp) const { return powNonNegative(rExp); }
 
 	ScaledNum powNonNegative(int iExp) const
 	{
@@ -765,10 +763,8 @@ private:
 	// Use specialization so that the non-branching (unsigned) version can be inlined
 	template<bool bSigned>
 	ScaledNum _abs() const;
-	template<>
-	ScaledNum _abs<false>() const { return *this; }
-	template<>
-	ScaledNum _abs<true>() const { return (isNegative() ? -(*this) : *this); }
+	template<> ScaledNum _abs<false>() const { return *this; }
+	template<> ScaledNum _abs<true>() const { return (isNegative() ? -(*this) : *this); }
 };
 #pragma pack(pop)
 
@@ -1093,8 +1089,7 @@ operator/(
 
 // Commutativity ...
 
-template<ScaledNum_PARAMS>
-ScaledNum_T operator+(int i, ScaledNum_T r) { return r + i; }
+template<ScaledNum_PARAMS> ScaledNum_T operator+(int i, ScaledNum_T r) { return r + i; }
 /*	As we don't implement an int cast operator, assignment to int
 	should be forbidden as well. (No implicit getInt.) */
 /*template<ScaledNum_PARAMS>
@@ -1103,42 +1098,33 @@ int& operator+=(int& i, ScaledNum_T r)
 	i = (r + i).getInt();
 	return i;
 }*/
-template<ScaledNum_PARAMS>
-ScaledNum_T operator-(int i, ScaledNum_T r) { return ScaledNum_T(i) - r; }
+template<ScaledNum_PARAMS> ScaledNum_T operator-(int i, ScaledNum_T r) { return ScaledNum_T(i) - r; }
 /*template<ScaledNum_PARAMS>
 int& operator-=(int& i, ScaledNum_T r)
 {
 	i = (ScaledNum_T(i) - r).getInt();
 	return i;
 }*/
-template<ScaledNum_PARAMS>
-ScaledNum_T operator*(int i, ScaledNum_T r) { return r * i; }
+template<ScaledNum_PARAMS> ScaledNum_T operator*(int i, ScaledNum_T r) { return r * i; }
 /*template<ScaledNum_PARAMS>
 int& operator*=(int& i, ScaledNum_T r)
 {
 	i = (r * i).getInt();
 	return i;
 }*/
-template<ScaledNum_PARAMS>
-ScaledNum_T operator/(int i, ScaledNum_T r) { return ScaledNum_T(i) / r; }
+template<ScaledNum_PARAMS> ScaledNum_T operator/(int i, ScaledNum_T r) { return ScaledNum_T(i) / r; }
 /*template<ScaledNum_PARAMS>
 int& operator/=(int& i, ScaledNum_T r)
 {
 	i = (ScaledNum_T(i) / r).getInt();
 	return i;
 }*/
-template<ScaledNum_PARAMS>
-ScaledNum_T operator+(uint u, ScaledNum_T r) { return r + u; }
-template<ScaledNum_PARAMS>
-ScaledNum_T operator-(uint u, ScaledNum_T r) { return r - u; }
-template<ScaledNum_PARAMS>
-ScaledNum_T operator*(uint ui, ScaledNum_T r) { return r * ui; }
-template<ScaledNum_PARAMS>
-ScaledNum_T operator/(uint u, ScaledNum_T r) { return r / u; }
-template<ScaledNum_PARAMS>
-bool operator<(int i, ScaledNum_T r) { return (r > i); }
-template<ScaledNum_PARAMS>
-bool operator>(int i, ScaledNum_T r) { return (r < i); }
+template<ScaledNum_PARAMS> ScaledNum_T operator+(uint u, ScaledNum_T r) { return r + u; }
+template<ScaledNum_PARAMS> ScaledNum_T operator-(uint u, ScaledNum_T r) { return r - u; }
+template<ScaledNum_PARAMS> ScaledNum_T operator*(uint ui, ScaledNum_T r) { return r * ui; }
+template<ScaledNum_PARAMS> ScaledNum_T operator/(uint u, ScaledNum_T r) { return r / u; }
+template<ScaledNum_PARAMS> bool operator<(int i, ScaledNum_T r) { return (r > i); }
+template<ScaledNum_PARAMS> bool operator>(int i, ScaledNum_T r) { return (r < i); }
 template<ScaledNum_PARAMS>
 bool operator==(int i, ScaledNum_T r)
 {

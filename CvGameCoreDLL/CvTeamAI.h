@@ -33,11 +33,7 @@ public:
 
 	static bool AI_isChosenWarPlan(WarPlanTypes eWarPlanType); // advc.105
 	// advc.opt:
-	static bool AI_isImminentWarPlan(WarPlanTypes eWarPlanType)
-	{
-		return (eWarPlanType == WARPLAN_LIMITED || eWarPlanType == WARPLAN_TOTAL ||
-				eWarPlanType == WARPLAN_DOGPILE);
-	}
+	static bool AI_isImminentWarPlan(WarPlanTypes eWarPlanType) { return (eWarPlanType == WARPLAN_LIMITED || eWarPlanType == WARPLAN_TOTAL || eWarPlanType == WARPLAN_DOGPILE); }
 
 	explicit CvTeamAI(TeamTypes eID);
 	~CvTeamAI();

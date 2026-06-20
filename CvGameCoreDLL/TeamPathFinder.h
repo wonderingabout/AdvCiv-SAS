@@ -51,11 +51,7 @@ public:
 		m_pTeam(pTeam), m_pWarTarget(pWarTarget),
 		m_iHeuristicWeight(iHeuristicWeight)
 	{}
-	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const
-	{
-		return stepDistance(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) *
-				m_iHeuristicWeight;
-	}
+	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const { return stepDistance(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) * m_iHeuristicWeight; }
 	int initialPathLength() const { return 0; }
 	void initializePathData(PathNode& kNode) const
 	{	// (Same as base class, but calling TeamStepMetric::initialPathLength)

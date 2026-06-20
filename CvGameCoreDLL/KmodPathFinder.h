@@ -387,12 +387,7 @@ void KmodPathFinder<StepMetric,Node>::initHeuristicWeights(int iMinMovementCost,
 	iAdmissibleScaledWeight = std::min(GC.getMOVE_DENOMINATOR() / 2, iMinFlatMovementCost);
 }
 
-template<class StepMetric, class Node>
-int KmodPathFinder<StepMetric,Node>::minimumStepCost(int iBaseMoves)
-{
-	return std::max(1, std::min(iAdmissibleBaseWeight,
-			iBaseMoves * iAdmissibleScaledWeight));
-}
+template<class StepMetric, class Node> int KmodPathFinder<StepMetric,Node>::minimumStepCost(int iBaseMoves) { return std::max(1, std::min(iAdmissibleBaseWeight, iBaseMoves * iAdmissibleScaledWeight)); }
 
 // (Comments below are from K-Mod unless stating otherwise)
 

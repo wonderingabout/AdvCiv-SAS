@@ -384,11 +384,7 @@ public:
 	}
 	void changeRiverTradeCount(int iChange);
 	// advc.500c:
-	int getNoMilitaryAnger() const
-	{
-		return (m_iNoFearForSafetyCount > 0 ? 0 : GC.getDefineINT(CvGlobals::
-				NO_MILITARY_PERCENT_ANGER));
-	}
+	int getNoMilitaryAnger() const { return (m_iNoFearForSafetyCount > 0 ? 0 : GC.getDefineINT(CvGlobals::NO_MILITARY_PERCENT_ANGER)); }
 
 	int getVictoryCountdown(VictoryTypes eVictory) const { return m_aiVictoryCountdown.get(eVictory); } // Exposed to Python
 	void setVictoryCountdown(VictoryTypes eVictory, int iTurnsLeft);

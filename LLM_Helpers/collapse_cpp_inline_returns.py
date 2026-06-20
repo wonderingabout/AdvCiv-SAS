@@ -5,13 +5,23 @@
 #
 # Conservative C++ header cleanup helper.
 #
-# Collapses simple inline functions whose body is exactly one return statement:
+# Collapses simple inline functions whose body is exactly one return statement,
+# including return expressions split across multiple physical lines:
 #   T f(...) const
 #   {
 #       return expr;
 #   }
+# or:
+#   T f(...) const {
+#       return expr;
+#   }
 # becomes:
 #   T f(...) const { return expr; }
+# and, when safe:
+#   template<class T>
+#   T f() { return value; }
+# becomes:
+#   template<class T> T f() { return value; }
 #
 # This is intentionally separate from collapse_cpp_signatures.py; it rewrites
 # function bodies, not just signatures. Review the diff before committing.
@@ -52,6 +62,7 @@ class Stats:
 		self.files_scanned = 0
 		self.files_changed = 0
 		self.functions = 0
+		self.template_prefixes = 0
 
 
 def leading_ws(text: str) -> str:
@@ -98,9 +109,38 @@ def split_tail_comment(text: str) -> tuple[str, str | None]:
 	return text[:index].rstrip(), text[index + 2 :].strip()
 
 
+def block_comment_start_flags(bodies: list[str]) -> list[bool]:
+	flags: list[bool] = []
+	in_block = False
+	for body in bodies:
+		flags.append(in_block)
+		index = 0
+		line_comment = line_comment_index(body)
+		scan_end = line_comment if line_comment >= 0 else len(body)
+		while index < scan_end:
+			if in_block:
+				end = body.find("*/", index, scan_end)
+				if end < 0:
+					break
+				in_block = False
+				index = end + 2
+				continue
+			start = body.find("/*", index, scan_end)
+			if start < 0:
+				break
+			end = body.find("*/", start + 2, scan_end)
+			if end < 0:
+				in_block = True
+				break
+			index = end + 2
+	return flags
+
+
 def signature_start_is_safe(text: str) -> bool:
 	stripped = text.strip()
 	if not stripped or stripped.startswith(("//", "/*", "*", "#")):
+		return False
+	if "/*" in stripped or "*/" in stripped:
 		return False
 	if any(stripped.startswith(word + " ") or stripped.startswith(word + "(") for word in CONTROL_START_WORDS):
 		return False
@@ -117,31 +157,88 @@ def signature_start_is_safe(text: str) -> bool:
 	return True
 
 
-def return_line_payload(text: str) -> str | None:
-	stripped = text.strip()
-	if not stripped.startswith("return ") or not stripped.endswith(";"):
-		return None
-	if line_comment_index(stripped) >= 0:
-		return None
-	return stripped
+def join_cpp_fragments(parts: list[str]) -> str:
+	if not parts:
+		return ""
+	result = parts[0]
+	for part in parts[1:]:
+		if result.endswith(("::", "->", ".", "(", "[", "{")) or part.startswith(("::", "->", ".", ")", "]", "}", ",", ";")):
+			result += part
+		else:
+			result += " " + part
+	return result
 
 
-def try_rewrite(bodies: list[str], eols: list[str], index: int, max_line_len: int) -> Rewrite | None:
-	if index + 3 >= len(bodies):
+def return_payload_from_lines(bodies: list[str], start_index: int) -> tuple[str, int] | None:
+	parts: list[str] = []
+	index = start_index
+	while index < len(bodies):
+		stripped = bodies[index].strip()
+		if not stripped:
+			return None
+		if index == start_index:
+			if not stripped.startswith("return "):
+				return None
+		elif stripped.startswith(("return ", "{", "}")):
+			return None
+		if line_comment_index(stripped) >= 0 or "/*" in stripped or "*/" in stripped:
+			return None
+		parts.append(stripped)
+		if stripped.endswith(";"):
+			return join_cpp_fragments(parts), index
+		index += 1
+	return None
+
+
+def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], index: int, max_line_len: int) -> Rewrite | None:
+	if index + 2 >= len(bodies):
+		return None
+	if block_flags[index]:
 		return None
 	signature = bodies[index]
-	open_brace = bodies[index + 1]
-	return_payload = return_line_payload(bodies[index + 2])
-	close_brace = bodies[index + 3]
-	if return_payload is None:
+	signature_code, signature_comment = split_tail_comment(signature)
+	signature_body = signature_code.rstrip()
+	if signature_body.endswith("{"):
+		return_result = return_payload_from_lines(bodies, index + 1)
+		if return_result is None:
+			return None
+		return_payload, return_end = return_result
+		if return_end + 1 >= len(bodies):
+			return None
+		if any(block_flags[index : return_end + 2]):
+			return None
+		close_brace = bodies[return_end + 1]
+		if close_brace.strip() != "}":
+			return None
+		if leading_ws(close_brace) != leading_ws(signature):
+			return None
+		signature_before_brace = signature_body[:-1].rstrip()
+		if not signature_start_is_safe(signature_before_brace):
+			return None
+		collapsed = signature_before_brace.strip() + " { " + return_payload + " }"
+		if signature_comment is not None:
+			collapsed += " // " + signature_comment
+		if len(stripped_for_length(collapsed)) > max_line_len:
+			return None
+		return Rewrite(index, return_end + 1, [leading_ws(signature) + collapsed + eols[index]])
+	if index + 3 >= len(bodies):
 		return None
+	open_brace = bodies[index + 1]
+	return_result = return_payload_from_lines(bodies, index + 2)
+	if return_result is None:
+		return None
+	return_payload, return_end = return_result
+	if return_end + 1 >= len(bodies):
+		return None
+	if any(block_flags[index : return_end + 2]):
+		return None
+	close_brace = bodies[return_end + 1]
 	if leading_ws(open_brace) != leading_ws(signature) or open_brace.strip() != "{":
 		return None
 	if close_brace.strip() != "}":
 		return None
 	if leading_ws(close_brace) != leading_ws(signature):
 		return None
-	signature_code, signature_comment = split_tail_comment(signature)
 	if not signature_start_is_safe(signature_code):
 		return None
 	collapsed = signature_code.strip() + " { " + return_payload + " }"
@@ -149,7 +246,63 @@ def try_rewrite(bodies: list[str], eols: list[str], index: int, max_line_len: in
 		collapsed += " // " + signature_comment
 	if len(stripped_for_length(collapsed)) > max_line_len:
 		return None
-	return Rewrite(index, index + 3, [leading_ws(signature) + collapsed + eols[index]])
+	return Rewrite(index, return_end + 1, [leading_ws(signature) + collapsed + eols[index]])
+
+
+def is_template_prefix_line(text: str) -> bool:
+	stripped = text.strip()
+	if not stripped.startswith("template<") or not stripped.endswith(">"):
+		return False
+	if line_comment_index(stripped) >= 0 or "/*" in stripped or "*/" in stripped:
+		return False
+	return True
+
+
+def is_collapsed_inline_return_line(text: str) -> bool:
+	code, _comment = split_tail_comment(text)
+	stripped = code.strip()
+	return " { return " in stripped and stripped.endswith("}")
+
+
+def collapse_template_prefixes(lines: list[str], max_line_len: int) -> tuple[list[str], int]:
+	bodies: list[str] = []
+	eols: list[str] = []
+	for line in lines:
+		body, eol = split_line_ending(line)
+		bodies.append(body)
+		eols.append(eol)
+	block_flags = block_comment_start_flags(bodies)
+	new_lines: list[str] = []
+	count = 0
+	index = 0
+	while index < len(lines):
+		if index + 1 >= len(lines):
+			new_lines.append(lines[index])
+			index += 1
+			continue
+		template_line = bodies[index]
+		inline_line = bodies[index + 1]
+		if block_flags[index] or block_flags[index + 1]:
+			new_lines.append(lines[index])
+			index += 1
+			continue
+		if not is_template_prefix_line(template_line) or not is_collapsed_inline_return_line(inline_line):
+			new_lines.append(lines[index])
+			index += 1
+			continue
+		if leading_ws(template_line) != leading_ws(inline_line):
+			new_lines.append(lines[index])
+			index += 1
+			continue
+		collapsed = leading_ws(template_line) + template_line.strip() + " " + inline_line.strip()
+		if len(stripped_for_length(collapsed)) > max_line_len:
+			new_lines.append(lines[index])
+			index += 1
+			continue
+		new_lines.append(collapsed + eols[index])
+		count += 1
+		index += 2
+	return new_lines, count
 
 
 def rewrite_lines(lines: list[str], max_line_len: int) -> tuple[list[str], Stats]:
@@ -159,11 +312,12 @@ def rewrite_lines(lines: list[str], max_line_len: int) -> tuple[list[str], Stats
 		body, eol = split_line_ending(line)
 		bodies.append(body)
 		eols.append(eol)
+	block_flags = block_comment_start_flags(bodies)
 	stats = Stats()
 	new_lines: list[str] = []
 	index = 0
 	while index < len(lines):
-		rewrite = try_rewrite(bodies, eols, index, max_line_len)
+		rewrite = try_rewrite(bodies, eols, block_flags, index, max_line_len)
 		if rewrite is None:
 			new_lines.append(lines[index])
 			index += 1
@@ -171,6 +325,8 @@ def rewrite_lines(lines: list[str], max_line_len: int) -> tuple[list[str], Stats
 		new_lines.extend(rewrite.lines)
 		stats.functions += 1
 		index = rewrite.end + 1
+	new_lines, template_prefixes = collapse_template_prefixes(new_lines, max_line_len)
+	stats.template_prefixes += template_prefixes
 	return new_lines, stats
 
 
@@ -183,7 +339,7 @@ def process_file(repo_root: Path, path: Path, args: argparse.Namespace, stats: S
 	lines = text.splitlines(keepends=True)
 	new_lines, file_stats = rewrite_lines(lines, args.max_line_len)
 	stats.files_scanned += 1
-	if file_stats.functions == 0:
+	if file_stats.functions == 0 and file_stats.template_prefixes == 0:
 		return False
 	old_text = "".join(lines)
 	new_text = "".join(new_lines)
@@ -191,6 +347,7 @@ def process_file(repo_root: Path, path: Path, args: argparse.Namespace, stats: S
 		return False
 	stats.files_changed += 1
 	stats.functions += file_stats.functions
+	stats.template_prefixes += file_stats.template_prefixes
 	if diff_file is not None:
 		diff_file.writelines(
 			difflib.unified_diff(
@@ -233,7 +390,12 @@ def main(argv: list[str]) -> int:
 	print(f"Scanned {stats.files_scanned} C/C++ header-like file(s).")
 	if changed:
 		verb = "Updated" if args.in_place else "Would update"
-		print(f"{verb} {len(changed)} file(s): {stats.functions} inline return collapse(s).")
+		parts = []
+		if stats.functions:
+			parts.append(f"{stats.functions} inline return collapse(s)")
+		if stats.template_prefixes:
+			parts.append(f"{stats.template_prefixes} template prefix join(s)")
+		print(f"{verb} {len(changed)} file(s): {', '.join(parts)}.")
 		for path in changed:
 			print(f"  - {display_path(repo_root, repo_root / path)}")
 		if diff_file_path is not None:

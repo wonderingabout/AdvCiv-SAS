@@ -416,7 +416,8 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlag
 
 Conservative header-only helper for simple inline C++ functions.
 
-- Collapses four-line inline functions whose body is exactly one `return ...;` statement to one physical line.
+- Collapses inline functions whose body is exactly one `return ...;` statement to one physical line, including wrapped return expressions and signatures that already have `{` on the signature line.
+- Joins a one-line `template<...>` prefix onto the collapsed inline function when the combined line stays below `--max-line-len`.
 - Signature tail comments such as `// Exposed to Python` are preserved after the collapsed body.
 - Skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and lines exceeding `--max-line-len`.
 - Separate from `collapse_cpp_signatures.py` because it rewrites function bodies, not just signatures.
@@ -434,9 +435,11 @@ Example apply run:
 cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_returns.py ./CvGameCoreDLL --in-place
 ```
 
-Example result:
+Reviewed passes used this to collapse:
 
-- First broad pass collapsed 722 simple inline return functions across 64 header-like files, including `CvPlayer::getGoldPerTurnByPlayer`.
+- simple inline return helpers such as `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`
+- wrapped-return helpers such as `template<bool bCHECK_HAS_MET> int countFreeRivals() const { return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ? KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::count(m_kAgentTeam.getID()); }`
+- and brace-on-signature wrappers such as `CvCityAI* AI_getCapital() const { return AI_getCity(m_iCapitalCityID); }`.
 
 Example (before):
 

@@ -91,13 +91,7 @@ protected:
 	 scaled conqAssetScore(bool bMute = true) const;
 	 // Portion of cities of ePlayer that aren't lost in the war
 	 scaled remainingCityRatio(PlayerTypes ePlayer) const; 
-	 template<bool bCHECK_HAS_MET>
-	 int countFreeRivals() const
-	 {
-		 return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ?
-				KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::
-				count(m_kAgentTeam.getID());
-	 }
+	 template<bool bCHECK_HAS_MET> int countFreeRivals() const { return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ? KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::count(m_kAgentTeam.getID()); }
 	/*	Evaluation of m_pRivalPlayer's usefulness as m_pAgentPlayer's trade partner.
 		Would prefer this to be computed just once by UWAICache (the computations
 		aren't totally cheap), but I also want the log output. They're not called

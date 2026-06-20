@@ -239,10 +239,8 @@ private:
 	// Don't want to include an AI header for GET_PLAYER
 	template<class T>
 	static T* _getBarbarianAgent();
-	template<>
-	static CvPlayerAI* _getBarbarianAgent<CvPlayerAI>() { return (*m_pAgents->getAgentSeqCache<CvPlayerAI>(CvAgents::ALL))[BARBARIAN_PLAYER]; }
-	template<>
-	static CvTeamAI* _getBarbarianAgent<CvTeamAI>() { return (*m_pAgents->getAgentSeqCache<CvTeamAI>(CvAgents::ALL))[BARBARIAN_TEAM]; }
+	template<> static CvPlayerAI* _getBarbarianAgent<CvPlayerAI>() { return (*m_pAgents->getAgentSeqCache<CvPlayerAI>(CvAgents::ALL))[BARBARIAN_PLAYER]; }
+	template<> static CvTeamAI* _getBarbarianAgent<CvTeamAI>() { return (*m_pAgents->getAgentSeqCache<CvTeamAI>(CvAgents::ALL))[BARBARIAN_TEAM]; }
 };
 #undef bAPPLY_FILTERS
 #undef bADD_BARBARIANS
