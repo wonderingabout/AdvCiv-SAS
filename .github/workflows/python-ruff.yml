@@ -1,0 +1,46 @@
+name: Python Ruff
+
+on:
+  push:
+    paths:
+      - "**.py"
+      - ".github/workflows/python-ruff.yml"
+      - "ruff.toml"
+  pull_request:
+    # <!-- custom: PR #13 is a long-lived reference compare from tech-rework to 1.12.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5 + GPT-5.5) -->
+    branches-ignore:
+      - "1.12"
+    paths:
+      - "**.py"
+      - ".github/workflows/python-ruff.yml"
+      - "ruff.toml"
+  workflow_dispatch:
+
+jobs:
+  python-ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Ruff
+        uses: astral-sh/ruff-action@v4.0.0
+        with:
+          version: "latest"
+          args: "--version"
+      - name: Full Ruff report
+        shell: bash
+        run: |
+          # <!-- custom: Show the full latest Ruff report in GitHub Actions logs so all findings are visible/downloadable when needed, but do not fail here because broad style/design rules are too noisy for legacy Civ4/Python 2.4 code. Separate artifacts were considered, which according to ChatGPT-5.5 are as of now limited to 500MB for free users, but GitHub Actions already lets us view on the web browser/URL and download workflow logs as ZIP (as of now right click "Download Log Archive"), so we do not need and so do not use artifact storage for now. (ChatGPT-5.5 + GPT-5.5) -->
+          # <!-- custom: Some legacy Civ4 Python 2 names are built-ins at runtime but undefined to modern Ruff; list reviewed cases through Ruff config, not a nonexistent --builtins CLI flag. (GPT-5.5) -->
+          ruff check . --isolated --config "builtins = ['unicode']" --select ALL --output-format=grouped --exit-zero
+      - name: Ruff critical gate
+        shell: bash
+        run: |
+          # <!-- custom: Fail CI on Ruff syntax/parse errors plus Pyflakes bug checks. The full report above shows every Ruff finding; after the first GitHub run, only a few rules were clearly too noisy, so keep the rest of F failing until actual output proves more narrowing is needed. (ChatGPT-5.5 + GPT-5.5) -->
+          # Assets/Python/Screens/CvForeignAdvisor.py:17:8: F401 `ScreenInput` imported but unused
+          # Assets/Python/BUG/SpyUtil.py:9:1: F403 `from CvPythonExtensions import *` used; unable to detect undefined names
+          # Assets/Python/BUG/SpyUtil.py:14:6: F405 `CyGlobalContext` may be undefined, or defined from star imports
+          # <!-- custom: Note: extra caution about F841, sometimes declared variables run instructions, for example disabling an unused variable to fix a ruff warning caused Sevopedia Promotions to miss many promotions (see Sevopedia Promotions). So fix them with caution. -->
+          # Assets/Python/EntryPoints/CvScreensInterface.py:1091:2: F841 Local variable `bOption1` is assigned to but never used
+          # <!-- custom: See full-report command above for why reviewed legacy Python 2 built-ins are passed through Ruff config here. (GPT-5.5) -->
+          ruff check . --isolated --config "builtins = ['unicode']" --select E9,F --ignore F401,F403,F405,F841 --output-format=github

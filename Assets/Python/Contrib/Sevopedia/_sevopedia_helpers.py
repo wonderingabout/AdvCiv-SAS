@@ -725,12 +725,12 @@ def add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButton
 
 def chart_font2(szText):
 	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
-	return sasFontTagLabel + unicode(szText) + SAS_FONT_TAG_CLOSE  # noqa: F821
+	return sasFontTagLabel + unicode(szText) + SAS_FONT_TAG_CLOSE
 
 def chart_encode_base5(iValue, iDigits):
 	# Encode an integer as a base-5 string using invisible Unicode chars.
 	out = []
-	for _ in xrange(iDigits):  # noqa: F821
+	for _ in xrange(iDigits):
 		out.append(CHART_SORT_DIGITS[iValue % 5])
 		iValue //= 5
 	out.reverse()
@@ -864,7 +864,7 @@ def _chart_clean_cell_text(cell):
 		text = cell
 	if text is None:
 		text = u""
-	text = unicode(text)  # noqa: F821
+	text = unicode(text)
 	text = re.sub(r"</?font[^>]*>", u"", text)
 	text = re.sub(r"</?color[^>]*>", u"", text)
 	for digit in CHART_SORT_DIGITS:
@@ -923,7 +923,7 @@ def inchart_set_icon_column_headers(screen, tableName, startCol, numCols, colWid
 	# startCol: column index to start at
 	# numCols: number of icon columns to add
 	# colWidth: width for each column
-	for iCol in xrange(numCols):  # noqa: F821
+	for iCol in xrange(numCols):
 		screen.setTableColumnHeader(tableName, startCol + iCol, "", colWidth)
 
 def inchart_calc_ranking_bar(value, minVal, maxVal, maxPlus=5):
@@ -968,7 +968,7 @@ def inchart_set_icon_cells(screen, tableName, row, itemIds, colStart, colCount, 
 	# For civs/techs: extraData is not required
 
 	# <!-- custom: In-category chart icon cells are standalone image columns, so give them the same invisible text sort key as full chart-category icon cells. (GPT-5.5) -->
-	for iCol in xrange(colCount):  # noqa: F821
+	for iCol in xrange(colCount):
 		if iCol >= len(itemIds):
 			# Empty cell
 			screen.setTableText(tableName, colStart + iCol, row, chart_sort_key(0, row), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)

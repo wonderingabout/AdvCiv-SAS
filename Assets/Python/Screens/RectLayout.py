@@ -20,7 +20,8 @@ class PointLayout:
 		self.fX += dX
 		self.fY += dY
 	def __str__(self):
-		return ( "Point(" + str(self.fX) + ", " + str(self.fY) + ")" )
+		# <!-- custom: Keep the debug/display string aligned with the actual PointLayout class name after fixing the undefined Point helper; see KI#165. (GPT-5.5) -->
+		return ( "PointLayout(" + str(self.fX) + ", " + str(self.fY) + ")" )
 
 # Layout data of a rectangular widget or group of widgets:
 # a pair of coordinates and a pair of side lengths.
@@ -135,7 +136,8 @@ class RectLayout(object):
 	def y(self):
 		return int(round(self.fY))
 	def upperLeft(self):
-		return Point(self.fX, self.fY)
+		# <!-- custom: GitHub Actions Workflow Ruff F821 caught this returning undefined Point; use the local PointLayout class, matching offsetPoint; see KI#165. (GPT-5.5) -->
+		return PointLayout(self.fX, self.fY)
 	# Screen coordinates of lower right corner
 	def xRight(self):
 		return self.x() + self.width()

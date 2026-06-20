@@ -1,16 +1,18 @@
 # AI, UI, or other modifications
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
-# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt's recommendation; very very useful, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example) for example, so i'd recommend using it with these settings as part of advciv-sas or whichever mod you are using, adjust as you see fit. -->
+# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt's recommendation; very very useful, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example) for example. -->
 
-# Enable Ruff linting (blazing fast)
+# <!-- custom: This file is for the user's VS Code Ruff extension and local editing signal/noise. Keep these ignores limited to noise that does not hide information we want to sanity check; python-ruff.yml currently runs isolated from this file and narrows CI separately from actual GitHub output. (ChatGPT-5.5 + GPT-5.5) -->
+# Enable Ruff linting for VS Code/local focused review (blazing fast).
 # Run errors (E) and pyflakes warnings (F)
 select = ["E", "F"]
+# <!-- custom: Civ4 runs Python 2.4, where `unicode` is a built-in; modern Ruff needs it listed explicitly. (GPT-5.5) -->
+builtins = ["unicode"]
 
 # Ignore specific false-positive or mod-specific rules:
 # <!-- custom: note some rules are false positives it seems as ruff seems to not support python 2.4 specifically or at all which is python we use in civ4, so ignoring some rules even though they are not always put in the ignore list here at least as of now, in case they are validly flagged in some other files, could do per line whitelist to the rules but is bit tedious, ideally would but leaving as is especially since it seems funcitonnal, focusing first on files we use most like sevopedia or such for example -->
 # F403: 'from module import *' used; can't track undefined names
 # F405: Name may be undefined, or defined from star imports
 # E501: Line too long (we allow longer lines in Civ4 UI scripts)
-# E722: Do not use bare `except` (<!-- custom: for python 2.4 compatibility as per claude opus 4.5's explanation thanks: "Python 2.4 compatibility note: Your bare except: clause is fine for Python 2.4. If you ever want to catch specific exceptions with the error message, use the old syntax: except ImportError, e: instead of except ImportError as e:." -->)
-ignore = ["F403", "F405", "E501", "E722"]  # Allow star imports, undefined names, long lines, bare except
+ignore = ["F403", "F405", "E501"]

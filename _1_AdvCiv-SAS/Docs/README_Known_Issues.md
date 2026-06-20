@@ -199,6 +199,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
 [162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages)  
 [163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits)  
+[164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
+[165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6066,3 +6068,41 @@ The defensive change is therefore deliberately narrow:
 This should preserve normal behavior for ordinary unit removal while avoiding repeated mission/activity/plot/UI side effects during full group clearing. It is still only a tentative hardening because the crash was rare and non-reproducible, and the exact source line is not known without matching symbols.
 
 Tentatively addressed with the very nice help of ChatGPT-5.5 and GPT-5.5 thanks.
+
+## 164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1XlRugVrvBfdTAW7HPw5nuOW4pTf3daCh?usp=sharing).
+
+The new [GitHub Actions Python Ruff workflow](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27878643336/job/82502279369) (`python-ruff.yml`) flagged two `F811` duplicate-definition findings in `PrivateMaps/Oasis.py`: `normalizeAddExtras` and `addBonusType` were each defined near the top of the file and then defined again later.
+
+```log
+Error: PrivateMaps/Oasis.py:173:5: F811 Redefinition of unused `normalizeAddExtras` from line 102: `normalizeAddExtras` redefined here
+  PrivateMaps/Oasis.py:102:5: previous definition of `normalizeAddExtras` here
+  help: Remove definition: `normalizeAddExtras`
+Error: PrivateMaps/Oasis.py:636:5: F811 Redefinition of unused `addBonusType` from line 107: `addBonusType` redefined here
+  PrivateMaps/Oasis.py:107:5: previous definition of `addBonusType` here
+  help: Remove definition: `addBonusType`
+Error: Process completed with exit code 1.
+```
+
+This was useful because Python keeps only the later function definition. The early balanced-resource callbacks therefore were not active at runtime; they were shadowed by the later Oasis-specific callbacks.
+
+For this first Ruff cleanup, the fix deliberately preserved current gameplay/map-generation behavior instead of merging the old balanced-resource callback logic into the active Oasis callbacks. The shadowed early callback block was commented out and documented in-place. That removes the duplicate Python definitions and keeps the currently active Oasis behavior exactly as before.
+
+Found thanks to the GitHub Actions Python Ruff workflow and fixed with the help of GPT-5.5 (on Codex) thanks.
+
+## 165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CQjC926rZvmWJGwYBzOlXUAFOnqlpa8w?usp=sharing).
+
+Python Ruff flagged `F821 Undefined name Point` in `Assets/Python/Screens/RectLayout.py`, where `RectLayout.upperLeft()` returned `Point(self.fX, self.fY)`.
+
+```log
+Error: Assets/Python/Screens/RectLayout.py:138:10: F821 Undefined name `Point`
+```
+
+The game ran fine because Python resolves names inside a function only when that function is executed, and repository search found no active caller of `upperLeft()`. This made the issue dormant rather than visible in ordinary UI use. The nearby `__str__` returning text like `"Point(...)"` is different: that is only a display string, not a Python name lookup.
+
+The fix changed `upperLeft()` to return the local `PointLayout` class, matching `RectLayout.offsetPoint()` and the rest of the active layout code.
+
+Found thanks to Python Ruff and fixed with the help of GPT-5.5 (on Codex) and ChatGPT-5.5 (who also helped implement/draft this workflow) thanks (Although tbh another LLM or maybe it was GPT-5.5 too had mentioned it but i had overlooked/omitted it or forgot to look into it; now fixed it seems).

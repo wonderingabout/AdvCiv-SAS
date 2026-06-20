@@ -99,21 +99,22 @@ def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
 
-def normalizeAddExtras():
-	if (CyMap().getCustomMapOption(1) == 1):
-		balancer.normalizeAddExtras()
-	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
-
-def addBonusType(argsList):
-	[iBonusType] = argsList
-	gc = CyGlobalContext()
-	type_string = gc.getBonusInfo(iBonusType).getType()
-
-	if (CyMap().getCustomMapOption(1) == 1):
-		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
-			return None # don't place any of this bonus randomly
-
-	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
+# <!-- custom: These balanced-resource callbacks were shadowed by later Oasis callbacks with the same names, so they never ran. Comment them out instead of merging behavior, fixing Ruff F811 while preserving current Oasis behavior exactly; see KI#164. (GPT-5.5) -->
+# def normalizeAddExtras():
+# 	if (CyMap().getCustomMapOption(1) == 1):
+# 		balancer.normalizeAddExtras()
+# 	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
+#
+# def addBonusType(argsList):
+# 	[iBonusType] = argsList
+# 	gc = CyGlobalContext()
+# 	type_string = gc.getBonusInfo(iBonusType).getType()
+#
+# 	if (CyMap().getCustomMapOption(1) == 1):
+# 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
+# 			return None # don't place any of this bonus randomly
+#
+# 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isClimateMap():
 	return 0

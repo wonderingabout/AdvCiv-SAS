@@ -96,7 +96,7 @@ def check_opening_music(repo_root: Path) -> list[str]:
 		failures.append(f"GlobalDefines_advciv_sas.xml: {SHUFFLE_ENABLE_DEFINE} is enabled but no non-NONE shuffle script is configured")
 
 	if not shuffle_enabled and not trigger_script:
-		failures.append(f"GlobalDefines_advciv_sas.xml: shuffle is disabled and no fixed/trigger opening script is configured")
+		failures.append("GlobalDefines_advciv_sas.xml: shuffle is disabled and no fixed/trigger opening script is configured")
 
 	return failures
 
