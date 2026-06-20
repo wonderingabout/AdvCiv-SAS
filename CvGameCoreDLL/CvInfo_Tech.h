@@ -85,16 +85,8 @@ public: // advc: All the const functions are exposed to Python except those adde
 	// <advc.003t>
 	int getNumOrTechPrereqs() const { return (int)m_aePrereqOrTechs.size(); }
 	int getNumAndTechPrereqs() const { return (int)m_aePrereqAndTechs.size(); }
-	TechTypes getPrereqOrTechs(int i) const
-	{
-		FAssertBounds(0, getNumOrTechPrereqs(), i);
-		return m_aePrereqOrTechs[i];
-	}
-	TechTypes getPrereqAndTechs(int i) const
-	{
-		FAssertBounds(0, getNumAndTechPrereqs(), i);
-		return m_aePrereqAndTechs[i];
-	}
+	TechTypes getPrereqOrTechs(int i) const { FAssertBounds(0, getNumOrTechPrereqs(), i); return m_aePrereqOrTechs[i]; }
+	TechTypes getPrereqAndTechs(int i) const { FAssertBounds(0, getNumAndTechPrereqs(), i); return m_aePrereqAndTechs[i]; }
 	int py_getPrereqOrTechs(int i) const;
 	int py_getPrereqAndTechs(int i) const;
 	// </advc.003t>

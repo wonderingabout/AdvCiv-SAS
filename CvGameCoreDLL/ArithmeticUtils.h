@@ -25,11 +25,7 @@ namespace intdiv
 		return (iDividend + iDivisor / 2) / iDivisor;
 	}
 
-	inline int uceil(int iDividend, int iDivisor)
-	{
-		FAssert(iDividend >= 0 && iDivisor > 0);
-		return (iDividend + iDivisor - 1) / iDivisor;
-	}
+	inline int uceil(int iDividend, int iDivisor) { FAssert(iDividend >= 0 && iDivisor > 0); return (iDividend + iDivisor - 1) / iDivisor; }
 
 	inline int umodulo(int iDividend, int iDivisor)
 	{

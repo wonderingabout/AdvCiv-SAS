@@ -227,16 +227,8 @@ public:
 
 	int getNumPrereqAndTechs() const { return m_aePrereqAndTechs.size(); }
 	int getNumPrereqOrBonuses() const { return m_aePrereqOrBonuses.size(); }
-	TechTypes getPrereqAndTechs(int i) const
-	{
-		FAssertBounds(0, getNumPrereqAndTechs(), i);
-		return m_aePrereqAndTechs[i];
-	}
-	BonusTypes getPrereqOrBonuses(int i) const
-	{
-		FAssertBounds(0, getNumPrereqOrBonuses(), i);
-		return m_aePrereqOrBonuses[i];
-	}
+	TechTypes getPrereqAndTechs(int i) const { FAssertBounds(0, getNumPrereqAndTechs(), i); return m_aePrereqAndTechs[i]; }
+	BonusTypes getPrereqOrBonuses(int i) const { FAssertBounds(0, getNumPrereqOrBonuses(), i); return m_aePrereqOrBonuses[i]; }
 	int py_getPrereqAndTechs(int i) const;
 	int py_getPrereqOrBonuses(int i) const;
 

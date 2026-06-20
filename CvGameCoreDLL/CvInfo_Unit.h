@@ -115,11 +115,7 @@ public: /*  All const functions are exposed to Python except some related to art
 	DomainTypes getDomainType() const { return m_eDomainType; }
 	UnitAITypes getDefaultUnitAIType() const { return m_eDefaultUnitAIType; }
 	InvisibleTypes getInvisibleType() const { return m_eInvisibleType; }
-	InvisibleTypes getSeeInvisibleType(int i) const
-	{
-		FAssertBounds(0, m_aeSeeInvisibleTypes.size(), i);
-		return m_aeSeeInvisibleTypes[i];
-	}
+	InvisibleTypes getSeeInvisibleType(int i) const { FAssertBounds(0, m_aeSeeInvisibleTypes.size(), i); return m_aeSeeInvisibleTypes[i]; }
 	int getNumSeeInvisibleTypes() const { return (int)m_aeSeeInvisibleTypes.size(); }
 	AdvisorTypes getAdvisorType() const { return m_eAdvisorType; }
 	ReligionTypes getHolyCity() const { return m_eHolyCity; }
@@ -191,30 +187,14 @@ public: /*  All const functions are exposed to Python except some related to art
 	// <advc.003t>
 	int getNumPrereqAndTechs() const { return m_aePrereqAndTechs.size(); }
 	int getNumPrereqOrBonuses() const { return m_aePrereqOrBonuses.size(); }
-	TechTypes getPrereqAndTechs(int i) const
-	{
-		FAssertBounds(0, getNumPrereqAndTechs(), i);
-		return m_aePrereqAndTechs[i];
-	}
-	BonusTypes getPrereqOrBonuses(int i) const
-	{
-		FAssertBounds(0, getNumPrereqOrBonuses(), i);
-		return m_aePrereqOrBonuses[i];
-	}
+	TechTypes getPrereqAndTechs(int i) const { FAssertBounds(0, getNumPrereqAndTechs(), i); return m_aePrereqAndTechs[i]; }
+	BonusTypes getPrereqOrBonuses(int i) const { FAssertBounds(0, getNumPrereqOrBonuses(), i); return m_aePrereqOrBonuses[i]; }
 	int py_getPrereqAndTechs(int i) const;
 	int py_getPrereqOrBonuses(int i) const;
 	// </advc.003t>  <advc.905b>
 	int getNumSpeedBonuses() const { return m_aeiSpeedBonuses.size(); }
-	BonusTypes getSpeedBonuses(int i) const
-	{
-		FAssertBounds(0, getNumSpeedBonuses(), i);
-		return m_aeiSpeedBonuses[i].first;
-	}
-	int getExtraMoves(int i) const
-	{
-		FAssertBounds(0, getNumSpeedBonuses(), i);
-		return m_aeiSpeedBonuses[i].second;
-	}
+	BonusTypes getSpeedBonuses(int i) const { FAssertBounds(0, getNumSpeedBonuses(), i); return m_aeiSpeedBonuses[i].first; }
+	int getExtraMoves(int i) const { FAssertBounds(0, getNumSpeedBonuses(), i); return m_aeiSpeedBonuses[i].second; }
 	int py_getSpeedBonuses(int i) const;
 	int py_getExtraMoves(int i) const;
 	// </advc.905b>

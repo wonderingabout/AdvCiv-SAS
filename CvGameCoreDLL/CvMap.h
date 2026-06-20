@@ -114,14 +114,8 @@ public:
 	// K-Mod:
 	CvPlot* plotXY(const CvPlot* pPlot, int iDX, int iDY) const { return plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY); }
 
-	DirectionTypes directionXY(int iDX, int iDY) const
-	{
-		/*if (abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS)
-			return NO_DIRECTION;*/ /* advc.opt: Apparently can't happen
-		(so long as directionXY is used only on adjacent plots), so: */
-		FAssert(!(abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS));
-		return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS);
-	}
+	/* if (abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS) return NO_DIRECTION;*/ /* advc.opt: Apparently can't happen (so long as directionXY is used only on adjacent plots), so: */
+	DirectionTypes directionXY(int iDX, int iDY) const { FAssert(!(abs(iDX) > DIRECTION_RADIUS || abs(iDY) > DIRECTION_RADIUS)); return GC.getXYDirection(iDX + DIRECTION_RADIUS, iDY + DIRECTION_RADIUS); }
 
 	DirectionTypes directionXY(CvPlot const& kFromPlot, CvPlot const& kToPlot) const { return directionXY(dxWrap(kToPlot.getX() - kFromPlot.getX()), dyWrap(kToPlot.getY() - kFromPlot.getY())); }
 
@@ -360,11 +354,7 @@ public: // advc: made several functions const
 	CvPlot* plotByIndexExternal(int iIndex) const; // advc.inl: Exported through .def file						// Exposed to Python
 	// advc.enum (tbd.): Change param to PlotNumTypes
 	CvPlot* plotByIndex(int iIndex) const { return ((iIndex >= 0 && iIndex < numPlots()) ? &(m_pMapPlots[iIndex]) : NULL); } // advc.inl: was "plotByIndexINLINE" // <advc.inl> Faster (w/o branching)
-	CvPlot& getPlotByIndex(int iIndex) const
-	{
-		FAssertBounds(0, numPlots(), iIndex);
-		return m_pMapPlots[iIndex];
-	} // </advc.inl>
+	CvPlot& getPlotByIndex(int iIndex) const { FAssertBounds(0, numPlots(), iIndex); return m_pMapPlots[iIndex]; } // </advc.inl>
 	/*  advc.inl: Was "plotINLINE". Was force-inline, but I'm getting slightly
 		better performance without that (having replaced some calls with getPlot) . */
 	DllExport CvPlot* plot(int iX, int iY) const															// Exposed to Python
@@ -383,11 +373,7 @@ public: // advc: made several functions const
 		FAssert(isPlot(iX, iY)); // advc: Assertion added
 		return &(m_pMapPlots[plotNum(iX, iY)]);
 	} // <advc.inl> Even faster and less confusingly named; replacing the above in most places.
-	__inline CvPlot& getPlot(int x, int y) const
-	{
-		FAssert(isPlot(x, y));
-		return m_pMapPlots[plotNum(x, y)];
-	} // </advc.inl>
+	__inline CvPlot& getPlot(int x, int y) const { FAssert(isPlot(x, y)); return m_pMapPlots[plotNum(x, y)]; } // </advc.inl>
 	/*	advc.opt: Yet another plot getter. Checks coordRange but not INVALID_PLOT_COORD.
 		For functions that compute x,y as an offset from a (valid) plot -
 		not plausible that the new coordinates would equal INVALID_PLOT_COORD. */
@@ -407,11 +393,9 @@ public: // advc: made several functions const
 	CvArea* addArea();
 	void deleteArea(int iID);
 	// iteration
-	CvArea* firstArea(int *pIterIdx, bool bRev=false) const											// Exposed to Python
-	{	//return (!bRev ? m_areas.beginIter(pIterIdx) : m_areas.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_areas.beginIter(pIterIdx); // advc.opt
-	}
+	//return (!bRev ? m_areas.beginIter(pIterIdx) : m_areas.endIter(pIterIdx));
+	// advc.opt
+	CvArea* firstArea(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_areas.beginIter(pIterIdx); } // Exposed to Python
 	//return (!bRev ? m_areas.nextIter(pIterIdx) : m_areas.prevIter(pIterIdx));
 	// advc.opt
 	CvArea* nextArea(int *pIterIdx, bool bRev=false) const { return m_areas.nextIter(pIterIdx); } // Exposed to Python

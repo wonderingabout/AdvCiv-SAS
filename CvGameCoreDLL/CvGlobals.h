@@ -94,11 +94,8 @@ public:
 
 	CvMap& getMap() const { return *m_map; } // advc.inl: was "getMapINLINE"
 	// advc.003u: return type was CvGameAI&
-	CvGame& getGame() const // advc.inl: was "getGameINLINE
-	{	/*	Can't be helped; this function has to be inlined,
-			and I won't include CvGameAI.h here. */
-		return *reinterpret_cast<CvGame*>(m_game);
-	} 
+	/* Can't be helped; this function has to be inlined, and I won't include CvGameAI.h here. */
+	CvGame& getGame() const { return *reinterpret_cast<CvGame*>(m_game); } // advc.inl: was "getGameINLINE
 	CvGameAI& AI_getGame() const { return *m_game; } // advc.003u
 	CvAgents& getAgents() const { return *m_agents; } // advc.agents
 	CvMap& getMapExternal(); // advc.inl: Exported through .def file
@@ -153,18 +150,8 @@ public:
 	DllExport int* getPlotCardinalDirectionY() { return m_aiPlotCardinalDirectionY; };
 	int const* getPlotCardinalDirectionY() const { return m_aiPlotCardinalDirectionY; };
 	DllExport DirectionTypes getXYDirection(int i, int j) { CvGlobals const& kThis = *this; return kThis.getXYDirection(i,j); }
-	DirectionTypes getXYDirection(int i, int j) const
-	{
-		FAssertBounds(0, DIRECTION_DIAMETER, i);
-		FAssertBounds(0, DIRECTION_DIAMETER, j);
-		return m_aaeXYDirection[i][j];
-	}
-	CityPlotTypes getXYCityPlot(int i, int j) const // advc.enum: return type was int
-	{
-		FAssertBounds(0, CITY_PLOTS_DIAMETER, i);
-		FAssertBounds(0, CITY_PLOTS_DIAMETER, j);
-		return m_aaeXYCityPlot[i][j];
-	}
+	DirectionTypes getXYDirection(int i, int j) const { FAssertBounds(0, DIRECTION_DIAMETER, i); FAssertBounds(0, DIRECTION_DIAMETER, j); return m_aaeXYDirection[i][j]; }
+	CityPlotTypes getXYCityPlot(int i, int j) const { FAssertBounds(0, CITY_PLOTS_DIAMETER, i); FAssertBounds(0, CITY_PLOTS_DIAMETER, j); return m_aaeXYCityPlot[i][j]; } // advc.enum: return type was int
 	int const* getCityPlotX() const { return m_aiCityPlotX; }
 	int const* getCityPlotY() const { return m_aiCityPlotY; }
 	int const* getCityPlotPriority() const { return m_aiCityPlotPriority; }
@@ -300,11 +287,7 @@ public:
 	DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ACCESSORS_DYN)
 	DO_FOR_EACH_INT_INFO_TYPE(MAKE_INFO_ACCESSORS_INT)
 	// World(Size)Info: awkward to generate through a macro
-	CvWorldInfo& getInfo(WorldSizeTypes eWorld) const
-	{
-		FAssertBounds(0, getNumWorldInfos(), eWorld);
-		return *m_paWorldInfo[eWorld];
-	}
+	CvWorldInfo& getInfo(WorldSizeTypes eWorld) const { FAssertBounds(0, getNumWorldInfos(), eWorld); return *m_paWorldInfo[eWorld]; }
 	int getNumWorldInfos() const { return (int)m_paWorldInfo.size(); }
 	CvWorldInfo& getWorldInfo(int iWorld) const { return getInfo(static_cast<WorldSizeTypes>(iWorld)); }
 #pragma endregion InfoAccessors
@@ -582,17 +565,9 @@ public:
 	int getMAX_SEA_PATROL_RANGE() const { return 1; }
 	/*  <advc.opt> (TextVals can't be loaded by cacheGlobals. Hence also won't be
 		updated when a setDefine... function is called.) */
-	ImprovementTypes getRUINS_IMPROVEMENT() const
-	{
-		FAssertMsg(m_eRUINS_IMPROVEMENT != NO_IMPROVEMENT, "RUINS_IMPROVEMENT accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines");
-		return m_eRUINS_IMPROVEMENT;
-	}
+	ImprovementTypes getRUINS_IMPROVEMENT() const { FAssertMsg(m_eRUINS_IMPROVEMENT != NO_IMPROVEMENT, "RUINS_IMPROVEMENT accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines"); return m_eRUINS_IMPROVEMENT; }
 	void setRUINS_IMPROVEMENT(int iVal);
-	SpecialistTypes getDEFAULT_SPECIALIST() const
-	{
-		FAssertMsg(m_eDEFAULT_SPECIALIST != NO_SPECIALIST, "DEFAULT_SPECIALIST accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines");
-		return m_eDEFAULT_SPECIALIST;
-	}
+	SpecialistTypes getDEFAULT_SPECIALIST() const { FAssertMsg(m_eDEFAULT_SPECIALIST != NO_SPECIALIST, "DEFAULT_SPECIALIST accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines"); return m_eDEFAULT_SPECIALIST; }
 	void setDEFAULT_SPECIALIST(int iVal);
 	TerrainTypes getWATER_TERRAIN(bool bShallow) const
 	{

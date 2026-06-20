@@ -535,11 +535,9 @@ public:
 	CvDeal* addDeal();
 	void deleteDeal(int iID);
 	// iteration (advc: const)
-	CvDeal* firstDeal(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_deals.beginIter(pIterIdx) : m_deals.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_deals.beginIter(pIterIdx); // advc.opt
-	}
+	//return (!bRev ? m_deals.beginIter(pIterIdx) : m_deals.endIter(pIterIdx));
+	// advc.opt
+	CvDeal* firstDeal(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_deals.beginIter(pIterIdx); } // Exposed to Python
 	//return (!bRev ? m_deals.nextIter(pIterIdx) : m_deals.prevIter(pIterIdx));
 	// advc.opt
 	CvDeal* nextDeal(int *pIterIdx, bool bRev=false) const { return m_deals.nextIter(pIterIdx); } // Exposed to Python

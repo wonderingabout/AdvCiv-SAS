@@ -189,11 +189,7 @@ public:
 	InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst, PlyrSet const& kWarParties,
 			bool bPeaceScenario = false);
 	~InvasionGraph();
-	Node* getNode(PlayerTypes ePlayer) const
-	{
-		FAssertBounds(0, MAX_PLAYERS, ePlayer);
-		return m_nodeMap[ePlayer];
-	}
+	Node* getNode(PlayerTypes ePlayer) const { FAssertBounds(0, MAX_PLAYERS, ePlayer); return m_nodeMap[ePlayer]; }
 	/*	No military build-up is estimated by simulate(int) until
 		this function is called. Intended to be called exactly once.
 		"Our side" being the agent (military analyst). */

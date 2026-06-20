@@ -174,11 +174,7 @@ private:
 	bool isUse(CallbackDefines eCallback) const { return m_abUseCallback[eCallback]; }
 	// They're the same in MSVC03 x086
 	static int toInt(long l) { return static_cast<int>(l); }
-	static bool toBool(long l)
-	{
-		FAssert(l >= 0);
-		return (l == TRUE);
-	}
+	static bool toBool(long l) { FAssert(l >= 0); return (l == TRUE); }
 };
 
 #endif

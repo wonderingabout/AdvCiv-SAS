@@ -103,11 +103,7 @@ public: // All the const functions are exposed to Python
 
 	// Array access:
 	int getNumPrereqBonuses() const { return m_aePrereqBonuses.size(); }
-	BonusTypes getPrereqBonus(int i) const
-	{
-		FAssertBounds(0, getNumPrereqBonuses(), i);
-		return m_aePrereqBonuses[i];
-	}
+	BonusTypes getPrereqBonus(int i) const { FAssertBounds(0, getNumPrereqBonuses(), i); return m_aePrereqBonuses[i]; }
 	// <!-- custom: BEGIN expose CvCorporationInfo::BonusProduced to Python so Sevopedia can show generated bonuses directly instead of guessing from special text; this keeps UI data explicit and avoids fragile parsing. (GPT-5.3-Codex) -->
 	int py_getBonusProduced() const;
 	// <!-- custom: END expose CvCorporationInfo::BonusProduced to Python. (GPT-5.3-Codex) -->

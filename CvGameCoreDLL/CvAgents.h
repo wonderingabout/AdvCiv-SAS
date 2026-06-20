@@ -69,16 +69,8 @@ public:
 
 	// For testing (see AgentIteratorTest) and other purposes perhaps ...
 
-	int playerCacheSize(AgentSeqCache eCacheID) const
-	{
-		FAssertBounds(0, m_playerSeqCache.size(), eCacheID);
-		return (int)m_playerSeqCache[eCacheID].size();
-	}
-	CvPlayerAI& playerCacheAt(AgentSeqCache eCacheID, int iAt) const
-	{
-		FAssertBounds(0, playerCacheSize(eCacheID), iAt);
-		return *m_playerSeqCache[eCacheID][iAt];
-	}
+	int playerCacheSize(AgentSeqCache eCacheID) const { FAssertBounds(0, m_playerSeqCache.size(), eCacheID); return (int)m_playerSeqCache[eCacheID].size(); }
+	CvPlayerAI& playerCacheAt(AgentSeqCache eCacheID, int iAt) const { FAssertBounds(0, playerCacheSize(eCacheID), iAt); return *m_playerSeqCache[eCacheID][iAt]; }
 	int memberCacheSize(AgentSeqCache eCacheID, TeamTypes eTeam) const
 	{
 		int const iCache = perTeamCacheIndex(eCacheID);
@@ -92,16 +84,8 @@ public:
 		FAssertBounds(0, memberCacheSize(eCacheID, eTeam), iAt);
 		return *m_memberSeqCache[iCache][eTeam][iAt];
 	}
-	int teamCacheSize(AgentSeqCache eCacheID) const
-	{
-		FAssertBounds(0, m_teamSeqCache.size(), eCacheID);
-		return (int)m_teamSeqCache[eCacheID].size();
-	}
-	CvTeamAI& teamCacheAt(AgentSeqCache eCacheID, int iAt) const
-	{
-		FAssertBounds(0, teamCacheSize(eCacheID), iAt);
-		return *m_teamSeqCache[eCacheID][iAt];
-	}
+	int teamCacheSize(AgentSeqCache eCacheID) const { FAssertBounds(0, m_teamSeqCache.size(), eCacheID); return (int)m_teamSeqCache[eCacheID].size(); }
+	CvTeamAI& teamCacheAt(AgentSeqCache eCacheID, int iAt) const { FAssertBounds(0, teamCacheSize(eCacheID), iAt); return *m_teamSeqCache[eCacheID][iAt]; }
 	int teamPerTeamCacheSize(AgentSeqCache eCacheID, TeamTypes eTeam) const
 	{
 		int const iCache = perTeamCacheIndex(eCacheID);

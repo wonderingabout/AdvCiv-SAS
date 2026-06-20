@@ -27,11 +27,7 @@ public:
 	__forceinline // Annoying to step into by accident
 #endif
 	// advc.003u: Renamed from getPlayer
-	static CvPlayerAI& AI_getPlayer(PlayerTypes ePlayer)
-	{
-		FAssertBounds(0, MAX_PLAYERS, ePlayer);
-		return *m_aPlayers[ePlayer];
-	}
+	static CvPlayerAI& AI_getPlayer(PlayerTypes ePlayer) { FAssertBounds(0, MAX_PLAYERS, ePlayer); return *m_aPlayers[ePlayer]; }
 	// Only for the EXE:
 	DllExport static CvPlayerAI& getPlayerNonInl(PlayerTypes ePlayer);
 	DllExport static bool areStaticsInitialized();
@@ -168,11 +164,7 @@ public:
 	// K-Mod <!-- custom: hoisted from multiline signature between `ePlayer` and `bUpdateWorstEnemy` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	void AI_updateAttitude(PlayerTypes ePlayer, bool bUpdateWorstEnemy = true); // advc.130e
 	void AI_changeCachedAttitude(PlayerTypes ePlayer, int iChange); // K-Mod
-	AttitudeTypes AI_getAttitude(PlayerTypes ePlayer, bool bForced = true) const		// Exposed to Python
-	{
-		FAssert(ePlayer != getID());
-		return (AI_getAttitudeFromValue(AI_getAttitudeVal(ePlayer, bForced)));
-	}
+	AttitudeTypes AI_getAttitude(PlayerTypes ePlayer, bool bForced = true) const { FAssert(ePlayer != getID()); return (AI_getAttitudeFromValue(AI_getAttitudeVal(ePlayer, bForced))); } // Exposed to Python
 	int AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced = true) const;
 	static AttitudeTypes AI_getAttitudeFromValue(int iAttitudeVal);
 	void AI_updateExpansionistHate(); // advc.130w
@@ -220,10 +212,7 @@ public:
 	// <advc.130o> May change diplo memory if true; const qualifier removed. <!-- custom: hoisted from multiline signature between `iDealAge` and `bHypothetical` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	bool AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive, int iChange = 1, /* advc.133: */ int iDealAge = 0, bool bHypothetical = false);
 	// const wrapper
-	bool AI_considerHypotheticalOffer(PlayerTypes ePlayer, CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive, int iChange = 1, /* advc.133: */ int iDealAge = 0) const
-	{
-		return const_cast<CvPlayerAI*>(this)->AI_considerOffer(ePlayer, kTheyGive, kWeGive, iChange, iDealAge, true);
-	} // </advc.130o>
+	bool AI_considerHypotheticalOffer(PlayerTypes ePlayer, CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive, int iChange = 1, /* advc.133: */ int iDealAge = 0) const { return const_cast<CvPlayerAI*>(this)->AI_considerOffer(ePlayer, kTheyGive, kWeGive, iChange, iDealAge, true); } // </advc.130o>
 	scaled AI_prDenyHelp() const; // advc.144
 	int AI_tradeAcceptabilityThreshold(PlayerTypes eTrader) const; // K-Mod
 	int AI_maxGoldTrade(PlayerTypes ePlayer, /* advc.134a: */ bool bTeamTrade = false) const;
@@ -830,15 +819,7 @@ protected:
 };
 
 // <advc.003u> (Counterparts to global functions in CvPlayer.h)
-inline CvCityAI* AI_getCity(IDInfo city)
-{
-	FAssertBounds(0, MAX_PLAYERS, city.eOwner);
-	return GET_PLAYER(city.eOwner).AI_getCity(city.iID);
-}
-inline CvUnitAI* AI_getUnit(IDInfo unit)
-{
-	FAssertBounds(0, MAX_PLAYERS, unit.eOwner);
-	return GET_PLAYER(unit.eOwner).AI_getUnit(unit.iID);
-} // </advc.003u>
+inline CvCityAI* AI_getCity(IDInfo city) { FAssertBounds(0, MAX_PLAYERS, city.eOwner); return GET_PLAYER(city.eOwner).AI_getCity(city.iID); }
+inline CvUnitAI* AI_getUnit(IDInfo unit) { FAssertBounds(0, MAX_PLAYERS, unit.eOwner); return GET_PLAYER(unit.eOwner).AI_getUnit(unit.iID); } // </advc.003u>
 
 #endif

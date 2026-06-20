@@ -331,11 +331,7 @@ public:
 		}
 		int getConnectionMask() const { return m_iConnectionMask; }
 		int getNumArtModels() const { return m_aArtModels.size(); }
-		const FeatureArtModel &getArtModel(int index) const
-		{
-			FAssertMsg((index >= 0) && (index < (int) m_aArtModels.size()), "[Jason] Invalid feature model file index.");
-			return m_aArtModels[index];
-		}
+		const FeatureArtModel &getArtModel(int index) const { FAssertMsg((index >= 0) && (index < (int) m_aArtModels.size()), "[Jason] Invalid feature model file index."); return m_aArtModels[index]; }
 	private:
 		std::vector<FeatureArtModel> m_aArtModels;
 		int m_iConnectionMask;
@@ -361,11 +357,7 @@ public:
 	{
 	public:
 		const CvString &getVarietyButton() const { return m_szVarietyButton; }
-		const FeatureArtPiece &getFeatureArtPiece(int index) const
-		{
-			FAssertMsg((index >= 0) && (index < (int) m_aFeatureArtPieces.size()), "[Jason] Invalid feature art index.");
-			return m_aFeatureArtPieces[index];
-		}
+		const FeatureArtPiece &getFeatureArtPiece(int index) const { FAssertMsg((index >= 0) && (index < (int) m_aFeatureArtPieces.size()), "[Jason] Invalid feature art index."); return m_aFeatureArtPieces[index]; }
 		const FeatureArtPiece &getFeatureArtPieceFromConnectionMask(int connectionMask) const
 		{
 			for(int i=0;i<(int)m_aFeatureArtPieces.size();i++)

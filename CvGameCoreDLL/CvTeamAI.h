@@ -24,11 +24,7 @@ public:
 	__forceinline // Annoying to step into by accident
 #endif
 	// advc.003u: Renamed from getTeam
-	static CvTeamAI& AI_getTeam(TeamTypes eTeam)
-	{
-		FAssertBounds(0, MAX_TEAMS, eTeam);
-		return *m_aTeams[eTeam];
-	}
+	static CvTeamAI& AI_getTeam(TeamTypes eTeam) { FAssertBounds(0, MAX_TEAMS, eTeam); return *m_aTeams[eTeam]; }
 	DllExport static CvTeamAI& getTeamNonInl(TeamTypes eTeam); // Only for the EXE
 
 	static bool AI_isChosenWarPlan(WarPlanTypes eWarPlanType); // advc.105

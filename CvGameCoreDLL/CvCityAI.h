@@ -103,11 +103,7 @@ public:
 	void AI_setStrongEmphasis(bool bStrongEmphasis); // </advc.131d>
 	//void AI_forceEmphasizeCulture(bool bNewValue); // advc.003j
 
-	int AI_getBestBuildValue(/* advc.enum: */ CityPlotTypes ePlot) const
-	{
-		FAssertEnumBounds(ePlot);
-		return m_aiBestBuildValue[ePlot];
-	}
+	int AI_getBestBuildValue(/* advc.enum: */ CityPlotTypes ePlot) const { FAssertEnumBounds(ePlot); return m_aiBestBuildValue[ePlot]; }
 	int AI_totalBestBuildValue(CvArea const& kArea) const;
 
 	int AI_clearFeatureValue(CityPlotTypes ePlot) const;

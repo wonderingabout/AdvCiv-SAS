@@ -118,10 +118,7 @@ public:
 	// CHANGE_PLAYER: END
 	// AI_AUTO_PLAY_MOD, 07/09/08, jdog5000: START
 	void setHumanDisabled(bool bNewVal);
-	bool isHumanDisabled() /* advc.127: */ const // and exposed to Python
-	{
-		return m_bDisableHuman;
-	} // AI_AUTO_PLAY_MOD: END
+	bool isHumanDisabled() /* advc.127: */ const { return m_bDisableHuman; } // and exposed to Python // AI_AUTO_PLAY_MOD: END
 	// <advc.127>
 	bool isSpectator() const;
 	bool isAutoPlayJustEnded() const { return m_bAutoPlayJustEnded; }												// Exposed to Python
@@ -808,11 +805,7 @@ public:
 	DllExport CivilizationTypes getCivilizationType() const { return GC.getInitCore().getCiv(getID()); } // Exposed to Python
 	// <advc.003u>
 	void setCivilization(CivilizationTypes eCivilization);
-	CvCivilization const& getCivilization() const
-	{
-		FAssertMsg(m_pCivilization != NULL, "Player has no civilization type");
-		return *m_pCivilization;
-	} // </advc.003u>
+	CvCivilization const& getCivilization() const { FAssertMsg(m_pCivilization != NULL, "Player has no civilization type"); return *m_pCivilization; } // </advc.003u>
 	DllExport LeaderHeadTypes getLeaderType() const { return GC.getInitCore().getLeader(getID()); } // Exposed to Python
 	LeaderHeadTypes getPersonalityType() const { return m_ePersonalityType; }										// Exposed to Python
 	void setPersonalityType(LeaderHeadTypes eNewValue);																// Exposed to Python
@@ -1033,11 +1026,9 @@ public:
 	void deletePlotGroup(int iID) { m_plotGroups.removeAt(iID); }
 
 	// city iteration (advc.inl: inlined)
-	DllExport CvCity* firstCity(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_cities.beginIter(pIterIdx) : m_cities.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_cities.beginIter(pIterIdx); // advc.opt
-	}
+	//return (!bRev ? m_cities.beginIter(pIterIdx) : m_cities.endIter(pIterIdx));
+	// advc.opt
+	DllExport CvCity* firstCity(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_cities.beginIter(pIterIdx); } // Exposed to Python
 	//return (!bRev ? m_cities.nextIter(pIterIdx) : m_cities.prevIter(pIterIdx));
 	// advc.opt
 	DllExport CvCity* nextCity(int* pIterIdx, bool bRev=false) const { return m_cities.nextIter(pIterIdx); } // Exposed to Python
@@ -1050,11 +1041,9 @@ public:
 	void deleteCity(int iID);
 
 	// unit iteration (advc.inl: inlined)
-	DllExport CvUnit* firstUnit(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_units.beginIter(pIterIdx) : m_units.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_units.beginIter(pIterIdx); // advc.opt
-	}
+	//return (!bRev ? m_units.beginIter(pIterIdx) : m_units.endIter(pIterIdx));
+	// advc.opt
+	DllExport CvUnit* firstUnit(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_units.beginIter(pIterIdx); } // Exposed to Python
 	//return (!bRev ? m_units.nextIter(pIterIdx) : m_units.prevIter(pIterIdx));
 	DllExport CvUnit* nextUnit(int *pIterIdx, bool bRev=false) const { return m_units.nextIter(pIterIdx); } // Exposed to Python
 	DllExport int getNumUnits() const { return m_units.getCount(); } // Exposed to Python
@@ -1063,11 +1052,8 @@ public:
 	void deleteUnit(int iID);
 
 	// selection groups iteration (advc.inl: inlined)
-	CvSelectionGroup* firstSelectionGroup(int *pIterIdx, bool bRev=false) const										// Exposed to Python
-	{	//return (!bRev ? m_selectionGroups.beginIter(pIterIdx) : m_selectionGroups.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_selectionGroups.beginIter(pIterIdx);
-	}
+	//return (!bRev ? m_selectionGroups.beginIter(pIterIdx) : m_selectionGroups.endIter(pIterIdx));
+	CvSelectionGroup* firstSelectionGroup(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_selectionGroups.beginIter(pIterIdx); } // Exposed to Python
 	//return (!bRev ? m_selectionGroups.nextIter(pIterIdx) : m_selectionGroups.prevIter(pIterIdx));
 	CvSelectionGroup* nextSelectionGroup(int *pIterIdx, bool bRev=false) const { return m_selectionGroups.nextIter(pIterIdx); } // Exposed to Python
 	int getNumSelectionGroups() const { return m_selectionGroups.getCount(); } // Exposed to Python
@@ -1111,16 +1097,8 @@ public:
 	// advc.120l:
 	void addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) const;
 	// <advc.004s> Replacing implementation based on stdext::hash_map
-	int getHistory(PlayerHistoryTypes eHistory, int iTurn) const
-	{
-		FAssertEnumBounds(eHistory);
-		return m_playerHistory[eHistory].get(iTurn);
-	}
-	int getHistorySafe(PlayerHistoryTypes eHistory, int iTurn) const	// Exposed to Python (as e.g. getScoreHistory)
-	{
-		FAssertEnumBounds(eHistory);
-		return m_playerHistory[eHistory].getSafe(iTurn);
-	}
+	int getHistory(PlayerHistoryTypes eHistory, int iTurn) const { FAssertEnumBounds(eHistory); return m_playerHistory[eHistory].get(iTurn); }
+	int getHistorySafe(PlayerHistoryTypes eHistory, int iTurn) const { FAssertEnumBounds(eHistory); return m_playerHistory[eHistory].getSafe(iTurn); } // Exposed to Python (as e.g. getScoreHistory)
 	void updateHistory(PlayerHistoryTypes eHistory, int iTurn); // </advc.004s>
 	CvPlayerRecord const* getPlayerRecord() const; // K-Mod
 
@@ -1598,16 +1576,8 @@ private:
 
 /*	<advc.opt> Moved from CvGameCoreUtils for inlining.
 	NO_PLAYER checks removed (cf. IDInfo constructor). */
-inline CvCity* getCity(IDInfo city)																					// Exposed to Python
-{
-	FAssertBounds(0, MAX_PLAYERS, city.eOwner);
-	return GET_PLAYER(city.eOwner).getCity(city.iID);
-}
-inline CvUnit* getUnit(IDInfo unit)																					// Exposed to Python
-{
-	FAssertBounds(0, MAX_PLAYERS, unit.eOwner);
-	return GET_PLAYER(unit.eOwner).getUnit(unit.iID);
-}
+inline CvCity* getCity(IDInfo city) { FAssertBounds(0, MAX_PLAYERS, city.eOwner); return GET_PLAYER(city.eOwner).getCity(city.iID); } // Exposed to Python
+inline CvUnit* getUnit(IDInfo unit) { FAssertBounds(0, MAX_PLAYERS, unit.eOwner); return GET_PLAYER(unit.eOwner).getUnit(unit.iID); } // Exposed to Python
 // When called from the EXE, NO_PLAYER checks are needed.
 CvCity* getCityExternal(IDInfo city); // exported through .def file
 CvUnit* getUnitExternal(IDInfo unit); // exported through .def file

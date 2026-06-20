@@ -134,16 +134,8 @@ public:
 	{
 		NUM_BOOL_ELEMENT_TYPES
 	};
-	short get(IntElementTypes e) const
-	{
-		FAssertBounds(0, m_aiData.size(), e);
-		return m_aiData[e];
-	}
-	bool get(BoolElementTypes e) const
-	{
-		FAssertBounds(0, m_abData.size(), e);
-		return m_abData[e];
-	}
+	short get(IntElementTypes e) const { FAssertBounds(0, m_aiData.size(), e); return m_aiData[e]; }
+	bool get(BoolElementTypes e) const { FAssertBounds(0, m_abData.size(), e); return m_abData[e]; }
 	bool read(CvXMLLoadUtility* pXML);
 	#if ENABLE_XML_FILE_CACHE
 	void read(FDataStreamBase* pStream);

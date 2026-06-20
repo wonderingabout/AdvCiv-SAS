@@ -120,21 +120,12 @@ public: /*  All the const functions are exposed to Python except for those deali
 	const TCHAR* getEffectType() const;
 	int getEffectProbability() const;
 
-	int getYieldChange(int i) const
-	{
-		FAssertBounds(0, NUM_YIELD_TYPES, i);
-		return m_piYieldChange[i]; // advc: Don't branch to check for NULL
-	}
-	int getRiverYieldChange(int i) const
-	{
-		FAssertBounds(0, NUM_YIELD_TYPES, i);
-		return m_piRiverYieldChange[i]; // advc: see above
-	}
-	int getHillsYieldChange(int i) const
-	{
-		FAssertBounds(0, NUM_YIELD_TYPES, i);
-		return m_piHillsYieldChange[i]; // advc: see above
-	}
+	// advc: Don't branch to check for NULL
+	int getYieldChange(int i) const { FAssertBounds(0, NUM_YIELD_TYPES, i); return m_piYieldChange[i]; }
+	// advc: see above
+	int getRiverYieldChange(int i) const { FAssertBounds(0, NUM_YIELD_TYPES, i); return m_piRiverYieldChange[i]; }
+	// advc: see above
+	int getHillsYieldChange(int i) const { FAssertBounds(0, NUM_YIELD_TYPES, i); return m_piHillsYieldChange[i]; }
 	int get3DAudioScriptFootstepIndex(int i) const;
 
 	bool isTerrain(int i) const;
@@ -347,11 +338,7 @@ public: // All the const functions are exposed to Python except those added by m
 	int getTechMovementChange(int i) const;
 	// <advc.003t>
 	int getNumPrereqOrBonuses() const { return m_aePrereqOrBonuses.size(); }
-	BonusTypes getPrereqOrBonus(int i) const
-	{
-		FAssertBounds(0, getNumPrereqOrBonuses(), i);
-		return m_aePrereqOrBonuses[i];
-	}
+	BonusTypes getPrereqOrBonus(int i) const { FAssertBounds(0, getNumPrereqOrBonuses(), i); return m_aePrereqOrBonuses[i]; }
 	int py_getPrereqOrBonus(int i) const;
 	// </advc.003t>
 	bool read(CvXMLLoadUtility* pXML);

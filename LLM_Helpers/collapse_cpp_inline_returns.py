@@ -157,6 +157,21 @@ def collect_leading_body_comments(bodies: list[str], start_index: int) -> tuple[
 	return comments, index
 
 
+def collect_leading_asserts(bodies: list[str], start_index: int) -> tuple[list[str], int]:
+	asserts: list[str] = []
+	index = start_index
+	while index < len(bodies):
+		stripped = bodies[index].strip()
+		if not stripped.startswith(("FAssert(", "FAssertMsg(", "FAssertBounds(", "FAssertEnumBounds(")):
+			break
+		code, comment = split_tail_comment(stripped)
+		if comment is not None or "/*" in code or "*/" in code or not code.strip().endswith(";"):
+			break
+		asserts.append(code.strip())
+		index += 1
+	return asserts, index
+
+
 def open_brace_comments(text: str) -> tuple[bool, list[str] | None]:
 	code, line_comment = split_tail_comment(text)
 	if code.strip() == "{":
@@ -200,7 +215,7 @@ def signature_start_is_safe(text: str) -> bool:
 	stripped = text.strip()
 	if not stripped or stripped.startswith(("//", "/*", "*", "#")):
 		return False
-	if "/*" in stripped or "*/" in stripped:
+	if stripped.count("/*") != stripped.count("*/"):
 		return False
 	if any(stripped.startswith(word + " ") or stripped.startswith(word + "(") for word in CONTROL_START_WORDS):
 		return False
@@ -229,11 +244,12 @@ def join_cpp_fragments(parts: list[str]) -> str:
 	return result
 
 
-def return_payload_from_lines(bodies: list[str], start_index: int) -> tuple[list[str], str, int] | None:
+def return_payload_from_lines(bodies: list[str], start_index: int) -> tuple[list[str], list[str], str, int] | None:
 	comment_result = collect_leading_body_comments(bodies, start_index)
 	if comment_result is None:
 		return None
 	comments, start_index = comment_result
+	asserts, start_index = collect_leading_asserts(bodies, start_index)
 	parts: list[str] = []
 	index = start_index
 	while index < len(bodies):
@@ -254,9 +270,14 @@ def return_payload_from_lines(bodies: list[str], start_index: int) -> tuple[list
 			comments.append("//" + comment)
 		parts.append(code.strip())
 		if code.strip().endswith(";"):
-			return comments, join_cpp_fragments(parts), index
+			return comments, asserts, join_cpp_fragments(parts), index
 		index += 1
 	return None
+
+
+def collapsed_body(asserts: list[str], return_payload: str) -> str:
+	body_parts = asserts + [return_payload]
+	return " ".join(body_parts)
 
 
 def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], index: int, max_line_len: int) -> Rewrite | None:
@@ -271,7 +292,7 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		return_result = return_payload_from_lines(bodies, index + 1)
 		if return_result is None:
 			return None
-		return_comments, return_payload, return_end = return_result
+		return_comments, return_asserts, return_payload, return_end = return_result
 		if return_end + 1 >= len(bodies):
 			return None
 		if any(block_flags[index : return_end + 2]):
@@ -285,7 +306,7 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		signature_before_brace = signature_body[:-1].rstrip()
 		if not signature_start_is_safe(signature_before_brace):
 			return None
-		collapsed = signature_before_brace.strip() + " { " + return_payload + " }"
+		collapsed = signature_before_brace.strip() + " { " + collapsed_body(return_asserts, return_payload) + " }"
 		collapsed = append_line_comment(collapsed, signature_comment)
 		collapsed = append_line_comment(collapsed, close_comment)
 		if len(stripped_for_length(collapsed)) > max_line_len:
@@ -296,10 +317,6 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 	if index + 3 >= len(bodies):
 		return None
 	open_brace = bodies[index + 1]
-	return_result = return_payload_from_lines(bodies, index + 2)
-	if return_result is None:
-		return None
-	return_comments, return_payload, return_end = return_result
 	open_ok, open_comments = open_brace_comments(open_brace)
 	if leading_ws(open_brace) != leading_ws(signature) or not open_ok or open_comments is None:
 		return None
@@ -315,9 +332,12 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		return_result = return_payload_from_lines(bodies, comment_index)
 		if return_result is None:
 			return None
-		return_comments, return_payload, return_end = return_result
+		return_comments, return_asserts, return_payload, return_end = return_result
 	else:
-		return_comments, return_payload, return_end = return_result
+		return_result = return_payload_from_lines(bodies, index + 2)
+		if return_result is None:
+			return None
+		return_comments, return_asserts, return_payload, return_end = return_result
 	if return_end + 1 >= len(bodies):
 		return None
 	if block_flags[index] or block_flags[return_end] or block_flags[return_end + 1]:
@@ -330,7 +350,7 @@ def try_rewrite(bodies: list[str], eols: list[str], block_flags: list[bool], ind
 		return None
 	if not signature_start_is_safe(signature_code):
 		return None
-	collapsed = signature_code.strip() + " { " + return_payload + " }"
+	collapsed = signature_code.strip() + " { " + collapsed_body(return_asserts, return_payload) + " }"
 	collapsed = append_line_comment(collapsed, signature_comment)
 	collapsed = append_line_comment(collapsed, close_comment)
 	if len(stripped_for_length(collapsed)) > max_line_len:

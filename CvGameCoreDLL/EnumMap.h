@@ -1162,11 +1162,7 @@ public:
 		_memcpy<bSTATIC_MEMORY>(values(), kOther.values());
 	}
 
-	V get(E eKey) const
-	{
-		FAssertEnumBounds(eKey);
-		return ArrayEnumMapBase::get(eKey);
-	}
+	V get(E eKey) const { FAssertEnumBounds(eKey); return ArrayEnumMapBase::get(eKey); }
 	void reset()
 	{
 		if (!bLAZY_ALLOC)
@@ -1209,12 +1205,8 @@ public:
 		}
 		return false;
 	}
-	V& operator[](E eKey)
-	{	/*	Can only implement this when V and CompactV coincide
-			(unless we want to return CompactV - but I want that type to be used
-			only internally). */
-		return subscript<is_same_type<V,CompactV>::value>(eKey);
-	}
+	/* Can only implement this when V and CompactV coincide (unless we want to return CompactV - but I want that type to be used only internally). */
+	V& operator[](E eKey) { return subscript<is_same_type<V,CompactV>::value>(eKey); }
 	// (I don't think we can unhide this through a using declaration)
 	V operator[](E eKey) const { return ArrayEnumMapBase::operator[](eKey); }
 
@@ -1272,12 +1264,7 @@ protected:
 		}
 		return ceKey;
 	}
-	template<Operation eOP>
-	CompactV& lookup(E eKey, CompactV cvOperand)
-	{
-		FAssertEnumBounds(eKey);
-		return ArrayEnumMapBase::lookup<eOP>(eKey, cvOperand);
-	}
+	template<Operation eOP> CompactV& lookup(E eKey, CompactV cvOperand) { FAssertEnumBounds(eKey); return ArrayEnumMapBase::lookup<eOP>(eKey, cvOperand); }
 	CompactV getCompact(CompactE ceKey) const
 	{
 		if (isAllocated())

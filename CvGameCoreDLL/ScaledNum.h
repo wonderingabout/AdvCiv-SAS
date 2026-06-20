@@ -270,11 +270,7 @@ public:
 
 	ScaledNum pow(int iExp) const;
 	ScaledNum pow(ScaledNum rExp) const { return _pow<rExp.bSIGNED>(rExp); }
-	ScaledNum sqrt() const
-	{
-		FAssert(!isNegative());
-		return powNonNegative(fromRational<1,2>());
-	}
+	ScaledNum sqrt() const { FAssert(!isNegative()); return powNonNegative(fromRational<1,2>()); }
 	ScaledNum exp() const { return fromRational<27182818,10000000>().pow(*this); }
 	void exponentiate(int iExp) { *this = pow(iExp); }
 	void exponentiate(ScaledNum rExp) { *this = pow(rExp); }

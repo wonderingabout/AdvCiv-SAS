@@ -47,23 +47,9 @@ public:
 	scaled gainedPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const;
 	// Production invested in military build-up
 	scaled militaryProduction(PlayerTypes ePlayer) const;
-	TeamSet const& getCapitulationsAccepted(TeamTypes eMaster) const
-	{
-		FAssertBounds(0, MAX_CIV_TEAMS, eMaster);
-		return m_capitulationsAcceptedPerTeam[eMaster];
-	}
-	scaled getNukedCities(PlayerTypes eNukeOwner, PlayerTypes eCityOwner) const
-	{
-		FAssertBounds(0, MAX_CIV_PLAYERS, eNukeOwner);
-		FAssertBounds(0, MAX_CIV_PLAYERS, eCityOwner);
-		return m_nukedCities[eNukeOwner][eCityOwner];
-	}
-	bool isWar(PlayerTypes eFirst, PlayerTypes eSecond) const // After simulated DoWs
-	{
-		FAssertBounds(0, MAX_CIV_PLAYERS, eFirst);
-		FAssertBounds(0, MAX_CIV_PLAYERS, eSecond);
-		return m_warTable[eFirst][eSecond];
-	}
+	TeamSet const& getCapitulationsAccepted(TeamTypes eMaster) const { FAssertBounds(0, MAX_CIV_TEAMS, eMaster); return m_capitulationsAcceptedPerTeam[eMaster]; }
+	scaled getNukedCities(PlayerTypes eNukeOwner, PlayerTypes eCityOwner) const { FAssertBounds(0, MAX_CIV_PLAYERS, eNukeOwner); FAssertBounds(0, MAX_CIV_PLAYERS, eCityOwner); return m_nukedCities[eNukeOwner][eCityOwner]; }
+	bool isWar(PlayerTypes eFirst, PlayerTypes eSecond) const { FAssertBounds(0, MAX_CIV_PLAYERS, eFirst); FAssertBounds(0, MAX_CIV_PLAYERS, eSecond); return m_warTable[eFirst][eSecond]; } // After simulated DoWs
 	bool isWar(TeamTypes eFirst, TeamTypes eSecond) const;
 	// Prep. time, if any, plus time horizon
 	int turnsSimulated() const { return m_iTurnsSimulated; }

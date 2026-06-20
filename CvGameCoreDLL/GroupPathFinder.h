@@ -100,11 +100,8 @@ public:
 	}
 	/*	advc (tbd.): Perhaps this function could be removed. Then GroupPathNode
 		would be fully encapasulated. Cf. comment in CvUnitAI::AI_considerPathDOW. */
-	GroupPathNode* getEndNode() const
-	{	// Note: the returned pointer becomes invalid if the pathfinder is destroyed.
-		FAssert(m_pEndNode != NULL);
-		return m_pEndNode;
-	}
+	// Note: the returned pointer becomes invalid if the pathfinder is destroyed.
+	GroupPathNode* getEndNode() const { FAssert(m_pEndNode != NULL); return m_pEndNode; }
 	// <advc.test>
 	#if VERIFY_PATHF
 	bool generatePath(CvPlot const& kFrom, CvPlot const& kTo);

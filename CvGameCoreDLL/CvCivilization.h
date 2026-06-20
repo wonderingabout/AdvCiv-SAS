@@ -18,11 +18,8 @@ public:
 	explicit CvCivilization(CvCivilizationInfo const& kInfo);
 	int getNumBuildings() const { return m_buildings.size(); }
 	BuildingTypes buildingAt(int iBuildingIndex) const { return m_buildings[iBuildingIndex]; }
-	BuildingClassTypes buildingClassAt(int iBuildingIndex) const
-	{	/*  (I've tested a vector<BuildingClassTypes> of the same size as m_buildings
-			to make this more efficient -- didn't help at all.) */
-		return buildingClass(buildingAt(iBuildingIndex));
-	}
+	/* (I've tested a vector<BuildingClassTypes> of the same size as m_buildings to make this more efficient -- didn't help at all.) */
+	BuildingClassTypes buildingClassAt(int iBuildingIndex) const { return buildingClass(buildingAt(iBuildingIndex)); }
 	int getNumUnits() const { return m_units.size(); }
 	UnitTypes unitAt(int iUnitIndex) const { return m_units[iUnitIndex]; }
 	UnitClassTypes unitClassAt(int iUnitIndex) const { return unitClass(unitAt(iUnitIndex)); }
