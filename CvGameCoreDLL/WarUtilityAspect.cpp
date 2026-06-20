@@ -195,8 +195,7 @@ void WarUtilityAspect::log(char const* fmt, ...) const
 }
 #endif
 
-scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam,
-	TeamTypes eOther) const
+scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam, TeamTypes eOther) const
 {
 	if (eOther == NO_TEAM)
 		eOther = eTheirTeam;
@@ -205,8 +204,7 @@ scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam,
 }
 
 
-scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo,
-	scaled* prTotalScore, TeamTypes eIgnoreGains) const
+scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo, scaled* prTotalScore, TeamTypes eIgnoreGains) const
 {
 	PROFILE_FUNC();
 	scaled rNetLoss;
@@ -380,8 +378,7 @@ scaled WarUtilityAspect::lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSourc
 }
 
 // advc.035:
-scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim,
-	PlayerTypes eTo) const
+scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo) const
 {
 	if (!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
 		return 0;
@@ -1630,9 +1627,7 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 }
 
 
-void MilitaryVictory::addConquestsByPartner(
-	std::map<PlotNumTypes,scaled>& kWeightedConquests,
-	AttitudeTypes eAttitudeThresh, scaled rWeight) const
+void MilitaryVictory::addConquestsByPartner(std::map<PlotNumTypes, scaled>& kWeightedConquests, AttitudeTypes eAttitudeThresh, scaled rWeight) const
 {
 	if (kTheirTeam.isHuman()) // Human won't vote for us unless a vassal
 	{
@@ -1972,8 +1967,7 @@ void HiredHand::evaluate()
 }
 
 
-scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility,
-	int iObligationThresh) const
+scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility, int iObligationThresh) const
 {
 	// (These conditions overlap with those under Fidelity)
 	if (eAlly != NO_PLAYER && (kOurTeam.isAtWar(TEAMID(eAlly)) ||
@@ -2374,8 +2368,7 @@ void KingMaking::addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) cons
 }
 
 
-bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage,
-	bool bPredict) const
+bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict) const
 {
 	FAssert(iStage == 3 || iStage == 4);
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -2479,8 +2472,7 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 }
 
 
-void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin,
-	bool bPredict) const
+void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict) const
 {
 	CvCity const* pOurCapital = kWe.getCapital();
 	scaled rBestScore = 1;

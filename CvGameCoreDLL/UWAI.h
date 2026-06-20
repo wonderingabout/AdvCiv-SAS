@@ -90,16 +90,8 @@ public:
 		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_ENUMERATOR)
 		NUM_ASPECTS
 	};
-	scaled aspectWeight(AspectTypes eAspect) const
-	{
-		FAssertBounds(0, NUM_ASPECTS, eAspect);
-		return per100(m_aiXmlWeights[eAspect]);
-	}
-	char const* aspectName(AspectTypes eAspect) const
-	{
-		FAssertBounds(0, NUM_ASPECTS, eAspect);
-		return m_aszAspectNames[eAspect];
-	}
+	scaled aspectWeight(AspectTypes eAspect) const { FAssertBounds(0, NUM_ASPECTS, eAspect); return per100(m_aiXmlWeights[eAspect]); }
+	char const* aspectName(AspectTypes eAspect) const { FAssertBounds(0, NUM_ASPECTS, eAspect); return m_aszAspectNames[eAspect]; }
 
 private:
 	std::vector<int> m_aiXmlWeights;

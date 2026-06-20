@@ -44,8 +44,7 @@ public:
 	  bool launchCivSelectionPopup(CvPopup* popup, CvPopupInfo& info);
 	  void handleCivSelection(PlayerTypes selectedCiv);
 	  void afterCivSelection(int buttonClicked);
-	  void assignCivSelectionHelp(CvWStringBuffer& szBuffer,
-			PlayerTypes selectedCiv);
+	  void assignCivSelectionHelp(CvWStringBuffer& szBuffer, PlayerTypes selectedCiv);
 	  CvWString retireConfirmMsg() const;
 	  bool launchRetirePopup(CvPopup* popup, CvPopupInfo& info);
 	  void handleRetirePopup(int buttonClicked);
@@ -53,13 +52,11 @@ public:
 	bool isDeliverMessages(PlayerTypes civId) const;
 	bool isCooperationRestricted(PlayerTypes aiCiv) const;
 	// Some deals are non-collusive regardless of trade value
-	bool isSquareDeal(CLinkList<TradeData> const& humanReceives,
-			CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const;
+	bool isSquareDeal(CLinkList<TradeData> const& humanReceives, CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const;
 	bool isNeededWarTrade(CLinkList<TradeData> const& humanReceives) const;
 	/*  Deal value assuming that certain items like civics changes are of low
 		value to the human side. */
-	int pessimisticDealVal(PlayerTypes aiCivId, int dealVal,
-			CLinkList<TradeData> const& humanReceives) const;
+	int pessimisticDealVal(PlayerTypes aiCivId, int dealVal, CLinkList<TradeData> const& humanReceives) const;
 	double dealThresh(bool annual) const;
 	// A hack to get the AI to refuse gifts:
 	  void substituteDiploText(bool gift);
@@ -96,8 +93,7 @@ private:
 	void abandonPlans(PlayerTypes civId);
 	void setUIHidden(bool b);
 	void setPlayerName();
-	bool allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
-			PlayerTypes to) const;
+	bool allSquare(CLinkList<TradeData> const& list, PlayerTypes from, PlayerTypes to) const;
 	void shutOff(CvWString errorMsg);
 	void showError(CvWString errorMsg);
 	CvDiplomacyResponse* findThanks();

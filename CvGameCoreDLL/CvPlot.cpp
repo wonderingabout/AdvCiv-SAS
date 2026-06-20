@@ -1731,8 +1731,7 @@ int CvPlot::seeThroughLevel() const
 }
 
 
-void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
-	CvUnit const* pUnit, bool bUpdatePlotGroups)
+void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, CvUnit const* pUnit, bool bUpdatePlotGroups)
 {
 	PROFILE_FUNC(); // advc: See comment in canSeeDisplacementPlot
 
@@ -1806,8 +1805,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
 }
 
 
-bool CvPlot::canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange,
-	DirectionTypes eFacingDirection) const
+bool CvPlot::canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
 {
 	PROFILE_FUNC(); // advc.test: See comment in canSeeDisplacementPlot
 	if (pPlot == NULL)
@@ -1845,8 +1843,7 @@ namespace
 	// advc: Moved from CvGameCoreUtils.h b/c it was only used here. Then replaced with:
 	__inline int getSign(int x) { return (x > 0) - (x < 0); }
 }
-bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int iDX, int iDY,
-	int iOriginalDX, int iOriginalDY, bool bFirstPlot, bool bOuterRing) const
+bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int iDX, int iDY, int iOriginalDX, int iOriginalDY, bool bFirstPlot, bool bOuterRing) const
 {
 	/*	advc (note): This gets called very frequently.
 		Could adopt some optimizations from "We the People":
@@ -1932,8 +1929,8 @@ bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int iDX, int iDY,
 }
 
 
-bool CvPlot::shouldProcessDisplacementPlot(int iDX, int iDY, //int iRange, // advc: unused
-	DirectionTypes eFacingDirection) const
+// int iRange, // advc: unused <!-- custom: hoisted from multiline signature between `iDY` and `eFacingDirection` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlot::shouldProcessDisplacementPlot(int iDX, int iDY, DirectionTypes eFacingDirection) const
 {
 	if (eFacingDirection == NO_DIRECTION)
 		return true;
@@ -2070,9 +2067,8 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bUpdatePlotGroups)
 }
 
 
-bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude,
-	bool bIgnoreFeature, // advc.129
-	bool bIgnoreCurrentBonus) const // advc.tsl
+// advc.129 <!-- custom: hoisted from multiline signature between `bIgnoreFeature` and `bIgnoreCurrentBonus` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude, bool bIgnoreFeature, bool bIgnoreCurrentBonus) const // advc.tsl
 {
 	if (eBonus == NO_BONUS)
 		return true;
@@ -2141,8 +2137,7 @@ bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude,
 }
 
 
-bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential,
-	BuildTypes eBuild, bool bAnyBuild) const // kekm.9
+bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential, BuildTypes eBuild, bool bAnyBuild) const // kekm.9
 {
 	/*  K-Mod, 21/dec/10, karadoc
 		changed to check for NO_IMPROVEMENT rather than just assume the input is an actual improvement */
@@ -2295,8 +2290,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 }
 
 
-bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
-	bool bIgnoreFoW) const // advc.181
+bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bIgnoreFoW) const // advc.181
 {
 	if (eBuild == NO_BUILD)
 		return false;
@@ -2433,8 +2427,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer)
 }
 
 
-int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer,
-	int iNowExtra, int iThenExtra, /* advc.011c: */ bool bIncludeUnits) const
+int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer, int iNowExtra, int iThenExtra, /* advc.011c: */ bool bIncludeUnits) const
 {
 	int iNowBuildRate = iNowExtra;
 	int iThenBuildRate = iThenExtra;
@@ -2484,8 +2477,7 @@ int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer) const
 }
 
 
-int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity,
-	CvPlot const* pCityPlot, PlayerTypes eCityOwner) const // advc.031
+int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity, CvPlot const* pCityPlot, PlayerTypes eCityOwner) const // advc.031
 {
 	*ppCity = NULL; // advc: Don't rely on caller to do this
 	if (!isFeature())
@@ -2535,8 +2527,7 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
 }
 
 
-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner,
-	/* <advc> */ DefenderFilters& kFilters) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, /* <advc> */ DefenderFilters& kFilters) const
 {
 	PROFILE_FUNC();
 	// Ensure consistency of parameters
@@ -2604,9 +2595,8 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 }
 
 
-int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
-	TeamTypes eAttacker, // advc.012
-	bool bHelp, /* advc.500b: */ bool bGarrisonStrength) const
+// advc.012 <!-- custom: hoisted from multiline signature between `eAttacker` and `bHelp` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, TeamTypes eAttacker, bool bHelp, /* advc.500b: */ bool bGarrisonStrength) const
 {
 	int iModifier = GC.getInfo(getTerrainType()).getDefenseModifier();
 	FeatureTypes eFeature = getFeatureType();
@@ -2661,9 +2651,8 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
 }
 
 
-int CvPlot::movementCost(CvUnit const& kUnit, CvPlot const& kFrom,
-	bool bAssumeRevealed, // advc.001i
-	bool bIgnoresRoute) const // advc.001t
+// advc.001i <!-- custom: hoisted from multiline signature between `bAssumeRevealed` and `bIgnoresRoute` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlot::movementCost(CvUnit const& kUnit, CvPlot const& kFrom, bool bAssumeRevealed, bool bIgnoresRoute) const // advc.001t
 {
 	// <advc.162>
 	if(kUnit.isInvasionMove(kFrom, *this))
@@ -2841,8 +2830,7 @@ void CvPlot::invalidateBorderDangerCache()
 }
 
 
-PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureRange,
-	bool bOwnExclusiveRadius) const // advc.035
+PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureRange, bool bOwnExclusiveRadius) const // advc.035
 {
 	PROFILE_FUNC();
 	/*  advc.001: When a city is captured, the tiles in its culture range (but I
@@ -2958,8 +2946,7 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
 }
 
 
-void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2,
-	PlayerTypes eOwner, TeamTypes eTeam)
+void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2, PlayerTypes eOwner, TeamTypes eTeam)
 {
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 	{
@@ -2972,9 +2959,7 @@ void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2,
 }
 
 
-int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A,
-	PlayerTypes eOwner, TeamTypes eTeam,
-	ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
 {
 	int iCount = 0;
 	FOR_EACH_UNIT_IN(pUnit, *this)
@@ -2995,9 +2980,7 @@ int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A,
 }
 
 
-CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A,
-	PlayerTypes eOwner, TeamTypes eTeam,
-	ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
 {
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 	{
@@ -3236,8 +3219,7 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 }
 
 // advc.ctr:
-bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace,
-	int iRange) const
+bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace, int iRange) const
 {
 	//PROFILE_FUNC(); // (rarely called so far)
 	for (SquareIter it(*this, iRange, true); it.hasNext(); ++it)
@@ -3274,8 +3256,7 @@ bool CvPlot::isVisibleEnemyUnit(CvUnit const* pUnit, CvUnit const* pPotentialEne
 }
 
 
-bool CvPlot::canHaveFeature(FeatureTypes eFeature,
-	bool bIgnoreCurrentFeature) const // advc.055
+bool CvPlot::canHaveFeature(FeatureTypes eFeature, bool bIgnoreCurrentFeature) const // advc.055
 {
 	if (eFeature == NO_FEATURE)
 		return true;
@@ -3324,8 +3305,7 @@ bool CvPlot::canHaveFeature(FeatureTypes eFeature,
 }
 
 // advc: rewritten
-bool CvPlot::isValidRoute(CvUnit const* pUnit,
-	/* <advc.001i> */ bool bAssumeRevealed) const
+bool CvPlot::isValidRoute(CvUnit const* pUnit, /* <advc.001i> */ bool bAssumeRevealed) const
 {
 	//if (!isRoute()) return false;
 	CvTeam const& kTeam = GET_TEAM(pUnit->getOwner());
@@ -3649,8 +3629,7 @@ void CvPlot::initArea()
 }
 
 
-CvArea* CvPlot::waterArea(
-	bool bNoImpassable) const // BETTER_BTS_AI_MOD, General AI, 01/02/09, jdog5000
+CvArea* CvPlot::waterArea(bool bNoImpassable) const // BETTER_BTS_AI_MOD, General AI, 01/02/09, jdog5000
 {
 	if (isWater())
 		return area();
@@ -4678,8 +4657,7 @@ BonusTypes CvPlot::getBonusType(TeamTypes eTeam) const
 }
 
 
-BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam,
-	bool bCheckConnected) const // K-Mod
+BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected) const // K-Mod
 {
 	FAssert(eTeam != NO_TEAM);
 	FAssertMsg(GET_TEAM(eTeam).isAlive(), "advc.064d: OK if eTeam has just died"); // K-Mod
@@ -4751,8 +4729,7 @@ void CvPlot::setBonusType(BonusTypes eNewValue)
 }
 
 
-void CvPlot::setImprovementType(ImprovementTypes eNewValue,
-	bool bUpdateInFoW) // advc.055
+void CvPlot::setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW) // advc.055
 {
 	ImprovementTypes const eOldImprovement = getImprovementType();
 	if (getImprovementType() == eNewValue)
@@ -5208,8 +5185,7 @@ bool CvPlot::isHabitable(bool bIgnoreSea) const
 }
 
 
-int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnoreFeature,
-	bool bIgnoreHills) const // advc.300
+int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnoreFeature, bool bIgnoreHills) const // advc.300
 {
 	// advc.016: Cut from calculateYield
 	int iYieldRate = GC.getMap().getPlotExtraYield(*this, eYield);
@@ -5280,9 +5256,7 @@ int CvPlot::calculateTotalBestNatureYield(TeamTypes eTeam) const
 
 /*	advc: Params bBestRoute (BBAI) and bOptimal (Vanilla Civ 4) removed b/c
 	they've been obsoleted by K-Mod. Had been used by CvCityAI. */
-int CvPlot::calculateImprovementYieldChange(
-	ImprovementTypes eImprovement, YieldTypes eYield,
-	PlayerTypes ePlayer) const
+int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer) const
 {
 	PROFILE_FUNC();
 
@@ -5466,8 +5440,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
 }
 
 // advc.031: Cut from calculateYield
-int CvPlot::calculateCityPlotYieldChange(YieldTypes eYield, int iYield,
-	int iCityPopulation) const
+int CvPlot::calculateCityPlotYieldChange(YieldTypes eYield, int iYield, int iCityPopulation) const
 {
 	int const iOldYield = iYield;
 	CvYieldInfo const& kYield = GC.getInfo(eYield);
@@ -5586,8 +5559,7 @@ int CvPlot::calculateFriendlyCulturePercent(TeamTypes eTeam) const
 }
 
 
-void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate,
-	bool bUpdatePlotGroups)
+void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bUpdatePlotGroups)
 {
 	PROFILE_FUNC();
 
@@ -5682,8 +5654,7 @@ void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
 }
 
 // advc: Cut from CvPlayer::canFound (for advc.027)
-bool CvPlot::canFound(bool bTestVisible,
-	TeamTypes eTeam) const // advc.181
+bool CvPlot::canFound(bool bTestVisible, TeamTypes eTeam) const // advc.181
 {
 	if (!canEverFound()) // advc.129d: Moved into another new function
 		return false;
@@ -5764,8 +5735,7 @@ CvPlotGroup* CvPlot::getOwnerPlotGroup() const
 }
 
 
-void CvPlot::setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue,
-	bool bVerifyProduction) // advc.064d
+void CvPlot::setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue, bool bVerifyProduction) // advc.064d
 {
 	CvPlotGroup* pOldPlotGroup = getPlotGroup(ePlayer);
 	if (pOldPlotGroup == pNewValue)
@@ -5815,8 +5785,7 @@ void CvPlot::updatePlotGroup(/* advc.064d: */ bool bVerifyProduction)
 }
 
 
-void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
-	bool bVerifyProduction) // advc.064d
+void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate, bool bVerifyProduction) // advc.064d
 {
 	if (!GC.getGame().isFinalInitialized())
 		return;
@@ -5888,9 +5857,7 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
 }
 
 
-void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange,
-	InvisibleTypes eSeeInvisible, bool bUpdatePlotGroups,
-	CvUnit const* pUnit) // advc.071
+void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bUpdatePlotGroups, CvUnit const* pUnit) // advc.071
 {
 	if(iChange == 0)
 		return;
@@ -6206,8 +6173,7 @@ bool CvPlot::isRevealed(TeamTypes eTeam, bool bDebug) const
 }
 
 
-void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly,
-	TeamTypes eFromTeam, bool bUpdatePlotGroup)
+void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, TeamTypes eFromTeam, bool bUpdatePlotGroup)
 {
 	FAssertBounds(0, MAX_TEAMS, eTeam);
 
@@ -6293,8 +6259,7 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly,
 }
 
 
-bool CvPlot::isAdjacentRevealed(TeamTypes eTeam,
-	bool bSkipOcean) const // advc.205c
+bool CvPlot::isAdjacentRevealed(TeamTypes eTeam, bool bSkipOcean) const // advc.205c
 {
 	FOR_EACH_ADJ_PLOT(*this)
 	{
@@ -6370,8 +6335,7 @@ void CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 }
 
 // Returns true if build finished...
-bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
-	/*TeamTypes eTeam*/ /* advc.251: */ PlayerTypes ePlayer)
+bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTeam*/ /* advc.251: */ PlayerTypes ePlayer)
 {
 	CvWString szBuffer;
 
@@ -6818,8 +6782,7 @@ bool CvPlot::setCenterUnit(CvUnit* pNewValue)
 }
 
 
-void CvPlot::changeCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex,
-	int iChange, bool bUpdatePlotGroups)
+void CvPlot::changeCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex, int iChange, bool bUpdatePlotGroups)
 {
 	if(iChange == 0)
 		return;
@@ -7972,9 +7935,8 @@ void CvPlot::applyEvent(EventTypes eEvent)
 }
 
 
-bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
-	bool bCheckAirUnitCap, // advc.001b
-	BonusTypes eAssumeAvailable) const // advc.001u
+// advc.001b <!-- custom: hoisted from multiline signature between `bCheckAirUnitCap` and `eAssumeAvailable` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bCheckAirUnitCap, BonusTypes eAssumeAvailable) const // advc.001u
 {
 	CvCity const* pCity = getPlotCity();
 	bool const bCity = (pCity != NULL);
@@ -8196,8 +8158,7 @@ int CvPlot::airUnitSpaceAvailable(TeamTypes eTeam) const
 }
 
 // advc.081: Cut from CvPlayerAI::AI_countNumAreaHostileUnits
-int CvPlot::countHostileUnits(PlayerTypes ePlayer, bool bPlayer, bool bTeam,
-	bool bNeutral, bool bHostile) const
+int CvPlot::countHostileUnits(PlayerTypes ePlayer, bool bPlayer, bool bTeam, bool bNeutral, bool bHostile) const
 {
 	TeamTypes eTeam = TEAMID(ePlayer);
 	if(!isVisible(eTeam))
@@ -8363,8 +8324,7 @@ void CvPlot::killRandomUnit(PlayerTypes eOwner, DomainTypes eDomain)
 
 
 // BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
-bool CvPlot::hasDefender(bool bTestCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
-	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy) const
+bool CvPlot::hasDefender(bool bTestCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer, CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy) const
 {
 	/*  advc: BBAI had repeated parts of getBestDefender here. To avoid that, I've moved
 		bTestAttack into getBestDefender and gave that function a "bTestAny" param. */

@@ -132,8 +132,7 @@ CvCityAI::~CvCityAI()
 }
 
 // Instead of having CvCity::init call CvCityAI::AI_init
-void CvCityAI::init(int iID, PlayerTypes eOwner, int iX, int iY,
-	bool bBumpUnits, bool bUpdatePlotGroups, /* advc.ctr: */ int iOccupationTimer)
+void CvCityAI::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups, /* advc.ctr: */ int iOccupationTimer)
 {
 	CvCity::init(iID, eOwner, iX, iY, bBumpUnits, bUpdatePlotGroups, iOccupationTimer);
 	//AI_reset(); // advc.003u: Merged into constructor
@@ -4356,14 +4355,12 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
 }
 
 
-BuildingTypes CvCityAI::AI_bestBuilding(int iFocusFlags, int iMaxTurns,
-	bool bAsync, AdvisorTypes eIgnoreAdvisor) const
+BuildingTypes CvCityAI::AI_bestBuilding(int iFocusFlags, int iMaxTurns, bool bAsync, AdvisorTypes eIgnoreAdvisor) const
 {
 	return AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, /*iMinThreshold*/ 0, bAsync, eIgnoreAdvisor);
 }
 
-BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
-	int iMinThreshold, bool bAsync, AdvisorTypes eIgnoreAdvisor) const
+BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns, int iMinThreshold, bool bAsync, AdvisorTypes eIgnoreAdvisor) const
 {
 	PROFILE_FUNC(); // advc.opt
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
@@ -4682,10 +4679,8 @@ static int AI_strictAdditionalHappy(CvCity const& c, BuildingTypes eB)
 	city unique (more likely to build airports if there already is a harbor...) */
 /*	This function has been heavily edited for K-Mod
 	Scale is roughly 4 = 1 commerce / turn */
-int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
-	int iThreshold, bool bConstCache, bool bAllowRecursion,
-	bool bIgnoreSpecialists, // advc.121b
-	bool bObsolete) const // advc.004c
+// advc.121b <!-- custom: hoisted from multiline signature between `bIgnoreSpecialists` and `bObsolete` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iThreshold, bool bConstCache, bool bAllowRecursion, bool bIgnoreSpecialists, bool bObsolete) const // advc.004c
 {
 	PROFILE_FUNC();
 
@@ -8469,9 +8464,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
 	bRemove means that eBuilding needs to be evaluated under the assumption
 	that eBuilding isn't already present. So it should generally be a
 	positive value; see also the comment above AI_buildingValue. */
-int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
-	bool bAreaAlone, bool bWarPlan, int iNumCities, int iNumCitiesInArea,
-	bool bRemove, bool bObsolete) const
+int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone, bool bWarPlan, int iNumCities, int iNumCitiesInArea, bool bRemove, bool bObsolete) const
 {
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
@@ -9283,9 +9276,8 @@ int CvCityAI::AI_countExcessDefenders() const
 	I may put some more work into this stuff in the future
 	if I ever work through CvUnitAI::AI_defenseAirMove.
 	function signature changed to match bbai usage. */
-bool CvCityAI::AI_isAirDefended(
-	bool bCountLand, // advc (note): Either way, only aircraft are currently counted.
-	int iExtra) /* advc: */ const
+// advc (note): Either way, only aircraft are currently counted. <!-- custom: hoisted from multiline signature between `bCountLand` and `iExtra` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvCityAI::AI_isAirDefended(bool bCountLand, int iExtra) /* advc: */ const
 {
 	PROFILE_FUNC();
 	return (getPlot().plotCount(PUF_isAirIntercept, -1, -1, getOwner()) + iExtra >=
@@ -9293,8 +9285,7 @@ bool CvCityAI::AI_isAirDefended(
 }
 
 // BETTER_BTS_AI_MOD, War strategy AI, Barbarian AI, 04/25/10, jdog5000:
-int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac,
-	bool bConstCache) const // advc.001n
+int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac, bool bConstCache) const // advc.001n
 {
 	PROFILE_FUNC();
 
@@ -9488,9 +9479,8 @@ int CvCityAI::AI_minDefenders() const
 }
 
 
-int CvCityAI::AI_neededFloatingDefenders(/* <advc.139> */ bool bIgnoreEvac,
-	bool bConstCache, // advc.001n
-	bool bIgnoreCulture) const // advc.099c
+// advc.001n <!-- custom: hoisted from multiline signature between `bConstCache` and `bIgnoreCulture` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvCityAI::AI_neededFloatingDefenders(/* <advc.139> */ bool bIgnoreEvac, bool bConstCache, bool bIgnoreCulture) const // advc.099c
 {
 	if(!bIgnoreEvac && AI_isEvacuating())
 		return 0; // </advc.139>
@@ -9507,8 +9497,7 @@ int CvCityAI::AI_neededFloatingDefenders(/* <advc.139> */ bool bIgnoreEvac,
 	return iR;
 }
 
-int CvCityAI::AI_calculateNeededFloatingDefenders(bool bConstCache,
-	bool bIgnoreCulture) const // advc.099c
+int CvCityAI::AI_calculateNeededFloatingDefenders(bool bConstCache, bool bIgnoreCulture) const // advc.099c
 {
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
@@ -10119,8 +10108,7 @@ int CvCityAI::AI_getTargetPopulation() const
 	This function has been mostly rewritten for K-Mod.
 	Some parts of the original code still exist (particularly near the end),
 	but most of the old code is gone. */
-void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMultiplier,
-	int &iCommerceMultiplier, int &iDesiredFoodChange) const
+void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange) const
 {
 	PROFILE_FUNC();
 
@@ -10451,9 +10439,7 @@ namespace
 // <!-- custom: update: disabling it entirely throws off workboats that use this too, then they stay parked in city, so updated this to disable it functionally only for land workers as we want them to use our optimized AI worker logic, but as for sea workers, fine if they do as such as long as works-functions; added thanks to claude ai and my prompt too etc -->
 // <!-- custom: since we handle all this ourselves now in CvUnitAI::AI_bestCityBuild, we don't want any interference, disabled as part of trying to solve spices plains forcibly irrigated despite our code controlling most of the ai worker build decisions now, as well as flood plains or flatland grass as well very inefficiently farmed when city is not even starved, let us handle it ourselves rather there as we seem to already do for most, added by chatgpt o3 and adjusted or not or yes or etc by me too; update: this solved the farm on spices plains issue and also unwanted as well farm on flood plains, AI workers chose to go for production economy for some reason xd, but our best improvements are still chosen reliably it seems (e.g. cottage on flood plains or nothing unless we are starved, see CvUnitAI::AI_bestCityBuild for details) -->
 // advc (note): K-Mod function based on AI_updateBestBuild
-int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
-	int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange,
-	int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
+int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange, int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
 {
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
@@ -10892,9 +10878,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
 
 /*  advc.901: Cut from AI_getImprovementValue so that benefits for nearby team cities
 	can be taken into account (through recursive calls). */
-int CvCityAI::AI_healthHappyImprovementValue(CvPlot const& kPlot,
-	ImprovementTypes eImprovement, ImprovementTypes eFinalImprovement,
-	bool bIgnoreFeature, bool bIgnoreOtherCities) const
+int CvCityAI::AI_healthHappyImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement, ImprovementTypes eFinalImprovement, bool bIgnoreFeature, bool bIgnoreOtherCities) const
 {
 	PROFILE_FUNC(); // advc.901: To be tested: see if the recursive calls are a problem
 	int r = 0;
@@ -11930,21 +11914,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 }
 
 // <!-- custom: common logic helper of our previously scattered logic and duplicated logic, with the help of GPT-5.2-Codex and Claude Opus 4.5 thanks a lot -->
-bool CvCityAI::SAS_AI_findBestFallbackUnit(
-		UnitTypes& ePickUnit,
-		UnitAITypes& ePickUnitAI,
-		bool bOffenseDefaultUnitAIsOnly,
-		bool bDefenseDefaultUnitAIsOnly,
-		int iMaxCost,
-		bool bAllowSiege,
-		bool bAllowTrebuchetsLike,
-		int iCapNonTrebuchetsLikeSiegesAll,
-		int iCapTrebsLike,
-		int iSiegesAllNonTrebuchetsLike,
-		int iSiegesAllTrebuchetsLike,
-		UnitTypes eSkipUnit,
-		bool bAllowOverallFallback,
-		bool bAllowCheapestFallback) const
+bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& ePickUnitAI, bool bOffenseDefaultUnitAIsOnly, bool bDefenseDefaultUnitAIsOnly, int iMaxCost, bool bAllowSiege, bool bAllowTrebuchetsLike, int iCapNonTrebuchetsLikeSiegesAll, int iCapTrebsLike, int iSiegesAllNonTrebuchetsLike, int iSiegesAllTrebuchetsLike, UnitTypes eSkipUnit, bool bAllowOverallFallback, bool bAllowCheapestFallback) const
 {
 	ePickUnit = NO_UNIT;
 	ePickUnitAI = NO_UNITAI;
@@ -13200,8 +13170,7 @@ bool CvCityAI::AI_chooseDefender()
 }
 
 // advc: Param was vector of pairs "allowedTypes"
-bool CvCityAI::AI_chooseLeastRepresentedUnit(UnitAIWeightMap const& kWeights,
-	int iOdds) // BBAI
+bool CvCityAI::AI_chooseLeastRepresentedUnit(UnitAIWeightMap const& kWeights, int iOdds) // BBAI
 {
 	std::vector<std::pair<int, UnitAITypes> > bestTypes; // K-Mod (replacing multimap)
 	FOR_EACH_NON_DEFAULT_PAIR(kWeights, UnitAI, int)
@@ -13372,8 +13341,7 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 	return (*eBestSpreadUnit != NULL);
 }
 
-bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThreshold,
-	int iOdds) // BBAI
+bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThreshold, int iOdds) // BBAI
 {
 	BuildingTypes eBestBuilding = NO_BUILDING; // advc
 	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold);
@@ -13433,9 +13401,8 @@ bool CvCityAI::AI_chooseProcess(CommerceTypes eCommerceType)
 }
 
 // Returns true if a citizen was added to a plot...
-bool CvCityAI::AI_addBestCitizen(bool bWorkers, bool bSpecialists,
-	CityPlotTypes* peBestPlot, // advc.enum: CityPlotTypes
-	SpecialistTypes* peBestSpecialist)
+// advc.enum: CityPlotTypes <!-- custom: hoisted from multiline signature between `peBestPlot` and `peBestSpecialist` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvCityAI::AI_addBestCitizen(bool bWorkers, bool bSpecialists, CityPlotTypes* peBestPlot, SpecialistTypes* peBestSpecialist)
 {
 	PROFILE_FUNC();
 
@@ -14146,8 +14113,7 @@ bool CvCityAI::AI_foodAvailable(int iExtra) const
 	Note. I've changed the scale to match the building evaluation code: ~4x commerce. */
 /*	advc.make: Array types changed from short to int to avoid problems with /W4.
 	(Ideally 'typedef yield_t char' would be used for all yields ...) */
-int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
-	bool bIgnoreFood, bool bIgnoreStarvation, bool bWorkerOptimization, int iGrowthValue) const
+int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove, bool bIgnoreFood, bool bIgnoreStarvation, bool bWorkerOptimization, int iGrowthValue) const
 {
 	PROFILE_FUNC();
 
@@ -14768,8 +14734,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
 }
 
 // units of 400x commerce
-int CvCityAI::AI_plotValue(CvPlot const& kPlot, bool bRemove, bool bIgnoreFood,
-	bool bIgnoreStarvation, int iGrowthValue) const
+int CvCityAI::AI_plotValue(CvPlot const& kPlot, bool bRemove, bool bIgnoreFood, bool bIgnoreStarvation, int iGrowthValue) const
 {
 	FAssert(getCityPlotIndex(kPlot) < NUM_CITY_PLOTS);
 	/*	K-Mod. To reduce code duplication, this function now uses AI_jobChangeValue.
@@ -14792,8 +14757,7 @@ int CvCityAI::AI_plotValue(CvPlot const& kPlot, bool bRemove, bool bIgnoreFood,
 	jobs are (bSpecialist, iIndex) pairs. iIndex < 0 indicates "no job".
 	Return value is roughly 400x commerce per turn.
 	This function replaces AI_plotValue and AI_specialistValue. */
-int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, int> old_job,
-	bool bIgnoreFood, bool bIgnoreStarvation, int iGrowthValue) const
+int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, int> old_job, bool bIgnoreFood, bool bIgnoreStarvation, int iGrowthValue) const
 {
 	PROFILE_FUNC();
 
@@ -15243,8 +15207,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 	yields after plot improvement reaches final upgrade.
 	piYields will have final yields added to it, and current yields subtracted.
 	Return true iff any yields are changed. */
-bool CvCityAI::AI_finalImprovementYieldDifference(/* advc: */ CvPlot const& kPlot,
-	int* piYields) const // advc.make: was short* (cf. AI_yieldValue)
+bool CvCityAI::AI_finalImprovementYieldDifference(/* advc: */ CvPlot const& kPlot, int* piYields) const // advc.make: was short* (cf. AI_yieldValue)
 {
 	FAssert(piYields != NULL);
 
@@ -15292,9 +15255,8 @@ bool CvCityAI::AI_finalImprovementYieldDifference(/* advc: */ CvPlot const& kPlo
 	~63% of the weight is in the time from now until 'time_scale' turns have past.
 	(More precisely, the weight drops exponentially w.r.t. the number of turns,
 	decreasing by a factor of `e` for each `time_scale` turns.) */
-bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const& kPlot, ImprovementTypes eImprovement,
-	int iTimeScale, // advc.912f (note): 0 now means infinity
-	EagerEnumMap<YieldTypes,scaled>& kWeightedYields) const // advc: was vector<float>&
+// advc.912f (note): 0 now means infinity <!-- custom: hoisted from multiline signature between `iTimeScale` and `kWeightedYields` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const& kPlot, ImprovementTypes eImprovement, int iTimeScale, EagerEnumMap<YieldTypes, scaled>& kWeightedYields) const // advc: was vector<float>&
 {
 	PROFILE_FUNC();
 
@@ -15700,10 +15662,8 @@ bool CvCityAI::AI_emphasizeIrrigatingPlot(CvPlot const& kPlot) const
 }
 
 
-void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildTypes* peBestBuild,
-	int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop,
-	int iHappyAdjust, int iHealthAdjust, // advc (note): obsolete
-	int iDesiredFoodChange) const
+// advc (note): obsolete <!-- custom: hoisted from multiline signature between `iHealthAdjust` and `iDesiredFoodChange` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iDesiredFoodChange) const
 {
 	PROFILE_FUNC();
 
@@ -17068,9 +17028,7 @@ bool CvCityAI::AI_needsCultureToWorkFullRadius() const
 }
 
 
-int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
-	bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold,
-	bool bLand, bool bWater) const
+int CvCityAI::AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand, bool bWater) const
 {
 	FAssert(bLand || bWater); // advc
 	int iCount = 0;
@@ -17125,8 +17083,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
 // BBAI (11/14/09, jdog5000): City AI
 // K-Mod - rearranged some stuff and fixed some bugs
 // advc (tbd.): Some overlap with CvPlayerAI::AI_isUnimprovedBonus -- merge?
-int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtraTech, bool bLand,
-	bool bWater) /* advc: */ const
+int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtraTech, bool bLand, bool bWater) /* advc: */ const
 {
 	// <!-- custom: very nice optimization with the help of chatgpt 5 -->
 	// Inside the nested player/plot loop, pull PlayerTypes eOwner = getOwner(); TeamTypes eTeam = getTeam(); once outside the loops, and reuse int ourPlotCulture = kPlot.getCulture(eOwner); inside—then you do one getCulture per rival instead of two per rival. It’s minor, but this is an O(numTiles × numPlayers) routine.
@@ -17191,8 +17148,7 @@ int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtr
 }
 
 
-int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
-	bool bConstCache) const // advc.001n
+int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance, bool bConstCache) const // advc.001n
 {
 	FAssert(GET_PLAYER(eIndex).isAlive());
 
@@ -17208,8 +17164,7 @@ int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
 
 // advc.opt: Renamed from "AI_cachePlayerCloseness"; no longer updates the whole cache.
 // BETTER_BTS_AI_MOD (5/16/10, jdog5000): General AI, closeness changes
-int CvCityAI::AI_calculatePlayerCloseness(int iMaxDistance, PlayerTypes ePlayer,
-	bool bConstCache) const // advc.001n
+int CvCityAI::AI_calculatePlayerCloseness(int iMaxDistance, PlayerTypes ePlayer, bool bConstCache) const // advc.001n
 {
 	PROFILE_FUNC();
 
@@ -17541,8 +17496,7 @@ int CvCityAI::AI_cityThreat(/*bool bDangerPercent*/) const // advc: param unused
 	is at least one acceptable and reachable city site). Note that the result
 	is currently usually doubled and then used as the per-cent probability of
 	training a Settler, meaning that values greater than 50 get clamped. */
-int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValue,
-	int iWaterAreaSites, int iBestWaterAreaFoundValue) const
+int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValue, int iWaterAreaSites, int iBestWaterAreaFoundValue) const
 {
 	FAssert(iAreaSites + iWaterAreaSites > 0);
 	if(iAreaSites <= 0)
@@ -17836,8 +17790,7 @@ void CvCityAI::AI_updateWorkersHaveAndNeeded()
 }
 
 // advc.179:
-scaled CvCityAI::AI_estimateReligionBuildings(PlayerTypes ePlayer, ReligionTypes eReligion,
-	std::vector<BuildingTypes> const& aeBuildings) const
+scaled CvCityAI::AI_estimateReligionBuildings(PlayerTypes ePlayer, ReligionTypes eReligion, std::vector<BuildingTypes> const& aeBuildings) const
 {
 	/*  Player whose buildings we're counting
 		(we = the owner of this CvCity) */

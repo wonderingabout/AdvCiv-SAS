@@ -14,11 +14,7 @@ using std::vector;
 using std::ostringstream;
 #include "CvInfo_City.h"
 
-ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& kMA,
-	std::vector<MilitaryBranch*>& kMilitary, int iTimeHorizon,
-	bool bPeaceScenario, bool bNoUpgrading,
-	bool bPartyAddedRecently, bool bAllPartiesKnown,
-	UWAICache::City const* pTargetCity, scaled rProductionPortion)
+ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& kMA, std::vector<MilitaryBranch*>& kMilitary, int iTimeHorizon, bool bPeaceScenario, bool bNoUpgrading, bool bPartyAddedRecently, bool bAllPartiesKnown, UWAICache::City const* pTargetCity, scaled rProductionPortion)
 :	m_kMA(kMA), m_kReport(kMA.evaluationParams().getReport()),
 	m_eAnalyst(kMA.getAgentPlayer()), m_ePlayer(ePlayer),
 	m_kMilitary(kMilitary), m_iTimeHorizon(iTimeHorizon)
@@ -335,9 +331,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& k
 }
 
 
-void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduction,
-	scaled rAdditionalProduction, Intensity eIntensity, bool bDefensive,
-	bool bNavalArmament)
+void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduction, scaled rAdditionalProduction, Intensity eIntensity, bool bDefensive, bool bNavalArmament)
 {
 	PROFILE_FUNC();
 	CvPlayerAI const& kPlayer = GET_PLAYER(m_ePlayer);

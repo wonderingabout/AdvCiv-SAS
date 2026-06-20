@@ -1073,8 +1073,7 @@ bool RiseFall::launchCivSelectionPopup(CvPopup* popup, CvPopupInfo& info) {
 	return true;
 }
 
-void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer,
-		PlayerTypes selectedCiv) {
+void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer, PlayerTypes selectedCiv) {
 
 	CvGame& g = GC.getGame();
 	wstringstream wss;
@@ -1366,8 +1365,7 @@ void RiseFall::handleCivSelection(PlayerTypes selectedCiv) {
 	chapters[pos]->setCiv(selectedCiv);
 }
 
-bool RiseFall::isSquareDeal(CLinkList<TradeData> const& humanReceives,
-			CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const {
+bool RiseFall::isSquareDeal(CLinkList<TradeData> const& humanReceives, CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const {
 
 	PlayerTypes human = getActivePlayer();
 		/*  Actually no problem if the human receives sth. non-dual, e.g. gold
@@ -1397,8 +1395,7 @@ bool RiseFall::isNeededWarTrade(CLinkList<TradeData> const& humanReceives) const
 	return false;
 }
 
-bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
-		PlayerTypes to) const {
+bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from, PlayerTypes to) const {
 
 	bool allVassal = true;
 	bool allDual = true;
@@ -1419,8 +1416,7 @@ bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
 	return allDual || allVassal || allLiberation;
 }
 
-int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal,
-		CLinkList<TradeData> const& humanReceives) const {
+int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal, CLinkList<TradeData> const& humanReceives) const {
 
 	int r = dealVal;
 	PlayerTypes humanCivId = getActivePlayer();

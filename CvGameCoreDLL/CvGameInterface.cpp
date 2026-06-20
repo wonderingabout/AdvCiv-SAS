@@ -494,8 +494,7 @@ void CvGame::updateTestEndTurn()
 }
 
 // advc: Merge of two BtS functions that had largely the same body
-CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot,
-	std::vector<CvUnit*>* pPlotUnits, int iIndex) const
+CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits, int iIndex) const
 {
 	PROFILE_FUNC();
 
@@ -588,9 +587,8 @@ void CvGame::cycleCities(bool bForward, bool bAdd) const
 }
 
 // advc.154: Extracted the const part out of cycleSelectionGroups
-CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers,
-	bool& bWrap, CvUnit*& pCycleUnit, // out-params
-	std::set<int>* pCycledGroups) const
+// out-params <!-- custom: hoisted from multiline signature between `pCycleUnit` and `pCycledGroups` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers, bool& bWrap, CvUnit*& pCycleUnit, std::set<int>* pCycledGroups) const
 {
 	bWrap = false;
 	pCycleUnit = gDLL->UI().getHeadSelectedUnit();
@@ -881,8 +879,7 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl
 }
 
 
-void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4,
-	int iFlags, bool bAlt, bool bShift) const
+void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4, int iFlags, bool bAlt, bool bShift) const
 {
 	int aiPyData[] = { iData2, iData3, iData4 };
 	if (GC.getPythonCaller()->cannotSelectionListNetOverride((GameMessageTypes)
@@ -1021,8 +1018,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 }
 
 
-void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, int iData4,
-	bool bOption, bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, int iData4, bool bOption, bool bAlt, bool bShift, bool bCtrl) const
 {
 	for (CLLNode<IDInfo> const* pSelectedCityNode = gDLL->UI().headSelectedCitiesNode();
 		pSelectedCityNode != NULL;
@@ -1928,8 +1924,7 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
 }
 
 
-void CvGame::startFlyoutMenu(CvPlot const* pPlot,
-	std::vector<CvFlyoutMenuData>& aFlyoutItems) const
+void CvGame::startFlyoutMenu(CvPlot const* pPlot, std::vector<CvFlyoutMenuData>& aFlyoutItems) const
 {
 	aFlyoutItems.clear();
 
@@ -2772,8 +2767,7 @@ void CvGame::setCityBarWidth(bool bWide)
 }
 
 
-void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity == NULL || pPlot == NULL)
 	{
@@ -2793,8 +2787,7 @@ void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity != NULL && pCity->plot() == pPlot)
 	{
@@ -2807,8 +2800,7 @@ void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity == NULL || pPlot == NULL)
 	{
@@ -2837,8 +2829,7 @@ void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pPlot == NULL)
 		return;

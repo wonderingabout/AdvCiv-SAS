@@ -20,20 +20,14 @@ public:
 		BarbarianFreeTechModifier = base_t::NUM_INT_ELEMENT_TYPES, // advc.301
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	enum BoolElementTypes
 	{
 		NoFearForSafety = base_t::NUM_BOOL_ELEMENT_TYPES, // advc.500c
 		NUM_BOOL_ELEMENT_TYPES
 	};
 	PY_IS_ELEMENT(NoFearForSafety)
-	bool get(BoolElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
-	}
+	bool get(BoolElementTypes e) const { return base_t::get(static_cast<base_t::BoolElementTypes>(e)); }
 	// </advc.tag>
 	friend class CvXMLLoadUtility;
 public: // advc: All the const functions are exposed to Python except those added by mods
@@ -91,16 +85,8 @@ public: // advc: All the const functions are exposed to Python except those adde
 	// <advc.003t>
 	int getNumOrTechPrereqs() const { return (int)m_aePrereqOrTechs.size(); }
 	int getNumAndTechPrereqs() const { return (int)m_aePrereqAndTechs.size(); }
-	TechTypes getPrereqOrTechs(int i) const
-	{
-		FAssertBounds(0, getNumOrTechPrereqs(), i);
-		return m_aePrereqOrTechs[i];
-	}
-	TechTypes getPrereqAndTechs(int i) const
-	{
-		FAssertBounds(0, getNumAndTechPrereqs(), i);
-		return m_aePrereqAndTechs[i];
-	}
+	TechTypes getPrereqOrTechs(int i) const { FAssertBounds(0, getNumOrTechPrereqs(), i); return m_aePrereqOrTechs[i]; }
+	TechTypes getPrereqAndTechs(int i) const { FAssertBounds(0, getNumAndTechPrereqs(), i); return m_aePrereqAndTechs[i]; }
 	int py_getPrereqOrTechs(int i) const;
 	int py_getPrereqAndTechs(int i) const;
 	// </advc.003t>

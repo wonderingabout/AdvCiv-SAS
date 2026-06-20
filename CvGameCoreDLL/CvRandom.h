@@ -17,13 +17,9 @@ public:
 	/*	Returns a value from the half-open interval [0, iNum).
 		advc.006: iNum taken as an int but needs to be in [0, 65535].
 		Will return 0 for iNum=0 (and also for iNum=1). */
-	unsigned short get(int iNum, TCHAR const* szMsg = NULL,
-		int iData1 = MIN_INT, int iData2 = MIN_INT) // advc.128
-	{	// <advc.001n>
-		return getInt(iNum, szMsg, iData1, iData2);
-	} // New name to avoid issues in CyRandomPythonInterface
-	unsigned short getInt(int iNum, TCHAR const* szMsg,
-		int iData1, int iData2 = MIN_INT)
+	// <advc.001n>
+	unsigned short get(int iNum, TCHAR const* szMsg = NULL, int iData1 = MIN_INT, int iData2 = MIN_INT) { return getInt(iNum, szMsg, iData1, iData2); } // advc.128 // New name to avoid issues in CyRandomPythonInterface
+	unsigned short getInt(int iNum, TCHAR const* szMsg, int iData1, int iData2 = MIN_INT)
 	{	
 		// <!-- custom: this assert fails sometimes, so fixing the issue as recommended by chatgpt 5, minimally fixed here so that we don't have to tediously check every place where it may be called or not and if it is done correctly (patched the places throwing this failed assert as well but others may remain in other functions maybe, as i didn't check them all only the ones that fired these failed asserts ingame). Sanity check maybe as well and possibly future proof as chatgpt 5 said and as i would also think too before that xd thanks i mean but check if accurate, see known issue as of now 72 for details, and check if accurate i mean too -->
 		// Assert Failed
@@ -62,10 +58,7 @@ public:
 	// </advc.006>
 	// advc.190c: Exported through .def file
 	unsigned short getExternal(unsigned short usNum, TCHAR const* szMsg = NULL);
-	DllExport float getFloat()
-	{
-		return get(MAX_UNSIGNED_SHORT) / (float)MAX_UNSIGNED_SHORT;
-	}
+	DllExport float getFloat() { return get(MAX_UNSIGNED_SHORT) / (float)MAX_UNSIGNED_SHORT; }
 
 	void reseed(unsigned int uiNewValue);
 	unsigned int getSeed();
@@ -84,14 +77,12 @@ public:
 	void shuffle(std::vector<int>& kIndices); // Caller sets the vector size
 	// advc.304 (may find other uses too):
 	template<class ItemType>
-	ItemType* weightedChoice(std::vector<ItemType*> const& kItems,
-		/*	NULL means uniform weights. Uniform choice isn't what this function
-			is for, but it's convenient to have as an option. */
-		std::vector<int> const* pWeights = NULL);
+	// NULL means uniform weights. Uniform choice isn't what this function is for, but it's convenient to have as an option. <!-- custom: hoisted from multiline signature between `kItems` and `pWeights` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	ItemType* weightedChoice(std::vector<ItemType*> const& kItems, std::vector<int> const* pWeights = NULL);
 
 protected:
-	virtual void printToLog(TCHAR const* szMsg, unsigned short usNum, // advc.007c
-			int iData1, int iData2); // advc.001n
+	// advc.007c <!-- custom: hoisted from multiline signature between `usNum` and `iData1` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	virtual void printToLog(TCHAR const* szMsg, unsigned short usNum, int iData1, int iData2); // advc.001n
 
 	unsigned int m_uiRandomSeed;
 	// advc.001n, advc.006:
@@ -119,15 +110,11 @@ protected:
 };
 
 // advc: Moved from CvGameCoreUtils, exported through .def file.
-int* shuffleExternal(int iNum, CvRandom& kRand)
-{
-	return kRand.shuffle(iNum);
-}
+int* shuffleExternal(int iNum, CvRandom& kRand) { return kRand.shuffle(iNum); }
 
 // advc.304:
 template<class ItemType>
-ItemType* CvRandom::weightedChoice(std::vector<ItemType*> const& kItems,
-	std::vector<int> const* pWeights)
+ItemType* CvRandom::weightedChoice(std::vector<ItemType*> const& kItems, std::vector<int> const* pWeights)
 {
 	std::vector<int> aiLowPrecisionWeights;
 	int iTotal = 0;

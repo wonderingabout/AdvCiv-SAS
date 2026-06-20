@@ -40,9 +40,8 @@ void CvMessageControl::sendTurnComplete()
 		gDLL->sendMessageData(new CvNetTurnComplete(getActivePlayer()));
 }
 
-void CvMessageControl::sendPushOrder(int iCityID, OrderTypes eOrder, int iData,
-	//bool bAlt, bool bShift, bool bCtrl)
-	bool bSave, bool bPop, int iPosition) // K-Mod
+// bool bAlt, bool bShift, bool bCtrl) <!-- custom: hoisted from multiline signature between `iData` and `bSave` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvMessageControl::sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition) // K-Mod
 {
 	if (isActive())
 	{
@@ -57,8 +56,7 @@ void CvMessageControl::sendPopOrder(int iCity, int iNum)
 		gDLL->sendMessageData(new CvNetPopOrder(getActivePlayer(), iCity, iNum));
 }
 
-void CvMessageControl::sendDoTask(int iCity, TaskTypes eTask, int iData1, int iData2,
-	bool bOption, bool bAlt, bool bShift, bool bCtrl)
+void CvMessageControl::sendDoTask(int iCity, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
 {
 	if (isActive())
 	{
@@ -85,15 +83,13 @@ void CvMessageControl::sendEspionageSpendingWeightChange(TeamTypes eTargetTeam, 
 		gDLL->sendMessageData(new CvNetEspionageChange(getActivePlayer(), eTargetTeam, iChange));
 }
 
-void CvMessageControl::sendAdvancedStartAction(AdvancedStartActionTypes eAction,
-	PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd)
+void CvMessageControl::sendAdvancedStartAction(AdvancedStartActionTypes eAction, PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd)
 {
 	gDLL->sendMessageData(new CvNetAdvancedStartAction(eAction,
 			ePlayer, iX, iY, iData, bAdd));
 }
 
-void CvMessageControl::sendModNetMessage(
-	int iData1, int iData2, int iData3, int iData4, int iData5)
+void CvMessageControl::sendModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5)
 {
 	gDLL->sendMessageData(new CvNetModNetMessage(
 			iData1, iData2, iData3, iData4, iData5));
@@ -110,8 +106,7 @@ void CvMessageControl::sendEmpireSplit(PlayerTypes ePlayer, int iAreaId)
 	gDLL->sendMessageData(new CvNetEmpireSplit(ePlayer, iAreaId));
 }
 
-void CvMessageControl::sendFoundReligion(PlayerTypes ePlayer,
-	ReligionTypes eReligion, ReligionTypes eSlotReligion)
+void CvMessageControl::sendFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, ReligionTypes eSlotReligion)
 {
 	gDLL->sendMessageData(new CvNetFoundReligion(ePlayer, eReligion, eSlotReligion));
 }
@@ -121,8 +116,7 @@ void CvMessageControl::sendLaunch(PlayerTypes ePlayer, VictoryTypes eVictory)
 	gDLL->sendMessageData(new CvNetLaunchSpaceship(ePlayer, eVictory));
 }
 
-void CvMessageControl::sendEventTriggered(PlayerTypes ePlayer,
-	EventTypes eEvent, int iEventTriggeredId)
+void CvMessageControl::sendEventTriggered(PlayerTypes ePlayer, EventTypes eEvent, int iEventTriggeredId)
 {
 	gDLL->sendMessageData(new CvNetEventTriggered(ePlayer, eEvent, iEventTriggeredId));
 }
@@ -133,9 +127,7 @@ void CvMessageControl::sendJoinGroup(int iUnitID, int iHeadID)
 		gDLL->sendMessageData(new CvNetJoinGroup(getActivePlayer(), iUnitID, iHeadID));
 }
 
-void CvMessageControl::sendPushMission(int iUnitID, MissionTypes eMission,
-	int iData1, int iData2, MovementFlags eFlags, bool bShift,
-	bool bModified) // advc.011b
+void CvMessageControl::sendPushMission(int iUnitID, MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bShift, bool bModified) // advc.011b
 {
 	if (isActive())
 	{
@@ -151,8 +143,7 @@ void CvMessageControl::sendAutoMission(int iUnitID)
 		gDLL->sendMessageData(new CvNetAutoMission(getActivePlayer(), iUnitID));
 }
 
-void CvMessageControl::sendDoCommand(int iUnitID, CommandTypes eCommand,
-	int iData1, int iData2, bool bAlt)
+void CvMessageControl::sendDoCommand(int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt)
 {
 	if (isActive())
 	{
@@ -170,8 +161,7 @@ void CvMessageControl::sendPercentChange(CommerceTypes eCommerce, int iChange)
 	}
 }
 
-void CvMessageControl::sendChangeVassal(TeamTypes eMasterTeam,
-	bool bVassal, bool bCapitulated)
+void CvMessageControl::sendChangeVassal(TeamTypes eMasterTeam, bool bVassal, bool bCapitulated)
 {
 	if (isActive())
 	{

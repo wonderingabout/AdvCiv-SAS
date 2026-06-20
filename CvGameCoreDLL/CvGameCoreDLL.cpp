@@ -5,9 +5,7 @@
 	precompiled header to be rebuilt. That may also desirable for the profiling
 	and memory management code, but I still don't want it all in one file. */
 
-BOOL APIENTRY DllMain(HANDLE hModule,
-					  DWORD  ul_reason_for_call,
-					  LPVOID lpReserved)
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
 	switch( ul_reason_for_call ) {
 	case DLL_PROCESS_ATTACH:

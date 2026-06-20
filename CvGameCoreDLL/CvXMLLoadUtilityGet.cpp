@@ -770,8 +770,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(float* r, TCHAR const* szName, float
 }
 
 // see GetChildXmlValByName(wchar*...)
-bool CvXMLLoadUtility::GetChildXmlValByName(bool* r, TCHAR const* szName,
-	/* <advc.006b> */ bool bMandatory /* </advc.006b> */, bool bDefault)
+bool CvXMLLoadUtility::GetChildXmlValByName(bool* r, TCHAR const* szName, /* <advc.006b> */ bool bMandatory /* </advc.006b> */, bool bDefault)
 {
 	assignDefault(*r, bDefault);
 	// advc.006b: See GetChildXmlValByName(wchar*...)
@@ -811,8 +810,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(bool* r, TCHAR const* szName,
 }
 
 // <advc.xmldefault>
-void CvXMLLoadUtility::SetGlobalTypeFromChildXmlVal(int& iR, TCHAR const* szName,
-	bool bInfoType)
+void CvXMLLoadUtility::SetGlobalTypeFromChildXmlVal(int& iR, TCHAR const* szName, bool bInfoType)
 {
 	CvString szTextVal;
 	GetChildXmlValByName(szTextVal, szName, iR == 0 ? NULL : "");

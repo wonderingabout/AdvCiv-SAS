@@ -94,21 +94,15 @@ public:
 
 	CvMap& getMap() const { return *m_map; } // advc.inl: was "getMapINLINE"
 	// advc.003u: return type was CvGameAI&
-	CvGame& getGame() const // advc.inl: was "getGameINLINE
-	{	/*	Can't be helped; this function has to be inlined,
-			and I won't include CvGameAI.h here. */
-		return *reinterpret_cast<CvGame*>(m_game);
-	} 
+	/* Can't be helped; this function has to be inlined, and I won't include CvGameAI.h here. */
+	CvGame& getGame() const { return *reinterpret_cast<CvGame*>(m_game); } // advc.inl: was "getGameINLINE
 	CvGameAI& AI_getGame() const { return *m_game; } // advc.003u
 	CvAgents& getAgents() const { return *m_agents; } // advc.agents
 	CvMap& getMapExternal(); // advc.inl: Exported through .def file
 	CvGameAI& getGameExternal(); // advc.inl: Exported through .def file
 	DllExport CvGameAI* getGamePointer();
 	// <advc.003y>
-	CvPythonCaller const* getPythonCaller() const
-	{
-		return m_pPythonCaller;
-	} // </advc.003y>
+	CvPythonCaller const* getPythonCaller() const { return m_pPythonCaller; } // </advc.003y>
 	DllExport CvRandom& getASyncRand() { return *m_asyncRand; }
 	CvRandom& getASyncRand() const { return *m_asyncRand; } // advc
 	DllExport CMessageQueue& getMessageQueue();
@@ -144,10 +138,7 @@ public:
 	bool isSynchLogging() const { return m_bSynchLogging; }
 	bool isOverwriteLogs() const { return m_bOverwriteLogs; }
 	// <advc>
-	CvDLLLogger& getLogger() const
-	{
-		return *m_pLogger;
-	} // </advc>
+	CvDLLLogger& getLogger() const { return *m_pLogger; } // </advc>
 
 	// advc: Inlined and constified
 	DllExport int* getPlotDirectionX() { return m_aiPlotDirectionX; }
@@ -159,18 +150,8 @@ public:
 	DllExport int* getPlotCardinalDirectionY() { return m_aiPlotCardinalDirectionY; };
 	int const* getPlotCardinalDirectionY() const { return m_aiPlotCardinalDirectionY; };
 	DllExport DirectionTypes getXYDirection(int i, int j) { CvGlobals const& kThis = *this; return kThis.getXYDirection(i,j); }
-	DirectionTypes getXYDirection(int i, int j) const
-	{
-		FAssertBounds(0, DIRECTION_DIAMETER, i);
-		FAssertBounds(0, DIRECTION_DIAMETER, j);
-		return m_aaeXYDirection[i][j];
-	}
-	CityPlotTypes getXYCityPlot(int i, int j) const // advc.enum: return type was int
-	{
-		FAssertBounds(0, CITY_PLOTS_DIAMETER, i);
-		FAssertBounds(0, CITY_PLOTS_DIAMETER, j);
-		return m_aaeXYCityPlot[i][j];
-	}
+	DirectionTypes getXYDirection(int i, int j) const { FAssertBounds(0, DIRECTION_DIAMETER, i); FAssertBounds(0, DIRECTION_DIAMETER, j); return m_aaeXYDirection[i][j]; }
+	CityPlotTypes getXYCityPlot(int i, int j) const { FAssertBounds(0, CITY_PLOTS_DIAMETER, i); FAssertBounds(0, CITY_PLOTS_DIAMETER, j); return m_aaeXYCityPlot[i][j]; } // advc.enum: return type was int
 	int const* getCityPlotX() const { return m_aiCityPlotX; }
 	int const* getCityPlotY() const { return m_aiCityPlotY; }
 	int const* getCityPlotPriority() const { return m_aiCityPlotPriority; }
@@ -306,19 +287,9 @@ public:
 	DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ACCESSORS_DYN)
 	DO_FOR_EACH_INT_INFO_TYPE(MAKE_INFO_ACCESSORS_INT)
 	// World(Size)Info: awkward to generate through a macro
-	CvWorldInfo& getInfo(WorldSizeTypes eWorld) const
-	{
-		FAssertBounds(0, getNumWorldInfos(), eWorld);
-		return *m_paWorldInfo[eWorld];
-	}
-	int getNumWorldInfos() const
-	{
-		return (int)m_paWorldInfo.size();
-	}
-	CvWorldInfo& getWorldInfo(int iWorld) const
-	{
-		return getInfo(static_cast<WorldSizeTypes>(iWorld));
-	}
+	CvWorldInfo& getInfo(WorldSizeTypes eWorld) const { FAssertBounds(0, getNumWorldInfos(), eWorld); return *m_paWorldInfo[eWorld]; }
+	int getNumWorldInfos() const { return (int)m_paWorldInfo.size(); }
+	CvWorldInfo& getWorldInfo(int iWorld) const { return getInfo(static_cast<WorldSizeTypes>(iWorld)); }
 #pragma endregion InfoAccessors
 	// </advc.enum>
 
@@ -393,19 +364,14 @@ public:
 	bool isCachingDone() const { return (m_aiGlobalDefinesCache != NULL); } // advc.003c
 
 	// ***** EXPOSED TO PYTHON *****
-	int getDefineINT(char const* szName) const
-	{
-		return getDefineINT(szName, 0); // advc.opt: Call the BBAI version
-	}
+	// advc.opt: Call the BBAI version
+	int getDefineINT(char const* szName) const { return getDefineINT(szName, 0); }
 	// advc: Separate function for external calls (exported through .def file)
 	int getDefineINTExternal(char const* szName) const;
 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000:
 	int getDefineINT(char const* szName, int iDefault) const;
 	// <advc>
-	bool getDefineBOOL(char const* szName, bool bDefault = false) const
-	{
-		return (getDefineINT(szName, (int)bDefault) > 0);
-	} // </advc>
+	bool getDefineBOOL(char const* szName, bool bDefault = false) const { return (getDefineINT(szName, (int)bDefault) > 0); } // </advc>
 	DllExport float getDefineFLOAT(char const* szName) const;
 	/*	advc (note): Global TextVals loaded by CvXMLLoadUtility::
 		SetPostGlobalsGlobalDefines need to be accessed through getDefineINT instead. */
@@ -573,14 +539,8 @@ public:
 		DO_FOR_EACH_GLOBAL_DEFINE(MAKE_ENUMERATOR)
 		NUM_GLOBAL_DEFINES
 	};
-	int getDefineINT(GlobalDefines eVarName) const
-	{
-		return m_aiGlobalDefinesCache[eVarName];
-	}
-	bool getDefineBOOL(GlobalDefines eVarName) const
-	{
-		return (getDefineINT(eVarName) > 0);
-	}
+	int getDefineINT(GlobalDefines eVarName) const { return m_aiGlobalDefinesCache[eVarName]; }
+	bool getDefineBOOL(GlobalDefines eVarName) const { return (getDefineINT(eVarName) > 0); }
 	// Keep these as wrappers; too many call locations to change, or DllExport.
 	// These are all exposed to Python
 	int getMOVE_DENOMINATOR() const { return getDefineINT(MOVE_DENOMINATOR); }
@@ -605,17 +565,9 @@ public:
 	int getMAX_SEA_PATROL_RANGE() const { return 1; }
 	/*  <advc.opt> (TextVals can't be loaded by cacheGlobals. Hence also won't be
 		updated when a setDefine... function is called.) */
-	ImprovementTypes getRUINS_IMPROVEMENT() const
-	{
-		FAssertMsg(m_eRUINS_IMPROVEMENT != NO_IMPROVEMENT, "RUINS_IMPROVEMENT accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines");
-		return m_eRUINS_IMPROVEMENT;
-	}
+	ImprovementTypes getRUINS_IMPROVEMENT() const { FAssertMsg(m_eRUINS_IMPROVEMENT != NO_IMPROVEMENT, "RUINS_IMPROVEMENT accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines"); return m_eRUINS_IMPROVEMENT; }
 	void setRUINS_IMPROVEMENT(int iVal);
-	SpecialistTypes getDEFAULT_SPECIALIST() const
-	{
-		FAssertMsg(m_eDEFAULT_SPECIALIST != NO_SPECIALIST, "DEFAULT_SPECIALIST accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines");
-		return m_eDEFAULT_SPECIALIST;
-	}
+	SpecialistTypes getDEFAULT_SPECIALIST() const { FAssertMsg(m_eDEFAULT_SPECIALIST != NO_SPECIALIST, "DEFAULT_SPECIALIST accessed before CvXMLLoadUtility::SetPostGlobalsGlobalDefines"); return m_eDEFAULT_SPECIALIST; }
 	void setDEFAULT_SPECIALIST(int iVal);
 	TerrainTypes getWATER_TERRAIN(bool bShallow) const
 	{
@@ -675,10 +627,7 @@ public:
 	/*	K-Mod: more reliable versions of the 'gDLL->xxxKey' functions
 		NOTE: I've replaced all calls to the gDLL key functions with calls to these functions. */
 	// advc: Helper function (let's make it public; why not).
-	bool isKeyDown(int iVirtualKey) const
-	{
-		return (GetKeyState(iVirtualKey) & 0x8000);
-	}
+	bool isKeyDown(int iVirtualKey) const { return (GetKeyState(iVirtualKey) & 0x8000); }
 	bool altKey() const { return isKeyDown(VK_MENU); }
 	bool ctrlKey() const { return isKeyDown(VK_CONTROL); }
 	bool shiftKey() const { return isKeyDown(VK_SHIFT); }
@@ -977,15 +926,9 @@ extern CvGlobals gGlobals;	// for debugging
 
 // inlines ...
 
-__inline CvGlobals& CvGlobals::getInstance()
-{
-	return gGlobals;
-}
+__inline CvGlobals& CvGlobals::getInstance() { return gGlobals; }
 // advc:
-__inline CvGlobals const& CvGlobals::getConstInstance()
-{
-	return gGlobals;
-}
+__inline CvGlobals const& CvGlobals::getConstInstance() { return gGlobals; }
 
 
 // helpers ...

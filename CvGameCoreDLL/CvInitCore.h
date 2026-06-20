@@ -24,10 +24,7 @@ protected:
 
 	void setDefaults();
 
-	bool checkBounds(int iValue, int iLower, int iUpper) const
-	{
-		return (iLower <= iValue && iValue < iUpper);
-	}
+	bool checkBounds(int iValue, int iLower, int iUpper) const { return (iLower <= iValue && iValue < iUpper); }
 
 public:
 
@@ -41,10 +38,7 @@ public:
 	DllExport bool getMultiplayer() const;
 	DllExport bool getNewGame() const;
 	DllExport bool getSavedGame() const;
-	DllExport bool getGameMultiplayer() const
-	{
-		return (getMultiplayer() || getPitboss() || getPbem() || getHotseat());
-	}
+	DllExport bool getGameMultiplayer() const { return (getMultiplayer() || getPitboss() || getPbem() || getHotseat()); }
 	DllExport bool getPitboss() const;
 	DllExport bool getHotseat() const;
 	DllExport bool getPbem() const;
@@ -127,8 +121,7 @@ public:
 	int getNumHiddenCustomMapOptions() const { return m_iNumHiddenCustomMapOptions; }
 
 	CustomMapOptionTypes const* getCustomMapOptions() const { return m_aeCustomMapOptions; }
-	DllExport void setCustomMapOptions(int iNumCustomMapOptions,
-			CustomMapOptionTypes const* aeCustomMapOptions);
+	DllExport void setCustomMapOptions(int iNumCustomMapOptions, CustomMapOptionTypes const* aeCustomMapOptions);
 
 	DllExport CustomMapOptionTypes getCustomMapOption(int iOptionID) const;
 	DllExport void setCustomMapOption(int iOptionID, CustomMapOptionTypes eCustomMapOption);

@@ -96,17 +96,10 @@ template<class Derived, // CRT pattern (just for the setNextFromCache function)
 class AgentIterator : ExplicitAgentIterator<AgentType, eSTATUS, eRELATION, AgentAIType>
 {
 public:
-	bool hasNext() const
-	{
-		return (m_pNext != NULL);
-	}
+	bool hasNext() const { return (m_pNext != NULL); }
 
-	AgentType& operator*() const
-	{
-		/*	This is, at worst, an up-cast. But the compiler doesn't know this
-			b/c the AI headers aren't included here. */
-		return *(AgentType*)m_pNext;
-	}
+	/* This is, at worst, an up-cast. But the compiler doesn't know this b/c the AI headers aren't included here. */
+	AgentType& operator*() const { return *(AgentType*)m_pNext; }
 
 	AgentType* operator->() const
 	{	// See above
@@ -117,10 +110,7 @@ public:
 		returned by a subsequent call to next [i.e. computeNext], or
 		list size [sequence length] if the list iterator [AgentIterator] is at the end
 		of the list [sequence]" */
-	int nextIndex() const
-	{
-		return (bAPPLY_FILTERS ? m_iPos - m_iSkipped : m_iPos);
-	}
+	int nextIndex() const { return (bAPPLY_FILTERS ? m_iPos - m_iSkipped : m_iPos); }
 
 	static int count(TeamTypes eTeam = NO_TEAM)
 	{
@@ -141,10 +131,8 @@ public:
 	}
 
 protected:
-	void setNextFromCache()
-	{	// static polymorphism
-		static_cast<Derived*>(this)->setNextFromCache();
-	}
+	// static polymorphism
+	void setNextFromCache() { static_cast<Derived*>(this)->setNextFromCache(); }
 
 	AgentIterator(TeamTypes eTeam = NO_TEAM)
 	:	ExplicitAgentIterator<AgentType,eSTATUS,eRELATION,AgentAIType>(eTeam)
@@ -241,23 +229,12 @@ private:
 	short m_iSkipped;
 
 	// Don't want to assume that BARBARIAN_PLAYER==BARBARIAN_TEAM
-	static AgentAIType* getBarbarianAgent()
-	{
-		return _getBarbarianAgent<AgentAIType>();
-	}
+	static AgentAIType* getBarbarianAgent() { return _getBarbarianAgent<AgentAIType>(); }
 	// Don't want to include an AI header for GET_PLAYER
 	template<class T>
 	static T* _getBarbarianAgent();
-	template<>
-	static CvPlayerAI* _getBarbarianAgent<CvPlayerAI>()
-	{
-		return (*m_pAgents->getAgentSeqCache<CvPlayerAI>(CvAgents::ALL))[BARBARIAN_PLAYER];
-	}
-	template<>
-	static CvTeamAI* _getBarbarianAgent<CvTeamAI>()
-	{
-		return (*m_pAgents->getAgentSeqCache<CvTeamAI>(CvAgents::ALL))[BARBARIAN_TEAM];
-	}
+	template<> static CvPlayerAI* _getBarbarianAgent<CvPlayerAI>() { return (*m_pAgents->getAgentSeqCache<CvPlayerAI>(CvAgents::ALL))[BARBARIAN_PLAYER]; }
+	template<> static CvTeamAI* _getBarbarianAgent<CvTeamAI>() { return (*m_pAgents->getAgentSeqCache<CvTeamAI>(CvAgents::ALL))[BARBARIAN_TEAM]; }
 };
 #undef bAPPLY_FILTERS
 #undef bADD_BARBARIANS
@@ -286,10 +263,7 @@ protected:
 		delete[] m_aiShuffledIndices;
 	}
 
-	void setNextFromCache() // override
-	{
-		m_pNext = (*m_pCache)[m_aiShuffledIndices[m_iPos]];
-	}
+	void setNextFromCache() { m_pNext = (*m_pCache)[m_aiShuffledIndices[m_iPos]]; } // override
 };
 #undef RandAgentIteratorBase
 
@@ -307,10 +281,7 @@ protected:
 		generateNext();
 	}
 
-	void setNextFromCache() // override
-	{
-		m_pNext = (*m_pCache)[m_iPos];
-	}
+	void setNextFromCache() { m_pNext = (*m_pCache)[m_iPos]; } // override
 };
 #undef FwdAgentIteratorBase
 

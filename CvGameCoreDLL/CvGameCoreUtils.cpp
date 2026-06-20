@@ -121,8 +121,7 @@ DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 
 /*	advc: Cut from CvXMLLoadUtility.cpp, renamed
 	from "CreateHotKeyFromDescription"; nothing is "created" here. */
-CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr,
-	bool bShift, bool bAlt, bool bCtrl)
+CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr, bool bShift, bool bAlt, bool bCtrl)
 {
 	// Example: "Delete <COLOR:140,255,40,255>Shift+Delete</COLOR>"
 	CvWString szHotKey;
@@ -298,8 +297,7 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 }*/
 
 // K-Mod: (advc - Where do we move this? Should not be global.)
-int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam,
-	TeamTypes eDefenseTeam)
+int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam)
 {
 	int iBaseCollateral = GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE); // normally 10
 	if (pPlot == NULL)
@@ -367,8 +365,7 @@ void setTradeItem(TradeData* pItem, TradeableItems eItemType, int iData)
 }
 
 
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer += szStart;
@@ -378,8 +375,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 }
 
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer.append(szStart);
@@ -389,8 +385,7 @@ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* s
 }
 
 // <advc> Based on the above
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer += szStart;
@@ -399,8 +394,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 	iLastListID = iListID; // advc: And deleted this line from every call location
 }
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer.append(szStart);
@@ -789,16 +783,14 @@ int intHash(std::vector<int> const& kInputs, PlayerTypes ePlayer)
 }
 
 
-int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
 	return getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) /
 			std::max(1, GC.getNumMonthInfos()); // advc: max
 }
 
 
-int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
 	int iTurnMonth = iStartYear * GC.getNumMonthInfos();
 	switch (eCalendar)

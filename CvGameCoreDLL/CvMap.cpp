@@ -84,8 +84,7 @@ void CvMap::uninit()
 }
 
 // Initializes data members that are serialized.
-void CvMap::reset(CvMapInitData const* pInitInfo,
-	bool bResetPlotExtraData) // advc.enum (only needed for legacy saves)
+void CvMap::reset(CvMapInitData const* pInitInfo, bool bResetPlotExtraData) // advc.enum (only needed for legacy saves)
 {
 	uninit();
 
@@ -563,8 +562,7 @@ void CvMap::verifyUnitValidPlot()
 }
 
 
-void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2,
-	bool bVerifyProduction) // advc.064d
+void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2, bool bVerifyProduction) // advc.064d
 {
 	FAssert(pPlotGroup1 != NULL);
 	FAssert(pPlotGroup2 != NULL);
@@ -596,11 +594,9 @@ void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvP
 }
 
 
-CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
-	int iMinCivUnitDistance, // advc.300: Renamed from iMinUnitDistance
-	int iTimeout,
-	/* <advc.304> */ int* piValidCount, // Number of valid tiles
-	RandPlotWeightMap const* pWeights)
+// advc.300: Renamed from iMinUnitDistance <!-- custom: hoisted from multiline signature between `iMinCivUnitDistance` and `iTimeout` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// Number of valid tiles <!-- custom: hoisted from multiline signature between `piValidCount` and `pWeights` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea, int iMinCivUnitDistance, int iTimeout, /* <advc.304> */ int* piValidCount, RandPlotWeightMap const* pWeights)
 {
 	LOCAL_REF(int, iValid, piValidCount, 0);
 	/*  Look exhaustively for a valid plot by default. Rationale:
@@ -648,8 +644,7 @@ CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
 }
 
 // advc: Body cut from syncRandPlot
-bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
-	CvArea const* pArea, int iMinCivUnitDistance) const
+bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags, CvArea const* pArea, int iMinCivUnitDistance) const
 {
 	if (pArea != NULL && !kPlot.isArea(*pArea))
 		return false;
@@ -686,10 +681,8 @@ bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
 }
 
 
-CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam,
-		bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith,
-		DirectionTypes eDirection, CvCity const* pSkipCity, // advc: const city
-		TeamTypes eObserver) const // advc.004r
+// advc: const city <!-- custom: hoisted from multiline signature between `pSkipCity` and `eObserver` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith, DirectionTypes eDirection, CvCity const* pSkipCity, TeamTypes eObserver) const // advc.004r
 {
 	PROFILE_FUNC();
 
@@ -735,8 +728,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam,
 }
 
 
-CvSelectionGroup* CvMap::findSelectionGroup(int iX, int iY, PlayerTypes eOwner,
-	bool bReadyToSelect, bool bWorkers) const
+CvSelectionGroup* CvMap::findSelectionGroup(int iX, int iY, PlayerTypes eOwner, bool bReadyToSelect, bool bWorkers) const
 {
 	int iBestValue = MAX_INT;
 	CvSelectionGroup* pBestSelectionGroup = NULL;
@@ -1011,8 +1003,7 @@ CvWString CvMap::getNonDefaultCustomMapOptionDesc(int iOption) const
 	(that may or may not be present in only one particular map script).
 	Translations will have to be handled by the caller (by generating szOptionsValue
 	through gDLL->getText). */
-bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains,
-	bool bIgnoreCase) const
+bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains, bool bIgnoreCase) const
 {
 	CvWString wsOptionsValue(szOptionsValue);
 	if (bIgnoreCase)
@@ -1038,8 +1029,7 @@ bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains,
 
 /*	For convenience, especially when working with translated strings
 	(which use wide characters). */
-bool CvMap::isCustomMapOption(CvWString szOptionsValue, bool bCheckContains,
-	bool bIgnoreCase) const
+bool CvMap::isCustomMapOption(CvWString szOptionsValue, bool bCheckContains, bool bIgnoreCase) const
 {
 	CvString szNarrow(szOptionsValue);
 	return isCustomMapOption(szNarrow.c_str());

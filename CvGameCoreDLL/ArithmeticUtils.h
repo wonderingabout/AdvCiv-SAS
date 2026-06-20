@@ -25,11 +25,7 @@ namespace intdiv
 		return (iDividend + iDivisor / 2) / iDivisor;
 	}
 
-	inline int uceil(int iDividend, int iDivisor)
-	{
-		FAssert(iDividend >= 0 && iDivisor > 0);
-		return (iDividend + iDivisor - 1) / iDivisor;
-	}
+	inline int uceil(int iDividend, int iDivisor) { FAssert(iDividend >= 0 && iDivisor > 0); return (iDividend + iDivisor - 1) / iDivisor; }
 
 	inline int umodulo(int iDividend, int iDivisor)
 	{
@@ -45,15 +41,9 @@ namespace intdiv
 	Tbd.: Replace more std::max, std::min calls with this? */
 namespace branchless
 {
-	inline int max(int x, int y)
-	{
-		return x ^ ((x ^ y) & -(x < y));
-	}
+	inline int max(int x, int y) { return x ^ ((x ^ y) & -(x < y)); }
 
-	inline int min(int x, int y)
-	{
-		return y + ((x - y) & -(x < y));
-	}
+	inline int min(int x, int y) { return y + ((x - y) & -(x < y)); }
 }
 
 inline int range(int iNum, int iLow, int iHigh)

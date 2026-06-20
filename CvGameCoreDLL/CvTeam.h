@@ -29,8 +29,7 @@ public:
 	static void freeStatics(); // </advc.003u>
 
 	// <kekm.26>
-	static void queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
-			bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW = true);
+	static void queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW = true);
 	static void triggerWars(/* advc: */ bool bForceUpdateAttitude = false);
 	// </kekm.26>
 
@@ -65,19 +64,14 @@ public:
 	bool canChangeWarPeace(TeamTypes eTeam, bool bAllowVassal = false) const;																			// Exposed to Python
 	DllExport bool canDeclareWar(TeamTypes eTeam) const;																// Exposed to Python
 	bool canEventuallyDeclareWar(TeamTypes eTeam) const; // bbai, Exposed to Python
-	void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
-			bool bPrimaryDoW = true, // K-Mod added bPrimaryDoW, Exposed to Python
-			PlayerTypes eSponsor = NO_PLAYER, // advc.100
-			bool bRandomEvent = false); // advc.106g
-	void makePeace(TeamTypes eTarget, bool bBumpUnits = true,																		// Exposed to Python
-			TeamTypes eBroker = NO_TEAM, // advc.100b
-			bool bCapitulate = false, // advc.034
-			CLinkList<TradeData> const* pReparations = NULL, // advc.039
-			bool bRandomEvent = false); // advc.106g
-	bool canContact(TeamTypes eTeam,
-			bool bCheckWillingness = false) const; // K-Mod, Exposed to Python
-	void meet(TeamTypes eTeam, bool bNewDiplo,																			// Exposed to Python
-			FirstContactData* pData = NULL); // advc.071
+	// advc.100 <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW = true, PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false); // advc.106g; K-Mod added bPrimaryDoW, Exposed to Python
+	// advc.100b <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.034 <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.039 <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void makePeace(TeamTypes eTarget, bool bBumpUnits = true, TeamTypes eBroker = NO_TEAM, bool bCapitulate = false, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false); // advc.106g; Exposed to Python
+	bool canContact(TeamTypes eTeam, bool bCheckWillingness = false) const; // K-Mod, Exposed to Python
+	void meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData = NULL); // advc.071; Exposed to Python
 	void signPeaceTreaty(TeamTypes eTeam, bool bForce = false); // K-Mod (advc: bForce)
 	void signOpenBorders(TeamTypes eTeam, /* advc.032: */ bool bProlong = false);																				// Exposed to Python
 	void signDisengage(TeamTypes otherId); // advc.034
@@ -101,29 +95,21 @@ public:
 	//int getWarPlanCount(WarPlanTypes eWarPlan, bool bIgnoreMinors = true) const;
 	int getHasMetCivCount(bool bIgnoreMinors = true) const;												// Exposed to Python
 
-	bool allWarsShared(TeamTypes eOther, // kekm.3
-			/*  advc.130f: If false, check only if the war enemies of this team
-				are included in those of otherId (set inclusion). */
-			bool bCheckBothWays = true) const;
+	// kekm.3 <!-- custom: hoisted from multiline signature between `eOther` and `bCheckBothWays` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.130f: If false, check only if the war enemies of this team are included in those of otherId (set inclusion). <!-- custom: hoisted from multiline signature between `eOther` and `bCheckBothWays` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool allWarsShared(TeamTypes eOther, bool bCheckBothWays = true) const;
 	bool hasMetHuman() const;																			// Exposed to Python
 	bool isInContactWithBarbarians() const; // advc.302
 	int getDefensivePactCount(TeamTypes eObs = NO_TEAM) const;											// Exposed to Python
 	int getVassalCount(TeamTypes eObs = NO_TEAM) const;
 	// advc.opt:
 	bool isAVassal() const { return (m_eMaster != NO_TEAM); }											// Exposed to Python
-	bool canVassalRevolt(TeamTypes eMaster,
-			bool bCheckLosses = true, int iExtraLand = 0, int iExtraPop = 0) const; // advc.ctr
+	bool canVassalRevolt(TeamTypes eMaster, bool bCheckLosses = true, int iExtraLand = 0, int iExtraPop = 0) const; // advc.ctr
 	bool isLossesAllowRevolt(TeamTypes eMaster) const; // advc.112
 	int getUnitClassMaking(UnitClassTypes eUnitClass) const;											// Exposed to Python
-	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const										// Exposed to Python
-	{
-		return getUnitClassCount(eIndex) + getUnitClassMaking(eIndex);
-	}
+	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const { return getUnitClassCount(eIndex) + getUnitClassMaking(eIndex); } // Exposed to Python
 	int getBuildingClassMaking(BuildingClassTypes eBuildingClass) const;								// Exposed to Python
-	int getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const								// Exposed to Python
-	{
-		return getBuildingClassCount(eIndex) + getBuildingClassMaking(eIndex);
-	}
+	int getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const { return getBuildingClassCount(eIndex) + getBuildingClassMaking(eIndex); } // Exposed to Python
 	int getHasReligionCount(ReligionTypes eReligion) const;												// Exposed to Python
 	int getHasCorporationCount(CorporationTypes eCorporation) const;									// Exposed to Python
 
@@ -139,10 +125,9 @@ public:
 	// K-Mod:
 	int getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain = NO_DOMAIN) const;
 
-	int getResearchCost(TechTypes eTech,																// Exposed to Python
-			//bool bGlobalModifiers = true, // K-Mod
-			bool bFreeBarbarianResearch = false, // advc.301
-			bool bTeamSizeModifiers = true) const; // K-Mod
+	// bool bGlobalModifiers = true, // K-Mod <!-- custom: hoisted from multiline signature between `eTech` and `bFreeBarbarianResearch` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.301 <!-- custom: hoisted from multiline signature between `bFreeBarbarianResearch` and `bTeamSizeModifiers` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch = false, bool bTeamSizeModifiers = true) const; // K-Mod; Exposed to Python
 	int getResearchLeft(TechTypes eTech) const;																// Exposed to Python
 
 	bool hasHolyCity(ReligionTypes eReligion) const;																		// Exposed to Python
@@ -265,21 +250,14 @@ public:
 	void setStolenVisibilityTimer(TeamTypes eIndex, int iNewValue);
 	void changeStolenVisibilityTimer(TeamTypes eIndex, int iChange);
 
-	int getWarWeariness(TeamTypes eIndex,																// Exposed to Python
-			bool bUseEnemyModifer = false) const; // K-Mod
+	int getWarWeariness(TeamTypes eIndex, bool bUseEnemyModifer = false) const; // K-Mod; Exposed to Python
 	void setWarWeariness(TeamTypes eIndex, int iNewValue);												// Exposed to Python
 	void changeWarWeariness(TeamTypes eIndex, int iChange);												// Exposed to Python
 	/*	<advc> (for kekm.38) Params changed to PlayerTypes; were named "eIndex".
 		NB: This function says how many team members have a tech share effect
 		that gets triggered when eSharePlayers other players know a tech. */
-	int getTechShareCount(PlayerTypes eSharePlayers) const												// Exposed to Python
-	{
-		return m_aiTechShareCount.get(eSharePlayers);
-	}
-	bool isTechShare(PlayerTypes eSharePlayers) const													// Exposed to Python
-	{
-		return (getTechShareCount(eSharePlayers) > 0);
-	}
+	int getTechShareCount(PlayerTypes eSharePlayers) const { return m_aiTechShareCount.get(eSharePlayers); } // Exposed to Python
+	bool isTechShare(PlayerTypes eSharePlayers) const { return (getTechShareCount(eSharePlayers) > 0); } // Exposed to Python
 	bool isAnyTechShare() const { return m_aiTechShareCount.isAnyNonDefault(); } // advc.opt
 	void changeTechShareCount(PlayerTypes eSharePlayers, int iChange); // </advc>						// Exposed to Python
 
@@ -290,10 +268,8 @@ public:
 	int getExtraMoves(DomainTypes eIndex) const;																				// Exposed to Python
 	void changeExtraMoves(DomainTypes eIndex, int iChange);								// Exposed to Python
 
-	bool isHasMet(TeamTypes eOther) const												// Exposed to Python
-	{
-		return (m_aiHasMetTurn.get(eOther) >= 0); // advc.091
-	}
+	// advc.091
+	bool isHasMet(TeamTypes eOther) const { return (m_aiHasMetTurn.get(eOther) >= 0); } // Exposed to Python
 	int getHasMetTurn(TeamTypes eOther) const { return m_aiHasMetTurn.get(eOther); } // advc.091  (exposed to Python)
 	// advc.071: Return value, 2nd param added.
 	CvPlot* makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* pData = NULL);
@@ -301,41 +277,23 @@ public:
 	void makeHasSeen(TeamTypes eOther) { m_abHasSeen.set(eOther, true); }; // K-Mod
 	// <advc.134a>
 	bool isAtWarExternal(TeamTypes eIndex) const; // Exported through .def file
-	bool isAtWar(TeamTypes eIndex) const																	// Exposed to Python
-	{
-		return m_abAtWar.get(eIndex);
-	} // </advc.134a>
+	bool isAtWar(TeamTypes eIndex) const { return m_abAtWar.get(eIndex); } // Exposed to Python // </advc.134a>
 	void setAtWar(TeamTypes eIndex, bool bNewValue);
 	/*  advc.162: "Just" meaning on the current turn. Don't want to rely on
 		AI code (AI_getWarPlanStateCounter) for this.
 		Also used for advc.010. */
-	bool hasJustDeclaredWar(TeamTypes eIndex) const
-	{
-		return m_abJustDeclaredWar.get(eIndex);
-	}
+	bool hasJustDeclaredWar(TeamTypes eIndex) const { return m_abJustDeclaredWar.get(eIndex); }
 	// <advc.130k> Replacing CvTeamAI::m_aiAtPeaceCounter, which is now randomized.
-	int getTurnsAtPeace(TeamTypes eTeam) const
-	{
-		return m_aiTurnsAtPeace.get(eTeam);
-	}
-	void changeTurnsAtPeace(TeamTypes eTeam, int iChange)
-	{
-		setTurnsAtPeace(eTeam, getTurnsAtPeace(eTeam) + iChange);
-	}
+	int getTurnsAtPeace(TeamTypes eTeam) const { return m_aiTurnsAtPeace.get(eTeam); }
+	void changeTurnsAtPeace(TeamTypes eTeam, int iChange) { setTurnsAtPeace(eTeam, getTurnsAtPeace(eTeam) + iChange); }
 	void setTurnsAtPeace(TeamTypes eTeam, int iTurns); // </advc.130k>
 
-	bool isPermanentWarPeace(TeamTypes eIndex) const												// Exposed to Python
-	{
-		return m_abPermanentWarPeace.get(eIndex);
-	}
+	bool isPermanentWarPeace(TeamTypes eIndex) const { return m_abPermanentWarPeace.get(eIndex); } // Exposed to Python
 	void setPermanentWarPeace(TeamTypes eIndex, bool bNewValue);									// Exposed to Python
 
 	bool canTradeWith(TeamTypes eWhoTo) const; // advc
 	bool isFreeTrade(TeamTypes eIndex) const;																	// Exposed to Python
-	bool isOpenBorders(TeamTypes eIndex) const																// Exposed to Python
-	{
-		return m_abOpenBorders.get(eIndex);
-	}
+	bool isOpenBorders(TeamTypes eIndex) const { return m_abOpenBorders.get(eIndex); } // Exposed to Python
 	void setOpenBorders(TeamTypes eIndex, bool bNewValue);
 	// <advc.034>
 	bool isDisengage(TeamTypes eIndex) const { return m_abDisengage.get(eIndex); }
@@ -349,37 +307,22 @@ public:
 	void setForcePeace(TeamTypes eIndex, bool bNewValue);
 	int turnsOfForcedPeaceRemaining(TeamTypes eOther) const; // advc.104
 
-	bool isVassal(TeamTypes eMaster) const																// Exposed to Python
-	{
-		return (m_eMaster == eMaster); // advc.opt
-	}
+	// advc.opt
+	bool isVassal(TeamTypes eMaster) const { return (m_eMaster == eMaster); } // Exposed to Python
 	void setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated);
-	TeamTypes getMasterTeam() const // advc.155: Exposed to Python
-	{	// K-Mod. Return the team which is the master of this team. (if this team is free, return getID())
-		return (m_eMaster == NO_TEAM ? getID() : m_eMaster); // advc.opt
-	}
+	// K-Mod. Return the team which is the master of this team. (if this team is free, return getID())
+	// advc.opt
+	TeamTypes getMasterTeam() const { return (m_eMaster == NO_TEAM ? getID() : m_eMaster); } // advc.155: Exposed to Python
 	void assignVassal(TeamTypes eVassal, bool bSurrender) const;											// Exposed to Python
 	void freeVassal(TeamTypes eVassal) const;																// Exposed to Python
 
-	bool isCapitulated() const // advc.130v: Exposed to Python
-	{
-		return m_bCapitulated;
-	}  // <advc>
-	bool isCapitulated(TeamTypes eMaster)
-	{
-		return (isCapitulated() && isVassal(eMaster));
-	} // </advc>
+	bool isCapitulated() const { return m_bCapitulated; } // advc.130v: Exposed to Python // <advc>
+	bool isCapitulated(TeamTypes eMaster) { return (isCapitulated() && isVassal(eMaster)); } // </advc>
 	int getCapitulationTurn() const; // advc.130w
-	int getRouteChange(RouteTypes eIndex) const																// Exposed to Python
-	{
-		return m_aiRouteChange.get(eIndex);
-	}
+	int getRouteChange(RouteTypes eIndex) const { return m_aiRouteChange.get(eIndex); } // Exposed to Python
 	void changeRouteChange(RouteTypes eIndex, int iChange);												// Exposed to Python
 
-	int getProjectCount(ProjectTypes eIndex) const														// Exposed to Python
-	{
-		return m_aiProjectCount.get(eIndex);
-	}
+	int getProjectCount(ProjectTypes eIndex) const { return m_aiProjectCount.get(eIndex); } // Exposed to Python
 	DllExport int getProjectDefaultArtType(ProjectTypes eIndex) const;
 	DllExport void setProjectDefaultArtType(ProjectTypes eIndex, int iValue);
 	DllExport int getProjectArtType(ProjectTypes eProject, int iIndex) const;
@@ -388,34 +331,19 @@ public:
 	DllExport bool isProjectAndArtMaxedOut(ProjectTypes eProject) const;
 	void changeProjectCount(ProjectTypes eProject, int iChange);							// Exposed to Python
 	DllExport void finalizeProjectArtTypes();
-	int getProjectMaking(ProjectTypes eProject) const												// Exposed to Python
-	{
-		return m_aiProjectMaking.get(eProject);
-	}
+	int getProjectMaking(ProjectTypes eProject) const { return m_aiProjectMaking.get(eProject); } // Exposed to Python
 	void changeProjectMaking(ProjectTypes eProject, int iChange);
 
-	int getUnitClassCount(UnitClassTypes eIndex) const												// Exposed to Python
-	{
-		return m_aiUnitClassCount.get(eIndex);
-	}
+	int getUnitClassCount(UnitClassTypes eIndex) const { return m_aiUnitClassCount.get(eIndex); } // Exposed to Python
 	bool isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra = 0) const;							// Exposed to Python
 	void changeUnitClassCount(UnitClassTypes eIndex, int iChange);
 
-	int getBuildingClassCount(BuildingClassTypes eIndex) const													// Exposed to Python
-	{
-		return m_aiBuildingClassCount.get(eIndex);
-	}
+	int getBuildingClassCount(BuildingClassTypes eIndex) const { return m_aiBuildingClassCount.get(eIndex); } // Exposed to Python
 	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0) const;			// Exposed to Python
 	void changeBuildingClassCount(BuildingClassTypes eIndex, int iChange);
 
-	int getObsoleteBuildingCount(BuildingTypes eIndex) const
-	{
-		return m_aiObsoleteBuildingCount.get(eIndex);
-	}
-	bool isObsoleteBuilding(BuildingTypes eIndex) const																// Exposed to Python
-	{
-		return (getObsoleteBuildingCount(eIndex) > 0);
-	}
+	int getObsoleteBuildingCount(BuildingTypes eIndex) const { return m_aiObsoleteBuildingCount.get(eIndex); }
+	bool isObsoleteBuilding(BuildingTypes eIndex) const { return (getObsoleteBuildingCount(eIndex) > 0); } // Exposed to Python
 	void changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange);
 
 	int getResearchProgress(TechTypes eIndex) const;																						// Exposed to Python
@@ -427,43 +355,22 @@ public:
 	// BETTER_BTS_AI_MOD, General AI, 07/27/09, jdog5000:
 	int getBestKnownTechScorePercent() const;
 
-	int getTerrainTradeCount(TerrainTypes eIndex) const
-	{
-		return m_aiTerrainTradeCount.get(eIndex);
-	}
-	bool isTerrainTrade(TerrainTypes eIndex) const															// Exposed to Python
-	{
-		return (getTerrainTradeCount(eIndex) > 0);
-	}
+	int getTerrainTradeCount(TerrainTypes eIndex) const { return m_aiTerrainTradeCount.get(eIndex); }
+	bool isTerrainTrade(TerrainTypes eIndex) const { return (getTerrainTradeCount(eIndex) > 0); } // Exposed to Python
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);
 
-	int getRiverTradeCount() const
-	{
-		return m_iRiverTradeCount;
-	}
-	bool isRiverTrade() const																			// Exposed to Python
-	{
-		//return (getRiverTradeCount() > 0);
-		return true; // advc.124
-	}
+	int getRiverTradeCount() const { return m_iRiverTradeCount; }
+	//return (getRiverTradeCount() > 0);
+	// advc.124
+	bool isRiverTrade() const { return true; } // Exposed to Python
 	void changeRiverTradeCount(int iChange);
 	// advc.500c:
-	int getNoMilitaryAnger() const
-	{
-		return (m_iNoFearForSafetyCount > 0 ? 0 : GC.getDefineINT(CvGlobals::
-				NO_MILITARY_PERCENT_ANGER));
-	}
+	int getNoMilitaryAnger() const { return (m_iNoFearForSafetyCount > 0 ? 0 : GC.getDefineINT(CvGlobals::NO_MILITARY_PERCENT_ANGER)); }
 
-	int getVictoryCountdown(VictoryTypes eVictory) const													// Exposed to Python
-	{
-		return m_aiVictoryCountdown.get(eVictory);
-	}
+	int getVictoryCountdown(VictoryTypes eVictory) const { return m_aiVictoryCountdown.get(eVictory); } // Exposed to Python
 	void setVictoryCountdown(VictoryTypes eVictory, int iTurnsLeft);
 	void changeVictoryCountdown(VictoryTypes eVictory, int iChange);
-	bool isAnyVictoryCountdown() const // advc.opt
-	{
-		return m_aiVictoryCountdown.isAnyNonDefault();
-	}
+	bool isAnyVictoryCountdown() const { return m_aiVictoryCountdown.isAnyNonDefault(); } // advc.opt
 	int getVictoryDelay(VictoryTypes eVictory) const;
 	bool canLaunch(VictoryTypes eVictory) const;									// Exposed to Python
 	void setCanLaunch(VictoryTypes eVictory, bool bCan);
@@ -474,8 +381,7 @@ public:
 	bool isParent(TeamTypes eChildTeam) const;
 
 	bool isHasTech(TechTypes eIndex) const;																																			// Exposed to Python
-	void setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,				// Exposed to Python
-			bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn = false);
+	void setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn = false); // Exposed to Python
 	/* advc.004a: A hack that allows other classes to pretend that a team knows
 	   a tech for some computation. Should be toggled back afterwards. */
 	void setHasTechTemporarily(TechTypes eTech, bool b) { m_abHasTech.set(eTech, b); }
@@ -487,10 +393,7 @@ public:
 	bool isNoTradeTech(TechTypes eIndex) const;																														// Exposed to Python
 	void setNoTradeTech(TechTypes eIndex, bool bNewValue);																					// Exposed to Python
 
-	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const										// Exposed to Python
-	{
-		return m_aaiImprovementYieldChange.get(eIndex1, eIndex2);
-	}
+	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const { return m_aaiImprovementYieldChange.get(eIndex1, eIndex2); } // Exposed to Python
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);		// Exposed to Python
 
 	bool doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const; // K-Mod
@@ -539,10 +442,7 @@ public:
 	void verifySpyUnitsValidPlot();
 
 	void setForceRevealedBonus(BonusTypes eBonus, bool bRevealed);
-	bool isForceRevealedBonus(BonusTypes eBonus) const
-	{
-		return m_abRevealedBonuses.get(eBonus);
-	}
+	bool isForceRevealedBonus(BonusTypes eBonus) const { return m_abRevealedBonuses.get(eBonus); }
 	bool isBonusRevealed(BonusTypes eBonus) const; // K-Mod. (the definitive answer)
 	bool canDiscoverBonus(BonusTypes eBonus) const; // advc
 
@@ -568,16 +468,11 @@ public:
 	// </advc.127b>
 	void finalizeInit(); // advc.003m
 	// <advc.003u>
-	CvTeamAI& AI()
-	{	//return *static_cast<CvTeamAI*>(const_cast<CvTeam*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvTeamAI is derived from CvTeam */
-		return *reinterpret_cast<CvTeamAI*>(this);
-	}
-	CvTeamAI const& AI() const
-	{	//return *static_cast<CvTeamAI const*>(this);
-		return *reinterpret_cast<CvTeamAI const*>(this);
-	} // </advc.003u>
+	//return *static_cast<CvTeamAI*>(const_cast<CvTeam*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvTeamAI is derived from CvTeam */
+	CvTeamAI& AI() { return *reinterpret_cast<CvTeamAI*>(this); }
+	//return *static_cast<CvTeamAI const*>(this);
+	CvTeamAI const& AI() const { return *reinterpret_cast<CvTeamAI const*>(this); } // </advc.003u>
 
 protected:
 	virtual void read(FDataStreamBase* pStream);
@@ -712,22 +607,16 @@ protected:
 	// New name for isMinorCiv (uncached)
 	bool checkMinorCiv() const; // </advc.003m>
 	// <advc.039>
-	CvWString const tradeItemString(TradeableItems eItem, int iData,
-			TeamTypes eFrom) const; // </advc.039>
+	CvWString const tradeItemString(TradeableItems eItem, int iData, TeamTypes eFrom) const; // </advc.039>
 	bool isTechSplash() const; // advc
-	void announceTechToPlayers(TechTypes eIndex,
-			PlayerTypes eDiscoverPlayer, // advc.156
-			bool bPartial = false);
+	// advc.156 <!-- custom: hoisted from multiline signature between `eDiscoverPlayer` and `bPartial` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void announceTechToPlayers(TechTypes eIndex, PlayerTypes eDiscoverPlayer, bool bPartial = false);
 	// <advc>
-	void announceWar(TeamTypes eTarget, bool bPrimaryDoW,
-			PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false);
-	void announcePeace(TeamTypes eTarget, TeamTypes eBroker = NO_TEAM,
-			CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false);
+	void announceWar(TeamTypes eTarget, bool bPrimaryDoW, PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false);
+	void announcePeace(TeamTypes eTarget, TeamTypes eBroker = NO_TEAM, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false);
 	// </advc>  <advc.106o>
-	void setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget,
-			CvWString& szAgents, CvWString& szTargets, bool bReplay = false);
-	void setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay,
-			bool bCapitalize);
+	void setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget, CvWString& szAgents, CvWString& szTargets, bool bReplay = false);
+	void setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay, bool bCapitalize);
 	// </advc.106o>
 
 private: // advc.003u: (See comments in the private section of CvPlayer.h)
@@ -736,8 +625,7 @@ private: // advc.003u: (See comments in the private section of CvPlayer.h)
 	virtual void AI_doTurnPreExternal();*/
 	virtual void AI_doTurnPostExternal();
 	virtual void AI_makeAssignWorkDirtyExternal();
-	virtual void AI_updateAreaStrategiesExternal(
-			bool bTargets = true);
+	virtual void AI_updateAreaStrategiesExternal(bool bTargets = true);
 	virtual bool AI_shareWarExternal(TeamTypes eTeam);
 	virtual void AI_updateWorstEnemyExternal();
 	virtual int AI_getAtWarCounterExternal(TeamTypes eIndex);
@@ -763,8 +651,7 @@ private: // advc.003u: (See comments in the private section of CvPlayer.h)
 	virtual bool AI_isChosenWarExternal(TeamTypes eIndex);
 	virtual bool AI_isSneakAttackPreparingExternal(TeamTypes eIndex);
 	virtual bool AI_isSneakAttackReadyExternal(TeamTypes eIndex);
-	virtual void AI_setWarPlanExternal(TeamTypes eIndex, WarPlanTypes eNewValue,
-			bool bWar = true);
+	virtual void AI_setWarPlanExternal(TeamTypes eIndex, WarPlanTypes eNewValue, bool bWar = true);
 	virtual void readExternal(FDataStreamBase* pStream);
 	virtual void writeExternal(FDataStreamBase* pStream);
 };

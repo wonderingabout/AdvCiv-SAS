@@ -37,13 +37,9 @@ public:
 	void setVisible(bool b);
 	void setEntity(CvEntity* pEntity);
 
-	DllExport bool IsSelected() const
-	{
-		return gDLL->getEntityIFace()->IsSelected(getGenericEntity());
-	}
+	DllExport bool IsSelected() const { return gDLL->getEntityIFace()->IsSelected(getGenericEntity()); }
 
-	void PlayAnimation(AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false,
-			int iLayer = 0, float fStartPct = 0.0f, float fEndPct = 1.0f);
+	void PlayAnimation(AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false, int iLayer = 0, float fStartPct = 0.0f, float fEndPct = 1.0f);
 	void StopAnimation(AnimationTypes eAnim);
 
 protected:

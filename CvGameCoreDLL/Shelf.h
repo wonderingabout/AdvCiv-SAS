@@ -17,8 +17,7 @@ public:
 	typedef std::pair<int,int> Id;
 
 	void add(CvPlot* pPlot);
-	CvPlot* randomPlot(RandPlotFlags eRestrictions, int iUnitDistance,
-			int* piValidCount = NULL, RandPlotWeightMap const* pWeights = NULL) const;
+	CvPlot* randomPlot(RandPlotFlags eRestrictions, int iUnitDistance, int* piValidCount = NULL, RandPlotWeightMap const* pWeights = NULL) const;
 	int size() const { return (int)m_apPlots.size(); }
 	int countUnownedPlots() const;
 	int countBarbarians() const;

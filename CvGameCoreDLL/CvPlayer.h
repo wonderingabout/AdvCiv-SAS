@@ -77,36 +77,29 @@ public:
 	bool startingPlotWithinRange(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange, int iPass) const;			// Exposed to Python
 	int startingPlotDistanceFactor(CvPlot const& kPlot, PlayerTypes ePlayer, int iRange) const;
 	//int findStartingArea() const;
-	std::vector<std::pair<int,int> > findStartingAreas( // kekm.35
-			bool* pbFoundByMapScript = NULL) const; // advc.027
+	// kekm.35 <!-- custom: hoisted from multiline signature before `pbFoundByMapScript` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	std::vector<std::pair<int,int> > findStartingAreas(bool* pbFoundByMapScript = NULL) const; // advc.027
 	// advc.027: New auxiliary function (public only for Debug mode info)
 	int coastRiverStartingAreaScore(CvArea const& a) const;
-	CvPlot* findStartingPlot(																						// Exposed to Python
-			bool* pbPlotFoundByMapScript = NULL, bool* pbAreaFoundByMapScript = NULL); // advc.027
+	CvPlot* findStartingPlot(bool* pbPlotFoundByMapScript = NULL, bool* pbAreaFoundByMapScript = NULL); // advc.027; Exposed to Python
 
 	CvPlotGroup* initPlotGroup(CvPlot* pPlot);
 
-	CvCity* initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,										// Exposed to Python
-			int iOccupationTimer = 0); // advc.ctr
-	void acquireCity(CvCity* pCity, bool bConquest, bool bTrade, bool bUpdatePlotGroups,							// Exposed to Python
-			bool bPeaceDeal = false, bool bForFree = false); // advc.ctr
+	CvCity* initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups, int iOccupationTimer = 0); // advc.ctr; Exposed to Python
+	void acquireCity(CvCity* pCity, bool bConquest, bool bTrade, bool bUpdatePlotGroups, bool bPeaceDeal = false, bool bForFree = false); // advc.ctr; Exposed to Python
 	void keepCity(CvCity& kCity); // advc
 	void killCities();																								// Exposed to Python
 	CvWString getNewCityName() const;																				// Exposed to Python
 	void getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const;
 	bool isCityNameValid(CvWString& szName, bool bTestPast = true) const;
 
-	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI,								// Exposed to Python
-			// advc.003u: Set this default here rather than in CvUnit::init
-			DirectionTypes eFacingDirection = DIRECTION_SOUTH);
+	// advc.003u: Set this default here rather than in CvUnit::init <!-- custom: hoisted from multiline signature between `eUnitAI` and `eFacingDirection` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = DIRECTION_SOUTH); // Exposed to Python
 	void disbandUnit(bool bAnnounce);																				// Exposed to Python
 	void killUnits();																								// Exposed to Python
 	// <advc.154>
-	CvSelectionGroup* getNextGroupInCycle(CvUnit* pUnit, bool bForward,
-			bool bWorkers, bool* pbWrap = NULL,
-			std::set<int>* pCycledGroup = NULL) const; // </advc.154>
-	CvSelectionGroup* cycleSelectionGroups(CvUnit* pUnit, bool bForward,
-			bool bWorkers, bool* pbWrap /* advc: */ = NULL);
+	CvSelectionGroup* getNextGroupInCycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap = NULL, std::set<int>* pCycledGroup = NULL) const; // </advc.154>
+	CvSelectionGroup* cycleSelectionGroups(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap /* advc: */ = NULL);
 
 	bool hasTrait(TraitTypes eTrait) const { return GC.getInfo(getLeaderType()).hasTrait(eTrait); }					// Exposed to Python
 	// BETTER_BTS_AI_MOD, 12/30/08, jdog5000: START
@@ -119,18 +112,13 @@ public:
 	void processTraits(int iChange); // advc.003q: Replacing the above
 	void changePersonalityType();
 	void resetCivTypeEffects(/* advc.003q: */ bool bInit);
-	void changeLeader(LeaderHeadTypes eNewLeader,
-			bool bChangeName = false); // advc.tsl
-	void changeCiv(CivilizationTypes eNewCiv,
-			bool bChangeDescr = false, bool bForceColorUpdate = false); // advc.tsl
+	void changeLeader(LeaderHeadTypes eNewLeader, bool bChangeName = false); // advc.tsl
+	void changeCiv(CivilizationTypes eNewCiv, bool bChangeDescr = false, bool bForceColorUpdate = false); // advc.tsl
 	void setIsHuman(bool bNewValue, /* advc.127c: */ bool bAIUpdate = false);
 	// CHANGE_PLAYER: END
 	// AI_AUTO_PLAY_MOD, 07/09/08, jdog5000: START
 	void setHumanDisabled(bool bNewVal);
-	bool isHumanDisabled() /* advc.127: */ const // and exposed to Python
-	{
-		return m_bDisableHuman;
-	} // AI_AUTO_PLAY_MOD: END
+	bool isHumanDisabled() /* advc.127: */ const { return m_bDisableHuman; } // and exposed to Python // AI_AUTO_PLAY_MOD: END
 	// <advc.127>
 	bool isSpectator() const;
 	bool isAutoPlayJustEnded() const { return m_bAutoPlayJustEnded; }												// Exposed to Python
@@ -211,10 +199,8 @@ public:
 	// advc.080:
 	int upgradeAllXPChange(UnitTypes eUpgradeUnit, UnitTypes eFromUnit) const;
 
-	int countReligionSpreadUnits(CvArea const* pArea, ReligionTypes eReligion,										// Exposed to Python
-			bool bIncludeTraining = false) const; // BBAI
-	int countCorporationSpreadUnits(CvArea const* pArea, CorporationTypes eCorporation,								// Exposed to Python
-			bool bIncludeTraining = false) const; // BBAI
+	int countReligionSpreadUnits(CvArea const* pArea, ReligionTypes eReligion, bool bIncludeTraining = false) const; // BBAI; Exposed to Python
+	int countCorporationSpreadUnits(CvArea const* pArea, CorporationTypes eCorporation, bool bIncludeTraining = false) const; // BBAI; Exposed to Python
 	int countNumCoastalCities() const;																				// Exposed to Python
 	int countNumCoastalCitiesByArea(CvArea const& kArea) const;														// Exposed to Python
 	int countTotalCulture() const;																					// Exposed to Python
@@ -228,24 +214,18 @@ public:
 	bool doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const; // K-Mod
 	bool isSpeedBonusAvailable(BonusTypes eBonus, CvPlot const& kAt) const; // advc.905b
 
-	DllExport bool canContact(PlayerTypes ePlayer) const															// Exposed to Python
-	{	// <advc> To match CvTeam::canContact
-		return canContact(ePlayer, false);
-	}
-	bool canContact(PlayerTypes ePlayer, // </advc>
-			bool bCheckWillingness) const; // K-Mod. this checks willingness to talk on both sides
+	// <advc> To match CvTeam::canContact
+	DllExport bool canContact(PlayerTypes ePlayer) const { return canContact(ePlayer, false); } // Exposed to Python
+	// </advc> <!-- custom: hoisted from multiline signature between `ePlayer` and `bCheckWillingness` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool canContact(PlayerTypes ePlayer, bool bCheckWillingness) const; // K-Mod. this checks willingness to talk on both sides
 	void contact(PlayerTypes ePlayer);																				// Exposed to Python
 	DllExport void handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2);
 	bool canTradeWith(PlayerTypes eWhoTo) const;																	// Exposed to Python
-	bool canReceiveTradeCity() const
-	{
-		return !isOneCityChallenge();
-	}
+	bool canReceiveTradeCity() const { return !isOneCityChallenge(); }
 	DllExport bool canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial = false) const;				// Exposed to Python
 	bool canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType) const; // advc.opt
 	// <advc.ctr>
-	bool canTradeCityTo(PlayerTypes eRecipient, CvCity const& kCity,
-			bool bConquest = false) const; // </advc.ctr>
+	bool canTradeCityTo(PlayerTypes eRecipient, CvCity const& kCity, bool bConquest = false) const; // </advc.ctr>
 	DllExport DenialTypes getTradeDenial(PlayerTypes eWhoTo, TradeData item) const;									// Exposed to Python
 	bool canTradeNetworkWith(PlayerTypes ePlayer) const;															// Exposed to Python
 	int getNumAvailableBonuses(BonusTypes eBonus) const;															// Exposed to Python
@@ -254,18 +234,14 @@ public:
 	// Your simple check will work, but it’s “capital-network only." If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
 	bool getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const;
 
-	int getNumTradeableBonuses(BonusTypes eBonus) const																// Exposed to Python
-	{
-		return (getNumAvailableBonuses(eBonus) - getBonusImport(eBonus));
-	}
+	int getNumTradeableBonuses(BonusTypes eBonus) const { return (getNumAvailableBonuses(eBonus) - getBonusImport(eBonus)); } // Exposed to Python
 	int getNumTradeBonusImports(PlayerTypes eFromPlayer) const;														// Exposed to Python
 	bool hasBonus(BonusTypes eBonus) const;																			// Exposed to Python
 	// advc: Said "IncludeCancelable", but actually does the opposite.
 	bool isTradingWithTeam(TeamTypes eTeam, bool bIncludeUncancelable) const;
 	bool canStopTradingWithTeam(TeamTypes eTeam, bool bContinueNotTrading = false) const;							// Exposed to Python
-	void stopTradingWithTeam(TeamTypes eTeam,																		// Exposed to Python
-			// <advc.130f>
-			bool bDiploPenalty = true);
+	// <advc.130f> <!-- custom: hoisted from multiline signature between `eTeam` and `bDiploPenalty` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void stopTradingWithTeam(TeamTypes eTeam, bool bDiploPenalty = true); // Exposed to Python
 	bool isAnyDealTooRecentToCancel(TeamTypes eTeam) const; // </advc.130f>
 	void killAllDeals();																							// Exposed to Python
 
@@ -277,29 +253,23 @@ public:
 	void disband(CvCity& kCity);																					// Exposed to Python
 
 	bool canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) const;									// Exposed to Python
-	void receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,												// Exposed to Python
-			bool bNoRecursion = false); // advc.314
-	void doGoody(CvPlot* pPlot, CvUnit* pUnit,																		// Exposed to Python
-			// advc.314: Set this when rolling an additional outcome
-			GoodyTypes eTaboo = NO_GOODY);
+	void receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, bool bNoRecursion = false); // advc.314; Exposed to Python
+	// advc.314: Set this when rolling an additional outcome <!-- custom: hoisted from multiline signature between `pUnit` and `eTaboo` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void doGoody(CvPlot* pPlot, CvUnit* pUnit, GoodyTypes eTaboo = NO_GOODY); // Exposed to Python
 
 	DllExport bool canFound(int iX, int iY, bool bTestVisible = false) const;										// Exposed to Python
 	// <advc.181>
-	bool canFound(CvPlot const& kPlot, bool bTestVisible = false,
-			bool bIgnoreFoW = true) const; // </advc.181>
+	bool canFound(CvPlot const& kPlot, bool bTestVisible = false, bool bIgnoreFoW = true) const; // </advc.181>
 	void found(int iX, int iY);																						// Exposed to Python
 
-	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false,								// Exposed to Python
-			bool bIgnoreCost = false) const;
-	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false,					// Exposed to Python
-			bool bIgnoreCost = false, /* K-Mod: */ bool bIgnoreTech = false) const;
+	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false) const; // Exposed to Python
+	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, /* K-Mod: */ bool bIgnoreTech = false) const; // Exposed to Python
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;					// Exposed to Python
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;											// Exposed to Python
 	bool isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const;												// Exposed to Python
 	bool isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity = false) const;		// Exposed to Python
 	bool isProductionMaxedProject(ProjectTypes eProject) const;														// Exposed to Python
-	int getProductionNeeded(UnitTypes eUnit,																		// Exposed to Python
-			int iExtraInstances = 0) const; // advc.104
+	int getProductionNeeded(UnitTypes eUnit, int iExtraInstances = 0) const; // advc.104; Exposed to Python
 	int getProductionNeeded(BuildingTypes eBuilding) const;															// Exposed to Python
 	int getProductionNeeded(ProjectTypes eProject) const;															// Exposed to Python
 	int getProductionModifier(UnitTypes eUnit) const;
@@ -310,20 +280,16 @@ public:
 	int getProductionModifier(ProjectTypes eProject) const;
 	scaled trainingModifierFromHandicap(bool bWorldClass = false) const;
 
-	int getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass,			// Exposed to Python
-			int iExtra = 0) const;
+	int getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra = 0) const; // Exposed to Python
 	void removeBuildingClass(BuildingClassTypes eBuildingClass);													// Exposed to Python
 	void processBuilding(BuildingTypes eBuilding, int iChange, CvArea& kArea);
 
-	bool canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestEra = false,									// Exposed to Python
-			bool bTestVisible = false, /* advc.181: */ bool bIgnoreFoW = true) const;
+	bool canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, /* advc.181: */ bool bIgnoreFoW = true) const; // Exposed to Python
 	int getBuildCost(CvPlot const& kPlot, BuildTypes eBuild) const;
-	RouteTypes getBestRoute(CvPlot const* pPlot = NULL,																// Exposed to Python
-			BuildTypes* peBestBuild = NULL) const; // advc.121
+	RouteTypes getBestRoute(CvPlot const* pPlot = NULL, BuildTypes* peBestBuild = NULL) const; // advc.121; Exposed to Python
 	int getImprovementUpgradeRate() const;																			// Exposed to Python
 
-	int calculateTotalYield(YieldTypes eYield,																		// Exposed to Python
-			bool bExcludeCitiesInDisorder = false) const; // advc.001
+	int calculateTotalYield(YieldTypes eYield, bool bExcludeCitiesInDisorder = false) const; // advc.001; Exposed to Python
 	int calculateTotalExports(YieldTypes eYield) const;																// Exposed to Python
 	int calculateTotalImports(YieldTypes eYield) const;																// Exposed to Python
 
@@ -347,26 +313,19 @@ public:
 	void setGwPercentAnger(int iNewValue); // K-Mod
 
 	int getUnitCostMultiplier() const; // K-Mod
-	int calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits,
-			// K-Mod: changed iBaseUnitCost to iUnitCost
-			int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost,
-			int iExtraPop = 0, int iExtraUnits = 0) const; // advc.004b
-	int calculateUnitCost(																							// Exposed to Python
-			int iExtraPop = 0, int iExtraUnits = 0) const; // advc.004b
-	int calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost,													// Exposed to Python
-			int iExtraOutsideUnits = 0) const; // advc.004b
-	int calculateUnitSupply(																						// Exposed to Python
-			int iExtraOutsideUnits = 0) const; // advc.004b
+	// K-Mod: changed iBaseUnitCost to iUnitCost <!-- custom: hoisted from multiline signature between `iPaidUnits` and `iPaidMilitaryUnits` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost, int iExtraPop = 0, int iExtraUnits = 0) const; // advc.004b
+	int calculateUnitCost(int iExtraPop = 0, int iExtraUnits = 0) const; // advc.004b; Exposed to Python
+	int calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost, int iExtraOutsideUnits = 0) const; // advc.004b; Exposed to Python
+	int calculateUnitSupply(int iExtraOutsideUnits = 0) const; // advc.004b; Exposed to Python
 	int calculatePreInflatedCosts() const;																			// Exposed to Python
 	int calculateInflationRate() const;																				// Exposed to Python
 	int calculateInflatedCosts() const;																				// Exposed to Python
 
 	//int calculateBaseNetGold() const; // disabled by K-Mod
 	//int calculateBaseNetResearch(TechTypes eTech = NO_TECH) const; // disabled by K-Mod (was exposed to Python)
-	int calculateResearchModifier(TechTypes eTech,																	// Exposed to Python
-			// <advc.910>
-			int* piFromOtherKnown = NULL, int* piFromPaths = NULL,
-			int* piFromTeam = NULL) const; // </advc.910>
+	// <advc.910> <!-- custom: hoisted from multiline signature between `eTech` and `piFromOtherKnown` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int calculateResearchModifier(TechTypes eTech, int* piFromOtherKnown = NULL, int* piFromPaths = NULL, int* piFromTeam = NULL) const; // </advc.910>; Exposed to Python
 	int calculateGoldRate() const;																					// Exposed to Python
 	int calculateResearchRate(TechTypes eTech = NO_TECH) const;														// Exposed to Python
 	int calculateTotalCommerce() const;
@@ -374,23 +333,17 @@ public:
 	bool isResearch() const;																						// Exposed to Python
 	bool canEverResearch(TechTypes eTech) const;																	// Exposed to Python
 	TechTypes getDiscoveryTech(UnitTypes eUnit) const; // advc: Moved from CvGameCoreUtils
-	bool canResearch(TechTypes eTech, bool bTrade = false,													 // K-Mod: Exposed to Python
-			bool bFree = false) const; // K-Mod (advc.004x: disused)
+	bool canResearch(TechTypes eTech, bool bTrade = false, bool bFree = false) const; // K-Mod (advc.004x: disused); K-Mod: Exposed to Python
 	TechTypes getCurrentResearch() const;																			// Exposed to Python
 	bool isCurrentResearchRepeat() const;																			// Exposed to Python
 	bool isNoResearchAvailable() const;																				// Exposed to Python
 	int getResearchTurnsLeft(TechTypes eTech, bool bOverflow) const;												// Exposed to Python
-	bool canSeeResearch(PlayerTypes ePlayer, // K-Mod, Exposed to Python
-			bool bCheckPoints = true) const; // advc.085
-	bool canSeeDemographics(PlayerTypes ePlayer, // K-Mod, Exposed to Python
-			bool bCheckPoints = true) const; // advc.085
+	bool canSeeResearch(PlayerTypes ePlayer, bool bCheckPoints = true) const; // advc.085; K-Mod, Exposed to Python
+	bool canSeeDemographics(PlayerTypes ePlayer, bool bCheckPoints = true) const; // advc.085; K-Mod, Exposed to Python
 	// advc.085:
 	int espionageNeededToSee(PlayerTypes ePlayer, bool bDemographics) const;
 	// <advc.091>
-	bool hasEverSeenDemographics(PlayerTypes eOther) const // (exposed to python)
-	{
-		return m_abEverSeenDemographics.get(eOther);
-	}
+	bool hasEverSeenDemographics(PlayerTypes eOther) const { return m_abEverSeenDemographics.get(eOther); } // (exposed to python)
 	void updateEverSeenDemographics(TeamTypes eTargetTeam); // </advc.091>
 	// advc.550e; also need it for advc.314
 	bool isSignificantDiscovery(TechTypes eTech) const;
@@ -401,11 +354,7 @@ public:
 	bool canDoAnyRevolution() const; // advc.enum, exposed to Python as canRevolution(0).
 	void revolution(CivicMap const& kNewCivics, bool bForce = false);												// Exposed to Python
 	// advc: Cut from the body of the revolution function above
-	int getMinTurnsBetweenRevolutions() const
-	{
-		return std::max(1, ((100 + getAnarchyModifier()) *
-				GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS)) / 100);
-	}
+	int getMinTurnsBetweenRevolutions() const { return std::max(1, ((100 + getAnarchyModifier()) * GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS)) / 100); }
 	int getCivicPercentAnger(CivicTypes eCivic, bool bIgnore = false) const;										// Exposed to Python
 	// <advc.130n> (all four exposed to Python)
 	CivicTypes getFavoriteCivic() const;
@@ -413,10 +362,9 @@ public:
 	ReligionTypes getFavoriteReligion() const;
 	bool isFavoriteReligionKnown() const;
 	// </advc.130n>
-	bool canDoReligion(ReligionTypes eReligion) const																// Exposed to Python
-	{	//return (GET_TEAM(getTeam()).getHasReligionCount(eReligion) != 0);
-		return (getHasReligionCount(eReligion) > 0); // advc.132c
-	}
+	//return (GET_TEAM(getTeam()).getHasReligionCount(eReligion) != 0);
+	// advc.132c
+	bool canDoReligion(ReligionTypes eReligion) const { return (getHasReligionCount(eReligion) > 0); } // Exposed to Python
 	bool canChangeReligion() const;																					// Exposed to Python
 	bool canConvert(ReligionTypes eReligion) const;																	// Exposed to Python
 	void convert(ReligionTypes eReligion, bool bForce = false); // advc.001v										// Exposed to Python
@@ -426,14 +374,11 @@ public:
 
 	bool hasHeadquarters(CorporationTypes eCorporation) const;														// Exposed to Python
 	int countHeadquarters() const;																					// Exposed to Python
-	int countCorporations(CorporationTypes eCorporation,															// Exposed to Python
-			CvArea const* pArea = 0) const; // K-Mod
+	int countCorporations(CorporationTypes eCorporation, CvArea const* pArea = 0) const; // K-Mod; Exposed to Python
 	void foundCorporation(CorporationTypes eCorporation);															// Exposed to Python
 
-	int getCivicAnarchyLength(CivicMap const& kNewCivics,															// Exposed to Python
-			bool bIgnoreGoldenAge = false) const; // advc.132
-	int getReligionAnarchyLength(																					// Exposed to Python
-			bool bIgnoreGoldenAge = false) const; // advc.132
+	int getCivicAnarchyLength(CivicMap const& kNewCivics, bool bIgnoreGoldenAge = false) const; // advc.132; Exposed to Python
+	int getReligionAnarchyLength(bool bIgnoreGoldenAge = false) const; // advc.132; Exposed to Python
 	int unitsRequiredForGoldenAge() const;																			// Exposed to Python
 	int unitsGoldenAgeCapable() const;																				// Exposed to Python
 	int unitsGoldenAgeReady() const;																				// Exposed to Python
@@ -474,15 +419,11 @@ public:
 	void changeAdvancedStartPoints(int iChange);																	// Exposed to Python
 
 	int getEspionageSpending(TeamTypes eAgainstTeam) const;															// Exposed to Python
-	bool canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,							// Exposed to Python
-			// advc: Same default values added as for getEspionageMissionCost
-			CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pUnit = NULL,
-			bool bCheckPoints = true) const; // advc.085
-	int getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-			// advc: Same default values added as for getEspionageMissionCost
-			CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;
-	int getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,							// Exposed to Python
-			CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;
+	// advc: Same default values added as for getEspionageMissionCost <!-- custom: hoisted from multiline signature between `eTargetPlayer` and `pPlot` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pUnit = NULL, bool bCheckPoints = true) const; // advc.085; Exposed to Python
+	// advc: Same default values added as for getEspionageMissionCost <!-- custom: hoisted from multiline signature between `eTargetPlayer` and `pPlot` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;
+	int getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const; // Exposed to Python
 	// kekm.33/advc:
 	int adjustMissionCostToTeamSize(int iBaseCost, PlayerTypes eTargetPlayer) const;
 	// <advc.120d> New functions, all exposed to Python
@@ -490,20 +431,12 @@ public:
 	bool canSeeTech(PlayerTypes eOther) const;
 	bool canSpy() const;
 	// </advc.120d>
-	int getEspionageMissionCostModifier(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-			CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;
-	bool doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot* pPlot,
-			int iExtraData, CvUnit* pUnit);
+	int getEspionageMissionCostModifier(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;
+	bool doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot* pPlot, int iExtraData, CvUnit* pUnit);
 
-	int getEspionageSpendingWeightAgainstTeam(TeamTypes eTeam) const												// Exposed to Python
-	{
-		return m_aiEspionageSpendingWeightAgainstTeam.get(eTeam);
-	}
+	int getEspionageSpendingWeightAgainstTeam(TeamTypes eTeam) const { return m_aiEspionageSpendingWeightAgainstTeam.get(eTeam); } // Exposed to Python
 	void setEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iValue);										// Exposed to Python
-	void changeEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iChange)										// Exposed to Python
-	{
-		setEspionageSpendingWeightAgainstTeam(eTeam, getEspionageSpendingWeightAgainstTeam(eTeam) + iChange);
-	}
+	void changeEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iChange) { setEspionageSpendingWeightAgainstTeam(eTeam, getEspionageSpendingWeightAgainstTeam(eTeam) + iChange); } // Exposed to Python
 
 	bool canStealTech(PlayerTypes eTarget, TechTypes eTech) const;
 	bool canForceCivics(PlayerTypes eTarget, CivicTypes eCivic) const;
@@ -514,19 +447,16 @@ public:
 	bool canSpyDestroyBuilding(PlayerTypes eTarget, BuildingTypes eBuilding) const;
 	bool canSpyDestroyProject(PlayerTypes eTarget, ProjectTypes eProject) const;
 	// <K-Mod>
-	int getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, // advc.120d: Exposed to Python
-			CvCity const* pCity) const; // </K-Mod>
+	int getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvCity const* pCity) const; // </K-Mod>; advc.120d: Exposed to Python
 
-	void doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd,
-			int iData2 = -1); // advc.250c
+	void doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd, int iData2 = -1); // advc.250c
 	// advc: Made all the pointer params const
 	int getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot const* pPlot = NULL) const;						// Exposed to Python
 	int getAdvancedStartCityCost(bool bAdd, CvPlot const* pPlot = NULL) const;										// Exposed to Python
 	int getAdvancedStartPopCost(bool bAdd, CvCity const* pCity = NULL) const;										// Exposed to Python
 	int getAdvancedStartCultureCost(bool bAdd, CvCity const* pCity = NULL) const;									// Exposed to Python
 	int getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd, CvCity const* pCity = NULL) const;			// Exposed to Python
-	int getAdvancedStartImprovementCost(ImprovementTypes eImprovement, bool bAdd,									// Exposed to Python
-			CvPlot const* pPlot = NULL) const;
+	int getAdvancedStartImprovementCost(ImprovementTypes eImprovement, bool bAdd, CvPlot const* pPlot = NULL) const; // Exposed to Python
 	int getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot const* pPlot = NULL) const;					// Exposed to Python
 	int getAdvancedStartTechCost(TechTypes eTech, bool bAdd) const;													// Exposed to Python
 	int getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot = NULL) const;								// Exposed to Python
@@ -559,8 +489,7 @@ public:
 	int getHurryModifier() const { return m_iGlobalHurryModifier; }													// Exposed to Python
 	void changeHurryModifier(int iChange);
 
-	void createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold,
-			bool bIncrementExperience, CvPlot& kAt);
+	void createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold, bool bIncrementExperience, CvPlot& kAt);
 
 	int getGreatPeopleCreated() const { return m_iGreatPeopleCreated; }												// Exposed to Python
 	void incrementGreatPeopleCreated();
@@ -787,14 +716,8 @@ public:
 	int getStateReligionFreeExperience() const { return m_iStateReligionFreeExperience; }							// Exposed to Python
 	void changeStateReligionFreeExperience(int iChange);
 
-	CvCity* getCapital() const // advc: abbreviate
-	{
-		return getCity(m_iCapitalCityID);
-	}
-	DllExport CvCity* getCapitalCity() const																		// Exposed to Python
-	{
-		return getCapital();
-	}
+	CvCity* getCapital() const { return getCity(m_iCapitalCityID); } // advc: abbreviate
+	DllExport CvCity* getCapitalCity() const { return getCapital(); } // Exposed to Python
 	void setCapital(CvCity* pNewCapital);
 	// <advc.127b> -1 if no capital or (eObserver!=NO_TEAM) unrevealed to eObserver
 	int getCapitalX(TeamTypes eObserver, bool bDebug = false) const;
@@ -802,10 +725,7 @@ public:
 	int getCapitalX(PlayerTypes eObserver, bool bDebug = false) const;
 	int getCapitalY(PlayerTypes eObserver, bool bDebug = false) const; // </advc.127b>
 	// advc:
-	bool hasCapital() const
-	{
-		return (m_iCapitalCityID != FFreeList::INVALID_INDEX);
-	}
+	bool hasCapital() const { return (m_iCapitalCityID != FFreeList::INVALID_INDEX); }
 
 	int getCitiesLost() const { return m_iCitiesLost; }																// Exposed to Python
 	void changeCitiesLost(int iChange);
@@ -882,21 +802,11 @@ public:
 
 	DllExport HandicapTypes getHandicapType() const;																// Exposed to Python
 
-	DllExport CivilizationTypes getCivilizationType() const															// Exposed to Python
-	{
-		return GC.getInitCore().getCiv(getID());
-	}
+	DllExport CivilizationTypes getCivilizationType() const { return GC.getInitCore().getCiv(getID()); } // Exposed to Python
 	// <advc.003u>
 	void setCivilization(CivilizationTypes eCivilization);
-	CvCivilization const& getCivilization() const
-	{
-		FAssertMsg(m_pCivilization != NULL, "Player has no civilization type");
-		return *m_pCivilization;
-	} // </advc.003u>
-	DllExport LeaderHeadTypes getLeaderType() const																	// Exposed to Python
-	{
-		return GC.getInitCore().getLeader(getID());
-	}
+	CvCivilization const& getCivilization() const { FAssertMsg(m_pCivilization != NULL, "Player has no civilization type"); return *m_pCivilization; } // </advc.003u>
+	DllExport LeaderHeadTypes getLeaderType() const { return GC.getInitCore().getLeader(getID()); } // Exposed to Python
 	LeaderHeadTypes getPersonalityType() const { return m_ePersonalityType; }										// Exposed to Python
 	void setPersonalityType(LeaderHeadTypes eNewValue);																// Exposed to Python
 
@@ -904,10 +814,7 @@ public:
 	void setCurrentEra(EraTypes eNewValue);
 
 	ReligionTypes getLastStateReligion() const { return m_eLastStateReligion; }
-	ReligionTypes getStateReligion() const																			// Exposed to Python
-	{
-		return (isStateReligion() ? getLastStateReligion() : NO_RELIGION);
-	}
+	ReligionTypes getStateReligion() const { return (isStateReligion() ? getLastStateReligion() : NO_RELIGION); } // Exposed to Python
 	void setLastStateReligion(ReligionTypes eNewReligion);																// Exposed to Python
 
 	PlayerTypes getParent() const { return m_eParent; }
@@ -940,10 +847,7 @@ public:
 	int getExtraYieldThreshold(YieldTypes eYield) const { return m_aiExtraYieldThreshold.get(eYield); }				// Exposed to Python
 	void updateExtraYieldThresholds(YieldTypes eYield);
 	// <advc.908a>
-	int getExtraYieldNaturalThreshold(YieldTypes eYield) const														// Exposed to Python
-	{
-		return m_aiExtraYieldNaturalThreshold.get(eYield);
-	} // </advc.908a>
+	int getExtraYieldNaturalThreshold(YieldTypes eYield) const { return m_aiExtraYieldNaturalThreshold.get(eYield); } // Exposed to Python // </advc.908a>
 
 	int getTradeYieldModifier(YieldTypes eYield) const { return m_aiTradeYieldModifier.get(eYield); }				// Exposed to Python
 	void changeTradeYieldModifier(YieldTypes eYield, int iChange);
@@ -954,15 +858,10 @@ public:
 	int getCommercePercent(CommerceTypes eCommerce) const { return m_aiCommercePercent.get(eCommerce); }			// Exposed to Python
 	// K-Mod. these functions now return false if the value is not changed.
 	bool setCommercePercent(CommerceTypes eCommerce, int iNewValue, bool bForce = false);							// Exposed to Python
-	bool changeCommercePercent(CommerceTypes eCommerce, int iChange) // K-Mod end									// Exposed to Python
-	{
-		return setCommercePercent(eCommerce, getCommercePercent(eCommerce) + iChange);
-	}
+	bool changeCommercePercent(CommerceTypes eCommerce, int iChange) { return setCommercePercent(eCommerce, getCommercePercent(eCommerce) + iChange); } // K-Mod end									// Exposed to Python
 
-	int getCommerceRate(CommerceTypes eCommerce) const																// Exposed to Python
-	{
-		return m_aiCommerceRate.get(eCommerce); // advc.157: cached
-	}
+	// advc.157: cached
+	int getCommerceRate(CommerceTypes eCommerce) const { return m_aiCommerceRate.get(eCommerce); } // Exposed to Python
 	void updateCommerceRates(); // advc.157
 	// advc.157: Renamed from "changeCommerceRate"
 	void changeCommerceRateTimes100(CommerceTypes eCommerce, int iChange);
@@ -970,50 +869,29 @@ public:
 	int getCommerceRateModifier(CommerceTypes eCommerce) const { return m_aiCommerceRateModifier.get(eCommerce); }	// Exposed to Python
 	void changeCommerceRateModifier(CommerceTypes eCommerce, int iChange);
 
-	int getCapitalCommerceRateModifier(CommerceTypes eCommerce) const												// Exposed to Python
-	{
-		return m_aiCapitalCommerceRateModifier.get(eCommerce);
-	}
+	int getCapitalCommerceRateModifier(CommerceTypes eCommerce) const { return m_aiCapitalCommerceRateModifier.get(eCommerce); } // Exposed to Python
 	void changeCapitalCommerceRateModifier(CommerceTypes eCommerce, int iChange);
 
-	int getStateReligionBuildingCommerce(CommerceTypes eCommerce) const												// Exposed to Python
-	{
-		return m_aiStateReligionBuildingCommerce.get(eCommerce);
-	}
+	int getStateReligionBuildingCommerce(CommerceTypes eCommerce) const { return m_aiStateReligionBuildingCommerce.get(eCommerce); } // Exposed to Python
 	void changeStateReligionBuildingCommerce(CommerceTypes eCommerce, int iChange);
 
-	int getSpecialistExtraCommerce(CommerceTypes eCommerce) const													// Exposed to Python
-	{
-		return m_aiSpecialistExtraCommerce.get(eCommerce);
-	}
+	int getSpecialistExtraCommerce(CommerceTypes eCommerce) const { return m_aiSpecialistExtraCommerce.get(eCommerce); } // Exposed to Python
 	void changeSpecialistExtraCommerce(CommerceTypes eCommerce, int iChange);
 
-	int getCommerceFlexibleCount(CommerceTypes eCommerce) const
-	{
-		return m_aiCommerceFlexibleCount.get(eCommerce);
-	}
+	int getCommerceFlexibleCount(CommerceTypes eCommerce) const { return m_aiCommerceFlexibleCount.get(eCommerce); }
 	bool isCommerceFlexible(CommerceTypes eCommerce) const;															// Exposed to Python
 	void changeCommerceFlexibleCount(CommerceTypes eCommerce, int iChange);
 
-	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const															// Exposed to Python
-	{
-		return m_aiGoldPerTurnByPlayer.get(ePlayer);
-	}
+	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python
 	void changeGoldPerTurnByPlayer(PlayerTypes ePlayer, int iChange);
 
 	bool isFeatAccomplished(FeatTypes eFeat) const;																	// Exposed to Python
 	void setFeatAccomplished(FeatTypes eFeat, bool bNewValue);														// Exposed to Python
 
-	DllExport bool isOption(PlayerOptionTypes eOption) const														// Exposed to Python
-	{
-		return m_abOptions.get(eOption);
-	}
+	DllExport bool isOption(PlayerOptionTypes eOption) const { return m_abOptions.get(eOption); } // Exposed to Python
 	/*	advc.127, advc.001: For fixing bugs with automation options being applied
 		during AI Auto Play */
-	bool isHumanOption(PlayerOptionTypes eOption) const
-	{
-		return (isHuman() && isOption(eOption));
-	}
+	bool isHumanOption(PlayerOptionTypes eOption) const { return (isHuman() && isOption(eOption)); }
 	DllExport void setOption(PlayerOptionTypes eOption, bool bNewValue);											// Exposed to Python
 
 	bool isAutomationSafe(CvPlot const& kPlot) const; // advc
@@ -1037,51 +915,27 @@ public:
 	bool isBuildingFree(BuildingTypes eBuilding) const { return (getFreeBuildingCount(eBuilding) > 0); }			// Exposed to Python
 	void changeFreeBuildingCount(BuildingTypes eBuilding, int iChange);
 
-	int getExtraBuildingHappiness(BuildingTypes eBuilding) const													// Exposed to Python
-	{
-		return m_aiExtraBuildingHappiness.get(eBuilding);
-	}
+	int getExtraBuildingHappiness(BuildingTypes eBuilding) const { return m_aiExtraBuildingHappiness.get(eBuilding); } // Exposed to Python
 	void changeExtraBuildingHappiness(BuildingTypes eBuilding, int iChange);
-	int getExtraBuildingHealth(BuildingTypes eBuilding) const														// Exposed to Python
-	{
-		return m_aiExtraBuildingHealth.get(eBuilding);
-	}
+	int getExtraBuildingHealth(BuildingTypes eBuilding) const { return m_aiExtraBuildingHealth.get(eBuilding); } // Exposed to Python
 	void changeExtraBuildingHealth(BuildingTypes eBuilding, int iChange);
 
 	int getFeatureHappiness(FeatureTypes eFeature) const { return m_aiFeatureHappiness.get(eFeature); }				// Exposed to Python
 	void changeFeatureHappiness(FeatureTypes eFeature, int iChange);
 
-	int getUnitClassCount(UnitClassTypes eUnitClass) const															// Exposed to Python
-	{
-		return m_aiUnitClassCount.get(eUnitClass);
-	}
+	int getUnitClassCount(UnitClassTypes eUnitClass) const { return m_aiUnitClassCount.get(eUnitClass); } // Exposed to Python
 	bool isUnitClassMaxedOut(UnitClassTypes eUnitClass, int iExtra = 0) const;										// Exposed to Python
 	void changeUnitClassCount(UnitClassTypes eUnitClass, int iChange);
-	int getUnitClassMaking(UnitClassTypes eUnitClass) const															// Exposed to Python
-	{
-		return m_aiUnitClassMaking.get(eUnitClass);
-	}
+	int getUnitClassMaking(UnitClassTypes eUnitClass) const { return m_aiUnitClassMaking.get(eUnitClass); } // Exposed to Python
 	void changeUnitClassMaking(UnitClassTypes eUnitClass, int iChange);
-	int getUnitClassCountPlusMaking(UnitClassTypes eUnitClass) const												// Exposed to Python
-	{
-		return getUnitClassCount(eUnitClass) + getUnitClassMaking(eUnitClass);
-	}
+	int getUnitClassCountPlusMaking(UnitClassTypes eUnitClass) const { return getUnitClassCount(eUnitClass) + getUnitClassMaking(eUnitClass); } // Exposed to Python
 
-	int getBuildingClassCount(BuildingClassTypes eBuildingClass) const												// Exposed to Python
-	{
-		return m_aiBuildingClassCount.get(eBuildingClass);
-	}
+	int getBuildingClassCount(BuildingClassTypes eBuildingClass) const { return m_aiBuildingClassCount.get(eBuildingClass); } // Exposed to Python
 	bool isBuildingClassMaxedOut(BuildingClassTypes eBuildingClass, int iExtra = 0) const;							// Exposed to Python
 	void changeBuildingClassCount(BuildingClassTypes eBuildingClass, int iChange);
-	int getBuildingClassMaking(BuildingClassTypes eBuildingClass) const												// Exposed to Python
-	{
-		return m_aiBuildingClassMaking.get(eBuildingClass);
-	}
+	int getBuildingClassMaking(BuildingClassTypes eBuildingClass) const { return m_aiBuildingClassMaking.get(eBuildingClass); } // Exposed to Python
 	void changeBuildingClassMaking(BuildingClassTypes eBuildingClass, int iChange);
-	int getBuildingClassCountPlusMaking(BuildingClassTypes eBuildingClass) const									// Exposed to Python
-	{
-		return getBuildingClassCount(eBuildingClass) + getBuildingClassMaking(eBuildingClass);
-	}
+	int getBuildingClassCountPlusMaking(BuildingClassTypes eBuildingClass) const { return getBuildingClassCount(eBuildingClass) + getBuildingClassMaking(eBuildingClass); } // Exposed to Python
 
 	int getHurryCount(HurryTypes eHurry) const { return m_aiHurryCount.get(eHurry); }								// Exposed to Python
 	bool canHurry(HurryTypes eHurry) const {  return (getHurryCount(eHurry) > 0); }									// Exposed to Python
@@ -1090,40 +944,19 @@ public:
 	void changeHurryCount(HurryTypes eHurry, int iChange);
 	int getFoodKept(BuildingTypes eBuilding) const; // advc.912d
 
-	int getSpecialBuildingNotRequiredCount(SpecialBuildingTypes eSpecial) const										// Exposed to Python
-	{
-		return m_aiSpecialBuildingNotRequiredCount.get(eSpecial);
-	}
-	bool isSpecialBuildingNotRequired(SpecialBuildingTypes eSpecial) const											// Exposed to Python
-	{
-		return (getSpecialBuildingNotRequiredCount(eSpecial) > 0);
-	}
+	int getSpecialBuildingNotRequiredCount(SpecialBuildingTypes eSpecial) const { return m_aiSpecialBuildingNotRequiredCount.get(eSpecial); } // Exposed to Python
+	bool isSpecialBuildingNotRequired(SpecialBuildingTypes eSpecial) const { return (getSpecialBuildingNotRequiredCount(eSpecial) > 0); } // Exposed to Python
 	void changeSpecialBuildingNotRequiredCount(SpecialBuildingTypes eSpecial, int iChange);
 
-	int getHasCivicOptionCount(CivicOptionTypes eCivicOption) const
-	{
-		return m_aiHasCivicOptionCount.get(eCivicOption);
-	}
-	bool isHasCivicOption(CivicOptionTypes eCivicOption) const														// Exposed to Python
-	{
-		return (getHasCivicOptionCount(eCivicOption) > 0);
-	}
+	int getHasCivicOptionCount(CivicOptionTypes eCivicOption) const { return m_aiHasCivicOptionCount.get(eCivicOption); }
+	bool isHasCivicOption(CivicOptionTypes eCivicOption) const { return (getHasCivicOptionCount(eCivicOption) > 0); } // Exposed to Python
 	void changeHasCivicOptionCount(CivicOptionTypes eCivicOption, int iChange);
 
-	int getNoCivicUpkeepCount(CivicOptionTypes eCivicOption) const
-	{
-		return m_aiNoCivicUpkeepCount.get(eCivicOption);
-	}
-	bool isNoCivicUpkeep(CivicOptionTypes eCivicOption) const														// Exposed to Python
-	{
-		return (getNoCivicUpkeepCount(eCivicOption) > 0);
-	}
+	int getNoCivicUpkeepCount(CivicOptionTypes eCivicOption) const { return m_aiNoCivicUpkeepCount.get(eCivicOption); }
+	bool isNoCivicUpkeep(CivicOptionTypes eCivicOption) const { return (getNoCivicUpkeepCount(eCivicOption) > 0); } // Exposed to Python
 	void changeNoCivicUpkeepCount(CivicOptionTypes eCivicOption, int iChange);
 
-	int getHasReligionCount(ReligionTypes eReligion) const															// Exposed to Python
-	{
-		return m_aiHasReligionCount.get(eReligion);
-	}
+	int getHasReligionCount(ReligionTypes eReligion) const { return m_aiHasReligionCount.get(eReligion); } // Exposed to Python
 	int countTotalHasReligion() const;																				// Exposed to Python
 	int findHighestHasReligionCount() const;																		// Exposed to Python
 	void changeHasReligionCount(ReligionTypes eReligion, int iChange);
@@ -1138,40 +971,23 @@ public:
 	int getUpkeepCount(UpkeepTypes eUpkeep) const;																	// Exposed to Python
 	void changeUpkeepCount(UpkeepTypes eUpkeep, int iChange);
 
-	int getSpecialistValidCount(SpecialistTypes eSpecialist) const
-	{
-		return m_aiSpecialistValidCount.get(eSpecialist);
-	}
-	bool isSpecialistValid(SpecialistTypes eSpecialist) const														// Exposed to Python
-	{
-		return (getSpecialistValidCount(eSpecialist) > 0);
-	}
+	int getSpecialistValidCount(SpecialistTypes eSpecialist) const { return m_aiSpecialistValidCount.get(eSpecialist); }
+	bool isSpecialistValid(SpecialistTypes eSpecialist) const { return (getSpecialistValidCount(eSpecialist) > 0); } // Exposed to Python
 	void changeSpecialistValidCount(SpecialistTypes eSpecialist, int iChange);
 
-	bool isResearchingTech(TechTypes eTech) const																	// Exposed to Python
-	{
-		return m_abResearchingTech.get(eTech);
-	}
+	bool isResearchingTech(TechTypes eTech) const { return m_abResearchingTech.get(eTech); } // Exposed to Python
 	void setResearchingTech(TechTypes eTech, bool bNewValue);
 
 	CivicTypes getCivics(CivicOptionTypes eCivicOption) const { return m_aeCivics.get(eCivicOption); }				// Exposed to Python
 	void getCivics(CivicMap& kResult) const; // advc.enum
-	int getSingleCivicUpkeep(CivicTypes eCivic, bool bIgnoreAnarchy = false,										// Exposed to Python
-			int iExtraCities = 0) const; // advc.004b
-	int getCivicUpkeep(CivicMap const* pCivics = NULL, bool bIgnoreAnarchy = false, 									// Exposed to Python
-			int iExtraCities = 0) const; // advc.004b
+	int getSingleCivicUpkeep(CivicTypes eCivic, bool bIgnoreAnarchy = false, int iExtraCities = 0) const; // advc.004b; Exposed to Python
+	int getCivicUpkeep(CivicMap const* pCivics = NULL, bool bIgnoreAnarchy = false, int iExtraCities = 0) const; // advc.004b; Exposed to Python
 	void setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue);											// Exposed to Python
 
-	int getSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield) const								// Exposed to Python
-	{
-		return m_aeeiSpecialistExtraYield.get(eSpecialist, eYield);
-	}
+	int getSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield) const { return m_aeeiSpecialistExtraYield.get(eSpecialist, eYield); } // Exposed to Python
 	void changeSpecialistExtraYield(SpecialistTypes eSpecialist, YieldTypes eYield, int iChange);
 
-	int getImprovementYieldChange(ImprovementTypes eImprov, YieldTypes eYield) const								// Exposed to Python
-	{
-		return m_aeeiImprovementYieldChange.get(eImprov, eYield);
-	}
+	int getImprovementYieldChange(ImprovementTypes eImprov, YieldTypes eYield) const { return m_aeeiImprovementYieldChange.get(eImprov, eYield); } // Exposed to Python
 	void changeImprovementYieldChange(ImprovementTypes eImprov, YieldTypes eYield, int iChange);
 
 	//void updateGroupCycle(CvUnit* pUnit);
@@ -1187,14 +1003,10 @@ public:
 	int findPathLength(TechTypes eTech, bool bCost = true) const;													// Exposed to Python
 	int getQueuePosition(TechTypes eTech) const;																	// Exposed to Python
 	void clearResearchQueue();																						// Exposed to Python
-	bool pushResearch(TechTypes eTech, bool bClear = false,															// Exposed to Python
-			bool bKillPopup = true); // advc.004x
+	bool pushResearch(TechTypes eTech, bool bClear = false, bool bKillPopup = true); // advc.004x; Exposed to Python
 	void popResearch(TechTypes eTech);																				// Exposed to Python
 	int getLengthResearchQueue() const { return m_researchQueue.getLength(); }																																// Exposed to Python
-	CLLNode<TechTypes>* nextResearchQueueNode(CLLNode<TechTypes>* pNode) const
-	{
-		return m_researchQueue.next(pNode);
-	}
+	CLLNode<TechTypes>* nextResearchQueueNode(CLLNode<TechTypes>* pNode) const { return m_researchQueue.next(pNode); }
 	CLLNode<TechTypes>* headResearchQueueNode() const { return m_researchQueue.head(); }
 	CLLNode<TechTypes>* tailResearchQueueNode() const { return m_researchQueue.tail(); }
 
@@ -1206,94 +1018,46 @@ public:
 
 	// plot groups iteration
 	// advc.inl: Inline most of these. Remove unused bRev param to avoid branching.
-	CvPlotGroup* firstPlotGroup(int *pIterIdx/*, bool bRev=false*/) const
-	{
-		return /*bRev ? m_plotGroups.endIter(pIterIdx) :*/ m_plotGroups.beginIter(pIterIdx);
-	}
-	CvPlotGroup* nextPlotGroup(int *pIterIdx/*, bool bRev=false*/) const
-	{
-		return /*bRev ? m_plotGroups.prevIter(pIterIdx) :*/ m_plotGroups.nextIter(pIterIdx);
-	}
+	CvPlotGroup* firstPlotGroup(int *pIterIdx/*, bool bRev=false*/) const { return /*bRev ? m_plotGroups.endIter(pIterIdx) :*/ m_plotGroups.beginIter(pIterIdx); }
+	CvPlotGroup* nextPlotGroup(int *pIterIdx/*, bool bRev=false*/) const { return /*bRev ? m_plotGroups.prevIter(pIterIdx) :*/ m_plotGroups.nextIter(pIterIdx); }
 	int getNumPlotGroups() const { return m_plotGroups.getCount(); }
-	CvPlotGroup* getPlotGroup(int iID) const
-	{
-		return m_plotGroups.getAt(iID);
-	}
+	CvPlotGroup* getPlotGroup(int iID) const { return m_plotGroups.getAt(iID); }
 	CvPlotGroup* addPlotGroup() { return m_plotGroups.add(); }
-	void deletePlotGroup(int iID)
-	{
-		m_plotGroups.removeAt(iID);
-	}
+	void deletePlotGroup(int iID) { m_plotGroups.removeAt(iID); }
 
 	// city iteration (advc.inl: inlined)
-	DllExport CvCity* firstCity(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_cities.beginIter(pIterIdx) : m_cities.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_cities.beginIter(pIterIdx); // advc.opt
-	}
-	DllExport CvCity* nextCity(int* pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_cities.nextIter(pIterIdx) : m_cities.prevIter(pIterIdx));
-		return m_cities.nextIter(pIterIdx); // advc.opt
-	}
+	//return (!bRev ? m_cities.beginIter(pIterIdx) : m_cities.endIter(pIterIdx));
+	// advc.opt
+	DllExport CvCity* firstCity(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_cities.beginIter(pIterIdx); } // Exposed to Python
+	//return (!bRev ? m_cities.nextIter(pIterIdx) : m_cities.prevIter(pIterIdx));
+	// advc.opt
+	DllExport CvCity* nextCity(int* pIterIdx, bool bRev=false) const { return m_cities.nextIter(pIterIdx); } // Exposed to Python
 	// <advc.opt> Backwards traversal Moved into separate functions (needed for city cycling)
-	CvCity* lastCity(int* pIterIdx) const
-	{
-		return m_cities.endIter(pIterIdx);
-	}
-	CvCity* prevCity(int* pIterIdx) const
-	{
-		return m_cities.prevIter(pIterIdx);
-	} // </advc.opt>
-	DllExport int getNumCities() const																				// Exposed to Python
-	{
-		return m_cities.getCount();
-	}
-	DllExport CvCity* getCity(int iID) const																		// Exposed to Python
-	{
-		return m_cities.getAt(iID);
-	}
+	CvCity* lastCity(int* pIterIdx) const { return m_cities.endIter(pIterIdx); }
+	CvCity* prevCity(int* pIterIdx) const { return m_cities.prevIter(pIterIdx); } // </advc.opt>
+	DllExport int getNumCities() const { return m_cities.getCount(); } // Exposed to Python
+	DllExport CvCity* getCity(int iID) const { return m_cities.getAt(iID); } // Exposed to Python
 	//CvCity* addCity(); // advc.003u: removed
 	void deleteCity(int iID);
 
 	// unit iteration (advc.inl: inlined)
-	DllExport CvUnit* firstUnit(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_units.beginIter(pIterIdx) : m_units.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_units.beginIter(pIterIdx); // advc.opt
-	}
-	DllExport CvUnit* nextUnit(int *pIterIdx, bool bRev=false) const												// Exposed to Python
-	{	//return (!bRev ? m_units.nextIter(pIterIdx) : m_units.prevIter(pIterIdx));
-		return m_units.nextIter(pIterIdx);
-	}
-	DllExport int getNumUnits() const																				// Exposed to Python
-	{
-		return m_units.getCount();
-	}
-	CvUnit* getUnit(int iID) const																					// Exposed to Python
-	{
-		return m_units.getAt(iID);
-	}
+	//return (!bRev ? m_units.beginIter(pIterIdx) : m_units.endIter(pIterIdx));
+	// advc.opt
+	DllExport CvUnit* firstUnit(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_units.beginIter(pIterIdx); } // Exposed to Python
+	//return (!bRev ? m_units.nextIter(pIterIdx) : m_units.prevIter(pIterIdx));
+	DllExport CvUnit* nextUnit(int *pIterIdx, bool bRev=false) const { return m_units.nextIter(pIterIdx); } // Exposed to Python
+	DllExport int getNumUnits() const { return m_units.getCount(); } // Exposed to Python
+	CvUnit* getUnit(int iID) const { return m_units.getAt(iID); } // Exposed to Python
 	//CvUnit* addUnit(); // advc.003u: removed
 	void deleteUnit(int iID);
 
 	// selection groups iteration (advc.inl: inlined)
-	CvSelectionGroup* firstSelectionGroup(int *pIterIdx, bool bRev=false) const										// Exposed to Python
-	{	//return (!bRev ? m_selectionGroups.beginIter(pIterIdx) : m_selectionGroups.endIter(pIterIdx));
-		FAssert(!bRev);
-		return m_selectionGroups.beginIter(pIterIdx);
-	}
-	CvSelectionGroup* nextSelectionGroup(int *pIterIdx, bool bRev=false) const										// Exposed to Python
-	{	//return (!bRev ? m_selectionGroups.nextIter(pIterIdx) : m_selectionGroups.prevIter(pIterIdx));
-		return m_selectionGroups.nextIter(pIterIdx);
-	}
-	int getNumSelectionGroups() const																				// Exposed to Python
-	{
-		return m_selectionGroups.getCount();
-	}
-	CvSelectionGroup* getSelectionGroup(int iID) const																// Exposed to Python
-	{
-		return m_selectionGroups.getAt(iID);
-	}
+	//return (!bRev ? m_selectionGroups.beginIter(pIterIdx) : m_selectionGroups.endIter(pIterIdx));
+	CvSelectionGroup* firstSelectionGroup(int *pIterIdx, bool bRev=false) const { FAssert(!bRev); return m_selectionGroups.beginIter(pIterIdx); } // Exposed to Python
+	//return (!bRev ? m_selectionGroups.nextIter(pIterIdx) : m_selectionGroups.prevIter(pIterIdx));
+	CvSelectionGroup* nextSelectionGroup(int *pIterIdx, bool bRev=false) const { return m_selectionGroups.nextIter(pIterIdx); } // Exposed to Python
+	int getNumSelectionGroups() const { return m_selectionGroups.getCount(); } // Exposed to Python
+	CvSelectionGroup* getSelectionGroup(int iID) const { return m_selectionGroups.getAt(iID); } // Exposed to Python
 	CvSelectionGroup* addSelectionGroup();
 	void deleteSelectionGroup(int iID);
 
@@ -1305,12 +1069,7 @@ public:
 	EventTriggeredData* getEventTriggered(int iID) const;															// Exposed to Python
 	EventTriggeredData* addEventTriggered();
 	void deleteEventTriggered(int iID);
-	EventTriggeredData* initTriggeredData(EventTriggerTypes eEventTrigger,											// Exposed to Python
-			bool bFire = false, int iCityId = -1, int iPlotX = INVALID_PLOT_COORD,
-			int iPlotY = INVALID_PLOT_COORD, PlayerTypes eOtherPlayer = NO_PLAYER,
-			int iOtherPlayerCityId = -1, ReligionTypes eReligion = NO_RELIGION,
-			CorporationTypes eCorporation = NO_CORPORATION, int iUnitId = -1,
-			BuildingTypes eBuilding = NO_BUILDING);
+	EventTriggeredData* initTriggeredData(EventTriggerTypes eEventTrigger, bool bFire = false, int iCityId = -1, int iPlotX = INVALID_PLOT_COORD, int iPlotY = INVALID_PLOT_COORD, PlayerTypes eOtherPlayer = NO_PLAYER, int iOtherPlayerCityId = -1, ReligionTypes eReligion = NO_RELIGION, CorporationTypes eCorporation = NO_CORPORATION, int iUnitId = -1, BuildingTypes eBuilding = NO_BUILDING); // Exposed to Python
 	int getEventTriggerWeight(EventTriggerTypes eTrigger) const;													// Exposed to python
 
 	DllExport void addMessage(CvTalkingHeadMessage const& kMessage);
@@ -1338,16 +1097,8 @@ public:
 	// advc.120l:
 	void addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) const;
 	// <advc.004s> Replacing implementation based on stdext::hash_map
-	int getHistory(PlayerHistoryTypes eHistory, int iTurn) const
-	{
-		FAssertEnumBounds(eHistory);
-		return m_playerHistory[eHistory].get(iTurn);
-	}
-	int getHistorySafe(PlayerHistoryTypes eHistory, int iTurn) const	// Exposed to Python (as e.g. getScoreHistory)
-	{
-		FAssertEnumBounds(eHistory);
-		return m_playerHistory[eHistory].getSafe(iTurn);
-	}
+	int getHistory(PlayerHistoryTypes eHistory, int iTurn) const { FAssertEnumBounds(eHistory); return m_playerHistory[eHistory].get(iTurn); }
+	int getHistorySafe(PlayerHistoryTypes eHistory, int iTurn) const { FAssertEnumBounds(eHistory); return m_playerHistory[eHistory].getSafe(iTurn); } // Exposed to Python (as e.g. getScoreHistory)
 	void updateHistory(PlayerHistoryTypes eHistory, int iTurn); // </advc.004s>
 	CvPlayerRecord const* getPlayerRecord() const; // K-Mod
 
@@ -1420,15 +1171,12 @@ public:
 	bool canSpiesEnterBorders(PlayerTypes ePlayer) const;
 	int getNewCityProductionValue() const;
 
-	int getGrowthThreshold(int iPopulation,
-			bool bIgnoreModifiers = false) const; // advc.064b
+	int getGrowthThreshold(int iPopulation, bool bIgnoreModifiers = false) const; // advc.064b
 
 	void verifyUnitStacksValid();
 	UnitTypes getTechFreeUnit(TechTypes eTech) const;
 	// BULL - Trade Hover - start
-	void calculateTradeTotals(YieldTypes eYield, int& iDomesticYield,
-			int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes,
-			PlayerTypes eWithPlayer = NO_PLAYER) const;
+	void calculateTradeTotals(YieldTypes eYield, int& iDomesticYield, int& iDomesticRoutes, int& iForeignYield, int& iForeignRoutes, PlayerTypes eWithPlayer = NO_PLAYER) const;
 	// BULL - Trade Hover - end
 	void checkAlert(int iAlertID, bool bSilent); // advc.210 (exposed to Python)
 	void setSavingReplay(bool b); // advc.106i
@@ -1437,19 +1185,14 @@ public:
 	bool isScoreboardExpanded() const;
 	// </advc.085>
 	DllExport void buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& kOurInventory) const;
-	DllExport bool getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem,
-			CvWString& szString, CvString& szIcon) const;
-	DllExport bool getItemTradeString(PlayerTypes eRecipient, bool bOffer, bool bShowingCurrent,
-			TradeData const& zTradeData, CvWString& szString, CvString& szIcon) const;
-	DllExport void updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& kOurInventory,
-			CLinkList<TradeData> const& kOurOffer, CLinkList<TradeData> const& kTheirOffer) const;
+	DllExport bool getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem, CvWString& szString, CvString& szIcon) const;
+	DllExport bool getItemTradeString(PlayerTypes eRecipient, bool bOffer, bool bShowingCurrent, TradeData const& zTradeData, CvWString& szString, CvString& szIcon) const;
+	DllExport void updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& kOurInventory, CLinkList<TradeData> const& kOurOffer, CLinkList<TradeData> const& kTheirOffer) const;
 	// <K-Mod>
-	void markTradeOffers(CLinkList<TradeData>& kOurInventory,
-			CLinkList<TradeData>& kOurOffer) const; // </K-Mod>
+	void markTradeOffers(CLinkList<TradeData>& kOurInventory, CLinkList<TradeData>& kOurOffer) const; // </K-Mod>
 	DllExport int getIntroMusicScriptId(PlayerTypes eForPlayer) const;
 	DllExport int getMusicScriptId(PlayerTypes eForPlayer) const;
-	DllExport void getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption,
-			std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
+	DllExport void getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
 	void setBonusHelpDirty(); // advc.003p
 	DllExport void cheat(bool bCtrl, bool bAlt, bool bShift);
 	DllExport const CvArtInfoUnit* getUnitArtInfo(UnitTypes eUnit, int iMeshGroup = 0) const;
@@ -1457,16 +1200,11 @@ public:
 	void announceGameNameChange(CvWString szOldName, CvWString szNewName); // advc.135c
 	bool showGoodyOnResourceLayer() const; // advc.004z
 	// <advc.003u>
-	CvPlayerAI& AI()
-	{	//return *static_cast<CvPlayerAI*>(const_cast<CvPlayer*>(this));
-		/*  The above won't work in an inline function b/c the compiler doesn't know
-			that CvPlayerAI is derived from CvPlayer */
-		return *reinterpret_cast<CvPlayerAI*>(this);
-	}
-	CvPlayerAI const& AI() const
-	{	//return *static_cast<CvPlayerAI const*>(this);
-		return *reinterpret_cast<CvPlayerAI const*>(this);
-	} // </advc.003u>	
+	//return *static_cast<CvPlayerAI*>(const_cast<CvPlayer*>(this));
+	/* The above won't work in an inline function b/c the compiler doesn't know that CvPlayerAI is derived from CvPlayer */
+	CvPlayerAI& AI() { return *reinterpret_cast<CvPlayerAI*>(this); }
+	//return *static_cast<CvPlayerAI const*>(this);
+	CvPlayerAI const& AI() const { return *reinterpret_cast<CvPlayerAI const*>(this); } // </advc.003u>
 
 protected:  // <advc.210>
 	void initAlerts(bool bSilentCheck = false);
@@ -1723,24 +1461,19 @@ protected:  // <advc.210>
 	void decayBuildProgress(); // advc.011
 	void showForeignPromoGlow(bool b); // advc.002e
 	// <advc.ctr>
-	int cultureConvertedUponCityTrade(CvPlot const& kCityPlot, CvPlot const& kPlot,
-			PlayerTypes eOldOwner, PlayerTypes eNewOwner,
-			bool bIgnorePriority = false) const; // </advc.ctr>
+	int cultureConvertedUponCityTrade(CvPlot const& kCityPlot, CvPlot const& kPlot, PlayerTypes eOldOwner, PlayerTypes eNewOwner, bool bIgnorePriority = false) const; // </advc.ctr>
 	// <advc.314>
 	bool isGoodyTech(TechTypes eTech, int iProgress) const;
 	void addGoodyMsg(CvWString s, CvPlot const& p, TCHAR const* sound);
 	void promoteFreeUnit(CvUnit& u, scaled pr);
 	// </advc.314>
-	bool canSeeIntel(PlayerTypes ePlayer, bool bDemographics,
-			bool bCheckPoints = true) const; // advc.085
+	bool canSeeIntel(PlayerTypes ePlayer, bool bDemographics, bool bCheckPoints = true) const; // advc.085
 	// advc.120f:
 	void announceEspionageToThirdParties(EspionageMissionTypes eMission, PlayerTypes eTarget);
 	bool checkExpireEvent(EventTypes eEvent, const EventTriggeredData& kTriggeredData) const;
 	void expireEvent(EventTypes eEvent, const EventTriggeredData& kTriggeredData, bool bFail);
-	bool isValidTriggerReligion(const CvEventTriggerInfo& kTrigger, CvCity const* pCity,
-			ReligionTypes eReligion) const;
-	bool isValidTriggerCorporation(const CvEventTriggerInfo& kTrigger, CvCity const* pCity,
-			CorporationTypes eCorporation) const;
+	bool isValidTriggerReligion(const CvEventTriggerInfo& kTrigger, CvCity const* pCity, ReligionTypes eReligion) const;
+	bool isValidTriggerCorporation(const CvEventTriggerInfo& kTrigger, CvCity const* pCity, CorporationTypes eCorporation) const;
 	CvCity* pickTriggerCity(EventTriggerTypes eTrigger) const;
 	CvUnit* pickTriggerUnit(EventTriggerTypes eTrigger, CvPlot* pPlot, bool bPickPlot) const;
 	bool isValidEventTech(TechTypes eTech, EventTypes eEvent, PlayerTypes eOtherPlayer) const;
@@ -1753,16 +1486,11 @@ protected:  // <advc.210>
 	int getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) const;
 	int groundbreakingPenalty(TechTypes eTech) const; // advc.groundbr
 
-	void getTradeLayerColors(std::vector<NiColorA>& aColors,
-			std::vector<CvPlotIndicatorData>& aIndicators) const;
-	void getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector<NiColorA>& aColors,
-			std::vector<CvPlotIndicatorData>& aIndicators) const;
-	void getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std::vector<NiColorA>& aColors,
-			std::vector<CvPlotIndicatorData>& aIndicators) const;
-	void getReligionLayerColors(ReligionTypes eSelectedReligion, std::vector<NiColorA>& aColors,
-			std::vector<CvPlotIndicatorData>& aIndicators) const;
-	void getCultureLayerColors(std::vector<NiColorA>& aColors,
-			std::vector<CvPlotIndicatorData>& aIndicators) const;
+	void getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
+	void getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
+	void getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
+	void getReligionLayerColors(ReligionTypes eSelectedReligion, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
+	void getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
 
 private:
 	/*  advc.003u: The remaining virtual functions should not be called within
@@ -1785,8 +1513,7 @@ private:
 	virtual void AI_doTurnPostExternal();
 	virtual void AI_doTurnUnitsPreExternal();
 	virtual void AI_doTurnUnitsPostExternal();
-	virtual void AI_updateFoundValuesExternal(
-			bool bStartingLoc = false);
+	virtual void AI_updateFoundValuesExternal(bool bStartingLoc = false);
 	virtual void AI_unitUpdateExternal();
 	virtual void AI_makeAssignWorkDirtyExternal();
 	virtual void AI_assignWorkingPlotsExternal();
@@ -1849,16 +1576,8 @@ private:
 
 /*	<advc.opt> Moved from CvGameCoreUtils for inlining.
 	NO_PLAYER checks removed (cf. IDInfo constructor). */
-inline CvCity* getCity(IDInfo city)																					// Exposed to Python
-{
-	FAssertBounds(0, MAX_PLAYERS, city.eOwner);
-	return GET_PLAYER(city.eOwner).getCity(city.iID);
-}
-inline CvUnit* getUnit(IDInfo unit)																					// Exposed to Python
-{
-	FAssertBounds(0, MAX_PLAYERS, unit.eOwner);
-	return GET_PLAYER(unit.eOwner).getUnit(unit.iID);
-}
+inline CvCity* getCity(IDInfo city) { FAssertBounds(0, MAX_PLAYERS, city.eOwner); return GET_PLAYER(city.eOwner).getCity(city.iID); } // Exposed to Python
+inline CvUnit* getUnit(IDInfo unit) { FAssertBounds(0, MAX_PLAYERS, unit.eOwner); return GET_PLAYER(unit.eOwner).getUnit(unit.iID); } // Exposed to Python
 // When called from the EXE, NO_PLAYER checks are needed.
 CvCity* getCityExternal(IDInfo city); // exported through .def file
 CvUnit* getUnitExternal(IDInfo unit); // exported through .def file

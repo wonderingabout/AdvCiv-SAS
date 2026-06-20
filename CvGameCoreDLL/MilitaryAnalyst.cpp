@@ -45,8 +45,7 @@ namespace
 }
 
 
-MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer,
-	WarEvalParameters& kWarEvalParams, bool bPeaceScenario)
+MilitaryAnalyst::MilitaryAnalyst(PlayerTypes eAgentPlayer, WarEvalParameters& kWarEvalParams, bool bPeaceScenario)
 :	m_kWarEvalParams(kWarEvalParams), m_kReport(kWarEvalParams.getReport()),
 	m_eWe(eAgentPlayer), m_eTarget(kWarEvalParams.getTarget()),
 	m_bPeaceScenario(bPeaceScenario), m_iTurnsSimulated(0)
@@ -527,8 +526,7 @@ bool MilitaryAnalyst::isEliminated(PlayerTypes ePlayer) const
 }
 
 
-scaled MilitaryAnalyst::lostPower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch) const
+scaled MilitaryAnalyst::lostPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const
 {
 	InvasionGraph::Node const* pNode = m_pInvGraph->getNode(ePlayer);
 	if (pNode == NULL)
@@ -537,8 +535,7 @@ scaled MilitaryAnalyst::lostPower(PlayerTypes ePlayer,
 }
 
 
-scaled MilitaryAnalyst::gainedPower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch) const
+scaled MilitaryAnalyst::gainedPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const
 {
 	InvasionGraph::Node const* pNode = m_pInvGraph->getNode(ePlayer);
 	if (pNode == NULL)

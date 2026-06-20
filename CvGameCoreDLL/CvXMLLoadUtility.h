@@ -70,24 +70,15 @@ public:
 	bool GetChildXmlValByName(wchar* r, TCHAR const* szName, wchar const* szDefault = NULL);
 	/*  (advc: Returning by reference would be nicer than by pointer, but I don't want to change
 		hundreds of call locations.) */
-	bool GetChildXmlValByName(int* r, TCHAR const* szName,
-			/*  advc.006b: Was 0. Instead use a value that no one wants to use so that
-				the callee can check if the param was set. */
-			int iDefault = MIN_INT);
-	bool GetChildXmlValByName(float* r, TCHAR const* szName,
-			float fDefault = arithm_traits<float>::min); // advc.006b: was 0.0f
-	bool GetChildXmlValByName(bool* r, TCHAR const* szName,
-			/*  advc.006b: Caller will have to set this to false to avoid an error
-				if szName isn't found */
-			bool bMandatory = true,
-			bool bDefault = false);
+	// advc.006b: Was 0. Instead use a value that no one wants to use so that the callee can check if the param was set. <!-- custom: hoisted from multiline signature between `szName` and `iDefault` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool GetChildXmlValByName(int* r, TCHAR const* szName, int iDefault = MIN_INT);
+	bool GetChildXmlValByName(float* r, TCHAR const* szName, float fDefault = arithm_traits<float>::min); // advc.006b: was 0.0f
+	// advc.006b: Caller will have to set this to false to avoid an error if szName isn't found <!-- custom: hoisted from multiline signature between `szName` and `bMandatory` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool GetChildXmlValByName(bool* r, TCHAR const* szName, bool bMandatory = true, bool bDefault = false);
 	/*	advc.006j: Had required int type; can now work with enum types too,
 		and will assert their bounds. */
-	template<typename T>
-	void SetInfoIDFromChildXmlVal(T& tResult, TCHAR const* szName)
-	{	// Needs to go through a struct b/c functions can't be partially specialized
-		InfoIDFromChild<T>::set(*this, tResult, szName);
-	}
+	// Needs to go through a struct b/c functions can't be partially specialized
+	template<typename T> void SetInfoIDFromChildXmlVal(T& tResult, TCHAR const* szName) { InfoIDFromChild<T>::set(*this, tResult, szName); }
 	// <advc.xmldefault>
 	void SetGlobalTypeFromChildXmlVal(int& iR, TCHAR const* szName, bool bInfoType = false);
 	int GetChildTypeIndex(); // </advc.xmldefault>
@@ -122,14 +113,8 @@ public:
 	template<typename T>
 	bool GetNextXmlVal(T& r, T tDefault = (T)-1);
 	// Need to make these casts explicit to avoid matching the template
-	bool GetNextXmlVal(CvString& r, char const* szDefault = NULL)
-	{
-		return GetNextXmlVal(static_cast<std::string&>(r), szDefault);
-	}
-	bool GetNextXmlVal(CvWString& r, wchar const* szDefault = NULL)
-	{
-		return GetNextXmlVal(static_cast<std::wstring&>(r), szDefault);
-	} // </advc.enum>
+	bool GetNextXmlVal(CvString& r, char const* szDefault = NULL) { return GetNextXmlVal(static_cast<std::string&>(r), szDefault); }
+	bool GetNextXmlVal(CvWString& r, wchar const* szDefault = NULL) { return GetNextXmlVal(static_cast<std::wstring&>(r), szDefault); } // </advc.enum>
 
 	bool GetChildXmlVal(std::string& r, char const* szDefault = NULL);
 	bool GetChildXmlVal(std::wstring& r, wchar const* szDefault = NULL);
@@ -183,10 +168,8 @@ public:
 	int GetHotKeyInt(TCHAR const* pszHotKeyVal);
 
 	// allocate and initialize a list from a tag pair in the xml
-	void SetVariableListTagPair(CvString** ppszList, TCHAR const* szRootTagName,
-			int iInfoBaseLength, CvString szDefaultListVal = "");
-	void SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName,
-			int iInfoBaseLength, int iDefaultListVal = -1);
+	void SetVariableListTagPair(CvString** ppszList, TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal = "");
+	void SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName, int iInfoBaseLength, int iDefaultListVal = -1);
 	/*	advc (19 Feb 2021): Deleted four versions (a fifth - AudioScripts - deleted
 		much earlier) that took a param CvString* m_paszTagList.
 		Those functions were for global non-info types. Now the versions above
@@ -225,10 +208,7 @@ public:
 		int m_iSiblingIndex;
 		int m_iSiblings;
 		TCHAR m_acTextVal[256]; // (Tbd.: Could we just use a CvString?)
-		static std::pair<int,T> noPair()
-		{
-			return std::pair<int,T>(iNO_KEY, (T)0);
-		}
+		static std::pair<int,T> noPair() { return std::pair<int,T>(iNO_KEY, (T)0); }
 	};
 	/*	advc.enum: Load mapping from an enum key to a list of yield or commerce rates.
 		Based on BtS code repeated in the CvInfo classes, e.g. CvInfo_Building. */
@@ -253,18 +233,14 @@ public:
 		CvString m_szRateTagName;
 		CvString m_szTextVal;
 		int* m_aiRates;
-		static std::pair<int,typename EncodableMap::enc_t> noPair()
-		{
-			return std::pair<int,typename EncodableMap::enc_t>(iNO_KEY, 0);
-		}
+		static std::pair<int,typename EncodableMap::enc_t> noPair() { return std::pair<int,typename EncodableMap::enc_t>(iNO_KEY, 0); }
 	};
 	/*  advc.003t (note): Will set the array that pptList points to to NULL if
 		tDefaultListVal is 0 and no pairs are found or if all (index,value) pairs
 		have the value 0. */
 	template<typename T>
-	void SetVariableListTagPair(T** pptList, TCHAR const* szRootTagName,
-		// advc.003x: Unused param iInfoBaseSize removed
-		int iInfoBaseLength, T tDefaultListVal = 0)
+	// advc.003x: Unused param iInfoBaseSize removed <!-- custom: hoisted from multiline signature between `szRootTagName` and `iInfoBaseLength` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void SetVariableListTagPair(T** pptList, TCHAR const* szRootTagName, int iInfoBaseLength, T tDefaultListVal = 0)
 	{
 		if (iInfoBaseLength <= 0)
 		{
@@ -353,8 +329,7 @@ public:
 		}
 	}
 	template<class EncodableMap>
-	void SetVariableListTagRate(EncodableMap& kMap, TCHAR const* szTagName,
-		TCHAR const* szKeyTagName = NULL, TCHAR const* szRateTagName = NULL)
+	void SetVariableListTagRate(EncodableMap& kMap, TCHAR const* szTagName, TCHAR const* szKeyTagName = NULL, TCHAR const* szRateTagName = NULL)
 	{
 		XMLTagPairRateIterator<EncodableMap::enc_map_t> it(
 				*this, szTagName, szKeyTagName, szRateTagName);
@@ -387,16 +362,8 @@ public:
 			delete[] piArray;
 		}
 	}
-	template<typename MapType>
-	void SetYieldList(MapType& kMap, TCHAR const* szTagName)
-	{
-		SetRateTagList<true>(kMap, szTagName);
-	}
-	template<typename MapType>
-	void SetCommerceList(MapType& kMap, TCHAR const* szTagName)
-	{
-		SetRateTagList<false>(kMap, szTagName);
-	}
+	template<typename MapType> void SetYieldList(MapType& kMap, TCHAR const* szTagName) { SetRateTagList<true>(kMap, szTagName); }
+	template<typename MapType> void SetCommerceList(MapType& kMap, TCHAR const* szTagName) { SetRateTagList<false>(kMap, szTagName); }
 	// </advc.003t>
 
 private:
@@ -423,10 +390,8 @@ private:
 	template<typename T>
 	struct InfoIDFromChild<T, false>
 	{
-		static void set(CvXMLLoadUtility& kUtil, T& tValue, TCHAR const* szName)
-		{	// advc.xmldefault:
-			kUtil.SetGlobalTypeFromChildXmlVal(static_cast<int&>(tValue), szName, true);
-		}
+		// advc.xmldefault:
+		static void set(CvXMLLoadUtility& kUtil, T& tValue, TCHAR const* szName) { kUtil.SetGlobalTypeFromChildXmlVal(static_cast<int&>(tValue), szName, true); }
 	};
 	template<typename T>
 	struct InfoIDFromChild<T, true>
@@ -460,25 +425,19 @@ private:
 	// template which can handle all info classes
 	// a dynamic value for the list size
 	template <class T>
-	void LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot,
-			const char* szFileDirectory, const char* szXmlPath, bool bTwoPass,
-			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction)(TCHAR const*) = NULL);
+	void LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, bool bTwoPass, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction)(TCHAR const*) = NULL);
 	template <class T>
-	void SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bTwoPass,
-			bool bFinalCall = false); // advc.xmldefault
+	void SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bTwoPass, bool bFinalCall = false); // advc.xmldefault
 	#endif
 	void SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szTagName);
-	void LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot,
-			const char* szFileDirectory, const char* szXmlPath,
-			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*));
+	void LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*));
 	//
 	// special cases of set class info which don't use the template because of extra code they have
 	//
 	void SetGlobalActionInfo();
 
 	void SetGlobalAnimationPathInfo(CvAnimationPathInfo** ppAnimationPathInfo, char* szTagName, int* iNumVals);
-	void SetGameText(const char* szTextGroup, const char* szTagName,
-			std::string const& sLanguageName); // K-Mod
+	void SetGameText(const char* szTextGroup, const char* szTagName, std::string const& sLanguageName); // K-Mod
 
 	/*	<advc.006g> (The BtS code sometimes said "XML Error", sometimes "XML Load Error"
 		not sure if that's meaningful, but I'm going to preserve it.)*/

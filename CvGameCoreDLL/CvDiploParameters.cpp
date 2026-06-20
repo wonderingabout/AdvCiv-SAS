@@ -97,8 +97,7 @@ SET_DIPLO_COMMENT_ARGS
 void CvDiploParameters::setDiploComment(DiploCommentTypes eCommentType, int arg1, int arg2, int arg3)
 SET_DIPLO_COMMENT_ARGS
 
-void CvDiploParameters::setDiploComment(DiploCommentTypes eCommentType,
-	std::vector<FVariable> const* pArgs)
+void CvDiploParameters::setDiploComment(DiploCommentTypes eCommentType, std::vector<FVariable> const* pArgs)
 {
 	m_eCommentType = eCommentType;
 	if (pArgs != NULL)

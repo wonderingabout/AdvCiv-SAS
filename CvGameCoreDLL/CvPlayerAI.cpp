@@ -834,8 +834,7 @@ void CvPlayerAI::AI_doPeace()
 }
 
 // advc.134a:
-bool CvPlayerAI::AI_upholdPeaceOffer(PlayerTypes eHuman,
-	CvDiploParameters const& kOffer) const
+bool CvPlayerAI::AI_upholdPeaceOffer(PlayerTypes eHuman, CvDiploParameters const& kOffer) const
 {
 	int iOurBenefit = AI_dealVal(eHuman, kOffer.getTheirOfferList());
 	int iTheirBenefit = GET_PLAYER(eHuman).AI_dealVal(getID(), kOffer.getOurOfferList());
@@ -968,8 +967,7 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 }
 
 // Auxiliary function to reduce the amount of duplicate or dual code
-int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
-	int iDelta, int* iGold, TechTypes* eBestTech, CvCity const** pBestCity)
+int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver, int iDelta, int* iGold, TechTypes* eBestTech, CvCity const** pBestCity)
 {
 	int iR = 0;
 	CvPlayerAI& kRecipient = GET_PLAYER(eRecipient);
@@ -1212,8 +1210,7 @@ void CvPlayerAI::AI_updateAreaTargets()
 
 /*	Returns priority for unit movement (lower values move first...)
 	This function has been heavily edited for K-Mod */
-int CvPlayerAI::AI_movementPriority(
-	CvSelectionGroupAI const& kGroup) const // advc.003u: CvSelectionGroupAI
+int CvPlayerAI::AI_movementPriority(CvSelectionGroupAI const& kGroup) const // advc.003u: CvSelectionGroupAI
 {
 	/*	If the group is trying to do a stack attack, let it go first!
 		(this is required for amphibious assults; during which a low priority group
@@ -1775,8 +1772,8 @@ void CvPlayerAI::AI_makeProductionDirty()
 
 // <!-- custom: added smarter more aggressive razing which now gives very good results ingame (see below and known issue as of now 64 for details), refactored a bit the relevant parts although otherwise and in general mostly the same -->
 // BETTER_BTS_AI_MOD, War tactics AI, 05/16/10, jdog5000:
-void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity*
-	bool bEverOwned) // advc.ctr: We already own it; but had we ever previously owned it?
+// advc.003u: param was CvCity* <!-- custom: hoisted from multiline signature between `kCity` and `bEverOwned` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: We already own it; but had we ever previously owned it?
 {
 	if (!canRaze(kCity))
 	{
@@ -2398,8 +2395,7 @@ DomainTypes CvPlayerAI::AI_unitAIDomainType(UnitAITypes eUnitAI) const
 }
 
 
-int CvPlayerAI::AI_yieldWeight(YieldTypes eYield,
-	CvCity const* pCity) const // K-Mod
+int CvPlayerAI::AI_yieldWeight(YieldTypes eYield, CvCity const* pCity) const // K-Mod
 {
 	/*if (eYield == YIELD_PRODUCTION) {
 		int iProductionModifier = 100 + (30 * std::max(0, GC.getGame().getCurrentEra() - 1) / std::max(1, (GC.getNumEraInfos() - 2)));
@@ -2463,8 +2459,7 @@ int CvPlayerAI::AI_yieldWeight(YieldTypes eYield,
 }
 
 
-int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce,
-	CvCityAI const* pCity) const // advc.003u: CvCityAI
+int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCityAI const* pCity) const // advc.003u: CvCityAI
 {
 	PROFILE_FUNC();
 	int iWeight;
@@ -2894,8 +2889,7 @@ int CvPlayerAI::AI_calculateEspionageWeight() const
 
 
 // <!-- custom: found-value evaluation returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
-int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc,
-	bool bNormalize) const // advc.031e
+int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStartingLoc, bool bNormalize) const // advc.031e
 {
 	CitySiteEvaluator eval(*this, iMinRivalRange, bStartingLoc, /* advc.031e: */ bNormalize);
 	return eval.evaluate(iX, iY);
@@ -3009,8 +3003,7 @@ int CvPlayerAI::AI_militaryWeight(CvArea const* pArea) const
 	0 and 100 (in functions goldPerProdSites, City::attackPriority).
 	advc (note, regarding bRandomize): The random adjustment changes from call to call.
 	It's up to the caller to steady that if desired; see AI_updateAreaTargets. */
-int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize,
-	bool bIgnoreAttackers, /* advc.104d: */ UWAICity const* pUWAICity) const
+int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize, bool bIgnoreAttackers, /* advc.104d: */ UWAICity const* pUWAICity) const
 {
 	PROFILE_FUNC();
 	FAssert(isHuman() || isBarbarian() || GET_TEAM(getTeam()).AI_deduceCitySite(kCity)); // advc.001
@@ -3584,12 +3577,9 @@ CvCityAI* CvPlayerAI::AI_findTargetCity(CvArea const& kArea) const
 
 /*	advc: Merged AI_getAnyPlotDamnger (now named "AI_isAnyPlotDanger") into AI_getPlotDanger.
 	I haven't bothered with AI_isPlotThreatened and AI_getWaterDanger, which are also similar. */
-int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int iRange, bool bTestMoves,
-	/*  Stop counting at iLimit, i.e. the return value can be at most iLimit.
-		When pLowHPCounter is used, stop only when pLowHPCounter also reaches iLimit. */
-	int iLimit, /* K-Mod:*/ bool bCheckBorder,
-	// advc.104: Unless NO_PLAYER, count only danger from eAttackPlayer.
-	PlayerTypes eAttackPlayer) const
+// Stop counting at iLimit, i.e. the return value can be at most iLimit. When pLowHPCounter is used, stop only when pLowHPCounter also reaches iLimit. <!-- custom: hoisted from multiline signature between `bTestMoves` and `iLimit` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.104: Unless NO_PLAYER, count only danger from eAttackPlayer. <!-- custom: hoisted from multiline signature between `bCheckBorder` and `eAttackPlayer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int iRange, bool bTestMoves, int iLimit, /* K-Mod:*/ bool bCheckBorder, PlayerTypes eAttackPlayer) const
 {
 	FAssert(iLimit > 0);
 	FAssert(iRange != 0); // advc: Call AI_countDangerousUnits instead
@@ -3734,8 +3724,7 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int 
 }
 
 // advc: from AI_getAnyPlotDanger
-int CvPlayerAI::AI_countDangerousUnits(CvPlot const& kAttackerPlot, CvPlot const& kDefenderPlot,
-	bool bTestMoves, int iLimit, /* advc.104: */ PlayerTypes eAttackPlayer) const
+int CvPlayerAI::AI_countDangerousUnits(CvPlot const& kAttackerPlot, CvPlot const& kDefenderPlot, bool bTestMoves, int iLimit, /* advc.104: */ PlayerTypes eAttackPlayer) const
 {
 	TeamTypes const eTeam = getTeam();
 	// <advc.128>
@@ -3830,8 +3819,7 @@ int CvPlayerAI::AI_countDangerousUnits(CvPlot const& kAttackerPlot, CvPlot const
 // BETTER_BTS_AI_MOD: END
 
 // advc: Some refactoring, unused param bTestMoves removed.
-int CvPlayerAI::AI_getWaterDanger(CvPlot const& kPlot, int iRange,
-	int iMaxCount) const // advc.opt
+int CvPlayerAI::AI_getWaterDanger(CvPlot const& kPlot, int iRange, int iMaxCount) const // advc.opt
 {
 	PROFILE_FUNC();
 	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
@@ -4105,8 +4093,7 @@ struct PairFirstGreater : public std::binary_function<std::pair<A, B>,std::pair<
 };
 
 // edited by K-Mod and BBAI (05/14/10, jdog5000)
-TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsync, TechTypes eIgnoreTech, AdvisorTypes eIgnoreAdvisor,
-	PlayerTypes eFromPlayer) const // advc.144
+TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsync, TechTypes eIgnoreTech, AdvisorTypes eIgnoreAdvisor, PlayerTypes eFromPlayer) const // advc.144
 {
 	PROFILE("CvPlayerAI::AI_bestTech");
 
@@ -4705,10 +4692,7 @@ scaled CvPlayerAI::AI_getTechRank(TechTypes eTech) const
 // advc: Cut from AI_bestTech. advc.enum: K-Mod had used std::vector<int>.
 /*	k146: Make lists of which bonuses we have / don't have / can see.
 	This is used for tech evaluation. */
-void CvPlayerAI::AI_calculateTechRevealBonuses(
-	EagerEnumMap<BonusClassTypes,int>& kBonusClassRevealed,
-	EagerEnumMap<BonusClassTypes,int>& kBonusClassUnrevealed,
-	EagerEnumMap<BonusClassTypes,int>& kBonusClassHave) const
+void CvPlayerAI::AI_calculateTechRevealBonuses(EagerEnumMap<BonusClassTypes, int>& kBonusClassRevealed, EagerEnumMap<BonusClassTypes, int>& kBonusClassUnrevealed, EagerEnumMap<BonusClassTypes, int>& kBonusClassHave) const
 {
 	FOR_EACH_ENUM(Bonus)
 	{
@@ -4734,15 +4718,9 @@ void CvPlayerAI::AI_calculateTechRevealBonuses(
 	4 = 1 commerce per turn. Afterwards it is arbitrary.
 	(Compared to the original numbers, this is * 1/100 * 7 * 4. 28/100)
 	BBAI (05/14/10, jdog5000): This function was split off AI_bestTech. */
-int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
-	bool bAsync,
-	EagerEnumMap<BonusClassTypes,int> const& kBonusClassRevealed,
-	EagerEnumMap<BonusClassTypes,int> const& kBonusClassUnrevealed,
-	EagerEnumMap<BonusClassTypes,int> const& kBonusClassHave,
-	PlayerTypes eFromPlayer, // advc.144
-	/*	advc: Not needed after all (but may yet want to use it; if only for debug output).
-		false implies that the game state mustn't be modified - may or may not be run in-sync. */
-	bool bRandomize) const
+// advc.144 <!-- custom: hoisted from multiline signature between `eFromPlayer` and `bRandomize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc: Not needed after all (but may yet want to use it; if only for debug output). false implies that the game state mustn't be modified - may or may not be run in-sync. <!-- custom: hoisted from multiline signature between `eFromPlayer` and `bRandomize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, bool bAsync, EagerEnumMap<BonusClassTypes, int> const& kBonusClassRevealed, EagerEnumMap<BonusClassTypes, int> const& kBonusClassUnrevealed, EagerEnumMap<BonusClassTypes, int> const& kBonusClassHave, PlayerTypes eFromPlayer, bool bRandomize) const
 {
 	FAssert(iPathLength >= 1); // advc
 	PROFILE_FUNC();
@@ -7158,9 +7136,8 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
 	Note: not a lot of thought has gone into this. I've basically just copied
 	the original code [from AI_techValue] and tweaked it a little bit.
 	The scale is roughly 4 = 1 commerce per turn. */
-int CvPlayerAI::AI_techProjectValue(TechTypes eTech,
-	int iPathLength, // advc (note): currently unused
-	bool& bEnablesProjectWonder) const
+// advc (note): currently unused <!-- custom: hoisted from multiline signature between `iPathLength` and `bEnablesProjectWonder` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_techProjectValue(TechTypes eTech, int iPathLength, bool& bEnablesProjectWonder) const
 {
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
@@ -7216,9 +7193,7 @@ int CvPlayerAI::AI_techProjectValue(TechTypes eTech,
 } // </k146>
 
 // advc: Based on code cut from AI_techValue
-int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
-	int iRaceModifier, int iCityTarget,
-	CvRandom& kRand, int& iRandomMax, bool bRandomize) const
+int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength, int iRaceModifier, int iCityTarget, CvRandom& kRand, int& iRandomMax, bool bRandomize) const
 {
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
@@ -8033,8 +8008,7 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
 }
 
 
-int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer,
-		bool bOnlyNonWorkable) const // advc.147
+int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer, bool bOnlyNonWorkable) const // advc.147
 {
 	PROFILE_FUNC();
 	FAssert(ePlayer != getID());
@@ -8920,8 +8894,7 @@ int CvPlayerAI::AI_getLostWarAttitude(PlayerTypes ePlayer) const // obsolete
 // END: Show Hidden Attitude Mod </advc.sha>
 
 // advc.130c:
-int CvPlayerAI::AI_knownRankDifference(PlayerTypes eOther,
-	scaled& rOutrankingBothRatio) const // out-param
+int CvPlayerAI::AI_knownRankDifference(PlayerTypes eOther, scaled& rOutrankingBothRatio) const // out-param
 {
 	CvGame const& kGame = GC.getGame();
 	int iOurRank = kGame.getPlayerRank(getID());
@@ -8953,8 +8926,7 @@ int CvPlayerAI::AI_knownRankDifference(PlayerTypes eOther,
 }
 
 // advc: Refactored (superficially; should really be in a separate class etc.)
-PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
-	VoteSourceTypes eVoteSource, bool bPropose)
+PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose)
 {
 	PROFILE_FUNC();
 
@@ -9716,13 +9688,10 @@ int CvPlayerAI::AI_defianceAngerCost(VoteSourceTypes eVS) const
 }
 
 
-int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& kList,
-	bool bIgnoreAnnual, int iChange,
-	bool bIgnoreDiscount, // advc.550a
-	bool bIgnorePeace, // advc.130p  <advc.ctr>
-	bool bCountLiberation,
-	bool bAIRequest, // AI asks for help or tribute
-	bool bDiploVal) const // When recording trade memory </advc.ctr>
+// advc.550a <!-- custom: hoisted from multiline signature between `bIgnoreDiscount` and `bIgnorePeace` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.130p  <advc.ctr> <!-- custom: hoisted from multiline signature between `bIgnorePeace` and `bCountLiberation` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// AI asks for help or tribute <!-- custom: hoisted from multiline signature between `bAIRequest` and `bDiploVal` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& kList, bool bIgnoreAnnual, int iChange, bool bIgnoreDiscount, bool bIgnorePeace, bool bCountLiberation, bool bAIRequest, bool bDiploVal) const // When recording trade memory </advc.ctr>
 {
 	FAssertMsg(eFromPlayer != getID(), "shouldn't call this function on ourselves");
 
@@ -9942,8 +9911,7 @@ namespace
 		return true;
 	}
 	// advc.ctr: True iff both players liberate a city
-	bool isLiberationTrade(PlayerTypes eFirst, PlayerTypes eSecond,
-		CLinkList<TradeData> const& kFirstGives, CLinkList<TradeData> const& kSecondGives)
+	bool isLiberationTrade(PlayerTypes eFirst, PlayerTypes eSecond, CLinkList<TradeData> const& kFirstGives, CLinkList<TradeData> const& kSecondGives)
 	{
 		bool bWeLiberate = false;
 		FOR_EACH_TRADE_ITEM(kFirstGives)
@@ -9976,11 +9944,8 @@ namespace
 /*	In this function the AI considers whether or not to accept another player's proposal.
 	This is used when considering proposals from the human player made in the
 	diplomacy window as well as a couple of other places. */
-bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
-	// advc: Renamed, turned into references (b/c caller ensures non-NULL).
-	CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive,
-	int iChange, /* advc.133: */ int iDealAge,
-	bool bHypothetical) // advc.130o
+// advc: Renamed, turned into references (b/c caller ensures non-NULL). <!-- custom: hoisted from multiline signature between `ePlayer` and `kTheyGive` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive, int iChange, /* advc.133: */ int iDealAge, bool bHypothetical) // advc.130o
 {
 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // K-Mod
 
@@ -10416,11 +10381,7 @@ bool maxValueCompare(const std::pair<TradeData,int>& a, const std::pair<TradeDat
 }
 
 
-bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
-	CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive,
-	CLinkList<TradeData> const& kTheirInventory, CLinkList<TradeData> const& kOurInventory,
-	CLinkList<TradeData>& kTheyAlsoGive, CLinkList<TradeData>& kWeAlsoGive,
-	scaled rLeniency) const // advc.705: Applied to everything that's added to iValueForThem
+bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, CLinkList<TradeData> const& kTheyGive, CLinkList<TradeData> const& kWeGive, CLinkList<TradeData> const& kTheirInventory, CLinkList<TradeData> const& kOurInventory, CLinkList<TradeData>& kTheyAlsoGive, CLinkList<TradeData>& kWeAlsoGive, scaled rLeniency) const // advc.705: Applied to everything that's added to iValueForThem
 {
 	PROFILE_FUNC(); // advc.opt
 	bool bTheyGiveGold = goldDeal(kTheyGive);
@@ -10751,13 +10712,8 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
 	may offer an extra large portion of its treasury.
 
 	advc.036: Returning true means force-accept. False leaves it up to the caller. */
-bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
-	CLinkList<TradeData> const& kTheirInventory,
-	PlayerTypes ePlayer, int iTheyReceive, int& iWeReceive,
-	CLinkList<TradeData>& kWeWant, CLinkList<TradeData> const& kWeGive,
-	scaled rLeniency, // advc.705
-	bool bTheyGenerous,
-	int iHappyLeft, int iHealthLeft, int iOtherListLength) const // advc.036
+// advc.705 <!-- custom: hoisted from multiline signature between `rLeniency` and `bTheyGenerous` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const& kTheirInventory, PlayerTypes ePlayer, int iTheyReceive, int& iWeReceive, CLinkList<TradeData>& kWeWant, CLinkList<TradeData> const& kWeGive, scaled rLeniency, bool bTheyGenerous, int iHappyLeft, int iHealthLeft, int iOtherListLength) const // advc.036
 {
 	PROFILE_FUNC(); // advc.opt
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -11261,8 +11217,7 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
 }
 
 
-int CvPlayerAI::AI_tradeValToGold(int iTradeVal, bool bOverpay, int iMaxGold,
-		bool* bEnough) const
+int CvPlayerAI::AI_tradeValToGold(int iTradeVal, bool bOverpay, int iMaxGold, bool* bEnough) const
 {
 	PROFILE_FUNC();
 	int r = 0;
@@ -11290,13 +11245,8 @@ int CvPlayerAI::AI_tradeValToGold(int iTradeVal, bool bOverpay, int iMaxGold,
 	Based on K-Mod code in AI_doDiplo; karadoc's comment cut from there:
 	"unfortunately, the API is pretty clumsy for setting up this counter proposal.
 	 please just bear with me. */
-bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
-	CLinkList<TradeData>& kTheyGive,
-	CLinkList<TradeData>& kWeGive,
-	bool bTheyMayGiveMore, bool bWeMayGiveMore,
-	/*  advc.705: Multiplier for the value counted for the items of the
-		side that does not give more. */
-	scaled rLeniency) const
+// advc.705: Multiplier for the value counted for the items of the side that does not give more. <!-- custom: hoisted from multiline signature between `bWeMayGiveMore` and `rLeniency` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, CLinkList<TradeData>& kTheyGive, CLinkList<TradeData>& kWeGive, bool bTheyMayGiveMore, bool bWeMayGiveMore, scaled rLeniency) const
 {
 	PROFILE_FUNC();
 	FAssert(ePlayer != getID());
@@ -11370,8 +11320,7 @@ int CvPlayerAI::AI_tradeAcceptabilityThreshold(PlayerTypes eTrader) const
 } // K-Mod end
 
 // advc.132:
-bool CvPlayerAI::AI_checkCivicReligionConsistency(
-	CLinkList<TradeData> const& kTradeItems) const
+bool CvPlayerAI::AI_checkCivicReligionConsistency(CLinkList<TradeData> const& kTradeItems) const
 {
 	std::set<CivicOptionTypes> aeCivicOptionsFound;
 	int iReligionChanges = 0;
@@ -11396,8 +11345,7 @@ bool CvPlayerAI::AI_checkCivicReligionConsistency(
 }
 
 // <advc.036>
-bool CvPlayerAI::AI_checkResourceLimits(CLinkList<TradeData> const& kWeGive,
-		CLinkList<TradeData> const& kTheyGive, PlayerTypes eThey, int iChange) const
+bool CvPlayerAI::AI_checkResourceLimits(CLinkList<TradeData> const& kWeGive, CLinkList<TradeData> const& kTheyGive, PlayerTypes eThey, int iChange) const
 {
 	/*  Resources in lists mustn't overlap. TradeDenial should already ensure
 		this, but I don't think that's totally reliable. */
@@ -11455,8 +11403,7 @@ bool CvPlayerAI::AI_checkResourceLimits(CLinkList<TradeData> const& kWeGive,
 } // </advc.036>
 
 
-int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer,
-	bool bTeamTrade) const // advc.134a
+int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer, bool bTeamTrade) const // advc.134a
 {
 	PROFILE_FUNC();
 	FAssert(ePlayer != getID());
@@ -11718,8 +11665,7 @@ void CvPlayerAI::AI_foldDeals(CvDeal& d1, CvDeal& d2) const
 } // </advc.036>
 
 
-int CvPlayerAI::AI_maxGoldPerTurnTrade(PlayerTypes ePlayer,
-	bool bCheckOverdraft) const // advc.133
+int CvPlayerAI::AI_maxGoldPerTurnTrade(PlayerTypes ePlayer, bool bCheckOverdraft) const // advc.133
 {
 	FAssert(ePlayer != getID());
 	/*if (isHuman() || TEAMID(ePlayer) == getTeam())
@@ -11785,8 +11731,7 @@ int CvPlayerAI::AI_goldPerTurnTradeVal(int iGoldPerTurn) const
 }
 
 // (very roughly 4x gold / turn / city)
-int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
-	bool bTrade) const // advc.036
+int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled, bool bTrade) const // advc.036
 {
 	PROFILE_FUNC(); // advc.opt
 	// <advc.303> Relevant for Barbarian city placement
@@ -12051,8 +11996,7 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 
 // advc: K-Mod code cut from AI_baseBonusVal. (Original BtS code deleted.)
 // K-Mod: Similar, but much better. (maybe)
-int CvPlayerAI::AI_baseBonusUnitVal(BonusTypes eBonus, UnitTypes eUnit,
-	CvCity const* pCapital, CvCity const* pCoastalCity, bool bTrade) const
+int CvPlayerAI::AI_baseBonusUnitVal(BonusTypes eBonus, UnitTypes eUnit, CvCity const* pCapital, CvCity const* pCoastalCity, bool bTrade) const
 {
 	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
 	int iBaseValue = /* <advc.031> */ 10; // was 30
@@ -12184,8 +12128,7 @@ int CvPlayerAI::AI_baseBonusUnitVal(BonusTypes eBonus, UnitTypes eUnit,
 }
 
 
-int CvPlayerAI::AI_baseBonusBuildingVal(BonusTypes eBonus, BuildingTypes eBuilding,
-	int iCities, int iCoastalCities, bool bTrade) const
+int CvPlayerAI::AI_baseBonusBuildingVal(BonusTypes eBonus, BuildingTypes eBuilding, int iCities, int iCoastalCities, bool bTrade) const
 {
 	BuildingClassTypes const eBuildingClass = CvCivilization::buildingClass(eBuilding);
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
@@ -12292,8 +12235,7 @@ int CvPlayerAI::AI_baseBonusBuildingVal(BonusTypes eBonus, BuildingTypes eBuildi
 }
 
 
-int CvPlayerAI::AI_baseBonusProjectVal(BonusTypes eBonus, ProjectTypes eProject,
-	bool bTrade) const
+int CvPlayerAI::AI_baseBonusProjectVal(BonusTypes eBonus, ProjectTypes eProject, bool bTrade) const
 {
 	CvProjectInfo const& kProject = GC.getInfo(eProject);
 	int iValue = kProject.getBonusProductionModifier(eBonus) / 10;
@@ -12327,8 +12269,7 @@ int CvPlayerAI::AI_baseBonusProjectVal(BonusTypes eBonus, ProjectTypes eProject,
 }
 
 
-int CvPlayerAI::AI_baseBonusRouteVal(BonusTypes eBonus, RouteTypes eRoute,
-	RouteTypes eBestRoute, TechTypes eBuildTech, bool bTrade) const
+int CvPlayerAI::AI_baseBonusRouteVal(BonusTypes eBonus, RouteTypes eRoute, RouteTypes eBestRoute, TechTypes eBuildTech, bool bTrade) const
 {
 	int iValue = 0;
 	if(GC.getInfo(eRoute).getPrereqBonus() == eBonus)
@@ -12360,8 +12301,7 @@ int CvPlayerAI::AI_baseBonusRouteVal(BonusTypes eBonus, RouteTypes eRoute,
 }
 
 
-int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus,
-	bool bTrade) const // advc.036
+int CvPlayerAI::AI_corporationBonusVal(BonusTypes eBonus, bool bTrade) const // advc.036
 {
 	int const iCities = getNumCities() + getNumCities() / 6 + 1;
 	int iValue = 0;
@@ -12421,8 +12361,7 @@ int CvPlayerAI::AI_goldForBonus(BonusTypes eBonus, PlayerTypes eBonusOwner) cons
 
 /*	advc.036 (rewritten): Computes how much this CvPlayer is willing to pay
 	to eFromPlayer for eBonus */
-int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int iChange,
-	bool bExtraHappyOrHealth) const
+int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int iChange, bool bExtraHappyOrHealth) const
 {
 	PROFILE_FUNC();
 	FAssert(eFromPlayer != getID());
@@ -12948,8 +12887,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 }
 
 
-DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
-	int iChange) const // advc.133
+DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, int iChange) const // advc.133
 {
 	PROFILE_FUNC();
 
@@ -13250,9 +13188,8 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
 	3)	If eToPlayer is NO_PLAYER: The sum of 1) and 2). That's useful for
 		balancing out trade deals - which is the main purpose of this function.
 	I'm keeping it in one function b/c all three require similar computations. */
-int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity, // advc.003u: param was CvCity*
-	PlayerTypes eToPlayer, LiberationWeightTypes eLibWeight, bool bConquest,
-	bool bAIRequest, bool bDiploVal) const
+// advc.003u: param was CvCity* <!-- custom: hoisted from multiline signature between `kCity` and `eToPlayer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_cityTradeVal(CvCityAI const& kCity, PlayerTypes eToPlayer, LiberationWeightTypes eLibWeight, bool bConquest, bool bAIRequest, bool bDiploVal) const
 {
 	PROFILE_FUNC(); // Fine - for most cities, trade isn't even allowed.
 	CvGame const& kGame = GC.getGame();
@@ -13833,8 +13770,7 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
 
 /*  <advc.ctr> For ceding kCity to eToPlayer, the attitude level of this AI player
 	needs to greater than the return value. */
-AttitudeTypes CvPlayerAI::AI_cityTradeAttitudeThresh(CvCity const& kCity,
-	PlayerTypes eToPlayer, bool bLiberate) const
+AttitudeTypes CvPlayerAI::AI_cityTradeAttitudeThresh(CvCity const& kCity, PlayerTypes eToPlayer, bool bLiberate) const
 {
 	if (bLiberate)
 		return ATTITUDE_FURIOUS;
@@ -13848,8 +13784,7 @@ AttitudeTypes CvPlayerAI::AI_cityTradeAttitudeThresh(CvCity const& kCity,
 
 /*  advc (comment): This player pays for the embargo and ePlayer stops trading
 	with eTradeTeam. */
-int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer,
-	bool bWarTrade) const // advc.104o
+int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer, bool bWarTrade) const // advc.104o
 {
 	FAssert(ePlayer != getID());
 	FAssert(TEAMID(ePlayer) != getTeam());
@@ -13982,8 +13917,7 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 
 /*	advc (comment): This CvPlayer is supposed to stop trading
 	with eTradeTeam at the request of ePlayer */
-DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam,
-	PlayerTypes ePlayer) const
+DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam, PlayerTypes ePlayer) const
 {
 	FAssert(ePlayer != getID());
 	FAssert(TEAMID(ePlayer) != getTeam());
@@ -14181,8 +14115,7 @@ int CvPlayerAI::AI_religionTradeVal(ReligionTypes eReligion, PlayerTypes ePlayer
 
 /*	advc (comment): This CvPlayer is supposed to adopt eReligion
 	at the request of ePlayer */
-DenialTypes CvPlayerAI::AI_religionTrade(ReligionTypes eReligion,
-	PlayerTypes ePlayer) const
+DenialTypes CvPlayerAI::AI_religionTrade(ReligionTypes eReligion, PlayerTypes ePlayer) const
 {
 	if (isHuman())
 		return NO_DENIAL;
@@ -14272,8 +14205,7 @@ uint CvPlayerAI::AI_unitImpassables(UnitTypes eUnit) const
 
 /*	K-Mod note: currently, unit promotions are considered in
 	CvCityAI::AI_bestUnitAI rather than here. */
-int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI,
-	CvArea const* pArea) const
+int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const* pArea) const
 {
 	//PROFILE_FUNC(); // advc.003o
 
@@ -15420,8 +15352,7 @@ int CvPlayerAI::AI_totalWaterAreaUnitAIs(CvArea const& kArea, UnitAITypes eUnitA
 }
 
 // Checks multiple types at once
-int CvPlayerAI::AI_totalWaterAreaUnitAIs(CvArea const& kArea,
-	std::vector<UnitAITypes> const& aeUnitAI) const
+int CvPlayerAI::AI_totalWaterAreaUnitAIs(CvArea const& kArea, std::vector<UnitAITypes> const& aeUnitAI) const
 {
 	PROFILE_FUNC(); // advc
 
@@ -15549,8 +15480,7 @@ bool CvPlayerAI::AI_isExcessSeaExplorers(CvArea const& kWaterArea, int iChange) 
 }
 
 // Note: only tested for eRole=UNITAI_EXPLORE_SEA
-bool CvPlayerAI::AI_isOutdatedUnit(UnitTypes eUnit, UnitAITypes eRole,
-	CvArea const* pArea) const
+bool CvPlayerAI::AI_isOutdatedUnit(UnitTypes eUnit, UnitAITypes eRole, CvArea const* pArea) const
 {
 	int iValue = AI_unitValue(eUnit, eRole, pArea);
 	UnitClassTypes eUnitClass = GC.getInfo(eUnit).getUnitClassType();
@@ -15574,8 +15504,7 @@ bool CvPlayerAI::AI_isOutdatedUnit(UnitTypes eUnit, UnitAITypes eRole,
 // advc.042: Cut from CvPlayer.cpp
 /*  K-Mod. I've rearranged some stuff in this function to fix a couple of minor bugs;
 	and to make the code neater and less error prone. */
-int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFromPlot,
-	int iLookAhead) const
+int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFromPlot, int iLookAhead) const
 {
 	PROFILE_FUNC();
 
@@ -15798,8 +15727,7 @@ void CvPlayerAI::AI_logWorkerSeaAudit() const
 }
 
 // advc.042: Cut from CvPlayer.cpp (w/o functional changes) b/c of the AI code at the end
-int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus,
-	/* <advc.opt> */ int iMaxCount) const
+int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus, /* <advc.opt> */ int iMaxCount) const
 {
 	FAssert(iMaxCount > 0); // </advc.opt>
 	PROFILE_FUNC();
@@ -15857,8 +15785,7 @@ int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus,
 /*  advc.042: Mostly cut from BtS/K-Mod CvPlayer::isUnimprovedBonus
 	(now CvPlayerAI::AI_isUnimprovedBonus; see above).
 	Relies on caller to reset GC.getBorderFinder(). */
-bool CvPlayerAI::AI_isUnimprovedBonus(CvPlot const& p, CvPlot const* pFromPlot,
-	bool bCheckPath) const
+bool CvPlayerAI::AI_isUnimprovedBonus(CvPlot const& p, CvPlot const* pFromPlot, bool bCheckPath) const
 {
 	if (p.isCity())
 		return false;
@@ -16017,8 +15944,7 @@ int CvPlayerAI::AI_neededMissionaries(CvArea const& kArea, ReligionTypes eReligi
 }
 
 
-int CvPlayerAI::AI_neededExecutives(CvArea const& kArea,
-	CorporationTypes eCorporation) const
+int CvPlayerAI::AI_neededExecutives(CvArea const& kArea, CorporationTypes eCorporation) const
 {
 	if (!hasHeadquarters(eCorporation))
 		return 0;
@@ -16276,8 +16202,7 @@ int CvPlayerAI::AI_nukeWeight() const
 } // </K-Mod>
 
 // advc: K-Mod code cut from CvUnitAI::AI_nukeValue
-int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot,
-	int iCivilianTargetWeight) const
+int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot, int iCivilianTargetWeight) const
 {
 	PROFILE_FUNC();
 	int const iMilitaryTargetWeight = 100;
@@ -16546,8 +16471,7 @@ int CvPlayerAI::AI_nukeBaseDestructionWeight() const
 }
 
 
-int CvPlayerAI::AI_nukeExtraDestructionWeight(PlayerTypes eTarget,
-	int iTheirNukes, bool bLimited) const
+int CvPlayerAI::AI_nukeExtraDestructionWeight(PlayerTypes eTarget, int iTheirNukes, bool bLimited) const
 {
 	int iR = 0;
 	CvPlayerAI const& kTarget = GET_PLAYER(eTarget);
@@ -16644,8 +16568,7 @@ bool CvPlayerAI::AI_isFocusWar(CvArea const* pArea) const
 	return false;
 }
 
-int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot const& kPlot,
-	bool bTestCanMove) const
+int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot const& kPlot, bool bTestCanMove) const
 {
 	int iCount = 0;
 	CvArea const& kPlotArea = kPlot.getArea(); // advc.030
@@ -16704,8 +16627,7 @@ int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot const& kPlot,
 /*  advc.171: Cut from AI_missionaryValue b/c I want to add a war-plan check that
 	is also needed for CvUnitAI::AI_spreadReligion. Checking the other stuff
 	for AI_spreadReligion isn't necessary, but doesn't hurt and might save time. */
-bool CvPlayerAI::AI_isTargetForMissionaries(PlayerTypes eTarget,
-	ReligionTypes eReligion) const
+bool CvPlayerAI::AI_isTargetForMissionaries(PlayerTypes eTarget, ReligionTypes eReligion) const
 {
 	CvPlayer const& kTarget = GET_PLAYER(eTarget);
 	/*  Tbd.: AI_missionaryValue and AI_spreadReligion handle (team-)internal spread
@@ -16727,13 +16649,9 @@ bool CvPlayerAI::AI_isTargetForMissionaries(PlayerTypes eTarget,
 }
 
 
-int CvPlayerAI::AI_missionaryValue(
-	ReligionTypes eReligion, CvArea const* pArea // advc: params switched
-	/*  advc.171: Param unused.
-		Tbd.: Add a function AI_missionaryTargetValue(PlayerTypes eTarget)
-		to replace AI_isTargetForMissionaries and the overlapping
-		target player evaluations here and in CvUnitAI::AI_spreadReligion. */
-	/*,PlayerTypes* peBestPlayer*/) const
+// advc: params switched <!-- custom: hoisted from multiline signature after `pArea` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.171: Param unused. Tbd.: Add a function AI_missionaryTargetValue(PlayerTypes eTarget) to replace AI_isTargetForMissionaries and the overlapping target player evaluations here and in CvUnitAI::AI_spreadReligion. <!-- custom: hoisted from multiline signature after `pArea` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_missionaryValue(ReligionTypes eReligion, CvArea const* pArea /*, PlayerTypes* peBestPlayer*/) const
 {
 	CvTeam const& kTeam = GET_TEAM(getTeam());
 	CvGame const& kGame = GC.getGame();
@@ -16882,10 +16800,8 @@ int CvPlayerAI::AI_missionaryValue(
 	more comparable to the missionary value. The original code is deleted.
 	Currently, the return value has units of roughly (and somewhat arbitrarily)
 	1000 * commerce per turn. */
-int CvPlayerAI::AI_executiveValue(
-	// advc: switched these two params
-	CorporationTypes eCorporation, CvArea const* pArea,
-	PlayerTypes* peBestPlayer, bool bSpreadOnly) const
+// advc: switched these two params <!-- custom: hoisted from multiline signature before `eCorporation` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_executiveValue(CorporationTypes eCorporation, CvArea const* pArea, PlayerTypes* peBestPlayer, bool bSpreadOnly) const
 {
 	PROFILE_FUNC();
 	CvGame const& kGame = GC.getGame();
@@ -16996,8 +16912,7 @@ int CvPlayerAI::AI_executiveValue(
 /*	This function has been completely rewritten for K-Mod.
 	The original code has been deleted. (it was junk)
 	Returns approximately 100 x gpt value of the corporation, for one city. */
-int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation,
-	CvCityAI const* pCity) const // advc.003u: was CvCity
+int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, CvCityAI const* pCity) const // advc.003u: was CvCity
 {
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
 	CvCorporationInfo const& kCorp = GC.getInfo(eCorporation);
@@ -17112,8 +17027,7 @@ void CvPlayerAI::AI_processNewBuild(BuildTypes eBuild)
 }
 
 
-int CvPlayerAI::AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI,
-	CvSelectionGroup* pSkipSelectionGroup, /* advc.opt: */ int iMaxCount) const
+int CvPlayerAI::AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup, /* advc.opt: */ int iMaxCount) const
 {
 	PROFILE_FUNC();
 	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
@@ -17145,9 +17059,7 @@ int CvPlayerAI::AI_areaMissionAIs(CvArea const& kArea, MissionAITypes eMissionAI
 /*	advc (note): iRange refers to the distance between pPlot and the mission plots
 	of the units that are being counted. 0 (default) means that only units headed
 	for pPlot are counted. */
-int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeMissionAI,
-	int iMissionAICount, CvSelectionGroup const* pSkipSelectionGroup, int iRange,
-	int iMaxCount) const
+int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup const* pSkipSelectionGroup, int iRange, int iMaxCount) const
 {
 	//PROFILE_FUNC(); // advc.003o
 	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
@@ -17190,10 +17102,7 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot const& kPlot, MissionAITypes* aeM
 /*  advc.159 (note): This is not simply the sum of the relevant combat strength values.
 	The result should only be compared with AI_localAttackStrength, AI_localDefenceStrength,
 	AI_cityTargetStrengthByPath or CvSelectionGroupAI::AI_sumStrength. */
-int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam,
-	DomainTypes eDomainType, int iRange, /* advc: renamed from "bAtTarget" */ bool bMoveToTarget,
-	bool bCheckMoves, bool bNoCache,
-	bool bPredictPromotions) const // advc.139
+int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eDefenceTeam, DomainTypes eDomainType, int iRange, /* advc: renamed from "bAtTarget" */ bool bMoveToTarget, bool bCheckMoves, bool bNoCache, bool bPredictPromotions) const // advc.139
 {
 	PROFILE_FUNC();
 
@@ -17278,10 +17187,7 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
 /*	Total attack strength of units (potentially) hostile to us
 	that can move iRange steps to reach pAttackPlot.
 	advc.159: See note above AI_localDefenceStrength */
-int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot,
-	TeamTypes eAttackTeam, DomainTypes eDomainType, int iRange, bool bUseTarget,
-	bool bCheckMoves, bool bCheckCanAttack,
-	int* piAttackerCount) const // advc.139
+int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAttackTeam, DomainTypes eDomainType, int iRange, bool bUseTarget, bool bCheckMoves, bool bCheckCanAttack, int* piAttackerCount) const // advc.139
 {
 	PROFILE_FUNC();
 
@@ -17362,8 +17268,7 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot,
 	rather than just the number of units. I've also changed it to use a separate instance
 	of the path finder, so that it doesn't reset the existing path data. */
 //int CvPlayerAI::AI_cityTargetUnitsByPath(
-int CvPlayerAI::AI_cityTargetStrengthByPath(/* advc: */CvCity const* pCity,
-	CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const
+int CvPlayerAI::AI_cityTargetStrengthByPath(/* advc: */CvCity const* pCity, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const
 {
 	PROFILE_FUNC();
 
@@ -17440,8 +17345,7 @@ void CvPlayerAI::AI_attackMadeAgainst(CvUnit const& kDefender)
 	has up-to-date safety info when asked for a peace proposal.
 	Pretty narrow conditions (also on the caller's side); want to make sure not
 	to introduce any delay after human moves. Doesn't have to be 100% reliable. */
-void CvPlayerAI::AI_humanEnemyStackMovedInTerritory(
-	CvPlot const& kFrom, CvPlot const& kTo)
+void CvPlayerAI::AI_humanEnemyStackMovedInTerritory(CvPlot const& kFrom, CvPlot const& kTo)
 {
 	if (isHuman() || !isMajorCiv())
 		return;
@@ -17478,11 +17382,9 @@ void CvPlayerAI::AI_humanEnemyStackMovedInTerritory(
 /*	advc: Body cut from CvUnitAI::AI_stackOfDoomExtra b/c the result doesn't
 	really depend on the unit leading the group, or even on the group or its plot.
 	Code not tagged with comments is from K-Mod. */
-int CvPlayerAI::AI_neededCityAttackers(
-	CvArea const& kArea, // advc.104p
-	/*	For randomization, based on whatever context the caller deems relevant.
-		-1 (default) to disable randomization. */
-	int iHash) const
+// advc.104p <!-- custom: hoisted from multiline signature between `kArea` and `iHash` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// For randomization, based on whatever context the caller deems relevant. -1 (default) to disable randomization. <!-- custom: hoisted from multiline signature between `kArea` and `iHash` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_neededCityAttackers(CvArea const& kArea, int iHash) const
 {
 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
 	int const iFlavourExtra = AI_getFlavorValue(FLAVOR_MILITARY) / 2 +
@@ -17674,9 +17576,7 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
 } // </advc.300>
 
 
-int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit const& kUnit,
-	MissionAITypes* aeMissionAI, int iMissionAICount,
-	CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns, int iMaxCount) const
+int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns, int iMaxCount) const
 {
 	PROFILE_FUNC();
 	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
@@ -17781,8 +17681,7 @@ int CvPlayerAI::AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissi
 
 // BETTER_BTS_AI_MOD, General AI, 05/19/10, jdog5000:
 // advc.104 (note): Overlaps with UWAICache::updateTargetMissionCount
-int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam,
-	CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
+int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup, int iMaxCount) const
 {
 	PROFILE_FUNC();
 	FAssert(iMaxCount > 0); // advc.opt (use MAX_INT for infinity)
@@ -17815,8 +17714,7 @@ int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam,
 }
 
 
-int CvPlayerAI::AI_wakePlotTargetMissionAIs(/* advc: const& */ CvPlot const& kPlot,
-	MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const
+int CvPlayerAI::AI_wakePlotTargetMissionAIs(/* advc: const& */ CvPlot const& kPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup) const
 {
 	PROFILE_FUNC();
 
@@ -19635,8 +19533,7 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 /*  K-Mod note: A rough rule of thumb for this evaluation is that
 	depriving the enemy of 1 commerce is worth 1 point;
 	gaining 1 commerce for ourself is worth 2 points. */
-int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer,
-	EspionageMissionTypes eMission, CvPlot const& kPlot, int iData) const
+int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes eMission, CvPlot const& kPlot, int iData) const
 {
 	TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
 	if(eTargetPlayer == NO_PLAYER ||
@@ -20148,25 +20045,21 @@ int CvPlayerAI::AI_getPeacetimeGrantValue(PlayerTypes eIndex) const
 
 // <advc.130p>
 // Merged (and renamed) AI_changePeacetimeTradeValue and AI_changePeacetimeGrantValue
-void CvPlayerAI::AI_processPeacetimeTradeValue(PlayerTypes eIndex, int iChange,
-	bool bUpdateAttitude)
+void CvPlayerAI::AI_processPeacetimeTradeValue(PlayerTypes eIndex, int iChange, bool bUpdateAttitude)
 {
 	AI_processPeacetimeValue(eIndex, iChange, false,
 			false, NO_TEAM, NO_TEAM, bUpdateAttitude);
 }
 
 
-void CvPlayerAI::AI_processPeacetimeGrantValue(PlayerTypes eIndex, int iChange,
-	bool bUpdateAttitude)
+void CvPlayerAI::AI_processPeacetimeGrantValue(PlayerTypes eIndex, int iChange, bool bUpdateAttitude)
 {
 	AI_processPeacetimeValue(eIndex, iChange, true,
 			false, NO_TEAM, NO_TEAM, bUpdateAttitude);
 }
 
 // Based on the old AI_changePeacetimeGrantValue
-void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange,
-	bool bGrant, bool bPeace, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget,
-	bool bUpdateAttitude)
+void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange, bool bGrant, bool bPeace, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget, bool bUpdateAttitude)
 {
 	PROFILE_FUNC();
 	FAssertBounds(0, MAX_CIV_PLAYERS, eFromPlayer); // advc.003n
@@ -20258,8 +20151,7 @@ void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange,
 
 /*  Adjust assets to the scale of trade values (formula determined
 	through trial and error) */
-scaled CvPlayerAI::AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer,
-	TeamTypes eOtherTeam) const
+scaled CvPlayerAI::AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer, TeamTypes eOtherTeam) const
 {
 	FAssert(eOtherPlayer == NO_PLAYER || eOtherTeam == NO_TEAM);
 	bool bTeam = (eOtherPlayer == NO_PLAYER);
@@ -20313,8 +20205,7 @@ void CvPlayerAI::AI_setBonusTradeCounter(PlayerTypes eIndex, int iValue)
 } // </advc.130k>
 
 // advc.130n:
-int CvPlayerAI::AI_ideologyAttitudeChange(PlayerTypes eOther, IdeologicMarker eMarker,
-	int iCounter, int iDivisor, int iLimit) const
+int CvPlayerAI::AI_ideologyAttitudeChange(PlayerTypes eOther, IdeologicMarker eMarker, int iCounter, int iDivisor, int iLimit) const
 {
 	if (iDivisor == 0 || iLimit == 0 || iCounter < abs(iDivisor))
 		return 0;
@@ -20645,10 +20536,7 @@ void CvPlayerAI::AI_rememberLiberation(CvCity const& kCity, bool bConquest)
 
 /*  advc.130p: Based on code cut from CvDeal::addTrades.
 	Return value says whether attitude cache needs to be updated. */
-bool CvPlayerAI::AI_processTradeValue(CLinkList<TradeData> const& kItems,
-	PlayerTypes eFromPlayer, bool bGift, bool bPeace,
-	TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget,
-	bool bAIRequest) // advc.ctr
+bool CvPlayerAI::AI_processTradeValue(CLinkList<TradeData> const& kItems, PlayerTypes eFromPlayer, bool bGift, bool bPeace, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget, bool bAIRequest) // advc.ctr
 {
 	/*  advc.550a: Ignore discounts when it comes to fair-trade diplo bonuses?
 		Hard to decide, apply half the discount for now. */
@@ -22279,8 +22167,7 @@ int CvPlayerAI::AI_maxGoldPerTurnTradeGenerous(PlayerTypes eTo) const
 }
 
 
-bool CvPlayerAI::AI_checkMaxGold(CLinkList<TradeData> const& kItems,
-	PlayerTypes eTo) const
+bool CvPlayerAI::AI_checkMaxGold(CLinkList<TradeData> const& kItems, PlayerTypes eTo) const
 {
 	int const iMaxGold = AI_maxGoldTrade(eTo);
 	int const iMaxGPT = AI_maxGoldPerTurnTrade(eTo);
@@ -24239,8 +24126,7 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 }
 
 // advc.ctr: For tribute and help requests
-CvCityAI const* CvPlayerAI::AI_bestRequestCity(PlayerTypes eOwner, scaled rMinVal,
-	scaled rMinRatio) const
+CvCityAI const* CvPlayerAI::AI_bestRequestCity(PlayerTypes eOwner, scaled rMinVal, scaled rMinRatio) const
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
 	if (!kOwner.canPossiblyTradeItem(getID(), TRADE_CITIES))
@@ -24435,8 +24321,7 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
 	whether ceding (trading) the city makes sense in terms of trade values.
 	Either or neither player can be human.
 	Will only set piTradeVal when returning true. */
-bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
-	bool bLiberateForFree, int* piTradeVal) const
+bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer, bool bLiberateForFree, int* piTradeVal) const
 {
 	//PROFILE_FUNC(); // (Rarely called so far; not a concern at all.)
 	// BtS code cut from AI_doDiplo. Replacement below.
@@ -25022,8 +24907,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
 }
 
 // (K-Mod note: this should be roughly in units of commerce.)
-int CvPlayerAI::AI_eventValue(EventTypes eEvent,
-	EventTriggeredData const& kTriggeredData) const
+int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTriggeredData) const
 {
 	CvEventInfo const& kEvent = GC.getInfo(eEvent);
 
@@ -25763,8 +25647,7 @@ void CvPlayerAI::AI_doCheckFinancialTrouble()
 	If bPreferRoundingUp is set, then try the nearest greater multiple first
 	and then the nearest smaller multiple; otherwise, try the nearest smaller
 	multiple first and then the nearest greater multiple. */
-void CvPlayerAI::AI_roundTradeValBounds(int& iTradeVal, bool bPreferRoundingUp,
-	int iLower, int iUpper) const
+void CvPlayerAI::AI_roundTradeValBounds(int& iTradeVal, bool bPreferRoundingUp, int iLower, int iUpper) const
 {
 	int iTmpVal = iTradeVal;
 	if (bPreferRoundingUp)
@@ -25788,8 +25671,7 @@ void CvPlayerAI::AI_roundTradeValBounds(int& iTradeVal, bool bPreferRoundingUp,
 
 // BETTER_BTS_AI_MOD, Victory Strategy AI, 04/25/10, jdog5000: START
 // heavily edited by K-Mod and bbai
-int CvPlayerAI::AI_calculateCultureVictoryStage(
-	int iCountdownThresh) const // advc.115
+int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // advc.115
 {
 	PROFILE_FUNC();
 
@@ -28337,8 +28219,7 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
 	}
 }
 
-int CvPlayerAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
-	bool bConstCache) const // advc.001n
+int CvPlayerAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance, bool bConstCache) const // advc.001n
 {
 	//PROFILE_FUNC(); // advc.003o (the cache seems to be very effective)
 	FAssert(GET_PLAYER(eIndex).isAlive());
@@ -28360,8 +28241,7 @@ int CvPlayerAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
 	major attack is imminent and 250 that it's a strong possibility. At 100,
 	we're worried, but probably shouldn't act on it much (unless we're worried
 	about several rivals). */
-int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow,
-	bool bReduceWhenHopeless, bool bConstCache) const // advc.104
+int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow, bool bReduceWhenHopeless, bool bConstCache) const // advc.104
 {
 	CvPlayerAI const& kRival = GET_PLAYER(eRival);
 	CvTeamAI const& kRivalTeam = GET_TEAM(eRival);
@@ -28564,8 +28444,7 @@ int CvPlayerAI::AI_getAreaCultureDefendersNeeded(CvArea const& kArea) const
 	return r;
 }
 
-int CvPlayerAI::AI_countNumAreaHostileUnits(CvArea const& kArea, bool bPlayer, bool bTeam,
-	bool bNeutral, bool bHostile, /* advc.081: */ CvPlot const* pCenter) const
+int CvPlayerAI::AI_countNumAreaHostileUnits(CvArea const& kArea, bool bPlayer, bool bTeam, bool bNeutral, bool bHostile, /* advc.081: */ CvPlot const* pCenter) const
 {
 	PROFILE_FUNC();
 
@@ -28599,8 +28478,8 @@ int CvPlayerAI::AI_countNumAreaHostileUnits(CvArea const& kArea, bool bPlayer, b
 }
 
 //this doesn't include the minimal one or two garrison units in each city.
-int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea const& kArea, // advc: was CvArea*
-	bool bDebug) const // advc.007: For displaying the correct count for humans in Debug text
+// advc: was CvArea* <!-- custom: hoisted from multiline signature between `kArea` and `bDebug` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea const& kArea, bool bDebug) const // advc.007: For displaying the correct count for humans in Debug text
 {
 	PROFILE_FUNC();
 	// <advc>
@@ -28802,8 +28681,8 @@ RouteTypes CvPlayerAI::AI_bestAdvancedStartRoute(CvPlot* pPlot, int* piYieldValu
 	return eBestRoute;
 }
 
-UnitTypes CvPlayerAI::AI_bestAdvancedStartUnitAI(CvPlot const& kPlot, // advc: CvPlot const&
-	UnitAITypes eUnitAI) const
+// advc: CvPlot const& <!-- custom: hoisted from multiline signature between `kPlot` and `eUnitAI` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+UnitTypes CvPlayerAI::AI_bestAdvancedStartUnitAI(CvPlot const& kPlot, UnitAITypes eUnitAI) const
 {
 	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
 
@@ -29850,8 +29729,7 @@ int CvPlayerAI::AI_getNumAreaCitySites(CvArea const& kArea, int& iBestValue) con
 	return iCount;
 }
 
-int CvPlayerAI::AI_getNumAdjacentAreaCitySites(int& iBestValue, CvArea const& kWaterArea,
-	CvArea const* pExcludeArea) const
+int CvPlayerAI::AI_getNumAdjacentAreaCitySites(int& iBestValue, CvArea const& kWaterArea, CvArea const* pExcludeArea) const
 {
 	int iCount = 0;
 	iBestValue = 0;
@@ -29995,8 +29873,7 @@ bool CvPlayerAI::AI_deduceCitySite(CvCity const& kCity) const
 	if the foreign civ has "no foreign trade".
 	(it ignores that effect for our civ, but checks it for the foreign civ -
 	the reasoning is basically that the other player's civics are out of our control.) */
-int CvPlayerAI::AI_countPotentialForeignTradeCities(bool bCheckConnected,
-	bool bCheckForeignTradePolicy, CvArea const* pIgnoreArea) const
+int CvPlayerAI::AI_countPotentialForeignTradeCities(bool bCheckConnected, bool bCheckForeignTradePolicy, CvArea const* pIgnoreArea) const
 {
 	CvCity const* pCapital = getCapital();
 	if (pCapital == NULL)
@@ -30042,8 +29919,7 @@ int CvPlayerAI::AI_countPotentialForeignTradeCities(bool bCheckConnected,
 }
 
 
-int CvPlayerAI::AI_bestAreaUnitAIValue(UnitAITypes eUnitAI, CvArea const* pArea,
-	UnitTypes* peBestUnitType) const
+int CvPlayerAI::AI_bestAreaUnitAIValue(UnitAITypes eUnitAI, CvArea const* pArea, UnitTypes* peBestUnitType) const
 {
 	PROFILE_FUNC(); // advc.opt
 
@@ -30092,8 +29968,7 @@ int CvPlayerAI::AI_bestAreaUnitAIValue(UnitAITypes eUnitAI, CvArea const* pArea,
 }
 
 
-int CvPlayerAI::AI_bestCityUnitAIValue(UnitAITypes eUnitAI, CvCity const* pCity,
-	UnitTypes* peBestUnitType) const
+int CvPlayerAI::AI_bestCityUnitAIValue(UnitAITypes eUnitAI, CvCity const* pCity, UnitTypes* peBestUnitType) const
 {
 	FAssert(eUnitAI != NO_UNITAI);
 
@@ -30121,8 +29996,7 @@ int CvPlayerAI::AI_bestCityUnitAIValue(UnitAITypes eUnitAI, CvCity const* pCity,
 }
 
 
-int CvPlayerAI::AI_calculateTotalBombard(DomainTypes eDomain,
-	int iMaxCount) const // advc.opt
+int CvPlayerAI::AI_calculateTotalBombard(DomainTypes eDomain, int iMaxCount) const // advc.opt
 {
 	int iTotalBombard = 0;
 	CvCivilization const& kCiv = getCivilization();

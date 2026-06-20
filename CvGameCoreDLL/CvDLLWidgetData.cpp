@@ -43,8 +43,7 @@ namespace
 	}
 }
 
-void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
-	CvWidgetDataStruct &widgetDataExternal)
+void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &widgetDataExternal)
 {	// advc: Copy - to make sure not to write to the param
 	CvWidgetDataStruct widgetDataStruct(widgetDataExternal);
 	// <advc.085> Replacing a few sporadic tests in the parse... functions
@@ -2079,8 +2078,7 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
 }
 
 
-void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvWString szTemp;
 	CvActionInfo const& kAction = GC.getActionInfo(widgetDataStruct.m_iData1);
@@ -2378,8 +2376,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 // advc: Cut from parseActionHelp, refactored.
-void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
-	CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer)
 {
 	CvGame const& kGame = GC.getGame();
 	CvPlayer const& kUnitOwner = GET_PLAYER(kUnit.getOwner());
@@ -3425,8 +3422,7 @@ void CvDLLWidgetData::parseAngryCitizenHelp(CvWidgetDataStruct &widgetDataStruct
 }
 
 
-void CvDLLWidgetData::parseChangeSpecialistHelp(
-	CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseChangeSpecialistHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -3726,8 +3722,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, 
 
 /*	K-Mod. The cheat mode text associated with parseContactCivHelp.
 	Mostly BBAI code. */
-void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	PlayerTypes const ePlayer = (PlayerTypes)widgetDataStruct.m_iData1;
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -4690,8 +4685,7 @@ void CvDLLWidgetData::parseEmphasizeHelp(CvWidgetDataStruct &widgetDataStruct, C
 }
 
 
-void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	szBuffer.clear();
 	CvGame& kGame = GC.getGame();
@@ -5058,8 +5052,7 @@ void CvDLLWidgetData::parseHealthHelp(CvWidgetDataStruct &widgetDataStruct, CvWS
 }
 
 
-void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	wchar szTempBuffer[1024];
 
@@ -5193,8 +5186,7 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5215,8 +5207,7 @@ void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL)
@@ -5227,8 +5218,7 @@ void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL &&
@@ -5248,8 +5238,7 @@ void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5281,8 +5270,7 @@ void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL)
@@ -5290,16 +5278,14 @@ void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseGreatGeneralHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGreatGeneralHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	if (getActivePlayer() != NO_PLAYER)
 		GAMETEXT.parseGreatGeneralHelp(szBuffer, GET_PLAYER(getActivePlayer()));
 }
 
 
-void CvDLLWidgetData::parseSelectedHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseSelectedHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5419,8 +5405,7 @@ void CvDLLWidgetData::parseTechPrereqHelp(CvWidgetDataStruct &widgetDataStruct, 
 			GC.getInfo((TechTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
 }
 
-void CvDLLWidgetData::parseTechTreePrereq(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer, bool bTreeInfo)
+void CvDLLWidgetData::parseTechTreePrereq(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer, bool bTreeInfo)
 {
 	GAMETEXT.setTechHelp(szBuffer, (TechTypes)widgetDataStruct.m_iData1, false,
 			false, false, bTreeInfo, (TechTypes)widgetDataStruct.m_iData2);
@@ -5895,8 +5880,7 @@ void CvDLLWidgetData::parseCloseScreenHelp(CvWStringBuffer& szBuffer)
 	szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CLOSE_SCREEN"));
 }
 
-void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer, bool bMinimal)
+void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer, bool bMinimal)
 {
 	CivilopediaPageTypes eType = (CivilopediaPageTypes)widgetDataStruct.m_iData1;
 	switch (eType)
@@ -6089,8 +6073,7 @@ void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct,
 	}
 }
 
-void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct,
-		CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvWString szTemp = szBuffer.getCString();
 	CvDeal const* pDeal = GC.getGame().getDeal(widgetDataStruct.m_iData1);
@@ -6143,36 +6126,31 @@ void CvDLLWidgetData::parseProductionModHelp(CvWidgetDataStruct &widgetDataStruc
 		GAMETEXT.setProductionHelp(szBuffer, *pCity);
 }
 
-void CvDLLWidgetData::parseLeaderheadHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseLeaderheadHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	GAMETEXT.parseLeaderHeadHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 }
 
-void CvDLLWidgetData::parseLeaderLineHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseLeaderLineHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	GAMETEXT.parseLeaderLineHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 }
 
-void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pCity = gDLL->UI().getHeadSelectedCity();
 	if (pCity != NULL)
 		GAMETEXT.setCommerceHelp(szBuffer, *pCity, (CommerceTypes)widgetDataStruct.m_iData1);
 }
 
-void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
 {
 	GAMETEXT.setScoreHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
 }
 // BULL - Trade Hover - start
-void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
 {
 	GAMETEXT.buildTradeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
@@ -6181,8 +6159,7 @@ void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct,
 			true); // advc.087
 } // BULL - Trade Hover - end
 // BULL - Food Rate Hover - start
-void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity const* pCity = gDLL->UI().getHeadSelectedCity();
 	if(pCity == NULL)
@@ -6246,8 +6223,7 @@ void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, 
 }
 
 
-void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
-	bool bAnarchy, CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2, bool bAnarchy, CvWStringBuffer &szBuffer)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	if(bAnarchy)
@@ -6267,8 +6243,7 @@ void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
 } // </advc.085>
 
 // <K-Mod> 5/jan/11: Environmental advisor mouse-over text
-void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_OFFSETS_HELP"));
 	FOR_EACH_ENUM(Feature)
@@ -6283,8 +6258,7 @@ void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataSt
 	}
 }
 
-void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvPlayer::PollutionFlags eFlags = (CvPlayer::PollutionFlags)widgetDataStruct.m_iData1;
 
@@ -6329,8 +6303,7 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 } // </K-Mod>
 
 // advc.ctr:
-bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget,
-	CvCity*& pCity, PlayerTypes& eWhoTo) const
+bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity, PlayerTypes& eWhoTo) const
 {
 	bool bListMore = false;
 	// bListMore, eOwner and eWhoTo are all folded into data1

@@ -162,8 +162,7 @@ namespace
 
 } // end anonymous namespace
 
-bool FAssertDlg( const char* szExpr, const char* szMsg, const char* szFile, unsigned int line,
-	/* <advc.006f> */ const char* szFunction, /* </advc006f> */ bool& bIgnoreAlways )
+bool FAssertDlg(const char* szExpr, const char* szMsg, const char* szFile, unsigned int line, /* <advc.006f> */ const char* szFunction, /* </advc006f> */ bool& bIgnoreAlways)
 {
 	g_AssertInfo.szExpression = szExpr;
 	g_AssertInfo.szMessage = szMsg;

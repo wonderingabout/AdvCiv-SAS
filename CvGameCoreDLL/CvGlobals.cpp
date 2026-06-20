@@ -761,8 +761,7 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
 	m_iEventMessageTime = getDefineINT("EVENT_MESSAGE_TIME");
 } // </advc.opt>
 
-void CvGlobals::cacheGlobalFloats(
-	bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
+void CvGlobals::cacheGlobalFloats(bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
 {
 	//m_fFIELD_OF_VIEW = getDefineFLOAT("FIELD_OF_VIEW");
 	// <advc.004m>
@@ -835,9 +834,8 @@ int CvGlobals::getDefineINTExternal(char const* szName) const
 	return getDefineINT(szName);
 }
 
-int CvGlobals::getDefineINT(char const* szName,
-	// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START
-	int iDefault) const
+// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START <!-- custom: hoisted from multiline signature between `szName` and `iDefault` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvGlobals::getDefineINT(char const* szName, int iDefault) const
 {
 	int iReturn = iDefault;
 	// BETTER_BTS_AI_MOD: END
@@ -1049,8 +1047,7 @@ bool CvGlobals::isDLLProfilerEnabled() const
 }
 
 
-int CvGlobals::getTypesEnum(const char* szType,
-	bool bHideAssert, bool bFromPython) const // advc.006
+int CvGlobals::getTypesEnum(const char* szType, bool bHideAssert, bool bFromPython) const // advc.006
 {
 	FAssertMsg(szType != NULL, "null type string");
 	TypesMap::const_iterator it = m_typesMap.find(szType);
@@ -1075,8 +1072,7 @@ void CvGlobals::setHoFScreenUp(bool b)
 }
 
 
-int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert,
-	bool bFromPython) const // advc.006
+int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert, bool bFromPython) const // advc.006
 {
 	FAssertMsg(szType != NULL, "null info type string");
 	InfosMap::const_iterator it = m_infosMap.find(szType);
@@ -1106,8 +1102,7 @@ void CvGlobals::infoTypeFromStringReset()
 
 /*	advc.006: Based on code cut from getInfoTypeForString --
 	also want this for non-info enum types. */
-void CvGlobals::handleUnknownTypeString(char const* szType,
-	bool bHideAssert, bool bFromPython) const
+void CvGlobals::handleUnknownTypeString(char const* szType, bool bHideAssert, bool bFromPython) const
 {
 	if (!bHideAssert && /* K-Mod: */ !(strcmp(szType, "") == 0 || strcmp(szType, "NONE") == 0))
 	{

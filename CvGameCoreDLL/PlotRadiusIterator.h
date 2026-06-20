@@ -38,35 +38,20 @@ protected:
 	{}
 
 public:
-	bool hasNext() const
-	{
-		return (m_pNext != NULL);
-	}
+	bool hasNext() const { return (m_pNext != NULL); }
 
-	CvPlot& operator*() const
-	{
-		return *m_pNext;
-	}
+	CvPlot& operator*() const { return *m_pNext; }
 
 	CvPlot* operator->() const
 	{
 		return m_pNext;
 	}
 
-	int currStepDist() const
-	{
-		return ::stepDistance(m_pCenter, m_pNext);
-	}
+	int currStepDist() const { return ::stepDistance(m_pCenter, m_pNext); }
 
-	int currPlotDist() const
-	{
-		return ::plotDistance(m_pCenter, m_pNext);
-	}
+	int currPlotDist() const { return ::plotDistance(m_pCenter, m_pNext); }
 
-	int radius() const
-	{
-		return m_iRadius;
-	}
+	int radius() const { return m_iRadius; }
 
 protected:
 	CvPlot* m_pNext;
@@ -102,17 +87,10 @@ public:
 		return *this;
 	}
 
-	int currXDist() const
-	{
-		/*	World-wrap isn't applied to m_iCurrX (i.e. it can be off the map),
-			hence no need to check world wrap (CvMap::xDistance) here. */
-		return abs(m_pCenter->getX() - m_iCurrX);
-	}
+	/* World-wrap isn't applied to m_iCurrX (i.e. it can be off the map), hence no need to check world wrap (CvMap::xDistance) here. */
+	int currXDist() const { return abs(m_pCenter->getX() - m_iCurrX); }
 
-	int currYDist() const
-	{
-		return abs(m_pCenter->getY() - m_iCurrY);
-	}
+	int currYDist() const { return abs(m_pCenter->getY() - m_iCurrY); }
 
 protected:
 	void computeNext()
@@ -203,15 +181,9 @@ public:
 		return *this;
 	}
 
-	int currXDist() const
-	{
-		return m_iCurrXDist;
-	}
+	int currXDist() const { return m_iCurrXDist; }
 
-	int currYDist() const
-	{
-		return m_iCurrYDist;
-	}
+	int currYDist() const { return m_iCurrYDist; }
 
 protected:
 	void computeNext()

@@ -315,14 +315,8 @@ public:
 			m_szModelFile = modelFile;
 			m_eRotation = rotation;
 		}
-		const CvString &getModelFile() const
-		{
-			return m_szModelFile;
-		}
-		RotationTypes getRotation() const
-		{
-			return m_eRotation;
-		}
+		const CvString &getModelFile() const { return m_szModelFile; }
+		RotationTypes getRotation() const { return m_eRotation; }
 	private:
 		CvString m_szModelFile;
 		RotationTypes m_eRotation;
@@ -335,19 +329,9 @@ public:
 		{
 			m_iConnectionMask = connectionMask;
 		}
-		int getConnectionMask() const
-		{
-			return m_iConnectionMask;
-		}
-		int getNumArtModels() const
-		{
-			return m_aArtModels.size();
-		}
-		const FeatureArtModel &getArtModel(int index) const
-		{
-			FAssertMsg((index >= 0) && (index < (int) m_aArtModels.size()), "[Jason] Invalid feature model file index.");
-			return m_aArtModels[index];
-		}
+		int getConnectionMask() const { return m_iConnectionMask; }
+		int getNumArtModels() const { return m_aArtModels.size(); }
+		const FeatureArtModel &getArtModel(int index) const { FAssertMsg((index >= 0) && (index < (int) m_aArtModels.size()), "[Jason] Invalid feature model file index."); return m_aArtModels[index]; }
 	private:
 		std::vector<FeatureArtModel> m_aArtModels;
 		int m_iConnectionMask;
@@ -362,14 +346,8 @@ public:
 			m_szTag = tagName;
 			m_szName = nodeName;
 		}
-		const CvString getTagName() const
-		{
-			return m_szTag;
-		}
-		const CvString getNodeName() const
-		{
-			return m_szName;
-		}
+		const CvString getTagName() const { return m_szTag; }
+		const CvString getNodeName() const { return m_szName; }
 	private:
 		CvString m_szTag;
 		CvString m_szName;
@@ -378,15 +356,8 @@ public:
 	class FeatureVariety
 	{
 	public:
-		const CvString &getVarietyButton() const
-		{
-			return m_szVarietyButton;
-		}
-		const FeatureArtPiece &getFeatureArtPiece(int index) const
-		{
-			FAssertMsg((index >= 0) && (index < (int) m_aFeatureArtPieces.size()), "[Jason] Invalid feature art index.");
-			return m_aFeatureArtPieces[index];
-		}
+		const CvString &getVarietyButton() const { return m_szVarietyButton; }
+		const FeatureArtPiece &getFeatureArtPiece(int index) const { FAssertMsg((index >= 0) && (index < (int) m_aFeatureArtPieces.size()), "[Jason] Invalid feature art index."); return m_aFeatureArtPieces[index]; }
 		const FeatureArtPiece &getFeatureArtPieceFromConnectionMask(int connectionMask) const
 		{
 			for(int i=0;i<(int)m_aFeatureArtPieces.size();i++)
@@ -425,10 +396,7 @@ public:
 			m_aFeatureArtPieces.push_back(FeatureArtPiece(connectionMask));
 			return m_aFeatureArtPieces.back();
 		}
-		void createFeatureDummyNode(const CvString &tagName, const CvString &nodeName)
-		{
-			m_aFeatureDummyNodes.push_back(FeatureDummyNode(tagName, nodeName));
-		}
+		void createFeatureDummyNode(const CvString &tagName, const CvString &nodeName) { m_aFeatureDummyNodes.push_back(FeatureDummyNode(tagName, nodeName)); }
 	private:
 		std::vector<FeatureArtPiece> m_aFeatureArtPieces;
 		std::vector<FeatureDummyNode> m_aFeatureDummyNodes;

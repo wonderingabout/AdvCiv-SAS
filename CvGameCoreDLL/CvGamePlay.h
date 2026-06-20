@@ -23,14 +23,8 @@
 
 namespace CvGamePlay
 {
-	__forceinline CvTeam& getTeam(TeamTypes eTeam)
-	{
-		return CvTeam::getTeam(eTeam);
-	}
-	__forceinline CvTeam& getTeam(PlayerTypes ePlayer)
-	{
-		return CvTeam::getTeam(TEAMID(ePlayer));
-	}
+	__forceinline CvTeam& getTeam(TeamTypes eTeam) { return CvTeam::getTeam(eTeam); }
+	__forceinline CvTeam& getTeam(PlayerTypes ePlayer) { return CvTeam::getTeam(TEAMID(ePlayer)); }
 } // </advc.003u>
 
 #endif

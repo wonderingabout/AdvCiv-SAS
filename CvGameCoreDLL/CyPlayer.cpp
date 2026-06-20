@@ -11,8 +11,7 @@
 #include "CvDLLPythonIFaceBase.h"
 
 CyPlayer::CyPlayer() : m_pPlayer(NULL) {}
-CyPlayer::CyPlayer(CvPlayer* pPlayer) : m_pPlayer(
-	pPlayer == NULL ? NULL : &pPlayer->AI()) // advc.003u
+CyPlayer::CyPlayer(CvPlayer* pPlayer) : m_pPlayer(pPlayer == NULL ? NULL : &pPlayer->AI()) // advc.003u
 {}
 //CvPlayer* CyPlayer::getPlayer() { return m_pPlayer; } // advc: unused
 
@@ -994,8 +993,7 @@ int CyPlayer::getEspionageMissionCost(int /*EspionageMissionTypes*/ eMission, in
 	return m_pPlayer ? m_pPlayer->getEspionageMissionCost((EspionageMissionTypes) eMission, (PlayerTypes) eTargetPlayer, NULL != pPlot ? pPlot->getPlot() : NULL, iExtraData) : -1;
 }
 // <advc.120d>
-int CyPlayer::getEspionageGoldQuantity(int eMission, int eTargetPlayer,
-		CyCity* pCity) {
+int CyPlayer::getEspionageGoldQuantity(int eMission, int eTargetPlayer, CyCity* pCity) {
 	if(m_pPlayer == NULL)
 		return -1;
 	return m_pPlayer->getEspionageGoldQuantity((EspionageMissionTypes)eMission,

@@ -1039,10 +1039,9 @@ bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
 }
 
 // K-Mod note: I've shuffled things around a bit in this function.  // advc: refactored
-void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan,
-	bool bPrimaryDoW, // K-Mod
-	PlayerTypes eSponsor, // advc.100
-	bool bRandomEvent) // advc.106g
+// K-Mod <!-- custom: hoisted from multiline signature between `bPrimaryDoW` and `eSponsor` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.100 <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent) // advc.106g
 {
 	PROFILE_FUNC();
 	FAssert(eTarget != NO_TEAM);
@@ -1243,11 +1242,11 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 }
 
 
-void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
-	TeamTypes eBroker, // advc.100b
-	bool bCapitulate, // advc.034
-	CLinkList<TradeData> const* pReparations, // advc.039
-	bool bRandomEvent) // advc.106g
+// advc: refactored <!-- custom: hoisted from multiline signature between `bBumpUnits` and `eBroker` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.100b <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.034 <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.039 <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bool bCapitulate, CLinkList<TradeData> const* pReparations, bool bRandomEvent) // advc.106g
 {
 	FAssert(eTarget != NO_TEAM);
 	FAssert(eTarget != getID());
@@ -1316,8 +1315,7 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
 }
 
 // advc: Cut from declareWar
-void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
-	PlayerTypes eSponsor, bool bRandomEvent)
+void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent)
 {
 	CvWString szBuffer;
 	// <advc.100>
@@ -1425,8 +1423,7 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 }
 
 // advc: Cut from makePeace
-void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
-	CLinkList<TradeData> const* pReparations, bool bRandomEvent)
+void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker, CLinkList<TradeData> const* pReparations, bool bRandomEvent)
 {
 	CvWString szBuffer;
 	CvTeam const& kTarget = GET_TEAM(eTarget);
@@ -1555,16 +1552,14 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 
 /*	advc.106o: To be called on the observer, i.e. the recipient of a message about a
 	change in war peace status between eAgent and eTarget, initiated by eAgent. */
-void CvTeam::setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget,
-	CvWString& szAgents, CvWString& szTargets, bool bReplay)
+void CvTeam::setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget, CvWString& szAgents, CvWString& szTargets, bool bReplay)
 {
 	setWarPeacePartyStrings(eAgent, szAgents, bReplay, true);
 	setWarPeacePartyStrings(eTarget, szTargets, bReplay, false);
 }
 
 // advc.106o: Helper for the above
-void CvTeam::setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay,
-	bool bCapitalize) // just for the pronoun "you"
+void CvTeam::setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay, bool bCapitalize) // just for the pronoun "you"
 {
 	FAssert(szTeams.empty());
 	FAssert(!GET_TEAM(eTeam).isAVassal());
@@ -1615,8 +1610,7 @@ bool CvTeam::canContact(TeamTypes eTeam, bool bCheckWillingness) const
 }
 
 
-void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo,
-	FirstContactData* pData) // advc.071: Just passing this along
+void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData) // advc.071: Just passing this along
 {
 	if (isHasMet(eTeam))
 		return;
@@ -1972,8 +1966,7 @@ int CvTeam::getVassalCount(TeamTypes eObs) const
 }
 
 
-bool CvTeam::canVassalRevolt(TeamTypes eMaster,
-	bool bCheckLosses, int iExtraLand, int iExtraPop) const // advc.ctr
+bool CvTeam::canVassalRevolt(TeamTypes eMaster, bool bCheckLosses, int iExtraLand, int iExtraPop) const // advc.ctr
 {
 	FAssert(NO_TEAM != eMaster);
 
@@ -2195,9 +2188,8 @@ int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) const
 }
 
 
-int CvTeam::getResearchCost(TechTypes eTech,
-	bool bFreeBarbarianResearch, // advc.301: Replacing K-Mod's bGlobalModifiers
-	bool bTeamSizeModifiers) const // K-Mod
+// advc.301: Replacing K-Mod's bGlobalModifiers <!-- custom: hoisted from multiline signature between `bFreeBarbarianResearch` and `bTeamSizeModifiers` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool bTeamSizeModifiers) const // K-Mod
 {
 	CvGame const& kGame = GC.getGame();
 	CvTechInfo const& kTech = GC.getInfo(eTech);
@@ -2899,8 +2891,7 @@ void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
 }
 
 // advc.071: Now returns the location of the meeting, if any.
-CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
-	FirstContactData* pData) // advc.071
+CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* pData) // advc.071
 {
 	if (isHasMet(eOther))
 		return NULL;
@@ -3782,8 +3773,7 @@ void CvTeam::freeVassal(TeamTypes eVassal) const
 /*  <kekm.26> "Changed how multiple war declarations work. declareWar used to
 	nest war declarations, now they are queued to trigger defensive pacts and
 	everything else in the correct order." */
-void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
-		bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW)
+void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW)
 {
 	attacking_queue.push(eAttackingTeam);
 	defending_queue.push(eDefendingTeam);
@@ -4432,8 +4422,7 @@ bool CvTeam::isTechSplash() const
 	return true;
 }
 
-void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer,
-	bool bPartial)
+void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer, bool bPartial)
 {
 	bool bSound = ((!isTechSplash() ||
 			/*  advc.156: I think HotSeat doesn't play sounds along with messages,
@@ -4468,8 +4457,7 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 	}
 }
 
-void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
-	bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn)
+void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn)
 {
 	PROFILE_FUNC();
 
@@ -5416,8 +5404,7 @@ void CvTeam::doBarbarianResearch()
 	}
 }
 
-void CvTeam::updateTechShare(TechTypes eTech,
-	int iOtherKnownThreshold) // advc.opt: Allow caller to handle this
+void CvTeam::updateTechShare(TechTypes eTech, int iOtherKnownThreshold) // advc.opt: Allow caller to handle this
 {
 	if (isHasTech(eTech) /* advc.opt: */ || !isAnyTechShare())
 		return;
@@ -5631,8 +5618,7 @@ int CvTeam::getCapitalY(TeamTypes eObserver, bool bDebug) const
 	return pCapital->getY();
 } // </advc.127b>
 
-void CvTeam::processTech(TechTypes eTech, int iChange,
-	bool bEndOfTurn) // advc.121
+void CvTeam::processTech(TechTypes eTech, int iChange, bool bEndOfTurn) // advc.121
 {
 	PROFILE_FUNC();
 

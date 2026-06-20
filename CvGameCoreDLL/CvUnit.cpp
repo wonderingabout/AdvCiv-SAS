@@ -108,8 +108,7 @@ CvUnit::CvUnit() // advc.003u: Body cut from the deleted reset function
 }
 
 // advc.003u: Param eUnitAI moved to CvUnitAI::init
-void CvUnit::init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY,
-	DirectionTypes eFacingDirection)
+void CvUnit::init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection)
 {
 	FAssert(NO_UNIT != eUnit);
 
@@ -1342,8 +1341,7 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 }
 
 
-void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
-	bool bSeaPatrol) // advc.004k
+void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted, bool bSeaPatrol) // advc.004k
 {
 	if (pbIntercepted != NULL)
 		*pbIntercepted = false; // </advc.004c>
@@ -1783,8 +1781,7 @@ void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
 /*	advc.048c: Based on code originally in resolveCombat.
 	iAttackSuccess:
 	1 for defender destroyed, -1 for attacker destroyed, 0 for withdrawal. */
-void CvUnit::setHasBeenDefendedAgainstMessage(CvWString& kBuffer,
-	CvUnit const& kDefender, int iAttackSuccess) const
+void CvUnit::setHasBeenDefendedAgainstMessage(CvWString& kBuffer, CvUnit const& kDefender, int iAttackSuccess) const
 {
 	bool const bOdds = (GC.getDefineBOOL(CvGlobals::SHOW_ODDS_IN_COMBAT_MESSAGES) &&
 			m_iAttackOdds >= 0 && kDefender.canDefend());
@@ -2185,8 +2182,7 @@ bool CvUnit::isUnowned() const
 	return false;
 }
 
-bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bTestBusy) /* advc: */ const
+bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bTestBusy) /* advc: */ const
 {
 	if (bTestBusy && getGroup()->isBusy())
 		return false;
@@ -2382,8 +2378,7 @@ CvPlot& CvUnit::getPathEndTurnPlot() const
 }
 
 
-bool CvUnit::generatePath(CvPlot const& kTo, MovementFlags eFlags, bool bReuse,
-	int* piPathTurns, int iMaxPath, /* <advc.128> */ bool bUseTempFinder) const
+bool CvUnit::generatePath(CvPlot const& kTo, MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath, /* <advc.128> */ bool bUseTempFinder) const
 {
 	return getGroup()->generatePath(getPlot(), kTo, eFlags, bReuse, piPathTurns,
 			iMaxPath, bUseTempFinder);
@@ -2396,10 +2391,7 @@ GroupPathFinder& CvUnit::getPathFinder() const
 }
 
 // advc: Wrapper for brevity
-void CvUnit::pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags,
-	bool bAppend, bool bManual, MissionAITypes eMissionAI,
-	CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit,
-	bool bModified)
+void CvUnit::pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, bool bModified)
 {
 	FAssert(!at(kTo));
 	getGroup()->pushMission(MISSION_MOVE_TO, kTo.getX(), kTo.getY(), eFlags,
@@ -2407,8 +2399,7 @@ void CvUnit::pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags,
 }
 
 
-bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage,
-	CvArea const* pArea) const // advc.030
+bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, CvArea const* pArea) const // advc.030
 {
 	// <advc.030> Moved from deleted function "canEnterArea" (that name was confusing)
 	if (pArea != NULL && isBarbarian() && DOMAIN_LAND == getDomainType() &&
@@ -2496,9 +2487,7 @@ bool CvUnit::willRevealAnyPlotFrom(CvPlot const& kFrom) const
 	(advc.opt: reverted a little of that), and added "bAssumeVisible" which
 	signals that we should check for units on the plot regardless of whether we
 	can actually see. */
-bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar,
-	bool bIgnoreLoad, bool bAssumeVisible,
-	bool bDangerCheck) const // advc.001k
+bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad, bool bAssumeVisible, bool bDangerCheck) const // advc.001k
 {
 	//PROFILE_FUNC(); // advc.003o
 
@@ -2800,8 +2789,8 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar,
 }
 
 
-bool CvUnit::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar, // advc: 1st param was a pointer
-	bool bDangerCheck) const // advc.001k
+// advc: 1st param was a pointer <!-- custom: hoisted from multiline signature between `bDeclareWar` and `bDangerCheck` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnit::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar, bool bDangerCheck) const // advc.001k
 {
 	return (canMoveInto(kPlot, false, bDeclareWar) || canMoveInto(kPlot, true, bDeclareWar,
 			false, true, bDangerCheck)); // advc.001k
@@ -2924,8 +2913,7 @@ bool CvUnit::isInvasionMove(CvPlot const& kFrom, CvPlot const& kTo) const
 }
 
 
-void CvUnit::attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted,
-	bool bSeaPatrol) // advc
+void CvUnit::attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted, bool bSeaPatrol) // advc
 {
 	FAssert(canMoveInto(*pPlot, true)
 			// K-Mod (note): could fail in certain situations involving sea-patrol
@@ -2942,8 +2930,7 @@ void CvUnit::fightInterceptor(CvPlot const& kPlot, bool bQuick) // advc: was CvP
 	updateAirCombat(bQuick);
 }
 
-void CvUnit::attackForDamage(CvUnit *pDefender,
-	int attackerDamageChange, int defenderDamageChange)
+void CvUnit::attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange)
 {
 	FAssert(getCombatTimer() == 0);
 	FAssert(pDefender != NULL);
@@ -3128,8 +3115,7 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 }
 
 // returns false if unit is killed
-bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove,
-	bool bFreeMove) // advc.163
+bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove, bool bFreeMove) // advc.163
 {
 	FAssert(!isAttacking());
 	FAssert(!isFighting());
@@ -3925,8 +3911,7 @@ void CvUnit::gift(bool bTestTransport)
 }
 
 // advc: Renamed from "canLoadUnit"
-bool CvUnit::canLoadOnto(CvUnit const& kUnit, CvPlot const& kPlot,
-	bool bCheckMoves) const // advc.123c
+bool CvUnit::canLoadOnto(CvUnit const& kUnit, CvPlot const& kPlot, bool bCheckMoves) const // advc.123c
 {
 	if (&kUnit == this)
 		return false;
@@ -4437,8 +4422,7 @@ bool CvUnit::airlift(int iX, int iY)
 }
 
 // advc (comment): Says whether eTeam is a victim of this (nuke) unit if it nukes pPlot
-bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,
-	TeamTypes eObs) const // kekm.7 (advc)
+bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam, TeamTypes eObs) const // kekm.7 (advc)
 {
 	// kekm.7 (advc): Not OK to nuke our own cities or units
 	if (!GET_TEAM(eTeam).isAlive()/* || eTeam == getTeam()*/)
@@ -4479,8 +4463,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,
 }
 
 
-bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY,
-	TeamTypes eObs) const // kekm.7 (advc)
+bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY, TeamTypes eObs) const // kekm.7 (advc)
 {
 	if (!canNuke(&kFrom))
 		return false;
@@ -4739,10 +4722,9 @@ bool CvUnit::nuke(int iX, int iY)
 }
 
 // advc.650:
-int CvUnit::nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs,
-	TeamTypes* pBestTeam, // Optional out-param
-	// Allow caller to provide set of affected teams (just to save time)
-	EagerEnumMap<TeamTypes,bool> const* pTeamsAffected) const
+// Optional out-param <!-- custom: hoisted from multiline signature between `pBestTeam` and `pTeamsAffected` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// Allow caller to provide set of affected teams (just to save time) <!-- custom: hoisted from multiline signature between `pBestTeam` and `pTeamsAffected` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvUnit::nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs, TeamTypes* pBestTeam, EagerEnumMap<TeamTypes, bool> const* pTeamsAffected) const
 {
 	LOCAL_REF(TeamTypes, eBestTeam, pBestTeam, NO_TEAM);
 	EagerEnumMap<TeamTypes,bool> abTeamsAffected_local;
@@ -4981,9 +4963,7 @@ bool CvUnit::canAirBombAt(CvPlot const& kTarget, CvPlot const* pFrom) const
 /*	advc.255: Whether the first structure that this unit could destroy in the
 	target plot would be an improvement, a route or none - assuming that the unit
 	has the ability to pillage or air bomb the plot (not checked). */
-CvUnit::StructureTypes CvUnit::getDestructibleStructureAt(CvPlot const& kTarget,
-	bool bTestVisibility,
-	bool bForceImprovement) const // advc.111
+CvUnit::StructureTypes CvUnit::getDestructibleStructureAt(CvPlot const& kTarget, bool bTestVisibility, bool bForceImprovement) const // advc.111
 {
 	ImprovementTypes eImprov = (bTestVisibility ?
 			kTarget.getRevealedImprovementType(getTeam()) :
@@ -5028,8 +5008,7 @@ int CvUnit::airBombDefenseDamage(CvCity const& kCity) const
 }
 
 // advc: Target plot was given as coordinates
-bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
-	bool bForceImprovement) // advc.111
+bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool bForceImprovement) // advc.111
 {	// <advc.004c>
 	if (pbIntercepted != NULL)
 		*pbIntercepted = false; // </advc.004c>
@@ -6526,9 +6505,8 @@ bool CvUnit::trade()
 }
 
 
-int CvUnit::getGreatWorkCulture(const CvPlot* pPlot,
-	// <advc.251> For help text
-	int* piPerEra) const
+// <advc.251> For help text <!-- custom: hoisted from multiline signature between `pPlot` and `piPerEra` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvUnit::getGreatWorkCulture(const CvPlot* pPlot, int* piPerEra) const
 {
 	LOCAL_REF(int, iPerEra, piPerEra, m_pUnitInfo->getGreatWorkCulture());
 	int iCulture = iPerEra; // </advc.251>
@@ -6899,8 +6877,7 @@ bool CvUnit::goldenAge()
 }
 
 
-bool CvUnit::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestVisible,
-	bool bIgnoreFoW) const // advc.181
+bool CvUnit::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestVisible, bool bIgnoreFoW) const // advc.181
 {
 	if (!m_pUnitInfo->getBuilds(eBuild))
 		return false;
@@ -7229,8 +7206,7 @@ int CvUnit::upgradeXPChange(UnitTypes eUnit) const
 }
 
 
-bool CvUnit::upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass,
-	int iCount) const
+bool CvUnit::upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, int iCount) const
 {
 	if (iCount > GC.getNumUnitClassInfos())
 		return false;
@@ -7911,9 +7887,7 @@ void CvUnit::setBaseCombatStr(int iCombat)
 		Note, in this last case, it is expected pCombatDetails == NULL,
 		it does not have to be, but some values may be unexpectedly
 		reversed in this case (iModifierTotal will be the negative sum). */
-int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
-	CombatDetails* pCombatDetails,
-	bool bGarrisonStrength) const // advc.500b
+int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDetails* pCombatDetails, bool bGarrisonStrength) const // advc.500b
 {
 	PROFILE_FUNC(); // advc: This does get called a lot. Not all that slow though.
 	FAssert(pPlot == NULL || pPlot->getTerrainType() != NO_TERRAIN);
@@ -8303,9 +8277,7 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
 // this nomalizes str by firepower, useful for quick odds calcs
 // the effect is that a damaged unit will have an effective str lowered by firepower/maxFirepower
 // doing the algebra, this means we mulitply by 1/2(1 + currHP)/maxHP = (maxHP + currHP) / (2 * maxHP)
-int CvUnit::currEffectiveStr(CvPlot const* pPlot, CvUnit const* pAttacker,
-	CombatDetails* pCombatDetails,
-	int iCurrentHP) const // advc.139
+int CvUnit::currEffectiveStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDetails* pCombatDetails, int iCurrentHP) const // advc.139
 {
 	int iCurrStr = currCombatStr(pPlot, pAttacker, pCombatDetails);
 
@@ -8429,9 +8401,7 @@ bool CvUnit::canDefend(const CvPlot* pPlot) const
 }
 
 // advc: Based on code removed from CvPlot::getBestDefender and CvPlot::hasDefender
-bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer,
-	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy,
-	/* <advc.028> */ bool bTestVisible, /* </advc.028> */ bool bTestCanAttack) const
+bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer, CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy, /* <advc.028> */ bool bTestVisible, /* </advc.028> */ bool bTestCanAttack) const
 {
 	FAssert(eAttackingPlayer != NO_PLAYER);
 	if (/* advc.028: */ bTestVisible &&
@@ -8472,9 +8442,8 @@ bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer,
 }
 
 
-bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
-	int* pBestDefenderRank, // Lead From Behind by UncutDragon
-	bool bPreferUnowned) const // advc.061
+// Lead From Behind by UncutDragon <!-- custom: hoisted from multiline signature between `pBestDefenderRank` and `bPreferUnowned` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank, bool bPreferUnowned) const // advc.061
 {
 	TeamTypes eAttackerTeam = NO_TEAM;
 	if (pAttacker != NULL)
@@ -8757,8 +8726,7 @@ int CvUnit::rangeCombatDamage(const CvUnit* pDefender) const
 }
 
 
-CvUnit* CvUnit::bestInterceptor(CvPlot const& kPlot,
-	bool bOdds) const // advc.004c
+CvUnit* CvUnit::bestInterceptor(CvPlot const& kPlot, bool bOdds) const // advc.004c
 {
 	/*	advc: (Could do this through a plot range, or at least go through
 		selection groups before individual units. But seems to be a nonissue.) */
@@ -9120,8 +9088,7 @@ int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDom
 
 /*	advc.030: Renamed from "canCargoEnterArea" to avoid confusion with canEnterArea
 	(wrapper for CvArea::canBeEntered) */
-bool CvUnit::canCargoEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage,
-	CvArea const& kArea) const
+bool CvUnit::canCargoEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, CvArea const& kArea) const
 {
 	FAssert(hasCargo()); // advc.opt
 	// advc (note): getCargoUnits would be slower
@@ -9932,8 +9899,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 	}
 }
 
-void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders,
-	int iGlobalPercent) // advc.312: was bUpdateGlobal
+void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, int iGlobalPercent) // advc.312: was bUpdateGlobal
 {
 	int iUnitExperience = iChange;
 	if (bFromCombat)
@@ -11568,9 +11534,7 @@ void CvUnit::collateralCombat(CvPlot const* pPlot, CvUnit const* pSkipUnit)
 }
 
 
-void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
-	int iAttackerFirepower, int iDefenderOdds, int iDefenderDamage,
-	CvUnit const* pSkipUnit)
+void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength, int iAttackerFirepower, int iDefenderOdds, int iDefenderDamage, CvUnit const* pSkipUnit)
 {
 	//if (pPlot->isCity(true, pSkipUnit->getTeam()))
 	if (GET_TEAM(pSkipUnit->getTeam()).isCityDefense(*pPlot, // advc
@@ -12233,10 +12197,7 @@ bool CvUnit::isSuicide() const
 }
 
 
-void CvUnit::getDefenderCombatValues(CvUnit const& kDefender, CvPlot const* pPlot,
-	int iOurStrength, int iOurFirepower,
-	int& iTheirOdds, int& iTheirStrength, int& iOurDamage, int& iTheirDamage,
-	CombatDetails* pTheirDetails) const
+void CvUnit::getDefenderCombatValues(CvUnit const& kDefender, CvPlot const* pPlot, int iOurStrength, int iOurFirepower, int& iTheirOdds, int& iTheirStrength, int& iOurDamage, int& iTheirDamage, CombatDetails* pTheirDetails) const
 {
 	iTheirStrength = kDefender.currCombatStr(pPlot, this, pTheirDetails);
 	int iTheirFirepower = kDefender.currFirepower(pPlot, this);
@@ -12494,8 +12455,7 @@ bool CvUnit::verifyStackValid()
 }
 
 //check if quick combat (in which case false is returned)
-bool CvUnit::isCombatVisible(CvUnit const* pDefender,
-	bool bSeaPatrol) const // advc.004k
+bool CvUnit::isCombatVisible(CvUnit const* pDefender, bool bSeaPatrol) const // advc.004k
 {
 	bool bVisible = false;
 	if (!m_pUnitInfo->isQuickCombat())
@@ -12622,8 +12582,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 /*	Modified version of best defender code (minus the initial boolean tests,
 	which we still check in the original method) */
-bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
-	int* pBestDefenderRank) const
+bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const
 {
 	/*	We adjust ranking based on ratio of our adjusted strength compared to
 		twice that of attacker. Effect is if we're over twice as strong as attacker,
