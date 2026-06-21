@@ -1,0 +1,37 @@
+name: Python 2.4 Compile (Docker)
+
+on:
+  push:
+    paths:
+      - "Assets/Python/**.py"
+      - "PrivateMaps/**.py"
+      - ".github/workflows/python24-compile.yml"
+      - ".github/workflows/build/python24_compile.py"
+  pull_request:
+    # <!-- custom: PR #13 is a long-lived reference compare from tech-rework to 1.12.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5 + GPT-5.5) -->
+    branches-ignore:
+      - "1.12"
+    paths:
+      - "Assets/Python/**.py"
+      - "PrivateMaps/**.py"
+      - ".github/workflows/python24-compile.yml"
+      - ".github/workflows/build/python24_compile.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  python24-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Compile-check with CPython 2.4
+        shell: bash
+        run: |
+          # <!-- custom: Run the real CPython 2.4 parser from our small GHCR image, but keep checkout/actions on the normal runner so the old image only needs Python. This catches Python 2.4 syntax/compile errors without trying to run Civ4 or import engine-only modules. (ChatGPT-5.5 + GPT-5.5) -->
+          docker run --rm -v "$GITHUB_WORKSPACE:/work:ro" -w /work ghcr.io/wonderingabout/python-2.4:2.4.6 python .github/workflows/build/python24_compile.py --repo-root /work

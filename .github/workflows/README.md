@@ -3,6 +3,7 @@
 These files are developer/repository automation, not Civ4 runtime files.
 
 - `python-ruff.yml` shows full Ruff output and runs critical Ruff Python sanity checks.
+- `python24-compile.yml` runs the real CPython 2.4 parser/bytecode compiler through Docker.
 - `build.yml` runs checks that should pass for ordinary committed builds.
 - `build/` contains Python 3 build-check scripts used by `build.yml`.
 - `lib/` contains shared Python 3 helpers used by workflow scripts.
@@ -28,6 +29,12 @@ For example, this helped spot [map scripts that were previously unclassified in 
 The workflow first prints the full `ruff check . --isolated --select ALL` grouped report so all findings are visible, then fails on a practical critical gate (ignoring only those deemed non-critical and too noisy after empirical review) for syntax/parse errors and Pyflakes bug checks. The first GitHub run showed that only a few rules were clearly too noisy, so this is the first cautious narrowing step; narrow further only from actual failure output. For example, this helped spot shadowed duplicate Python callbacks in the base Civ4 `Oasis.py` map script (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)) and a dormant undefined `Point` (instead of `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)).
 
 Note: Separate artifacts were considered, which according to ChatGPT-5.5 are as of now limited to 500MB for free users, but GitHub Actions already lets us view on the web browser/URL and download workflow logs as ZIP (as of now right click "Download Log Archive"), so we do not need and so do not use artifact storage for now.
+
+## Python 2.4 compile workflow
+
+[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python24_compile.py`](#buildpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python` and `PrivateMaps` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
+
+This is intentionally a syntax/compile compatibility check only: it does not launch Civ4, run gameplay code, import `CvPythonExtensions`, or validate engine-only runtime objects. It uses `docker run` after normal checkout instead of a job-level container so GitHub Actions and checkout still run on the ordinary runner, while the old image only needs to provide Python 2.4. A [test run confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0` in `Assets/Python/SASMagicNumbers.py`.
 
 ## Current build checks
 
@@ -56,6 +63,7 @@ Note: Separate artifacts were considered, which according to ChatGPT-5.5 are as 
 - [`build/aip.py`](#buildaippy)
 - [`build/worldsizes.py`](#buildworldsizespy)
 - [`build/mapscripts.py`](#buildmapscriptspy)
+- [`build/python24_compile.py`](#buildpython24_compilepy)
 
 ### `build/temp_files.py`
 
@@ -162,6 +170,10 @@ Verifies `SAS_MAGIC_WORLDSIZE_*` constants in `Assets/Python/SASMagicNumbers.py`
 ### `build/mapscripts.py`
 
 Verifies every playable `PrivateMaps/*.py` script is listed exactly once across the SAS map-script heaviness/coverage defines, and every listed map script exists in `PrivateMaps/`. `SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED` is coverage-only and is not read by the DLL; it documents map scripts intentionally left outside the explicit land-heavy / almost-all-land / naval-heavy override lists.
+
+### `build/python24_compile.py`
+
+Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps` with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository. This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
 ## Run Locally
 
