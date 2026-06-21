@@ -8,11 +8,7 @@ import math
 from CvPythonExtensions import CyGlobalContext
 from SASMagicNumbers import *
 
-SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
 SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
-
-def sas_huge_custom_max_players():
-	return SAS_HUGE_CUSTOM_MAX_PLAYERS
 
 def sas_default_sizevalues():
 	return {
@@ -29,7 +25,7 @@ def sas_default_sizevalues():
 		SAS_MAGIC_WORLDSIZE_SAS48: 7,
 	}
 
-# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
+# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from the Huge XML default-player anchor so tiles-per-player stay closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex + GPT-5.5) -->
 def sas_compact_almost_all_land_grid_sizes():
 	return {
 		SAS_MAGIC_WORLDSIZE_ARENA:  (2, 2),
@@ -42,7 +38,7 @@ def sas_compact_almost_all_land_grid_sizes():
 	}
 
 def sas_get_compact_almost_all_land_grid_size(eWorldSize):
-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, sas_compact_almost_all_land_grid_sizes(), SAS_HUGE_CUSTOM_MAX_PLAYERS)
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, sas_compact_almost_all_land_grid_sizes())
 
 def sas_lookup_world_size(eWorldSize, values):
 	iWorldSize = int(eWorldSize)
@@ -56,12 +52,12 @@ def sas_grid_ratio(iWidth, iHeight):
 def sas_tiles_per_player(iWidth, iHeight, iMaxPlayers):
 	return float(iWidth * iHeight) / float(max(1, iMaxPlayers))
 
-def sas_world_default_players(iWorldSize, iFallbackPlayers):
+def sas_world_default_players(iWorldSize):
 	gc = CyGlobalContext()
 	iWorld = int(iWorldSize)
 	if iWorld >= 0 and iWorld < gc.getNumWorldInfos():
 		return max(1, gc.getWorldInfo(iWorld).getDefaultPlayers())
-	return max(1, iFallbackPlayers)
+	raise IndexError("Unknown world-size index %d; missing CIV4WorldInfo default-player entry" % iWorld)
 
 def sas_warn_simple_game_stale_option_once(iOption, iRealCount):
 	# <!-- custom: Shared one-time warning for stale Simple Game custom-option cache indices (KI#106); keep implementation minimal with a single boolean flag. (GPT-5.3-Codex) -->
@@ -80,8 +76,8 @@ def sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorMaxPlayer
 	iTargetWidth = max(1, int((float(iTargetHeight) * fRatio) + 0.5))
 	return (iTargetWidth, iTargetHeight)
 
-# <!-- custom: For map-size calibration workflows, compute only the requested world size: base tiers return directly; SAS24/32/40/48 are calibrated on demand from the last base tier (usually Huge) and anchor max players. (GPT-5.3-Codex) -->
-def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnchorMaxPlayers):
+# <!-- custom: For map-size calibration workflows, compute only the requested world size: base tiers return directly; SAS24/32/40/48 are calibrated on demand from the last base tier (usually Huge) and XML default-player counts. Fail loudly if a referenced world size is missing instead of using stale fallback player counts. (GPT-5.3-Codex + GPT-5.5) -->
+def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes):
 	iWorldSize = int(eWorldSize)
 	if iWorldSize in base_grid_sizes:
 		return base_grid_sizes[iWorldSize]
@@ -89,7 +85,7 @@ def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnch
 	iAnchorWorldSize = max(base_grid_sizes.keys())
 	if iWorldSize > iAnchorWorldSize and iWorldSize <= SAS_MAGIC_WORLDSIZE_LARGEST:
 		(iAnchorWidth, iAnchorHeight) = base_grid_sizes[iAnchorWorldSize]
-		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize, iAnchorMaxPlayers)
-		iTargetPlayers = sas_world_default_players(iWorldSize, 0)
+		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize)
+		iTargetPlayers = sas_world_default_players(iWorldSize)
 		return sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorPlayers, iTargetPlayers)
 	return base_grid_sizes[max(base_grid_sizes.keys())]

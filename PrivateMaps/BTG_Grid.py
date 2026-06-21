@@ -315,7 +315,7 @@ def getGridSize(argsList):
 
 		[eWorldSize] = argsList
 		# <!-- custom: Keep existing BTG line options untouched; only extend world-size support by calibrating SAS sizes from Huge instead of falling back to Huge dimensions. (GPT-5.3-Codex) -->
-		grid_size = sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+		grid_size = sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 	return grid_size
 

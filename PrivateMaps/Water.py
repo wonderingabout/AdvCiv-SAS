@@ -42,7 +42,7 @@ def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 def getWrapX(): return True
 def getWrapY(): return False

@@ -178,7 +178,7 @@ def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 def beforeGeneration():
 	# Set up land mass data for all players (Square Wheels) then access later.
@@ -1262,7 +1262,7 @@ def assignStartingPlots():
 		SAS_MAGIC_WORLDSIZE_LARGE: (6, 12),
 		SAS_MAGIC_WORLDSIZE_HUGE: (6, 18)
 		}
-	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues, sas_huge_custom_max_players())
+	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues)
 	if iPlayers <= threeVar:
 		iPlotShift = 3
 	elif iPlayers <= twoVar:

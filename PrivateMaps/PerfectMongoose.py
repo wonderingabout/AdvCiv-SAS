@@ -6167,7 +6167,7 @@ def getGridSize(argsList):
 		SAS_MAGIC_WORLDSIZE_LARGE: (20, 14),
 		SAS_MAGIC_WORLDSIZE_HUGE: (24, 17),
 	}
-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 def generatePlotTypes():
 	print("")

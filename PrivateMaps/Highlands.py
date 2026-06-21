@@ -175,7 +175,7 @@ def getBottomLatitude():
 
 def getGridSize(argsList):
 	"Use the shared compact almost-all-land grid profile."
-	# <!-- custom: Shared almost-all-land profile now calibrates SAS24/32/40/48 from Huge baseline (18 players custom max) so Highlands keeps closer Huge-relative scale without a separate helper. (GPT-5.3-Codex) -->
+	# <!-- custom: Shared almost-all-land profile now calibrates SAS24/32/40/48 from the Huge XML default-player anchor so Highlands keeps closer Huge-relative scale without a separate helper. (GPT-5.3-Codex + GPT-5.5) -->
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []

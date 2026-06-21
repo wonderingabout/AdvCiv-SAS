@@ -15,8 +15,6 @@
 // <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
 static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
 {
-	if (gWorkerSeaLogLevel < 2)
-		return;
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
 	CvArea const* pCityWaterArea = kCity.waterArea(true);
 	CvArea const* pSecondWaterArea = kCity.secondWaterArea();
@@ -50,8 +48,6 @@ static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot cons
 
 static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pWaterArea, char const* szAreaLabel)
 {
-	if (gWorkerSeaLogLevel < 3)
-		return;
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
 	gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
 	int iLoggedTargets = 0;

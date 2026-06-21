@@ -276,10 +276,10 @@ def getGridSize(argsList):
 	if iWorld <= SAS_MAGIC_WORLDSIZE_HUGE:
 		return sas_lookup_world_size(eWorldSize, grid_sizes)
 
-	iDefaultPlayers = sas_world_default_players(iWorld, sas_huge_custom_max_players())
+	iDefaultPlayers = sas_world_default_players(iWorld)
 	iTargetPlayers = int(math.ceil(float(iDefaultPlayers) * 1.5))
 	(iHugeW, iHugeH) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
-	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_huge_custom_max_players(), iTargetPlayers)
+	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_world_default_players(SAS_MAGIC_WORLDSIZE_HUGE), iTargetPlayers)
 
 def beforeGeneration():
 	global iNumRegions

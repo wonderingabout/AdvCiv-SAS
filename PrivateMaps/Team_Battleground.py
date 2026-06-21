@@ -197,7 +197,7 @@ def getGridSize(argsList):
 		SAS_MAGIC_WORLDSIZE_LARGE: (10,10),
 		SAS_MAGIC_WORLDSIZE_HUGE: (13,13),
 	}
-	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes, sas_huge_custom_max_players())
+	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes)
 
 def generatePlotTypes():
 #	BugUtil.debug("Team_Battleground: generatePlotTypes")
@@ -273,7 +273,7 @@ def generatePlotTypes():
 			SAS_MAGIC_WORLDSIZE_LARGE: 8,
 			SAS_MAGIC_WORLDSIZE_HUGE: 10,
 		}
-		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
 		linewidth = 3
 		offsetstart = 0 - int(linewidth/2)
 		offsetrange = range(offsetstart, offsetstart + linewidth)
@@ -352,7 +352,7 @@ def generatePlotTypes():
 				SAS_MAGIC_WORLDSIZE_LARGE: 7,
 				SAS_MAGIC_WORLDSIZE_HUGE: 8,
 			}
-			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
 
 		# Set all blocks to ocean except the inner circle
 		for x in range(iNumPlotsX):
@@ -479,7 +479,7 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 					SAS_MAGIC_WORLDSIZE_LARGE: 7,
 					SAS_MAGIC_WORLDSIZE_HUGE: 8,
 				}
-				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues, sas_huge_custom_max_players())
+				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
 			else:
 				hole_radii = -1
 

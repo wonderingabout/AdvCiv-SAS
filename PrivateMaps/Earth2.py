@@ -69,7 +69,7 @@ def getGridSize(argsList):
         SAS_MAGIC_WORLDSIZE_LARGE: (30,18),
         SAS_MAGIC_WORLDSIZE_HUGE: (40,24),
     }
-    return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, sas_huge_custom_max_players())
+    return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 
 def minStartingDistanceModifier():
     return -15

@@ -1789,6 +1789,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	// --- 1) Cultural victory emergency (existing logic, unchanged) ---
 	bool bCultureVictory = false; // advc.116
 	bool bRaze = false;
+	bool const bLogRazeDecision = (gPlayerLogLevel >= 1);
 	// Reasons to always raze
 	if (2 * kCity.getCulture(kPreviousOwner.getID()) >
 		kCity.getCultureThreshold(kGame.culturalVictoryCultureLevel()))
@@ -1820,7 +1821,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				if(5 * iAttStr > 4 * iDefStr)
 					bRaze = true;
 				// <!-- custom: logBBAI now has only a global runtime gate, so player-AI conquest details still need player-log guards to avoid leaking into unrelated BBAI categories. (GPT-5.5 + ChatGPT 5.5) -->
-				if (bRaze && gPlayerLogLevel >= 1)
+				if (bRaze && bLogRazeDecision)
 					logBBAI("  Razing enemy cultural victory city");
 			}
 		} // </advc.116>
@@ -1888,7 +1889,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		if (bGoingForDomination)
 		{
 			// Do not raze, going for domination
-			if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+			if (bLogRazeDecision) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
 			keepCity(kCity);
 			return;
 		}
@@ -2064,12 +2065,12 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 					if (GET_TEAM(getTeam()).hasShrine(getStateReligion()))
 					{
 						iRazeValue -= 50;
-						if (gPlayerLogLevel >= 1) logBBAI("      Reduction for state religion with shrine");
+						if (bLogRazeDecision) logBBAI("      Reduction for state religion with shrine");
 					}
 					else
 					{
 						iRazeValue -= 10;
-						if (gPlayerLogLevel >= 1) logBBAI("      Reduction for state religion");
+						if (bLogRazeDecision) logBBAI("      Reduction for state religion");
 					}
 				}
 			} // K-Mod
@@ -2084,7 +2085,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			{
 				if (kCity.isHolyCity(eLoopReligion))
 				{
-					if (gPlayerLogLevel >= 1)
+					if (bLogRazeDecision)
 						logBBAI("      Reduction for holy city");
 					if(getStateReligion() == eLoopReligion)
 						iRazeValue -= 150;
@@ -2098,7 +2099,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			{
 				if (kCity.isHeadquarters(eCorp))
 				{
-					if (gPlayerLogLevel >= 1)
+					if (bLogRazeDecision)
 						logBBAI("      Reduction for corp headquarters");
 					iRazeValue -= 10 + 100 * kGame.countCorporationLevels(eCorp) /
 							kGame.getNumCities();
@@ -2163,7 +2164,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			iRazeValue += ::range((GET_TEAM(getTeam()).
 					AI_getEnemyPowerPercent(true) - 100) / 6, -10, 10);
 			// </advc.116>
-			if(gPlayerLogLevel >= 1)
+			if(bLogRazeDecision)
 			{
 				if (bBarbCity) logBBAI("      %S is a barb city", kCity.getName().GetCString());
 				if (bPrevOwnerBarb) logBBAI("      %S was last owned by barbs", kCity.getName().GetCString());
@@ -2174,7 +2175,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			iRazeValue += SyncRandNum(6);
 		} // End of !isBarbarian()
 
-		if(gPlayerLogLevel >= 1)
+		if(bLogRazeDecision)
 		{
 			//logBBAI("    Player %d (%S) has odds %d to raze city %S", getID(), getCivilizationDescription(0), iRazeValue, kCity.getName().GetCString());
 			// advc.116: Replacing the above
@@ -2212,7 +2213,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				if (bLiberate)
 				{
 					// <!-- custom: same player-log category guard as the nearby conquest/raze diagnostics. (GPT-5.5 + ChatGPT 5.5) -->
-					if (gPlayerLogLevel >= 1)
+					if (bLogRazeDecision)
 						logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)", getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(), GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
 					CvEventReporter::getInstance().cityAcquiredAndKept(getID(), &kCity);
 					kCity.liberate(true);
@@ -2227,7 +2228,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 
 	if (bRaze)
 	{	// K-Mod moved the log message up - otherwise it will crash due to pCity being deleted!
-		if (gPlayerLogLevel > 0) logBBAI("    Player %d (%S) decides to raze city %S!!!", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+		if (bLogRazeDecision) logBBAI("    Player %d (%S) decides to raze city %S!!!", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
 		kCity.doTask(TASK_RAZE);
 	}
 	// advc (replacing a bugfix from UNOFFICIAL_PATCH (06/14/09, Maniac & jdog5000)
@@ -15552,7 +15553,7 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFr
 void CvPlayerAI::AI_logWorkerSeaAudit() const
 {
 	// <!-- custom: Late-game advisor/log review still showed owned seafood staying unimproved after the old Work Boat produce/scrap and overqueue fixes. Once per AI player turn, log a compact audit of owned water bonuses so we can distinguish missing production, missing mission assignment, danger, buildability/reachability, and repeated sea-improvement loss without dumping every plot every city production check. Diagnostic only. (GPT-5.5 + ChatGPT-5.5) -->
-	if (isHuman() || isBarbarian() || gWorkerSeaLogLevel < 3)
+	if (isHuman() || isBarbarian())
 		return;
 
 	int const iTurn = GC.getGame().getGameTurn();

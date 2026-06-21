@@ -20632,6 +20632,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	CvPlot*   pSelfPlot   = NULL;
 	BuildTypes eSelfBuild  = NO_BUILD;
 	bool      bSelfImprovable = false;
+	bool const bLogWorkerCityTargetLevel = (gWorkerLogLevel >= 3);
 
     FOR_EACH_CITYAI(pLoopCity, kOwner)
     {
@@ -20644,6 +20645,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // land workers stick to same land area (keeps it sane)
         if (!pLoopCity->isArea(getArea()))
             continue;
+		bool const bLogWorkerCityTarget = (bLogWorkerCityTargetLevel && pLoopCity->getPopulation() >= 6);
 
         // Ask the per-city logic for its single best target plot + build
         CvPlot* pPlot = NULL;
@@ -20655,7 +20657,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
         if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
         {
-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (bLogWorkerCityTarget)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d no AI_bestCityBuild candidate", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation());
             continue; // nothing useful to do in this city right now
         }
@@ -20663,7 +20665,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
 		if (pPlot == NULL || eBuild == NO_BUILD)
 		{
-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (bLogWorkerCityTarget)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d invalid AI_bestCityBuild output plot=%d build=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
 			continue;
 		}
@@ -20677,7 +20679,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
                 getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers);
         if (iReservedCityTargetPlot >= iMaxWorkers)
         {
-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (bLogWorkerCityTarget)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected reserved plot=(%d,%d) build=%S reserved=%d/%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), iReservedCityTargetPlot, iMaxWorkers);
             continue;
         }
@@ -20685,7 +20687,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
         if (!pf.generatePath(*pPlot))
         {
-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (bLogWorkerCityTarget)
 				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected no path plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription());
             continue;
 		}
@@ -20703,7 +20705,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 			bSelfImprovable = true;
 			pSelfPlot  = pPlot;
 			eSelfBuild = eBuild;
-			if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+			if (bLogWorkerCityTarget)
 				logBBAI("    %S worker city-target scan: self city=%S pop=%d stored fallback plot=(%d,%d) build=%S pathTurns=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), pf.getPathTurns());
 			continue; // still let the loop look for better (other-city) jobs
 		}
@@ -20741,7 +20743,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		const int q = score / 1000, r = score - q * 1000;
 		score = q * factorPermille + (r * factorPermille) / 1000;
 
-        if (gWorkerLogLevel >= 3 && pLoopCity->getPopulation() >= 6)
+        if (bLogWorkerCityTarget)
         {
 			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
 			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
