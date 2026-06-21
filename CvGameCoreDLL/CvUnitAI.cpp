@@ -113,6 +113,21 @@ static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamType
 	}
 }
 
+// <!-- custom: First-city roaming may need one more scouting step before founding a current visible-good-enough tile. Count unrevealed BFC plots separately from the food/bad-plot helper so the roam branch can avoid locking Karakorum at 49,43 while the pig/river area around 51,41 and 52,41 is still fogged. (GPT-5.5) -->
+static int SAS_countUnrevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes eTeam)
+{
+	int iUnrevealedPlots = 0;
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot != NULL && !pLoopPlot->isRevealed(eTeam))
+			++iUnrevealedPlots;
+	}
+	return iUnrevealedPlots;
+}
+
 // <!-- custom: High-detail diagnostics for fickle first-city starting-site choices. The BFC tile dump itself is generic,
 // but this helper is first-city-specific as of now because it logs first-city found values, path turns, and the
 // roam/scout/found context that chose the candidate. At BBAI unit log level 3, log the evaluated city plot plus every
@@ -3747,7 +3762,7 @@ bool CvUnitAI::AI_foundFirstCity()
 			int iGoodEnoughFirstCityValue = -MAX_INT;
 			int iGoodEnoughFirstCityTurn = -1;
 			const int iRemainingFirstCityTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
-			for (SquareIter itGoodEnough(*this, std::max(1, iRemainingFirstCityTurns), false); itGoodEnough.hasNext(); ++itGoodEnough)
+			for (SquareIter itGoodEnough(*this, std::max(1, iRemainingFirstCityTurns)); itGoodEnough.hasNext(); ++itGoodEnough)
 			{
 				CvPlot& kLoopPlot = *itGoodEnough;
 				if (!kLoopPlot.isRevealed(getTeam()) || !canFound(&kLoopPlot))
@@ -3765,13 +3780,26 @@ bool CvUnitAI::AI_foundFirstCity()
 					continue;
 				if (iLoopValue <= 0)
 					continue;
-				const int iLoopGoodEnoughValue = iLoopValue - 50 * iLoopPathTurns;
+				const int iLoopGoodEnoughValue = 100 * iLoopValue - iLoopPathTurns;
 				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("visible-good-enough", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopGoodEnoughValue, iLoopPathTurns);
 				if (pGoodEnoughFirstCityPlot == NULL || iLoopGoodEnoughValue > iGoodEnoughFirstCityValue)
 				{
 					pGoodEnoughFirstCityPlot = &kLoopPlot;
 					iGoodEnoughFirstCityValue = iLoopGoodEnoughValue;
 					iGoodEnoughFirstCityTurn = kGame.getElapsedGameTurns() + iLoopPathTurns;
+				}
+			}
+			if (pGoodEnoughFirstCityPlot != NULL && at(*pGoodEnoughFirstCityPlot) && iRemainingFirstCityTurns > 0)
+			{
+				const int iGoodEnoughUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(*pGoodEnoughFirstCityPlot, getTeam());
+				if (iGoodEnoughUnrevealedBFC > 0)
+				{
+					// <!-- custom: Do not found the current visible-good-enough recovery tile while part of its BFC is still fogged during the bounded first-city roam window. In the Karakorum test, 49,43 looked best from known tiles and immediately founded, blocking the existing scout-step branch from revealing the stronger pig/river area toward 51,41/52,41. Fully revealed Cuzco at 42,44 still founds immediately.
+					// Why this fixed the two cases (different save files/maps): Based on BBAI Logging analysis:
+					// - Cuzco (save file 431) was mostly a stale cached-site / ping-pong issue. Including the current plot in the visible scan let it stop on the good nearby site instead of eventually falling back to the cached tundra site.
+					// - Karakoum (save file 360) needed the opposite: when it reached a tempting current site, it still had unrevealed BFC plots nearby, so the new guard prevented premature founding and let the existing scout logic continue. The later log now shows the Scandinavian settler finding/founding the stronger 50,12 site, with Grapes, Sheep, flood plains, and skipped unrevealed plots in the valuation area before Nidaros is founded there. (ChatGPT-5.5) -->
+					if (bLogUnitAILevel2) logBBAI("    Settler delaying current visible-good-enough first-city site for %S player %d at %d,%d to scout remaining fog; value=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, iGoodEnoughUnrevealedBFC, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					pGoodEnoughFirstCityPlot = NULL;
 				}
 			}
 			if (pGoodEnoughFirstCityPlot != NULL)
