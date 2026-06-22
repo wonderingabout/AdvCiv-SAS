@@ -191,6 +191,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SCOREBOARD_BG_DEFAULT_STYLE</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: scoreboard lock-hover default state. 0 = expanded columns appear only while hovering the scoreboard; 1 = start each new game / loaded save with lock-hover enabled so expanded columns stay visible until manually toggled off. This only sets the initial state; the in-game lock button still toggles it normally. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -). Keep in [1,100]. Base AdvCiv value: 100. (Claude code Opus 4.7) -->
 	<Define>
 		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT</DefineName>

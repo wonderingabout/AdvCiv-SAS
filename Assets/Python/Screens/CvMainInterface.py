@@ -611,8 +611,9 @@ class CvMainInterface:
 		self.bSASLastCommerceRectsCityScreen = None
 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
 		self.iScoreScrollOffset = 0
-		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
-		self.bScoreAlwaysExpand = False
+		self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED = None
+		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. Initial state is seeded once, and the in-game lock button still toggles it normally. (Claude code Sonnet 4.6 + ChatGPT-5.5) -->
+		self.bScoreAlwaysExpand = None
 		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent). Discrete PanelStyle levels in cycle order. 0 HUD_HELP is vanilla look. If you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync. Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define. (Claude code Opus 4.7) -->
 		self.iScoreBgStyleLevel = None
 		self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = None
@@ -6169,6 +6170,11 @@ class CvMainInterface:
 		screen.moveItem("ScoreScrollUp", iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		screen.moveItem("ScoreScrollUpFast", iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		screen.moveItem("ScoreScrollUpFastest", iSRight - 8 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		# <!-- custom: seed the lock-hover default once, close to the first real scoreboard use; handleInput only toggles after this button exists. (ChatGPT-5.5) -->
+		if self.bScoreAlwaysExpand is None:
+			if self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED is None:
+				self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED = gc.getDefineINT("SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED")
+			self.bScoreAlwaysExpand = (self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED > 0)
 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
 		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
 		if self.bScoreAlwaysExpand:
