@@ -191,6 +191,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: scoreboard scroll autocenter default state. 0 = keep the current scroll slice across redraws; 1 = start each new game / loaded save with autocenter enabled so overflowing scoreboards stay centered on the active player until manually toggled off. Manual scroll buttons also turn autocenter off. This only sets the initial state; the in-game autocenter button still toggles it normally. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_SCROLL_AUTOCENTER_ACTIVE_PLAYER_DEFAULT_ENABLED</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -). Keep in [1,100]. Base AdvCiv value: 100. (Claude code Opus 4.7) -->
 	<Define>
 		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT</DefineName>

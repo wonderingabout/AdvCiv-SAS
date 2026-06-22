@@ -66,7 +66,7 @@ Compile errors (e.g., for a "Release" build) at:
 
 ## Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line
 
-For comparison purposes, as of 2026-06-10 we have also processed with the help of ChatGPT-5.5 thanks Base AdvCiv 1.12's `CvMainInterface.py` to single-line: [CvMainInterface_1_12_singleline.py](/LLM_Helpers/examples/CvMainInterface_1_12_singleline.py). If you need to, you may find looking at this file much easier than the old multi-line/unprocessed file.
+For comparison purposes, as of 2026-06-10 we have also processed with the help of ChatGPT-5.5 thanks Base AdvCiv 1.12's `CvMainInterface.py` to single-line: [CvMainInterface_1_12_singleline.py](/LLM_Helpers/examples/CvMainInterface_1_12_singleline.py). If you need to, you may find looking at this file much easier than the old multi-line/unprocessed file. See also if needed [the corresponding readme section](/LLM_Helpers/README.md#comparison-with-base-advciv-112s-main-interface-processed-similarly).
 
 ## Sevopedia debug dumps (Python API introspection)
 
