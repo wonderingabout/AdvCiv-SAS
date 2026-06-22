@@ -58,11 +58,8 @@ import WidgetUtil
 # <!-- custom: custom widget types for scoreboard scroll/expand buttons; registered once at module load so hover text works. (Claude code Sonnet 4.6) -->
 WIDGET_SCORE_SCROLL_UP = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
 WIDGET_SCORE_SCROLL_DOWN = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
-# <!-- custom: fast-scroll tiers; step sizes come from SAS defines (FAST / FASTEST). Names must stay digit-free: the engine strips trailing numeric suffixes from control names, so "...Fastest" collapsed onto "...Fast" and both tiers ran the same step (see AGENTS.md XML/UID notes). Hover text stays generic so it stays correct if the defines change. (Claude code Opus 4.7) -->
 WIDGET_SCORE_SCROLL_UP_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
-WIDGET_SCORE_SCROLL_UP_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FASTEST")
 WIDGET_SCORE_SCROLL_DOWN_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FAST")
-WIDGET_SCORE_SCROLL_DOWN_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FASTEST")
 WIDGET_SCORE_BG_STYLE = WidgetUtil.createWidget("WIDGET_SCORE_BG_STYLE")
 WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
 WIDGET_SCORE_CENTER_ACTIVE_PLAYER = WidgetUtil.createWidget("WIDGET_SCORE_CENTER_ACTIVE_PLAYER")
@@ -72,9 +69,7 @@ def _scoreHelp(szText):
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST, _scoreHelp(u"Scroll scoreboard up (fast)"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FASTEST, _scoreHelp(u"Scroll scoreboard up (fastest)"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST, _scoreHelp(u"Scroll scoreboard down (fast)"))
-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FASTEST, _scoreHelp(u"Scroll scoreboard down (fastest)"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_BG_STYLE, _scoreHelp(u"Cycle scoreboard background style"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_CENTER_ACTIVE_PLAYER, _scoreHelp(u"Center scoreboard on active player"))
@@ -147,13 +142,9 @@ class CvMainInterface:
 		lRect = gRect(szName)
 		self.screen.setPanelSize(szName, lRect.x(), lRect.y(), lRect.width(), lRect.height())
 
-	def _scoreboardScrollStep(self, bFastest):
+	def _scoreboardFastScrollStep(self):
 		if self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST is None:
 			self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_INCREMENT_FAST")
-		if self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST is None:
-			self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST")
-		if bFastest:
-			return self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST
 		return self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST
 
 	# <!-- custom: shared scoreboard traversal for normal drawing, scroll slicing, and active-player centering. Passing scores also preserves the old BUG aligned-scoreboard side effects by filling teams/players and calling playerScoreString; the isShowTeamScore/isShowPlayerScore checks are the advc.085 static helpers that used to be called inline in updateScoreStrings. (ChatGPT-5.5 + GPT-5.5) -->
@@ -648,9 +639,7 @@ class CvMainInterface:
 		self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = None
 		# <!-- custom: the optional second (Min/Max) pair now does a fast +/- step from a SAS define instead of snapping to 0/100; lazily cached. (Claude code Opus 4.7) -->
 		self.iSAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT = None
-		# <!-- custom: cached SAS scoreboard fast-scroll tier defines; lazily fetched on first use like iCOMMERCE_PERCENT_CHANGE_INCREMENTS. (Claude code Opus 4.7) -->
 		self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = None
-		self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST = None
 		self.iDEFAULT_SPECIALIST = None
 		self.iMAX_TRADE_ROUTES = None
 		self.IS_USE_KMOD_TRADE_CULTURE = None
@@ -894,11 +883,8 @@ class CvMainInterface:
 		iSScrollBtnSz = BTNSZ(20)
 		gSetRect("ScoreScrollUp", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreScrollDown", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
-		# <!-- custom: fast-scroll tier button rects; positioned at runtime alongside the base buttons. (Claude code Opus 4.7) -->
 		gSetRect("ScoreScrollUpFast", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
-		gSetRect("ScoreScrollUpFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreScrollDownFast", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
-		gSetRect("ScoreScrollDownFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreBgStyle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreExpandToggle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreCenterActivePlayer", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
@@ -1962,15 +1948,10 @@ class CvMainInterface:
 		screen.hide("ScoreScrollUp")
 		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN, -1, -1)
 		screen.hide("ScoreScrollDown")
-		# <!-- custom: fast-scroll tiers reuse the plain +/- glyph (no double-plus art exists); the tier is conveyed by position and hover text. (Claude code Opus 4.7) -->
 		self.setStyledButton("ScoreScrollUpFast", ButtonStyles.BUTTON_STYLE_CITY_PLUS, WIDGET_SCORE_SCROLL_UP_FAST, -1, -1)
 		screen.hide("ScoreScrollUpFast")
-		self.setStyledButton("ScoreScrollUpFastest", ButtonStyles.BUTTON_STYLE_CITY_PLUS, WIDGET_SCORE_SCROLL_UP_FASTEST, -1, -1)
-		screen.hide("ScoreScrollUpFastest")
 		self.setStyledButton("ScoreScrollDownFast", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN_FAST, -1, -1)
 		screen.hide("ScoreScrollDownFast")
-		self.setStyledButton("ScoreScrollDownFastest", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN_FASTEST, -1, -1)
-		screen.hide("ScoreScrollDownFastest")
 		# <!-- custom: scoreboard bg style cycle button; plain styled button, hover explains it. (Claude code Opus 4.7) -->
 		self.setStyledButton("ScoreBgStyle", ButtonStyles.BUTTON_STYLE_STANDARD, WIDGET_SCORE_BG_STYLE, -1, -1)
 		screen.hide("ScoreBgStyle")
@@ -6170,11 +6151,8 @@ class CvMainInterface:
 		screen.hide("ScoreBackground")
 		screen.hide("ScoreScrollUp")
 		screen.hide("ScoreScrollDown")
-		# <!-- custom: hide fast-scroll tiers too; shown again below only when the list overflows. (Claude code Opus 4.7) -->
 		screen.hide("ScoreScrollUpFast")
-		screen.hide("ScoreScrollUpFastest")
 		screen.hide("ScoreScrollDownFast")
-		screen.hide("ScoreScrollDownFastest")
 		screen.hide("ScoreBgStyle")
 		screen.hide("ScoreExpandToggle")
 		screen.hide("ScoreCenterActivePlayer")
@@ -6206,19 +6184,16 @@ class CvMainInterface:
 		gSetPoint("ScoreTextLowerRight", PointLayout(gRect("MiniMap").xRight(), iScoreBottom))
 		iMaxRows = self._scoreboardMaxRows()
 		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
-		# <!-- custom: row layout right->left is [BgStyle][Lock] | gap | [-50][-10][-1][Center][+1][+10][+50]. Lock/unlock stays in a fixed slot even when the scroll tiers are hidden; the center button is shown only when the scoreboard overflows. Speed increases outward from the center/action slot. (Claude code Opus 4.7 + ChatGPT-5.5) -->
+		# <!-- custom: row layout right->left is [BgStyle][Lock] | gap | [-fast][-][Center][+][+fast]. Normal scroll moves one row; fast scroll uses SAS_SCOREBOARD_SCROLL_INCREMENT_FAST; the center button is one-click only and never fights later manual scroll choices. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
 		iSRight = gPoint("ScoreTextLowerRight").x()
-		iSGap = HSPACE(6)  # gap separating the fixed buttons from the scroll cluster
-		# <!-- custom: the center button is one-click only and sits between the +/- scroll directions, so manual scroll choices are never fought by a persistent auto-centering state. (ChatGPT-5.5) -->
+		iSGap = HSPACE(6)  # gap separating the fixed buttons from the scroll/center cluster
 		screen.moveItem("ScoreBgStyle", iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
 		screen.moveItem("ScoreExpandToggle", iSRight - 2 * iSScrollBtnSz, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollDownFastest", iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollDownFast", iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollDown", iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreCenterActivePlayer", iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUp", iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUpFast", iSRight - 8 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUpFastest", iSRight - 9 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollDownFast", iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollDown", iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreCenterActivePlayer", iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUp", iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUpFast", iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		# <!-- custom: seed the lock-hover default once, close to the first real scoreboard use; handleInput only toggles after this button exists. (ChatGPT-5.5) -->
 		if self.bScoreAlwaysExpand is None:
 			if self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED is None:
@@ -6283,18 +6258,15 @@ class CvMainInterface:
 # BUG - Align Icons - start
 			scores.draw(screen, self.iScoreScrollOffset, iMaxRows, self.bScoreAlwaysExpand)
 # BUG - Align Icons - end
-		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
+		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows more lower-ranked players, - (ScoreScrollDown) goes back toward rank 1. (Claude code Sonnet 4.6 + ChatGPT-5.5 + GPT-5.5) -->
 		if iTotalCount > iMaxRows:
 			screen.show("ScoreCenterActivePlayer")
-			# <!-- custom: fast tiers share the base buttons' visibility (any room to scroll that way shows the whole tier set); the offset clamp in the click handler / above absorbs any overshoot. (Claude code Opus 4.7) -->
 			if self.iScoreScrollOffset < iTotalCount - iMaxRows:
 				screen.show("ScoreScrollUp")
 				screen.show("ScoreScrollUpFast")
-				screen.show("ScoreScrollUpFastest")
 			if self.iScoreScrollOffset > 0:
 				screen.show("ScoreScrollDown")
 				screen.show("ScoreScrollDownFast")
-				screen.show("ScoreScrollDownFastest")
 
 	# <advc> Body cut from updateScoreStrings in order to reduce indentation
 	def playerScoreString(self, ePlayer, scores, bAlignIcons):
@@ -7060,7 +7032,7 @@ class CvMainInterface:
 						self.iCityBuildBarPinnedRow = CyInterface().getCityTabSelectionRow()
 					self.iCityBuildBarPinnedRow += 1
 					return 0
-				# <!-- custom: score scroll buttons; + scrolls down (more lower-ranked), - scrolls back up (toward rank 1). (Claude code Sonnet 4.6) -->
+				# <!-- custom: score scroll buttons; + scrolls down to more lower-ranked players, - scrolls back up toward rank 1. updateScoreStrings clamps the offset to [0, total - rows]. (Claude code Sonnet 4.6 + ChatGPT-5.5 + GPT-5.5) -->
 				elif fn == "ScoreScrollUp":
 					self.iScoreScrollOffset += 1
 					self.updateScoreStrings()
@@ -7069,13 +7041,13 @@ class CvMainInterface:
 					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - 1)
 					self.updateScoreStrings()
 					return 1
-				# <!-- custom: fast-scroll tiers; step sizes from SAS defines, lazily cached like iCOMMERCE_PERCENT_CHANGE_INCREMENTS. updateScoreStrings clamps the offset to [0, total - rows] so overshoot pins to the end. (Claude code Opus 4.7) -->
-				elif fn == "ScoreScrollUpFast" or fn == "ScoreScrollUpFastest":
-					self.iScoreScrollOffset += self._scoreboardScrollStep(fn == "ScoreScrollUpFastest")
+				# <!-- custom: fast scoreboard scroll keeps the useful medium jump but drops the too-niche fastest tier. updateScoreStrings clamps overshoot to [0, total - rows]. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
+				elif fn == "ScoreScrollUpFast":
+					self.iScoreScrollOffset += self._scoreboardFastScrollStep()
 					self.updateScoreStrings()
 					return 1
-				elif fn == "ScoreScrollDownFast" or fn == "ScoreScrollDownFastest":
-					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - self._scoreboardScrollStep(fn == "ScoreScrollDownFastest"))
+				elif fn == "ScoreScrollDownFast":
+					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - self._scoreboardFastScrollStep())
 					self.updateScoreStrings()
 					return 1
 				# <!-- custom: one-click centering around the active player; unlike a persistent toggle, it never overrides later manual scrolling toward strongest/weakest civs. (ChatGPT-5.5) -->

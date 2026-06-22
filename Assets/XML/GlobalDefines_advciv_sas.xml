@@ -176,15 +176,10 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: scoreboard fast-scroll step. This tier moves this many rows per click. (Claude code Opus 4.7) -->
+	<!-- custom: scoreboard fast-scroll step. The normal + / - buttons move one row; the fast + / - buttons move this many rows per click, with offset clamped to the first/last valid slice. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FAST</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
-	</Define>
-	<!-- custom: scoreboard fastest-scroll step. Rows per click for the outermost scroll buttons; offset is clamped so a value at or above the player cap behaves as jump-to-end. 50 covers the 48-player cap in one click. (Claude code Opus 4.7) -->
-	<Define>
-		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: scoreboard background default style; this sets the default background at each save load / new game: 0 = HUD_HELP (vanilla scoreboard panel, the shipped default), 1 = SOLID (most opaque, darkest), 2 = MAIN (plain panel), 3 = MAIN_BLACK50 (dark translucent), 4 = MAIN_BLACK25 (light translucent), 5 = EMPTY (no visible background, text drawn over the map). These indices mirror the aScoreBgStyleLevels list in CvMainInterface.py; keep both in sync if styles are added or reordered. Keep at 0 to preserve the vanilla look. (Claude code Opus 4.7) -->
 	<Define>
