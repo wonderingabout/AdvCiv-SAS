@@ -18,10 +18,9 @@ temp_files/
 *.vcxproj.filters
 *.vcxproj.user
 *.opensdf
+__pycache__
+/LLM_Helpers/outputs/
 /Logs/
-/__pycache__/
-/tests/__pycache__/
-/Assets/Python/Contrib/Sevopedia/__pycache__/
 /leaders_data.py
 /Assets/CvGameCoreDLL_d.dll
 /CuCuGS/CuCuGS-PoC-main/

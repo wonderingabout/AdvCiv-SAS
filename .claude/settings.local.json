@@ -1,16 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir \"c:\\\\Program Files \\(x86\\)\\\\Steam\\\\steamapps\\\\common\\\\Sid Meier''s Civilization IV Beyond the Sword\\\\Beyond the Sword\\\\Mods\\\\AdvCiv-SAS\\\\CuCuGS-PoC\")",
-      "Bash(find:*)",
-      "Bash(wc:*)",
-      "Bash(dir:*)",
-      "Bash(findstr:*)",
-      "Bash(cat:*)",
-      "Bash(ls:*)",
-      "Bash(grep:*)",
-      "Bash(python -c:*)",
-      "Bash(git checkout:*)"
+      "Bash(cat:*)"
     ]
   }
 }
