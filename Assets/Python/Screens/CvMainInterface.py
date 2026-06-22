@@ -65,6 +65,7 @@ WIDGET_SCORE_SCROLL_DOWN_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOW
 WIDGET_SCORE_SCROLL_DOWN_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FASTEST")
 WIDGET_SCORE_BG_STYLE = WidgetUtil.createWidget("WIDGET_SCORE_BG_STYLE")
 WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
+WIDGET_SCORE_CENTER_ACTIVE_PLAYER = WidgetUtil.createWidget("WIDGET_SCORE_CENTER_ACTIVE_PLAYER")
 WIDGET_ANNOTATIONS_TOGGLE = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
 def _scoreHelp(szText):
 	return lambda *_: sasFontTagHover + szText + SAS_FONT_TAG_CLOSE
@@ -76,6 +77,7 @@ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST, _scoreHelp(u"Scr
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FASTEST, _scoreHelp(u"Scroll scoreboard down (fastest)"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_BG_STYLE, _scoreHelp(u"Cycle scoreboard background style"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_CENTER_ACTIVE_PLAYER, _scoreHelp(u"Center scoreboard on active player"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE, _scoreHelp(u"Toggle show map annotations"))
 # <advc.090>
 import math
@@ -153,6 +155,50 @@ class CvMainInterface:
 		if bFastest:
 			return self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST
 		return self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST
+
+	# <!-- custom: shared scoreboard traversal for normal drawing, scroll slicing, and active-player centering. Passing scores also preserves the old BUG aligned-scoreboard side effects by filling teams/players and calling playerScoreString; the isShowTeamScore/isShowPlayerScore checks are the advc.085 static helpers that used to be called inline in updateScoreStrings. (ChatGPT-5.5 + GPT-5.5) -->
+	def _scoreboardVisiblePlayers(self, scores=None):
+		aeVisiblePlayers = []
+		bAlignIcons = (scores is not None)
+		for iTeamRank in range(gc.getMAX_CIV_TEAMS() - 1, -1, -1):
+			eTeam = gc.getGame().getRankTeam(iTeamRank)
+			if not Scoreboard.Scoreboard.isShowTeamScore(eTeam):
+				continue
+			if bAlignIcons:
+				scores.addTeam(gc.getTeam(eTeam), iTeamRank)
+			for iPlayerRank in range(gc.getMAX_CIV_PLAYERS() - 1, -1, -1):
+				ePlayer = gc.getGame().getRankPlayer(iPlayerRank)
+				if Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and gc.getPlayer(ePlayer).getTeam() == eTeam:
+					aeVisiblePlayers.append(ePlayer)
+					if bAlignIcons:
+						scores.addPlayer(gc.getPlayer(ePlayer), iPlayerRank)
+						# AdvCiv/BUG aligned path fills per-part fields through playerScoreString side effects.
+						self.playerScoreString(ePlayer, scores, True)
+		return aeVisiblePlayers
+
+	def _scoreboardMaxRows(self):
+		iBtnHeight = VLEN(22)
+		iSScrollBtnSz = gRect("ScoreScrollUp").width()
+		iSScrollY = gRect("GlobeToggle").y() - iSScrollBtnSz
+		iScoreBottom = iSScrollY - VSPACE(2) - VSPACE(9)
+		iScoreTopMin = gRect("AdvisorButtons").yBottom()
+		return max(1, (iScoreBottom - iScoreTopMin) // iBtnHeight)
+
+	def _centerScoreboardOnActivePlayer(self):
+		aeVisiblePlayers = self._scoreboardVisiblePlayers()
+		iMaxRows = self._scoreboardMaxRows()
+		iTotalCount = len(aeVisiblePlayers)
+		if iTotalCount <= iMaxRows:
+			self.iScoreScrollOffset = 0
+			return
+		eActivePlayer = gc.getGame().getActivePlayer()
+		if eActivePlayer < 0:
+			return
+		try:
+			iActiveIndex = aeVisiblePlayers.index(eActivePlayer)
+		except ValueError:
+			return
+		self.iScoreScrollOffset = max(0, min(iActiveIndex - (iMaxRows / 2), iTotalCount - iMaxRows))
 
 	def _appendSelectedInfoPaneTextRow(self, screen, szTable, iRow, szLeftBuffer, szRightBuffer, szButton="", iData1=-1):
 		screen.appendTableRow(szTable)
@@ -688,6 +734,9 @@ class CvMainInterface:
 		self.backgroundTransparentPath = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
 		self.buttonsCreategroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath()
 		self.buttonsSplitgroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath()
+		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED_2").getPath()
+		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED_2").getPath()
+		self.szScoreCenterActivePlayerPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_DIRECT_HIT_3").getPath()
 		# <!-- custom: building filter button art paths using BUG icons (moved here from updateCityScreen for perf). (Claude Opus 4.5) -->
 		self.buildFilterAllBuildingsOn = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.buildFilterAllBuildingsOff = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
@@ -697,9 +746,6 @@ class CvMainInterface:
 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
-		# <!-- custom: lock emoji paths for the always-expand scoreboard toggle. (Claude code Sonnet 4.6 + Claude code Opus 4.7) -->
-		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED_2").getPath()
-		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED_2").getPath()
 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude code Sonnet 4.5) -->
 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
@@ -855,6 +901,7 @@ class CvMainInterface:
 		gSetRect("ScoreScrollDownFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreBgStyle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		gSetRect("ScoreExpandToggle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+		gSetRect("ScoreCenterActivePlayer", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
 		if self.bScaleHUD:
 			# To make room for the Turn Log, whose (default) position I can't change.
 			gRect("TurnLogButton").move(6, -3)
@@ -1931,6 +1978,8 @@ class CvMainInterface:
 		self.addCheckBox("ScoreExpandToggle", self.szScoreExpandTogglePath, self.szScoreExpandTogglePath, ButtonStyles.BUTTON_STYLE_IMAGE, WIDGET_SCORE_EXPAND_TOGGLE)
 		screen.setState("ScoreExpandToggle", False)
 		screen.hide("ScoreExpandToggle")
+		self.setImageButton("ScoreCenterActivePlayer", self.szScoreCenterActivePlayerPath, WIDGET_SCORE_CENTER_ACTIVE_PLAYER, -1, -1)
+		screen.hide("ScoreCenterActivePlayer")
 		self.setStyledButton("CityScrollMinus", ButtonStyles.BUTTON_STYLE_ARROW_LEFT, WidgetTypes.WIDGET_CITY_SCROLL, -1)
 		screen.hide("CityScrollMinus")
 		self.setStyledButton("CityScrollPlus", ButtonStyles.BUTTON_STYLE_ARROW_RIGHT, WidgetTypes.WIDGET_CITY_SCROLL, 1)
@@ -6128,6 +6177,7 @@ class CvMainInterface:
 		screen.hide("ScoreScrollDownFastest")
 		screen.hide("ScoreBgStyle")
 		screen.hide("ScoreExpandToggle")
+		screen.hide("ScoreCenterActivePlayer")
 		eUIVis = CyInterface().getShowInterface()
 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or not CyInterface().isScoresVisible() or CyInterface().isCityScreenUp()):
 			return
@@ -6154,22 +6204,21 @@ class CvMainInterface:
 		iScoreBottom = iSScrollY - VSPACE(2) - VSPACE(9)  # 2px gap + 9px panel bottom margin
 		# </advc.092>
 		gSetPoint("ScoreTextLowerRight", PointLayout(gRect("MiniMap").xRight(), iScoreBottom))
-		iScoreTopMin = gRect("AdvisorButtons").yBottom()
-		iAvailH = iScoreBottom - iScoreTopMin
-		iMaxRows = max(1, iAvailH // iBtnHeight)
+		iMaxRows = self._scoreboardMaxRows()
 		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
-		# <!-- custom: row layout right->left is [Lock] [-50][-10][-1] [+1][+10][+50]. Lock/unlock is now the rightmost, fixed slot so it stays anchored to the panel edge even when the scroll tiers are hidden (player count <= capacity); previously it floated mid-row. Speed increases outward from the central +/-1 pair. (Claude code Opus 4.7) -->
+		# <!-- custom: row layout right->left is [BgStyle][Lock] | gap | [-50][-10][-1][Center][+1][+10][+50]. Lock/unlock stays in a fixed slot even when the scroll tiers are hidden; the center button is shown only when the scoreboard overflows. Speed increases outward from the center/action slot. (Claude code Opus 4.7 + ChatGPT-5.5) -->
 		iSRight = gPoint("ScoreTextLowerRight").x()
-		iSGap = HSPACE(6)  # gap separating the Lock toggle from the scroll cluster
-		# <!-- custom: row right->left: [BgStyle][Lock] | gap | [-50][-10][-1] [+1][+10][+50]. Lock is intentionally kept left of the rightmost background-style button: when the player count fits and the scroll +/- buttons are hidden, the lock stays in a consistent, easy-to-reach spot, while the narrower right screen edge suits the rarer, less important, shorter style toggle. (Claude code Opus 4.7) -->
+		iSGap = HSPACE(6)  # gap separating the fixed buttons from the scroll cluster
+		# <!-- custom: the center button is one-click only and sits between the +/- scroll directions, so manual scroll choices are never fought by a persistent auto-centering state. (ChatGPT-5.5) -->
 		screen.moveItem("ScoreBgStyle", iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
 		screen.moveItem("ScoreExpandToggle", iSRight - 2 * iSScrollBtnSz, iSScrollY, -0.3)
 		screen.moveItem("ScoreScrollDownFastest", iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		screen.moveItem("ScoreScrollDownFast", iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		screen.moveItem("ScoreScrollDown", iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUp", iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUpFast", iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
-		screen.moveItem("ScoreScrollUpFastest", iSRight - 8 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreCenterActivePlayer", iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUp", iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUpFast", iSRight - 8 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+		screen.moveItem("ScoreScrollUpFastest", iSRight - 9 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		# <!-- custom: seed the lock-hover default once, close to the first real scoreboard use; handleInput only toggles after this button exists. (ChatGPT-5.5) -->
 		if self.bScoreAlwaysExpand is None:
 			if self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED is None:
@@ -6195,27 +6244,8 @@ class CvMainInterface:
 			scores = None # </advc>
 # BUG - Align Icons - end
 		# (BUG - Power Rating)  advc: Moved into the loop
-		# <!-- custom: refactor: keep a single ranked traversal, then reuse that ordered list for slice-based non-aligned draw or aligned BUG draw; this removes duplicate nested loops while preserving behavior. (GPT-5.3-Codex) -->
-		aeVisiblePlayers = []
-		for iTeamRank in range(gc.getMAX_CIV_TEAMS() - 1, -1, -1):
-			eTeam = gc.getGame().getRankTeam(iTeamRank)
-			# advc.085: Moved to BUG Scoreboard (static method)
-			if not Scoreboard.Scoreboard.isShowTeamScore(eTeam):
-				continue
-# BUG - Align Icons - start
-			if bAlignIcons:
-				scores.addTeam(gc.getTeam(eTeam), iTeamRank)
-# BUG - Align Icons - end
-			for iPlayerRank in range(gc.getMAX_CIV_PLAYERS() - 1, -1, -1):
-				ePlayer = gc.getGame().getRankPlayer(iPlayerRank)
-				# advc.085: Moved to BUG Scoreboard
-				if (not Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) or gc.getPlayer(ePlayer).getTeam() != eTeam):
-					continue
-				aeVisiblePlayers.append(ePlayer)
-				if bAlignIcons:
-					scores.addPlayer(gc.getPlayer(ePlayer), iPlayerRank)
-					# AdvCiv/BUG aligned path fills per-part fields through playerScoreString side effects.
-					self.playerScoreString(ePlayer, scores, True)
+		# <!-- custom: use one ranked visible-player traversal for scroll slicing, aligned BUG drawing, and active-player centering so those behaviors cannot drift apart. (GPT-5.3-Codex + ChatGPT-5.5) -->
+		aeVisiblePlayers = self._scoreboardVisiblePlayers(scores)
 		iTotalCount = len(aeVisiblePlayers)
 		if not bAlignIcons:
 			if iTotalCount <= iMaxRows:
@@ -6255,6 +6285,7 @@ class CvMainInterface:
 # BUG - Align Icons - end
 		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
 		if iTotalCount > iMaxRows:
+			screen.show("ScoreCenterActivePlayer")
 			# <!-- custom: fast tiers share the base buttons' visibility (any room to scroll that way shows the whole tier set); the offset clamp in the click handler / above absorbs any overshoot. (Claude code Opus 4.7) -->
 			if self.iScoreScrollOffset < iTotalCount - iMaxRows:
 				screen.show("ScoreScrollUp")
@@ -7045,6 +7076,11 @@ class CvMainInterface:
 					return 1
 				elif fn == "ScoreScrollDownFast" or fn == "ScoreScrollDownFastest":
 					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - self._scoreboardScrollStep(fn == "ScoreScrollDownFastest"))
+					self.updateScoreStrings()
+					return 1
+				# <!-- custom: one-click centering around the active player; unlike a persistent toggle, it never overrides later manual scrolling toward strongest/weakest civs. (ChatGPT-5.5) -->
+				elif fn == "ScoreCenterActivePlayer":
+					self._centerScoreboardOnActivePlayer()
 					self.updateScoreStrings()
 					return 1
 				# <!-- custom: scoreboard bg style cycle; advances PanelStyle level (lazily seeded from SAS_SCOREBOARD_BG_DEFAULT_STYLE on first use), redraw recreates the panel. (Claude code Opus 4.7) -->
