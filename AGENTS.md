@@ -66,7 +66,7 @@ Compile errors (e.g., for a "Release" build) at:
 
 ## Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line
 
-For comparison purposes, as of 2026-06-10 we have also processed with the help of ChatGPT-5.5 thanks Base AdvCiv 1.12's `CvMainInterface.py` to single-line: [CvMainInterface_1_12_singleline.py](/LLM_Helpers/examples/CvMainInterface_1_12_singleline.py). If you need to, you may find looking at this file much easier than the old multi-line/unprocessed file.
+For comparison purposes, as of 2026-06-10 we have also processed with the help of ChatGPT-5.5 thanks Base AdvCiv 1.12's `CvMainInterface.py` to single-line: [CvMainInterface_1_12_singleline.py](/LLM_Helpers/examples/CvMainInterface_1_12_singleline.py). If you need to, you may find looking at this file much easier than the old multi-line/unprocessed file. See also if needed [the corresponding readme section](/LLM_Helpers/README.md#comparison-with-base-advciv-112s-main-interface-processed-similarly).
 
 ## Sevopedia debug dumps (Python API introspection)
 
@@ -191,7 +191,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
 - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
-- Never put a double-hyphen `--` (or `---`, etc.) inside an XML comment `<!-- ... -->`: it is illegal per the XML spec and breaks parsing of the whole file (empirically broke `GlobalDefines_advciv_sas.xml` when a comment described scoreboard/commerce buttons as `"++"/"--"`). This applies to actual `.xml` files only, not Python `#`/C++ `//` comments. When describing `--`/`---` button glyphs in an XML comment, space them (`- -`, `- - -`) or use words (`minus minus`, `fast step`, `fast/fastest tier`, etc.) instead.
+- Never put a double-hyphen `--` (or `---`, etc.) inside an XML comment `<!-- ... -->`: it is illegal per the XML spec and breaks parsing of the whole file (empirically broke `GlobalDefines_advciv_sas.xml` when a comment described scoreboard/commerce buttons as `"++"/"--"`). This applies to actual `.xml` files only, not Python `#`/C++ `//` comments. When describing `--`/`---` button glyphs in an XML comment, space them (`- -`, `- - -`) or use words (`minus minus`, `fast step`, `fast tier`, etc.) instead.
 - Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause actual mojibake artifacts like `â€”it` or `â€™` the user sees on VS Code or other issues.
 - Exception: preserve each XML file's existing encoding if it's not UTF-8; do not convert encodings unless explicitly requested for no tedium and as we have no reason to (e.g., keep legacy Windows-1252 files such as BUG XML files as-is), plus this would have a high chance of causing formatting errors otherwise.
 - Note and additional observation: the codex formatter seems unreliable and inconsistent with what users see (e.g., showing the LLM model a BOM text when user sees a non BOM one, causing mismatches and weird git diff: refer to git diff or what base AdvCiv mod uses as format if in doubt).
