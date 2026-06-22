@@ -10,7 +10,7 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 
 
 Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score Tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
 
-A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up and scroll down buttons, center on active player, toggle lock hover button, and toggle background style button, the do not render beyond bottom of commerce sliders behaviour.
+A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up and scroll down buttons, Center scroll on the active player, toggle lock hover button, and toggle background style button, the do not render beyond bottom of commerce sliders behaviour.
 
 New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
@@ -347,7 +347,7 @@ Besides these and other changes in the main changes guide or code only, a notabl
 
 ##### Scoreboard
 
-The new + / - scoreboard scroll and scroll fast buttons, center on active player button, the do not render beyond bottom of commerce sliders behaviour, toggle lock hover button, and toggle Background Style button (AdvCiv default at each save load/new game kept; tunable) (e.g., blue panel, black50, empty (transparent)) features have been added.
+The new + / - scoreboard scroll and scroll fast buttons, center scoreboard scroll on the active player, the do not render beyond bottom of commerce sliders behaviour, toggle lock hover button, and toggle Background Style button (AdvCiv default at each save load/new game kept; tunable) (e.g., blue panel, black50, empty (transparent)) features have been added.
 
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
