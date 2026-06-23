@@ -9,7 +9,7 @@
 	 Civ4NewConceptInfos.xml. -->
 <Civ4TraitInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<TraitInfos>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_PHILOSOPHICAL (useful for VS Code upper tree view while scrolling) -->
 			<Type>TRAIT_PHILOSOPHICAL</Type>
 			<Description>TXT_KEY_TRAIT_PHILOSOPHICAL</Description>
 			<ShortDescription>TXT_KEY_TRAIT_PHILOSOPHICAL_SHORT</ShortDescription>
@@ -34,7 +34,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_AGGRESSIVE -->
 			<Type>TRAIT_AGGRESSIVE</Type>
 			<Description>TXT_KEY_TRAIT_AGGRESSIVE</Description>
 			<ShortDescription>TXT_KEY_TRAIT_AGGRESSIVE_SHORT</ShortDescription>
@@ -84,7 +84,7 @@
 				</FreePromotionUnitCombat>
 			</FreePromotionUnitCombats>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_SPIRITUAL -->
 			<Type>TRAIT_SPIRITUAL</Type>
 			<Description>TXT_KEY_TRAIT_SPIRITUAL</Description>
 			<ShortDescription>TXT_KEY_TRAIT_SPIRITUAL_SHORT</ShortDescription>
@@ -108,7 +108,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_INDUSTRIOUS -->
 			<Type>TRAIT_INDUSTRIOUS</Type>
 			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
 			<ShortDescription>TXT_KEY_TRAIT_INDUSTRIOUS_SHORT</ShortDescription>
@@ -133,7 +133,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_CREATIVE -->
 			<Type>TRAIT_CREATIVE</Type>
 			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
 			<ShortDescription>TXT_KEY_TRAIT_CREATIVE_SHORT</ShortDescription>
@@ -163,7 +163,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_FINANCIAL -->
 			<Type>TRAIT_FINANCIAL</Type>
 			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
 			<ShortDescription>TXT_KEY_TRAIT_FINANCIAL_SHORT</ShortDescription>
@@ -194,7 +194,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_ORGANIZED -->
 			<Type>TRAIT_ORGANIZED</Type>
 			<Description>TXT_KEY_TRAIT_ORGANIZED</Description>
 			<ShortDescription>TXT_KEY_TRAIT_ORGANIZED_SHORT</ShortDescription>
@@ -218,7 +218,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_CHARISMATIC -->
 			<Type>TRAIT_CHARISMATIC</Type>
 			<Description>TXT_KEY_TRAIT_CHARISMATIC</Description>
 			<ShortDescription>TXT_KEY_TRAIT_CHARISMATIC_SHORT</ShortDescription>
@@ -244,7 +244,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_PROTECTIVE -->
 			<Type>TRAIT_PROTECTIVE</Type>
 			<Description>TXT_KEY_TRAIT_PROTECTIVE</Description>
 			<ShortDescription>TXT_KEY_TRAIT_PROTECTIVE_SHORT</ShortDescription>
@@ -299,7 +299,7 @@
 				</FreePromotionUnitCombat>
 			</FreePromotionUnitCombats>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_IMPERIALIST -->
 			<Type>TRAIT_IMPERIALIST</Type>
 			<Description>TXT_KEY_TRAIT_IMPERIALIST</Description>
 			<ShortDescription>TXT_KEY_TRAIT_IMPERIALIST_SHORT</ShortDescription>

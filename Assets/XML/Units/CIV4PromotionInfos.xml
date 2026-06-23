@@ -6,7 +6,7 @@
 <!-- custom: note: be careful if you change these to also change/reflect them/these in the DLL at least in CvUnitAI::AI_promotionValue (a global search with VS code or search may help locate them) as we have hardcoded some of them there to help/attempt to optimize AI promotion choices, see known issue as of now 47 for details or the code there in as of now the .cpp corresponding file(s) -->
 <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<PromotionInfos>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COMBAT1 (useful for VS Code upper tree view while scrolling) -->
 			<Type>PROMOTION_COMBAT1</Type>
 			<Description>TXT_KEY_PROMOTION_COMBAT1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -126,7 +126,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COMBAT2 -->
 			<Type>PROMOTION_COMBAT2</Type>
 			<Description>TXT_KEY_PROMOTION_COMBAT2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -245,7 +245,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,6</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COMBAT3 -->
 			<Type>PROMOTION_COMBAT3</Type>
 			<Description>TXT_KEY_PROMOTION_COMBAT3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -364,7 +364,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,6</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COMBAT4 -->
 			<Type>PROMOTION_COMBAT4</Type>
 			<Description>TXT_KEY_PROMOTION_COMBAT4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -480,7 +480,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat4.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,6</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COMBAT5 -->
 			<Type>PROMOTION_COMBAT5</Type>
 			<Description>TXT_KEY_PROMOTION_COMBAT5</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -592,7 +592,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,6</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COMBAT6 -->
 			<Type>PROMOTION_COMBAT6</Type>
 			<Description>TXT_KEY_PROMOTION_COMBAT6</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -707,7 +707,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,15</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_ARCHER -->
 			<Type>PROMOTION_COUNTER_ARCHER</Type>
 			<Description>TXT_KEY_PROMOTION_COVER</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -807,7 +807,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_GUN -->
 			<Type>PROMOTION_COUNTER_GUN</Type>
 			<Description>TXT_KEY_PROMOTION_PINCH</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -897,7 +897,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Pinch.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,5</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_MELEE -->
 			<Type>PROMOTION_COUNTER_MELEE</Type>
 			<Description>TXT_KEY_PROMOTION_SHOCK</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1001,7 +1001,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_MOUNTED -->
 			<Type>PROMOTION_COUNTER_MOUNTED</Type>
 			<Description>TXT_KEY_PROMOTION_FORMATION</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1089,7 +1089,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_SIEGE -->
 			<Type>PROMOTION_COUNTER_SIEGE</Type>
 			<Description>TXT_KEY_PROMOTION_CHARGE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1175,7 +1175,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Charge.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,5</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_TANK -->
 			<Type>PROMOTION_COUNTER_TANK</Type>
 			<Description>TXT_KEY_PROMOTION_AMBUSH</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1265,7 +1265,7 @@
 			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case -->
 			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Armored_Units/armored_units.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AMPHIBIOUS -->
 			<Type>PROMOTION_AMPHIBIOUS</Type>
 			<Description>TXT_KEY_PROMOTION_AMPHIBIOUS</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1351,7 +1351,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Amphibious.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,1</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_BLITZKRIEG -->
 			<Type>PROMOTION_BLITZKRIEG</Type>
 			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1440,7 +1440,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Blitz.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,1</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_MEDIC1 -->
 			<Type>PROMOTION_MEDIC1</Type>
 			<Description>TXT_KEY_PROMOTION_MEDIC1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1539,7 +1539,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Medic1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,4</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_MEDIC2 -->
 			<Type>PROMOTION_MEDIC2</Type>
 			<Description>TXT_KEY_PROMOTION_MEDIC2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1638,7 +1638,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Medic2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,4</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_MEDIC3 -->
 			<Type>PROMOTION_MEDIC3</Type>
 			<Description>TXT_KEY_PROMOTION_MEDIC3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1737,7 +1737,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_MEDIC4 -->
 			<Type>PROMOTION_MEDIC4</Type>
 			<Description>TXT_KEY_PROMOTION_MEDIC4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1836,7 +1836,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_MEDIC_AMBULATORY -->
 			<Type>PROMOTION_MEDIC_AMBULATORY</Type>
 			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -1937,7 +1937,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/March.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,4</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_HILLS_MASTER1 -->
 			<Type>PROMOTION_HILLS_MASTER1</Type>
 			<Description>TXT_KEY_PROMOTION_HILLS_MASTER1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2021,7 +2021,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Guerilla1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,5</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_HILLS_MASTER2 -->
 			<Type>PROMOTION_HILLS_MASTER2</Type>
 			<Description>TXT_KEY_PROMOTION_HILLS_MASTER2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2102,7 +2102,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,5</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_HILLS_MASTER3 -->
 			<Type>PROMOTION_HILLS_MASTER3</Type>
 			<Description>TXT_KEY_PROMOTION_HILLS_MASTER3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2179,7 +2179,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Guerilla2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,5</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_WOODSMAN1 -->
 			<Type>PROMOTION_WOODSMAN1</Type>
 			<Description>TXT_KEY_PROMOTION_WOODSMAN1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2273,7 +2273,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Woodsman1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,6</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_WOODSMAN2 -->
 			<Type>PROMOTION_WOODSMAN2</Type>
 			<Description>TXT_KEY_PROMOTION_WOODSMAN2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2376,7 +2376,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Woodsman2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,6</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_WOODSMAN3 -->
 			<Type>PROMOTION_WOODSMAN3</Type>
 			<Description>TXT_KEY_PROMOTION_WOODSMAN3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2467,7 +2467,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Woodsman2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,8,6</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_CITY_RAIDER1 -->
 			<Type>PROMOTION_CITY_RAIDER1</Type>
 			<Description>TXT_KEY_PROMOTION_CITYRAIDER1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2547,7 +2547,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/CityRaider1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_CITY_RAIDER2 -->
 			<Type>PROMOTION_CITY_RAIDER2</Type>
 			<Description>TXT_KEY_PROMOTION_CITYRAIDER2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2626,7 +2626,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/CityRaider2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_CITY_RAIDER3 -->
 			<Type>PROMOTION_CITY_RAIDER3</Type>
 			<Description>TXT_KEY_PROMOTION_CITYRAIDER3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2708,7 +2708,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/CityRaider3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_CITY_GARRISON1 -->
 			<Type>PROMOTION_CITY_GARRISON1</Type>
 			<Description>TXT_KEY_PROMOTION_GARRISON1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2783,7 +2783,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/CityGarrison1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_CITY_GARRISON2 -->
 			<Type>PROMOTION_CITY_GARRISON2</Type>
 			<Description>TXT_KEY_PROMOTION_GARRISON2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2858,7 +2858,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/CityGarrison2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_CITY_GARRISON3 -->
 			<Type>PROMOTION_CITY_GARRISON3</Type>
 			<Description>TXT_KEY_PROMOTION_GARRISON3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -2939,7 +2939,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/CityGarrison3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,2</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE1 -->
 			<Type>PROMOTION_COLLATERAL_DAMAGE1</Type>
 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3058,7 +3058,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_1/barrage1.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE2 -->
 			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3177,7 +3177,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_2/barrage2.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE3 -->
 			<Type>PROMOTION_COLLATERAL_DAMAGE3</Type>
 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3272,7 +3272,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_3/barrage3.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE4 -->
 			<Type>PROMOTION_COLLATERAL_DAMAGE4</Type>
 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3345,7 +3345,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_4/barrage4.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_COLLATERAL_DAMAGE5 -->
 			<Type>PROMOTION_COLLATERAL_DAMAGE5</Type>
 			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE5</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3428,7 +3428,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/Collateral_Damage_5/barrage5.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE1 -->
 			<Type>PROMOTION_FIRST_STRIKE1</Type>
 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3533,7 +3533,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Drill1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,3</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE2 -->
 			<Type>PROMOTION_FIRST_STRIKE2</Type>
 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3638,7 +3638,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Drill2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,3</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE3 -->
 			<Type>PROMOTION_FIRST_STRIKE3</Type>
 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3744,7 +3744,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Drill3.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,3</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_FIRST_STRIKE4 -->
 			<Type>PROMOTION_FIRST_STRIKE4</Type>
 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3850,7 +3850,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Drill4.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,3</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_CITY_BOMBARD_DAMAGE -->
 			<Type>PROMOTION_CITY_BOMBARD_DAMAGE</Type>
 			<Description>TXT_KEY_PROMOTION_ACCURACY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -3921,7 +3921,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/City_Bombard_Damage/bombarding1_no_star.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_RETREAT1 -->
 			<Type>PROMOTION_RETREAT1</Type>
 			<Description>TXT_KEY_PROMOTION_RETREAT1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4016,7 +4016,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Flanking1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,6,3</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_RETREAT2 -->
 			<Type>PROMOTION_RETREAT2</Type>
 			<Description>TXT_KEY_PROMOTION_RETREAT2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4099,7 +4099,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Flanking2.dds,Art/Interface/Buttons/Promotions_Atlas.dds,7,3</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_SENTRY -->
 			<Type>PROMOTION_SENTRY</Type>
 			<Description>TXT_KEY_PROMOTION_SENTRY</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4184,7 +4184,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/AdvCiv_SAS/Promotions/Sentry/observer.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_NAVIGATOR -->
 			<Type>PROMOTION_NAVIGATOR</Type>
 			<Description>TXT_KEY_PROMOTION_NAVIGATOR</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4253,7 +4253,7 @@
 			<!-- custom: imported / manually extracted from com mod's atlas, that was in an fpk.. with Paint.NET. Not easy or intuitive to find but i have it now thankfully in this case -->
 			<Button>Art/AdvCiv_SAS/Promotions/Navigator/navigator.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_LEADER -->
 			<Type>PROMOTION_LEADER</Type>
 			<Description>TXT_KEY_PROMOTION_GREAT_GENERAL</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4352,7 +4352,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,10</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_LEADERSHIP -->
 			<Type>PROMOTION_LEADERSHIP</Type>
 			<Description>TXT_KEY_PROMOTION_LEADERSHIP</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4461,7 +4461,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,16</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_LOGISTICS -->
 			<Type>PROMOTION_LOGISTICS</Type>
 			<Description>TXT_KEY_PROMOTION_COMMANDO</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4553,7 +4553,7 @@
 			<Button>,Art/Interface/Buttons/Promotions/Commando.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,3</Button>
 		</PromotionInfo>
 		<!-- custom: Note: iMoveDiscountChange reduces raw terrain/feature movement cost before CvPlot::movementCost caps cost to the unit's baseMoves. This is mostly useful for 2+ move units; on 1-move units it usually does not increase practical movement range, and can even interfere with double-move terrain checks because bHasTerrainCost is computed after the discount. Do not treat this as true +move mobility for 1-move units. (ChatGPT-5.5) -->
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_MOBILITY_COST -->
 			<Type>PROMOTION_MOBILITY_COST</Type>
 			<Description>TXT_KEY_PROMOTION_MOBILITY_COST</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4629,7 +4629,7 @@
 			<Button>,Art/Interface/Buttons/Promotions/Mobility1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,5,4</Button>
 		</PromotionInfo>
 		<!-- custom: true +1 movement promotion. Unlike Mobility (Cost), this helps 1-move units directly, but it is much stronger and should not be used as a simple replacement for Mobility (Cost), especially on early peak-walking or enemy-route units. (ChatGPT-5.5) -->
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_MOBILITY_RANGE -->
 			<Type>PROMOTION_MOBILITY_RANGE</Type>
 			<Description>TXT_KEY_PROMOTION_MOBILITY_RANGE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4730,7 +4730,7 @@
 			<Button>Art/AdvCiv_SAS/Promotions/Mobility_Range/backdown1promotion.dds</Button>
 		</PromotionInfo>
 		<!-- custom: Long_Comments_XML.txt #363 -->
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AIR_RANGE1 -->
 			<Type>PROMOTION_AIR_RANGE1</Type>
 			<Description>TXT_KEY_PROMOTION_RANGE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4801,7 +4801,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,15</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AIR_RANGE2 -->
 			<Type>PROMOTION_AIR_RANGE2</Type>
 			<Description>TXT_KEY_PROMOTION_RANGE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4872,7 +4872,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,15</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION1 -->
 			<Type>PROMOTION_AIR_INTERCEPTION1</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -4947,7 +4947,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,15</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION2 -->
 			<Type>PROMOTION_AIR_INTERCEPTION2</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -5015,7 +5015,7 @@
 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,15</Button>
 		</PromotionInfo>
 		<!-- custom: new promotion -->
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION3 -->
 			<Type>PROMOTION_AIR_INTERCEPTION3</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION3</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -5084,7 +5084,7 @@
 			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest) air intercept button-->
 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_3/air_interception_3.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AIR_INTERCEPTION4 -->
 			<Type>PROMOTION_AIR_INTERCEPTION4</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_INTERCEPTION4</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
@@ -5152,7 +5152,7 @@
 			<!-- custom: made with paint.net by myself hehe from rfc doc atlas's (wherever i found it the fastest) air intercept button-->
 			<Button>Art/AdvCiv_SAS/Promotions/Air_Interception_4/air_interception_4.dds</Button>
 		</PromotionInfo>
-		<PromotionInfo>
+		<PromotionInfo> <!-- custom: PROMOTION_AIR_EVASION -->
 			<Type>PROMOTION_AIR_EVASION</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_EVASION</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>

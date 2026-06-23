@@ -670,7 +670,7 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iteratio
 - Writes timestamped output to `LLM_Helpers\outputs\handicap_compare_<UTC-ISO>.md` by default; this folder is git-ignored.
 - `--example-output` writes to `LLM_Helpers\examples\handicap_infos_compared.md` instead, useful when publishing a stable hosted example URL.
 - The report includes its UTC run time, output path, and full input paths because XML assets can change between analysis runs.
-- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each handicap index. Empty cells mean that field/index has no shown change or no matching value on that side.
+- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each handicap index. For changed-field reports, unchanged cells are still filled when they belong to a shown field, so a row such as `iFreeUnits` shows the full handicap curve. Empty cells mean no matching value on that side.
 - Optional `--file1-label`/`--file2-label` labels make published examples clearer while the defaults stay generic.
 - `--tsv-output` optionally writes the same matrix as a separate `.tsv` file too.
 - Created with GPT-5.5/Codex and reviewed with GPT-5.5-Thinking.

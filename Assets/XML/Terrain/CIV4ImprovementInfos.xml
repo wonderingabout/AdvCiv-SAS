@@ -8,7 +8,7 @@
 <!-- custom: note: be careful when renaming the improvementinfo types, we use them in CvUnitAI::AI_bestCityBuild as a way to optimize worker improvement choice, so if you change it, also change it there as well and then recompile DLL, among other places that may or not need the change as well but this is the one we specifically implemented in advciv-sas as of now that would require a recompile; see also related code comment at CIV4BonusInfos.xml for details -->
 <Civ4ImprovementInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<ImprovementInfos>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_LAND_WORKED (useful for VS Code upper tree view while scrolling) -->
 			<Type>IMPROVEMENT_LAND_WORKED</Type>
 			<Description>TXT_KEY_IMPROVEMENT_LAND_WORKED</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_LAND_WORKED_PEDIA</Civilopedia>
@@ -46,7 +46,7 @@
 			<WorldSoundscapeAudioScript/>
 			<bGraphicalOnly>1</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WATER_WORKED -->
 			<Type>IMPROVEMENT_WATER_WORKED</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WATER_WORKED</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WATER_WORKED_PEDIA</Civilopedia>
@@ -84,7 +84,7 @@
 			<WorldSoundscapeAudioScript/>
 			<bGraphicalOnly>1</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_CITY_RUINS -->
 			<Type>IMPROVEMENT_CITY_RUINS</Type>
 			<Description>TXT_KEY_IMPROVEMENT_CITY_RUINS</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_CITY_RUINS_PEDIA</Civilopedia>
@@ -122,7 +122,7 @@
 			<WorldSoundscapeAudioScript/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_GOODY_HUT -->
 			<Type>IMPROVEMENT_GOODY_HUT</Type>
 			<Description>TXT_KEY_IMPROVEMENT_GOODY_HUT</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_GOODY_HUT_PEDIA</Civilopedia>
@@ -186,7 +186,7 @@
 			<WorldSoundscapeAudioScript>ASSS_FOREST_SELECT_AMB</WorldSoundscapeAudioScript>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FARM -->
 			<Type>IMPROVEMENT_FARM</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FARM</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FARM_PEDIA</Civilopedia>
@@ -289,7 +289,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FISHING_BOATS -->
 			<Type>IMPROVEMENT_FISHING_BOATS</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FISHING_BOATS</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FISHING_BOATS_PEDIA</Civilopedia>
@@ -362,7 +362,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WHALING_BOATS -->
 			<Type>IMPROVEMENT_WHALING_BOATS</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WHALING_BOATS</Description>
 			<Civilopedia>TXT_KEY_WHALING_BOATS_PEDIA</Civilopedia>
@@ -413,7 +413,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_MINE -->
 			<Type>IMPROVEMENT_MINE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_MINE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_MINE_PEDIA</Civilopedia>
@@ -558,7 +558,7 @@
 			</RouteYieldChanges>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WORKSHOP -->
 			<Type>IMPROVEMENT_WORKSHOP</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WORKSHOP</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WORKSHOP_PEDIA</Civilopedia>
@@ -645,7 +645,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_LUMBERMILL -->
 			<Type>IMPROVEMENT_LUMBERMILL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_LUMBERMILL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_LUMBERMILL_PEDIA</Civilopedia>
@@ -717,7 +717,7 @@
 			</RouteYieldChanges>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WINDMILL -->
 			<Type>IMPROVEMENT_WINDMILL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WINDMILL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WINDMILL_PEDIA</Civilopedia>
@@ -777,7 +777,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WATERMILL -->
 			<Type>IMPROVEMENT_WATERMILL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WATERMILL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WATERMILL_PEDIA</Civilopedia>
@@ -839,7 +839,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_PLANTATION -->
 			<Type>IMPROVEMENT_PLANTATION</Type>
 			<Description>TXT_KEY_IMPROVEMENT_PLANTATION</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_PLANTATION_PEDIA</Civilopedia>
@@ -967,7 +967,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_QUARRY -->
 			<Type>IMPROVEMENT_QUARRY</Type>
 			<Description>TXT_KEY_IMPROVEMENT_QUARRY</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_QUARRY_PEDIA</Civilopedia>
@@ -1037,7 +1037,7 @@
 			</RouteYieldChanges>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_PASTURE -->
 			<Type>IMPROVEMENT_PASTURE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_PASTURE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_PASTURE_PEDIA</Civilopedia>
@@ -1143,7 +1143,7 @@
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
 		<!-- custom: venison/deer seems super healthy and nutritious, great because in tundra we want more food, increasing food output then: https://www.hunter-ed.com/blog/venison-vs-beef-which-is-healthier/ crossed checked quick here for example https://www.tasteofhome.com/article/ground-venison/ -->
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_CAMP -->
 			<Type>IMPROVEMENT_CAMP</Type>
 			<Description>TXT_KEY_IMPROVEMENT_CAMP</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_CAMP_PEDIA</Civilopedia>
@@ -1216,7 +1216,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WELL -->
 			<Type>IMPROVEMENT_WELL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WELL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WELL_PEDIA</Civilopedia>
@@ -1266,7 +1266,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_OFFSHORE_PLATFORM -->
 			<Type>IMPROVEMENT_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM_PEDIA</Civilopedia>
@@ -1316,7 +1316,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_COTTAGE -->
 			<Type>IMPROVEMENT_COTTAGE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_COTTAGE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_COTTAGE_PEDIA</Civilopedia>
@@ -1373,7 +1373,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_HAMLET -->
 			<Type>IMPROVEMENT_HAMLET</Type>
 			<Description>TXT_KEY_IMPROVEMENT_HAMLET</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_HAMLET_PEDIA</Civilopedia>
@@ -1433,7 +1433,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_VILLAGE -->
 			<Type>IMPROVEMENT_VILLAGE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_VILLAGE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_VILLAGE_PEDIA</Civilopedia>
@@ -1502,7 +1502,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_TOWN -->
 			<Type>IMPROVEMENT_TOWN</Type>
 			<Description>TXT_KEY_IMPROVEMENT_TOWN</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_TOWN_PEDIA</Civilopedia>
@@ -1580,7 +1580,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FORT -->
 			<Type>IMPROVEMENT_FORT</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FORT</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FORT_PEDIA</Civilopedia>
@@ -1640,7 +1640,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FOREST_PRESERVE -->
 			<Type>IMPROVEMENT_FOREST_PRESERVE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE_PEDIA</Civilopedia>

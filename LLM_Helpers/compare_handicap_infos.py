@@ -204,12 +204,15 @@ def default_output_path(run_time):
 def example_output_path():
     return os.path.join(DEFAULT_EXAMPLE_DIR, "handicap_infos_compared.md")
 
-def build_tsv_text(left_label, right_label, entry_pairs, rows, include_unchanged):
+def build_tsv_text(left_label, right_label, entry_pairs, rows, include_unchanged, matrix_rows=None):
     handicaps = [entry[0] for entry in entry_pairs]
     fields = sorted(set(row[1] for row in rows if include_unchanged or row[2] != row[3]))
+    field_set = set(fields)
+    if matrix_rows is None:
+        matrix_rows = rows
     cell_data = {}
-    for handicap, field, left, right, delta, delta_pct in rows:
-        if include_unchanged or left != right:
+    for handicap, field, left, right, delta, delta_pct in matrix_rows:
+        if field in field_set:
             cell_data[(field, handicap)] = (left, right, delta, delta_pct)
     out = io.StringIO()
     writer = csv.writer(out, dialect="excel-tab")
@@ -242,6 +245,7 @@ def write_markdown(path, left_path, right_path, left_label, right_label, entry_p
         f.write("- Rows shown: %s\n" % ("all comparable fields" if include_unchanged else "changed fields only"))
         f.write("- Match mode: XML order/index, so added/removed difficulties compare with the missing side blank\n")
         f.write("- Missing fields on either side are shown as blank cells\n")
+        f.write("- The spreadsheet matrix fills unchanged cells for any shown field, so each row can show the full handicap curve\n")
         f.write("- Delta %% is computed as (%s - %s) / %s; blank when either value is non-numeric or %s is 0\n" % (right_label, left_label, left_label, left_label))
         f.write("- Changed fields: %d/%d (%s)\n\n" % (total_changed, total_comparable, percentage_text(total_changed, total_comparable)))
         f.write("## Compared Handicap Entries\n\n")
@@ -299,7 +303,8 @@ def main():
     rows = collect_diffs(left_data, right_data, args.include_unchanged)
     diff_stats, total_changed, total_comparable = collect_diff_stats(left_data, right_data)
     entry_pairs = collect_entry_pairs(left_data, right_data)
-    tsv_text = build_tsv_text(args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged)
+    matrix_rows = rows if args.include_unchanged else collect_diffs(left_data, right_data, True)
+    tsv_text = build_tsv_text(args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged, matrix_rows)
     write_markdown(output_path, args.left, args.right, args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged, run_time, tsv_text, diff_stats, total_changed, total_comparable)
     print("Wrote %d changed field rows to %s" % (len(rows), output_path))
     if args.tsv_output:

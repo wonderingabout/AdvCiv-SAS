@@ -6,7 +6,7 @@
 <!-- Building Infos -->
 <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
 	<BuildingInfos>
-		<BuildingInfo> <!-- custom: class: palace, type: palace (useful for VS Code upper tree view while scrolling) -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PALACE, type: BUILDING_PALACE (useful for VS Code upper tree view while scrolling) -->
 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
 			<Type>BUILDING_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -177,7 +177,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: palace, type: BARBARIAN_PALACE -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PALACE, type: BUILDING_BARBARIAN_PALACE -->
 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -354,7 +354,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forbidden_palace, type: forbidden_palace -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORBIDDEN_PALACE, type: BUILDING_FORBIDDEN_PALACE -->
 			<BuildingClass>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClass>
 			<Type>BUILDING_FORBIDDEN_PALACE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -545,7 +545,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: walls -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_WALLS, type: BUILDING_WALLS -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_WALLS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -729,7 +729,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: walls, type: BARBARIAN_WALLS -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_WALLS, type: BUILDING_BARBARIAN_WALLS -->
 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
 			<Type>BUILDING_BARBARIAN_WALLS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -912,7 +912,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: Long_Comments_XML.txt #129 -->
-		<BuildingInfo> <!-- custom: class: castle, type: castle -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_CASTLE -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_CASTLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1115,7 +1115,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: castle, type: spanish_citadel -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_SPANISH_CITADEL -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_SPANISH_CITADEL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1325,7 +1325,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: add the new BUILDING_RUSSIAN_GORD, civ-specific building for the russian empire (based on the castle), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, for a stronger early game impact and more military focus in this case,, see xml or and docs or and similar or and not for details -->
-		<BuildingInfo> <!-- custom: class: castle, type: russian_gord -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_RUSSIAN_GORD -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_RUSSIAN_GORD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1527,7 +1527,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: castle, type: BARBARIAN_CASTLE -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CASTLE, type: BUILDING_BARBARIAN_CASTLE -->
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_CASTLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1728,7 +1728,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: barracks -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_BARRACKS -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_BARRACKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -1904,7 +1904,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: zulu_ikhanda -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_ZULU_IKHANDA -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_ZULU_IKHANDA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2085,7 +2085,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: barracks, type: BARBARIAN_BARRACKS -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_BARBARIAN_BARRACKS -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<Type>BUILDING_BARBARIAN_BARRACKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2259,7 +2259,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stable, type: stable -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STABLE, type: BUILDING_STABLE -->
 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
 			<Type>BUILDING_STABLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2434,7 +2434,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stable, type: mongol_ger -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STABLE, type: BUILDING_MONGOL_GER -->
 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
 			<Type>BUILDING_MONGOL_GER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2611,7 +2611,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stable, type: byzantine_hippodrome -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STABLE, type: BUILDING_BYZANTINE_HIPPODROME -->
 			<BuildingClass>BUILDINGCLASS_STABLE</BuildingClass>
 			<Type>BUILDING_BYZANTINE_HIPPODROME</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2810,7 +2810,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bunker, type: bunker -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUNKER, type: BUILDING_BUNKER -->
 			<BuildingClass>BUILDINGCLASS_BUNKER</BuildingClass>
 			<Type>BUILDING_BUNKER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -2979,7 +2979,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bomb_shelter, type: bomb_shelter -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BOMB_SHELTER, type: BUILDING_BOMB_SHELTER -->
 			<BuildingClass>BUILDINGCLASS_BOMB_SHELTER</BuildingClass>
 			<Type>BUILDING_BOMB_SHELTER</Type>
 			<SpecialBuildingType>SPECIALBUILDING_BOMB_SHELTER</SpecialBuildingType>
@@ -3146,7 +3146,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: granary -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_GRANARY -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_GRANARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3335,7 +3335,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: BARBARIAN_GRANARY -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_BARBARIAN_GRANARY -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_BARBARIAN_GRANARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3714,7 +3714,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: granary, type: german_longhouse -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GRANARY, type: BUILDING_GERMAN_LONGHOUSE -->
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
 			<Type>BUILDING_GERMAN_LONGHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -3905,7 +3905,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: aqueduct -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_AQUEDUCT -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_AQUEDUCT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4083,7 +4083,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: ottoman_hammam -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_OTTOMAN_HAMMAM -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_OTTOMAN_HAMMAM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4256,7 +4256,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Baray -->
-		<BuildingInfo> <!-- custom: class: aqueduct, type: khmer_baray -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_KHMER_BARAY -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KHMER_BARAY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4437,7 +4437,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: aqueduct, type: kingdom_of_benin_impluvium -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AQUEDUCT, type: BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM -->
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
 			<Type>BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4622,7 +4622,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hospital, type: hospital -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HOSPITAL, type: BUILDING_HOSPITAL -->
 			<BuildingClass>BUILDINGCLASS_HOSPITAL</BuildingClass>
 			<Type>BUILDING_HOSPITAL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4794,7 +4794,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: recycling_center, type: recycling_center -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_RECYCLING_CENTER, type: BUILDING_RECYCLING_CENTER -->
 			<BuildingClass>BUILDINGCLASS_RECYCLING_CENTER</BuildingClass>
 			<Type>BUILDING_RECYCLING_CENTER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -4960,7 +4960,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: harbor reworked, now is a building before the lighthouse and buffed too, relatively to how old lighthouse was; oldest harbor should be much sooner than tech compass, (for example https://en.wikipedia.org/wiki/Wadi_al-Jarf) also to buff water tiles that are too weak as of now -->
-		<BuildingInfo> <!-- custom: class: harbor, type: harbor -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HARBOR, type: BUILDING_HARBOR -->
 			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
 			<Type>BUILDING_HARBOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5355,7 +5355,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BUILDING_LIGHTHOUSE -->
 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -5538,7 +5538,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BARBARIAN_LIGHTHOUSE -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIGHTHOUSE, type: BUILDING_BARBARIAN_LIGHTHOUSE -->
 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_BARBARIAN_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6291,7 +6291,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: custom_house, type: custom_house -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CUSTOM_HOUSE, type: BUILDING_CUSTOM_HOUSE -->
 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
 			<Type>BUILDING_CUSTOM_HOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6473,7 +6473,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: custom_house, type: feitoria -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CUSTOM_HOUSE, type: BUILDING_PORTUGAL_FEITORIA -->
 			<BuildingClass>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClass>
 			<Type>BUILDING_PORTUGAL_FEITORIA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6649,7 +6649,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: drydock, type: drydock -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DRYDOCK, type: BUILDING_DRYDOCK -->
 			<BuildingClass>BUILDINGCLASS_DRYDOCK</BuildingClass>
 			<Type>BUILDING_DRYDOCK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -6844,7 +6844,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: airport, type: airport -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_AIRPORT, type: BUILDING_AIRPORT -->
 			<BuildingClass>BUILDINGCLASS_AIRPORT</BuildingClass>
 			<Type>BUILDING_AIRPORT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7018,7 +7018,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forge, type: forge -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORGE, type: BUILDING_FORGE -->
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
 			<Type>BUILDING_FORGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7211,7 +7211,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forge, type: mali_mint -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORGE, type: BUILDING_MALI_MINT -->
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
 			<Type>BUILDING_MALI_MINT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7410,7 +7410,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: forge, type: celtic_la_tene_smithy -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FORGE, type: BUILDING_CELTIC_LA_TENE_SMITHY -->
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
 			<Type>BUILDING_CELTIC_LA_TENE_SMITHY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7618,7 +7618,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: factory, type: factory -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_FACTORY, type: BUILDING_FACTORY -->
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
 			<Type>BUILDING_FACTORY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7812,7 +7812,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: coal_plant, type: coal_plant -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COAL_PLANT, type: BUILDING_COAL_PLANT -->
 			<BuildingClass>BUILDINGCLASS_COAL_PLANT</BuildingClass>
 			<Type>BUILDING_COAL_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -7981,7 +7981,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hydro_plant, type: hydro_plant -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HYDRO_PLANT, type: BUILDING_HYDRO_PLANT -->
 			<BuildingClass>BUILDINGCLASS_HYDRO_PLANT</BuildingClass>
 			<Type>BUILDING_HYDRO_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8155,7 +8155,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: nuclear_plant, type: nuclear_plant -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NUCLEAR_PLANT, type: BUILDING_NUCLEAR_PLANT -->
 			<BuildingClass>BUILDINGCLASS_NUCLEAR_PLANT</BuildingClass>
 			<Type>BUILDING_NUCLEAR_PLANT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8323,7 +8323,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: industrial_park, type: industrial_park -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_INDUSTRIAL_PARK, type: BUILDING_INDUSTRIAL_PARK -->
 			<BuildingClass>BUILDINGCLASS_INDUSTRIAL_PARK</BuildingClass>
 			<Type>BUILDING_INDUSTRIAL_PARK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8514,7 +8514,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: monument -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_MONUMENT -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_MONUMENT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8689,7 +8689,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: egyptian_obelisk -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_EGYPTIAN_OBELISK -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_EGYPTIAN_OBELISK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -8883,7 +8883,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: monument, type: native_america_totem -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_NATIVE_AMERICA_TOTEM -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_NATIVE_AMERICA_TOTEM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9079,7 +9079,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked based on https://en.wikipedia.org/wiki/Aztecs#Religion and https://en.wikipedia.org/wiki/Human_sacrifice#Pre-Columbian_Americas -->
-		<BuildingInfo> <!-- custom: class: monument, type: aztec_sacrificial_altar -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_AZTEC_SACRIFICIAL_ALTAR -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9270,7 +9270,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked based on: https://en.wikipedia.org/wiki/Ziggurat -->
-		<BuildingInfo> <!-- custom: class: monument, type: ziggurat -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_SUMERIAN_ZIGGURAT -->
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<Type>BUILDING_SUMERIAN_ZIGGURAT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9464,7 +9464,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PUBLIC_TRANSPORTATION, type: BUILDING_PUBLIC_TRANSPORTATION -->
 			<BuildingClass>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingClass>
 			<Type>BUILDING_PUBLIC_TRANSPORTATION</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9634,7 +9634,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: academy, type: academy -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ACADEMY, type: BUILDING_ACADEMY -->
 			<BuildingClass>BUILDINGCLASS_ACADEMY</BuildingClass>
 			<Type>BUILDING_ACADEMY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -9810,7 +9810,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: library, type: library -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_LIBRARY -->
 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
 			<Type>BUILDING_LIBRARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10007,7 +10007,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: library, type: KOREAN_GYEONGDANG -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_KOREAN_GYEONGDANG -->
 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
 			<Type>BUILDING_KOREAN_GYEONGDANG</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10205,7 +10205,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: library, type: ETHIOPIAN_METSEHAF_BET -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_ETHIOPIAN_METSEHAF_BET -->
 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
 			<Type>BUILDING_ETHIOPIAN_METSEHAF_BET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10409,7 +10409,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: university -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_UNIVERSITY -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_UNIVERSITY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10595,7 +10595,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: arabian library effects were too op, while thematically fits better around islamic/medieval time. University is no longer op with such effects -->
-		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_ARABIAN_MADRASSA -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10794,7 +10794,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: french_salon -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_FRENCH_SALON -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_FRENCH_SALON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -10985,7 +10985,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: university, type: ireland_scriptorium -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNIVERSITY, type: BUILDING_IRELAND_SCRIPTORIUM -->
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_IRELAND_SCRIPTORIUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11189,7 +11189,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: laboratory, type: laboratory -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LABORATORY, type: BUILDING_LABORATORY -->
 			<BuildingClass>BUILDINGCLASS_LABORATORY</BuildingClass>
 			<Type>BUILDING_LABORATORY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11378,7 +11378,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: theatre, type: theatre -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_THEATRE, type: BUILDING_THEATRE -->
 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
 			<Type>BUILDING_THEATRE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11572,7 +11572,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: colosseum -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_COLOSSEUM -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_COLOSSEUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11765,7 +11765,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: greek_odeon -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_GREEK_ODEON -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_GREEK_ODEON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -11972,7 +11972,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: maya_ball_court -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_MAYA_BALL_COURT -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_MAYA_BALL_COURT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12185,7 +12185,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colosseum, type: babylon_garden -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSEUM, type: BUILDING_BABYLON_GARDEN -->
 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
 			<Type>BUILDING_BABYLON_GARDEN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12383,7 +12383,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: broadcast_tower, type: broadcast_tower -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BROADCAST_TOWER, type: BUILDING_BROADCAST_TOWER -->
 			<BuildingClass>BUILDINGCLASS_BROADCAST_TOWER</BuildingClass>
 			<Type>BUILDING_BROADCAST_TOWER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12585,7 +12585,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: market, type: market -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MARKET, type: BUILDING_MARKET -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_MARKET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12777,7 +12777,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: if it helps for balance or info or tweaking or other things https://en.wikipedia.org/wiki/Forum_(Roman) -->
-		<BuildingInfo> <!-- custom: class: market, type: roman_forum -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MARKET, type: BUILDING_ROMAN_FORUM -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_ROMAN_FORUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -12969,7 +12969,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: market, type: chinese_changpingcang -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MARKET, type: BUILDING_CHINESE_CHANGPINGCANG -->
 			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
 			<Type>BUILDING_CHINESE_CHANGPINGCANG</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13165,7 +13165,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: grocer, type: grocer -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GROCER, type: BUILDING_GROCER -->
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
 			<Type>BUILDING_GROCER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13367,7 +13367,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: grocer, type: persian_apothecary -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GROCER, type: BUILDING_PERSIAN_APOTHECARY -->
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
 			<Type>BUILDING_PERSIAN_APOTHECARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13569,7 +13569,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bank, type: bank -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BANK, type: BUILDING_BANK -->
 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
 			<Type>BUILDING_BANK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13733,7 +13733,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: bank, type: english_stock_exchange -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BANK, type: BUILDING_ENGLISH_STOCK_EXCHANGE -->
 			<BuildingClass>BUILDINGCLASS_BANK</BuildingClass>
 			<Type>BUILDING_ENGLISH_STOCK_EXCHANGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -13897,7 +13897,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: supermarket, type: supermarket -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SUPERMARKET, type: BUILDING_SUPERMARKET -->
 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
 			<Type>BUILDING_SUPERMARKET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14094,7 +14094,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: supermarket, type: american_mall -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SUPERMARKET, type: BUILDING_AMERICAN_MALL -->
 			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
 			<Type>BUILDING_AMERICAN_MALL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14292,7 +14292,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: courthouse, type: courthouse -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COURTHOUSE, type: BUILDING_COURTHOUSE -->
 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
 			<Type>BUILDING_COURTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14479,7 +14479,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: courthouse, type: holy_roman_rathaus -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COURTHOUSE, type: BUILDING_HOLY_ROMAN_RATHAUS -->
 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
 			<Type>BUILDING_HOLY_ROMAN_RATHAUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14667,7 +14667,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jail, type: jail -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_JAIL -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_JAIL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -14867,7 +14867,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jail, type: indian_mausoleum -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_INDIAN_MAUSOLEUM -->
 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
 			<Type>BUILDING_INDIAN_MAUSOLEUM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15285,7 +15285,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: levee, type: levee -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LEVEE, type: BUILDING_LEVEE -->
 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
 			<Type>BUILDING_LEVEE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15452,7 +15452,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: levee, type: netherlands_levee -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LEVEE, type: BUILDING_NETHERLANDS_DIKE -->
 			<BuildingClass>BUILDINGCLASS_LEVEE</BuildingClass>
 			<Type>BUILDING_NETHERLANDS_DIKE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15621,7 +15621,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: intelligence_agency, type: intelligence_agency -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_INTELLIGENCE_AGENCY, type: BUILDING_INTELLIGENCE_AGENCY -->
 			<BuildingClass>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClass>
 			<Type>BUILDING_INTELLIGENCE_AGENCY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15798,7 +15798,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: security_bureau, type: security_bureau -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SECURITY_BUREAU, type: BUILDING_SECURITY_BUREAU -->
 			<BuildingClass>BUILDINGCLASS_SECURITY_BUREAU</BuildingClass>
 			<Type>BUILDING_SECURITY_BUREAU</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -15971,7 +15971,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_temple, type: pagan_temple -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_TEMPLE, type: BUILDING_PAGAN_TEMPLE -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
 			<Type>BUILDING_PAGAN_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -16157,7 +16157,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_cathedral, type: pagan_cathedral -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_CATHEDRAL, type: BUILDING_PAGAN_CATHEDRAL -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_PAGAN_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -16351,7 +16351,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_monastery, type: pagan_monastery -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_MONASTERY, type: BUILDING_PAGAN_MONASTERY -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
 			<Type>BUILDING_PAGAN_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -16540,7 +16540,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pagan_shrine, type: pagan_shrine -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PAGAN_SHRINE, type: BUILDING_PAGAN_SHRINE -->
 			<BuildingClass>BUILDINGCLASS_PAGAN_SHRINE</BuildingClass>
 			<Type>BUILDING_PAGAN_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -16733,7 +16733,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_temple, type: hindu_temple -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_TEMPLE, type: BUILDING_HINDU_TEMPLE -->
 			<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
 			<Type>BUILDING_HINDU_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -16919,7 +16919,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_cathedral, type: hindu_cathedral -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_CATHEDRAL, type: BUILDING_HINDU_CATHEDRAL -->
 			<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_HINDU_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -17113,7 +17113,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_monastery, type: hindu_monastery -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_MONASTERY, type: BUILDING_HINDU_MONASTERY -->
 			<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 			<Type>BUILDING_HINDU_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -17302,7 +17302,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hindu_shrine, type: hindu_shrine -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HINDU_SHRINE, type: BUILDING_HINDU_SHRINE -->
 			<BuildingClass>BUILDINGCLASS_HINDU_SHRINE</BuildingClass>
 			<Type>BUILDING_HINDU_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -17494,7 +17494,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_temple, type: jewish_temple -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_TEMPLE, type: BUILDING_JEWISH_TEMPLE -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
 			<Type>BUILDING_JEWISH_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -17680,7 +17680,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_cathedral, type: jewish_cathedral -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_CATHEDRAL, type: BUILDING_JEWISH_CATHEDRAL -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_JEWISH_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -17874,7 +17874,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_monastery, type: jewish_monastery -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_MONASTERY, type: BUILDING_JEWISH_MONASTERY -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
 			<Type>BUILDING_JEWISH_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -18063,7 +18063,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: jewish_shrine, type: jewish_shrine -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JEWISH_SHRINE, type: BUILDING_JEWISH_SHRINE -->
 			<BuildingClass>BUILDINGCLASS_JEWISH_SHRINE</BuildingClass>
 			<Type>BUILDING_JEWISH_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -18255,7 +18255,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_temple, type: daoist_temple -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_TEMPLE, type: BUILDING_DAOIST_TEMPLE -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
 			<Type>BUILDING_DAOIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -18442,7 +18442,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_cathedral, type: daoist_cathedral -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_CATHEDRAL, type: BUILDING_DAOIST_CATHEDRAL -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_DAOIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -18636,7 +18636,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_monastery, type: daoist_monastery -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_MONASTERY, type: BUILDING_DAOIST_MONASTERY -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
 			<Type>BUILDING_DAOIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -18825,7 +18825,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: daoist_shrine, type: daoist_shrine -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_SHRINE, type: BUILDING_DAOIST_SHRINE -->
 			<BuildingClass>BUILDINGCLASS_DAOIST_SHRINE</BuildingClass>
 			<Type>BUILDING_DAOIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -19017,7 +19017,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_temple, type: buddhist_temple -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_TEMPLE, type: BUILDING_BUDDHIST_TEMPLE -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_TEMPLE</BuildingClass>
 			<Type>BUILDING_BUDDHIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -19203,7 +19203,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_cathedral, type: buddhist_cathedral -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_CATHEDRAL, type: BUILDING_BUDDHIST_CATHEDRAL -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_BUDDHIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -19397,7 +19397,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_monastery, type: buddhist_monastery -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_MONASTERY, type: BUILDING_BUDDHIST_MONASTERY -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
 			<Type>BUILDING_BUDDHIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -19586,7 +19586,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: buddhist_shrine, type: buddhist_shrine -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BUDDHIST_SHRINE, type: BUILDING_BUDDHIST_SHRINE -->
 			<BuildingClass>BUILDINGCLASS_BUDDHIST_SHRINE</BuildingClass>
 			<Type>BUILDING_BUDDHIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -19778,7 +19778,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_temple, type: christian_temple -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_TEMPLE, type: BUILDING_CHRISTIAN_TEMPLE -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -19964,7 +19964,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_cathedral, type: christian_cathedral -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_CATHEDRAL, type: BUILDING_CHRISTIAN_CATHEDRAL -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -20158,7 +20158,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_monastery, type: christian_monastery -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_MONASTERY, type: BUILDING_CHRISTIAN_MONASTERY -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -20347,7 +20347,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: christian_shrine, type: christian_shrine -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CHRISTIAN_SHRINE, type: BUILDING_CHRISTIAN_SHRINE -->
 			<BuildingClass>BUILDINGCLASS_CHRISTIAN_SHRINE</BuildingClass>
 			<Type>BUILDING_CHRISTIAN_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -20539,7 +20539,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_temple, type: islamic_temple -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_TEMPLE, type: BUILDING_ISLAMIC_TEMPLE -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
 			<Type>BUILDING_ISLAMIC_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
@@ -20725,7 +20725,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_cathedral, type: islamic_cathedral -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_CATHEDRAL, type: BUILDING_ISLAMIC_CATHEDRAL -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
 			<Type>BUILDING_ISLAMIC_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
@@ -20919,7 +20919,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_monastery, type: islamic_monastery -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_MONASTERY, type: BUILDING_ISLAMIC_MONASTERY -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 			<Type>BUILDING_ISLAMIC_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
@@ -21108,7 +21108,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: islamic_shrine, type: islamic_shrine -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ISLAMIC_SHRINE, type: BUILDING_ISLAMIC_SHRINE -->
 			<BuildingClass>BUILDINGCLASS_ISLAMIC_SHRINE</BuildingClass>
 			<Type>BUILDING_ISLAMIC_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21300,7 +21300,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: heroic_epic, type: heroic_epic -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HEROIC_EPIC, type: BUILDING_HEROIC_EPIC -->
 			<BuildingClass>BUILDINGCLASS_HEROIC_EPIC</BuildingClass>
 			<Type>BUILDING_HEROIC_EPIC</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21483,7 +21483,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: national_epic, type: national_epic -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATIONAL_EPIC, type: BUILDING_NATIONAL_EPIC -->
 			<BuildingClass>BUILDINGCLASS_NATIONAL_EPIC</BuildingClass>
 			<Type>BUILDING_NATIONAL_EPIC</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21669,7 +21669,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: globe_theatre, type: globe_theatre -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GLOBE_THEATRE, type: BUILDING_GLOBE_THEATRE -->
 			<BuildingClass>BUILDINGCLASS_GLOBE_THEATRE</BuildingClass>
 			<Type>BUILDING_GLOBE_THEATRE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -21872,7 +21872,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: national_park, type: national_park -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATIONAL_PARK, type: BUILDING_NATIONAL_PARK -->
 			<BuildingClass>BUILDINGCLASS_NATIONAL_PARK</BuildingClass>
 			<Type>BUILDING_NATIONAL_PARK</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22041,7 +22041,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hermitage, type: hermitage -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HERMITAGE, type: BUILDING_HERMITAGE -->
 			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
 			<Type>BUILDING_HERMITAGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22222,7 +22222,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: wall_street, type: wall_street -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_WALL_STREET, type: BUILDING_WALL_STREET -->
 			<BuildingClass>BUILDINGCLASS_WALL_STREET</BuildingClass>
 			<Type>BUILDING_WALL_STREET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22403,7 +22403,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: iron_works, type: iron_works -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_IRON_WORKS, type: BUILDING_IRON_WORKS -->
 			<BuildingClass>BUILDINGCLASS_IRON_WORKS</BuildingClass>
 			<Type>BUILDING_IRON_WORKS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22604,7 +22604,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: mt_rushmore, type: mt_rushmore -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MT_RUSHMORE, type: BUILDING_MT_RUSHMORE -->
 			<BuildingClass>BUILDINGCLASS_MT_RUSHMORE</BuildingClass>
 			<Type>BUILDING_MT_RUSHMORE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22794,7 +22794,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: red_cross, type: red_cross -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_RED_CROSS, type: BUILDING_RED_CROSS -->
 			<BuildingClass>BUILDINGCLASS_RED_CROSS</BuildingClass>
 			<Type>BUILDING_RED_CROSS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -22986,7 +22986,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: scotland_yard, type: scotland_yard -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SCOTLAND_YARD, type: BUILDING_SCOTLAND_YARD -->
 			<BuildingClass>BUILDINGCLASS_SCOTLAND_YARD</BuildingClass>
 			<Type>BUILDING_SCOTLAND_YARD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23156,7 +23156,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pyramid, type: pyramid -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PYRAMID, type: BUILDING_PYRAMID -->
 			<BuildingClass>BUILDINGCLASS_PYRAMID</BuildingClass>
 			<Type>BUILDING_PYRAMID</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23355,7 +23355,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: stonehendge, type: stonehenge -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STONEHENGE, type: BUILDING_STONEHENGE -->
 			<BuildingClass>BUILDINGCLASS_STONEHENGE</BuildingClass>
 			<Type>BUILDING_STONEHENGE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23539,7 +23539,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_library, type: great_library -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GREAT_LIBRARY, type: BUILDING_GREAT_LIBRARY -->
 			<BuildingClass>BUILDINGCLASS_GREAT_LIBRARY</BuildingClass>
 			<Type>BUILDING_GREAT_LIBRARY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23733,7 +23733,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_lighthouse, type: great_lighthouse -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GREAT_LIGHTHOUSE, type: BUILDING_GREAT_LIGHTHOUSE -->
 			<BuildingClass>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClass>
 			<Type>BUILDING_GREAT_LIGHTHOUSE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -23936,7 +23936,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hanging_garden, type: hanging_garden -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HANGING_GARDEN, type: BUILDING_HANGING_GARDEN -->
 			<BuildingClass>BUILDINGCLASS_HANGING_GARDEN</BuildingClass>
 			<Type>BUILDING_HANGING_GARDEN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24128,7 +24128,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: colossus, type: colossus -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COLOSSUS, type: BUILDING_COLOSSUS -->
 			<BuildingClass>BUILDINGCLASS_COLOSSUS</BuildingClass>
 			<Type>BUILDING_COLOSSUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24346,7 +24346,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: oracle, type: oracle -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ORACLE, type: BUILDING_ORACLE -->
 			<BuildingClass>BUILDINGCLASS_ORACLE</BuildingClass>
 			<Type>BUILDING_ORACLE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24529,7 +24529,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: parthenon, type: parthenon -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PARTHENON, type: BUILDING_PARTHENON -->
 			<BuildingClass>BUILDINGCLASS_PARTHENON</BuildingClass>
 			<Type>BUILDING_PARTHENON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24724,7 +24724,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: angkor_wat, type: angkor_wat -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ANGKOR_WAT, type: BUILDING_ANGKOR_WAT -->
 			<BuildingClass>BUILDINGCLASS_ANGKOR_WAT</BuildingClass>
 			<Type>BUILDING_ANGKOR_WAT</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -24932,7 +24932,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: reworked hagia_sophia, now a growth / religious building that never obsoletes at least as of now -->
-		<BuildingInfo> <!-- custom: class: hagia_sophia, type: hagia_sophia -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HAGIA_SOPHIA, type: BUILDING_HAGIA_SOPHIA -->
 			<BuildingClass>BUILDINGCLASS_HAGIA_SOPHIA</BuildingClass>
 			<Type>BUILDING_HAGIA_SOPHIA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25127,7 +25127,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: TEMPLE_OF_KUKULCAN, type: TEMPLE_OF_KUKULCAN -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TEMPLE_OF_KUKULCAN, type: BUILDING_TEMPLE_OF_KUKULCAN -->
 			<BuildingClass>BUILDINGCLASS_TEMPLE_OF_KUKULCAN</BuildingClass>
 			<Type>BUILDING_TEMPLE_OF_KUKULCAN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25536,7 +25536,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: spiral_minaret, type: spiral_minaret -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SPIRAL_MINARET, type: BUILDING_SPIRAL_MINARET -->
 			<BuildingClass>BUILDINGCLASS_SPIRAL_MINARET</BuildingClass>
 			<Type>BUILDING_SPIRAL_MINARET</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25721,7 +25721,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: oxford_university, type: oxford_university -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_OXFORD_UNIVERSITY, type: BUILDING_OXFORD_UNIVERSITY -->
 			<BuildingClass>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClass>
 			<Type>BUILDING_OXFORD_UNIVERSITY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -25924,7 +25924,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: notre_dame, type: notre_dame -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NOTRE_DAME, type: BUILDING_NOTRE_DAME -->
 			<BuildingClass>BUILDINGCLASS_NOTRE_DAME</BuildingClass>
 			<Type>BUILDING_NOTRE_DAME</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26131,7 +26131,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: taj_mahal, type: taj_mahal -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TAJ_MAHAL, type: BUILDING_TAJ_MAHAL -->
 			<BuildingClass>BUILDINGCLASS_TAJ_MAHAL</BuildingClass>
 			<Type>BUILDING_TAJ_MAHAL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26328,7 +26328,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: kremlin, type: kremlin -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_KREMLIN, type: BUILDING_KREMLIN -->
 			<BuildingClass>BUILDINGCLASS_KREMLIN</BuildingClass>
 			<Type>BUILDING_KREMLIN</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26515,7 +26515,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: eiffel_tower, type: eiffel_tower -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_EIFFEL_TOWER, type: BUILDING_EIFFEL_TOWER -->
 			<BuildingClass>BUILDINGCLASS_EIFFEL_TOWER</BuildingClass>
 			<Type>BUILDING_EIFFEL_TOWER</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26714,7 +26714,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: statue_of_liberty, type: statue_of_liberty -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STATUE_OF_LIBERTY, type: BUILDING_STATUE_OF_LIBERTY -->
 			<BuildingClass>BUILDINGCLASS_STATUE_OF_LIBERTY</BuildingClass>
 			<Type>BUILDING_STATUE_OF_LIBERTY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -26913,7 +26913,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: broadway, type: broadway -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BROADWAY, type: BUILDING_BROADWAY -->
 			<BuildingClass>BUILDINGCLASS_BROADWAY</BuildingClass>
 			<Type>BUILDING_BROADWAY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27114,7 +27114,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: rocknroll, type: rocknroll -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ROCKNROLL, type: BUILDING_ROCKNROLL -->
 			<BuildingClass>BUILDINGCLASS_ROCKNROLL</BuildingClass>
 			<Type>BUILDING_ROCKNROLL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27298,7 +27298,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: hollywood, type: hollywood -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_HOLLYWOOD, type: BUILDING_HOLLYWOOD -->
 			<BuildingClass>BUILDINGCLASS_HOLLYWOOD</BuildingClass>
 			<Type>BUILDING_HOLLYWOOD</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27474,7 +27474,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: three_gorges_dam, type: three_gorges_dam -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_THREE_GORGES_DAM, type: BUILDING_THREE_GORGES_DAM -->
 			<BuildingClass>BUILDINGCLASS_THREE_GORGES_DAM</BuildingClass>
 			<Type>BUILDING_THREE_GORGES_DAM</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27656,7 +27656,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: pentagon, type: pentagon -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_PENTAGON, type: BUILDING_PENTAGON -->
 			<BuildingClass>BUILDINGCLASS_PENTAGON</BuildingClass>
 			<Type>BUILDING_PENTAGON</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27828,7 +27828,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: united_nations, type: united_nations -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_UNITED_NATIONS, type: BUILDING_UNITED_NATIONS -->
 			<BuildingClass>BUILDINGCLASS_UNITED_NATIONS</BuildingClass>
 			<Type>BUILDING_UNITED_NATIONS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -27995,7 +27995,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: military_academy, type: military_academy -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MILITARY_ACADEMY, type: BUILDING_MILITARY_ACADEMY -->
 			<BuildingClass>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClass>
 			<Type>BUILDING_MILITARY_ACADEMY</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28168,7 +28168,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: artemis, type: artemis -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_ARTEMIS, type: BUILDING_ARTEMIS -->
 			<BuildingClass>BUILDINGCLASS_ARTEMIS</BuildingClass>
 			<Type>BUILDING_ARTEMIS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28377,7 +28377,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: sankore, type: sankore -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SANKORE, type: BUILDING_SANKORE -->
 			<BuildingClass>BUILDINGCLASS_SANKORE</BuildingClass>
 			<Type>BUILDING_SANKORE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28581,7 +28581,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: great_wall, type: great_wall -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_GREAT_WALL, type: BUILDING_GREAT_WALL -->
 			<BuildingClass>BUILDINGCLASS_GREAT_WALL</BuildingClass>
 			<Type>BUILDING_GREAT_WALL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28795,7 +28795,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: statue_of_zeus, type: statue_of_zeus -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_STATUE_OF_ZEUS, type: BUILDING_STATUE_OF_ZEUS -->
 			<BuildingClass>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClass>
 			<Type>BUILDING_STATUE_OF_ZEUS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -28984,7 +28984,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: mausolleum_of_mausollos, type: mausolleum_of_mausollos -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS, type: BUILDING_MAUSOLEUM_OF_MAUSSOLLOS -->
 			<BuildingClass>BUILDINGCLASS_MAUSOLEUM_OF_MAUSSOLLOS</BuildingClass>
 			<Type>BUILDING_MAUSOLEUM_OF_MAUSSOLLOS</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29174,7 +29174,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: cristo_redentor, type: cristo_redentor -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CRISTO_REDENTOR, type: BUILDING_CRISTO_REDENTOR -->
 			<BuildingClass>BUILDINGCLASS_CRISTO_REDENTOR</BuildingClass>
 			<Type>BUILDING_CRISTO_REDENTOR</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29389,7 +29389,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: shwedagon_paya, type: shwedagon_paya -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SHWEDAGON_PAYA, type: BUILDING_SHWEDAGON_PAYA -->
 			<BuildingClass>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClass>
 			<Type>BUILDING_SHWEDAGON_PAYA</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29592,7 +29592,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
 		<!-- custom: now reworked moai_statues, is a world wonder available much later with a stronger effect global to all cities, hopefully historically accurate as they were built much later  anyways and after checking more seems really an accurate time around pre-(age of)exploration astronomy etc in https://en.wikipedia.org/wiki/Moai#History -->
-		<BuildingInfo> <!-- custom: class: moai_statues, type: moai_statues -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MOAI_STATUES, type: BUILDING_MOAI_STATUES -->
 			<BuildingClass>BUILDINGCLASS_MOAI_STATUES</BuildingClass>
 			<Type>BUILDING_MOAI_STATUES</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29784,7 +29784,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: versailles, type: versailles -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_VERSAILLES, type: BUILDING_VERSAILLES -->
 			<BuildingClass>BUILDINGCLASS_VERSAILLES</BuildingClass>
 			<Type>BUILDING_VERSAILLES</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -29993,7 +29993,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_1, type: corporation_1 -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_1, type: BUILDING_CORPORATION_1 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_1</BuildingClass>
 			<Type>BUILDING_CORPORATION_1</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30171,7 +30171,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_2, type: corporation_2 -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_2, type: BUILDING_CORPORATION_2 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_2</BuildingClass>
 			<Type>BUILDING_CORPORATION_2</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30350,7 +30350,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_3, type: corporation_3 -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_3, type: BUILDING_CORPORATION_3 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_3</BuildingClass>
 			<Type>BUILDING_CORPORATION_3</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30528,7 +30528,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_4, type: corporation_4 -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_4, type: BUILDING_CORPORATION_4 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_4</BuildingClass>
 			<Type>BUILDING_CORPORATION_4</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30708,7 +30708,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_5, type: corporation_5 -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_5, type: BUILDING_CORPORATION_5 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_5</BuildingClass>
 			<Type>BUILDING_CORPORATION_5</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -30886,7 +30886,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_6, type: corporation_6 -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_6, type: BUILDING_CORPORATION_6 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_6</BuildingClass>
 			<Type>BUILDING_CORPORATION_6</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
@@ -31065,7 +31065,7 @@
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: corporation_7, type: corporation_7 -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_CORPORATION_7, type: BUILDING_CORPORATION_7 -->
 			<BuildingClass>BUILDINGCLASS_CORPORATION_7</BuildingClass>
 			<Type>BUILDING_CORPORATION_7</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>

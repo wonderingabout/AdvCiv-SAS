@@ -7,7 +7,7 @@
 <!-- custom: Added new Build Help/Civilopedia text keys (GPT-5.2-Codex). Generated with the help of ChatGPT-5.2 Thinking. -->
 <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<BuildInfos>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_ROAD (useful for VS Code upper tree view while scrolling) -->
 			<Type>BUILD_ROAD</Type>
 			<Description>TXT_KEY_BUILD_ROAD</Description>
 			<Help>TXT_KEY_BUILD_ROAD_HELP</Help>
@@ -27,7 +27,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildRoad.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_RAILROAD -->
 			<Type>BUILD_RAILROAD</Type>
 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
 			<Help>TXT_KEY_BUILD_RAILROAD_HELP</Help>
@@ -48,7 +48,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildRailroad.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FARM -->
 			<Type>BUILD_FARM</Type>
 			<Description>TXT_KEY_BUILD_FARM</Description>
 			<Help>TXT_KEY_BUILD_FARM_HELP</Help>
@@ -92,7 +92,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildFarm.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FISHING_BOATS -->
 			<Type>BUILD_FISHING_BOATS</Type>
 			<Description>TXT_KEY_BUILD_FISHING_BOATS</Description>
 			<Help>TXT_KEY_BUILD_FISHING_BOATS_HELP</Help>
@@ -112,7 +112,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildFishingBoats.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WHALING_BOATS -->
 			<Type>BUILD_WHALING_BOATS</Type>
 			<Description>TXT_KEY_BUILD_WHALING_BOATS</Description>
 			<Help>TXT_KEY_BUILD_WHALING_BOATS_HELP</Help>
@@ -132,7 +132,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWhalingBoats.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_MINE -->
 			<Type>BUILD_MINE</Type>
 			<Description>TXT_KEY_BUILD_MINE</Description>
 			<Help>TXT_KEY_BUILD_MINE_HELP</Help>
@@ -176,7 +176,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildMine.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WORKSHOP -->
 			<Type>BUILD_WORKSHOP</Type>
 			<Description>TXT_KEY_BUILD_WORKSHOP</Description>
 			<Help>TXT_KEY_BUILD_WORKSHOP_HELP</Help>
@@ -221,7 +221,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWorkshop.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,8,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_LUMBERMILL -->
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
 			<Help>TXT_KEY_BUILD_LUMBERMILL_HELP</Help>
@@ -244,7 +244,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildLumberMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,5,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WINDMILL -->
 			<Type>BUILD_WINDMILL</Type>
 			<Description>TXT_KEY_BUILD_WINDMILL</Description>
 			<Help>TXT_KEY_BUILD_WINDMILL_HELP</Help>
@@ -289,7 +289,7 @@
 			<Button>,Art/Interface/Buttons/Builds/BuildWindMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,5,8</Button>
 		</BuildInfo>
 		<!-- advc.902: Reduced build time from 800 to 400. -->
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WATERMILL -->
 			<Type>BUILD_WATERMILL</Type>
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
 			<Help>TXT_KEY_BUILD_WATERMILL_HELP</Help>
@@ -334,7 +334,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWaterMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_PLANTATION -->
 			<Type>BUILD_PLANTATION</Type>
 			<Description>TXT_KEY_BUILD_PLANTATION</Description>
 			<Help>TXT_KEY_BUILD_PLANTATION_HELP</Help>
@@ -378,7 +378,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildPlantation.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_QUARRY -->
 			<Type>BUILD_QUARRY</Type>
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
 			<Help>TXT_KEY_BUILD_QUARRY_HELP</Help>
@@ -423,7 +423,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildQuarry.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_PASTURE -->
 			<Type>BUILD_PASTURE</Type>
 			<Description>TXT_KEY_BUILD_PASTURE</Description>
 			<Help>TXT_KEY_BUILD_PASTURE_HELP</Help>
@@ -467,7 +467,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildPasture.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,8,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_CAMP -->
 			<Type>BUILD_CAMP</Type>
 			<Description>TXT_KEY_BUILD_CAMP</Description>
 			<Help>TXT_KEY_BUILD_CAMP_HELP</Help>
@@ -496,7 +496,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildCamp.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WELL -->
 			<Type>BUILD_WELL</Type>
 			<Description>TXT_KEY_BUILD_WELL</Description>
 			<Help>TXT_KEY_BUILD_WELL_HELP</Help>
@@ -540,7 +540,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWell.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_OFFSHORE_PLATFORM -->
 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
 			<Help>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Help>
@@ -561,7 +561,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildOffshorePlatform.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_COTTAGE -->
 			<Type>BUILD_COTTAGE</Type>
 			<Description>TXT_KEY_BUILD_COTTAGE</Description>
 			<Help>TXT_KEY_BUILD_COTTAGE_HELP</Help>
@@ -605,7 +605,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildCottage.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FORT -->
 			<Type>BUILD_FORT</Type>
 			<Description>TXT_KEY_BUILD_FORT</Description>
 			<Help>TXT_KEY_BUILD_FORT_HELP</Help>
@@ -635,7 +635,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildFort.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_REMOVE_JUNGLE -->
 			<Type>BUILD_REMOVE_JUNGLE</Type>
 			<Description>TXT_KEY_BUILD_REMOVE_JUNGLE</Description>
 			<Help>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Help>
@@ -666,7 +666,7 @@
 			<!-- custom: import from the Middle-earth mod's PROJECT_ANGRIST thanks a lot! -->
 			<Button>Art/AdvCiv_SAS/Builds/Remove_Jungle/Angrist.dds</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_REMOVE_FOREST -->
 			<Type>BUILD_REMOVE_FOREST</Type>
 			<Description>TXT_KEY_BUILD_REMOVE_FOREST</Description>
 			<Help>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Help>
@@ -697,7 +697,7 @@
 			<Button>Art/AdvCiv_SAS/Builds/Remove_Forest/DurinsAxe.dds</Button>
 		</BuildInfo>
 		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context -->
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_SCRUB_FALLOUT -->
 			<Type>BUILD_SCRUB_FALLOUT</Type>
 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>
 			<Help>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Help>
@@ -726,7 +726,7 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildScrubFallout.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FOREST_PRESERVE -->
 			<Type>BUILD_FOREST_PRESERVE</Type>
 			<Description>TXT_KEY_BUILD_FOREST_PRESERVE</Description>
 			<Help>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Help>

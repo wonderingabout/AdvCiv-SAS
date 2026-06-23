@@ -7,7 +7,7 @@
 <!-- custom: Long_Comments_XML.txt #6 -->
 <Civ4CivicInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<CivicInfos>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_DESPOTISM (useful for VS Code upper tree view while scrolling) -->
 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
 			<Type>CIVIC_DESPOTISM</Type>
 			<Description>TXT_KEY_CIVIC_DESPOTISM</Description>
@@ -71,7 +71,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_DESPOT</WeLoveTheKing>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_HEREDITARY_RULE -->
 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
 			<Type>CIVIC_HEREDITARY_RULE</Type>
 			<Description>TXT_KEY_CIVIC_HEREDITARY_RULE</Description>
@@ -140,7 +140,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_MONARCH</WeLoveTheKing>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_REPRESENTATION -->
 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
 			<Type>CIVIC_REPRESENTATION</Type>
 			<Description>TXT_KEY_CIVIC_REPRESENTATION</Description>
@@ -212,7 +212,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_PRIME_MINISTER</WeLoveTheKing>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_UNIVERSAL_SUFFRAGE -->
 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
 			<Type>CIVIC_UNIVERSAL_SUFFRAGE</Type>
 			<Description>TXT_KEY_CIVIC_UNIVERSAL_SUFFRAGE</Description>
@@ -299,7 +299,7 @@
 			</ImprovementYieldChanges>
 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_PRESIDENT</WeLoveTheKing>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_POLICE_STATE -->
 			<CivicOptionType>CIVICOPTION_GOVERNMENT</CivicOptionType>
 			<Type>CIVIC_POLICE_STATE</Type>
 			<Description>TXT_KEY_CIVIC_POLICE_STATE</Description>
@@ -370,7 +370,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing>TXT_KEY_CIVIC_WE_LOVE_DICTATOR</WeLoveTheKing>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_BARBARISM -->
 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
 			<Type>CIVIC_BARBARISM</Type>
 			<Description>TXT_KEY_CIVIC_BARBARISM</Description>
@@ -434,7 +434,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_BUREAUCRACY -->
 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
 			<Type>CIVIC_BUREAUCRACY</Type>
 			<Description>TXT_KEY_CIVIC_BUREAUCRACY</Description>
@@ -504,7 +504,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_VASSALAGE -->
 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
 			<Type>CIVIC_VASSALAGE</Type>
 			<Description>TXT_KEY_CIVIC_VASSALAGE</Description>
@@ -573,7 +573,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_FREE_SPEECH -->
 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
 			<Type>CIVIC_FREE_SPEECH</Type>
 			<Description>TXT_KEY_CIVIC_FREE_SPEECH</Description>
@@ -657,7 +657,7 @@
 			</ImprovementYieldChanges>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_NATIONHOOD -->
 			<CivicOptionType>CIVICOPTION_LEGAL</CivicOptionType>
 			<Type>CIVIC_NATIONHOOD</Type>
 			<Description>TXT_KEY_CIVIC_NATIONHOOD</Description>
@@ -739,7 +739,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_TRIBALISM -->
 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
 			<Type>CIVIC_TRIBALISM</Type>
 			<Description>TXT_KEY_CIVIC_TRIBALISM</Description>
@@ -803,7 +803,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_SLAVERY -->
 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
 			<Type>CIVIC_SLAVERY</Type>
 			<Description>TXT_KEY_CIVIC_SLAVERY</Description>
@@ -874,7 +874,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_CASTE_SYSTEM -->
 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
 			<Type>CIVIC_CASTE_SYSTEM</Type>
 			<Description>TXT_KEY_CIVIC_CASTE_SYSTEM</Description>
@@ -961,7 +961,7 @@
 			</ImprovementYieldChanges>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_SERFDOM -->
 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
 			<Type>CIVIC_SERFDOM</Type>
 			<Description>TXT_KEY_CIVIC_SERFDOM</Description>
@@ -1067,7 +1067,7 @@
 			</ImprovementYieldChanges>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_WAGE_LABOR -->
 			<CivicOptionType>CIVICOPTION_LABOR</CivicOptionType>
 			<Type>CIVIC_WAGE_LABOR</Type>
 			<Description>TXT_KEY_CIVIC_WAGE_LABOR</Description>
@@ -1147,7 +1147,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_DECENTRALIZATION -->
 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
 			<Type>CIVIC_DECENTRALIZATION</Type>
 			<Description>TXT_KEY_CIVIC_DECENTRALIZATION</Description>
@@ -1212,7 +1212,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_PROTECTIONISM -->
 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
 			<Type>CIVIC_PROTECTIONISM</Type>
 			<Description>TXT_KEY_CIVIC_PROTECTIONISM</Description>
@@ -1285,7 +1285,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_TRADE_BLOC -->
 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
 			<!-- custom: replace the old CIVIC ENVIRONMENTALISM which had nothing to do with economy, plus: "also their entry was incredibly ideologically stupid, partisan/subjective, and bigoted, just like how the old pedia entry at TECH_ECOLOGY was (now fixed/enhanced i mean) (and ignorant too i mean, not that i know all but it was incredibly stupid, the old entry)" -->
 			<Type>CIVIC_TRADE_BLOC</Type>
@@ -1365,7 +1365,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_FREE_MARKET -->
 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
 			<Type>CIVIC_FREE_MARKET</Type>
 			<Description>TXT_KEY_CIVIC_FREE_MARKET</Description>
@@ -1445,7 +1445,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_STATE_PROPERTY -->
 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
 			<Type>CIVIC_STATE_PROPERTY</Type>
 			<Description>TXT_KEY_CIVIC_STATE_PROPERTY</Description>
@@ -1543,7 +1543,7 @@
 			</ImprovementYieldChanges>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_PREHISTORIC_RELIGION -->
 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
 			<Type>CIVIC_PREHISTORIC_RELIGION</Type>
 			<Description>TXT_KEY_CIVIC_PREHISTORIC_RELIGION</Description>
@@ -1607,7 +1607,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_ORGANIZED_RELIGION -->
 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
 			<Type>CIVIC_ORGANIZED_RELIGION</Type>
 			<Description>TXT_KEY_CIVIC_ORGANIZED_RELIGION</Description>
@@ -1688,7 +1688,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_PACIFISM -->
 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
 			<Type>CIVIC_PACIFISM</Type>
 			<Description>TXT_KEY_CIVIC_PACIFISM</Description>
@@ -1757,7 +1757,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_THEOCRACY -->
 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
 			<Type>CIVIC_THEOCRACY</Type>
 			<Description>TXT_KEY_CIVIC_THEOCRACY</Description>
@@ -1828,7 +1828,7 @@
 			<ImprovementYieldChanges/>
 			<WeLoveTheKing/>
 		</CivicInfo>
-		<CivicInfo>
+		<CivicInfo> <!-- custom: CIVIC_FREE_RELIGION -->
 			<CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
 			<Type>CIVIC_FREE_RELIGION</Type>
 			<Description>TXT_KEY_CIVIC_FREE_RELIGION</Description>
