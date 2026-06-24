@@ -767,6 +767,10 @@ def chart_beautify_enum_name(raw_name):
 	name = re.sub(r"_", " ", name)
 	return name.title()
 
+def chart_get_info_display_name(info):
+	# <!-- custom: Use XML/text descriptions for player-facing chart labels so custom punctuation/wording is preserved; missing text should be fixed in XML/text, not hidden by enum-name fallback. (ChatGPT-5.5) -->
+	return info.getDescription()
+
 def chart_chunk_list(items, size):
 	# Split a list into chunks of given size. Returns list of lists.
 	if size <= 0:

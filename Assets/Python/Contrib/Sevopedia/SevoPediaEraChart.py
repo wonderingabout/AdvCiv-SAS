@@ -296,7 +296,7 @@ class SevoPediaEraChart:
 		for iEra in xrange(gc.getNumEraInfos()):
 			info = gc.getEraInfo(iEra)
 			era_types.append(info.getType())
-			era_labels.append(info.getDescription())
+			era_labels.append(chart_get_info_display_name(info))
 
 		parsed_data = {}
 		for iEra in xrange(gc.getNumEraInfos()):
@@ -319,9 +319,7 @@ class SevoPediaEraChart:
 			iEra = tech_info.getEra()
 			if iEra < 0 or iEra >= len(era_types):
 				continue
-			tech_name = tech_info.getDescription()
-			if not tech_name:
-				tech_name = chart_beautify_enum_name(tech_info.getType())
+			tech_name = chart_get_info_display_name(tech_info)
 			techs_by_era[era_types[iEra]].append(tech_name)
 
 		for era_type in era_types:

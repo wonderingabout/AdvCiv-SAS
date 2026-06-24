@@ -2440,9 +2440,9 @@ HandicapTypes CvTeam::getHandicapType() const
 	}
 
 	//FAssert((iGameHandicap / iDiv) >= 0);
-	// advc.250a: (also disabled the assertion above)
-	return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1,
-			(iGameHandicap / (10 * iDiv)));
+	// <!-- custom: iDifficulty is a score/rating in XML, not always enum index * 10. (ChatGPT-5.5) -->
+	// return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1, (iGameHandicap / (10 * iDiv))); // advc.250a: (also disabled the assertion above)
+	return handicapFromDifficulty(intdiv::round(iGameHandicap, iDiv));
 
 }
 

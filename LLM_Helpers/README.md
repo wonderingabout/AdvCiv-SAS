@@ -662,24 +662,23 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iteratio
 
 - Report-only. Does not modify source files.
 - Compares one `CIV4HandicapInfo.xml` against another; pass both XML paths explicitly.
-- Compares handicap entries by XML order/index, so added/removed difficulties in other mods show with the missing side blank instead of relying on hardcoded difficulty names.
-- Missing/new fields on either side are also shown with the missing side blank.
-- Adds a separate entry table with each index's left/right `Type` and `Description`, then lists changed fields by index.
+- Compares handicap entries in target/file 2 XML order. Exact `<Type>` matches are used when available. Target-only entries are compared to the nearest shared boundary dynamically, so a new lowest difficulty is compared to the base file's lowest shared difficulty and a new highest difficulty is compared to the base file's highest shared difficulty without hardcoding difficulty names. Left-only entries are listed at the end.
+- Missing/new fields on either side are shown with the missing side blank.
+- Adds a separate entry table with each compared row's left/right `Type`, `Description`, and match note, then lists changed fields by compared row.
 - Flattens handicap XML by field path and writes an LLM-friendly Markdown table with flat numeric deltas and percentage deltas, computed as `(file 2 - file 1) / file 1` when both values are numeric and file 1 is nonzero.
 - Repeated XML collections such as `Goodies`, `FreeTechs`, and `AIFreeTechs` are compared as compact counted lists instead of noisy index-by-index rows.
 - Writes timestamped output to `LLM_Helpers\outputs\handicap_compare_<UTC-ISO>.md` by default; this folder is git-ignored.
 - `--example-output` writes to `LLM_Helpers\examples\handicap_infos_compared.md` instead, useful when publishing a stable hosted example URL.
 - The report includes its UTC run time, output path, and full input paths because XML assets can change between analysis runs.
-- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each handicap index. For changed-field reports, unchanged cells are still filled when they belong to a shown field, so a row such as `iFreeUnits` shows the full handicap curve. Empty cells mean no matching value on that side.
+- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each compared row. For changed-field reports, unchanged cells are still filled when they belong to a shown field, so a row such as `iFreeUnits` shows the full handicap curve. Empty cells mean no matching value on that side.
 - Optional `--file1-label`/`--file2-label` labels make published examples clearer while the defaults stay generic.
 - `--tsv-output` optionally writes the same matrix as a separate `.tsv` file too.
 - Created with GPT-5.5/Codex and reviewed with GPT-5.5-Thinking.
 
+Examples of use (PowerShell):
+
 ```powershell
-python LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS"
-python LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS" --example-output
-python LLM_Helpers\compare_handicap_infos.py "..\SomeMod\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label SomeMod --file2-label AdvCiv-SAS --output C:\tmp\handicap_compare.md --tsv-output C:\tmp\handicap_compare.tsv
-python LLM_Helpers\compare_handicap_infos.py C:\tmp\file1.xml C:\tmp\file2.xml
+Set-Location -LiteralPath "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; $ts=(Get-Date).ToUniversalTime().ToString("yyyyMMdd'T'HHmmss'Z'"); New-Item -ItemType Directory -Force -Path ".\LLM_Helpers\outputs" | Out-Null; python .\LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" ".\Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS" --output ".\LLM_Helpers\outputs\handicap_compare_$ts.md" --tsv-output ".\LLM_Helpers\outputs\handicap_compare_$ts.tsv"; Write-Host "Output: LLM_Helpers\outputs\handicap_compare_$ts.md"
 ```
 
 ## Static audit helpers

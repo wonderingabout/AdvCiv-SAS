@@ -138,17 +138,67 @@ def numeric_delta_percent(base, compare):
 def md_cell(value):
     return str(value).replace("\\", "\\\\").replace("|", "\\|").replace("\r", " ").replace("\n", " ")
 
-def collect_diffs(left_data, right_data, include_unchanged):
+def dict_by_type(data):
+    return dict((h_type, fields) for h_type, fields in data)
+
+def infer_left_type_for_right_index(right_idx, left_data, right_data):
+    # <!-- custom: Prefer exact <Type> matches, but keep target/right XML order readable when the target adds a new lowest or highest handicap. New target-only entries are compared to the nearest shared boundary dynamically, e.g. a new Rookie before Settler compares to the base file's lowest shared Settler without hardcoding Rookie/Settler names. (ChatGPT-5.5) -->
+    left_by_type = dict_by_type(left_data)
+    right_type = right_data[right_idx][0]
+    if right_type in left_by_type:
+        return right_type, "exact <Type> match"
+
+    shared = []
+    for idx, (candidate_type, _fields) in enumerate(right_data):
+        if candidate_type in left_by_type:
+            left_idx = [i for i, (left_type, _left_fields) in enumerate(left_data) if left_type == candidate_type][0]
+            shared.append((idx, left_idx, candidate_type))
+    if not shared:
+        if right_idx < len(left_data):
+            return left_data[right_idx][0], "fallback same XML index; no shared <Type> anchors"
+        return "", "no comparable entry"
+
+    before = [item for item in shared if item[0] < right_idx]
+    after = [item for item in shared if item[0] > right_idx]
+    if not before:
+        return after[0][2], "closest inferred boundary; target-only entry before first shared <Type>"
+    if not after:
+        return before[-1][2], "closest inferred boundary; target-only entry after last shared <Type>"
+
+    prev_item = before[-1]
+    next_item = after[0]
+    prev_distance = right_idx - prev_item[0]
+    next_distance = next_item[0] - right_idx
+    if prev_distance <= next_distance:
+        return prev_item[2], "closest inferred neighbor; target-only entry between shared <Type> anchors"
+    return next_item[2], "closest inferred neighbor; target-only entry between shared <Type> anchors"
+
+def collect_entry_pairs(left_data, right_data):
     rows = []
-    max_len = max(len(left_data), len(right_data))
-    for idx in range(max_len):
-        left_type, left_fields = ("", {})
-        right_type, right_fields = ("", {})
-        if idx < len(left_data):
-            left_type, left_fields = left_data[idx]
-        if idx < len(right_data):
-            right_type, right_fields = right_data[idx]
-        handicap = "#%02d" % idx
+    left_by_type = dict_by_type(left_data)
+    right_types = set(h_type for h_type, _fields in right_data)
+    paired_left_types = set()
+    for idx, (right_type, right_fields) in enumerate(right_data):
+        left_type, match_note = infer_left_type_for_right_index(idx, left_data, right_data)
+        left_fields = left_by_type.get(left_type, {})
+        if left_type:
+            paired_left_types.add(left_type)
+        rows.append(("#%02d" % idx, left_type, left_fields.get("/Description", ""), right_type, right_fields.get("/Description", ""), match_note))
+    for left_idx, (left_type, left_fields) in enumerate(left_data):
+        if left_type not in right_types and left_type not in paired_left_types:
+            rows.append(("left-only#%02d" % left_idx, left_type, left_fields.get("/Description", ""), "", "", "left-only entry; no target/right equivalent"))
+    return rows
+
+def fields_by_type(data):
+    return dict((h_type, fields) for h_type, fields in data)
+
+def collect_diffs(entry_pairs, left_data, right_data, include_unchanged):
+    rows = []
+    left_fields_by_type = fields_by_type(left_data)
+    right_fields_by_type = fields_by_type(right_data)
+    for handicap, left_type, _left_description, right_type, _right_description, _match_note in entry_pairs:
+        left_fields = left_fields_by_type.get(left_type, {})
+        right_fields = right_fields_by_type.get(right_type, {})
         for field in sorted(set(left_fields.keys()) | set(right_fields.keys())):
             left = left_fields.get(field, "")
             right = right_fields.get(field, "")
@@ -156,19 +206,15 @@ def collect_diffs(left_data, right_data, include_unchanged):
                 rows.append((handicap, field.lstrip("/"), left, right, numeric_delta(left, right), numeric_delta_percent(left, right)))
     return rows
 
-def collect_diff_stats(left_data, right_data):
+def collect_diff_stats(entry_pairs, left_data, right_data):
     stats = {}
     total_changed = 0
     total_comparable = 0
-    max_len = max(len(left_data), len(right_data))
-    for idx in range(max_len):
-        left_type, left_fields = ("", {})
-        right_type, right_fields = ("", {})
-        if idx < len(left_data):
-            left_type, left_fields = left_data[idx]
-        if idx < len(right_data):
-            right_type, right_fields = right_data[idx]
-        handicap = "#%02d" % idx
+    left_fields_by_type = fields_by_type(left_data)
+    right_fields_by_type = fields_by_type(right_data)
+    for handicap, left_type, _left_description, right_type, _right_description, _match_note in entry_pairs:
+        left_fields = left_fields_by_type.get(left_type, {})
+        right_fields = right_fields_by_type.get(right_type, {})
         field_count = 0
         changed_count = 0
         for field in set(left_fields.keys()) | set(right_fields.keys()):
@@ -184,19 +230,6 @@ def percentage_text(changed_count, total_count):
     if total_count == 0:
         return "0%"
     return "%.1f%%" % (changed_count * 100.0 / total_count)
-
-def collect_entry_pairs(left_data, right_data):
-    rows = []
-    max_len = max(len(left_data), len(right_data))
-    for idx in range(max_len):
-        left_type, left_fields = ("", {})
-        right_type, right_fields = ("", {})
-        if idx < len(left_data):
-            left_type, left_fields = left_data[idx]
-        if idx < len(right_data):
-            right_type, right_fields = right_data[idx]
-        rows.append(("#%02d" % idx, left_type, left_fields.get("/Description", ""), right_type, right_fields.get("/Description", "")))
-    return rows
 
 def default_output_path(run_time):
     return os.path.join(DEFAULT_OUTPUT_DIR, "handicap_compare_%s.md" % run_time.strftime("%Y%m%dT%H%M%SZ"))
@@ -243,16 +276,16 @@ def write_markdown(path, left_path, right_path, left_label, right_label, entry_p
         f.write("- %s path: `%s`\n" % (left_label, left_full_path.replace("\\", "/")))
         f.write("- %s path: `%s`\n" % (right_label, right_full_path.replace("\\", "/")))
         f.write("- Rows shown: %s\n" % ("all comparable fields" if include_unchanged else "changed fields only"))
-        f.write("- Match mode: XML order/index, so added/removed difficulties compare with the missing side blank\n")
+        f.write("- Match behavior: target/right XML order; exact `<Type>` matches when available; target-only entries compare to the nearest shared boundary dynamically; left-only entries are listed at the end.\n")
         f.write("- Missing fields on either side are shown as blank cells\n")
         f.write("- The spreadsheet matrix fills unchanged cells for any shown field, so each row can show the full handicap curve\n")
         f.write("- Delta %% is computed as (%s - %s) / %s; blank when either value is non-numeric or %s is 0\n" % (right_label, left_label, left_label, left_label))
         f.write("- Changed fields: %d/%d (%s)\n\n" % (total_changed, total_comparable, percentage_text(total_changed, total_comparable)))
         f.write("## Compared Handicap Entries\n\n")
-        f.write("| Index | %s Type | %s Description | %s Type | %s Description |\n" % (left_label, left_label, right_label, right_label))
-        f.write("| --- | --- | --- | --- | --- |\n")
-        for index, left_type, left_description, right_type, right_description in entry_pairs:
-            f.write("| `%s` | `%s` | `%s` | `%s` | `%s` |\n" % (md_cell(index), md_cell(left_type), md_cell(left_description), md_cell(right_type), md_cell(right_description)))
+        f.write("| Row | %s Type | %s Description | %s Type | %s Description | Match note |\n" % (left_label, left_label, right_label, right_label))
+        f.write("| --- | --- | --- | --- | --- | --- |\n")
+        for index, left_type, left_description, right_type, right_description, match_note in entry_pairs:
+            f.write("| `%s` | `%s` | `%s` | `%s` | `%s` | %s |\n" % (md_cell(index), md_cell(left_type), md_cell(left_description), md_cell(right_type), md_cell(right_description), md_cell(match_note)))
         f.write("\n")
         f.write("## Changes by Handicap\n\n")
         for handicap in sorted(diff_stats.keys()):
@@ -269,7 +302,7 @@ def write_markdown(path, left_path, right_path, left_label, right_label, entry_p
             f.write("| `%s` | `%s` | `%s` | `%s` | `%s` | `%s` |\n" % (md_cell(handicap), md_cell(field), md_cell(left), md_cell(right), md_cell(delta), md_cell(delta_pct)))
         f.write("\n")
         f.write("## Spreadsheet Matrix TSV\n\n")
-        f.write("Copy this tab-separated block into Excel, LibreOffice, or another spreadsheet tool. It uses one row per field and grouped %s/%s/delta columns for each handicap index.\n\n" % (left_label, right_label))
+        f.write("Copy this tab-separated block into Excel, LibreOffice, or another spreadsheet tool. It uses one row per field and grouped %s/%s/delta columns for each compared row.\n\n" % (left_label, right_label))
         f.write("```tsv\n")
         f.write(tsv_text)
         if not tsv_text.endswith("\n"):
@@ -284,7 +317,7 @@ def write_tsv(path, tsv_text):
         f.write(tsv_text)
 
 def main():
-    parser = argparse.ArgumentParser(description="Compare two CIV4HandicapInfo.xml files by XML order/index for LLM review.")
+    parser = argparse.ArgumentParser(description="Compare two CIV4HandicapInfo.xml files for LLM review.")
     parser.add_argument("left", help="Left CIV4HandicapInfo.xml path")
     parser.add_argument("right", help="Right CIV4HandicapInfo.xml path")
     # <!-- custom: Keep generic File 1/File 2 defaults for arbitrary XML comparisons, while allowing clearer labels for published examples. Credit: GPT-5.5-Thinking review. (GPT-5.5) -->
@@ -300,10 +333,10 @@ def main():
     output_path = args.output or (example_output_path() if args.example_output else default_output_path(run_time))
     left_data = parse_handicaps(args.left)
     right_data = parse_handicaps(args.right)
-    rows = collect_diffs(left_data, right_data, args.include_unchanged)
-    diff_stats, total_changed, total_comparable = collect_diff_stats(left_data, right_data)
     entry_pairs = collect_entry_pairs(left_data, right_data)
-    matrix_rows = rows if args.include_unchanged else collect_diffs(left_data, right_data, True)
+    rows = collect_diffs(entry_pairs, left_data, right_data, args.include_unchanged)
+    diff_stats, total_changed, total_comparable = collect_diff_stats(entry_pairs, left_data, right_data)
+    matrix_rows = rows if args.include_unchanged else collect_diffs(entry_pairs, left_data, right_data, True)
     tsv_text = build_tsv_text(args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged, matrix_rows)
     write_markdown(output_path, args.left, args.right, args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged, run_time, tsv_text, diff_stats, total_changed, total_comparable)
     print("Wrote %d changed field rows to %s" % (len(rows), output_path))

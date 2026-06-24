@@ -285,11 +285,13 @@ class SevoPediaHandicapChart:
 		all_fields = {}
 		parsed_data = {}
 		difficulty_types = []
+		difficulty_labels = {}
 
 		for iHandicap in xrange(gc.getNumHandicapInfos()):
 			info = gc.getHandicapInfo(iHandicap)
 			handicap_type = info.getType()
 			difficulty_types.append(handicap_type)
+			difficulty_labels[handicap_type] = chart_get_info_display_name(info)
 			handicap_dict = {}
 
 			for field_name, getter_name in field_getters:
@@ -462,7 +464,7 @@ class SevoPediaHandicapChart:
 		else:
 			header = [chart_font2("Field")]
 		for difficulty in difficulty_types:
-			header.append(chart_font2(chart_beautify_enum_name(difficulty)))
+			header.append(chart_font2(difficulty_labels[difficulty]))
 
 		data = [header]
 

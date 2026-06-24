@@ -891,10 +891,10 @@ void CvGame::initGameHandicap()
 		int const iDiv = it.nextIndex();
 		if (iDiv > 0)
 		{
-			/*	advc.250a: Relies on no strange new handicaps being placed
-				between Settler and Deity. Same in CvTeam::getHandicapType. */
-				setHandicapType((HandicapTypes) /* kekm.22: */ intdiv::round(
-						iSum, 10 * iDiv));
+			// //	advc.250a: Relies on no strange new handicaps being placed between Settler and Deity. Same in CvTeam::getHandicapType. 
+			// setHandicapType((HandicapTypes) /* kekm.22: */ intdiv::round(iSum, 10 * iDiv));
+			// <!-- custom: Average the iDifficulty score first, then map back to the nearest XML handicap entry. (ChatGPT-5.5) -->
+			setHandicapType(handicapFromDifficulty(/* kekm.22: */ intdiv::round(iSum, iDiv)));
 		}
 		FAssertMsg(iDiv > 0, "All-AI game. Not necessarily wrong, but unexpected.");
 	} // K-Mod end
@@ -913,19 +913,23 @@ void CvGame::initGameHandicap()
 // advc.127: Set m_eAIHandicap to the average of AI handicaps
 void CvGame::updateAIHandicap()
 {
-	int iHandicapSum = 0;
+	int iHandicapDifficultySum = 0;
 	int iDiv = 0;
 	FOR_EACH_ENUM(Player) // Cache for PlayerIter not yet available here
 	{
 		CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
 		if (kPlayer.isAlive() && !kPlayer.isHuman() && kPlayer.isMajorCiv())
 		{
-			iHandicapSum += kPlayer.getHandicapType();
+			iHandicapDifficultySum += GC.getInfo(kPlayer.getHandicapType()).getDifficulty();
 			iDiv++;
 		}
 	}
 	if (iDiv > 0) // Leaves it at STANDARD_HANDICAP in all-human games
-		m_eAIHandicap = (HandicapTypes)intdiv::uround(iHandicapSum, iDiv);
+	{
+		// <!-- custom: Average XML iDifficulty rather than raw enum IDs; this keeps added or non-linear handicaps correct. (ChatGPT-5.5 + GPT-5.5) -->
+		// m_eAIHandicap = (HandicapTypes)intdiv::uround(iHandicapSum, iDiv);
+		m_eAIHandicap = handicapFromDifficulty(intdiv::uround(iHandicapDifficultySum, iDiv));
+	}
 }
 
 

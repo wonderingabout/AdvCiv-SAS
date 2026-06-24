@@ -2255,8 +2255,22 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_ROOKIE</Tag>
+		<English>Rookie</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_DEITY_PLUS</Tag>
+		<English>Deity+</English>
+	</TEXT>
+
+
 
 	<!-- custom: rename "Difficulty" to "Handicap"; Long_Comments_XML.txt #233 -->
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_ROOKIE_HELP</Tag>
+		<English>Easiest AdvCiv-SAS handicap setting. Still avoids free worker, settler, and tech handouts, but gives the player the most forgiving economy, barbarian pressure, diplomacy, and AI cost settings.</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
 		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc.; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall handicap.</English>
@@ -2292,6 +2306,10 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
 		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting as well.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_DEITY_PLUS_HELP</Tag>
+		<English>Harder than Deity and intended for players who want one more step above the previous highest challenge. Uses the same fairer AdvCiv-SAS philosophy as Deity, but extrapolates the main AI and barbarian pressure values one step further.</English>
 	</TEXT>
 
 

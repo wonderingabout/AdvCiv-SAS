@@ -74,6 +74,26 @@ float colorDifference(NiColorA const& c1, NiColorA const& c2)
 	return fDiff;
 }
 
+// <!-- custom: iDifficulty is a score/rating in XML, not always enum index * 10 after AdvCiv-SAS adds Rookie and Deity+. (ChatGPT-5.5) -->
+HandicapTypes handicapFromDifficulty(int iDifficulty)
+{
+	static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+	HandicapTypes eBestHandicap = NO_HANDICAP;
+	int iBestDelta = MAX_INT;
+	for (int i = 0; i < GC.getNumHandicapInfos(); i++)
+	{
+		HandicapTypes const eLoopHandicap = (HandicapTypes)i;
+		int const iDelta = std::abs(GC.getInfo(eLoopHandicap).getDifficulty() - iDifficulty);
+		if (iDelta < iBestDelta)
+		{
+			iBestDelta = iDelta;
+			eBestHandicap = eLoopHandicap;
+		}
+	}
+	FAssert(eBestHandicap != NO_HANDICAP);
+	return (eBestHandicap == NO_HANDICAP ? eSTANDARD_HANDICAP : eBestHandicap);
+}
+
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard)
 {
 	switch (eCard)

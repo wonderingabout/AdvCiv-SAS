@@ -72,6 +72,7 @@ template<typename T> void removeDuplicates(std::vector<T>& v)
 void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
 
 float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
+HandicapTypes handicapFromDifficulty(int iDifficulty); // <!-- custom: map iDifficulty scores back to XML handicap entries after adding non-BtS handicap levels. (ChatGPT-5.5) -->
 
 // <advc> Replacing (unused) tables in CvGlobals for single-step rotation
 inline DirectionTypes rotateDirClockw(DirectionTypes eDir, int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES

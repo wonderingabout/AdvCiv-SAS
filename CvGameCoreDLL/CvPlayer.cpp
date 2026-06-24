@@ -17188,9 +17188,10 @@ int CvPlayer::getEventTriggerWeight(EventTriggerTypes eTrigger) const
 
 	if (kTrigger.getMinDifficulty() != NO_HANDICAP)
 	{
-		if (GC.getInfo(kGame.getHandicapType()).
-			getDifficulty() < 10 * // advc.250a
-			kTrigger.getMinDifficulty())
+		// <!-- custom: Compare XML iDifficulty scores instead of assuming enum index * 10. (ChatGPT-5.5) -->
+		if (GC.getInfo(kGame.getHandicapType()).getDifficulty() <
+			// 10 * kTrigger.getMinDifficulty()) // advc.250a
+			GC.getInfo((HandicapTypes)kTrigger.getMinDifficulty()).getDifficulty())
 		{
 			return 0;
 		}

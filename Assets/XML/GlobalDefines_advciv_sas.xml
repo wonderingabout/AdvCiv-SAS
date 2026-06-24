@@ -483,10 +483,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
 		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
 	</Define>
-	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accommodate font size 4 (was 65). -->
+	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accommodate font size 4 (was 65). Update 2: larger to accomodate the 2 new Handicaps at font size 4 (as of now Rookie and Deity+ (was 80)) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
-		<iDefineIntVal>80</iDefineIntVal>
+		<iDefineIntVal>90</iDefineIntVal>
 	</Define>
 	<!-- custom: enable (1) / disable (0) to add an icon column for the left-side field labels in the handicap chart table. (GPT-5.2-Codex) -->
 	<Define>

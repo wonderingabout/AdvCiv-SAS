@@ -281,7 +281,7 @@ class SevoPediaGameSpeedChart:
 		speed_labels = []
 		for i in xrange(gc.getNumGameSpeedInfos()):
 			info = gc.getGameSpeedInfo(i)
-			szName = chart_beautify_enum_name(info.getType())
+			szName = chart_get_info_display_name(info)
 			iNumInc = info.getNumTurnIncrements()
 			iTurns = 0
 			for iInc in xrange(iNumInc):

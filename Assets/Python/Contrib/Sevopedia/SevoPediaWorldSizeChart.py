@@ -255,7 +255,7 @@ class SevoPediaWorldSizeChart:
 			info = gc.getWorldInfo(iWorld)
 			world_type = info.getType()
 			world_types.append(world_type)
-			world_labels.append(info.getDescription())
+			world_labels.append(chart_get_info_display_name(info))
 
 			world_dict = {}
 			for field_name, getter_name in field_getters:

@@ -7,16 +7,118 @@
 <!-- Handicap Infos -->
 <Civ4HandicapInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<HandicapInfos>
+		<HandicapInfo> <!-- custom: HANDICAP_ROOKIE (useful for VS Code upper tree view while scrolling) -->
+			<Type>HANDICAP_ROOKIE</Type>
+			<Description>TXT_KEY_HANDICAP_ROOKIE</Description>
+			<Help>TXT_KEY_HANDICAP_ROOKIE_HELP</Help>
+			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
+			<iAnimalAttackProb>18</iAnimalAttackProb>
+			<iStartingLocPercent>0</iStartingLocPercent>
+			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+			<iGold>0</iGold>
+			<iFreeUnits>13</iFreeUnits>
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iBuildTimePercent>100</iBuildTimePercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
+			<iCultureLevelPercent>100</iCultureLevelPercent>
+			<iResearchPercent>100</iResearchPercent>
+			<iTrainPercent>100</iTrainPercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
+			<iDistanceMaintenancePercent>55</iDistanceMaintenancePercent>
+			<iNumCitiesMaintenancePercent>55</iNumCitiesMaintenancePercent>
+			<iMaxNumCitiesMaintenance>4000</iMaxNumCitiesMaintenance>
+			<iColonyMaintenancePercent>80</iColonyMaintenancePercent>
+			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+			<iCorporationMaintenancePercent>80</iCorporationMaintenancePercent>
+			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+			<iInflationPercent>100</iInflationPercent>
+			<iForeignCultureStrength>8</iForeignCultureStrength>
+			<iHealthBonus>3</iHealthBonus>
+			<iHappyBonus>5</iHappyBonus>
+			<iAttitudeChange>2</iAttitudeChange>
+			<iNoTechTradeModifier>84</iNoTechTradeModifier>
+			<iTechTradeKnownModifier>-32</iTechTradeKnownModifier>
+			<iUnownedTilesPerGameAnimal>55</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerBarbarianUnit>67</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>500</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>135</iUnownedTilesPerBarbarianCity>
+			<iBarbarianCreationTurnsElapsed>35</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>41</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationProb>0</iBarbarianCityCreationProb>
+			<iAnimalBonus>-30</iAnimalBonus>
+			<iBarbarianBonus>-30</iBarbarianBonus>
+			<!-- custom: add missing iBarbarianCityAttackBonus so it is now explicit and so it is not -25 ingame it seems -->
+			<!-- was (effectively) -25 -->
+			<iBarbarianCityAttackBonus>-30</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is now explicit and so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>-30</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>-1</iSeaBarbarianExtraMoves>
+			<iAIAnimalBonus>-30</iAIAnimalBonus>
+			<iAIBarbarianBonus>-30</iAIBarbarianBonus>
+			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+			<iStartingExploreUnits>0</iStartingExploreUnits>
+			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
+			<iAIDeclareWarProb>70</iAIDeclareWarProb>
+			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+			<iAIGrowthPercent>120</iAIGrowthPercent>
+			<iAIGPThresholdPercent>132</iAIGPThresholdPercent>
+			<iAIResearchPercent>124</iAIResearchPercent>
+			<iAITrainPercent>120</iAITrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+			<iAIConstructPercent>120</iAIConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+			<iAICreatePercent>108</iAICreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
+			<iAICivicUpkeepPercent>124</iAICivicUpkeepPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
+			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+			<iAIInflationPercent>120</iAIInflationPercent>
+			<iAIWarWearinessPercent>124</iAIWarWearinessPercent>
+			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+			<iAIAdvancedStartPercent>60</iAIAdvancedStartPercent>
+			<iAIAttitudeChangePercent>0</iAIAttitudeChangePercent>
+			<Goodies>
+				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
+				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
+				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
+				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
+				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+				<GoodyType>GOODY_MAP</GoodyType>
+				<GoodyType>GOODY_WARRIOR</GoodyType>
+				<GoodyType>GOODY_WARRIOR</GoodyType>
+				<GoodyType>GOODY_SCOUT</GoodyType>
+				<GoodyType>GOODY_EXPERIENCE</GoodyType>
+				<GoodyType>GOODY_HEALING</GoodyType>
+				<GoodyType>GOODY_TECH</GoodyType>
+				<GoodyType>GOODY_TECH</GoodyType>
+				<GoodyType>GOODY_TECH</GoodyType>
+				<GoodyType>GOODY_TECH</GoodyType>
+			</Goodies>
+			<FreeTechs/>
+			<AIFreeTechs/>
+			<iDifficulty>18</iDifficulty>
+		</HandicapInfo>
 		<!-- advc.126: Added free tech for later eras to
 			 Settler and Chieftain. -->
-		<HandicapInfo> <!-- custom: HANDICAP_SETTLER (useful for VS Code upper tree view while scrolling) -->
+		<HandicapInfo> <!-- custom: HANDICAP_SETTLER -->
 			<Type>HANDICAP_SETTLER</Type>
 			<Description>TXT_KEY_HANDICAP_SETTLER</Description>
 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
 			<!-- advc.251: was 5 -->
 			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
 			<!-- advc.309: was 25 -->
-			<iAnimalAttackProb>10</iAnimalAttackProb>
+			<iAnimalAttackProb>26</iAnimalAttackProb>
 			<iStartingLocPercent>11</iStartingLocPercent>
 			<!-- advc.250c: was 150 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
@@ -63,7 +165,7 @@
 			<!-- advc.148: was 2 -->
 			<iAttitudeChange>2</iAttitudeChange>
 			<iNoTechTradeModifier>78</iNoTechTradeModifier>
-			<iTechTradeKnownModifier>-30</iTechTradeKnownModifier>
+			<iTechTradeKnownModifier>-24</iTechTradeKnownModifier>
 			<!-- advc.309: was 100 -->
 			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 150 -->
@@ -74,13 +176,21 @@
 			<iBarbarianCreationTurnsElapsed>34</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 55 -->
 			<iBarbarianCityCreationTurnsElapsed>40</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>5</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>4</iBarbarianCityCreationProb>
 			<!-- advc.313: was -70 -->
-			<iAnimalBonus>-30</iAnimalBonus>
-			<iBarbarianBonus>-30</iBarbarianBonus>
+			<iAnimalBonus>-20</iAnimalBonus>
+			<iBarbarianBonus>-20</iBarbarianBonus>
+			<!-- custom: add missing iBarbarianCityAttackBonus so it is now explicit and so it is not -25 ingame it seems -->
+			<!-- was (effectively) -25 -->
+			<iBarbarianCityAttackBonus>-20</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is now explicit and so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>-20</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>-1</iSeaBarbarianExtraMoves>
 			<!-- advc.313: was -40 -->
-			<iAIAnimalBonus>-30</iAIAnimalBonus>
-			<iAIBarbarianBonus>-30</iAIBarbarianBonus>
+			<iAIAnimalBonus>-20</iAIAnimalBonus>
+			<iAIBarbarianBonus>-20</iAIBarbarianBonus>
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -147,7 +257,7 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>10</iDifficulty>
+			<iDifficulty>26</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: HANDICAP_CHIEFTAIN -->
 			<Type>HANDICAP_CHIEFTAIN</Type>
@@ -155,7 +265,7 @@
 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
 			<!-- advc.251: was 4 -->
 			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
-			<iAnimalAttackProb>20</iAnimalAttackProb>
+			<iAnimalAttackProb>34</iAnimalAttackProb>
 			<iStartingLocPercent>22</iStartingLocPercent>
 			<!-- advc.250c: was 130 -->
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
@@ -195,7 +305,7 @@
 			<iAttitudeChange>1</iAttitudeChange>
 			<!-- advc.251: was 90 -->
 			<iNoTechTradeModifier>72</iNoTechTradeModifier>
-			<iTechTradeKnownModifier>-20</iTechTradeKnownModifier>
+			<iTechTradeKnownModifier>-16</iTechTradeKnownModifier>
 			<!-- advc.309: was 80 -->
 			<iUnownedTilesPerGameAnimal>49</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 100 -->
@@ -206,13 +316,21 @@
 			<iBarbarianCreationTurnsElapsed>33</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 50 -->
 			<iBarbarianCityCreationTurnsElapsed>39</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>10</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>8</iBarbarianCityCreationProb>
 			<!-- advc.313: was -60 -->
-			<iAnimalBonus>-20</iAnimalBonus>
-			<iBarbarianBonus>-15</iBarbarianBonus>
+			<iAnimalBonus>-10</iAnimalBonus>
+			<iBarbarianBonus>-10</iBarbarianBonus>
+			<!-- custom: add missing iBarbarianCityAttackBonus so it is now explicit and so it is not -25 ingame it seems -->
+			<!-- was (effectively) -25 -->
+			<iBarbarianCityAttackBonus>-10</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is now explicit and so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>-10</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>-1</iSeaBarbarianExtraMoves>
 			<!-- advc.313: was -40 -->
-			<iAIAnimalBonus>-15</iAIAnimalBonus>
-			<iAIBarbarianBonus>-15</iAIBarbarianBonus>
+			<iAIAnimalBonus>-10</iAIAnimalBonus>
+			<iAIBarbarianBonus>-10</iAIBarbarianBonus>
 			<iStartingDefenseUnits>1</iStartingDefenseUnits>
 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
 			<iStartingExploreUnits>0</iStartingExploreUnits>
@@ -275,7 +393,7 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>20</iDifficulty>
+			<iDifficulty>34</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: HANDICAP_WARLORD -->
 			<Type>HANDICAP_WARLORD</Type>
@@ -284,7 +402,7 @@
 			<!-- advc.251: was 3 -->
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 75 -->
-			<iAnimalAttackProb>30</iAnimalAttackProb>
+			<iAnimalAttackProb>42</iAnimalAttackProb>
 			<!-- advc.108b: was 30 -->
 			<iStartingLocPercent>33</iStartingLocPercent>
 			<!-- advc.250c: was 110 -->
@@ -324,7 +442,7 @@
 			<iAttitudeChange>1</iAttitudeChange>
 			<!-- advc.251: was 80 -->
 			<iNoTechTradeModifier>66</iNoTechTradeModifier>
-			<iTechTradeKnownModifier>-10</iTechTradeKnownModifier>
+			<iTechTradeKnownModifier>-8</iTechTradeKnownModifier>
 			<!-- advc.309: was 60 -->
 			<iUnownedTilesPerGameAnimal>46</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 80 -->
@@ -334,10 +452,18 @@
 			<iBarbarianCreationTurnsElapsed>32</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 45 -->
 			<iBarbarianCityCreationTurnsElapsed>38</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>15</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>12</iBarbarianCityCreationProb>
 			<!-- advc.313: was -50 -->
-			<iAnimalBonus>-10</iAnimalBonus>
+			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
+			<!-- custom: add missing iBarbarianCityAttackBonus so it is now explicit and so it is not -25 ingame it seems -->
+			<!-- was (effectively) -25 -->
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is now explicit and so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
@@ -402,7 +528,7 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>30</iDifficulty>
+			<iDifficulty>42</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: HANDICAP_NOBLE -->
 			<Type>HANDICAP_NOBLE</Type>
@@ -411,7 +537,7 @@
 			<!-- advc.251: was 2 -->
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 85 -->
-			<iAnimalAttackProb>40</iAnimalAttackProb>
+			<iAnimalAttackProb>50</iAnimalAttackProb>
 			<!-- advc.108b: was 40 -->
 			<iStartingLocPercent>44</iStartingLocPercent>
 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
@@ -464,10 +590,18 @@
 			<iBarbarianCreationTurnsElapsed>31</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 40 -->
 			<iBarbarianCityCreationTurnsElapsed>37</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>16</iBarbarianCityCreationProb>
 			<!-- advc.313: was -40 -->
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
+			<!-- custom: add missing iBarbarianCityAttackBonus so it is now explicit and so it is not -25 ingame it seems -->
+			<!-- was (effectively) -25 -->
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is now explicit and so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
 			<!-- advc.313: was -40 -->
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<iAIBarbarianBonus>0</iAIBarbarianBonus>
@@ -533,7 +667,8 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>40</iDifficulty>
+			<!-- custom: With Rookie and Deity+ added, iDifficulty uses a linear 18..98 scale (+8 per row) so Noble stays 50 as the even/baseline difficulty while Deity remains 90 as before. Direct balance mostly comes from the specific handicap fields above rather than this score-like rating. (ChatGPT-5.5) -->
+			<iDifficulty>50</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: HANDICAP_PRINCE -->
 			<Type>HANDICAP_PRINCE</Type>
@@ -542,7 +677,7 @@
 			<!-- advc.251: was 1 -->
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>50</iAnimalAttackProb>
+			<iAnimalAttackProb>58</iAnimalAttackProb>
 			<!-- advc.108b: was 50 -->
 			<iStartingLocPercent>55</iStartingLocPercent>
 			<!-- advc.250c: was 95 -->
@@ -594,13 +729,18 @@
 			<iBarbarianCreationTurnsElapsed>30</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 35 -->
 			<iBarbarianCityCreationTurnsElapsed>36</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>25</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>20</iBarbarianCityCreationProb>
 			<!-- advc.313: was -30 -->
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: start -->
 			<!-- was (effectively) -25 -->
 			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
 			<!-- was -40 -->
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
@@ -669,7 +809,7 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>50</iDifficulty>
+			<iDifficulty>58</iDifficulty>
 		</HandicapInfo>
 		<!-- advc.126: Added free tech for later eras to
 			 all handicaps below. -->
@@ -679,7 +819,7 @@
 			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>60</iAnimalAttackProb>
+			<iAnimalAttackProb>66</iAnimalAttackProb>
 			<!-- advc.108b: was 60 -->
 			<iStartingLocPercent>66</iStartingLocPercent>
 			<!-- advc.250c: was 90 -->
@@ -732,7 +872,7 @@
 			<iBarbarianCreationTurnsElapsed>29</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 30 -->
 			<iBarbarianCityCreationTurnsElapsed>35</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>30</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>24</iBarbarianCityCreationProb>
 			<!-- advc.313: start -->
 			<!-- was -20 -->
 			<iAnimalBonus>0</iAnimalBonus>
@@ -740,6 +880,11 @@
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- was (effectively) -25 -->
 			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
 			<!-- was -40 -->
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
@@ -812,7 +957,7 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>60</iDifficulty>
+			<iDifficulty>66</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: HANDICAP_EMPEROR -->
 			<Type>HANDICAP_EMPEROR</Type>
@@ -820,7 +965,7 @@
 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>70</iAnimalAttackProb>
+			<iAnimalAttackProb>74</iAnimalAttackProb>
 			<!-- advc.108b: was 70 -->
 			<iStartingLocPercent>77</iStartingLocPercent>
 			<!-- advc.250c: was 85 -->
@@ -869,13 +1014,18 @@
 			<iBarbarianCreationTurnsElapsed>28</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 25 -->
 			<iBarbarianCityCreationTurnsElapsed>34</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>35</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>28</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
 			<!-- was 0 -->
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- was (effectively) -25 -->
 			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
 			<!-- was -40 -->
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
@@ -955,7 +1105,7 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>70</iDifficulty>
+			<iDifficulty>74</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: HANDICAP_IMMORTAL -->
 			<Type>HANDICAP_IMMORTAL</Type>
@@ -963,7 +1113,7 @@
 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
 			<!-- advc.309: was 90 -->
-			<iAnimalAttackProb>80</iAnimalAttackProb>
+			<iAnimalAttackProb>82</iAnimalAttackProb>
 			<!-- advc.108b: was 80 -->
 			<iStartingLocPercent>88</iStartingLocPercent>
 			<!-- advc.250c: was 80 -->
@@ -1013,13 +1163,18 @@
 			<iBarbarianCreationTurnsElapsed>27</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 20 -->
 			<iBarbarianCityCreationTurnsElapsed>33</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>32</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<!-- advc.313: start -->
 			<!-- was 0 -->
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- was (effectively) -25 -->
 			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
+			<!-- custom: add missing iSeaBarbarianBonus field so it is not -10 ingame as it seems to be now -->
+			<!-- was (effectively) -10 in K-Mod -->
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
+			<!-- custom: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now -->
+			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
 			<!-- was -40 -->
 			<iAIAnimalBonus>0</iAIAnimalBonus>
 			<!-- advc.313: end -->
@@ -1100,7 +1255,7 @@
 			<FreeTechs/>
 			<AIFreeTechs/>
 			<!-- advc.250a -->
-			<iDifficulty>80</iDifficulty>
+			<iDifficulty>82</iDifficulty>
 		</HandicapInfo>
 		<HandicapInfo> <!-- custom: HANDICAP_DEITY -->
 			<Type>HANDICAP_DEITY</Type>
@@ -1158,7 +1313,7 @@
 			<iBarbarianCreationTurnsElapsed>26</iBarbarianCreationTurnsElapsed>
 			<!-- advc.300: was 15 -->
 			<iBarbarianCityCreationTurnsElapsed>32</iBarbarianCityCreationTurnsElapsed>
-			<iBarbarianCityCreationProb>45</iBarbarianCityCreationProb>
+			<iBarbarianCityCreationProb>36</iBarbarianCityCreationProb>
 			<iAnimalBonus>0</iAnimalBonus>
 			<iBarbarianBonus>0</iBarbarianBonus>
 			<!-- advc.313: start -->
@@ -1260,6 +1415,108 @@
 			<!-- custom: adjusted slightly based on/with knowledge of the code sample in UWAIAgent.cpp as well as chatgpt's explanation of it, our handicap settings are more gradual than in base advciv, not sure it makes a difference but go for gradual values between handicap settings, also start from a higher base line difficulty since our settings in advciv-sas are slightly harder, was 85 -->
 			<!-- advc.250a -->
 			<iDifficulty>90</iDifficulty>
+		</HandicapInfo>
+		<HandicapInfo> <!-- custom: HANDICAP_DEITY_PLUS -->
+			<Type>HANDICAP_DEITY_PLUS</Type>
+			<Description>TXT_KEY_HANDICAP_DEITY_PLUS</Description>
+			<Help>TXT_KEY_HANDICAP_DEITY_PLUS_HELP</Help>
+			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
+			<iAnimalAttackProb>98</iAnimalAttackProb>
+			<iStartingLocPercent>100</iStartingLocPercent>
+			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+			<iGold>0</iGold>
+			<iFreeUnits>1</iFreeUnits>
+			<iUnitCostPercent>100</iUnitCostPercent>
+			<iBuildTimePercent>100</iBuildTimePercent>
+			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+			<iGPThresholdPercent>100</iGPThresholdPercent>
+			<iCultureLevelPercent>100</iCultureLevelPercent>
+			<iResearchPercent>100</iResearchPercent>
+			<iTrainPercent>100</iTrainPercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
+			<iDistanceMaintenancePercent>105</iDistanceMaintenancePercent>
+			<iNumCitiesMaintenancePercent>105</iNumCitiesMaintenancePercent>
+			<iMaxNumCitiesMaintenance>9000</iMaxNumCitiesMaintenance>
+			<iColonyMaintenancePercent>130</iColonyMaintenancePercent>
+			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+			<iCorporationMaintenancePercent>130</iCorporationMaintenancePercent>
+			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+			<iInflationPercent>100</iInflationPercent>
+			<iForeignCultureStrength>38</iForeignCultureStrength>
+			<iHealthBonus>2</iHealthBonus>
+			<iHappyBonus>4</iHappyBonus>
+			<iAttitudeChange>0</iAttitudeChange>
+			<iNoTechTradeModifier>24</iNoTechTradeModifier>
+			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+			<iUnownedTilesPerGameAnimal>25</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerBarbarianUnit>37</iUnownedTilesPerBarbarianUnit>
+			<iUnownedWaterTilesPerBarbarianUnit>250</iUnownedWaterTilesPerBarbarianUnit>
+			<iUnownedTilesPerBarbarianCity>85</iUnownedTilesPerBarbarianCity>
+			<iBarbarianCreationTurnsElapsed>25</iBarbarianCreationTurnsElapsed>
+			<iBarbarianCityCreationTurnsElapsed>31</iBarbarianCityCreationTurnsElapsed>
+			<iBarbarianCityCreationProb>40</iBarbarianCityCreationProb>
+			<iAnimalBonus>0</iAnimalBonus>
+			<iBarbarianBonus>0</iBarbarianBonus>
+			<iBarbarianCityAttackBonus>0</iBarbarianCityAttackBonus>
+			<iSeaBarbarianBonus>0</iSeaBarbarianBonus>
+			<iSeaBarbarianExtraMoves>0</iSeaBarbarianExtraMoves>
+			<iAIAnimalBonus>0</iAIAnimalBonus>
+			<iAIBarbarianBonus>0</iAIBarbarianBonus>
+			<iStartingDefenseUnits>1</iStartingDefenseUnits>
+			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+			<iStartingExploreUnits>0</iStartingExploreUnits>
+			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+			<iBarbarianDefenders>1</iBarbarianDefenders>
+			<iAIDeclareWarProb>170</iAIDeclareWarProb>
+			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+			<iAIGrowthPercent>70</iAIGrowthPercent>
+			<iAIGPThresholdPercent>52</iAIGPThresholdPercent>
+			<iAIResearchPercent>64</iAIResearchPercent>
+			<iAITrainPercent>70</iAITrainPercent>
+			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+			<iAIConstructPercent>70</iAIConstructPercent>
+			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+			<iAICreatePercent>82</iAICreatePercent>
+			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
+			<iAICivicUpkeepPercent>64</iAICivicUpkeepPercent>
+			<iAIUnitCostPercent>100</iAIUnitCostPercent>
+			<iAIUnitSupplyPercent>100</iAIUnitSupplyPercent>
+			<iAIUnitUpgradePercent>100</iAIUnitUpgradePercent>
+			<iAIInflationPercent>70</iAIInflationPercent>
+			<iAIWarWearinessPercent>64</iAIWarWearinessPercent>
+			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+			<iAIAdvancedStartPercent>220</iAIAdvancedStartPercent>
+			<iAIAttitudeChangePercent>100</iAIAttitudeChangePercent>
+			<Goodies>
+				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+				<GoodyType>GOODY_TECH</GoodyType>
+				<GoodyType>GOODY_MAP</GoodyType>
+				<GoodyType>GOODY_WARRIOR</GoodyType>
+				<GoodyType>GOODY_SCOUT</GoodyType>
+				<GoodyType>GOODY_EXPERIENCE</GoodyType>
+				<GoodyType>GOODY_EXPERIENCE</GoodyType>
+				<GoodyType>GOODY_HEALING</GoodyType>
+				<GoodyType>GOODY_TECH</GoodyType>
+				<GoodyType>GOODY_TECH</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+			</Goodies>
+			<FreeTechs/>
+			<AIFreeTechs/>
+			<iDifficulty>98</iDifficulty>
 		</HandicapInfo>
 	</HandicapInfos>
 </Civ4HandicapInfo>

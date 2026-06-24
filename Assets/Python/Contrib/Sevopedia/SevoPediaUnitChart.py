@@ -84,7 +84,7 @@ class SevoPediaUnitChart:
 		screen.addTableControlGFC(table, self.N_COLUMNS, tableX, tableY, tableW, tableH, True, False, 32, 32, CHART_TABLE_STYLE)
 		screen.enableSort(table)
 
-		szName = gc.getUnitCombatInfo(self.iGroup).getDescription()
+		szName = chart_get_info_display_name(gc.getUnitCombatInfo(self.iGroup))
 		szStrength = u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
 
 		# <!-- custom: display the icon instead of text -->
@@ -194,7 +194,7 @@ class SevoPediaUnitChart:
 
 	def placeTableName(self, screen, table, iCol, iRow, UnitInfo, iUnit):
 		# Name
-		screen.setTableText(table, iCol, iRow, chart_font2(UnitInfo.getDescription()), UnitInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.setTableText(table, iCol, iRow, chart_font2(chart_get_info_display_name(UnitInfo)), UnitInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	def placeTableCombat(self, screen, table, iCol, iRow, UnitInfo):
 		# Combat Strength
