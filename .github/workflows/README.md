@@ -61,6 +61,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/fonts.py`](#buildfontspy)
 - [`build/detail_manager.py`](#builddetail_managerpy)
 - [`build/aip.py`](#buildaippy)
+- [`build/aip_predump_values.py`](#buildaip_predump_valuespy)
 - [`build/worldsizes.py`](#buildworldsizespy)
 - [`build/mapscripts.py`](#buildmapscriptspy)
 - [`build/python24_compile.py`](#buildpython24_compilepy)
@@ -162,6 +163,18 @@ Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys matc
 ### `build/aip.py`
 
 Verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumped cache by default, does not dump recomputed cache data to the log by default, and has a non-empty predumped cache file.
+
+### `build/aip_predump_values.py`
+
+Validates effective AIP predump values outside Civ4. It compares raw values in `Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py` against values reconstructed from `Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml`, mirroring the narrow DLL path needed for these values: `LEADER_DEFAULTS` copy behavior, `CvLeaderHeadInfo::GetChildXmlValByName` missing-tag defaults, simple primitive array/list loading, and `UWAI::applyPersonalityWeight` with `UWAI_PERSONALITY_PERCENT`.
+
+This script is intentionally separate from [`build/aip.py`](#buildaippy). `aip.py` remains the lightweight release-safety check, while this deeper value mirror checks the committed predump against effective XML+DLL-style values. It currently checks direct scalar getter keys, scalar attitude-threshold getters, flavors, and no-war attitude probabilities; contacts, memories, unit AI modifiers, improvement modifiers, and aggregated values are intentionally left for later. The script fails by default when mismatches or missing/unparsed entries are found; use `--allow-mismatch` only for exploratory/debug runs such as `--no-uwai`.
+
+Example local commands (Git Bash):
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && python .github/workflows/build/aip_predump_values.py
+```
 
 ### `build/worldsizes.py`
 

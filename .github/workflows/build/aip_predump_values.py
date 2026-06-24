@@ -1,0 +1,537 @@
+#!/usr/bin/env python3
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: Build-check helper: compare LeaderHeadInfo AIP predump values against a lightweight Python mirror of CvLeaderHeadInfo XML defaults plus UWAI::applyPersonalityWeight.
+# This is intentionally a separate script from build/aip.py so the always-on AIP release-safety check can stay lightweight while this deeper effective-value mirror can be run manually or conditionally later.
+# Currently checks direct scalar values plus the first simple array/list families: Flavors and NoWarAttitudeProbs. Contacts, memories, UnitAIWeightModifiers, and ImprovementWeightModifiers can be added after these array paths are proven. (ChatGPT-5.5) -->
+
+from __future__ import annotations
+
+import argparse
+import ast
+import datetime as _datetime
+import math
+import re
+import sys
+from copy import deepcopy
+from dataclasses import dataclass
+from fractions import Fraction
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+from xml.etree import ElementTree as ET
+
+PREDUMP_RELATIVE_PATH = Path("Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py")
+LEADER_XML_RELATIVE_PATH = Path("Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml")
+UWAI_DEFINE_NAME = "UWAI_PERSONALITY_PERCENT"
+BARBARIAN_LEADER_TYPE = "LEADER_BARBARIAN"
+DEFAULTS_LEADER_TYPE = "LEADER_DEFAULTS"
+
+ATTITUDE_TO_INDEX = {
+	"NO_ATTITUDE": -1,
+	"NONE": -1,
+	"ATTITUDE_FURIOUS": 0,
+	"ATTITUDE_ANNOYED": 1,
+	"ATTITUDE_CAUTIOUS": 2,
+	"ATTITUDE_PLEASED": 3,
+	"ATTITUDE_FRIENDLY": 4,
+}
+
+# Mirrors the hardcoded FlavorTypes enum order in CvEnums.h. The DLL also reads
+# matching text names into GC.getFlavorTypes(), but the AIP checker only needs
+# these type strings to parse LeaderHeadInfo flavor arrays and build predump keys.
+FLAVOR_TYPES: Tuple[str, ...] = (
+	"FLAVOR_MILITARY",
+	"FLAVOR_RELIGION",
+	"FLAVOR_PRODUCTION",
+	"FLAVOR_GOLD",
+	"FLAVOR_SCIENCE",
+	"FLAVOR_CULTURE",
+	"FLAVOR_GROWTH",
+	"FLAVOR_ESPIONAGE",
+)
+
+NO_WAR_ATTITUDE_TYPES: Tuple[str, ...] = (
+	"ATTITUDE_FURIOUS",
+	"ATTITUDE_ANNOYED",
+	"ATTITUDE_CAUTIOUS",
+	"ATTITUDE_PLEASED",
+	"ATTITUDE_FRIENDLY",
+)
+
+ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = (
+	("Flavors", "FlavorType", "iFlavor", FLAVOR_TYPES, "iFlavor"),
+	("NoWarAttitudeProbs", "AttitudeType", "iNoWarProb", NO_WAR_ATTITUDE_TYPES, "iNoWarAttitudeProb"),
+)
+
+# Mirrors the direct scalar getter lists displayed by SevoPediaLeaderAIPValues.py.
+# xml_default follows CvLeaderHeadInfo::GetChildXmlValByName's explicit default
+# argument. A copied LEADER_DEFAULTS value overrides this default when non-zero.
+DIRECT_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = (
+	("getWonderConstructRand", "iWonderConstructRand", 0),
+	("getBaseAttitude", "iBaseAttitude", 0),
+	("getBasePeaceWeight", "iBasePeaceWeight", 0),
+	("getPeaceWeightRand", "iPeaceWeightRand", 0),
+	("getWarmongerRespect", "iWarmongerRespect", 0),
+	("getEspionageWeight", "iEspionageWeight", 0),
+	("getRefuseToTalkWarThreshold", "iRefuseToTalkWarThreshold", 0),
+	("getNoTechTradeThreshold", "iNoTechTradeThreshold", 0),
+	("getTechTradeKnownPercent", "iTechTradeKnownPercent", 0),
+	("getMaxGoldTradePercent", "iMaxGoldTradePercent", 0),
+	("getMaxGoldPerTurnTradePercent", "iMaxGoldPerTurnTradePercent", 0),
+	("getCultureVictoryWeight", "iCultureVictoryWeight", 30),
+	("getSpaceVictoryWeight", "iSpaceVictoryWeight", 30),
+	("getConquestVictoryWeight", "iConquestVictoryWeight", 30),
+	("getDominationVictoryWeight", "iDominationVictoryWeight", 30),
+	("getDiplomacyVictoryWeight", "iDiplomacyVictoryWeight", 30),
+	("getMaxWarRand", "iMaxWarRand", 0),
+	("getMaxWarNearbyPowerRatio", "iMaxWarNearbyPowerRatio", 0),
+	("getMaxWarDistantPowerRatio", "iMaxWarDistantPowerRatio", 0),
+	("getMaxWarMinAdjacentLandPercent", "iMaxWarMinAdjacentLandPercent", 0),
+	("getLimitedWarRand", "iLimitedWarRand", 0),
+	("getLimitedWarPowerRatio", "iLimitedWarPowerRatio", 0),
+	("getDogpileWarRand", "iDogpileWarRand", 0),
+	("getMakePeaceRand", "iMakePeaceRand", 0),
+	("getDeclareWarTradeRand", "iDeclareWarTradeRand", 0),
+	("getDemandRebukedSneakProb", "iDemandRebukedSneakProb", 0),
+	("getDemandRebukedWarProb", "iDemandRebukedWarProb", 0),
+	("getRazeCityProb", "iRazeCityProb", 0),
+	("getBuildUnitProb", "iBuildUnitProb", 0),
+	("getBaseAttackOddsChange", "iBaseAttackOddsChange", 0),
+	("getAttackOddsChangeRand", "iAttackOddsChangeRand", 0),
+	("getWorseRankDifferenceAttitudeChange", "iWorseRankDifferenceAttitudeChange", 0),
+	("getBetterRankDifferenceAttitudeChange", "iBetterRankDifferenceAttitudeChange", 0),
+	("getCloseBordersAttitudeChange", "iCloseBordersAttitudeChange", 0),
+	("getLostWarAttitudeChange", "iLostWarAttitudeChange", 0),
+	("getAtWarAttitudeDivisor", "iAtWarAttitudeDivisor", 0),
+	("getAtWarAttitudeChangeLimit", "iAtWarAttitudeChangeLimit", 0),
+	("getAtPeaceAttitudeDivisor", "iAtPeaceAttitudeDivisor", 0),
+	("getAtPeaceAttitudeChangeLimit", "iAtPeaceAttitudeChangeLimit", 0),
+	("getSameReligionAttitudeChange", "iSameReligionAttitudeChange", 0),
+	("getSameReligionAttitudeDivisor", "iSameReligionAttitudeDivisor", 0),
+	("getSameReligionAttitudeChangeLimit", "iSameReligionAttitudeChangeLimit", 0),
+	("getDifferentReligionAttitudeChange", "iDifferentReligionAttitudeChange", 0),
+	("getDifferentReligionAttitudeDivisor", "iDifferentReligionAttitudeDivisor", 0),
+	("getDifferentReligionAttitudeChangeLimit", "iDifferentReligionAttitudeChangeLimit", 0),
+	("getBonusTradeAttitudeDivisor", "iBonusTradeAttitudeDivisor", 0),
+	("getBonusTradeAttitudeChangeLimit", "iBonusTradeAttitudeChangeLimit", 0),
+	("getOpenBordersAttitudeDivisor", "iOpenBordersAttitudeDivisor", 0),
+	("getOpenBordersAttitudeChangeLimit", "iOpenBordersAttitudeChangeLimit", 0),
+	("getDefensivePactAttitudeDivisor", "iDefensivePactAttitudeDivisor", 0),
+	("getDefensivePactAttitudeChangeLimit", "iDefensivePactAttitudeChangeLimit", 0),
+	("getShareWarAttitudeChange", "iShareWarAttitudeChange", 0),
+	("getShareWarAttitudeDivisor", "iShareWarAttitudeDivisor", 0),
+	("getShareWarAttitudeChangeLimit", "iShareWarAttitudeChangeLimit", 0),
+	("getFavoriteCivicAttitudeChange", "iFavoriteCivicAttitudeChange", 0),
+	("getFavoriteCivicAttitudeDivisor", "iFavoriteCivicAttitudeDivisor", 0),
+	("getFavoriteCivicAttitudeChangeLimit", "iFavoriteCivicAttitudeChangeLimit", 0),
+	("getVassalPowerModifier", "iVassalPowerModifier", 0),
+	("getFreedomAppreciation", "iFreedomAppreciation", 0),
+)
+
+# Mirrors the direct scalar attitude-threshold getters displayed by
+# SevoPediaLeaderAIPValues.py. Values are enum indexes stored by
+# CvXMLLoadUtility::SetInfoIDFromChildXmlVal.
+ATTITUDE_THRESHOLD_FIELDS: Tuple[Tuple[str, str, int], ...] = (
+	("getDemandTributeAttitudeThreshold", "DemandTributeAttitudeThreshold", -1),
+	("getNoGiveHelpAttitudeThreshold", "NoGiveHelpAttitudeThreshold", -1),
+	("getTechRefuseAttitudeThreshold", "TechRefuseAttitudeThreshold", -1),
+	("getCityRefuseAttitudeThreshold", "CityRefuseAttitudeThreshold", 2),
+	("getNativeCityRefuseAttitudeThreshold", "NativeCityRefuseAttitudeThreshold", 3),
+	("getStrategicBonusRefuseAttitudeThreshold", "StrategicBonusRefuseAttitudeThreshold", -1),
+	("getHappinessBonusRefuseAttitudeThreshold", "HappinessBonusRefuseAttitudeThreshold", -1),
+	("getHealthBonusRefuseAttitudeThreshold", "HealthBonusRefuseAttitudeThreshold", -1),
+	("getMapRefuseAttitudeThreshold", "MapRefuseAttitudeThreshold", -1),
+	("getDeclareWarRefuseAttitudeThreshold", "DeclareWarRefuseAttitudeThreshold", -1),
+	("getDeclareWarThemRefuseAttitudeThreshold", "DeclareWarThemRefuseAttitudeThreshold", -1),
+	("getStopTradingRefuseAttitudeThreshold", "StopTradingRefuseAttitudeThreshold", -1),
+	("getStopTradingThemRefuseAttitudeThreshold", "StopTradingThemRefuseAttitudeThreshold", -1),
+	("getAdoptCivicRefuseAttitudeThreshold", "AdoptCivicRefuseAttitudeThreshold", -1),
+	("getConvertReligionRefuseAttitudeThreshold", "ConvertReligionRefuseAttitudeThreshold", -1),
+	("getOpenBordersRefuseAttitudeThreshold", "OpenBordersRefuseAttitudeThreshold", -1),
+	("getDefensivePactRefuseAttitudeThreshold", "DefensivePactRefuseAttitudeThreshold", -1),
+	("getPermanentAllianceRefuseAttitudeThreshold", "PermanentAllianceRefuseAttitudeThreshold", -1),
+	("getVassalRefuseAttitudeThreshold", "VassalRefuseAttitudeThreshold", -1),
+)
+
+# UWAI::applyPersonalityWeight also mutates iLoveOfPeace even though the current
+# AIP scalar panel does not display it. Keep it in the median vector so the
+# scalar mirror stays aligned with the DLL primitive-member list.
+EXTRA_UWAI_ONLY_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = (
+	("getLoveOfPeace", "iLoveOfPeace", 0),
+)
+
+ALL_INT_FIELDS = DIRECT_INT_FIELDS + EXTRA_UWAI_ONLY_INT_FIELDS
+RAW_INT_RE = re.compile(r"\((-?\d+)\)")
+
+
+@dataclass
+class LeaderRecord:
+	index: int
+	type: str
+	values: Dict[str, int]
+
+
+@dataclass
+class ComparisonResult:
+	leader_index: int
+	leader_type: str
+	getter_key: str
+	expected: int
+	actual: Optional[int]
+	status: str
+
+
+def find_repo_root(start: Path) -> Path:
+	current = start.resolve()
+	for candidate in (current,) + tuple(current.parents):
+		if (candidate / "Assets").is_dir() and (candidate / "CvGameCoreDLL").is_dir():
+			return candidate
+	raise RuntimeError("Could not locate repo root containing Assets/ and CvGameCoreDLL/.")
+
+
+def strip_xml_namespaces(root: ET.Element) -> None:
+	for elem in root.iter():
+		if "}" in elem.tag:
+			elem.tag = elem.tag.split("}", 1)[1]
+
+
+def child_text(elem: ET.Element, tag: str) -> Optional[str]:
+	child = elem.find(tag)
+	if child is None or child.text is None:
+		return None
+	text = child.text.strip()
+	return text if text != "" else None
+
+
+def parse_int(text: str, path: Path, leader_type: str, tag: str) -> int:
+	try:
+		return int(text)
+	except ValueError as exc:
+		raise ValueError(f"{path}: leader {leader_type}: tag {tag} expected int, got {text!r}") from exc
+
+
+def get_pascal_case_suffix(xml_type: str) -> str:
+	# Mirrors the AIP helper convention: FLAVOR_MILITARY -> Military,
+	# ATTITUDE_FURIOUS -> Furious.
+	parts = [part for part in xml_type.split("_") if part]
+	if len(parts) > 1:
+		parts = parts[1:]
+	return "".join(part[:1] + part[1:].lower() for part in parts)
+
+
+def array_value_key(key_prefix: str, xml_type: str) -> str:
+	return "%s%s" % (key_prefix, get_pascal_case_suffix(xml_type))
+
+
+def displayed_value_keys() -> Tuple[str, ...]:
+	array_keys: List[str] = []
+	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
+		for type_name in type_names:
+			array_keys.append(array_value_key(key_prefix, type_name))
+	return (
+		tuple(getter for getter, _tag, _default in DIRECT_INT_FIELDS)
+		+ tuple(getter for getter, _tag, _default in ATTITUDE_THRESHOLD_FIELDS)
+		+ tuple(array_keys)
+	)
+
+
+def uwai_primitive_value_keys() -> Tuple[str, ...]:
+	array_keys: List[str] = []
+	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
+		for type_name in type_names:
+			array_keys.append(array_value_key(key_prefix, type_name))
+	return (
+		tuple(getter for getter, _tag, _default in ALL_INT_FIELDS)
+		+ tuple(getter for getter, _tag, _default in ATTITUDE_THRESHOLD_FIELDS)
+		+ tuple(array_keys)
+	)
+
+
+def constructor_defaults() -> Dict[str, int]:
+	values: Dict[str, int] = {}
+	for getter, _tag, _explicit_default in ALL_INT_FIELDS:
+		values[getter] = 0
+	for getter, _tag, constructor_default in ATTITUDE_THRESHOLD_FIELDS:
+		values[getter] = constructor_default
+	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
+		for type_name in type_names:
+			values[array_value_key(key_prefix, type_name)] = 0
+	return values
+
+
+def read_array_fields(values: Dict[str, int], leader_elem: ET.Element, xml_path: Path, leader_type: str) -> None:
+	for root_tag, key_tag, value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
+		known_types = set(type_names)
+		root = leader_elem.find(root_tag)
+		if root is None:
+			continue
+		for item in list(root):
+			type_name = child_text(item, key_tag)
+			value_text = child_text(item, value_tag)
+			if type_name is None or value_text is None:
+				continue
+			if type_name not in known_types:
+				raise ValueError(f"{xml_path}: leader {leader_type}: tag {root_tag}/{key_tag} unknown type {type_name!r}")
+			values[array_value_key(key_prefix, type_name)] = parse_int(value_text, xml_path, leader_type, value_tag)
+
+
+def read_leader_record(base_values: Dict[str, int], leader_elem: ET.Element, xml_path: Path) -> Tuple[str, Dict[str, int]]:
+	leader_type = child_text(leader_elem, "Type")
+	if leader_type is None:
+		raise ValueError(f"{xml_path}: LeaderHeadInfo without <Type>")
+	values = deepcopy(base_values)
+
+	for getter, tag, explicit_default in ALL_INT_FIELDS:
+		text = child_text(leader_elem, tag)
+		if text is not None:
+			values[getter] = parse_int(text, xml_path, leader_type, tag)
+		else:
+			# Mirrors CvLeaderHeadInfo::GetChildXmlValByName: if the copied value is
+			# non-zero, it becomes the missing-tag default; otherwise use the explicit
+			# default argument from CvLeaderHeadInfo::read.
+			values[getter] = values[getter] if values[getter] != 0 else explicit_default
+
+	for getter, tag, _constructor_default in ATTITUDE_THRESHOLD_FIELDS:
+		text = child_text(leader_elem, tag)
+		if text is None:
+			continue
+		if text not in ATTITUDE_TO_INDEX:
+			raise ValueError(f"{xml_path}: leader {leader_type}: tag {tag} unknown attitude value {text!r}")
+		values[getter] = ATTITUDE_TO_INDEX[text]
+
+	read_array_fields(values, leader_elem, xml_path, leader_type)
+
+	return leader_type, values
+
+
+def read_leaders_from_xml(repo_root: Path) -> List[LeaderRecord]:
+	xml_path = repo_root / LEADER_XML_RELATIVE_PATH
+	root = ET.parse(str(xml_path)).getroot()
+	strip_xml_namespaces(root)
+	infos = root.findall("./LeaderHeadInfos/LeaderHeadInfo")
+	if not infos:
+		raise ValueError(f"{xml_path}: no LeaderHeadInfo entries found")
+
+	leaders: List[LeaderRecord] = []
+	defaults_template: Optional[Dict[str, int]] = None
+	for info in infos:
+		base = constructor_defaults() if defaults_template is None else deepcopy(defaults_template)
+		leader_type, values = read_leader_record(base, info, xml_path)
+		if leader_type == DEFAULTS_LEADER_TYPE:
+			defaults_template = values
+			continue
+		leaders.append(LeaderRecord(index=len(leaders), type=leader_type, values=values))
+	return leaders
+
+
+def read_global_define_int(repo_root: Path, define_name: str) -> int:
+	for path in sorted((repo_root / "Assets" / "XML").rglob("*.xml")):
+		try:
+			root = ET.parse(str(path)).getroot()
+		except ET.ParseError:
+			continue
+		strip_xml_namespaces(root)
+		for define in root.findall(".//Define"):
+			name = child_text(define, "DefineName")
+			if name != define_name:
+				continue
+			text = child_text(define, "iDefineIntVal")
+			if text is None:
+				raise ValueError(f"{path}: {define_name} missing iDefineIntVal")
+			return parse_int(text, path, define_name, "iDefineIntVal")
+	raise ValueError(f"Could not find {define_name} under Assets/XML")
+
+
+def median_fraction(values: List[int]) -> Fraction:
+	ordered = sorted(values)
+	mid = len(ordered) // 2
+	if len(ordered) % 2:
+		return Fraction(ordered[mid], 1)
+	return Fraction(ordered[mid - 1] + ordered[mid], 2)
+
+
+def round_cpp_scaled(value: Fraction) -> int:
+	# Mirrors ScaledNum::round for signed values: add +/- 0.5, then truncate
+	# toward zero. For exact Fractions, floor/ceil express that behavior cleanly.
+	if value >= 0:
+		return math.floor(value + Fraction(1, 2))
+	return math.ceil(value - Fraction(1, 2))
+
+
+def apply_uwai_personality_weight(leaders: List[LeaderRecord], weight: int) -> None:
+	if weight == 100:
+		return
+	personality_leaders = [leader for leader in leaders if leader.type != BARBARIAN_LEADER_TYPE]
+	if not personality_leaders:
+		return
+	for getter_key in uwai_primitive_value_keys():
+		median = median_fraction([leader.values[getter_key] for leader in personality_leaders])
+		for leader in personality_leaders:
+			old_value = leader.values[getter_key]
+			new_value = (median * (100 - weight) + old_value * weight) / 100
+			leader.values[getter_key] = round_cpp_scaled(new_value)
+
+
+def read_predump_cache(repo_root: Path) -> Dict[int, Dict[str, Tuple[Any, ...]]]:
+	path = repo_root / PREDUMP_RELATIVE_PATH
+	module_ast = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+	for node in module_ast.body:
+		if isinstance(node, ast.Assign):
+			for target in node.targets:
+				if isinstance(target, ast.Name) and target.id == "LEADERS_INFO_CACHED":
+					value = ast.literal_eval(node.value)
+					if not isinstance(value, dict):
+						raise ValueError(f"{path}: LEADERS_INFO_CACHED is not a dict")
+					return value
+	raise ValueError(f"{path}: could not find LEADERS_INFO_CACHED assignment")
+
+
+def extract_raw_label_value(entry: Tuple[Any, ...]) -> Optional[int]:
+	if not entry or not isinstance(entry[0], str):
+		return None
+	match = RAW_INT_RE.search(entry[0])
+	if match is None:
+		return None
+	return int(match.group(1))
+
+
+def compare_values(leaders: List[LeaderRecord], predump: Dict[int, Dict[str, Tuple[Any, ...]]]) -> List[ComparisonResult]:
+	results: List[ComparisonResult] = []
+	for leader in leaders:
+		if leader.type == BARBARIAN_LEADER_TYPE:
+			continue
+		leader_cache = predump.get(leader.index)
+		if leader_cache is None:
+			for getter_key in displayed_value_keys():
+				results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "missing-leader"))
+			continue
+		for getter_key in displayed_value_keys():
+			entry = leader_cache.get(getter_key)
+			if entry is None:
+				results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "missing-field"))
+				continue
+			actual = extract_raw_label_value(entry)
+			if actual is None:
+				results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "unparsed-label"))
+				continue
+			status = "match" if actual == leader.values[getter_key] else "mismatch"
+			results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], actual, status))
+	return results
+
+
+def normalize_markdown_lines(lines: List[str]) -> List[str]:
+	normalized: List[str] = []
+	previous_blank = False
+	for line in lines:
+		is_blank = line.strip() == ""
+		if is_blank and previous_blank:
+			continue
+		normalized.append(line)
+		previous_blank = is_blank
+	while normalized and normalized[-1].strip() == "":
+		normalized.pop()
+	return normalized
+
+
+def write_markdown_report(path: Path, repo_root: Path, leaders: List[LeaderRecord], weight: int, results: List[ComparisonResult], max_mismatches: int) -> None:
+	compared = len(results)
+	matches = sum(1 for result in results if result.status == "match")
+	mismatches = [result for result in results if result.status == "mismatch"]
+	missing = [result for result in results if result.status != "match" and result.status != "mismatch"]
+
+	lines: List[str] = []
+	lines.append("# Leader AIP predump effective-value check")
+	lines.append("")
+	lines.append("Current direct-scalar plus simple-array comparison between `CIV4LeaderHeadInfos.xml` and `SevoPediaLeaderCachePredumped.py`.")
+	lines.append("")
+	lines.append("This helper mirrors the narrow DLL path needed for effective AIP values checked by this script:")
+	lines.append("")
+	lines.append("- `LEADER_DEFAULTS` copy behavior from `CvXMLLoadUtility::SetGlobalClassInfo`.")
+	lines.append("- `CvLeaderHeadInfo::GetChildXmlValByName` missing-tag behavior.")
+	lines.append("- `UWAI::applyPersonalityWeight` for scalar primitive fields and the checked primitive array/list fields.")
+	lines.append("")
+	lines.append("Contacts, memories, unit AI modifiers, improvement modifiers, and aggregated values are intentionally not checked yet.")
+	lines.append("")
+	lines.append("## Summary")
+	lines.append("")
+	lines.append(f"- Repo root: `{repo_root}`")
+	lines.append(f"- Leaders parsed, excluding `{DEFAULTS_LEADER_TYPE}`: {len(leaders)}")
+	lines.append(f"- UWAI personality percent: {weight}")
+	lines.append(f"- Effective-value entries compared: {compared}")
+	lines.append(f"- Matches: {matches}")
+	lines.append(f"- Mismatches: {len(mismatches)}")
+	lines.append(f"- Missing/unparsed entries: {len(missing)}")
+	lines.append("")
+	if mismatches:
+		lines.append("## Mismatches")
+		lines.append("")
+		lines.append("| Leader | Getter | Expected from XML+UWAI | Predump raw label |")
+		lines.append("|---|---|---:|---:|")
+		for result in mismatches[:max_mismatches]:
+			lines.append(f"| {result.leader_index}: `{result.leader_type}` | `{result.getter_key}` | {result.expected} | {result.actual} |")
+		if len(mismatches) > max_mismatches:
+			lines.append("")
+			lines.append(f"_Only first {max_mismatches} mismatches shown._")
+		lines.append("")
+	if missing:
+		lines.append("## Missing or unparsed entries")
+		lines.append("")
+		lines.append("| Leader | Getter | Expected | Status |")
+		lines.append("|---|---|---:|---|")
+		for result in missing[:max_mismatches]:
+			lines.append(f"| {result.leader_index}: `{result.leader_type}` | `{result.getter_key}` | {result.expected} | {result.status} |")
+		if len(missing) > max_mismatches:
+			lines.append("")
+			lines.append(f"_Only first {max_mismatches} missing/unparsed entries shown._")
+		lines.append("")
+	if not mismatches and not missing:
+		lines.append("## Result")
+		lines.append("")
+		lines.append("All checked direct scalar and simple-array raw values match the committed predump.")
+		lines.append("")
+	path.parent.mkdir(parents=True, exist_ok=True)
+	path.write_text("\n".join(normalize_markdown_lines(lines)) + "\n", encoding="utf-8", newline="\n")
+
+
+def default_output_path(repo_root: Path) -> Path:
+	timestamp = _datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
+	return repo_root / "LLM_Helpers" / "outputs" / f"leader_aip_predump_values_{timestamp}.md"
+
+
+def main() -> int:
+	parser = argparse.ArgumentParser(description="Compare LeaderHeadInfo AIP predump values against XML+UWAI-emulated effective values.")
+	parser.add_argument("--repo-root", type=Path, default=None, help="repository root; defaults to the current tree containing Assets/ and CvGameCoreDLL/")
+	parser.add_argument("--output", type=Path, default=None, help="Markdown report path; defaults to LLM_Helpers/outputs/leader_aip_predump_values_<timestamp>.md")
+	parser.add_argument("--max-mismatches", type=int, default=120, help="maximum mismatch rows to include in each report section")
+	parser.add_argument("--no-uwai", action="store_true", help="debug mode: do not apply UWAI_PERSONALITY_PERCENT before comparing")
+	parser.add_argument("--allow-mismatch", action="store_true", help="debug mode: return exit code 0 even when mismatches or missing/unparsed entries are found")
+	args = parser.parse_args()
+
+	repo_root = find_repo_root(args.repo_root or Path.cwd())
+	leaders = read_leaders_from_xml(repo_root)
+	weight = read_global_define_int(repo_root, UWAI_DEFINE_NAME)
+	if args.no_uwai:
+		weight = 100
+	else:
+		apply_uwai_personality_weight(leaders, weight)
+	predump = read_predump_cache(repo_root)
+	results = compare_values(leaders, predump)
+	mismatch_count = sum(1 for result in results if result.status == "mismatch")
+	missing_count = sum(1 for result in results if result.status != "match" and result.status != "mismatch")
+	output_path = args.output or default_output_path(repo_root)
+	write_markdown_report(output_path, repo_root, leaders, weight, results, args.max_mismatches)
+
+	print("Leader AIP predump effective-value check")
+	print(f"  compared: {len(results)}")
+	print(f"  mismatches: {mismatch_count}")
+	print(f"  missing/unparsed: {missing_count}")
+	print(f"  report: {output_path}")
+	if not args.allow_mismatch and (mismatch_count or missing_count):
+		return 1
+	return 0
+
+
+if __name__ == "__main__":
+	sys.exit(main())
