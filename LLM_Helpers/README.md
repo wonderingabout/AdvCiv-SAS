@@ -28,6 +28,7 @@ Always review diffs before committing generated source changes.
   - [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy)
   - [`collapse_cpp_inline_returns.py`](#collapse_cpp_inline_returnspy)
   - [`collapse_cpp_inline_statements.py`](#collapse_cpp_inline_statementspy)
+  - [`find_cpp_dead_code_candidates.py`](#find_cpp_dead_code_candidatespy)
 - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
   - [`singleline_pass.py`](#singleline_passpy)
   - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
@@ -287,6 +288,36 @@ python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --in-place
 ```
 
 ## C++ source cleanup helpers
+
+### `find_cpp_dead_code_candidates.py`
+
+Conservative C++ dead-code candidate finder for LLM/manual review.
+
+- Does not edit files and does not prove code is dead.
+- Scans the DLL source for likely review targets such as disabled macro/test infrastructure, existing `#if 0` blocks, and low-reference qualified functions.
+- Use `--focus high` for the least noisy report; it skips low-reference functions and focuses on macro/test candidates and existing disabled blocks.
+- Use `--include-risky-low-reference` only for deeper manual review because Civ4 DLL code can be reached through EXE callbacks, Python/Cy exports, virtual dispatch, serialization, macros, and debug-only paths.
+- Writes timestamped Markdown reports under `LLM_Helpers/outputs` by default.
+- First practical use: identified `ReproTest.cpp` as disabled reproducibility-test infrastructure that was still compiled in normal builds, leading to the `ENABLE_REPRO_TEST` compile-gate cleanup.
+- Always review the report with an LLM/human before changing source code; prefer compile-gating disabled test/debug infrastructure over deleting inherited code.
+
+Default report:
+
+```powershell
+python ./LLM_Helpers/find_cpp_dead_code_candidates.py
+```
+
+High-signal report:
+
+```powershell
+python ./LLM_Helpers/find_cpp_dead_code_candidates.py --focus high
+```
+
+Optional explicit output:
+
+```powershell
+python ./LLM_Helpers/find_cpp_dead_code_candidates.py --output LLM_Helpers/outputs/cpp_dead_code_candidates_manual.md
+```
 
 ### `collapse_cpp_signatures.py`
 

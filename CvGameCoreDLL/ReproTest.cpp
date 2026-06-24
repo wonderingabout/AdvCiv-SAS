@@ -2,6 +2,10 @@
 
 #include "CvGameCoreDLL.h"
 #include "ReproTest.h"
+
+// <!-- custom: Keep disabled reproducibility-test implementation out of normal DLL builds; ReproTest.h leaves ENABLE_REPRO_TEST commented by default. (ChatGPT-5.5) -->
+#ifdef ENABLE_REPRO_TEST
+
 #include "CvGame.h"
 #include "BBAILog.h"
 
@@ -141,3 +145,5 @@ void ReproTest::endWrite(bool bFinal)
 			gDLL->messageControlLog("ReproTest: done\n");
 	}
 }
+
+#endif
