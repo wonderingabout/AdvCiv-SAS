@@ -165,7 +165,7 @@ Verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumpe
 
 ### `build/worldsizes.py`
 
-Verifies `SAS_MAGIC_WORLDSIZE_*` constants in `Assets/Python/SASMagicNumbers.py` match the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order.
+Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order, and that old `SAS_MAGIC_WORLDSIZE_*` Python runtime references have not returned.
 
 ### `build/mapscripts.py`
 

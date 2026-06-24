@@ -139,19 +139,19 @@ def beforeGeneration():
 
 	# Set variance for start plots according to map size vs number of players.
 	map_size = CyMap().getWorldSize()
-	# <!-- custom: Use integer world-size indices with SAS fallback so Inland Sea supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
+	# <!-- custom: Use SAS worldsizes so Inland Sea supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex; ChatGPT-5.5) -->
 	sizevalues = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (2, 3),
-		SAS_MAGIC_WORLDSIZE_DUEL: (2, 3),
-		SAS_MAGIC_WORLDSIZE_TINY: (2, 3),
-		SAS_MAGIC_WORLDSIZE_SMALL: (3, 4),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (4, 7),
-		SAS_MAGIC_WORLDSIZE_LARGE: (5, 10),
-		SAS_MAGIC_WORLDSIZE_HUGE: (6, 15),
-		SAS_MAGIC_WORLDSIZE_SAS24: (7, 18),
-		SAS_MAGIC_WORLDSIZE_SAS32: (8, 22),
-		SAS_MAGIC_WORLDSIZE_SAS40: (9, 26),
-		SAS_MAGIC_WORLDSIZE_SAS48: (10, 30),
+		WorldSizeTypes.WORLDSIZE_ARENA: (2, 3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (2, 3),
+		WorldSizeTypes.WORLDSIZE_TINY: (2, 3),
+		WorldSizeTypes.WORLDSIZE_SMALL: (3, 4),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (4, 7),
+		WorldSizeTypes.WORLDSIZE_LARGE: (5, 10),
+		WorldSizeTypes.WORLDSIZE_HUGE: (6, 15),
+		WorldSizeTypes.WORLDSIZE_SAS24: (7, 18),
+		WorldSizeTypes.WORLDSIZE_SAS32: (8, 22),
+		WorldSizeTypes.WORLDSIZE_SAS40: (9, 26),
+		WorldSizeTypes.WORLDSIZE_SAS48: (10, 30),
 		}
 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
 	if iPlayers <= threeVar:
@@ -610,15 +610,15 @@ def getBottomLatitude():
 
 def getGridSize(argsList):
 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
-	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex) -->
+	# <!-- custom: Use SAS worldsizes with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex; ChatGPT-5.5) -->
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (5, 3),
-		SAS_MAGIC_WORLDSIZE_DUEL: (6, 4),
-		SAS_MAGIC_WORLDSIZE_TINY: (8, 5),
-		SAS_MAGIC_WORLDSIZE_SMALL: (10, 6),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (13, 8),
-		SAS_MAGIC_WORLDSIZE_LARGE: (16, 10),
-		SAS_MAGIC_WORLDSIZE_HUGE: (21, 13),
+		WorldSizeTypes.WORLDSIZE_ARENA: (5, 3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (6, 4),
+		WorldSizeTypes.WORLDSIZE_TINY: (8, 5),
+		WorldSizeTypes.WORLDSIZE_SMALL: (10, 6),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (13, 8),
+		WorldSizeTypes.WORLDSIZE_LARGE: (16, 10),
+		WorldSizeTypes.WORLDSIZE_HUGE: (21, 13),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

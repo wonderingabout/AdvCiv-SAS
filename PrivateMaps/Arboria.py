@@ -125,13 +125,13 @@ def minStartingDistanceModifier():
 def getGridSize(argsList):
 	"Override Grid Size function to make the maps square."
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (4,4),
-		SAS_MAGIC_WORLDSIZE_DUEL: (5,5),
-		SAS_MAGIC_WORLDSIZE_TINY: (6,6),
-		SAS_MAGIC_WORLDSIZE_SMALL: (8,8),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (10,10),
-		SAS_MAGIC_WORLDSIZE_LARGE: (13,13),
-		SAS_MAGIC_WORLDSIZE_HUGE: (16,16)
+		WorldSizeTypes.WORLDSIZE_ARENA: (4,4),
+		WorldSizeTypes.WORLDSIZE_DUEL: (5,5),
+		WorldSizeTypes.WORLDSIZE_TINY: (6,6),
+		WorldSizeTypes.WORLDSIZE_SMALL: (8,8),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (10,10),
+		WorldSizeTypes.WORLDSIZE_LARGE: (13,13),
+		WorldSizeTypes.WORLDSIZE_HUGE: (16,16)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

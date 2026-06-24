@@ -135,13 +135,13 @@ def getBottomLatitude():
 def getGridSize(argsList):
 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (5,3),
-		SAS_MAGIC_WORLDSIZE_DUEL: (6,4),
-		SAS_MAGIC_WORLDSIZE_TINY: (8,5),
-		SAS_MAGIC_WORLDSIZE_SMALL: (10,6),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (13,8),
-		SAS_MAGIC_WORLDSIZE_LARGE: (16,10),
-		SAS_MAGIC_WORLDSIZE_HUGE: (21,13)
+		WorldSizeTypes.WORLDSIZE_ARENA: (5,3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (6,4),
+		WorldSizeTypes.WORLDSIZE_TINY: (8,5),
+		WorldSizeTypes.WORLDSIZE_SMALL: (10,6),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (13,8),
+		WorldSizeTypes.WORLDSIZE_LARGE: (16,10),
+		WorldSizeTypes.WORLDSIZE_HUGE: (21,13)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

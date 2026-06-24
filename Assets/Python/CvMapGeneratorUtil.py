@@ -6,7 +6,6 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 from CvPythonExtensions import *
-from SASMagicNumbers import *
 from SASUtils import getInfoTypeOrFail
 import CvUtil
 import random
@@ -968,30 +967,31 @@ class MultilayeredFractal:
 		#
 		# Here is an example of obtaining grain sizes to fit with map sizes.
 		sizekey = self.map.getWorldSize()
-		# <!-- custom: Use runtime world-size indices here; see SASMagicNumbers.SAS_MAGIC_WORLDSIZE_* rationale. This base method is mostly a template overridden by maps, but keep it correct for copied code. Grain only, not dimensions. (Claude code Opus 4.7; GPT-5.5) -->
+		# <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. This base method is mostly a template overridden by maps, but keep it correct for copied code. Grain only, not dimensions. (Claude code Opus 4.7; GPT-5.5. ChatGPT-5.5) -->
 		sizevalues = {
-			SAS_MAGIC_WORLDSIZE_ARENA: (3,2,1,2),
-			SAS_MAGIC_WORLDSIZE_DUEL: (3,2,1,2),
-			SAS_MAGIC_WORLDSIZE_TINY: (3,2,1,2),
-			SAS_MAGIC_WORLDSIZE_SMALL: (3,2,1,2),
-			SAS_MAGIC_WORLDSIZE_STANDARD: (4,2,1,2),
-			SAS_MAGIC_WORLDSIZE_LARGE: (4,2,1,2),
-			SAS_MAGIC_WORLDSIZE_HUGE: (5,2,1,2),
+			WorldSizeTypes.WORLDSIZE_ARENA: (3,2,1,2),
+			WorldSizeTypes.WORLDSIZE_DUEL: (3,2,1,2),
+			WorldSizeTypes.WORLDSIZE_TINY: (3,2,1,2),
+			WorldSizeTypes.WORLDSIZE_SMALL: (3,2,1,2),
+			WorldSizeTypes.WORLDSIZE_STANDARD: (4,2,1,2),
+			WorldSizeTypes.WORLDSIZE_LARGE: (4,2,1,2),
+			WorldSizeTypes.WORLDSIZE_HUGE: (5,2,1,2),
 			}
 		# You can add as many grain entries as you like.
 		# Seed them all from the matrix using the following type of line:
 
 		# <!-- custom: Fallback for unknown world sizes in CvMapGeneratorUtil.py to avoid KeyError: base map scripts might still need XXL-aware getGridSize handling; the fallback only helps scripts that rely on CvMapGeneratorUtil. If you want, I can bring in the XXL map scripts from the add-on folder and wire them up. (GPT-5.2-Codex). -->
-		values = sizevalues.get(sizekey)
-		# <!-- custom: WorldSizeTypes only includes the 6 hardcoded sizes; extra XML world sizes
-		# (e.g. WORLDSIZE_ARENA / WORLDSIZE_SAS*) should map to the closest hardcoded size
-		# by tile count so they don't silently fall back to Huge parameters. (ChatGPT-5.2 Thinking) -->
-		# <!-- custom: check if accurate as i don't know too much about these. -->
+		values = None
+		for key in sizevalues.keys():
+			if int(key) == int(sizekey):
+				values = sizevalues[key]
+				break
+		# <!-- custom: WorldSizeTypes now includes ARENA/SAS sizes; extra/future XML world sizes should map to the closest calibrated size by tile count so they don't silently fall back to Huge parameters. (ChatGPT-5.2 Thinking + ChatGPT-5.5) -->
 		if values is None:
 			try:
 				wi = gc.getWorldInfo(sizekey)
 				iTiles = wi.getGridWidth() * wi.getGridHeight()
-				bestKey = SAS_MAGIC_WORLDSIZE_HUGE
+				bestKey = WorldSizeTypes.WORLDSIZE_HUGE
 				bestDiff = 1 << 30
 				for k in sizevalues.keys():
 					wiK = gc.getWorldInfo(k)
@@ -1001,7 +1001,7 @@ class MultilayeredFractal:
 						bestKey = k
 				values = sizevalues[bestKey]
 			except:
-				values = sizevalues[SAS_MAGIC_WORLDSIZE_HUGE]
+				values = sizevalues[WorldSizeTypes.WORLDSIZE_HUGE]
 		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = values
 
 		# The example is for four grain values. You may not need that many.

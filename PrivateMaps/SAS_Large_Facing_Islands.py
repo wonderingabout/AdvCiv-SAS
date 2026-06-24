@@ -125,22 +125,22 @@ def minStartingDistanceModifier():
 def _world_profile(eWorldSize):
 	# <!-- custom: world-size-only scaling: island footprint stays identical; only island count increases with world size. (GPT-5.3-Codex) -->
 	profiles = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (1, 1),
-		SAS_MAGIC_WORLDSIZE_DUEL: (1, 2),
-		SAS_MAGIC_WORLDSIZE_TINY: (1, 3),
-		SAS_MAGIC_WORLDSIZE_SMALL: (1, 4),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (2, 4),
-		SAS_MAGIC_WORLDSIZE_LARGE: (2, 6),
-		SAS_MAGIC_WORLDSIZE_HUGE: (2, 8),
-		SAS_MAGIC_WORLDSIZE_SAS24: (2, 12),
-		SAS_MAGIC_WORLDSIZE_SAS32: (2, 16),
-		SAS_MAGIC_WORLDSIZE_SAS40: (2, 20),
-		SAS_MAGIC_WORLDSIZE_SAS48: (2, 24)
+		WorldSizeTypes.WORLDSIZE_ARENA: (1, 1),
+		WorldSizeTypes.WORLDSIZE_DUEL: (1, 2),
+		WorldSizeTypes.WORLDSIZE_TINY: (1, 3),
+		WorldSizeTypes.WORLDSIZE_SMALL: (1, 4),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (2, 4),
+		WorldSizeTypes.WORLDSIZE_LARGE: (2, 6),
+		WorldSizeTypes.WORLDSIZE_HUGE: (2, 8),
+		WorldSizeTypes.WORLDSIZE_SAS24: (2, 12),
+		WorldSizeTypes.WORLDSIZE_SAS32: (2, 16),
+		WorldSizeTypes.WORLDSIZE_SAS40: (2, 20),
+		WorldSizeTypes.WORLDSIZE_SAS48: (2, 24)
 	}
 	iWorld = int(eWorldSize)
 	if profiles.has_key(iWorld):
 		return profiles[iWorld]
-	return profiles[SAS_MAGIC_WORLDSIZE_SAS48]
+	return profiles[WorldSizeTypes.WORLDSIZE_SAS48]
 
 def _get_ew_connector_mode():
 	# 0 = Coast bands, 1 = Ocean bands

@@ -154,13 +154,13 @@ class MirrorMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		# The following grain matrix is specific to Pangaea.py
 		sizekey = self.map.getWorldSize()
 		sizevalues = {
-			SAS_MAGIC_WORLDSIZE_ARENA: 2,
-			SAS_MAGIC_WORLDSIZE_DUEL: 3,
-			SAS_MAGIC_WORLDSIZE_TINY: 3,
-			SAS_MAGIC_WORLDSIZE_SMALL: 4,
-			SAS_MAGIC_WORLDSIZE_STANDARD: 4,
-			SAS_MAGIC_WORLDSIZE_LARGE: 4,
-			SAS_MAGIC_WORLDSIZE_HUGE: 5
+			WorldSizeTypes.WORLDSIZE_ARENA: 2,
+			WorldSizeTypes.WORLDSIZE_DUEL: 3,
+			WorldSizeTypes.WORLDSIZE_TINY: 3,
+			WorldSizeTypes.WORLDSIZE_SMALL: 4,
+			WorldSizeTypes.WORLDSIZE_STANDARD: 4,
+			WorldSizeTypes.WORLDSIZE_LARGE: 4,
+			WorldSizeTypes.WORLDSIZE_HUGE: 5
 			}
 		grain = sas_lookup_world_size(sizekey, sizevalues)
 

@@ -27,16 +27,15 @@ def isAdvancedMap():
 
 def getGridSize(argsList):
 	# <!-- custom: Water is land-heavy (not almost-all-land): keep map tighter than default to avoid over-wide starts while preserving mixed naval play. (GPT-5.3-Codex) -->
-	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, NOT WorldSizeTypes.WORLDSIZE_* (unshifted: HUGE==5), which mis-keyed every size by one and collided ARENA with DUEL. Same fix/reason as PerfectMongoose/SAS_Longworld getGridSize. (Claude code Opus 4.7) -->
-	# <!-- custom: before the fix, arena world size was "0:", but duel to huge were using "WorldSizeTypes.WORLDSIZE_DUEL:" format. Ingame worldsize huge was 72 x 44 and large was 60 x 36 before the fix which was empirically way too big, and now after the fix worldsize huge is now 60 x 36 (large before fix) and large is now 48 x 32, which empirically seems to fit well. -->
+	# <!-- custom: Use XML-aligned DLL WorldSizeTypes keys; Large/Huge were empirically too large before this tuning, so keep the smaller tested rows. (Claude code Opus 4.7; GPT-5.5; ChatGPT-5.5) -->
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (3,3),
-		SAS_MAGIC_WORLDSIZE_DUEL: (4,3),
-		SAS_MAGIC_WORLDSIZE_TINY: (6,3),
-		SAS_MAGIC_WORLDSIZE_SMALL: (8,4),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (9,6),
-		SAS_MAGIC_WORLDSIZE_LARGE: (12,8),
-		SAS_MAGIC_WORLDSIZE_HUGE: (15,9),
+		WorldSizeTypes.WORLDSIZE_ARENA: (3,3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (4,3),
+		WorldSizeTypes.WORLDSIZE_TINY: (6,3),
+		WorldSizeTypes.WORLDSIZE_SMALL: (8,4),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (9,6),
+		WorldSizeTypes.WORLDSIZE_LARGE: (12,8),
+		WorldSizeTypes.WORLDSIZE_HUGE: (15,9),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

@@ -494,6 +494,7 @@ def addBonusType(argsList):
 	# determine number of bonuses to place (defined as count)
 	# size modifier is a fixed component based on world size
 	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
+	# <!-- custom: note: now that we added worldsizes to DLL as enums, not sure this is still needed but left as such for no tedium as of now. -->
 	sizekey = int(map.getWorldSize())
 	sizevalues = sas_default_sizevalues()
 	sizemodifier = sas_lookup_world_size(sizekey, sizevalues)

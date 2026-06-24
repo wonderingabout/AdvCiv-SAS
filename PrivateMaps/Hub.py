@@ -160,15 +160,15 @@ def isBonusIgnoreLatitude():
 	return True
 
 def getGridSize(argsList):
-	# <!-- custom: Keep Hub's original base profile and calibrate only sizes above Huge using shared SAS helpers so ARENA/SAS sizes avoid KeyError while preserving this script's shape. (GPT-5.3-Codex) -->
+	# <!-- custom: Keep Hub's original base profile and calibrate only sizes above Huge using shared SAS helpers so ARENA/SAS sizes avoid KeyError while preserving this script's shape. (GPT-5.3-Codex; ChatGPT-5.5) -->
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (6,4),
-		SAS_MAGIC_WORLDSIZE_DUEL: (8,5),
-		SAS_MAGIC_WORLDSIZE_TINY: (10,6),
-		SAS_MAGIC_WORLDSIZE_SMALL: (13,8),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (16,10),
-		SAS_MAGIC_WORLDSIZE_LARGE: (21,13),
-		SAS_MAGIC_WORLDSIZE_HUGE: (26,16)
+		WorldSizeTypes.WORLDSIZE_ARENA: (6,4),
+		WorldSizeTypes.WORLDSIZE_DUEL: (8,5),
+		WorldSizeTypes.WORLDSIZE_TINY: (10,6),
+		WorldSizeTypes.WORLDSIZE_SMALL: (13,8),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (16,10),
+		WorldSizeTypes.WORLDSIZE_LARGE: (21,13),
+		WorldSizeTypes.WORLDSIZE_HUGE: (26,16)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -1096,19 +1096,19 @@ def assignStartingPlots():
 
 	# Set variance for start plots according to map size vs number of players.
 	map_size = map.getWorldSize()
-	# <!-- custom: Use integer world-size indices with SAS fallback so Hub supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
+	# <!-- custom: Use SAS worldsizes so Hub supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex; ChatGPT-5.5) -->
 	sizevalues = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (2, 3),
-		SAS_MAGIC_WORLDSIZE_DUEL: (2, 3),
-		SAS_MAGIC_WORLDSIZE_TINY: (2, 4),
-		SAS_MAGIC_WORLDSIZE_SMALL: (3, 6),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (4, 10),
-		SAS_MAGIC_WORLDSIZE_LARGE: (6, 12),
-		SAS_MAGIC_WORLDSIZE_HUGE: (6, 18),
-		SAS_MAGIC_WORLDSIZE_SAS24: (7, 20),
-		SAS_MAGIC_WORLDSIZE_SAS32: (8, 24),
-		SAS_MAGIC_WORLDSIZE_SAS40: (9, 28),
-		SAS_MAGIC_WORLDSIZE_SAS48: (10, 32)
+		WorldSizeTypes.WORLDSIZE_ARENA: (2, 3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (2, 3),
+		WorldSizeTypes.WORLDSIZE_TINY: (2, 4),
+		WorldSizeTypes.WORLDSIZE_SMALL: (3, 6),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (4, 10),
+		WorldSizeTypes.WORLDSIZE_LARGE: (6, 12),
+		WorldSizeTypes.WORLDSIZE_HUGE: (6, 18),
+		WorldSizeTypes.WORLDSIZE_SAS24: (7, 20),
+		WorldSizeTypes.WORLDSIZE_SAS32: (8, 24),
+		WorldSizeTypes.WORLDSIZE_SAS40: (9, 28),
+		WorldSizeTypes.WORLDSIZE_SAS48: (10, 32)
 		}
 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
 	if iPlayers <= threeVar:

@@ -129,15 +129,15 @@ def startHumansOnSameTile():
 	return True
 
 def getGridSize(argsList):
-	# <!-- custom: Keep original base tiers and calibrate only sizes above Huge with shared SAS helper to avoid KeyError on ARENA/SAS24/SAS32/SAS40/SAS48. (GPT-5.3-Codex) -->
+	# <!-- custom: Keep original base tiers and calibrate only sizes above Huge with shared SAS helper to avoid KeyError on ARENA/SAS24/SAS32/SAS40/SAS48. (GPT-5.3-Codex; ChatGPT-5.5) -->
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (4,3),
-		SAS_MAGIC_WORLDSIZE_DUEL: (6,4),
-		SAS_MAGIC_WORLDSIZE_TINY: (9,4),
-		SAS_MAGIC_WORLDSIZE_SMALL: (10,6),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (14,8),
-		SAS_MAGIC_WORLDSIZE_LARGE: (18,10),
-		SAS_MAGIC_WORLDSIZE_HUGE: (24,14)
+		WorldSizeTypes.WORLDSIZE_ARENA: (4,3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (6,4),
+		WorldSizeTypes.WORLDSIZE_TINY: (9,4),
+		WorldSizeTypes.WORLDSIZE_SMALL: (10,6),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (14,8),
+		WorldSizeTypes.WORLDSIZE_LARGE: (18,10),
+		WorldSizeTypes.WORLDSIZE_HUGE: (24,14)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
@@ -166,15 +166,15 @@ def generatePlotTypes():
 	# Varying grains for reducing "clumping" of hills/peaks on larger maps.
 	sizekey = map.getWorldSize()
 	grainvalues = {
-		SAS_MAGIC_WORLDSIZE_ARENA: 2,
-		SAS_MAGIC_WORLDSIZE_DUEL: 3,
-		SAS_MAGIC_WORLDSIZE_TINY: 3,
-		SAS_MAGIC_WORLDSIZE_SMALL: 4,
-		SAS_MAGIC_WORLDSIZE_STANDARD: 4,
-		SAS_MAGIC_WORLDSIZE_LARGE: 5,
-		SAS_MAGIC_WORLDSIZE_HUGE: 6
+		WorldSizeTypes.WORLDSIZE_ARENA: 2,
+		WorldSizeTypes.WORLDSIZE_DUEL: 3,
+		WorldSizeTypes.WORLDSIZE_TINY: 3,
+		WorldSizeTypes.WORLDSIZE_SMALL: 4,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 4,
+		WorldSizeTypes.WORLDSIZE_LARGE: 5,
+		WorldSizeTypes.WORLDSIZE_HUGE: 6
 		}
-	grain_amount = grainvalues.get(int(sizekey), grainvalues[SAS_MAGIC_WORLDSIZE_HUGE])
+	grain_amount = grainvalues.get(int(sizekey), grainvalues[WorldSizeTypes.WORLDSIZE_HUGE])
 
 	# Init fractal for distribution of Hills plots.
 	hillsFrac = CyFractal()

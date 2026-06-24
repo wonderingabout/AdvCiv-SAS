@@ -23,19 +23,19 @@ def isAdvancedMap():
 
 def getGridSize(argsList):
 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices for compatibility; see SASMagicNumbers.SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.5; GPT-5.5) -->
+	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using DLL WorldSizeTypes values aligned with XML order. (Claude code Opus 4.5; GPT-5.5; ChatGPT-5.5) -->
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (5, 5),
-		SAS_MAGIC_WORLDSIZE_DUEL: (5, 5),
-		SAS_MAGIC_WORLDSIZE_TINY: (5, 5),
-		SAS_MAGIC_WORLDSIZE_SMALL: (5, 5),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (5, 5),
-		SAS_MAGIC_WORLDSIZE_LARGE: (5, 5),
-		SAS_MAGIC_WORLDSIZE_HUGE: (5, 5),
-		SAS_MAGIC_WORLDSIZE_SAS24: (5, 5),
-		SAS_MAGIC_WORLDSIZE_SAS32: (5, 5),
-		SAS_MAGIC_WORLDSIZE_SAS40: (5, 5),
-		SAS_MAGIC_WORLDSIZE_SAS48: (5, 5),
+		WorldSizeTypes.WORLDSIZE_ARENA: (5, 5),
+		WorldSizeTypes.WORLDSIZE_DUEL: (5, 5),
+		WorldSizeTypes.WORLDSIZE_TINY: (5, 5),
+		WorldSizeTypes.WORLDSIZE_SMALL: (5, 5),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (5, 5),
+		WorldSizeTypes.WORLDSIZE_LARGE: (5, 5),
+		WorldSizeTypes.WORLDSIZE_HUGE: (5, 5),
+		WorldSizeTypes.WORLDSIZE_SAS24: (5, 5),
+		WorldSizeTypes.WORLDSIZE_SAS32: (5, 5),
+		WorldSizeTypes.WORLDSIZE_SAS40: (5, 5),
+		WorldSizeTypes.WORLDSIZE_SAS48: (5, 5),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

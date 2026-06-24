@@ -6157,15 +6157,15 @@ def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
 	[eWorldSize] = argsList
-	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, like sas_compact_almost_all_land_grid_sizes. Do NOT key by WorldSizeTypes.WORLDSIZE_* here: that enum isn't ARENA-shifted (HUGE==5), so direct getGridSize dictionaries mis-key Large/Huge after adding ARENA; map scripts like Pangaea.py scale XML dimensions through getNumPlotsPercent, so they can still behave plausibly because XML provides the base size first. (Claude code Opus 4.7; GPT-5.5) -->
+	# <!-- custom: WorldSizeTypes keys now match the runtime XML world-size order, including ARENA before Duel and SAS sizes after Huge. This preserves the earlier Large/Huge map-size fix without custom magic indices. (Claude code Opus 4.7; GPT-5.5; ChatGPT-5.5) -->
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (6, 4),
-		SAS_MAGIC_WORLDSIZE_DUEL: (8, 6),
-		SAS_MAGIC_WORLDSIZE_TINY: (11, 8),
-		SAS_MAGIC_WORLDSIZE_SMALL: (14, 10),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (17, 12),
-		SAS_MAGIC_WORLDSIZE_LARGE: (20, 14),
-		SAS_MAGIC_WORLDSIZE_HUGE: (24, 17),
+		WorldSizeTypes.WORLDSIZE_ARENA: (6, 4),
+		WorldSizeTypes.WORLDSIZE_DUEL: (8, 6),
+		WorldSizeTypes.WORLDSIZE_TINY: (11, 8),
+		WorldSizeTypes.WORLDSIZE_SMALL: (14, 10),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (17, 12),
+		WorldSizeTypes.WORLDSIZE_LARGE: (20, 14),
+		WorldSizeTypes.WORLDSIZE_HUGE: (24, 17),
 	}
 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 

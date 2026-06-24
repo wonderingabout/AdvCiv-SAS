@@ -88,7 +88,7 @@ c_favWeight = 0       # Default: 0; Value not used. Change Weight Directly
 # c_spacePerCiv for some dicisions regarding start plot placement.
 # NOTE: Dont Choose both numbers too big - the conditions will be ignored, if
 # there is not enought space.
-# <!-- custom: Legacy 0..5 size-bucket arrays below are still in the original Duel..Huge order; use _sas_world_size_base_index before indexing them. (GPT-5.5?) -->
+# <!-- custom: RandomScriptMap still has legacy 0..5 Duel..Huge tuning arrays below; convert XML-aligned WorldSizeTypes to those legacy bucket indexes before indexing them. Arena reuses Duel tuning and SAS sizes reuse Huge tuning. (GPT-5.5? + ChatGPT-5.5) -->
 c_minStartAreaSize = [6, 6, 8, 8, 10, 10]   # Default [6, 6, 8, 8, 10, 10]
 c_spacePerCiv = [40, 50, 50, 75, 75, 90]    # Default [40,50,50,75,75,90]
 #
@@ -117,15 +117,15 @@ STA_OLDWORLD = 2
 STA_OLDCOAST = 3
 
 def _sas_world_size_base_index(eWorldSize):
-	# <!-- custom: AdvCiv-SAS adds Arena before Duel, so runtime world-size IDs are shifted from the old BTS WorldSizeTypes enum. RandomScriptMap's tested Huge dimensions did not change from this fix, but its start-validation thresholds, fractal grain branches, and terrain-size branch were reading shifted size buckets; map them back to the original 0..5 Duel..Huge tuning arrays, with Arena using Duel and larger SAS sizes reusing Huge. (GPT-5.5?) -->
+	# <!-- custom: Convert XML-aligned WorldSizeTypes to RandomScriptMap's legacy 0..5 Duel..Huge tuning buckets. Arena reuses Duel tuning and SAS sizes reuse Huge tuning. (GPT-5.5? + ChatGPT-5.5) -->
 	size_index_values = {
-		SAS_MAGIC_WORLDSIZE_ARENA: 0,
-		SAS_MAGIC_WORLDSIZE_DUEL: 0,
-		SAS_MAGIC_WORLDSIZE_TINY: 1,
-		SAS_MAGIC_WORLDSIZE_SMALL: 2,
-		SAS_MAGIC_WORLDSIZE_STANDARD: 3,
-		SAS_MAGIC_WORLDSIZE_LARGE: 4,
-		SAS_MAGIC_WORLDSIZE_HUGE: 5
+		WorldSizeTypes.WORLDSIZE_ARENA: 0,
+		WorldSizeTypes.WORLDSIZE_DUEL: 0,
+		WorldSizeTypes.WORLDSIZE_TINY: 1,
+		WorldSizeTypes.WORLDSIZE_SMALL: 2,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 3,
+		WorldSizeTypes.WORLDSIZE_LARGE: 4,
+		WorldSizeTypes.WORLDSIZE_HUGE: 5
 	}
 	return sas_lookup_world_size(eWorldSize, size_index_values)
 
@@ -151,13 +151,13 @@ def getNumPlotsPercent(argsList):
 	if eWorldSize < 0:
 		return 100
 	sizeModifiers = {
-		SAS_MAGIC_WORLDSIZE_ARENA: 100,
-		SAS_MAGIC_WORLDSIZE_DUEL: 100,
-		SAS_MAGIC_WORLDSIZE_TINY: 100,
-		SAS_MAGIC_WORLDSIZE_SMALL: 100,
-		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
-		SAS_MAGIC_WORLDSIZE_LARGE: 99,
-		SAS_MAGIC_WORLDSIZE_HUGE: 96
+		WorldSizeTypes.WORLDSIZE_ARENA: 100,
+		WorldSizeTypes.WORLDSIZE_DUEL: 100,
+		WorldSizeTypes.WORLDSIZE_TINY: 100,
+		WorldSizeTypes.WORLDSIZE_SMALL: 100,
+		WorldSizeTypes.WORLDSIZE_STANDARD: 100,
+		WorldSizeTypes.WORLDSIZE_LARGE: 99,
+		WorldSizeTypes.WORLDSIZE_HUGE: 96
 	}
 	return sas_lookup_world_size(eWorldSize, sizeModifiers)
 
@@ -874,13 +874,13 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # The following grain matrix is specific to Pangaea.py
         sizekey = self.map.getWorldSize()
         sizevalues = {
-            SAS_MAGIC_WORLDSIZE_ARENA:     3,
-            SAS_MAGIC_WORLDSIZE_DUEL:      3,
-            SAS_MAGIC_WORLDSIZE_TINY:      3,
-            SAS_MAGIC_WORLDSIZE_SMALL:     4,
-            SAS_MAGIC_WORLDSIZE_STANDARD:  4,
-            SAS_MAGIC_WORLDSIZE_LARGE:     4,
-            SAS_MAGIC_WORLDSIZE_HUGE:      5
+            WorldSizeTypes.WORLDSIZE_ARENA:     3,
+            WorldSizeTypes.WORLDSIZE_DUEL:      3,
+            WorldSizeTypes.WORLDSIZE_TINY:      3,
+            WorldSizeTypes.WORLDSIZE_SMALL:     4,
+            WorldSizeTypes.WORLDSIZE_STANDARD:  4,
+            WorldSizeTypes.WORLDSIZE_LARGE:     4,
+            WorldSizeTypes.WORLDSIZE_HUGE:      5
             }
         grain = sas_lookup_world_size(sizekey, sizevalues)
 
@@ -1025,13 +1025,13 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
         # The following grain matrix is specific to Terra.py
         sizekey = self.map.getWorldSize()
         sizevalues = {
-            SAS_MAGIC_WORLDSIZE_ARENA:     (3,2,1,2),
-            SAS_MAGIC_WORLDSIZE_DUEL:      (3,2,1,2),
-            SAS_MAGIC_WORLDSIZE_TINY:      (3,2,1,2),
-            SAS_MAGIC_WORLDSIZE_SMALL:     (4,2,1,2),
-            SAS_MAGIC_WORLDSIZE_STANDARD:  (4,2,1,2),
-            SAS_MAGIC_WORLDSIZE_LARGE:     (4,2,1,2),
-            SAS_MAGIC_WORLDSIZE_HUGE:      (5,2,1,2)
+            WorldSizeTypes.WORLDSIZE_ARENA:     (3,2,1,2),
+            WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1,2),
+            WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1,2),
+            WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1,2),
+            WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
+            WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
+            WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
             }
         (archGrain, contGrain, gaeaGrain, eurasiaGrain) = sas_lookup_world_size(sizekey, sizevalues)
 

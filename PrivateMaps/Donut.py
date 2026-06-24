@@ -142,14 +142,14 @@ def isSeaLevelMap():
 def getGridSize(argsList):
 	"Override Grid Size function to make the maps square."
 	grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (5,5),
-		SAS_MAGIC_WORLDSIZE_DUEL: (6,6),
-		SAS_MAGIC_WORLDSIZE_TINY: (8,8),
-		SAS_MAGIC_WORLDSIZE_SMALL: (10,10),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (13,13),
+		WorldSizeTypes.WORLDSIZE_ARENA: (5,5),
+		WorldSizeTypes.WORLDSIZE_DUEL: (6,6),
+		WorldSizeTypes.WORLDSIZE_TINY: (8,8),
+		WorldSizeTypes.WORLDSIZE_SMALL: (10,10),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (13,13),
 		# <!-- custom: Donut felt somewhat oversized at larger world sizes in AdvCiv-SAS testing. Keep the square map shape, but reduce Large from 16 x 16 to 15 x 15 (256 -> 225 plots, about 12% fewer) and Huge from 20 x 20 to 19 x 19 (400 -> 361 plots, about 10% fewer); smaller square sizes are too coarse to shrink by only 5-10%. SAS world sizes calibrate from the Huge anchor too. (GPT-5.5) -->
-		SAS_MAGIC_WORLDSIZE_LARGE: (15,15),
-		SAS_MAGIC_WORLDSIZE_HUGE: (19,19)
+		WorldSizeTypes.WORLDSIZE_LARGE: (15,15),
+		WorldSizeTypes.WORLDSIZE_HUGE: (19,19)
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads

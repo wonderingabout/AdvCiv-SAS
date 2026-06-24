@@ -3,20 +3,20 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# Build check: SAS_MAGIC_WORLDSIZE_* constants must match CIV4WorldInfo.xml order.
+# Build check: hardcoded WorldSizeTypes enum values must match CIV4WorldInfo.xml order.
 
 from pathlib import Path
 import argparse
-import ast
 import re
 import sys
 import xml.etree.ElementTree as ET
 
 
-MAGIC_NUMBERS_RELATIVE_PATH = Path("Assets/Python/SASMagicNumbers.py")
 WORLD_INFO_RELATIVE_PATH = Path("Assets/XML/GameInfo/CIV4WorldInfo.xml")
-WORLDSIZE_PREFIX = "SAS_MAGIC_WORLDSIZE_"
-LARGEST_CONSTANT = "SAS_MAGIC_WORLDSIZE_LARGEST"
+CV_ENUMS_RELATIVE_PATH = Path("CvGameCoreDLL/CvEnums.h")
+CY_ENUMS_INTERFACE_RELATIVE_PATH = Path("CvGameCoreDLL/CyEnumsInterface.cpp")
+PYTHON_RUNTIME_PATHS = (Path("Assets/Python"), Path("PrivateMaps"))
+OLD_MAGIC_PREFIX = "SAS_MAGIC_WORLDSIZE_"
 
 
 def get_default_repo_root() -> Path:
@@ -55,45 +55,65 @@ def read_worldinfo_types(repo_root: Path) -> list[str]:
 	return world_types
 
 
-def read_worldsize_magic_constants(repo_root: Path) -> tuple[dict[str, int], dict[str, str]]:
-	path = repo_root / MAGIC_NUMBERS_RELATIVE_PATH
+def extract_worldsize_enum_block(repo_root: Path) -> str:
+	path = repo_root / CV_ENUMS_RELATIVE_PATH
 	if not path.exists():
 		raise RuntimeError(f"missing file: {path}")
 
-	tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-	int_constants: dict[str, int] = {}
-	alias_constants: dict[str, str] = {}
+	text = path.read_text(encoding="utf-8")
+	match = re.search(r"enum\s+WorldSizeTypes\s*\{(?P<body>.*?)\};", text, re.S)
+	if not match:
+		raise RuntimeError(f"{CV_ENUMS_RELATIVE_PATH}: missing enum WorldSizeTypes block")
+	return match.group("body")
 
-	for node in tree.body:
-		if not isinstance(node, ast.Assign) or len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
+
+def read_cpp_worldsize_enum_types(repo_root: Path) -> list[str]:
+	body = extract_worldsize_enum_block(repo_root)
+	enum_types: list[str] = []
+
+	for raw_line in body.splitlines():
+		line = raw_line.split("//", 1)[0].strip().rstrip(",")
+		if not line or line.startswith("NO_WORLDSIZE"):
 			continue
+		name = line.split("=", 1)[0].strip()
+		if name:
+			enum_types.append(name)
 
-		name = node.targets[0].id
-		if not name.startswith(WORLDSIZE_PREFIX):
+	return enum_types
+
+
+def read_python_exposed_worldsize_types(repo_root: Path) -> list[str]:
+	path = repo_root / CY_ENUMS_INTERFACE_RELATIVE_PATH
+	if not path.exists():
+		raise RuntimeError(f"missing file: {path}")
+
+	text = path.read_text(encoding="utf-8")
+	match = re.search(r"python::enum_<WorldSizeTypes>\(\"WorldSizeTypes\"\)(?P<body>.*?);", text, re.S)
+	if not match:
+		raise RuntimeError(f"{CY_ENUMS_INTERFACE_RELATIVE_PATH}: missing python::enum_<WorldSizeTypes> block")
+
+	return [name for name in re.findall(r"\.value\(\"(WORLDSIZE_[A-Z0-9_]+)\"\s*,\s*\1\)", match.group("body"))]
+
+
+def check_no_old_magic_worldsizes(repo_root: Path) -> list[str]:
+	failures: list[str] = []
+	for relative_path in PYTHON_RUNTIME_PATHS:
+		root = repo_root / relative_path
+		if not root.exists():
 			continue
-
-		if isinstance(node.value, ast.Constant) and isinstance(node.value.value, int):
-			int_constants[name] = node.value.value
-		elif isinstance(node.value, ast.Name):
-			alias_constants[name] = node.value.id
-		else:
-			raise RuntimeError(f"{MAGIC_NUMBERS_RELATIVE_PATH}: unsupported world-size constant assignment for {name}")
-
-	return int_constants, alias_constants
-
-
-def expected_magic_name(world_type: str) -> str:
-	if not re.fullmatch(r"WORLDSIZE_[A-Z0-9_]+", world_type):
-		return f"<invalid world type: {world_type}>"
-	return "SAS_MAGIC_" + world_type
+		for path in sorted(root.rglob("*.py")):
+			text = path.read_text(encoding="utf-8", errors="replace")
+			if OLD_MAGIC_PREFIX in text:
+				failures.append(f"{path.relative_to(repo_root)}: old {OLD_MAGIC_PREFIX} constant reference remains")
+	return failures
 
 
 def check_worldsizes(repo_root: Path) -> list[str]:
 	failures: list[str] = []
 
 	world_types = read_worldinfo_types(repo_root)
-	expected_by_name = {expected_magic_name(world_type): index for index, world_type in enumerate(world_types)}
-	int_constants, alias_constants = read_worldsize_magic_constants(repo_root)
+	cpp_types = read_cpp_worldsize_enum_types(repo_root)
+	python_types = read_python_exposed_worldsize_types(repo_root)
 
 	if len(set(world_types)) != len(world_types):
 		seen: set[str] = set()
@@ -104,49 +124,34 @@ def check_worldsizes(repo_root: Path) -> list[str]:
 			seen.add(world_type)
 		failures.append(f"{WORLD_INFO_RELATIVE_PATH}: duplicate world-size Type entries: {', '.join(duplicates)}")
 
-	for name in sorted(expected_by_name):
-		expected = expected_by_name[name]
-		if name not in int_constants:
-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: missing {name} = {expected}")
-			continue
-
-		actual = int_constants[name]
-		if actual != expected:
-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: {name} expected {expected} from XML order, found {actual}")
-
-	extra_names = sorted(name for name in int_constants if name not in expected_by_name)
-	for name in extra_names:
-		failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: extra numeric world-size constant {name} = {int_constants[name]} not present in {WORLD_INFO_RELATIVE_PATH}")
-
 	if not world_types:
 		failures.append(f"{WORLD_INFO_RELATIVE_PATH}: no WorldInfo entries found")
-	else:
-		expected_largest_target = expected_magic_name(world_types[-1])
-		actual_largest_target = alias_constants.get(LARGEST_CONSTANT)
-		if actual_largest_target != expected_largest_target:
-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: {LARGEST_CONSTANT} should alias {expected_largest_target}, found {actual_largest_target or '<missing>'}")
 
-	for name in sorted(alias_constants):
-		if name != LARGEST_CONSTANT:
-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: unexpected world-size alias {name} = {alias_constants[name]}")
+	if cpp_types != world_types:
+		failures.append(f"{CV_ENUMS_RELATIVE_PATH}: WorldSizeTypes order does not match {WORLD_INFO_RELATIVE_PATH}; expected {world_types}, found {cpp_types}")
+
+	if python_types != world_types:
+		failures.append(f"{CY_ENUMS_INTERFACE_RELATIVE_PATH}: exposed WorldSizeTypes order does not match {WORLD_INFO_RELATIVE_PATH}; expected {world_types}, found {python_types}")
+
+	failures.extend(check_no_old_magic_worldsizes(repo_root))
 
 	return failures
 
 
 def main() -> int:
-	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS world-size magic constants match CIV4WorldInfo.xml order.")
+	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS WorldSizeTypes enum values match CIV4WorldInfo.xml order.")
 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
 	args = parser.parse_args()
 
 	failures = check_worldsizes(args.repo_root)
 
 	if failures:
-		print("FAIL world-size magic constants")
+		print("FAIL world-size enum alignment")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
 
-	print("PASS world-size magic constants")
+	print("PASS world-size enum alignment")
 	return 0
 
 

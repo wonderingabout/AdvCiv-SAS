@@ -493,17 +493,24 @@ void CyEnumsPythonInterface()
 		.value("NO_CUSTOM_MAPOPTION", NO_CUSTOM_MAPOPTION)
 		;
 
+	// <!-- custom: Keep WorldSizeTypes aligned with CIV4WorldInfo.xml so C++ and Python enum values match runtime XML indices. New Arena is inserted before Duel and new SAS24/32/40/48 extend beyond Huge, so the old BtS-only Duel..Huge enum made constants such as WORLDSIZE_HUGE point at the wrong XML row. (ChatGPT-5.5) -->
 	python::enum_<WorldSizeTypes>("WorldSizeTypes")
 		.value("NO_WORLDSIZE", NO_WORLDSIZE)
+		.value("WORLDSIZE_ARENA", WORLDSIZE_ARENA)
 		.value("WORLDSIZE_DUEL", WORLDSIZE_DUEL)
 		.value("WORLDSIZE_TINY", WORLDSIZE_TINY)
 		.value("WORLDSIZE_SMALL", WORLDSIZE_SMALL)
 		.value("WORLDSIZE_STANDARD", WORLDSIZE_STANDARD)
 		.value("WORLDSIZE_LARGE", WORLDSIZE_LARGE)
 		.value("WORLDSIZE_HUGE", WORLDSIZE_HUGE)
+		.value("WORLDSIZE_SAS24", WORLDSIZE_SAS24)
+		.value("WORLDSIZE_SAS32", WORLDSIZE_SAS32)
+		.value("WORLDSIZE_SAS40", WORLDSIZE_SAS40)
+		.value("WORLDSIZE_SAS48", WORLDSIZE_SAS48)
 		/*  advc.enum: Don't assume that all sizes are hardcoded.
 			NUM_WORLDSIZE_TYPES is unused in AdvCiv/BtS Python. If it's needed
 			in a mod-mod, one could use WORLDSIZE_HUGE+1. */
+		// <!-- custom: WORLDSIZE_HUGE+1 should now be WORLDSIZE_SAS48+1. with the new worldsizes we added (ChatGPT-5.5) -->
 		//.value("NUM_WORLDSIZE_TYPES", NUM_WORLDSIZE_TYPES)
 		;
 

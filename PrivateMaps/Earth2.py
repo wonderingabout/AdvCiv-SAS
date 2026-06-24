@@ -59,15 +59,15 @@ def getGridSize(argsList):
     if (argsList[0] == -1): # (-1,) is passed to function on loads
         return []
     [eWorldSize] = argsList
-    # <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. Also use the calibrated helper so SAS24-48 scale up from Huge. (Claude code Opus 4.7; GPT-5.5) -->
+    # <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. Also use the calibrated helper so SAS24-48 scale up from Huge. (Claude code Opus 4.7; GPT-5.5) -->
     grid_sizes = {
-        SAS_MAGIC_WORLDSIZE_ARENA: (7,4),
-        SAS_MAGIC_WORLDSIZE_DUEL: (10,6),
-        SAS_MAGIC_WORLDSIZE_TINY: (15,9),
-        SAS_MAGIC_WORLDSIZE_SMALL: (20,12),
-        SAS_MAGIC_WORLDSIZE_STANDARD: (25,15),
-        SAS_MAGIC_WORLDSIZE_LARGE: (30,18),
-        SAS_MAGIC_WORLDSIZE_HUGE: (40,24),
+        WorldSizeTypes.WORLDSIZE_ARENA: (7,4),
+        WorldSizeTypes.WORLDSIZE_DUEL: (10,6),
+        WorldSizeTypes.WORLDSIZE_TINY: (15,9),
+        WorldSizeTypes.WORLDSIZE_SMALL: (20,12),
+        WorldSizeTypes.WORLDSIZE_STANDARD: (25,15),
+        WorldSizeTypes.WORLDSIZE_LARGE: (30,18),
+        WorldSizeTypes.WORLDSIZE_HUGE: (40,24),
     }
     return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
 

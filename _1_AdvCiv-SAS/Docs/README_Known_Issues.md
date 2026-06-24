@@ -201,6 +201,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits)  
 [164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
 [165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
+[166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -5085,6 +5086,8 @@ File changed:
 
 - [PrivateMaps/Global_Highlands.py](/PrivateMaps/Global_Highlands.py)
 
+Update: now added AdvCiv-SAS new worldsizes (as of now ARENA, SAS24, SAS32, SAS40,, SAS48) to DLL too.
+
 ## 139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1qEI8Msow1oHdDwIVqpshRy6jiQGOrdxA?usp=sharing).
@@ -6106,3 +6109,28 @@ The game ran fine because Python resolves names inside a function only when that
 The fix changed `upperLeft()` to return the local `PointLayout` class, matching `RectLayout.offsetPoint()` and the rest of the active layout code.
 
 Found thanks to Python Ruff and fixed with the help of GPT-5.5 (on Codex) and ChatGPT-5.5 (who also helped implement/draft this workflow) thanks (Although tbh another LLM or maybe it was GPT-5.5 too had mentioned it but i had overlooked/omitted it or forgot to look into it; now fixed it seems).
+
+## 166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order
+
+This is about the end-game replay/history data, not normal saves, map generation, or gameplay. The replay is the post-game history/map playback data and related replay/Hall-of-Fame-style record data. AdvCiv had an optional path that tried to store some replays in a vanilla BtS-compatible format when the data looked safe enough.
+
+That compatibility path is not useful for AdvCiv-SAS and became misleading after several intentional XML order changes.
+
+Not only AdvCiv-SAS now has shifted raw ids for values that replay data can store directly, but also, we do not need nor support reading AdvCiv-SAS replay/Hall of Fame data from unmodded BTS, nor do we need or support reading unmodded BTS replay/Hall of Fame data into AdvCiv-SAS.
+
+For example:
+
+- Game speeds: Nitro and Turbo are before Quick.
+- World sizes: Arena is before Duel, and SAS24/SAS32/SAS40/SAS48 are after Huge.
+- Handicaps: Rookie is before Settler, and Deity+ is after Deity.
+
+These values are valid inside AdvCiv-SAS, but vanilla BtS would interpret the same raw integer ids differently. For example, vanilla BtS expects world size id `0` to mean Duel and id `5` to mean Huge, while AdvCiv-SAS now uses id `0` for Arena and id `6` for Huge. Similar shifted-id issues also exist for game speed and handicap.
+
+Rather than adding a full remapping layer for a compatibility mode that is not needed, `CvReplayInfo::isStoringReplaysAsBtS()` now always returns `false` in AdvCiv-SAS. This means:
+
+- AdvCiv-SAS still writes normal AdvCiv-SAS replays.
+- The replay stores the mod name / mod replay format instead of pretending to be vanilla BtS-compatible.
+- There is no effect on normal saves or gameplay.
+- Opening AdvCiv-SAS replay/save data in vanilla BtS, or vanilla BtS data in AdvCiv-SAS, is not a supported goal.
+
+Fixed/documented with the help of ChatGPT-5.5 after a Codex review pointed out that the old `getWorldSize() > 5` BtS replay guard had become stale once `WORLDSIZE_HUGE` moved to XML index `6`.

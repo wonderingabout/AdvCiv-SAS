@@ -4,20 +4,6 @@
 
 # <!-- custom: Magic numbers and numeric constants only. Values do not need to be shared to live here; a named home is useful when the number would otherwise be obscure, collision-prone, or likely to drift. Keep this module import-free so maps, advisors, Sevopedia, and utility modules can import it without pulling in CvPythonExtensions, CyGlobalContext, screen helpers, or SASUtils runtime state. Prefix exports with SAS_MAGIC_ to reduce accidental global-name collisions in files that use from-module import-star. (GPT-5.5) -->
 
-# <!-- custom: AdvCiv-SAS added ARENA before Duel in CIV4WorldInfo, so runtime world-size indices are ARENA=0..Huge=6 while the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5. Direct runtime dictionaries keyed by argsList[0] / CyMap().getWorldSize() must use these indices, or sizes shift by one and ARENA collides with Duel. We fixed empirical grid-size cases such as Water.py and PerfectMongoose.py, and use the same pattern preventively for direct grid/grain/start-variance tables while leaving percentage-scaling scripts such as Pangaea for separate behavior-based review. (GPT-5.5) -->
-SAS_MAGIC_WORLDSIZE_ARENA = 0
-SAS_MAGIC_WORLDSIZE_DUEL = 1
-SAS_MAGIC_WORLDSIZE_TINY = 2
-SAS_MAGIC_WORLDSIZE_SMALL = 3
-SAS_MAGIC_WORLDSIZE_STANDARD = 4
-SAS_MAGIC_WORLDSIZE_LARGE = 5
-SAS_MAGIC_WORLDSIZE_HUGE = 6
-SAS_MAGIC_WORLDSIZE_SAS24 = 7
-SAS_MAGIC_WORLDSIZE_SAS32 = 8
-SAS_MAGIC_WORLDSIZE_SAS40 = 9
-SAS_MAGIC_WORLDSIZE_SAS48 = 10
-SAS_MAGIC_WORLDSIZE_LARGEST = SAS_MAGIC_WORLDSIZE_SAS48
-
 # <!-- custom: WIDGET_PYTHON data1 routing IDs used by Sevopedia and cross-screen pedia jumps such as Tech Chooser Build links. Keep these unique across pedia handlers; data1 selects the route and data2 carries the actual item/action payload. These were originally split between SevoPediaMain.py and SevoPediaLeader.py; centralizing them here avoids local magic IDs and duplicate aliases. (Claude Opus 4.5 / Claude code Sonnet 4.6 / Claude code Opus 4.7 / GPT-5.5) -->
 SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798
 SAS_MAGIC_PEDIA_PYTHON_TRAIT = 6799

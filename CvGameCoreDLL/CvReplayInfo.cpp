@@ -1025,52 +1025,57 @@ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
 
 bool CvReplayInfo::isStoringReplaysAsBtS() const
 {
-	if (BUGOption::isEnabled("MainInterface__ModNameInReplays", false,
-		false)) // BUG not being available is OK, we'll get another call later.
-	{
-		return false;
-	}
-	// <advc.106m>
-	if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) != 512)
-	{
-		FErrorMsg("MINIMAP_RENDER_SIZE incompatible with BtS replay format;"
-				" Mod-Name-in-Replays option ignored");
-		return false;
-	} // </advc.106m>
-	/*	The option says to store as BtS, but we'll ignore that if running the replay
-		might crash BtS. AdvCiv won't have that problem, but a mod-mod might. */
-	if (getWorldSize() > 5)
-	{
-		FErrorMsg("World size incompatible with BtS replay format");
-		return false;
-	}
-	if (getGameSpeed() > 3)
-	{
-		FErrorMsg("Game speed incompatible with BtS replay format");
-		return false;
-	}
-	for (int iVictory = 7; iVictory < GC.getNumVictoryInfos(); iVictory++)
-	{
-		if (isVictoryCondition((VictoryTypes)iVictory))
-		{
-			FErrorMsg("Enabled victory incompatible with BtS replay format");
-			return false;
-		}
-	}
-	if (getDifficulty() > 8)
-	{
-		FErrorMsg("Difficulty level (handicap) incompatible with BtS replay format");
-		return false;
-	}
-	FOR_EACH_ENUM(Player)
-	{
-		if (GET_PLAYER(eLoopPlayer).isEverAlive() && getColor(eLoopPlayer) > 126)
-		{
-			FErrorMsg("Player (text) color incompatible with BtS replay format");
-			return false;
-		}
-	}
-	/*	(Not going to check getReplayMessageColor for every replay message;
-		there can be a lot of messages, seems a little excessive.) */
-	return true;		
+	// <!-- custom: AdvCiv-SAS intentionally changes raw XML info order for replay-stored values such as game speeds, world sizes, and handicaps. Always store the normal mod replay format instead of pretending an AdvCiv-SAS replay is vanilla BtS-compatible. This still writes normal AdvCiv-SAS replays; it only disables the optional BtS-compatible replay export path. See KI#166. (ChatGPT-5.5); we do not need nor support reading AdvCiv-SAS replay/Hall of Fame data from unmodded BTS, nor do we need or support reading unmodded BTS replay/Hall of Fame data into AdvCiv-SAS. -->
+	return false;
+
+	// <!-- custom: Old AdvCiv BtS-compatible replay checks kept below for reference, but disabled/commented-out in AdvCiv-SAS because shifted raw XML ids would need a full remapping layer to be truly compatible. See KI#166. (ChatGPT-5.5) -->
+	// if (BUGOption::isEnabled("MainInterface__ModNameInReplays", false,
+	// 	false)) // BUG not being available is OK, we'll get another call later.
+	// {
+	// 	return false;
+	// }
+	// // <advc.106m>
+	// if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) != 512)
+	// {
+	// 	FErrorMsg("MINIMAP_RENDER_SIZE incompatible with BtS replay format;"
+	// 			" Mod-Name-in-Replays option ignored");
+	// 	return false;
+	// } // </advc.106m>
+	// /*	The option says to store as BtS, but we'll ignore that if running the replay
+	// 	might crash BtS. AdvCiv won't have that problem, but a mod-mod might. */
+	// if (getWorldSize() > 5)
+	// {
+	// 	FErrorMsg("World size incompatible with BtS replay format");
+	// 	return false;
+	// }
+	// if (getGameSpeed() > 3)
+	// {
+	// 	FErrorMsg("Game speed incompatible with BtS replay format");
+	// 	return false;
+	// }
+	// for (int iVictory = 7; iVictory < GC.getNumVictoryInfos(); iVictory++)
+	// {
+	// 	if (isVictoryCondition((VictoryTypes)iVictory))
+	// 	{
+	// 		FErrorMsg("Enabled victory incompatible with BtS replay format");
+	// 		return false;
+	// 	}
+	// }
+	// if (getDifficulty() > 8)
+	// {
+	// 	FErrorMsg("Difficulty level (handicap) incompatible with BtS replay format");
+	// 	return false;
+	// }
+	// FOR_EACH_ENUM(Player)
+	// {
+	// 	if (GET_PLAYER(eLoopPlayer).isEverAlive() && getColor(eLoopPlayer) > 126)
+	// 	{
+	// 		FErrorMsg("Player (text) color incompatible with BtS replay format");
+	// 		return false;
+	// 	}
+	// }
+	// /*	(Not going to check getReplayMessageColor for every replay message;
+	// 	there can be a lot of messages, seems a little excessive.) */
+	// return true;		
+
 } // </advc.106i>

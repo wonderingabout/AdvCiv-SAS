@@ -71,15 +71,15 @@ def isClimateMap():
 def getGridSize(argsList):
 	# Override Grid Size function to make shorter than normal.
 	# Map widths unchanged. Height reduced (lands lost to polar ice)
-	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; keep Ice Age short-height profile while deriving SAS tiers from the script's Huge anchor. (GPT-5.3-Codex) -->
+	# <!-- custom: Use SAS worldsizes with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; keep Ice Age short-height profile while deriving SAS tiers from the script's Huge anchor. (GPT-5.3-Codex; ChatGPT-5.5) -->
 	base_grid_sizes = {
-		SAS_MAGIC_WORLDSIZE_ARENA: (8, 3),
-		SAS_MAGIC_WORLDSIZE_DUEL: (10, 4),
-		SAS_MAGIC_WORLDSIZE_TINY: (13, 5),
-		SAS_MAGIC_WORLDSIZE_SMALL: (16, 7),
-		SAS_MAGIC_WORLDSIZE_STANDARD: (21, 9),
-		SAS_MAGIC_WORLDSIZE_LARGE: (26, 11),
-		SAS_MAGIC_WORLDSIZE_HUGE: (32, 13),
+		WorldSizeTypes.WORLDSIZE_ARENA: (8, 3),
+		WorldSizeTypes.WORLDSIZE_DUEL: (10, 4),
+		WorldSizeTypes.WORLDSIZE_TINY: (13, 5),
+		WorldSizeTypes.WORLDSIZE_SMALL: (16, 7),
+		WorldSizeTypes.WORLDSIZE_STANDARD: (21, 9),
+		WorldSizeTypes.WORLDSIZE_LARGE: (26, 11),
+		WorldSizeTypes.WORLDSIZE_HUGE: (32, 13),
 	}
 
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
