@@ -326,93 +326,8 @@ def _compute_leader_cache_internal():
 	# LEADERS_INFO_CACHED: dict of leaderName → dict of attributeName → <!-- custom: tuple of (label, raw_value, norm_value, scale) for later display at UI code -->
 	LEADERS_INFO_CACHED = {}
 
-	def get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
-		# <!-- custom: for example for "SameReligionAttitudeChangeLimit" (note: "get" front already stripped), "ACL", "(39)", 15: -->
-
-		# <!-- custom: first trim the tail in key_or_suffix if any, for example "SameReligionAttitudeChangeLimit" → "SameReligion" -->
-		if tail_to_trim:
-			key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]
-		else:
-			key_or_suffix_with_tail_trimmed = key_or_suffix
-
-		# <!-- custom: check if this result is longer than would allow to fit "ACL" + " " + "(39)" as compared to what max_length would allow in total in the final label, and if all good trim it as such i.e. trim enough of the key_or_suffix_with_tail_trimmed until it allows to fit total_tail_length within max_length, for example:
-		# - "SameReligion" has a length of 12
-		# - "ACL" + " " + "(39)" has a total_tail_length of 3 + 1 + 4 = 8
-		# - max_length is 15
-		# So there will be max_length - total_tail_length = 15 - 8 = 7 chars remaining for the key_or_suffix_with_tail_trimmed, trim anything beyond that, so the key_or_suffix_with_tail_trimmed is now only for example "SameReligion" → "SameRel" -->
-		total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
-		room_for_first = max_length - total_tail_length
-		if room_for_first <= 0:
-			raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
-		# <!-- custom: minimum 1 to accommodate for the " " space character -->
-		key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
-
-		# <!-- custom: finally append ' ' + the abbreviated tail as intended, for example "SameRel" → "SameRelACL (39)" -->
-		key_or_suffix_with_abbreviated_tail = key_or_suffix_with_tail_trimmed_further_trimmed + abbreviated_tail + " " + label_raw
-
-		return key_or_suffix_with_abbreviated_tail
-
-	def get_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
-		# Returns key_or_suffix + label_raw, trimmed so total length ≤ max_length.
-		#
-		# <!-- custom: examples of output from chagpt as well and some added by me as well too thanks and my prompt too: -->
-		# "getMaxWarRand", " (50)", 18 → "MaxWarRand (50)"
-		# "DemandWar", " (50/510)", 18 → "Demand (50/510)"
-		# "LongLongKeyNameHere", " (9)", 14 → "LongLongKe (9)"
-		# "getConquestVictoryWeight", " (39)", 19 → "Conquest (39)"
-		# "getSameReligionAttitudeChangeLimit", " (39)", 15 → "SameRelACL (39)"
-
-		# <!-- custom: first strip front or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
-		if key_or_suffix.startswith("get"):
-			# <!-- custom: strip this front part ("get") first -->
-			key_or_suffix_without_front = key_or_suffix[len("get"):]
-
-			if key_or_suffix_without_front.endswith("VictoryWeight"):
-				# <!-- custom: just strip tail (i.e. without appending any abbreviated_tail as a replacement) -->
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
-			elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
-				# <!-- custom: no need for a "RAT" abbreviated_tail as would clutter and they are all in same category at least as of now if not always or not or yes or etc; so opt for a more compact label instead -->
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
-			elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
-				# <!-- custom: the "AT" vs "RAT" here is informative though i think for the few fields that have it i think so display it i think -->
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeThreshold", "AT", label_raw, max_length)
-			elif key_or_suffix_without_front.endswith("AttitudeChangeLimit"):
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeLimit", "ACL", label_raw, max_length)
-			elif key_or_suffix_without_front.endswith("AttitudeChangeDivisor"):
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeDivisor", "ACD", label_raw, max_length)
-			elif key_or_suffix_without_front.endswith("AttitudeChange"):
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChange", "AC", label_raw, max_length)
-			else:
-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "", "", label_raw, max_length)
-		# <!-- custom: no front nor tail, just trim key_or_suffix to fit label_raw within max_length -->
-		else:
-			return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, "", "", label_raw, max_length)
-
-	def get_symbol_scale(score, symbol):
-		# <!-- custom: examples:
-		# - with symbol "+" and value 64 (/100), returns "++++++"
-		# - with symbol "#" and value 39 (/100), returns "###"
-		# -->
-		return symbol * (score // 10)
-
 	def compute_and_store_leader_info_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, iLeader, leader_info_cached):
-		norm_value = normalize_to_100(raw_value, min_value, max_value, B_WARN, b_invert, cache_key)
-
-		if (min_value == max_value):
-			symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
-
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] raw_value=%d, min_value=%d, max_value=%d, norm_value=%d, for cache_key=%s, b_invert=%s at iLeader=%d" % (raw_value, min_value, max_value, norm_value, cache_key, str(b_invert), iLeader))
-
-		if not label:
-			raise ValueError(u"Unexpected label=%s tested false as a boolean in cache_key=%s at iLeader=%d, please check label is not empty or missing or some other kind of invalid format" % (str(label), cache_key, iLeader))
-
-		if (symbol not in all_symbols.values()):
-			raise ValueError(u"Unexpected symbol=%s not in all_symbols=%s in cache_key=%s at iLeader=%d." % (symbol, str(all_symbols), cache_key, iLeader))
-		scale = get_symbol_scale(norm_value, symbol)
-
-		# Store final as <!-- custom: a tuple after all parsing/caching is finished for this leader for faster/better performance than dict or such other storage --> for future display at UI code
-		leader_info_cached_tuple = (label, norm_value, scale)
+		leader_info_cached_tuple = build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, B_WARN)
 		leader_info_cached[cache_key] = leader_info_cached_tuple
 		if IS_DEBUG_LEADER:
 			print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
@@ -421,11 +336,7 @@ def _compute_leader_cache_internal():
 		# Loops over all leaders and normalizes each attribute to a 0-100 scale, using previously computed min/max per attribute and inversion flags.
 
 		# Symbol settings
-		all_symbols = {
-			"RAW_SCALE_SYMBOL": "+",
-			"AGGREGATED_SCALE_SYMBOL": "#",
-			"EQUAL_SCALE_SYMBOL": "=",
-		}
+		all_symbols = get_aip_scale_symbols()
 
 		# <!-- custom: displayed synthetic contact/memory metadata now comes from ai_utils_shared_with_civ4.py specs, so this cache builder no longer needs local contact/memory label dictionaries. (ChatGPT-5.5) -->
 
@@ -441,7 +352,7 @@ def _compute_leader_cache_internal():
 				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables (i.e. before the scale (e.g. "++++" or similar column of each of the AI personality panel tables too -->
 				label_raw_generic = "(%d)" % raw_value_generic
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					label_with_raw_value_generic = get_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
+					label_with_raw_value_generic = get_aip_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
 				else:
 					label_with_raw_value_generic = "%s %s" % (label_generic, label_raw_generic)
 				min_value_generic = leader_info_minimums[getter_name_generic]
@@ -453,7 +364,7 @@ def _compute_leader_cache_internal():
 				raw_value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name_attitude_threshold)()
 				label_raw_attitude_threshold = "(%d)" % raw_value_attitude_threshold
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					label_with_raw_value_attitude_threshold = get_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
+					label_with_raw_value_attitude_threshold = get_aip_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
 				else:
 					label_with_raw_value_attitude_threshold = "%s %s" % (label_attitude_threshold, label_raw_attitude_threshold)
 				min_value_attitude_threshold = leader_info_minimums[getter_name_attitude_threshold]
@@ -471,7 +382,7 @@ def _compute_leader_cache_internal():
 				label_raw_flavor = "(%d)" % raw_value_flavor
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_flavor = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
+					label_with_raw_value_flavor = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
 				else:
 					label_with_raw_value_flavor = "%s %s" % (label_flavor, label_raw_flavor)
 				min_value_flavor = leader_info_minimums[parsed_name_flavor]
@@ -491,7 +402,7 @@ def _compute_leader_cache_internal():
 				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
+					label_with_raw_value_rand_and_raw_value_delay = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
 				else:
 					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_contact, label_raw_rand_and_raw_delay)
 
@@ -516,7 +427,7 @@ def _compute_leader_cache_internal():
 				label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
+					label_with_raw_value_rand_and_raw_value_delay = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
 				else:
 					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_memory, label_raw_attitude_percent_and_raw_decay)
 
@@ -538,7 +449,7 @@ def _compute_leader_cache_internal():
 				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
 				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
 					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_no_war_attitude_prob = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
+					label_with_raw_value_no_war_attitude_prob = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
 				else:
 					label_with_raw_value_no_war_attitude_prob = "%s %s" % (label_no_war_attitude_prob, label_raw_no_war_attitude_prob)
 				min_value_no_war_attitude_prob = leader_info_minimums[parsed_name_no_war_attitude_prob]

@@ -460,6 +460,83 @@ def normalize_to_100_half_away_from_zero(value, min_val, max_val, B_WARN, invert
 	# <!-- custom: The existing committed predump has one known .5-sensitive memory aggregate family where normal Python 3 round() under-validates compared with the cache: e.g. MEMORY_TRADED_TECH_TO_US affection raw 36 in range 10..90 normalizes to 32.5, but the predump stores 33. Keep this explicit rather than silently changing the default contact behavior above. (ChatGPT-5.5) -->
 	return normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, round_half_away_from_zero)
 
+
+# <!-- custom: Shared final AIP tuple formatting. The runtime Sevopedia cache and workflow predump checker both call these pure helpers so labels, normalized numeric values, and scale strings cannot drift independently. Keep this section free of CvPythonExtensions/game-context dependencies. (ChatGPT-5.5) -->
+def get_aip_scale_symbols():
+	return {
+		"RAW_SCALE_SYMBOL": "+",
+		"AGGREGATED_SCALE_SYMBOL": "#",
+		"EQUAL_SCALE_SYMBOL": "=",
+	}
+
+
+def get_aip_symbol_scale(score, symbol):
+	# <!-- custom: examples: score 64 with "+" returns "++++++"; score 39 with "#" returns "###". -->
+	return symbol * (score // 10)
+
+
+def get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
+	# <!-- custom: Shared raw-XML-name label compactor used when SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD is enabled. Kept byte-for-byte behavior-equivalent to the old runtime-local helper. (ChatGPT-5.5) -->
+	if tail_to_trim:
+		key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]
+	else:
+		key_or_suffix_with_tail_trimmed = key_or_suffix
+
+	total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
+	room_for_first = max_length - total_tail_length
+	if room_for_first <= 0:
+		raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
+	key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
+
+	return key_or_suffix_with_tail_trimmed_further_trimmed + abbreviated_tail + " " + label_raw
+
+
+def get_aip_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
+	# <!-- custom: Returns key_or_suffix + label_raw, trimmed so total length <= max_length. This is shared with the predump checker so raw-name-mode labels are checked with the same compacting rules as runtime. (ChatGPT-5.5) -->
+	if key_or_suffix.startswith("get"):
+		key_or_suffix_without_front = key_or_suffix[len("get"):]
+
+		if key_or_suffix_without_front.endswith("VictoryWeight"):
+			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
+		elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
+			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
+		elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
+			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeThreshold", "AT", label_raw, max_length)
+		elif key_or_suffix_without_front.endswith("AttitudeChangeLimit"):
+			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeLimit", "ACL", label_raw, max_length)
+		elif key_or_suffix_without_front.endswith("AttitudeChangeDivisor"):
+			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeDivisor", "ACD", label_raw, max_length)
+		elif key_or_suffix_without_front.endswith("AttitudeChange"):
+			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChange", "AC", label_raw, max_length)
+		else:
+			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "", "", label_raw, max_length)
+	else:
+		return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, "", "", label_raw, max_length)
+
+
+def get_aip_label_with_raw_value(key_or_suffix, display_label, label_raw, max_length, is_show_raw_xml_field_names_instead):
+	if is_show_raw_xml_field_names_instead:
+		return get_aip_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length)
+	return "%s %s" % (display_label, label_raw)
+
+
+def build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, B_WARN, normalizer=None):
+	if normalizer is None:
+		normalizer = normalize_to_100
+	norm_value = normalizer(raw_value, min_value, max_value, B_WARN, b_invert, cache_key)
+
+	if min_value == max_value:
+		symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
+
+	if not label:
+		raise ValueError(u"Unexpected label=%s tested false as a boolean in cache_key=%s, please check label is not empty or missing or some other kind of invalid format" % (str(label), cache_key))
+
+	if symbol not in all_symbols.values():
+		raise ValueError(u"Unexpected symbol=%s not in all_symbols=%s in cache_key=%s." % (symbol, str(all_symbols), cache_key))
+
+	return (label, norm_value, get_aip_symbol_scale(norm_value, symbol))
+
+
 def get_positive_negative(is_positive):
 	if (is_positive):
 		return "Positive"
