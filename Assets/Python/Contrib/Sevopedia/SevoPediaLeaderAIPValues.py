@@ -25,8 +25,9 @@ B_WARN = False
 if IS_DEBUG_LEADER:
 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map()))
 
-# <!-- custom: Use shared exclusion list from _sevopedia_helpers. (Claude Opus 4.5) -->
-EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
+# <!-- custom: Use the AIP-specific exclusion list shared with the workflow predump checker, not the broader Sevopedia leader/civ association exclusion list. (ChatGPT-5.5) -->
+AIP_EXCLUDED_LEADER_TYPES = get_aip_excluded_leader_types()
+EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(AIP_EXCLUDED_LEADER_TYPES)
 
 # <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
 if IS_DEBUG_LEADER:
@@ -570,5 +571,5 @@ def _compute_leader_cache_internal():
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Wrapper that either loads pre-dumped cache or computes it
-	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA, is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
+	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
 

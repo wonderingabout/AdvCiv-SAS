@@ -3,7 +3,12 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 
+# <!-- custom: This module is shared by Civ4 runtime Python and GitHub workflow Python. Keep it pure-helper only: no CvPythonExtensions imports, no game-context globals, and no syntax newer than Python 2.4 unless guarded outside runtime paths. (ChatGPT-5.5) -->
 # <!-- custom: Shared AIP enum/type metadata used by both the in-game Sevopedia AIP code and workflow predump validation. These specs mirror the compact subset currently assessed by the AIP panel, not every possible future field. (ChatGPT-5.5) -->
+def get_aip_excluded_leader_types():
+	# <!-- custom: AIP-only excluded leaders shared by the runtime Sevopedia AIP cache and the workflow predump checker. Keep separate from EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA in _sevopedia_helpers.py, which is the broader Sevopedia leader/civ association list used by Traits, Improvements, Religions, Civics, and groupings. (ChatGPT-5.5) -->
+	return ("LEADER_BARBARIAN",)
+
 def get_aip_flavor_types_assessed():
 	return (
 		"FLAVOR_MILITARY",

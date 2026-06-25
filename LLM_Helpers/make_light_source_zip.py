@@ -60,10 +60,13 @@ SKIP_DIR_NAMES = {".git", "__pycache__"}
 # and are usually noise for source/debugging tasks.
 SKIP_REL_DIRS = {"assets/res/cursors"}
 
-# Skip generated/binary payloads that are too heavy or not useful for compact
-# ChatGPT/code-agent source review. FPK art packs and DLL binaries should be
-# shared separately only when specifically needed.
+# Skip generated/binary payloads that are too heavy or not useful for compact ChatGPT/code-agent source review.
+# FPK art packs and DLL binaries should be shared separately only when specifically needed.
 SKIP_SUFFIXES = {".pyc", ".pyo", ".dll", ".fpk", ".tga"}
+
+# Preserve this exact build-check/workflow folder in light-source archives, including any current contents.
+# It is intentionally exported even though release archives omit build temp files.
+PRESERVED_LIGHT_SOURCE_TEMP_DIR = "CvGameCoreDLL/Project/temp_files"
 
 # Visual Studio database files can be very large and are regenerated locally.
 # Other small lone project files are useful enough to keep.
@@ -112,11 +115,6 @@ def parse_args() -> argparse.Namespace:
             "Full archive filename prefix before the timestamp. Defaults to "
             "<mod-name>_light_source. Use this only for manual labels or old naming."
         ),
-    )
-    parser.add_argument(
-        "--include-helper-outputs",
-        action="store_true",
-        help="Include LLM_Helpers/outputs. By default it is skipped to avoid bundling generated reports/ZIPs.",
     )
     parser.add_argument(
         "--dry-run",
@@ -191,15 +189,14 @@ def rel_for_message(path: Path, repo_root: Path) -> str:
         return str(path)
 
 
-def should_skip_dir(path: Path, repo_root: Path, include_helper_outputs: bool) -> bool:
+def should_skip_dir(path: Path, repo_root: Path) -> bool:
     if path.name in SKIP_DIR_NAMES:
         return True
     rel = rel_for_message(path, repo_root).lower()
     if rel in SKIP_REL_DIRS:
         return True
-    if not include_helper_outputs:
-        if rel == "llm_helpers/outputs" or rel.startswith("llm_helpers/outputs/"):
-            return True
+    if rel == "llm_helpers/outputs" or rel.startswith("llm_helpers/outputs/"):
+        return True
     return False
 
 
@@ -216,7 +213,7 @@ def should_skip_file(path: Path) -> bool:
     return False
 
 
-def iter_tree_files(root: Path, repo_root: Path, include_helper_outputs: bool) -> Iterator[Path]:
+def iter_tree_files(root: Path, repo_root: Path) -> Iterator[Path]:
     if not root.exists():
         print(f"Warning: missing folder skipped: {rel_for_message(root, repo_root)}")
         return
@@ -226,9 +223,9 @@ def iter_tree_files(root: Path, repo_root: Path, include_helper_outputs: bool) -
 
     for child in sorted(root.iterdir(), key=lambda p: p.name.lower()):
         if child.is_dir():
-            if should_skip_dir(child, repo_root, include_helper_outputs):
+            if should_skip_dir(child, repo_root):
                 continue
-            yield from iter_tree_files(child, repo_root, include_helper_outputs)
+            yield from iter_tree_files(child, repo_root)
         elif child.is_file() and not should_skip_file(child):
             yield child
 
@@ -269,7 +266,17 @@ def iter_dll_project_top_level_files(repo_root: Path) -> Iterator[Path]:
         yield child
 
 
-def collect_files(repo_root: Path, include_helper_outputs: bool) -> list[Path]:
+def iter_preserved_temp_files(repo_root: Path) -> Iterator[Path]:
+    temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
+    if not temp_dir.is_dir():
+        print(f"Warning: missing folder skipped: {PRESERVED_LIGHT_SOURCE_TEMP_DIR}")
+        return
+    for path in sorted(temp_dir.rglob("*"), key=lambda p: p.relative_to(repo_root).as_posix().lower()):
+        if path.is_file():
+            yield path
+
+
+def collect_files(repo_root: Path) -> list[Path]:
     files: list[Path] = []
     seen: set[str] = set()
 
@@ -283,16 +290,17 @@ def collect_files(repo_root: Path, include_helper_outputs: bool) -> list[Path]:
     add(iter_root_files(repo_root))
 
     for rel_dir in ASSET_SUBDIRS:
-        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
+        add(iter_tree_files(repo_root / rel_dir, repo_root))
 
     for rel_dir in ROOT_SUBDIRS:
-        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
+        add(iter_tree_files(repo_root / rel_dir, repo_root))
 
     add(iter_dll_top_level_files(repo_root))
     add(iter_dll_project_top_level_files(repo_root))
+    add(iter_preserved_temp_files(repo_root))
 
     for rel_dir in EXTRA_SUBDIRS:
-        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
+        add(iter_tree_files(repo_root / rel_dir, repo_root))
 
     return sorted(files, key=lambda p: p.relative_to(repo_root).as_posix().lower())
 
@@ -304,6 +312,9 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path]) -> int:
         temp_path.unlink()
 
     with ZipFile(temp_path, "w", compression=ZIP_STORED, allowZip64=True) as archive:
+        preserved_temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
+        if preserved_temp_dir.is_dir():
+            archive.writestr(PRESERVED_LIGHT_SOURCE_TEMP_DIR.rstrip("/") + "/", b"")
         for path in files:
             rel = path.relative_to(repo_root).as_posix()
             archive.write(path, rel)
@@ -319,7 +330,7 @@ def main() -> int:
     mod_name = derive_mod_name(repo_root, args.mod_name)
     prefix = archive_prefix(mod_name, args.prefix)
     zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
-    files = collect_files(repo_root, args.include_helper_outputs)
+    files = collect_files(repo_root)
     total_bytes = sum(path.stat().st_size for path in files)
 
     print(f"Repo root: {repo_root}")

@@ -25,8 +25,8 @@ from xml.etree import ElementTree as ET
 PREDUMP_RELATIVE_PATH = Path("Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py")
 LEADER_XML_RELATIVE_PATH = Path("Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml")
 UWAI_DEFINE_NAME = "UWAI_PERSONALITY_PERCENT"
-BARBARIAN_LEADER_TYPE = "LEADER_BARBARIAN"
 DEFAULTS_LEADER_TYPE = "LEADER_DEFAULTS"
+AIP_EXCLUDED_LEADER_TYPES: Tuple[str, ...] = ()
 
 # <!-- custom: Shared AIP enum/type lists, direct field specs, XML array specs, and aggregate key-family metadata are imported from ai_utils_shared_with_civ4.py in configure_shared_aip_constants(). Keeping them shared avoids drifting copies of getter fields, CONTACT_*, MEMORY_*, attitude indexes, and iAggregated* metadata. (ChatGPT-5.5) -->
 
@@ -246,7 +246,7 @@ def round_cpp_scaled(value: Fraction) -> int:
 def apply_uwai_personality_weight(leaders: List[LeaderRecord], weight: int) -> None:
 	if weight == 100:
 		return
-	personality_leaders = [leader for leader in leaders if leader.type != BARBARIAN_LEADER_TYPE]
+	personality_leaders = [leader for leader in leaders if leader.type not in AIP_EXCLUDED_LEADER_TYPES]
 	if not personality_leaders:
 		return
 	for getter_key in uwai_primitive_value_keys():
@@ -268,9 +268,10 @@ def import_aip_shared_helpers(repo_root: Path) -> Any:
 
 def configure_shared_aip_constants(shared_helpers: Any) -> None:
 	# <!-- custom: Keep enum/type lists, direct getter metadata, Civ4 attitude-index mapping, XML array specs, and aggregate key-family metadata shared with the runtime AIP helpers. (ChatGPT-5.5) -->
-	global ATTITUDE_TO_INDEX, FLAVOR_TYPES, NO_WAR_ATTITUDE_TYPES, CONTACT_TYPES, MEMORY_TYPES
+	global AIP_EXCLUDED_LEADER_TYPES, ATTITUDE_TO_INDEX, FLAVOR_TYPES, NO_WAR_ATTITUDE_TYPES, CONTACT_TYPES, MEMORY_TYPES
 	global DIRECT_INT_FIELDS, ATTITUDE_THRESHOLD_FIELDS, EXTRA_UWAI_ONLY_INT_FIELDS, ALL_INT_FIELDS
 	global DISPLAY_ARRAY_FIELD_SPECS, HIDDEN_ARRAY_FIELD_SPECS, ARRAY_FIELD_SPECS
+	AIP_EXCLUDED_LEADER_TYPES = tuple(shared_helpers.get_aip_excluded_leader_types())
 	ATTITUDE_TO_INDEX = shared_helpers.get_aip_attitude_type_to_index()
 	FLAVOR_TYPES = tuple(shared_helpers.get_aip_flavor_types_assessed())
 	NO_WAR_ATTITUDE_TYPES = tuple(shared_helpers.get_aip_no_war_attitude_types_assessed())
@@ -286,7 +287,7 @@ def configure_shared_aip_constants(shared_helpers: Any) -> None:
 
 
 def add_shared_aggregate_display_values_to_leaders(leaders: List[LeaderRecord], shared_helpers: Any) -> None:
-	personality_leaders = [leader for leader in leaders if leader.type != BARBARIAN_LEADER_TYPE]
+	personality_leaders = [leader for leader in leaders if leader.type not in AIP_EXCLUDED_LEADER_TYPES]
 	leaders_by_index = {leader.index: leader for leader in personality_leaders}
 	non_excluded_leader_indexes = tuple(leaders_by_index.keys())
 
@@ -337,7 +338,7 @@ def extract_raw_label_value(entry: Tuple[Any, ...]) -> Optional[int]:
 def compare_values(leaders: List[LeaderRecord], predump: Dict[int, Dict[str, Tuple[Any, ...]]], shared_helpers: Any) -> List[ComparisonResult]:
 	results: List[ComparisonResult] = []
 	for leader in leaders:
-		if leader.type == BARBARIAN_LEADER_TYPE:
+		if leader.type in AIP_EXCLUDED_LEADER_TYPES:
 			continue
 		leader_cache = predump.get(leader.index)
 		if leader_cache is None:

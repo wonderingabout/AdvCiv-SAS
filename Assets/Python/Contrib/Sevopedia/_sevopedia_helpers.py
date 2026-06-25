@@ -240,9 +240,10 @@ def attach_button_label_row(screen, top, panelName, buttonPath, widgetType, widg
 	screen.attachImageButton(childPanelName, "", buttonPath, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, widgetID2, False)
 	screen.attachLabel(childPanelName, "", SASTextScale.titleText(szText))
 
-# <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
+# <!-- custom: Broad Sevopedia leader-exclusion list for non-AIP leader/civ association views such as Traits, Improvements, Religions, Civics, and groupings.
 # LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
-# LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->
+# LEADER_DEFAULTS is not listed because it has no index (it's an XML template).
+# Keep this separate from get_aip_excluded_leader_types() in ai_utils_shared_with_civ4.py, which is shared by the runtime AIP cache and workflow predump checker. (ChatGPT-5.5) -->
 EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA = ("LEADER_BARBARIAN",)
 
 # <!-- custom: favorite leader type selectors for get_favorite_leader_counts. (GPT-5.2-Codex) -->
