@@ -110,9 +110,8 @@ def displayed_value_keys(shared_helpers: Any) -> Tuple[str, ...]:
 	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in DISPLAY_ARRAY_FIELD_SPECS:
 		for type_name in type_names:
 			array_keys.append(array_value_key(key_prefix, type_name))
-	aggregate_keys = [shared_helpers.get_aip_aggregated_contact_prob_key(contact_type) for contact_type in CONTACT_TYPES]
-	aggregate_keys.extend(shared_helpers.get_aip_aggregated_memory_key(MEMORY_TYPES[i], True, True) for i in shared_helpers.get_positive_or_negative_memory_indexes(True))
-	aggregate_keys.extend(shared_helpers.get_aip_aggregated_memory_key(MEMORY_TYPES[i], False, False) for i in shared_helpers.get_positive_or_negative_memory_indexes(False))
+	# <!-- custom: displayed aggregate keys are shared with the in-game AIP helper layer, so the workflow checker does not duplicate which synthetic contact/memory fields are predumped. (ChatGPT-5.5) -->
+	aggregate_keys = shared_helpers.get_aip_displayed_aggregate_value_keys()
 	return (
 		tuple(getter for getter, _tag, _default in DIRECT_INT_FIELDS)
 		+ tuple(getter for getter, _tag, _default in ATTITUDE_THRESHOLD_FIELDS)

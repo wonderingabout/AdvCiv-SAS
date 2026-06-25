@@ -195,9 +195,8 @@ def _compute_leader_cache_internal():
 	def get_memory_decay_rand_for_leader(iLeader, iMemoryIndex):
 		return gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(iMemoryIndex)
 
-	# <!-- custom: before computing minimums and maximums, compute and store raw aggregated fields, flattened, so they can be processed like any field/attribute and do min/max on them too for all leaders -->
-	leaders_info_aggregated_raw_contact_probs = compute_leaders_info_aggregated_raw_contact_probs(NON_EXCLUDED_LEADERS, contact_types_assessed, get_contact_rand_for_leader, get_contact_delay_for_leader, B_WARN, IS_DEBUG_LEADER)
-	leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments = compute_leaders_info_aggregated_raw_memory_affections_and_resentments(NON_EXCLUDED_LEADERS, get_memory_type_for_index, get_memory_attitude_percent_for_leader, get_memory_decay_rand_for_leader, B_WARN, IS_DEBUG_LEADER)
+	# <!-- custom: before computing minimums and maximums, build all synthetic raw iAggregatedRaw* fields in the shared AIP helper layer. This keeps SevoPediaLeaderAIPValues.py focused on normalization/cache/UI rather than owning contact/memory synthetic-field creation. (ChatGPT-5.5) -->
+	leaders_info_aip_synthetic_raw_values = compute_leaders_info_aip_synthetic_raw_values(NON_EXCLUDED_LEADERS, contact_types_assessed, get_contact_rand_for_leader, get_contact_delay_for_leader, get_memory_type_for_index, get_memory_attitude_percent_for_leader, get_memory_decay_rand_for_leader, B_WARN, IS_DEBUG_LEADER)
 
 	def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name):
 		leaders_dict_keys = leaders_dict.keys()
@@ -214,11 +213,8 @@ def _compute_leader_cache_internal():
 				key_type_name = str(type(key))
 				raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
 
-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
-	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
-
-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
-	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
+	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aip_synthetic_raw_values, "leaders_info_aip_synthetic_raw_values")
+	check_leaders_dict_only_has_leader_index_keys(leaders_info_aip_synthetic_raw_values, "leaders_info_aip_synthetic_raw_values")
 
 	# <!-- custom: Direct getter metadata lives in ai_utils_shared_with_civ4.py so the AIP panel and predump workflow checker share getter names, labels, inversion flags, XML tags, and defaults from one tuple source. (ChatGPT-5.5) -->
 
@@ -226,7 +222,7 @@ def _compute_leader_cache_internal():
 	fields_with_direct_getters, fields_attitude_thresholds = get_aip_fields_directly_parsed()
 	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
 	check_required_newly_exposed_python_getters_gc_leader_exist(required_getters)
-	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
+	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aip_synthetic_raw_values):
 		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions, same for maximum values too -->
 		leader_info_minimums = {}
 		leader_info_maximums = {}
@@ -268,7 +264,7 @@ def _compute_leader_cache_internal():
 				# <!-- custom: also export the minimum and maximum raw aggregated contact prob (based on iLeader's rand and iLeader's delay (note: not based on the min and max rand among all leaders nor the min and max delay among all leaders)) among all leaders for each contact type -->
 				# <!-- custom: Step 2: Raw aggregated contact probs -->
 				parsed_name_aggregated_raw_contact_prob = get_aip_aggregated_raw_contact_prob_key(contact_type) # → iAggregatedRawContactProbJoinWar
-				value_aggregated_raw_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_aggregated_raw_contact_prob]
+				value_aggregated_raw_contact_prob = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_aggregated_raw_contact_prob]
 				computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_contact_prob, value_aggregated_raw_contact_prob, leader_info_minimums, leader_info_maximums)
 
 			# ==== MEMORY ====
@@ -294,7 +290,7 @@ def _compute_leader_cache_internal():
 
 						# <!-- custom: Step 2: Raw aggregated positive and negative memory affections and resentments -->
 						parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment = get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
-						value_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+						value_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
 						computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment, value_aggregated_raw_positive_or_negative_memory_affection_or_resentment, leader_info_minimums, leader_info_maximums)
 
 			# ==== NOWARATTITUDEPROBS ====
@@ -321,7 +317,7 @@ def _compute_leader_cache_internal():
 
 		return (leader_info_minimums, leader_info_maximums)
 
-	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
+	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aip_synthetic_raw_values)
 
 	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not, we have enough sanity checks overall everywhere to not need to resanity check this xd even though may help maybe but is bit tedious since dbug also helps, so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums. -->
 
@@ -420,7 +416,7 @@ def _compute_leader_cache_internal():
 		if IS_DEBUG_LEADER:
 			print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
 
-	def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums):
+	def compute_and_store_leaders_info_cached(leaders_info_aip_synthetic_raw_values, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums):
 		# Loops over all leaders and normalizes each attribute to a 0-100 scale, using previously computed min/max per attribute and inversion flags.
 
 		# Symbol settings
@@ -430,17 +426,7 @@ def _compute_leader_cache_internal():
 			"EQUAL_SCALE_SYMBOL": "=",
 		}
 
-		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now see latest value or code comments or docs for updated value or and info)) order -->
-		contact_index_labels = get_aip_contact_index_labels()
-		positive_memory_index_labels = get_aip_positive_memory_index_labels()
-		negative_memory_index_labels = get_aip_negative_memory_index_labels()
-
-		# <!-- custom: sanity-check that positive and negative assessed memory label metadata stays disjoint before combining it for UI labels. (ChatGPT-5.5) -->
-		check_overlapping_keys_between_dicts(positive_memory_index_labels, negative_memory_index_labels)
-
-		positive_and_negative_memory_index_labels = {}
-		positive_and_negative_memory_index_labels.update(positive_memory_index_labels)
-		positive_and_negative_memory_index_labels.update(negative_memory_index_labels)
+		# <!-- custom: displayed synthetic contact/memory metadata now comes from ai_utils_shared_with_civ4.py specs, so this cache builder no longer needs local contact/memory label dictionaries. (ChatGPT-5.5) -->
 
 		for iLeader in NON_EXCLUDED_LEADERS:
 			leader_info_cached = {}
@@ -491,18 +477,11 @@ def _compute_leader_cache_internal():
 				max_value_flavor = leader_info_maximums[parsed_name_flavor]
 				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, all_symbols, parsed_name_flavor, label_with_raw_value_flavor, iLeader, leader_info_cached)
 
-			# <!-- custom: for contact fields, normalize the aggregated contact probs, do not normalize the rands nor the delays (would be redundant, as we don't display them with scale symbols or such, just the raw value in label is enough); to export raw fields (rand and delay, uncomment the related rand and delay lines below (untested but probably works-functions else tweak bit) to export them to UI if want to display them (then you'd need to uncomment or add if missing them in UI categories too)) -->
-
+			# <!-- custom: for contact fields, display normalized synthetic aggregate probabilities, not raw rand/delay fields. Raw rand/delay stay in the label as (rand/delay), while the cache key stores the normalized iAggregatedContactProb* value. (ChatGPT-5.5) -->
 			b_invert_4_aggregated_contact_probs = False
 			symbol_aggregated_contact_probs = all_symbols["AGGREGATED_SCALE_SYMBOL"]
-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				contact_type = CONTACT_TYPES_ASSESSED[i] # e.g. "CONTACT_JOIN_WAR"
+			for i, contact_type, parsed_name_4_aggregated_raw_contact_prob, parsed_name_4_aggregated_contact_prob, label_contact in get_aip_displayed_contact_aggregate_specs(CONTACT_TYPES_ASSESSED):
 				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
-				label_contact = contact_index_labels[i]
-
-				parsed_name_4_aggregated_raw_contact_prob = get_aip_aggregated_raw_contact_prob_key(contact_type) # → iAggregatedRawContactProbJoinWar
-				# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching -->
-				parsed_name_4_aggregated_contact_prob = get_aip_aggregated_contact_prob_key(contact_type) # → iAggregatedContactProbJoinWar
 
 				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
 				raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
@@ -515,59 +494,37 @@ def _compute_leader_cache_internal():
 				else:
 					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_contact, label_raw_rand_and_raw_delay)
 
-				# <!-- custom: be careful/note, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
-				raw_value_4_aggregated_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_4_aggregated_raw_contact_prob]
+				# <!-- custom: raw key supplies min/max input; display key is stored in the predump/cache. Example: iAggregatedRawContactProbJoinWar normalizes into iAggregatedContactProbJoinWar. (ChatGPT-5.5) -->
+				raw_value_4_aggregated_contact_prob = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_4_aggregated_raw_contact_prob]
 				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
 				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
 
 				# <!-- custom: note: chatgpt 5 told me to change parsed_name_4_aggregated_contact_prob to parsed_name_4_aggregated_raw_contact_prob claiming it was a real bug, but doing it created an error ingame; Long_Comments_py.txt #11; so not a bug -->
 				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
 
-			# <!-- custom: for memory fields, we display only aggregated positive/negative memory affections and resentments.
-			# Raw attitude_percent/decay are already embedded in labels and are not normalized, so we don't display them separately.
-			# We also skip positive memory resentments and negative memory affections because the table is too small and these would
-			# overlap with positive memory affections / negative memory resentments given positive memories have positive attitude_percent
-			# and negative memories have negative attitude_percent. They are also niche and would clutter the dump/cache; the pipeline
-			# still supports them if you add their parsed_name fields to the UI category order below (test to be sure). (GPT-5.2-Codex (summarized)) -->
+			# <!-- custom: for memory fields, display only normalized synthetic positive memory affections and negative memory resentments. The shared specs decide which iAggregatedRaw* keys become displayed iAggregated* cache keys. (ChatGPT-5.5) -->
 			b_invert_4_positive_and_negative_memory_affections_and_resentments = False
 			symbol_aggregated_positive_and_negative_memory_affections_and_resentments = all_symbols["AGGREGATED_SCALE_SYMBOL"]
 
-			for is_positive in (True, False):
-				for is_affection in (True, False):
-					# <!-- custom: skip positive memory resentments and negative memory affections as said in top code comment before, uncomment or remove this/these checks to export them as well -->
-					if is_positive and (not is_affection):
-						continue
-					if (not is_positive) and is_affection:
-						continue
+			for i, memory_type, is_positive, is_affection, parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_memory in get_aip_displayed_memory_aggregate_specs():
+				suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
 
-					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
-					for i in positive_or_negative_memory_indexes:
-						memory_type = MEMORY_TYPES_ASSESSED[i] # e.g. "MEMORY_DECLARED_WAR"
-						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
-						label_memory = positive_and_negative_memory_index_labels[i]
+				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
+				raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
+				raw_value_4_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
+				label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
+				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
+					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
+				else:
+					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_memory, label_raw_attitude_percent_and_raw_decay)
 
-						# <!-- custom: note: unlike for min max exports (compute and store) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
-						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
+				# <!-- custom: raw key supplies min/max input; display key is stored in the predump/cache. Example: iAggregatedRawPositiveMemoryTradedTechToUsAffection normalizes into iAggregatedPositiveMemoryTradedTechToUsAffection. (ChatGPT-5.5) -->
+				raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+				min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+				max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
 
-						# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching -->
-						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = get_aip_aggregated_memory_key(memory_type, is_positive, is_affection) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
-
-						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
-						raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
-						raw_value_4_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
-						label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
-						if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-							label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
-						else:
-							label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_memory, label_raw_attitude_percent_and_raw_decay)
-
-						# <!-- custom: be careful/note, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
-						raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-						min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-						max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-
-						compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, all_symbols, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
+				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, all_symbols, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
 
 			b_invert_no_war_attitude_probs = False
 			symbol_no_war_attitude_probs = all_symbols["RAW_SCALE_SYMBOL"]
@@ -592,11 +549,10 @@ def _compute_leader_cache_internal():
 			if IS_DEBUG_LEADER:
 				print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
 
-	compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums)
+	compute_and_store_leaders_info_cached(leaders_info_aip_synthetic_raw_values, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums)
 
 	# <!-- custom: cleanup -->
-	del leaders_info_aggregated_raw_contact_probs
-	del leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments
+	del leaders_info_aip_synthetic_raw_values
 	del fields_with_direct_getters
 	del fields_attitude_thresholds
 	del leader_info_minimums

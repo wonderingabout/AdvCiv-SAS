@@ -511,6 +511,60 @@ def get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection):
 def get_aip_aggregated_memory_key(memory_type, is_positive, is_affection):
 	return "iAggregated%sMemory%s%s" % (get_positive_negative(is_positive), get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
 
+
+def get_aip_raw_contact_aggregate_specs(contact_types=None):
+	# <!-- custom: Central synthetic raw contact specs. Each tuple is (contact index, contact type, synthetic raw key); e.g. CONTACT_RELIGION_PRESSURE creates iAggregatedRawContactProbReligionPressure before min/max normalization creates iAggregatedContactProbReligionPressure. (ChatGPT-5.5) -->
+	if contact_types is None:
+		contact_types = get_aip_contact_types_assessed()
+	specs = []
+	for i in range(len(contact_types)):
+		contact_type = contact_types[i]
+		specs.append((i, contact_type, get_aip_aggregated_raw_contact_prob_key(contact_type)))
+	return tuple(specs)
+
+
+def get_aip_displayed_contact_aggregate_specs(contact_types=None):
+	# <!-- custom: Displayed synthetic contact specs extend the raw specs with the normalized display/predump key and compact label, so AIP runtime and workflow checker agree on the same iAggregatedRaw* -> iAggregated* mapping. (ChatGPT-5.5) -->
+	if contact_types is None:
+		contact_types = get_aip_contact_types_assessed()
+	contact_index_labels = get_aip_contact_index_labels()
+	specs = []
+	for i, contact_type, raw_key in get_aip_raw_contact_aggregate_specs(contact_types):
+		specs.append((i, contact_type, raw_key, get_aip_aggregated_contact_prob_key(contact_type), contact_index_labels[i]))
+	return tuple(specs)
+
+
+def get_aip_raw_memory_aggregate_specs():
+	# <!-- custom: Central synthetic raw memory specs. This intentionally returns the full positive/negative x affection/resentment matrix even though the current panel displays only positive affections and negative resentments, keeping future UI expansion data-driven. (ChatGPT-5.5) -->
+	specs = []
+	for is_positive in (True, False):
+		for is_affection in (True, False):
+			for i in get_positive_or_negative_memory_indexes(is_positive):
+				memory_type = get_aip_memory_type_by_index(i)
+				specs.append((i, memory_type, is_positive, is_affection, get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection)))
+	return tuple(specs)
+
+
+def get_aip_displayed_memory_aggregate_specs():
+	# <!-- custom: Current displayed synthetic memory specs: positive memory affections and negative memory resentments. Each tuple includes both the synthetic raw key and normalized display/predump key, e.g. iAggregatedRawPositiveMemoryTradedTechToUsAffection -> iAggregatedPositiveMemoryTradedTechToUsAffection. (ChatGPT-5.5) -->
+	memory_index_labels = get_aip_memory_index_labels_assessed()
+	specs = []
+	for is_positive in (True, False):
+		is_affection = is_positive
+		for i in get_positive_or_negative_memory_indexes(is_positive):
+			memory_type = get_aip_memory_type_by_index(i)
+			specs.append((i, memory_type, is_positive, is_affection, get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection), get_aip_aggregated_memory_key(memory_type, is_positive, is_affection), memory_index_labels[i]))
+	return tuple(specs)
+
+
+def get_aip_displayed_aggregate_value_keys():
+	keys = []
+	for _i, _contact_type, _raw_key, display_key, _label in get_aip_displayed_contact_aggregate_specs():
+		keys.append(display_key)
+	for _i, _memory_type, _is_positive, _is_affection, _raw_key, display_key, _label in get_aip_displayed_memory_aggregate_specs():
+		keys.append(display_key)
+	return tuple(keys)
+
 def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, contact_type):
 	# Adjusts contact rand and contact delay values according to standard rules.
 	# Returns: (adjusted_rand, adjusted_delay, aggregated_prob_force_zero_flag)
@@ -815,34 +869,37 @@ def compute_leaders_info_aggregated_raw_memory_affections_and_resentments(non_ex
 
 # <!-- custom: Shared final numeric values for AIP-derived contact/memory fields. This still does not build UI labels/scales; it only turns shared raw aggregate formulas into the normalized numbers stored in the predumped cache, so workflow validation and in-game AIP can share the math without importing UI formatting.
 # Example: contact rand/delay first create a pre-normalization synthetic key such as iAggregatedRawContactProbReligionPressure; this function then normalizes that raw aggregate across leaders into iAggregatedContactProbReligionPressure, which is the displayed/predumped value. For memories, it similarly turns iAggregatedRawPositiveMemoryTradedTechToUsAffection into iAggregatedPositiveMemoryTradedTechToUsAffection. (ChatGPT-5.5) -->
-def compute_leaders_info_aip_aggregate_display_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
+def compute_leaders_info_aip_synthetic_raw_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
+	# <!-- custom: Shared synthetic raw field creator. It combines contact and memory aggregate builders into one per-leader flat dict so callers do not need to know which synthetic raw family created each iAggregatedRaw* key. (ChatGPT-5.5) -->
 	contact_raw = compute_leaders_info_aggregated_raw_contact_probs(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, B_WARN, is_debug)
 	memory_raw = compute_leaders_info_aggregated_raw_memory_affections_and_resentments(non_excluded_leaders, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug)
+	synthetic_raw_values = {}
+	for iLeader in non_excluded_leaders:
+		synthetic_raw_values[iLeader] = {}
+		synthetic_raw_values[iLeader].update(contact_raw[iLeader])
+		synthetic_raw_values[iLeader].update(memory_raw[iLeader])
+	return synthetic_raw_values
+
+
+def compute_leaders_info_aip_aggregate_display_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
+	synthetic_raw_values = compute_leaders_info_aip_synthetic_raw_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug)
 	display_values = {}
 	for iLeader in non_excluded_leaders:
 		display_values[iLeader] = {}
 
-	for contact_type in contact_types:
-		raw_key = get_aip_aggregated_raw_contact_prob_key(contact_type)
-		display_key = get_aip_aggregated_contact_prob_key(contact_type)
-		raw_values = [contact_raw[iLeader][raw_key] for iLeader in non_excluded_leaders]
+	for _contact_index, _contact_type, raw_key, display_key, _label in get_aip_displayed_contact_aggregate_specs(contact_types):
+		raw_values = [synthetic_raw_values[iLeader][raw_key] for iLeader in non_excluded_leaders]
 		min_value = min(raw_values)
 		max_value = max(raw_values)
 		for iLeader in non_excluded_leaders:
-			display_values[iLeader][display_key] = normalize_to_100(contact_raw[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
+			display_values[iLeader][display_key] = normalize_to_100(synthetic_raw_values[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
 
-	for is_positive in (True, False):
-		# The current AIP predump displays positive memory affections and negative memory resentments only; the raw helper still computes the full 2x2 matrix for future UI expansion.
-		is_affection = is_positive
-		for memory_index in get_positive_or_negative_memory_indexes(is_positive):
-			memory_type = get_memory_type(memory_index)
-			raw_key = get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection)
-			display_key = get_aip_aggregated_memory_key(memory_type, is_positive, is_affection)
-			raw_values = [memory_raw[iLeader][raw_key] for iLeader in non_excluded_leaders]
-			min_value = min(raw_values)
-			max_value = max(raw_values)
-			for iLeader in non_excluded_leaders:
-				# <!-- custom: preserve the current predump's memory aggregate .5 behavior; see normalize_to_100_half_away_from_zero for the concrete MEMORY_TRADED_TECH_TO_US example. (ChatGPT-5.5) -->
-				display_values[iLeader][display_key] = normalize_to_100_half_away_from_zero(memory_raw[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
+	for _memory_index, _memory_type, _is_positive, _is_affection, raw_key, display_key, _label in get_aip_displayed_memory_aggregate_specs():
+		raw_values = [synthetic_raw_values[iLeader][raw_key] for iLeader in non_excluded_leaders]
+		min_value = min(raw_values)
+		max_value = max(raw_values)
+		for iLeader in non_excluded_leaders:
+			# <!-- custom: preserve the current predump's memory aggregate .5 behavior; see normalize_to_100_half_away_from_zero for the concrete MEMORY_TRADED_TECH_TO_US example. (ChatGPT-5.5) -->
+			display_values[iLeader][display_key] = normalize_to_100_half_away_from_zero(synthetic_raw_values[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
 
 	return display_values
