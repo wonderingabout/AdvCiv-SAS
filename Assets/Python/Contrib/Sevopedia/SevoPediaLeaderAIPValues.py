@@ -220,118 +220,10 @@ def _compute_leader_cache_internal():
 	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
 	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
 
-	def get_fields_directly_parsed():
-		# <!-- custom: dict of getter_name: (label, b_invert) -->
-		# <!-- custom: note: --> Attributes that need value inversion when normalizing <!-- custom: is when --> high = bad, low = good
-		fields_with_direct_getters = {
-			# ==== FIRST XML FIELDS PART 1 (from XML order) ====
-			"getWonderConstructRand": ("Wonder C.R", False),
-			"getBaseAttitude": ("Base Attitude", False),
-			"getBasePeaceWeight": ("Base Peace Weig", False),
-			"getPeaceWeightRand": ("Peace Weig Rand", False),
-			"getWarmongerRespect": ("Warmonger Resp", False),
-			"getEspionageWeight": ("EspionageWeig", False),
-			"getRefuseToTalkWarThreshold": ("Ref2TalkWSpan", False),
-			"getNoTechTradeThreshold": ("NoTech2AdvT", True),
-			"getTechTradeKnownPercent": ("NoTechYetRdy%", False),
-			"getMaxGoldTradePercent": ("Max Gold Tr%", False),
-			"getMaxGoldPerTurnTradePercent": ("Max GPT Tr%", False),
-			# ==== BBAI VICTORY WEIGHTS ====
-			# <!-- custom: now exposed to python, see sevopedia helpers py file code comments for details -->
-			"getCultureVictoryWeight": ("Culture", False),
-			"getSpaceVictoryWeight": ("Space", False),
-			"getConquestVictoryWeight": ("Conquest", False),
-			"getDominationVictoryWeight": ("Domination", False),
-			"getDiplomacyVictoryWeight": ("Diplomacy", False),
-			# <!-- custom: end of now exposed to python fields -->
-			# ==== WAR XML FIELDS (from XML order) ====
-			"getMaxWarRand": ("T.W Likely", True),
-			"getMaxWarNearbyPowerRatio": ("T.W NearPR", False),
-			"getMaxWarDistantPowerRatio": ("T.W DistPR", False),
-			"getMaxWarMinAdjacentLandPercent": ("T.W MinNearPR", True),
-			"getLimitedWarRand": ("Lim.W Likely", True),
-			"getLimitedWarPowerRatio": ("Lim.W PR", False),
-			"getDogpileWarRand": ("Dogpile Likely", True),
-			"getMakePeaceRand": ("MakePeaceLikely", True),
-			"getDeclareWarTradeRand": ("WAllianceMaker", False),
-			"getDemandRebukedSneakProb": ("TribRSneakW%", False),
-			"getDemandRebukedWarProb": ("TribRef W%", False),
-			"getRazeCityProb": ("Raz C %", False),
-			"getBuildUnitProb": ("Build Unit %", False),
-			# ==== ATTITUDE MODIFIER FIELDS (from XML order) ====
-			"getBaseAttackOddsChange": ("Risky Aggr", False),
-			"getAttackOddsChangeRand": ("Risky AggrRand+", False),
-			"getWorseRankDifferenceAttitudeChange": ("Worse Rank AC", False),
-			"getBetterRankDifferenceAttitudeChange": ("Better Rank AC", False),
-			# <!-- custom: inverted according to: https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos at "iCloseBordersAttitudeChange" and then according to also https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange (description translated(ion) seems a bit less accurate but is informative and helpful maybe etc -->
-			"getCloseBordersAttitudeChange": ("CloseBordSpark", True),
-			"getLostWarAttitudeChange": ("Lost W AC", False),
-			"getAtWarAttitudeDivisor": ("At W AD", False),
-			"getAtWarAttitudeChangeLimit": ("At W ACL", False),
-			"getAtPeaceAttitudeDivisor": ("At Peace AD", False),
-			"getAtPeaceAttitudeChangeLimit": ("At Peace ACL", False),
-			"getSameReligionAttitudeChange": ("Same Relig AC", False),
-			"getSameReligionAttitudeDivisor": ("Same Relig AD", False),
-			"getSameReligionAttitudeChangeLimit": ("Same Relig ACL", False),
-			"getDifferentReligionAttitudeChange": ("Diff Relig AC", False),
-			"getDifferentReligionAttitudeDivisor": ("Diff Relig AD", False),
-			"getDifferentReligionAttitudeChangeLimit": ("Diff Relig ACL", True),
-			"getBonusTradeAttitudeDivisor": ("Bonus Tr AD", False),
-			"getBonusTradeAttitudeChangeLimit": ("Bonus Tr ACL", False),
-			"getOpenBordersAttitudeDivisor": ("Open Bord AD", False),
-			"getOpenBordersAttitudeChangeLimit": ("Open Bord ACL", False),
-			"getDefensivePactAttitudeDivisor": ("Defens Pact AD", False),
-			"getDefensivePactAttitudeChangeLimit": ("Defens Pact ACL", False),
-			"getShareWarAttitudeChange": ("Share W AC", False),
-			"getShareWarAttitudeDivisor": ("Share W AD", False),
-			"getShareWarAttitudeChangeLimit": ("Share W ACL", False),
-			"getFavoriteCivicAttitudeChange": ("Fav Civic AC", False),
-			"getFavoriteCivicAttitudeDivisor": ("Fav Civic AD", False),
-			"getFavoriteCivicAttitudeChangeLimit": ("Fav Civic ACL", False),
-			# <!-- custom: attitude thresholds later in code in case we want to aggregate them or do aggregate them but not sure may or may not do -->
-			# ==== VASSAL AND FREEDOM FIELDS (from XML order) ====
-			"getVassalPowerModifier": ("ResistCapitulPM", False),
-			"getFreedomAppreciation": ("FreedomApprec", False),
-			# <!-- custom: then fields with nested or incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more) are handled separately later -->
-		}
-
-		# ==== ATTITUDE THRESHOLDS ====
-		# <!-- custom: Long_Comments_py.txt #9 -->
-		fields_attitude_thresholds = {
-			# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#demandtributeattitudethreshold -->
-			"getDemandTributeAttitudeThreshold": ("ScaryNoTrib", True),
-			"getNoGiveHelpAttitudeThreshold": ("PrideNoHelp", False),
-			"getTechRefuseAttitudeThreshold": ("Tech", False),
-			# <!-- custom: now exposed to python, see sevopedia helpers py file code comments for details -->
-			"getCityRefuseAttitudeThreshold": ("C", False),
-			"getNativeCityRefuseAttitudeThreshold": ("Native C", False),
-			# <!-- custom: end of now exposed to python fields -->
-			"getStrategicBonusRefuseAttitudeThreshold": ("Strategic Bonus", False),
-			"getHappinessBonusRefuseAttitudeThreshold": ("Happiness Bonus", False),
-			"getHealthBonusRefuseAttitudeThreshold": ("Health Bonus", False),
-			"getMapRefuseAttitudeThreshold": ("Map", False),
-			"getDeclareWarRefuseAttitudeThreshold": ("D.W", False),
-			# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold -->
-			"getDeclareWarThemRefuseAttitudeThreshold": ("LoyaltyNoD.W", True),
-			"getStopTradingRefuseAttitudeThreshold": ("StopTr", False),
-			# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold -->
-			"getStopTradingThemRefuseAttitudeThreshold": ("LoyaltyNoStopTr", True),
-			"getAdoptCivicRefuseAttitudeThreshold": ("Adopt Civic", False),
-			"getConvertReligionRefuseAttitudeThreshold": ("Convert Religion", False),
-			"getOpenBordersRefuseAttitudeThreshold": ("Open Bord", False),
-			"getDefensivePactRefuseAttitudeThreshold": ("DefensPact", False),
-			"getPermanentAllianceRefuseAttitudeThreshold": ("PermAlliance", False),
-			"getVassalRefuseAttitudeThreshold": ("Vassal", False),
-		}
-
-		# <!-- custom: fields not parsed into leaders_info_cached yet; useful for deeper AI modeling later:
-		# Advanced arrays (optional):
-		# - <UnitAIWeightModifier> by UnitAIType
-		# - <ImprovementWeightModifier> by ImprovementType (GPT-5.2-Codex) -->
-		return fields_with_direct_getters, fields_attitude_thresholds
+	# <!-- custom: Direct getter metadata lives in ai_utils_shared_with_civ4.py so the AIP panel and predump workflow checker share getter names, labels, inversion flags, XML tags, and defaults from one tuple source. (ChatGPT-5.5) -->
 
 	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia debuggers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details -->
-	fields_with_direct_getters, fields_attitude_thresholds = get_fields_directly_parsed()
+	fields_with_direct_getters, fields_attitude_thresholds = get_aip_fields_directly_parsed()
 	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
 	check_required_newly_exposed_python_getters_gc_leader_exist(required_getters)
 	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
@@ -539,69 +431,13 @@ def _compute_leader_cache_internal():
 		}
 
 		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now see latest value or code comments or docs for updated value or and info)) order -->
-		contact_index_labels = {
-			0: "Relig Press",		# CONTACT_RELIGION_PRESSURE
-			1: "Civic Press",		# CONTACT_CIVIC_PRESSURE
-			2: "Join W", 			# CONTACT_JOIN_WAR
-			3: "Stop Tr",			# CONTACT_STOP_TRADING
-			4: "Gave Help",			# CONTACT_GIVE_HELP
-			5: "Help",				# CONTACT_ASK_FOR_HELP
-			6: "Trib",				# CONTACT_DEMAND_TRIBUTE
-			7: "Open Borders",		# CONTACT_OPEN_BORDERS
-			8: "DefensPact",		# CONTACT_DEFENSIVE_PACT
-			9: "PermAlliance",		# CONTACT_PERMANENT_ALLIANCE
-			10: "PeaceTreaty",		# CONTACT_PEACE_TREATY
-			11: "Tr Tech",			# CONTACT_TRADE_TECH
-			12: "Tr Bonus",			# CONTACT_TRADE_BONUS
-			13: "Tr Map",			# CONTACT_TRADE_MAP
-		}
+		contact_index_labels = get_aip_contact_index_labels()
+		positive_memory_index_labels = get_aip_positive_memory_index_labels()
+		negative_memory_index_labels = get_aip_negative_memory_index_labels()
 
-		positive_memory_index_labels = {
-			8:  "Gave Help",		# MEMORY_GIVE_HELP
-			10: "AcD",				# MEMORY_ACCEPT_DEMAND
-			12: "AcRelig",			# MEMORY_ACCEPTED_RELIGION
-			14: "AcCivic",			# MEMORY_ACCEPTED_CIVIC
-			16: "AcJoin W",			# MEMORY_ACCEPTED_JOIN_WAR
-			18: "AcStop Tr",		# MEMORY_ACCEPTED_STOP_TRADING
-			28: "Tr Tech",			# MEMORY_TRADED_TECH_TO_US
-			31: "VotedForUs",		# MEMORY_VOTED_FOR_US
-			32: "Event Good",		# MEMORY_EVENT_GOOD_TO_US
-			34: "LiberatedC",		# MEMORY_LIBERATED_CITIES
-			35: "Indep",			# MEMORY_INDEPENDENCE
-		}
-
-		negative_memory_index_labels = {
-			0:  "D.W",				# MEMORY_DECLARED_WAR
-			1:  "D.W onFr",			# MEMORY_DECLARED_WAR_ON_FRIEND
-			2:  "HirWAlly",			# MEMORY_HIRED_WAR_ALLY
-			3:  "Nuked Us",			# MEMORY_NUKED_US
-			4:  "Nuked Fr",			# MEMORY_NUKED_FRIEND
-			5:  "RazC",				# MEMORY_RAZED_CITY
-			6:  "RazHolyC",			# MEMORY_RAZED_HOLY_CITY
-			7:  "Spy Caught",		# MEMORY_SPY_CAUGHT
-			9:  "RefHelpUs",		# MEMORY_REFUSED_HELP
-			11: "Rej D",			# MEMORY_REJECTED_DEMAND
-			13: "Dn Relig",			# MEMORY_DENIED_RELIGION
-			15: "Dn Civic",			# MEMORY_DENIED_CIVIC
-			17: "Dn JoinW",			# MEMORY_DENIED_JOIN_WAR
-			19: "Dn StopTr",		# MEMORY_DENIED_STOP_TRADING
-			20: "StoppedTr",		# MEMORY_STOPPED_TRADING
-			21: "RecStoppedTr",		# MEMORY_STOPPED_TRADING_RECENT
-			22: "TrEmbargo",		# MEMORY_HIRED_TRADE_EMBARGO
-			23: "Made D",			# MEMORY_MADE_DEMAND
-			24: "CancVassal",		# MEMORY_CANCELLED_VASSAL_AGREEMENT
-			25: "RecentMadeD",		# MEMORY_MADE_DEMAND_RECENT
-			26: "CancelledOB",		# MEMORY_CANCELLED_OPEN_BORDERS
-			27: "CancelledDP",		# MEMORY_CANCELLED_DEFENSIVE_PACT
-			29: "RecentTechAny",	# MEMORY_RECEIVED_TECH_FROM_ANY
-			30: "VotedAgUs",		# MEMORY_VOTED_AGAINST_US
-			33: "Event Bad",		# MEMORY_EVENT_BAD_TO_US
-			36: "Recent W",			# MEMORY_DECLARED_WAR_RECENT
-		}
-
-		# <!-- custom: a minimal sanity check before merging the index_labels (not checking if some indexes are missing here in the dictionary as we'd likely i assume get a key error later otherwise -->
+		# <!-- custom: sanity-check that positive and negative assessed memory label metadata stays disjoint before combining it for UI labels. (ChatGPT-5.5) -->
 		check_overlapping_keys_between_dicts(positive_memory_index_labels, negative_memory_index_labels)
-		# ✅ Combined dictionary
+
 		positive_and_negative_memory_index_labels = {}
 		positive_and_negative_memory_index_labels.update(positive_memory_index_labels)
 		positive_and_negative_memory_index_labels.update(negative_memory_index_labels)

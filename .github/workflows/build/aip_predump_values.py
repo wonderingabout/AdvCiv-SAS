@@ -28,115 +28,21 @@ UWAI_DEFINE_NAME = "UWAI_PERSONALITY_PERCENT"
 BARBARIAN_LEADER_TYPE = "LEADER_BARBARIAN"
 DEFAULTS_LEADER_TYPE = "LEADER_DEFAULTS"
 
+# <!-- custom: Shared AIP enum/type lists, direct field specs, XML array specs, and aggregate key-family metadata are imported from ai_utils_shared_with_civ4.py in configure_shared_aip_constants(). Keeping them shared avoids drifting copies of getter fields, CONTACT_*, MEMORY_*, attitude indexes, and iAggregated* metadata. (ChatGPT-5.5) -->
+
 ATTITUDE_TO_INDEX: Dict[str, int] = {}
 FLAVOR_TYPES: Tuple[str, ...] = ()
 NO_WAR_ATTITUDE_TYPES: Tuple[str, ...] = ()
 CONTACT_TYPES: Tuple[str, ...] = ()
 MEMORY_TYPES: Tuple[str, ...] = ()
+DIRECT_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
+ATTITUDE_THRESHOLD_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
+EXTRA_UWAI_ONLY_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
+ALL_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
 DISPLAY_ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
 HIDDEN_ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
 ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
 
-# Shared AIP enum/type lists and XML array specs are imported from ai_utils_shared_with_civ4.py in configure_shared_aip_constants(). Keeping them shared avoids drifting copies of CONTACT_*, MEMORY_*, attitude indexes, and iAggregated* key-family metadata.
-
-# Mirrors the direct scalar getter lists displayed by SevoPediaLeaderAIPValues.py.
-# xml_default follows CvLeaderHeadInfo::GetChildXmlValByName's explicit default
-# argument. A copied LEADER_DEFAULTS value overrides this default when non-zero.
-DIRECT_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = (
-	("getWonderConstructRand", "iWonderConstructRand", 0),
-	("getBaseAttitude", "iBaseAttitude", 0),
-	("getBasePeaceWeight", "iBasePeaceWeight", 0),
-	("getPeaceWeightRand", "iPeaceWeightRand", 0),
-	("getWarmongerRespect", "iWarmongerRespect", 0),
-	("getEspionageWeight", "iEspionageWeight", 0),
-	("getRefuseToTalkWarThreshold", "iRefuseToTalkWarThreshold", 0),
-	("getNoTechTradeThreshold", "iNoTechTradeThreshold", 0),
-	("getTechTradeKnownPercent", "iTechTradeKnownPercent", 0),
-	("getMaxGoldTradePercent", "iMaxGoldTradePercent", 0),
-	("getMaxGoldPerTurnTradePercent", "iMaxGoldPerTurnTradePercent", 0),
-	("getCultureVictoryWeight", "iCultureVictoryWeight", 30),
-	("getSpaceVictoryWeight", "iSpaceVictoryWeight", 30),
-	("getConquestVictoryWeight", "iConquestVictoryWeight", 30),
-	("getDominationVictoryWeight", "iDominationVictoryWeight", 30),
-	("getDiplomacyVictoryWeight", "iDiplomacyVictoryWeight", 30),
-	("getMaxWarRand", "iMaxWarRand", 0),
-	("getMaxWarNearbyPowerRatio", "iMaxWarNearbyPowerRatio", 0),
-	("getMaxWarDistantPowerRatio", "iMaxWarDistantPowerRatio", 0),
-	("getMaxWarMinAdjacentLandPercent", "iMaxWarMinAdjacentLandPercent", 0),
-	("getLimitedWarRand", "iLimitedWarRand", 0),
-	("getLimitedWarPowerRatio", "iLimitedWarPowerRatio", 0),
-	("getDogpileWarRand", "iDogpileWarRand", 0),
-	("getMakePeaceRand", "iMakePeaceRand", 0),
-	("getDeclareWarTradeRand", "iDeclareWarTradeRand", 0),
-	("getDemandRebukedSneakProb", "iDemandRebukedSneakProb", 0),
-	("getDemandRebukedWarProb", "iDemandRebukedWarProb", 0),
-	("getRazeCityProb", "iRazeCityProb", 0),
-	("getBuildUnitProb", "iBuildUnitProb", 0),
-	("getBaseAttackOddsChange", "iBaseAttackOddsChange", 0),
-	("getAttackOddsChangeRand", "iAttackOddsChangeRand", 0),
-	("getWorseRankDifferenceAttitudeChange", "iWorseRankDifferenceAttitudeChange", 0),
-	("getBetterRankDifferenceAttitudeChange", "iBetterRankDifferenceAttitudeChange", 0),
-	("getCloseBordersAttitudeChange", "iCloseBordersAttitudeChange", 0),
-	("getLostWarAttitudeChange", "iLostWarAttitudeChange", 0),
-	("getAtWarAttitudeDivisor", "iAtWarAttitudeDivisor", 0),
-	("getAtWarAttitudeChangeLimit", "iAtWarAttitudeChangeLimit", 0),
-	("getAtPeaceAttitudeDivisor", "iAtPeaceAttitudeDivisor", 0),
-	("getAtPeaceAttitudeChangeLimit", "iAtPeaceAttitudeChangeLimit", 0),
-	("getSameReligionAttitudeChange", "iSameReligionAttitudeChange", 0),
-	("getSameReligionAttitudeDivisor", "iSameReligionAttitudeDivisor", 0),
-	("getSameReligionAttitudeChangeLimit", "iSameReligionAttitudeChangeLimit", 0),
-	("getDifferentReligionAttitudeChange", "iDifferentReligionAttitudeChange", 0),
-	("getDifferentReligionAttitudeDivisor", "iDifferentReligionAttitudeDivisor", 0),
-	("getDifferentReligionAttitudeChangeLimit", "iDifferentReligionAttitudeChangeLimit", 0),
-	("getBonusTradeAttitudeDivisor", "iBonusTradeAttitudeDivisor", 0),
-	("getBonusTradeAttitudeChangeLimit", "iBonusTradeAttitudeChangeLimit", 0),
-	("getOpenBordersAttitudeDivisor", "iOpenBordersAttitudeDivisor", 0),
-	("getOpenBordersAttitudeChangeLimit", "iOpenBordersAttitudeChangeLimit", 0),
-	("getDefensivePactAttitudeDivisor", "iDefensivePactAttitudeDivisor", 0),
-	("getDefensivePactAttitudeChangeLimit", "iDefensivePactAttitudeChangeLimit", 0),
-	("getShareWarAttitudeChange", "iShareWarAttitudeChange", 0),
-	("getShareWarAttitudeDivisor", "iShareWarAttitudeDivisor", 0),
-	("getShareWarAttitudeChangeLimit", "iShareWarAttitudeChangeLimit", 0),
-	("getFavoriteCivicAttitudeChange", "iFavoriteCivicAttitudeChange", 0),
-	("getFavoriteCivicAttitudeDivisor", "iFavoriteCivicAttitudeDivisor", 0),
-	("getFavoriteCivicAttitudeChangeLimit", "iFavoriteCivicAttitudeChangeLimit", 0),
-	("getVassalPowerModifier", "iVassalPowerModifier", 0),
-	("getFreedomAppreciation", "iFreedomAppreciation", 0),
-)
-
-# Mirrors the direct scalar attitude-threshold getters displayed by
-# SevoPediaLeaderAIPValues.py. Values are enum indexes stored by
-# CvXMLLoadUtility::SetInfoIDFromChildXmlVal.
-ATTITUDE_THRESHOLD_FIELDS: Tuple[Tuple[str, str, int], ...] = (
-	("getDemandTributeAttitudeThreshold", "DemandTributeAttitudeThreshold", -1),
-	("getNoGiveHelpAttitudeThreshold", "NoGiveHelpAttitudeThreshold", -1),
-	("getTechRefuseAttitudeThreshold", "TechRefuseAttitudeThreshold", -1),
-	("getCityRefuseAttitudeThreshold", "CityRefuseAttitudeThreshold", 2),
-	("getNativeCityRefuseAttitudeThreshold", "NativeCityRefuseAttitudeThreshold", 3),
-	("getStrategicBonusRefuseAttitudeThreshold", "StrategicBonusRefuseAttitudeThreshold", -1),
-	("getHappinessBonusRefuseAttitudeThreshold", "HappinessBonusRefuseAttitudeThreshold", -1),
-	("getHealthBonusRefuseAttitudeThreshold", "HealthBonusRefuseAttitudeThreshold", -1),
-	("getMapRefuseAttitudeThreshold", "MapRefuseAttitudeThreshold", -1),
-	("getDeclareWarRefuseAttitudeThreshold", "DeclareWarRefuseAttitudeThreshold", -1),
-	("getDeclareWarThemRefuseAttitudeThreshold", "DeclareWarThemRefuseAttitudeThreshold", -1),
-	("getStopTradingRefuseAttitudeThreshold", "StopTradingRefuseAttitudeThreshold", -1),
-	("getStopTradingThemRefuseAttitudeThreshold", "StopTradingThemRefuseAttitudeThreshold", -1),
-	("getAdoptCivicRefuseAttitudeThreshold", "AdoptCivicRefuseAttitudeThreshold", -1),
-	("getConvertReligionRefuseAttitudeThreshold", "ConvertReligionRefuseAttitudeThreshold", -1),
-	("getOpenBordersRefuseAttitudeThreshold", "OpenBordersRefuseAttitudeThreshold", -1),
-	("getDefensivePactRefuseAttitudeThreshold", "DefensivePactRefuseAttitudeThreshold", -1),
-	("getPermanentAllianceRefuseAttitudeThreshold", "PermanentAllianceRefuseAttitudeThreshold", -1),
-	("getVassalRefuseAttitudeThreshold", "VassalRefuseAttitudeThreshold", -1),
-)
-
-# UWAI::applyPersonalityWeight also mutates iLoveOfPeace even though the current
-# AIP scalar panel does not display it. Keep it in the median vector so the
-# scalar mirror stays aligned with the DLL primitive-member list.
-EXTRA_UWAI_ONLY_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = (
-	("getLoveOfPeace", "iLoveOfPeace", 0),
-)
-
-ALL_INT_FIELDS = DIRECT_INT_FIELDS + EXTRA_UWAI_ONLY_INT_FIELDS
 RAW_INT_RE = re.compile(r"\((-?\d+)\)")
 
 
@@ -362,14 +268,19 @@ def import_aip_shared_helpers(repo_root: Path) -> Any:
 
 
 def configure_shared_aip_constants(shared_helpers: Any) -> None:
-	# <!-- custom: Keep enum/type lists, Civ4 attitude-index mapping, XML array specs, and aggregate key-family metadata shared with the runtime AIP helpers. (ChatGPT-5.5) -->
+	# <!-- custom: Keep enum/type lists, direct getter metadata, Civ4 attitude-index mapping, XML array specs, and aggregate key-family metadata shared with the runtime AIP helpers. (ChatGPT-5.5) -->
 	global ATTITUDE_TO_INDEX, FLAVOR_TYPES, NO_WAR_ATTITUDE_TYPES, CONTACT_TYPES, MEMORY_TYPES
+	global DIRECT_INT_FIELDS, ATTITUDE_THRESHOLD_FIELDS, EXTRA_UWAI_ONLY_INT_FIELDS, ALL_INT_FIELDS
 	global DISPLAY_ARRAY_FIELD_SPECS, HIDDEN_ARRAY_FIELD_SPECS, ARRAY_FIELD_SPECS
 	ATTITUDE_TO_INDEX = shared_helpers.get_aip_attitude_type_to_index()
 	FLAVOR_TYPES = tuple(shared_helpers.get_aip_flavor_types_assessed())
 	NO_WAR_ATTITUDE_TYPES = tuple(shared_helpers.get_aip_no_war_attitude_types_assessed())
 	CONTACT_TYPES = tuple(shared_helpers.get_aip_contact_types_assessed())
 	MEMORY_TYPES = tuple(shared_helpers.get_aip_memory_types_assessed())
+	DIRECT_INT_FIELDS = tuple((getter, xml_tag, xml_default) for getter, xml_tag, xml_default, _label, _invert in shared_helpers.get_aip_direct_int_field_specs())
+	ATTITUDE_THRESHOLD_FIELDS = tuple((getter, xml_tag, xml_default) for getter, xml_tag, xml_default, _label, _invert in shared_helpers.get_aip_attitude_threshold_field_specs())
+	EXTRA_UWAI_ONLY_INT_FIELDS = tuple(shared_helpers.get_aip_extra_uwai_only_int_field_specs())
+	ALL_INT_FIELDS = DIRECT_INT_FIELDS + EXTRA_UWAI_ONLY_INT_FIELDS
 	DISPLAY_ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_display_array_field_specs())
 	HIDDEN_ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_hidden_array_field_specs())
 	ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_array_field_specs())

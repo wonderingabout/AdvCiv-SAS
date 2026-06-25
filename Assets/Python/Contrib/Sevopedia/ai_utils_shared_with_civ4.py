@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
 
-# <!-- custom: Shared AIP enum/type order used by both the in-game Sevopedia AIP code and workflow predump validation. These mirror the compact subset currently assessed by the AIP panel, not every possible future field. (ChatGPT-5.5) -->
+# <!-- custom: Shared AIP enum/type metadata used by both the in-game Sevopedia AIP code and workflow predump validation. These specs mirror the compact subset currently assessed by the AIP panel, not every possible future field. (ChatGPT-5.5) -->
 def get_aip_flavor_types_assessed():
 	return (
 		"FLAVOR_MILITARY",
@@ -25,64 +25,76 @@ def get_aip_no_war_attitude_types_assessed():
 		"ATTITUDE_FRIENDLY",
 	)
 
-def get_aip_contact_types_assessed():
+def get_aip_contact_specs():
+	# <!-- custom: Central contact metadata tuple: (debug/index order, XML/DLL contact type, compact AIP UI label). Example: index 0 maps CONTACT_RELIGION_PRESSURE to "Relig Press", preserving the old 0: "Relig Press" clarity without a separate duplicated label dict. (ChatGPT-5.5) -->
 	return (
-		"CONTACT_RELIGION_PRESSURE",
-		"CONTACT_CIVIC_PRESSURE",
-		"CONTACT_JOIN_WAR",
-		"CONTACT_STOP_TRADING",
-		"CONTACT_GIVE_HELP",
-		"CONTACT_ASK_FOR_HELP",
-		"CONTACT_DEMAND_TRIBUTE",
-		"CONTACT_OPEN_BORDERS",
-		"CONTACT_DEFENSIVE_PACT",
-		"CONTACT_PERMANENT_ALLIANCE",
-		"CONTACT_PEACE_TREATY",
-		"CONTACT_TRADE_TECH",
-		"CONTACT_TRADE_BONUS",
-		"CONTACT_TRADE_MAP",
+		(0, "CONTACT_RELIGION_PRESSURE", "Relig Press"),
+		(1, "CONTACT_CIVIC_PRESSURE", "Civic Press"),
+		(2, "CONTACT_JOIN_WAR", "Join W"),
+		(3, "CONTACT_STOP_TRADING", "Stop Tr"),
+		(4, "CONTACT_GIVE_HELP", "Gave Help"),
+		(5, "CONTACT_ASK_FOR_HELP", "Help"),
+		(6, "CONTACT_DEMAND_TRIBUTE", "Trib"),
+		(7, "CONTACT_OPEN_BORDERS", "Open Borders"),
+		(8, "CONTACT_DEFENSIVE_PACT", "DefensPact"),
+		(9, "CONTACT_PERMANENT_ALLIANCE", "PermAlliance"),
+		(10, "CONTACT_PEACE_TREATY", "PeaceTreaty"),
+		(11, "CONTACT_TRADE_TECH", "Tr Tech"),
+		(12, "CONTACT_TRADE_BONUS", "Tr Bonus"),
+		(13, "CONTACT_TRADE_MAP", "Tr Map"),
 	)
 
-def get_aip_memory_types_assessed():
+
+def get_aip_contact_types_assessed():
+	return tuple([contact_type for _index, contact_type, _label in get_aip_contact_specs()])
+
+def get_aip_memory_specs():
+	# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
+	# <!-- custom: Central memory metadata tuple: (debug/index order, XML/DLL memory type, compact AIP UI label, is_positive_memory). Positive/negative aggregate helpers derive from this single structure so type lists, labels, and polarity cannot drift separately. (ChatGPT-5.5) -->
 	return (
-		"MEMORY_DECLARED_WAR",
-		"MEMORY_DECLARED_WAR_ON_FRIEND",
-		"MEMORY_HIRED_WAR_ALLY",
-		"MEMORY_NUKED_US",
-		"MEMORY_NUKED_FRIEND",
-		"MEMORY_RAZED_CITY",
-		"MEMORY_RAZED_HOLY_CITY",
-		"MEMORY_SPY_CAUGHT",
-		"MEMORY_GIVE_HELP",
-		"MEMORY_REFUSED_HELP",
-		"MEMORY_ACCEPT_DEMAND",
-		"MEMORY_REJECTED_DEMAND",
-		"MEMORY_ACCEPTED_RELIGION",
-		"MEMORY_DENIED_RELIGION",
-		"MEMORY_ACCEPTED_CIVIC",
-		"MEMORY_DENIED_CIVIC",
-		"MEMORY_ACCEPTED_JOIN_WAR",
-		"MEMORY_DENIED_JOIN_WAR",
-		"MEMORY_ACCEPTED_STOP_TRADING",
-		"MEMORY_DENIED_STOP_TRADING",
-		"MEMORY_STOPPED_TRADING",
-		"MEMORY_STOPPED_TRADING_RECENT",
-		"MEMORY_HIRED_TRADE_EMBARGO",
-		"MEMORY_MADE_DEMAND",
-		"MEMORY_CANCELLED_VASSAL_AGREEMENT",
-		"MEMORY_MADE_DEMAND_RECENT",
-		"MEMORY_CANCELLED_OPEN_BORDERS",
-		"MEMORY_CANCELLED_DEFENSIVE_PACT",
-		"MEMORY_TRADED_TECH_TO_US",
-		"MEMORY_RECEIVED_TECH_FROM_ANY",
-		"MEMORY_VOTED_AGAINST_US",
-		"MEMORY_VOTED_FOR_US",
-		"MEMORY_EVENT_GOOD_TO_US",
-		"MEMORY_EVENT_BAD_TO_US",
-		"MEMORY_LIBERATED_CITIES",
-		"MEMORY_INDEPENDENCE",
-		"MEMORY_DECLARED_WAR_RECENT",
+		(0, "MEMORY_DECLARED_WAR", "D.W", False),
+		(1, "MEMORY_DECLARED_WAR_ON_FRIEND", "D.W onFr", False),
+		(2, "MEMORY_HIRED_WAR_ALLY", "HirWAlly", False),
+		(3, "MEMORY_NUKED_US", "Nuked Us", False),
+		(4, "MEMORY_NUKED_FRIEND", "Nuked Fr", False),
+		(5, "MEMORY_RAZED_CITY", "RazC", False),
+		(6, "MEMORY_RAZED_HOLY_CITY", "RazHolyC", False),
+		(7, "MEMORY_SPY_CAUGHT", "Spy Caught", False),
+		(8, "MEMORY_GIVE_HELP", "Gave Help", True),
+		(9, "MEMORY_REFUSED_HELP", "RefHelpUs", False),
+		(10, "MEMORY_ACCEPT_DEMAND", "AcD", True),
+		(11, "MEMORY_REJECTED_DEMAND", "Rej D", False),
+		(12, "MEMORY_ACCEPTED_RELIGION", "AcRelig", True),
+		(13, "MEMORY_DENIED_RELIGION", "Dn Relig", False),
+		(14, "MEMORY_ACCEPTED_CIVIC", "AcCivic", True),
+		(15, "MEMORY_DENIED_CIVIC", "Dn Civic", False),
+		(16, "MEMORY_ACCEPTED_JOIN_WAR", "AcJoin W", True),
+		(17, "MEMORY_DENIED_JOIN_WAR", "Dn JoinW", False),
+		(18, "MEMORY_ACCEPTED_STOP_TRADING", "AcStop Tr", True),
+		(19, "MEMORY_DENIED_STOP_TRADING", "Dn StopTr", False),
+		(20, "MEMORY_STOPPED_TRADING", "StoppedTr", False),
+		(21, "MEMORY_STOPPED_TRADING_RECENT", "RecStoppedTr", False),
+		(22, "MEMORY_HIRED_TRADE_EMBARGO", "TrEmbargo", False),
+		(23, "MEMORY_MADE_DEMAND", "Made D", False),
+		(24, "MEMORY_CANCELLED_VASSAL_AGREEMENT", "CancVassal", False),
+		(25, "MEMORY_MADE_DEMAND_RECENT", "RecentMadeD", False),
+		(26, "MEMORY_CANCELLED_OPEN_BORDERS", "CancelledOB", False),
+		(27, "MEMORY_CANCELLED_DEFENSIVE_PACT", "CancelledDP", False),
+		(28, "MEMORY_TRADED_TECH_TO_US", "Tr Tech", True),
+		# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any ; Long_Comments_py.txt #7 -->
+		(29, "MEMORY_RECEIVED_TECH_FROM_ANY", "RecentTechAny", False),
+		(30, "MEMORY_VOTED_AGAINST_US", "VotedAgUs", False),
+		(31, "MEMORY_VOTED_FOR_US", "VotedForUs", True),
+		(32, "MEMORY_EVENT_GOOD_TO_US", "Event Good", True),
+		(33, "MEMORY_EVENT_BAD_TO_US", "Event Bad", False),
+		(34, "MEMORY_LIBERATED_CITIES", "LiberatedC", True),
+		(35, "MEMORY_INDEPENDENCE", "Indep", True),
+		(36, "MEMORY_DECLARED_WAR_RECENT", "Recent W", False),
 	)
+
+
+def get_aip_memory_types_assessed():
+	return tuple([memory_type for _index, memory_type, _label, _is_positive in get_aip_memory_specs()])
 
 def get_aip_attitude_type_to_index():
 	return {
@@ -94,6 +106,153 @@ def get_aip_attitude_type_to_index():
 		"ATTITUDE_PLEASED": 3,
 		"ATTITUDE_FRIENDLY": 4,
 	}
+
+
+# <!-- custom: Shared AIP direct scalar field specs. Each direct-int tuple is (getter name, XML tag, CvLeaderHeadInfo::read explicit default, display label, invert-for-ranking flag). Each attitude-threshold tuple uses the same shape, with the default matching the constructor/XML-loader default integer. These central specs let the Sevopedia AIP panel and workflow predump checker use the same field list instead of maintaining parallel dictionaries. (ChatGPT-5.5) -->
+def get_aip_direct_int_field_specs():
+	return (
+		('getWonderConstructRand', 'iWonderConstructRand', 0, 'Wonder C.R', False),
+		('getBaseAttitude', 'iBaseAttitude', 0, 'Base Attitude', False),
+		('getBasePeaceWeight', 'iBasePeaceWeight', 0, 'Base Peace Weig', False),
+		('getPeaceWeightRand', 'iPeaceWeightRand', 0, 'Peace Weig Rand', False),
+		('getWarmongerRespect', 'iWarmongerRespect', 0, 'Warmonger Resp', False),
+		('getEspionageWeight', 'iEspionageWeight', 0, 'EspionageWeig', False),
+		('getRefuseToTalkWarThreshold', 'iRefuseToTalkWarThreshold', 0, 'Ref2TalkWSpan', False),
+		('getNoTechTradeThreshold', 'iNoTechTradeThreshold', 0, 'NoTech2AdvT', True),
+		('getTechTradeKnownPercent', 'iTechTradeKnownPercent', 0, 'NoTechYetRdy%', False),
+		('getMaxGoldTradePercent', 'iMaxGoldTradePercent', 0, 'Max Gold Tr%', False),
+		('getMaxGoldPerTurnTradePercent', 'iMaxGoldPerTurnTradePercent', 0, 'Max GPT Tr%', False),
+		('getCultureVictoryWeight', 'iCultureVictoryWeight', 30, 'Culture', False),
+		('getSpaceVictoryWeight', 'iSpaceVictoryWeight', 30, 'Space', False),
+		('getConquestVictoryWeight', 'iConquestVictoryWeight', 30, 'Conquest', False),
+		('getDominationVictoryWeight', 'iDominationVictoryWeight', 30, 'Domination', False),
+		('getDiplomacyVictoryWeight', 'iDiplomacyVictoryWeight', 30, 'Diplomacy', False),
+		('getMaxWarRand', 'iMaxWarRand', 0, 'T.W Likely', True),
+		('getMaxWarNearbyPowerRatio', 'iMaxWarNearbyPowerRatio', 0, 'T.W NearPR', False),
+		('getMaxWarDistantPowerRatio', 'iMaxWarDistantPowerRatio', 0, 'T.W DistPR', False),
+		('getMaxWarMinAdjacentLandPercent', 'iMaxWarMinAdjacentLandPercent', 0, 'T.W MinNearPR', True),
+		('getLimitedWarRand', 'iLimitedWarRand', 0, 'Lim.W Likely', True),
+		('getLimitedWarPowerRatio', 'iLimitedWarPowerRatio', 0, 'Lim.W PR', False),
+		('getDogpileWarRand', 'iDogpileWarRand', 0, 'Dogpile Likely', True),
+		('getMakePeaceRand', 'iMakePeaceRand', 0, 'MakePeaceLikely', True),
+		('getDeclareWarTradeRand', 'iDeclareWarTradeRand', 0, 'WAllianceMaker', False),
+		('getDemandRebukedSneakProb', 'iDemandRebukedSneakProb', 0, 'TribRSneakW%', False),
+		('getDemandRebukedWarProb', 'iDemandRebukedWarProb', 0, 'TribRef W%', False),
+		('getRazeCityProb', 'iRazeCityProb', 0, 'Raz C %', False),
+		('getBuildUnitProb', 'iBuildUnitProb', 0, 'Build Unit %', False),
+		('getBaseAttackOddsChange', 'iBaseAttackOddsChange', 0, 'Risky Aggr', False),
+		('getAttackOddsChangeRand', 'iAttackOddsChangeRand', 0, 'Risky AggrRand+', False),
+		('getWorseRankDifferenceAttitudeChange', 'iWorseRankDifferenceAttitudeChange', 0, 'Worse Rank AC', False),
+		('getBetterRankDifferenceAttitudeChange', 'iBetterRankDifferenceAttitudeChange', 0, 'Better Rank AC', False),
+		('getCloseBordersAttitudeChange', 'iCloseBordersAttitudeChange', 0, 'CloseBordSpark', True),
+		('getLostWarAttitudeChange', 'iLostWarAttitudeChange', 0, 'Lost W AC', False),
+		('getAtWarAttitudeDivisor', 'iAtWarAttitudeDivisor', 0, 'At W AD', False),
+		('getAtWarAttitudeChangeLimit', 'iAtWarAttitudeChangeLimit', 0, 'At W ACL', False),
+		('getAtPeaceAttitudeDivisor', 'iAtPeaceAttitudeDivisor', 0, 'At Peace AD', False),
+		('getAtPeaceAttitudeChangeLimit', 'iAtPeaceAttitudeChangeLimit', 0, 'At Peace ACL', False),
+		('getSameReligionAttitudeChange', 'iSameReligionAttitudeChange', 0, 'Same Relig AC', False),
+		('getSameReligionAttitudeDivisor', 'iSameReligionAttitudeDivisor', 0, 'Same Relig AD', False),
+		('getSameReligionAttitudeChangeLimit', 'iSameReligionAttitudeChangeLimit', 0, 'Same Relig ACL', False),
+		('getDifferentReligionAttitudeChange', 'iDifferentReligionAttitudeChange', 0, 'Diff Relig AC', False),
+		('getDifferentReligionAttitudeDivisor', 'iDifferentReligionAttitudeDivisor', 0, 'Diff Relig AD', False),
+		('getDifferentReligionAttitudeChangeLimit', 'iDifferentReligionAttitudeChangeLimit', 0, 'Diff Relig ACL', True),
+		('getBonusTradeAttitudeDivisor', 'iBonusTradeAttitudeDivisor', 0, 'Bonus Tr AD', False),
+		('getBonusTradeAttitudeChangeLimit', 'iBonusTradeAttitudeChangeLimit', 0, 'Bonus Tr ACL', False),
+		('getOpenBordersAttitudeDivisor', 'iOpenBordersAttitudeDivisor', 0, 'Open Bord AD', False),
+		('getOpenBordersAttitudeChangeLimit', 'iOpenBordersAttitudeChangeLimit', 0, 'Open Bord ACL', False),
+		('getDefensivePactAttitudeDivisor', 'iDefensivePactAttitudeDivisor', 0, 'Defens Pact AD', False),
+		('getDefensivePactAttitudeChangeLimit', 'iDefensivePactAttitudeChangeLimit', 0, 'Defens Pact ACL', False),
+		('getShareWarAttitudeChange', 'iShareWarAttitudeChange', 0, 'Share W AC', False),
+		('getShareWarAttitudeDivisor', 'iShareWarAttitudeDivisor', 0, 'Share W AD', False),
+		('getShareWarAttitudeChangeLimit', 'iShareWarAttitudeChangeLimit', 0, 'Share W ACL', False),
+		('getFavoriteCivicAttitudeChange', 'iFavoriteCivicAttitudeChange', 0, 'Fav Civic AC', False),
+		('getFavoriteCivicAttitudeDivisor', 'iFavoriteCivicAttitudeDivisor', 0, 'Fav Civic AD', False),
+		('getFavoriteCivicAttitudeChangeLimit', 'iFavoriteCivicAttitudeChangeLimit', 0, 'Fav Civic ACL', False),
+		('getVassalPowerModifier', 'iVassalPowerModifier', 0, 'ResistCapitulPM', False),
+		('getFreedomAppreciation', 'iFreedomAppreciation', 0, 'FreedomApprec', False),
+	)
+
+def get_aip_attitude_threshold_field_specs():
+	return (
+		('getDemandTributeAttitudeThreshold', 'DemandTributeAttitudeThreshold', -1, 'ScaryNoTrib', True),
+		('getNoGiveHelpAttitudeThreshold', 'NoGiveHelpAttitudeThreshold', -1, 'PrideNoHelp', False),
+		('getTechRefuseAttitudeThreshold', 'TechRefuseAttitudeThreshold', -1, 'Tech', False),
+		('getCityRefuseAttitudeThreshold', 'CityRefuseAttitudeThreshold', 2, 'C', False),
+		('getNativeCityRefuseAttitudeThreshold', 'NativeCityRefuseAttitudeThreshold', 3, 'Native C', False),
+		('getStrategicBonusRefuseAttitudeThreshold', 'StrategicBonusRefuseAttitudeThreshold', -1, 'Strategic Bonus', False),
+		('getHappinessBonusRefuseAttitudeThreshold', 'HappinessBonusRefuseAttitudeThreshold', -1, 'Happiness Bonus', False),
+		('getHealthBonusRefuseAttitudeThreshold', 'HealthBonusRefuseAttitudeThreshold', -1, 'Health Bonus', False),
+		('getMapRefuseAttitudeThreshold', 'MapRefuseAttitudeThreshold', -1, 'Map', False),
+		('getDeclareWarRefuseAttitudeThreshold', 'DeclareWarRefuseAttitudeThreshold', -1, 'D.W', False),
+		# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold -->
+		('getDeclareWarThemRefuseAttitudeThreshold', 'DeclareWarThemRefuseAttitudeThreshold', -1, 'LoyaltyNoD.W', True),
+		('getStopTradingRefuseAttitudeThreshold', 'StopTradingRefuseAttitudeThreshold', -1, 'StopTr', False),
+		# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold -->
+		('getStopTradingThemRefuseAttitudeThreshold', 'StopTradingThemRefuseAttitudeThreshold', -1, 'LoyaltyNoStopTr', True),
+		('getAdoptCivicRefuseAttitudeThreshold', 'AdoptCivicRefuseAttitudeThreshold', -1, 'Adopt Civic', False),
+		('getConvertReligionRefuseAttitudeThreshold', 'ConvertReligionRefuseAttitudeThreshold', -1, 'Convert Religion', False),
+		('getOpenBordersRefuseAttitudeThreshold', 'OpenBordersRefuseAttitudeThreshold', -1, 'Open Bord', False),
+		('getDefensivePactRefuseAttitudeThreshold', 'DefensivePactRefuseAttitudeThreshold', -1, 'DefensPact', False),
+		('getPermanentAllianceRefuseAttitudeThreshold', 'PermanentAllianceRefuseAttitudeThreshold', -1, 'PermAlliance', False),
+		('getVassalRefuseAttitudeThreshold', 'VassalRefuseAttitudeThreshold', -1, 'Vassal', False),
+	)
+
+def get_aip_extra_uwai_only_int_field_specs():
+	# <!-- custom: UWAI::applyPersonalityWeight also mutates iLoveOfPeace even though the current AIP panel does not display it. Keep it in the workflow median vector so XML+UWAI validation mirrors the DLL primitive-member list. (ChatGPT-5.5) -->
+	return (
+		('getLoveOfPeace', 'iLoveOfPeace', 0),
+	)
+
+def get_aip_fields_directly_parsed():
+	# <!-- custom: Return the runtime display dictionaries expected by SevoPediaLeaderAIPValues.py: getter_name -> (label, b_invert). Attributes with b_invert=True are ones where high raw values are worse and low raw values are better. (ChatGPT-5.5) -->
+	fields_with_direct_getters = {}
+	for getter_name, _xml_tag, _xml_default, label, b_invert in get_aip_direct_int_field_specs():
+		fields_with_direct_getters[getter_name] = (label, b_invert)
+	fields_attitude_thresholds = {}
+	for getter_name, _xml_tag, _xml_default, label, b_invert in get_aip_attitude_threshold_field_specs():
+		fields_attitude_thresholds[getter_name] = (label, b_invert)
+	return fields_with_direct_getters, fields_attitude_thresholds
+
+def get_aip_contact_index_labels():
+	labels = {}
+	for index, _contact_type, label in get_aip_contact_specs():
+		labels[index] = label
+	return labels
+
+
+def get_aip_positive_memory_index_labels():
+	labels = {}
+	for index, _memory_type, label, is_positive in get_aip_memory_specs():
+		if is_positive:
+			labels[index] = label
+	return labels
+
+
+def get_aip_negative_memory_index_labels():
+	labels = {}
+	for index, _memory_type, label, is_positive in get_aip_memory_specs():
+		if not is_positive:
+			labels[index] = label
+	return labels
+
+
+def get_aip_memory_index_labels_assessed():
+	labels = {}
+	for index, _memory_type, label, _is_positive in get_aip_memory_specs():
+		labels[index] = label
+	return labels
+
+def get_aip_attitude_index_to_type(include_debug_always):
+	index_to_type = {}
+	for attitude_type, attitude_index in get_aip_attitude_type_to_index().items():
+		# <!-- custom: Prefer NONE over NO_ATTITUDE for the shared reverse/debug label because it is shorter and matches existing debug output. (ChatGPT-5.5) -->
+		if attitude_index == -1 and attitude_type != "NONE":
+			continue
+		index_to_type[attitude_index] = attitude_type
+	if include_debug_always:
+		# <!-- custom: AdvCiv can expose attitude threshold 5 in debug output for harsh map-trade refusal behavior; it is not a normal XML attitude enum. (ChatGPT-5.5) -->
+		index_to_type[5] = "ALWAYS??"
+	return index_to_type
 
 
 # <!-- custom: Shared AIP primitive array/list specs. These are used by the workflow checker to parse LeaderHeadInfo XML and by comments/helpers in the runtime AIP code to keep field-family metadata in one place. Each tuple is (xml parent tag, xml enum key tag, xml value tag, assessed enum/type names, synthetic AIP key prefix). (ChatGPT-5.5) -->
@@ -121,53 +280,21 @@ def get_aip_memory_type_by_index(iMemoryIndex):
 def get_aip_contact_type_by_index(iContactIndex):
 	return get_aip_contact_types_assessed()[iContactIndex]
 
-# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
-# <!-- custom: 11 entries total -->
+# <!-- custom: 11 positive entries total -->
 def get_positive_memory_indexes_to_types():
-	return {
-		8: "MEMORY_GIVE_HELP",
-		10: "MEMORY_ACCEPT_DEMAND",
-		12: "MEMORY_ACCEPTED_RELIGION",
-		14: "MEMORY_ACCEPTED_CIVIC",
-		16: "MEMORY_ACCEPTED_JOIN_WAR",
-		18: "MEMORY_ACCEPTED_STOP_TRADING",
-		28: "MEMORY_TRADED_TECH_TO_US",
-		31: "MEMORY_VOTED_FOR_US",
-		32: "MEMORY_EVENT_GOOD_TO_US",
-		34: "MEMORY_LIBERATED_CITIES",
-		35: "MEMORY_INDEPENDENCE",
-	}
+	memory_indexes_to_types = {}
+	for index, memory_type, _label, is_positive in get_aip_memory_specs():
+		if is_positive:
+			memory_indexes_to_types[index] = memory_type
+	return memory_indexes_to_types
+
 
 def get_negative_memory_indexes_to_types():
-	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any ; Long_Comments_py.txt #7 -->
-	return {
-		0: "MEMORY_DECLARED_WAR",
-		1: "MEMORY_DECLARED_WAR_ON_FRIEND",
-		2: "MEMORY_HIRED_WAR_ALLY",
-		3: "MEMORY_NUKED_US",
-		4: "MEMORY_NUKED_FRIEND",
-		5: "MEMORY_RAZED_CITY",
-		6: "MEMORY_RAZED_HOLY_CITY",
-		7: "MEMORY_SPY_CAUGHT",
-		9: "MEMORY_REFUSED_HELP",
-		11: "MEMORY_REJECTED_DEMAND",
-		13: "MEMORY_DENIED_RELIGION",
-		15: "MEMORY_DENIED_CIVIC",
-		17: "MEMORY_DENIED_JOIN_WAR",
-		19: "MEMORY_DENIED_STOP_TRADING",
-		20: "MEMORY_STOPPED_TRADING",
-		21: "MEMORY_STOPPED_TRADING_RECENT",
-		22: "MEMORY_HIRED_TRADE_EMBARGO",
-		23: "MEMORY_MADE_DEMAND",
-		24: "MEMORY_CANCELLED_VASSAL_AGREEMENT",
-		25: "MEMORY_MADE_DEMAND_RECENT",
-		26: "MEMORY_CANCELLED_OPEN_BORDERS",
-		27: "MEMORY_CANCELLED_DEFENSIVE_PACT",
-		29: "MEMORY_RECEIVED_TECH_FROM_ANY",
-		30: "MEMORY_VOTED_AGAINST_US",
-		33: "MEMORY_EVENT_BAD_TO_US",
-		36: "MEMORY_DECLARED_WAR_RECENT",
-	}
+	memory_indexes_to_types = {}
+	for index, memory_type, _label, is_positive in get_aip_memory_specs():
+		if not is_positive:
+			memory_indexes_to_types[index] = memory_type
+	return memory_indexes_to_types
 
 def get_shifted_values(min_val, value, max_val):
 	# <!-- custom:
