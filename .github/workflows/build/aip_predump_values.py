@@ -4,8 +4,8 @@
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
 # <!-- custom: Build-check helper: compare LeaderHeadInfo AIP predump values against a lightweight Python mirror of CvLeaderHeadInfo XML defaults plus UWAI::applyPersonalityWeight.
-# This is intentionally a separate script from build/aip.py so the always-on AIP release-safety check can stay lightweight while this deeper effective-value mirror can be run manually or conditionally later.
-# Currently checks direct scalar values plus the first simple array/list families: Flavors and NoWarAttitudeProbs. Contacts, memories, UnitAIWeightModifiers, and ImprovementWeightModifiers can be added after these array paths are proven. (ChatGPT-5.5) -->
+# This is intentionally a separate script from build/aip.py so the always-on AIP release-safety check can stay lightweight while this deeper effective-value mirror can validate committed predump values.
+# Direct scalar/simple-array values are checked here, and derived contact/memory aggregate values reuse the same pre-normalization AIP helper logic as the in-game Sevopedia AIP cache. UnitAIWeightModifiers and ImprovementWeightModifiers are not checked because they are not currently displayed/predumped. (ChatGPT-5.5) -->
 
 from __future__ import annotations
 
@@ -28,42 +28,16 @@ UWAI_DEFINE_NAME = "UWAI_PERSONALITY_PERCENT"
 BARBARIAN_LEADER_TYPE = "LEADER_BARBARIAN"
 DEFAULTS_LEADER_TYPE = "LEADER_DEFAULTS"
 
-ATTITUDE_TO_INDEX = {
-	"NO_ATTITUDE": -1,
-	"NONE": -1,
-	"ATTITUDE_FURIOUS": 0,
-	"ATTITUDE_ANNOYED": 1,
-	"ATTITUDE_CAUTIOUS": 2,
-	"ATTITUDE_PLEASED": 3,
-	"ATTITUDE_FRIENDLY": 4,
-}
+ATTITUDE_TO_INDEX: Dict[str, int] = {}
+FLAVOR_TYPES: Tuple[str, ...] = ()
+NO_WAR_ATTITUDE_TYPES: Tuple[str, ...] = ()
+CONTACT_TYPES: Tuple[str, ...] = ()
+MEMORY_TYPES: Tuple[str, ...] = ()
+DISPLAY_ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
+HIDDEN_ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
+ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
 
-# Mirrors the hardcoded FlavorTypes enum order in CvEnums.h. The DLL also reads
-# matching text names into GC.getFlavorTypes(), but the AIP checker only needs
-# these type strings to parse LeaderHeadInfo flavor arrays and build predump keys.
-FLAVOR_TYPES: Tuple[str, ...] = (
-	"FLAVOR_MILITARY",
-	"FLAVOR_RELIGION",
-	"FLAVOR_PRODUCTION",
-	"FLAVOR_GOLD",
-	"FLAVOR_SCIENCE",
-	"FLAVOR_CULTURE",
-	"FLAVOR_GROWTH",
-	"FLAVOR_ESPIONAGE",
-)
-
-NO_WAR_ATTITUDE_TYPES: Tuple[str, ...] = (
-	"ATTITUDE_FURIOUS",
-	"ATTITUDE_ANNOYED",
-	"ATTITUDE_CAUTIOUS",
-	"ATTITUDE_PLEASED",
-	"ATTITUDE_FRIENDLY",
-)
-
-ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = (
-	("Flavors", "FlavorType", "iFlavor", FLAVOR_TYPES, "iFlavor"),
-	("NoWarAttitudeProbs", "AttitudeType", "iNoWarProb", NO_WAR_ATTITUDE_TYPES, "iNoWarAttitudeProb"),
-)
+# Shared AIP enum/type lists and XML array specs are imported from ai_utils_shared_with_civ4.py in configure_shared_aip_constants(). Keeping them shared avoids drifting copies of CONTACT_*, MEMORY_*, attitude indexes, and iAggregated* key-family metadata.
 
 # Mirrors the direct scalar getter lists displayed by SevoPediaLeaderAIPValues.py.
 # xml_default follows CvLeaderHeadInfo::GetChildXmlValByName's explicit default
@@ -225,15 +199,19 @@ def array_value_key(key_prefix: str, xml_type: str) -> str:
 	return "%s%s" % (key_prefix, get_pascal_case_suffix(xml_type))
 
 
-def displayed_value_keys() -> Tuple[str, ...]:
+def displayed_value_keys(shared_helpers: Any) -> Tuple[str, ...]:
 	array_keys: List[str] = []
-	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
+	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in DISPLAY_ARRAY_FIELD_SPECS:
 		for type_name in type_names:
 			array_keys.append(array_value_key(key_prefix, type_name))
+	aggregate_keys = [shared_helpers.get_aip_aggregated_contact_prob_key(contact_type) for contact_type in CONTACT_TYPES]
+	aggregate_keys.extend(shared_helpers.get_aip_aggregated_memory_key(MEMORY_TYPES[i], True, True) for i in shared_helpers.get_positive_or_negative_memory_indexes(True))
+	aggregate_keys.extend(shared_helpers.get_aip_aggregated_memory_key(MEMORY_TYPES[i], False, False) for i in shared_helpers.get_positive_or_negative_memory_indexes(False))
 	return (
 		tuple(getter for getter, _tag, _default in DIRECT_INT_FIELDS)
 		+ tuple(getter for getter, _tag, _default in ATTITUDE_THRESHOLD_FIELDS)
 		+ tuple(array_keys)
+		+ tuple(aggregate_keys)
 	)
 
 
@@ -374,6 +352,55 @@ def apply_uwai_personality_weight(leaders: List[LeaderRecord], weight: int) -> N
 			leader.values[getter_key] = round_cpp_scaled(new_value)
 
 
+def import_aip_shared_helpers(repo_root: Path) -> Any:
+	sevopedia_path = repo_root / "Assets" / "Python" / "Contrib" / "Sevopedia"
+	sevopedia_path_text = str(sevopedia_path)
+	if sevopedia_path_text not in sys.path:
+		sys.path.insert(0, sevopedia_path_text)
+	import ai_utils_shared_with_civ4  # pylint: disable=import-error,import-outside-toplevel
+	return ai_utils_shared_with_civ4
+
+
+def configure_shared_aip_constants(shared_helpers: Any) -> None:
+	# <!-- custom: Keep enum/type lists, Civ4 attitude-index mapping, XML array specs, and aggregate key-family metadata shared with the runtime AIP helpers. (ChatGPT-5.5) -->
+	global ATTITUDE_TO_INDEX, FLAVOR_TYPES, NO_WAR_ATTITUDE_TYPES, CONTACT_TYPES, MEMORY_TYPES
+	global DISPLAY_ARRAY_FIELD_SPECS, HIDDEN_ARRAY_FIELD_SPECS, ARRAY_FIELD_SPECS
+	ATTITUDE_TO_INDEX = shared_helpers.get_aip_attitude_type_to_index()
+	FLAVOR_TYPES = tuple(shared_helpers.get_aip_flavor_types_assessed())
+	NO_WAR_ATTITUDE_TYPES = tuple(shared_helpers.get_aip_no_war_attitude_types_assessed())
+	CONTACT_TYPES = tuple(shared_helpers.get_aip_contact_types_assessed())
+	MEMORY_TYPES = tuple(shared_helpers.get_aip_memory_types_assessed())
+	DISPLAY_ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_display_array_field_specs())
+	HIDDEN_ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_hidden_array_field_specs())
+	ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_array_field_specs())
+
+
+def add_shared_aggregate_display_values_to_leaders(leaders: List[LeaderRecord], shared_helpers: Any) -> None:
+	personality_leaders = [leader for leader in leaders if leader.type != BARBARIAN_LEADER_TYPE]
+	leaders_by_index = {leader.index: leader for leader in personality_leaders}
+	non_excluded_leader_indexes = tuple(leaders_by_index.keys())
+
+	def get_contact_rand(iLeader: int, iContact: int) -> int:
+		return leaders_by_index[iLeader].values[array_value_key("iContactRand", CONTACT_TYPES[iContact])]
+
+	def get_contact_delay(iLeader: int, iContact: int) -> int:
+		return leaders_by_index[iLeader].values[array_value_key("iContactDelay", CONTACT_TYPES[iContact])]
+
+	def get_memory_type(iMemoryIndex: int) -> str:
+		return MEMORY_TYPES[iMemoryIndex]
+
+	def get_memory_attitude_percent(iLeader: int, iMemoryIndex: int) -> int:
+		return leaders_by_index[iLeader].values[array_value_key("iMemoryAttitudePercent", MEMORY_TYPES[iMemoryIndex])]
+
+	def get_memory_decay_rand(iLeader: int, iMemoryIndex: int) -> int:
+		return leaders_by_index[iLeader].values[array_value_key("iMemoryDecay", MEMORY_TYPES[iMemoryIndex])]
+
+	# <!-- custom: The shared helper creates AIP synthetic display values from XML+UWAI raw inputs. For example, it normalizes iAggregatedRawContactProbReligionPressure into iAggregatedContactProbReligionPressure, and iAggregatedRawPositiveMemoryTradedTechToUsAffection into iAggregatedPositiveMemoryTradedTechToUsAffection. The checker supplies XML+UWAI values as a provider, while Sevopedia supplies gc/DLL values. (ChatGPT-5.5) -->
+	display_values = shared_helpers.compute_leaders_info_aip_aggregate_display_values(non_excluded_leader_indexes, CONTACT_TYPES, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, False, False)
+	for leader in personality_leaders:
+		leader.values.update(display_values[leader.index])
+
+
 def read_predump_cache(repo_root: Path) -> Dict[int, Dict[str, Tuple[Any, ...]]]:
 	path = repo_root / PREDUMP_RELATIVE_PATH
 	module_ast = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -397,25 +424,31 @@ def extract_raw_label_value(entry: Tuple[Any, ...]) -> Optional[int]:
 	return int(match.group(1))
 
 
-def compare_values(leaders: List[LeaderRecord], predump: Dict[int, Dict[str, Tuple[Any, ...]]]) -> List[ComparisonResult]:
+def compare_values(leaders: List[LeaderRecord], predump: Dict[int, Dict[str, Tuple[Any, ...]]], shared_helpers: Any) -> List[ComparisonResult]:
 	results: List[ComparisonResult] = []
 	for leader in leaders:
 		if leader.type == BARBARIAN_LEADER_TYPE:
 			continue
 		leader_cache = predump.get(leader.index)
 		if leader_cache is None:
-			for getter_key in displayed_value_keys():
+			for getter_key in displayed_value_keys(shared_helpers):
 				results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "missing-leader"))
 			continue
-		for getter_key in displayed_value_keys():
+		for getter_key in displayed_value_keys(shared_helpers):
 			entry = leader_cache.get(getter_key)
 			if entry is None:
 				results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "missing-field"))
 				continue
-			actual = extract_raw_label_value(entry)
-			if actual is None:
-				results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "unparsed-label"))
-				continue
+			if getter_key.startswith("iAggregated"):
+				actual = entry[1] if len(entry) > 1 and isinstance(entry[1], int) else None
+				if actual is None:
+					results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "unparsed-value"))
+					continue
+			else:
+				actual = extract_raw_label_value(entry)
+				if actual is None:
+					results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], None, "unparsed-label"))
+					continue
 			status = "match" if actual == leader.values[getter_key] else "mismatch"
 			results.append(ComparisonResult(leader.index, leader.type, getter_key, leader.values[getter_key], actual, status))
 	return results
@@ -444,15 +477,16 @@ def write_markdown_report(path: Path, repo_root: Path, leaders: List[LeaderRecor
 	lines: List[str] = []
 	lines.append("# Leader AIP predump effective-value check")
 	lines.append("")
-	lines.append("Current direct-scalar plus simple-array comparison between `CIV4LeaderHeadInfos.xml` and `SevoPediaLeaderCachePredumped.py`.")
+	lines.append("Current direct-value plus shared derived-aggregate comparison between `CIV4LeaderHeadInfos.xml` and `SevoPediaLeaderCachePredumped.py`.")
 	lines.append("")
 	lines.append("This helper mirrors the narrow DLL path needed for effective AIP values checked by this script:")
 	lines.append("")
 	lines.append("- `LEADER_DEFAULTS` copy behavior from `CvXMLLoadUtility::SetGlobalClassInfo`.")
 	lines.append("- `CvLeaderHeadInfo::GetChildXmlValByName` missing-tag behavior.")
-	lines.append("- `UWAI::applyPersonalityWeight` for scalar primitive fields and the checked primitive array/list fields.")
+	lines.append("- `UWAI::applyPersonalityWeight` for scalar primitive fields and checked primitive array/list fields.")
+	lines.append("- Shared AIP contact/memory aggregate helpers for derived pre-normalization fields.")
 	lines.append("")
-	lines.append("Contacts, memories, unit AI modifiers, improvement modifiers, and aggregated values are intentionally not checked yet.")
+	lines.append("Unit AI modifiers and improvement modifiers are intentionally not checked yet because they are not currently displayed/predumped by the AIP panel.")
 	lines.append("")
 	lines.append("## Summary")
 	lines.append("")
@@ -489,7 +523,7 @@ def write_markdown_report(path: Path, repo_root: Path, leaders: List[LeaderRecor
 	if not mismatches and not missing:
 		lines.append("## Result")
 		lines.append("")
-		lines.append("All checked direct scalar and simple-array raw values match the committed predump.")
+		lines.append("All checked direct values and derived aggregate values match the committed predump.")
 		lines.append("")
 	path.parent.mkdir(parents=True, exist_ok=True)
 	path.write_text("\n".join(normalize_markdown_lines(lines)) + "\n", encoding="utf-8", newline="\n")
@@ -510,14 +544,17 @@ def main() -> int:
 	args = parser.parse_args()
 
 	repo_root = find_repo_root(args.repo_root or Path.cwd())
+	shared_helpers = import_aip_shared_helpers(repo_root)
+	configure_shared_aip_constants(shared_helpers)
 	leaders = read_leaders_from_xml(repo_root)
 	weight = read_global_define_int(repo_root, UWAI_DEFINE_NAME)
 	if args.no_uwai:
 		weight = 100
 	else:
 		apply_uwai_personality_weight(leaders, weight)
+	add_shared_aggregate_display_values_to_leaders(leaders, shared_helpers)
 	predump = read_predump_cache(repo_root)
-	results = compare_values(leaders, predump)
+	results = compare_values(leaders, predump, shared_helpers)
 	mismatch_count = sum(1 for result in results if result.status == "mismatch")
 	missing_count = sum(1 for result in results if result.status != "match" and result.status != "mismatch")
 	output_path = args.output or default_output_path(repo_root)

@@ -140,9 +140,12 @@ def _compute_leader_cache_internal():
 				print("[DEBUG] Getter check passed for iLeader=%d. All required Python getters are present." % iLeader)
 			break  # ?. success: no need to check further
 
-	# <!-- custom: modified from claude ai's code sample, see sevopedia helpers py also for details; note: NUM_MEMORY_TYPES_ASSESSED are not here in sevopedia leader since we use a different looping emthod as in methodology, see positive_or_negative_memory_indexes and its related code comments -->
-	NUM_CONTACT_TYPES_ASSESSED = 14
-	NUM_ATTITUDE_TYPES_ASSESSED = 5
+	# <!-- custom: Use shared AIP type lists instead of duplicating literal counts here; the workflow predump checker imports the same lists. Note: memory families still loop through positive_or_negative_memory_indexes because they intentionally split the full memory list by display category. (ChatGPT-5.5) -->
+	CONTACT_TYPES_ASSESSED = get_aip_contact_types_assessed()
+	NO_WAR_ATTITUDE_TYPES_ASSESSED = get_aip_no_war_attitude_types_assessed()
+	MEMORY_TYPES_ASSESSED = get_aip_memory_types_assessed()
+	NUM_CONTACT_TYPES_ASSESSED = len(CONTACT_TYPES_ASSESSED)
+	NUM_ATTITUDE_TYPES_ASSESSED = len(NO_WAR_ATTITUDE_TYPES_ASSESSED)
 
 	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it. -->
 	test_expected_shifting_pre_normalize_to_100()
@@ -173,213 +176,28 @@ def _compute_leader_cache_internal():
 	# <!-- custom: store raw aggregated contact probs (iAggregatedRaw...) separately from normalized aggregated probs (iAggregated...).
 	# Only the normalized values are displayed; raw values are kept for later normalization/min-max. The raw-to-normalized parsing
 	# and label composition happens later in compute_and_store_leaders_info_cached. Do the same for raw aggregated positive/negative
-	# memory affections/resentments. (GPT-5.2-Codex (summarized)) -->
-	leaders_info_aggregated_raw_contact_probs = {}
-	leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments = {}
+	# memory affections/resentments. The synthetic pre-normalization aggregation itself lives in ai_utils_shared_with_civ4 so the
+	# in-game AIP cache and the workflow predump checker can reuse one formula with different value providers. (ChatGPT-5.5) -->
+	contact_types_assessed = CONTACT_TYPES_ASSESSED
 
-	def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_aggregated_raw_contact_probs):
-		# leaders_info_aggregated_raw_contact_probs[iLeader][parsed_contact_key] = aggregated_raw_score
-		# parsed_contact_key is e.g. "iAggregatedRawContactProbStopTrading" (0-100)
-		#
-		# We compute these in two passes:
-		# - Pass 1: adjusted rand/delay values + min/max per contact type
-		# - Pass 2: normalize adjusted values to 0-100, then combine into an aggregated raw score
+	def get_contact_rand_for_leader(iLeader, iContact):
+		return gc.getLeaderHeadInfo(iLeader).getContactRand(iContact)
 
-		# Precompute per-contact metadata once.
-		contact_types = [gc.getContactTypes(i) for i in xrange(NUM_CONTACT_TYPES_ASSESSED)]
-		contact_suffixes = [get_pascal_case_suffix(contact_type) for contact_type in contact_types]
-		parsed_adjusted_rand_names = ["iAdjustedContactRand%s" % suffix for suffix in contact_suffixes]
-		parsed_adjusted_delay_names = ["iAdjustedContactDelay%s" % suffix for suffix in contact_suffixes]
-		parsed_aggregated_raw_names = ["iAggregatedRawContactProb%s" % suffix for suffix in contact_suffixes]
+	def get_contact_delay_for_leader(iLeader, iContact):
+		return gc.getLeaderHeadInfo(iLeader).getContactDelay(iContact)
 
-		# Pass 1: compute adjusted values and collect min/max across leaders.
-		# temp_by_leader[iLeader][i] = (adjusted_rand, adjusted_delay, b_force_zero)
-		temp_by_leader = {}
-		min_adj_rand = [None] * NUM_CONTACT_TYPES_ASSESSED
-		max_adj_rand = [None] * NUM_CONTACT_TYPES_ASSESSED
-		min_adj_delay = [None] * NUM_CONTACT_TYPES_ASSESSED
-		max_adj_delay = [None] * NUM_CONTACT_TYPES_ASSESSED
+	def get_memory_type_for_index(iMemoryIndex):
+		return MEMORY_TYPES_ASSESSED[iMemoryIndex]
 
-		for iLeader in NON_EXCLUDED_LEADERS:
-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
-			leader_rows = [None] * NUM_CONTACT_TYPES_ASSESSED
+	def get_memory_attitude_percent_for_leader(iLeader, iMemoryIndex):
+		return gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(iMemoryIndex)
 
-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				value_1_rand_raw = loopLeaderHeadInfo.getContactRand(i)
-				value_1_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
-
-				adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, IS_DEBUG_LEADER, contact_types[i])
-
-				leader_rows[i] = (adjusted_rand, adjusted_delay, b_force_zero)
-
-				# Min/max init
-				if min_adj_rand[i] is None:
-					min_adj_rand[i] = adjusted_rand
-					max_adj_rand[i] = adjusted_rand
-					min_adj_delay[i] = adjusted_delay
-					max_adj_delay[i] = adjusted_delay
-				else:
-					if adjusted_rand < min_adj_rand[i]:
-						min_adj_rand[i] = adjusted_rand
-					if adjusted_rand > max_adj_rand[i]:
-						max_adj_rand[i] = adjusted_rand
-					if adjusted_delay < min_adj_delay[i]:
-						min_adj_delay[i] = adjusted_delay
-					if adjusted_delay > max_adj_delay[i]:
-						max_adj_delay[i] = adjusted_delay
-
-			temp_by_leader[iLeader] = leader_rows
-
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (str(min_adj_rand), str(max_adj_rand), str(min_adj_delay), str(max_adj_delay)))
-
-		# Pass 2: normalize and compute final aggregated raw score per contact type.
-		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
-
-		for iLeader in NON_EXCLUDED_LEADERS:
-			if iLeader in leaders_info_aggregated_raw_contact_probs:
-				raise KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing" % iLeader)
-			leaders_info_aggregated_raw_contact_probs[iLeader] = {}
-
-			leader_rows = temp_by_leader[iLeader]
-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				adjusted_rand, adjusted_delay, b_force_zero = leader_rows[i]
-
-				adjusted_rand_norm_score = normalize_to_100(adjusted_rand, min_adj_rand[i], max_adj_rand[i], B_WARN, b_invert_contact_rands, parsed_adjusted_rand_names[i])
-
-				adjusted_delay_norm_score = normalize_to_100(adjusted_delay, min_adj_delay[i], max_adj_delay[i], B_WARN, b_invert_contact_delays, parsed_adjusted_delay_names[i])
-
-				aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_rand_norm_score, adjusted_delay_norm_score, b_force_zero)
-
-				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_aggregated_raw_names[i]] = aggregated_value
-
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] leaders_info_aggregated_raw_contact_probs after pass 2: %s" % str(leaders_info_aggregated_raw_contact_probs))
-
-		# Cleanup
-		del temp_by_leader
-		del min_adj_rand, max_adj_rand, min_adj_delay, max_adj_delay
-
-	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
-	MEM_POS_IDX = tuple(get_positive_memory_indexes_to_types().keys())
-	MEM_NEG_IDX = tuple(get_negative_memory_indexes_to_types().keys())
-
-	def get_positive_or_negative_memory_indexes(is_positive):
-		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs (see the related python docs for details). -->
-		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them. -->
-		positive_or_negative_memory_indexes = None
-
-		if is_positive:
-			positive_or_negative_memory_indexes = MEM_POS_IDX
-		else:
-			positive_or_negative_memory_indexes = MEM_NEG_IDX
-
-		if not positive_or_negative_memory_indexes:
-			raise ValueError("[VALUE ERROR] memory_indexes=%s check is false; memory_indexes cannot be empty or missing or some other kind of related or similar error, please check memory types (positive or negative) are fetched/imported correctly" % str(positive_or_negative_memory_indexes))
-
-		return positive_or_negative_memory_indexes
-
-	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection):
-		# leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_memory_key] = aggregated_raw_score
-		# parsed_memory_key is e.g. "iAggregatedRawPositiveMemoryDeclaredWarAffection" (0-100)
-		#
-		# We compute these in two passes, similar to contact probs:
-		# - Pass 1: adjusted attitude%/decay values + min/max per memory type
-		# - Pass 2: normalize adjusted values to 0-100, then combine into an aggregated raw score
-
-		positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
-		positive_negative = get_positive_negative(is_positive)
-		affection_resentment = get_affection_resentment(is_affection)
-
-		# Precompute per-memory metadata once.
-		memory_indexes = list(positive_or_negative_memory_indexes)
-		memory_types = [gc.getMemoryInfo(iMemoryIndex).getType() for iMemoryIndex in memory_indexes]
-		memory_suffixes = [get_pascal_case_suffix(memory_type) for memory_type in memory_types]
-
-		parsed_adjusted_attitude_names = ["iAdjustedMemoryAttitudePercent%s%s" % (suffix, affection_resentment) for suffix in memory_suffixes]
-		parsed_adjusted_decay_names = ["iAdjustedMemoryDecay%s%s" % (suffix, affection_resentment) for suffix in memory_suffixes]
-		parsed_aggregated_raw_names = ["iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) for suffix in memory_suffixes]
-
-		count = len(memory_indexes)
-
-		# Pass 1: compute adjusted values and collect min/max across leaders.
-		# temp_by_leader[iLeader][j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
-		temp_by_leader = {}
-		min_adj_attitude = [None] * count
-		max_adj_attitude = [None] * count
-		min_adj_decay = [None] * count
-		max_adj_decay = [None] * count
-
-		for iLeader in NON_EXCLUDED_LEADERS:
-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
-			leader_rows = [None] * count
-
-			for j in xrange(count):
-				iMemoryIndex = memory_indexes[j]
-				memory_type = memory_types[j]
-
-				attitude_percent_raw = loopLeaderHeadInfo.getMemoryAttitudePercent(iMemoryIndex)
-				decay_rand_raw = loopLeaderHeadInfo.getMemoryDecayRand(iMemoryIndex)
-
-				adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(attitude_percent_raw, decay_rand_raw, is_affection, IS_DEBUG_LEADER, memory_type)
-
-				leader_rows[j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
-
-				# Min/max init
-				if min_adj_attitude[j] is None:
-					min_adj_attitude[j] = adjusted_attitude_percent
-					max_adj_attitude[j] = adjusted_attitude_percent
-					min_adj_decay[j] = adjusted_decay
-					max_adj_decay[j] = adjusted_decay
-				else:
-					if adjusted_attitude_percent < min_adj_attitude[j]:
-						min_adj_attitude[j] = adjusted_attitude_percent
-					if adjusted_attitude_percent > max_adj_attitude[j]:
-						max_adj_attitude[j] = adjusted_attitude_percent
-					if adjusted_decay < min_adj_decay[j]:
-						min_adj_decay[j] = adjusted_decay
-					if adjusted_decay > max_adj_decay[j]:
-						max_adj_decay[j] = adjusted_decay
-
-			temp_by_leader[iLeader] = leader_rows
-
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] Memory aggregation pass 1 done for %s/%s" % (positive_negative, affection_resentment))
-			print("[DEBUG] min_adj_attitude=%s max_adj_attitude=%s" % (str(min_adj_attitude), str(max_adj_attitude)))
-			print("[DEBUG] min_adj_decay=%s max_adj_decay=%s" % (str(min_adj_decay), str(max_adj_decay)))
-
-		# Pass 2: normalize and compute final aggregated raw score per memory type.
-		b_invert_attitude_percent, b_invert_decay = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
-
-		for iLeader in NON_EXCLUDED_LEADERS:
-			if iLeader not in leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments:
-				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader] = {}
-
-			leader_rows = temp_by_leader[iLeader]
-			for j in xrange(count):
-				adjusted_attitude_percent, adjusted_decay, b_force_zero = leader_rows[j]
-
-				adjusted_attitude_norm_score = normalize_to_100(adjusted_attitude_percent, min_adj_attitude[j], max_adj_attitude[j], B_WARN, b_invert_attitude_percent, parsed_adjusted_attitude_names[j])
-
-				adjusted_decay_norm_score = normalize_to_100(adjusted_decay, min_adj_decay[j], max_adj_decay[j], B_WARN, b_invert_decay, parsed_adjusted_decay_names[j])
-
-				aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_attitude_norm_score, adjusted_decay_norm_score, b_force_zero)
-
-				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_aggregated_raw_names[j]] = aggregated_value
-
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments after pass 2 for %s/%s: %s" % (positive_negative, affection_resentment, str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)))
-
-		# Cleanup
-		del temp_by_leader
-		del min_adj_attitude, max_adj_attitude, min_adj_decay, max_adj_decay
+	def get_memory_decay_rand_for_leader(iLeader, iMemoryIndex):
+		return gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(iMemoryIndex)
 
 	# <!-- custom: before computing minimums and maximums, compute and store raw aggregated fields, flattened, so they can be processed like any field/attribute and do min/max on them too for all leaders -->
-	compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_aggregated_raw_contact_probs)
-
-	for is_positive in (True, False):
-		for is_affection in (True, False):
-			compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection)
+	leaders_info_aggregated_raw_contact_probs = compute_leaders_info_aggregated_raw_contact_probs(NON_EXCLUDED_LEADERS, contact_types_assessed, get_contact_rand_for_leader, get_contact_delay_for_leader, B_WARN, IS_DEBUG_LEADER)
+	leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments = compute_leaders_info_aggregated_raw_memory_affections_and_resentments(NON_EXCLUDED_LEADERS, get_memory_type_for_index, get_memory_attitude_percent_for_leader, get_memory_decay_rand_for_leader, B_WARN, IS_DEBUG_LEADER)
 
 	def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name):
 		leaders_dict_keys = leaders_dict.keys()
@@ -539,27 +357,25 @@ def _compute_leader_cache_internal():
 				# <!-- custom: store them as a parsed key name since getter is incremental and does not directly reference the name of each flavor -->
 				value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
 				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
-				suffix = get_pascal_case_suffix(flavor_type) # → <!-- custom: "Military" -->
-				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
+				parsed_name_flavor = get_aip_array_value_key("iFlavor", flavor_type)  # → iFlavorMilitary
 				computeAndStoreMinMaxOfOneKey(parsed_name_flavor, value_flavor, leader_info_minimums, leader_info_maximums)
 
 			# ==== CONTACTS ====
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
 				# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now are only contact rands and contact delays -->
 				# <!-- custom: Step 1: Raw contact rands and delays -->
-				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
-				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
+				contact_type = CONTACT_TYPES_ASSESSED[i] # e.g. "CONTACT_JOIN_WAR"
 
 				value_rand_raw = loopLeaderHeadInfo.getContactRand(i)
 				value_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
-				parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
-				parsed_name_delay = "iContactDelay%s" % suffix # → iContactDelayJoinWar
+				parsed_name_rand = get_aip_array_value_key("iContactRand", contact_type) # → iContactRandJoinWar
+				parsed_name_delay = get_aip_array_value_key("iContactDelay", contact_type) # → iContactDelayJoinWar
 				computeAndStoreMinMaxOfOneKey(parsed_name_delay, value_delay_raw, leader_info_minimums, leader_info_maximums)
 				computeAndStoreMinMaxOfOneKey(parsed_name_rand, value_rand_raw, leader_info_minimums, leader_info_maximums)
 
 				# <!-- custom: also export the minimum and maximum raw aggregated contact prob (based on iLeader's rand and iLeader's delay (note: not based on the min and max rand among all leaders nor the min and max delay among all leaders)) among all leaders for each contact type -->
 				# <!-- custom: Step 2: Raw aggregated contact probs -->
-				parsed_name_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
+				parsed_name_aggregated_raw_contact_prob = get_aip_aggregated_raw_contact_prob_key(contact_type) # → iAggregatedRawContactProbJoinWar
 				value_aggregated_raw_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_aggregated_raw_contact_prob]
 				computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_contact_prob, value_aggregated_raw_contact_prob, leader_info_minimums, leader_info_maximums)
 
@@ -568,37 +384,32 @@ def _compute_leader_cache_internal():
 			for is_positive in (True, False):
 				for is_affection in (True, False):
 					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
-					positive_negative = get_positive_negative(is_positive)
-					affection_resentment = get_affection_resentment(is_affection)
-
 					for i in positive_or_negative_memory_indexes:
-						memory_type = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
-						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
+						memory_type = MEMORY_TYPES_ASSESSED[i] # e.g. "MEMORY_DECLARED_WAR"
 
 						# <!-- custom: Step 1: Raw memory attitude percents and decays -->
 						# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment) same as in XML fields structuration too for raw attitude percents and decays, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML -->
 						# <!-- custom: similarly for min max of raw attitude percents and decays export only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations -->
-						parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
+						parsed_name_attitude_percent = get_aip_array_value_key("iMemoryAttitudePercent", memory_type) # → iMemoryAttitudePercentDeclaredWar
 						if (parsed_name_attitude_percent not in leader_info_minimums) and (parsed_name_attitude_percent not in leader_info_maximums):
 							value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
 							computeAndStoreMinMaxOfOneKey(parsed_name_attitude_percent, value_attitude_percent, leader_info_minimums, leader_info_maximums)
 
-						parsed_name_decay = "iMemoryDecay%s" % suffix # → iMemoryDecayDeclaredWar
+						parsed_name_decay = get_aip_array_value_key("iMemoryDecay", memory_type) # → iMemoryDecayDeclaredWar
 						if (parsed_name_decay not in leader_info_minimums) and (parsed_name_decay not in leader_info_maximums):
 							value_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
 							computeAndStoreMinMaxOfOneKey(parsed_name_decay, value_decay, leader_info_minimums, leader_info_maximums)
 
 						# <!-- custom: Step 2: Raw aggregated positive and negative memory affections and resentments -->
-						parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
+						parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment = get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
 						value_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
 						computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment, value_aggregated_raw_positive_or_negative_memory_affection_or_resentment, leader_info_minimums, leader_info_maximums)
 
 			# ==== NOWARATTITUDEPROBS ====
 			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
 				value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
-				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
-				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
-				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
+				attitude_type = NO_WAR_ATTITUDE_TYPES_ASSESSED[i]  # e.g. "ATTITUDE_FURIOUS"
+				parsed_name_no_war_attitude_prob = get_aip_array_value_key("iNoWarAttitudeProb", attitude_type)  # → iNoWarAttitudeProbFurious
 				computeAndStoreMinMaxOfOneKey(parsed_name_no_war_attitude_prob, value_no_war_attitude_prob, leader_info_minimums, leader_info_maximums)
 
 		# <!-- custom: after all min and max parsing is done, some sanity and warning checks -->
@@ -831,7 +642,7 @@ def _compute_leader_cache_internal():
 			for i in xrange(gc.getNumFlavorTypes()):
 				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
 				suffix = get_pascal_case_suffix(flavor_type) # → "Military"
-				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
+				parsed_name_flavor = get_aip_array_value_key("iFlavor", flavor_type)  # → iFlavorMilitary
 				label_flavor = suffix
 				raw_value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
 				label_raw_flavor = "(%d)" % raw_value_flavor
@@ -849,13 +660,13 @@ def _compute_leader_cache_internal():
 			b_invert_4_aggregated_contact_probs = False
 			symbol_aggregated_contact_probs = all_symbols["AGGREGATED_SCALE_SYMBOL"]
 			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
+				contact_type = CONTACT_TYPES_ASSESSED[i] # e.g. "CONTACT_JOIN_WAR"
 				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
 				label_contact = contact_index_labels[i]
 
-				parsed_name_4_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
+				parsed_name_4_aggregated_raw_contact_prob = get_aip_aggregated_raw_contact_prob_key(contact_type) # → iAggregatedRawContactProbJoinWar
 				# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching -->
-				parsed_name_4_aggregated_contact_prob = "iAggregatedContactProb%s" % suffix # → iAggregatedContactProbJoinWar
+				parsed_name_4_aggregated_contact_prob = get_aip_aggregated_contact_prob_key(contact_type) # → iAggregatedContactProbJoinWar
 
 				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
 				raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
@@ -894,19 +705,16 @@ def _compute_leader_cache_internal():
 						continue
 
 					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
-					positive_negative = get_positive_negative(is_positive)
-					affection_resentment = get_affection_resentment(is_affection)
-
 					for i in positive_or_negative_memory_indexes:
-						memory_type = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
+						memory_type = MEMORY_TYPES_ASSESSED[i] # e.g. "MEMORY_DECLARED_WAR"
 						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
 						label_memory = positive_and_negative_memory_index_labels[i]
 
 						# <!-- custom: note: unlike for min max exports (compute and store) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
-						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
+						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
 
 						# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching -->
-						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = "iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
+						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = get_aip_aggregated_memory_key(memory_type, is_positive, is_affection) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
 
 						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
 						raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
@@ -928,9 +736,9 @@ def _compute_leader_cache_internal():
 			b_invert_no_war_attitude_probs = False
 			symbol_no_war_attitude_probs = all_symbols["RAW_SCALE_SYMBOL"]
 			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
-				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
+				attitude_type = NO_WAR_ATTITUDE_TYPES_ASSESSED[i]  # e.g. "ATTITUDE_FURIOUS"
 				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
-				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
+				parsed_name_no_war_attitude_prob = get_aip_array_value_key("iNoWarAttitudeProb", attitude_type)  # → iNoWarAttitudeProbFurious
 				label_no_war_attitude_prob = suffix
 				raw_value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
 				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob

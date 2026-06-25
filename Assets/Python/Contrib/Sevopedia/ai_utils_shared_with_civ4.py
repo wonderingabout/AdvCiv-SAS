@@ -2,6 +2,125 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
+
+# <!-- custom: Shared AIP enum/type order used by both the in-game Sevopedia AIP code and workflow predump validation. These mirror the compact subset currently assessed by the AIP panel, not every possible future field. (ChatGPT-5.5) -->
+def get_aip_flavor_types_assessed():
+	return (
+		"FLAVOR_MILITARY",
+		"FLAVOR_RELIGION",
+		"FLAVOR_PRODUCTION",
+		"FLAVOR_GOLD",
+		"FLAVOR_SCIENCE",
+		"FLAVOR_CULTURE",
+		"FLAVOR_GROWTH",
+		"FLAVOR_ESPIONAGE",
+	)
+
+def get_aip_no_war_attitude_types_assessed():
+	return (
+		"ATTITUDE_FURIOUS",
+		"ATTITUDE_ANNOYED",
+		"ATTITUDE_CAUTIOUS",
+		"ATTITUDE_PLEASED",
+		"ATTITUDE_FRIENDLY",
+	)
+
+def get_aip_contact_types_assessed():
+	return (
+		"CONTACT_RELIGION_PRESSURE",
+		"CONTACT_CIVIC_PRESSURE",
+		"CONTACT_JOIN_WAR",
+		"CONTACT_STOP_TRADING",
+		"CONTACT_GIVE_HELP",
+		"CONTACT_ASK_FOR_HELP",
+		"CONTACT_DEMAND_TRIBUTE",
+		"CONTACT_OPEN_BORDERS",
+		"CONTACT_DEFENSIVE_PACT",
+		"CONTACT_PERMANENT_ALLIANCE",
+		"CONTACT_PEACE_TREATY",
+		"CONTACT_TRADE_TECH",
+		"CONTACT_TRADE_BONUS",
+		"CONTACT_TRADE_MAP",
+	)
+
+def get_aip_memory_types_assessed():
+	return (
+		"MEMORY_DECLARED_WAR",
+		"MEMORY_DECLARED_WAR_ON_FRIEND",
+		"MEMORY_HIRED_WAR_ALLY",
+		"MEMORY_NUKED_US",
+		"MEMORY_NUKED_FRIEND",
+		"MEMORY_RAZED_CITY",
+		"MEMORY_RAZED_HOLY_CITY",
+		"MEMORY_SPY_CAUGHT",
+		"MEMORY_GIVE_HELP",
+		"MEMORY_REFUSED_HELP",
+		"MEMORY_ACCEPT_DEMAND",
+		"MEMORY_REJECTED_DEMAND",
+		"MEMORY_ACCEPTED_RELIGION",
+		"MEMORY_DENIED_RELIGION",
+		"MEMORY_ACCEPTED_CIVIC",
+		"MEMORY_DENIED_CIVIC",
+		"MEMORY_ACCEPTED_JOIN_WAR",
+		"MEMORY_DENIED_JOIN_WAR",
+		"MEMORY_ACCEPTED_STOP_TRADING",
+		"MEMORY_DENIED_STOP_TRADING",
+		"MEMORY_STOPPED_TRADING",
+		"MEMORY_STOPPED_TRADING_RECENT",
+		"MEMORY_HIRED_TRADE_EMBARGO",
+		"MEMORY_MADE_DEMAND",
+		"MEMORY_CANCELLED_VASSAL_AGREEMENT",
+		"MEMORY_MADE_DEMAND_RECENT",
+		"MEMORY_CANCELLED_OPEN_BORDERS",
+		"MEMORY_CANCELLED_DEFENSIVE_PACT",
+		"MEMORY_TRADED_TECH_TO_US",
+		"MEMORY_RECEIVED_TECH_FROM_ANY",
+		"MEMORY_VOTED_AGAINST_US",
+		"MEMORY_VOTED_FOR_US",
+		"MEMORY_EVENT_GOOD_TO_US",
+		"MEMORY_EVENT_BAD_TO_US",
+		"MEMORY_LIBERATED_CITIES",
+		"MEMORY_INDEPENDENCE",
+		"MEMORY_DECLARED_WAR_RECENT",
+	)
+
+def get_aip_attitude_type_to_index():
+	return {
+		"NO_ATTITUDE": -1,
+		"NONE": -1,
+		"ATTITUDE_FURIOUS": 0,
+		"ATTITUDE_ANNOYED": 1,
+		"ATTITUDE_CAUTIOUS": 2,
+		"ATTITUDE_PLEASED": 3,
+		"ATTITUDE_FRIENDLY": 4,
+	}
+
+
+# <!-- custom: Shared AIP primitive array/list specs. These are used by the workflow checker to parse LeaderHeadInfo XML and by comments/helpers in the runtime AIP code to keep field-family metadata in one place. Each tuple is (xml parent tag, xml enum key tag, xml value tag, assessed enum/type names, synthetic AIP key prefix). (ChatGPT-5.5) -->
+def get_aip_display_array_field_specs():
+	return (
+		("Flavors", "FlavorType", "iFlavor", get_aip_flavor_types_assessed(), "iFlavor"),
+		("NoWarAttitudeProbs", "AttitudeType", "iNoWarProb", get_aip_no_war_attitude_types_assessed(), "iNoWarAttitudeProb"),
+	)
+
+def get_aip_hidden_array_field_specs():
+	# These are not displayed directly in the AIP predump. They feed shared synthetic contact/memory aggregate fields below.
+	return (
+		("ContactRands", "ContactType", "iContactRand", get_aip_contact_types_assessed(), "iContactRand"),
+		("ContactDelays", "ContactType", "iContactDelay", get_aip_contact_types_assessed(), "iContactDelay"),
+		("MemoryDecays", "MemoryType", "iMemoryRand", get_aip_memory_types_assessed(), "iMemoryDecay"),
+		("MemoryAttitudePercents", "MemoryType", "iMemoryAttitudePercent", get_aip_memory_types_assessed(), "iMemoryAttitudePercent"),
+	)
+
+def get_aip_array_field_specs():
+	return get_aip_display_array_field_specs() + get_aip_hidden_array_field_specs()
+
+def get_aip_memory_type_by_index(iMemoryIndex):
+	return get_aip_memory_types_assessed()[iMemoryIndex]
+
+def get_aip_contact_type_by_index(iContactIndex):
+	return get_aip_contact_types_assessed()[iContactIndex]
+
 # <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
 # <!-- custom: 11 entries total -->
 def get_positive_memory_indexes_to_types():
@@ -122,7 +241,19 @@ def test_expected_shifting_pre_normalize_to_100():
 		assert(shifted_max == expected_shifted_max)
 
 # Attribute normalization
-def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
+def round_half_away_from_zero(value):
+	# <!-- custom: deterministic alternate rounder for the memory aggregate edge case described below. -->
+	if value >= 0:
+		return int(value + 0.5)
+	return int(value - 0.5)
+
+
+def round_current_runtime(value):
+	# <!-- custom: keep normal normalize_to_100 on the same round() behavior used by the existing AIP cache path. Making half-away-from-zero the default looked cleaner but changed current committed contact aggregate values: e.g. CONTACT_RELIGION_PRESSURE raw 52 in range 10..90 normalizes to 52.5, and the committed predump stores 52, while half-away would produce 53 and caused 21 mismatches. (ChatGPT-5.5) -->
+	return int(round(value))
+
+
+def normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, rounder):
 	# Normalizes an AI attribute value to a 0-100 integer scale.
 	#
 	# - First checks if min_val > max_val or if value outside [min_val, max_val].
@@ -132,7 +263,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 	#   - If min_val > 0, shifts range downwards.
 	# - Normalizes shifted_value / shifted_max.
 	# - Optionally inverts the normalized value.
-	# - Converts final normalized value to 0-100 integer.
+	# - Converts final normalized value to 0-100 integer using the supplied rounder.
 	#
 	# Warnings:
 	# - <!-- custom: if B_WARN is set to true, --> Uniform min==max -> All normalized scores will be 50.
@@ -144,13 +275,6 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 	# - Shifted min not equal to 0 -> Raises an error.
 	# - Shifted value negative -> Raises an error.
 	# - Normalized value out of bounds -> Raises an error.
-	#
-	# Parameters:
-	# - value (int): Raw XML attribute value.
-	# - min_val (int): Minimum observed attribute value.
-	# - max_val (int): Maximum observed attribute value.
-	# - invert (bool): Whether to invert normalized scale.
-	# - attr_name (str, optional): Attribute name for debug warnings.
 	#
 	# Returns:
 	# - final_score (int): Normalized integer 0-100.
@@ -186,7 +310,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 
 	norm = float(shifted_value) / float(shifted_max)
 
-	final_score = int(round(norm * 100))
+	final_score = rounder(norm * 100)
 	if (final_score < 0) or (final_score > 100):
 		raise ValueError("Norm of %s out of range (0-100) during normalization: final_score=%.3f, shifted_min=%d, shifted_max=%d, min_val=%d, max_val=%d" % (attr_name, final_score, shifted_min, shifted_max, min_val, max_val))
 
@@ -194,6 +318,15 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
 		final_score = 100 - final_score
 
 	return final_score
+
+
+def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
+	return normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, round_current_runtime)
+
+
+def normalize_to_100_half_away_from_zero(value, min_val, max_val, B_WARN, invert, attr_name):
+	# <!-- custom: The existing committed predump has one known .5-sensitive memory aggregate family where normal Python 3 round() under-validates compared with the cache: e.g. MEMORY_TRADED_TECH_TO_US affection raw 36 in range 10..90 normalizes to 32.5, but the predump stores 33. Keep this explicit rather than silently changing the default contact behavior above. (ChatGPT-5.5) -->
+	return normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, round_half_away_from_zero)
 
 def get_positive_negative(is_positive):
 	if (is_positive):
@@ -223,6 +356,33 @@ def get_pascal_case_suffix(enumType):
 	# Convert to lowercase, split on underscores, then capitalize each part
 	parts = suffix.lower().split("_")
 	return "".join([part.capitalize() for part in parts])
+
+def get_aip_array_value_key(key_prefix, enum_type):
+	return "%s%s" % (key_prefix, get_pascal_case_suffix(enum_type))
+
+def get_aip_adjusted_contact_rand_key(contact_type):
+	return get_aip_array_value_key("iAdjustedContactRand", contact_type)
+
+def get_aip_adjusted_contact_delay_key(contact_type):
+	return get_aip_array_value_key("iAdjustedContactDelay", contact_type)
+
+def get_aip_aggregated_raw_contact_prob_key(contact_type):
+	return get_aip_array_value_key("iAggregatedRawContactProb", contact_type)
+
+def get_aip_aggregated_contact_prob_key(contact_type):
+	return get_aip_array_value_key("iAggregatedContactProb", contact_type)
+
+def get_aip_adjusted_memory_attitude_key(memory_type, is_affection):
+	return "iAdjustedMemoryAttitudePercent%s%s" % (get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
+
+def get_aip_adjusted_memory_decay_key(memory_type, is_affection):
+	return "iAdjustedMemoryDecay%s%s" % (get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
+
+def get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection):
+	return "iAggregatedRaw%sMemory%s%s" % (get_positive_negative(is_positive), get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
+
+def get_aip_aggregated_memory_key(memory_type, is_positive, is_affection):
+	return "iAggregated%sMemory%s%s" % (get_positive_negative(is_positive), get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
 
 def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, contact_type):
 	# Adjusts contact rand and contact delay values according to standard rules.
@@ -371,3 +531,191 @@ def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score
 		raw_aggregated = MAIN_WEIGHT * adjusted_value_attitude_percent_norm_score + SECONDARY_WEIGHT * adjusted_value_decay_norm_score
 		# <!-- custom: similarly round, see the aggregated contact prob similar function to this. -->
 		return int(round(raw_aggregated))
+
+
+# <!-- custom: Shared pre-normalization AIP derived-value builders.
+# These helpers create synthetic raw AIP fields from already-effective LeaderHeadInfo values before the normal Sevopedia min/max normalization and display-cache step. They are deliberately free of gc/UI imports so the in-game AIP code and the Python 3 workflow checker can reuse the same contact/memory aggregation logic with different value providers. (ChatGPT-5.5) -->
+def get_positive_or_negative_memory_indexes(is_positive):
+	if is_positive:
+		positive_or_negative_memory_indexes = tuple(sorted(get_positive_memory_indexes_to_types().keys()))
+	else:
+		positive_or_negative_memory_indexes = tuple(sorted(get_negative_memory_indexes_to_types().keys()))
+
+	if not positive_or_negative_memory_indexes:
+		raise ValueError("[VALUE ERROR] memory indexes missing; please check positive/negative memory type helpers")
+
+	return positive_or_negative_memory_indexes
+
+def compute_leaders_info_aggregated_raw_contact_probs(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, B_WARN, is_debug):
+	# Returns leaders_info_aggregated_raw_contact_probs[iLeader][parsed_contact_key] = aggregated_raw_score.
+	# parsed_contact_key is e.g. "iAggregatedRawContactProbStopTrading".
+	contact_count = len(contact_types)
+	parsed_adjusted_rand_names = [get_aip_adjusted_contact_rand_key(contact_type) for contact_type in contact_types]
+	parsed_adjusted_delay_names = [get_aip_adjusted_contact_delay_key(contact_type) for contact_type in contact_types]
+	parsed_aggregated_raw_names = [get_aip_aggregated_raw_contact_prob_key(contact_type) for contact_type in contact_types]
+
+	temp_by_leader = {}
+	min_adj_rand = [None] * contact_count
+	max_adj_rand = [None] * contact_count
+	min_adj_delay = [None] * contact_count
+	max_adj_delay = [None] * contact_count
+
+	for iLeader in non_excluded_leaders:
+		leader_rows = [None] * contact_count
+
+		for i in range(contact_count):
+			value_1_rand_raw = get_contact_rand(iLeader, i)
+			value_1_delay_raw = get_contact_delay(iLeader, i)
+			adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, is_debug, contact_types[i])
+			leader_rows[i] = (adjusted_rand, adjusted_delay, b_force_zero)
+
+			if min_adj_rand[i] is None:
+				min_adj_rand[i] = adjusted_rand
+				max_adj_rand[i] = adjusted_rand
+				min_adj_delay[i] = adjusted_delay
+				max_adj_delay[i] = adjusted_delay
+			else:
+				if adjusted_rand < min_adj_rand[i]:
+					min_adj_rand[i] = adjusted_rand
+				if adjusted_rand > max_adj_rand[i]:
+					max_adj_rand[i] = adjusted_rand
+				if adjusted_delay < min_adj_delay[i]:
+					min_adj_delay[i] = adjusted_delay
+				if adjusted_delay > max_adj_delay[i]:
+					max_adj_delay[i] = adjusted_delay
+
+		temp_by_leader[iLeader] = leader_rows
+
+	if is_debug:
+		print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (str(min_adj_rand), str(max_adj_rand), str(min_adj_delay), str(max_adj_delay)))
+
+	leaders_info_aggregated_raw_contact_probs = {}
+	b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
+
+	for iLeader in non_excluded_leaders:
+		leaders_info_aggregated_raw_contact_probs[iLeader] = {}
+		leader_rows = temp_by_leader[iLeader]
+		for i in range(contact_count):
+			adjusted_rand, adjusted_delay, b_force_zero = leader_rows[i]
+			adjusted_rand_norm_score = normalize_to_100(adjusted_rand, min_adj_rand[i], max_adj_rand[i], B_WARN, b_invert_contact_rands, parsed_adjusted_rand_names[i])
+			adjusted_delay_norm_score = normalize_to_100(adjusted_delay, min_adj_delay[i], max_adj_delay[i], B_WARN, b_invert_contact_delays, parsed_adjusted_delay_names[i])
+			aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_rand_norm_score, adjusted_delay_norm_score, b_force_zero)
+			leaders_info_aggregated_raw_contact_probs[iLeader][parsed_aggregated_raw_names[i]] = aggregated_value
+
+	if is_debug:
+		print("[DEBUG] leaders_info_aggregated_raw_contact_probs after pass 2: %s" % str(leaders_info_aggregated_raw_contact_probs))
+
+	return leaders_info_aggregated_raw_contact_probs
+
+def compute_leaders_info_aggregated_raw_memory_family(non_excluded_leaders, memory_indexes, memory_types, get_memory_attitude_percent, get_memory_decay_rand, is_positive, is_affection, B_WARN, is_debug):
+	# Returns leaders_info_aggregated_raw_memory_family[iLeader][parsed_memory_key] = aggregated_raw_score.
+	positive_negative = get_positive_negative(is_positive)
+	affection_resentment = get_affection_resentment(is_affection)
+	parsed_adjusted_attitude_names = [get_aip_adjusted_memory_attitude_key(memory_type, is_affection) for memory_type in memory_types]
+	parsed_adjusted_decay_names = [get_aip_adjusted_memory_decay_key(memory_type, is_affection) for memory_type in memory_types]
+	parsed_aggregated_raw_names = [get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection) for memory_type in memory_types]
+
+	count = len(memory_indexes)
+	temp_by_leader = {}
+	min_adj_attitude = [None] * count
+	max_adj_attitude = [None] * count
+	min_adj_decay = [None] * count
+	max_adj_decay = [None] * count
+
+	for iLeader in non_excluded_leaders:
+		leader_rows = [None] * count
+		for j in range(count):
+			iMemoryIndex = memory_indexes[j]
+			memory_type = memory_types[j]
+			attitude_percent_raw = get_memory_attitude_percent(iLeader, iMemoryIndex)
+			decay_rand_raw = get_memory_decay_rand(iLeader, iMemoryIndex)
+			adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(attitude_percent_raw, decay_rand_raw, is_affection, is_debug, memory_type)
+			leader_rows[j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
+
+			if min_adj_attitude[j] is None:
+				min_adj_attitude[j] = adjusted_attitude_percent
+				max_adj_attitude[j] = adjusted_attitude_percent
+				min_adj_decay[j] = adjusted_decay
+				max_adj_decay[j] = adjusted_decay
+			else:
+				if adjusted_attitude_percent < min_adj_attitude[j]:
+					min_adj_attitude[j] = adjusted_attitude_percent
+				if adjusted_attitude_percent > max_adj_attitude[j]:
+					max_adj_attitude[j] = adjusted_attitude_percent
+				if adjusted_decay < min_adj_decay[j]:
+					min_adj_decay[j] = adjusted_decay
+				if adjusted_decay > max_adj_decay[j]:
+					max_adj_decay[j] = adjusted_decay
+
+		temp_by_leader[iLeader] = leader_rows
+
+	if is_debug:
+		print("[DEBUG] Memory aggregation pass 1 done for %s/%s" % (positive_negative, affection_resentment))
+		print("[DEBUG] min_adj_attitude=%s max_adj_attitude=%s" % (str(min_adj_attitude), str(max_adj_attitude)))
+		print("[DEBUG] min_adj_decay=%s max_adj_decay=%s" % (str(min_adj_decay), str(max_adj_decay)))
+
+	leaders_info_aggregated_raw_memory_family = {}
+	b_invert_attitude_percent, b_invert_decay = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
+
+	for iLeader in non_excluded_leaders:
+		leaders_info_aggregated_raw_memory_family[iLeader] = {}
+		leader_rows = temp_by_leader[iLeader]
+		for j in range(count):
+			adjusted_attitude_percent, adjusted_decay, b_force_zero = leader_rows[j]
+			adjusted_attitude_norm_score = normalize_to_100(adjusted_attitude_percent, min_adj_attitude[j], max_adj_attitude[j], B_WARN, b_invert_attitude_percent, parsed_adjusted_attitude_names[j])
+			adjusted_decay_norm_score = normalize_to_100(adjusted_decay, min_adj_decay[j], max_adj_decay[j], B_WARN, b_invert_decay, parsed_adjusted_decay_names[j])
+			aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_attitude_norm_score, adjusted_decay_norm_score, b_force_zero)
+			leaders_info_aggregated_raw_memory_family[iLeader][parsed_aggregated_raw_names[j]] = aggregated_value
+
+	if is_debug:
+		print("[DEBUG] leaders_info_aggregated_raw_memory_family after pass 2 for %s/%s: %s" % (positive_negative, affection_resentment, str(leaders_info_aggregated_raw_memory_family)))
+
+	return leaders_info_aggregated_raw_memory_family
+
+def compute_leaders_info_aggregated_raw_memory_affections_and_resentments(non_excluded_leaders, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
+	leaders_info_aggregated_raw_memory_affections_and_resentments = {}
+	for is_positive in (True, False):
+		for is_affection in (True, False):
+			memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
+			memory_types = [get_memory_type(iMemoryIndex) for iMemoryIndex in memory_indexes]
+			family_values = compute_leaders_info_aggregated_raw_memory_family(non_excluded_leaders, memory_indexes, memory_types, get_memory_attitude_percent, get_memory_decay_rand, is_positive, is_affection, B_WARN, is_debug)
+			for iLeader in family_values.keys():
+				if iLeader not in leaders_info_aggregated_raw_memory_affections_and_resentments:
+					leaders_info_aggregated_raw_memory_affections_and_resentments[iLeader] = {}
+				leaders_info_aggregated_raw_memory_affections_and_resentments[iLeader].update(family_values[iLeader])
+
+	return leaders_info_aggregated_raw_memory_affections_and_resentments
+
+# <!-- custom: Shared final numeric values for AIP-derived contact/memory fields. This still does not build UI labels/scales; it only turns shared raw aggregate formulas into the normalized numbers stored in the predumped cache, so workflow validation and in-game AIP can share the math without importing UI formatting.
+# Example: contact rand/delay first create a pre-normalization synthetic key such as iAggregatedRawContactProbReligionPressure; this function then normalizes that raw aggregate across leaders into iAggregatedContactProbReligionPressure, which is the displayed/predumped value. For memories, it similarly turns iAggregatedRawPositiveMemoryTradedTechToUsAffection into iAggregatedPositiveMemoryTradedTechToUsAffection. (ChatGPT-5.5) -->
+def compute_leaders_info_aip_aggregate_display_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
+	contact_raw = compute_leaders_info_aggregated_raw_contact_probs(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, B_WARN, is_debug)
+	memory_raw = compute_leaders_info_aggregated_raw_memory_affections_and_resentments(non_excluded_leaders, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug)
+	display_values = {}
+	for iLeader in non_excluded_leaders:
+		display_values[iLeader] = {}
+
+	for contact_type in contact_types:
+		raw_key = get_aip_aggregated_raw_contact_prob_key(contact_type)
+		display_key = get_aip_aggregated_contact_prob_key(contact_type)
+		raw_values = [contact_raw[iLeader][raw_key] for iLeader in non_excluded_leaders]
+		min_value = min(raw_values)
+		max_value = max(raw_values)
+		for iLeader in non_excluded_leaders:
+			display_values[iLeader][display_key] = normalize_to_100(contact_raw[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
+
+	for is_positive in (True, False):
+		# The current AIP predump displays positive memory affections and negative memory resentments only; the raw helper still computes the full 2x2 matrix for future UI expansion.
+		is_affection = is_positive
+		for memory_index in get_positive_or_negative_memory_indexes(is_positive):
+			memory_type = get_memory_type(memory_index)
+			raw_key = get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection)
+			display_key = get_aip_aggregated_memory_key(memory_type, is_positive, is_affection)
+			raw_values = [memory_raw[iLeader][raw_key] for iLeader in non_excluded_leaders]
+			min_value = min(raw_values)
+			max_value = max(raw_values)
+			for iLeader in non_excluded_leaders:
+				# <!-- custom: preserve the current predump's memory aggregate .5 behavior; see normalize_to_100_half_away_from_zero for the concrete MEMORY_TRADED_TECH_TO_US example. (ChatGPT-5.5) -->
+				display_values[iLeader][display_key] = normalize_to_100_half_away_from_zero(memory_raw[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
+
+	return display_values
