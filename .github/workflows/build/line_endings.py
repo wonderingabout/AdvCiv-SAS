@@ -91,16 +91,19 @@ def git_tracked_files(repo_root: Path) -> list[Path] | None:
 	return paths
 
 
-def iter_candidate_files(repo_root: Path) -> list[Path]:
+def iter_candidate_files(repo_root: Path) -> tuple[list[Path], str]:
 	tracked_paths = git_tracked_files(repo_root)
 	if tracked_paths is not None:
-		return sorted(
-			path
-			for path in tracked_paths
-			if path.is_file()
-			and is_text_like_path(path)
-			and not is_ignored(path.relative_to(repo_root))
-			and any(is_under(path.relative_to(repo_root), scan_path) or path.relative_to(repo_root) == scan_path for scan_path in SCAN_RELATIVE_PATHS)
+		return (
+			sorted(
+				path
+				for path in tracked_paths
+				if path.is_file()
+				and is_text_like_path(path)
+				and not is_ignored(path.relative_to(repo_root))
+				and any(is_under(path.relative_to(repo_root), scan_path) or path.relative_to(repo_root) == scan_path for scan_path in SCAN_RELATIVE_PATHS)
+			),
+			"git-tracked working-tree files",
 		)
 
 	paths: list[Path] = []
@@ -121,7 +124,7 @@ def iter_candidate_files(repo_root: Path) -> list[Path]:
 				continue
 			if is_text_like_path(child):
 				paths.append(child)
-	return sorted(set(paths))
+	return sorted(set(paths)), "plain directory fallback scan (no Git index available)"
 
 
 def line_ending_counts(data: bytes) -> tuple[int, int, int]:
@@ -132,9 +135,7 @@ def line_ending_counts(data: bytes) -> tuple[int, int, int]:
 	return crlf_count, lf_count, lone_cr_count
 
 
-def check_file(repo_root: Path, path: Path) -> list[EolIssue]:
-	data = path.read_bytes()
-	relative_path = path.relative_to(repo_root)
+def check_data(relative_path: Path, data: bytes) -> list[EolIssue]:
 	failures: list[EolIssue] = []
 
 	if not data or is_probably_binary(data):
@@ -153,13 +154,41 @@ def check_file(repo_root: Path, path: Path) -> list[EolIssue]:
 	return failures
 
 
-def check_line_endings(repo_root: Path) -> list[EolIssue]:
-	failures: list[EolIssue] = []
+def check_file(repo_root: Path, path: Path) -> list[EolIssue]:
+	return check_data(path.relative_to(repo_root), path.read_bytes())
 
-	for path in iter_candidate_files(repo_root):
+
+def read_git_index_bytes(repo_root: Path, relative_path: Path) -> bytes | None:
+	try:
+		result = subprocess.run(
+			["git", "show", ":%s" % relative_path.as_posix()],
+			cwd=repo_root,
+			check=True,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+		)
+	except (OSError, subprocess.CalledProcessError):
+		return None
+	return result.stdout
+
+
+def get_index_clean_worktree_failures(repo_root: Path, failures: list[EolIssue]) -> list[Path]:
+	clean_in_index: list[Path] = []
+	for relative_path in sorted({failure.relative_path for failure in failures}):
+		data = read_git_index_bytes(repo_root, relative_path)
+		if data is not None and not check_data(relative_path, data):
+			clean_in_index.append(relative_path)
+	return clean_in_index
+
+
+def check_line_endings(repo_root: Path) -> tuple[list[EolIssue], str]:
+	failures: list[EolIssue] = []
+	candidate_files, scan_mode = iter_candidate_files(repo_root)
+
+	for path in candidate_files:
 		failures.extend(check_file(repo_root, path))
 
-	return failures
+	return failures, scan_mode
 
 
 def main() -> int:
@@ -168,18 +197,28 @@ def main() -> int:
 	parser.add_argument("--max-failures", type=int, default=80, help="maximum number of failures to print before summarizing")
 	args = parser.parse_args()
 
-	failures = check_line_endings(args.repo_root)
+	failures, scan_mode = check_line_endings(args.repo_root)
 
 	if failures:
 		print("FAIL text line-ending hygiene")
+		print(f"  scan mode: {scan_mode}")
 		for failure in failures[: args.max_failures]:
 			print(f"  - {failure.format()}")
 		remaining = len(failures) - args.max_failures
 		if remaining > 0:
 			print(f"  - ... {remaining} more failure(s) not shown")
+		if scan_mode.startswith("git-tracked"):
+			clean_in_index = get_index_clean_worktree_failures(args.repo_root, failures)
+			if clean_in_index:
+				print("  note: %d failing worktree file(s) are clean in the Git index; GitHub Actions may pass if its checkout uses those normalized/indexed bytes." % len(clean_in_index))
+				for relative_path in clean_in_index[:10]:
+					print(f"    index-clean: {relative_path.as_posix()}")
+				if len(clean_in_index) > 10:
+					print("    ... %d more index-clean worktree failure(s) not shown" % (len(clean_in_index) - 10))
 		return 1
 
 	print("PASS text line-ending hygiene")
+	print(f"  scan mode: {scan_mode}")
 	return 0
 
 

@@ -74,9 +74,32 @@ Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracke
 
 Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/fix_line_endings.py`](/LLM_Helpers/fix_line_endings.py). Generated/reference helper folders such as `LLM_Helpers/outputs` are excluded to avoid noise from old reports/diffs.
 
+The script prints its scan mode. In a normal Git checkout it lists tracked files with `git ls-files` and checks the current checked-out bytes. In a plain exported folder, such as an extracted light-source zip without `.git`, it falls back to scanning the configured active source/doc folders directly.
+
 Before the first cleanup, this checker found 79 local worktree issues, while GitHub Actions reported only 19. Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., `BugInit.py`) while true CI failures stayed mixed in both (e.g., `Pangaea.py`).
 
-Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set.
+Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup/export guidance, while staged/GitHub output is the authoritative committed-content failure set.
+
+Note: later on, we noticed a line endings test failed locally:
+
+```log
+FAIL text line-ending hygiene
+  - .github/workflows/build/aip_predump_values.py: has mixed line endings: CRLF=560, LF=2, lone_CR=0
+  - Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py: has mixed line endings: CRLF=485, LF=1, lone_CR=0
+  ```
+
+The LF-only lines are just blank lines:
+
+```log
+.github/workflows/build/aip_predump_values.py
+  LF-only line 393
+  LF-only line 440
+
+Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+  LF-only line 334
+```
+
+But it passed on [GitHub Actions test](https://github.com/wonderingabout/AdvCiv-SAS/pull/29/commits/c0e4c7624edafb022946267c606692071784dbf0): GitHub Actions checks its own post-checkout bytes, so local/exported mixed line endings can still need cleanup even when CI passes. When this happens in a Git checkout, the script notes failing worktree files that are already clean in the Git index. To make this clearer, the checker now prints its scan mode and can note when a failing worktree file is already clean in the Git index.
 
 ### `build/assets_dlls.py`
 
