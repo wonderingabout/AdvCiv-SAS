@@ -985,3 +985,83 @@ def compute_leaders_info_aip_aggregate_display_values(non_excluded_leaders, cont
 			display_values[iLeader][display_key] = normalize_to_100_half_away_from_zero(synthetic_raw_values[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
 
 	return display_values
+
+# <!-- custom: Shared provider-based AIP cache builder. Runtime Civ4 code supplies a provider backed by gc/DLL getters; workflow validation/generation supplies a provider backed by parsed XML+UWAI values. This keeps tuple creation, labels, normalization, scale strings, and displayed aggregate selection in one pure helper path. (ChatGPT-5.5) -->
+def compute_leaders_info_aip_cache_from_provider(non_excluded_leaders, provider, is_show_raw_xml_field_names_instead, B_WARN, is_debug):
+	contact_types = get_aip_contact_types_assessed()
+	memory_types = get_aip_memory_types_assessed()
+	all_symbols = get_aip_scale_symbols()
+	raw_symbol = all_symbols["RAW_SCALE_SYMBOL"]
+	aggregated_symbol = all_symbols["AGGREGATED_SCALE_SYMBOL"]
+
+	synthetic_raw_values = compute_leaders_info_aip_synthetic_raw_values(non_excluded_leaders, contact_types, provider.get_contact_rand, provider.get_contact_delay, provider.get_memory_type, provider.get_memory_attitude_percent, provider.get_memory_decay_rand, B_WARN, is_debug)
+
+	def get_provider_value(iLeader, key):
+		if key in synthetic_raw_values[iLeader]:
+			return synthetic_raw_values[iLeader][key]
+		return provider.get_value(iLeader, key)
+
+	def get_min_max_for_key(key):
+		values = [get_provider_value(iLeader, key) for iLeader in non_excluded_leaders]
+		return min(values), max(values)
+
+	def get_min_max_from_values(values):
+		return min(values), max(values)
+
+	def build_label(key_or_suffix, display_label, label_raw, max_length):
+		return get_aip_label_with_raw_value(key_or_suffix, display_label, label_raw, max_length, is_show_raw_xml_field_names_instead)
+
+	leaders_info_cached = {}
+	for iLeader in non_excluded_leaders:
+		leader_info_cached = {}
+
+		for getter_key, _xml_tag, _xml_default, display_label, b_invert in get_aip_direct_int_field_specs():
+			raw_value = provider.get_value(iLeader, getter_key)
+			min_value, max_value = get_min_max_for_key(getter_key)
+			label = build_label(getter_key, display_label, "(%d)" % raw_value, 18)
+			leader_info_cached[getter_key] = build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, raw_symbol, all_symbols, getter_key, label, B_WARN)
+
+		for getter_key, _xml_tag, _xml_default, display_label, b_invert in get_aip_attitude_threshold_field_specs():
+			raw_value = provider.get_value(iLeader, getter_key)
+			min_value, max_value = get_min_max_for_key(getter_key)
+			label = build_label(getter_key, display_label, "(%d)" % raw_value, 18)
+			leader_info_cached[getter_key] = build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, raw_symbol, all_symbols, getter_key, label, B_WARN)
+
+		for i, flavor_type in enumerate(get_aip_flavor_types_assessed()):
+			suffix = get_pascal_case_suffix(flavor_type)
+			cache_key = get_aip_array_value_key("iFlavor", flavor_type)
+			raw_value = provider.get_flavor_value(iLeader, i)
+			min_value, max_value = get_min_max_from_values([provider.get_flavor_value(loopLeader, i) for loopLeader in non_excluded_leaders])
+			label = build_label(suffix, suffix, "(%d)" % raw_value, 19)
+			leader_info_cached[cache_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, raw_symbol, all_symbols, cache_key, label, B_WARN)
+
+		for i, contact_type, raw_key, display_key, display_label in get_aip_displayed_contact_aggregate_specs(contact_types):
+			suffix = get_pascal_case_suffix(contact_type)
+			raw_value = synthetic_raw_values[iLeader][raw_key]
+			min_value, max_value = get_min_max_for_key(raw_key)
+			label_raw = "(%d/%d)" % (provider.get_contact_rand(iLeader, i), provider.get_contact_delay(iLeader, i))
+			label = build_label(suffix, display_label, label_raw, 19)
+			leader_info_cached[display_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, aggregated_symbol, all_symbols, display_key, label, B_WARN)
+
+		for i, memory_type, _is_positive, _is_affection, raw_key, display_key, display_label in get_aip_displayed_memory_aggregate_specs():
+			suffix = get_pascal_case_suffix(memory_type)
+			raw_value = synthetic_raw_values[iLeader][raw_key]
+			min_value, max_value = get_min_max_for_key(raw_key)
+			label_raw = "(%d/%d)" % (provider.get_memory_attitude_percent(iLeader, i), provider.get_memory_decay_rand(iLeader, i))
+			label = build_label(suffix, display_label, label_raw, 19)
+			# <!-- custom: Preserve the current predump's memory aggregate .5 behavior; see normalize_to_100_half_away_from_zero for the concrete MEMORY_TRADED_TECH_TO_US example. (ChatGPT-5.5) -->
+			leader_info_cached[display_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, aggregated_symbol, all_symbols, display_key, label, B_WARN, normalize_to_100_half_away_from_zero)
+
+		for i, attitude_type in enumerate(get_aip_no_war_attitude_types_assessed()):
+			suffix = get_pascal_case_suffix(attitude_type)
+			cache_key = get_aip_array_value_key("iNoWarAttitudeProb", attitude_type)
+			raw_value = provider.get_no_war_attitude_prob(iLeader, i)
+			min_value, max_value = get_min_max_from_values([provider.get_no_war_attitude_prob(loopLeader, i) for loopLeader in non_excluded_leaders])
+			label = build_label(suffix, suffix, "(%d)" % raw_value, 19)
+			leader_info_cached[cache_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, raw_symbol, all_symbols, cache_key, label, B_WARN)
+
+		leaders_info_cached[iLeader] = leader_info_cached
+		if is_debug:
+			print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
+
+	return leaders_info_cached

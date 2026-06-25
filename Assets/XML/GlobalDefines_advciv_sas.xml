@@ -325,13 +325,13 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #132 -->
-	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
-	Set to 0 to compute at runtime -->
+	<!-- custom: Set to 1 to load the committed pre-dumped module (SevoPediaLeaderCachePredumped.py).
+	Set to 0 to compute at runtime. Modders can normally let .github/workflows/build/aip_predump_values.py reconstruct/check stale committed predump tuples outside Civ4. If the checker reports stale data, the committed file still needs manual refresh for now: temporarily set this to 0 and SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG to 1, open the Leaders / AI Personality panel once, copy the PythonDbg.log cache block, then restore defaults. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later); Long_Comments_XML.txt #192 -->
+	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log for manual SevoPediaLeaderCachePredumped.py refresh fallback; CI/local aip_predump_values.py is the preferred stale-cache check (ChatGPT-5.5); Long_Comments_XML.txt #192 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

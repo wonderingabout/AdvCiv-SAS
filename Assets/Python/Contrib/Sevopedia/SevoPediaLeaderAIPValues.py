@@ -54,7 +54,8 @@ def dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, i
 
 	# Header with generation info
 	emit("# Generated from in-game dump to PythonDbg.log")
-	emit("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
+	emit("# Manual fallback: copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
+	emit("# Preferred stale-cache check: run .github/workflows/build/aip_predump_values.py, which reconstructs the same tuples outside Civ4 through the shared AIP provider builder.")
 	emit("#")
 	emit("# Generation info:")
 	emit("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
@@ -116,8 +117,7 @@ def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, i
 # <!-- custom: note: collapse this below function with the VS Code UI option or similar to see the line after function definition directly (i.e. as of now around line 1530, right after function definition line e.g. around line 100) for easier reading if desired. -->
 # <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main -->
 def _compute_leader_cache_internal():
-	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
-	# Build once <!-- custom: at this function's scope as we don't need it outside of it but need it many times here -->
+	# <!-- custom: runtime provider for the shared pure AIP cache builder. This keeps Civ4-only gc/DLL access here, while tuple creation, labels, normalization, scale strings, and displayed aggregate selection live in ai_utils_shared_with_civ4.py for reuse by the workflow predump checker. (ChatGPT-5.5) -->
 	NUM_LEADERS = gc.getNumLeaderHeadInfos()
 	NON_EXCLUDED_LEADERS = tuple(i for i in xrange(NUM_LEADERS) if i not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)
 
@@ -139,65 +139,7 @@ def _compute_leader_cache_internal():
 			# success: only check first real leader
 			if IS_DEBUG_LEADER:
 				print("[DEBUG] Getter check passed for iLeader=%d. All required Python getters are present." % iLeader)
-			break  # ?. success: no need to check further
-
-	# <!-- custom: Use shared AIP type lists instead of duplicating literal counts here; the workflow predump checker imports the same lists. Note: memory families still loop through positive_or_negative_memory_indexes because they intentionally split the full memory list by display category. (ChatGPT-5.5) -->
-	CONTACT_TYPES_ASSESSED = get_aip_contact_types_assessed()
-	NO_WAR_ATTITUDE_TYPES_ASSESSED = get_aip_no_war_attitude_types_assessed()
-	MEMORY_TYPES_ASSESSED = get_aip_memory_types_assessed()
-	NUM_CONTACT_TYPES_ASSESSED = len(CONTACT_TYPES_ASSESSED)
-	NUM_ATTITUDE_TYPES_ASSESSED = len(NO_WAR_ATTITUDE_TYPES_ASSESSED)
-
-	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it. -->
-	test_expected_shifting_pre_normalize_to_100()
-
-	if IS_DEBUG_LEADER:
-		print("[DEBUG] test_expected_shifting_pre_normalize_to_100 passed.")
-
-	def computeAndStoreMinMaxOfOneKey(key, value, leader_info_minimums, leader_info_maximums):
-		if key not in leader_info_minimums:
-			leader_info_minimums[key] = value
-			leader_info_maximums[key] = value
-			if IS_DEBUG_LEADER:
-				print("[DEBUG] Set initial min/max for key=%s → %d" % (key, value))
-		else:
-			prev_min = leader_info_minimums[key]
-			prev_max = leader_info_maximums[key]
-
-			if value < prev_min:
-				leader_info_minimums[key] = value
-				if IS_DEBUG_LEADER:
-					print("[DEBUG] New min for %s: %d → %d" % (key, prev_min, value))
-
-			if value > prev_max:
-				leader_info_maximums[key] = value
-				if IS_DEBUG_LEADER:
-					print("[DEBUG] New max for %s: %d → %d" % (key, prev_max, value))
-
-	# <!-- custom: store raw aggregated contact probs (iAggregatedRaw...) separately from normalized aggregated probs (iAggregated...).
-	# Only the normalized values are displayed; raw values are kept for later normalization/min-max. The raw-to-normalized parsing
-	# and label composition happens later in compute_and_store_leaders_info_cached. Do the same for raw aggregated positive/negative
-	# memory affections/resentments. The synthetic pre-normalization aggregation itself lives in ai_utils_shared_with_civ4 so the
-	# in-game AIP cache and the workflow predump checker can reuse one formula with different value providers. (ChatGPT-5.5) -->
-	contact_types_assessed = CONTACT_TYPES_ASSESSED
-
-	def get_contact_rand_for_leader(iLeader, iContact):
-		return gc.getLeaderHeadInfo(iLeader).getContactRand(iContact)
-
-	def get_contact_delay_for_leader(iLeader, iContact):
-		return gc.getLeaderHeadInfo(iLeader).getContactDelay(iContact)
-
-	def get_memory_type_for_index(iMemoryIndex):
-		return MEMORY_TYPES_ASSESSED[iMemoryIndex]
-
-	def get_memory_attitude_percent_for_leader(iLeader, iMemoryIndex):
-		return gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(iMemoryIndex)
-
-	def get_memory_decay_rand_for_leader(iLeader, iMemoryIndex):
-		return gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(iMemoryIndex)
-
-	# <!-- custom: before computing minimums and maximums, build all synthetic raw iAggregatedRaw* fields in the shared AIP helper layer. This keeps SevoPediaLeaderAIPValues.py focused on normalization/cache/UI rather than owning contact/memory synthetic-field creation. (ChatGPT-5.5) -->
-	leaders_info_aip_synthetic_raw_values = compute_leaders_info_aip_synthetic_raw_values(NON_EXCLUDED_LEADERS, contact_types_assessed, get_contact_rand_for_leader, get_contact_delay_for_leader, get_memory_type_for_index, get_memory_attitude_percent_for_leader, get_memory_decay_rand_for_leader, B_WARN, IS_DEBUG_LEADER)
+			break
 
 	def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name):
 		leaders_dict_keys = leaders_dict.keys()
@@ -214,261 +156,41 @@ def _compute_leader_cache_internal():
 				key_type_name = str(type(key))
 				raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
 
-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aip_synthetic_raw_values, "leaders_info_aip_synthetic_raw_values")
-	check_leaders_dict_only_has_leader_index_keys(leaders_info_aip_synthetic_raw_values, "leaders_info_aip_synthetic_raw_values")
-
-	# <!-- custom: Direct getter metadata lives in ai_utils_shared_with_civ4.py so the AIP panel and predump workflow checker share getter names, labels, inversion flags, XML tags, and defaults from one tuple source. (ChatGPT-5.5) -->
-
-	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia debuggers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details -->
 	fields_with_direct_getters, fields_attitude_thresholds = get_aip_fields_directly_parsed()
 	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
 	check_required_newly_exposed_python_getters_gc_leader_exist(required_getters)
-	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aip_synthetic_raw_values):
-		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions, same for maximum values too -->
-		leader_info_minimums = {}
-		leader_info_maximums = {}
 
-		for iLeader in NON_EXCLUDED_LEADERS:
-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it. -->
+	test_expected_shifting_pre_normalize_to_100()
+	if IS_DEBUG_LEADER:
+		print("[DEBUG] test_expected_shifting_pre_normalize_to_100 passed.")
 
-			for getter_name, (label, b_invert) in fields_with_direct_getters.items():
-				value_generic = getattr(loopLeaderHeadInfo, getter_name)()
-				computeAndStoreMinMaxOfOneKey(getter_name, value_generic, leader_info_minimums, leader_info_maximums)
+	class Civ4AipValueProvider:
+		def get_value(self, iLeader, cache_key):
+			return getattr(gc.getLeaderHeadInfo(iLeader), cache_key)()
 
-			for getter_name, (label, b_invert) in fields_attitude_thresholds.items():
-				value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name)()
-				computeAndStoreMinMaxOfOneKey(getter_name, value_attitude_threshold, leader_info_minimums, leader_info_maximums)
+		def get_contact_rand(self, iLeader, iContact):
+			return gc.getLeaderHeadInfo(iLeader).getContactRand(iContact)
 
-			# <!-- custom: parse fields with nested or with incremental getters as flat fields with an alternative key so we can loop over them more easily and reorder them later if needed, also our code is more consistent this way -->
-			# ==== FLAVORS ====
-			for i in xrange(gc.getNumFlavorTypes()):
-				# <!-- custom: store them as a parsed key name since getter is incremental and does not directly reference the name of each flavor -->
-				value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
-				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
-				parsed_name_flavor = get_aip_array_value_key("iFlavor", flavor_type)  # → iFlavorMilitary
-				computeAndStoreMinMaxOfOneKey(parsed_name_flavor, value_flavor, leader_info_minimums, leader_info_maximums)
+		def get_contact_delay(self, iLeader, iContact):
+			return gc.getLeaderHeadInfo(iLeader).getContactDelay(iContact)
 
-			# ==== CONTACTS ====
-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
-				# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now are only contact rands and contact delays -->
-				# <!-- custom: Step 1: Raw contact rands and delays -->
-				contact_type = CONTACT_TYPES_ASSESSED[i] # e.g. "CONTACT_JOIN_WAR"
+		def get_memory_type(self, iMemoryIndex):
+			return get_aip_memory_type_by_index(iMemoryIndex)
 
-				value_rand_raw = loopLeaderHeadInfo.getContactRand(i)
-				value_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
-				parsed_name_rand = get_aip_array_value_key("iContactRand", contact_type) # → iContactRandJoinWar
-				parsed_name_delay = get_aip_array_value_key("iContactDelay", contact_type) # → iContactDelayJoinWar
-				computeAndStoreMinMaxOfOneKey(parsed_name_delay, value_delay_raw, leader_info_minimums, leader_info_maximums)
-				computeAndStoreMinMaxOfOneKey(parsed_name_rand, value_rand_raw, leader_info_minimums, leader_info_maximums)
+		def get_memory_attitude_percent(self, iLeader, iMemoryIndex):
+			return gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(iMemoryIndex)
 
-				# <!-- custom: also export the minimum and maximum raw aggregated contact prob (based on iLeader's rand and iLeader's delay (note: not based on the min and max rand among all leaders nor the min and max delay among all leaders)) among all leaders for each contact type -->
-				# <!-- custom: Step 2: Raw aggregated contact probs -->
-				parsed_name_aggregated_raw_contact_prob = get_aip_aggregated_raw_contact_prob_key(contact_type) # → iAggregatedRawContactProbJoinWar
-				value_aggregated_raw_contact_prob = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_aggregated_raw_contact_prob]
-				computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_contact_prob, value_aggregated_raw_contact_prob, leader_info_minimums, leader_info_maximums)
+		def get_memory_decay_rand(self, iLeader, iMemoryIndex):
+			return gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(iMemoryIndex)
 
-			# ==== MEMORY ====
-			# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now are only contact rands and contact delays; here we can loop over real DLL i index directly like in sevopedia_helpers py file debug code (see there for details), and unlike for raw aggregated memory fields that are separated in positive and negative memories, so here we can loop over real DLL i index directly -->
-			for is_positive in (True, False):
-				for is_affection in (True, False):
-					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
-					for i in positive_or_negative_memory_indexes:
-						memory_type = MEMORY_TYPES_ASSESSED[i] # e.g. "MEMORY_DECLARED_WAR"
+		def get_flavor_value(self, iLeader, iFlavor):
+			return gc.getLeaderHeadInfo(iLeader).getFlavorValue(iFlavor)
 
-						# <!-- custom: Step 1: Raw memory attitude percents and decays -->
-						# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment) same as in XML fields structuration too for raw attitude percents and decays, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML -->
-						# <!-- custom: similarly for min max of raw attitude percents and decays export only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations -->
-						parsed_name_attitude_percent = get_aip_array_value_key("iMemoryAttitudePercent", memory_type) # → iMemoryAttitudePercentDeclaredWar
-						if (parsed_name_attitude_percent not in leader_info_minimums) and (parsed_name_attitude_percent not in leader_info_maximums):
-							value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
-							computeAndStoreMinMaxOfOneKey(parsed_name_attitude_percent, value_attitude_percent, leader_info_minimums, leader_info_maximums)
+		def get_no_war_attitude_prob(self, iLeader, iAttitude):
+			return gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(iAttitude)
 
-						parsed_name_decay = get_aip_array_value_key("iMemoryDecay", memory_type) # → iMemoryDecayDeclaredWar
-						if (parsed_name_decay not in leader_info_minimums) and (parsed_name_decay not in leader_info_maximums):
-							value_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
-							computeAndStoreMinMaxOfOneKey(parsed_name_decay, value_decay, leader_info_minimums, leader_info_maximums)
-
-						# <!-- custom: Step 2: Raw aggregated positive and negative memory affections and resentments -->
-						parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment = get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
-						value_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-						computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment, value_aggregated_raw_positive_or_negative_memory_affection_or_resentment, leader_info_minimums, leader_info_maximums)
-
-			# ==== NOWARATTITUDEPROBS ====
-			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
-				value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
-				attitude_type = NO_WAR_ATTITUDE_TYPES_ASSESSED[i]  # e.g. "ATTITUDE_FURIOUS"
-				parsed_name_no_war_attitude_prob = get_aip_array_value_key("iNoWarAttitudeProb", attitude_type)  # → iNoWarAttitudeProbFurious
-				computeAndStoreMinMaxOfOneKey(parsed_name_no_war_attitude_prob, value_no_war_attitude_prob, leader_info_minimums, leader_info_maximums)
-
-		# <!-- custom: after all min and max parsing is done, some sanity and warning checks -->
-		for key in leader_info_minimums:
-			# <!-- custom: ensure our leader_info_minimums is reliable even if a bit if not lot or not or yes or etcbefore proceeding further -->
-			if key not in leader_info_maximums:
-				raise KeyError(u"[KEY ERROR] Missing leader_info_maximums key=%s, in leader_info_minimums but not in leader_info_maximums, cannot proceed if both leader_info_minimums and leader_info_maximums all have same keys, please check your min and max computing or and DLL behaviour that may explain missing fields." % key)
-
-			# <!-- custom: also warn once if min == max for each field/key and now while it is computationally (at module load) inexpensive to do so, do not rewarn at each leader computation nor later at init or and such -->
-			if leader_info_minimums[key] == leader_info_maximums[key]:
-				if IS_DEBUG_LEADER:
-					print("[WARNING] Key=%s has an identical min and max value (%d). Warning only once at module load so we don't have/want/need to redo it later at the normalization stage, fix/change the XML leader info value(s) of some leader(s) so that min and max among all leaders are different if desired, or keep as is if intended/desired that leaders behave the same for this key." % (key, leader_info_minimums[key]))
-
-		if IS_DEBUG_LEADER:
-			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the minimums leader_info_minimums=%s" % str(leader_info_minimums))
-			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the maximums leader_info_maximums=%s" % str(leader_info_maximums))
-
-		return (leader_info_minimums, leader_info_maximums)
-
-	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aip_synthetic_raw_values)
-
-	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not, we have enough sanity checks overall everywhere to not need to resanity check this xd even though may help maybe but is bit tedious since dbug also helps, so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums. -->
-
-	# Store per-leader <!-- custom: cached info for all keys/attributes -->
-	# LEADERS_INFO_CACHED: dict of leaderName → dict of attributeName → <!-- custom: tuple of (label, raw_value, norm_value, scale) for later display at UI code -->
-	LEADERS_INFO_CACHED = {}
-
-	def compute_and_store_leader_info_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, iLeader, leader_info_cached):
-		leader_info_cached_tuple = build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, B_WARN)
-		leader_info_cached[cache_key] = leader_info_cached_tuple
-		if IS_DEBUG_LEADER:
-			print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
-
-	def compute_and_store_leaders_info_cached(leaders_info_aip_synthetic_raw_values, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums):
-		# Loops over all leaders and normalizes each attribute to a 0-100 scale, using previously computed min/max per attribute and inversion flags.
-
-		# Symbol settings
-		all_symbols = get_aip_scale_symbols()
-
-		# <!-- custom: displayed synthetic contact/memory metadata now comes from ai_utils_shared_with_civ4.py specs, so this cache builder no longer needs local contact/memory label dictionaries. (ChatGPT-5.5) -->
-
-		for iLeader in NON_EXCLUDED_LEADERS:
-			leader_info_cached = {}
-
-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
-
-			symbol_generics = all_symbols["RAW_SCALE_SYMBOL"]
-			for getter_name_generic, (label_generic, b_invert_generic) in fields_with_direct_getters.items():
-				raw_value_generic = getattr(loopLeaderHeadInfo, getter_name_generic)()
-				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables (i.e. before the scale (e.g. "++++" or similar column of each of the AI personality panel tables too -->
-				label_raw_generic = "(%d)" % raw_value_generic
-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					label_with_raw_value_generic = get_aip_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
-				else:
-					label_with_raw_value_generic = "%s %s" % (label_generic, label_raw_generic)
-				min_value_generic = leader_info_minimums[getter_name_generic]
-				max_value_generic = leader_info_maximums[getter_name_generic]
-				compute_and_store_leader_info_cached_tuple(raw_value_generic, min_value_generic, max_value_generic, b_invert_generic, symbol_generics, all_symbols, getter_name_generic, label_with_raw_value_generic, iLeader, leader_info_cached)
-
-			symbol_attitude_thresholds = all_symbols["RAW_SCALE_SYMBOL"]
-			for getter_name_attitude_threshold, (label_attitude_threshold, b_invert_attitude_threshold) in fields_attitude_thresholds.items():
-				raw_value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name_attitude_threshold)()
-				label_raw_attitude_threshold = "(%d)" % raw_value_attitude_threshold
-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					label_with_raw_value_attitude_threshold = get_aip_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
-				else:
-					label_with_raw_value_attitude_threshold = "%s %s" % (label_attitude_threshold, label_raw_attitude_threshold)
-				min_value_attitude_threshold = leader_info_minimums[getter_name_attitude_threshold]
-				max_value_attitude_threshold = leader_info_maximums[getter_name_attitude_threshold]
-				compute_and_store_leader_info_cached_tuple(raw_value_attitude_threshold, min_value_attitude_threshold, max_value_attitude_threshold, b_invert_attitude_threshold, symbol_attitude_thresholds, all_symbols, getter_name_attitude_threshold, label_with_raw_value_attitude_threshold, iLeader, leader_info_cached)
-
-			b_invert_flavors = False
-			symbol_flavors = all_symbols["RAW_SCALE_SYMBOL"]
-			for i in xrange(gc.getNumFlavorTypes()):
-				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
-				suffix = get_pascal_case_suffix(flavor_type) # → "Military"
-				parsed_name_flavor = get_aip_array_value_key("iFlavor", flavor_type)  # → iFlavorMilitary
-				label_flavor = suffix
-				raw_value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
-				label_raw_flavor = "(%d)" % raw_value_flavor
-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_flavor = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
-				else:
-					label_with_raw_value_flavor = "%s %s" % (label_flavor, label_raw_flavor)
-				min_value_flavor = leader_info_minimums[parsed_name_flavor]
-				max_value_flavor = leader_info_maximums[parsed_name_flavor]
-				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, all_symbols, parsed_name_flavor, label_with_raw_value_flavor, iLeader, leader_info_cached)
-
-			# <!-- custom: for contact fields, display normalized synthetic aggregate probabilities, not raw rand/delay fields. Raw rand/delay stay in the label as (rand/delay), while the cache key stores the normalized iAggregatedContactProb* value. (ChatGPT-5.5) -->
-			b_invert_4_aggregated_contact_probs = False
-			symbol_aggregated_contact_probs = all_symbols["AGGREGATED_SCALE_SYMBOL"]
-			for i, contact_type, parsed_name_4_aggregated_raw_contact_prob, parsed_name_4_aggregated_contact_prob, label_contact in get_aip_displayed_contact_aggregate_specs(CONTACT_TYPES_ASSESSED):
-				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
-
-				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
-				raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
-				raw_value_delay = loopLeaderHeadInfo.getContactDelay(i)
-				# <!-- custom: do not display the raw aggregated prob here, but instead the raw rand and raw delay -->
-				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_rand_and_raw_value_delay = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
-				else:
-					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_contact, label_raw_rand_and_raw_delay)
-
-				# <!-- custom: raw key supplies min/max input; display key is stored in the predump/cache. Example: iAggregatedRawContactProbJoinWar normalizes into iAggregatedContactProbJoinWar. (ChatGPT-5.5) -->
-				raw_value_4_aggregated_contact_prob = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_4_aggregated_raw_contact_prob]
-				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
-				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
-
-				# <!-- custom: note: chatgpt 5 told me to change parsed_name_4_aggregated_contact_prob to parsed_name_4_aggregated_raw_contact_prob claiming it was a real bug, but doing it created an error ingame; Long_Comments_py.txt #11; so not a bug -->
-				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
-
-			# <!-- custom: for memory fields, display only normalized synthetic positive memory affections and negative memory resentments. The shared specs decide which iAggregatedRaw* keys become displayed iAggregated* cache keys. (ChatGPT-5.5) -->
-			b_invert_4_positive_and_negative_memory_affections_and_resentments = False
-			symbol_aggregated_positive_and_negative_memory_affections_and_resentments = all_symbols["AGGREGATED_SCALE_SYMBOL"]
-
-			for i, memory_type, is_positive, is_affection, parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_memory in get_aip_displayed_memory_aggregate_specs():
-				suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
-
-				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
-				raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
-				raw_value_4_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
-				label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_rand_and_raw_value_delay = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
-				else:
-					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_memory, label_raw_attitude_percent_and_raw_decay)
-
-				# <!-- custom: raw key supplies min/max input; display key is stored in the predump/cache. Example: iAggregatedRawPositiveMemoryTradedTechToUsAffection normalizes into iAggregatedPositiveMemoryTradedTechToUsAffection. (ChatGPT-5.5) -->
-				raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment = leaders_info_aip_synthetic_raw_values[iLeader][parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-				min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-				max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
-
-				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, all_symbols, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
-
-			b_invert_no_war_attitude_probs = False
-			symbol_no_war_attitude_probs = all_symbols["RAW_SCALE_SYMBOL"]
-			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
-				attitude_type = NO_WAR_ATTITUDE_TYPES_ASSESSED[i]  # e.g. "ATTITUDE_FURIOUS"
-				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
-				parsed_name_no_war_attitude_prob = get_aip_array_value_key("iNoWarAttitudeProb", attitude_type)  # → iNoWarAttitudeProbFurious
-				label_no_war_attitude_prob = suffix
-				raw_value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
-				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
-					label_with_raw_value_no_war_attitude_prob = get_aip_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
-				else:
-					label_with_raw_value_no_war_attitude_prob = "%s %s" % (label_no_war_attitude_prob, label_raw_no_war_attitude_prob)
-				min_value_no_war_attitude_prob = leader_info_minimums[parsed_name_no_war_attitude_prob]
-				max_value_no_war_attitude_prob = leader_info_maximums[parsed_name_no_war_attitude_prob]
-				compute_and_store_leader_info_cached_tuple(raw_value_no_war_attitude_prob, min_value_no_war_attitude_prob, max_value_no_war_attitude_prob, b_invert_no_war_attitude_probs, symbol_no_war_attitude_probs, all_symbols, parsed_name_no_war_attitude_prob, label_with_raw_value_no_war_attitude_prob, iLeader, leader_info_cached)
-
-			# <!-- custom: store final complete leader_info_cached (i.e. store a leader_info_cached for each iLeader) in LEADERS_INFO_CACHED -->
-			LEADERS_INFO_CACHED[iLeader] = leader_info_cached
-			if IS_DEBUG_LEADER:
-				print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
-
-	compute_and_store_leaders_info_cached(leaders_info_aip_synthetic_raw_values, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums)
-
-	# <!-- custom: cleanup -->
-	del leaders_info_aip_synthetic_raw_values
-	del fields_with_direct_getters
-	del fields_attitude_thresholds
-	del leader_info_minimums
-	del leader_info_maximums
+	LEADERS_INFO_CACHED = compute_leaders_info_aip_cache_from_provider(NON_EXCLUDED_LEADERS, Civ4AipValueProvider(), IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD, B_WARN, IS_DEBUG_LEADER)
 
 	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
 	check_leaders_dict_only_has_leader_index_keys(LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")

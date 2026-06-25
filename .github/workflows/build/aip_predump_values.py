@@ -286,110 +286,45 @@ def configure_shared_aip_constants(shared_helpers: Any) -> None:
 	ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_array_field_specs())
 
 
-def add_shared_aggregate_raw_values_to_leaders(leaders: List[LeaderRecord], shared_helpers: Any) -> None:
-	personality_leaders = [leader for leader in leaders if leader.type not in AIP_EXCLUDED_LEADER_TYPES]
-	leaders_by_index = {leader.index: leader for leader in personality_leaders}
-	non_excluded_leader_indexes = tuple(leaders_by_index.keys())
+class XmlAipValueProvider:
+	# <!-- custom: Workflow-side provider for the shared pure AIP cache builder. Values come from the XML mirror after LEADER_DEFAULTS, CvLeaderHeadInfo missing-tag defaults, and optional UWAI weighting have already been applied. (ChatGPT-5.5) -->
+	def __init__(self, leaders: List[LeaderRecord]):
+		self.leaders_by_index = {leader.index: leader for leader in leaders}
 
-	def get_contact_rand(iLeader: int, iContact: int) -> int:
-		return leaders_by_index[iLeader].values[array_value_key("iContactRand", CONTACT_TYPES[iContact])]
+	def get_value(self, iLeader: int, cache_key: str) -> int:
+		return self.leaders_by_index[iLeader].values[cache_key]
 
-	def get_contact_delay(iLeader: int, iContact: int) -> int:
-		return leaders_by_index[iLeader].values[array_value_key("iContactDelay", CONTACT_TYPES[iContact])]
+	def get_flavor_value(self, iLeader: int, iFlavor: int) -> int:
+		return self.get_value(iLeader, array_value_key("iFlavor", FLAVOR_TYPES[iFlavor]))
 
-	def get_memory_type(iMemoryIndex: int) -> str:
+	def get_no_war_attitude_prob(self, iLeader: int, iAttitude: int) -> int:
+		return self.get_value(iLeader, array_value_key("iNoWarAttitudeProb", NO_WAR_ATTITUDE_TYPES[iAttitude]))
+
+	def get_contact_rand(self, iLeader: int, iContact: int) -> int:
+		return self.get_value(iLeader, array_value_key("iContactRand", CONTACT_TYPES[iContact]))
+
+	def get_contact_delay(self, iLeader: int, iContact: int) -> int:
+		return self.get_value(iLeader, array_value_key("iContactDelay", CONTACT_TYPES[iContact]))
+
+	def get_memory_type(self, iMemoryIndex: int) -> str:
 		return MEMORY_TYPES[iMemoryIndex]
 
-	def get_memory_attitude_percent(iLeader: int, iMemoryIndex: int) -> int:
-		return leaders_by_index[iLeader].values[array_value_key("iMemoryAttitudePercent", MEMORY_TYPES[iMemoryIndex])]
+	def get_memory_attitude_percent(self, iLeader: int, iMemoryIndex: int) -> int:
+		return self.get_value(iLeader, array_value_key("iMemoryAttitudePercent", MEMORY_TYPES[iMemoryIndex]))
 
-	def get_memory_decay_rand(iLeader: int, iMemoryIndex: int) -> int:
-		return leaders_by_index[iLeader].values[array_value_key("iMemoryDecay", MEMORY_TYPES[iMemoryIndex])]
-
-	# <!-- custom: The checker stores the same synthetic pre-normalization raw aggregate keys as the runtime cache builder, then uses shared tuple formatting below to turn them into final predump tuples. (ChatGPT-5.5) -->
-	synthetic_raw_values = shared_helpers.compute_leaders_info_aip_synthetic_raw_values(non_excluded_leader_indexes, CONTACT_TYPES, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, False, False)
-	for leader in personality_leaders:
-		leader.values.update(synthetic_raw_values[leader.index])
+	def get_memory_decay_rand(self, iLeader: int, iMemoryIndex: int) -> int:
+		return self.get_value(iLeader, array_value_key("iMemoryDecay", MEMORY_TYPES[iMemoryIndex]))
 
 
 def get_non_excluded_leaders(leaders: List[LeaderRecord]) -> List[LeaderRecord]:
 	return [leader for leader in leaders if leader.type not in AIP_EXCLUDED_LEADER_TYPES]
 
 
-def get_min_max_for_key(leaders: List[LeaderRecord], key: str) -> Tuple[int, int]:
-	values = [leader.values[key] for leader in get_non_excluded_leaders(leaders)]
-	return min(values), max(values)
-
-
 def build_expected_predump_cache(leaders: List[LeaderRecord], shared_helpers: Any, is_show_raw_xml_field_names_instead: bool) -> Dict[int, Dict[str, Tuple[Any, ...]]]:
-	# <!-- custom: Build the exact expected (label, normalized value, scale) tuples using the same pure tuple helper as the runtime AIP cache. This lets the workflow catch stale label/scale drift, not only stale raw numbers. (ChatGPT-5.5) -->
-	all_symbols = shared_helpers.get_aip_scale_symbols()
-	expected: Dict[int, Dict[str, Tuple[Any, ...]]] = {}
+	# <!-- custom: Expected predump creation now delegates to the same provider-based cache builder used by runtime AIP. The workflow only supplies XML/UWAI values; labels, normalization, scale strings, aggregate selection, and tuple shape are shared. (ChatGPT-5.5) -->
+	non_excluded_leader_indexes = tuple(leader.index for leader in get_non_excluded_leaders(leaders))
+	return shared_helpers.compute_leaders_info_aip_cache_from_provider(non_excluded_leader_indexes, XmlAipValueProvider(leaders), is_show_raw_xml_field_names_instead, False, False)
 
-	direct_specs = shared_helpers.get_aip_direct_int_field_specs()
-	attitude_threshold_specs = shared_helpers.get_aip_attitude_threshold_field_specs()
-	raw_symbol = all_symbols["RAW_SCALE_SYMBOL"]
-	aggregated_symbol = all_symbols["AGGREGATED_SCALE_SYMBOL"]
-
-	for leader in get_non_excluded_leaders(leaders):
-		leader_cache: Dict[str, Tuple[Any, ...]] = {}
-
-		for getter_key, _xml_tag, _xml_default, display_label, b_invert in direct_specs:
-			raw_value = leader.values[getter_key]
-			min_value, max_value = get_min_max_for_key(leaders, getter_key)
-			label_raw = "(%d)" % raw_value
-			label = shared_helpers.get_aip_label_with_raw_value(getter_key, display_label, label_raw, 18, is_show_raw_xml_field_names_instead)
-			leader_cache[getter_key] = shared_helpers.build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, raw_symbol, all_symbols, getter_key, label, False)
-
-		for getter_key, _xml_tag, _xml_default, display_label, b_invert in attitude_threshold_specs:
-			raw_value = leader.values[getter_key]
-			min_value, max_value = get_min_max_for_key(leaders, getter_key)
-			label_raw = "(%d)" % raw_value
-			label = shared_helpers.get_aip_label_with_raw_value(getter_key, display_label, label_raw, 18, is_show_raw_xml_field_names_instead)
-			leader_cache[getter_key] = shared_helpers.build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, raw_symbol, all_symbols, getter_key, label, False)
-
-		for i, flavor_type in enumerate(FLAVOR_TYPES):
-			suffix = get_pascal_case_suffix(flavor_type)
-			cache_key = array_value_key("iFlavor", flavor_type)
-			raw_value = leader.values[cache_key]
-			min_value, max_value = get_min_max_for_key(leaders, cache_key)
-			label_raw = "(%d)" % raw_value
-			label = shared_helpers.get_aip_label_with_raw_value(suffix, suffix, label_raw, 19, is_show_raw_xml_field_names_instead)
-			leader_cache[cache_key] = shared_helpers.build_aip_cached_tuple(raw_value, min_value, max_value, False, raw_symbol, all_symbols, cache_key, label, False)
-
-		for i, contact_type, raw_key, display_key, display_label in shared_helpers.get_aip_displayed_contact_aggregate_specs(CONTACT_TYPES):
-			suffix = get_pascal_case_suffix(contact_type)
-			raw_value = leader.values[raw_key]
-			min_value, max_value = get_min_max_for_key(leaders, raw_key)
-			contact_rand = leader.values[array_value_key("iContactRand", CONTACT_TYPES[i])]
-			contact_delay = leader.values[array_value_key("iContactDelay", CONTACT_TYPES[i])]
-			label_raw = "(%d/%d)" % (contact_rand, contact_delay)
-			label = shared_helpers.get_aip_label_with_raw_value(suffix, display_label, label_raw, 19, is_show_raw_xml_field_names_instead)
-			leader_cache[display_key] = shared_helpers.build_aip_cached_tuple(raw_value, min_value, max_value, False, aggregated_symbol, all_symbols, display_key, label, False)
-
-		for i, memory_type, _is_positive, _is_affection, raw_key, display_key, display_label in shared_helpers.get_aip_displayed_memory_aggregate_specs():
-			suffix = get_pascal_case_suffix(memory_type)
-			raw_value = leader.values[raw_key]
-			min_value, max_value = get_min_max_for_key(leaders, raw_key)
-			memory_attitude_percent = leader.values[array_value_key("iMemoryAttitudePercent", MEMORY_TYPES[i])]
-			memory_decay = leader.values[array_value_key("iMemoryDecay", MEMORY_TYPES[i])]
-			label_raw = "(%d/%d)" % (memory_attitude_percent, memory_decay)
-			label = shared_helpers.get_aip_label_with_raw_value(suffix, display_label, label_raw, 19, is_show_raw_xml_field_names_instead)
-			# <!-- custom: Preserve the numeric behavior already documented in compute_leaders_info_aip_aggregate_display_values for current committed memory aggregates under Python 3 workflow validation. (ChatGPT-5.5) -->
-			leader_cache[display_key] = shared_helpers.build_aip_cached_tuple(raw_value, min_value, max_value, False, aggregated_symbol, all_symbols, display_key, label, False, shared_helpers.normalize_to_100_half_away_from_zero)
-
-		for i, attitude_type in enumerate(NO_WAR_ATTITUDE_TYPES):
-			suffix = get_pascal_case_suffix(attitude_type)
-			cache_key = array_value_key("iNoWarAttitudeProb", attitude_type)
-			raw_value = leader.values[cache_key]
-			min_value, max_value = get_min_max_for_key(leaders, cache_key)
-			label_raw = "(%d)" % raw_value
-			label = shared_helpers.get_aip_label_with_raw_value(suffix, suffix, label_raw, 19, is_show_raw_xml_field_names_instead)
-			leader_cache[cache_key] = shared_helpers.build_aip_cached_tuple(raw_value, min_value, max_value, False, raw_symbol, all_symbols, cache_key, label, False)
-
-		expected[leader.index] = leader_cache
-
-	return expected
 
 def read_predump_cache(repo_root: Path) -> Dict[int, Dict[str, Tuple[Any, ...]]]:
 	path = repo_root / PREDUMP_RELATIVE_PATH
@@ -537,7 +472,6 @@ def main() -> int:
 		weight = 100
 	else:
 		apply_uwai_personality_weight(leaders, weight)
-	add_shared_aggregate_raw_values_to_leaders(leaders, shared_helpers)
 	is_show_raw_xml_field_names_instead = read_global_define_int(repo_root, "SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0
 	expected_cache = build_expected_predump_cache(leaders, shared_helpers, is_show_raw_xml_field_names_instead)
 	predump = read_predump_cache(repo_root)
