@@ -5,7 +5,8 @@
 #
 # <!-- custom: Build-check helper: compare LeaderHeadInfo AIP predump values against a lightweight Python mirror of CvLeaderHeadInfo XML defaults plus UWAI::applyPersonalityWeight.
 # This is intentionally a separate script from build/aip.py so the always-on AIP release-safety check can stay lightweight while this deeper effective-value mirror can validate committed predump values.
-# Direct scalar/simple-array values are checked here, and derived contact/memory aggregate values reuse the same pre-normalization AIP helper logic as the in-game Sevopedia AIP cache. UnitAIWeightModifiers and ImprovementWeightModifiers are not checked because they are not currently displayed/predumped. (ChatGPT-5.5) -->
+# Direct scalar/simple-array values are checked here, and derived contact/memory aggregate values reuse the same pre-normalization AIP helper logic as the in-game Sevopedia AIP cache.
+# UnitAIWeightModifiers and ImprovementWeightModifiers are not checked because they are not currently displayed/predumped. (ChatGPT-5.5) -->
 
 from __future__ import annotations
 
@@ -355,10 +356,27 @@ def build_predump_module_text(leaders: List[LeaderRecord], expected_cache: Dict[
 	return "\n".join(lines) + "\n"
 
 
+def detect_existing_newline(path: Path) -> str:
+	# <!-- custom: Preserve the checked-out predump file's newline style when --write rewrites it. GitHub/Linux checkouts may present a file as LF even when a Windows working tree has CRLF, and hardcoding either style can make a no-op refresh look like every line changed. (ChatGPT-5.5) -->
+	try:
+		data = path.read_bytes()
+	except FileNotFoundError:
+		return "\n"
+	crlf_count = data.count(b"\r\n")
+	lf_count = data.count(b"\n")
+	bare_lf_count = lf_count - crlf_count
+	if crlf_count and not bare_lf_count:
+		return "\r\n"
+	if bare_lf_count and not crlf_count:
+		return "\n"
+	# Mixed or newline-less files should be rare here. Preserve the majority style rather than forcing a full-file diff; line_endings.py still catches mixed EOL.
+	return "\r\n" if crlf_count > bare_lf_count else "\n"
+
+
 def write_predump_cache(repo_root: Path, leaders: List[LeaderRecord], expected_cache: Dict[int, Dict[str, Tuple[Any, ...]]], is_emoji_enabled: bool, is_raw_xml_names: bool, shared_helpers: Any) -> Path:
 	path = repo_root / PREDUMP_RELATIVE_PATH
 	text = build_predump_module_text(leaders, expected_cache, is_emoji_enabled, is_raw_xml_names, shared_helpers)
-	path.write_text(text, encoding="utf-8", newline="\r\n")
+	path.write_text(text, encoding="utf-8", newline=detect_existing_newline(path))
 	return path
 
 

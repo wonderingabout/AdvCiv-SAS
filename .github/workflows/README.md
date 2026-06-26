@@ -5,6 +5,7 @@ These files are developer/repository automation, not Civ4 runtime files.
 - `python-ruff.yml` shows full Ruff output and runs critical Ruff Python sanity checks.
 - `python24-compile.yml` runs the real CPython 2.4 parser/bytecode compiler through Docker.
 - `build.yml` runs checks that should pass for ordinary committed builds.
+- `aip-predump-refresh.yml` is a manual bot workflow that refreshes the committed Sevopedia Leader AI Personality predump and opens/updates a PR only when the predump file changes.
 - `build/` contains Python 3 build-check scripts used by `build.yml`.
 - `lib/` contains shared Python 3 helpers used by workflow scripts.
 - Future `release.yml` and `release/` checks can be added for release-only checks such as documentation marker cleanup and archive contents.
@@ -21,6 +22,16 @@ According to ChatGPT-5.5:
 - The `.github/` workflow folder is development infrastructure and should stay excluded from player release archives through `.gitattributes`.
 
 For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness. This also helped spot and fix duplicate parent XML keys [found by new GitHub workflow check](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) (See if needed [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check)).
+
+## AIP predump refresh workflow
+
+[`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml) is intentionally manual-only (`workflow_dispatch`) for now. Run it from GitHub Actions when leader XML or shared AI Personality Panel display logic may have made `SevoPediaLeaderCachePredumped.py` stale.
+
+The workflow checks out the selected branch, runs `python .github/workflows/build/aip_predump_values.py --write`, reruns the normal checker, and then inspects the predump file diff. If there is no diff, the log says the predump is already current and no PR is created. If there is a diff, it commits only `SevoPediaLeaderCachePredumped.py` to `bot/refresh-aip-predump-cache-<base-branch>` and creates or updates a PR named `Refresh AIP predump cache`.
+
+This uses only official checkout/setup-python actions plus GitHub's runner-provided `git`/`gh` tools. If PR creation fails with a permission error, check the repository's Actions workflow permissions: the workflow needs `contents: write`, `pull-requests: write`, and repository settings that allow GitHub Actions to create pull requests.
+
+This is the first cautious bot step: manual trigger first, then later we can decide whether a scheduled or post-check-failure trigger is worth it.
 
 ## Python Ruff workflow
 
