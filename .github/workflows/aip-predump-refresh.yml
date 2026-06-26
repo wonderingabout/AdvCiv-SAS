@@ -2,6 +2,18 @@ name: Refresh AIP predump cache
 
 on:
   workflow_dispatch:
+  push:
+    branches-ignore:
+      - 'bot/refresh-aip-predump-cache-*'
+    paths:
+      - 'Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml'
+      - 'Assets/XML/AI_Variables_GlobalDefines.xml'
+      - 'Assets/XML/GlobalDefines_advciv_sas.xml'
+      - 'Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py'
+      - 'Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py'
+      - 'Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py'
+      - '.github/workflows/build/aip_predump_values.py'
+      - '.github/workflows/aip-predump-refresh.yml'
 
 permissions:
   contents: write
@@ -13,7 +25,7 @@ concurrency:
 
 jobs:
   refresh-aip-predump-cache:
-    if: startsWith(github.ref, 'refs/heads/')
+    if: startsWith(github.ref, 'refs/heads/') && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -22,10 +34,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
+      # <!-- custom: Bot helper: rebuild the committed AIP predump with the same deterministic writer used locally. A following diff step decides whether there is anything worth proposing as a PR. Runs manually, and also automatically after pushes to AIP dependency files. (GPT-5.5) -->
       - name: Refresh AIP predump cache
         shell: bash
         run: |
-          # <!-- custom: Manual-only bot helper: rebuild the committed AIP predump with the same deterministic writer used locally. A following diff step decides whether there is anything worth proposing as a PR. (GPT-5.5) -->
           python .github/workflows/build/aip_predump_values.py --write
           python .github/workflows/build/aip_predump_values.py
       - name: Check for predump diff
@@ -65,7 +77,7 @@ jobs:
           cat > "$pr_body_path" <<'EOF_PR_BODY'
           Automated refresh of `SevoPediaLeaderCachePredumped.py`.
 
-          This PR was created by the manual **Refresh AIP predump cache** workflow. It runs:
+          This PR was created by the **Refresh AIP predump cache** workflow. The workflow runs manually when requested, and automatically after pushes that touch known AIP predump dependency files. It runs:
 
           ```bash
           python .github/workflows/build/aip_predump_values.py --write
