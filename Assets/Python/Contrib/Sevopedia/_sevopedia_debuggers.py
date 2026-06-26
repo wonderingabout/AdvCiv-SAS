@@ -9,6 +9,7 @@
 # Get all attributes of the object
 
 from CvPythonExtensions import *
+from ai_utils_shared_with_civ4 import get_aip_attitude_index_to_type
 
 gc = CyGlobalContext()
 localText = CyTranslator()
@@ -140,16 +141,8 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	#
 	# I have done a global search and they are the only leaders with "<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>", so this seems most likely intended that map trading in base advciv code at least if not other mods preceding it or and base civ4 or not handle it as such (increment one level of atittude higher than the value, to make map trading harsher, so friendly means they will always refuse map trading i assume / in my assumption, all other leaders don't trigger a key error nor in/at this field nor in any other field, so keep as is and display it accurately as DLL handles it) -->
 
-	# Mapping of attitude values to their Civ4 XML constants
-	DLL_ATTITUDE_MAP = {
-		-1: "NONE",
-		0: "ATTITUDE_FURIOUS",
-		1: "ATTITUDE_ANNOYED",
-		2: "ATTITUDE_CAUTIOUS",
-		3: "ATTITUDE_PLEASED",
-		4: "ATTITUDE_FRIENDLY",
-		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error, added this value also as this seems like a purposeful valid DLL behaviour, see above for explanation or of my understanding of it -->
-	}
+	# <!-- custom: Map debug attitude integers back to Civ4 XML constants through the shared AIP helper; includes debug-only 5: "ALWAYS??" for the AdvCiv map-trade refusal edge case explained above. (ChatGPT-5.5) -->
+	DLL_ATTITUDE_MAP = get_aip_attitude_index_to_type(True)
 
 	for attr in dir(info):
 		if attr.startswith("get") and attr.endswith("AttitudeThreshold"):

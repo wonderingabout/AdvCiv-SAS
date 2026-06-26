@@ -40,5 +40,6 @@ jobs:
       - run: python .github/workflows/build/fonts.py
       - run: python .github/workflows/build/detail_manager.py
       - run: python .github/workflows/build/aip.py
+      - run: python .github/workflows/build/aip_predump_values.py
       - run: python .github/workflows/build/worldsizes.py
       - run: python .github/workflows/build/mapscripts.py

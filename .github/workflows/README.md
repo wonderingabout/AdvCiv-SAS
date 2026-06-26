@@ -61,6 +61,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/fonts.py`](#buildfontspy)
 - [`build/detail_manager.py`](#builddetail_managerpy)
 - [`build/aip.py`](#buildaippy)
+- [`build/aip_predump_values.py`](#buildaip_predump_valuespy)
 - [`build/worldsizes.py`](#buildworldsizespy)
 - [`build/mapscripts.py`](#buildmapscriptspy)
 - [`build/python24_compile.py`](#buildpython24_compilepy)
@@ -73,9 +74,32 @@ Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracke
 
 Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/fix_line_endings.py`](/LLM_Helpers/fix_line_endings.py). Generated/reference helper folders such as `LLM_Helpers/outputs` are excluded to avoid noise from old reports/diffs.
 
+The script prints its scan mode. In a normal Git checkout it lists tracked files with `git ls-files` and checks the current checked-out bytes. In a plain exported folder, such as an extracted light-source zip without `.git`, it falls back to scanning the configured active source/doc folders directly.
+
 Before the first cleanup, this checker found 79 local worktree issues, while GitHub Actions reported only 19. Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., `BugInit.py`) while true CI failures stayed mixed in both (e.g., `Pangaea.py`).
 
-Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set.
+Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup/export guidance, while staged/GitHub output is the authoritative committed-content failure set.
+
+Note: later on, we noticed a line endings test failed locally:
+
+```log
+FAIL text line-ending hygiene
+  - .github/workflows/build/aip_predump_values.py: has mixed line endings: CRLF=560, LF=2, lone_CR=0
+  - Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py: has mixed line endings: CRLF=485, LF=1, lone_CR=0
+  ```
+
+The LF-only lines are just blank lines:
+
+```log
+.github/workflows/build/aip_predump_values.py
+  LF-only line 393
+  LF-only line 440
+
+Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+  LF-only line 334
+```
+
+But it passed on [GitHub Actions test](https://github.com/wonderingabout/AdvCiv-SAS/pull/29/commits/c0e4c7624edafb022946267c606692071784dbf0): GitHub Actions checks its own post-checkout bytes, so local/exported mixed line endings can still need cleanup even when CI passes. When this happens in a Git checkout, the script notes failing worktree files that are already clean in the Git index. To make this clearer, the checker now prints its scan mode and can note when a failing worktree file is already clean in the Git index.
 
 ### `build/assets_dlls.py`
 
@@ -162,6 +186,29 @@ Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys matc
 ### `build/aip.py`
 
 Verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumped cache by default, does not dump recomputed cache data to the log by default, and has a non-empty predumped cache file.
+
+### `build/aip_predump_values.py`
+
+Validates effective AIP predump values outside Civ4. It compares committed entries in `Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py` against values reconstructed from `Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml`, mirroring the narrow DLL path needed for these values: `LEADER_DEFAULTS` copy behavior, `CvLeaderHeadInfo::GetChildXmlValByName` missing-tag defaults, primitive array/list loading, and `UWAI::applyPersonalityWeight` with `UWAI_PERSONALITY_PERCENT`.
+
+This script is intentionally separate from [`build/aip.py`](#buildaippy). `aip.py` remains the lightweight release-safety check, while this deeper value mirror checks the committed predump against effective XML+DLL-style values. It currently checks full cached tuples for direct scalar getter keys, scalar attitude-threshold getters, flavors, no-war attitude probabilities, contact aggregate values, and displayed positive/negative memory aggregate values. Contact and memory aggregate formulas are shared with the in-game AIP helper code; unit AI modifiers and improvement modifiers are not checked because they are not currently displayed/predumped. The script fails by default when mismatches or missing/unparsed entries are found; use `--allow-mismatch` only for exploratory/debug runs such as `--no-uwai`.
+
+Practical predump workflow:
+
+1. The normal checker run reconstructs the expected AIP cache outside Civ4 and compares it with the committed `SevoPediaLeaderCachePredumped.py`. CI runs this automatically on commits/PRs, so a failure usually means the committed predump is stale relative to leader XML or shared AIP display logic.
+2. To refresh the committed file without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, then rerun the checker.
+3. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
+
+The generated file intentionally has no timestamp. This keeps no-op `--write` runs byte-identical when cache data is unchanged, avoiding false diffs and future bot/maintenance churn.
+
+This full-tuple check is intentionally stricter than a raw-value-only comparison. During development, the earlier numeric-only check passed, but the tuple check found 394 stale predump entries after shared/runtime AIP label metadata had changed. The underlying values were mostly correct, but many committed labels were missing updated `%` text, such as `Build Unit (52)` instead of `Build Unit % (52)`. Refreshing `SevoPediaLeaderCachePredumped.py` fixed those mismatches and confirmed that this check catches display-cache drift, not just numeric-value drift.
+
+Example local commands (Git Bash):
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && python .github/workflows/build/aip_predump_values.py
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && python .github/workflows/build/aip_predump_values.py --write
+```
 
 ### `build/worldsizes.py`
 
