@@ -326,12 +326,12 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #132 -->
 	<!-- custom: Set to 1 to load the committed pre-dumped module (SevoPediaLeaderCachePredumped.py).
-	Set to 0 to compute at runtime. Modders can normally let .github/workflows/build/aip_predump_values.py reconstruct/check stale committed predump tuples outside Civ4. If the checker reports stale data, the committed file still needs manual refresh for now: temporarily set this to 0 and SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG to 1, open the Leaders / AI Personality panel once, copy the PythonDbg.log cache block, then restore defaults. (ChatGPT-5.5) -->
+	Set to 0 to compute the cache at runtime instead. Note that this old manual way of regenerating the predump (in case it changed for example, to update it) is no longer mandatory, because now aip_predump_values.py also checks the committed predump still matches XML leader info / Python UI code (e.g., "%" text in labels in AIP) automatically in CI/local runs, and if needed it is possible to run this script with its write mode to refresh SevoPediaLeaderCachePredumped.py without having to run Civ4. The Manual fallback remains alternatively: set this to 0 and SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG to 1, open the Leaders / AI Personality panel once, copy the PythonDbg.log cache block, then restore defaults. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log for manual SevoPediaLeaderCachePredumped.py refresh fallback; CI/local aip_predump_values.py is the preferred stale-cache check (ChatGPT-5.5); Long_Comments_XML.txt #192 -->
+	<!-- custom: Runtime cache logging only: 0 = don't dump to log, 1 = dump a PythonDbg.log block for the old manual predump refresh path (Note: not necessary to enable if you use the new script-based way of regenerating the predump). (ChatGPT-5.5); Long_Comments_XML.txt #192 -->
 	<Define>
 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

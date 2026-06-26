@@ -193,14 +193,21 @@ Validates effective AIP predump values outside Civ4. It compares committed entri
 
 This script is intentionally separate from [`build/aip.py`](#buildaippy). `aip.py` remains the lightweight release-safety check, while this deeper value mirror checks the committed predump against effective XML+DLL-style values. It currently checks full cached tuples for direct scalar getter keys, scalar attitude-threshold getters, flavors, no-war attitude probabilities, contact aggregate values, and displayed positive/negative memory aggregate values. Contact and memory aggregate formulas are shared with the in-game AIP helper code; unit AI modifiers and improvement modifiers are not checked because they are not currently displayed/predumped. The script fails by default when mismatches or missing/unparsed entries are found; use `--allow-mismatch` only for exploratory/debug runs such as `--no-uwai`.
 
-Practical predump workflow: this checker reconstructs the same AIP cache tuples outside Civ4 through the shared provider-based cache builder, using an XML/UWAI provider instead of the in-game `gc`/DLL provider. This gives CI and local scripts an automatic way to detect stale committed predump data without launching Civ4. If the checker reports stale predump data, refresh the committed file manually for now by temporarily setting `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, opening the Leaders / AI Personality panel once, copying the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restoring the defaults, and rerunning this checker.
+Practical predump workflow:
+
+1. The normal checker run reconstructs the expected AIP cache outside Civ4 and compares it with the committed `SevoPediaLeaderCachePredumped.py`. CI runs this automatically on commits/PRs, so a failure usually means the committed predump is stale relative to leader XML or shared AIP display logic.
+2. To refresh the committed file without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, then rerun the checker.
+3. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
+
+The generated file intentionally has no timestamp. This keeps no-op `--write` runs byte-identical when cache data is unchanged, avoiding false diffs and future bot/maintenance churn.
 
 This full-tuple check is intentionally stricter than a raw-value-only comparison. During development, the earlier numeric-only check passed, but the tuple check found 394 stale predump entries after shared/runtime AIP label metadata had changed. The underlying values were mostly correct, but many committed labels were missing updated `%` text, such as `Build Unit (52)` instead of `Build Unit % (52)`. Refreshing `SevoPediaLeaderCachePredumped.py` fixed those mismatches and confirmed that this check catches display-cache drift, not just numeric-value drift.
 
-Example local command (Git Bash):
+Example local commands (Git Bash):
 
 ```bash
 cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && python .github/workflows/build/aip_predump_values.py
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && python .github/workflows/build/aip_predump_values.py --write
 ```
 
 ### `build/worldsizes.py`

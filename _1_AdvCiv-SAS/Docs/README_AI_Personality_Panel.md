@@ -111,13 +111,13 @@ Update: since then the computing the values logic from sevopedia leader to [Sevo
 
 ## If you want to mod
 
-If you modify leader XML values or shared AIP display logic, the predumped cache may need to be refreshed. The current preferred safety path is:
+If you modify leader XML values or shared AIP display logic, the predumped cache may need to be refreshed. The current preferred path is:
 
-1. Let the workflow/checker reconstruct the expected AIP cache outside Civ4 by running [`build/aip_predump_values.py`](/.github/workflows/build/aip_predump_values.py). This catches stale committed predump data, including label/string drift, without launching Civ4.
-2. If the committed predump is stale, refresh [`SevoPediaLeaderCachePredumped.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py). For now, use the tested manual in-game dump path below.
+1. Let CI check it automatically on commit/PR, or run [`build/aip_predump_values.py`](/.github/workflows/build/aip_predump_values.py) locally. A failure usually means the committed predump no longer matches the XML/shared AIP logic.
+2. Refresh outside Civ4 with `python .github/workflows/build/aip_predump_values.py --write`, review the diff, and rerun the checker. The generated file has no timestamp, so no-op `--write` runs stay byte-identical when cache data is unchanged instead of producing false diffs.
 3. Manual fallback: set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun `aip_predump_values.py`.
 
-This means ordinary player builds stay fast by loading the predumped cache, while modders/LLMs have both a CI/local verification path and a manual runtime refresh fallback.
+This means ordinary player builds stay fast by loading the predumped cache, while modders/LLMs get automatic stale-cache detection and a normal outside-Civ4 refresh path. During development, the full-tuple checker caught 394 stale label entries, including labels like `Build Unit (52)` that were missing the updated `%` text (`Build Unit % (52)`); write mode can now refresh that kind of drift without relying only on the old manual PythonDbg.log copy path.
 
 ## Note about some ai attributes being ignored
 

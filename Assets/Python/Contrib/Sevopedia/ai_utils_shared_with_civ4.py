@@ -2,6 +2,8 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 
+from sas_utils_shared_with_civ4 import get_sas_python_file_header_lines
+
 
 # <!-- custom: This module is shared by Civ4 runtime Python and GitHub workflow Python. Keep it pure-helper only: no CvPythonExtensions imports, no game-context globals, and no syntax newer than Python 2.4 unless guarded outside runtime paths. (ChatGPT-5.5) -->
 # <!-- custom: Shared AIP enum/type metadata used by both the in-game Sevopedia AIP code and workflow predump validation. These specs mirror the compact subset currently assessed by the AIP panel, not every possible future field. (ChatGPT-5.5) -->
@@ -1065,3 +1067,37 @@ def compute_leaders_info_aip_cache_from_provider(non_excluded_leaders, provider,
 			print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
 
 	return leaders_info_cached
+
+# <!-- custom: Shared predump module serializer for both the in-game PythonDbg.log fallback and the outside-Civ4 workflow writer. The callers provide only source-specific header lines and leader-count text; markers, common generation metadata, and deterministic cache literal formatting stay in one place. Keep this Python 2.4-safe because the in-game AIP code imports this module. No real generation timestamp is written: the writer should be safe to rerun as a no-op without creating false diffs or future bot/maintenance churn. (ChatGPT-5.5) -->
+def format_aip_leader_index_type_pairs(index_type_pairs):
+	return ", ".join(["%d: %s" % (iLeader, leader_type) for iLeader, leader_type in index_type_pairs])
+
+
+
+def build_aip_predump_module_lines(leaders_info_cached, leader_count_line, excluded_leader_types, leader_index_type_line, is_emoji_enabled, is_raw_xml_names, source_header_lines, b_include_file_header):
+	lines = []
+	if b_include_file_header:
+		lines.extend(get_sas_python_file_header_lines())
+
+	lines.append("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
+	for line in source_header_lines:
+		lines.append(line)
+	lines.append("# No timestamp is stored; no-op --write runs stay byte-identical when cache data is unchanged.")
+	lines.append("#")
+	lines.append("# Generation info:")
+	lines.append(leader_count_line)
+	lines.append("#   - Excluded leader types: %r" % (excluded_leader_types,))
+	lines.append("#   - Leader index:type pairs: %s" % leader_index_type_line)
+	lines.append("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
+	lines.append("#   - Raw XML field names: %s" % str(is_raw_xml_names))
+	lines.append("LEADERS_INFO_CACHED = {")
+	for iLeader in sorted(leaders_info_cached.keys()):
+		lines.append("	%r: {" % iLeader)
+		leader_info_cached = leaders_info_cached[iLeader]
+		for cache_key in sorted(leader_info_cached.keys()):
+			lines.append("		%r: %r," % (cache_key, leader_info_cached[cache_key]))
+		lines.append("	},")
+	lines.append("}")
+	lines.append("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
+	return lines
+
