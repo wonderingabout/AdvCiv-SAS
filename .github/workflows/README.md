@@ -5,7 +5,7 @@ These files are developer/repository automation, not Civ4 runtime files.
 - `python-ruff.yml` shows full Ruff output and runs critical Ruff Python sanity checks.
 - `python24-compile.yml` runs the real CPython 2.4 parser/bytecode compiler through Docker.
 - `build.yml` runs checks that should pass for ordinary committed builds.
-- `aip-predump-refresh.yml` is a manual bot workflow that refreshes the committed Sevopedia Leader AI Personality predump and opens/updates a PR only when the predump file changes.
+- `aip-predump-refresh.yml` refreshes the committed Sevopedia Leader AI Personality predump and opens/updates a PR only when the predump file changes. It can be run manually and also runs automatically after pushes that touch known AIP predump dependency files.
 - `build/` contains Python 3 build-check scripts used by `build.yml`.
 - `lib/` contains shared Python 3 helpers used by workflow scripts.
 - Future `release.yml` and `release/` checks can be added for release-only checks such as documentation marker cleanup and archive contents.
@@ -25,13 +25,29 @@ For example, this helped spot [map scripts that were previously unclassified in 
 
 ## AIP predump refresh workflow
 
-[`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml) is intentionally manual-only (`workflow_dispatch`) for now. Run it from GitHub Actions when leader XML or shared AI Personality Panel display logic may have made `SevoPediaLeaderCachePredumped.py` stale.
+[`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml) refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4. It keeps the manual `workflow_dispatch` trigger, and also runs automatically on pushes that touch known AIP predump dependency files:
 
-The workflow checks out the selected branch, runs `python .github/workflows/build/aip_predump_values.py --write`, reruns the normal checker, and then inspects the predump file diff. If there is no diff, the log says the predump is already current and no PR is created. If there is a diff, it commits only `SevoPediaLeaderCachePredumped.py` to `bot/refresh-aip-predump-cache-<base-branch>` and creates or updates a PR named `Refresh AIP predump cache`.
+- `Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml`
+- `Assets/XML/AI_Variables_GlobalDefines.xml`
+- `Assets/XML/GlobalDefines_advciv_sas.xml`
+- `Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py`
+- `Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py`
+- `Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py`
+- `.github/workflows/build/aip_predump_values.py`
+- `.github/workflows/aip-predump-refresh.yml`
 
-This uses only official checkout/setup-python actions plus GitHub's runner-provided `git`/`gh` tools. If PR creation fails with a permission error, check the repository's Actions workflow permissions: the workflow needs `contents: write`, `pull-requests: write`, and repository settings that allow GitHub Actions to create pull requests.
+The workflow checks out the selected or pushed branch, runs `python .github/workflows/build/aip_predump_values.py --write`, reruns the normal checker, and then inspects the predump file diff. If there is no diff, the log says the predump is already current and no PR is created. If there is a diff, it commits only `SevoPediaLeaderCachePredumped.py` to `bot/refresh-aip-predump-cache-<base-branch>` and creates or updates a PR named `Refresh AIP predump cache` targeting the branch that triggered the workflow.
 
-This is the first cautious bot step: manual trigger first, then later we can decide whether a scheduled or post-check-failure trigger is worth it.
+The bot ignores its own refresh branches and skips runs by `github-actions[bot]`, so a generated predump PR does not recursively trigger another refresh. This uses only official checkout/setup-python actions plus GitHub's runner-provided `git`/`gh` tools. If PR creation fails with a permission error, check the repository's Actions workflow permissions: the workflow needs `contents: write`, `pull-requests: write`, and repository settings that allow GitHub Actions to create pull requests.
+
+Validated behavior, tested in [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31):
+
+- current `tech-rework` predump already current -> no PR;
+- leader XML comment-only change (Test 0) -> no PR;
+- real AIP numeric XML change (e.g., Temporary test 1: increase LEADER_MOCTEZUMA's war likeliness iMaxWarRand from 50 to 10) -> predump refresh PR;
+- shared AIP label/display change (e.g., Temporary test 2: "Build Unit %" -> "Build Unit Prob") -> predump refresh PR.
+
+The [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) body keeps the detailed temporary test commits, GitHub Actions logs, and temporary bot PR links. The important result is that the bot reacts to actual generated predump drift, not merely to touched dependency files.
 
 ## Python Ruff workflow
 
@@ -207,8 +223,9 @@ This script is intentionally separate from [`build/aip.py`](#buildaippy). `aip.p
 Practical predump workflow:
 
 1. The normal checker run reconstructs the expected AIP cache outside Civ4 and compares it with the committed `SevoPediaLeaderCachePredumped.py`. CI runs this automatically on commits/PRs, so a failure usually means the committed predump is stale relative to leader XML or shared AIP display logic.
-2. To refresh the committed file without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, then rerun the checker.
-3. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
+2. The `Refresh AIP predump cache` workflow can refresh the predump from GitHub. It runs automatically after pushes to known AIP dependency files and can also be started manually from the Actions tab. When the generated file changes, it opens or updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`.
+3. To refresh locally without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, then rerun the checker.
+4. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
 
 The generated file intentionally has no timestamp. This keeps no-op `--write` runs byte-identical when cache data is unchanged, avoiding false diffs and future bot/maintenance churn.
 

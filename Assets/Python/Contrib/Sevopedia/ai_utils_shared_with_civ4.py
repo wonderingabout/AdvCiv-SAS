@@ -146,7 +146,7 @@ def get_aip_direct_int_field_specs():
 		('getDemandRebukedSneakProb', 'iDemandRebukedSneakProb', 0, 'TribRSneakW%', False),
 		('getDemandRebukedWarProb', 'iDemandRebukedWarProb', 0, 'TribRef W%', False),
 		('getRazeCityProb', 'iRazeCityProb', 0, 'Raz C %', False),
-		('getBuildUnitProb', 'iBuildUnitProb', 0, 'Build Unit Prob', False),
+		('getBuildUnitProb', 'iBuildUnitProb', 0, 'Build Unit %', False),
 		('getBaseAttackOddsChange', 'iBaseAttackOddsChange', 0, 'Risky Aggr', False),
 		('getAttackOddsChangeRand', 'iAttackOddsChangeRand', 0, 'Risky AggrRand+', False),
 		('getWorseRankDifferenceAttitudeChange', 'iWorseRankDifferenceAttitudeChange', 0, 'Worse Rank AC', False),
