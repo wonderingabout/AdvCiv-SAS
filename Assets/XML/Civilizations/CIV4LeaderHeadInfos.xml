@@ -8401,7 +8401,7 @@ Created as part of AdvCiv-SAS improvements
 			<iDominationVictoryWeight>30</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>25</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
-			<iMaxWarRand>50</iMaxWarRand>
+			<iMaxWarRand>10</iMaxWarRand>
 			<iMaxWarNearbyPowerRatio>130</iMaxWarNearbyPowerRatio>
 			<iMaxWarDistantPowerRatio>80</iMaxWarDistantPowerRatio>
 			<iMaxWarMinAdjacentLandPercent>0</iMaxWarMinAdjacentLandPercent>
