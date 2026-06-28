@@ -31,6 +31,21 @@ static std::map<int,int> g_sasWorkerSeaFirstSeenBuildableTurn;
 static std::map<int,int> g_sasWorkerSeaFirstSeenReachableTurn;
 static int g_iSASWorkerSeaAuditLastTurn = -1;
 
+
+// <!-- custom: Local helper for logging-only victory-stage summaries. The victory-stage state is already a bitfield, so this avoids four repeated AI_atVictoryStage checks for each logged victory type without adding header/API churn. (ChatGPT-5.5) -->
+static int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
+{
+	if ((eVictoryStageHash & eStage4) != 0)
+		return 4;
+	if ((eVictoryStageHash & eStage3) != 0)
+		return 3;
+	if ((eVictoryStageHash & eStage2) != 0)
+		return 2;
+	if ((eVictoryStageHash & eStage1) != 0)
+		return 1;
+	return 0;
+}
+
 // statics ... (advc.003u: Mostly moved to CvPlayer)
 
 bool CvPlayerAI::areStaticsInitialized()
@@ -2589,6 +2604,7 @@ void CvPlayerAI::AI_updateCommerceWeights()
 	} // </advc.003m>
 
 	CvGame const& kGame = GC.getGame();
+	int const iCultureLogLevel = gCultureLogLevel;
 
 	// City culture weight.
 	int const iLegendaryCulture = kGame.getCultureThreshold(
@@ -2606,12 +2622,11 @@ void CvPlayerAI::AI_updateCommerceWeights()
 			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0;
 
 	std::vector<std::pair<int,int> > city_countdown_list; // (turns, city id)
+	int iGoldCommercePercent = (bUseCultureRank ? AI_estimateBreakEvenGoldPercent() :
+			getCommercePercent(COMMERCE_GOLD));
+	/*	Note: we only need the gold commerce percent if bUseCultureRank; but
+		I figure that I might as well put in a useful placeholder value just in case. */
 	{
-		int iGoldCommercePercent = (bUseCultureRank ? AI_estimateBreakEvenGoldPercent() :
-				getCommercePercent(COMMERCE_GOLD));
-		/*	Note: we only need the gold commerce percent if bUseCultureRank; but
-			I figure that I might as well put in a useful placeholder value just in case. */
-
 		FOR_EACH_CITY(pLoopCity, *this)
 		{
 			int iCountdown = -1;
@@ -2639,6 +2654,83 @@ void CvPlayerAI::AI_updateCommerceWeights()
 		Perhaps no real problem, but causes an assertion to fail. */
 	int const iGameTurn = std::min(iEndTurn, kGame.getGameTurn());
 	FAssert(city_countdown_list.size() == getNumCities());
+	// <!-- custom: Log current-rate and maximum-affordable-slider culture viability alongside competing victory progress before changing behavior. This distinguishes a credible culture hedge from late investment that diverts research or production from a stronger space/military route; current production context at level 2 shows whether culture candidates and high-production cities are specializing efficiently. (ChatGPT-5.5 + GPT-5.5) -->
+	if (iCultureLogLevel >= 1)
+	{
+		int iCurrentBestCountdown = -1;
+		int iCurrentBottleneckCountdown = -1;
+		int iLegendaryCities = 0;
+		std::vector<int> currentCountdownList;
+		FOR_EACH_CITY(pLoopCity, *this)
+		{
+			int const iRemainingCulture = std::max(0, iLegendaryCulture - pLoopCity->getCulture(getID()));
+			if (iRemainingCulture <= 0)
+				iLegendaryCities++;
+			int iCurrentCountdown = MAX_INT;
+			if (iRemainingCulture <= 0)
+				iCurrentCountdown = 0;
+			else if (pLoopCity->getCommerceRate(COMMERCE_CULTURE) > 0)
+				iCurrentCountdown = iRemainingCulture / pLoopCity->getCommerceRate(COMMERCE_CULTURE);
+			currentCountdownList.push_back(iCurrentCountdown);
+		}
+		if (iVictoryCities > 0 && getNumCities() >= iVictoryCities)
+		{
+			std::partial_sort(currentCountdownList.begin(), currentCountdownList.begin() + iVictoryCities, currentCountdownList.end());
+			if (currentCountdownList[0] < MAX_INT)
+				iCurrentBestCountdown = currentCountdownList[0];
+			if (currentCountdownList[iVictoryCities - 1] < MAX_INT)
+				iCurrentBottleneckCountdown = currentCountdownList[iVictoryCities - 1];
+		}
+		int iProjectedBestCountdown = -1;
+		int iProjectedBottleneckCountdown = -1;
+		if (bUseCultureRank && iVictoryCities > 0 && getNumCities() >= iVictoryCities)
+		{
+			iProjectedBestCountdown = std::max(0, city_countdown_list[0].first);
+			iProjectedBottleneckCountdown = std::max(0, city_countdown_list[iVictoryCities - 1].first);
+		}
+		int const iCurrentSpread = (iCurrentBestCountdown < 0 || iCurrentBottleneckCountdown < 0 ? -1 : iCurrentBottleneckCountdown - iCurrentBestCountdown);
+		int const iProjectedSpread = (iProjectedBestCountdown < 0 || iProjectedBottleneckCountdown < 0 ? -1 : iProjectedBottleneckCountdown - iProjectedBestCountdown);
+		int const iTurnsRemaining = std::max(0, iEndTurn - kGame.getGameTurn());
+		int const iCurrentDeadlineMargin = (iCurrentBottleneckCountdown < 0 ? -1 : iTurnsRemaining - iCurrentBottleneckCountdown);
+		int const iProjectedDeadlineMargin = (iProjectedBottleneckCountdown < 0 ? -1 : iTurnsRemaining - iProjectedBottleneckCountdown);
+		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+		int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+		int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+		int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+		int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+		VictoryTypes const eSpaceVictory = kGame.getSpaceVictory();
+		int const iSpaceCountdown = (eSpaceVictory == NO_VICTORY ? -1 : GET_TEAM(getTeam()).getVictoryCountdown(eSpaceVictory));
+		int iSpacePartsBuilt = 0;
+		int iSpacePartsMinimum = 0;
+		int iSpacePartsMaximum = 0;
+		bool bHasApollo = false;
+		if (eSpaceVictory != NO_VICTORY)
+		{
+			FOR_EACH_ENUM(Project)
+			{
+				CvProjectInfo const& kProject = GC.getInfo(eLoopProject);
+				int const iProjectCount = GET_TEAM(getTeam()).getProjectCount(eLoopProject);
+				if (kProject.getVictoryPrereq() == eSpaceVictory && iProjectCount > 0)
+					bHasApollo = true;
+				if (kProject.isSpaceship())
+				{
+					iSpacePartsBuilt += iProjectCount;
+					iSpacePartsMinimum += kProject.getVictoryMinThreshold(eSpaceVictory);
+					iSpacePartsMaximum += kProject.getVictoryThreshold(eSpaceVictory);
+				}
+			}
+		}
+		logBBAI("CULTURE_WEIGHT_SUMMARY turn=%d player=%d %S stageFlags C1=%d C2=%d C3=%d C4=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d culturePercent=%d goldBreakEven=%d useRank=%d C3Mode=%d warPlans=%d anarchy=%d victoryCities=%d legendaryCities=%d legendaryThreshold=%d cities=%d currentBest=%d currentBottleneck=%d currentSpread=%d projectedBest=%d projectedBottleneck=%d projectedSpread=%d turnsRemaining=%d currentDeadlineMargin=%d projectedDeadlineMargin=%d apollo=%d spacePartsBuilt=%d spacePartsMinimum=%d spacePartsMaximum=%d spaceCountdown=%d empireProduction=%d",
+			kGame.getGameTurn(), getID(), getCivilizationShortDescription(),
+			AI_atVictoryStage(AI_VICTORY_CULTURE1), AI_atVictoryStage(AI_VICTORY_CULTURE2),
+			AI_atVictoryStage(AI_VICTORY_CULTURE3), AI_atVictoryStage(AI_VICTORY_CULTURE4),
+			iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage,
+			getCommercePercent(COMMERCE_CULTURE), iGoldCommercePercent, bUseCultureRank, bC3, bWarPlans, isAnarchy(),
+			iVictoryCities, iLegendaryCities, iLegendaryCulture, getNumCities(), iCurrentBestCountdown, iCurrentBottleneckCountdown, iCurrentSpread,
+			iProjectedBestCountdown, iProjectedBottleneckCountdown, iProjectedSpread,
+			iTurnsRemaining, iCurrentDeadlineMargin, iProjectedDeadlineMargin, bHasApollo, iSpacePartsBuilt, iSpacePartsMinimum, iSpacePartsMaximum,
+			iSpaceCountdown, AI_estimateYieldRate(YIELD_PRODUCTION).round());
+	}
 	for (size_t i = 0; i < city_countdown_list.size(); i++)
 	{
 		CvCityAI* pCity = AI_getCity(city_countdown_list[i].second);
@@ -2646,6 +2738,7 @@ void CvPlayerAI::AI_updateCommerceWeights()
 			is not taken into account here. CvCity::AI_buildingValue handles that. */
 		// COMMERCE_CULTURE AIWeightPercent is set to 30% in the current xml.
 		int iWeight = GC.getInfo(COMMERCE_CULTURE).getAIWeightPercent();
+		int const iCityCulture = pCity->getCulture(getID());
 
 		int iPressureFactor = pCity->AI_culturePressureFactor();
 		if (AI_atVictoryStage(AI_VICTORY_CULTURE2))
@@ -2656,7 +2749,7 @@ void CvPlayerAI::AI_updateCommerceWeights()
 		}
 		int iPressureWeight = iWeight * (iPressureFactor - 100) / 100;
 
-		if (pCity->getCulture(getID()) >= iLegendaryCulture)
+		if (iCityCulture >= iLegendaryCulture)
 		{
 			iWeight /= 10;
 		}
@@ -2740,6 +2833,88 @@ void CvPlayerAI::AI_updateCommerceWeights()
 		/*	Note: value bonus for the first few points of culture is determined elsewhere
 			so that we don't screw up the evaluation of limited culture bonuses
 			such as national wonders. */
+		if (iCultureLogLevel >= 2)
+		{
+			int const iBaseCultureWeight = GC.getInfo(COMMERCE_CULTURE).getAIWeightPercent();
+			int const iCityCultureRate = pCity->getCommerceRate(COMMERCE_CULTURE);
+			int iEstimatedCultureRate = iCityCultureRate;
+			if (bUseCultureRank)
+			{
+				iEstimatedCultureRate += (100 - iGoldCommercePercent
+						- getCommercePercent(COMMERCE_CULTURE)) *
+						pCity->getYieldRate(YIELD_COMMERCE) *
+						pCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+			}
+			int const iCultureRateRank = (int)i + 1;
+			int const iCountdown = city_countdown_list[i].first;
+			int iCurrentCountdown = -1;
+			int const iRemainingCulture = std::max(0, iLegendaryCulture - iCityCulture);
+			if (iRemainingCulture <= 0)
+				iCurrentCountdown = 0;
+			else if (iCityCultureRate > 0)
+				iCurrentCountdown = iRemainingCulture / iCityCultureRate;
+			UnitTypes const eProductionUnit = pCity->getProductionUnit();
+			BuildingTypes const eProductionBuilding = pCity->getProductionBuilding();
+			ProjectTypes const eProductionProject = pCity->getProductionProject();
+			ProcessTypes const eProductionProcess = pCity->getProductionProcess();
+			char const* szProductionType = "none";
+			if (eProductionUnit != NO_UNIT)
+				szProductionType = "unit";
+			else if (eProductionBuilding != NO_BUILDING)
+				szProductionType = "building";
+			else if (eProductionProject != NO_PROJECT)
+				szProductionType = "project";
+			else if (eProductionProcess != NO_PROCESS)
+				szProductionType = "process";
+			bool const bSpaceshipProject = (eProductionProject != NO_PROJECT && GC.getInfo(eProductionProject).isSpaceship());
+			bool bCultureBuilding = false;
+			if (eProductionBuilding != NO_BUILDING)
+			{
+				CvBuildingInfo const& kProductionBuilding = GC.getInfo(eProductionBuilding);
+				bCultureBuilding = (kProductionBuilding.getCommerceChange(COMMERCE_CULTURE) +
+						kProductionBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0 ||
+						kProductionBuilding.getCommerceModifier(COMMERCE_CULTURE) > 0);
+			}
+			// <!-- custom: Separate production conversion and assigned-specialist culture from fixed city culture. Free specialists remain excluded because the AI cannot reassign them; match CvCity's disorder, modifier, rounding, and No Espionage handling so these are exact times-100 contributions. (GPT-5.5) -->
+			int iProcessCultureTimes100 = 0;
+			int const iAssignedSpecialistCount = pCity->getSpecialistPopulation();
+			int iAssignedSpecialistBaseCulture = 0;
+			int iAssignedSpecialistBaseEspionage = 0;
+			FOR_EACH_ENUM(Specialist)
+			{
+				int const iSpecialistCount = pCity->getSpecialistCount(eLoopSpecialist);
+				iAssignedSpecialistBaseCulture += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE);
+				iAssignedSpecialistBaseEspionage += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE);
+			}
+			int iAssignedSpecialistCultureTimes100 = 0;
+			if (!pCity->isDisorder())
+			{
+				iProcessCultureTimes100 = pCity->getYieldRate(YIELD_PRODUCTION) *
+						pCity->getProductionToCommerceModifier(COMMERCE_CULTURE);
+				int const iCultureBaseTimes100 = pCity->getBaseCommerceRateTimes100(COMMERCE_CULTURE);
+				int const iCultureModifier = pCity->getTotalCommerceRateModifier(COMMERCE_CULTURE);
+				iAssignedSpecialistCultureTimes100 = iCultureBaseTimes100 * iCultureModifier / 100 -
+						(iCultureBaseTimes100 - 100 * iAssignedSpecialistBaseCulture) * iCultureModifier / 100;
+				if (kGame.isOption(GAMEOPTION_NO_ESPIONAGE))
+				{
+					iProcessCultureTimes100 += pCity->getYieldRate(YIELD_PRODUCTION) *
+							pCity->getProductionToCommerceModifier(COMMERCE_ESPIONAGE);
+					int const iEspionageBaseTimes100 = pCity->getBaseCommerceRateTimes100(COMMERCE_ESPIONAGE);
+					int const iEspionageModifier = pCity->getTotalCommerceRateModifier(COMMERCE_ESPIONAGE);
+					iAssignedSpecialistCultureTimes100 += iEspionageBaseTimes100 * iEspionageModifier / 100 -
+							(iEspionageBaseTimes100 - 100 * iAssignedSpecialistBaseEspionage) * iEspionageModifier / 100;
+				}
+			}
+			bool const bCultureProcess = (iProcessCultureTimes100 > 0);
+			int const iProductionTurns = (eProductionUnit != NO_UNIT || eProductionBuilding != NO_BUILDING || eProductionProject != NO_PROJECT ? pCity->getProductionTurnsLeft() : -1);
+			logBBAI("CULTURE_CITY_WEIGHT turn=%d player=%d %S city=%S cityId=%d rank=%d neededRank=%d culture=%d/%d cultureRate=%d estimatedRate=%d currentCountdown=%d projectedCountdown=%d legendary=%d baseWeight=%d pressureFactor=%d pressureWeight=%d warPlans=%d finalWeight=%d useRank=%d C3Mode=%d production=%d productionRank=%d orderType=%s order=%S orderTurns=%d spaceship=%d cultureBuilding=%d cultureProcess=%d processCultureTimes100=%d assignedSpecialistCount=%d assignedSpecialistCultureTimes100=%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), pCity->getName().GetCString(), pCity->getID(),
+				iCultureRateRank, iVictoryCities, iCityCulture, iLegendaryCulture, iCityCultureRate, iEstimatedCultureRate,
+				iCurrentCountdown, iCountdown, (iCityCulture >= iLegendaryCulture), iBaseCultureWeight, iPressureFactor, iPressureWeight, bWarPlans,
+				iWeight, bUseCultureRank, bC3, pCity->getYieldRate(YIELD_PRODUCTION), pCity->findYieldRateRank(YIELD_PRODUCTION),
+				szProductionType, pCity->getProductionName(), iProductionTurns, bSpaceshipProject, bCultureBuilding, bCultureProcess,
+				iProcessCultureTimes100, iAssignedSpecialistCount, iAssignedSpecialistCultureTimes100);
+		}
 		pCity->AI_setCultureWeight(iWeight);
 	} // end culture
 
@@ -21044,6 +21219,12 @@ void CvPlayerAI::AI_doCommerce()
 		return;
 
 	const static int iCommerceIncrement = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
+	bool const bLogCultureCommerce = (gCultureLogLevel >= 1);
+	int iCultureHappinessIdeal = -1;
+	int iCultureStageBonus = 0;
+	int iAverageCulturePressure = -1;
+	int iCultureCap = -1;
+	int iInitialCultureTarget = -1;
 
 	int iGoldTarget = AI_goldTarget();
 	/*  <advc.550f> Some extra gold for trade. Don't put this into AI_goldTarget
@@ -21126,7 +21307,11 @@ void CvPlayerAI::AI_doCommerce()
 	if (isCommerceFlexible(COMMERCE_CULTURE))
 	{
 		if (AI_atVictoryStage(AI_VICTORY_CULTURE4))
+		{
 			setCommercePercent(COMMERCE_CULTURE, 100);
+			iCultureCap = 100;
+			iInitialCultureTarget = 100;
+		}
 		else if (getNumCities() > 0)
 		{
 			int iIdealPercent = 0;
@@ -21140,22 +21325,26 @@ void CvPlayerAI::AI_doCommerce()
 			}
 
 			iIdealPercent /= getNumCities();
+			iCultureHappinessIdeal = iIdealPercent;
 
 			// K-Mod
 			int iCap = 20;
 			if (AI_atVictoryStage(AI_VICTORY_CULTURE2) && !bFirstTech)
 			{
 				iIdealPercent+=5;
+				iCultureStageBonus += 5;
 				iCap += 10;
 			}
 			if (AI_atVictoryStage(AI_VICTORY_CULTURE3) && !bFirstTech)
 			{
 				iIdealPercent+=5;
+				iCultureStageBonus += 5;
 				iCap += 20;
 			}
-			iIdealPercent += (AI_averageCulturePressure() - 100)/10;
+			iAverageCulturePressure = AI_averageCulturePressure();
+			iIdealPercent += (iAverageCulturePressure - 100)/10;
 			iIdealPercent = std::max(iIdealPercent,
-					(AI_averageCulturePressure() - 100) / 5);
+					(iAverageCulturePressure - 100) / 5);
 			if (AI_avoidScience())
 			{
 				iCap += 30;
@@ -21166,6 +21355,8 @@ void CvPlayerAI::AI_doCommerce()
 			// K-Mod end
 
 			setCommercePercent(COMMERCE_CULTURE, iIdealPercent);
+			iCultureCap = iCap;
+			iInitialCultureTarget = iIdealPercent;
 		}
 	}
 
@@ -21597,6 +21788,15 @@ void CvPlayerAI::AI_doCommerce()
 	/*	this is called on doTurn, so make sure our gold is high enough
 		to keep us above zero gold. */
 	verifyGoldCommercePercent();
+	// <!-- custom: The culture-weight summary is written before this commerce update and therefore shows the prior allocation. Log the actual slider decision and its happiness, pressure, and Culture-2/3 components so late culture spending can be separated from local needs and compared with stronger victory routes. (GPT-5.5) -->
+	if (bLogCultureCommerce)
+	{
+		logBBAI("CULTURE_SLIDER_DECISION turn=%d player=%d %S flexible=%d firstTech=%d culture2=%d culture3=%d culture4=%d happinessIdeal=%d stageBonus=%d averagePressure=%d avoidScience=%d cap=%d initialTarget=%d finalCulture=%d finalResearch=%d finalGold=%d finalEspionage=%d",
+			GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), isCommerceFlexible(COMMERCE_CULTURE), bFirstTech,
+			AI_atVictoryStage(AI_VICTORY_CULTURE2), AI_atVictoryStage(AI_VICTORY_CULTURE3), AI_atVictoryStage(AI_VICTORY_CULTURE4),
+			iCultureHappinessIdeal, iCultureStageBonus, iAverageCulturePressure, AI_avoidScience(), iCultureCap, iInitialCultureTarget,
+			getCommercePercent(COMMERCE_CULTURE), getCommercePercent(COMMERCE_RESEARCH), getCommercePercent(COMMERCE_GOLD), getCommercePercent(COMMERCE_ESPIONAGE));
+	}
 }
 
 /*	K-Mod. I've rewritten most of this function, based on edits from BBAI.
@@ -25672,9 +25872,15 @@ void CvPlayerAI::AI_roundTradeValBounds(int& iTradeVal, bool bPreferRoundingUp, 
 int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // advc.115
 {
 	PROFILE_FUNC();
+	// <!-- custom: The normal victory-strategy update uses -1; Rise/Fall and war-utility probes use alternate thresholds and can call this repeatedly. Keep levels 1-2 focused on the normal strategic result, while level 3 deliberately includes all caller contexts for deep diagnosis. (GPT-5.5 review) -->
+	int const iCultureLogLevel = gCultureLogLevel;
+	bool const bLogCultureStage = (iCultureLogLevel >= 1 && (iCountdownThresh == -1 || iCultureLogLevel >= 3));
 
 	if (!hasCapital())
+	{
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=noCapital", GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh);
 		return 0;
+	}
 	// <advc.115f>
 	int iWeight = 0;
 	FOR_EACH_ENUM(Victory)
@@ -25683,7 +25889,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			iWeight += AI_getVictoryWeight(eLoopVictory);
 	}
 	if (iWeight < 0)
-		return 0; // </advc.115f>
+	{
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=negativeVictoryWeight cultureVictoryWeight=%d", GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWeight);
+		return 0;
+	} // </advc.115f>
 
 	int iHighCultureCount = 0;
 	int iCloseToLegendaryCount = 0;
@@ -25747,6 +25956,7 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	{
 		/*	Already won, keep playing culture heavy but do some tech
 			to keep pace if human wants to keep playing */
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=alreadyLegendaryEnough legendary=%d needed=%d high=%d close=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iLegendaryCount, iVictoryCities, iHighCultureCount, iCloseToLegendaryCount);
 		return 3;
 	}
 
@@ -25757,9 +25967,16 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	if (isHuman()) //&& !kGame.isDebugMode()) // advc.115d (commented out)
 	{
 		if (iCloseToLegendaryCount >= iVictoryCities)
+		{
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=4 reason=humanCloseEnough high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 			return 4;
+		}
 		if (getCommercePercent(COMMERCE_CULTURE) > 50)
+		{
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=humanCultureSlider culturePercent=%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, getCommercePercent(COMMERCE_CULTURE), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 			return 3;
+		}
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=humanNotPursuing culturePercent=%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, getCommercePercent(COMMERCE_CULTURE), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 		return 0;
 	} // K-Mod end
 
@@ -25852,7 +26069,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		iValue += (AI_getStrategyRand(0) % 70); // advc.115: was %100
 
 		if (iValue < 100)
+		{
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=lowCultureStrategyValue value=%d high=%d close=%d legendary=%d needed=%d cities=%d weight=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iValue, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, getNumCities(), iWeight);
 			return 0;
+		}
 	}
 
 	int iWinningCountdown = MAX_INT;
@@ -25861,6 +26081,59 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		std::partial_sort(countdownList.begin(), countdownList.begin() +
 				iVictoryCities, countdownList.end());
 		iWinningCountdown = countdownList[iVictoryCities-1];
+	}
+	int iEligibleCultureRaceRank = -1;
+	int iEligibleCultureRacePlayers = -1;
+	// <!-- custom: Level-3-only late culture-race ranking by each major civ's Nth-best Legendary countdown; rank/player count remain -1 when not evaluated. A player is eligible only after enough cities reach one culture level below Legendary, matching the existing stage calculation; keep players without a finite countdown visibly unranked instead of misleadingly reporting rank 1. This is intentionally not used for behavior yet. (ChatGPT-5.5 + GPT-5.5 review) -->
+	if (iCultureLogLevel >= 3 && kGame.culturalVictoryValid() && iVictoryCities > 0)
+	{
+		iEligibleCultureRacePlayers = 0;
+		if (iWinningCountdown < MAX_INT)
+			iEligibleCultureRaceRank = 1;
+		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+		{
+			CvPlayerAI const& kLoopPlayer = *itPlayer;
+			int iLoopWinningCountdown = MAX_INT;
+			if (kLoopPlayer.getNumCities() >= iVictoryCities)
+			{
+				std::vector<int> loopCountdownList;
+				int const iLoopGoldCommercePercent = kLoopPlayer.AI_estimateBreakEvenGoldPercent();
+				FOR_EACH_CITY(pLoopCity, kLoopPlayer)
+				{
+					if (pLoopCity->getCultureLevel() >= kGame.culturalVictoryCultureLevel() - 1)
+					{
+						int iLoopEstimatedRate = pLoopCity->getCommerceRate(COMMERCE_CULTURE);
+						iLoopEstimatedRate += (100 - iLoopGoldCommercePercent - kLoopPlayer.getCommercePercent(COMMERCE_CULTURE)) *
+							pLoopCity->getYieldRate(YIELD_COMMERCE) *
+							pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+						loopCountdownList.push_back((iLegendaryCulture - pLoopCity->getCulture(kLoopPlayer.getID())) /
+								std::max(1, iLoopEstimatedRate));
+					}
+				}
+				if (((int)loopCountdownList.size()) >= iVictoryCities)
+				{
+					std::partial_sort(loopCountdownList.begin(), loopCountdownList.begin() +
+							iVictoryCities, loopCountdownList.end());
+					iLoopWinningCountdown = loopCountdownList[iVictoryCities-1];
+				}
+			}
+			if (iLoopWinningCountdown < MAX_INT)
+			{
+				iEligibleCultureRacePlayers++;
+				if (kLoopPlayer.getID() != getID() && iEligibleCultureRaceRank > 0 && iLoopWinningCountdown < iWinningCountdown)
+					iEligibleCultureRaceRank++;
+			}
+			if (iCultureLogLevel >= 3)
+			{
+				logBBAI("CULTURE_RIVAL_COUNTDOWN turn=%d player=%d %S rival=%d %S countdown=%d culturePercent=%d cities=%d",
+					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), kLoopPlayer.getID(), kLoopPlayer.getCivilizationShortDescription(),
+					(iLoopWinningCountdown < MAX_INT ? iLoopWinningCountdown : -1), kLoopPlayer.getCommercePercent(COMMERCE_CULTURE), kLoopPlayer.getNumCities());
+			}
+		}
+		logBBAI("CULTURE_STAGE_EVAL turn=%d player=%d %S countdownThresh=%d weight=%d high=%d close=%d legendary=%d needed=%d highMark=%d winningCountdown=%d eligibleRaceRank=%d/%d era=%d eraThresholdPercent=%d culturePercent=%d cities=%d",
+			kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWeight, iHighCultureCount, iCloseToLegendaryCount,
+			iLegendaryCount, iVictoryCities, iHighCultureMark, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank, iEligibleCultureRacePlayers,
+			getCurrentEra(), iEraThresholdPercent, getCommercePercent(COMMERCE_CULTURE), getNumCities());
 	}
 	if (iCloseToLegendaryCount >= iVictoryCities ||
 		//getCurrentEra() >= (GC.getNumEraInfos() - (2 + AI_getStrategyRand(1) % 2))
@@ -25923,9 +26196,13 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 				iCountdownTarget /= std::max(1, iDemoninator);
 			}
 			if (iWinningCountdown < iCountdownTarget)
+			{
+				if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=4 reason=winningCountdownBelowTarget winningCountdown=%d target=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iCountdownTarget, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 				return 4;
+			}
 			// K-Mod end
 
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=highCultureCities winningCountdown=%d target=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iCountdownTarget, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 			return 3;
 		}
 	}
@@ -25939,11 +26216,14 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			getNumCities() <= std::min(iVictoryCities + 1,
 			getCurrentEra() + iVictoryCities - GC.getNumEraInfos() / 2)) // </advc.115e>
 		{
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=tooFewHighCultureCities high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank, iEligibleCultureRacePlayers);
 			return 1;
 		}
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=2 reason=midgameCulturePursuit high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank, iEligibleCultureRacePlayers);
 		return 2;
 	}
 
+	if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=earlyCulturePreparation high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank, iEligibleCultureRacePlayers);
 	return 1;
 }
 

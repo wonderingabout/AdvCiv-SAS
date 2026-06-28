@@ -21,7 +21,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
 // <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. (GPT-5.5?) -->
 bool isSASBBAILogEnabled()
 {
-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0));
+	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
 	return bEnabled;
 }
 
@@ -84,6 +84,13 @@ int getSASBBAIFoundLogLevel()
 int getSASBBAIDealCancelLogLevel()
 {
 	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_DEAL_CANCEL_LOG_LEVEL") : 0);
+	return iLevel;
+}
+
+// <!-- custom: Separate culture-victory BBAI log level so culture-slider, victory-stage, and city-target diagnostics can be enabled without turning on broad player/city logging. (ChatGPT-5.5) -->
+int getSASBBAICultureLogLevel()
+{
+	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_CULTURE_LOG_LEVEL") : 0);
 	return iLevel;
 }
 

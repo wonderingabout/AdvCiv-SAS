@@ -24,6 +24,7 @@ int getSASBBAIWorkerSeaLogLevel();
 int getSASBBAIMapLogLevel();
 int getSASBBAIFoundLogLevel();
 int getSASBBAIDealCancelLogLevel();
+int getSASBBAICultureLogLevel();
 int getSASBBAIScoreLogInterval();
 
 #define gLogBBAI isSASBBAILogEnabled() // advc.007: So that BBAI logging can be checked in FAssert
@@ -37,6 +38,7 @@ int getSASBBAIScoreLogInterval();
 #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod
 #define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
 #define gDealCancelLogLevel getSASBBAIDealCancelLogLevel() // advc.133
+#define gCultureLogLevel getSASBBAICultureLogLevel() // <!-- custom: Culture-victory BBAI diagnostics. (ChatGPT-5.5) -->
 
 void logBBAI(TCHAR* format, ... );
 // <advc.133>

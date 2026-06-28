@@ -1181,6 +1181,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: New dedicated culture-victory BBAI diagnostics following the shared log-level classification above, without enabling broad player/city logs. Use this to diagnose AI cultural-victory overinvestment, uneven Legendary-city targeting, production opportunity costs, and hopeless culture attempts before changing behavior. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_BBAI_CULTURE_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
