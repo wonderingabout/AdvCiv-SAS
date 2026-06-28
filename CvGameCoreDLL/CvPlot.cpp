@@ -12,6 +12,7 @@
 #include "CvInfo_Terrain.h"
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Civics.h" // for calculateImprovementYieldChange with bOptimal=true
+#include "CvCivilization.h" // <!-- custom: Resolve the player's civilization-specific Harbor-class building when calculating its assumed water-food yield. (GPT-5.5) -->
 #include "Trigonometry.h"
 #include "CvDLLSymbolIFaceBase.h"
 #include "CvDLLPlotBuilderIFaceBase.h"
@@ -5253,6 +5254,157 @@ int CvPlot::calculateTotalBestNatureYield(TeamTypes eTeam) const
 			calculateBestNatureYield(YIELD_PRODUCTION, eTeam) +
 			calculateBestNatureYield(YIELD_COMMERCE, eTeam);
 }
+
+
+BuildTypes CvPlot::SAS_getBonusSpecificBuild(BonusTypes eBonus) const
+{
+	if (eBonus == NO_BONUS)
+		return NO_BUILD;
+	int const iNumBonuses = GC.getNumBonusInfos();
+	FAssertBounds(0, iNumBonuses, eBonus);
+	if (eBonus < 0 || eBonus >= iNumBonuses)
+		return NO_BUILD;
+
+	// <!-- custom: Resource improvements are unique per (bonus, land/water) in current XML except that Oil intentionally has Well on land and Offshore Platform on water. Cache both domains together; if future XML adds a same-domain alternative, prefer food, then total yield, then later XML order. Fort-like improvements connect resources generically rather than being their intended yield improvement, so exclude them. (GPT-5.5) -->
+	static std::vector<BuildTypes> aBuildsByDomain[2];
+	static bool bInitialized = false;
+	if (!bInitialized)
+	{
+		aBuildsByDomain[0].assign(iNumBonuses, NO_BUILD);
+		aBuildsByDomain[1].assign(iNumBonuses, NO_BUILD);
+		for (int iBuild = 0; iBuild < GC.getNumBuildInfos(); ++iBuild)
+		{
+			BuildTypes const eBuild = static_cast<BuildTypes>(iBuild);
+			ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
+			if (eImprovement == NO_IMPROVEMENT)
+				continue;
+			CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+			if (kImprovement.isActsAsCity())
+				continue;
+			std::vector<BuildTypes>& aDomainBuilds = aBuildsByDomain[kImprovement.isWater() ? 1 : 0];
+			for (int iBonus = 0; iBonus < iNumBonuses; ++iBonus)
+			{
+				BonusTypes const eLoopBonus = static_cast<BonusTypes>(iBonus);
+				if (!kImprovement.isImprovementBonusTrade(eLoopBonus))
+					continue;
+				BuildTypes const eCurrentBuild = aDomainBuilds[eLoopBonus];
+				bool bReplace = (eCurrentBuild == NO_BUILD);
+				if (!bReplace)
+				{
+					ImprovementTypes const eCurrentImprovement = GC.getInfo(eCurrentBuild).getImprovement();
+					CvImprovementInfo const& kCurrentImprovement = GC.getInfo(eCurrentImprovement);
+					int const iCandidateFood = kImprovement.getYieldChange(YIELD_FOOD) + kImprovement.getImprovementBonusYield(eLoopBonus, YIELD_FOOD);
+					int const iCurrentFood = kCurrentImprovement.getYieldChange(YIELD_FOOD) + kCurrentImprovement.getImprovementBonusYield(eLoopBonus, YIELD_FOOD);
+					int iCandidateTotal = 0;
+					int iCurrentTotal = 0;
+					FOR_EACH_ENUM(Yield)
+					{
+						iCandidateTotal += kImprovement.getYieldChange(eLoopYield) + kImprovement.getImprovementBonusYield(eLoopBonus, eLoopYield);
+						iCurrentTotal += kCurrentImprovement.getYieldChange(eLoopYield) + kCurrentImprovement.getImprovementBonusYield(eLoopBonus, eLoopYield);
+					}
+					bReplace = (iCandidateFood > iCurrentFood || (iCandidateFood == iCurrentFood && iCandidateTotal >= iCurrentTotal));
+				}
+				if (bReplace)
+					aDomainBuilds[eLoopBonus] = eBuild;
+			}
+		}
+		bInitialized = true;
+	}
+	return aBuildsByDomain[isWater() ? 1 : 0][eBonus];
+}
+
+
+ImprovementTypes CvPlot::SAS_getBonusSpecificImprovement(BonusTypes eBonus) const
+{
+	BuildTypes const eBuild = SAS_getBonusSpecificBuild(eBonus);
+	return (eBuild == NO_BUILD ? NO_IMPROVEMENT : GC.getInfo(eBuild).getImprovement());
+}
+
+
+int CvPlot::SAS_getBonusImprovementFoodChange(BonusTypes eBonus) const
+{
+	BuildTypes const eBuild = SAS_getBonusSpecificBuild(eBonus);
+	if (eBuild == NO_BUILD)
+		return 0;
+	ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
+	CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+	int iFoodChange = kImprovement.getYieldChange(YIELD_FOOD) + kImprovement.getImprovementBonusYield(eBonus, YIELD_FOOD);
+	if (isRiverSide())
+		iFoodChange += kImprovement.getRiverSideYieldChange(YIELD_FOOD);
+	if (isHills())
+		iFoodChange += kImprovement.getHillsYieldChange(YIELD_FOOD);
+	FeatureTypes const eFeature = getFeatureType();
+	if (eFeature != NO_FEATURE && GC.getInfo(eBuild).isFeatureRemove(eFeature))
+	{
+		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
+		CvTerrainInfo const& kTerrain = GC.getInfo(getTerrainType());
+		iFoodChange -= kFeature.getYieldChange(YIELD_FOOD);
+		if (isRiver())
+			iFoodChange += kTerrain.getRiverYieldChange(YIELD_FOOD) - kFeature.getRiverYieldChange(YIELD_FOOD);
+		if (isHills())
+			iFoodChange += kTerrain.getHillsYieldChange(YIELD_FOOD) - kFeature.getHillsYieldChange(YIELD_FOOD);
+	}
+	return iFoodChange;
+}
+
+
+// <!-- custom: A candidate city can work a water tile in its BFC without bordering that water area, but improving its resource requires Work Boat access. Assume the bonus-specific improvement when the candidate or another owned city borders the same connected water area, or when a connecting improvement already exists (e.g. retained after culture expansion); a rival city bordering the area does not give us access. (GPT-5.5) -->
+bool CvPlot::SAS_canAssumeWaterBonusImprovement(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot) const
+{
+	if (!isWater())
+		return true;
+	if (eVisibleBonus == NO_BONUS)
+		return false;
+	if (kCandidateCityPlot.isAdjacentToArea(getArea()) || getArea().getCitiesPerPlayer(ePlayer, true) > 0)
+		return true;
+	ImprovementTypes const eCurrentImprovement = getImprovementType();
+	return (eCurrentImprovement != NO_IMPROVEMENT && GC.getInfo(eCurrentImprovement).isImprovementBonusTrade(eVisibleBonus));
+}
+
+
+// <!-- custom: Measure net food pressure as the food consumed by one citizen minus this plot's potential food. Potential food includes natural terrain/feature food, visible bonus food, food from its bonus-specific improvement, and caller-approved Harbor-class food for water plots. Surplus food returns a negative score and offsets poor plots across the BFC; crediting bonus food first lets callers use stricter thresholds for sites that remain net food-poor without hardcoding terrain names. (GPT-5.5) -->
+int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement) const
+{
+	int const iFoodPerPopulation = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+	int iPotentialFood = calculateNatureYield(YIELD_FOOD, NO_TEAM);
+	int iPotentialFoodWithoutHill = calculateNatureYield(YIELD_FOOD, NO_TEAM, false, true);
+	if (!isImpassable())
+	{
+		if (eVisibleBonus != NO_BONUS)
+		{
+			int const iBonusNaturalFood = GC.getInfo(eVisibleBonus).getYieldChange(YIELD_FOOD);
+			int const iBonusImprovementFood = (isWater() && !bCanAssumeWaterBonusImprovement ? 0 : SAS_getBonusImprovementFoodChange(eVisibleBonus));
+			iPotentialFood += iBonusNaturalFood + iBonusImprovementFood;
+			iPotentialFoodWithoutHill += iBonusNaturalFood + iBonusImprovementFood;
+		}
+		if (isWater())
+			iPotentialFood += iSeaPlotFoodChange;
+	}
+	int const iScore = iFoodPerPopulation - iPotentialFood;
+	// <!-- custom: Grass Hill currently stands out without naming Grass: its underlying terrain can feed one citizen, and becoming a hill trades one food for strong production. Keep any hill whose non-hill food potential is self-feeding from making an otherwise productive environment look food-poor. (GPT-5.5) -->
+	if (isHills() && iPotentialFoodWithoutHill >= iFoodPerPopulation)
+		return std::min(0, iScore);
+	return iScore;
+}
+
+
+int CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer)
+{
+	// <!-- custom: Assertions diagnose invalid player/building data in assert builds; the matching sentinel guards remain active in Release and avoid invalid lookups by contributing no assumed food. (GPT-5.5 + ChatGPT-5.5 review) -->
+	FAssert(ePlayer != NO_PLAYER);
+	if (ePlayer == NO_PLAYER)
+		return 0;
+	static BuildingClassTypes const eWaterFoodBuildingClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME")));
+	FAssert(eWaterFoodBuildingClass != NO_BUILDINGCLASS);
+	if (eWaterFoodBuildingClass == NO_BUILDINGCLASS)
+		return 0;
+	BuildingTypes const eWaterFoodBuilding = GET_PLAYER(ePlayer).getCivilization().getBuilding(eWaterFoodBuildingClass);
+	FAssert(eWaterFoodBuilding != NO_BUILDING);
+	if (eWaterFoodBuilding == NO_BUILDING)
+		return 0;
+	return GC.getInfo(eWaterFoodBuilding).getSeaPlotYieldChange(YIELD_FOOD);
+}
+
 
 /*	advc: Params bBestRoute (BBAI) and bOptimal (Vanilla Civ 4) removed b/c
 	they've been obsoleted by K-Mod. Had been used by CvCityAI. */

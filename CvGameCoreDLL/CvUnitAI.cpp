@@ -62,23 +62,14 @@ static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUni
 		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionQueue, kPlayer.AI_isAnyWaterDanger(kPlot), (pMissionPlot == NULL ? NO_PLAYER : pMissionPlot->getOwner()), szTargetBonus, szTargetImprovement, szTargetWorkingCity.GetCString(), (pTargetWorkingCity == NULL ? -1 : pTargetWorkingCity->getID()), (pMissionPlot == NULL ? 0 : kPlayer.AI_isAnyWaterDanger(*pMissionPlot)), iTargetMissionAIsSkipSelf, iTargetMissionAIsIncludingSelf);
 }
 
-// <!-- custom: Count non-home BFC food bonuses and bad plots for first-city heuristics. The home plot is skipped
-// because settling consumes it as the city tile; a peak/desert/tundra hill under the city can still be a good settle
-// tile, and a food bonus under the city is not a normal workable food bonus. Bad non-home plots are: no-yield plots
-// (peaks, ice/desert with no yield, etc.), water with natural food below 1 (e.g., unworkable ocean, unworkable ice
-// cap), no-bonus hills with natural food below 1 (e.g., hill plains/desert/tundra/snow but not hill grass which have
-// 1 food and very strong hammer source so good plot), and no-bonus flat land with natural food below 2. This keeps
-// grass hills, seafood, and useful low-food bonus tiles from making decent sites look bad, while still catching
-// tundra/plains/peak-heavy sites. For the "good-enough food bonus" count, use the normal bonus improvement's food
-// yield for land bonuses: in AdvCiv-SAS, Elephants have +1 XML food but Camp adds no food, so they should not satisfy
-// the same first-city stop-roaming gate as Pig + Corn, whose improvements add strong food. Seafood counts only for
-// coastal candidate cities; Karakorum moved to a tundra-heavy inland site partly because fish inside the BFC was counted
-// as a food bonus even though the city could not use it like a coastal seafood capital. (GPT-5.5 + ChatGPT 5.5) Note:
-// oasis is unworkable but food and commerce rich (as of now 3 food 2 commerce) so do not count as bad. -->
-static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamTypes eTeam, int& iFoodBonuses, int& iBadPlots)
+// <!-- custom: Evaluate a first-city candidate's revealed non-home BFC with the shared potential-food score. Bonus-specific improvements count because unlike a generic Farm/Cottage choice they are the resource plot's intended development; water-bonus improvement food follows the shared Work Boat-access check (the candidate or another owned city borders the connected water area, or a connecting improvement already exists), and ocean-coastal candidates additionally assume the configured Harbor-class food building. Add one extra point for each citizen-unworkable plot: peaks and ice are not merely 0F but dead BFC slots, whereas an Oasis is citizen-workable and rich despite being worker-unimprovable. (GPT-5.5 + ChatGPT 5.5) -->
+static void SAS_evaluateFirstCityBFCFoodEnvironment(CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int& iFoodBonuses, int& iFoodEnvironmentScore, int* piCitizenUnworkablePlots = NULL)
 {
 	iFoodBonuses = 0;
-	iBadPlots = 0;
+	iFoodEnvironmentScore = 0;
+	int iCitizenUnworkablePlots = 0;
+	bool const bOceanCoastal = kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN));
+	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(ePlayer) : 0);
 	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
 	{
 		if (iCityPlot == CITY_HOME_PLOT)
@@ -86,31 +77,20 @@ static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamType
 		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
 		if (pLoopPlot == NULL || !pLoopPlot->isRevealed(eTeam))
 			continue;
-		BonusTypes const eBonus = pLoopPlot->getNonObsoleteBonusType(eTeam);
-		if (eBonus != NO_BONUS)
-		{
-			const ImprovementTypes eBonusImprovement = CvUnitAI::getBonusSpecificLandImprovement(eBonus);
-			const bool bFoodBonus = (pLoopPlot->isWater() ? kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN)) && GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : eBonusImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD) > 0);
-			if (bFoodBonus)
-				iFoodBonuses++;
-		}
+		BonusTypes const eBonus = pLoopPlot->getBonusType(eTeam);
+		bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonus, ePlayer, kCityPlot);
+		int const iPlotFoodScore = pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
+		iFoodEnvironmentScore += iPlotFoodScore;
 		if (!pLoopPlot->hasYield())
 		{
-			iBadPlots++;
-			continue;
+			++iCitizenUnworkablePlots;
+			++iFoodEnvironmentScore;
 		}
-		if (pLoopPlot->isWater())
-		{
-			if (pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false) < 1)
-				iBadPlots++;
-			continue;
-		}
-		if (eBonus != NO_BONUS)
-			continue;
-		const int iNaturalFood = pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false);
-		if ((pLoopPlot->isHills() && iNaturalFood < 1) || (!pLoopPlot->isHills() && iNaturalFood < GC.getFOOD_CONSUMPTION_PER_POPULATION()))
-			iBadPlots++;
+		if (eBonus != NO_BONUS && iPlotFoodScore < 0 && bCanAssumeWaterBonusImprovement)
+			++iFoodBonuses;
 	}
+	if (piCitizenUnworkablePlots != NULL)
+		*piCitizenUnworkablePlots = iCitizenUnworkablePlots;
 }
 
 // <!-- custom: First-city roaming may need one more scouting step before founding a current visible-good-enough tile. Count unrevealed BFC plots separately from the food/bad-plot helper so the roam branch can avoid locking Karakorum at 49,43 while the pig/river area around 51,41 and 52,41 is still fogged. (GPT-5.5) -->
@@ -136,8 +116,9 @@ static int SAS_countUnrevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes
 static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int iFoundValue, int iAdjustedValue, int iPathTurns)
 {
 	int iFoodBonuses = 0;
-	int iBadPlots = 0;
-	SAS_countBFCFoodBonusesAndBadPlots(kCityPlot, eTeam, iFoodBonuses, iBadPlots);
+	int iFoodEnvironmentScore = 0;
+	int iCitizenUnworkablePlots = 0;
+	SAS_evaluateFirstCityBFCFoodEnvironment(kCityPlot, ePlayer, eTeam, iFoodBonuses, iFoodEnvironmentScore, &iCitizenUnworkablePlots);
 	int iRevealedNonHomeBFC = 0;
 	int iUnrevealedNonHomeBFC = 0;
 	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
@@ -151,8 +132,10 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlo
 			++iRevealedNonHomeBFC;
 		else ++iUnrevealedNonHomeBFC;
 	}
-	logBBAI("      %s first-city candidate player=%d %d,%d value=%d adjusted=%d pathTurns=%d canFound=%d freshWater=%d river=%d foodBonuses=%d badPlots=%d revealedNonHomeBFC=%d unrevealedNonHomeBFC=%d",
-			szContext, ePlayer, kCityPlot.getX(), kCityPlot.getY(), iFoundValue, iAdjustedValue, iPathTurns, kCityPlot.canFound(false, eTeam), kCityPlot.isFreshWater(), kCityPlot.isRiver(), iFoodBonuses, iBadPlots, iRevealedNonHomeBFC, iUnrevealedNonHomeBFC);
+	logBBAI("      %s first-city candidate player=%d %d,%d value=%d adjusted=%d pathTurns=%d canFound=%d freshWater=%d river=%d foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d revealedNonHomeBFC=%d unrevealedNonHomeBFC=%d",
+			szContext, ePlayer, kCityPlot.getX(), kCityPlot.getY(), iFoundValue, iAdjustedValue, iPathTurns, kCityPlot.canFound(false, eTeam), kCityPlot.isFreshWater(), kCityPlot.isRiver(), iFoodBonuses, iFoodEnvironmentScore, iCitizenUnworkablePlots, iRevealedNonHomeBFC, iUnrevealedNonHomeBFC);
+	bool const bOceanCoastal = kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN));
+	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(ePlayer) : 0);
 	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
 	{
 		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
@@ -163,18 +146,20 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlo
 			logBBAI("        bfc[%d] %d,%d unrevealed", iCityPlot, pLoopPlot->getX(), pLoopPlot->getY());
 			continue;
 		}
-		BonusTypes const eBonus = pLoopPlot->getNonObsoleteBonusType(eTeam);
+		BonusTypes const eBonus = pLoopPlot->getBonusType(eTeam);
 		TerrainTypes const eTerrain = pLoopPlot->getTerrainType();
 		FeatureTypes const eFeature = pLoopPlot->getFeatureType();
 		wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
 		wchar const* szTerrain = (eTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eTerrain).getDescription());
 		wchar const* szFeature = (eFeature == NO_FEATURE ? L"-" : GC.getInfo(eFeature).getDescription());
-		logBBAI("        bfc[%d] %d,%d home=%d F/P/C=%d/%d/%d terrain=%S feature=%S bonus=%S water=%d hills=%d fresh=%d river=%d hasYield=%d",
+		bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonus, ePlayer, kCityPlot);
+		logBBAI("        bfc[%d] %d,%d home=%d F/P/C=%d/%d/%d foodEnvironmentScore=%d hasYield=%d terrain=%S feature=%S bonus=%S water=%d hills=%d fresh=%d river=%d",
 				iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(), iCityPlot == CITY_HOME_PLOT,
 				pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false),
 				pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, eTeam, false),
 				pLoopPlot->calculateNatureYield(YIELD_COMMERCE, eTeam, false),
-				szTerrain, szFeature, szBonus, pLoopPlot->isWater(), pLoopPlot->isHills(), pLoopPlot->isFreshWater(), pLoopPlot->isRiver(), pLoopPlot->hasYield());
+				pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement), pLoopPlot->hasYield(),
+				szTerrain, szFeature, szBonus, pLoopPlot->isWater(), pLoopPlot->isHills(), pLoopPlot->isFreshWater(), pLoopPlot->isRiver());
 	}
 }
 
@@ -1244,86 +1229,6 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 	return range(iOdds, 1, 99);
 }
 
-// <!-- custom: new addition by gemini ai thanks to my prompt too, to help AI workers know the bonus-specific (note: land only bonuses, as it seems workboats and water plots are not handled in CvUnitAI::AI_bestCityBuild) improvement for a bonus and optimize AI workers improvement choice based on this, moved as a static helper for potential reuse and clarity/clean code in this case at least, see also CvUnitAI::AI_bestCityBuild for details -->
-// Helper function to provide a static, constant map of bonus-specific land builds.
-// This is more efficient than rebuilding the map on every function call.
-// <!-- custom: update: switch to vector as is computationally faster according to chatgpt 5, i don't know too much about these so check if accurate and thanks chatgpt 5 -->
-// short version: yes, a vector is faster than a map for lookups here.
-// - std::map lookup: O(log N) + pointer chasing (cache-unfriendly).
-// - std::vector lookup: O(1) direct index, very cache-friendly.
-// - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
-// Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry" can be represented by NO_BUILD. That makes a vector the ideal structure.
-// <!-- custom: each land build cleanly pairs to only one bonus in our mod (exception: oil has offshore platform (water) and well (land), but here we're only handling land so effectively only 1). Prefetch and cache this data to avoid reuse. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
-// I checked your uploaded CIV4ImprovementInfos.xml: there are exactly 29 land bonuses that have bBonusTrade=1 on a land improvement, and they match your manual list one-for-one (Oil is Well on land; Offshore Platform is water-only so it gets filtered out automatically).
-// So you can keep the static-vector caching, but populate it dynamically by scanning:
-//	- BuildInfo -> ImprovementType
-// 	- ImprovementInfo -> isWater() (skip water)
-// 	- ImprovementInfo -> isImprovementBonusTrade(eBonus) (bonus-trade flag)
-std::vector<BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
-{
-	static std::vector<BuildTypes> v;
-	static bool v_inited = false;
-	if (v_inited) return v;
-
-	const int iNumBonuses = GC.getNumBonusInfos();
-	v.assign(iNumBonuses, NO_BUILD);
-
-	// Auto-infer: for each build that creates a LAND improvement, map any bonus it connects (bBonusTrade=1).
-	// Tie handling: later builds overwrite earlier ones (deterministic by XML enum order).
-	for (int iBuild = 0; iBuild < GC.getNumBuildInfos(); ++iBuild)
-	{
-		const BuildTypes eBuild = (BuildTypes)iBuild;
-		const ImprovementTypes eImp = GC.getBuildInfo(eBuild).getImprovement();
-		if (eImp == NO_IMPROVEMENT)
-			continue;
-
-		const CvImprovementInfo& kImp = GC.getInfo(eImp);
-
-		// Land-only table (workers-on-land bonuses). Water bonuses (fish/oil offshore etc) stay NO_BUILD here.
-		if (kImp.isWater())
-			continue;
-
-		for (int iBonus = 0; iBonus < iNumBonuses; ++iBonus)
-		{
-			const BonusTypes eBonus = (BonusTypes)iBonus;
-			if (kImp.isImprovementBonusTrade(eBonus))
-			{
-				v[iBonus] = eBuild; // overwrite ties (your requested behavior)
-			}
-		}
-	}
-
-	v_inited = true;
-	return v;
-}
-
-BuildTypes CvUnitAI::getBonusSpecificLandBuild(BonusTypes eBonus)
-{
-	if (eBonus == NO_BONUS)
-	{
-		return NO_BUILD;
-	}
-
-	std::vector<BuildTypes> const& v = getBonusSpecificLandBuilds();
-
-	// <!-- custom: note: untested as as of now i don't use/check asserts, but added as recommended by chatgpt 5, check if accurate -->
-	FAssertMsg((int)eBonus >= 0 && (int)eBonus < (int)v.size(), "Bonus index out of range");
-
-	return v[eBonus];
-}
-
-ImprovementTypes CvUnitAI::getBonusSpecificLandImprovement(BonusTypes eBonus)
-{
-    const BuildTypes eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
-
-	if (eBonusSpecificBuild == NO_BUILD)
-	{
-		return NO_IMPROVEMENT;
-	}
-
-    return (ImprovementTypes)GC.getInfo(eBonusSpecificBuild).getImprovement();
-}
-
 // Define the Candidate<!-- custom: Plot--> struct outside the function so it can be used as a template argument.
 // A list of potential build candidate <!-- custom: plots -->.
 // A struct to store a candidate <!-- custom: plot --> with its value and the chosen BuildType.
@@ -1790,10 +1695,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	// then “give it back" by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
 	const int iEstimatedCityFoodDifference = iFoodSurplusCityHas + iFoodConsumedBySpecialistOrAngryCitizens;
 
-	// <!-- custom: BFC food environment score - similar to CitySiteEvaluator iLowFoodLocationCount logic.
-	// Measures how food-poor the city's workable tiles are structurally (terrain + feature + hill),
-	// so that workers in food-poor cities (many plains/tundra/snow) prefer farms over cottages/workshops
-	// on low-food terrains, even if current food surplus happens to be temporarily positive. (Claude code Opus 4.6) -->
+	// <!-- custom: Use the shared potential-food score for citizen-workable, non-water, non-home BFC plots. This keeps worker terrain/resource classification aligned with settling logic while leaving water to sea buildings/work boats; food from bonus-specific improvements offsets poor terrain, and Grass Hills remain neutral environment quality while their food demand is still counted separately as mine-support pressure. (Claude code Opus 4.6 + GPT-5.5) -->
 	int iBFCLowFoodScore = 0;
 	// <!-- custom: count farms already being built in BFC to avoid over-farming.
 	// When multiple workers evaluate simultaneously, each one sees low food and picks farm.
@@ -1807,9 +1709,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		CvPlot& kBFCPlot = *itBFC;
 		if (kBFCPlot.isWater() || itBFC.currID() == CITY_HOME_PLOT)
 			continue;
-		int iNatureFood = kBFCPlot.calculateNatureYield(YIELD_FOOD, getTeam());
-		// <!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
-		iBFCLowFoodScore += (iFoodConsumptionPerPop - iNatureFood);
+		int const iNatureFood = kBFCPlot.calculateNatureYield(YIELD_FOOD, getTeam());
+		BonusTypes const eBFCVisibleBonus = kBFCPlot.getBonusType(getTeam());
+		iBFCLowFoodScore += kBFCPlot.SAS_getLowFoodEnvironmentScore(eBFCVisibleBonus, 0, false);
 
 		// <!-- custom: Non-bonus farms can be the right support infrastructure in cities with many food-consuming hill mines. A +2 food farm can let the city work two grass hill mines (about 8 hammers), so count structural pressure from hills and especially low-food/strategic hill tiles rather than relying only on current surplus. This was visible in a mine-heavy Renaissance city where walls took too long despite strong hill mines. (GPT-5.5) -->
 		if (kBFCPlot.isHills())
@@ -1958,7 +1860,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 
 		if (eBonus != NO_BONUS)
 		{
-			BuildTypes const eBonusSpecificBuild = getBonusSpecificLandBuild(eBonus);
+			BuildTypes const eBonusSpecificBuild = kPlot.SAS_getBonusSpecificBuild(eBonus);
 			bool const bCanBuildBonusSpecificBeforeFeatureRemoval = (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && (eFeature == NO_FEATURE || !GC.getInfo(eBonusSpecificBuild).isFeatureRemove(eFeature)));
 			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units -->
 			if (eFeature == eFeatureForest)
@@ -2193,12 +2095,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (kPlot.getImprovementType() != NO_IMPROVEMENT)
 			{
 				// <!-- custom: then the relatively improvements handled here as well, not absolutely holy, but always holy under/if some conditions / are met-->
-				bool const bLowFoodEnvironment = (
-					(eTerrain == eTerrainPlains) ||
-					(eTerrain == eTerrainTundra) ||
-					(eTerrain == eTerrainSnow) ||
-					((eTerrain == eTerrainDesert) && (eFeature != eFeatureFloodPlains) && (eFeature != eFeatureOasis))
-				);
+				bool const bLowFoodEnvironment = (kPlot.SAS_getLowFoodEnvironmentScore(kPlot.getBonusType(getTeam()), 0, false) > 0);
 				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well-->
 
 				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_LOW_FOOD", ePlotCurrentImprovement))
@@ -3679,20 +3576,22 @@ bool CvUnitAI::AI_foundFirstCity()
 
 		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? kOwner.AI_foundValue(getX(), getY(), -1, true) : iBestValue);
 		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES");
-		static const int iBadLowFoodPlotsThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_LOW_FOOD_PLOTS");
+		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE");
 		int iCurrentFoodBonuses = 0;
-		int iCurrentLowFoodPlots = 0;
+		int iCurrentFoodEnvironmentScore = 0;
+		int iCurrentCitizenUnworkablePlots = 0;
 		if (canFound(plot()))
-			SAS_countBFCFoodBonusesAndBadPlots(getPlot(), getTeam(), iCurrentFoodBonuses, iCurrentLowFoodPlots);
+			SAS_evaluateFirstCityBFCFoodEnvironment(getPlot(), getOwner(), getTeam(), iCurrentFoodBonuses, iCurrentFoodEnvironmentScore, &iCurrentCitizenUnworkablePlots);
 		int iBestPlotFoodBonuses = 0;
-		int iBestPlotLowFoodPlots = 0;
+		int iBestPlotFoodEnvironmentScore = 0;
+		int iBestPlotCitizenUnworkablePlots = 0;
 		if (pBestPlot != NULL)
-			SAS_countBFCFoodBonusesAndBadPlots(*pBestPlot, getTeam(), iBestPlotFoodBonuses, iBestPlotLowFoodPlots);
+			SAS_evaluateFirstCityBFCFoodEnvironment(*pBestPlot, getOwner(), getTeam(), iBestPlotFoodBonuses, iBestPlotFoodEnvironmentScore, &iBestPlotCitizenUnworkablePlots);
 		const bool bCurrentFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses);
 		const bool bBestKnownFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iBestPlotFoodBonuses >= iGoodEnoughFoodBonuses);
-		// <!-- custom: Maya started on a pig+maize+fresh-water BFC, but the bad-plot count alone marked it bad because it also had many plains/tundra/desert tiles; the settler then wandered into tundra and founded a much worse capital when the roam window expired. Enough real food bonuses make a first city strategically viable, so do not treat such starts as bad solely from low-food filler plots. (GPT-5.5) -->
-		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadLowFoodPlotsThreshold > 0 && iCurrentLowFoodPlots >= iBadLowFoodPlotsThreshold && !bCurrentFirstCityStrongFood);
-		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadLowFoodPlotsThreshold > 0 && iBestPlotLowFoodPlots >= iBadLowFoodPlotsThreshold && !bBestKnownFirstCityStrongFood);
+		// <!-- custom: Maya started on a Pig+Maize+fresh-water BFC, but the old bad-plot count marked it bad because it also had many plains/tundra/desert tiles; the settler then wandered into tundra and founded a much worse capital when the roam window expired. Food from bonus-specific improvements now directly offsets low-food filler in the shared score, while this strong-food gate remains a conservative stop-roaming safeguard. (GPT-5.5) -->
+		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadFoodEnvironmentScoreThreshold > 0 && iCurrentFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && !bCurrentFirstCityStrongFood);
+		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadFoodEnvironmentScoreThreshold > 0 && iBestPlotFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && !bBestKnownFirstCityStrongFood);
 		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
 		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming)
 		{
@@ -3711,10 +3610,10 @@ bool CvUnitAI::AI_foundFirstCity()
 				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, iGoodEnoughRecheckRange) || iLoopPathTurns > iGoodEnoughRecheckRange))
 					continue;
 				int iLoopFoodBonuses = 0;
-				int iLoopLowFoodPlots = 0;
-				SAS_countBFCFoodBonusesAndBadPlots(kLoopPlot, getTeam(), iLoopFoodBonuses, iLoopLowFoodPlots);
+				int iLoopFoodEnvironmentScore = 0;
+				SAS_evaluateFirstCityBFCFoodEnvironment(kLoopPlot, getOwner(), getTeam(), iLoopFoodBonuses, iLoopFoodEnvironmentScore);
 				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
-				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold && iLoopValue < iCurrentFirstCityValue);
+				const bool bBadLoopFirstCity = (iBadFoodEnvironmentScoreThreshold > 0 && iLoopFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && iLoopValue < iCurrentFirstCityValue);
 				if (bBadLoopFirstCity)
 					continue;
 				int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
@@ -3722,8 +3621,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				const int iCurrentWaterScore = (getPlot().isFreshWater() ? 1 : 0) + (getPlot().isRiver() ? 1 : 0);
 				const int iLoopWaterScore = (kLoopPlot.isFreshWater() ? 1 : 0) + (kLoopPlot.isRiver() ? 1 : 0);
 				const bool bStructurallyBetterNearby = (bPostRoamOneStepRecheck && iLoopValue >= iCurrentFirstCityValue &&
-						(iLoopFoodBonuses > iCurrentFoodBonuses || iLoopLowFoodPlots + 1 < iCurrentLowFoodPlots ||
-						(iLoopWaterScore > iCurrentWaterScore && iLoopLowFoodPlots <= iCurrentLowFoodPlots)));
+						(iLoopFoodBonuses > iCurrentFoodBonuses || iLoopFoodEnvironmentScore + 1 < iCurrentFoodEnvironmentScore ||
+						(iLoopWaterScore > iCurrentWaterScore && iLoopFoodEnvironmentScore <= iCurrentFoodEnvironmentScore)));
 				// <!-- custom: After a settler has already roamed away from a clearly bad first-city start, the normal one-step penalty could make it found the first acceptable recovery tile even when a raw-competitive adjacent tile is structurally better. Karakorum stopped at a no-fresh-water tile despite seeing a one-step fresh-water/river alternative with fewer bad BFC plots; refund the one-step penalty only for that narrow post-roam structural improvement. Credit: ChatGPT 5.5 review. (GPT-5.5) -->
 				if (bStructurallyBetterNearby)
 					iLoopAdjustedValue += 75;
@@ -3748,7 +3647,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				return true;
 			}
 			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place. If nearby first-city scoring does not find a better visible reachable plot, stop roaming and found. (GPT-5.5) -->
-			if (bLogUnitAILevel2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d lowFoodPlots=%d badLowFoodThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentLowFoodPlots, iBadLowFoodPlotsThreshold, getPlot().isFreshWater(), iCurrentFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogUnitAILevel2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d badFoodEnvironmentThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, getPlot().isFreshWater(), iCurrentFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-good-enough", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
 			getGroup()->pushMission(MISSION_FOUND);
 			return true;
@@ -3771,11 +3670,11 @@ bool CvUnitAI::AI_foundFirstCity()
 				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, std::max(1, iRemainingFirstCityTurns)) || iLoopPathTurns > iRemainingFirstCityTurns))
 					continue;
 				int iLoopFoodBonuses = 0;
-				int iLoopLowFoodPlots = 0;
-				SAS_countBFCFoodBonusesAndBadPlots(kLoopPlot, getTeam(), iLoopFoodBonuses, iLoopLowFoodPlots);
+				int iLoopFoodEnvironmentScore = 0;
+				SAS_evaluateFirstCityBFCFoodEnvironment(kLoopPlot, getOwner(), getTeam(), iLoopFoodBonuses, iLoopFoodEnvironmentScore);
 				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
 				// <!-- custom: While roaming away from a clearly bad first-capital BFC, do not let the same bad cached site re-enter the visible-good-enough pool merely because its stale city-site value ties the known best. Karakorum moved from 49,43 back to the original tundra-heavy 47,43 (13 bad BFC plots) instead of continuing toward the visible 51,41 river/pig site (1 bad BFC plot). Keep using AI_foundValue for ranking, but require very bad candidates to be strictly better than the known site before they can compete. (GPT-5.5) -->
-				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots > iBadLowFoodPlotsThreshold && iLoopValue <= iBestKnownFirstCityValue);
+				const bool bBadLoopFirstCity = (iBadFoodEnvironmentScoreThreshold > 0 && iLoopFoodEnvironmentScore > iBadFoodEnvironmentScoreThreshold && iLoopValue <= iBestKnownFirstCityValue);
 				if (bBadLoopFirstCity)
 					continue;
 				if (iLoopValue <= 0)
@@ -3859,11 +3758,11 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 			if (pBestExploreStep != NULL)
 			{
-				if (bLogUnitAILevel2) logBBAI("    Settler scouting before low-food-heavy first-city candidate for %S player %d from %d,%d to %d,%d; value=%d currentLowFood=%d bestLowFood=%d badLowFoodThreshold=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(), iBestKnownFirstCityValue, iCurrentLowFoodPlots, iBestPlotLowFoodPlots, iBadLowFoodPlotsThreshold, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogUnitAILevel2) logBBAI("    Settler scouting before food-poor first-city candidate for %S player %d from %d,%d to %d,%d; value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				pushGroupMoveTo(*pBestExploreStep, eFirstCityExploreFlags, false, false, MISSIONAI_EXPLORE, pBestExploreStep);
 				return true;
 			}
-			if (bLogUnitAILevel2) logBBAI("    Settler waiting before low-food-heavy first-city candidate for %S player %d at %d,%d; no safe adjacent scouting step found; value=%d currentLowFood=%d bestLowFood=%d badLowFoodThreshold=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentLowFoodPlots, iBestPlotLowFoodPlots, iBadLowFoodPlotsThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogUnitAILevel2) logBBAI("    Settler waiting before food-poor first-city candidate for %S player %d at %d,%d; no safe adjacent scouting step found; value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			getGroup()->pushMission(MISSION_SKIP);
 			return true;
 		}
@@ -21235,7 +21134,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 			// <!-- custom: Land city best-build data is intentionally disabled, so do not gate damaged BFC bonuses on AI_getBestBuild. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; using our bonus-specific land-build table fixed the in-game case so altered/pillaged BFC bonuses are re-improved promptly. (GPT-5.5) -->
 			BuildTypes eBuild = NO_BUILD;
 			if (getDomainType() == DOMAIN_LAND && !kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
-				eBuild = getBonusSpecificLandBuild(eNonObsoleteBonus);
+				eBuild = kPlot.SAS_getBonusSpecificBuild(eNonObsoleteBonus);
 			if (eBuild == NO_BUILD)
 			{
 				// Let "best build" handle improvement replacements near cities for non-land-worker cases.

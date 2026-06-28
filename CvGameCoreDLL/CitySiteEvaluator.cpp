@@ -487,8 +487,10 @@ int AIFoundValue::evaluate()
 	// K-Mod. (used to devalue cities which are unable to get any production.)
 	scaled rBaseProduction; // (advc.031: scaled)
 
-	// <!-- custom: count low-food tiles in our environment, if there are more than a few, assume environment is poor in food and valorize water settling -->
-	int iLowFoodLocationCount = 0;
+	// <!-- custom: Sum each non-home BFC plot's shared potential-food score instead of naming terrain types here. Food from bonus-specific improvements offsets food-poor plots; an ocean-coastal candidate assumes its configured, civilization-specific Harbor-class water-food yield because that cheap city-wide improvement is the practical long-term water baseline. Peaks and ice remain +2 and are also penalized separately as citizen-unworkable plots. (GPT-5.5) -->
+	int iLowFoodLocationScore = 0;
+	bool const bOceanCoastal = kPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN));
+	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(ePlayer) : 0);
 
 	static const int iExtraValueHomeFreshWaterRiver = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_HOME_FRESH_WATER_RIVER");
 
@@ -578,6 +580,10 @@ int AIFoundValue::evaluate()
 				// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
 				const bool pLoopPlotIsHills = pLoopPlot->isHills();
 				const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
+				bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonusPlot, ePlayer, kPlot);
+				iLowFoodLocationScore += pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonusPlot, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
+				if (eFeaturePlot == eFeatureIce)
+					++iTileCountIceCap;
 
 				if (!pLoopPlot->isWater())
 				{
@@ -601,10 +607,6 @@ int AIFoundValue::evaluate()
 							}
 						}
 
-						if (eFeaturePlot == eFeatureIce)
-						{
-							++iTileCountIceCap;
-						}
 					}
 					else
 					{
@@ -623,36 +625,6 @@ int AIFoundValue::evaluate()
 					// }
 				}
 
-				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/founding cities on coastal locations if environment is poor to make best of yields rather than starve soon (or dicentivize not doing so maybe too); note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
-				if ((eTerrainPlot == eTerrainPlains) || (eTerrainPlot == eTerrainTundra))
-				{
-					if (pLoopPlotIsHills)
-					{
-						iLowFoodLocationCount += 2;
-					}
-					else
-					{
-						iLowFoodLocationCount += 1;
-					}
-				}
-				// <!-- note: also accounting for peak, as 4 grass + 8 peak is not better than 1 grass + 11 plains -->
-				else if ((eTerrainPlot == eTerrainSnow) || pLoopPlotIsPeak)
-				{
-					iLowFoodLocationCount += 2;
-				}
-				// <!-- custom: no need to count hill grassland as it can be windmilled if needed later, and the base yields otherwise are good so try not to devalue it too much -->
-				else if (eTerrainPlot == eTerrainDesert)
-				{
-					if ((eFeaturePlot == eFeatureFloodPlains) || (eFeaturePlot == eFeatureOasis))
-					{
-						iLowFoodLocationCount -= 1;
-					}
-					// <!-- custom: no flood plains, no oasis, most likely this is a "naked" and in this caseterrain (0 food as of now), so count as such; note: hill or not treated the same -->
-					else
-					{
-						iLowFoodLocationCount += 2;
-					}
-				}
 			}
 		}
 
@@ -832,7 +804,7 @@ int AIFoundValue::evaluate()
 
 				// <!-- custom: new code by chatgpt 5 using our bonusspecific helpers, which i adjusted a bit, check if accurate -->
 				// 1) What improvement would we build on this bonus? (tech-agnostic)
-				ImprovementTypes const eBonusSpecificImprovement = CvUnitAI::getBonusSpecificLandImprovement(eBonus);
+				ImprovementTypes const eBonusSpecificImprovement = p.SAS_getBonusSpecificImprovement(eBonus);
 
 				// 2) Bonus-specific improved yields (no city-center bump, no base imp extras)
 				// <!-- custom: may be more reliable than aiBonusImprovementYield just in case it does some weird stuff as we had issues with AI settling on camel desert or sometimes before deer tundra when penalties were not high enough (and even if very high for desert camel), so trying to rework and see if we can fix the issue -->
@@ -1240,14 +1212,14 @@ int AIFoundValue::evaluate()
 	// <!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal -->
 	else
 	{
-		static const int iMaxToleratedNotCoastalLowFoodTiles = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_TILES");
+		static const int iMaxToleratedNotCoastalLowFoodScore = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_SCORE");
 		static const int iBaseValueNotCoastalLowFood = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_NOT_COASTAL_LOW_FOOD");
 
-		if (iLowFoodLocationCount > iMaxToleratedNotCoastalLowFoodTiles)
+		if (iLowFoodLocationScore > iMaxToleratedNotCoastalLowFoodScore)
 		{
 			// <!-- custom: old value was sometimes still insufficient even though it helped in some cities; increase low food location penalty more, which successfully solved the issue on testing. See known issue for details. (Claude code Sonnet 4.5 (summarized)) -->
-			// iValue += (-50) * iLowFoodLocationCount;
-			iValue += iBaseValueNotCoastalLowFood * iLowFoodLocationCount;
+			// iValue += (-50) * iLowFoodLocationScore;
+			iValue += iBaseValueNotCoastalLowFood * iLowFoodLocationScore;
 		}
 	}
 

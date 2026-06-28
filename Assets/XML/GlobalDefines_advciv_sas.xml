@@ -990,10 +990,10 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal; Long_Comments_XML.txt #158 -->
+	<!-- custom: Discourage non-coastal sites whose summed non-home BFC potential-food score exceeds this threshold. Each plot contributes food required per citizen minus natural food, visible bonus food, food from its bonus-specific improvement, and eligible Harbor-class food; productive Grass Hills remain neutral while peaks and ice remain +2. This replaces terrain-name counting so XML yield changes and bonuses are reflected automatically; also now that food from bonuses offsets bad food count, making low food requirement harsher, and this maybe also helps increase food pressure on ai settlers which is maybe good too (as GPT-5.5 seems to agree too thanks) (was 7) -->
 	<Define>
-		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_TILES</DefineName>
-		<iDefineIntVal>7</iDefineIntVal>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_SCORE</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_COASTAL_LOW_FOOD</DefineName>
@@ -1106,10 +1106,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: first-city roaming treats a capital candidate as bad if its revealed BFC has at least this many bad plots: no-yield plots such as ordinary peaks/ice/desert, water with natural food below 1, no-bonus hills with natural food below 1, and no-bonus flat land with natural food below 2. Bonus tiles, seafood, grass hills, rich impassable plots, and workable water are not counted as bad. Set to 0 to disable. (GPT-5.5) -->
+	<!-- custom: First-city roaming treats a capital candidate as bad when its revealed non-home BFC reaches this food-environment score. Each plot contributes food required per citizen minus natural food, visible bonus food, and food from its bonus-specific improvement; an ocean-coastal candidate also assumes its civilization's configured Harbor-class sea food. Productive Grass Hills are neutral, food-surplus plots offset poor plots, and each citizen-unworkable peak/ice adds one extra point beyond its normal +2 food deficit because it is also a dead BFC slot; also now that food from bonuses offsets bad food count, making low food requirement harsher, and this maybe also helps increase food pressure on ai settlers which is maybe good too (as GPT-5.5 seems to agree too thanks) (was 7) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_LOW_FOOD_PLOTS</DefineName>
-		<iDefineIntVal>7</iDefineIntVal>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
 	<Define>

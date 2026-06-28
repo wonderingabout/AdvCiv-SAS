@@ -416,6 +416,13 @@ public:
 	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam /* advc: */ = NO_TEAM, bool bIgnoreFeature = false, /* advc.300: */ bool bIgnoreHills = false) const; // Exposed to Python
 	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const;							// Exposed to Python
 	int calculateTotalBestNatureYield(TeamTypes eTeam) const;										// Exposed to Python
+	// <!-- custom: Share resource/domain and structural food-potential logic across settler, city-site, and worker AI so XML yield changes cannot make their terrain-name checks drift apart. Callers still decide visibility, BFC scope, and whether an ocean-coastal candidate should assume its configured water-food building. (GPT-5.5) -->
+	BuildTypes SAS_getBonusSpecificBuild(BonusTypes eBonus) const;
+	ImprovementTypes SAS_getBonusSpecificImprovement(BonusTypes eBonus) const;
+	int SAS_getBonusImprovementFoodChange(BonusTypes eBonus) const;
+	bool SAS_canAssumeWaterBonusImprovement(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot) const;
+	int SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement) const;
+	static int SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer);
 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer) const; // Exposed to Python
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false) const;								// Exposed to Python
 	bool hasYield() const { return m_aiYield.isAnyNonDefault(); } // advc.enum							// Exposed to Python
