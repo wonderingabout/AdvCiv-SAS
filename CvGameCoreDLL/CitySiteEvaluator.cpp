@@ -398,16 +398,11 @@ int AIFoundValue::evaluate()
 	// <!-- custom: unused; commented out (kept for potential future use). Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// int iTileCountWaterNoBonus = 0;
 	int iTileCountNoPeakLand = 0;
-	int iTileCountPeak = 0;
-	// <!-- custom: these are also bad as they don't yield anything so same as peak, we should definitely count them to help choose better/optimal or at least ebtter / more optimal sites -->
-	int iTileCountIceCap = 0;
-	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert that is really bad and should strongly be ignored without overdoing it if site is otherwise good. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 26.2 of AI not going for a nearby site better in all regards with less desert and more hill grassland -->
-	int iTileCountVeryBadDesertNoBonus = 0;
-	// <!-- custom: again worse than tundra as has no food and no meaningful improvement; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail), and even if we could/can, the food penalty on these tiles is really high. We could count 0 food tiles that are not hills, but maybe do as such for clarity or such although is less flexible but maybe fine as such. We need to count these tiles and deter founding there if there are too much and no other conditions are met -->
-	int iTileCountVeryBadSnowNoBonus = 0;
+	int iTileCountVeryBad = 0;
 
 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START");
 	static const int iMaxToleratedVeryBadTilesLater = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER");
+	static const int iMinAcceptableVeryBadPlotPotentialYieldScore = GC.getDefineINT("SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE");
 
 	static const int iBaseValueVeryBadTileStart = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START");
 	static const int iBaseValueVeryBadTileLater = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER");
@@ -425,8 +420,6 @@ int AIFoundValue::evaluate()
 	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
 	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
 	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
-	static const FeatureTypes eFeatureIce = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE");
-
 	bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
 	// Scope for countBadTiles return parameters
@@ -574,43 +567,22 @@ int AIFoundValue::evaluate()
 			{
 				const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
 
-				TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
-				FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
-
 				// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
-				const bool pLoopPlotIsHills = pLoopPlot->isHills();
 				const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
 				bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonusPlot, ePlayer, kPlot);
 				iLowFoodLocationScore += pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonusPlot, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
-				if (eFeaturePlot == eFeatureIce)
-					++iTileCountIceCap;
+				int iBestPotentialYieldScore = 0;
+				if (pLoopPlot->SAS_isVeryBadCityRadiusPlot(eBonusPlot, ePlayer, iAssumedSeaPlotFoodChange, iMinAcceptableVeryBadPlotPotentialYieldScore, iBestPotentialYieldScore))
+				{
+					++iTileCountVeryBad;
+					IFLOG logBBAI("Very bad BFC plot (%d,%d): %s, potential yield score %d below %d", pLoopPlot->getX(), pLoopPlot->getY(), (pLoopPlot->isImpassable() ? "impassable" : "weak despite improvements"), iBestPotentialYieldScore, iMinAcceptableVeryBadPlotPotentialYieldScore);
+				}
 
 				if (!pLoopPlot->isWater())
 				{
 					if (!pLoopPlotIsPeak)
 					{
 						++iTileCountNoPeakLand;
-
-						// <!-- custom: do not count camel desert tiles, and do not count to simplify for example stone or any bonus tiles; although camel is more worthwhile, we simply want to get a general estimate of how many very bad tiles we have here, so simplify as such should be accurate enough for our needs -->
-						if (eBonusPlot == NO_BONUS)
-						{
-							if (eTerrainPlot == eTerrainDesert)
-							{
-								if ((eFeaturePlot != eFeatureFloodPlains) && (eFeaturePlot != eFeatureOasis) && !pLoopPlotIsHills)
-								{
-									++iTileCountVeryBadDesertNoBonus;
-								}
-							}
-							else if ((eTerrainPlot == eTerrainSnow) && !pLoopPlotIsHills)
-							{
-								++iTileCountVeryBadSnowNoBonus;
-							}
-						}
-
-					}
-					else
-					{
-						++iTileCountPeak;
 					}
 				}
 				else
@@ -1223,10 +1195,8 @@ int AIFoundValue::evaluate()
 		}
 	}
 
-	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast or such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function-->
-	// <!-- custom: peak in non home plot devalue local plot, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible but not too strongly may skew iValue too much for an otherwise good site -->
-	// <!-- custom: update: also count very bad desert and very bad snow, the more we the worse, but giving a small leeway if site is otherwise great to not dismiss it or devalue it needlessl,y as we don't need all tiles to be good especially early at low pop, but if enough are bad, start to take it into accoutn and icnrementally for all very bad tiles so -->
-	const int iTotalVeryBadTiles = iTileCountPeak + iTileCountIceCap + iTileCountVeryBadDesertNoBonus + iTileCountVeryBadSnowNoBonus;
+	// <!-- custom: Penalize impassable or persistently low-yield BFC slots after a small allowance. Dynamic XML-property/yield scoring replaces the old Peak/Ice/flat Desert/flat Snow name list, so terrain and improvement changes automatically affect this classification. Visible bonuses on usable plots stay exempt because their specialized value is evaluated separately. See KI#26.2. (GPT-5.5) -->
+	const int iTotalVeryBadTiles = iTileCountVeryBad;
 
 	if (bStartPhase)
 	{

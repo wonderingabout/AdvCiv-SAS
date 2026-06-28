@@ -736,6 +736,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
+	<!-- custom: A usable non-home BFC plot without a visible bonus is very bad when its best natural or XML-valid improved yield remains below this `4 * food + 2 * production + commerce` score; impassable plots always count. A score of 4 keeps a basic one-food Tundra plot, while barren plots remain below the threshold and productive hills exceed it. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
 	<!-- custom: Long_Comments_XML.txt #207 -->
 	<Define>
 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>

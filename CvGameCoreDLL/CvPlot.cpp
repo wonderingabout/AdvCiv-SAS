@@ -5388,6 +5388,58 @@ int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlo
 }
 
 
+// <!-- custom: Classify permanently weak BFC slots from XML properties and yields instead of terrain names. Impassable plots always count; visible bonuses on usable plots do not, because their specialized value is handled elsewhere. For other plots, compare 4 * food + 2 * production + commerce using natural yield and long-term XML-valid improvement potential. Stop once an improvement reaches the minimum because only the below-threshold classification and exact failing score are needed. (GPT-5.5 + ChatGPT-5.5 review) -->
+bool CvPlot::SAS_isVeryBadCityRadiusPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const
+{
+	FAssert(ePlayer != NO_PLAYER);
+	FAssert(iMinPotentialYieldScore >= 0);
+	iBestPotentialYieldScore = 0;
+	if (ePlayer == NO_PLAYER)
+		return false;
+	if (isImpassable())
+		return true;
+	if (eVisibleBonus != NO_BONUS)
+		return false;
+
+	TeamTypes const eTeam = TEAMID(ePlayer);
+	int const aiYieldWeight[NUM_YIELD_TYPES] = {4, 2, 1};
+	FOR_EACH_ENUM(Yield)
+	{
+		int iYield = calculateNatureYield(eLoopYield, NO_TEAM);
+		if (isWater() && eLoopYield == YIELD_FOOD)
+			iYield += iSeaPlotFoodChange;
+		iBestPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
+	}
+	if (iBestPotentialYieldScore >= iMinPotentialYieldScore)
+		return false;
+
+	FOR_EACH_ENUM(Build)
+	{
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		ImprovementTypes const eImprovement = kBuild.getImprovement();
+		if (eImprovement == NO_IMPROVEMENT ||
+			!canHaveImprovement(eImprovement, eTeam, true, eLoopBuild, false))
+		{
+			continue;
+		}
+		bool const bRemoveFeature = (isFeature() && kBuild.isFeatureRemove(getFeatureType()));
+		int iPotentialYieldScore = 0;
+		FOR_EACH_ENUM(Yield)
+		{
+			int iYield = calculateNatureYield(eLoopYield, NO_TEAM, bRemoveFeature) +
+					calculateImprovementYieldChange(eImprovement, eLoopYield, ePlayer);
+			if (isWater() && eLoopYield == YIELD_FOOD)
+				iYield += iSeaPlotFoodChange;
+			iPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
+		}
+		iBestPotentialYieldScore = std::max(iBestPotentialYieldScore, iPotentialYieldScore);
+		if (iBestPotentialYieldScore >= iMinPotentialYieldScore)
+			return false;
+	}
+	return true;
+}
+
+
 int CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer)
 {
 	// <!-- custom: Assertions diagnose invalid player/building data in assert builds; the matching sentinel guards remain active in Release and avoid invalid lookups by contributing no assumed food. (GPT-5.5 + ChatGPT-5.5 review) -->

@@ -422,6 +422,7 @@ public:
 	int SAS_getBonusImprovementFoodChange(BonusTypes eBonus) const;
 	bool SAS_canAssumeWaterBonusImprovement(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot) const;
 	int SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement) const;
+	bool SAS_isVeryBadCityRadiusPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const;
 	static int SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer);
 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer) const; // Exposed to Python
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false) const;								// Exposed to Python
