@@ -440,8 +440,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 	CLLNode<IDInfo> const* pUnitNode = headUnitNode();
 	bool const bHuman = (pUnitNode == NULL ? true :
 			GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwner()).isHuman());
-	static const bool bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE =
-			GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE");
+	static const bool bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE");
 	bool const bUseLowPower = (bPreferLowPower && !bHuman &&
 			bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE);
 	if (bUseLowPower)
@@ -495,8 +494,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 				iValue -= 1000000;
 			int const iXP = kLoopUnit.getExperience();
 			int const iMaxHP = std::max(1, kLoopUnit.maxHitPoints());
-			static const int iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT =
-					GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT");
+			static const int iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT");
 			int const iHealthPercent = (100 * (iMaxHP - kLoopUnit.getDamage())) / iMaxHP;
 			int iHealthRank = (iHealthPercent >= iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT
 					? iHealthPercent : 100);

@@ -13776,10 +13776,7 @@ AttitudeTypes CvPlayerAI::AI_cityTradeAttitudeThresh(CvCity const& kCity, Player
 	if (bLiberate)
 		return ATTITUDE_FURIOUS;
 	CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
-	int r = (kCity.getPlot().calculateCulturePercent(getID()) >=
-			GC.getDefineINT(CvGlobals::NATIVE_CITY_CULTURE_THRESH) ? 
-			kPersonality.getNativeCityRefuseAttitudeThreshold() :
-			kPersonality.getCityRefuseAttitudeThreshold());
+	int r = (kCity.getPlot().calculateCulturePercent(getID()) >= GC.getDefineINT(CvGlobals::NATIVE_CITY_CULTURE_THRESH) ? kPersonality.getNativeCityRefuseAttitudeThreshold() : kPersonality.getCityRefuseAttitudeThreshold());
 	return (AttitudeTypes)r;
 } // </advc.ctr>
 

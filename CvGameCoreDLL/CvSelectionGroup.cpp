@@ -204,8 +204,7 @@ void CvSelectionGroup::doTurn()
 	{
 		if (pHeadUnit->isSpy() && pHeadUnit->getPlot().getTeam() != getTeam())
 		{
-			if (pHeadUnit->getFortifyTurns() ==
-				GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
+			if (pHeadUnit->getFortifyTurns() == GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
 			{
 				setActivityType(ACTIVITY_AWAKE); // time to wake up!
 			}

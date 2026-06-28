@@ -736,7 +736,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: A usable non-home BFC plot without a visible bonus is very bad when its best natural or XML-valid improved yield remains below this `4 * food + 2 * production + commerce` score; impassable plots always count. A score of 4 keeps a basic one-food Tundra plot, while barren plots remain below the threshold and productive hills exceed it. (GPT-5.5) -->
+	<!-- custom: A usable non-home BFC plot without a visible bonus is very bad when its best natural or XML-valid improved yield remains below this `4 * food + 2 * production + commerce` score; impassable plots always count. A score of 4 keeps a basic one-food Tundra plot, while barren plots remain below the threshold and productive hills exceed it. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
@@ -1007,9 +1007,9 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Long_Comments_XML.txt #197 -->
+	<!-- custom: Minimum number of good-enough non-home BFC slots required before accepting the first-city site. "Good enough" is intentionally weaker than truly good: it includes usable land that is not very bad and reachable/already-improved visible water bonuses, but not ordinary coast/ocean. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START</DefineName>
+		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_FIRST_CITY_BFC_TILES</DefineName>
 		<iDefineIntVal>13</iDefineIntVal>
 	</Define>
 

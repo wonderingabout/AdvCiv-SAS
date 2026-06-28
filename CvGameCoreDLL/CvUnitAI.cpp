@@ -3673,7 +3673,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				int iLoopFoodEnvironmentScore = 0;
 				SAS_evaluateFirstCityBFCFoodEnvironment(kLoopPlot, getOwner(), getTeam(), iLoopFoodBonuses, iLoopFoodEnvironmentScore);
 				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
-				// <!-- custom: While roaming away from a clearly bad first-capital BFC, do not let the same bad cached site re-enter the visible-good-enough pool merely because its stale city-site value ties the known best. Karakorum moved from 49,43 back to the original tundra-heavy 47,43 (13 bad BFC plots) instead of continuing toward the visible 51,41 river/pig site (1 bad BFC plot). Keep using AI_foundValue for ranking, but require very bad candidates to be strictly better than the known site before they can compete. (GPT-5.5) -->
+				// <!-- custom: While roaming away from a clearly bad first-city BFC, do not let the same bad cached site re-enter the visible-good-enough pool merely because its stale city-site value ties the known best. Karakorum moved from 49,43 back to the original tundra-heavy 47,43 (13 bad BFC plots) instead of continuing toward the visible 51,41 river/pig site (1 bad BFC plot). Keep using AI_foundValue for ranking, but require very bad candidates to be strictly better than the known site before they can compete. (GPT-5.5) -->
 				const bool bBadLoopFirstCity = (iBadFoodEnvironmentScoreThreshold > 0 && iLoopFoodEnvironmentScore > iBadFoodEnvironmentScoreThreshold && iLoopValue <= iBestKnownFirstCityValue);
 				if (bBadLoopFirstCity)
 					continue;
@@ -13559,8 +13559,7 @@ bool CvUnitAI::AI_guardCoast(bool bPrimaryOnly, MovementFlags eFlags, int iMaxPa
 		FOR_EACH_ADJ_PLOT(pLoopCity->getPlot())
 		{
 			if (pAdj->isWater() &&
-				pAdj->getArea().getNumTiles() >=
-				GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN))
+				pAdj->getArea().getNumTiles() >= GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN))
 			{
 				iCoastPlots++;
 			}

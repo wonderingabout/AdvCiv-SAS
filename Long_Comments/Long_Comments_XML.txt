@@ -3316,7 +3316,7 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #197 -----
 
-<!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot), so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site -->
+deleted
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #198 -----

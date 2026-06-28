@@ -5389,7 +5389,7 @@ int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlo
 
 
 // <!-- custom: Classify permanently weak BFC slots from XML properties and yields instead of terrain names. Impassable plots always count; visible bonuses on usable plots do not, because their specialized value is handled elsewhere. For other plots, compare 4 * food + 2 * production + commerce using natural yield and long-term XML-valid improvement potential. Stop once an improvement reaches the minimum because only the below-threshold classification and exact failing score are needed. (GPT-5.5 + ChatGPT-5.5 review) -->
-bool CvPlot::SAS_isVeryBadCityRadiusPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const
+bool CvPlot::SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const
 {
 	FAssert(ePlayer != NO_PLAYER);
 	FAssert(iMinPotentialYieldScore >= 0);
@@ -5437,6 +5437,20 @@ bool CvPlot::SAS_isVeryBadCityRadiusPlot(BonusTypes eVisibleBonus, PlayerTypes e
 			return false;
 	}
 	return true;
+}
+
+
+// <!-- custom: Classify whether a non-home BFC slot is good enough for the first-city minimum-tile sanity check. This is deliberately weaker than "good": usable land with a visible bonus counts, no-bonus land must not be persistently very bad, and water only counts when a visible bonus can reasonably be improved or is already improved. Ordinary coast/ocean stays excluded so the first city still needs enough useful BFC slots. (ChatGPT-5.5) -->
+bool CvPlot::SAS_isGoodEnoughFirstCityBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot, bool bVeryBadBFCPlot) const
+{
+	FAssert(ePlayer != NO_PLAYER);
+	if (ePlayer == NO_PLAYER || isImpassable())
+		return false;
+	if (isWater())
+		return (eVisibleBonus != NO_BONUS && SAS_canAssumeWaterBonusImprovement(eVisibleBonus, ePlayer, kCandidateCityPlot));
+	if (eVisibleBonus != NO_BONUS)
+		return true;
+	return !bVeryBadBFCPlot;
 }
 
 

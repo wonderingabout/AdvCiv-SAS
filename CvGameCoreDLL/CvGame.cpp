@@ -330,10 +330,8 @@ void CvGame::recomputeMapnameHeaviness()
 		int const iAreaCount = static_cast<int>(aiAreaStarts.size());
 		int const iDistinctAreaPercent = (iAreaCount * 100) / iMajorCivs;
 		int const iLargestAreaPercent = (iLargestAreaStartCount * 100) / iMajorCivs;
-		static const int iNavalHeavyStartAreaPercentMin =
-				GC.getDefineINT("SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT");
-		static const int iLandHeavyStartAreaPercentMin =
-				GC.getDefineINT("SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT");
+		static const int iNavalHeavyStartAreaPercentMin = GC.getDefineINT("SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT");
+		static const int iLandHeavyStartAreaPercentMin = GC.getDefineINT("SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT");
 
 		if (iDistinctAreaPercent >= iNavalHeavyStartAreaPercentMin)
 		{

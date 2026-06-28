@@ -341,8 +341,7 @@ int CvUnitInfo::getFlavorValue(int i) const
 TechTypes CvUnitInfo::getObsoleteTech() const
 {
 	// <!-- custom: allow ObsoleteTech to be toggled off globally for compatibility/testing; default on. (GPT-5.2-Codex) -->
-	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH =
-			GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH");
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH");
 	return bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH ? m_eObsoleteTech : NO_TECH;
 }
 

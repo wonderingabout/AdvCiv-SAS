@@ -393,12 +393,9 @@ int AIFoundValue::evaluate()
 	int const iNumCities = kPlayer.getNumCities();
 	bool const bStartPhase = (iNumCities == 0);
 
-	// <!-- custom: use tile count rather than water plots, as we may be skipping them due to isUsablePlot. Credit: Claude AI; ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-	int iTileCountWaterWithBonus = 0;
-	// <!-- custom: unused; commented out (kept for potential future use). Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-	// int iTileCountWaterNoBonus = 0;
-	int iTileCountNoPeakLand = 0;
-	int iTileCountVeryBad = 0;
+	// <!-- custom: Count first-city BFC slots by XML-aware usability rather than the old no-peak-land + water-bonus approximation. "Good enough" is intentionally weaker than truly good: it means a slot is usable enough for the first-city minimum-tile sanity check. (ChatGPT-5.5) -->
+	int iGoodEnoughFirstCityBFCTiles = 0;
+	int iVeryBadBFCTiles = 0;
 
 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START");
 	static const int iMaxToleratedVeryBadTilesLater = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER");
@@ -567,35 +564,17 @@ int AIFoundValue::evaluate()
 			{
 				const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
 
-				// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
-				const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
 				bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonusPlot, ePlayer, kPlot);
 				iLowFoodLocationScore += pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonusPlot, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
 				int iBestPotentialYieldScore = 0;
-				if (pLoopPlot->SAS_isVeryBadCityRadiusPlot(eBonusPlot, ePlayer, iAssumedSeaPlotFoodChange, iMinAcceptableVeryBadPlotPotentialYieldScore, iBestPotentialYieldScore))
+				bool const bVeryBadBFCPlot = pLoopPlot->SAS_isVeryBadBFCPlot(eBonusPlot, ePlayer, iAssumedSeaPlotFoodChange, iMinAcceptableVeryBadPlotPotentialYieldScore, iBestPotentialYieldScore);
+				if (bVeryBadBFCPlot)
 				{
-					++iTileCountVeryBad;
+					++iVeryBadBFCTiles;
 					IFLOG logBBAI("Very bad BFC plot (%d,%d): %s, potential yield score %d below %d", pLoopPlot->getX(), pLoopPlot->getY(), (pLoopPlot->isImpassable() ? "impassable" : "weak despite improvements"), iBestPotentialYieldScore, iMinAcceptableVeryBadPlotPotentialYieldScore);
 				}
-
-				if (!pLoopPlot->isWater())
-				{
-					if (!pLoopPlotIsPeak)
-					{
-						++iTileCountNoPeakLand;
-					}
-				}
-				else
-				{
-					if (eBonusPlot != NO_BONUS)
-					{
-						++iTileCountWaterWithBonus;
-					}
-					// else
-					// {
-					// 	++iTileCountWaterNoBonus;
-					// }
-				}
+				if (bStartPhase && pLoopPlot->SAS_isGoodEnoughFirstCityBFCPlot(eBonusPlot, ePlayer, kPlot, bVeryBadBFCPlot))
+					++iGoodEnoughFirstCityBFCTiles;
 
 			}
 		}
@@ -1196,47 +1175,31 @@ int AIFoundValue::evaluate()
 	}
 
 	// <!-- custom: Penalize impassable or persistently low-yield BFC slots after a small allowance. Dynamic XML-property/yield scoring replaces the old Peak/Ice/flat Desert/flat Snow name list, so terrain and improvement changes automatically affect this classification. Visible bonuses on usable plots stay exempt because their specialized value is evaluated separately. See KI#26.2. (GPT-5.5) -->
-	const int iTotalVeryBadTiles = iTileCountVeryBad;
-
 	if (bStartPhase)
 	{
-		// <!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site -->
-		const int iGoodBFCTiles = iTileCountNoPeakLand + iTileCountWaterWithBonus;
+		// <!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, lower distance-to-capital maintenance cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so fewer than the required good-enough first-city BFC tiles changes/rejects the site (ChatGPT-5.5) -->
 
-		static const int iMinRequiredGoodBFCTilesStart = GC.getDefineINT("SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START");
+		static const int iMinRequiredGoodEnoughFirstCityBFCTiles = GC.getDefineINT("SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_FIRST_CITY_BFC_TILES");
 
-		if (iGoodBFCTiles < iMinRequiredGoodBFCTilesStart)
+		if (iGoodEnoughFirstCityBFCTiles < iMinRequiredGoodEnoughFirstCityBFCTiles)
 		{
-			// <!-- custom: attempt to prevent overflow if any while still sorting our values and by extension settling spots form worst lowest value to least worst highest or not lowest value -->
-			// <!-- custom: finally some code fixed it, so now doing it cleaner, and since iValue modifying seems to not work for moscow AI (see known issue as of now 44 for details, early return rather, to not settle here unless really hard worst -->
-			// return -2;
-			// <!-- custom: this works too, try a cleaner return, positive value as chatgpt 5 advised just in case -->
-			//return std::max<short>(-100, truncIntCast<short>(-100 + iGoodBFCTiles));
-			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code Hopefully this improves things and thanks to chatgpt 5, without messing everything up; return a positive value just in case; below example given by chatgpt 5, check if accurate -->
-			//return 0;
-			// Example:
-			// “8 grass far" → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 -->.
-			// “8 snow here" → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
-			// A truly good inland site just returns, e.g., iValue=1800 (>> <!-- custom:44 -->), so it wins.
-			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish. -->
-			// const int iValueCompressed = (1 + iGoodBFCTiles + std::max(0, iValue / 50));
-			// return std::max<short>(1, truncIntCast<short>(iValueCompressed));
+			// <!-- custom: note: AIFoundValue now stores and returns int, so the old short-overflow workaround is obsolete so removed it (as for previous overflow issue, see KI#44/Moscow). (ChatGPT-5.5) -->
 			return 0;
 		}
 		else
 		{
-			if (iTotalVeryBadTiles > iMaxToleratedVeryBadTilesStart)
+			if (iVeryBadBFCTiles > iMaxToleratedVeryBadTilesStart)
 			{
-				const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileStart * iTotalVeryBadTiles;
+				const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileStart * iVeryBadBFCTiles;
 				iValue += iTotalValueVeryBadTiles;
 			}
 		}
 	}
 	else
 	{
-		if (iTotalVeryBadTiles > iMaxToleratedVeryBadTilesLater)
+		if (iVeryBadBFCTiles > iMaxToleratedVeryBadTilesLater)
 		{
-			const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileLater * iTotalVeryBadTiles;
+			const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileLater * iVeryBadBFCTiles;
 			iValue += iTotalValueVeryBadTiles;
 		}
 	}
@@ -1514,10 +1477,8 @@ int AIFoundValue::evaluate()
 	if (!kPlayer.isHuman() && !kSet.isNormalizing() && bCoastal &&
 			kGame.isNavalHeavyMapnameCached() && !kGame.isLandHeavyMapnameCached())
 	{
-		static const int iNavalHeavyFirstCityCoastalExtraValue =
-				GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE");
-		static const int iNavalHeavyLaterCoastalExtraValue =
-				GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE");
+		static const int iNavalHeavyFirstCityCoastalExtraValue = GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE");
+		static const int iNavalHeavyLaterCoastalExtraValue = GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE");
 		const int iNavalHeavyCoastalExtraValue = (kSet.isStartingLoc() ?
 				iNavalHeavyFirstCityCoastalExtraValue : iNavalHeavyLaterCoastalExtraValue);
 		if (iNavalHeavyCoastalExtraValue != 0)

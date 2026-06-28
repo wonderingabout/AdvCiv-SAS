@@ -4444,8 +4444,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam, TeamTypes eObs) 
 		// Can't nuke too much non-enemy population
 		if (kLoopPlot.isCity() && !isEnemy(eTeam) &&
 			((eTeam == getTeam() &&
-			kLoopPlot.calculateFriendlyCulturePercent(eTeam) >=
-			GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)) ||
+			kLoopPlot.calculateFriendlyCulturePercent(eTeam) >= GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)) ||
 			eTeam == TEAMID(kLoopPlot.calculateCulturalOwner(true))))
 		{
 			return true;

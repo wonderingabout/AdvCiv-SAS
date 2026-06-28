@@ -6274,8 +6274,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		calculating the lost value of obsoleting walls and castles.
 		There are several sections which could, in the future, be improved
 		using bRemove - but I don't see it as a high priority. */
-	bool const bRemove = (getNumBuilding(eBuilding) >=
-			GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS));
+	bool const bRemove = (getNumBuilding(eBuilding) >= GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS));
 	// advc.004c: bRemove && !bObsolete is OK; that means spy attack.
 	FAssert(!bObsolete || bRemove);
 
