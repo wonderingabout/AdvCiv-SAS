@@ -121,6 +121,7 @@ class CvMilitaryAdvisor:
 		self.H_GREAT_GENERAL_BAR = 30
 		self.X_GREAT_GENERAL_BAR = 20
 
+		self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB = None
 		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = None
 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = None
 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = None
@@ -157,6 +158,10 @@ class CvMilitaryAdvisor:
 
 	def initDefines(self):
 		# <!-- custom: Military Advisor was the remaining advisor here that read SAS XML UI defines directly in the constructor. Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here. Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart. Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. See KI#128. (GPT-5.5) -->
+		if self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB is None:
+			self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_DEFAULT_TAB")
+			if self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB not in self.PAGE_IDS:
+				raise ValueError("SAS_CV_MILITARY_ADVISOR_DEFAULT_TAB must be a zero-based tab position from 0 to %d" % (len(self.PAGE_IDS) - 1))
 		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS is None:
 			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
 		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE is None:
@@ -459,6 +464,8 @@ class CvMilitaryAdvisor:
 		screen.setPersistent(False)
 
 		self.initDefines()
+		# <!-- custom: This advisor object survives close/reopen, so its last selected tab otherwise becomes the next opening tab. Reapply the XML default only for a real advisor opening; in-screen tab switches use redrawContents and remain unchanged. (GPT-5.5) -->
+		self.iActivePage = self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB
 		self.initText()
 		self.updateRuntimeLayout(screen)
 		self.bMapMinimapInitDone = False

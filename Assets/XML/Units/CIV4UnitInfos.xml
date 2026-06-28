@@ -1881,8 +1881,8 @@
 			<iAirUnitCap>0</iAirUnitCap>
 			<iDropRange>0</iDropRange>
 			<iNukeRange>-1</iNukeRange>
-			<!-- custom: due to war state, they often in cities, so to (partially try to) avoid (or compensate that (situation bu)) that, make them work extra fast -->
-			<iWorkRate>500</iWorkRate>
+			<!-- custom: due to war state, they may often die in cities, and they also need to compensate their later start, so make them work extra fast to partially try to avoid or compensate that, but do not overdo it else they develop stronger than the other players, or skew too much gameplay depending on barbarian city captures (whoever captures a fully developped town barbarian city gains too much of an advantage or too soon for example) -->
+			<iWorkRate>200</iWorkRate>
 			<iBaseDiscover>0</iBaseDiscover>
 			<iDiscoverMultiplier>0</iDiscoverMultiplier>
 			<iBaseHurry>0</iBaseHurry>
