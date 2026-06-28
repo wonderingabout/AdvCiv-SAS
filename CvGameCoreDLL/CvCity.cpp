@@ -8835,14 +8835,16 @@ void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool
 
 	if (!szName.empty())
 	{
-		if (GET_PLAYER(getOwner()).isCityNameValid(szName, false))
+		// <!-- custom: Initial/internal city-name assignment already receives a selected city name from getNewCityName or preserves an acquired city name. Do not run the translated duplicate-name scan in that path; this avoids extra city-name text lookups during city acquisition. See KI#161.2. (ChatGPT-5.5) -->
+		if (bInitial || GET_PLAYER(getOwner()).isCityNameValid(szName, false))
 		{	// <advc.106k>
 			if (bInitial)
 				m_szPreviousName.clear();
 			else if (m_szPreviousName.empty())
 				m_szPreviousName = m_szName; // </advc.106k>
 			// <advc.005c>
-			if (!m_szName.empty())
+			// <!-- custom: Do not record the temporary placeholder name assigned by CvCity::init as a past city name when acquireCity immediately replaces it with the preserved old-city name. This also avoids an unnecessary getName text lookup in the city-transfer path. See KI#161.2. (ChatGPT-5.5) -->
+			if (!bInitial && !m_szName.empty())
 				GC.getGame().addPastCityName(getName()); // </advc.005c>
 			m_szName = szName;
 

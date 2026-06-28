@@ -163,8 +163,12 @@ void logBBAI(TCHAR* format, ... )
 	static char buf[2048];
 	va_list args;
 	va_start(args, format);
-	_vsnprintf(buf, 2048-4, format, args);
+	// <!-- custom: Replace the old fixed 2048-4 limit with the real buffer size, while reserving one byte for the forced terminator below. See KI#161.2. (ChatGPT-5.5) -->
+	// _vsnprintf(buf, 2048-4, format, args);
+	_vsnprintf(buf, sizeof(buf) - 1, format, args);
 	va_end(args); // kmodx
+	// <!-- custom: MSVC 7.1 _vsnprintf may leave truncated output unterminated, so guard logMsg against rare logging/heap crash signatures. See KI#161.2. (ChatGPT-5.5) -->
+	buf[sizeof(buf) - 1] = '\0';
 	CvString szLogName = getSASBBAILogName();
 	gDLL->logMsg(szLogName.GetCString(), buf, /* advc.007: No time stamps */ false, false);
 }

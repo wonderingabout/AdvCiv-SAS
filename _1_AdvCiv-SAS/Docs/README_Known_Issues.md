@@ -197,6 +197,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#159---improved-ai-civic-switch-damping-paid-anarchy-civic-churn-and-direct-reversals-after-the-civic-timer-expired)  
 [160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)  
 [161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
+[161.2 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1612---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-city-name-crash-related-to-cvcitycheat0x15c3-around-city-acquisition-aachen-city-ownership-transfer-from-holy-rome-to-mali-and-uncovered-during-bbai-culture-logging-investigation)  
 [162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages)  
 [163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits)  
 [164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
@@ -6031,6 +6032,28 @@ Conservative hardening was added around the city-name path:
 These changes should not alter normal city-name behavior. They only prevent unsafe lookups or string construction when data is invalid, unexpectedly empty, or memory state is already abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix.
 
 Addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
+
+## 161.2 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15DRUXwdJT_uyHXlLhs8QMsdCE0aR9Kqc?usp=sharing).
+
+After KI#161 had already hardened the city-name lookup path, one more non-reproducible autoplay crash appeared around turn 157/158 with the same general signature family. The dump again showed an access violation in `CvGameCoreDLL.dll` at `CvGameCoreDLL+0x510e3`, with WinDbg reporting the nearest exported symbol as `CvCity::cheat+0x15c3`. As in KI#161, that symbol name should not be treated as proof that real `CvCity::cheat` logic was involved, because no matching line-symbol PDB was available.
+
+The useful new clue was the BBAI culture log. The logging probably did not cause the crash. Most turn 0 to turn 500 autoplay runs survived with the same logging enabled, so a direct logging bug would likely have failed more often. However, the high-detail culture log accidentally bracketed the crash very well. The crash-side log stopped after `CULTURE_STAGE_RESULT turn=158 player=1 Mali ... cities=6`. A successful run continued past the same point and then logged Mali with 7 cities, including Aachen. Around the same turn, Aachen appears to have changed from Holy Rome to Mali in the successful comparison run.
+
+This made the city acquisition / city-name preservation path the most plausible nearby trigger, although the exact crash moment is still not proven. During city acquisition, the game appears to create or initialize a city object, assign a temporary/generated city name, and then preserve or restore the old city name. That path can touch translated city-name lookup and past-city-name tracking at a delicate moment. The old code could also let `CvCity::setName(..., bInitial=true)` run the translated duplicate-name validation scan and record the temporary placeholder name as a past city name when the acquired city name immediately replaced it.
+
+Conservative hardening was added around this specific path:
+
+- `CvCity::setName` now treats initial/internal city-name assignment as already validated by the caller. It skips the translated duplicate-name scan when `bInitial` is true.
+- `CvCity::setName` no longer records the temporary placeholder name assigned during city initialization as a past city name when the initial/internal naming path immediately replaces it.
+- `BBAILog.cpp` now explicitly null-terminates the fixed log buffer after `_vsnprintf`, because old MSVC `_vsnprintf` can fail to null-terminate on truncation. This is general logging hardening, not proof that BBAI logging caused the crash.
+
+This should not change normal city-name behavior. Manual renames and ordinary duplicate-name checks still use the regular validation path. The change only avoids extra translated city-name lookup and past-name bookkeeping during initial/internal naming, especially city transfer/acquisition. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix.
+
+The BBAI logging coincidence was still useful enough to document: it turned a vague city-name crash signature into a much more specific suspected acquisition/name-transfer transition.
+
+Tentatively addressed with the very nice help of ChatGPT-5.5 thanks.
 
 ## 162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`
 
