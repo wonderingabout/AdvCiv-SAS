@@ -9087,19 +9087,30 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
 	bool bValid = (eCommerceType == NO_COMMERCE);
 	int iValue = 0;
 	// <!-- custom: Culture process was consuming major production in low-pressure cities outside the required Legendary candidates, even while a much faster Space victory was underway. Preserve first-ring expansion and strong local-border pressure, but otherwise reserve Culture process for active projected culture-victory candidates; general culture weight balancing handles how strongly each candidate should pursue it. (GPT-5.5) -->
-	static int const iCultureProcessMinPressureFactor = GC.getDefineINT("SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR");
-	bool const bConvertsProductionToCulture = (GC.getInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0);
-	int const iCulturePressureFactor = (bConvertsProductionToCulture ? AI_culturePressureFactor() : 0);
-	bool const bLocalCultureNeed = (getCultureLevel() <= 1 || iCulturePressureFactor >= iCultureProcessMinPressureFactor);
-	int const iVictoryCultureCities = GC.getGame().culturalVictoryNumCultureCities();
-	bool const bRequiredCultureVictoryCandidate = (kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2) && AI_getCultureVictoryRank() > 0 && AI_getCultureVictoryRank() <= iVictoryCultureCities && AI_getCultureVictoryInvestmentPercent() > 0);
-	bool const bSkipVictoryCultureProcess = (bConvertsProductionToCulture && !isHuman() && !bLocalCultureNeed && !bRequiredCultureVictoryCandidate);
+	bool bSkipVictoryCultureProcess = false;
+	int iCulturePressureFactor = -1;
+	int iVictoryCultureCities = -1;
+	int iCultureVictoryRank = -1;
+	int iCultureVictoryInvestmentPercent = -1;
+	// <!-- custom: The culture-process restriction is irrelevant to other processes, humans, and first-ring expansion. Initialize its diagnostic fields inert, then compute and cache them only for a possible skip so those frequent calls avoid culture-pressure and victory-candidate reads and the gated log below does not repeat them. (ChatGPT-5.5 + GPT-5.5 review) -->
+	if (!isHuman() && getCultureLevel() > 1 && GC.getInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
+	{
+		static int const iCultureProcessMinPressureFactor = GC.getDefineINT("SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR");
+		iCulturePressureFactor = AI_culturePressureFactor();
+		if (iCulturePressureFactor < iCultureProcessMinPressureFactor)
+		{
+			iVictoryCultureCities = GC.getGame().culturalVictoryNumCultureCities();
+			iCultureVictoryRank = AI_getCultureVictoryRank();
+			iCultureVictoryInvestmentPercent = AI_getCultureVictoryInvestmentPercent();
+			bSkipVictoryCultureProcess = !(kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2) && iCultureVictoryRank > 0 && iCultureVictoryRank <= iVictoryCultureCities && iCultureVictoryInvestmentPercent > 0);
+		}
+	}
 	if (bSkipVictoryCultureProcess && gCultureLogLevel >= 3)
 	{
 		logBBAI("CULTURE_PROCESS_SKIP turn=%d player=%d %S city=%S cityId=%d cultureLevel=%d pressureFactor=%d candidateRank=%d neededRank=%d victoryInvestmentPercent=%d",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(),
-			getCultureLevel(), iCulturePressureFactor, AI_getCultureVictoryRank(), iVictoryCultureCities,
-			AI_getCultureVictoryInvestmentPercent());
+			getCultureLevel(), iCulturePressureFactor, iCultureVictoryRank, iVictoryCultureCities,
+			iCultureVictoryInvestmentPercent);
 	}
 
 	/* if (GC.getInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD) && GET_PLAYER(getOwner()).AI_isFinancialTrouble())

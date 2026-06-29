@@ -1161,6 +1161,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+	<!-- custom: Once another victory route reaches at least this AI victory-strategy stage, postpone Culture 2 investment until all required culture cities have credible high-culture countdowns. Stage 3 by default prevents an unready cultural hedge from diverting production, specialists, and commerce from an advanced Space, Conquest, Domination, or Diplomatic pursuit; use 4 for a stricter trigger or 0 to disable this gate. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
 	<!-- custom: In the late culture race, downgrade to preparation rather than continue expensive Culture 2/3 investment when the projected slowest required city needs more than this percentage of the estimated remaining game turns. The 125% default allows output growth while rejecting paths already too far behind the deadline. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_CULTURE_VICTORY_MAX_DEADLINE_PERCENT</DefineName>

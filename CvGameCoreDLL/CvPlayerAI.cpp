@@ -32,7 +32,7 @@ static std::map<int,int> g_sasWorkerSeaFirstSeenReachableTurn;
 static int g_iSASWorkerSeaAuditLastTurn = -1;
 
 
-// <!-- custom: Local helper for logging-only victory-stage summaries. The victory-stage state is already a bitfield, so this avoids four repeated AI_atVictoryStage checks for each logged victory type without adding header/API churn. (ChatGPT-5.5) -->
+// <!-- custom: Local helper for compact victory-stage comparisons and logging summaries. The victory-stage state is already a bitfield, so this avoids repeated AI_atVictoryStage checks without adding header/API churn. (ChatGPT-5.5 + GPT-5.5 review) -->
 static int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
 {
 	if ((eVictoryStageHash & eStage4) != 0)
@@ -46,12 +46,13 @@ static int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictorySt
 	return 0;
 }
 
-// <!-- custom: Return the actual culture of a player's Nth-best city for early cultural-race qualification/ranking. Unlike late projected countdowns, this remains meaningful before cities reach the culture level immediately below Legendary. (GPT-5.5) -->
+// <!-- custom: Return the actual culture of a player's Nth-best city for early cultural-race qualification/ranking. Unlike late projected countdowns, this remains meaningful before cities reach the culture level immediately below Legendary. Reserve the known city count because culture-stage ranking calls this repeatedly across rivals. (GPT-5.5) -->
 static int getSASCultureVictoryNthCityCulture(CvPlayerAI const& kPlayer, int iCityRank)
 {
 	if (iCityRank <= 0 || kPlayer.getNumCities() < iCityRank)
 		return -1;
 	std::vector<int> cultureList;
+	cultureList.reserve(kPlayer.getNumCities());
 	FOR_EACH_CITY(pLoopCity, kPlayer)
 		cultureList.push_back(pLoopCity->getCulture(kPlayer.getID()));
 	std::partial_sort(cultureList.begin(), cultureList.begin() + iCityRank, cultureList.end(), std::greater<int>());
@@ -26110,10 +26111,30 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		if(GET_TEAM(getTeam()).AI_isLonely())
 			iValue -= 25; // </advc.109>
 		//int iNonsense = AI_getStrategyRand() + 10;
-		iValue += (AI_getStrategyRand(0) % 70); // advc.115: was %100
+		int const iValueBeforeRandom = iValue;
+		int const iCultureStrategyRandomBonus = (AI_getStrategyRand(0) % 70); // advc.115: was %100
+		iValue += iCultureStrategyRandomBonus;
 
 		if (iValue < 100)
 		{
+			// <!-- custom: The later culture-stage probes cannot observe candidates rejected by this personality/random strategy score. At culture log level 2+, record natural foundation and projected-finish evidence before returning so repeated random maps can reveal whether promising cultural positions are being rejected too often without changing strategy. (GPT-5.5) -->
+			if (iCultureLogLevel >= 2 && iCountdownThresh == -1)
+			{
+				int const iProbeFoundationCities = std::max(1, iVictoryCities - 1);
+				int const iProbeFoundationCulture = (getNumCities() < iVictoryCities ? -1 : getSASCultureVictoryNthCityCulture(*this, iProbeFoundationCities));
+				int const iProbeFoundationProgressPercent = (iProbeFoundationCulture < 0 ? -1 : 100 * iProbeFoundationCulture / std::max(1, iLegendaryCulture));
+				static int const iProbeMinFoundationProgressPercent = std::max(0, GC.getDefineINT("SAS_AI_CULTURE_VICTORY_STAGE2_MIN_FOUNDATION_CITY_PROGRESS_PERCENT"));
+				int iProbeWinningCountdown = MAX_INT;
+				if ((int)countdownList.size() >= iVictoryCities && iVictoryCities > 0)
+				{
+					std::partial_sort(countdownList.begin(), countdownList.begin() + iVictoryCities, countdownList.end());
+					iProbeWinningCountdown = countdownList[iVictoryCities - 1];
+				}
+				int const iTurnsRemaining = std::max(0, kGame.getEstimateEndTurn() - kGame.getGameTurn());
+				int const iProjectedDeadlinePercent = (iProbeWinningCountdown < MAX_INT && iTurnsRemaining > 0 ? (int)((long long)100 * iProbeWinningCountdown / iTurnsRemaining) : -1);
+				logBBAI("CULTURE_STAGE_EARLY_PROBE turn=%d player=%d %S valueBeforeRandom=%d randomBonus=%d finalValue=%d threshold=100 victoryWeight=%d foundationCities=%d foundationCulture=%d foundationProgressPercent=%d minFoundationProgressPercent=%d foundationReady=%d winningCountdown=%d turnsRemaining=%d projectedDeadlinePercent=%d high=%d close=%d legendary=%d needed=%d era=%d eraThresholdPercent=%d culturePercent=%d cities=%d",
+					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iValueBeforeRandom, iCultureStrategyRandomBonus, iValue, iWeight, iProbeFoundationCities, iProbeFoundationCulture, iProbeFoundationProgressPercent, iProbeMinFoundationProgressPercent, (iProbeFoundationProgressPercent >= iProbeMinFoundationProgressPercent), (iProbeWinningCountdown < MAX_INT ? iProbeWinningCountdown : -1), iTurnsRemaining, iProjectedDeadlinePercent, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, getCurrentEra(), iEraThresholdPercent, getCommercePercent(COMMERCE_CULTURE), getNumCities());
+			}
 			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=lowCultureStrategyValue value=%d high=%d close=%d legendary=%d needed=%d cities=%d weight=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iValue, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, getNumCities(), iWeight);
 			return 0;
 		}
@@ -26127,17 +26148,28 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		iWinningCountdown = countdownList[iVictoryCities-1];
 	}
 	int const iCultureFoundationCities = std::max(1, iVictoryCities - 1);
-	int const iCultureFoundationCulture = (getNumCities() < iVictoryCities ? -1 : getSASCultureVictoryNthCityCulture(*this, iCultureFoundationCities));
-	int const iCultureFoundationProgressPercent = (iCultureFoundationCulture < 0 ? -1 : 100 * iCultureFoundationCulture / std::max(1, iLegendaryCulture));
-	int const iWeakestCandidateCulture = getSASCultureVictoryNthCityCulture(*this, iVictoryCities);
-	int const iWeakestCandidateProgressPercent = (iWeakestCandidateCulture < 0 ? -1 : 100 * iWeakestCandidateCulture / std::max(1, iLegendaryCulture));
 	static int const iMinCultureFoundationProgressPercent = std::max(0, GC.getDefineINT("SAS_AI_CULTURE_VICTORY_STAGE2_MIN_FOUNDATION_CITY_PROGRESS_PERCENT"));
 	static int const iMaxCultureRaceRank = GC.getDefineINT("SAS_AI_CULTURE_VICTORY_MAX_RACE_RANK");
+	// <!-- custom: Foundation culture affects behavior only while either foundation gate is enabled; weakest-candidate culture is diagnostic only. Keep both available to logs without sorting the weakest city on non-logging paths, or the foundation city when both gates are disabled. (ChatGPT-5.5 + GPT-5.5 review) -->
+	int iCultureFoundationCulture = -1;
+	int iCultureFoundationProgressPercent = -1;
+	if (iMinCultureFoundationProgressPercent > 0 || iMaxCultureRaceRank > 0 || bLogCultureStage)
+	{
+		iCultureFoundationCulture = (getNumCities() < iVictoryCities ? -1 : getSASCultureVictoryNthCityCulture(*this, iCultureFoundationCities));
+		iCultureFoundationProgressPercent = (iCultureFoundationCulture < 0 ? -1 : 100 * iCultureFoundationCulture / std::max(1, iLegendaryCulture));
+	}
+	int iWeakestCandidateCulture = -1;
+	int iWeakestCandidateProgressPercent = -1;
+	if (bLogCultureStage)
+	{
+		iWeakestCandidateCulture = getSASCultureVictoryNthCityCulture(*this, iVictoryCities);
+		iWeakestCandidateProgressPercent = (iWeakestCandidateCulture < 0 ? -1 : 100 * iWeakestCandidateCulture / std::max(1, iLegendaryCulture));
+	}
 	int iCultureFoundationRaceRank = -1;
 	int iCultureFoundationRacePlayers = -1;
 	// <!-- custom: Before late projected countdowns become available, rank contenders by actual culture in their N-1th-best foundation city. Culture 2 can therefore shape the final required candidate, but cannot create an entire cultural lead from an early personality/random roll. (GPT-5.5 + ChatGPT-5.5 review) -->
 	bool const bLogCultureFoundationRace = (iCultureLogLevel >= 3 && iCountdownThresh == -1);
-	if (bLogCultureFoundationRace || (!isHuman() && iCultureFoundationProgressPercent >= iMinCultureFoundationProgressPercent))
+	if (bLogCultureFoundationRace || (!isHuman() && iMaxCultureRaceRank > 0 && iCultureFoundationProgressPercent >= iMinCultureFoundationProgressPercent))
 	{
 		iCultureFoundationRacePlayers = 0;
 		if (iCultureFoundationCulture >= 0)
@@ -26184,10 +26216,24 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		}
 		return 1;
 	}
+	// <!-- custom: Map 437 showed Rome entering Culture 2 for 45 normal-strategy turns despite reaching Domination 3 and later Space 3 while only one of three required culture cities had a high-culture countdown and the projected cultural finish remained too late. Once another victory route is this advanced, return to Culture 1 preparation instead of diverting production, specialists, and commerce into an unready cultural pursuit; preserve Culture 3/4 evaluation when all required cities are already credible candidates so a close cultural win can still take priority. (GPT-5.5) -->
+	static int const iMinCompetingVictoryStage = range(GC.getDefineINT("SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE"), 0, 4);
+	if (!isHuman() && iMinCompetingVictoryStage > 0 && iHighCultureCount < iVictoryCities)
+	{
+		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+		int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+		int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+		int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+		int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+		int const iMostAdvancedCompetingStage = std::max(std::max(iSpaceStage, iConquestStage), std::max(iDominationStage, iDiplomacyStage));
+		if (iMostAdvancedCompetingStage >= iMinCompetingVictoryStage)
+		{
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=advancedCompetingVictory minCompetingStage=%d mostAdvancedCompetingStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d winningCountdown=%d high=%d close=%d legendary=%d needed=%d foundationProgressPercent=%d foundationRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iMinCompetingVictoryStage, iMostAdvancedCompetingStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
+			return 1;
+		}
+	}
 	// <!-- custom: Reuse the player-wide SAS situation read here; city danger is intentionally absent because one threatened city should not veto an empire-wide victory strategy. Culture 2 diverts buildings, specialists, commerce, and production while the AI still needs to establish a plausible cultural win. Postpone that investment when current or chosen war enemies exceed our shared strong-enemy power threshold; retain Culture 1/local border culture, and preserve Culture 3/4 when all required cities already have credible high-culture countdowns so a close late win is not abandoned. (GPT-5.5) -->
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
-	bool const bWarPlan = AI_isFocusWar();
-	bool const bAtWar = (kTeam.getNumWars() > 0);
 	int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 	static int const iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
 	bool const bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
@@ -26195,6 +26241,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	{
 		if (bLogCultureStage)
 		{
+			bool const bWarPlan = AI_isFocusWar();
+			bool const bAtWar = (kTeam.getNumWars() > 0);
 			logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=strongWarEnemy warPlan=%d atWar=%d enemyPowerPercent=%d strongEnemyThreshold=%d high=%d close=%d legendary=%d needed=%d foundationProgressPercent=%d foundationRaceRank=%d/%d",
 				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, bWarPlan, bAtWar, iEnemyPowerPercent, iSAS_ENEMY_STRONG_POWER_THRESHOLD, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
 		}
@@ -26204,7 +26252,7 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	int iEligibleCultureRacePlayers = -1;
 	bool const bLateCultureRace = (getCurrentEra() * 100 >= GC.getNumEraInfos() * iEraThresholdPercent);
 	// <!-- custom: Rank each major civ by its Nth-best projected Legendary countdown once this can affect late strategy, or at log level 3 for diagnosis. Relative rank alone is insufficient (the logged Ottomans ranked 1/4 while still missing the game deadline), so behavior below also requires absolute feasibility. Players without enough qualifying cities remain visibly unranked. (ChatGPT-5.5 + GPT-5.5 review) -->
-	if ((iCultureLogLevel >= 3 || (!isHuman() && bLateCultureRace && iWinningCountdown < MAX_INT)) && kGame.culturalVictoryValid() && iVictoryCities > 0)
+	if ((iCultureLogLevel >= 3 || (!isHuman() && iMaxCultureRaceRank > 0 && bLateCultureRace && iWinningCountdown < MAX_INT)) && kGame.culturalVictoryValid() && iVictoryCities > 0)
 	{
 		iEligibleCultureRacePlayers = 0;
 		if (iWinningCountdown < MAX_INT)
@@ -26274,7 +26322,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			}
 			return 1;
 		}
-		if (iEligibleCultureRaceRank > std::max(0, iMaxCultureRaceRank))
+		// <!-- custom: Level-3 diagnostics can compute a positive race rank even when a nonpositive XML limit disables this behavior gate. Check the enable value explicitly so turning on logging cannot change AI strategy. (ChatGPT-5.5 review + GPT-5.5) -->
+		if (iMaxCultureRaceRank > 0 && iEligibleCultureRaceRank > iMaxCultureRaceRank)
 		{
 			if (bLogCultureStage)
 			{
@@ -26325,12 +26374,15 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 				iDemoninator += 70 * AI_atVictoryStage(AI_VICTORY_SPACE2);
 				iDemoninator += 80 * AI_atVictoryStage(AI_VICTORY_SPACE3);
 				iDemoninator += 50 * AI_atVictoryStage(AI_VICTORY_SPACE4);
-				if (AI_cultureVictoryTechValue(getCurrentResearch()) > 100)
+				int const iCultureVictoryTechValue = AI_cultureVictoryTechValue(getCurrentResearch());
+				if (iCultureVictoryTechValue > 100)
 					iDemoninator += 80;
-				if (AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
+				bool const bGetBetterUnits = AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS);
+				if (bGetBetterUnits)
 					iDemoninator += 80;
 				//if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0)
-				if(AI_isFocusWar()) // advc.105
+				bool const bFocusWar = AI_isFocusWar();
+				if(bFocusWar) // advc.105
 				{
 					iDemoninator += 50;
 					iDemoninator += 200 * AI_atVictoryStage(AI_VICTORY_MILITARY4);
@@ -26343,6 +26395,46 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 						getCultureVictoryWeight();
 				iCountdownTarget *= kGame.AI_getMaxCultureLevelPercent();
 				iCountdownTarget /= std::max(1, iDemoninator);
+				// <!-- custom: Diagnose candidate Culture 4 sprint windows without changing strategy. Use the actual best projected Legendary candidates for local-danger checks rather than every high-culture city, and log raw deadline, war, technology, and competing-victory context so later tuning can distinguish a safe cultural finish from a volatile or strategically inferior all-in attempt. (ChatGPT-5.5 + GPT-5.5 review) -->
+				if (iCultureLogLevel >= 2 && iCountdownThresh == -1)
+				{
+					int const iTurnsRemaining = std::max(0, kGame.getEstimateEndTurn() - kGame.getGameTurn());
+					static int const iMaxCultureDeadlinePercent = std::max(0, GC.getDefineINT("SAS_AI_CULTURE_VICTORY_MAX_DEADLINE_PERCENT"));
+					bool const bDeadlineOK = (iWinningCountdown < MAX_INT && (long long)100 * iWinningCountdown <= (long long)iMaxCultureDeadlinePercent * iTurnsRemaining);
+					int const iProjectedDeadlinePercent = (iWinningCountdown < MAX_INT && iTurnsRemaining > 0 ? (int)((long long)100 * iWinningCountdown / iTurnsRemaining) : -1);
+					bool const bEligibleRankOK = (iMaxCultureRaceRank <= 0 || iEligibleCultureRaceRank <= 0 || iEligibleCultureRaceRank <= iMaxCultureRaceRank);
+					AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+					int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+					int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+					int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+					int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+					bool const bCompetingVictoryPressure = (iSpaceStage >= 3 || iConquestStage >= 3 || iDominationStage >= 3 || iDiplomacyStage >= 3);
+					std::vector<std::pair<int,int> > candidateCountdownList;
+					candidateCountdownList.reserve(getNumCities());
+					FOR_EACH_CITYAI(pProbeCity, *this)
+					{
+						if (pProbeCity->getCultureLevel() >= kGame.culturalVictoryCultureLevel() - 1)
+						{
+							int iEstimatedRate = pProbeCity->getCommerceRate(COMMERCE_CULTURE);
+							iEstimatedRate += (100 - iGoldCommercePercent - getCommercePercent(COMMERCE_CULTURE)) * pProbeCity->getYieldRate(YIELD_COMMERCE) * pProbeCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+							int const iCountdown = (iLegendaryCulture - pProbeCity->getCulture(getID())) / std::max(1, iEstimatedRate);
+							candidateCountdownList.push_back(std::make_pair(iCountdown, pProbeCity->getID()));
+						}
+					}
+					std::sort(candidateCountdownList.begin(), candidateCountdownList.end());
+					int const iProjectedCandidateCount = std::min(iVictoryCities, (int)candidateCountdownList.size());
+					int iCandidateDangerCities = 0;
+					for (int i = 0; i < iProjectedCandidateCount; i++)
+					{
+						CvCityAI const* pCandidateCity = AI_getCity(candidateCountdownList[i].second);
+						if (pCandidateCity != NULL && pCandidateCity->AI_isDanger())
+							iCandidateDangerCities++;
+					}
+					bool const bCandidateSprintWindow = (iProjectedCandidateCount >= iVictoryCities && bDeadlineOK && bEligibleRankOK && !bCompetingVictoryPressure && iCandidateDangerCities <= 0 && !isAnarchy());
+					bool const bAtWar = (kTeam.getNumWars() > 0);
+					logBBAI("CULTURE_STAGE_C4_PROBE turn=%d player=%d %S winningCountdown=%d oldTarget=%d oldTargetMet=%d candidateSprintWindow=%d turnsRemaining=%d projectedDeadlinePercent=%d maxDeadlinePercent=%d eligibleRaceRank=%d/%d rankOK=%d high=%d close=%d legendary=%d needed=%d projectedCandidates=%d candidateDangerCities=%d warPlan=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d competingVictoryPressure=%d anarchy=%d culturePercent=%d cultureTechValue=%d getBetterUnits=%d",
+						kGame.getGameTurn(), getID(), getCivilizationShortDescription(), (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iCountdownTarget, (iWinningCountdown < iCountdownTarget), bCandidateSprintWindow, iTurnsRemaining, iProjectedDeadlinePercent, iMaxCultureDeadlinePercent, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, bEligibleRankOK, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, iProjectedCandidateCount, iCandidateDangerCities, bFocusWar, bAtWar, iEnemyPowerPercent, bEnemyStrong, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, bCompetingVictoryPressure, isAnarchy(), getCommercePercent(COMMERCE_CULTURE), iCultureVictoryTechValue, bGetBetterUnits);
+				}
 			}
 			if (iWinningCountdown < iCountdownTarget)
 			{
