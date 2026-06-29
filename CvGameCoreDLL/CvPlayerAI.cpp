@@ -2716,6 +2716,11 @@ void CvPlayerAI::AI_updateCommerceWeights()
 		int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
 		int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
 		int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+		CvTeamAI const& kTeam = GET_TEAM(getTeam());
+		bool const bAtWar = (kTeam.getNumWars() > 0);
+		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+		static int const iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
+		bool const bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 		VictoryTypes const eSpaceVictory = kGame.getSpaceVictory();
 		int const iSpaceCountdown = (eSpaceVictory == NO_VICTORY ? -1 : GET_TEAM(getTeam()).getVictoryCountdown(eSpaceVictory));
 		int iSpacePartsBuilt = 0;
@@ -2738,12 +2743,12 @@ void CvPlayerAI::AI_updateCommerceWeights()
 				}
 			}
 		}
-		logBBAI("CULTURE_WEIGHT_SUMMARY turn=%d player=%d %S stageFlags C1=%d C2=%d C3=%d C4=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d culturePercent=%d goldBreakEven=%d useRank=%d C3Mode=%d warPlans=%d anarchy=%d victoryCities=%d legendaryCities=%d legendaryThreshold=%d cities=%d currentBest=%d currentBottleneck=%d currentSpread=%d projectedBest=%d projectedBottleneck=%d projectedSpread=%d turnsRemaining=%d currentDeadlineMargin=%d projectedDeadlineMargin=%d apollo=%d spacePartsBuilt=%d spacePartsMinimum=%d spacePartsMaximum=%d spaceCountdown=%d empireProduction=%d",
+		logBBAI("CULTURE_WEIGHT_SUMMARY turn=%d player=%d %S stageFlags C1=%d C2=%d C3=%d C4=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d culturePercent=%d goldBreakEven=%d useRank=%d C3Mode=%d warPlans=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d anarchy=%d victoryCities=%d legendaryCities=%d legendaryThreshold=%d cities=%d currentBest=%d currentBottleneck=%d currentSpread=%d projectedBest=%d projectedBottleneck=%d projectedSpread=%d turnsRemaining=%d currentDeadlineMargin=%d projectedDeadlineMargin=%d apollo=%d spacePartsBuilt=%d spacePartsMinimum=%d spacePartsMaximum=%d spaceCountdown=%d empireProduction=%d",
 			kGame.getGameTurn(), getID(), getCivilizationShortDescription(),
 			AI_atVictoryStage(AI_VICTORY_CULTURE1), AI_atVictoryStage(AI_VICTORY_CULTURE2),
 			AI_atVictoryStage(AI_VICTORY_CULTURE3), AI_atVictoryStage(AI_VICTORY_CULTURE4),
 			iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage,
-			getCommercePercent(COMMERCE_CULTURE), iGoldCommercePercent, bUseCultureRank, bC3, bWarPlans, isAnarchy(),
+			getCommercePercent(COMMERCE_CULTURE), iGoldCommercePercent, bUseCultureRank, bC3, bWarPlans, bAtWar, iEnemyPowerPercent, bEnemyStrong, isAnarchy(),
 			iVictoryCities, iLegendaryCities, iLegendaryCulture, getNumCities(), iCurrentBestCountdown, iCurrentBottleneckCountdown, iCurrentSpread,
 			iProjectedBestCountdown, iProjectedBottleneckCountdown, iProjectedSpread,
 			iTurnsRemaining, iCurrentDeadlineMargin, iProjectedDeadlineMargin, bHasApollo, iSpacePartsBuilt, iSpacePartsMinimum, iSpacePartsMaximum,
@@ -26176,6 +26181,22 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		{
 			logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=cultureFoundationRaceBehind foundationCities=%d foundationCulture=%d foundationProgressPercent=%d foundationRaceRank=%d/%d maxRaceRank=%d weakestCandidateCulture=%d weakestCandidateProgressPercent=%d high=%d close=%d legendary=%d needed=%d",
 				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iCultureFoundationCities, iCultureFoundationCulture, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers, iMaxCultureRaceRank, iWeakestCandidateCulture, iWeakestCandidateProgressPercent, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+		}
+		return 1;
+	}
+	// <!-- custom: Reuse the player-wide SAS situation read here; city danger is intentionally absent because one threatened city should not veto an empire-wide victory strategy. Culture 2 diverts buildings, specialists, commerce, and production while the AI still needs to establish a plausible cultural win. Postpone that investment when current or chosen war enemies exceed our shared strong-enemy power threshold; retain Culture 1/local border culture, and preserve Culture 3/4 when all required cities already have credible high-culture countdowns so a close late win is not abandoned. (GPT-5.5) -->
+	CvTeamAI const& kTeam = GET_TEAM(getTeam());
+	bool const bWarPlan = AI_isFocusWar();
+	bool const bAtWar = (kTeam.getNumWars() > 0);
+	int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+	static int const iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
+	bool const bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+	if (!isHuman() && bEnemyStrong && iHighCultureCount < iVictoryCities)
+	{
+		if (bLogCultureStage)
+		{
+			logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=strongWarEnemy warPlan=%d atWar=%d enemyPowerPercent=%d strongEnemyThreshold=%d high=%d close=%d legendary=%d needed=%d foundationProgressPercent=%d foundationRaceRank=%d/%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, bWarPlan, bAtWar, iEnemyPowerPercent, iSAS_ENEMY_STRONG_POWER_THRESHOLD, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
 		}
 		return 1;
 	}
