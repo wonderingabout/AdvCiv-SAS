@@ -131,6 +131,12 @@ public:
 	int AI_commerceToProductionMultiplierShift() const; // advc
 	int AI_getCultureWeight() const { return m_iCultureWeight; } // K-Mod
 	void AI_setCultureWeight(int iWeight) { m_iCultureWeight = iWeight; } // K-Mod
+	// <!-- custom: BEGIN transient culture-victory city-state accessors for empire ranking and local process evaluation. (GPT-5.5) -->
+	int AI_getCultureVictoryRank() const { return m_iCultureVictoryRank; }
+	void AI_setCultureVictoryRank(int iRank) { m_iCultureVictoryRank = iRank; }
+	int AI_getCultureVictoryInvestmentPercent() const { return m_iCultureVictoryInvestmentPercent; }
+	void AI_setCultureVictoryInvestmentPercent(int iPercent) { m_iCultureVictoryInvestmentPercent = iPercent; }
+	// <!-- custom: END transient culture-victory city-state accessors. (GPT-5.5) -->
 	bool AI_needsCultureToWorkFullRadius() const; // advc
 
 	int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true) const;
@@ -159,6 +165,12 @@ public:
 protected:
 
 	int m_iCultureWeight; // K-Mod
+	// <!-- custom: BEGIN transient culture-victory city state. (GPT-5.5) -->
+	// <!-- custom: Transient projected culture-victory rank, refreshed with commerce weights and intentionally not serialized. It lets local process evaluation distinguish required Legendary candidates from unrelated cities without repeating the empire-wide ranking pass. (GPT-5.5) -->
+	int m_iCultureVictoryRank;
+	// <!-- custom: Transient victory-specific culture investment percentage after candidate balancing, also intentionally not serialized. Zero prevents a far-ahead candidate from using Culture process while preserving independent base/pressure culture value. (GPT-5.5) -->
+	int m_iCultureVictoryInvestmentPercent;
+	// <!-- custom: END transient culture-victory city state. (GPT-5.5) -->
 	int m_iEmphasizeAvoidGrowthCount;
 	int m_iEmphasizeGreatPeopleCount;
 	int m_iWorkersNeeded;

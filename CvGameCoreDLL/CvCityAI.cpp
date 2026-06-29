@@ -102,6 +102,9 @@ CvCityAI::CvCityAI() // advc.003u: Merged with AI_reset
 	AI_ClearConstructionValueCache(); // K-Mod
 
 	m_iCultureWeight = 30; // K-Mod
+	// <!-- custom: Initialize transient culture-victory targeting state; AI_updateCommerceWeights refreshes it for local process evaluation. (GPT-5.5) -->
+	m_iCultureVictoryRank = 0;
+	m_iCultureVictoryInvestmentPercent = 0;
 	m_iEmphasizeAvoidGrowthCount = 0;
 	m_iEmphasizeGreatPeopleCount = 0;
 	m_iWorkersNeeded = 0;
@@ -9083,6 +9086,21 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	bool bValid = (eCommerceType == NO_COMMERCE);
 	int iValue = 0;
+	// <!-- custom: Culture process was consuming major production in low-pressure cities outside the required Legendary candidates, even while a much faster Space victory was underway. Preserve first-ring expansion and strong local-border pressure, but otherwise reserve Culture process for active projected culture-victory candidates; general culture weight balancing handles how strongly each candidate should pursue it. (GPT-5.5) -->
+	static int const iCultureProcessMinPressureFactor = GC.getDefineINT("SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR");
+	bool const bConvertsProductionToCulture = (GC.getInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0);
+	int const iCulturePressureFactor = (bConvertsProductionToCulture ? AI_culturePressureFactor() : 0);
+	bool const bLocalCultureNeed = (getCultureLevel() <= 1 || iCulturePressureFactor >= iCultureProcessMinPressureFactor);
+	int const iVictoryCultureCities = GC.getGame().culturalVictoryNumCultureCities();
+	bool const bRequiredCultureVictoryCandidate = (kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2) && AI_getCultureVictoryRank() > 0 && AI_getCultureVictoryRank() <= iVictoryCultureCities && AI_getCultureVictoryInvestmentPercent() > 0);
+	bool const bSkipVictoryCultureProcess = (bConvertsProductionToCulture && !isHuman() && !bLocalCultureNeed && !bRequiredCultureVictoryCandidate);
+	if (bSkipVictoryCultureProcess && gCultureLogLevel >= 3)
+	{
+		logBBAI("CULTURE_PROCESS_SKIP turn=%d player=%d %S city=%S cityId=%d cultureLevel=%d pressureFactor=%d candidateRank=%d neededRank=%d victoryInvestmentPercent=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(),
+			getCultureLevel(), iCulturePressureFactor, AI_getCultureVictoryRank(), iVictoryCultureCities,
+			AI_getCultureVictoryInvestmentPercent());
+	}
 
 	/* if (GC.getInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD) && GET_PLAYER(getOwner()).AI_isFinancialTrouble())
 	{
@@ -9103,6 +9121,9 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
 
 	FOR_EACH_ENUM(Commerce)
 	{
+		// <!-- custom: Skip only culture conversion; a mixed-output process can retain any independently useful non-culture commerce. (GPT-5.5) -->
+		if (eLoopCommerce == COMMERCE_CULTURE && bSkipVictoryCultureProcess)
+			continue;
 		int iTempValue = GC.getInfo(eProcess).
 				getProductionToCommerceModifier(eLoopCommerce);
 		if (iTempValue == 0)

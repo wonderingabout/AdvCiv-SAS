@@ -1156,6 +1156,31 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS</DefineName>
 		<iDefineIntVal>99</iDefineIntVal>
 	</Define>
+	<!-- custom: Culture process beyond first-ring expansion is a local emergency tool only at or above this culture-pressure factor; otherwise an AI must be actively pursuing culture and the city must rank among the required projected Legendary candidates. Neutral pressure is 100; 150 preserves clearly contested/captured-city recovery while preventing low-pressure non-candidates from converting useful production. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: In the late culture race, downgrade to preparation rather than continue expensive Culture 2/3 investment when the projected slowest required city needs more than this percentage of the estimated remaining game turns. The 125% default allows output growth while rejecting paths already too far behind the deadline. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_MAX_DEADLINE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<!-- custom: Only this many leading cultural contenders continue Culture 2/3 investment. Before projected late-race countdowns are available, rank by actual culture in each player's N-1th-best foundation city so Culture 2 can still shape the final required candidate; later, also enforce projected countdown rank for the weakest required city. Lower-ranked AIs return to preparation and spend production, specialists, and commerce on stronger routes instead. (GPT-5.5 + ChatGPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_MAX_RACE_RANK</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Culture 2 commitment begins only after N-1 of the required projected candidates have reached this percentage of Legendary culture naturally. This prevents early strategy rolls from creating an entire cultural lead while still letting Culture 2 shape the final candidate; set to 0 to disable this foundation gate. (GPT-5.5 + ChatGPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_STAGE2_MIN_FOUNDATION_CITY_PROGRESS_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: A required candidate at or below this percentage of the slowest candidate's projected countdown receives zero victory-specific culture bonus; scale linearly from zero here to full at equal countdowns. This stops far-ahead cities from consuming culture investment needed by the bottleneck city. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_AHEAD_CITY_ZERO_BONUS_COUNTDOWN_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
 
 
 
