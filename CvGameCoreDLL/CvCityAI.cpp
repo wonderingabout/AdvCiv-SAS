@@ -335,6 +335,53 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 	if (!isHuman() || isCitizensAutomated())
 		AI_juggleCitizens(/* advc.131d: */ bEmphasize);
 
+	// <!-- custom: Map 437 showed Neapolis freely assigning 9-13 Artists despite no Culture 2 pursuit, negligible local culture pressure, culture weight 8-13, and military production; ChatGPT-5.5 review also identified high-investment candidates with zero Artists. At culture log level 3, compare specialist availability/value whenever Artists remain after final juggling or a city has positive balanced culture investment; emit direct Artist swaps only when an Artist is actually assigned. (GPT-5.5 + ChatGPT-5.5 review) -->
+	if (gCultureLogLevel >= 3 && !isHuman())
+	{
+		static SpecialistTypes const eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+		int const iArtistCount = getSpecialistCount(eArtist);
+		if (iArtistCount > 0 || AI_getCultureVictoryInvestmentPercent() > 0)
+		{
+			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+			int const iGrowthValue = AI_growthValuePerFood();
+			int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
+			int iForcedSpecialistCount = 0;
+			FOR_EACH_ENUM2(Specialist, eForcedSpecialist)
+				iForcedSpecialistCount += getForceSpecialistCount(eForcedSpecialist);
+			int iBestUnworkedPlotValue = MIN_INT;
+			CvPlot const* pBestUnworkedPlot = NULL;
+			for (CityPlotIter it(*this, false); it.hasNext(); ++it)
+			{
+				CvPlot const& kPlot = *it;
+				if (!isWorkingPlot(it.currID()) && canWork(kPlot))
+				{
+					int const iPlotValue = AI_plotValue(kPlot, false, false, iFoodSurplus >= 0, iGrowthValue);
+					if (iPlotValue > iBestUnworkedPlotValue)
+					{
+						iBestUnworkedPlotValue = iPlotValue;
+						pBestUnworkedPlot = &kPlot;
+					}
+				}
+			}
+			int const iArtistToBestPlotValue = (iArtistCount <= 0 || pBestUnworkedPlot == NULL ? MIN_INT : AI_jobChangeValue(std::make_pair(false, (int)getCityPlotIndex(*pBestUnworkedPlot)), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
+			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d focusWar=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), kOwner.AI_isFocusWar(), iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), getProductionName(), (pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
+			FOR_EACH_ENUM(Specialist)
+			{
+				int const iAssignedCount = getSpecialistCount(eLoopSpecialist);
+				bool const bCanAdd = isSpecialistValid(eLoopSpecialist, 1);
+				if (iAssignedCount <= 0 && !bCanAdd && eLoopSpecialist != eArtist)
+					continue;
+				CvSpecialistInfo const& kSpecialist = GC.getInfo(eLoopSpecialist);
+				UnitClassTypes const eGreatPersonClass = (UnitClassTypes)kSpecialist.getGreatPeopleUnitClass();
+				int const iGreatPersonWeight = (eGreatPersonClass == NO_UNITCLASS ? -1 : kOwner.AI_getGreatPersonWeight(eGreatPersonClass));
+				int const iArtistSwitchValue = (iArtistCount <= 0 ? MIN_INT : AI_jobChangeValue(std::make_pair(true, (int)eLoopSpecialist), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
+				logBBAI("CULTURE_ARTIST_ALTERNATIVE turn=%d player=%d cityId=%d specialist=%s assigned=%d forced=%d max=%d unlimited=%d canAdd=%d value=%d artistSwitchValue=%d food=%d production=%d commerceYield=%d research=%d gold=%d culture=%d espionage=%d greatPeopleRate=%d greatPersonWeight=%d",
+						GC.getGame().getGameTurn(), getOwner(), getID(), kSpecialist.getType(), iAssignedCount, getForceSpecialistCount(eLoopSpecialist), getMaxSpecialistCount(eLoopSpecialist), kOwner.isSpecialistValid(eLoopSpecialist), bCanAdd, AI_specialistValue(eLoopSpecialist, false, false, iGrowthValue), (iArtistSwitchValue == MIN_INT ? -1 : iArtistSwitchValue), kOwner.specialistYield(eLoopSpecialist, YIELD_FOOD), kOwner.specialistYield(eLoopSpecialist, YIELD_PRODUCTION), kOwner.specialistYield(eLoopSpecialist, YIELD_COMMERCE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_RESEARCH), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_GOLD), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE), kSpecialist.getGreatPeopleRateChange(), iGreatPersonWeight);
+			}
+		}
+	}
+
 	// at this point, we should not be over the limit
 	FAssert((getWorkingPopulation() + getSpecialistPopulation()) <= (totalFreeSpecialists() + getPopulation()));
 	FAssert(extraPopulation() == 0); // K-Mod.
@@ -759,6 +806,8 @@ void CvCityAI::AI_chooseProduction()
 	bool bCultureCity = false; //be very careful about setting this.
 	int const iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
 	int const iCulturalVictoryNumCultureCities = kGame.culturalVictoryNumCultureCities();
+	int const iCultureVictoryRank = AI_getCultureVictoryRank();
+	int const iCultureVictoryInvestmentPercent = AI_getCultureVictoryInvestmentPercent();
 
 	int const iWarSuccessRating = kTeam.AI_getWarSuccessRating();
 	int iEnemyPowerPerc = kTeam.AI_getEnemyPowerPercent(true);
@@ -850,13 +899,16 @@ void CvCityAI::AI_chooseProduction()
 	}
 	int iSettlerPriority = 0; // advc.031b
 
+	// <!-- custom: Map-437 diagnostics found inherited raw top-N+1 culture-rank protection applied to 14 of 21 logged cities with zero balanced culture investment and to 6 cities outside the stored top 3; Ravenna was protected at rank 4 without an assault override. Protect only required Legendary candidates with positive bottleneck-balanced investment, so backup, already-far-ahead, and non-candidate cities remain available for ordinary production. Keep logging the resulting role below for verification. (GPT-5.5 + ChatGPT-5.5 review) -->
 	if (iNumCitiesInArea > 2 &&
 		kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2) &&
-		iCultureRateRank <= iCulturalVictoryNumCultureCities + 1)
+		iCultureVictoryRank > 0 &&
+		iCultureVictoryRank <= iCulturalVictoryNumCultureCities &&
+		iCultureVictoryInvestmentPercent > 0)
 	{
 		/*	if we do not have enough cities, then the highest culture city
 			will not get special attention. */
-		if (iCultureRateRank > 1 ||
+		if (iCultureVictoryRank > 1 ||
 			iNumCities > iCulturalVictoryNumCultureCities + 1)
 		{
 			if (iNumAreaCitySites + iNumWaterAreaCitySites > 0 &&
@@ -866,6 +918,10 @@ void CvCityAI::AI_chooseProduction()
 			}
 			else bCultureCity = true;
 		}
+	}
+	if (gCultureLogLevel >= 2 && kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2))
+	{
+		logBBAI("CULTURE_PRODUCTION_ROLE turn=%d player=%d %S city=%S cityId=%d cultureRateRank=%d storedVictoryRank=%d neededRank=%d cultureInvestmentPercent=%d cultureCity=%d cities=%d citiesInArea=%d areaCitySites=%d waterAreaCitySites=%d landWar=%d assault=%d defenseWar=%d danger=%d", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationShortDescription(), getName().GetCString(), getID(), iCultureRateRank, iCultureVictoryRank, iCulturalVictoryNumCultureCities, iCultureVictoryInvestmentPercent, bCultureCity, iNumCities, iNumCitiesInArea, iNumAreaCitySites, iNumWaterAreaCitySites, bLandWar, bAssault, bDefenseWar, bDanger);
 	}
 
 	// Free experience for various unit domains

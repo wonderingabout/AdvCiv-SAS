@@ -2920,14 +2920,29 @@ void CvPlayerAI::AI_updateCommerceWeights()
 			// <!-- custom: Separate production conversion and assigned-specialist culture from fixed city culture. Free specialists remain excluded because the AI cannot reassign them; match CvCity's disorder, modifier, rounding, and No Espionage handling so these are exact times-100 contributions. (GPT-5.5) -->
 			int iProcessCultureTimes100 = 0;
 			int const iAssignedSpecialistCount = pCity->getSpecialistPopulation();
+			int iForcedSpecialistCount = 0;
+			int iAssignedSpecialistBaseFood = 0;
+			int iAssignedSpecialistBaseProduction = 0;
+			int iAssignedSpecialistBaseCommerceYield = 0;
+			int iAssignedSpecialistBaseResearch = 0;
+			int iAssignedSpecialistBaseGold = 0;
 			int iAssignedSpecialistBaseCulture = 0;
 			int iAssignedSpecialistBaseEspionage = 0;
 			FOR_EACH_ENUM(Specialist)
 			{
 				int const iSpecialistCount = pCity->getSpecialistCount(eLoopSpecialist);
+				iForcedSpecialistCount += pCity->getForceSpecialistCount(eLoopSpecialist);
+				iAssignedSpecialistBaseFood += iSpecialistCount * specialistYield(eLoopSpecialist, YIELD_FOOD);
+				iAssignedSpecialistBaseProduction += iSpecialistCount * specialistYield(eLoopSpecialist, YIELD_PRODUCTION);
+				iAssignedSpecialistBaseCommerceYield += iSpecialistCount * specialistYield(eLoopSpecialist, YIELD_COMMERCE);
+				iAssignedSpecialistBaseResearch += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_RESEARCH);
+				iAssignedSpecialistBaseGold += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_GOLD);
 				iAssignedSpecialistBaseCulture += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE);
 				iAssignedSpecialistBaseEspionage += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE);
 			}
+			static SpecialistTypes const eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+			int const iAssignedArtistCount = pCity->getSpecialistCount(eArtist);
+			int const iForcedArtistCount = pCity->getForceSpecialistCount(eArtist);
 			int iAssignedSpecialistCultureTimes100 = 0;
 			if (!pCity->isDisorder())
 			{
@@ -2949,15 +2964,8 @@ void CvPlayerAI::AI_updateCommerceWeights()
 			}
 			bool const bCultureProcess = (iProcessCultureTimes100 > 0);
 			int const iProductionTurns = (eProductionUnit != NO_UNIT || eProductionBuilding != NO_BUILDING || eProductionProject != NO_PROJECT ? pCity->getProductionTurnsLeft() : -1);
-			logBBAI("CULTURE_CITY_WEIGHT turn=%d player=%d %S city=%S cityId=%d rank=%d neededRank=%d victoryCandidate=%d victoryCountdownPercent=%d victoryBalancePercent=%d culture=%d/%d cultureRate=%d estimatedRate=%d currentCountdown=%d projectedCountdown=%d legendary=%d baseWeight=%d pressureFactor=%d pressureWeight=%d warPlans=%d finalWeight=%d useRank=%d C3Mode=%d production=%d productionRank=%d orderType=%s order=%S orderTurns=%d spaceship=%d cultureBuilding=%d cultureProcess=%d processCultureTimes100=%d assignedSpecialistCount=%d assignedSpecialistCultureTimes100=%d",
-				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), pCity->getName().GetCString(), pCity->getID(),
-				iCultureRateRank, iVictoryCities, (bAICultureVictory && iCultureRateRank <= iVictoryCities),
-				iCultureVictoryCountdownPercent, iCultureVictoryBalancePercent,
-				iCityCulture, iLegendaryCulture, iCityCultureRate, iEstimatedCultureRate,
-				iCurrentCountdown, iCountdown, (iCityCulture >= iLegendaryCulture), iBaseCultureWeight, iPressureFactor, iPressureWeight, bWarPlans,
-				iWeight, bUseCultureRank, bC3, pCity->getYieldRate(YIELD_PRODUCTION), pCity->findYieldRateRank(YIELD_PRODUCTION),
-				szProductionType, pCity->getProductionName(), iProductionTurns, bSpaceshipProject, bCultureBuilding, bCultureProcess,
-				iProcessCultureTimes100, iAssignedSpecialistCount, iAssignedSpecialistCultureTimes100);
+			logBBAI("CULTURE_CITY_WEIGHT turn=%d player=%d %S city=%S cityId=%d rank=%d neededRank=%d victoryCandidate=%d victoryCountdownPercent=%d victoryBalancePercent=%d culture=%d/%d cultureRate=%d estimatedRate=%d currentCountdown=%d projectedCountdown=%d legendary=%d baseWeight=%d pressureFactor=%d pressureWeight=%d warPlans=%d finalWeight=%d useRank=%d C3Mode=%d production=%d productionRank=%d orderType=%s order=%S orderTurns=%d spaceship=%d cultureBuilding=%d cultureProcess=%d processCultureTimes100=%d assignedSpecialistCount=%d forcedSpecialistCount=%d assignedArtistCount=%d forcedArtistCount=%d assignedSpecialistBaseFood=%d assignedSpecialistBaseProduction=%d assignedSpecialistBaseCommerceYield=%d assignedSpecialistBaseResearch=%d assignedSpecialistBaseGold=%d assignedSpecialistBaseCulture=%d assignedSpecialistBaseEspionage=%d assignedSpecialistCultureTimes100=%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), pCity->getName().GetCString(), pCity->getID(), iCultureRateRank, iVictoryCities, (bAICultureVictory && iCultureRateRank <= iVictoryCities), iCultureVictoryCountdownPercent, iCultureVictoryBalancePercent, iCityCulture, iLegendaryCulture, iCityCultureRate, iEstimatedCultureRate, iCurrentCountdown, iCountdown, (iCityCulture >= iLegendaryCulture), iBaseCultureWeight, iPressureFactor, iPressureWeight, bWarPlans, iWeight, bUseCultureRank, bC3, pCity->getYieldRate(YIELD_PRODUCTION), pCity->findYieldRateRank(YIELD_PRODUCTION), szProductionType, pCity->getProductionName(), iProductionTurns, bSpaceshipProject, bCultureBuilding, bCultureProcess, iProcessCultureTimes100, iAssignedSpecialistCount, iForcedSpecialistCount, iAssignedArtistCount, iForcedArtistCount, iAssignedSpecialistBaseFood, iAssignedSpecialistBaseProduction, iAssignedSpecialistBaseCommerceYield, iAssignedSpecialistBaseResearch, iAssignedSpecialistBaseGold, iAssignedSpecialistBaseCulture, iAssignedSpecialistBaseEspionage, iAssignedSpecialistCultureTimes100);
 		}
 		pCity->AI_setCultureVictoryInvestmentPercent(bAICultureVictory && iCultureRateRank <= iVictoryCities ? std::max(0, iCultureVictoryBalancePercent) : 0);
 		pCity->AI_setCultureWeight(iWeight);
