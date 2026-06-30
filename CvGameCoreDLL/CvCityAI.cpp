@@ -13847,6 +13847,74 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 			// else we're done.
 		}
 
+		// <!-- custom: If K-Mod's fast approximate prefilter gives up, try one guarded direct plot-to-plot fallback.
+		// The raw 3F + 2H + 1C diagnostic proved too naive for final behavior, but it is useful as a cheap suspicion filter.
+		// Only plot pairs that are strict yield upgrades, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
+		// Apply at most one swap, then recalculate. (ChatGPT-5.5 + GPT-5.5) -->
+		if (!bTakeNewJob && !isHuman())
+		{
+			bool const bLogCitizenFallback = (gCitizenLogLevel >= 2);
+			std::vector<PotentialJob_t>::iterator bestFallbackWorked = worked_jobs.end();
+			std::vector<PotentialJob_t>::iterator bestFallbackUnworked = unworked_jobs.end();
+			int iBestFallbackValue = 0;
+			int iBestFallbackRaw321Delta = 0;
+			char const* szBestFallbackReason = NULL;
+			for (std::vector<PotentialJob_t>::iterator workedFallback = worked_jobs.begin(); workedFallback != worked_jobs.end(); ++workedFallback)
+			{
+				if (workedFallback->second.first)
+					continue;
+				CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)workedFallback->second.second);
+				for (std::vector<PotentialJob_t>::iterator unworkedFallback = unworked_jobs.begin(); unworkedFallback != unworked_jobs.end(); ++unworkedFallback)
+				{
+					if (unworkedFallback->second.first || unworkedFallback->first > workedFallback->first)
+						continue;
+					CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)unworkedFallback->second.second);
+					int const iFoodDelta = kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD);
+					int const iProductionDelta = kUnworkedPlot.getYield(YIELD_PRODUCTION) - kWorkedPlot.getYield(YIELD_PRODUCTION);
+					int const iCommerceDelta = kUnworkedPlot.getYield(YIELD_COMMERCE) - kWorkedPlot.getYield(YIELD_COMMERCE);
+					bool const bStrictYieldUpgrade = (iFoodDelta >= 0 && iProductionDelta >= 0 && iCommerceDelta >= 0 && (iFoodDelta > 0 || iProductionDelta > 0 || iCommerceDelta > 0));
+					int const iRaw321Delta = 3 * iFoodDelta + 2 * iProductionDelta + iCommerceDelta;
+					bool const bLargeFoodCommerceGain = (iFoodDelta >= 2 && iCommerceDelta >= 3 && iProductionDelta >= -3);
+					bool const bLargeRawGainWithoutFoodLoss = (iFoodDelta >= 0 && iProductionDelta >= -2 && iRaw321Delta >= 4);
+					if (!bStrictYieldUpgrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
+						continue;
+
+					if (iFoodPerTurn + kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD) + iStarvingAllowance < 0)
+						continue;
+					if (std::find(new_jobs.begin(), new_jobs.end(), workedFallback->second) != new_jobs.end())
+						continue;
+
+					int const iContextValue = AI_jobChangeValue(unworkedFallback->second, workedFallback->second, false, false, iGrowthValue);
+					if (iContextValue > iBestFallbackValue)
+					{
+						iBestFallbackValue = iContextValue;
+						if (bLogCitizenFallback)
+						{
+							iBestFallbackRaw321Delta = iRaw321Delta;
+							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS"));
+						}
+						bestFallbackWorked = workedFallback;
+						bestFallbackUnworked = unworkedFallback;
+					}
+				}
+			}
+			if (bestFallbackWorked != worked_jobs.end())
+			{
+				worked_it = bestFallbackWorked;
+				unworked_it = bestFallbackUnworked;
+				bTakeNewJob = true;
+				if (bLogCitizenFallback)
+				{
+					CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)worked_it->second.second);
+					CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)unworked_it->second.second);
+					logBBAI("CITIZEN_CONTEXT_FALLBACK_TAKE turn=%d player=%d %S city=%S cityId=%d fallbackReason=%s raw321Delta=%d contextValue=%d approximateDelta=%d oldPlot=(%d,%d) oldFood=%d oldProduction=%d oldCommerce=%d newPlot=(%d,%d) newFood=%d newProduction=%d newCommerce=%d",
+							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationShortDescription(), getName().GetCString(), getID(), szBestFallbackReason, iBestFallbackRaw321Delta, iBestFallbackValue, unworked_it->first - worked_it->first,
+							kWorkedPlot.getX(), kWorkedPlot.getY(), kWorkedPlot.getYield(YIELD_FOOD), kWorkedPlot.getYield(YIELD_PRODUCTION), kWorkedPlot.getYield(YIELD_COMMERCE),
+							kUnworkedPlot.getX(), kUnworkedPlot.getY(), kUnworkedPlot.getYield(YIELD_FOOD), kUnworkedPlot.getYield(YIELD_PRODUCTION), kUnworkedPlot.getYield(YIELD_COMMERCE));
+				}
+			}
+		}
+
 		if (!bTakeNewJob)
 		{
 			// <!-- custom: K-Mod orders candidate jobs by approximate standalone values and stops before contextual
