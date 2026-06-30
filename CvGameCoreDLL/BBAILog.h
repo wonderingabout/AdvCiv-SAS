@@ -18,6 +18,7 @@ bool isSASBBAILogMasterEnabled();
 int getSASBBAIPlayerLogLevel();
 int getSASBBAITeamLogLevel();
 int getSASBBAICityLogLevel();
+int getSASBBAICitizenLogLevel();
 int getSASBBAIUnitLogLevel();
 int getSASBBAIWorkerLogLevel();
 int getSASBBAIWorkerSeaLogLevel();
@@ -32,6 +33,7 @@ int getSASBBAIScoreLogInterval();
 #define gScoreLogInterval getSASBBAIScoreLogInterval() // advc.007: was hardcoded to 25 in CvPlayer::onTurnLogging
 #define gTeamLogLevel getSASBBAITeamLogLevel()
 #define gCityLogLevel getSASBBAICityLogLevel()
+#define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Citizen-assignment and plot-allocation diagnostics. (GPT-5.5) -->
 #define gUnitLogLevel getSASBBAIUnitLogLevel()
 #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: New Land-worker BBAI log level for Worker AI. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: New Worker-sea/Work Boat BBAI log level for WORKER_SEA AI. (ChatGPT-5.5 + GPT-5.5 review) -->

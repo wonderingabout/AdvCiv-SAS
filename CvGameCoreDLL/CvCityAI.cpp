@@ -13849,6 +13849,103 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 
 		if (!bTakeNewJob)
 		{
+			// <!-- custom: K-Mod orders candidate jobs by approximate standalone values and stops before contextual
+			// AI_jobChangeValue comparisons once the best unworked approximation is no better than the worst worked one.
+			// At citizen log level 3, audit the final allocation for positive contextual swaps hidden by that prefilter.
+			// Also report the strongest non-upgrading plot disagreement under the deliberately simple diagnostic score
+			// 3F + 2H + 1C; this second signal is not itself proof of a bad assignment because city priorities still matter. (GPT-5.5) -->
+			if (gCitizenLogLevel >= 3 && !isHuman())
+			{
+				PotentialJob_t const* pBestMissedWorkedJob = NULL;
+				PotentialJob_t const* pBestMissedUnworkedJob = NULL;
+				int iBestMissedContextValue = 0;
+				int iMissedContextCount = 0;
+				PotentialJob_t const* pBestRawWorkedJob = NULL;
+				PotentialJob_t const* pBestRawUnworkedJob = NULL;
+				int iBestRawDelta = 0;
+				int iBestRawContextValue = 0;
+				int iRawSuspectCount = 0;
+				for (std::vector<PotentialJob_t>::const_iterator workedAudit = worked_jobs.begin(); workedAudit != worked_jobs.end(); ++workedAudit)
+				{
+					for (std::vector<PotentialJob_t>::const_iterator unworkedAudit = unworked_jobs.begin(); unworkedAudit != unworked_jobs.end(); ++unworkedAudit)
+					{
+						if (workedAudit->second == unworkedAudit->second)
+							continue;
+						int iContextValue = MIN_INT;
+						bool const bHiddenByApproximatePrefilter = (unworkedAudit->first <= workedAudit->first);
+						if (bHiddenByApproximatePrefilter)
+						{
+							int const iCurrentFood = (workedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)workedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)workedAudit->second.second)->getYield(YIELD_FOOD));
+							int const iNextFood = (unworkedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworkedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)unworkedAudit->second.second)->getYield(YIELD_FOOD));
+							bool const bWouldStarve = (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0);
+							bool const bWouldRemoveFreeSpecialist = (workedAudit->second.first && !unworkedAudit->second.first && getSpecialistPopulation() <= iTotalFreeSpecialists);
+							bool const bWouldBreakForcedSpecialist = ((bForcedSpecAvailable || (workedAudit->second.first && getForceSpecialistCount((SpecialistTypes)workedAudit->second.second) > 0)) && unworkedAudit->second.first && getForceSpecialistCount((SpecialistTypes)unworkedAudit->second.second) == 0);
+							bool const bWouldUndoJuggleJob = (std::find(new_jobs.begin(), new_jobs.end(), workedAudit->second) != new_jobs.end());
+							if (!bWouldStarve && !bWouldRemoveFreeSpecialist && !bWouldBreakForcedSpecialist && !bWouldUndoJuggleJob)
+							{
+								iContextValue = AI_jobChangeValue(unworkedAudit->second, workedAudit->second, false, false, iGrowthValue);
+								if (iContextValue > 0)
+								{
+									iMissedContextCount++;
+									if (iContextValue > iBestMissedContextValue)
+									{
+										iBestMissedContextValue = iContextValue;
+										pBestMissedWorkedJob = &*workedAudit;
+										pBestMissedUnworkedJob = &*unworkedAudit;
+									}
+								}
+							}
+						}
+						if (!workedAudit->second.first && !unworkedAudit->second.first)
+						{
+							CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)workedAudit->second.second);
+							CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)unworkedAudit->second.second);
+							ImprovementTypes const eWorkedImprovement = kWorkedPlot.getImprovementType();
+							bool const bWorkedImprovementUpgrades = (eWorkedImprovement != NO_IMPROVEMENT && GC.getInfo(eWorkedImprovement).getImprovementUpgrade() != NO_IMPROVEMENT);
+							int const iWorkedRawScore = 3 * kWorkedPlot.getYield(YIELD_FOOD) + 2 * kWorkedPlot.getYield(YIELD_PRODUCTION) + kWorkedPlot.getYield(YIELD_COMMERCE);
+							int const iUnworkedRawScore = 3 * kUnworkedPlot.getYield(YIELD_FOOD) + 2 * kUnworkedPlot.getYield(YIELD_PRODUCTION) + kUnworkedPlot.getYield(YIELD_COMMERCE);
+							int const iRawDelta = iUnworkedRawScore - iWorkedRawScore;
+							if (!bWorkedImprovementUpgrades && iRawDelta > 0)
+							{
+								if (iContextValue == MIN_INT)
+									iContextValue = AI_jobChangeValue(unworkedAudit->second, workedAudit->second, false, false, iGrowthValue);
+								iRawSuspectCount++;
+								if (iRawDelta > iBestRawDelta)
+								{
+									iBestRawDelta = iRawDelta;
+									iBestRawContextValue = iContextValue;
+									pBestRawWorkedJob = &*workedAudit;
+									pBestRawUnworkedJob = &*unworkedAudit;
+								}
+							}
+						}
+					}
+				}
+				if (pBestMissedWorkedJob != NULL)
+				{
+					bool const bWorkedSpecialist = pBestMissedWorkedJob->second.first;
+					bool const bUnworkedSpecialist = pBestMissedUnworkedJob->second.first;
+					CvPlot const* pWorkedPlot = (bWorkedSpecialist ? NULL : getCityIndexPlot((CityPlotTypes)pBestMissedWorkedJob->second.second));
+					CvPlot const* pUnworkedPlot = (bUnworkedSpecialist ? NULL : getCityIndexPlot((CityPlotTypes)pBestMissedUnworkedJob->second.second));
+					SpecialistTypes const eWorkedSpecialist = (bWorkedSpecialist ? (SpecialistTypes)pBestMissedWorkedJob->second.second : NO_SPECIALIST);
+					SpecialistTypes const eUnworkedSpecialist = (bUnworkedSpecialist ? (SpecialistTypes)pBestMissedUnworkedJob->second.second : NO_SPECIALIST);
+					logBBAI("CITIZEN_CONTEXT_SWAP_MISSED turn=%d player=%d %S city=%S cityId=%d missedPairs=%d contextValue=%d approximateDelta=%d oldJob=%s oldIndex=%d oldX=%d oldY=%d oldFood=%d oldProduction=%d oldCommerce=%d newJob=%s newIndex=%d newX=%d newY=%d newFood=%d newProduction=%d newCommerce=%d",
+							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationShortDescription(), getName().GetCString(), getID(), iMissedContextCount, iBestMissedContextValue, pBestMissedUnworkedJob->first - pBestMissedWorkedJob->first,
+							(bWorkedSpecialist ? GC.getInfo(eWorkedSpecialist).getType() : "PLOT"), pBestMissedWorkedJob->second.second, (pWorkedPlot == NULL ? -1 : pWorkedPlot->getX()), (pWorkedPlot == NULL ? -1 : pWorkedPlot->getY()), (bWorkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eWorkedSpecialist, YIELD_FOOD) : pWorkedPlot->getYield(YIELD_FOOD)), (bWorkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eWorkedSpecialist, YIELD_PRODUCTION) : pWorkedPlot->getYield(YIELD_PRODUCTION)), (bWorkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eWorkedSpecialist, YIELD_COMMERCE) : pWorkedPlot->getYield(YIELD_COMMERCE)),
+							(bUnworkedSpecialist ? GC.getInfo(eUnworkedSpecialist).getType() : "PLOT"), pBestMissedUnworkedJob->second.second, (pUnworkedPlot == NULL ? -1 : pUnworkedPlot->getX()), (pUnworkedPlot == NULL ? -1 : pUnworkedPlot->getY()), (bUnworkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eUnworkedSpecialist, YIELD_FOOD) : pUnworkedPlot->getYield(YIELD_FOOD)), (bUnworkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eUnworkedSpecialist, YIELD_PRODUCTION) : pUnworkedPlot->getYield(YIELD_PRODUCTION)), (bUnworkedSpecialist ? GET_PLAYER(getOwner()).specialistYield(eUnworkedSpecialist, YIELD_COMMERCE) : pUnworkedPlot->getYield(YIELD_COMMERCE)));
+				}
+				if (pBestRawWorkedJob != NULL)
+				{
+					CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)pBestRawWorkedJob->second.second);
+					CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)pBestRawUnworkedJob->second.second);
+					ImprovementTypes const eWorkedImprovement = kWorkedPlot.getImprovementType();
+					ImprovementTypes const eUnworkedImprovement = kUnworkedPlot.getImprovementType();
+					logBBAI("CITIZEN_RAW_PLOT_SUSPECT turn=%d player=%d %S city=%S cityId=%d suspectPairs=%d raw321Delta=%d contextValue=%d approximateDelta=%d oldPlot=(%d,%d) oldFood=%d oldProduction=%d oldCommerce=%d oldImprovement=%s newPlot=(%d,%d) newFood=%d newProduction=%d newCommerce=%d newImprovement=%s",
+							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationShortDescription(), getName().GetCString(), getID(), iRawSuspectCount, iBestRawDelta, iBestRawContextValue, pBestRawUnworkedJob->first - pBestRawWorkedJob->first,
+							kWorkedPlot.getX(), kWorkedPlot.getY(), kWorkedPlot.getYield(YIELD_FOOD), kWorkedPlot.getYield(YIELD_PRODUCTION), kWorkedPlot.getYield(YIELD_COMMERCE), (eWorkedImprovement == NO_IMPROVEMENT ? "NONE" : GC.getInfo(eWorkedImprovement).getType()),
+							kUnworkedPlot.getX(), kUnworkedPlot.getY(), kUnworkedPlot.getYield(YIELD_FOOD), kUnworkedPlot.getYield(YIELD_PRODUCTION), kUnworkedPlot.getYield(YIELD_COMMERCE), (eUnworkedImprovement == NO_IMPROVEMENT ? "NONE" : GC.getInfo(eUnworkedImprovement).getType()));
+				}
+			}
 			bDone = true; // no more job swaps. So we're finished.
 		}
 		else

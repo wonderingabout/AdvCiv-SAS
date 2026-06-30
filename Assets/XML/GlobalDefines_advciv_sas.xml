@@ -1211,6 +1211,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. Use 0 outside targeted tests because exhaustive pair comparisons are intentionally expensive. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: New dedicated culture-victory BBAI diagnostics following the shared log-level classification above, without enabling broad player/city logs. Use this to diagnose AI cultural-victory overinvestment, uneven Legendary-city targeting, production opportunity costs, and hopeless culture attempts before changing behavior. (ChatGPT-5.5 + GPT-5.5 review) -->
 	<Define>
 		<DefineName>SAS_BBAI_CULTURE_LOG_LEVEL</DefineName>
