@@ -375,7 +375,7 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 				CvSpecialistInfo const& kSpecialist = GC.getInfo(eLoopSpecialist);
 				UnitClassTypes const eGreatPersonClass = (UnitClassTypes)kSpecialist.getGreatPeopleUnitClass();
 				int const iGreatPersonWeight = (eGreatPersonClass == NO_UNITCLASS ? -1 : kOwner.AI_getGreatPersonWeight(eGreatPersonClass));
-				int const iArtistSwitchValue = (iArtistCount <= 0 ? MIN_INT : AI_jobChangeValue(std::make_pair(true, (int)eLoopSpecialist), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
+				int const iArtistSwitchValue = (iAssignedCount <= 0 || eLoopSpecialist == eArtist ? MIN_INT : AI_jobChangeValue(std::make_pair(true, (int)eArtist), std::make_pair(true, (int)eLoopSpecialist), false, false, iGrowthValue));
 				logBBAI("CULTURE_ARTIST_ALTERNATIVE turn=%d player=%d cityId=%d specialist=%s assigned=%d forced=%d max=%d unlimited=%d canAdd=%d value=%d artistSwitchValue=%d food=%d production=%d commerceYield=%d research=%d gold=%d culture=%d espionage=%d greatPeopleRate=%d greatPersonWeight=%d",
 						GC.getGame().getGameTurn(), getOwner(), getID(), kSpecialist.getType(), iAssignedCount, getForceSpecialistCount(eLoopSpecialist), getMaxSpecialistCount(eLoopSpecialist), kOwner.isSpecialistValid(eLoopSpecialist), bCanAdd, AI_specialistValue(eLoopSpecialist, false, false, iGrowthValue), (iArtistSwitchValue == MIN_INT ? -1 : iArtistSwitchValue), kOwner.specialistYield(eLoopSpecialist, YIELD_FOOD), kOwner.specialistYield(eLoopSpecialist, YIELD_PRODUCTION), kOwner.specialistYield(eLoopSpecialist, YIELD_COMMERCE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_RESEARCH), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_GOLD), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE), kSpecialist.getGreatPeopleRateChange(), iGreatPersonWeight);
 			}
@@ -804,7 +804,6 @@ void CvCityAI::AI_chooseProduction()
 
 	// advc: Renamed from bImportantCity
 	bool bCultureCity = false; //be very careful about setting this.
-	int const iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
 	int const iCulturalVictoryNumCultureCities = kGame.culturalVictoryNumCultureCities();
 	int const iCultureVictoryRank = AI_getCultureVictoryRank();
 	int const iCultureVictoryInvestmentPercent = AI_getCultureVictoryInvestmentPercent();
@@ -921,6 +920,7 @@ void CvCityAI::AI_chooseProduction()
 	}
 	if (gCultureLogLevel >= 2 && kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2))
 	{
+		int const iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
 		logBBAI("CULTURE_PRODUCTION_ROLE turn=%d player=%d %S city=%S cityId=%d cultureRateRank=%d storedVictoryRank=%d neededRank=%d cultureInvestmentPercent=%d cultureCity=%d cities=%d citiesInArea=%d areaCitySites=%d waterAreaCitySites=%d landWar=%d assault=%d defenseWar=%d danger=%d", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationShortDescription(), getName().GetCString(), getID(), iCultureRateRank, iCultureVictoryRank, iCulturalVictoryNumCultureCities, iCultureVictoryInvestmentPercent, bCultureCity, iNumCities, iNumCitiesInArea, iNumAreaCitySites, iNumWaterAreaCitySites, bLandWar, bAssault, bDefenseWar, bDanger);
 	}
 
@@ -15007,9 +15007,8 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility -->
 			// <!-- custom: update: generalizing the previous is "grow when you can instead of assigning any specialist" policy below now to all bigger sized cities without population cap anymore, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots -->
 			// <!-- custom: also note: on the plus side as well, not having to think about specialists at all in some conditions will probably save quite a lot or a bit at least if i may say of computation as well as a nice side effect too hopefully while preserving versatility or preserving it enough and assuming our change works as intended (would need to test more to be sure)-->
-			// strict growth-first rule for small-but-not-tiny cities with headroom
-			// Block *hiring* specialists when: pop >= 7, net happy ≥ 1, food surplus ≥ 2,
-			// and we're NOT in food→production mode (Settlers/Workers).
+			// <!-- custom: For cities above population 4, preserve the growth-first rule by blocking a new specialist hire when net happiness is >= 1, food surplus is >= 2, and food is not being converted into Settler/Worker production.
+			// Still allow specialist-to-specialist swaps because they do not reduce worked population. (ChatGPT-5.5 + GPT-5.5) -->
 			// <!-- custom: update: generalizing this "grow when you can instead of assigning any specialist" policy, as some cities still are inefficiently stagnant when they could have grown first instead, see known issue as of now 45 for details with screenshots -->
 			// else if (iCityPopulation <= 7 && !isFoodProduction() && (iHappySurplus >= 1))
 			else
@@ -15020,7 +15019,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 				{
 					int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
 
-					if (iFoodSurplus >= 2 && new_job.first)
+					if (iFoodSurplus >= 2 && new_job.first && !old_job.first)
 					{
 						return iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
 					}

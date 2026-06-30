@@ -201,8 +201,9 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
 #### Specialists (AI)
 
 - Never pick **Citizen** specialist (very inefficient). Implemented in `CvCityAI::AI_jobChangeValue`. See [KI#44.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary).
-- Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist).
-- Exception to the previous rule, and AI enhancement: If a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
+- Add **sanity guards**: in small cities (and larger ones with headroom), don’t newly assign specialists until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist).
+- (Requires AdvCiv-SAS 5987+) Update: existing specialists **can still switch to a better specialist type** because doing so **does not reduce worked population or growth**. BBAI culture diagnostics exposed this when Barcelona had 8 existing Priests/Merchants but the growth guard forbade considering any switch between specialist types; normal valuation can now compare them and choose another type (e.g. Artist, Engineer, Scientist) when better.
+- Exception to the sanity guards rule, and AI enhancement: if a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
 
 #### Civics (AI)
 
