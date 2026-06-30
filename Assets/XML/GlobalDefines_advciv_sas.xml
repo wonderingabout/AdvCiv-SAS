@@ -1166,7 +1166,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: In the late culture race, downgrade to preparation rather than continue expensive Culture 2/3 investment when the projected slowest required city needs more than this percentage of the estimated remaining game turns. The 125% default allows output growth while rejecting paths already too far behind the deadline. (GPT-5.5) -->
+	<!-- custom: Downgrade to preparation rather than continue expensive Culture 2/3 investment when a complete max-affordable-slider projection for all required culture cities needs more than this percentage of the estimated remaining game turns. The 125% default allows output growth while rejecting paths already too far behind the deadline. Before a complete projection exists, apply this only in the late culture race so Culture 2 can still develop its final candidate. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_CULTURE_VICTORY_MAX_DEADLINE_PERCENT</DefineName>
 		<iDefineIntVal>125</iDefineIntVal>

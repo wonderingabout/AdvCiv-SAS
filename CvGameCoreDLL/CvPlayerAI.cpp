@@ -26308,22 +26308,23 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 				getCurrentEra(), iEraThresholdPercent, getCommercePercent(COMMERCE_CULTURE), getNumCities());
 		}
 	}
-	// <!-- custom: Late Culture 2/3 caused production, specialists, and commerce to chase an implausible win merely because enough cities had high culture. Downgrade to Culture 1 preparation when the max-slider projection is absent/too late or the AI trails more eligible contenders than the configured rank; local border culture remains valued independently. (GPT-5.5) -->
-	if (!isHuman() && bLateCultureRace && kGame.culturalVictoryValid())
+	// <!-- custom: Culture 2/3 caused production, specialists, and commerce to chase implausible wins. Once all required cities have reached the level below Legendary, their complete max-affordable-slider projection is meaningful enough to reject a deadline miss immediately; map 437 showed Rome continuing Culture 2 with a 347-409-turn projection and only 193-207 estimated turns remaining. Before a complete projection exists, retain Culture 2 setup until the late-race phase; only then reject a missing projection too. Relative-race ranking also remains late-only, and local border culture remains valued independently. (GPT-5.5) -->
+	if (!isHuman() && kGame.culturalVictoryValid() && (bLateCultureRace || iWinningCountdown < MAX_INT))
 	{
 		static int const iMaxCultureDeadlinePercent = GC.getDefineINT("SAS_AI_CULTURE_VICTORY_MAX_DEADLINE_PERCENT");
 		int const iTurnsRemaining = std::max(0, kGame.getEstimateEndTurn() - kGame.getGameTurn());
-		if (iWinningCountdown == MAX_INT || 100 * iWinningCountdown > std::max(0, iMaxCultureDeadlinePercent) * iTurnsRemaining)
+		bool const bWinningCountdownAvailable = (iWinningCountdown < MAX_INT);
+		if (!bWinningCountdownAvailable || (long long)100 * iWinningCountdown > (long long)std::max(0, iMaxCultureDeadlinePercent) * iTurnsRemaining)
 		{
 			if (bLogCultureStage)
 			{
-				logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=lateCultureDeadlineMiss winningCountdown=%d turnsRemaining=%d maxDeadlinePercent=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d",
-					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iTurnsRemaining, iMaxCultureDeadlinePercent, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+				logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=cultureDeadlineMiss winningCountdown=%d projectionAvailable=%d lateRace=%d turnsRemaining=%d maxDeadlinePercent=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d",
+					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, (bWinningCountdownAvailable ? iWinningCountdown : -1), bWinningCountdownAvailable, bLateCultureRace, iTurnsRemaining, iMaxCultureDeadlinePercent, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 			}
 			return 1;
 		}
 		// <!-- custom: Level-3 diagnostics can compute a positive race rank even when a nonpositive XML limit disables this behavior gate. Check the enable value explicitly so turning on logging cannot change AI strategy. (ChatGPT-5.5 review + GPT-5.5) -->
-		if (iMaxCultureRaceRank > 0 && iEligibleCultureRaceRank > iMaxCultureRaceRank)
+		if (bLateCultureRace && iMaxCultureRaceRank > 0 && iEligibleCultureRaceRank > iMaxCultureRaceRank)
 		{
 			if (bLogCultureStage)
 			{
